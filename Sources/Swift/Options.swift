@@ -1,4 +1,5 @@
 // swiftlint:disable file_length
+/// Configuration options for the Sentry SDK.
 @objc(SentryOptions) public final class Options: NSObject {
     
     @objc public override init() {
@@ -96,7 +97,7 @@
     /// It's crucial for developers to understand that the OS sends a SIGTERM to their app as a prelude
     /// to a graceful shutdown, before resorting to a SIGKILL. This SIGKILL, which your app can't catch
     /// or ignore, is a direct order to terminate your app's process immediately. Developers should be
-    /// aware that their app can receive a SIGTERM in various scenarios, such as  CPU or disk overuse,
+    /// aware that their app can receive a SIGTERM in various scenarios, such as CPU or disk overuse,
     /// watchdog terminations, or when the OS updates your app.
     ///
     /// @note The default value is @c false.
@@ -309,6 +310,7 @@
     /// @note The default is @c true.
     @objc public var enableReportNonFullyBlockingAppHangs: Bool = true
     
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public func isAppHangTrackingDisabled() -> Bool {
         !enableAppHangTracking || appHangTimeoutInterval <= 0
     }
@@ -317,6 +319,7 @@
     
     #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
     
+    /// Configuration options for Session Replay.
     @objc public var sessionReplay = SentryReplayOptions()
 
     #endif
@@ -441,16 +444,19 @@
             }
         }
     }
+
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public var profiling: SentryProfileOptions?
     
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public func isContinuousProfilingEnabled() -> Bool {
         profiling != nil
     }
 
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public func isProfilingCorrelatedToTraces() -> Bool {
         profiling?.lifecycle == .trace
     }
-
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     
     /// Whether to send client reports, which contain statistics about discarded events.
@@ -608,11 +614,15 @@
     /// https://spotlightjs.com/
     @objc public var spotlightUrl = "http://localhost:8969/stream"
 
+    /// Options for experimental features that are subject to change.
     @objc public var experimental = SentryExperimentalOptions()
     
 #if os(iOS) && !SENTRY_NO_UIKIT
     
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public var userFeedbackConfiguration: SentryUserFeedbackConfiguration?
+    
+    /// A block that configures the user feedback feature.
     @available(iOSApplicationExtension, unavailable)
     @objc public var configureUserFeedback: ((SentryUserFeedbackConfiguration) -> Void)? {
         didSet {
@@ -623,10 +633,12 @@
     }
     #endif
     
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static func isValidSampleRate(_ rate: NSNumber) -> Bool {
         rate.isValidSampleRate()
     }
     
+    // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static let defaultEnvironment = "production"
 }
 

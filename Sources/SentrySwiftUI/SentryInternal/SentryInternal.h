@@ -18,7 +18,7 @@
 #endif
 
 #if SENTRY_TEST
-#    import "SentrySpan.h"
+#    import "SentrySpanInternal.h"
 #    import "SentryTracer.h"
 #else
 @protocol SentrySpan;

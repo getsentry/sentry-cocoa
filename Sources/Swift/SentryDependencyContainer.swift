@@ -1,3 +1,5 @@
+//swiftlint:disable file_length missing_docs
+
 @_implementationOnly import _SentryPrivate
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
@@ -14,8 +16,6 @@ let defaultApplicationProvider: () -> SentryApplication? = {
     return nil
 #endif
 }
-
-let SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0
 
 // MARK: - Extensions
 
@@ -155,7 +155,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     
     private var _framesTracker: SentryFramesTracker?
     @objc public lazy var framesTracker = getLazyVar(\._framesTracker) {
-        let delayedFramesTracker = SentryDelayedFramesTracker(keepDelayedFramesDuration: SENTRY_AUTO_TRANSACTION_MAX_DURATION)
+        let sentryAutoTransactionMaxDuration = 500.0
+        let delayedFramesTracker = SentryDelayedFramesTracker(keepDelayedFramesDuration: sentryAutoTransactionMaxDuration)
         return SentryFramesTracker(displayLinkWrapper: SentryDisplayLinkWrapper(), dateProvider: dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: notificationCenterWrapper, delayedFramesTracker: delayedFramesTracker)
     }
     
@@ -170,7 +171,60 @@ extension SentryFileManager: SentryFileManagerProtocol { }
                 maxBreadcrumbs: Int(options.maxBreadcrumbs)),
             attributesProcessor: watchdogTerminationAttributesProcessor)
     }
+    
+    private var terminationTracker: SentryWatchdogTerminationTracker?
+    func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker? {
+        getOptionalLazyVar(\.terminationTracker) {
+            
+            guard let fileManager = fileManager else {
+                SentrySDKLog.fatal("File manager is not available")
+                return nil
+            }
+            
+            guard let scopeStore = scopePersistentStore else {
+                SentrySDKLog.fatal("Scope persistent store is not available")
+                return nil
+            }
+            
+            let dispatchQueueWrapper = dispatchFactory.createUtilityQueue("io.sentry.watchdog-termination-tracker", relativePriority: 0)
+            
+            let logic = SentryWatchdogTerminationLogic(options: options,
+                                                       crashAdapter: crashWrapper,
+                                                       appStateManager: appStateManager)
+            return SentryWatchdogTerminationTracker(
+                options: options,
+                watchdogTerminationLogic: logic,
+                appStateManager: appStateManager,
+                dispatchQueueWrapper: dispatchQueueWrapper,
+                fileManager: fileManager,
+                scopePersistentStore: scopeStore)
+        }
+    }
 #endif
+    
+    private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
+    func getCrashIntegrationSessionBuilder(_ options: Options) -> SentryCrashIntegrationSessionHandler? {
+        getOptionalLazyVar(\.crashIntegrationSessionHandler) {
+            
+            guard let fileManager = fileManager else {
+                SentrySDKLog.fatal("File manager is not available")
+                return nil
+            }
+            
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+            let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
+                                                       crashAdapter: crashWrapper,
+                                                       appStateManager: appStateManager)
+            return SentryCrashIntegrationSessionHandler(
+                crashWrapper: crashWrapper,
+                watchdogTerminationLogic: watchdogLogic,
+                fileManager: fileManager
+            )
+#else
+            return SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper, fileManager: fileManager)
+#endif
+        }
+    }
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
     private var _screenshotSource: SentryScreenshotSource?
@@ -237,13 +291,39 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         #endif
         }
     }
+    
+    private var crashInstallationReporter: SentryCrashInstallationReporter?
+    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
+        getLazyVar(\.crashInstallationReporter) {
+            let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
+
+            return SentryCrashInstallationReporter(
+                inAppLogic: inAppLogic,
+                crashWrapper: crashWrapper,
+                dispatchQueue: dispatchQueueWrapper
+            )
+        }
+    }
 }
 
 #if os(iOS) && !SENTRY_NO_UIKIT
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #endif
 
+protocol DateProviderProvider {
+    var dateProvider: SentryCurrentDateProvider { get }
+}
+extension SentryDependencyContainer: DateProviderProvider {}
+
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+protocol FramesTrackingProvider {
+    var framesTracker: SentryFramesTracker { get }
+}
+
+extension SentryDependencyContainer: FramesTrackingProvider { }
+#endif
 
 #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
 protocol ScreenshotIntegrationProvider {
@@ -332,3 +412,54 @@ protocol ANRTrackerBuilder {
     func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker
 }
 extension SentryDependencyContainer: ANRTrackerBuilder { }
+
+protocol ProcessInfoProvider {
+    var processInfoWrapper: SentryProcessInfoSource { get }
+}
+extension SentryDependencyContainer: ProcessInfoProvider { }
+
+protocol AppStateManagerProvider {
+    var appStateManager: SentryAppStateManager { get }
+}
+extension SentryDependencyContainer: AppStateManagerProvider { }
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+protocol WatchdogTerminationScopeObserverBuilder {
+    func getWatchdogTerminationScopeObserverWithOptions(_ options: Options) -> SentryScopeObserver
+}
+extension SentryDependencyContainer: WatchdogTerminationScopeObserverBuilder { }
+
+protocol WatchdogTerminationTrackerBuilder {
+    func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker?
+}
+extension SentryDependencyContainer: WatchdogTerminationTrackerBuilder {}
+#endif
+
+protocol NetworkTrackerProvider {
+    var networkTracker: SentryNetworkTracker { get }
+}
+extension SentryDependencyContainer: NetworkTrackerProvider {
+    // Inject the network tracer via the Dependency Container
+    // Because this is used in swizzling, we cannot remove the singleton
+    // or that may lead to issues when stopping and enablign the SDK again
+    var networkTracker: SentryNetworkTracker {
+        SentryNetworkTracker.sharedInstance
+    }
+}
+
+protocol SentryCrashReporterProvider {
+    var crashReporter: SentryCrashSwift { get }
+}
+extension SentryDependencyContainer: SentryCrashReporterProvider {}
+
+protocol CrashIntegrationSessionHandlerBuilder {
+    func getCrashIntegrationSessionBuilder(_ options: Options) -> SentryCrashIntegrationSessionHandler?
+}
+extension SentryDependencyContainer: CrashIntegrationSessionHandlerBuilder {}
+
+protocol CrashInstallationReporterBuilder {
+    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter
+}
+extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
+
+//swiftlint:enable file_length missing_docs

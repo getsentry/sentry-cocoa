@@ -25,6 +25,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "SentryTestUtils/**"
   - "SentryTestUtilsDynamic/**"
   - "SentryTestUtilsTests/**"
+  - "3rd-party-integrations/**"
 
   # GH Actions
   - ".github/workflows/test.yml"
@@ -244,6 +245,7 @@ run_release_for_prs: &run_release_for_prs
   - ".github/workflows/build-xcframework-variant-slices.yml"
   - ".github/workflows/assemble-xcframework-variant.yml"
   - ".github/workflows/ui-tests-common.yml"
+  - ".github/workflows/fast-pr-checks.yml"
   - ".github/file-filters.yml"
 
   # Scripts
@@ -415,6 +417,7 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
   - "Sentry.podspec"
   - "SentrySwiftUI.podspec"
   - "Package*.swift"
+  - "3rd-party-integrations/**/Package.swift"
 
   # Configuration files
   - "Sources/Configuration/SDK.xcconfig"

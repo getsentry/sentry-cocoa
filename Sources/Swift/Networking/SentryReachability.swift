@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 import Network
 
@@ -207,3 +208,4 @@ class SentryReachabilityTestHelper: NSObject {
     }
 }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+// swiftlint:enable missing_docs

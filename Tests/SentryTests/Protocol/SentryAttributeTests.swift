@@ -371,4 +371,115 @@ final class SentryAttributeTests: XCTestCase {
         XCTAssertEqual(attribute.type, "string")
         XCTAssertTrue((attribute.value as? String)?.contains("key") == true)
     }
+    
+    // MARK: - Protocol-Based Conversion Tests
+    
+    /// Verifies that protocol-based conversion works for String through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_String() {
+        let stringValue: String = "protocol string"
+        let attribute = SentryLog.Attribute(value: stringValue)
+        XCTAssertEqual(attribute.type, "string")
+        XCTAssertEqual(attribute.value as? String, "protocol string")
+    }
+    
+    /// Verifies that protocol-based conversion works for Bool through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_Bool() {
+        let boolValue: Bool = true
+        let attribute = SentryLog.Attribute(value: boolValue)
+        XCTAssertEqual(attribute.type, "boolean")
+        XCTAssertEqual(attribute.value as? Bool, true)
+    }
+    
+    /// Verifies that protocol-based conversion works for Int through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_Int() {
+        let intValue: Int = 42
+        let attribute = SentryLog.Attribute(value: intValue)
+        XCTAssertEqual(attribute.type, "integer")
+        XCTAssertEqual(attribute.value as? Int, 42)
+    }
+    
+    /// Verifies that protocol-based conversion works for Double through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_Double() {
+        let doubleValue: Double = 3.14159
+        let attribute = SentryLog.Attribute(value: doubleValue)
+        XCTAssertEqual(attribute.type, "double")
+        XCTAssertEqual(attribute.value as? Double, 3.14159)
+    }
+    
+    /// Verifies that protocol-based conversion works for Float through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_Float() {
+        let floatValue: Float = 2.71828
+        let attribute = SentryLog.Attribute(value: floatValue)
+        XCTAssertEqual(attribute.type, "double")
+        let doubleValue = attribute.value as? Double
+        XCTAssertNotNil(doubleValue)
+        XCTAssertEqual(doubleValue!, 2.71828, accuracy: 0.00001)
+    }
+    
+    /// Verifies that protocol-based conversion works for String arrays through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_StringArray() {
+        let stringArray: [String] = ["a", "b", "c"]
+        let attribute = SentryLog.Attribute(value: stringArray)
+        XCTAssertEqual(attribute.type, "string[]")
+        XCTAssertEqual(attribute.value as? [String], ["a", "b", "c"])
+    }
+    
+    /// Verifies that protocol-based conversion works for Bool arrays through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_BoolArray() {
+        let boolArray: [Bool] = [true, false, true]
+        let attribute = SentryLog.Attribute(value: boolArray)
+        XCTAssertEqual(attribute.type, "boolean[]")
+        XCTAssertEqual(attribute.value as? [Bool], [true, false, true])
+    }
+    
+    /// Verifies that protocol-based conversion works for Int arrays through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_IntArray() {
+        let intArray: [Int] = [1, 2, 3]
+        let attribute = SentryLog.Attribute(value: intArray)
+        XCTAssertEqual(attribute.type, "integer[]")
+        XCTAssertEqual(attribute.value as? [Int], [1, 2, 3])
+    }
+    
+    /// Verifies that protocol-based conversion works for Double arrays through init(value: Any)
+    func testInitializer_ProtocolBasedConversion_DoubleArray() {
+        let doubleArray: [Double] = [1.1, 2.2, 3.3]
+        let attribute = SentryLog.Attribute(value: doubleArray)
+        XCTAssertEqual(attribute.type, "double[]")
+        XCTAssertEqual(attribute.value as? [Double], [1.1, 2.2, 3.3])
+    }
+    
+    /// Verifies that protocol-based conversion works for Float arrays through init(value: Any)
+    ///
+    /// Note: Float literals like `1.1`, `2.2`, `3.3` are already approximations in binary representation
+    /// (e.g., `Float(1.1)` ≈ `1.100000023841858`). When converting Float arrays to Double arrays,
+    /// these approximations are preserved, which is the correct behavior. This is why we use
+    /// tolerance-based comparison (`accuracy` parameter) rather than exact equality for floating-point values.
+    func testInitializer_ProtocolBasedConversion_FloatArray() throws {
+        // -- Arrange --
+        let floatArray: [Float] = [1.1, 2.2, 3.3]
+        
+        // -- Act --
+        let attribute = SentryLog.Attribute(value: floatArray)
+        
+        // -- Assert --
+        XCTAssertEqual(attribute.type, "double[]")
+        let doubleArray = try XCTUnwrap(attribute.value as? [Double])
+        XCTAssertEqual(doubleArray.count, 3)
+        XCTAssertEqual(doubleArray[0], 1.1, accuracy: 0.00001)
+        XCTAssertEqual(doubleArray[1], 2.2, accuracy: 0.00001)
+        XCTAssertEqual(doubleArray[2], 3.3, accuracy: 0.00001)
+    }
+    
+    /// Verifies that fallback to string conversion works for unsupported types
+    func testInitializer_Fallback_UnsupportedType() {
+        struct UnsupportedType {
+            let value = "test"
+        }
+        let unsupported = UnsupportedType()
+        let attribute = SentryLog.Attribute(value: unsupported)
+        XCTAssertEqual(attribute.type, "string")
+        let stringValue = attribute.value as? String
+        XCTAssertNotNil(stringValue)
+        XCTAssertTrue(stringValue!.contains("UnsupportedType"))
+    }
 }

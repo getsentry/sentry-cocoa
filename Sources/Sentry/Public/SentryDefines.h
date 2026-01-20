@@ -61,6 +61,26 @@
 #    define SENTRY_TARGET_REPLAY_SUPPORTED 0
 #endif
 
+/**
+ * Temporary macro used during Swift migration to track places where we use @c id instead of
+ * the actual Swift type due to Objective-C/Swift interoperability issues.
+ * The macro takes the intended type name as a parameter for documentation purposes.
+ *
+ * Usage: @c SENTRY_SWIFT_MIGRATION_ID(ClassName) instead of @c ClassName @c *
+ *
+ * To find all places that need updating after Swift migration is complete, comment out the
+ * macro definition below. The compiler will then show errors at all usage sites, making it
+ * easy to locate and fix them.
+ *
+ * Example:
+ * @code
+ * // Temporary workaround during migration:
+ * @property (nonatomic, strong) SENTRY_SWIFT_MIGRATION_ID(MySwiftClass) myProperty;
+ *
+ * @endcode
+ */
+#define SENTRY_SWIFT_MIGRATION_ID(className) id
+
 #define SENTRY_NO_INIT                                                                             \
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;

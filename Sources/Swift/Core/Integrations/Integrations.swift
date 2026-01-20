@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 // The Swift counterpart to `SentryObjcIntegrationProtocol`. This protocol allows
@@ -35,12 +36,23 @@ private struct AnyIntegration {
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
 
+        // The order of integrations here is important.
+        // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
+        // And SentrySessionReplayIntegration before SentryCrashIntegration.
         var integrations: [AnyIntegration] = [
             .init(SwiftAsyncIntegration.self),
+            .init(SentryCrashIntegration.self),
             .init(SentryAutoSessionTrackingIntegration.self),
-            .init(SentryHangTrackerIntegrationObjC.self)
+            .init(SentryNetworkTrackingIntegration.self),
+            .init(SentryHangTrackerIntegrationObjC.self),
+            .init(SentryMetricsIntegration.self)
         ]
-        
+
+        #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+        integrations.append(.init(SentryFramesTrackingIntegration<SentryDependencyContainer>.self))
+        integrations.append(.init(SentryWatchdogTerminationTrackingIntegration.self))
+        #endif
+
         #if os(iOS) && !SENTRY_NO_UIKIT
         integrations.append(.init(UserFeedbackIntegration.self))
         #endif
@@ -70,3 +82,4 @@ private struct AnyIntegration {
         }
     }
 }
+// swiftlint:enable missing_docs

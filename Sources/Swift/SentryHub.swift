@@ -1,8 +1,14 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+/// The hub is the central manager for SDK configuration, error capture, and scope management.
 @objc public final class SentryHub: NSObject {
     private let helper: SentryHubInternal
+    
+    /// Initializes a `SentryHub` with the given client and scope.
+    /// - Parameters:
+    ///   - client: The client to bind to the hub.
+    ///   - scope: The scope to use for the hub.
     @objc(initWithClient:andScope:) public init(client: SentryClient?, andScope scope: Scope?) {
         helper = SentryHubInternal(client: client?.helper, andScope: scope)
     }

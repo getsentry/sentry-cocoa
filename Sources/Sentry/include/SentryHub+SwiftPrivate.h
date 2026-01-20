@@ -7,17 +7,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryHubInternal ()
 
-// Argument types are:
-// - replayEvent: SentryReplayEvent
-// - replayRecording: SentryReplayRecording
-- (void)captureReplayEvent:(id)replayEvent
-           replayRecording:(id)replayRecording
+- (void)captureReplayEvent:(SENTRY_SWIFT_MIGRATION_ID(SentryReplayEvent))replayEvent
+           replayRecording:(SENTRY_SWIFT_MIGRATION_ID(SentryReplayRecording))replayRecording
                      video:(NSURL *)videoURL;
 
-// Argument types are:
-// - listener: id<SentrySessionListener>
-- (void)registerSessionListener:(id)listener;
-- (void)unregisterSessionListener:(id)listener;
+- (void)registerSessionListener:(SENTRY_SWIFT_MIGRATION_ID(id<SentrySessionListener>))listener;
+- (void)unregisterSessionListener:(SENTRY_SWIFT_MIGRATION_ID(id<SentrySessionListener>))listener;
 
 @end
 

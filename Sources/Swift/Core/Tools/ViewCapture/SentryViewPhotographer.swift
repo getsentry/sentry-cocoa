@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 
@@ -21,7 +22,7 @@ import UIKit
     ///   - redactOptions: Options provided to redact sensitive information.
     ///   - enableMaskRendererV2: Flag to enable experimental view renderer.
     /// - Note: The option `enableMaskRendererV2` is an internal flag, which is not part of the public API.
-    ///         Therefore, it is not part of the the `redactOptions` parameter, to not further expose it.
+    ///         Therefore, it is not part of the `redactOptions` parameter, to not further expose it.
     public init(
         renderer: SentryViewRenderer,
         redactOptions: SentryRedactOptions,
@@ -93,3 +94,4 @@ import UIKit
 
 #endif // os(iOS) || os(tvOS)
 #endif // canImport(UIKit) && !SENTRY_NO_UIKIT
+// swiftlint:enable missing_docs

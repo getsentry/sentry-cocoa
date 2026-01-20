@@ -4,10 +4,16 @@
 
 ### Features
 
+- Add options `options.sessionReplay.includedViewClasses` and `options.sessionReplay.excludedViewClasses` to ignore views from subtree traversal (#7063)
 - Add isiOSAppOnVisionOS, isiOSAppOnMac, isMacCatalystApp to device context #6939
+- Add integration to collect Metrics, enabled by default. Can be disabled by setting `options.experimental.enableMetrics = false` (#6956)
+- Add implementation for Metrics Protocol with modification of items in `options.experimental.beforeSendMetrics` (#6960)
+- Add `Sentry.metrics.count(..)`, `Sentry.metrics.distribution(..)` and `Sentry.metrics.gauge(..)` to public API (#6957)
+- Add flushing of Metrics to `SentrySDK.flush()` (#7182)
 
 ### Fixes
 
+- Encode SwiftUI internal class names in session replay redaction to avoid false-positive App Store review rejections (#7123)
 - The transport now correctly discard envelopes on 4xx and 5xx responses and records client reports `send_error` (#6618) This also fixes edge cases in which the SDK kept retrying sending a faulty envelope until the offline cache overflowed.
 - Change default attributes of Logs to only include user attributes when `options.sendDefaultPii = true` (#7055)
 - Rename log attribute `sentry.trace.parent_span_id` to `span_id` (#7055)

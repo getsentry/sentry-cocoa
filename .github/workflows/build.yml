@@ -32,7 +32,7 @@ jobs:
     outputs:
       run_build_for_prs: ${{ steps.changes.outputs.run_build_for_prs }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -48,10 +48,9 @@ jobs:
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
       # sample projects. The Package.swift references binary targets, which in release branch commits points
       # to non-existent download URLs. This creates chicken-egg failures when building these sample apps for
@@ -62,9 +61,9 @@ jobs:
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - run: ./scripts/ci-select-xcode.sh 26.2
       - name: Setup Ruby
-        uses: ruby/setup-ruby@b90be12699fdfcbee4440c2bba85f6f460446bb0 # v1.279.0
+        uses: ruby/setup-ruby@80740b3b13bf9857e28854481ca95a84e78a2bdf # v1.284.0
         with:
           bundler-cache: true
       - run: make init-ci-build
@@ -111,8 +110,7 @@ jobs:
             config: Debug
 
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
       # sample projects. The Package.swift references binary targets, which in release branch commits points
       # to non-existent download URLs. This creates chicken-egg failures when building these sample apps for
@@ -158,8 +156,7 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
         shell: sh
 
@@ -181,8 +178,7 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
         shell: sh
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
@@ -210,12 +206,12 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.4 \
+            --os 18.5 \
             --command build \
             --device "iPhone 16 Pro"  \
             --configuration Debug
@@ -236,15 +232,14 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Debug
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.4 \
+            --os 18.5 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
@@ -264,15 +259,14 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Release
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.4 \
+            --os 18.5 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
@@ -292,15 +286,14 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Debug
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.4 \
+            --os 18.5 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
@@ -320,15 +313,14 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Release
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.4 \
+            --os 18.5 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
@@ -352,8 +344,7 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       # If the SentryAsyncSafeLog doesn't contain the SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR this fails.
       - name: Async Safe Log Level is Error
         run: grep -c "SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR" Sources/Sentry/SentryAsyncSafeLog.h
@@ -369,7 +360,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.4 \
+            --os 18.5 \
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \

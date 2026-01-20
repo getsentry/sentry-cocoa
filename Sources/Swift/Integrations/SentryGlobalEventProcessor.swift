@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_spi(Private) public typealias SentryEventProcessor = (Event) -> Event?
 
 @_spi(Private) @objc public final class SentryGlobalEventProcessor: NSObject {
@@ -25,3 +26,4 @@
         return mutableEvent
     }
 }
+// swiftlint:enable missing_docs
