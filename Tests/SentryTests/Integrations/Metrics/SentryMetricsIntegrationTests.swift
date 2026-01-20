@@ -34,7 +34,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().first, "Metrics")
     }
     
-    func testAddMetric_whenMetricAdded_shouldAddToBatcher() throws {
+    func testAddMetric_whenMetricAdded_shouldAddToBuffer() throws {
         // -- Arrange --
         try givenSdkWithHub()
         let client = try XCTUnwrap(SentrySDKInternal.currentHub().getClient() as? TestClient, "Hub Client is not a `TestClient`")
