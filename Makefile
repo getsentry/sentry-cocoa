@@ -323,6 +323,19 @@ run-test-server-sync:
 	cd ./test-server && swift build
 	cd ./test-server && swift run
 
+## Stop test server
+#
+# Stops the test server running on port 8080.
+.PHONY: stop-test-server
+stop-test-server:
+	@echo "Stopping test server on port 8080..."
+	@pids=$$(lsof -ti:8080 2>/dev/null); \
+	if [ -n "$$pids" ]; then \
+		echo "$$pids" | xargs kill -9 && echo "Test server stopped"; \
+	else \
+		echo "No test server running on port 8080"; \
+	fi
+
 ## Run critical UI tests
 #
 # Runs important UI test suites for validation.
