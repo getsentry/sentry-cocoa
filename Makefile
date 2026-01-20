@@ -310,10 +310,11 @@ test-visionos:
 ## Run test server in background
 #
 # Builds and runs the test server in the background for integration testing.
+# Saves the process ID to test-server/.test-server.pid for safe shutdown.
 .PHONY: run-test-server
 run-test-server:
 	cd ./test-server && swift build
-	cd ./test-server && swift run &
+	cd ./test-server && { swift run & echo $$! > .test-server.pid; }
 
 ## Run test server synchronously
 #
@@ -322,6 +323,25 @@ run-test-server:
 run-test-server-sync:
 	cd ./test-server && swift build
 	cd ./test-server && swift run
+
+## Stop test server
+#
+# Stops the test server using the saved process ID from test-server/.test-server.pid.
+# This is safer than killing by port as it only stops the test server process.
+.PHONY: stop-test-server
+stop-test-server:
+	@if [ -f test-server/.test-server.pid ]; then \
+		pid=$$(cat test-server/.test-server.pid); \
+		if ps -p $$pid > /dev/null 2>&1; then \
+			kill $$pid && echo "Test server (PID $$pid) stopped"; \
+			rm test-server/.test-server.pid; \
+		else \
+			echo "Test server PID $$pid not running (cleaning up PID file)"; \
+			rm test-server/.test-server.pid; \
+		fi \
+	else \
+		echo "No PID file found. Test server may not be running."; \
+	fi
 
 ## Run critical UI tests
 #
