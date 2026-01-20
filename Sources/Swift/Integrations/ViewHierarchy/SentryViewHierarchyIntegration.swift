@@ -2,10 +2,12 @@
 
 #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
 
-final class SentryViewHierarchyIntegration<Dependencies: ViewHierarchyIntegrationProvider>: NSObject, SwiftIntegration, SentryClientAttachmentProcessor {
+typealias SentryViewHierarchyIntegrationProvider = ViewHierarchyProviderProvider & ClientProvider
+
+final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyIntegrationProvider>: NSObject, SwiftIntegration, SentryClientAttachmentProcessor {
     private let options: Options
     private let viewHierarchyProvider: SentryViewHierarchyProvider
-    private weak var client: SentryClientInternal?
+    private let client: SentryClientInternal
 
     init?(with options: Options, dependencies: Dependencies) {
         guard options.attachViewHierarchy else {
@@ -14,22 +16,24 @@ final class SentryViewHierarchyIntegration<Dependencies: ViewHierarchyIntegratio
         }
 
         guard let viewHierarchyProvider = dependencies.viewHierarchyProvider else {
-            SentrySDKLog.debug("Not going to enable \(Self.name) because viewHierarchyProvider is not available.")
+            SentrySDKLog.warning("Not going to enable \(Self.name) because viewHierarchyProvider is not available.")
             return nil
         }
 
         self.options = options
         self.viewHierarchyProvider = viewHierarchyProvider
 
+        guard let client = dependencies.client else {
+            SentrySDKLog.warning("Not going to enable \(Self.name) because client is not available.")
+            return nil
+        }
+        self.client = client
+
         super.init()
 
-        if let client = SentrySDKInternal.currentHub().getClient() {
-            self.client = client
-            client.addAttachmentProcessor(self)
-        }
-
         viewHierarchyProvider.reportAccessibilityIdentifier = options.reportAccessibilityIdentifier
-        
+        client.addAttachmentProcessor(self)
+
         sentrycrash_setSaveViewHierarchy { path in
             guard let path = path else { return }
             let reportPath = String(cString: path)
@@ -40,7 +44,7 @@ final class SentryViewHierarchyIntegration<Dependencies: ViewHierarchyIntegratio
 
     func uninstall() {
         sentrycrash_setSaveViewHierarchy(nil)
-        client?.removeAttachmentProcessor(self)
+        client.removeAttachmentProcessor(self)
     }
 
     static var name: String {

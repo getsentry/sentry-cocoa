@@ -272,6 +272,18 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #endif
 
+protocol ClientProvider {
+    var client: SentryClientInternal? { get }
+}
+
+extension SentryDependencyContainer: ClientProvider {
+    var client: SentryClientInternal? {
+        // Eventually we will want to have the current shared hub to live in the dependency container aswell
+        // Until then, we proxy the static accessor.
+        SentrySDKInternal.currentHub().getClient()
+    }
+}
+
 protocol DateProviderProvider {
     var dateProvider: SentryCurrentDateProvider { get }
 }
@@ -302,11 +314,11 @@ protocol ScreenshotIntegrationProvider {
 
 extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
 
-protocol ViewHierarchyIntegrationProvider {
+protocol ViewHierarchyProviderProvider {
     var viewHierarchyProvider: SentryViewHierarchyProvider? { get }
 }
 
-extension SentryDependencyContainer: ViewHierarchyIntegrationProvider { }
+extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
 #endif
 
 protocol DispatchQueueWrapperProvider {
