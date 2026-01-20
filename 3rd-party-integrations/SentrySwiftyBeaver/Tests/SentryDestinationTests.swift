@@ -215,4 +215,15 @@ final class SentryDestinationTests: XCTestCase {
         XCTAssertNotNil(log.attributes["swiftybeaver.context"])
         XCTAssertEqual(log.attributes["swiftybeaver.context"]?.value as? String, "simple string context")
     }
+    
+    // MARK: - SDK State Tests
+    
+    func testSend_whenSentrySDKNotEnabled_shouldNotLog() {
+        SentrySDK.close()
+        
+        let sut = SentryDestination()
+        _ = sut.send(.info, msg: "Test message", thread: "main", file: "Test.swift", function: "testFunction", line: 1)
+        
+        XCTAssertEqual(capturedLogs.count, 0, "Expected no logs when SentrySDK is not enabled")
+    }
 }

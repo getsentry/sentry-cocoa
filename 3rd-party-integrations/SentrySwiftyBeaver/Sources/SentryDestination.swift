@@ -60,6 +60,10 @@ public class SentryDestination: BaseDestination {
         line: Int,
         context: Any? = nil
     ) -> String? {
+        guard SentrySDK.isEnabled else {
+            return nil
+        }
+        
         var attributes: [String: Any] = [:]
         attributes["sentry.origin"] = "auto.logging.swiftybeaver"
         attributes["swiftybeaver.level"] = "\(level.rawValue)"
