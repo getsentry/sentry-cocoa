@@ -160,6 +160,7 @@ jobs:
           DEVICE_NAME: ${{ inputs.device }}
           SCHEME: ${{ inputs.scheme }}
           SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
+          TEST_SPM_PACKAGE: ${{ inputs.test_spm_package }}
         run: |
           "$SCRIPTS_DIRECTORY/sentry-xcodebuild.sh" \
             --platform "$PLATFORM" \
@@ -168,7 +169,8 @@ jobs:
             --command build-for-testing \
             --device "$DEVICE_NAME" \
             --configuration TestCI \
-            --scheme "$SCHEME" ${{ inputs.test_spm_package && '--spm-project' || '' }}
+            --scheme "$SCHEME" \
+            $([ "$TEST_SPM_PACKAGE" = "true" ] && echo "--spm-project true")
 
       # Run Flaky Tests TestPlan which has a retry mechanism on failure.
       # We intentionally run these before the other test plan to fail early.
@@ -210,6 +212,7 @@ jobs:
           DEVICE_NAME: ${{ inputs.device }}
           SCHEME: ${{ inputs.scheme }}
           SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
+          TEST_SPM_PACKAGE: ${{ inputs.test_spm_package }}
         run: |
           "$SCRIPTS_DIRECTORY/sentry-xcodebuild.sh" \
             --platform "$PLATFORM" \
@@ -218,7 +221,8 @@ jobs:
             --command test-without-building \
             --device "$DEVICE_NAME" \
             --configuration TestCI \
-            --scheme "$SCHEME" ${{ inputs.test_spm_package && '--spm-project' || '' }} \
+            --scheme "$SCHEME" \
+            $([ "$TEST_SPM_PACKAGE" = "true" ] && echo "--spm-project true") \
             --result-bundle results.xcresult
 
       - name: Publish Test Report
