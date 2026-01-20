@@ -60,6 +60,7 @@ on:
       working_directory:
         description: "The working directory to run the tests in"
         required: false
+        default: "."
         type: string
 
       scripts_directory:
