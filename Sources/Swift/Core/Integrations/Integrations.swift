@@ -36,8 +36,12 @@ private struct AnyIntegration {
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
 
+        // The order of integrations here is important.
+        // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
+        // And SentrySessionReplayIntegration before SentryCrashIntegration.
         var integrations: [AnyIntegration] = [
             .init(SwiftAsyncIntegration.self),
+            .init(SentryCrashIntegration.self),
             .init(SentryAutoSessionTrackingIntegration.self),
             .init(SentryNetworkTrackingIntegration.self),
             .init(SentryHangTrackerIntegrationObjC.self),
