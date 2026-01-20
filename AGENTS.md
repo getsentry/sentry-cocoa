@@ -98,6 +98,91 @@ private class MockStorage: BatchStorage {
 
 #### Test Code Style
 
+**Use Arrange-Act-Assert pattern:**
+
+All tests should follow the Arrange-Act-Assert (AAA) pattern with explicit comment markers for clarity.
+
+**Pattern:**
+
+```swift
+func testExample() {
+    // -- Arrange --
+    let input = "test"
+    let expected = "TEST"
+
+    // -- Act --
+    let result = transform(input)
+
+    // -- Assert --
+    XCTAssertEqual(result, expected)
+}
+```
+
+**Benefits:**
+
+- Clear separation of test phases
+- Easy to understand what's being tested, how, and what's expected
+- Consistent structure across all tests
+
+**Write DAMP (Descriptive And Meaningful Phrases) tests:**
+
+Prefer self-contained, readable tests over DRY (Don't Repeat Yourself). It's acceptable to duplicate test code if it makes tests more understandable.
+
+**Prefer (DAMP):**
+
+```swift
+func testBytesDescription() {
+    // -- Arrange --
+    let baseValue: UInt = 1
+
+    // -- Act --
+    let result = formatter.format(baseValue)
+
+    // -- Assert --
+    XCTAssertEqual("1 bytes", result)
+}
+
+func testKBDescription() {
+    // -- Arrange --
+    let baseValue: UInt = 1_024
+
+    // -- Act --
+    let result = formatter.format(baseValue)
+
+    // -- Assert --
+    XCTAssertEqual("1 KB", result)
+}
+```
+
+**Avoid (overly DRY):**
+
+```swift
+func testBytesDescription() {
+    assertDescription(baseValue: 1, expected: "1 bytes")
+}
+
+func testKBDescription() {
+    assertDescription(baseValue: 1_024, expected: "1 KB")
+}
+
+private func assertDescription(baseValue: UInt, expected: String) {
+    // Test logic hidden in helper - need to jump to understand
+}
+```
+
+**Benefits:**
+
+- Each test is self-contained and readable without jumping to helper methods
+- Easier to understand test failures - all relevant information is visible
+- Simpler to modify individual tests without affecting others
+- Better for debugging - everything you need is right there
+
+**When to use helper methods:**
+
+- Complex test setup that would obscure the test's intent
+- Test fixtures or mock objects used across many tests
+- Assertion logic that's truly complex and used consistently
+
 **Prefer `guard case` over `if case`:**
 
 When pattern matching in tests, prefer `guard case` with early return over `if case` to reduce nesting and keep tests linear with an exit-early approach.
