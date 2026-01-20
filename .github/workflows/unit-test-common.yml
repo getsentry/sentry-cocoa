@@ -270,6 +270,7 @@ jobs:
             flaky-results.xcresult
 
       - name: Gather code coverage information via slather
+        if: ${{ !inputs.test_spm_package }}
         working-directory: ${{ inputs.working_directory }}
         run: slather coverage --configuration TestCI --scheme Sentry
 
