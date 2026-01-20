@@ -85,8 +85,8 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         -S|--spm-project)
-            SPM_PROJECT="true"
-            shift 1
+            SPM_PROJECT="$2"
+            shift 2
             ;;
         *)
             echo "Unknown option: $1"
@@ -181,7 +181,7 @@ fi
 
 # Build xcodebuild arguments based on project type
 XCODEBUILD_ARGS=()
-if [ $SPM_PROJECT != "true" ]; then
+if [ "$SPM_PROJECT" != "true" ]; then
     XCODEBUILD_ARGS+=("-workspace" "Sentry.xcworkspace")
     XCODEBUILD_ARGS+=("-configuration" "$CONFIGURATION")
 fi
