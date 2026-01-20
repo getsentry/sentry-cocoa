@@ -312,6 +312,7 @@ jobs:
 
       - name: Run CI Diagnostics
         if: failure()
+        working-directory: ${{ inputs.working_directory }}
         env:
           SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
         run: |
