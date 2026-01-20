@@ -90,6 +90,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true'
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
+    secrets: inherit
     with:
       name: ${{matrix.integration_dir}} ${{matrix.name}}
       scheme: ${{matrix.scheme}}
