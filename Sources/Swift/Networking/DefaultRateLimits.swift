@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -68,3 +69,4 @@ public final class DefaultRateLimits: NSObject, RateLimits {
         rateLimits.addRateLimit(category, validUntil: longerRateLimitDate)
     }
 }
+// swiftlint:enable missing_docs

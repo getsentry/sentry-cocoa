@@ -156,7 +156,26 @@ public struct SentrySDKWrapper {
         options.configureUserFeedback = configureFeedback(config:)
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
+        // Integration: Logs
         options.enableLogs = true
+
+        // Integration: Metrics
+        options.experimental.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
+        options.experimental.beforeSendMetric = { metric in
+            // Modify the metric in the callback
+            var modifiedMetric = metric
+
+            // Modify the value of the metric
+            if case .counter(let value) = modifiedMetric.value, modifiedMetric.name == "test.metric" {
+                modifiedMetric.value = .counter(value + 100)
+            }
+
+            // Add a custom attribute to the metric
+            modifiedMetric.attributes["custom-attribute"] = .string("some-value")
+            modifiedMetric.attributes["custom-attribute-2"] = "some-value-2"
+            
+            return modifiedMetric
+        }
 
         // Experimental features
         options.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue

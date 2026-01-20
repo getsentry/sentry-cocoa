@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 import Foundation
@@ -51,3 +52,4 @@ public final class SentryRedactViewHelper: NSObject {
 
 #endif
 #endif
+// swiftlint:enable missing_docs

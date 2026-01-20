@@ -54,30 +54,35 @@ public protocol SentryAttributeValue {
 }
 
 extension String: SentryAttributeValue {
+    /// Converts the string to a `SentryAttributeContent.string` value.
     public var asSentryAttributeContent: SentryAttributeContent {
         return .string(self)
     }
 }
 
 extension Bool: SentryAttributeValue {
+    /// Converts the boolean to a `SentryAttributeContent.boolean` value.
     public var asSentryAttributeContent: SentryAttributeContent {
         return .boolean(self)
     }
 }
 
 extension Int: SentryAttributeValue {
+    /// Converts the integer to a `SentryAttributeContent.integer` value.
     public var asSentryAttributeContent: SentryAttributeContent {
         return .integer(self)
     }
 }
 
 extension Double: SentryAttributeValue {
+    /// Converts the double to a `SentryAttributeContent.double` value.
     public var asSentryAttributeContent: SentryAttributeContent {
         return .double(self)
     }
 }
 
 extension Float: SentryAttributeValue {
+    /// Converts the float to a `SentryAttributeContent.double` value.
     public var asSentryAttributeContent: SentryAttributeContent {
         return .double(Double(self))
     }

@@ -1,4 +1,4 @@
-// swiftlint:disable file_length type_body_length
+// swiftlint:disable file_length type_body_length missing_docs
 @_implementationOnly import _SentryPrivate
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
@@ -384,4 +384,4 @@ public class SentryFramesTracker: NSObject {
 }
 
 #endif
-// swiftlint:enable file_length type_body_length
+// swiftlint:enable file_length type_body_length missing_docs

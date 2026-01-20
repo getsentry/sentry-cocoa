@@ -1,4 +1,4 @@
-//swiftlint:disable type_body_length
+// swiftlint:disable type_body_length
 
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
@@ -163,4 +163,4 @@ struct ViewControllerWrapper: UIViewControllerRepresentable {
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
 
-//swiftlint:enable type_body_length
+// swiftlint:enable type_body_length

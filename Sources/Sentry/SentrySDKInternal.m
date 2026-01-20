@@ -12,7 +12,6 @@
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
-#import "SentryNetworkTrackingIntegration.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
 #import "SentrySamplerDecision.h"
@@ -20,15 +19,16 @@
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration.h"
+#import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTrackingIntegration.h"
-#    import "SentryFramesTrackingIntegration.h"
 #    import "SentryPerformanceTrackingIntegration.h"
 #    import "SentryUIEventTrackingIntegration.h"
+#    import "SentryViewHierarchyIntegration.h"
 #    import "SentryWatchdogTerminationTrackingIntegration.h"
 #endif // SENTRY_HAS_UIKIT
 
@@ -511,12 +511,11 @@ static NSDate *_Nullable startTimestamp = nil;
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
         [SentryCrashIntegration class],
 #if SENTRY_HAS_UIKIT
-        [SentryAppStartTrackingIntegration class], [SentryFramesTrackingIntegration class],
-        [SentryPerformanceTrackingIntegration class], [SentryUIEventTrackingIntegration class],
-        [SentryWatchdogTerminationTrackingIntegration class],
+        [SentryAppStartTrackingIntegration class], [SentryPerformanceTrackingIntegration class],
+        [SentryUIEventTrackingIntegration class], [SentryViewHierarchyIntegration class],
 #endif // SENTRY_HAS_UIKIT
         [SentryAutoBreadcrumbTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
-        [SentryFileIOTrackingIntegration class], [SentryNetworkTrackingIntegration class], nil];
+        [SentryFileIOTrackingIntegration class], nil];
 
     return defaultIntegrations;
 }

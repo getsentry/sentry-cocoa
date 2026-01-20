@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
@@ -28,3 +29,4 @@ import UIKit
         return String(describing: error)
     }
 }
+// swiftlint:enable missing_docs
