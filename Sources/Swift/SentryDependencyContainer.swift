@@ -1,4 +1,5 @@
-// swiftlint:disable missing_docs
+//swiftlint:disable file_length missing_docs
+
 @_implementationOnly import _SentryPrivate
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
@@ -200,6 +201,30 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 #endif
+    
+    private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
+    func getCrashIntegrationSessionBuilder(_ options: Options) -> SentryCrashIntegrationSessionHandler? {
+        getOptionalLazyVar(\.crashIntegrationSessionHandler) {
+            
+            guard let fileManager = fileManager else {
+                SentrySDKLog.fatal("File manager is not available")
+                return nil
+            }
+            
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+            let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
+                                                       crashAdapter: crashWrapper,
+                                                       appStateManager: appStateManager)
+            return SentryCrashIntegrationSessionHandler(
+                crashWrapper: crashWrapper,
+                watchdogTerminationLogic: watchdogLogic,
+                fileManager: fileManager
+            )
+#else
+            return SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper, fileManager: fileManager)
+#endif
+        }
+    }
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
     private var _screenshotSource: SentryScreenshotSource?
@@ -264,6 +289,19 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         #else
             SentryANRTracker(helper: SentryANRTrackerV1(timeoutInterval: timeout))
         #endif
+        }
+    }
+    
+    private var crashInstallationReporter: SentryCrashInstallationReporter?
+    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
+        getLazyVar(\.crashInstallationReporter) {
+            let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
+
+            return SentryCrashInstallationReporter(
+                inAppLogic: inAppLogic,
+                crashWrapper: crashWrapper,
+                dispatchQueue: dispatchQueueWrapper
+            )
         }
     }
 }
@@ -371,4 +409,20 @@ extension SentryDependencyContainer: NetworkTrackerProvider {
         SentryNetworkTracker.sharedInstance
     }
 }
-// swiftlint:enable missing_docs
+
+protocol SentryCrashReporterProvider {
+    var crashReporter: SentryCrashSwift { get }
+}
+extension SentryDependencyContainer: SentryCrashReporterProvider {}
+
+protocol CrashIntegrationSessionHandlerBuilder {
+    func getCrashIntegrationSessionBuilder(_ options: Options) -> SentryCrashIntegrationSessionHandler?
+}
+extension SentryDependencyContainer: CrashIntegrationSessionHandlerBuilder {}
+
+protocol CrashInstallationReporterBuilder {
+    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter
+}
+extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
+
+//swiftlint:enable file_length missing_docs

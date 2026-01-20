@@ -6,7 +6,6 @@
 #import "SentryClient+Private.h"
 #import "SentryCoreDataTrackingIntegration.h"
 #import "SentryCrash.h"
-#import "SentryCrashIntegration.h"
 #import "SentryFileIOTrackingIntegration.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
@@ -502,13 +501,11 @@ static NSDate *_Nullable startTimestamp = nil;
 + (NSArray<Class> *)defaultIntegrationClasses
 {
     // The order of integrations here is important.
-    // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
-    // And SentrySessionReplayIntegration before SentryCrashIntegration.
+    // SentrySessionReplayIntegration needs to be initialized before SentryCrashIntegration.
     NSMutableArray<Class> *defaultIntegrations = [NSMutableArray<Class> arrayWithObjects:
 #if SENTRY_TARGET_REPLAY_SUPPORTED
             [SentrySessionReplayIntegration class],
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
-        [SentryCrashIntegration class],
 #if SENTRY_HAS_UIKIT
         [SentryAppStartTrackingIntegration class], [SentryPerformanceTrackingIntegration class],
         [SentryUIEventTrackingIntegration class], [SentryViewHierarchyIntegration class],
