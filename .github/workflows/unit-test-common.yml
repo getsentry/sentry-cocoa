@@ -279,10 +279,11 @@ jobs:
       # Checkout .codecov.yml to see the config of Codecov
       # We don't upload codecov for release branches, as we don't want a failing coverage check to block a release.
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
+      # We don't upload codecov for SPM packages, as slather (which generates coverage files) doesn't work with SPM.
       - name: Push code coverage to codecov
         id: codecov_1
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # pin@v5.5.2
-        if: ${{ contains(inputs.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
+        if: ${{ !inputs.test_spm_package && contains(inputs.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
           # be solved by specifying the token, see https://github.com/codecov/codecov-action/issues/557#issuecomment-1224970469
@@ -294,7 +295,7 @@ jobs:
       - name: Push code coverage to codecov
         id: codecov_2
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # pin@v5.5.2
-        if: ${{ steps.codecov_1.outcome == 'failure' && contains(inputs.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
+        if: ${{ !inputs.test_spm_package && steps.codecov_1.outcome == 'failure' && contains(inputs.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
