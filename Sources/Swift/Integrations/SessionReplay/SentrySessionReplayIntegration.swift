@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs file_length
 @_implementationOnly import _SentryPrivate
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
@@ -398,3 +399,4 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 // swiftlint:enable type_body_length
 
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+// swiftlint:enable missing_docs file_length
