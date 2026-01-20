@@ -56,8 +56,8 @@ The test server is **only required** for a small subset of network integration t
 # Only run if changes impact network tracking
 make run-test-server
 
-# Run specific test plan (not the full suite)
-xcodebuild test -scheme Sentry -testPlan Sentry_TestServer [additional-flags]
+# Run specific test plan using the sentry-xcodebuild.sh wrapper
+./scripts/sentry-xcodebuild.sh --platform iOS --command test --test-plan Sentry_TestServer
 
 # IMPORTANT: Always stop the test server after use
 make stop-test-server
