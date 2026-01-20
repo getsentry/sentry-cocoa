@@ -14,8 +14,6 @@ Options:
   --change-path true|false   Whether to swap SPM binary URLs for local paths (default: false)
   --remove-binary-targets true|false
                              Whether to keep only SentryDistribution product/target (default: false)
-  --update-path-to-sentry-cocoa true|false
-                             Whether to update the path to the sentry-cocoa directory (default: false)
   -h, --help                 Show this help message
 USAGE
 }
@@ -32,7 +30,6 @@ IS_PR="false"
 REMOVE_DUPLICATE="false"
 CHANGE_PATH="false"
 REMOVE_BINARY_TARGETS="false"
-UPDATE_PATH_TO_SENTRY_COCOA="false"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -59,11 +56,6 @@ while [[ $# -gt 0 ]]; do
     --remove-binary-targets)
       [[ $# -lt 2 ]] && { echo "Missing value for $1" >&2; exit 1; }
       REMOVE_BINARY_TARGETS="$2"
-      shift 2
-      ;;
-    --update-path-to-sentry-cocoa)
-      [[ $# -lt 2 ]] && { echo "Missing value for $1" >&2; exit 1; }
-      UPDATE_PATH_TO_SENTRY_COCOA="$2"
       shift 2
       ;;
     -h|--help)
@@ -137,10 +129,6 @@ var targets: [Target] = [\
 
   # Remove conditional append blocks that reintroduce other targets/products.
   sed -i '' '/^let env = getenv("EXPERIMENTAL_SPM_BUILDS")/,/^}/d' "$PACKAGE_FILE"
-fi
-
-if is_enabled "$UPDATE_PATH_TO_SENTRY_COCOA"; then
-  sed -i '' 's|\.package(url: "https://github\.com/getsentry/sentry-cocoa", from: "[^"]*")|.package(path: "'../../'")|g' "$PACKAGE_FILE"
 fi
 
 echo

@@ -58,15 +58,11 @@ jobs:
         env:
           XCODE_VERSION: 16.4
         run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
-      - name: Prepare Package.swift
-        working-directory: 3rd-party-integrations/SwiftLog
-        shell: bash
-        run: |
-          ../../scripts/prepare-package.sh \
-          --package-file Package.swift \
-          --update-path-to-sentry-cocoa true
+      - name: Use local sentry-cocoa
+        working-directory: 3rd-party-integrations/SentrySwiftLog
+        run: swift package edit sentry-cocoa --path ../..
       - name: Run SPM Tests
-        working-directory: 3rd-party-integrations/SwiftLog
+        working-directory: 3rd-party-integrations/SentrySwiftLog
         run: swift test
 
   test-integration:
@@ -77,7 +73,7 @@ jobs:
     with:
       name: SwiftLog
       scheme: SentrySwiftLog
-      working_directory: 3rd-party-integrations/SwiftLog
+      working_directory: 3rd-party-integrations/SentrySwiftLog
       path_to_scripts_folder: ../../scripts
       xcode: ${{ matrix.xcode }}
       test-destination-os: ${{ matrix.test-destination-os }}
@@ -85,7 +81,6 @@ jobs:
       platform: ${{ matrix.platform }}
       runs-on: ${{ matrix.macos_version }}
       timeout: 10
-      update_path_to_sentry_cocoa: true
       test_spm_package: true
     strategy:
       fail-fast: false

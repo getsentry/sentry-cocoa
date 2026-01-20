@@ -68,12 +68,6 @@ on:
         required: false
         type: string
 
-      update_path_to_sentry_cocoa:
-        description: "The path to the scripts folder"
-        default: false
-        required: false
-        type: boolean
-
       test_spm_package:
         description: "Whether to test the SPM package"
         default: false
@@ -139,13 +133,10 @@ jobs:
           PLATFORM: ${{ inputs.platform }}
         run: ${{ inputs.path_to_scripts_folder }}/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION" --platform "$PLATFORM"
 
-      - name: Prepare Package.swift
+      - name: Use local sentry-cocoa
+        if: ${{ inputs.test_spm_package }}
         working-directory: ${{ inputs.working_directory }}
-        shell: bash
-        run: |
-          ${{ inputs.path_to_scripts_folder }}/prepare-package.sh \
-            --package-file Package.swift \
-            --update-path-to-sentry-cocoa true
+        run: swift package edit sentry-cocoa --path ../..
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
