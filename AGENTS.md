@@ -294,6 +294,10 @@ git commit -m "ref: rename File.swift to NewName.swift"
 - Code archaeology and debugging are easier
 - Refactoring history is preserved
 
+**Note on Squash Merges:**
+
+These benefits apply even when PRs are squash-merged. Git's rename detection works on the final diff of the squashed commit, so using `git mv` in feature branches ensures the squashed commit is recognized as a rename (shown as `R` in git log) rather than a delete + add. This preserves `git log --follow` and other history-tracking features after merging.
+
 **Verification:**
 
 After renaming, verify that git recognizes the rename:
