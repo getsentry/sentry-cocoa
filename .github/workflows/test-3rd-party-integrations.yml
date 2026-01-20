@@ -93,7 +93,7 @@ jobs:
       name: ${{matrix.integration_dir}} ${{matrix.name}}
       scheme: ${{matrix.scheme}}
       working_directory: ${{matrix.working_directory}}
-      path_to_scripts_folder: ../../scripts
+      scripts_directory: ../../scripts
       xcode: ${{ matrix.xcode }}
       test-destination-os: ${{ matrix.test-destination-os }}
       device: ${{ matrix.device }}

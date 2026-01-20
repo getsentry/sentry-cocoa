@@ -62,8 +62,8 @@ on:
         required: false
         type: string
 
-      path_to_scripts_folder:
-        description: "The path to the scripts folder"
+      scripts_directory:
+        description: "The directory containing the scripts to run"
         default: ./scripts
         required: false
         type: string
@@ -84,9 +84,11 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Select Xcode version
         working-directory: ${{ inputs.working_directory }}
-        run: ${{ inputs.path_to_scripts_folder }}/ci-select-xcode.sh "$XCODE_VERSION"
         env:
           XCODE_VERSION: ${{inputs.xcode}}
+          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
+        run: |
+          "$SCRIPTS_DIRECTORY/ci-select-xcode.sh" "$XCODE_VERSION"
 
       - name: Install Slather
         run: gem install slather
@@ -98,7 +100,9 @@ jobs:
         env:
           PLATFORMS: ${{ inputs.platform }}
           OS_VERSION: ${{ inputs.test-destination-os }}
-        run: ${{ inputs.path_to_scripts_folder }}/ci-install-platforms.sh --platforms "$PLATFORMS" --os-version "$OS_VERSION"
+          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
+        run: |
+          "$SCRIPTS_DIRECTORY/ci-install-platforms.sh" --platforms "$PLATFORMS" --os-version "$OS_VERSION"
 
       - name: Ensure required runtime is loaded
         if: ${{ inputs.platform == 'iOS' || inputs.platform == 'tvOS' || inputs.platform == 'visionOS' }}
@@ -108,7 +112,9 @@ jobs:
         env:
           OS_VERSION: ${{ inputs.test-destination-os }}
           PLATFORM: ${{ inputs.platform }}
-        run: ${{ inputs.path_to_scripts_folder }}/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
+          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
+        run: |
+          "$SCRIPTS_DIRECTORY/ci-ensure-runtime-loaded.sh" --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       # Create simulator devices for non-preinstalled simulators
       # Required for iOS 16.4, iOS 17.5 (on Xcode 15.4), and iOS/tvOS 26.1
@@ -119,7 +125,9 @@ jobs:
           PLATFORM: ${{ inputs.platform }}
           OS_VERSION: ${{ inputs.test-destination-os }}
           DEVICE_NAME: ${{inputs.device}}
-        run: ${{ inputs.path_to_scripts_folder }}/ci-create-simulator.sh --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
+          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
+        run: |
+          "$SCRIPTS_DIRECTORY/ci-create-simulator.sh" --platform "$PLATFORM" --os-version "$OS_VERSION" --device-name "$DEVICE_NAME"
 
       # Boot created simulators to ensure they're ready before tests run
       # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
@@ -131,7 +139,9 @@ jobs:
           DEVICE_NAME: ${{ inputs.device }}
           OS_VERSION: ${{ inputs.test-destination-os }}
           PLATFORM: ${{ inputs.platform }}
-        run: ${{ inputs.path_to_scripts_folder }}/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION" --platform "$PLATFORM"
+          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
+        run: |
+          "$SCRIPTS_DIRECTORY/ci-boot-simulator.sh" --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       - name: Use local sentry-cocoa
         if: ${{ inputs.test_spm_package }}
@@ -148,8 +158,9 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           DEVICE_NAME: ${{ inputs.device }}
           SCHEME: ${{ inputs.scheme }}
+          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
         run: |
-          ${{ inputs.path_to_scripts_folder }}/sentry-xcodebuild.sh \
+          "$SCRIPTS_DIRECTORY/sentry-xcodebuild.sh" \
             --platform "$PLATFORM" \
             --os "$OS_VERSION" \
             --ref "$REF_NAME" \
@@ -172,8 +183,9 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           DEVICE_NAME: ${{ inputs.device }}
           SCHEME: ${{ inputs.scheme }}
+          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
         run: |
-          ${{ inputs.path_to_scripts_folder }}/sentry-xcodebuild.sh \
+          "$SCRIPTS_DIRECTORY/sentry-xcodebuild.sh" \
             --platform "$PLATFORM" \
             --os "$OS_VERSION" \
             --ref "$REF_NAME" \
@@ -196,8 +208,9 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           DEVICE_NAME: ${{ inputs.device }}
           SCHEME: ${{ inputs.scheme }}
+          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
         run: |
-          ${{ inputs.path_to_scripts_folder }}/sentry-xcodebuild.sh \
+          "$SCRIPTS_DIRECTORY/sentry-xcodebuild.sh" \
             --platform "$PLATFORM" \
             --os "$OS_VERSION" \
             --ref "$REF_NAME" \
@@ -291,7 +304,10 @@ jobs:
 
       - name: Run CI Diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
+        env:
+          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
+        run: |
+          "$SCRIPTS_DIRECTORY/ci-diagnostics.sh"
 
       - name: Store screenshot
         uses: ./.github/actions/capture-screenshot
