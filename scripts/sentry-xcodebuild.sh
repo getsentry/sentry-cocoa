@@ -189,6 +189,12 @@ XCODEBUILD_ARGS+=("-scheme" "$TEST_SCHEME")
 XCODEBUILD_ARGS+=("${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}")
 XCODEBUILD_ARGS+=("-destination" "$DESTINATION")
 
+# SPM packages don't have scheme files with codeCoverageEnabled settings,
+# so we need to explicitly enable code coverage for SPM projects
+if [ "$SPM_PROJECT" == "true" ]; then
+    XCODEBUILD_ARGS+=("-enableCodeCoverage" "YES")
+fi
+
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
     log_notice "Running xcodebuild build-for-testing"

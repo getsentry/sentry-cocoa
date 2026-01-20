@@ -270,6 +270,7 @@ jobs:
             flaky-results.xcresult
 
       - name: Gather code coverage information via slather
+        working-directory: ${{ inputs.working_directory }}
         run: slather coverage --configuration TestCI --scheme Sentry
 
       # We can upload all coverage reports, because codecov merges them.
