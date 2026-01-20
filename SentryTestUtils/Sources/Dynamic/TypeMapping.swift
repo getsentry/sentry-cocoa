@@ -117,3 +117,4 @@ class TypeMapping {
         convertToObjCType(object) ?? convertToSwiftType(object)
     }
 }
+// swiftlint:enable cyclomatic_complexity syntactic_sugar

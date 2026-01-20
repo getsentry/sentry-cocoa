@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -53,3 +54,4 @@ import Foundation
     }
     // swiftlint:enable cyclomatic_complexity function_body_length
 }
+// swiftlint:enable missing_docs

@@ -5,6 +5,7 @@ disabled_rules:
   - force_try
   - force_unwrapping
   - identifier_name
+  - missing_docs
   - object_literal
   - private_outlet
   - unused_optional_binding

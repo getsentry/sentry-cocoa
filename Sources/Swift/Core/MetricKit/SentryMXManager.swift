@@ -118,8 +118,8 @@ final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
 }
 
 extension Event {
-    @objc
-    @_spi(Private) public func isMetricKitEvent() -> Bool {
+    // swiftlint:disable:next missing_docs
+    @objc @_spi(Private) public func isMetricKitEvent() -> Bool {
         guard let mechanism = exceptions?.first?.mechanism, exceptions?.count == 1 else {
             return false
         }

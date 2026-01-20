@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Darwin
 import Foundation
@@ -288,3 +289,4 @@ public final class SentryCrashWrapper: NSObject {
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
     }
 }
+// swiftlint:enable missing_docs

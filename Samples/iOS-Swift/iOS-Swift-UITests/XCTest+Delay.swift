@@ -1,6 +1,6 @@
 import XCTest
 
-public extension XCTestCase {
+extension XCTestCase {
     func delay(seconds: TimeInterval) {
         let exp = expectation(description: "Waiting for \(seconds) seconds")
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {

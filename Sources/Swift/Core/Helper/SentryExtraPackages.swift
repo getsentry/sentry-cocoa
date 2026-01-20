@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objc @_spi(Private) public final class SentryExtraPackages: NSObject {
@@ -31,3 +32,4 @@ import Foundation
     }
     #endif
 }
+// swiftlint:enable missing_docs

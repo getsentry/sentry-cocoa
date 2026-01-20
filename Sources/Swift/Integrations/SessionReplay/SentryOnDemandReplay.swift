@@ -1,4 +1,4 @@
-// swiftlint:disable file_length type_body_length
+// swiftlint:disable file_length type_body_length missing_docs
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 
@@ -369,4 +369,4 @@ import UIKit
 
 #endif // os(iOS) || os(tvOS)
 #endif // canImport(UIKit)
-// swiftlint:enable file_length type_body_length
+// swiftlint:enable file_length type_body_length missing_docs

@@ -149,9 +149,9 @@ class ViewController: NSViewController {
         }
 
         let count = try! fm.contentsOfDirectory(atPath: dir).count
-        //swiftlint:disable empty_count
+        // swiftlint:disable empty_count
         guard continuous || count > 0 else {
-            //swiftlint:enable empty_count
+            // swiftlint:enable empty_count
             uiTestDataMarshalingField.stringValue = "<missing>"
             return
         }

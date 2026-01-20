@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 @_spi(Private) @objc public class SentryThreadInspector: NSObject {
@@ -27,3 +28,4 @@
         internalHelper.getThreadName(thread)
     }
 }
+// swiftlint:enable missing_docs

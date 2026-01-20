@@ -42,7 +42,9 @@ let files = [
     "./SentrySwiftUI.podspec",
     "./Sources/Sentry/SentryMeta.m",
     "./3rd-party-integrations/SentrySwiftLog/Package.swift",
-    "./3rd-party-integrations/SentrySwiftyBeaver/Package.swift"
+    "./3rd-party-integrations/SentrySwiftyBeaver/Package.swift",
+    "./3rd-party-integrations/SentryCocoaLumberjack/Package.swift",
+    "./3rd-party-integrations/SentryPulse/Package.swift"
 ]
 
 // Files that only accept the format x.x.x in order to release an app using the framework.

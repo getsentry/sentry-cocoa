@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
@@ -234,3 +235,4 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     }
     #endif
 }
+// swiftlint:enable missing_docs

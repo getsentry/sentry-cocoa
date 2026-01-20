@@ -2497,6 +2497,53 @@ class SentryClientTests: XCTestCase {
         XCTAssertNil(envelope.header.eventId, "Envelope header eventId should be nil")
     }
     
+    func testFlush_whenMetricsIntegrationInstalled_shouldFlushMetrics() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self)
+        options.experimental.enableMetrics = true
+        
+        let client = TestClient(options: options)!
+        let hub = SentryHubInternal(
+            client: client,
+            andScope: Scope(),
+            andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
+            andDispatchQueue: SentryDispatchQueueWrapper()
+        )
+        SentrySDKInternal.setCurrentHub(hub)
+        defer {
+            SentrySDKInternal.setCurrentHub(nil)
+        }
+        
+        // Install metrics integration
+        let dependencies = SentryDependencyContainer.sharedInstance()
+        let integration = try XCTUnwrap(SentryMetricsIntegration<SentryDependencyContainer>(with: options, dependencies: dependencies) as Any as? SentryIntegrationProtocol)
+        hub.addInstalledIntegration(integration, name: SentryMetricsIntegration<SentryDependencyContainer>.name)
+        
+        // Add a metric to flush
+        let metricsIntegration = try XCTUnwrap(integration as Any as? SentryMetricsIntegration<SentryDependencyContainer>)
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+        metricsIntegration.addMetric(metric, scope: scope)
+        
+        // Clear any previous invocations
+        client.captureMetricsDataInvocations.removeAll()
+        
+        // -- Act --
+        hub.flush(timeout: 1.0)
+        
+        // -- Assert --
+        // Verify metrics are flushed via Hub.flush()
+        XCTAssertEqual(client.captureMetricsDataInvocations.count, 1, "Hub.flush() should flush metrics integration")
+    }
+    
     func testCaptureSentryWrappedException() throws {
 #if os(macOS)
         let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: nil)
