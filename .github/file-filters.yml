@@ -528,10 +528,9 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
   - "Makefile"
   - "Brewfile*"
 
-run_swift_log_for_prs: &run_swift_log_for_prs
-  - "3rd-party-integrations/SentrySwiftLog/**"
+run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_prs
+  - "3rd-party-integrations/**"
 
   # GH Actions
-  - ".github/workflows/integrations-common.yml"
-  - ".github/workflows/integrations-swift-log.yml"
+  - ".github/workflows/test-3rd-party-integrations.yml"
   - ".github/file-filters.yml"

@@ -1,4 +1,4 @@
-name: Test Integrations
+name: Test 3rd Party Integrations
 on:
   push:
     branches:
@@ -24,10 +24,10 @@ jobs:
     name: Ready-to-merge gate
     uses: ./.github/workflows/ready-to-merge-workflow.yml
 
-  # This job detects if the PR contains changes that require running unit tests.
-  # If yes, the job will output a flag that will be used by the next job to run the unit tests.
-  # If no, the job will output a flag that will be used by the next job to skip running the unit tests.
-  # At the end of this workflow, we run a check that validates that either all unit tests passed or were
+  # This job detects if the PR contains changes that require running tests for 3rd-party integrations.
+  # If yes, the job will output a flag that will be used by the next job to run the tests for 3rd-party integrations.
+  # If no, the job will output a flag that will be used by the next job to skip running the tests for 3rd-party integrations.
+  # At the end of this workflow, we run a check that validates that either all tests for 3rd-party integrations passed or were
   # called unit-tests-required-check.
   files-changed:
     name: Detect File Changes
@@ -35,7 +35,7 @@ jobs:
     needs: ready-to-merge-gate
     # Map a step output to a job output
     outputs:
-      run_swift_log_for_prs: ${{ steps.changes.outputs.run_swift_log_for_prs }}
+      run_3rd_party_integrations_tests_for_prs: ${{ steps.changes.outputs.run_3rd_party_integrations_tests_for_prs }}
     steps:
       - uses: actions/checkout@v6
       - name: Get changed files
@@ -45,13 +45,21 @@ jobs:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
 
-  # TODO: All tests here are validating against the released SPM package, so we need to build the XCFramework first.
-  spm-integrations-tests:
-    name: "SPM Tests for Swift Log"
+  # SPM tests for all 3rd-party integrations
+  test-integrations-spm:
+    name: SPM Tests ${{matrix.integration_dir}}
     needs: files-changed
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_swift_log_for_prs == 'true'
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true'
     runs-on: macos-15
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - integration_dir: SentrySwiftLog
+          - integration_dir: SentrySwiftyBeaver
+          - integration_dir: SentryCocoaLumberjack
+          - integration_dir: SentryPulse
     steps:
       - uses: actions/checkout@v6
       - name: Select Xcode version
@@ -59,21 +67,32 @@ jobs:
           XCODE_VERSION: 16.4
         run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
       - name: Use local sentry-cocoa
-        working-directory: 3rd-party-integrations/SentrySwiftLog
+        working-directory: 3rd-party-integrations/${{matrix.integration_dir}}
         run: swift package edit sentry-cocoa --path ../..
       - name: Run SPM Tests
-        working-directory: 3rd-party-integrations/SentrySwiftLog
+        working-directory: 3rd-party-integrations/${{matrix.integration_dir}}
         run: swift test
+      - name: Archiving Raw Logs
+        uses: actions/upload-artifact@v6
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-output-${{matrix.integration_dir}}-integration
+          path: |
+            3rd-party-integrations/${{matrix.integration_dir}}/.build/**/*.log
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
 
-  test-integration:
-    name: Unit Tests for Swift Log
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_swift_log_for_prs == 'true'
+  # Xcode tests for 3rd-party integrations that have Xcode project schemes
+  test-integrations-xcode:
+    name: Unit Tests ${{matrix.integration_dir}} ${{matrix.name}}
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true'
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
     with:
-      name: SwiftLog
-      scheme: SentrySwiftLog
-      working_directory: 3rd-party-integrations/SentrySwiftLog
+      name: ${{matrix.integration_dir}} ${{matrix.name}}
+      scheme: ${{matrix.scheme}}
+      working_directory: ${{matrix.working_directory}}
       path_to_scripts_folder: ../../scripts
       xcode: ${{ matrix.xcode }}
       test-destination-os: ${{ matrix.test-destination-os }}
@@ -86,27 +105,40 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: iOS 18
+          # SwiftLog tests
+          - integration_dir: SentrySwiftLog
+            scheme: SentrySwiftLog
+            working_directory: 3rd-party-integrations/SentrySwiftLog
+            name: iOS 18
             xcode: "16.4"
             macos_version: macos-15
             test-destination-os: "18.4"
             platform: "iOS"
             device: "iPhone 16 Pro"
 
-          - name: iOS 26
+          - integration_dir: SentrySwiftLog
+            scheme: SentrySwiftLog
+            working_directory: 3rd-party-integrations/SentrySwiftLog
+            name: iOS 26
             macos_version: macos-26
             xcode: "26.1.1"
             test-destination-os: "26.1"
             platform: "iOS"
             device: "iPhone 17 Pro"
 
-          - name: macOS 15
+          - integration_dir: SentrySwiftLog
+            scheme: SentrySwiftLog
+            working_directory: 3rd-party-integrations/SentrySwiftLog
+            name: macOS 15
             macos_version: macos-15
             xcode: "16.4"
             test-destination-os: "latest"
             platform: "macOS"
 
-          - name: macOS 26
+          - integration_dir: SentrySwiftLog
+            scheme: SentrySwiftLog
+            working_directory: 3rd-party-integrations/SentrySwiftLog
+            name: macOS 26
             macos_version: macos-26
             xcode: "26.1.1"
             test-destination-os: "26.1"
@@ -117,10 +149,10 @@ jobs:
       [
         ready-to-merge-gate,
         files-changed,
-        spm-integrations-tests,
-        test-integration,
+        test-integrations-spm,
+        test-integrations-xcode,
       ]
-    name: Swift Log Tests - Required Check
+    name: 3rd Party Integration Tests - Required Check
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()
     runs-on: ubuntu-latest
@@ -130,4 +162,4 @@ jobs:
       - name: Check for failures
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: |
-          echo "One of the unit test jobs has failed." && exit 1
+          echo "One of the 3rd party integration test jobs has failed." && exit 1
