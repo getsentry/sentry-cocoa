@@ -29,8 +29,10 @@ on:
 #   only the latest version needs validation before merging.
 # - For main branch pushes (actual releases), we never cancel runs to ensure every release
 #   process completes fully, as partial releases could corrupt our distribution pipeline.
+# - For workflow_dispatch events (manual releases), each run gets a unique group using run_id
+#   to prevent manual releases from canceling each other, allowing multiple concurrent releases.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'workflow_dispatch' && format('{0}-{1}', github.ref, github.run_id) || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
