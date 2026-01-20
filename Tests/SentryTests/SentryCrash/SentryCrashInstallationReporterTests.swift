@@ -19,13 +19,9 @@ class SentryCrashInstallationReporterTests: XCTestCase {
 
         try givenStoredSentryCrashReport(resource: "Resources/crash-report-1")
 
-        let expectation = expectation(description: "sendAllReports completion")
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 1)
-            expectation.fulfill()
         }
-
-        waitForExpectations(timeout: 1.0)
 
         XCTAssertEqual(self.testClient.captureFatalEventInvocations.count, 1)
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
@@ -39,13 +35,9 @@ class SentryCrashInstallationReporterTests: XCTestCase {
 
         try givenStoredSentryCrashReport(resource: "Resources/crash-report-legacy-storage-info")
 
-        let expectation = expectation(description: "sendAllReports completion")
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 1)
-            expectation.fulfill()
         }
-
-        waitForExpectations(timeout: 1.0)
 
         XCTAssertEqual(self.testClient.captureFatalEventInvocations.count, 1)
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
@@ -61,13 +53,9 @@ class SentryCrashInstallationReporterTests: XCTestCase {
 
         try givenStoredSentryCrashReport(resource: "Resources/crash-report-without-device-context")
 
-        let expectation = expectation(description: "sendAllReports completion")
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 1)
-            expectation.fulfill()
         }
-
-        waitForExpectations(timeout: 1.0)
 
         XCTAssertEqual(self.testClient.captureFatalEventInvocations.count, 1)
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
@@ -82,13 +70,9 @@ class SentryCrashInstallationReporterTests: XCTestCase {
 
         try givenStoredSentryCrashReport(resource: "Resources/Crash-faulty-report")
 
-        let expectation = expectation(description: "sendAllReports completion")
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 0)
-            expectation.fulfill()
         }
-
-        waitForExpectations(timeout: 1.0)
 
         XCTAssertEqual(self.testClient.captureFatalEventInvocations.count, 0)
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
@@ -97,6 +81,8 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     private func givenSutWithStartedSDK() {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryCrashInstallationReporterTests")
+        // Disable crash handler so only
+        options.enableCrashHandler = false
         SentrySDK.start(options: options)
         
         testClient = TestClient(options: options)
