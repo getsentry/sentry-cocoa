@@ -144,6 +144,123 @@ jobs:
             test-destination-os: "26.1"
             platform: "macOS"
 
+          # SwiftyBeaver tests
+          - integration_dir: SentrySwiftyBeaver
+            scheme: SentrySwiftyBeaver
+            working_directory: 3rd-party-integrations/SentrySwiftyBeaver
+            name: iOS 18
+            xcode: "16.4"
+            macos_version: macos-15
+            test-destination-os: "18.4"
+            platform: "iOS"
+            device: "iPhone 16 Pro"
+
+          - integration_dir: SentrySwiftyBeaver
+            scheme: SentrySwiftyBeaver
+            working_directory: 3rd-party-integrations/SentrySwiftyBeaver
+            name: iOS 26
+            macos_version: macos-26
+            xcode: "26.1.1"
+            test-destination-os: "26.1"
+            platform: "iOS"
+            device: "iPhone 17 Pro"
+
+          - integration_dir: SentrySwiftyBeaver
+            scheme: SentrySwiftyBeaver
+            working_directory: 3rd-party-integrations/SentrySwiftyBeaver
+            name: macOS 15
+            macos_version: macos-15
+            xcode: "16.4"
+            test-destination-os: "latest"
+            platform: "macOS"
+
+          - integration_dir: SentrySwiftyBeaver
+            scheme: SentrySwiftyBeaver
+            working_directory: 3rd-party-integrations/SentrySwiftyBeaver
+            name: macOS 26
+            macos_version: macos-26
+            xcode: "26.1.1"
+            test-destination-os: "26.1"
+            platform: "macOS"
+
+          # CocoaLumberjack tests
+          - integration_dir: SentryCocoaLumberjack
+            scheme: SentryCocoaLumberjack
+            working_directory: 3rd-party-integrations/SentryCocoaLumberjack
+            name: iOS 18
+            xcode: "16.4"
+            macos_version: macos-15
+            test-destination-os: "18.4"
+            platform: "iOS"
+            device: "iPhone 16 Pro"
+
+          - integration_dir: SentryCocoaLumberjack
+            scheme: SentryCocoaLumberjack
+            working_directory: 3rd-party-integrations/SentryCocoaLumberjack
+            name: iOS 26
+            macos_version: macos-26
+            xcode: "26.1.1"
+            test-destination-os: "26.1"
+            platform: "iOS"
+            device: "iPhone 17 Pro"
+
+          - integration_dir: SentryCocoaLumberjack
+            scheme: SentryCocoaLumberjack
+            working_directory: 3rd-party-integrations/SentryCocoaLumberjack
+            name: macOS 15
+            macos_version: macos-15
+            xcode: "16.4"
+            test-destination-os: "latest"
+            platform: "macOS"
+
+          - integration_dir: SentryCocoaLumberjack
+            scheme: SentryCocoaLumberjack
+            working_directory: 3rd-party-integrations/SentryCocoaLumberjack
+            name: macOS 26
+            macos_version: macos-26
+            xcode: "26.1.1"
+            test-destination-os: "26.1"
+            platform: "macOS"
+
+          # Pulse tests
+          - integration_dir: SentryPulse
+            scheme: SentryPulse
+            working_directory: 3rd-party-integrations/SentryPulse
+            name: iOS 18
+            xcode: "16.4"
+            macos_version: macos-15
+            test-destination-os: "18.4"
+            platform: "iOS"
+            device: "iPhone 16 Pro"
+
+          - integration_dir: SentryPulse
+            scheme: SentryPulse
+            working_directory: 3rd-party-integrations/SentryPulse
+            name: iOS 26
+            macos_version: macos-26
+            xcode: "26.1.1"
+            test-destination-os: "26.1"
+            platform: "iOS"
+            device: "iPhone 17 Pro"
+
+          - integration_dir: SentryPulse
+            scheme: SentryPulse
+            working_directory: 3rd-party-integrations/SentryPulse
+            name: macOS 15
+            macos_version: macos-15
+            xcode: "16.4"
+            test-destination-os: "latest"
+            platform: "macOS"
+
+          - integration_dir: SentryPulse
+            scheme: SentryPulse
+            working_directory: 3rd-party-integrations/SentryPulse
+            name: macOS 26
+            macos_version: macos-26
+            xcode: "26.1.1"
+            test-destination-os: "26.1"
+            platform: "macOS"
+
   unit-tests-required-check:
     needs:
       [
