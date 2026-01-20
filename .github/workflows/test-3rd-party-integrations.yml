@@ -153,7 +153,7 @@ jobs:
             name: iOS 18
             xcode: "16.4"
             macos_version: macos-15
-            test-destination-os: "18.4"
+            test-destination-os: "18.5"
             platform: "iOS"
             device: "iPhone 16 Pro"
 
@@ -192,7 +192,7 @@ jobs:
             name: iOS 18
             xcode: "16.4"
             macos_version: macos-15
-            test-destination-os: "18.4"
+            test-destination-os: "18.5"
             platform: "iOS"
             device: "iPhone 16 Pro"
 
@@ -231,7 +231,7 @@ jobs:
             name: iOS 18
             xcode: "16.4"
             macos_version: macos-15
-            test-destination-os: "18.4"
+            test-destination-os: "18.5"
             platform: "iOS"
             device: "iPhone 16 Pro"
 
