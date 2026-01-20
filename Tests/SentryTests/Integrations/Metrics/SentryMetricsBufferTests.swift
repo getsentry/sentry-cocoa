@@ -773,7 +773,7 @@ final class TestMetricsBufferCallbackHelper {
             self?.captureMetricsDataInvocations.record((data, count))
         }
     }
-    
+
     // Helper to get captured metrics
     // Note: The buffer produces JSON in the format {"items":[...]} as verified by InMemoryInternalTelemetryBuffer.batchedData
     //

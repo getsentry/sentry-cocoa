@@ -529,7 +529,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         // Calling uninstall will flush the data, allowing us to assert the client invocations
         try getIntegration()?.uninstall()
     }
-    
+
     // Helper to get captured metrics
     // Note: The buffer produces JSON in the format {"items":[...]} as verified by InMemoryInternalTelemetryBuffer.batchedData
     //
