@@ -1,6 +1,4 @@
 #import "SentryFileIOTrackingIntegration.h"
-#import "SentryNSDataSwizzling.h"
-#import "SentryNSFileManagerSwizzling.h"
 #import "SentrySwift.h"
 
 @interface SentryFileIOTrackingIntegration ()
