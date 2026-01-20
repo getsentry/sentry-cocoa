@@ -1,10 +1,11 @@
+// swiftlint:disable missing_docs
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
 
 import UIKit
 
 @objcMembers
-@_spi(Private) public class SentryViewRendererV2: NSObject, SentryViewRenderer {
+@_spi(Private) public final class SentryViewRendererV2: NSObject, SentryViewRenderer {
     let enableFastViewRendering: Bool
 
     public init(enableFastViewRendering: Bool) {
@@ -26,3 +27,4 @@ import UIKit
 
 #endif // os(iOS) || os(tvOS)
 #endif // canImport(UIKit) && !SENTRY_NO_UIKIT
+// swiftlint:enable missing_docs

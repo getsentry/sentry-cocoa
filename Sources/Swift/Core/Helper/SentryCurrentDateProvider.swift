@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 /**
@@ -10,10 +11,17 @@ import Foundation
     func timezoneOffset() -> Int
     func systemTime() -> UInt64
     func systemUptime() -> TimeInterval
+    func getAbsoluteTime() -> UInt64
+}
+
+extension SentryCurrentDateProvider {
+    public func getAbsoluteTime() -> UInt64 {
+        clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
+    }
 }
 
 @objcMembers
-@_spi(Private) public class SentryDefaultCurrentDateProvider: NSObject, SentryCurrentDateProvider {
+@_spi(Private) public final class SentryDefaultCurrentDateProvider: NSObject, SentryCurrentDateProvider {
     public func date() -> Date {
         return Date()
     }
@@ -34,7 +42,12 @@ import Foundation
         ProcessInfo.processInfo.systemUptime
     }
 
+    public func getAbsoluteTime() -> UInt64 {
+        SentryDefaultCurrentDateProvider.getAbsoluteTime()
+    }
+
     public static func getAbsoluteTime() -> UInt64 {
         clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
     }
 }
+// swiftlint:enable missing_docs

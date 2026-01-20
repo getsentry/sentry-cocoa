@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objc
@@ -10,7 +11,7 @@ import Foundation
 }
 
 @objc
-@_spi(Private) public class SentryAppHangTypeMapper: NSObject {
+@_spi(Private) public final class SentryAppHangTypeMapper: NSObject {
 
     private enum ExceptionType: String {
         case fatalFullyBlocking = "Fatal App Hang Fully Blocked"
@@ -50,3 +51,4 @@ import Foundation
         return ExceptionType(rawValue: exceptionType) != nil
     }
 }
+// swiftlint:enable missing_docs

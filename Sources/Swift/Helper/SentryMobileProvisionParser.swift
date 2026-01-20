@@ -1,5 +1,6 @@
+// swiftlint:disable missing_docs
 @objc @_spi(Private)
-public class SentryMobileProvisionParser: NSObject {
+public final class SentryMobileProvisionParser: NSObject {
     private var provisionsAllDevices: Bool = false
     private var embeddedProfilePath: String?
     
@@ -61,3 +62,4 @@ public class SentryMobileProvisionParser: NSObject {
         provisionsAllDevices = dict["ProvisionsAllDevices"] as? Bool ?? false
     }
 }
+// swiftlint:enable missing_docs

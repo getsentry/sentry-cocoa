@@ -113,6 +113,10 @@ case $PLATFORM in
     DESTINATION="platform=tvOS Simulator,OS=$OS,name=Apple TV"
     ;;
 
+"visionOS")
+    DESTINATION="platform=visionOS Simulator,OS=$OS,name=Apple Vision Pro"
+    ;;
+
 *)
     echo "Xcode Test: Can't find destination for platform '$PLATFORM'"
     exit 1
@@ -199,6 +203,11 @@ fi
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
     log_notice "Running xcodebuild test-without-building"
+
+    if [ -d "$RESULT_BUNDLE_PATH" ]; then
+        log_notice "Removing existing result bundle at $RESULT_BUNDLE_PATH"
+        rm -rf "$RESULT_BUNDLE_PATH"
+    fi
 
     XCODEBUILD_ARGS+=("-resultBundlePath" "$RESULT_BUNDLE_PATH")
 

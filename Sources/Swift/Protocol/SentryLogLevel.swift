@@ -5,11 +5,17 @@ extension SentryLog {
     /// Each level corresponds to a numeric severity value following the OpenTelemetry specification.
     @objc(SentryLogLevel)
     public enum Level: Int {
+        /// Trace level for very detailed diagnostic information.
         case trace
+        /// Debug level for diagnostic information useful during development.
         case debug
+        /// Info level for general informational messages.
         case info
+        /// Warn level for potentially harmful situations.
         case warn
+        /// Error level for error events that might still allow the application to continue running.
         case error
+        /// Fatal level for severe error events that will presumably lead the application to abort.
         case fatal
         
         /// Creates a log level from its string representation.
@@ -74,14 +80,10 @@ extension SentryLog {
     }
 }
 
-// MARK: - Internal Codable Support
-@_spi(Private) extension SentryLog.Level: Codable {
-    @_spi(Private) public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let stringValue = try container.decode(String.self)
-        self = try .init(value: stringValue)
-    }
+// MARK: - Internal Encodable Support
+@_spi(Private) extension SentryLog.Level: Encodable {
     
+    // swiftlint:disable:next missing_docs
     @_spi(Private) public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(value)

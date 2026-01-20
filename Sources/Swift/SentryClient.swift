@@ -1,6 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+/// The Sentry client is responsible for capturing events and sending them to Sentry.
 @objc public final class SentryClient: NSObject {
     let helper: SentryClientInternal
     
@@ -18,10 +19,12 @@ import Foundation
         self.helper = helper
     }
     
-    @objc public  var isEnabled: Bool {
+    /// Indicates whether the client is enabled and will send events to Sentry.
+    @objc public var isEnabled: Bool {
         helper.isEnabled
     }
     
+    /// The options used to configure this client.
     @objc public var options: Options {
         get {
             // Swift code cannot see ObjC headers that use Swift types, so this needs to use a force cast until SentryClient is completely written in Swift

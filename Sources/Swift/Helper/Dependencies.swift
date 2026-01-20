@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 @objc(SentryDependencies) @_spi(Private) public final class Dependencies: NSObject {
@@ -7,9 +8,6 @@
     static let infoPlistWrapper: SentryInfoPlistWrapperProvider = SentryInfoPlistWrapper()
     @objc public static let sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentChecker = {
         SentrySessionReplayEnvironmentChecker(infoPlistWrapper: Dependencies.infoPlistWrapper)
-    }()
-    @objc public static var extensionDetector: SentryExtensionDetector = {
-        SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
     @objc public static let dispatchQueueWrapper = SentryDispatchQueueWrapper()
     @objc public static let notificationCenterWrapper: SentryNSNotificationCenterWrapper = NotificationCenter.default
@@ -24,5 +22,5 @@
 #endif // !os(watchOS) && !os(macOS) && !SENTRY_NO_UIKIT
     @objc public static var threadInspector = SentryThreadInspector()
     @objc public static var fileIOTracker = SentryFileIOTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
-
 }
+// swiftlint:enable missing_docs

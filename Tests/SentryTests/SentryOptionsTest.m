@@ -1,6 +1,6 @@
 #import "SentryError.h"
 #import "SentrySDKInternal.h"
-#import "SentrySpan.h"
+#import "SentrySpanInternal.h"
 #import "SentryTests-Swift.h"
 #import <XCTest/XCTest.h>
 
@@ -357,10 +357,10 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
         return span;
     };
     SentryOptions *options = [self getValidOptions:@{ @"beforeSendSpan" : callback }];
-    options.beforeSendSpan(
-        [[SentrySpan alloc] initWithContext:[[SentrySpanContext alloc] initWithOperation:@""]
+    options.beforeSendSpan([[SentrySpanInternal alloc]
+        initWithContext:[[SentrySpanContext alloc] initWithOperation:@""]
 #if SENTRY_HAS_UIKIT
-                              framesTracker:NULL
+          framesTracker:NULL
 #endif
     ]);
 
@@ -721,8 +721,10 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(options.enablePreWarmedAppStartTracing, YES);
     XCTAssertEqual(options.attachViewHierarchy, NO);
     XCTAssertEqual(options.reportAccessibilityIdentifier, YES);
+#    if SENTRY_TARGET_REPLAY_SUPPORTED
     XCTAssertEqual(options.sessionReplay.onErrorSampleRate, 0);
     XCTAssertEqual(options.sessionReplay.sessionSampleRate, 0);
+#    endif // SENTRY_TARGET_REPLAY_SUPPORTED
 #endif // SENTRY_HAS_UIKIT
     XCTAssertTrue(options.enableAppHangTracking);
     XCTAssertEqual(options.appHangTimeoutInterval, 2);
@@ -893,6 +895,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     [self testBooleanField:@"enablePreWarmedAppStartTracing" defaultValue:YES];
 }
 
+#    if SENTRY_TARGET_REPLAY_SUPPORTED
 - (void)testSessionReplaySettingsInit
 {
     if (@available(iOS 16.0, tvOS 16.0, *)) {
@@ -912,7 +915,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
         XCTAssertEqual(options.sessionReplay.onErrorSampleRate, 0);
     }
 }
-
+#    endif // SENTRY_TARGET_REPLAY_SUPPORTED
 #endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_HAS_METRIC_KIT

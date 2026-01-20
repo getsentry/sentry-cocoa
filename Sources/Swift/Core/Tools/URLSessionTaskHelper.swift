@@ -1,7 +1,8 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objcMembers
-@_spi(Private) public class URLSessionTaskHelper: NSObject {
+@_spi(Private) public final class URLSessionTaskHelper: NSObject {
 
     public static func getGraphQLOperationName(from task: URLSessionTask?) -> String? {
         guard let task = task else { return nil }
@@ -18,3 +19,4 @@ import Foundation
 private struct GraphQLRequest: Decodable {
     let operationName: String
 }
+// swiftlint:enable missing_docs

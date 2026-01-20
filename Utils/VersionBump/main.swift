@@ -39,10 +39,12 @@ let fromVersionFile = "./Sentry.podspec"
 let files = [
     "./Sentry.podspec",
     "./Package.swift",
-    "./SentryPrivate.podspec",
     "./SentrySwiftUI.podspec",
     "./Sources/Sentry/SentryMeta.m",
-    "./Tests/HybridSDKTest/HybridPod.podspec"
+    "./3rd-party-integrations/SentrySwiftLog/Package.swift",
+    "./3rd-party-integrations/SentrySwiftyBeaver/Package.swift",
+    "./3rd-party-integrations/SentryCocoaLumberjack/Package.swift",
+    "./3rd-party-integrations/SentryPulse/Package.swift"
 ]
 
 // Files that only accept the format x.x.x in order to release an app using the framework.
@@ -175,12 +177,11 @@ func verifyRestrictedFile(_ file: String, expectedVersion: String) throws {
 
 func getRegexString(for file: String) throws -> String {
     if file.hasSuffix(".podspec") {
-        if file == "./Tests/HybridSDKTest/HybridPod.podspec" {
-            return "s\\.dependency\\s\"Sentry\\/HybridSDK\",\\s\"(?<version>[a-zA-z0-9\\.\\-]+)\""
-        }
         return "\\ss\\.version\\s+=\\s\"(?<version>[a-zA-z0-9\\.\\-]+)\""
     } else if file.hasPrefix("./Package") && file.hasSuffix(".swift") {
         return "https:\\/\\/github\\.com\\/getsentry\\/sentry-cocoa\\/releases\\/download\\/(?<version>[a-zA-z0-9\\.\\-]+)\\/Sentry"
+    } else if file.hasPrefix("./3rd-party-integrations/") && file.hasSuffix("/Package.swift") {
+        return "\\.package\\(url:\\s\"https:\\/\\/github\\.com\\/getsentry\\/sentry-cocoa\",\\sfrom:\\s\"(?<version>[a-zA-z0-9\\.\\-]+)\""
     } else if file == "./Sources/Sentry/SentryMeta.m" {
         return "static NSString \\*versionString = @\"(?<version>[a-zA-z0-9\\.\\-]+)\""
     }

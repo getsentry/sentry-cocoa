@@ -7,8 +7,8 @@
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySpan.h"
 #import "SentrySpanDataKey.h"
+#import "SentrySpanInternal.h"
 #import "SentrySpanOperation.h"
 #import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
@@ -246,7 +246,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
         // and we should not report it as an issue.
         [span setDataValue:@(NO) forKey:SPAN_DATA_BLOCKED_MAIN_THREAD];
     } else {
-        [((SentrySpan *)span) setFrames:frames];
+        [((SentrySpanInternal *)span) setFrames:frames];
     }
 }
 

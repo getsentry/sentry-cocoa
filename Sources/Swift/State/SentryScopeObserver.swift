@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_spi(Private) @objc public protocol SentryScopeObserver: NSObjectProtocol {
     func setUser(_ user: User?)
     func setTags(_ tags: [String: String]?)
@@ -14,3 +15,4 @@
     func clear()
     @objc optional func setCurrentScreen(_ currentScreen: String?)
 }
+// swiftlint:enable missing_docs

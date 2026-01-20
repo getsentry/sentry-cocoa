@@ -7,7 +7,6 @@
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDeviceContextKeys.h"
-#import "SentryDsn.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryInstallation.h"
@@ -20,7 +19,6 @@
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
-#import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
@@ -36,7 +34,6 @@
 #import "SentryTransportFactory.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUser.h"
-#import "SentryWatchdogTerminationTracker.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -72,11 +69,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return nil;
     }
 
-    NSArray<id<SentryTransport>> *transports =
-        [SentryTransportFactory initTransports:options
-                                  dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-                             sentryFileManager:fileManager
-                                    rateLimits:SentryDependencyContainer.sharedInstance.rateLimits];
+    NSArray<id<SentryTransport>> *transports = [SentryTransportFactory
+           initTransports:options
+             dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+        sentryFileManager:fileManager
+               rateLimits:SentryDependencyContainer.sharedInstance.rateLimits
+             reachability:SentryDependencyContainer.sharedInstance.reachability];
 
     SentryTransportAdapter *transportAdapter =
         [[SentryTransportAdapter alloc] initWithTransports:transports options:options];
@@ -85,6 +83,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 
     return [self initWithOptions:options
+                    dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
                 transportAdapter:transportAdapter
                      fileManager:fileManager
                  threadInspector:threadInspector
@@ -95,6 +94,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options
+                   dateProvider:(id<SentryCurrentDateProvider>)dateProvider
                transportAdapter:(SentryTransportAdapter *)transportAdapter
                     fileManager:(SentryFileManager *)fileManager
                 threadInspector:(SentryDefaultThreadInspector *)threadInspector
@@ -114,10 +114,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.locale = locale;
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
-        self.logBatcher = [[SentryLogBatcher alloc]
-            initWithOptions:options
-              dispatchQueue:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-                   delegate:self];
+
+        self.logBatcher = [[SentryLogBatcher alloc] initWithOptions:options
+                                                       dateProvider:dateProvider
+                                                           delegate:self];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.
@@ -625,10 +625,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)flush:(NSTimeInterval)timeout
 {
     NSTimeInterval captureLogsDuration = [self.logBatcher captureLogs];
-    // Capturing batched logs should never take long, but we need to fall back to a sane value.
-    // This is a workaround for in-memory logs, until we'll write batched logs to disk,
-    // to avoid data loss due to crashes. This is a trade-off until then.
-    [self.transportAdapter flush:fmax(timeout / 2, timeout - captureLogsDuration)];
+    // Calculate remaining timeout for transport flush.
+    // We subtract the time already spent capturing logs to respect the overall timeout.
+    // If log capture took longer than the timeout, we use 0.0 which will still trigger
+    // sending events but won't block waiting for completion.
+    NSTimeInterval remainingTimeout = fmax(0.0, timeout - captureLogsDuration);
+    [self.transportAdapter flush:remainingTimeout];
 }
 
 - (void)close
@@ -942,7 +944,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     SentryException *exception = event.exceptions[0];
     return exception.mechanism != nil &&
-        [exception.mechanism.type isEqualToString:SentryWatchdogTerminationMechanismType];
+        [exception.mechanism.type isEqualToString:SentryWatchdogTerminationConstants.MechanismType];
 }
 
 - (void)applyCultureContextToEvent:(SentryEvent *)event
@@ -1105,13 +1107,36 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 }
 
+- (void)captureLogs
+{
+    [self.logBatcher captureLogs];
+}
+
 - (void)captureLogsData:(NSData *)data with:(NSNumber *)itemCount
 {
-    SentryEnvelopeItem *envelopeItem =
-        [[SentryEnvelopeItem alloc] initWithType:SentryEnvelopeItemTypes.log
-                                            data:data
-                                     contentType:@"application/vnd.sentry.items.log+json"
-                                       itemCount:itemCount];
+    [self captureData:data
+                 with:itemCount
+                 type:SentryEnvelopeItemTypes.log
+          contentType:@"application/vnd.sentry.items.log+json"];
+}
+
+- (void)captureMetricsData:(NSData *)data with:(NSNumber *)itemCount
+{
+    [self captureData:data
+                 with:itemCount
+                 type:SentryEnvelopeItemTypes.traceMetric
+          contentType:@"application/vnd.sentry.items.trace-metric+json"];
+}
+
+- (void)captureData:(NSData *)data
+               with:(NSNumber *)itemCount
+               type:(NSString *)type
+        contentType:(NSString *)contentType
+{
+    SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithType:type
+                                                                           data:data
+                                                                    contentType:contentType
+                                                                      itemCount:itemCount];
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
                                                            singleItem:envelopeItem];
     [self captureEnvelope:envelope];

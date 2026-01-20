@@ -25,8 +25,9 @@ import ObjectiveC
  * /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot/System/Library/...
  *
  */
-@objc @_spi(Private) public class SentryInAppLogic: NSObject {
+@objc @_spi(Private) public final class SentryInAppLogic: NSObject {
     
+    /// A list of string prefixes of framework names that belong to the app, stored in lowercase.
     @objc public let inAppIncludes: [String]
     
     /**
@@ -87,6 +88,12 @@ import ObjectiveC
         return `is`(inApp: classImageName)
     }
     
+    /// Determines if an image name matches a given in-app include prefix.
+    ///
+    /// - Parameters:
+    ///   - imageName: The full path of the binary image.
+    ///   - inAppInclude: The prefix to check against.
+    /// - Returns: `true` if the image name's last path component starts with the given prefix.
     @objc public static func isImageNameInApp(_ imageName: String, inAppInclude: String) -> Bool {
         return isImageNameLastPathComponentInApp(
             (imageName as NSString).lastPathComponent.lowercased(),

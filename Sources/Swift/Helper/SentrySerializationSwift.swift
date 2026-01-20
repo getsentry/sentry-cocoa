@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 @_spi(Private) @objc public final class SentrySerializationSwift: NSObject {
@@ -91,7 +92,7 @@
         data(withJSONObject: session.serialize())
     }
     
-    //swiftlint:disable cyclomatic_complexity function_body_length
+    // swiftlint:disable cyclomatic_complexity function_body_length
     @objc(envelopeWithData:) public static func envelope(with data: Data) -> SentryEnvelope? {
         let newline = UInt8(ascii: "\n")
         var envelopeHeader: SentryEnvelopeHeader?
@@ -110,20 +111,9 @@
                 #endif
                 do {
                     let headerDictionary = try JSONSerialization.jsonObject(with: headerData) as? [String: Any]
-                    var eventId: SentryId?
-                    if let eventIdAsString = headerDictionary?["event_id"] as? String {
-                        eventId = SentryId(uuidString: eventIdAsString)
-                    }
-                    
-                    var sdkInfo: SentrySdkInfo?
-                    if let sdkDict = headerDictionary?["sdk"] as? [String: Any] {
-                        sdkInfo = SentrySdkInfo(dict: sdkDict)
-                    }
-
-                    var traceContext: TraceContext?
-                    if let traceDict = headerDictionary?["trace"] as? [String: Any] {
-                        traceContext = TraceContext(dict: traceDict)
-                    }
+                    let eventId = (headerDictionary?["event_id"] as? String).map { SentryId(uuidString: $0) }
+                    let sdkInfo = (headerDictionary?["sdk"] as? [String: Any]).map { SentrySdkInfo(dict: $0) }
+                    let traceContext = (headerDictionary?["trace"] as? [String: Any]).map { TraceContext(dict: $0) } ?? .none
                     
                     envelopeHeader = SentryEnvelopeHeader(id: eventId,
                                                       sdkInfo: sdkInfo,
@@ -240,5 +230,6 @@
 
         return SentryEnvelope(header: envelopeHeaderUnwrapped, items: items)
     }
-    //swiftlint:enable cyclomatic_complexity function_body_length
+    // swiftlint:enable cyclomatic_complexity function_body_length
 }
+// swiftlint:enable missing_docs

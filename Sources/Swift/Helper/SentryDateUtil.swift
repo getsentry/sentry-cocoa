@@ -1,7 +1,8 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objc
-@_spi(Private) public class SentryDateUtil: NSObject {
+@_spi(Private) public final class SentryDateUtil: NSObject {
 
     private let currentDateProvider: SentryCurrentDateProvider
 
@@ -38,3 +39,4 @@ import Foundation
         return Int(date.timeIntervalSince1970 * 1_000)
     }
 }
+// swiftlint:enable missing_docs

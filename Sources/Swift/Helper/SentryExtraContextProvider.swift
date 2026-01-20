@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 @_spi(Private) @objc public final class SentryExtraContextProvider: NSObject {
@@ -70,3 +71,4 @@
         [ SentryDeviceContextAppMemoryKey: NSNumber(value: self.crashWrapper.appMemorySize) ]
     }
 }
+// swiftlint:enable missing_docs

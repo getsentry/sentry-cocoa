@@ -1,9 +1,10 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
 /** Parses the custom X-Sentry-Rate-Limits header.
 
- This header exists of a multiple quotaLimits seperated by ",".
+ This header exists of a multiple quotaLimits separated by ",".
  Each quotaLimit exists of retry_after:categories:scope.
  retry_after: seconds until the rate limit expires.
  categories: semicolon separated list of categories. If empty, this limit
@@ -106,3 +107,4 @@ public final class RateLimitParser: NSObject {
         return SentryDateUtil.getMaximumDate(newDate, andOther: existingRateLimit) ?? newDate
     }
 }
+// swiftlint:enable missing_docs

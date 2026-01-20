@@ -1,3 +1,4 @@
+/// Defines how a region should be handled during session replay redaction.
 public enum SentryRedactRegionType: String, Codable, Equatable {
     /// Redacts the region.
     case redact = "redact"

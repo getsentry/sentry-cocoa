@@ -6,7 +6,7 @@
 @class SentryAttachment;
 @class SentryPropagationContext;
 @class SentrySession;
-@class SentrySpan;
+@class SentrySpanInternal;
 
 @protocol SentryScopeObserver;
 
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<SentryBreadcrumb *> *)breadcrumbs;
 
-- (nullable SentrySpan *)getCastedInternalSpan;
+- (nullable SentrySpanInternal *)getCastedInternalSpan;
 
 /**
  * used to add values in event context.
@@ -59,8 +59,6 @@ NS_ASSUME_NONNULL_BEGIN
  * Set global tags -> these will be sent with every event
  */
 @property (atomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
-
-- (void)addObserver:(id<SentryScopeObserver>)observer;
 
 - (nullable SentryEvent *)applyToEvent:(SentryEvent *_Nullable)event
                          maxBreadcrumb:(NSUInteger)maxBreadcrumbs

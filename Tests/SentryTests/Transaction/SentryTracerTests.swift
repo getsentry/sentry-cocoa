@@ -615,7 +615,7 @@ class SentryTracerTests: XCTestCase {
     }
     
     func testIdleTimeout_TracerDeallocated() throws {
-#if !os(tvOS) && !os(watchOS)
+#if !os(tvOS) && !os(watchOS) && !os(visionOS)
         if sentry_threadSanitizerIsPresent() {
             throw XCTSkip("doesn't currently work with TSAN enabled. the tracer instance remains retained by something in the TSAN dylib, and we cannot debug the memory graph with TSAN attached to see what is retaining it. it's likely out of our control.")
         }
@@ -1462,7 +1462,7 @@ class SentryTracerTests: XCTestCase {
 
     #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     private func assertAppStartsSpanAdded(transaction: Transaction, startType: String, operation: String, appStartMeasurement: SentryAppStartMeasurement) {
-        let spans: [SentrySpan]? = Dynamic(transaction).spans
+        let spans: [SentrySpanInternal]? = Dynamic(transaction).spans
         XCTAssertEqual(spans?.count, 6)
         
         let appLaunchSpan = spans?.first { span in
@@ -1505,7 +1505,7 @@ class SentryTracerTests: XCTestCase {
     }
 
     private func assertPreWarmedAppStartsSpanAdded(transaction: Transaction, startType: String, operation: String, appStartMeasurement: SentryAppStartMeasurement) {
-            let spans: [SentrySpan]? = Dynamic(transaction).spans
+            let spans: [SentrySpanInternal]? = Dynamic(transaction).spans
             XCTAssertEqual(spans?.count, 4)
 
             let appLaunchSpan = spans?.first { span in

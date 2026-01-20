@@ -1,11 +1,5 @@
 #import "SentryDefines.h"
 
-#if TARGET_OS_IOS || TARGET_OS_TV
-#    define SENTRY_UIKIT_AVAILABLE 1
-#else
-#    define SENTRY_UIKIT_AVAILABLE 0
-#endif
-
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTracker.h"
 #    import "SentryDefaultUIViewControllerPerformanceTracker.h"
@@ -22,7 +16,7 @@
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #import "PrivateSentrySDKOnly.h"
-#import "SentryAppStartMeasurement.h"
+#import "SentryAppStartMeasurement+Private.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
 #import "SentryCrash+Test.h"

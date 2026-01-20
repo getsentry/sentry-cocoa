@@ -1,9 +1,10 @@
+// swiftlint:disable missing_docs
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 import Foundation
 import UIKit
 
 @objcMembers
-@_spi(Private) public class SentryMaskingPreviewView: UIView {
+@_spi(Private) public final class SentryMaskingPreviewView: UIView {
     private class PreviewRenderer: SentryViewRenderer {
         func render(view: UIView) -> UIImage {
             return UIGraphicsImageRenderer(size: view.frame.size, format: .init(for: .init(displayScale: 1))).image { _ in
@@ -72,3 +73,4 @@ import UIKit
 }
 
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+// swiftlint:enable missing_docs

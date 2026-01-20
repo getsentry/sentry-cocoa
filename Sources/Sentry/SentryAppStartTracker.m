@@ -2,7 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryAppStartMeasurement.h"
+#    import "SentryAppStartMeasurement+Private.h"
 #    import "SentryDefines.h"
 #    import "SentryLogC.h"
 #    import <PrivateSentrySDKOnly.h>

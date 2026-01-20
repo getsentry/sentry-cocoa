@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 private let levelNames = ["none", "debug", "info", "warning", "error", "fatal"]
@@ -14,7 +15,7 @@ extension SentryLevel: CustomStringConvertible {
 }
 
 @objcMembers
-@_spi(Private) public class SentryLevelHelper: NSObject {
+@_spi(Private) public final class SentryLevelHelper: NSObject {
     public static func nameForLevel(_  level: SentryLevel) -> String {
         return level.description
     }
@@ -23,3 +24,4 @@ extension SentryLevel: CustomStringConvertible {
         .fromName(name)
     }
 }
+// swiftlint:enable missing_docs

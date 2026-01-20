@@ -67,12 +67,11 @@ jobs:
   assemble-xcframework-variant:
     name: ${{ inputs.override-name || format('{0}{1}', inputs.scheme, inputs.suffix) }}
 
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
-      - uses: actions/checkout@v6
-
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Setup Ruby
-        uses: ruby/setup-ruby@8aeb6ff8030dd539317f8e1769a044873b56ea71 # v1.268.0
+        uses: ruby/setup-ruby@80740b3b13bf9857e28854481ca95a84e78a2bdf # v1.284.0
         if: ${{ inputs.signed }}
         with:
           bundler-cache: true
@@ -115,7 +114,7 @@ jobs:
           fi
 
       - name: Download ${{inputs.variant-id}} Slices
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           pattern: xcframework-${{inputs.variant-id}}-slice-*
           path: xcframework-slices
@@ -173,7 +172,7 @@ jobs:
         shell: bash
 
       - name: Upload XCFramework
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         env:
           XCFRAMEWORK_NAME: ${{ env.XCFRAMEWORK_NAME }}
         with:

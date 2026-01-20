@@ -76,7 +76,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         dataTask.resume()
         wait(for: [expect], timeout: 10)
 
-        let children = Dynamic(transaction).children as [SentrySpan]?
+        let children = Dynamic(transaction).children as [SentrySpanInternal]?
 
         XCTAssertEqual(children?.count, 1) //Span was created in task resume swizzle.
         let networkSpan = try XCTUnwrap(children?.first)
@@ -143,7 +143,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let attempts = 20
 
-        //swiftlint:disable:next for_where
+        // swiftlint:disable:next for_where
         for attempt in 1..<attempts {
             let group = DispatchGroup()
             var isReady = false

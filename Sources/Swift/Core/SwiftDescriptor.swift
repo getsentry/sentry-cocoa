@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
@@ -5,7 +6,7 @@ import UIKit
 #endif
 
 @objc
-@_spi(Private) public class SwiftDescriptor: NSObject {
+@_spi(Private) public final class SwiftDescriptor: NSObject {
     
     @objc
     public static func getObjectClassName(_ object: AnyObject) -> String {
@@ -28,3 +29,4 @@ import UIKit
         return String(describing: error)
     }
 }
+// swiftlint:enable missing_docs

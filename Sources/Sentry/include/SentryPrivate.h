@@ -1,7 +1,5 @@
 // This import must be first. In SPM the file needs to be in the "include" directory since that is
-// the Public headers directory, but in Cocoapods it must be in HybridPublic because it is used in
-// that public interface too. In order to handle both these cases the file is in HybridPublic but
-// symlinked to include.
+// the Public headers directory.
 #import "SentryProfilingConditionals.h"
 
 // Sentry internal headers that are needed for swift code; you cannot import headers that depend on
@@ -14,18 +12,23 @@
 #import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryCrashAsync.h"
 #import "SentryCrashBinaryImageCache.h"
+#import "SentryCrashC.h"
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashExceptionApplicationHelper.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDiscardReasonMapper.h"
-#import "SentryDsn+Private.h"
 #import "SentryEnvelopeAttachmentHeader.h"
+#import "SentryError.h"
 #import "SentryEventSwiftHelper.h"
+#import "SentryFormatterSwift.h"
 #import "SentryHub+Private.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryNSDataUtils.h"
+#import "SentryNetworkTracker.h"
 #import "SentrySDK+Private.h"
+#import "SentryScope+Private.h"
+#import "SentrySwizzleWrapperHelper.h"
 #import "SentryTime.h"
 #import "SentryUserAccess.h"
 #import "SentryViewHierarchyProviderHelper.h"
@@ -49,8 +52,10 @@
 #import "SentryDelayedFramesTracker.h"
 #import "SentryDependencyContainerSwiftHelper.h"
 #import "SentryDeviceContextKeys.h"
+#import "SentryEvent+Private.h"
 #import "SentryFileIOTrackerHelper.h"
 #import "SentryFileManagerHelper.h"
+#import "SentryInstallation.h"
 #import "SentryMeta.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDictionarySanitize.h"
@@ -63,7 +68,6 @@
 #import "SentrySessionInternal.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"
-#import "SentrySwizzleWrapperHelper.h"
 #import "SentrySysctlObjC.h"
 #import "SentryTraceContext+Private.h"
 #import "SentryTraceHeader.h"

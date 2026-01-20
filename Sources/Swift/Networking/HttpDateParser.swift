@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 /**
@@ -23,3 +24,4 @@ public final class HttpDateParser: NSObject {
         return dateFormatter.date(from: string)
     }
 }
+// swiftlint:enable missing_docs

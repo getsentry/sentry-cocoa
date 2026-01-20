@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 // The Swift counterpart to `SentryObjcIntegrationProtocol`. This protocol allows
@@ -34,12 +35,38 @@ private struct AnyIntegration {
 @_spi(Private) @objc public final class SentrySwiftIntegrationInstaller: NSObject {
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
-        let commonIntegrations: [AnyIntegration] = [.init(SwiftAsyncIntegration.self)]
-        #if os(iOS) && !SENTRY_NO_UIKIT
-        let integrations: [AnyIntegration] = commonIntegrations + [.init(UserFeedbackIntegration<SentryDependencyContainer>.self)]
-        #else
-        let integrations: [AnyIntegration] = commonIntegrations
+
+        var integrations: [AnyIntegration] = [
+            .init(SwiftAsyncIntegration.self),
+            .init(SentryAutoSessionTrackingIntegration.self),
+            .init(SentryNetworkTrackingIntegration.self),
+            .init(SentryHangTrackerIntegrationObjC.self),
+            .init(SentryMetricsIntegration.self)
+        ]
+
+        #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+        integrations.append(.init(SentryFramesTrackingIntegration<SentryDependencyContainer>.self))
+        integrations.append(.init(SentryWatchdogTerminationTrackingIntegration.self))
         #endif
+
+        #if os(iOS) && !SENTRY_NO_UIKIT
+        integrations.append(.init(UserFeedbackIntegration.self))
+        #endif
+        
+        #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+        integrations.append(.init(FlushLogsIntegration.self))
+        #endif
+
+        #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
+        integrations.append(.init(SentryScreenshotIntegration.self))
+        #endif
+        
+        #if os(iOS) || os(macOS)
+        if #available(macOS 12.0, *) {
+            integrations.append(.init(SentryMetricKitIntegration.self))
+        }
+        #endif
+        
         integrations.forEach { anyIntegration in
             guard let integration = anyIntegration.install(options, dependencies) else { return }
 
@@ -47,3 +74,4 @@ private struct AnyIntegration {
         }
     }
 }
+// swiftlint:enable missing_docs

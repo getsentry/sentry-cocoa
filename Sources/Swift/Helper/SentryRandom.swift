@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 /// Protocol for generating random numbers.
@@ -8,9 +9,10 @@ import Foundation
 }
 
 @objc
-@_spi(Private) public class SentryRandom: NSObject, SentryRandomProtocol {
+@_spi(Private) public final class SentryRandom: NSObject, SentryRandomProtocol {
     /// Returns a random number uniformly distributed over the interval [0.0 , 1.0].
     @objc public func nextNumber() -> Double {
         Double.random(in: 0...1)
     }
 }
+// swiftlint:enable missing_docs

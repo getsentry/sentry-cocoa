@@ -1,5 +1,5 @@
 // swiftlint:disable file_length
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -157,7 +157,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), snapshot)
         XCTAssertNotEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
     }
-    
+
     func testApplyToEvent() {
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         let actualContext = actual?.context as? [String: [String: String]]
@@ -306,7 +306,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testApplyToEvent_EventWithContext() {
         let context = NSMutableDictionary(dictionary: ["my": ["extra": "context"],
-                                                       "trace": fixture.scope.propagationContext.traceForEvent() ])
+                                                       "trace": fixture.scope.propagationContext.traceContextForEvent() ])
         let event = fixture.event
         event.context = context as? [String: [String: String]]
         
@@ -328,7 +328,7 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testApplyToEvent_EventWithContext_MergesContext() {
         let context = NSMutableDictionary(dictionary: [
-            "first": ["a": "b", "c": "d"], "trace": fixture.scope.propagationContext.traceForEvent()])
+            "first": ["a": "b", "c": "d"], "trace": fixture.scope.propagationContext.traceContextForEvent()])
         let event = fixture.event
         event.context = context as? [String: [String: String]]
         
@@ -722,8 +722,8 @@ class SentryScopeSwiftTests: XCTestCase {
     
     func testModifyScopeFromDifferentThreads() {
         let scope = Scope()
-        scope.add(SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 100))
-        
+        scope.add(SentryCrashScopeHelper.getScopeObserver(withMaxBreacdrumb: 100) as Any)
+
         testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000, writeWork: { i in
             let user = User()
             user.name = "name \(i)"
@@ -809,7 +809,7 @@ class SentryScopeSwiftTests: XCTestCase {
         
         let traceId = SentryId(uuidString: "12345678123456781234567812345678")
         let spanId = SpanId(value: "1234567812345678")
-        let propagationContext = SentryPropagationContext(trace: traceId, spanId: spanId)
+        let propagationContext = SentryPropagationContext(traceId: traceId, spanId: spanId)
         
         // -- Act --
         sut.propagationContext = propagationContext
@@ -838,7 +838,7 @@ class SentryScopeSwiftTests: XCTestCase {
     func testGetCasedInternalSpan_SpanIsOfInternalTypeSpan() throws {
         // -- Arrange --
         let scope = Scope()
-        let span = SentrySpan(context: SpanContext(operation: "TEST"))
+        let span = SentrySpanInternal(context: SpanContext(operation: "TEST"))
 
         scope.span = span
 
@@ -853,7 +853,7 @@ class SentryScopeSwiftTests: XCTestCase {
     func testGetCasedInternalSpan_SpanIsSubClassOfInternalTypeSpan() throws {
         // -- Arrange --
         let scope = Scope()
-        let span = SubClassOfSentrySpan(context: SpanContext(operation: "TEST"))
+        let span = SubClassOfSentrySpanInternal(context: SpanContext(operation: "TEST"))
 
         scope.span = span
 
@@ -1057,5 +1057,5 @@ private final class NotOfTypeSpan: NSObject, Span {
     func serialize() -> [String: Any] { return [:] }
 }
 
-private final class SubClassOfSentrySpan: SentrySpan {}
+private final class SubClassOfSentrySpanInternal: SentrySpanInternal {}
 // swiftlint:enable file_length

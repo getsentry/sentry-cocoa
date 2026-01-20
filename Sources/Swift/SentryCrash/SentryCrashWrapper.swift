@@ -1,10 +1,11 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Darwin
 import Foundation
 
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
-#endif // (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 
 /**
  * A wrapper around SentryCrash for testability.
@@ -170,6 +171,21 @@ public final class SentryCrashWrapper: NSObject {
         
         deviceData["locale"] = Locale.autoupdatingCurrent.identifier
         
+        // Only include these boolean flags when they are `true` to reduce payload size.
+        // These flags are `false` for the vast majority of events (regular iOS apps, native macOS apps, etc.),
+        // so omitting them when `false` significantly reduces the payload size without losing meaningful information.
+        if #available(macOS 12, *) {
+            if self.processInfoWrapper.isiOSAppOnMac {
+                deviceData["ios_app_on_macos"] = true
+            }
+            if self.processInfoWrapper.isMacCatalystApp {
+                deviceData["mac_catalyst_app"] = true
+            }
+        }
+        if self.processInfoWrapper.isiOSAppOnVisionOS {
+            deviceData["ios_app_on_visionos"] = true
+        }
+        
         // Set screen dimensions if available
         setScreenDimensions(&deviceData)
         
@@ -210,7 +226,7 @@ public final class SentryCrashWrapper: NSObject {
 
             if self.processInfoWrapper.isMacCatalystApp {
                 runtimeContext["name"] = "Mac Catalyst App"
-                runtimeContext["raw_description"] = "raw_description"
+                runtimeContext["raw_description"] = "mac-catalyst-app"
             }
         }
 
@@ -228,7 +244,7 @@ public final class SentryCrashWrapper: NSObject {
         return "tvOS"
 #elseif os(watchOS)
         return "watchOS"
-#elseif (swift(>=5.9) && os(visionOS))
+#elseif os(visionOS)
         return "visionOS"
 #endif
     }
@@ -236,12 +252,12 @@ public final class SentryCrashWrapper: NSObject {
     private func getOSVersion() -> String {
         // For MacCatalyst the UIDevice returns the current version of MacCatalyst and not the
         // macOSVersion. Therefore we have to use NSProcessInfo.
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT && !targetEnvironment(macCatalyst)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT && !targetEnvironment(macCatalyst)
         return Dependencies.uiDeviceWrapper.getSystemVersion()
 #else
         let version = ProcessInfo.processInfo.operatingSystemVersion
         return "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
-#endif // (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT && !targetEnvironment(macCatalyst)
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT && !targetEnvironment(macCatalyst)
     }
     
     private func isSimulator() -> Bool {
@@ -273,3 +289,4 @@ public final class SentryCrashWrapper: NSObject {
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
     }
 }
+// swiftlint:enable missing_docs

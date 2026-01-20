@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -70,12 +71,13 @@ extension SentryANRType {
 }
 
 // The V1/V2 tracker will conform to this
-@objc protocol SentryANRTrackerInternalProtocol {
+protocol SentryANRTrackerInternalProtocol {
     // The types of this protocol must be defined in ObjC since it is conformed to by
     // classes defined in ObjC.
-    @objc func addListener(_ listender: SentryANRTrackerInternalDelegate)
-    @objc func removeListener(_ listener: SentryANRTrackerInternalDelegate)
+    func addListener(_ listender: SentryANRTrackerInternalDelegate)
+    func removeListener(_ listener: SentryANRTrackerInternalDelegate)
     
     /// Only used for tests.
     func clear()
 }
+// swiftlint:enable missing_docs

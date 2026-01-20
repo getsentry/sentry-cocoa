@@ -11,10 +11,10 @@
 #import "SentrySDK+Private.h"
 #import "SentrySamplerDecision.h"
 #import "SentryScope+Private.h"
-#import "SentrySpan.h"
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentrySpanInternal.h"
 #import "SentrySpanOperation.h"
 #import "SentrySwift.h"
 #import "SentryTime.h"
@@ -69,7 +69,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 @end
 
 @implementation SentryTracer {
-    /** Wether the tracer should wait for child spans to finish before finishing itself. */
+    /** Whether the tracer should wait for child spans to finish before finishing itself. */
     SentryTraceContext *_traceContext;
 
 #if SENTRY_HAS_UIKIT
@@ -387,11 +387,11 @@ static BOOL appStartMeasurementRead;
                                    spanDescription:description
                                            sampled:self.sampled];
 
-    SentrySpan *child =
-        [[SentrySpan alloc] initWithTracer:self
-                                   context:context
+    SentrySpanInternal *child = [[SentrySpanInternal alloc]
+        initWithTracer:self
+               context:context
 #if SENTRY_HAS_UIKIT
-                             framesTracker:SentryDependencyContainer.sharedInstance.framesTracker
+         framesTracker:SentryDependencyContainer.sharedInstance.framesTracker
 #endif // SENTRY_HAS_UIKIT
     ];
     child.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
@@ -724,7 +724,8 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_HAS_UIKIT
     [self addFrameStatistics];
 
-    NSArray<id<SentrySpan>> *appStartSpans = sentryBuildAppStartSpans(self, appStartMeasurement);
+    NSArray<SentrySpanInternal *> *appStartSpans
+        = sentryBuildAppStartSpans(self, appStartMeasurement);
     capacity = _children.count + appStartSpans.count;
 #else
     capacity = _children.count;
@@ -744,12 +745,12 @@ static BOOL appStartMeasurementRead;
     transaction.transaction = self.transactionContext.name;
 
     NSMutableArray *framesOfAllSpans = [NSMutableArray array];
-    if ([(SentrySpan *)self frames]) {
+    if ([(SentrySpanInternal *)self frames]) {
         [framesOfAllSpans addObjectsFromArray:SENTRY_UNWRAP_NULLABLE(NSArray<SentryFrame *>,
-                                                  [(SentrySpan *)self frames])];
+                                                  [(SentrySpanInternal *)self frames])];
     }
 
-    for (SentrySpan *span in spans) {
+    for (SentrySpanInternal *span in spans) {
         if (span.frames) {
             [framesOfAllSpans
                 addObjectsFromArray:SENTRY_UNWRAP_NULLABLE(NSArray<SentryFrame *>, span.frames)];
@@ -924,8 +925,8 @@ static BOOL appStartMeasurementRead;
 
     if ([span isKindOfClass:[SentryTracer class]]) {
         return (SentryTracer *)span;
-    } else if ([span isKindOfClass:[SentrySpan class]]) {
-        return [(SentrySpan *)span tracer];
+    } else if ([span isKindOfClass:[SentrySpanInternal class]]) {
+        return [(SentrySpanInternal *)span tracer];
     }
     return nil;
 }

@@ -19,7 +19,7 @@ final class SentryUserFeedbackWidgetButtonView: UIView {
     
     // MARK: Initialization
     
-    //swiftlint:disable function_body_length
+    // swiftlint:disable function_body_length
     init(config: SentryUserFeedbackConfiguration, target: AnyObject, selector: Selector) {
         self.config = config
         self.target = target
@@ -85,7 +85,7 @@ final class SentryUserFeedbackWidgetButtonView: UIView {
         
         addGestureRecognizer(tapGesture)
     }
-    //swiftlint:enable function_body_length
+    // swiftlint:enable function_body_length
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

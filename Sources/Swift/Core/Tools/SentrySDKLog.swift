@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 typealias SentryLogOutput = ((String) -> Void)
@@ -13,7 +14,7 @@ typealias SentryLogOutput = ((String) -> Void)
 /// and the thread sanitizer would surface these race conditions. We accept these race conditions for
 /// the log messages in the tests over adding locking for all log messages.
 @objc
-@_spi(Private) public class SentrySDKLog: NSObject {
+@_spi(Private) public final class SentrySDKLog: NSObject {
     
     static private(set) var isDebug = true
     static private(set) var diagnosticLevel = SentryLevel.error
@@ -102,3 +103,4 @@ extension SentrySDKLog {
         log(level: .fatal, message: message, file: file, line: line)
     }
 }
+// swiftlint:enable missing_docs

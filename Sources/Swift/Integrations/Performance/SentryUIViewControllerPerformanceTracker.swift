@@ -1,4 +1,5 @@
-#if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+// swiftlint:disable missing_docs
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 
 @_implementationOnly import _SentryPrivate
 import UIKit
@@ -7,7 +8,7 @@ import UIKit
     func reportInitialDisplay()
 }
 
-@_spi(Private) @objc public class SentrySwiftUISpanHelper: NSObject {
+@_spi(Private) @objc public final class SentrySwiftUISpanHelper: NSObject {
     @objc public let hasSpan: Bool
     
     @objc public func reportInitialDisplay() {
@@ -86,3 +87,4 @@ import UIKit
 }
 
 #endif
+// swiftlint:enable missing_docs

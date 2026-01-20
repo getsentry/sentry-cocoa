@@ -1,6 +1,7 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
-@_spi(Private) @objc public class SentryFileIOTracker: NSObject {
+@_spi(Private) @objc public final class SentryFileIOTracker: NSObject {
 
     private let helper: SentryFileIOTrackerHelper
     private let processInfoWrapper: SentryProcessInfoSource
@@ -80,3 +81,4 @@
         helper.span(forPath: path, origin: origin, operation: operation, processDirectoryPath: processInfoWrapper.processDirectoryPath, size: size)
     }
 }
+// swiftlint:enable missing_docs

@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 /// The  methods are called from a  background thread.
@@ -9,7 +10,7 @@ import Foundation
 }
 
 @objcMembers
-@_spi(Private) public class SentryANRStoppedResult: NSObject {
+@_spi(Private) public final class SentryANRStoppedResult: NSObject {
     
     public let minDuration: TimeInterval
     public let maxDuration: TimeInterval
@@ -19,3 +20,4 @@ import Foundation
         self.maxDuration = maxDuration
     }
 }
+// swiftlint:enable missing_docs

@@ -16,11 +16,12 @@ public extension Options {
         enableAutoBreadcrumbTracking = false
         enableCoreDataTracing = false
         enableFileIOTracing = false
-        #if (os(iOS) || os(tvOS) || (swift(>=5.9) && os(visionOS))) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
         enableUserInteractionTracing = false
         attachViewHierarchy = false
         enableUIViewControllerTracing = false
         #endif
+        experimental.enableMetrics = false
     }
 
     static func noIntegrations() -> Options {

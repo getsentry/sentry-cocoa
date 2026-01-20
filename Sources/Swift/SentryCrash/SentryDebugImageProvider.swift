@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 @_spi(Private) public class SentryDebugImageProvider: NSObject {
@@ -36,3 +37,4 @@
     }
     
 }
+// swiftlint:enable missing_docs

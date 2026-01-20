@@ -17,6 +17,7 @@
 #import "SentrySerialization.h"
 #import "SentrySessionReplayIntegration+Private.h"
 #import "SentrySwift.h"
+#import "SentryTime.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
 #import "SentryTracerConfiguration.h"
@@ -208,10 +209,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     SentryClientInternal *client = self.client;
-    if (client.options.diagnosticLevel == kSentryLevelDebug) {
-        SENTRY_LOG_DEBUG(@"Capturing session with status: %@",
-            [self createSessionDebugString:SENTRY_UNWRAP_NULLABLE(SentrySession, session)]);
-    }
+    SENTRY_LOG_DEBUG(@"Capturing session with status: %@",
+        [self createSessionDebugString:SENTRY_UNWRAP_NULLABLE(SentrySession, session)]);
     [client captureSession:SENTRY_UNWRAP_NULLABLE(SentrySession, session)];
 }
 
@@ -657,6 +656,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_installedIntegrations addObject:integration];
         [_installedIntegrationNames addObject:name];
     }
+    SENTRY_LOG_DEBUG(@"Integration installed: %@", name);
 }
 
 - (void)removeAllIntegrations
@@ -736,10 +736,8 @@ NS_ASSUME_NONNULL_BEGIN
                 [currentSession
                     endSessionCrashedWithTimestamp:[SentryDependencyContainer.sharedInstance
                                                            .dateProvider date]];
-                if (self.client.options.diagnosticLevel == kSentryLevelDebug) {
-                    SENTRY_LOG_DEBUG(@"Ending session with status: %@",
-                        [self createSessionDebugString:currentSession]);
-                }
+                SENTRY_LOG_DEBUG(@"Ending session with status: %@",
+                    [self createSessionDebugString:currentSession]);
                 if (startNewSession) {
                     // Setting _session to nil so startSession doesn't capture it again
                     _session = nil;
@@ -821,10 +819,69 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)flush:(NSTimeInterval)timeout
 {
+    // Flush flushable integrations first (e.g., metrics)
+    NSTimeInterval flushIntegrationsDuration = [self flushIntegrations:timeout];
+
+    // Calculate remaining timeout for client flush (logs and transport)
+    // We subtract the time already spent on integrations to respect the overall timeout.
+    // If integrations took longer than the timeout, we use 0.0 which will still trigger
+    // sending events but won't block waiting for completion.
+    NSTimeInterval remainingTimeout = fmax(0.0, timeout - flushIntegrationsDuration);
+
+    // Delegate to client for logs and transport flushing
     SentryClientInternal *client = self.client;
     if (client != nil) {
-        [client flush:timeout];
+        [client flush:remainingTimeout];
     }
+}
+
+- (NSTimeInterval)flushIntegrations:(NSTimeInterval)timeout
+{
+    id<SentryCurrentDateProvider> dateProvider
+        = SentryDependencyContainer.sharedInstance.dateProvider;
+    UInt64 startTimeNs = [dateProvider getAbsoluteTime];
+
+    @synchronized(_integrationsLock) {
+        for (id<SentryIntegrationProtocol> integration in _installedIntegrations) {
+            // We use respondsToSelector: instead of conformsToProtocol: for FlushableIntegration
+            // because Swift @objc protocols defined in files with @_implementationOnly import
+            // are not reliably accessible from Objective-C code at compile time. The protocol
+            // definition exists for Swift type safety and documentation, but Objective-C code
+            // needs to use respondsToSelector: to check for the flush method dynamically.
+            // This Swift-first approach allows us to maintain protocol-oriented design in Swift
+            // while ensuring Objective-C interop works correctly.
+            SEL flushSelector = NSSelectorFromString(@"flush");
+            if ([integration respondsToSelector:flushSelector]) {
+                // Check if we've exceeded the timeout before flushing this integration
+                // We check at the start of each iteration to ensure we don't start a flush
+                // that would exceed the timeout. Since we can't predict flush duration,
+                // we stop if we're already at or very close to the timeout.
+                UInt64 currentTimeNs = [dateProvider getAbsoluteTime];
+                NSTimeInterval elapsedTime = nanosecondsToTimeInterval(currentTimeNs - startTimeNs);
+                if (elapsedTime >= timeout) {
+                    // Timeout exceeded, stop flushing remaining integrations
+                    SENTRY_LOG_DEBUG(@"Flush integrations timeout exceeded (%.3fs >= %.3fs). "
+                                     @"Stopping flush of remaining integrations.",
+                        elapsedTime, timeout);
+                    break;
+                }
+
+                // Use NSInvocation to call flush and get the NSTimeInterval return value.
+                // We can't use performSelector: because it doesn't support non-object return types.
+                NSMethodSignature *signature =
+                    [(id)integration methodSignatureForSelector:flushSelector];
+                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+                [invocation setSelector:flushSelector];
+                [invocation setTarget:integration];
+                [invocation invoke];
+            }
+        }
+    }
+
+    // Return actual elapsed time to ensure we account for all overhead and respect the timeout
+    UInt64 endTimeNs = [dateProvider getAbsoluteTime];
+    NSTimeInterval actualDuration = nanosecondsToTimeInterval(endTimeNs - startTimeNs);
+    return actualDuration;
 }
 
 - (void)close
