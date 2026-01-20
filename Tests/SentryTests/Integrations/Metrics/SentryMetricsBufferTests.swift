@@ -2,11 +2,11 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-final class SentryMetricsBatcherTests: XCTestCase {
+final class SentryMetricsBufferTests: XCTestCase {
 
     private var options: Options!
     private var testDateProvider: TestCurrentDateProvider!
-    private var testCallbackHelper: TestMetricsBatcherCallbackHelper!
+    private var testCallbackHelper: TestMetricsBufferCallbackHelper!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
     private var scope: Scope!
     
@@ -18,7 +18,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         options.experimental.enableMetrics = true
 
         testDateProvider = TestCurrentDateProvider()
-        testCallbackHelper = TestMetricsBatcherCallbackHelper()
+        testCallbackHelper = TestMetricsBufferCallbackHelper()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
 
@@ -33,8 +33,8 @@ final class SentryMetricsBatcherTests: XCTestCase {
         scope = nil
     }
 
-    private func getSut() -> SentryMetricsBatcher {
-        return SentryMetricsBatcher(
+    private func getSut() -> SentryMetricsBuffer {
+        return SentryMetricsBuffer(
             options: options,
             flushTimeout: 0.1, // Very small timeout for testing
             maxMetricCount: 10, // Maximum 10 metrics per batch
@@ -176,8 +176,8 @@ final class SentryMetricsBatcherTests: XCTestCase {
     
     func testInit_whenFlushTimeoutNotProvided_shouldUseDefaultValue() throws {
         // -- Arrange --
-        // Create a new batcher without specifying flushTimeout to use default
-        let defaultBatcher = SentryMetricsBatcher(
+        // Create a new buffer without specifying flushTimeout to use default
+        let defaultBuffer = SentryMetricsBuffer(
             options: options,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
@@ -187,7 +187,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
         let metric = createTestMetric(name: "test.metric", value: .counter(1))
 
         // -- Act --
-        defaultBatcher.addMetric(metric, scope: scope)
+        defaultBuffer.addMetric(metric, scope: scope)
         
         // -- Assert --
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
@@ -196,8 +196,8 @@ final class SentryMetricsBatcherTests: XCTestCase {
     
     func testInit_whenMaxMetricCountNotProvided_shouldUseDefaultValue() throws {
         // -- Arrange --
-        // Create a new batcher without specifying maxMetricCount to use default (100)
-        let defaultBatcher = SentryMetricsBatcher(
+        // Create a new buffer without specifying maxMetricCount to use default (100)
+        let defaultBuffer = SentryMetricsBuffer(
             options: options,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
@@ -207,14 +207,14 @@ final class SentryMetricsBatcherTests: XCTestCase {
         // -- Act -- Add exactly 99 metrics (should not flush)
         for i in 0..<99 {
             let metric = createTestMetric(name: "metric.\(i + 1)", value: .counter(UInt(i + 1)))
-            defaultBatcher.addMetric(metric, scope: scope)
+            defaultBuffer.addMetric(metric, scope: scope)
         }
         
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0, "Should not flush before reaching default maxMetricCount")
         
         // Add the 100th metric (should trigger flush)
         let metric100 = createTestMetric(name: "metric.100", value: .counter(100))
-        defaultBatcher.addMetric(metric100, scope: scope)
+        defaultBuffer.addMetric(metric100, scope: scope)
         
         // -- Assert --
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1, "Should flush when reaching default maxMetricCount of 100")
@@ -225,10 +225,10 @@ final class SentryMetricsBatcherTests: XCTestCase {
     
     func testInit_whenMaxBufferSizeBytesNotProvided_shouldUseDefaultValue() throws {
         // -- Arrange --
-        // Create a new batcher without specifying maxBufferSizeBytes to use default (1MB)
+        // Create a new buffer without specifying maxBufferSizeBytes to use default (1MB)
         // Note: Individual trace metrics must not exceed 2KB each (Relay's max_trace_metric_size limit),
         // but the buffer can accumulate up to 1MB before flushing.
-        let defaultBatcher = SentryMetricsBatcher(
+        let defaultBuffer = SentryMetricsBuffer(
             options: options,
             flushTimeout: 0.1,
             maxMetricCount: 100_000, // High count to avoid count-based flush, focus on size limit
@@ -255,7 +255,7 @@ final class SentryMetricsBatcherTests: XCTestCase {
                 unit: nil,
                 attributes: attributes
             )
-            defaultBatcher.addMetric(metric, scope: scope)
+            defaultBuffer.addMetric(metric, scope: scope)
         }
         
         // -- Assert --
@@ -764,10 +764,10 @@ final class SentryMetricsBatcherTests: XCTestCase {
 
 // MARK: - Test Callback Helper
 
-final class TestMetricsBatcherCallbackHelper {
+final class TestMetricsBufferCallbackHelper {
     var captureMetricsDataInvocations = Invocations<(data: Data, count: Int)>()
     
-    // The callback that matches the MetricBatcher capturedDataCallback signature
+    // The callback that matches the MetricsBuffer capturedDataCallback signature
     var captureCallback: (Data, Int) -> Void {
         return { [weak self] data, count in
             self?.captureMetricsDataInvocations.record((data, count))
@@ -775,7 +775,7 @@ final class TestMetricsBatcherCallbackHelper {
     }
     
     // Helper to get captured metrics
-    // Note: The batcher produces JSON in the format {"items":[...]} as verified by InMemoryBatchBuffer.batchedData
+    // Note: The buffer produces JSON in the format {"items":[...]} as verified by InMemoryBatchBuffer.batchedData
     //
     // Design decision: We use JSONSerialization instead of:
     // 1. Decodable: Would introduce decoding logic in tests that could be wrong, creating a risk that tests pass
@@ -784,7 +784,7 @@ final class TestMetricsBatcherCallbackHelper {
     //
     // JSONSerialization provides a good middle ground: it parses the JSON structure without duplicating
     // the encoding/decoding logic, and it's order-agnostic, making tests stable while still verifying
-    // the actual data structure produced by the batcher.
+    // the actual data structure produced by the buffer.
     func getCapturedMetrics() -> [[String: Any]] {
         var allMetrics: [[String: Any]] = []
 
