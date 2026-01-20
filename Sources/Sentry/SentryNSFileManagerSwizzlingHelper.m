@@ -1,56 +1,21 @@
-#import "SentryNSFileManagerSwizzling.h"
-#import "SentryLogC.h"
+#import "SentryNSFileManagerSwizzlingHelper.h"
 #import "SentrySwift.h"
 #import "SentrySwizzle.h"
 #import "SentryTraceOrigin.h"
 #import <objc/runtime.h>
 
-@interface SentryNSFileManagerSwizzling ()
+@implementation SentryNSFileManagerSwizzlingHelper
 
-@property (nonatomic, strong) SentryFileIOTracker *tracker;
-
-@end
-
-@implementation SentryNSFileManagerSwizzling
-
-+ (SentryNSFileManagerSwizzling *)shared
-{
-    static SentryNSFileManagerSwizzling *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
-    return instance;
-}
-
-- (void)startWithOptions:(SentryOptions *)options tracker:(SentryFileIOTracker *)tracker
-{
-    self.tracker = tracker;
-
-    if (!options.enableSwizzling) {
-        SENTRY_LOG_DEBUG(
-            @"Auto-tracking of NSFileManager is disabled because enableSwizzling is false");
-        return;
-    }
-
-    if (!options.enableFileManagerSwizzling) {
-        SENTRY_LOG_DEBUG(@"Auto-tracking of NSFileManager is disabled because "
-                         @"enableFileManagerSwizzling is false");
-        return;
-    }
-
-    [SentryNSFileManagerSwizzling swizzle];
-}
-
-- (void)stop
-{
-    [SentryNSFileManagerSwizzling unswizzle];
-}
+static SentryFileIOTracker *_tracker = nil;
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
 // fine and we accept this warning.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-+ (void)swizzle
++ (void)swizzleWithTracker:(SentryFileIOTracker *)tracker
 {
+    _tracker = tracker;
+
     // Before iOS 18.0, macOS 15.0 and tvOS 18.0 the NSFileManager used NSData.writeToFile
     // internally, which was tracked using swizzling of NSData. This behaviour changed, therefore
     // the file manager needs to swizzled for later versions.
@@ -64,7 +29,7 @@
             SentrySWArguments(
                 NSString * path, NSData * data, NSDictionary<NSFileAttributeKey, id> * attributes),
             SentrySWReplacement({
-                return [SentryNSFileManagerSwizzling.shared.tracker
+                return [_tracker
                     measureNSFileManagerCreateFileAtPath:path
                                                     data:data
                                               attributes:attributes
@@ -84,6 +49,8 @@
 + (void)unswizzle
 {
 #if SENTRY_TEST || SENTRY_TEST_CI
+    _tracker = nil;
+
     // Unswizzling is only supported in test targets as it is considered unsafe for production.
     if (@available(iOS 18, macOS 15, tvOS 18, *)) {
         SEL createFileAtPathContentsAttributes
