@@ -238,7 +238,7 @@ jobs:
         uses: actions/upload-artifact@v6
         if: steps.build_tests.outcome == 'failure'
         with:
-          name: derived-data-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
+          name: derived-data-${{inputs.scheme}}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
@@ -246,7 +246,7 @@ jobs:
         uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
+          name: raw-output-${{inputs.scheme}}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
           path: |
             raw-build-output.log
             raw-build-for-testing-output.log
@@ -256,7 +256,7 @@ jobs:
         uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
+          name: crash-logs-${{inputs.scheme}}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
@@ -264,7 +264,7 @@ jobs:
         uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
-          name: result-bundle-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
+          name: result-bundle-${{inputs.scheme}}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
           path: |
             results.xcresult
             flaky-results.xcresult
@@ -321,4 +321,4 @@ jobs:
         uses: ./.github/actions/capture-screenshot
         if: failure()
         with:
-          suffix: unit-tests-${{ inputs.platform }}-xcode-${{ inputs.xcode }}-os-${{ inputs.test-destination-os }}
+          suffix: unit-tests-${{ inputs.scheme }}-${{ inputs.platform }}-xcode-${{ inputs.xcode }}-os-${{ inputs.test-destination-os }}
