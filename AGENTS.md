@@ -268,24 +268,6 @@ git add new-name.swift
 git commit -m "ref: rename old-name to new-name"
 ```
 
-**Multi-step Renames:**
-
-If a rename requires multiple steps (e.g., moving and renaming, or updating imports before renaming), perform each step in a separate commit:
-
-```bash
-# Step 1: Move file to new location (preserving name initially)
-git mv Sources/Old/File.swift Sources/New/File.swift
-git commit -m "ref: move File.swift to new location"
-
-# Step 2: Update all imports/references
-# ... make changes ...
-git commit -m "ref: update imports for File.swift"
-
-# Step 3: Rename file (if needed)
-git mv Sources/New/File.swift Sources/New/NewName.swift
-git commit -m "ref: rename File.swift to NewName.swift"
-```
-
 **Benefits:**
 
 - Git can track file history across renames (`git log --follow`)
@@ -293,10 +275,6 @@ git commit -m "ref: rename File.swift to NewName.swift"
 - Bisect operations remain accurate
 - Code archaeology and debugging are easier
 - Refactoring history is preserved
-
-**Note on Squash Merges:**
-
-These benefits apply even when PRs are squash-merged. Git's rename detection works on the final diff of the squashed commit, so using `git mv` in feature branches ensures the squashed commit is recognized as a rename (shown as `R` in git log) rather than a delete + add. This preserves `git log --follow` and other history-tracking features after merging.
 
 **Verification:**
 
