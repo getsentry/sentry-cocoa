@@ -413,6 +413,70 @@ jobs:
         run: ./scripts/ci-diagnostics.sh
 
   # This will be replaced once #6945 is merged.
+  swiftybeaver-integration-unit-tests:
+    name: SentrySwiftyBeaver Unit Tests
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Select Xcode
+        run: ./scripts/ci-select-xcode.sh 16.4
+
+      - name: Setup local sentry-cocoa dependency
+        working-directory: 3rd-party-integrations/SentrySwiftyBeaver
+        run: swift package edit sentry-cocoa --path ../..
+
+      - name: Run SwiftyBeaver tests
+        working-directory: 3rd-party-integrations/SentrySwiftyBeaver
+        run: swift test
+
+      - name: Archiving Raw Logs
+        uses: actions/upload-artifact@v6
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-output-swiftybeaver-integration
+          path: |
+            3rd-party-integrations/SentrySwiftyBeaver/.build/**/*.log
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
+  # This will be replaced once #6945 is merged.
+  cocoalumberjack-integration-unit-tests:
+    name: SentryCocoaLumberjack Unit Tests
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Select Xcode
+        run: ./scripts/ci-select-xcode.sh 16.4
+
+      - name: Setup local sentry-cocoa dependency
+        working-directory: 3rd-party-integrations/SentryCocoaLumberjack
+        run: swift package edit sentry-cocoa --path ../..
+
+      - name: Run CocoaLumberjack tests
+        working-directory: 3rd-party-integrations/SentryCocoaLumberjack
+        run: swift test
+
+      - name: Archiving Raw Logs
+        uses: actions/upload-artifact@v6
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-output-cocoalumberjack-integration
+          path: |
+            3rd-party-integrations/SentryCocoaLumberjack/.build/**/*.log
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
+  # This will be replaced once #6945 is merged.
   pulse-integration-unit-tests:
     name: SentryPulse Unit Tests
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
@@ -456,6 +520,8 @@ jobs:
         distribution-tests,
         unit-tests,
         swiftlog-integration-unit-tests,
+        swiftybeaver-integration-unit-tests,
+        cocoalumberjack-integration-unit-tests,
         pulse-integration-unit-tests,
         ready-to-merge-gate,
         unit-tests-with-test-server,
