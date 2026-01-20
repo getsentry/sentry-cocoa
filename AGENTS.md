@@ -245,6 +245,64 @@ When an error path cannot be reliably tested:
 
 - **Pre-commit Hooks**: This repository uses pre-commit hooks. If a commit fails because files were changed during the commit process (e.g., by formatting hooks), automatically retry the commit. Pre-commit hooks may modify files (like formatting), and the commit should be retried with the updated files.
 
+#### File Renaming and Git History Preservation
+
+**CRITICAL: Always preserve git history when renaming files in the codebase.**
+
+Git history is essential for understanding the evolution of code, tracking down bugs, and maintaining project continuity. When renaming files, follow these guidelines:
+
+**Use `git mv` for Renaming:**
+
+```bash
+# Correct approach - preserves history
+git mv old-name.swift new-name.swift
+git commit -m "ref: rename old-name to new-name"
+```
+
+**Never use file system operations followed by `git add`:**
+
+```bash
+# WRONG - breaks history tracking
+mv old-name.swift new-name.swift
+git add new-name.swift
+git commit -m "ref: rename old-name to new-name"
+```
+
+**Multi-step Renames:**
+
+If a rename requires multiple steps (e.g., moving and renaming, or updating imports before renaming), perform each step in a separate commit:
+
+```bash
+# Step 1: Move file to new location (preserving name initially)
+git mv Sources/Old/File.swift Sources/New/File.swift
+git commit -m "ref: move File.swift to new location"
+
+# Step 2: Update all imports/references
+# ... make changes ...
+git commit -m "ref: update imports for File.swift"
+
+# Step 3: Rename file (if needed)
+git mv Sources/New/File.swift Sources/New/NewName.swift
+git commit -m "ref: rename File.swift to NewName.swift"
+```
+
+**Benefits:**
+
+- Git can track file history across renames (`git log --follow`)
+- Blame annotations continue to work correctly
+- Bisect operations remain accurate
+- Code archaeology and debugging are easier
+- Refactoring history is preserved
+
+**Verification:**
+
+After renaming, verify that git recognizes the rename:
+
+```bash
+git status  # Should show "renamed: old-name.swift -> new-name.swift"
+git log --follow new-name.swift  # Should show full history including old name
+```
+
 #### Conventional Commits
 
 This project uses [Conventional Commits 1.0.0](https://www.conventionalcommits.org/) for all commit messages.
