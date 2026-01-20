@@ -20,9 +20,23 @@ public protocol SentryFramesTrackerListener: NSObjectProtocol {
 public class SentryFramesTracker: NSObject {
     
     private var isStarted: Bool = false
-    @objc public private(set) var isRunning: Bool = false
     
     // MARK: Private properties
+    private var isRunningLock = NSLock()
+    private var _isRunning: Bool = false
+    
+    @objc public private(set) var isRunning: Bool {
+        get {
+            return isRunningLock.synchronized {
+                return _isRunning
+            }
+        }
+        set {
+            isRunningLock.synchronized {
+                _isRunning = newValue
+            }
+        }
+    }
     private var previousFrameTimestamp: CFTimeInterval = SentryFramesTracker.previousFrameInitialValue
     private var previousFrameSystemTimestamp: UInt64 = 0
     private var currentFrameRate: UInt64 = 60
