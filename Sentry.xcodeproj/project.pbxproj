@@ -774,6 +774,7 @@
 		D473ACD72D8090FC000F1CC6 /* FileManager+SentryTracing.swift in Sources */ = {isa = PBXBuildFile; fileRef = D473ACD62D8090FC000F1CC6 /* FileManager+SentryTracing.swift */; };
 		D4749EF02EF042C1000F9AE7 /* SentryMetricTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4749EEF2EF042C1000F9AE7 /* SentryMetricTests.swift */; };
 		D4749F482EF062FD000F9AE7 /* SentryMetricsBatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4749F472EF062FD000F9AE7 /* SentryMetricsBatcherTests.swift */; };
+		D48039522F1942EC00FA1619 /* FlushableIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D48039512F1942EC00FA1619 /* FlushableIntegration.swift */; };
 		D480F9D92DE47A50009A0594 /* TestSentryScopePersistentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D480F9D82DE47A48009A0594 /* TestSentryScopePersistentStore.swift */; };
 		D480F9DB2DE47AF2009A0594 /* SentryScopePersistentStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D480F9DA2DE47AEB009A0594 /* SentryScopePersistentStoreTests.swift */; };
 		D48225A12EEC4B6D00CDF32C /* BatcherMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = D48225A02EEC4B6D00CDF32C /* BatcherMetadata.swift */; };
@@ -2167,6 +2168,7 @@
 		D473ACD62D8090FC000F1CC6 /* FileManager+SentryTracing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager+SentryTracing.swift"; sourceTree = "<group>"; };
 		D4749EEF2EF042C1000F9AE7 /* SentryMetricTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryMetricTests.swift; sourceTree = "<group>"; };
 		D4749F472EF062FD000F9AE7 /* SentryMetricsBatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryMetricsBatcherTests.swift; sourceTree = "<group>"; };
+		D48039512F1942EC00FA1619 /* FlushableIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlushableIntegration.swift; sourceTree = "<group>"; };
 		D480F9D82DE47A48009A0594 /* TestSentryScopePersistentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSentryScopePersistentStore.swift; sourceTree = "<group>"; };
 		D480F9DA2DE47AEB009A0594 /* SentryScopePersistentStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryScopePersistentStoreTests.swift; sourceTree = "<group>"; };
 		D48225A02EEC4B6D00CDF32C /* BatcherMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatcherMetadata.swift; sourceTree = "<group>"; };
@@ -5120,6 +5122,7 @@
 				FA67DCD02DDBD4EA00896B02 /* ANR */,
 				FA67DCD22DDBD4EA00896B02 /* FramesTracking */,
 				FA67DCD62DDBD4EA00896B02 /* Performance */,
+				D48039512F1942EC00FA1619 /* FlushableIntegration.swift */,
 				FA914E5A2ECF988700C54BDD /* Integrations.swift */,
 			);
 			path = Integrations;
@@ -5537,6 +5540,7 @@
 				63AA75961EB8AEF500D153DE /* Sources */,
 				63AA75971EB8AEF500D153DE /* Frameworks */,
 				63AA75991EB8AEF500D153DE /* Resources */,
+				D480390A2F19316E00FA1619 /* SwiftLint */,
 			);
 			buildRules = (
 			);
@@ -5844,6 +5848,27 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		D480390A2F19316E00FA1619 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [[ \"$(uname -m)\" == arm64 ]]\nthen\n    export PATH=\"/opt/homebrew/bin:$PATH\"\nfi\n\nif command -v swiftlint >/dev/null 2>&1\nthen\n    swiftlint\nelse\n    echo \"warning: `swiftlint` command not found - See https://github.com/realm/SwiftLint#installation for installation instructions.\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		63AA75961EB8AEF500D153DE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -6094,6 +6119,7 @@
 				FA67DD0B2DDBD4EA00896B02 /* UIViewExtensions.swift in Sources */,
 				FA67DD0C2DDBD4EA00896B02 /* SentryMaskRendererV2.swift in Sources */,
 				FA6555162E30182B009917BC /* SentrySDKInternal.m in Sources */,
+				D48039522F1942EC00FA1619 /* FlushableIntegration.swift in Sources */,
 				FA67DD0D2DDBD4EA00896B02 /* SentryUIRedactBuilder.swift in Sources */,
 				FA67DD0E2DDBD4EA00896B02 /* SentryFileContents.swift in Sources */,
 				FA27EBDE2EB639D900F2ECF7 /* SentryId.m in Sources */,

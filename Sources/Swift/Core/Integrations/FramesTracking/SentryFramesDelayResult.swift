@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 final class SentryFramesDelayResult {
@@ -23,3 +24,4 @@ final class SentryFramesDelayResult {
         self.framesContributingToDelayCount = framesContributingToDelayCount
     }
 }
+// swiftlint:enable missing_docs

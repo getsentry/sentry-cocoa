@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 @_spi(Private) @objc public final class SentryEnvelope: NSObject {
@@ -37,3 +38,4 @@
     @objc public let header: SentryEnvelopeHeader
     @objc public let items: [SentryEnvelopeItem]
 }
+// swiftlint:enable missing_docs

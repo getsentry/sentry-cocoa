@@ -1,4 +1,4 @@
-//swiftlint:disable file_length
+// swiftlint:disable file_length missing_docs
 
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
@@ -494,4 +494,4 @@ extension UITextView {
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
 
-//swiftlint:enable file_length
+// swiftlint:enable file_length missing_docs

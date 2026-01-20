@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 internal enum SentryAttributeType: String {
     case string = "string"
     case boolean = "boolean"
@@ -207,3 +208,4 @@ extension SentryAttributeContent: ExpressibleByIntegerLiteral {
         self = .integer(value)
     }
 }
+// swiftlint:enable missing_docs

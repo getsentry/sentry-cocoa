@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 // The Swift counterpart to `SentryObjcIntegrationProtocol`. This protocol allows
@@ -73,3 +74,4 @@ private struct AnyIntegration {
         }
     }
 }
+// swiftlint:enable missing_docs

@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 #if !os(macOS) && !os(watchOS) && !SENTRY_NO_UIKIT
 import UIKit
 
@@ -55,3 +56,4 @@ import UIKit
     }
 }
 #endif
+// swiftlint:enable missing_docs

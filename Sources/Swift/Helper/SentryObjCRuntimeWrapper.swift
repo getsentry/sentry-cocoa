@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objc @_spi(Private)
@@ -7,3 +8,4 @@ public protocol SentryObjCRuntimeWrapper {
     @objc(class_getImageName:)
     func classGetImageName(_ cls: AnyClass) -> UnsafePointer<CChar>?
 }
+// swiftlint:enable missing_docs

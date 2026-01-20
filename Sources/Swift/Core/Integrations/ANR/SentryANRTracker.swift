@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -79,3 +80,4 @@ protocol SentryANRTrackerInternalProtocol {
     /// Only used for tests.
     func clear()
 }
+// swiftlint:enable missing_docs

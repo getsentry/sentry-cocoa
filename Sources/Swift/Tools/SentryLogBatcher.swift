@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -123,3 +124,4 @@ extension SentryLog: BatcherItem {
         }
     }
 }
+// swiftlint:enable missing_docs

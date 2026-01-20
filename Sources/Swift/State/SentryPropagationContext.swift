@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 @_spi(Private) @objc public final class SentryPropagationContext: NSObject {
@@ -24,3 +25,4 @@
         ]
     }
 }
+// swiftlint:enable missing_docs

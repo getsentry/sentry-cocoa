@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objcMembers
@@ -6,3 +7,4 @@ import Foundation
         return decodeFromJSONData(jsonData: jsonData) as SentryEventDecodable?
     }
 }
+// swiftlint:enable missing_docs

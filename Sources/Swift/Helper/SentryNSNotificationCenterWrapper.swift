@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objc @_spi(Private) public protocol SentryNSNotificationCenterWrapper {
@@ -10,3 +11,4 @@ import Foundation
 }
 
 @objc @_spi(Private) extension NotificationCenter: SentryNSNotificationCenterWrapper { }
+// swiftlint:enable missing_docs

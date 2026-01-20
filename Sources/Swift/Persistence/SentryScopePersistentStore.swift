@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 @objc
@@ -212,3 +213,4 @@ enum SentryScopeField: UInt, CaseIterable {
         return fileManager.getSentryPathAsURL().appendingPathComponent("previous.\(field.name).state")
     }
 }
+// swiftlint:enable missing_docs
