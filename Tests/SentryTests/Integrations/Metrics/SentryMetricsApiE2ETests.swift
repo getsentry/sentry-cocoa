@@ -531,7 +531,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
     }
     
     // Helper to get captured metrics
-    // Note: The buffer produces JSON in the format {"items":[...]} as verified by InMemoryBatchBuffer.batchedData
+    // Note: The buffer produces JSON in the format {"items":[...]} as verified by InMemoryInternalTelemetryBuffer.batchedData
     //
     // Design decision: We use JSONSerialization instead of:
     // 1. Decodable: Would introduce decoding logic in tests that could be wrong, creating a risk that tests pass

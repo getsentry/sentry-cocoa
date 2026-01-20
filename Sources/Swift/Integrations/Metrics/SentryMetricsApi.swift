@@ -51,7 +51,7 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         // Capture the traceId at metric creation time to ensure it reflects the active trace
         // when the metric was captured, not when it gets flushed by the buffer.
         //
-        // This logic is intentionally duplicated from BatcherScope.applyToItem (used by Logs)
+        // This logic is intentionally duplicated from TelemetryBufferScope.applyToItem (used by Logs)
         // for the following reasons:
         // 1. Safety: If buffer enrichment is skipped or fails, metrics still have valid traceIds
         //    rather than empty ones, which would break trace correlation entirely.

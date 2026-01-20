@@ -1,4 +1,4 @@
-protocol BatchBuffer<Item> {
+protocol InternalTelemetryBuffer<Item> {
     associatedtype Item
 
     /// Adds the given item to the storage
