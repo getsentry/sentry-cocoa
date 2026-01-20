@@ -47,7 +47,7 @@ jobs:
 
   # SPM tests for all 3rd-party integrations
   test-integrations-spm:
-    name: SPM Tests | ${{matrix.integration_dir}}
+    name: SPM Tests
     needs: files-changed
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true'
     runs-on: macos-15
@@ -56,10 +56,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - integration_dir: SentrySwiftLog
-          - integration_dir: SentrySwiftyBeaver
-          - integration_dir: SentryCocoaLumberjack
-          - integration_dir: SentryPulse
+          - name: SentrySwiftLog
+            integration_dir: SentrySwiftLog
+          - name: SentrySwiftyBeaver
+            integration_dir: SentrySwiftyBeaver
+          - name: SentryCocoaLumberjack
+            integration_dir: SentryCocoaLumberjack
+          - name: SentryPulse
+            integration_dir: SentryPulse
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Select Xcode version
@@ -86,12 +90,13 @@ jobs:
   # xcodebuild-based tests for SPM packages (using xcodebuild with --spm-project flag)
   # These packages are SPM-only but can be tested via xcodebuild using the package name as the scheme
   test-integrations-xcodebuild:
+    name: Xcodebuild Tests
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true'
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
     secrets: inherit
     with:
-      name: Xcodebuild Tests | ${{matrix.integration_dir}} | ${{matrix.name}}
+      name: ${{matrix.integration_dir}} | ${{matrix.name}}
       scheme: ${{matrix.scheme}}
       working_directory: ${{matrix.working_directory}}
       scripts_directory: ../../scripts
