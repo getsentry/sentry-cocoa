@@ -2,26 +2,71 @@ import XCTest
 
 class SentryByteCountFormatterTests: XCTestCase {
 
+    private let midRangeMultiplier: UInt = 512
+    private let maxValueOffset: UInt = 1_024 - 1
+
     func testBytesDescription() {
-        assertDescription(baseValue: 1, unitName: "bytes")
+        // -- Arrange --
+        let baseValue: UInt = 1
+        let unitName = "bytes"
+
+        // -- Act --
+        let singleUnitResult = SentryByteCountFormatter.bytesCountDescription(baseValue)
+        let midRangeResult = SentryByteCountFormatter.bytesCountDescription(baseValue * midRangeMultiplier)
+        let maxValueResult = SentryByteCountFormatter.bytesCountDescription(baseValue * maxValueOffset)
+
+        // -- Assert --
+        XCTAssertEqual("1 \(unitName)", singleUnitResult)
+        XCTAssertEqual("512 \(unitName)", midRangeResult)
+        XCTAssertEqual("1,023 \(unitName)", maxValueResult)
     }
-    
+
     func testKBDescription() {
-        assertDescription(baseValue: 1_024, unitName: "KB")
+        // -- Arrange --
+        let baseValue: UInt = 1_024
+        let unitName = "KB"
+
+        // -- Act --
+        let singleUnitResult = SentryByteCountFormatter.bytesCountDescription(baseValue)
+        let midRangeResult = SentryByteCountFormatter.bytesCountDescription(baseValue * midRangeMultiplier)
+        let maxValueResult = SentryByteCountFormatter.bytesCountDescription(baseValue * maxValueOffset)
+
+        // -- Assert --
+        XCTAssertEqual("1 \(unitName)", singleUnitResult)
+        XCTAssertEqual("512 \(unitName)", midRangeResult)
+        XCTAssertEqual("1,023 \(unitName)", maxValueResult)
     }
-    
+
     func testMBDescription() {
-        assertDescription(baseValue: 1_024 * 1_024, unitName: "MB")
+        // -- Arrange --
+        let baseValue: UInt = 1_024 * 1_024
+        let unitName = "MB"
+
+        // -- Act --
+        let singleUnitResult = SentryByteCountFormatter.bytesCountDescription(baseValue)
+        let midRangeResult = SentryByteCountFormatter.bytesCountDescription(baseValue * midRangeMultiplier)
+        let maxValueResult = SentryByteCountFormatter.bytesCountDescription(baseValue * maxValueOffset)
+
+        // -- Assert --
+        XCTAssertEqual("1 \(unitName)", singleUnitResult)
+        XCTAssertEqual("512 \(unitName)", midRangeResult)
+        XCTAssertEqual("1,023 \(unitName)", maxValueResult)
     }
-    
+
     func testGBDescription() {
-        assertDescription(baseValue: 1_024 * 1_024 * 1_024, unitName: "GB")
+        // -- Arrange --
+        let baseValue: UInt = 1_024 * 1_024 * 1_024
+        let unitName = "GB"
+
+        // -- Act --
+        let singleUnitResult = SentryByteCountFormatter.bytesCountDescription(baseValue)
+        let midRangeResult = SentryByteCountFormatter.bytesCountDescription(baseValue * midRangeMultiplier)
+        let maxValueResult = SentryByteCountFormatter.bytesCountDescription(baseValue * maxValueOffset)
+
+        // -- Assert --
+        XCTAssertEqual("1 \(unitName)", singleUnitResult)
+        XCTAssertEqual("512 \(unitName)", midRangeResult)
+        XCTAssertEqual("1,023 \(unitName)", maxValueResult)
     }
-    
-    private func assertDescription(baseValue: UInt, unitName: String) {
-        XCTAssertEqual("1 \(unitName)", SentryByteCountFormatter.bytesCountDescription(baseValue))
-        XCTAssertEqual("512 \(unitName)", SentryByteCountFormatter.bytesCountDescription(baseValue * 512))
-        XCTAssertEqual("1,023 \(unitName)", SentryByteCountFormatter.bytesCountDescription(baseValue * 1_024 - 1))
-    }
-    
+
 }
