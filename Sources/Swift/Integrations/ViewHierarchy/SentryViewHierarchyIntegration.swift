@@ -7,7 +7,7 @@ typealias SentryViewHierarchyIntegrationProvider = ViewHierarchyProviderProvider
 final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyIntegrationProvider>: NSObject, SwiftIntegration, SentryClientAttachmentProcessor {
     private let options: Options
     private let viewHierarchyProvider: SentryViewHierarchyProvider
-    private let client: SentryClientInternal
+    private weak var client: SentryClientInternal?
 
     init?(with options: Options, dependencies: Dependencies) {
         guard options.attachViewHierarchy else {
@@ -44,7 +44,7 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
 
     func uninstall() {
         sentrycrash_setSaveViewHierarchy(nil)
-        client.removeAttachmentProcessor(self)
+        client?.removeAttachmentProcessor(self)
     }
 
     static var name: String {
