@@ -16,13 +16,17 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     
     func testReportIsSentAndDeleted() throws {
         givenSutWithStartedSDK()
-        
+
         try givenStoredSentryCrashReport(resource: "Resources/crash-report-1")
 
+        let expectation = expectation(description: "sendAllReports completion")
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 1)
+            expectation.fulfill()
         }
-        
+
+        waitForExpectations(timeout: 1.0)
+
         XCTAssertEqual(self.testClient.captureFatalEventInvocations.count, 1)
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
     }
@@ -32,16 +36,20 @@ class SentryCrashInstallationReporterTests: XCTestCase {
      */
     func testShouldCaptureCrashReportWithLegacyStorageInfo() throws {
         givenSutWithStartedSDK()
-        
+
         try givenStoredSentryCrashReport(resource: "Resources/crash-report-legacy-storage-info")
 
+        let expectation = expectation(description: "sendAllReports completion")
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 1)
+            expectation.fulfill()
         }
-        
+
+        waitForExpectations(timeout: 1.0)
+
         XCTAssertEqual(self.testClient.captureFatalEventInvocations.count, 1)
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
-        
+
         let event = self.testClient.captureFatalEventInvocations.last?.event
         XCTAssertEqual(event?.context?["device"]?["free_storage"] as? Int, 278_914_420_736)
         // total_storage got converted to storage_size
@@ -50,16 +58,20 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     
     func testShouldCaptureCrashReportWithoutDeviceContext() throws {
         givenSutWithStartedSDK()
-        
+
         try givenStoredSentryCrashReport(resource: "Resources/crash-report-without-device-context")
 
+        let expectation = expectation(description: "sendAllReports completion")
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 1)
+            expectation.fulfill()
         }
-        
+
+        waitForExpectations(timeout: 1.0)
+
         XCTAssertEqual(self.testClient.captureFatalEventInvocations.count, 1)
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
-        
+
         let event = self.testClient.captureFatalEventInvocations.last?.event
         XCTAssertNil(event?.context?["device"])
         XCTAssertEqual(event?.context?["app"]?["app_name"] as? String, "iOS-Swift")
@@ -67,13 +79,17 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     
     func testFaultyReportIsNotSentAndDeleted() throws {
         givenSutWithStartedSDK()
-        
+
         try givenStoredSentryCrashReport(resource: "Resources/Crash-faulty-report")
 
+        let expectation = expectation(description: "sendAllReports completion")
         sut.sendAllReports { filteredReports, _, _ in
             XCTAssertEqual(filteredReports?.count, 0)
+            expectation.fulfill()
         }
-        
+
+        waitForExpectations(timeout: 1.0)
+
         XCTAssertEqual(self.testClient.captureFatalEventInvocations.count, 0)
         XCTAssertEqual(sentrycrash_getReportCount(), 0)
     }
