@@ -149,12 +149,23 @@ public class SentryReachability: NSObject {
     }
     
     fileprivate func connectivityCallback(_ connectivity: SentryConnectivity) {
-        observersLock.lock()
-        defer { observersLock.unlock() }
+        // DEADLOCK PREVENTION: Copy observers while holding the lock, then notify outside the lock.
+        //
+        // A deadlock can occur when two threads acquire locks in opposite orders:
+        //   Thread A: instanceLock -> observersLock (e.g., test cleanup calls SentryDependencyContainer.reset()
+        //             which eventually calls removeAllObservers())
+        //   Thread B: observersLock -> instanceLock (e.g., this callback notifies an observer that creates
+        //             a breadcrumb, which calls SentryDependencyContainer.sharedInstance)
+        //
+        // By copying the observers list and releasing observersLock before notifying, we ensure this method
+        // never holds observersLock while calling observer code that might acquire other locks.
+        let observersToNotify = observersLock.synchronized {
+            reachabilityObservers.allObjects
+        }
         
         SentrySDKLog.debug("Entered synchronized region of SentryConnectivityCallback with connectivity: \(connectivity.toString())")
         
-        guard reachabilityObservers.count > 0 else {
+        guard observersToNotify.count > 0 else {
             SentrySDKLog.debug("No reachability observers registered. Nothing to do.")
             return
         }
@@ -167,8 +178,10 @@ public class SentryReachability: NSObject {
         
         let connected = connectivity != .none
         
+        // Notify observers outside the lock to avoid deadlock.
+        // Observers may call back into SDK code that needs other locks (e.g., SentryDependencyContainer.instanceLock).
         SentrySDKLog.debug("Notifying observers with connected: \(connected), connectivity: \(connectivity.toString())")
-        for observer in reachabilityObservers.allObjects {
+        for observer in observersToNotify {
             SentrySDKLog.debug("Notifying \(observer)")
             observer.connectivityChanged(connected, typeDescription: connectivity.toString())
         }
