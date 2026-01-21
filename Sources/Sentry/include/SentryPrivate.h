@@ -72,7 +72,6 @@
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
-#import "SentrySessionInternal.h"
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"
 #import "SentrySysctlObjC.h"

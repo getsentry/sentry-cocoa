@@ -162,7 +162,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         options.enableWatchdogTerminationTracking = false
         
         let fileManager = fixture.client.fileManager
-        XCTAssertEqual(session, fileManager.readCurrentSession())
+        try XCTAssertTrue(session.isEqual(to: XCTUnwrap(fileManager.readCurrentSession())))
         XCTAssertNil(fileManager.readCrashedSession())
         XCTAssertNil(fileManager.readAbnormalSession())
     }
@@ -186,7 +186,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         _ = try fixture.getSut(crashWrapper: sentryCrash)
 
         let fileManager = fixture.client.fileManager
-        XCTAssertEqual(session, fileManager.readCurrentSession())
+        try XCTAssertTrue(session.isEqual(to: XCTUnwrap(fileManager.readCurrentSession())))
         XCTAssertNil(fileManager.readCrashedSession())
         XCTAssertNil(fileManager.readAbnormalSession())
     }
@@ -247,7 +247,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         
         // Assert
         let fileManager = fixture.client.fileManager
-        XCTAssertEqual(session, fileManager.readCurrentSession())
+        try XCTAssertTrue(session.isEqual(to: XCTUnwrap(fileManager.readCurrentSession())))
         XCTAssertNil(fileManager.readCrashedSession())
         XCTAssertNil(fileManager.readAbnormalSession())
     }
@@ -273,7 +273,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         _ = try fixture.getSut(crashWrapper: sentryCrash, fileManager: fileManager)
         
         // Assert
-        XCTAssertEqual(session, fileManager.readCurrentSession())
+        try XCTAssertTrue(session.isEqual(to: XCTUnwrap(fileManager.readCurrentSession())))
         XCTAssertNil(fileManager.readCrashedSession())
         XCTAssertNil(fileManager.readAbnormalSession())
     }
@@ -701,7 +701,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private func assertCrashedSessionStored(expected: SentrySession) {
         let crashedSession = fixture.client.fileManager.readCrashedSession()
         XCTAssertEqual(SentrySessionStatus.crashed, crashedSession?.status)
-        XCTAssertEqual(expected, crashedSession)
+        try XCTAssertTrue(expected.isEqual(to: XCTUnwrap(crashedSession)))
         XCTAssertNil(fixture.client.fileManager.readCurrentSession())
     }
     
