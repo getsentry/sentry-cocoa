@@ -1,16 +1,16 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-protocol BatcherProtocol<Item, Scope>: AnyObject {
-    associatedtype Item: BatcherItem
-    associatedtype Scope: BatcherScope
+protocol TelemetryBufferProtocol<Item, Scope>: AnyObject {
+    associatedtype Item: TelemetryBufferItem
+    associatedtype Scope: TelemetryBufferScope
 
     func add(_ item: Item, scope: Scope)
     func capture() -> TimeInterval
 }
 
-final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: BatcherScope>: BatcherProtocol {
-    struct Config: BatcherConfig {
+final class TelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<Item>, Item: TelemetryBufferItem, Scope: TelemetryBufferScope>: TelemetryBufferProtocol {
+    struct Config: TelemetryBufferConfig {
         let sendDefaultPii: Bool
 
         let flushTimeout: TimeInterval
@@ -22,7 +22,7 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
         var capturedDataCallback: (Data, Int) -> Void = { _, _ in }
     }
 
-    struct Metadata: BatcherMetadata {
+    struct Metadata: TelemetryBufferMetadata {
         let environment: String
         let releaseName: String?
         let installationId: String?
@@ -31,16 +31,16 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
     private let config: Config
     private let metadata: Metadata
 
-    private var buffer: Buffer
+    private var buffer: InternalBufferType
     private let dateProvider: SentryCurrentDateProvider
     private let dispatchQueue: SentryDispatchQueueWrapperProtocol
 
     private var timerWorkItem: DispatchWorkItem?
 
-    /// Initializes a new `Batcher`.
+    /// Initializes a new buffer.
     /// - Parameters:
-    ///   - config: The batcher configuration containing flush timeout, limits, and callbacks
-    ///   - metadata: The batcher metadata containing fields like environment or release
+    ///   - config: The buffer configuration containing flush timeout, limits, and callbacks
+    ///   - metadata: The buffer metadata containing fields like environment or release
     ///   - buffer: The buffer implementation for buffering items
     ///   - dateProvider: Provider for current date/time used for timing measurements
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
@@ -53,7 +53,7 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
     @_spi(Private) public init(
         config: Config,
         metadata: Metadata,
-        buffer: Buffer,
+        buffer: InternalBufferType,
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapperProtocol
     ) {
@@ -64,14 +64,14 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
         self.dispatchQueue = dispatchQueue
     }
 
-    /// Adds an item to the batcher with the given scope.
+    /// Adds an item to the buffer with the given scope.
     /// - Parameters:
     ///   - item: The item to add to the batch
     ///   - scope: The scope to apply to the item (adds attributes, trace ID, etc.)
     ///
     /// - Note: Scope application (attribute enrichment) and the `beforeSendItem` callback are executed
     ///        synchronously on the caller's thread. Only encoding and buffering happen asynchronously
-    ///        on the batcher's serial dispatch queue. If `config.beforeSendItem` returns `nil`,
+    ///        on the buffer's serial dispatch queue. If `config.beforeSendItem` returns `nil`,
     ///        the item is dropped and not added to the batch.
     func add(_ item: Item, scope: Scope) {
         var item = item
@@ -95,10 +95,10 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
     /// Captures all currently batched items synchronously and returns the duration of the operation.
     /// - Returns: The time taken to capture items in seconds
     ///
-    /// - Note: This method blocks until all items are captured. The batcher's buffer is cleared after capture.
+    /// - Note: This method blocks until all items are captured. The buffer is cleared after capture.
     ///
-    /// - Important: This method uses `dispatchSync` to synchronously execute on the batcher's serial dispatch queue.
-    ///              **Do not call this method from within the batcher's dispatch queue or from within the
+    /// - Important: This method uses `dispatchSync` to synchronously execute on the buffer's serial dispatch queue.
+    ///              **Do not call this method from within the buffer's dispatch queue or from within the
     ///              `capturedDataCallback` closure**, as this will cause a deadlock. This method should only be
     ///              called from external threads or queues (e.g., main thread, app lifecycle callbacks).
     @discardableResult func capture() -> TimeInterval {
@@ -155,7 +155,7 @@ final class Batcher<Buffer: BatchBuffer<Item>, Item: BatcherItem, Scope: Batcher
         defer {
             buffer.clear()
         }
-        
+
         // Reset timer state
         timerWorkItem?.cancel()
         timerWorkItem = nil

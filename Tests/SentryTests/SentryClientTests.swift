@@ -2398,7 +2398,7 @@ class SentryClientTests: XCTestCase {
     func testCaptureLog() throws {
         let sut = fixture.getSut()
         
-        // Create a test batcher to verify addLog is called
+        // Create a test log batcher to verify addLog is called
         let testDelegate = TestLogBatcherDelegateForClient()
         let testBatcher = TestLogBatcherForClient(
             options: sut.options,
@@ -2413,7 +2413,7 @@ class SentryClientTests: XCTestCase {
         
         let log = SentryLog(
             timestamp: Date(timeIntervalSince1970: 1_627_846_801),
-            traceId: SentryId.empty, // Temporary set to empty until its assigned by the batcher.
+            traceId: SentryId.empty, // Temporary set to empty until its assigned by the buffer.
             level: .info,
             body: "Test log message",
             attributes: [:]
@@ -2422,7 +2422,7 @@ class SentryClientTests: XCTestCase {
         
         sut._swiftCaptureLog(log, with: scope)
         
-        // Verify that the log was passed to the batcher
+        // Verify that the log was passed to the log batcher
         XCTAssertEqual(testBatcher.addLogInvocations.count, 1)
         XCTAssertEqual(testBatcher.addLogInvocations.first?.log.body, "Test log message")
         XCTAssertEqual(testBatcher.addLogInvocations.first?.log.level, .info)

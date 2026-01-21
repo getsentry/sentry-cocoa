@@ -90,7 +90,7 @@ When creating test helpers, mocks, or test data structures, prefer `struct` over
 **Prefer:**
 
 ```swift
-private struct TestItem: BatcherItem {
+private struct TestItem: TelemetryBufferItem {
     var body: String
     // ...
 }
@@ -99,7 +99,7 @@ private struct TestItem: BatcherItem {
 **Avoid (unless reference semantics are required):**
 
 ```swift
-private class TestItem: BatcherItem {
+private class TestItem: TelemetryBufferItem {
     var body: String
     // ...
 }
@@ -114,7 +114,7 @@ private class TestItem: BatcherItem {
 **Example of when class is necessary:**
 
 ```swift
-// MockStorage must be a class because Batcher stores it internally
+// MockStorage must be a class because TelemetryBuffer stores it internally
 // and we need to observe changes from the test. Using a struct would create a copy.
 private class MockStorage: BatchStorage {
     var appendedItems: [TestItem] = []

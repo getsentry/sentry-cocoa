@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-protocol BatcherScope {
+protocol TelemetryBufferScope {
     var replayId: String? { get }
     var propagationContextTraceId: SentryId { get }
     var span: Span? { get }
@@ -13,21 +13,21 @@ protocol BatcherScope {
     /// Used for type-safe access of the attributes, uses default implementation in extension
     var attributesDict: [String: SentryAttributeContent] { get }
 
-    func applyToItem<Item: BatcherItem, Config: BatcherConfig<Item>, Metadata: BatcherMetadata>(
+    func applyToItem<Item: TelemetryBufferItem, Config: TelemetryBufferConfig<Item>, Metadata: TelemetryBufferMetadata>(
         _ item: inout Item,
         config: Config,
         metadata: Metadata
     )
 }
 
-extension BatcherScope {
+extension TelemetryBufferScope {
     var attributesDict: [String: SentryAttributeContent] {
         self.attributes.mapValues { value in
             SentryAttributeContent.from(anyValue: value)
         }
     }
 
-    func applyToItem<Item: BatcherItem, Config: BatcherConfig<Item>, Metadata: BatcherMetadata>(
+    func applyToItem<Item: TelemetryBufferItem, Config: TelemetryBufferConfig<Item>, Metadata: TelemetryBufferMetadata>(
         _ item: inout Item,
         config: Config,
         metadata: Metadata
@@ -52,7 +52,7 @@ extension BatcherScope {
         item.traceId = span?.traceId ?? propagationContextTraceId
     }
 
-    private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], config: any BatcherConfig, metadata: any BatcherMetadata) {
+    private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], config: any TelemetryBufferConfig, metadata: any TelemetryBufferMetadata) {
         attributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
         attributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
         attributes["sentry.environment"] = .string(metadata.environment)
@@ -64,7 +64,7 @@ extension BatcherScope {
         }
     }
 
-    private func addOSAttributes(to attributes: inout [String: SentryAttributeContent], config: any BatcherConfig) {
+    private func addOSAttributes(to attributes: inout [String: SentryAttributeContent], config: any TelemetryBufferConfig) {
         guard let osContext = self.getContextForKey(SENTRY_CONTEXT_OS_KEY) else {
             return
         }
@@ -76,7 +76,7 @@ extension BatcherScope {
         }
     }
 
-    private func addDeviceAttributes(to attributes: inout [String: SentryAttributeContent], config: any BatcherConfig) {
+    private func addDeviceAttributes(to attributes: inout [String: SentryAttributeContent], config: any TelemetryBufferConfig) {
         guard let deviceContext = self.getContextForKey(SENTRY_CONTEXT_DEVICE_KEY) else {
             return
         }
@@ -91,7 +91,7 @@ extension BatcherScope {
         }
     }
 
-    private func addUserAttributes(to attributes: inout [String: SentryAttributeContent], config: any BatcherConfig) {
+    private func addUserAttributes(to attributes: inout [String: SentryAttributeContent], config: any TelemetryBufferConfig) {
         guard config.sendDefaultPii else {
             return
         }
@@ -106,7 +106,7 @@ extension BatcherScope {
         }
     }
 
-    private func addReplayAttributes(to attributes: inout [String: SentryAttributeContent], config: any BatcherConfig) {
+    private func addReplayAttributes(to attributes: inout [String: SentryAttributeContent], config: any TelemetryBufferConfig) {
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
         if let scopeReplayId = replayId {
@@ -117,7 +117,7 @@ extension BatcherScope {
 #endif
     }
 
-    private func addScopeAttributes(to attributes: inout [String: SentryAttributeContent], config: any BatcherConfig) {
+    private func addScopeAttributes(to attributes: inout [String: SentryAttributeContent], config: any TelemetryBufferConfig) {
         // Scope attributes should not override any existing attribute in the item
         for (key, value) in self.attributesDict where attributes[key] == nil {
             attributes[key] = value
@@ -126,8 +126,8 @@ extension BatcherScope {
 
     private func addDefaultUserIdIfNeeded(
         to attributes: inout [String: SentryAttributeContent],
-        config: any BatcherConfig,
-        metadata: any BatcherMetadata
+        config: any TelemetryBufferConfig,
+        metadata: any TelemetryBufferMetadata
     ) {
         guard attributes["user.id"] == nil && attributes["user.name"] == nil && attributes["user.email"] == nil else {
             return
@@ -141,4 +141,4 @@ extension BatcherScope {
     }
 }
 
-extension Scope: BatcherScope {}
+extension Scope: TelemetryBufferScope {}

@@ -1,4 +1,4 @@
-protocol BatcherConfig<Item> {
+protocol TelemetryBufferConfig<Item> {
     associatedtype Item
 
     var sendDefaultPii: Bool { get }

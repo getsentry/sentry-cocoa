@@ -1,4 +1,4 @@
-struct InMemoryBatchBuffer<Item: Encodable>: BatchBuffer {
+struct InMemoryInternalTelemetryBuffer<Item: Encodable>: InternalTelemetryBuffer {
     private var elements: [Data] = []
     var itemsDataSize: Int = 0
 
