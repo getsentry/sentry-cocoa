@@ -12,7 +12,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log", from: "1.5.0"),
-        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.1.0")
+        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.2.0")
     ],
     targets: [
         .target(
