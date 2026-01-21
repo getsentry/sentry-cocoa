@@ -17,6 +17,7 @@
       "Bash(git branch:*)",
       "Bash(git remote:*)",
       "Bash(git tag:*)",
+      "Bash(git mv:*)",
       "Bash(git stash list:*)",
       "Bash(git rev-parse:*)",
       "Bash(gh pr view:*)",

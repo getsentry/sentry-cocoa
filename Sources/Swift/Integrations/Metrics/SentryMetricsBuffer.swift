@@ -1,12 +1,12 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-protocol SentryMetricsBatcherProtocol {
+protocol SentryMetricsBufferProtocol {
     func addMetric(_ metric: SentryMetric, scope: Scope)
     @discardableResult func captureMetrics() -> TimeInterval
 }
 
-protocol SentryMetricsBatcherOptionsProtocol {
+protocol SentryMetricsBufferOptionsProtocol {
     var enableMetrics: Bool { get }
     var beforeSendMetric: ((SentryMetric) -> SentryMetric?)? { get }
     var environment: String { get }
@@ -15,12 +15,12 @@ protocol SentryMetricsBatcherOptionsProtocol {
     var sendDefaultPii: Bool { get }
 }
 
-/// SentryMetricsBatcher is responsible for batching metrics with scope-based attribute enrichment.
-struct SentryMetricsBatcher: SentryMetricsBatcherProtocol {
+/// SentryMetricsBuffer is responsible for batching metrics with scope-based attribute enrichment.
+struct SentryMetricsBuffer: SentryMetricsBufferProtocol {
     private let isEnabled: Bool
-    private let batcher: any BatcherProtocol<SentryMetric, Scope>
+    private let buffer: any BatcherProtocol<SentryMetric, Scope>
 
-    /// Initializes a new MetricBatcher.
+    /// Initializes a new MetricsBuffer.
     /// - Parameters:
     ///   - options: The Sentry configuration options
     ///   - flushTimeout: The timeout interval after which buffered metrics will be flushed
@@ -36,7 +36,7 @@ struct SentryMetricsBatcher: SentryMetricsBatcherProtocol {
     ///
     /// - Note: Metrics are flushed when either `maxMetricCount` or `maxBufferSizeBytes` limit is reached.
     init(
-        options: SentryMetricsBatcherOptionsProtocol,
+        options: SentryMetricsBufferOptionsProtocol,
         flushTimeout: TimeInterval = 5,
         maxMetricCount: Int = 100, // Maximum 100 metrics per batch
         maxBufferSizeBytes: Int = 1_024 * 1_024, // 1MB buffer size for trace metrics
@@ -45,7 +45,7 @@ struct SentryMetricsBatcher: SentryMetricsBatcherProtocol {
         capturedDataCallback: @escaping (_ data: Data, _ count: Int) -> Void
     ) {
         self.isEnabled = options.enableMetrics
-        self.batcher = Batcher(
+        self.buffer = Batcher(
             config: .init(
                 sendDefaultPii: options.sendDefaultPii,
                 flushTimeout: flushTimeout,
@@ -65,7 +65,7 @@ struct SentryMetricsBatcher: SentryMetricsBatcherProtocol {
         )
     }
     
-    /// Adds a metric to the batcher.
+    /// Adds a metric to the buffer.
     /// - Parameters:
     ///   - metric: The metric to add
     ///   - scope: The scope to add the metric to
@@ -73,21 +73,21 @@ struct SentryMetricsBatcher: SentryMetricsBatcherProtocol {
         guard isEnabled else {
             return
         }
-        batcher.add(metric, scope: scope)
+        buffer.add(metric, scope: scope)
     }
 
-    /// Captures batched metrics synchronously and returns the duration.
+    /// Captures buffered metrics synchronously and returns the duration.
     /// - Returns: The time taken to capture items in seconds
     ///
-    /// - Note: This method blocks until all items are captured. The batcher's buffer is cleared after capture.
+    /// - Note: This method blocks until all items are captured. The buffer is cleared after capture.
     ///         This is safe to call from any thread, but be aware that it uses dispatchSync internally,
-    ///         so calling it from a context that holds locks or is on the batcher's queue itself could cause a deadlock.
+    ///         so calling it from a context that holds locks or is on the buffer's queue itself could cause a deadlock.
     @discardableResult func captureMetrics() -> TimeInterval {
-        return batcher.capture()
+        return buffer.capture()
     }
 }
 
-extension Options: SentryMetricsBatcherOptionsProtocol {
+extension Options: SentryMetricsBufferOptionsProtocol {
     // As soon as the feature is not experimental anymore, we can remove these two bridging methods.
         
     var enableMetrics: Bool {

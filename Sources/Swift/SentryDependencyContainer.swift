@@ -1,4 +1,5 @@
-// swiftlint:disable missing_docs
+//swiftlint:disable file_length missing_docs
+
 @_implementationOnly import _SentryPrivate
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
@@ -160,7 +161,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     
     private var _viewHierarchyProvider: SentryViewHierarchyProvider?
-    @objc public lazy var viewHierarchyProvider = getLazyVar(\._viewHierarchyProvider) {
+    @objc public lazy var viewHierarchyProvider: SentryViewHierarchyProvider? = getOptionalLazyVar(\._viewHierarchyProvider) {
         SentryViewHierarchyProvider(dispatchQueueWrapper: dispatchQueueWrapper, applicationProvider: defaultApplicationProvider)
     }
     
@@ -200,6 +201,30 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 #endif
+    
+    private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
+    func getCrashIntegrationSessionBuilder(_ options: Options) -> SentryCrashIntegrationSessionHandler? {
+        getOptionalLazyVar(\.crashIntegrationSessionHandler) {
+            
+            guard let fileManager = fileManager else {
+                SentrySDKLog.fatal("File manager is not available")
+                return nil
+            }
+            
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+            let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
+                                                       crashAdapter: crashWrapper,
+                                                       appStateManager: appStateManager)
+            return SentryCrashIntegrationSessionHandler(
+                crashWrapper: crashWrapper,
+                watchdogTerminationLogic: watchdogLogic,
+                fileManager: fileManager
+            )
+#else
+            return SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper, fileManager: fileManager)
+#endif
+        }
+    }
 
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
     private var _screenshotSource: SentryScreenshotSource?
@@ -266,11 +291,36 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         #endif
         }
     }
+    
+    private var crashInstallationReporter: SentryCrashInstallationReporter?
+    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
+        getLazyVar(\.crashInstallationReporter) {
+            let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
+
+            return SentryCrashInstallationReporter(
+                inAppLogic: inAppLogic,
+                crashWrapper: crashWrapper,
+                dispatchQueue: dispatchQueueWrapper
+            )
+        }
+    }
 }
 
 #if os(iOS) && !SENTRY_NO_UIKIT
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #endif
+
+protocol ClientProvider {
+    var client: SentryClientInternal? { get }
+}
+
+extension SentryDependencyContainer: ClientProvider {
+    var client: SentryClientInternal? {
+        // Eventually we will want to have the current shared hub to live in the dependency container aswell
+        // Until then, we proxy the static accessor.
+        SentrySDKInternal.currentHub().getClient()
+    }
+}
 
 protocol DateProviderProvider {
     var dateProvider: SentryCurrentDateProvider { get }
@@ -301,6 +351,12 @@ protocol ScreenshotIntegrationProvider {
 }
 
 extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
+
+protocol ViewHierarchyProviderProvider {
+    var viewHierarchyProvider: SentryViewHierarchyProvider? { get }
+}
+
+extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
 #endif
 
 protocol DispatchQueueWrapperProvider {
@@ -371,4 +427,20 @@ extension SentryDependencyContainer: NetworkTrackerProvider {
         SentryNetworkTracker.sharedInstance
     }
 }
-// swiftlint:enable missing_docs
+
+protocol SentryCrashReporterProvider {
+    var crashReporter: SentryCrashSwift { get }
+}
+extension SentryDependencyContainer: SentryCrashReporterProvider {}
+
+protocol CrashIntegrationSessionHandlerBuilder {
+    func getCrashIntegrationSessionBuilder(_ options: Options) -> SentryCrashIntegrationSessionHandler?
+}
+extension SentryDependencyContainer: CrashIntegrationSessionHandlerBuilder {}
+
+protocol CrashInstallationReporterBuilder {
+    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter
+}
+extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
+
+//swiftlint:enable file_length missing_docs

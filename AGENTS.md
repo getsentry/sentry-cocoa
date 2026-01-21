@@ -32,10 +32,36 @@ This file provides comprehensive guidance for AI coding agents working with the 
 ### Testing Instructions
 
 - Find the CI plan in the .github/workflows folder.
-- Run unit tests: `make run-test-server && make test`
+- Run unit tests: `make test` (test server is NOT required for most tests)
 - Run important UI tests: `make test-ui-critical`
 - Fix any test or type errors until the whole suite is green.
 - Add or update tests for the code you change, even if nobody asked.
+
+#### Test Server Requirements
+
+The test server is **only required** for a small subset of network integration tests using the `Sentry_TestServer` xctestplan. The main test suite runs without it by design.
+
+**Key Points:**
+
+- **Most unit tests do NOT require the test server** - Running `make test` executes the full test suite without needing the test server
+- **Only 3 specific tests need it** - Tests in `SentryNetworkTrackerIntegrationTestServerTests` that verify HTTP request tracking with a real server
+- **Separate in CI** - These tests run in a dedicated `unit-tests-with-test-server` job with the `Sentry_TestServer` xctestplan to avoid side effects
+- **Impact analysis first** - Before running test server tests, evaluate if your changes affect network tracking or HTTP request functionality
+- **When asked to run all tests** - You can typically exclude test server tests as they run separately in CI
+- **Always stop the server after use** - The test server runs in the background and must be manually stopped to avoid port conflicts
+
+**Running test server tests (only when needed):**
+
+```bash
+# Only run if changes impact network tracking
+make run-test-server
+
+# Run specific test plan using the sentry-xcodebuild.sh wrapper
+./scripts/sentry-xcodebuild.sh --platform iOS --command test --test-plan Sentry_TestServer
+
+# IMPORTANT: Always stop the test server after use
+make stop-test-server
+```
 
 #### Test Naming Convention
 
@@ -97,6 +123,91 @@ private class MockStorage: BatchStorage {
 ```
 
 #### Test Code Style
+
+**Use Arrange-Act-Assert pattern:**
+
+All tests should follow the Arrange-Act-Assert (AAA) pattern with explicit comment markers for clarity.
+
+**Pattern:**
+
+```swift
+func testExample() {
+    // -- Arrange --
+    let input = "test"
+    let expected = "TEST"
+
+    // -- Act --
+    let result = transform(input)
+
+    // -- Assert --
+    XCTAssertEqual(result, expected)
+}
+```
+
+**Benefits:**
+
+- Clear separation of test phases
+- Easy to understand what's being tested, how, and what's expected
+- Consistent structure across all tests
+
+**Write DAMP (Descriptive And Meaningful Phrases) tests:**
+
+Prefer self-contained, readable tests over DRY (Don't Repeat Yourself). It's acceptable to duplicate test code if it makes tests more understandable.
+
+**Prefer (DAMP):**
+
+```swift
+func testBytesDescription() {
+    // -- Arrange --
+    let baseValue: UInt = 1
+
+    // -- Act --
+    let result = formatter.format(baseValue)
+
+    // -- Assert --
+    XCTAssertEqual("1 bytes", result)
+}
+
+func testKBDescription() {
+    // -- Arrange --
+    let baseValue: UInt = 1_024
+
+    // -- Act --
+    let result = formatter.format(baseValue)
+
+    // -- Assert --
+    XCTAssertEqual("1 KB", result)
+}
+```
+
+**Avoid (overly DRY):**
+
+```swift
+func testBytesDescription() {
+    assertDescription(baseValue: 1, expected: "1 bytes")
+}
+
+func testKBDescription() {
+    assertDescription(baseValue: 1_024, expected: "1 KB")
+}
+
+private func assertDescription(baseValue: UInt, expected: String) {
+    // Test logic hidden in helper - need to jump to understand
+}
+```
+
+**Benefits:**
+
+- Each test is self-contained and readable without jumping to helper methods
+- Easier to understand test failures - all relevant information is visible
+- Simpler to modify individual tests without affecting others
+- Better for debugging - everything you need is right there
+
+**When to use helper methods:**
+
+- Complex test setup that would obscure the test's intent
+- Test fixtures or mock objects used across many tests
+- Assertion logic that's truly complex and used consistently
 
 **Prefer `guard case` over `if case`:**
 
@@ -245,6 +356,46 @@ When an error path cannot be reliably tested:
 
 - **Pre-commit Hooks**: This repository uses pre-commit hooks. If a commit fails because files were changed during the commit process (e.g., by formatting hooks), automatically retry the commit. Pre-commit hooks may modify files (like formatting), and the commit should be retried with the updated files.
 
+#### File Renaming and Git History Preservation
+
+**CRITICAL: Always preserve git history when renaming files in the codebase.**
+
+Git history is essential for understanding the evolution of code, tracking down bugs, and maintaining project continuity. When renaming files, follow these guidelines:
+
+**Use `git mv` for Renaming:**
+
+```bash
+# Correct approach - preserves history
+git mv old-name.swift new-name.swift
+git commit -m "ref: rename old-name to new-name"
+```
+
+**Never use file system operations followed by `git add`:**
+
+```bash
+# WRONG - breaks history tracking
+mv old-name.swift new-name.swift
+git add new-name.swift
+git commit -m "ref: rename old-name to new-name"
+```
+
+**Benefits:**
+
+- Git can track file history across renames (`git log --follow`)
+- Blame annotations continue to work correctly
+- Bisect operations remain accurate
+- Code archaeology and debugging are easier
+- Refactoring history is preserved
+
+**Verification:**
+
+After renaming, verify that git recognizes the rename:
+
+```bash
+git status  # Should show "renamed: old-name.swift -> new-name.swift"
+git log --follow new-name.swift  # Should show full history including old name
+```
+
 #### Conventional Commits
 
 This project uses [Conventional Commits 1.0.0](https://www.conventionalcommits.org/) for all commit messages.
@@ -363,8 +514,10 @@ The repository includes a Makefile that contains common commands for building, t
 
 - format code: `make format`
 - run static analysis: `make analyze`
-- run unit tests: `make run-test-server && make test`
+- run unit tests: `make test`
 - run important UI tests: `make test-ui-critical`
+- start test server (rarely needed): `make run-test-server`
+- stop test server: `make stop-test-server`
 - build the XCFramework deliverables: `make build-xcframework`
 - lint pod deliverable: `make pod-lint`
 

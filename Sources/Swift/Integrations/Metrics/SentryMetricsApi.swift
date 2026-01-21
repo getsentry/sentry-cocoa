@@ -49,17 +49,17 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         }
 
         // Capture the traceId at metric creation time to ensure it reflects the active trace
-        // when the metric was captured, not when it gets flushed by the batcher.
+        // when the metric was captured, not when it gets flushed by the buffer.
         //
         // This logic is intentionally duplicated from BatcherScope.applyToItem (used by Logs)
         // for the following reasons:
-        // 1. Safety: If batcher enrichment is skipped or fails, metrics still have valid traceIds
+        // 1. Safety: If buffer enrichment is skipped or fails, metrics still have valid traceIds
         //    rather than empty ones, which would break trace correlation entirely.
         // 2. Semantic correctness: A metric captured during a network request should correlate
         //    with that request's trace, matching how we capture timestamp at creation time.
-        // 3. Fail-safe redundancy: The batchers scope enrichment will overwrite this value, producing
+        // 3. Fail-safe redundancy: The buffer's scope enrichment will overwrite this value, producing
         //    the same result but with a safety net for edge cases. We can not remove the duplication from
-        //    the batcher scope because it is used by Logs and other integrations.
+        //    the buffer scope because it is used by Logs and other integrations.
         //
         // When a span is active, use its traceId to ensure consistency with span_id.
         // Otherwise, fall back to propagationContext traceId.
