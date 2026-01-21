@@ -194,8 +194,8 @@ final class SentryDestinationTests: XCTestCase {
         }
         
         // Verify unsupported type (array) is converted to string
-        XCTAssertEqual(log.attributes["swiftybeaver.context.tags"]?.type, "string")
-        let tagsValue = log.attributes["swiftybeaver.context.tags"]?.value as? String
+        XCTAssertEqual(log.attributes["swiftybeaver.context.tags"]?.type, "string[]")
+        let tagsValue = log.attributes["swiftybeaver.context.tags"]?.value as? [String]
         XCTAssertNotNil(tagsValue)
         XCTAssertTrue(tagsValue?.contains("production") ?? false, "Tags string should contain 'production'")
         XCTAssertTrue(tagsValue?.contains("api") ?? false, "Tags string should contain 'api'")
