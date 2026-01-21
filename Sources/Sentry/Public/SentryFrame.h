@@ -71,6 +71,13 @@ NS_SWIFT_NAME(Frame)
 @property (nonatomic, copy) NSString *_Nullable contextLine;
 
 /**
+  * Index of the parent frame used for flamegraphs.
+ */
+@property (nonatomic, copy) NSNumber *_Nullable parentIndex;
+
+@property (nonatomic, copy) NSNumber *_Nullable sampleCount;
+
+/**
  * Source code lines before the error location (up to 5 lines).
  * Mostly used for Godot errors.
  */

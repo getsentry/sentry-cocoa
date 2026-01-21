@@ -80,12 +80,12 @@ final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
             payload.hangDiagnostics?.forEach { diagnostic in
                 let hangDuration = measurementFormatter.string(from: diagnostic.hangDuration)
                 let exceptionValue = "MXHangDiagnostic hangDuration:\(hangDuration)"
-                captureEvent(handled: true, exceptionValue: exceptionValue, exceptionType: "MXHangDiagnostic", exceptionMechanism: hangDiagnosticMechanism, timeStampBegin: payload.timeStampBegin, diagnostic: diagnostic)
+                captureEvent(handled: true, exceptionValue: exceptionValue, exceptionType: "MXHangDiagnostic", exceptionMechanism: hangDiagnosticMechanism, timeStampBegin: payload.timeStampBegin, diagnostic: diagnostic, useFullCallStackTree: true)
             }
         }
     }
     
-    func captureEvent(handled: Bool, exceptionValue: String, exceptionType: String, exceptionMechanism: String, timeStampBegin: Date, diagnostic: MXDiagnostic & CallStackTreeProviding) {
+    func captureEvent(handled: Bool, exceptionValue: String, exceptionType: String, exceptionMechanism: String, timeStampBegin: Date, diagnostic: MXDiagnostic & CallStackTreeProviding, useFullCallStackTree: Bool = false) {
         if let callStackTree = try? SentryMXCallStackTree.from(data: diagnostic.callStackTree.jsonRepresentation()) {
             let event = Event(level: handled ? .warning : .error)
             event.timestamp = timeStampBegin
@@ -95,12 +95,29 @@ final class SentryMXManager: NSObject, MXMetricManagerSubscriber {
             mechanism.synthetic = true
             exception.mechanism = mechanism
             event.exceptions = [exception]
-            capture(event: event, handled: handled, callStackTree: callStackTree, diagnosticJSON: diagnostic.jsonRepresentation())
+            capture(event: event, handled: handled, callStackTree: callStackTree, diagnosticJSON: diagnostic.jsonRepresentation(), useFullCallStackTree: useFullCallStackTree)
         }
     }
     
-    func capture(event: Event, handled: Bool, callStackTree: SentryMXCallStackTree, diagnosticJSON: Data) {
-        callStackTree.prepare(event: event, inAppLogic: inAppLogic, handled: handled)
+    func capture(event: Event, handled: Bool, callStackTree: SentryMXCallStackTree, diagnosticJSON: Data, useFullCallStackTree: Bool = false) {
+        let debugMeta = callStackTree.toDebugMeta()
+        let threads: [SentryThread]
+        if useFullCallStackTree {
+            // For hang diagnostics, use the flattened tree to preserve all samples
+            threads = callStackTree.flattenedBacktrace(inAppLogic: inAppLogic, handled: handled)
+        } else {
+            threads = callStackTree.sentryMXBacktrace(inAppLogic: inAppLogic, handled: handled)
+        }
+        // First look for the crashing thread, but for events that were not a crash (like a hang) take the first thread
+        // since those events only report one thread
+        let exceptionThread = threads.first { $0.crashed?.boolValue == true } ?? threads.first
+        event.debugMeta = debugMeta
+        event.threads = threads
+
+        if let exceptionThread, let exception = event.exceptions?[0] {
+            exception.stacktrace = exceptionThread.stacktrace
+            exception.threadId = exceptionThread.threadId
+        }
         // The crash event can be way from the past. We don't want to impact the current session.
         // Therefore we don't call captureFatalEvent.
         capture(event: event, diagnosticJSON: diagnosticJSON)
