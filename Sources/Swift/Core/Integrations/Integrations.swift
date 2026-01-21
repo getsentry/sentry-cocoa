@@ -63,6 +63,7 @@ private struct AnyIntegration {
 
         #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
         integrations.append(.init(SentryScreenshotIntegration.self))
+        integrations.append(.init(SentryViewHierarchyIntegration.self))
         #endif
         
         #if os(iOS) || os(macOS)

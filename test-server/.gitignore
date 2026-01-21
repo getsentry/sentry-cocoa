@@ -6,3 +6,4 @@ DerivedData/
 .DS_Store
 db.sqlite
 .swiftpm
+.test-server.pid
