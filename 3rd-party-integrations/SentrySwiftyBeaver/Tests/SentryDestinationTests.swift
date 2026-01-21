@@ -194,11 +194,7 @@ final class SentryDestinationTests: XCTestCase {
         }
         
         XCTAssertEqual(log.attributes["swiftybeaver.context.tags"]?.type, "string[]")
-        if let tagsValue = log.attributes["swiftybeaver.context.tags"]?.value as? [String] {
-            XCTAssertEqual(tagsValue, ["production", "api", "v2"])
-        } else {
-            XCTFail("Tags value should be a [String]")
-        }
+        XCTAssertEqual(log.attributes["swiftybeaver.context.tags"]?.value as? [String], ["production", "api", "v2"])
         
         XCTAssertNil(result)
     }
