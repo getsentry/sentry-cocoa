@@ -71,6 +71,7 @@ public class SentryReachability: NSObject {
         }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
         
+        self.currentConnectivity = .none
         self.pathMonitor = NWPathMonitor()
         self.pathMonitor?.pathUpdateHandler = self.pathUpdateHandler
         self.pathMonitor?.start(queue: self.reachabilityQueue)
@@ -107,8 +108,6 @@ public class SentryReachability: NSObject {
             SentrySDKLog.debug("Skip stopping actual monitoring")
         }
 #endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
-        
-        currentConnectivity = .none
         
         // Clean up NWPathMonitor
         if let monitor = pathMonitor {
@@ -159,8 +158,8 @@ public class SentryReachability: NSObject {
         //
         // By copying the observers list and releasing observersLock before notifying, we ensure this method
         // never holds observersLock while calling observer code that might acquire other locks.
-        let observersToNotify = observersLock.synchronized {
-            reachabilityObservers.allObjects
+        let (observersToNotify, previousConnectivity) = observersLock.synchronized {
+            (reachabilityObservers.allObjects, currentConnectivity)
         }
         
         SentrySDKLog.debug("Entered synchronized region of SentryConnectivityCallback with connectivity: \(connectivity.toString())")
@@ -170,7 +169,6 @@ public class SentryReachability: NSObject {
             return
         }
         
-        let previousConnectivity = currentConnectivity
         currentConnectivity = connectivity
         guard connectivityShouldReportChange(previousConnectivity, currentConnectivity) else {
             return
