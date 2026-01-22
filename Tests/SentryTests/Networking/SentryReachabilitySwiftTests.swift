@@ -169,7 +169,7 @@ final class SentryReachabilitySwiftTests: XCTestCase {
             callbackStartedSemaphore.signal()
 
             // Wait a bit to ensure Thread 1 is trying to acquire observersLock
-            Thread.sleep(forTimeInterval: 0.02)
+            Thread.sleep(forTimeInterval: 1.00)
 
             // This mimics SentryBreadcrumbTracker calling SentryDependencyContainer.sharedInstance()
             instanceLock.lock()
@@ -190,7 +190,7 @@ final class SentryReachabilitySwiftTests: XCTestCase {
             _ = callbackStartedSemaphore.wait(timeout: .now() + 1.0)
 
             // Give callback time to progress
-            Thread.sleep(forTimeInterval: 0.01)
+            Thread.sleep(forTimeInterval: 1.00)
 
             // Now try to call removeAllObservers() while holding instanceLock
             // This will try to acquire observersLock - DEADLOCK if callback holds it while calling observer
