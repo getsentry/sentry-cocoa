@@ -13,13 +13,12 @@ class InfoForBreadcrumbController: UIViewController {
     }
 
     @IBAction func buttonPressed(_ sender: Any) {
-        guard let view = self.view,
-              let viewInfo = SentryBreadcrumbTracker.extractData(from: view, withAccessibilityIdentifier: true),
-              let buttonInfo = SentryBreadcrumbTracker.extractData(from: button, withAccessibilityIdentifier: true)
-        else {
+        guard let view = self.view else {
             label?.text = "ERROR"
             return
         }
+        let viewInfo = SentryBreadcrumbTracker.extractData(from: view, includeAccessibilityIdentifier: true)
+        let buttonInfo = SentryBreadcrumbTracker.extractData(from: button, includeAccessibilityIdentifier: true)
 
         let hasCorrectData = String(describing: view) == viewInfo["view"] as? String &&
         viewInfo["tag"] == nil &&

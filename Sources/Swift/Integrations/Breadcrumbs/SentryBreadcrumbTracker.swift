@@ -219,7 +219,8 @@ public final class SentryBreadcrumbTracker: NSObject {
         )
     }
     
-    private static func extractData(from view: UIView, includeAccessibilityIdentifier: Bool) -> [String: Any] {
+    @_spi(Private)
+    public static func extractData(from view: UIView, includeAccessibilityIdentifier: Bool) -> [String: Any] {
         var result: [String: Any] = ["view": String(describing: view)]
         
         if view.tag > 0 {
