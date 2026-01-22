@@ -161,7 +161,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     
     private var _viewHierarchyProvider: SentryViewHierarchyProvider?
-    @objc public lazy var viewHierarchyProvider = getLazyVar(\._viewHierarchyProvider) {
+    @objc public lazy var viewHierarchyProvider: SentryViewHierarchyProvider? = getOptionalLazyVar(\._viewHierarchyProvider) {
         SentryViewHierarchyProvider(dispatchQueueWrapper: dispatchQueueWrapper, applicationProvider: defaultApplicationProvider)
     }
     
@@ -310,6 +310,18 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
 #endif
 
+protocol ClientProvider {
+    var client: SentryClientInternal? { get }
+}
+
+extension SentryDependencyContainer: ClientProvider {
+    var client: SentryClientInternal? {
+        // Eventually we will want to have the current shared hub to live in the dependency container aswell
+        // Until then, we proxy the static accessor.
+        SentrySDKInternal.currentHub().getClient()
+    }
+}
+
 protocol DateProviderProvider {
     var dateProvider: SentryCurrentDateProvider { get }
 }
@@ -331,6 +343,12 @@ protocol ScreenshotIntegrationProvider {
 }
 
 extension SentryDependencyContainer: ScreenshotIntegrationProvider { }
+
+protocol ViewHierarchyProviderProvider {
+    var viewHierarchyProvider: SentryViewHierarchyProvider? { get }
+}
+
+extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
 #endif
 
 protocol SessionReplayEnvironmentCheckerProvider {

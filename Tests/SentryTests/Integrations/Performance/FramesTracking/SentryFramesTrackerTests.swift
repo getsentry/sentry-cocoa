@@ -7,7 +7,7 @@ import XCTest
 // This test class also includes tests for delayed frames calculation which is quite complex.
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-class SentryFramesTrackerTests: XCTestCase {
+final class SentryFramesTrackerTests: XCTestCase {
     
     private class Fixture {
         
@@ -773,6 +773,21 @@ class SentryFramesTrackerTests: XCTestCase {
         sut.addListener(listener)
         
         XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, 1)
+    }
+
+    func testListenersAreRemovedInMainThread() {
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        let sut = SentryFramesTracker(displayLinkWrapper: fixture.displayLinkWrapper, dateProvider: fixture.dateProvider, dispatchQueueWrapper: dispatchQueueWrapper, notificationCenter: fixture.notificationCenter, delayedFramesTracker: TestDelayedWrapper(keepDelayedFramesDuration: fixture.keepDelayedFramesDuration, dateProvider: fixture.dateProvider))
+        let listener = FrameTrackerListener()
+        
+        sut.addListener(listener)
+        sut.start()
+        
+        XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, 2)
+        
+        sut.stop()
+        
+        XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.count, 3)
     }
 
     func testRemoveListener() {

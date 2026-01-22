@@ -162,7 +162,7 @@ final class SentryDestinationTests: XCTestCase {
             "errorCode": 500,                   // Int
             "amount": 99.99,                    // Double
             "temperature": Float(36.6),         // Float (converted to Double)
-            "tags": ["production", "api", "v2"] // Array (unsupported, converted to String)
+            "tags": ["production", "api", "v2"] // Array
         ]
         let result = sut.send(.error, msg: "Payment failed", thread: "main", file: "Test.swift", function: "testFunction", line: 150, context: context)
         
@@ -193,13 +193,8 @@ final class SentryDestinationTests: XCTestCase {
             XCTFail("Temperature value should be a Double")
         }
         
-        // Verify unsupported type (array) is converted to string
-        XCTAssertEqual(log.attributes["swiftybeaver.context.tags"]?.type, "string")
-        let tagsValue = log.attributes["swiftybeaver.context.tags"]?.value as? String
-        XCTAssertNotNil(tagsValue)
-        XCTAssertTrue(tagsValue?.contains("production") ?? false, "Tags string should contain 'production'")
-        XCTAssertTrue(tagsValue?.contains("api") ?? false, "Tags string should contain 'api'")
-        XCTAssertTrue(tagsValue?.contains("v2") ?? false, "Tags string should contain 'v2'")
+        XCTAssertEqual(log.attributes["swiftybeaver.context.tags"]?.type, "string[]")
+        XCTAssertEqual(log.attributes["swiftybeaver.context.tags"]?.value as? [String], ["production", "api", "v2"])
         
         XCTAssertNil(result)
     }
