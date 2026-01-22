@@ -4,11 +4,7 @@
 @_spi(Private) @objc public final class SentryNSFileManagerSwizzling: NSObject {
     @objc public static let shared = SentryNSFileManagerSwizzling()
 
-    private var tracker: SentryFileIOTracker?
-
     @objc public func start(withOptions options: Options, tracker: SentryFileIOTracker) {
-        self.tracker = tracker
-
         guard options.enableSwizzling else {
             SentrySDKLog.debug("Auto-tracking of NSFileManager is disabled because enableSwizzling is false")
             return
@@ -24,7 +20,6 @@
 
     @objc public func stop() {
         SentryNSFileManagerSwizzlingHelper.unswizzle()
-        tracker = nil
     }
 }
 

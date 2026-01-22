@@ -4,11 +4,7 @@
 @_spi(Private) @objc public final class SentryNSDataSwizzling: NSObject {
     @objc public static let shared = SentryNSDataSwizzling()
 
-    private var tracker: SentryFileIOTracker?
-
     @objc public func start(withOptions options: Options, tracker: SentryFileIOTracker) {
-        self.tracker = tracker
-
         guard options.enableSwizzling else {
             SentrySDKLog.debug("Auto-tracking of NSData is disabled because enableSwizzling is false")
             return
@@ -24,7 +20,6 @@
 
     @objc public func stop() {
         SentryNSDataSwizzlingHelper.unswizzle()
-        tracker = nil
     }
 }
 // swiftlint:enable missing_docs
