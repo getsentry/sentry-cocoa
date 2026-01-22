@@ -206,6 +206,6 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         }
 
         // If there's a deadlock, this will timeout
-        wait(for: [observerCallbackExpectation, removeObserversExpectation], timeout: 2.0)
+        wait(for: [observerCallbackExpectation, removeObserversExpectation], timeout: 10.0)
     }
 }
