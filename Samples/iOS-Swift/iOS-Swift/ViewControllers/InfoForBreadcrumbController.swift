@@ -1,5 +1,5 @@
 import Foundation
-import Sentry
+@_spi(Private) import Sentry
 import UIKit
 
 class InfoForBreadcrumbController: UIViewController {
