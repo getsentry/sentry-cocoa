@@ -68,4 +68,8 @@ xcrun --sdk iphoneos swift-api-digester \
     -module Sentry \
     -target arm64-apple-ios10.0 \
     -iframework ./Sentry-Dynamic.xcframework/ios-arm64_arm64e
+
+# Sort the JSON keys and arrays for stable output across runs
+log_notice "Sorting JSON keys and arrays for stable output"
+jq -S 'walk(if type == "array" then sort_by(tostring) else . end)' sdk_api.json > sdk_api.json.tmp && mv sdk_api.json.tmp sdk_api.json
 end_group

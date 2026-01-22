@@ -4,5 +4,7 @@
 // compile in SPM and xcodebuild (which doesn't separate
 // ObjC into the SentryHeaders target)
 #if !COCOAPODS
+#if canImport(SentryHeaders)
 @_exported import SentryHeaders
+#endif
 #endif
