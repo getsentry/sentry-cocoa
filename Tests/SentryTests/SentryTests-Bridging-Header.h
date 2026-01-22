@@ -99,7 +99,6 @@
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent+Private.h"
 #import "SentryFileIOTrackerHelper.h"
-#import "SentryFileIOTrackingIntegration.h"
 #import "SentryFileManager+Test.h"
 #import "SentryFileManagerHelper.h"
 #import "SentryFormatter.h"

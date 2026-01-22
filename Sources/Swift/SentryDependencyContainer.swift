@@ -114,6 +114,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var timerFactory = SentryNSTimerFactory()
     @objc public var fileIOTracker = Dependencies.fileIOTracker
     @objc public var threadInspector = Dependencies.threadInspector
+    @objc public var nsDataSwizzling = SentryNSDataSwizzling.shared
+    @objc public var nsFileManagerSwizzling = SentryNSFileManagerSwizzling.shared
     @objc public var rateLimits: RateLimits = DefaultRateLimits(
         retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: Dependencies.dateProvider),
         andRateLimitParser: RateLimitParser(currentDateProvider: Dependencies.dateProvider),
@@ -328,6 +330,22 @@ protocol DateProviderProvider {
 extension SentryDependencyContainer: DateProviderProvider {}
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
+
+protocol FileIOTrackerProvider {
+    var fileIOTracker: SentryFileIOTracker { get }
+}
+
+protocol NSDataSwizzlingProvider {
+    var nsDataSwizzling: SentryNSDataSwizzling { get }
+}
+
+protocol NSFileManagerSwizzlingProvider {
+    var nsFileManagerSwizzling: SentryNSFileManagerSwizzling { get }
+}
+
+extension SentryDependencyContainer: FileIOTrackerProvider { }
+extension SentryDependencyContainer: NSDataSwizzlingProvider { }
+extension SentryDependencyContainer: NSFileManagerSwizzlingProvider { }
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 protocol FramesTrackingProvider {
