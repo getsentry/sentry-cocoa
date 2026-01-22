@@ -49,7 +49,7 @@ class SentrySessionTestsSwift: XCTestCase {
         session.abnormalMechanism = "app hang"
         let copiedSession = try XCTUnwrap(session.copy() as? SentrySession)
 
-        XCTAssertEqual(session, copiedSession)
+        XCTAssertTrue(session.isEqual(to: copiedSession))
         XCTAssertEqual(session.abnormalMechanism, copiedSession.abnormalMechanism)
     }
     
@@ -280,8 +280,21 @@ class SentrySessionTestsSwift: XCTestCase {
     }
 }
 
-extension SentrySessionStatus {
-    var description: String {
-        return nameForSentrySessionStatus(self.rawValue)
+extension SentrySession {
+    public func isEqual(to session: SentrySession) -> Bool {
+        if sessionId != session.sessionId
+            || started != session.started
+            || status != session.status
+            || errors != session.errors
+            || sequence != session.sequence
+            || distinctId != session.distinctId
+            || timestamp != session.timestamp
+            || duration != session.duration
+            || releaseName != session.releaseName
+            || environment != session.environment
+            || flagInit != session.flagInit {
+            return false
+        }
+        return true
     }
 }
