@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix deadlock in network reachability observer when restarting the SDK (#7246)
+
+## 9.2.0
+
 ### Features
 
 - Add options `options.sessionReplay.includedViewClasses` and `options.sessionReplay.excludedViewClasses` to ignore views from subtree traversal (#7063)
@@ -21,6 +27,7 @@
 - Fix `raw_description` in `runtime` context on Mac Catalyst (#7082)
 - Deprecates `configureDarkTheme` for user feedback (#7114)
 - Fix incorrect variable assignment for 'sampled' key (#7120)
+- Resolve crash in caused by calling `SentryFramesTracker.removeListener(_:)` (#7155)
 
 ## 9.1.0
 

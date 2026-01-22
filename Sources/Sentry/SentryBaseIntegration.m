@@ -135,11 +135,6 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 #endif
-    if ((integrationOptions & kIntegrationOptionEnableCrashHandler)
-        && !options.enableCrashHandler) {
-        [self logWithOptionName:@"enableCrashHandler"];
-        return NO;
-    }
 
 #if SENTRY_HAS_METRIC_KIT
     if ((integrationOptions & kIntegrationOptionEnableMetricKit) && !options.enableMetricKit) {

@@ -149,4 +149,63 @@ final class SentryReachabilitySwiftTests: XCTestCase {
         // Ensure when all observers are removed, the monitor is set to nil
         XCTAssertTrue(reachability.pathMonitorIsNil)
     }
+
+    func testConnectivityCallbackAndRemoveAllObservers_NoDeadlock() {
+        // This test reproduces the deadlock scenario where:
+        // - Thread 1 holds instanceLock and calls removeAllObservers() (which needs observersLock)
+        // - Thread 2 is in connectivityCallback() notifying observers
+        // - Observer tries to access SentryDependencyContainer which needs instanceLock
+        // The fix ensures observers are notified outside the observersLock
+
+        let instanceLock = NSRecursiveLock() // Simulates SentryDependencyContainer.instanceLock
+
+        let observerCallbackExpectation = expectation(description: "Observer callback completes")
+        observerCallbackExpectation.expectedFulfillmentCount = 2
+        let removeObserversExpectation = expectation(description: "removeAllObservers completes")
+        let callbackStartedSemaphore = DispatchSemaphore(value: 0)
+
+        let observer = TestSentryReachabilityObserver()
+        observer.onReachabilityChanged = { _, _ in
+            callbackStartedSemaphore.signal()
+
+            // Wait a bit to ensure Thread 1 is trying to acquire observersLock
+            Thread.sleep(forTimeInterval: 1.00)
+
+            // This mimics SentryBreadcrumbTracker calling SentryDependencyContainer.sharedInstance()
+            instanceLock.lock()
+            instanceLock.unlock()
+
+            observerCallbackExpectation.fulfill()
+        }
+
+        reachability.add(observer)
+        reachability.triggerConnectivityCallback(.wiFi) // Initial state
+
+        // Thread 1: Hold instanceLock and call removeAllObservers()
+        // This simulates SentryDependencyContainer.reset() which holds instanceLock
+        DispatchQueue.global().async {
+            instanceLock.lock()
+
+            // Wait for callback to start
+            _ = callbackStartedSemaphore.wait(timeout: .now() + 1.0)
+
+            // Give callback time to progress
+            Thread.sleep(forTimeInterval: 1.00)
+
+            // Now try to call removeAllObservers() while holding instanceLock
+            // This will try to acquire observersLock - DEADLOCK if callback holds it while calling observer
+            self.reachability.removeAllObservers()
+
+            instanceLock.unlock()
+            removeObserversExpectation.fulfill()
+        }
+
+        // Thread 2: Trigger connectivity callback
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.005) {
+            self.reachability.triggerConnectivityCallback(.none)
+        }
+
+        // If there's a deadlock, this will timeout
+        wait(for: [observerCallbackExpectation, removeObserversExpectation], timeout: 10.0)
+    }
 }

@@ -24,7 +24,6 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionIsTracingEnabled = 1 << 13,
     kIntegrationOptionDebuggerNotAttached = 1 << 14,
     kIntegrationOptionAttachViewHierarchy = 1 << 15,
-    kIntegrationOptionEnableCrashHandler = 1 << 16,
     kIntegrationOptionEnableMetricKit = 1 << 17,
     kIntegrationOptionEnableReplay = 1 << 18,
 };

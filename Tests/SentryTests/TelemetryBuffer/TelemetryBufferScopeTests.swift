@@ -2,8 +2,8 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-final class BatcherScopeTests: XCTestCase {
-    private struct TestItem: BatcherItem, Encodable {
+final class TelemetryBufferScopeTests: XCTestCase {
+    private struct TestItem: TelemetryBufferItem, Encodable {
         var attributes: [String: SentryAttribute]
         var attributesDict: [String: SentryAttributeContent]
         var traceId: SentryId
@@ -23,7 +23,7 @@ final class BatcherScopeTests: XCTestCase {
         }
     }
 
-    private struct TestConfig: BatcherConfig {
+    private struct TestConfig: TelemetryBufferConfig {
         typealias Item = TestItem
 
         let sendDefaultPii: Bool
@@ -37,13 +37,13 @@ final class BatcherScopeTests: XCTestCase {
         var capturedDataCallback: (Data, Int) -> Void
     }
 
-    private struct TestMetadata: BatcherMetadata {
+    private struct TestMetadata: TelemetryBufferMetadata {
         let environment: String
         let releaseName: String?
         let installationId: String?
     }
 
-    private struct TestScope: BatcherScope {
+    private struct TestScope: TelemetryBufferScope {
         var replayId: String?
         var propagationContextTraceId: SentryId
         var span: Span?

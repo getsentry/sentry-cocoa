@@ -155,7 +155,8 @@ jobs:
           # with communicating with the test server in CI.
           # We are going to add these back in https://github.com/getsentry/sentry-cocoa/issues/6361
           - name: macOS 15
-            runs-on: macos-15
+            runs-on:
+              ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
             platform: "macOS"
             xcode: "16.4"
             test-destination-os: "15.0"
@@ -250,7 +251,7 @@ jobs:
       timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device || ''}}
       scheme: ${{matrix.scheme || 'Sentry'}}
-      run_on_cirrus_labs: ${{ !contains(matrix.runs-on, 'macos-') }}
+      run_on_cirrus_labs: true # We always run tests on Cirrus Labs
     strategy:
       fail-fast: false
       matrix:
@@ -260,8 +261,8 @@ jobs:
 
           # iOS 17
           - name: iOS 17 Sentry
-            runs-on: macos-14
-            xcode: "16.2"
+            runs-on: sequoia
+            xcode: "16.4"
             test-destination-os: "17.5"
             platform: "iOS"
             device: "iPhone 15 Pro"
@@ -291,15 +292,15 @@ jobs:
 
           # macOS 14
           - name: macOS 14 Sentry
-            runs-on: macos-14
-            xcode: "16.2"
+            runs-on: sonoma
+            xcode: "16.1"
             test-destination-os: "latest"
             platform: "macOS"
             scheme: "Sentry"
 
           # macOS 15
           - name: macOS 15 Sentry
-            runs-on: macos-15
+            runs-on: sequoia
             xcode: "16.4"
             test-destination-os: "latest"
             platform: "macOS"
@@ -307,7 +308,7 @@ jobs:
 
           # macOS 26
           - name: macOS 26 Sentry
-            runs-on: macos-26
+            runs-on: tahoe
             xcode: "26.1.1"
             test-destination-os: "26.1"
             platform: "macOS"
@@ -317,14 +318,14 @@ jobs:
           # on an older iOS or macOS version is low.
           # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
           - name: Catalyst 14 Sentry
-            runs-on: macos-14
-            xcode: "16.2"
+            runs-on: sonoma
+            xcode: "16.1"
             test-destination-os: "latest"
             platform: "Catalyst"
             scheme: "Sentry"
 
           - name: Catalyst 15 Sentry
-            runs-on: macos-15
+            runs-on: sequoia
             xcode: "16.4"
             test-destination-os: "latest"
             platform: "Catalyst"
@@ -346,8 +347,8 @@ jobs:
 
           # iOS 17 - SwiftUI
           - name: iOS 17 SentrySwiftUI
-            runs-on: macos-14
-            xcode: "16.2"
+            runs-on: sequoia
+            xcode: "16.4"
             test-destination-os: "17.5"
             platform: "iOS"
             device: "iPhone 15 Pro"
@@ -355,7 +356,7 @@ jobs:
 
           # tvOS 18
           - name: tvOS 18 Sentry
-            runs-on: macos-15
+            runs-on: sequoia
             xcode: "16.4"
             test-destination-os: "18.5"
             platform: "tvOS"
@@ -363,7 +364,7 @@ jobs:
 
           # tvOS 26
           - name: tvOS 26 Sentry
-            runs-on: macos-26
+            runs-on: tahoe
             xcode: "26.1.1"
             test-destination-os: "26.1"
             platform: "tvOS"
@@ -383,9 +384,9 @@ jobs:
   # This will be replaced once #6945 is merged.
   swiftlog-integration-unit-tests:
     name: SentrySwiftLog Unit Tests
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
     needs: files-changed
-    runs-on: macos-15
+    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
     steps:
       - uses: actions/checkout@v6
 
@@ -401,7 +402,7 @@ jobs:
         run: swift test
 
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-swiftlog-integration
@@ -413,11 +414,75 @@ jobs:
         run: ./scripts/ci-diagnostics.sh
 
   # This will be replaced once #6945 is merged.
+  swiftybeaver-integration-unit-tests:
+    name: SentrySwiftyBeaver Unit Tests
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
+    needs: files-changed
+    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Select Xcode
+        run: ./scripts/ci-select-xcode.sh 16.4
+
+      - name: Setup local sentry-cocoa dependency
+        working-directory: 3rd-party-integrations/SentrySwiftyBeaver
+        run: swift package edit sentry-cocoa --path ../..
+
+      - name: Run SwiftyBeaver tests
+        working-directory: 3rd-party-integrations/SentrySwiftyBeaver
+        run: swift test
+
+      - name: Archiving Raw Logs
+        uses: actions/upload-artifact@v6
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-output-swiftybeaver-integration
+          path: |
+            3rd-party-integrations/SentrySwiftyBeaver/.build/**/*.log
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
+  # This will be replaced once #6945 is merged.
+  cocoalumberjack-integration-unit-tests:
+    name: SentryCocoaLumberjack Unit Tests
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
+    needs: files-changed
+    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Select Xcode
+        run: ./scripts/ci-select-xcode.sh 16.4
+
+      - name: Setup local sentry-cocoa dependency
+        working-directory: 3rd-party-integrations/SentryCocoaLumberjack
+        run: swift package edit sentry-cocoa --path ../..
+
+      - name: Run CocoaLumberjack tests
+        working-directory: 3rd-party-integrations/SentryCocoaLumberjack
+        run: swift test
+
+      - name: Archiving Raw Logs
+        uses: actions/upload-artifact@v6
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-output-cocoalumberjack-integration
+          path: |
+            3rd-party-integrations/SentryCocoaLumberjack/.build/**/*.log
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
+  # This will be replaced once #6945 is merged.
   pulse-integration-unit-tests:
     name: SentryPulse Unit Tests
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
     needs: files-changed
-    runs-on: macos-15
+    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
     steps:
       - uses: actions/checkout@v6
 
@@ -433,7 +498,7 @@ jobs:
         run: swift test
 
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-pulse-integration
@@ -456,6 +521,8 @@ jobs:
         distribution-tests,
         unit-tests,
         swiftlog-integration-unit-tests,
+        swiftybeaver-integration-unit-tests,
+        cocoalumberjack-integration-unit-tests,
         pulse-integration-unit-tests,
         ready-to-merge-gate,
         unit-tests-with-test-server,

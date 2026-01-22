@@ -23,12 +23,4 @@ class TestSentryViewHierarchyProvider: SentryViewHierarchyProvider {
     }
 }
 
-class TestSentryViewHierarchyProviderHelper: SentryViewHierarchyProviderHelper {
-    
-    static var viewHierarchyResult: Int32?
-
-    override static func viewHierarchy(from view: UIView!, into context: UnsafeMutablePointer<SentryCrashJSONEncodeContext>!, reportAccessibilityIdentifier: Bool) -> Int32 {
-        return viewHierarchyResult ?? super.viewHierarchy(from: view, into: context, reportAccessibilityIdentifier: reportAccessibilityIdentifier)
-    }
-}
 #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

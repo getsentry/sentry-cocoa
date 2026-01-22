@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-private struct TestScope: BatcherScope {
+private struct TestScope: TelemetryBufferScope {
     var replayId: String?
     var propagationContextTraceId: SentryId
     var span: Span?
@@ -19,7 +19,7 @@ private struct TestScope: BatcherScope {
     }
 }
 
-private struct TestItem: BatcherItem {
+private struct TestItem: TelemetryBufferItem {
     var attributesDict: [String: SentryAttributeContent]
     var traceId: SentryId
     var body: String
@@ -36,9 +36,9 @@ private struct TestItem: BatcherItem {
     }
 }
 
-// Note: MockBuffer must be a class (not struct) because Batcher stores it internally
+// Note: MockTelemetryBuffer must be a class (not struct) because TelemetryBuffer stores it internally
 // and we need to observe changes from the test. Using a struct would create a copy.
-private class MockBuffer: BatchBuffer {
+private class MockTelemetryBuffer: InternalTelemetryBuffer {
     typealias Item = TestItem
 
     var appendedItems: [TestItem] = []
@@ -71,9 +71,9 @@ private class MockBuffer: BatchBuffer {
     }
 }
 
-final class BatcherTests: XCTestCase {
+final class TelemetryBufferTests: XCTestCase {
     private var capturedDataInvocations: Invocations<(data: Data, count: Int)>!
-    private var testBuffer: MockBuffer!
+    private var testTelemetryBuffer: MockTelemetryBuffer!
     private var testDateProvider: TestCurrentDateProvider!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
     private var testScope: TestScope!
@@ -84,7 +84,7 @@ final class BatcherTests: XCTestCase {
         testDateProvider = TestCurrentDateProvider()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true
-        testBuffer = MockBuffer()
+        testTelemetryBuffer = MockTelemetryBuffer()
         testScope = TestScope()
     }
 
@@ -94,15 +94,15 @@ final class BatcherTests: XCTestCase {
         maxItemCount: Int = 10,
         maxBufferSizeBytes: Int = 8_000,
         beforeSendItem: ((TestItem) -> TestItem?)? = nil
-    ) -> Batcher<MockBuffer, TestItem, TestScope> {
-        var config = Batcher<MockBuffer, TestItem, TestScope>.Config(
+    ) -> TelemetryBuffer<MockTelemetryBuffer, TestItem, TestScope> {
+        var config = TelemetryBuffer<MockTelemetryBuffer, TestItem, TestScope>.Config(
             sendDefaultPii: sendDefaultPii,
             flushTimeout: flushTimeout,
             maxItemCount: maxItemCount,
             maxBufferSizeBytes: maxBufferSizeBytes,
             beforeSendItem: beforeSendItem
         )
-        let metadata = Batcher<MockBuffer, TestItem, TestScope>.Metadata(
+        let metadata = TelemetryBuffer<MockTelemetryBuffer, TestItem, TestScope>.Metadata(
             environment: "test",
             releaseName: "test-release",
             installationId: "test-installation-id"
@@ -111,10 +111,10 @@ final class BatcherTests: XCTestCase {
             self?.capturedDataInvocations.record((data, count))
         }
         
-        return Batcher(
+        return TelemetryBuffer(
             config: config,
             metadata: metadata,
-            buffer: testBuffer,
+            buffer: testTelemetryBuffer,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue
         )
@@ -122,7 +122,7 @@ final class BatcherTests: XCTestCase {
 
     // MARK: - Add Method Tests
     
-    func testAdd_whenSingleItem_shouldAppendToBuffer() {
+    func testAdd_whenSingleItem_shouldAppendToTelemetryBuffer() {
         // -- Arrange --
         let sut = getSut()
         let item = TestItem(body: "test item")
@@ -131,8 +131,8 @@ final class BatcherTests: XCTestCase {
         sut.add(item, scope: testScope)
         
         // -- Assert --
-        XCTAssertEqual(testBuffer.itemsCount, 1)
-        XCTAssertEqual(testBuffer.appendedItems.first?.body, "test item")
+        XCTAssertEqual(testTelemetryBuffer.itemsCount, 1)
+        XCTAssertEqual(testTelemetryBuffer.appendedItems.first?.body, "test item")
     }
     
     func testAdd_whenMultipleItems_shouldBatchTogether() {
@@ -144,9 +144,9 @@ final class BatcherTests: XCTestCase {
         sut.add(TestItem(body: "Item 2"), scope: testScope)
         
         // -- Assert --
-        XCTAssertEqual(testBuffer.itemsCount, 2)
-        XCTAssertEqual(testBuffer.appendedItems[0].body, "Item 1")
-        XCTAssertEqual(testBuffer.appendedItems[1].body, "Item 2")
+        XCTAssertEqual(testTelemetryBuffer.itemsCount, 2)
+        XCTAssertEqual(testTelemetryBuffer.appendedItems[0].body, "Item 1")
+        XCTAssertEqual(testTelemetryBuffer.appendedItems[1].body, "Item 2")
     }
     
     // MARK: - Max Item Count Tests
@@ -164,12 +164,12 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
-        XCTAssertEqual(testBuffer.flushCallCount, 1)
+        XCTAssertEqual(testTelemetryBuffer.flushCallCount, 1)
     }
     
-    // MARK: - Buffer Size Tests
+    // MARK: - TelemetryBuffer Size Tests
     
-    func testAdd_whenMaxBufferSizeReached_shouldFlushImmediately() {
+    func testAdd_whenMaxTelemetryBufferSizeReached_shouldFlushImmediately() {
         // -- Arrange --
         let sut = getSut(maxBufferSizeBytes: 200) // Each item is ~100 bytes
         
@@ -181,7 +181,7 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
-        XCTAssertEqual(testBuffer.flushCallCount, 1)
+        XCTAssertEqual(testTelemetryBuffer.flushCallCount, 1)
     }
     
     // MARK: - Timeout Tests
@@ -208,10 +208,10 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
-        XCTAssertEqual(testBuffer.flushCallCount, 1)
+        XCTAssertEqual(testTelemetryBuffer.flushCallCount, 1)
     }
     
-    func testAdd_whenBufferNotEmpty_shouldNotStartAdditionalTimer() {
+    func testAdd_whenTelemetryBufferNotEmpty_shouldNotStartAdditionalTimer() {
         // -- Arrange --
         let sut = getSut()
         
@@ -226,7 +226,7 @@ final class BatcherTests: XCTestCase {
     
     // MARK: - Capture Method Tests
     
-    func testCapture_whenItemsInBuffer_shouldFlushImmediately() {
+    func testCapture_whenItemsInTelemetryBuffer_shouldFlushImmediately() {
         // -- Arrange --
         let sut = getSut()
         sut.add(TestItem(body: "Item 1"), scope: testScope)
@@ -237,7 +237,7 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
-        XCTAssertEqual(testBuffer.flushCallCount, 1)
+        XCTAssertEqual(testTelemetryBuffer.flushCallCount, 1)
     }
     
     func testCapture_whenMultipleItems_shouldPassCorrectItemCount() {
@@ -256,7 +256,7 @@ final class BatcherTests: XCTestCase {
         XCTAssertEqual(invocation.1, 3, "Callback should receive item count, not byte size")
     }
     
-    func testCapture_whenEmptyBuffer_shouldNotCallCallback() {
+    func testCapture_whenEmptyTelemetryBuffer_shouldNotCallCallback() {
         // -- Arrange --
         let sut = getSut()
         
@@ -299,7 +299,7 @@ final class BatcherTests: XCTestCase {
         // -- Act --
         sut.add(TestItem(body: "Original"), scope: testScope)
         // Check before capture since capture flushes the buffer
-        XCTAssertEqual(testBuffer.appendedItems.first?.body, "Modified")
+        XCTAssertEqual(testTelemetryBuffer.appendedItems.first?.body, "Modified")
         _ = sut.capture()
         
         // -- Assert --
@@ -317,7 +317,7 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 0)
-        XCTAssertEqual(testBuffer.itemsCount, 0)
+        XCTAssertEqual(testTelemetryBuffer.itemsCount, 0)
     }
     
     // MARK: - Edge Cases Tests
@@ -334,7 +334,7 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
-        XCTAssertEqual(testBuffer.flushCallCount, 1)
+        XCTAssertEqual(testTelemetryBuffer.flushCallCount, 1)
     }
     
     func testAdd_whenAfterFlush_shouldStartNewBatch() {
@@ -349,6 +349,6 @@ final class BatcherTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 2)
-        XCTAssertEqual(testBuffer.flushCallCount, 2)
+        XCTAssertEqual(testTelemetryBuffer.flushCallCount, 2)
     }
 }

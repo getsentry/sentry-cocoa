@@ -19,7 +19,7 @@ typealias SentryMetricsIntegrationDependencies = DateProviderProvider & Dispatch
 #endif
 
 final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol, FlushableIntegration {
-    private let metricBatcher: SentryMetricsBatcherProtocol
+    private let metricsBuffer: SentryMetricsTelemetryBufferProtocol
     #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
     private let notificationCenter: SentryNSNotificationCenterWrapper
     #endif
@@ -27,7 +27,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     init?(with options: Options, dependencies: Dependencies) {
         guard options.experimental.enableMetrics else { return nil }
 
-        self.metricBatcher = SentryMetricsBatcher(
+        self.metricsBuffer = SentryMetricsTelemetryBuffer(
             options: options,
             dateProvider: dependencies.dateProvider,
             dispatchQueue: dependencies.dispatchQueueWrapper,
@@ -55,8 +55,8 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         //
         // Note: This calls captureMetrics() synchronously, which uses dispatchSync internally.
         // This is safe because uninstall() is typically called from the main thread during
-        // app lifecycle events, and the batcher's dispatch queue is a separate serial queue.
-        metricBatcher.captureMetrics()
+        // app lifecycle events, and the buffer's dispatch queue is a separate serial queue.
+        metricsBuffer.captureMetrics()
 
         removeLifecycleObservers()
     }
@@ -66,7 +66,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     /// This defensive pattern guarantees that notification observers are removed, preventing crashes from dangling references.
     ///
     /// Note: We do NOT flush metrics in deinit because:
-    /// - Flushing uses dispatchSync which can deadlock if deinit is called from the batcher's queue
+    /// - Flushing uses dispatchSync which can deadlock if deinit is called from the buffer's queue
     /// - uninstall() should be called explicitly before deallocation to ensure metrics are flushed
     /// - This prevents deadlocks during hub deallocation when integrations are released
     deinit {
@@ -80,16 +80,16 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     // MARK: - Public API for Metrics
 
     func addMetric(_ metric: SentryMetric, scope: Scope) {
-        metricBatcher.addMetric(metric, scope: scope)
+        metricsBuffer.addMetric(metric, scope: scope)
     }
 
     /// Captures batched metrics synchronously and returns the duration.
     /// - Returns: The time taken to capture metrics in seconds
     ///
-    /// - Note: This method calls captureMetrics() on the internal batcher synchronously.
+    /// - Note: This method calls captureMetrics() on the internal buffer synchronously.
     ///         This is safe to call from any thread, but be aware that it uses dispatchSync internally.
     @discardableResult func captureMetrics() -> TimeInterval {
-        return metricBatcher.captureMetrics()
+        return metricsBuffer.captureMetrics()
     }
 
     // MARK: - FlushableIntegration
