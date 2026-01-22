@@ -201,14 +201,21 @@ final class SentryNSFileManagerSwizzlingHelperTests: XCTestCase {
         }
 
         // -- Arrange --
+        swizzle()
         XCTAssertEqual(mockTracker.createFileCalls.count, 0, "Should start with no create file calls")
 
+        // Verify swizzling is working first
+        _ = FileManager.default.createFile(atPath: filePath, contents: testData, attributes: nil)
+        XCTAssertEqual(mockTracker.createFileCalls.count, 1, "Should track call when swizzled")
+        try? FileManager.default.removeItem(at: fileUrl)
+
         // -- Act --
+        SentryNSFileManagerSwizzlingHelper.unswizzle()
         let success = FileManager.default.createFile(atPath: filePath, contents: testData, attributes: nil)
 
         // -- Assert --
         XCTAssertTrue(success, "createFile should succeed")
-        XCTAssertEqual(mockTracker.createFileCalls.count, 0, "Should not call tracker after unswizzle")
+        XCTAssertEqual(mockTracker.createFileCalls.count, 1, "Should not track new calls after unswizzle")
         assertFileContainsTestData()
     }
 

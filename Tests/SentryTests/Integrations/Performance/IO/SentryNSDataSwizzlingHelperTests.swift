@@ -221,12 +221,12 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
 
     // MARK: - Swizzling State Tests
 
-    func testSwizzlingActive_whenSDKStarted_shouldBeTrue() {
+    func testSwizzlingActive_whenSwizzled_shouldBeTrue() {
         // -- Arrange & Act --
         swizzle()
 
         // -- Assert --
-        XCTAssertTrue(SentryNSDataSwizzlingHelper.swizzlingActive(), "Swizzling should be active when SDK is started with file IO tracking enabled")
+        XCTAssertTrue(SentryNSDataSwizzlingHelper.swizzlingActive(), "Swizzling should be active after swizzle call")
     }
 
     func testSwizzlingActive_whenUnswizzled_shouldBeFalse() {
@@ -248,13 +248,20 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
 
     func testUnswizzle_whenCalled_shouldStopTrackingCalls() {
         // -- Arrange --
+        swizzle()
         XCTAssertEqual(mockTracker.writeCalls.count, 0, "Should start with no write calls")
 
+        // Verify swizzling is working first
+        _ = (testData as NSData).write(toFile: filePath, atomically: true)
+        XCTAssertEqual(mockTracker.writeCalls.count, 1, "Should track call when swizzled")
+        try? FileManager.default.removeItem(at: fileUrl)
+
         // -- Act --
+        SentryNSDataSwizzlingHelper.unswizzle()
         _ = (testData as NSData).write(toFile: filePath, atomically: true)
 
         // -- Assert --
-        XCTAssertEqual(mockTracker.writeCalls.count, 0, "Should not call tracker after unswizzle")
+        XCTAssertEqual(mockTracker.writeCalls.count, 1, "Should not track new calls after unswizzle")
         assertFileContainsTestData()
     }
 
