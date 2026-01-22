@@ -8,8 +8,6 @@
 #import "SentryANRStoppedResultInternal.h"
 #import "SentryANRTrackerInternalDelegate.h"
 #import "SentryBinaryImageCacheCallbacks.h"
-#import "SentryBreadcrumbDelegate.h"
-#import "SentryBreadcrumbTracker.h"
 #import "SentryClient+Private.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryCrashAsync.h"
