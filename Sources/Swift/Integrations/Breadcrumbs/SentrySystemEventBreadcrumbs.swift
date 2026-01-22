@@ -6,12 +6,12 @@ import UIKit
 final class SentrySystemEventBreadcrumbs: NSObject {
     private weak var delegate: SentryBreadcrumbDelegate?
 
-    private let currentDeviceProvider: UICurrentDeviceProvider
+    private let currentDeviceProvider: SentryUIDeviceWrapperProvider
     private let fileManager: SentryFileManager
     private let notificationCenterWrapper: SentryNSNotificationCenterWrapper
 
     init(
-        currentDeviceProvider: UICurrentDeviceProvider,
+        currentDeviceProvider: SentryUIDeviceWrapperProvider,
         fileManager: SentryFileManager,
         notificationCenterWrapper: SentryNSNotificationCenterWrapper
     ) {
@@ -29,8 +29,8 @@ final class SentrySystemEventBreadcrumbs: NSObject {
 
     func start(with delegate: SentryBreadcrumbDelegate) {
         self.delegate = delegate
-        initBatteryObserver(currentDeviceProvider.currentDevice)
-        initOrientationObserver(currentDeviceProvider.currentDevice)
+        initBatteryObserver(currentDeviceProvider.uiDeviceWrapper.currentDevice)
+        initOrientationObserver(currentDeviceProvider.uiDeviceWrapper.currentDevice)
         initKeyboardVisibilityObserver()
         initScreenshotObserver()
         initTimezoneObserver()

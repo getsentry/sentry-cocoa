@@ -443,13 +443,11 @@ protocol CrashInstallationReporterBuilder {
 }
 extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
 
-protocol UICurrentDeviceProvider {
-    var currentDevice: UIDevice { get }
+#if os(iOS) && !SENTRY_NO_UIKIT
+protocol SentryUIDeviceWrapperProvider {
+    var uiDeviceWrapper: SentryUIDeviceWrapper { get }
 }
 
-extension SentryDependencyContainer: UICurrentDeviceProvider {
-    var currentDevice: UIDevice {
-        UIDevice.current
-    }
-}
+extension SentryDependencyContainer: SentryUIDeviceWrapperProvider {}
+#endif
 //swiftlint:enable file_length missing_docs

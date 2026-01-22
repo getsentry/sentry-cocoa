@@ -7,6 +7,14 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     // This feature only works on iOS
     #if os(iOS)
     
+    private class TestUIDeviceWrapperProvider: SentryUIDeviceWrapperProvider {
+        let uiDeviceWrapper: SentryUIDeviceWrapper
+        
+        init(uiDeviceWrapper: SentryUIDeviceWrapper) {
+            self.uiDeviceWrapper = uiDeviceWrapper
+        }
+    }
+    
     private class Fixture {
         let options: Options
         let delegate = SentryBreadcrumbTestDelegate()
@@ -30,11 +38,18 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         }
 
         func getSut(currentDevice: UIDevice? = UIDevice.current) -> SentrySystemEventBreadcrumbs {
+            let deviceWrapper = TestSentryUIDeviceWrapper()
+            if let customDevice = currentDevice {
+                deviceWrapper.internalCurrentDevice = customDevice
+            }
+            let provider = TestUIDeviceWrapperProvider(uiDeviceWrapper: deviceWrapper)
+            
             let systemEvents = SentrySystemEventBreadcrumbs(
+                currentDeviceProvider: provider,
                 fileManager: fileManager,
-                andNotificationCenterWrapper: notificationCenterWrapper
+                notificationCenterWrapper: notificationCenterWrapper
             )
-            systemEvents.start(with: self.delegate, currentDevice: currentDevice)
+            systemEvents.start(with: self.delegate)
             
             return systemEvents
         }

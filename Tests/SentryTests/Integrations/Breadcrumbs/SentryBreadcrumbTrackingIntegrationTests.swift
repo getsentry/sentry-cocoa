@@ -3,7 +3,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
+class SentryBreadcrumbTrackingIntegrationTests: XCTestCase {
     
     private class Fixture {
         private let dateProvider = TestCurrentDateProvider()
@@ -15,7 +15,7 @@ class SentryAutoBreadcrumbTrackingIntegrationTests: XCTestCase {
 
         init() throws {
             let options = Options()
-            options.dsn = TestConstants.dsnForTestCase(type: SentryAutoBreadcrumbTrackingIntegrationTests.self)
+            options.dsn = TestConstants.dsnForTestCase(type: SentryBreadcrumbTrackingIntegrationTests.self)
             options.enableAutoBreadcrumbTracking = true
             defaultOptions = options
 

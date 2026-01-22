@@ -5,9 +5,9 @@ import UIKit
 #endif
 
 #if os(iOS) && !SENTRY_NO_UIKIT
-typealias AutoBreadcrumbTrackingIntegrationProvider = UICurrentDeviceProvider & FileManagerProvider & NotificationCenterProvider
+typealias AutoBreadcrumbTrackingIntegrationProvider = SentryUIDeviceWrapperProvider & FileManagerProvider & NotificationCenterProvider
 #else
-typealias AutoBreadcrumbTrackingIntegrationProvider = UICurrentDeviceProvider & FileManagerProvider
+typealias AutoBreadcrumbTrackingIntegrationProvider = FileManagerProvider
 #endif
 
 final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumbTrackingIntegrationProvider>: NSObject, SwiftIntegration, SentryBreadcrumbDelegate {
