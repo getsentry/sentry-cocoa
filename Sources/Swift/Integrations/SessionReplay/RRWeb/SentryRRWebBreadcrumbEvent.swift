@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @_spi(Private) public final class SentryRRWebBreadcrumbEvent: SentryRRWebCustomEvent {
@@ -20,3 +21,4 @@ import Foundation
         super.init(timestamp: timestamp, tag: "breadcrumb", payload: payload)
     }
 }
+// swiftlint:enable missing_docs

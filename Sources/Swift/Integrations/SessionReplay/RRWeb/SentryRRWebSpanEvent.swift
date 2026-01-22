@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objc @_spi(Private) public class SentryRRWebSpanEvent: SentryRRWebCustomEvent {
@@ -14,3 +15,4 @@ import Foundation
         )
     }
 }
+// swiftlint:enable missing_docs

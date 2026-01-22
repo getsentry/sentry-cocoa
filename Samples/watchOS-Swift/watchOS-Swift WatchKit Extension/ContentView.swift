@@ -65,6 +65,7 @@ struct ContentView: View {
                 }) {
                     Text(viewModel.anrText)
                 }
+                MetricsView()
             }
         }
     }

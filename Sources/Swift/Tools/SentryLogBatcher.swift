@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -10,7 +11,7 @@ import Foundation
 @objcMembers
 @_spi(Private) public class SentryLogBatcher: NSObject {
     private let options: Options
-    private let batcher: any BatcherProtocol<SentryLog, Scope>
+    private let buffer: any TelemetryBufferProtocol<SentryLog, Scope>
     private weak var delegate: SentryLogBatcherDelegate?
 
     /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
@@ -61,7 +62,7 @@ import Foundation
         dispatchQueue: SentryDispatchQueueWrapper,
         delegate: SentryLogBatcherDelegate
     ) {
-        self.batcher = Batcher(
+        self.buffer = TelemetryBuffer(
             config: .init(
                 sendDefaultPii: options.sendDefaultPii,
                 flushTimeout: flushTimeout,
@@ -81,7 +82,7 @@ import Foundation
                 releaseName: options.releaseName,
                 installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
             ),
-            buffer: InMemoryBatchBuffer(),
+            buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue
         )
@@ -90,7 +91,7 @@ import Foundation
         super.init()
     }
 
-    /// Adds a log to the batcher.
+    /// Adds a log to the buffer.
     /// - Parameters:
     ///   - log: The log to add
     ///   - scope: The scope to add the log to
@@ -98,18 +99,18 @@ import Foundation
         guard options.enableLogs else {
             return
         }
-        
-        batcher.add(log, scope: scope)
+
+        buffer.add(log, scope: scope)
     }
 
-    /// Captures batched logs sync and returns the duration.
+    /// Captures buffered logs sync and returns the duration.
     @discardableResult
     @_spi(Private) @objc public func captureLogs() -> TimeInterval {
-        return batcher.capture()
+        return buffer.capture()
     }
 }
 
-extension SentryLog: BatcherItem {
+extension SentryLog: TelemetryBufferItem {
     var attributesDict: [String: SentryAttributeContent] {
         get {
             attributes.mapValues { value in
@@ -123,3 +124,4 @@ extension SentryLog: BatcherItem {
         }
     }
 }
+// swiftlint:enable missing_docs

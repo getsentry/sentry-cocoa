@@ -4,6 +4,7 @@
 //  Created by Mhd Hejazi on 4/15/20.
 //  Copyright © 2020 Samabox. All rights reserved.
 //
+
 import Foundation
 
 public typealias ObjC = Dynamic
@@ -284,9 +285,9 @@ extension Dynamic {
         
         var storedSize = 0
         var storedAlignment = 0
-        //swiftlint:disable force_unwrapping
+        // swiftlint:disable force_unwrapping
         NSGetSizeAndAlignment(invocation.returnType!, &storedSize, &storedAlignment)
-        //swiftlint:enable force_unwrapping
+        // swiftlint:enable force_unwrapping
         guard MemoryLayout<T>.size == storedSize && MemoryLayout<T>.alignment == storedAlignment else {
             return nil
         }

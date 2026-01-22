@@ -157,6 +157,7 @@ public struct SentryTracedView<Content: View>: View {
         return result
     }
     
+    /// nodoc
     public var body: some View {
         let spanId = viewModel.startSpan()
         
@@ -170,16 +171,28 @@ public struct SentryTracedView<Content: View>: View {
     }
 }
 
+/// nodoc
 @available(macOS 10.15, *)
 public extension View {
 
 #if canImport(UIKit) && os(iOS) || os(tvOS)
+    /// Wraps this view in a `SentryTracedView` to measure its performance and send the result as a transaction to Sentry.
+    ///
+    /// - Parameters:
+    ///   - viewName: The name that will be used for the span. If nil, the name of the view type is used.
+    ///   - waitForFullDisplay: Indicates whether this view transaction should wait for `SentrySDK.reportFullyDisplayed()`
+    ///     in case you need to track some asynchronous task. If nil, it will use the `enableTimeToFullDisplayTracing` option from the SDK.
+    /// - Returns: A view wrapped in `SentryTracedView` for performance tracking.
     func sentryTrace(_ viewName: String? = nil, waitForFullDisplay: Bool? = nil) -> some View {
         return SentryTracedView(viewName, waitForFullDisplay: waitForFullDisplay) {
             return self
         }
     }
 #else
+    /// Wraps this view in a `SentryTracedView` to measure its performance and send the result as a transaction to Sentry.
+    ///
+    /// - Parameter viewName: The name that will be used for the span. If nil, the name of the view type is used.
+    /// - Returns: A view wrapped in `SentryTracedView` for performance tracking.
     func sentryTrace(_ viewName: String? = nil) -> some View {
         return SentryTracedView(viewName) {
             return self

@@ -5,9 +5,9 @@ import XCTest
 class BaseUITest: XCTestCase {
     internal lazy var app: XCUIApplication = newAppSession()
 
-    //swiftlint:disable implicit_getter
+    // swiftlint:disable implicit_getter
     var automaticallyLaunchAndTerminateApp: Bool { get { true } }
-    //swiftlint:enable implicit_getter
+    // swiftlint:enable implicit_getter
 
     override func setUp() {
         super.setUp()

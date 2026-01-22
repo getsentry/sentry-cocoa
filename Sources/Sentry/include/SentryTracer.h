@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 #import "SentryProfilingConditionals.h"
-#import "SentrySpan.h"
+#import "SentrySpanInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,7 +34,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 
 @end
 
-@interface SentryTracer : SentrySpan
+@interface SentryTracer : SentrySpanInternal
 
 @property (nonatomic, strong) SentryTransactionContext *transactionContext;
 

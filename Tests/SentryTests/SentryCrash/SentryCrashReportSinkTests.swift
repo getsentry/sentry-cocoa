@@ -53,14 +53,14 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(1, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
-    func testAppStartCrash_LowerBound_CallsFlush() {
+    func testAppStartCrash_LowerBound_CallsFlush() throws {
         fixture.crashWrapper.internalDurationFromCrashStateInitToLastCrash = 0.001
         
         filterReportWithAttachment()
         
         let client = getTestClient()
         XCTAssertEqual(1, client.flushInvocations.count)
-        XCTAssertEqual(5, client.flushInvocations.first)
+        XCTAssertEqual(try XCTUnwrap(client.flushInvocations.first), 5, accuracy: 0.001)
         XCTAssertEqual(0, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     
@@ -72,14 +72,14 @@ class SentryCrashReportSinkTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(SentrySDK.detectedStartUpCrash, true)
     }
     
-    func testAppStartCrash_UpperBound_CallsFlush() {
+    func testAppStartCrash_UpperBound_CallsFlush() throws {
         fixture.crashWrapper.internalDurationFromCrashStateInitToLastCrash = 2.0
         
         filterReportWithAttachment()
         
         let client = getTestClient()
         XCTAssertEqual(1, client.flushInvocations.count)
-        XCTAssertEqual(5, client.flushInvocations.first)
+        XCTAssertEqual(try XCTUnwrap(client.flushInvocations.first), 5, accuracy: 0.001)
         XCTAssertEqual(0, fixture.dispatchQueue.dispatchAsyncCalled)
     }
     

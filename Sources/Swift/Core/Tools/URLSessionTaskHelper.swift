@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objcMembers
@@ -18,3 +19,4 @@ import Foundation
 private struct GraphQLRequest: Decodable {
     let operationName: String
 }
+// swiftlint:enable missing_docs

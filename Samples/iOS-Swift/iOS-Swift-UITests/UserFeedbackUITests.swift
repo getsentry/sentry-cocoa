@@ -1,4 +1,4 @@
-//swiftlint:disable file_length
+// swiftlint:disable file_length
 
 import SentrySampleShared
 import XCTest
@@ -688,4 +688,4 @@ extension UserFeedbackUITests {
     }
 }
 
-//swiftlint:enable file_length
+// swiftlint:enable file_length
