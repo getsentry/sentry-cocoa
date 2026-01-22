@@ -15,7 +15,7 @@ enum SentrySessionStatus: String {
 
     // MARK: - Private properties
 
-    private let lock = NSLock()
+    private let lock = NSRecursiveLock()
     private var _sessionId: UUID
     private var _started: Date
     private var _status: SentrySessionStatus
@@ -160,206 +160,175 @@ enum SentrySessionStatus: String {
 
     @objc(endSessionExitedWithTimestamp:)
     public func endExited(withTimestamp timestamp: Date) {
-        lock.lock()
-        defer { lock.unlock() }
-        changed()
-        _status = .exited
-        endSession(withTimestamp: timestamp)
+        lock.synchronized {
+            changed()
+            _status = .exited
+            endSession(withTimestamp: timestamp)
+        }
     }
 
     @objc(endSessionCrashedWithTimestamp:)
     public func endCrashed(withTimestamp timestamp: Date) {
-        lock.lock()
-        defer { lock.unlock() }
-        changed()
-        _status = .crashed
-        endSession(withTimestamp: timestamp)
+        lock.synchronized {
+            changed()
+            _status = .crashed
+            endSession(withTimestamp: timestamp)
+        }
     }
 
     @objc(endSessionAbnormalWithTimestamp:)
     public func endAbnormal(withTimestamp timestamp: Date) {
-        lock.lock()
-        defer { lock.unlock() }
-        changed()
-        _status = .abnormal
-        endSession(withTimestamp: timestamp)
+        lock.synchronized {
+            changed()
+            _status = .abnormal
+            endSession(withTimestamp: timestamp)
+        }
     }
 
     @objc public func incrementErrors() {
-        lock.lock()
-        defer { lock.unlock() }
-        changed()
-        _errors += 1
+        lock.synchronized {
+            changed()
+            _errors += 1
+        }
     }
 
     @objc public func setFlagInit() {
-        lock.lock()
-        defer { lock.unlock() }
-        _flagInit = NSNumber(value: true)
+        lock.synchronized {
+            _flagInit = NSNumber(value: true)
+        }
     }
 
     @objc public func serialize() -> [String: Any] {
-        lock.lock()
-        defer { lock.unlock() }
+        lock.synchronized {
+            var serializedData: [String: Any] = [
+                "sid": _sessionId.uuidString,
+                "errors": _errors,
+                "started": sentry_toIso8601String(_started)
+            ]
 
-        var serializedData: [String: Any] = [
-            "sid": _sessionId.uuidString,
-            "errors": _errors,
-            "started": sentry_toIso8601String(_started)
-        ]
-
-        if let flagInit = _flagInit {
-            serializedData["init"] = NSNumber(value: flagInit.boolValue)
-        }
-
-        serializedData["status"] = _status.rawValue
-
-        let timestamp = _timestamp ?? SentryDependencyContainer.sharedInstance().dateProvider.date()
-        serializedData["timestamp"] = sentry_toIso8601String(timestamp)
-
-        if let duration = _duration {
-            serializedData["duration"] = duration
-        } else if _flagInit == nil {
-            if let secondsBetween = _timestamp?.timeIntervalSince(_started) {
-                serializedData["duration"] = NSNumber(value: secondsBetween)
-            } else {
-                serializedData["duration"] = NSNumber(value: 0)
+            if let flagInit = _flagInit {
+                serializedData["init"] = NSNumber(value: flagInit.boolValue)
             }
-        }
 
-        serializedData["seq"] = _sequence
+            serializedData["status"] = _status.rawValue
 
-        if _releaseName != nil || _environment != nil {
-            var attrs: [String: Any] = [:]
-            if let releaseName = _releaseName {
-                attrs["release"] = releaseName
+            let timestamp = _timestamp ?? SentryDependencyContainer.sharedInstance().dateProvider.date()
+            serializedData["timestamp"] = sentry_toIso8601String(timestamp)
+
+            if let duration = _duration {
+                serializedData["duration"] = duration
+            } else if _flagInit == nil {
+                if let secondsBetween = _timestamp?.timeIntervalSince(_started) {
+                    serializedData["duration"] = NSNumber(value: secondsBetween)
+                } else {
+                    serializedData["duration"] = NSNumber(value: 0)
+                }
             }
-            if let environment = _environment {
-                attrs["environment"] = environment
+
+            serializedData["seq"] = _sequence
+
+            if _releaseName != nil || _environment != nil {
+                var attrs: [String: Any] = [:]
+                if let releaseName = _releaseName {
+                    attrs["release"] = releaseName
+                }
+                if let environment = _environment {
+                    attrs["environment"] = environment
+                }
+                serializedData["attrs"] = attrs
             }
-            serializedData["attrs"] = attrs
+
+            serializedData["did"] = _distinctId
+
+            if let abnormalMechanism = _abnormalMechanism {
+                serializedData["abnormal_mechanism"] = abnormalMechanism
+            }
+
+            return serializedData
         }
-
-        serializedData["did"] = _distinctId
-
-        if let abnormalMechanism = _abnormalMechanism {
-            serializedData["abnormal_mechanism"] = abnormalMechanism
-        }
-
-        return serializedData
     }
 
     public func copy(with zone: NSZone? = nil) -> Any {
-        lock.lock()
-        defer { lock.unlock() }
-        return SentrySession(
-            sessionId: _sessionId,
-            started: _started,
-            status: _status,
-            errors: _errors,
-            sequence: _sequence,
-            distinctId: _distinctId,
-            flagInit: _flagInit,
-            timestamp: _timestamp,
-            duration: _duration,
-            releaseName: _releaseName,
-            environment: _environment,
-            abnormalMechanism: _abnormalMechanism
-        )
+        lock.synchronized {
+            SentrySession(
+                sessionId: _sessionId,
+                started: _started,
+                status: _status,
+                errors: _errors,
+                sequence: _sequence,
+                distinctId: _distinctId,
+                flagInit: _flagInit,
+                timestamp: _timestamp,
+                duration: _duration,
+                releaseName: _releaseName,
+                environment: _environment,
+                abnormalMechanism: _abnormalMechanism
+            )
+        }
     }
 
     // MARK: - Public properties
 
     @objc public var sessionId: UUID {
-        lock.lock()
-        defer { lock.unlock() }
-        return _sessionId
+        lock.synchronized { _sessionId }
     }
 
     @objc public var started: Date {
-        lock.lock()
-        defer { lock.unlock() }
-        return _started
+        lock.synchronized { _started }
     }
 
     var status: SentrySessionStatus {
-        lock.lock()
-        defer { lock.unlock() }
-        return _status
+        lock.synchronized { _status }
     }
 
     @objc public var errors: UInt {
         get {
-            lock.lock()
-            defer { lock.unlock() }
-            return _errors
+            lock.synchronized { _errors }
         }
         set {
-            lock.lock()
-            defer { lock.unlock() }
-            _errors = newValue
+            lock.synchronized { _errors = newValue }
         }
     }
 
     @objc public var sequence: UInt {
-        lock.lock()
-        defer { lock.unlock() }
-        return _sequence
+        lock.synchronized { _sequence }
     }
 
     @objc public var distinctId: String {
-        lock.lock()
-        defer { lock.unlock() }
-        return _distinctId
+        lock.synchronized { _distinctId }
     }
 
     @objc public var flagInit: NSNumber? {
-        lock.lock()
-        defer { lock.unlock() }
-        return _flagInit
+        lock.synchronized { _flagInit }
     }
 
     @objc public var timestamp: Date? {
-        lock.lock()
-        defer { lock.unlock() }
-        return _timestamp
+        lock.synchronized { _timestamp }
     }
 
     @objc public var duration: NSNumber? {
-        lock.lock()
-        defer { lock.unlock() }
-        return _duration
+        lock.synchronized { _duration }
     }
 
     @objc public var releaseName: String? {
-        lock.lock()
-        defer { lock.unlock() }
-        return _releaseName
+        lock.synchronized { _releaseName }
     }
 
     @objc public var environment: String? {
         get {
-            lock.lock()
-            defer { lock.unlock() }
-            return _environment
+            lock.synchronized { _environment }
         }
         set {
-            lock.lock()
-            defer { lock.unlock() }
-            _environment = newValue
+            lock.synchronized { _environment = newValue }
         }
     }
 
     @objc public var abnormalMechanism: String? {
         get {
-            lock.lock()
-            defer { lock.unlock() }
-            return _abnormalMechanism
+            lock.synchronized { _abnormalMechanism }
         }
         set {
-            lock.lock()
-            defer { lock.unlock() }
-            _abnormalMechanism = newValue
+            lock.synchronized { _abnormalMechanism = newValue }
         }
     }
 
