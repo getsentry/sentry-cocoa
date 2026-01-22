@@ -263,7 +263,7 @@ jobs:
 
   app-metrics:
     name: Collect App Metrics
-    runs-on: macos-15
+    runs-on: ["ghcr.io/cirruslabs/macos-runner:tahoe", "runner_group_id:10"]
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes (from contributors) or non-PR events.
     if: github.event_name != 'pull_request' || (needs.files-changed.outputs.run_release_for_prs == 'true' && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association))
