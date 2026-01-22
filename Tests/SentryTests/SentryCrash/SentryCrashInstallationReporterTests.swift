@@ -81,7 +81,7 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     private func givenSutWithStartedSDK() {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryCrashInstallationReporterTests")
-        // Disable crash handler so only
+        // Disable crash handler so only the tested SentryCrashInstallationReporter is installed
         options.enableCrashHandler = false
         SentrySDK.start(options: options)
         
