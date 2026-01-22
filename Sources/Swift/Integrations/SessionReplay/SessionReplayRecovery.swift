@@ -158,6 +158,11 @@ struct SessionReplayRecovery {
 
         SentrySDKLog.debug("[Session Replay] Created replay with \(videos.count) video segments")
 
+        guard !videos.isEmpty else {
+            SentrySDKLog.error("[Session Replay] Could not create replay video, reason: no videos available")
+            return
+        }
+
         // For each segment we need to create a new event with the video.
         var currentSegmentId = config.segmentId
         var currentType = config.type
