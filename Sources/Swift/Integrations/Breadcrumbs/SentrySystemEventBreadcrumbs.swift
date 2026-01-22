@@ -51,7 +51,6 @@ final class SentrySystemEventBreadcrumbs: NSObject {
         notificationCenterWrapper.removeObserver(self, name: UIDevice.batteryStateDidChangeNotification, object: nil)
         notificationCenterWrapper.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
         notificationCenterWrapper.removeObserver(self, name: UIApplication.significantTimeChangeNotification, object: nil)
-        notificationCenterWrapper.removeObserver(self, name: NSNotification.Name.NSSystemTimeZoneDidChange, object: nil)
     }
 
     // MARK: - Battery Observer
@@ -108,7 +107,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
         // W3C spec says level must be null if it is unknown
         if currentState != .unknown && currentLevel != -1.0 {
             let w3cLevel = currentLevel * 100
-            batteryData["level"] = w3cLevel
+            batteryData["level"] = NSNumber(value: w3cLevel)
         } else {
             SentrySDKLog.debug("batteryLevel is unknown.")
         }
@@ -234,7 +233,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
 
         var dataDict: [String: Any] = [
             "action": "TIMEZONE_CHANGE",
-            "current_seconds_from_gmt": offset
+            "current_seconds_from_gmt": Int64(offset)
         ]
 
         if let storedOffset = storedOffset {

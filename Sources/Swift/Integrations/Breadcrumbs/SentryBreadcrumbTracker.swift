@@ -5,7 +5,7 @@
 import UIKit
 #endif
 
-#if SENTRY_TARGET_MACOS_HAS_UI
+#if (os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
 import Cocoa
 #endif
 
@@ -42,36 +42,36 @@ public final class SentryBreadcrumbTracker: NSObject {
         trackNetworkConnectivityChanges()
     }
     
-#if SENTRY_HAS_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     @objc
     func startSwizzle() {
         swizzleSendAction()
         swizzleViewDidAppear()
     }
-#endif // SENTRY_HAS_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     
     @objc
     func stop() {
         // All breadcrumbs are guarded by checking the client of the current hub, which we remove when
         // uninstalling the SDK. Therefore, we don't clean up everything.
-#if SENTRY_HAS_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
         SentryDependencyContainer.sharedInstance().swizzleWrapper.removeSwizzleSendAction(forKey: Self.swizzleSendActionKey)
-#endif // SENTRY_HAS_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
         delegate = nil
         stopTrackNetworkConnectivityChanges()
     }
     
     private func trackApplicationNotifications() {
-#if SENTRY_HAS_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
         trackApplicationNotificationsUIKit()
-#elseif SENTRY_TARGET_MACOS_HAS_UI
+#elseif os(macOS)
         trackApplicationNotificationsMacOS()
-#else // TARGET_OS_WATCH
-        SentrySDKLog.debug("NO UIKit, OSX and Catalyst -> [SentryBreadcrumbTracker trackApplicationNotifications] does nothing.")
-#endif // !TARGET_OS_WATCH
+#else // watchOS or other platforms
+        SentrySDKLog.debug("NO UIKit, macOS and Catalyst -> [SentryBreadcrumbTracker trackApplicationNotifications] does nothing.")
+#endif
     }
     
-#if SENTRY_HAS_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     private func trackApplicationNotificationsUIKit() {
         let notificationCenter = NotificationCenter.default
         
@@ -107,9 +107,9 @@ public final class SentryBreadcrumbTracker: NSObject {
             self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "foreground")
         }
     }
-#endif // SENTRY_HAS_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     
-#if SENTRY_TARGET_MACOS_HAS_UI
+#if os(macOS)
     private func trackApplicationNotificationsMacOS() {
         let notificationCenter = NotificationCenter.default
         
@@ -133,7 +133,7 @@ public final class SentryBreadcrumbTracker: NSObject {
             self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "foreground")
         }
     }
-#endif // SENTRY_TARGET_MACOS_HAS_UI
+#endif // os(macOS)
     
     private func trackNetworkConnectivityChanges() {
         SentryDependencyContainer.sharedInstance().reachability.add(self)
@@ -157,7 +157,7 @@ public final class SentryBreadcrumbTracker: NSObject {
         delegate?.add(crumb)
     }
     
-#if SENTRY_HAS_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     private static func avoidSender(_ sender: Any?, forTarget target: Any?, action: String) -> Bool {
         guard let sender = sender, let target = target else {
             return true
@@ -246,7 +246,7 @@ public final class SentryBreadcrumbTracker: NSObject {
         
         info["screen"] = SwiftDescriptor.getViewControllerClassName(controller)
         
-        if !controller.navigationItem.title.isEmpty {
+        if let title = controller.navigationItem.title, !title.isEmpty {
             info["title"] = controller.navigationItem.title
         } else if let title = controller.title, !title.isEmpty {
             info["title"] = title
@@ -265,13 +265,13 @@ public final class SentryBreadcrumbTracker: NSObject {
         if let window = controller.view.window {
             info["window"] = window.description
             info["window_isKeyWindow"] = window.isKeyWindow ? "true" : "false"
-            info["window_windowLevel"] = String(window.windowLevel.rawValue)
+            info["window_windowLevel"] = String(describing: window.windowLevel.rawValue)
             info["is_window_rootViewController"] = (window.rootViewController == controller) ? "true" : "false"
         }
         
         return info
     }
-#endif // SENTRY_HAS_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 }
 
 extension SentryBreadcrumbTracker: SentryReachabilityObserver {
