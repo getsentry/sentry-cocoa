@@ -6,7 +6,7 @@
 
 @implementation SentryNSFileManagerSwizzlingHelper
 
-static SentryFileIOTracker *_tracker = nil;
+static __weak SentryFileIOTracker *_tracker = nil;
 #if SENTRY_TEST || SENTRY_TEST_CI
 static BOOL swizzlingIsActive = FALSE;
 #endif
@@ -35,17 +35,19 @@ static BOOL swizzlingIsActive = FALSE;
             SentrySWArguments(
                 NSString * path, NSData * data, NSDictionary<NSFileAttributeKey, id> * attributes),
             SentrySWReplacement({
-                return [_tracker
-                    measureNSFileManagerCreateFileAtPath:path
-                                                    data:data
-                                              attributes:attributes
-                                                  origin:SentryTraceOriginAutoNSData
-                                                  method:^BOOL(NSString *path, NSData *data,
-                                                      NSDictionary<NSFileAttributeKey, id>
-                                                          *attributes) {
-                                                      return SentrySWCallOriginal(
-                                                          path, data, attributes);
-                                                  }];
+                return _tracker != nil
+                    ? [_tracker
+                          measureNSFileManagerCreateFileAtPath:path
+                                                          data:data
+                                                    attributes:attributes
+                                                        origin:SentryTraceOriginAutoNSData
+                                                        method:^BOOL(NSString *path, NSData *data,
+                                                            NSDictionary<NSFileAttributeKey, id>
+                                                                *attributes) {
+                                                            return SentrySWCallOriginal(
+                                                                path, data, attributes);
+                                                        }]
+                    : SentrySWCallOriginal(path, data, attributes);
             }),
             SentrySwizzleModeOncePerClassAndSuperclasses,
             (void *)createFileAtPathContentsAttributes);

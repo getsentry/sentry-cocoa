@@ -6,7 +6,7 @@
 
 @implementation SentryNSDataSwizzlingHelper
 
-static SentryFileIOTracker *_tracker = nil;
+static __weak SentryFileIOTracker *_tracker = nil;
 #if SENTRY_TEST || SENTRY_TEST_CI
 static BOOL swizzlingIsActive = FALSE;
 #endif
@@ -26,13 +26,15 @@ static BOOL swizzlingIsActive = FALSE;
     SentrySwizzleInstanceMethod(NSData.class, writeToFileAtomicallySelector,
         SentrySWReturnType(BOOL), SentrySWArguments(NSString * path, BOOL useAuxiliaryFile),
         SentrySWReplacement({
-            return [_tracker measureNSData:self
-                               writeToFile:path
-                                atomically:useAuxiliaryFile
-                                    origin:SentryTraceOriginAutoNSData
-                                    method:^BOOL(NSString *_Nonnull filePath, BOOL isAtomically) {
-                                        return SentrySWCallOriginal(filePath, isAtomically);
-                                    }];
+            return _tracker != nil
+                ? [_tracker measureNSData:self
+                              writeToFile:path
+                               atomically:useAuxiliaryFile
+                                   origin:SentryTraceOriginAutoNSData
+                                   method:^BOOL(NSString *_Nonnull filePath, BOOL isAtomically) {
+                                       return SentrySWCallOriginal(filePath, isAtomically);
+                                   }]
+                : SentrySWCallOriginal(path, useAuxiliaryFile);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)writeToFileAtomicallySelector);
 
@@ -41,15 +43,17 @@ static BOOL swizzlingIsActive = FALSE;
         SentrySWReturnType(BOOL),
         SentrySWArguments(NSString * path, NSDataWritingOptions writeOptionsMask, NSError * *error),
         SentrySWReplacement({
-            return [_tracker measureNSData:self
-                               writeToFile:path
-                                   options:writeOptionsMask
-                                    origin:SentryTraceOriginAutoNSData
-                                     error:error
-                                    method:^BOOL(NSString *filePath, NSDataWritingOptions options,
-                                        NSError **outError) {
-                                        return SentrySWCallOriginal(filePath, options, outError);
-                                    }];
+            return _tracker != nil
+                ? [_tracker measureNSData:self
+                              writeToFile:path
+                                  options:writeOptionsMask
+                                   origin:SentryTraceOriginAutoNSData
+                                    error:error
+                                   method:^BOOL(NSString *filePath, NSDataWritingOptions options,
+                                       NSError **outError) {
+                                       return SentrySWCallOriginal(filePath, options, outError);
+                                   }]
+                : SentrySWCallOriginal(path, writeOptionsMask, error);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)writeToFileOptionsErrorSelector);
 
@@ -59,15 +63,17 @@ static BOOL swizzlingIsActive = FALSE;
         SentrySWReturnType(NSData *),
         SentrySWArguments(NSString * path, NSDataReadingOptions options, NSError * *error),
         SentrySWReplacement({
-            return [_tracker
-                measureNSDataFromFile:path
-                              options:options
-                               origin:SentryTraceOriginAutoNSData
-                                error:error
-                               method:^NSData *(NSString *filePath, NSDataReadingOptions options,
-                                   NSError **outError) {
-                                   return SentrySWCallOriginal(filePath, options, outError);
-                               }];
+            return _tracker != nil
+                ? [_tracker
+                      measureNSDataFromFile:path
+                                    options:options
+                                     origin:SentryTraceOriginAutoNSData
+                                      error:error
+                                     method:^NSData *(NSString *filePath,
+                                         NSDataReadingOptions options, NSError **outError) {
+                                         return SentrySWCallOriginal(filePath, options, outError);
+                                     }]
+                : SentrySWCallOriginal(path, options, error);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses,
         (void *)initWithContentOfFileOptionsErrorSelector);
@@ -75,11 +81,13 @@ static BOOL swizzlingIsActive = FALSE;
     SEL initWithContentsOfFileSelector = NSSelectorFromString(@"initWithContentsOfFile:");
     SentrySwizzleInstanceMethod(NSData.class, initWithContentsOfFileSelector,
         SentrySWReturnType(NSData *), SentrySWArguments(NSString * path), SentrySWReplacement({
-            return [_tracker measureNSDataFromFile:path
-                                            origin:SentryTraceOriginAutoNSData
-                                            method:^NSData *(NSString *filePath) {
-                                                return SentrySWCallOriginal(filePath);
-                                            }];
+            return _tracker != nil
+                ? [_tracker measureNSDataFromFile:path
+                                           origin:SentryTraceOriginAutoNSData
+                                           method:^NSData *(NSString *filePath) {
+                                               return SentrySWCallOriginal(filePath);
+                                           }]
+                : SentrySWCallOriginal(path);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)initWithContentsOfFileSelector);
 
@@ -89,15 +97,17 @@ static BOOL swizzlingIsActive = FALSE;
         SentrySWReturnType(NSData *),
         SentrySWArguments(NSURL * url, NSDataReadingOptions options, NSError * *error),
         SentrySWReplacement({
-            return
-                [_tracker measureNSDataFromURL:url
-                                       options:options
-                                        origin:SentryTraceOriginAutoNSData
-                                         error:error
-                                        method:^NSData *(NSURL *fileUrl,
-                                            NSDataReadingOptions options, NSError **outError) {
-                                            return SentrySWCallOriginal(fileUrl, options, outError);
-                                        }];
+            return _tracker != nil
+                ? [_tracker
+                      measureNSDataFromURL:url
+                                   options:options
+                                    origin:SentryTraceOriginAutoNSData
+                                     error:error
+                                    method:^NSData *(NSURL *fileUrl, NSDataReadingOptions options,
+                                        NSError **outError) {
+                                        return SentrySWCallOriginal(fileUrl, options, outError);
+                                    }]
+                : SentrySWCallOriginal(url, options, error);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses,
         (void *)initWithContentsOfURLOptionsErrorSelector);
