@@ -7,6 +7,9 @@
 @implementation SentryNSDataSwizzlingHelper
 
 static SentryFileIOTracker *_tracker = nil;
+#if SENTRY_TEST || SENTRY_TEST_CI
+static BOOL swizzlingIsActive = FALSE;
+#endif
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
 // fine and we accept this warning.
@@ -15,6 +18,9 @@ static SentryFileIOTracker *_tracker = nil;
 + (void)swizzleWithTracker:(SentryFileIOTracker *)tracker
 {
     _tracker = tracker;
+#if SENTRY_TEST || SENTRY_TEST_CI
+    swizzlingIsActive = TRUE;
+#endif
 
     SEL writeToFileAtomicallySelector = NSSelectorFromString(@"writeToFile:atomically:");
     SentrySwizzleInstanceMethod(NSData.class, writeToFileAtomicallySelector,
@@ -101,6 +107,7 @@ static SentryFileIOTracker *_tracker = nil;
 {
 #if SENTRY_TEST || SENTRY_TEST_CI
     _tracker = nil;
+    swizzlingIsActive = FALSE;
 
     // Unswizzling is only supported in test targets as it is considered unsafe for production.
     SEL writeToFileAtomicallySelector = NSSelectorFromString(@"writeToFile:atomically:");
@@ -127,4 +134,11 @@ static SentryFileIOTracker *_tracker = nil;
 #endif // SENTRY_TEST || SENTRY_TEST_CI
 }
 #pragma clang diagnostic pop
+
+#if SENTRY_TEST || SENTRY_TEST_CI
++ (BOOL)swizzlingActive
+{
+    return swizzlingIsActive;
+}
+#endif
 @end

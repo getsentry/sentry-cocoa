@@ -8,6 +8,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)unswizzle;
 
+#if SENTRY_TEST || SENTRY_TEST_CI
++ (BOOL)swizzlingActive;
+#endif
+
 @end
 
 NS_ASSUME_NONNULL_END
