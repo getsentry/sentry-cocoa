@@ -4,14 +4,17 @@
 import UIKit
 #endif
 
-typealias AutoBreadcrumbTrackingIntegrationProvider = FileManagerProvider & NotificationCenterProvider
+#if os(iOS) && !SENTRY_NO_UIKIT
+typealias AutoBreadcrumbTrackingIntegrationProvider = UICurrentDeviceProvider & FileManagerProvider & NotificationCenterProvider
+#else
+typealias AutoBreadcrumbTrackingIntegrationProvider = UICurrentDeviceProvider & FileManagerProvider
+#endif
 
 final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumbTrackingIntegrationProvider>: NSObject, SwiftIntegration, SentryBreadcrumbDelegate {
     private let options: Options
     private let fileManager: SentryFileManager
-    private let notificationCenterWrapper: SentryNSNotificationCenterWrapper
     private var breadcrumbTracker: SentryBreadcrumbTracker?
-    
+
     #if os(iOS) && !SENTRY_NO_UIKIT
     private var systemEventBreadcrumbs: SentrySystemEventBreadcrumbs?
     #endif // os(iOS) && !SENTRY_NO_UIKIT
@@ -29,7 +32,6 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
 
         self.options = options
         self.fileManager = fileManager
-        self.notificationCenterWrapper = dependencies.notificationCenterWrapper
 
         super.init()
 
@@ -50,14 +52,11 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
         #endif // SENTRY_HAS_UIKIT
 
         #if os(iOS) && !SENTRY_NO_UIKIT
-        // Create system event breadcrumbs for iOS
-        // Note: SentrySystemEventBreadcrumbs is conditionally compiled, so we use performSelector
-        guard let systemEventBreadcrumbsClass = NSClassFromString("SentrySystemEventBreadcrumbs") as? NSObject.Type,
-              let allocated = systemEventBreadcrumbsClass.perform(NSSelectorFromString("alloc"))?.takeUnretainedValue(),
-              let systemEventBreadcrumbs = allocated.perform(NSSelectorFromString("initWithFileManager:andNotificationCenterWrapper:"), with: fileManager, with: notificationCenterWrapper)?.takeUnretainedValue() as? SentrySystemEventBreadcrumbs else {
-            SentrySDKLog.warning("Failed to create SentrySystemEventBreadcrumbs - class may not be available on this platform")
-            return nil
-        }
+        let systemEventBreadcrumbs = SentrySystemEventBreadcrumbs(
+            currentDeviceProvider: dependencies,
+            fileManager: fileManager,
+            notificationCenterWrapper: dependencies.notificationCenterWrapper
+        )
         self.systemEventBreadcrumbs = systemEventBreadcrumbs
         systemEventBreadcrumbs.start(with: self)
         #endif // os(iOS) && !SENTRY_NO_UIKIT

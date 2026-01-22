@@ -443,4 +443,13 @@ protocol CrashInstallationReporterBuilder {
 }
 extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
 
+protocol UICurrentDeviceProvider {
+    var currentDevice: UIDevice { get }
+}
+
+extension SentryDependencyContainer: UICurrentDeviceProvider {
+    var currentDevice: UIDevice {
+        UIDevice.current
+    }
+}
 //swiftlint:enable file_length missing_docs
