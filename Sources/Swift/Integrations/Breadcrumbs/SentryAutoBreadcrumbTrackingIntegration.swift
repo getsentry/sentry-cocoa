@@ -34,7 +34,12 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
         super.init()
 
         // Create breadcrumb tracker
-        let breadcrumbTracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: options.reportAccessibilityIdentifier)
+#if os(iOS) && !SENTRY_NO_UIKIT
+        let reportAccessibilityIdentifier = options.reportAccessibilityIdentifier
+        #else
+        let reportAccessibilityIdentifier = false
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+        let breadcrumbTracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: reportAccessibilityIdentifier)
         self.breadcrumbTracker = breadcrumbTracker
         breadcrumbTracker.start(with: self)
 
