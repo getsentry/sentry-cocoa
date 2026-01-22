@@ -91,12 +91,6 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
-    if ((integrationOptions & kIntegrationOptionEnableCoreDataTracing)
-        && !options.enableCoreDataTracing) {
-        [self logWithOptionName:@"enableCoreDataTracing"];
-        return NO;
-    }
-
     if ((integrationOptions & kIntegrationOptionEnableSwizzling) && !options.enableSwizzling) {
         [self logWithOptionName:@"enableSwizzling"];
         return NO;

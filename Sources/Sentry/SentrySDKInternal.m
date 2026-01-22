@@ -4,7 +4,6 @@
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
-#import "SentryCoreDataTrackingIntegration.h"
 #import "SentryCrash.h"
 #import "SentryFileIOTrackingIntegration.h"
 #import "SentryHub+Private.h"
@@ -509,8 +508,8 @@ static NSDate *_Nullable startTimestamp = nil;
         [SentryAppStartTrackingIntegration class], [SentryPerformanceTrackingIntegration class],
         [SentryUIEventTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
-        [SentryAutoBreadcrumbTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
-        [SentryFileIOTrackingIntegration class], nil];
+        [SentryAutoBreadcrumbTrackingIntegration class], [SentryFileIOTrackingIntegration class],
+        nil];
 
     return defaultIntegrations;
 }
