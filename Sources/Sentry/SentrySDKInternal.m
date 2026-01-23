@@ -25,7 +25,6 @@
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTrackingIntegration.h"
 #    import "SentryPerformanceTrackingIntegration.h"
-#    import "SentryUIEventTrackingIntegration.h"
 #endif // SENTRY_HAS_UIKIT
 
 #if TARGET_OS_OSX
@@ -502,7 +501,6 @@ static NSDate *_Nullable startTimestamp = nil;
     NSMutableArray<Class> *defaultIntegrations = [NSMutableArray<Class> arrayWithObjects:
 #if SENTRY_HAS_UIKIT
             [SentryAppStartTrackingIntegration class], [SentryPerformanceTrackingIntegration class],
-        [SentryUIEventTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
         [SentryAutoBreadcrumbTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
         [SentryFileIOTrackingIntegration class], nil];
