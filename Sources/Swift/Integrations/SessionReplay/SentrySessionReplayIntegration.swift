@@ -355,7 +355,10 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             stop()
             return
         }
-        guard let timestamp = replayEvent.timestamp else { return }
+        guard let timestamp = replayEvent.timestamp else { 
+            SentrySDKLog.warning("[Session Replay] Could not capture replay event, reason: timestamp is nil")
+            return 
+        }
         SentrySDKInternal.currentHub().captureReplayEvent(replayEvent, replayRecording: replayRecording, video: videoUrl)
         sentrySessionReplaySync_updateInfo(UInt32(replayEvent.segmentId), timestamp.timeIntervalSinceReferenceDate)
     }
@@ -372,7 +375,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     }
 
     public func currentScreenNameForSessionReplay() -> String? {
-        SentrySDKInternal.currentHub().scope.currentScreen ?? application?.relevantViewControllersNames()?.first ?? ""
+        SentrySDKInternal.currentHub().scope.currentScreen ?? application?.relevantViewControllersNames()?.first
     }
 
     // MARK: - SentryReachabilityObserver
