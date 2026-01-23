@@ -52,7 +52,8 @@ private struct AnyIntegration {
             .init(SentryAutoSessionTrackingIntegration.self),
             .init(SentryNetworkTrackingIntegration.self),
             .init(SentryHangTrackerIntegrationObjC.self),
-            .init(SentryMetricsIntegration.self)
+            .init(SentryMetricsIntegration.self),
+            .init(SentryFileIOTrackingIntegration.self)
         ])
 
         #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
