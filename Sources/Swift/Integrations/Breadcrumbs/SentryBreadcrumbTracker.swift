@@ -9,9 +9,7 @@ import UIKit
 import Cocoa
 #endif
 
-@objc
-@_spi(Private)
-public final class SentryBreadcrumbTracker: NSObject {
+@objc @_spi(Private) public final class SentryBreadcrumbTracker: NSObject {
     
     private static let swizzleSendActionKey = "SentryBreadcrumbTrackerSwizzleSendAction"
     // Use a static variable to hold a unique pointer for the swizzle key

@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
 import UIKit
 #endif
 
@@ -40,16 +40,16 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
         let reportAccessibilityIdentifier = options.reportAccessibilityIdentifier
         #else
         let reportAccessibilityIdentifier = false
-#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT
+#endif // os(iOS) && !SENTRY_NO_UIKIT
         let breadcrumbTracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: reportAccessibilityIdentifier)
         self.breadcrumbTracker = breadcrumbTracker
         breadcrumbTracker.start(with: self)
 
-        #if SENTRY_HAS_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
         if options.enableSwizzling {
             breadcrumbTracker.startSwizzle()
         }
-        #endif // SENTRY_HAS_UIKIT
+        #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 
         #if os(iOS) && !SENTRY_NO_UIKIT
         let systemEventBreadcrumbs = SentrySystemEventBreadcrumbs(
