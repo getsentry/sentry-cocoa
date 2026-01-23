@@ -332,6 +332,22 @@ extension SentryDependencyContainer: DateProviderProvider {}
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
+protocol FileIOTrackerProvider {
+    var fileIOTracker: SentryFileIOTracker { get }
+}
+
+protocol NSDataSwizzlingProvider {
+    var nsDataSwizzling: SentryNSDataSwizzling { get }
+}
+
+protocol NSFileManagerSwizzlingProvider {
+    var nsFileManagerSwizzling: SentryNSFileManagerSwizzling { get }
+}
+
+extension SentryDependencyContainer: FileIOTrackerProvider { }
+extension SentryDependencyContainer: NSDataSwizzlingProvider { }
+extension SentryDependencyContainer: NSFileManagerSwizzlingProvider { }
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 protocol FramesTrackingProvider {
     var framesTracker: SentryFramesTracker { get }
