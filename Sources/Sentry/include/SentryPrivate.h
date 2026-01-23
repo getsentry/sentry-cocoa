@@ -7,7 +7,6 @@
 #import "NSLocale+Sentry.h"
 #import "SentryANRStoppedResultInternal.h"
 #import "SentryANRTrackerInternalDelegate.h"
-#import "SentryBinaryImageCacheCallbacks.h"
 #import "SentryClient+Private.h"
 #import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryCrashAsync.h"
