@@ -115,8 +115,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.attachmentProcessors = [[NSMutableArray alloc] init];
 
         self.logBuffer = [[SentryLogBuffer alloc] initWithOptions:options
-                                                      dateProvider:dateProvider
-                                                          delegate:self];
+                                                     dateProvider:dateProvider
+                                                         delegate:self];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.
