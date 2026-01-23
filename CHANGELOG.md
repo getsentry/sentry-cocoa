@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- feat: Log error message for HTTP 413 responses (#7261)
+
 ### Fixes
 
 - Fix deadlock in network reachability observer when restarting the SDK (#7246)
