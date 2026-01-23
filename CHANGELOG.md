@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix deadlock in network reachability observer when restarting the SDK (#7246)
+
 ## 9.2.0
 
 ### Features
