@@ -76,7 +76,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         let stack = fixture.coreDataStack
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         let transaction = try startTransaction()
-        var _ = try? stack.managedObjectContext.fetch(fetch)
+        var _ = try stack.managedObjectContext.fetch(fetch)
         XCTAssertEqual(transaction.children.count, 1)
     }
 
@@ -86,7 +86,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         let transaction = try startTransaction()
         let newEntity: TestEntity = stack.getEntity()
         newEntity.field1 = "Some Update"
-        try? stack.managedObjectContext.save()
+        try stack.managedObjectContext.save()
 
         XCTAssertEqual(transaction.children.count, 1)
         XCTAssertEqual(try XCTUnwrap(transaction.children.first).operation, "db.sql.transaction")
@@ -96,9 +96,7 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         SentrySDK.start(options: fixture.defaultOptions)
         let stack = fixture.coreDataStack
         let transaction = try startTransaction()
-
-        try? stack.managedObjectContext.save()
-
+        try stack.managedObjectContext.save()
         XCTAssertEqual(transaction.children.count, 0)
     }
 
@@ -107,8 +105,8 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         let stack = fixture.coreDataStack
         let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
         let transaction = try startTransaction()
-        SentryCoreDataSwizzling.sharedInstance.stop()
-        var _ = try? stack.managedObjectContext.fetch(fetch)
+        (try getInstalledIntegration()).uninstall()
+        var _ = try stack.managedObjectContext.fetch(fetch)
         XCTAssertEqual(transaction.children.count, 0)
     }
 
@@ -118,8 +116,8 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         let transaction = try startTransaction()
         let newEntity: TestEntity = stack.getEntity()
         newEntity.field1 = "Some Update"
-        SentryCoreDataSwizzling.sharedInstance.stop()
-        try? stack.managedObjectContext.save()
+        (try getInstalledIntegration()).uninstall()
+        try stack.managedObjectContext.save()
         XCTAssertEqual(transaction.children.count, 0)
     }
     
@@ -142,5 +140,9 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     
     private func startTransaction() throws -> SentryTracer {
         return try XCTUnwrap(SentrySDK.startTransaction(name: "TestTransaction", operation: "TestTransaction", bindToScope: true) as? SentryTracer)
+    }
+    
+    private func getInstalledIntegration() throws -> SentryCoreDataTrackingIntegration<SentryDependencyContainer> {
+        return try XCTUnwrap(SentrySDKInternal.currentHub().getInstalledIntegration(SentryCoreDataTrackingIntegration<SentryDependencyContainer>.self) as? SentryCoreDataTrackingIntegration)
     }
 }

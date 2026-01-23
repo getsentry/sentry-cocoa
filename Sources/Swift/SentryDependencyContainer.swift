@@ -128,6 +128,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var extensionDetector: SentryExtensionDetector = {
         SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
+    var coreDataSwizzling = SentryCoreDataSwizzling()
     
 #if os(iOS) && !SENTRY_NO_UIKIT
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
@@ -482,4 +483,8 @@ protocol CrashInstallationReporterBuilder {
 }
 extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
 
+protocol SentryCoreDataSwizzlingProvider {
+    var coreDataSwizzling: SentryCoreDataSwizzling { get }
+}
+extension SentryDependencyContainer: SentryCoreDataSwizzlingProvider {}
 //swiftlint:enable file_length missing_docs
