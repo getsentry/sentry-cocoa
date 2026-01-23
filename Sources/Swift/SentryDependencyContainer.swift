@@ -114,8 +114,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var timerFactory = SentryNSTimerFactory()
     @objc public var fileIOTracker = Dependencies.fileIOTracker
     @objc public var threadInspector = Dependencies.threadInspector
-    @objc public var nsDataSwizzling = SentryNSDataSwizzling()
-    @objc public var nsFileManagerSwizzling = SentryNSFileManagerSwizzling()
+    var nsDataSwizzling = SentryNSDataSwizzling()
+    var nsFileManagerSwizzling = SentryNSFileManagerSwizzling()
     @objc public var rateLimits: RateLimits = DefaultRateLimits(
         retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: Dependencies.dateProvider),
         andRateLimitParser: RateLimitParser(currentDateProvider: Dependencies.dateProvider),

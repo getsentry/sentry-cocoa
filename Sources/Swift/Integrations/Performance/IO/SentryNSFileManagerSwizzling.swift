@@ -1,8 +1,8 @@
 // swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
-@_spi(Private) @objc public final class SentryNSFileManagerSwizzling: NSObject {
-    @objc public func start(withOptions options: Options, tracker: SentryFileIOTracker) {
+final class SentryNSFileManagerSwizzling: NSObject {
+    func start(withOptions options: Options, tracker: SentryFileIOTracker) {
         guard options.enableSwizzling else {
             SentrySDKLog.debug("Auto-tracking of NSFileManager is disabled because enableSwizzling is false")
             return
@@ -16,7 +16,7 @@
         SentryNSFileManagerSwizzlingHelper.swizzle(withTracker: tracker)
     }
 
-    @objc public func stop() {
+    func stop() {
         SentryNSFileManagerSwizzlingHelper.unswizzle()
     }
 }
