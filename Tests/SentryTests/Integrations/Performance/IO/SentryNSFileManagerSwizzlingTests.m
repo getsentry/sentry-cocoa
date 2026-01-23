@@ -1,7 +1,6 @@
 #import "SentryByteCountFormatter.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryFileIOTrackerHelper.h"
-#import "SentryNSFileManagerSwizzling.h"
 #import "SentrySpanInternal.h"
 #import "SentrySpanOperation.h"
 #import "SentrySwizzle.h"
@@ -58,7 +57,7 @@
     self->tracker = [FileIOTrackerTestHelpers makeTrackerWithOptions:options];
     [tracker enable];
 
-    [[SentryNSFileManagerSwizzling shared] startWithOptions:options tracker:self->tracker];
+    [[[SentryNSFileManagerSwizzling alloc] init] startWithOptions:options tracker:self->tracker];
 }
 
 - (void)tearDown
@@ -68,7 +67,7 @@
         [NSFileManager.defaultManager removeItemAtURL:fileDirectory error:nil];
     }
     [self->tracker disable];
-    [[SentryNSFileManagerSwizzling shared] stop];
+    [[[SentryNSFileManagerSwizzling alloc] init] stop];
 }
 
 - (void)testNSFileManagerCreateFile_preiOS18macOS15tvOS18_experimentalFlagDisabled_shouldNotSwizzle

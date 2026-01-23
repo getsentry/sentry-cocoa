@@ -1,6 +1,4 @@
 #import "SentryFileIOTrackingIntegration.h"
-#import "SentryNSDataSwizzling.h"
-#import "SentryNSFileManagerSwizzling.h"
 #import "SentrySwift.h"
 
 @interface SentryFileIOTrackingIntegration ()
@@ -20,8 +18,10 @@
     self.tracker = [[SentryDependencyContainer sharedInstance] fileIOTracker];
     [self.tracker enable];
 
-    [SentryNSDataSwizzling.shared startWithOptions:options tracker:self.tracker];
-    [SentryNSFileManagerSwizzling.shared startWithOptions:options tracker:self.tracker];
+    [SentryDependencyContainer.sharedInstance.nsDataSwizzling startWithOptions:options
+                                                                       tracker:self.tracker];
+    [SentryDependencyContainer.sharedInstance.nsFileManagerSwizzling startWithOptions:options
+                                                                              tracker:self.tracker];
 
     return YES;
 }
@@ -36,8 +36,8 @@
 {
     [self.tracker disable];
 
-    [SentryNSDataSwizzling.shared stop];
-    [SentryNSFileManagerSwizzling.shared stop];
+    [SentryDependencyContainer.sharedInstance.nsDataSwizzling stop];
+    [SentryDependencyContainer.sharedInstance.nsFileManagerSwizzling stop];
 }
 
 @end
