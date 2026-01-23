@@ -420,6 +420,12 @@
 
             SENTRY_LOG_DEBUG(@"Received response status code: %li", (long)response.statusCode);
 
+            // Log specific error messages for certain HTTP status codes.
+            // See https://develop.sentry.dev/sdk/expected-features/#dealing-with-network-failures
+            [SentryHttpTransportErrorLogger logHttpResponseErrorWithStatusCode:response.statusCode
+                                                                      envelope:envelope
+                                                                       request:request];
+
             BOOL is2xx = (response.statusCode >= 200 && response.statusCode < 300);
             BOOL is4xxOr5xx = (response.statusCode >= 400 && response.statusCode < 600);
 
