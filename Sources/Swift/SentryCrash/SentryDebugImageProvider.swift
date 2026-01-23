@@ -23,15 +23,6 @@
         helper.getDebugImagesFromCacheForThreads(threads: threads)
     }
 
-    /**
-     * Returns a list of debug images that are being referenced in the given image addresses.
-     * This function uses the @c SentryBinaryImageCache which is significantly faster than @c
-     * SentryCrashDefaultBinaryImageProvider for retrieving binary image information.
-     */
-    @objc(getDebugImagesForImageAddressesFromCache:) public func getDebugImagesForImageAddressesFromCache(imageAddresses: Set<String>) -> [DebugMeta] {
-        helper.getDebugImagesForImageAddressesFromCache(imageAddresses: imageAddresses)
-    }
-
     @objc public func getDebugImagesFromCache() -> [DebugMeta] {
         helper.getDebugImagesFromCache()
     }
