@@ -44,10 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic) SentryLevel levelEnum;
 
-@property (nonatomic, nullable, copy) NSString *currentScreen;
-
-- (NSArray<SentryBreadcrumb *> *)breadcrumbs;
-
 - (nullable SentrySpanInternal *)getCastedInternalSpan;
 
 /**

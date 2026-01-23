@@ -13,13 +13,17 @@ class SentryReplayApiTests: XCTestCase {
 
     // MARK: - Tests
 
-    func testStart_whenReplayIntegrationAlreadyInstalled_shouldCallStartOnExistingIntegration() {
+    func testStart_whenReplayIntegrationAlreadyInstalled_shouldCallStartOnExistingIntegration() throws {
         // Arrange
-        let mockClient = TestClient(options: Options())
-        let mockReplayIntegration = MockSessionReplayIntegration()
+        let options = Options()
+        options.sessionReplay.sessionSampleRate = 1.0
+        // Ensure the integration will always be enabled
+        options.experimental.enableSessionReplayInUnreliableEnvironment = true
+        let mockClient = TestClient(options: options)
+        let mockReplayIntegration = try XCTUnwrap(MockSessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let mockHub = TestHub(client: mockClient, andScope: Scope())
         mockHub.removeAllIntegrations()
-        mockHub.addInstalledIntegration(mockReplayIntegration, name: "SentrySessionReplayIntegration")
+        mockReplayIntegration.addItselfToSentryHub(hub: mockHub)
         SentrySDKInternal.setCurrentHub(mockHub)
         
         let sut = SentryReplayApi()
@@ -81,23 +85,21 @@ class SentryReplayApiTests: XCTestCase {
         
         // Assert
         XCTAssertEqual(mockHub.installedIntegrations().count, 1)
-        let hub = try XCTUnwrap(mockHub.installedIntegrations().first as? SentrySessionReplayIntegration)
-        XCTAssertNotNil(hub.sessionReplay)
-        XCTAssertTrue(hub.sessionReplay.isRunning)
+        let integration = try XCTUnwrap(mockHub.installedIntegrations().first as? SentrySessionReplayIntegration)
+        XCTAssertNotNil(integration.sessionReplay)
+        XCTAssertTrue(integration.sessionReplay?.isRunning ?? false)
         SentrySDKInternal.currentHub().endSession()
-        XCTAssertTrue(hub.sessionReplay.isFullSession)
+        XCTAssertTrue(integration.sessionReplay?.isFullSession ?? false)
     }
 }
 
-// MARK: - Mock Classes
-
 private class MockSessionReplayIntegration: SentrySessionReplayIntegration {
     var startCalled = false
-
-    func install(with hub: SentryHub) -> Bool {
-        return true
+    
+    required convenience init?(with options: Options, dependencies: SentryDependencyContainer) {
+        self.init(nonOptionalWith: options, dependencies: dependencies)
     }
-
+    
     @objc override func start() {
         startCalled = true
     }

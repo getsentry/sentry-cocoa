@@ -61,7 +61,7 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
 
     // MARK: - Write Methods
 
-    func testWriteToFileAtomically_whenSwizzled_shouldCallTracker() {
+    func testWriteToFileAtomically_whenSwizzled_shouldCallTracker() throws {
         // -- Arrange --
         swizzle()
         XCTAssertEqual(mockTracker.writeCalls.count, 0, "Should start with no write calls")
@@ -79,7 +79,7 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
         XCTAssertEqual(call.atomically, true, "Should record atomically flag")
         XCTAssertNil(call.options, "Should not have options for atomically variant")
 
-        assertFileContainsTestData()
+        try assertFileContainsTestData()
     }
 
     func testWriteToFileOptionsError_whenSwizzled_shouldCallTracker() throws {
@@ -99,7 +99,7 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
         XCTAssertNil(call.atomically, "Should not have atomically for options variant")
         XCTAssertEqual(call.options, .atomic, "Should record options")
 
-        assertFileContainsTestData()
+        try assertFileContainsTestData()
     }
 
     func testWriteToFileOptionsError_whenWriteFails_shouldCallTracker() {
@@ -124,10 +124,10 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
 
     // MARK: - Read Methods
 
-    func testInitWithContentsOfFile_whenSwizzled_shouldCallTracker() {
+    func testInitWithContentsOfFile_whenSwizzled_shouldCallTracker() throws {
         // -- Arrange --
         swizzle()
-        try? testData.write(to: fileUrl, options: .atomic)
+        try testData.write(to: fileUrl, options: .atomic)
         XCTAssertEqual(mockTracker.readCalls.count, 0, "Should start with no read calls")
 
         // -- Act --
@@ -179,10 +179,10 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
         XCTAssertEqual(mockTracker.readCalls[0].path, nonExistentPath, "Should record the nonexistent path")
     }
 
-    func testInitWithContentsOfURL_whenSwizzled_shouldCallTracker() {
+    func testInitWithContentsOfURL_whenSwizzled_shouldCallTracker() throws {
         // -- Arrange --
         swizzle()
-        try? testData.write(to: fileUrl, options: .atomic)
+        try testData.write(to: fileUrl, options: .atomic)
         XCTAssertEqual(mockTracker.readCalls.count, 0, "Should start with no read calls")
 
         // -- Act --
@@ -246,7 +246,7 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
 
     // MARK: - Unswizzle Tests
 
-    func testUnswizzle_whenCalled_shouldStopTrackingCalls() {
+    func testUnswizzle_whenCalled_shouldStopTrackingCalls() throws {
         // -- Arrange --
         swizzle()
         XCTAssertEqual(mockTracker.writeCalls.count, 0, "Should start with no write calls")
@@ -254,7 +254,7 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
         // Verify swizzling is working first
         _ = (testData as NSData).write(toFile: filePath, atomically: true)
         XCTAssertEqual(mockTracker.writeCalls.count, 1, "Should track call when swizzled")
-        try? FileManager.default.removeItem(at: fileUrl)
+        try FileManager.default.removeItem(at: fileUrl)
 
         // -- Act --
         SentryNSDataSwizzlingHelper.unswizzle()
@@ -262,7 +262,7 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(mockTracker.writeCalls.count, 1, "Should not track new calls after unswizzle")
-        assertFileContainsTestData()
+        try assertFileContainsTestData()
     }
 
     func testUnswizzle_whenCalledMultipleTimes_shouldNotCrash() {
@@ -306,8 +306,8 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
 
     // MARK: - Helper Methods
 
-    private func assertFileContainsTestData() {
-        let writtenData = try? Data(contentsOf: fileUrl)
+    private func assertFileContainsTestData() throws {
+        let writtenData = try Data(contentsOf: fileUrl)
         XCTAssertEqual(writtenData, testData, "File should contain the test data")
     }
 }
