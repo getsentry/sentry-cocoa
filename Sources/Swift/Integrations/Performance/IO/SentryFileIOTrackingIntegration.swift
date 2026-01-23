@@ -3,7 +3,6 @@
 typealias FileIOTrackingIntegrationProvider = FileIOTrackerProvider & NSDataSwizzlingProvider & NSFileManagerSwizzlingProvider
 
 final class SentryFileIOTrackingIntegration<Dependencies: FileIOTrackingIntegrationProvider>: NSObject, SwiftIntegration {
-    private let options: Options
     private let tracker: SentryFileIOTracker
     private let nsDataSwizzling: SentryNSDataSwizzling
     private let nsFileManagerSwizzling: SentryNSFileManagerSwizzling
@@ -27,7 +26,6 @@ final class SentryFileIOTrackingIntegration<Dependencies: FileIOTrackingIntegrat
             return nil
         }
 
-        self.options = options
         self.tracker = dependencies.fileIOTracker
         self.nsDataSwizzling = dependencies.nsDataSwizzling
         self.nsFileManagerSwizzling = dependencies.nsFileManagerSwizzling
