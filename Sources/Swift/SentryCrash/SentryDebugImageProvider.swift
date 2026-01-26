@@ -1,15 +1,11 @@
 // swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
-@_spi(Private) public class SentryDebugImageProvider: NSObject {
+@_spi(Private) @objc public class SentryDebugImageProvider: NSObject {
 
     private static let debugImageType = "macho"
 
-    @objc var binaryImageCache: SentryBinaryImageCache
-
-    @objc public override init() {
-        self.binaryImageCache = Dependencies.binaryImageCache
-    }
+    var binaryImageCache: SentryBinaryImageCache = Dependencies.binaryImageCache
 
     /**
      * Returns a list of debug images that are being referenced by the given frames.
@@ -30,7 +26,7 @@
     @objc(getDebugImagesFromCacheForThreads:) public func getDebugImagesFromCacheForThreads(threads: [SentryThread]) -> [DebugMeta] {
         var imageAddresses = Set<String>()
 
-        for thread in threads {
+        threads.forEach { thread in
             if let frames = thread.stacktrace?.frames {
                 extractDebugImageAddresses(from: frames, into: &imageAddresses)
             }
@@ -47,12 +43,11 @@
     @objc(getDebugImagesForImageAddressesFromCache:) public func getDebugImagesForImageAddressesFromCache(imageAddresses: Set<String>) -> [DebugMeta] {
         var infos = [SentryBinaryImageInfo]()
 
-        for imageAddress in imageAddresses {
+        imageAddresses.forEach { imageAddress in
             let imageAddressAsUInt64 = Self.uInt64ForHexAddress(imageAddress)
-            guard let info = binaryImageCache.imageByAddress(imageAddressAsUInt64) else {
-                continue
+            if let info = binaryImageCache.imageByAddress(imageAddressAsUInt64) {
+                infos.append(info)
             }
-            infos.append(info)
         }
 
         // Sort by address descending to maintain consistent ordering
@@ -67,11 +62,7 @@
     }
 
     private func extractDebugImageAddresses(from frames: [Frame], into set: inout Set<String>) {
-        for frame in frames {
-            if let imageAddress = frame.imageAddress {
-                set.insert(imageAddress)
-            }
-        }
+        set.formUnion(frames.compactMap { $0.imageAddress })
     }
 
     private func debugMeta(from info: SentryBinaryImageInfo) -> DebugMeta {
