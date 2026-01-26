@@ -49,8 +49,8 @@ jobs:
   test-integrations-spm:
     name: SPM Tests | ${{matrix.integration_dir}}
     needs: files-changed
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true'
-    runs-on: macos-15
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
+    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -62,10 +62,8 @@ jobs:
           - integration_dir: SentryPulse
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-      - name: Select Xcode version
-        env:
-          XCODE_VERSION: 16.4
-        run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
+      - name: Select Xcode
+        run: ./scripts/ci-select-xcode.sh 16.4
       - name: Use local sentry-cocoa
         working-directory: 3rd-party-integrations/${{matrix.integration_dir}}
         run: swift package edit sentry-cocoa --path ../..
@@ -87,7 +85,7 @@ jobs:
   # These packages are SPM-only but can be tested via xcodebuild using the package name as the scheme
   test-integrations-xcodebuild:
     name: Xcodebuild Tests | ${{matrix.integration_dir}} | ${{matrix.name}}
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true'
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
     secrets: inherit

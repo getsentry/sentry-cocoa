@@ -8,7 +8,6 @@
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
 #    import "SentrySDK+Private.h"
-#    import "SentrySessionReplayIntegration+Private.h"
 #    import "SentrySwift.h"
 #    import <UIKit/UIKit.h>
 
@@ -59,7 +58,13 @@
             if (replayIntegration == nil && SentrySDKInternal.currentHub.client.options) {
                 SentryOptions *currentOptions = SENTRY_UNWRAP_NULLABLE(
                     SentryOptions, SentrySDKInternal.currentHub.client.options);
-                if (![SentrySessionReplayIntegration shouldEnableForOptions:currentOptions]) {
+                SentryDependencyContainer *sharedContainer =
+                    [SentryDependencyContainer sharedInstance];
+                if (![SentrySessionReplay
+                        shouldEnableSessionReplayWithEnvironmentChecker:
+                            [sharedContainer sessionReplayEnvironmentChecker]
+                                                    experimentalOptions:currentOptions
+                                                                            .experimental]) {
                     SENTRY_LOG_ERROR(@"[Session Replay] Session replay is disabled due to "
                                      @"environment potentially causing PII leaks.");
                     return;
@@ -67,11 +72,12 @@
                 SENTRY_LOG_DEBUG(@"[Session Replay] Initializing replay integration");
 
                 replayIntegration =
-                    [[SentrySessionReplayIntegration alloc] initForManualUse:currentOptions];
+                    [[SentrySessionReplayIntegration alloc] initForManualUseWith:currentOptions
+                                                                    dependencies:sharedContainer];
 
                 [SentrySDKInternal.currentHub
-                    addInstalledIntegration:replayIntegration
-                                       name:NSStringFromClass(SentrySessionReplay.class)];
+                    addInstalledIntegration:(id<SentryIntegrationProtocol>)replayIntegration
+                                       name:[SentrySessionReplayIntegration name]];
             }
         }
     }

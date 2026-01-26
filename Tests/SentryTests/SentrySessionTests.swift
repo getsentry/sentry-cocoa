@@ -1,4 +1,4 @@
-@_spi(Private) import Sentry
+@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
@@ -49,7 +49,7 @@ class SentrySessionTestsSwift: XCTestCase {
         session.abnormalMechanism = "app hang"
         let copiedSession = try XCTUnwrap(session.copy() as? SentrySession)
 
-        XCTAssertEqual(session, copiedSession)
+        XCTAssertTrue(session.isEqual(to: copiedSession))
         XCTAssertEqual(session.abnormalMechanism, copiedSession.abnormalMechanism)
     }
     
@@ -155,17 +155,146 @@ class SentrySessionTestsSwift: XCTestCase {
         session.abnormalMechanism = "app hang"
         var jsonDict = session.serialize()
         jsonDict["abnormal_mechanism"] = 1
-        
+
         // Act
         let actual = try XCTUnwrap(SentrySession(jsonObject: jsonDict))
-        
+
         // Assert
         XCTAssertNil(actual.abnormalMechanism)
     }
+
+    func testInitDefaultValues() {
+        let session = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        XCTAssertNotNil(session.sessionId)
+        XCTAssertEqual(1, session.sequence)
+        XCTAssertEqual(0, session.errors)
+        XCTAssertTrue(session.flagInit?.boolValue ?? false)
+        XCTAssertNotNil(session.started)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertNotNil(session.distinctId)
+
+        XCTAssertNil(session.timestamp)
+        XCTAssertEqual("1.0.0", session.releaseName)
+        XCTAssertNil(session.environment)
+        XCTAssertNil(session.duration)
+    }
+
+    func testSerializeDefaultValues() throws {
+        let expected = SentrySession(releaseName: "1.0.0", distinctId: "some-id")
+        let json = expected.serialize()
+        let actual = try XCTUnwrap(SentrySession(jsonObject: json))
+
+        XCTAssertEqual(expected.sessionId, actual.sessionId)
+        XCTAssertEqual(expected.sequence, actual.sequence)
+        XCTAssertEqual(expected.errors, actual.errors)
+
+        XCTAssertEqual(expected.started.timeIntervalSinceReferenceDate, actual.started.timeIntervalSinceReferenceDate, accuracy: 1)
+        XCTAssertEqual(expected.status, actual.status)
+        XCTAssertEqual(expected.distinctId, actual.distinctId)
+        XCTAssertNil(expected.timestamp)
+        // Serialize session always have a timestamp (time of serialization)
+        XCTAssertNotNil(actual.timestamp)
+        XCTAssertEqual("1.0.0", expected.releaseName)
+        XCTAssertEqual("1.0.0", actual.releaseName)
+        XCTAssertNil(expected.environment)
+        XCTAssertNil(actual.environment)
+        XCTAssertNil(expected.duration)
+        XCTAssertNil(actual.duration)
+    }
+
+    func testSerializeExtraFieldsEndedSessionWithNilStatus() throws {
+        let expected = SentrySession(releaseName: "io.sentry@5.0.0-test", distinctId: "some-id")
+        let timestamp = Date()
+        expected.endExited(withTimestamp: timestamp)
+        expected.environment = "prod"
+        let json = expected.serialize()
+        let actual = try XCTUnwrap(SentrySession(jsonObject: json))
+
+        XCTAssertEqual(expected.sessionId, actual.sessionId)
+        XCTAssertEqual(expected.sequence, actual.sequence)
+        XCTAssertEqual(expected.errors, actual.errors)
+
+        XCTAssertEqual(expected.started.timeIntervalSinceReferenceDate, actual.started.timeIntervalSinceReferenceDate, accuracy: 1)
+        XCTAssertEqual(timestamp.timeIntervalSinceReferenceDate, expected.timestamp!.timeIntervalSinceReferenceDate, accuracy: 1)
+        XCTAssertEqual(expected.timestamp!.timeIntervalSinceReferenceDate, actual.timestamp!.timeIntervalSinceReferenceDate, accuracy: 1)
+        XCTAssertEqual(expected.status, actual.status)
+        XCTAssertEqual(expected.distinctId, actual.distinctId)
+        XCTAssertEqual(expected.releaseName, actual.releaseName)
+        XCTAssertEqual(expected.environment, actual.environment)
+        XCTAssertEqual(expected.duration, actual.duration)
+    }
+
+    func testSerializeErrorIncremented() throws {
+        let expected = SentrySession(releaseName: "", distinctId: "some-id")
+        expected.incrementErrors()
+        expected.endExited(withTimestamp: Date())
+        let json = expected.serialize()
+        let actual = try XCTUnwrap(SentrySession(jsonObject: json))
+
+        XCTAssertEqual(expected.sessionId, actual.sessionId)
+        XCTAssertEqual(expected.sequence, actual.sequence)
+        XCTAssertEqual(expected.errors, actual.errors)
+
+        XCTAssertEqual(expected.started.timeIntervalSinceReferenceDate, actual.started.timeIntervalSinceReferenceDate, accuracy: 1)
+        XCTAssertEqual(expected.timestamp!.timeIntervalSinceReferenceDate, actual.timestamp!.timeIntervalSinceReferenceDate, accuracy: 1)
+        XCTAssertEqual(expected.status, actual.status)
+        XCTAssertEqual(expected.distinctId, actual.distinctId)
+        XCTAssertEqual(expected.releaseName, actual.releaseName)
+        XCTAssertEqual(expected.environment, actual.environment)
+        XCTAssertEqual(expected.duration, actual.duration)
+    }
+
+    func testAbnormalSession() {
+        let session = SentrySession(releaseName: "", distinctId: "some-id")
+        XCTAssertEqual(0, session.errors)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertEqual(1, session.sequence)
+        session.incrementErrors()
+        XCTAssertEqual(1, session.errors)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertEqual(2, session.sequence)
+        session.endAbnormal(withTimestamp: Date())
+        XCTAssertEqual(1, session.errors)
+        XCTAssertEqual(SentrySessionStatus.abnormal, session.status)
+        XCTAssertEqual(3, session.sequence)
+    }
+
+    func testCrashedSession() {
+        let session = SentrySession(releaseName: "", distinctId: "some-id")
+        XCTAssertEqual(1, session.sequence)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        session.endCrashed(withTimestamp: Date())
+        XCTAssertEqual(SentrySessionStatus.crashed, session.status)
+        XCTAssertEqual(2, session.sequence)
+    }
+
+    func testExitedSession() {
+        let session = SentrySession(releaseName: "", distinctId: "some-id")
+        XCTAssertEqual(0, session.errors)
+        XCTAssertEqual(SentrySessionStatus.ok, session.status)
+        XCTAssertEqual(1, session.sequence)
+        session.endExited(withTimestamp: Date())
+        XCTAssertEqual(0, session.errors)
+        XCTAssertEqual(SentrySessionStatus.exited, session.status)
+        XCTAssertEqual(2, session.sequence)
+    }
 }
 
-extension SentrySessionStatus {
-    var description: String {
-        return nameForSentrySessionStatus(self.rawValue)
+extension SentrySession {
+    public func isEqual(to session: SentrySession) -> Bool {
+        if sessionId != session.sessionId
+            || started != session.started
+            || status != session.status
+            || errors != session.errors
+            || sequence != session.sequence
+            || distinctId != session.distinctId
+            || timestamp != session.timestamp
+            || duration != session.duration
+            || releaseName != session.releaseName
+            || environment != session.environment
+            || flagInit != session.flagInit {
+            return false
+        }
+        return true
     }
 }

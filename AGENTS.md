@@ -32,10 +32,36 @@ This file provides comprehensive guidance for AI coding agents working with the 
 ### Testing Instructions
 
 - Find the CI plan in the .github/workflows folder.
-- Run unit tests: `make run-test-server && make test`
+- Run unit tests: `make test` (test server is NOT required for most tests)
 - Run important UI tests: `make test-ui-critical`
 - Fix any test or type errors until the whole suite is green.
 - Add or update tests for the code you change, even if nobody asked.
+
+#### Test Server Requirements
+
+The test server is **only required** for a small subset of network integration tests using the `Sentry_TestServer` xctestplan. The main test suite runs without it by design.
+
+**Key Points:**
+
+- **Most unit tests do NOT require the test server** - Running `make test` executes the full test suite without needing the test server
+- **Only 3 specific tests need it** - Tests in `SentryNetworkTrackerIntegrationTestServerTests` that verify HTTP request tracking with a real server
+- **Separate in CI** - These tests run in a dedicated `unit-tests-with-test-server` job with the `Sentry_TestServer` xctestplan to avoid side effects
+- **Impact analysis first** - Before running test server tests, evaluate if your changes affect network tracking or HTTP request functionality
+- **When asked to run all tests** - You can typically exclude test server tests as they run separately in CI
+- **Always stop the server after use** - The test server runs in the background and must be manually stopped to avoid port conflicts
+
+**Running test server tests (only when needed):**
+
+```bash
+# Only run if changes impact network tracking
+make run-test-server
+
+# Run specific test plan using the sentry-xcodebuild.sh wrapper
+./scripts/sentry-xcodebuild.sh --platform iOS --command test --test-plan Sentry_TestServer
+
+# IMPORTANT: Always stop the test server after use
+make stop-test-server
+```
 
 #### Test Naming Convention
 
@@ -64,7 +90,7 @@ When creating test helpers, mocks, or test data structures, prefer `struct` over
 **Prefer:**
 
 ```swift
-private struct TestItem: BatcherItem {
+private struct TestItem: TelemetryBufferItem {
     var body: String
     // ...
 }
@@ -73,7 +99,7 @@ private struct TestItem: BatcherItem {
 **Avoid (unless reference semantics are required):**
 
 ```swift
-private class TestItem: BatcherItem {
+private class TestItem: TelemetryBufferItem {
     var body: String
     // ...
 }
@@ -88,7 +114,7 @@ private class TestItem: BatcherItem {
 **Example of when class is necessary:**
 
 ```swift
-// MockStorage must be a class because Batcher stores it internally
+// MockStorage must be a class because TelemetryBuffer stores it internally
 // and we need to observe changes from the test. Using a struct would create a copy.
 private class MockStorage: BatchStorage {
     var appendedItems: [TestItem] = []
@@ -488,8 +514,10 @@ The repository includes a Makefile that contains common commands for building, t
 
 - format code: `make format`
 - run static analysis: `make analyze`
-- run unit tests: `make run-test-server && make test`
+- run unit tests: `make test`
 - run important UI tests: `make test-ui-critical`
+- start test server (rarely needed): `make run-test-server`
+- stop test server: `make stop-test-server`
 - build the XCFramework deliverables: `make build-xcframework`
 - lint pod deliverable: `make pod-lint`
 

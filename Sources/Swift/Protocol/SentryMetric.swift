@@ -22,7 +22,7 @@ public struct SentryMetric {
 
     /// The trace ID to associate this metric with distributed tracing.
     ///
-    /// This will be set to a valid non-empty value during processing by the batcher,
+    /// This will be set to a valid non-empty value during processing by the buffer,
     /// which applies scope-based attribute enrichment including trace context.
     public var traceId: SentryId
 
@@ -104,7 +104,7 @@ extension SentryMetric: Encodable {
     }
 }
 
-extension SentryMetric: BatcherItem {
+extension SentryMetric: TelemetryBufferItem {
     var attributesDict: [String: SentryAttributeContent] {
         get {
             attributes

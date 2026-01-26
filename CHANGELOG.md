@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix deadlock in network reachability observer when restarting the SDK (#7246)
+
+## 9.2.0
+
 ### Features
 
 - Add options `options.sessionReplay.includedViewClasses` and `options.sessionReplay.excludedViewClasses` to ignore views from subtree traversal (#7063)

@@ -1,12 +1,12 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-protocol SentryMetricsBufferProtocol {
+protocol SentryMetricsTelemetryBufferProtocol {
     func addMetric(_ metric: SentryMetric, scope: Scope)
     @discardableResult func captureMetrics() -> TimeInterval
 }
 
-protocol SentryMetricsBufferOptionsProtocol {
+protocol SentryMetricsTelemetryBufferOptionsProtocol {
     var enableMetrics: Bool { get }
     var beforeSendMetric: ((SentryMetric) -> SentryMetric?)? { get }
     var environment: String { get }
@@ -15,10 +15,10 @@ protocol SentryMetricsBufferOptionsProtocol {
     var sendDefaultPii: Bool { get }
 }
 
-/// SentryMetricsBuffer is responsible for batching metrics with scope-based attribute enrichment.
-struct SentryMetricsBuffer: SentryMetricsBufferProtocol {
+/// SentryMetricsTelemetryBuffer is responsible for batching metrics with scope-based attribute enrichment.
+struct SentryMetricsTelemetryBuffer: SentryMetricsTelemetryBufferProtocol {
     private let isEnabled: Bool
-    private let buffer: any BatcherProtocol<SentryMetric, Scope>
+    private let buffer: any TelemetryBufferProtocol<SentryMetric, Scope>
 
     /// Initializes a new MetricsBuffer.
     /// - Parameters:
@@ -36,7 +36,7 @@ struct SentryMetricsBuffer: SentryMetricsBufferProtocol {
     ///
     /// - Note: Metrics are flushed when either `maxMetricCount` or `maxBufferSizeBytes` limit is reached.
     init(
-        options: SentryMetricsBufferOptionsProtocol,
+        options: SentryMetricsTelemetryBufferOptionsProtocol,
         flushTimeout: TimeInterval = 5,
         maxMetricCount: Int = 100, // Maximum 100 metrics per batch
         maxBufferSizeBytes: Int = 1_024 * 1_024, // 1MB buffer size for trace metrics
@@ -45,7 +45,7 @@ struct SentryMetricsBuffer: SentryMetricsBufferProtocol {
         capturedDataCallback: @escaping (_ data: Data, _ count: Int) -> Void
     ) {
         self.isEnabled = options.enableMetrics
-        self.buffer = Batcher(
+        self.buffer = TelemetryBuffer(
             config: .init(
                 sendDefaultPii: options.sendDefaultPii,
                 flushTimeout: flushTimeout,
@@ -59,7 +59,7 @@ struct SentryMetricsBuffer: SentryMetricsBufferProtocol {
                 releaseName: options.releaseName,
                 installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
             ),
-            buffer: InMemoryBatchBuffer(),
+            buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue
         )
@@ -87,7 +87,7 @@ struct SentryMetricsBuffer: SentryMetricsBufferProtocol {
     }
 }
 
-extension Options: SentryMetricsBufferOptionsProtocol {
+extension Options: SentryMetricsTelemetryBufferOptionsProtocol {
     // As soon as the feature is not experimental anymore, we can remove these two bridging methods.
         
     var enableMetrics: Bool {
