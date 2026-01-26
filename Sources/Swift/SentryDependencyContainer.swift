@@ -34,6 +34,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #endif
 
 // MARK: - SentryDependencyContainer
+// swiftlint:disable type_body_length
 @_spi(Private) @objc public final class SentryDependencyContainer: NSObject {
 
     // MARK: Private
@@ -222,7 +223,15 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             binaryImageCache: binaryImageCache
         )
 
-        return swizzling
+        return 
+    }
+
+    func getUIEventTracker(_ options: Options) -> SentryUIEventTracker {
+        let mode = SentryUIEventTrackerTransactionMode(idleTimeout: options.idleTimeout)
+        return SentryUIEventTracker(
+            mode: mode,
+            reportAccessibilityIdentifier: options.reportAccessibilityIdentifier
+        )
     }
 #endif
     
@@ -329,6 +338,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 }
+// swiftlint:enable type_body_length
 
 #if os(iOS) && !SENTRY_NO_UIKIT
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
@@ -540,6 +550,11 @@ protocol UIViewControllerSwizzlingBuilder {
     func getUIViewControllerSwizzlingBuilder(_ options: Options) -> SentryUIViewControllerSwizzling
 }
 extension SentryDependencyContainer: UIViewControllerSwizzlingBuilder {}
+
+protocol SentryEventTrackerBuilder {
+    func getUIEventTracker(_ options: Options) -> SentryUIEventTracker
+}
+extension SentryDependencyContainer: SentryEventTrackerBuilder {}
 #endif
 
 //swiftlint:enable file_length missing_docs

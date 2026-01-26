@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-final class SentryMetricsTelemetryBufferTests: XCTestCase {
+final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
     private var options: Options!
     private var testDateProvider: TestCurrentDateProvider!
@@ -33,8 +33,8 @@ final class SentryMetricsTelemetryBufferTests: XCTestCase {
         scope = nil
     }
 
-    private func getSut() -> SentryMetricsTelemetryBuffer {
-        return SentryMetricsTelemetryBuffer(
+    private func getSut() -> DefaultSentryMetricsTelemetryBuffer {
+        return DefaultSentryMetricsTelemetryBuffer(
             options: options,
             flushTimeout: 0.1, // Very small timeout for testing
             maxMetricCount: 10, // Maximum 10 metrics per batch
@@ -177,7 +177,7 @@ final class SentryMetricsTelemetryBufferTests: XCTestCase {
     func testInit_whenFlushTimeoutNotProvided_shouldUseDefaultValue() throws {
         // -- Arrange --
         // Create a new buffer without specifying flushTimeout to use default
-        let defaultBuffer = SentryMetricsTelemetryBuffer(
+        let defaultBuffer = DefaultSentryMetricsTelemetryBuffer(
             options: options,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
@@ -197,7 +197,7 @@ final class SentryMetricsTelemetryBufferTests: XCTestCase {
     func testInit_whenMaxMetricCountNotProvided_shouldUseDefaultValue() throws {
         // -- Arrange --
         // Create a new buffer without specifying maxMetricCount to use default (100)
-        let defaultBuffer = SentryMetricsTelemetryBuffer(
+        let defaultBuffer = DefaultSentryMetricsTelemetryBuffer(
             options: options,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
@@ -228,7 +228,7 @@ final class SentryMetricsTelemetryBufferTests: XCTestCase {
         // Create a new buffer without specifying maxBufferSizeBytes to use default (1MB)
         // Note: Individual trace metrics must not exceed 2KB each (Relay's max_trace_metric_size limit),
         // but the buffer can accumulate up to 1MB before flushing.
-        let defaultBuffer = SentryMetricsTelemetryBuffer(
+        let defaultBuffer = DefaultSentryMetricsTelemetryBuffer(
             options: options,
             flushTimeout: 0.1,
             maxMetricCount: 100_000, // High count to avoid count-based flush, focus on size limit

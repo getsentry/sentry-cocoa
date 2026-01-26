@@ -2,17 +2,17 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-@objc @_spi(Private) public protocol SentryLogBatcherDelegate: AnyObject {
+@objc @_spi(Private) public protocol SentryLogBufferDelegate: AnyObject {
     @objc(captureLogsData:with:)
     func capture(logsData: NSData, count: NSNumber)
 }
 
 @objc
 @objcMembers
-@_spi(Private) public class SentryLogBatcher: NSObject {
+@_spi(Private) public class SentryLogBuffer: NSObject {
     private let options: Options
-    private let buffer: any TelemetryBufferProtocol<SentryLog, Scope>
-    private weak var delegate: SentryLogBatcherDelegate?
+    private let buffer: any TelemetryBuffer<SentryLog, Scope>
+    private weak var delegate: SentryLogBufferDelegate?
 
     /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
     /// Creates its own serial dispatch queue with DEFAULT QoS for thread-safe access to mutable state.
@@ -26,7 +26,7 @@ import Foundation
     @_spi(Private) public convenience init(
         options: Options,
         dateProvider: SentryCurrentDateProvider,
-        delegate: SentryLogBatcherDelegate
+        delegate: SentryLogBufferDelegate
     ) {
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher", isHighPriority: false)
         self.init(
@@ -40,7 +40,7 @@ import Foundation
         )
     }
 
-    /// Initializes a new SentryLogBatcher.
+    /// Initializes a new SentryLogBuffer.
     /// - Parameters:
     ///   - options: The Sentry configuration options
     ///   - flushTimeout: The timeout interval after which buffered logs will be flushed
@@ -60,9 +60,9 @@ import Foundation
         maxBufferSizeBytes: Int,
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
-        delegate: SentryLogBatcherDelegate
+        delegate: SentryLogBufferDelegate
     ) {
-        self.buffer = TelemetryBuffer(
+        self.buffer = DefaultTelemetryBuffer(
             config: .init(
                 sendDefaultPii: options.sendDefaultPii,
                 flushTimeout: flushTimeout,
@@ -71,7 +71,7 @@ import Foundation
                 beforeSendItem: options.beforeSendLog,
                 capturedDataCallback: { [weak delegate] data, count in
                     guard let delegate else {
-                        SentrySDKLog.debug("SentryLogBatcher: Delegate not set, not capturing logs data.")
+                        SentrySDKLog.debug("SentryLogBuffer: Delegate not set, not capturing logs data.")
                         return
                     }
                     delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
