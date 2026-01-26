@@ -7,15 +7,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init
 {
-    self = [self initWithName:"io.sentry.default"];
+    self = [self initWithName:"io.sentry.default" isHighPriority:FALSE];
     return self;
 }
 
-- (instancetype)initWithName:(const char *)name
+- (instancetype)initWithName:(const char *)name isHighPriority:(BOOL)isHighPriority
 {
     if (self = [super init]) {
+        qos_class_t class = isHighPriority ? DISPATCH_QUEUE_PRIORITY_HIGH : QOS_CLASS_DEFAULT;
         dispatch_queue_attr_t attributes
-            = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_DEFAULT, 0);
+            = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, class, 0);
         _queue = dispatch_queue_create(name, attributes);
     }
     return self;

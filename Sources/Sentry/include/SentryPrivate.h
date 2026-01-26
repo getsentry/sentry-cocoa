@@ -37,6 +37,7 @@
 #import "SentryTracer.h"
 #import "SentryUserAccess.h"
 #import "SentryViewHierarchyProviderHelper.h"
+#import "UIViewController+Sentry.h"
 #import "_SentryDispatchQueueWrapperInternal.h"
 
 // Headers that also import SentryDefines should be at the end of this list
@@ -85,5 +86,6 @@
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTraceProfiler.h"
+#import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryUncaughtNSExceptions.h"
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"

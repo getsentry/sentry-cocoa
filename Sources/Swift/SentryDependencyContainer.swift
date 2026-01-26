@@ -202,6 +202,28 @@ extension SentryFileManager: SentryFileManagerProtocol { }
                 scopePersistentStore: scopeStore)
         }
     }
+    
+    func getUIViewControllerSwizzlingBuilder(_ options: Options) -> SentryUIViewControllerSwizzling {
+        
+        let dispatchQueue = dispatchFactory.createHighPriorityQueue("io.sentry.ui-view-controller-swizzling")
+
+        let subClassFinder = SentrySubClassFinder(
+            dispatchQueue: dispatchQueue,
+            objcRuntimeWrapper: objcRuntimeWrapper,
+            swizzleClassNameExcludes: options.swizzleClassNameExcludes
+        )
+
+        let swizzling = SentryUIViewControllerSwizzling(
+            options: options,
+            dispatchQueue: dispatchQueue,
+            objcRuntimeWrapper: objcRuntimeWrapper,
+            subClassFinder: subClassFinder,
+            processInfoWrapper: processInfoWrapper,
+            binaryImageCache: binaryImageCache
+        )
+
+        return swizzling
+    }
 #endif
     
     private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
@@ -497,5 +519,27 @@ protocol CrashInstallationReporterBuilder {
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter
 }
 extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
+
+protocol ObjCRuntimeWrapperProvider {
+    var objcRuntimeWrapper: SentryObjCRuntimeWrapper { get }
+}
+extension SentryDependencyContainer: ObjCRuntimeWrapperProvider {}
+
+protocol BinaryImageCacheProvider {
+    var binaryImageCache: SentryBinaryImageCache { get }
+}
+extension SentryDependencyContainer: BinaryImageCacheProvider {}
+
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+protocol UIViewControllerPerformanceTrackerProvider {
+    var uiViewControllerPerformanceTracker: SentryUIViewControllerPerformanceTracker { get }
+}
+extension SentryDependencyContainer: UIViewControllerPerformanceTrackerProvider {}
+
+protocol UIViewControllerSwizzlingBuilder {
+    func getUIViewControllerSwizzlingBuilder(_ options: Options) -> SentryUIViewControllerSwizzling
+}
+extension SentryDependencyContainer: UIViewControllerSwizzlingBuilder {}
+#endif
 
 //swiftlint:enable file_length missing_docs

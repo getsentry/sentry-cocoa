@@ -57,6 +57,7 @@ private struct AnyIntegration {
         ])
 
         #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+        integrations.append(.init(SentryPerformanceTrackingIntegration.self))
         integrations.append(.init(SentryFramesTrackingIntegration<SentryDependencyContainer>.self))
         integrations.append(.init(SentryWatchdogTerminationTrackingIntegration.self))
         #endif

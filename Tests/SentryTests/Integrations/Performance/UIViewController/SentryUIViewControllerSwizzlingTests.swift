@@ -1,4 +1,4 @@
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 
 @_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
@@ -150,7 +150,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let mockWindowScene = ObjectWithWindowsProperty(resultOfWindows: [window])
         
         let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: mockWindowScene)
-        swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
+        swizzler.swizzleRootViewControllerFromSceneDelegateNotification(notification)
         
         XCTAssertEqual(swizzler.viewControllers.count, 1)
         XCTAssertTrue(try XCTUnwrap(swizzler.viewControllers.first) is TestViewController)
@@ -218,7 +218,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let swizzler = fixture.testableSut
         
         let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: nil)
-        swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
+        swizzler.swizzleRootViewControllerFromSceneDelegateNotification(notification)
         
         XCTAssertEqual(swizzler.viewControllers.count, 0)
     }
@@ -231,7 +231,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let mockWindowScene = ObjectWithWindowsProperty(resultOfWindows: window)
         
         let notification = Notification(name: NSNotification.Name(rawValue: "NotUISceneWillConnectNotification"), object: mockWindowScene)
-        swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
+        swizzler.swizzleRootViewControllerFromSceneDelegateNotification(notification)
 
         XCTAssertEqual(swizzler.viewControllers.count, 0)
     }
@@ -240,7 +240,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let swizzler = fixture.testableSut
         
         let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: "Other type of Object")
-        swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
+        swizzler.swizzleRootViewControllerFromSceneDelegateNotification(notification)
         
         XCTAssertEqual(swizzler.viewControllers.count, 0)
     }
@@ -248,49 +248,43 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     func testSwizzle_fromScene_invalidNotification_ObjectWithWrongWindowProperty() {
         let swizzler = fixture.testableSut
         let notification = Notification(name: NSNotification.Name(rawValue: "UISceneWillConnectNotification"), object: ObjectWithWindowsProperty(resultOfWindows: "Windows property of the wrong type"))
-        swizzler.swizzleRootViewController(fromSceneDelegateNotification: notification)
+        swizzler.swizzleRootViewControllerFromSceneDelegateNotification(notification)
         
         XCTAssertEqual(swizzler.viewControllers.count, 0)
     }
     
     func testSwizzle_fromApplication_noDelegate() {
-        XCTAssertFalse(fixture.sut.swizzleRootViewController(from: MockApplication()))
+        XCTAssertFalse(fixture.sut.swizzleRootViewControllerFromUIApplication(MockApplication()))
     }
     
     func testSwizzle_fromApplication_noWindowMethod() {
         let mockApplicationDelegate = MockApplication.MockApplicationDelegateNoWindow()
         let mockApplication = MockApplication(mockApplicationDelegate)
-        XCTAssertFalse(fixture.sut.swizzleRootViewController(from: mockApplication))
+        XCTAssertFalse(fixture.sut.swizzleRootViewControllerFromUIApplication(mockApplication))
     }
     
     func testSwizzle_fromApplication_noWindow() {
         let mockApplicationDelegate = MockApplication.MockApplicationDelegate(nil)
         let mockApplication = MockApplication(mockApplicationDelegate)
-        XCTAssertFalse(fixture.sut.swizzleRootViewController(from: mockApplication))
+        XCTAssertFalse(fixture.sut.swizzleRootViewControllerFromUIApplication(mockApplication))
     }
 
     func testSwizzle_fromApplication_noRootViewController_InWindow() {
         let mockApplicationDelegate = MockApplication.MockApplicationDelegate(UIWindow())
         let mockApplication = MockApplication(mockApplicationDelegate)
-        XCTAssertFalse(fixture.sut.swizzleRootViewController(from: mockApplication))
+        XCTAssertFalse(fixture.sut.swizzleRootViewControllerFromUIApplication(mockApplication))
     }
     
     func testSwizzle_fromApplication() {
         // We must keep one strong reference to the delegate. The mock has only a weak.
         let delegate = fixture.delegate
-        XCTAssertTrue(fixture.sut.swizzleRootViewController(from: MockApplication(delegate)))
-    }
-    
-    func testSwizzleUIViewControllersOfClassesInImageOf_ClassIsNull() {
-        fixture.sut.swizzleUIViewControllersOfClasses(inImageOf: nil)
-        
-        XCTAssertEqual(0, fixture.subClassFinder.invocations.count)
+        XCTAssertTrue(fixture.sut.swizzleRootViewControllerFromUIApplication(MockApplication(delegate)))
     }
     
     func testSwizzleUIViewControllersOfClassesInImageOf_ClassIsFromUIKit_NotSwizzled() {
         let sut = fixture.sutWithDefaultObjCRuntimeWrapper
         
-        sut.swizzleUIViewControllersOfClasses(inImageOf: UIViewController.self)
+        sut.swizzleUIViewControllersOfClassesInImageOf(UIViewController.self)
         
         XCTAssertEqual(0, fixture.subClassFinder.invocations.count)
     }
@@ -298,7 +292,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     func testSwizzleUIViewControllersOfClassesInImageOf_OtherClass_Swizzled() {
         let sut = fixture.sutWithDefaultObjCRuntimeWrapper
         
-        sut.swizzleUIViewControllersOfClasses(inImageOf: XCTestCase.self)
+        sut.swizzleUIViewControllersOfClassesInImageOf(XCTestCase.self)
         
         XCTAssertEqual(1, fixture.subClassFinder.invocations.count)
     }
@@ -306,8 +300,8 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     func testSwizzleUIViewControllersOfClassesInImageOf_SameClass_OnceSwizzled() {
         let sut = fixture.sutWithDefaultObjCRuntimeWrapper
         
-        sut.swizzleUIViewControllersOfClasses(inImageOf: XCTestCase.self)
-        sut.swizzleUIViewControllersOfClasses(inImageOf: XCTestCase.self)
+        sut.swizzleUIViewControllersOfClassesInImageOf(XCTestCase.self)
+        sut.swizzleUIViewControllersOfClassesInImageOf(XCTestCase.self)
         
         XCTAssertEqual(1, fixture.subClassFinder.invocations.count)
     }
@@ -319,7 +313,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
 }
 
-class MockApplication: NSObject, SentryUIApplication {
+private class MockApplication: NSObject, SentryUIApplication {
     class MockApplicationDelegate: NSObject, UIApplicationDelegate {
         var window: UIWindow?
         
@@ -378,7 +372,7 @@ class TestSentryUIViewControllerSwizzling: SentryUIViewControllerSwizzling {
     }
 }
 
-class TestSubClassFinder: SentrySubClassFinder {
+private class TestSubClassFinder: SentrySubClassFinder {
     
     var invocations = Invocations<(imageName: String, block: (AnyClass) -> Void)>()
     override func actOnSubclassesOfViewController(inImage imageName: String, block: @escaping (AnyClass) -> Void) {
@@ -387,4 +381,4 @@ class TestSubClassFinder: SentrySubClassFinder {
     }
 }
 
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif

@@ -8,8 +8,6 @@
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackerTransactionMode.h"
 #    import "SentryUIEventTrackingIntegration.h"
-#    import "SentryUIViewControllerSwizzling+Test.h"
-#    import "SentryUIViewControllerSwizzling.h"
 #    import "UIViewController+Sentry.h"
 #endif // SENTRY_HAS_UIKIT
 
@@ -124,7 +122,6 @@
 #import "SentryOptionsInternal.h"
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryPerformanceTracker.h"
-#import "SentryPerformanceTrackingIntegration.h"
 #import "SentryPredicateDescriptor.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryQueueableRequestManager.h"
@@ -142,7 +139,6 @@
 #import "SentrySpotlightTransport.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
-#import "SentrySubClassFinder.h"
 #import "SentrySwift.h"
 #import "SentrySystemEventBreadcrumbs.h"
 #import "SentrySystemWrapper.h"
