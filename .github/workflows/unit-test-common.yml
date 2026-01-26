@@ -260,9 +260,9 @@ jobs:
         with:
           name: raw-output-${{inputs.scheme}}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
           path: |
-            raw-build-output.log
-            raw-build-for-testing-output.log
-            raw-test-output.log
+            ${{ inputs.working_directory }}/raw-build-output.log
+            ${{ inputs.working_directory }}/raw-build-for-testing-output.log
+            ${{ inputs.working_directory }}/raw-test-output.log
 
       - name: Archiving Crash Logs
         uses: actions/upload-artifact@v6
@@ -278,8 +278,8 @@ jobs:
         with:
           name: result-bundle-${{inputs.scheme}}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
           path: |
-            results.xcresult
-            flaky-results.xcresult
+            ${{ inputs.working_directory }}/results.xcresult
+            ${{ inputs.working_directory }}/flaky-results.xcresult
 
       - name: Gather code coverage information via slather
         if: ${{ !inputs.test_spm_package }}
