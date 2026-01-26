@@ -809,9 +809,9 @@ class SentryHttpTransportTests: XCTestCase {
         // Assert that error was logged with size and item types
         let logMessages = logOutput.loggedMessages.filter {
             $0.contains("[Sentry] [error]") &&
-            $0.contains("Envelope discarded due to size limit") &&
-            $0.contains("bytes (compressed)") &&
-            $0.contains("item types:")
+            $0.contains("Upstream returned HTTP 413 Content Too Large") &&
+            $0.contains("The envelope size in bytes (compressed):") &&
+            $0.contains("item types (")
         }
         XCTAssertEqual(logMessages.count, 1, "HTTP 413 should log error message")
     }
