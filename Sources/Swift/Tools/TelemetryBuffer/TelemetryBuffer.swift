@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-protocol TelemetryBufferProtocol<Item, Scope>: AnyObject {
+protocol TelemetryBuffer<Item, Scope>: AnyObject {
     associatedtype Item: TelemetryBufferItem
     associatedtype Scope: TelemetryBufferScope
 
@@ -9,7 +9,7 @@ protocol TelemetryBufferProtocol<Item, Scope>: AnyObject {
     func capture() -> TimeInterval
 }
 
-final class TelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<Item>, Item: TelemetryBufferItem, Scope: TelemetryBufferScope>: TelemetryBufferProtocol {
+final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<Item>, Item: TelemetryBufferItem, Scope: TelemetryBufferScope>: TelemetryBuffer {
     struct Config: TelemetryBufferConfig {
         let sendDefaultPii: Bool
 

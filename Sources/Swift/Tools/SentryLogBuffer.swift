@@ -11,7 +11,7 @@ import Foundation
 @objcMembers
 @_spi(Private) public class SentryLogBuffer: NSObject {
     private let options: Options
-    private let buffer: any TelemetryBufferProtocol<SentryLog, Scope>
+    private let buffer: any TelemetryBuffer<SentryLog, Scope>
     private weak var delegate: SentryLogBufferDelegate?
 
     /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
@@ -62,7 +62,7 @@ import Foundation
         dispatchQueue: SentryDispatchQueueWrapper,
         delegate: SentryLogBufferDelegate
     ) {
-        self.buffer = TelemetryBuffer(
+        self.buffer = DefaultTelemetryBuffer(
             config: .init(
                 sendDefaultPii: options.sendDefaultPii,
                 flushTimeout: flushTimeout,
