@@ -223,7 +223,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             binaryImageCache: binaryImageCache
         )
 
-        return 
+        return swizzling
     }
 
     func getUIEventTracker(_ options: Options) -> SentryUIEventTracker {
