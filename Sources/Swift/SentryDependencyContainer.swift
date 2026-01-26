@@ -205,7 +205,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     
     func getUIViewControllerSwizzlingBuilder(_ options: Options) -> SentryUIViewControllerSwizzling {
-        
+
         let dispatchQueue = dispatchFactory.createHighPriorityQueue("io.sentry.ui-view-controller-swizzling")
 
         let subClassFinder = SentrySubClassFinder(
@@ -220,7 +220,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             objcRuntimeWrapper: objcRuntimeWrapper,
             subClassFinder: subClassFinder,
             processInfoWrapper: processInfoWrapper,
-            binaryImageCache: binaryImageCache
+            binaryImageCache: binaryImageCache,
+            performanceTracker: uiViewControllerPerformanceTracker
         )
 
         return swizzling

@@ -13,30 +13,31 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let subClassFinder: TestSubClassFinder
         let processInfoWrapper = MockSentryProcessInfo()
         let binaryImageCache: SentryBinaryImageCache
+        let performanceTracker = SentryUIViewControllerPerformanceTracker()
         var options: Options
-        
+
         init() {
             subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, swizzleClassNameExcludes: [])
             binaryImageCache = SentryDependencyContainer.sharedInstance().binaryImageCache
-            
+
             options = Options.noIntegrations()
-            
+
             let imageName = String(
                 cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
                 encoding: .utf8)! as NSString
             options.add(inAppInclude: imageName.lastPathComponent)
         }
-        
+
         var sut: SentryUIViewControllerSwizzling {
-            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache)
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache, performanceTracker: performanceTracker)
         }
-        
+
         var sutWithDefaultObjCRuntimeWrapper: SentryUIViewControllerSwizzling {
-            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: SentryDependencyContainer.sharedInstance().objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache)
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: SentryDependencyContainer.sharedInstance().objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache, performanceTracker: performanceTracker)
         }
-        
+
         var testableSut: TestSentryUIViewControllerSwizzling {
-            return TestSentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache)
+            return TestSentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache, performanceTracker: performanceTracker)
         }
         
         var delegate: MockApplication.MockApplicationDelegate {

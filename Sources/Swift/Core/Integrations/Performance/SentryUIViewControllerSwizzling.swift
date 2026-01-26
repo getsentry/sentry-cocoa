@@ -20,6 +20,7 @@ class SentryUIViewControllerSwizzling {
     private let imagesActedOnSubclassesOfUIViewControllers: NSMutableSet
     private let processInfoWrapper: SentryProcessInfoSource
     private let binaryImageCache: SentryBinaryImageCache
+    private let performanceTracker: SentryUIViewControllerPerformanceTracker
 
     init(
         options: Options,
@@ -27,7 +28,8 @@ class SentryUIViewControllerSwizzling {
         objcRuntimeWrapper: SentryObjCRuntimeWrapper,
         subClassFinder: SentrySubClassFinder,
         processInfoWrapper: SentryProcessInfoSource,
-        binaryImageCache: SentryBinaryImageCache
+        binaryImageCache: SentryBinaryImageCache,
+        performanceTracker: SentryUIViewControllerPerformanceTracker
     ) {
         self.options = options
         self.inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
@@ -37,6 +39,7 @@ class SentryUIViewControllerSwizzling {
         self.imagesActedOnSubclassesOfUIViewControllers = NSMutableSet()
         self.processInfoWrapper = processInfoWrapper
         self.binaryImageCache = binaryImageCache
+        self.performanceTracker = performanceTracker
     }
 
     func start() {
@@ -73,8 +76,7 @@ class SentryUIViewControllerSwizzling {
             }
         }
 
-        SentryUIViewControllerSwizzlingHelper.swizzleUIViewController()
-        let performanceTracker = SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker
+        SentryUIViewControllerSwizzlingHelper.swizzleUIViewController(withTracker: performanceTracker)
         performanceTracker.inAppLogic = inAppLogic
     }
 
