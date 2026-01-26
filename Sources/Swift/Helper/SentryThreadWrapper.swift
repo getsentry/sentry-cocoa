@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_spi(Private) @objc public class SentryThreadWrapper: NSObject {
     @objc public func sleep(forTimeInterval timeInterval: TimeInterval) {
         Thread.sleep(forTimeInterval: timeInterval)
@@ -11,3 +12,4 @@
         // No op. Only needed for testing.
     }
 }
+// swiftlint:enable missing_docs

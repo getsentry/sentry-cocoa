@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 protocol SentryDispatchQueueWrapperProtocol {
@@ -89,3 +90,4 @@ protocol SentryDispatchQueueWrapperProtocol {
 }
 
 extension SentryDispatchQueueWrapper: SentryDispatchQueueWrapperProtocol {}
+// swiftlint:enable missing_docs

@@ -71,7 +71,7 @@ class LaunchUITests: XCTestCase {
 }
 
 extension XCUIApplication {
-    public func safelyLaunch() {
+    func safelyLaunch() {
         // Calling activate() and then launch() effectively launches the app twice, interfering with
         // local debugging. Only call activate if there isn't a debugger attached, which is a decent
         // proxy for whether this is running in CI.

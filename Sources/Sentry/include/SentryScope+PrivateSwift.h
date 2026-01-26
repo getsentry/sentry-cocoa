@@ -16,7 +16,19 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
  */
 @property (atomic, strong) SentryUser *_Nullable userObject;
 
+@property (nonatomic, nullable, copy) NSString *currentScreen;
+
+- (NSArray<SentryBreadcrumb *> *)breadcrumbs;
+
 - (NSDictionary<NSString *, id> *_Nullable)getContextForKey:(NSString *)key;
+
+/**
+ * Adds a scope observer. The observer will be notified of scope changes.
+ * The observer should conform to SentryScopeObserver protocol, but the type is id
+ * because Swift-defined protocols don't work correctly with Objective-C's id<Protocol> syntax.
+ */
+- (void)addScopeObserver:(SENTRY_SWIFT_MIGRATION_ID(id<SentryScopeObserver>))observer
+    NS_SWIFT_NAME(add(_:));
 
 @end
 

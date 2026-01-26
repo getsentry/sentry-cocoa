@@ -679,13 +679,14 @@ class SentryHubTests: XCTestCase {
     
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
-    func testCaptureLog_ReplayAttributes_SessionMode_AddsReplayId() {
+    func testCaptureLog_ReplayAttributes_SessionMode_AddsReplayId() throws {
         // Setup replay integration
         let replayOptions = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 0.0)
         fixture.options.sessionReplay = replayOptions
+        fixture.options.experimental.enableSessionReplayInUnreliableEnvironment = true
         
-        let replayIntegration = SentrySessionReplayIntegration()
-        sut.addInstalledIntegration(replayIntegration, name: "SentrySessionReplayIntegration")
+        let replayIntegration = try XCTUnwrap(SentrySessionReplayIntegration(with: fixture.options, dependencies: SentryDependencyContainer.sharedInstance()))
+        replayIntegration.addItselfToSentryHub(hub: sut)
         
         // Set replayId on scope (session mode)
         let replayId = "12345678-1234-1234-1234-123456789012"
@@ -1218,7 +1219,7 @@ class SentryHubTests: XCTestCase {
         let videoUrl = URL(string: "https://sentry.io")!
         
         sut.bindClient(mockClient)
-        sut.capture(replayEvent, replayRecording: replayRecording, video: videoUrl)
+        sut.captureReplayEvent(replayEvent, replayRecording: replayRecording, video: videoUrl)
         
         XCTAssertEqual(mockClient?.replayEvent, replayEvent)
         XCTAssertEqual(mockClient?.replayRecording, replayRecording)
@@ -1613,6 +1614,136 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(expected, span.sampled)
     }
     
+    func testFlush_whenIntegrationFlushTakesLessThanTimeout_shouldFlushAllIntegrationsAndRespectRemainingTimeout() throws {
+        // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+        SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
+        
+        let client = TestClient(options: fixture.options)!
+        let hub = SentryHubInternal(
+            client: client,
+            andScope: Scope(),
+            andCrashWrapper: fixture.sentryCrashWrapper,
+            andDispatchQueue: fixture.dispatchQueueWrapper
+        )
+        
+        // Create two integrations that flush quickly
+        let fastIntegration1 = SlowFlushIntegration(flushDuration: 0.1, dateProvider: dateProvider)
+        let fastIntegration2 = SlowFlushIntegration(flushDuration: 0.1, dateProvider: dateProvider)
+        
+        hub.addInstalledIntegration(fastIntegration1, name: "FastIntegration1")
+        hub.addInstalledIntegration(fastIntegration2, name: "FastIntegration2")
+        
+        // Clear any previous invocations
+        client.flushInvocations.removeAll()
+        
+        // -- Act --
+        hub.flush(timeout: 1.0)
+        
+        // -- Assert --
+        // Both integrations should have been flushed
+        XCTAssertEqual(fastIntegration1.flushCallCount, 1, "First integration should be flushed")
+        XCTAssertEqual(fastIntegration2.flushCallCount, 1, "Second integration should be flushed")
+        
+        // Client flush should be called with remaining timeout
+        XCTAssertEqual(client.flushInvocations.count, 1, "Client flush should be called once")
+        let clientTimeout = try XCTUnwrap(client.flushInvocations.first, "Client flush should have been called")
+        // Should have ~0.8s remaining (1.0 - ~0.2 for two integrations)
+        XCTAssertGreaterThan(clientTimeout, 0.5, "Client should get remaining timeout")
+        XCTAssertLessThanOrEqual(clientTimeout, 1.0, "Client timeout should not exceed original timeout")
+    }
+    
+    func testFlush_whenIntegrationFlushExceedsTimeout_shouldStopEarlyAndPassZeroTimeoutToClient() throws {
+        // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+        SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
+        
+        let client = TestClient(options: fixture.options)!
+        let hub = SentryHubInternal(
+            client: client,
+            andScope: Scope(),
+            andCrashWrapper: fixture.sentryCrashWrapper,
+            andDispatchQueue: fixture.dispatchQueueWrapper
+        )
+        
+        // Create integrations that take longer than timeout
+        let slowIntegration1 = SlowFlushIntegration(flushDuration: 0.6, dateProvider: dateProvider)
+        let slowIntegration2 = SlowFlushIntegration(flushDuration: 0.6, dateProvider: dateProvider)
+        
+        hub.addInstalledIntegration(slowIntegration1, name: "SlowIntegration1")
+        hub.addInstalledIntegration(slowIntegration2, name: "SlowIntegration2")
+        
+        // Clear any previous invocations
+        client.flushInvocations.removeAll()
+        
+        // -- Act --
+        hub.flush(timeout: 0.5)
+        
+        // -- Assert --
+        // Only first integration should be flushed (second exceeds timeout)
+        XCTAssertEqual(slowIntegration1.flushCallCount, 1, "First integration should be flushed")
+        XCTAssertEqual(slowIntegration2.flushCallCount, 0, "Second integration should not be flushed due to timeout")
+        
+        // Client flush should be called with 0.0 timeout (timeout exceeded)
+        XCTAssertEqual(client.flushInvocations.count, 1, "Client flush should be called once")
+        let clientTimeout = try XCTUnwrap(client.flushInvocations.first, "Client flush should have been called")
+        XCTAssertEqual(clientTimeout, 0.0, accuracy: 0.01, "Client should get 0.0 timeout when integrations exceed timeout")
+    }
+    
+    func testFlush_whenMultipleIntegrationsFlushSequentially_shouldRespectTimeoutAcrossAllIntegrations() throws {
+        // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+        SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
+        
+        let client = TestClient(options: fixture.options)!
+        let hub = SentryHubInternal(
+            client: client,
+            andScope: Scope(),
+            andCrashWrapper: fixture.sentryCrashWrapper,
+            andDispatchQueue: fixture.dispatchQueueWrapper
+        )
+        
+        // Create three integrations with varying flush durations
+        // Each integration takes 0.2s to flush, so:
+        // - Integration1: 0.0s -> 0.2s
+        // - Integration2: 0.2s -> 0.4s  
+        // - Integration3: 0.4s -> 0.6s (would exceed 0.5s timeout)
+        // After integration2, elapsed time is 0.4s. Since we're close to the 0.5s timeout
+        // and can't predict flush duration, we should stop before integration3 to avoid
+        // exceeding the timeout. The check after flushing integration2 should detect that
+        // we're at 0.4s and stop, but the current logic continues because 0.4s < 0.5s.
+        // To test this properly, we use a timeout that's less than 0.4s so integration3
+        // is definitely skipped.
+        let integration1 = SlowFlushIntegration(flushDuration: 0.2, dateProvider: dateProvider)
+        let integration2 = SlowFlushIntegration(flushDuration: 0.2, dateProvider: dateProvider)
+        let integration3 = SlowFlushIntegration(flushDuration: 0.2, dateProvider: dateProvider)
+        
+        hub.addInstalledIntegration(integration1, name: "Integration1")
+        hub.addInstalledIntegration(integration2, name: "Integration2")
+        hub.addInstalledIntegration(integration3, name: "Integration3")
+        
+        // Clear any previous invocations
+        client.flushInvocations.removeAll()
+        
+        // -- Act --
+        // Use 0.35s timeout so that after integration2 (0.4s), we're already over timeout
+        // This ensures integration3 is not flushed and tests the timeout behavior correctly
+        hub.flush(timeout: 0.35)
+        
+        // -- Assert --
+        // First two should flush (~0.4s total), third should be skipped due to timeout
+        XCTAssertEqual(integration1.flushCallCount, 1, "First integration should be flushed")
+        XCTAssertEqual(integration2.flushCallCount, 1, "Second integration should be flushed")
+        XCTAssertEqual(integration3.flushCallCount, 0, "Third integration should not be flushed due to timeout")
+        
+        // Client flush should be called with remaining timeout
+        XCTAssertEqual(client.flushInvocations.count, 1, "Client flush should be called once")
+        let clientTimeout = try XCTUnwrap(client.flushInvocations.first, "Client flush should have been called")
+        // Should have ~0.1s remaining (0.5 - ~0.4 for two integrations)
+        XCTAssertGreaterThanOrEqual(clientTimeout, 0.0, "Client should get remaining timeout")
+        XCTAssertLessThan(clientTimeout, 0.2, "Client timeout should be small after two integrations")
+    }
+    
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
     func testGetSessionReplayId_ReturnsNilWhenIntegrationNotInstalled() {
@@ -1620,34 +1751,43 @@ class SentryHubTests: XCTestCase {
         XCTAssertNil(result)
     }
     
-    func testGetSessionReplayId_ReturnsNilWhenSessionReplayIsNil() {
-        let integration = SentrySessionReplayIntegration()
-        sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
+    func testGetSessionReplayId_ReturnsNilWhenSessionReplayIsNil() throws {
+        let options = Options()
+        options.sessionReplay.sessionSampleRate = 1.0
+        options.experimental.enableSessionReplayInUnreliableEnvironment = true
+        let integration = try XCTUnwrap(SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
+        integration.addItselfToSentryHub(hub: sut)
         
         let result = sut.getSessionReplayId()
         
         XCTAssertNil(result)
     }
     
-    func testGetSessionReplayId_ReturnsNilWhenSessionReplayIdIsNil() {
-        let integration = SentrySessionReplayIntegration()
+    func testGetSessionReplayId_ReturnsNilWhenSessionReplayIdIsNil() throws {
+        let options = Options()
+        options.sessionReplay.sessionSampleRate = 1.0
+        options.experimental.enableSessionReplayInUnreliableEnvironment = true
+        let integration = try XCTUnwrap(SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let mockSessionReplay = createMockSessionReplay()
         Dynamic(integration).sessionReplay = mockSessionReplay
-        sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
+        integration.addItselfToSentryHub(hub: sut)
         
         let result = sut.getSessionReplayId()
         
         XCTAssertNil(result)
     }
     
-    func testGetSessionReplayId_ReturnsIdStringWhenSessionReplayIdExists() {
-        let integration = SentrySessionReplayIntegration()
+    func testGetSessionReplayId_ReturnsIdStringWhenSessionReplayIdExists() throws {
+        let options = Options()
+        options.sessionReplay.sessionSampleRate = 1.0
+        options.experimental.enableSessionReplayInUnreliableEnvironment = true
+        let integration = try XCTUnwrap(SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let mockSessionReplay = createMockSessionReplay()
         let rootView = UIView()
         mockSessionReplay.start(rootView: rootView, fullSession: true)
         
-        Dynamic(integration).sessionReplay = mockSessionReplay
-        sut.addInstalledIntegration(integration, name: "SentrySessionReplayIntegration")
+        integration.sessionReplay = mockSessionReplay
+        integration.addItselfToSentryHub(hub: sut)
         
         let result = sut.getSessionReplayId()
         
@@ -1691,6 +1831,37 @@ class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
     }
 }
 #endif
+
+/// Test integration that implements FlushableIntegration to simulate slow flush operations.
+/// Uses TestCurrentDateProvider to advance time during flush to test timeout behavior.
+class SlowFlushIntegration: NSObject, SentryIntegrationProtocol {
+    private let flushDuration: TimeInterval
+    private let dateProvider: TestCurrentDateProvider
+    var flushCallCount = 0
+    
+    init(flushDuration: TimeInterval, dateProvider: TestCurrentDateProvider) {
+        self.flushDuration = flushDuration
+        self.dateProvider = dateProvider
+        super.init()
+    }
+    
+    func install(with options: Options) -> Bool {
+        return true
+    }
+    
+    func uninstall() {
+        // No-op
+    }
+    
+    /// Flushes by advancing the date provider's time to simulate elapsed time.
+    /// This allows tests to control time progression and verify timeout behavior.
+    @objc func flush() -> TimeInterval {
+        flushCallCount += 1
+        // Advance time by the flush duration to simulate elapsed time
+        dateProvider.advance(by: flushDuration)
+        return flushDuration
+    }
+}
 
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)

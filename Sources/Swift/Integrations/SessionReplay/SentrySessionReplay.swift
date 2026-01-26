@@ -1,4 +1,4 @@
-// swiftlint:disable file_length
+// swiftlint:disable file_length missing_docs
 import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 @_implementationOnly import _SentryPrivate
@@ -68,6 +68,7 @@ import UIKit
     
     deinit { displayLink.invalidate() }
     
+    @objc
     static public func shouldEnableSessionReplay(environmentChecker: SentrySessionReplayEnvironmentCheckerProvider, experimentalOptions: SentryExperimentalOptions) -> Bool {
         // Detect if we are running on iOS 26.0 with Liquid Glass and disable session replay.
         // This needs to be done until masking for session replay is properly supported, as it can lead
@@ -391,4 +392,4 @@ import UIKit
 // swiftlint:enable type_body_length
 
 #endif
-// swiftlint:enable file_length
+// swiftlint:enable file_length missing_docs

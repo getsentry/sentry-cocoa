@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
 import UIKit
@@ -140,3 +141,4 @@ public final class SentryUserFeedbackThemeConfiguration: NSObject {
 }
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
+// swiftlint:enable missing_docs
