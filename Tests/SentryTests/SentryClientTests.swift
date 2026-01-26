@@ -2398,9 +2398,9 @@ class SentryClientTests: XCTestCase {
     func testCaptureLog() throws {
         let sut = fixture.getSut()
         
-        // Create a test log batcher to verify addLog is called
-        let testDelegate = TestLogBatcherDelegateForClient()
-        let testBatcher = TestLogBatcherForClient(
+        // Create a test log buffer to verify addLog is called
+        let testDelegate = TestLogBufferDelegateForClient()
+        let testBuffer = TestLogBufferForClient(
             options: sut.options,
             flushTimeout: 5,
             maxLogCount: 100,
@@ -2409,7 +2409,7 @@ class SentryClientTests: XCTestCase {
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
-        Dynamic(sut).logBatcher = testBatcher
+        Dynamic(sut).logBuffer = testBuffer
         
         let log = SentryLog(
             timestamp: Date(timeIntervalSince1970: 1_627_846_801),
@@ -2422,17 +2422,17 @@ class SentryClientTests: XCTestCase {
         
         sut._swiftCaptureLog(log, with: scope)
         
-        // Verify that the log was passed to the log batcher
-        XCTAssertEqual(testBatcher.addLogInvocations.count, 1)
-        XCTAssertEqual(testBatcher.addLogInvocations.first?.log.body, "Test log message")
-        XCTAssertEqual(testBatcher.addLogInvocations.first?.log.level, .info)
+        // Verify that the log was passed to the log buffer
+        XCTAssertEqual(testBuffer.addLogInvocations.count, 1)
+        XCTAssertEqual(testBuffer.addLogInvocations.first?.log.body, "Test log message")
+        XCTAssertEqual(testBuffer.addLogInvocations.first?.log.level, .info)
     }
     
-    func testFlushCallsLogBatcherCaptureLogs() {
+    func testFlushCallsLogBufferCaptureLogs() {
         let sut = fixture.getSut()
         
-        let testDelegate = TestLogBatcherDelegateForClient()
-        let testBatcher = TestLogBatcherForClient(
+        let testDelegate = TestLogBufferDelegateForClient()
+        let testBuffer = TestLogBufferForClient(
             options: sut.options,
             flushTimeout: 5,
             maxLogCount: 100,
@@ -2441,20 +2441,20 @@ class SentryClientTests: XCTestCase {
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
-        Dynamic(sut).logBatcher = testBatcher
+        Dynamic(sut).logBuffer = testBuffer
         
-        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 0)
+        XCTAssertEqual(testBuffer.captureLogsInvocations.count, 0)
         
         sut.flush(timeout: 1.0)
         
-        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
+        XCTAssertEqual(testBuffer.captureLogsInvocations.count, 1)
     }
     
-    func testCaptureLogsCallsLogBatcherCaptureLogs() {
+    func testCaptureLogsCallsLogBufferCaptureLogs() {
         let sut = fixture.getSut()
         
-        let testDelegate = TestLogBatcherDelegateForClient()
-        let testBatcher = TestLogBatcherForClient(
+        let testDelegate = TestLogBufferDelegateForClient()
+        let testBuffer = TestLogBufferForClient(
             options: sut.options,
             flushTimeout: 5,
             maxLogCount: 100,
@@ -2463,13 +2463,13 @@ class SentryClientTests: XCTestCase {
             dispatchQueue: TestSentryDispatchQueueWrapper(),
             delegate: testDelegate
         )
-        Dynamic(sut).logBatcher = testBatcher
+        Dynamic(sut).logBuffer = testBuffer
         
-        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 0)
+        XCTAssertEqual(testBuffer.captureLogsInvocations.count, 0)
         
         sut.captureLogs()
         
-        XCTAssertEqual(testBatcher.captureLogsInvocations.count, 1)
+        XCTAssertEqual(testBuffer.captureLogsInvocations.count, 1)
     }
     
     func testCaptureMetricsData_whenCalled_shouldCreateEnvelopeWithCorrectItem() throws {
@@ -2755,7 +2755,7 @@ private extension SentryClientTests {
     
 }
 
-final class TestLogBatcherForClient: SentryLogBatcher {
+final class TestLogBufferForClient: SentryLogBuffer {
     var addLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
     var captureLogsInvocations = Invocations<Void>()
     
@@ -2770,7 +2770,7 @@ final class TestLogBatcherForClient: SentryLogBatcher {
     }
 }
 
-final class TestLogBatcherDelegateForClient: NSObject, SentryLogBatcherDelegate {
+final class TestLogBufferDelegateForClient: NSObject, SentryLogBufferDelegate {
     func capture(logsData: NSData, count: NSNumber) {
         // No-op for tests that don't need to verify delegate calls
     }

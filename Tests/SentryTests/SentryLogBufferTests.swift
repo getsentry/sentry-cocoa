@@ -2,16 +2,16 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-final class SentryLogBatcherTests: XCTestCase {
-    
+final class SentryLogBufferTests: XCTestCase {
+
     private var options: Options!
     private var testDateProvider: TestCurrentDateProvider!
-    private var testDelegate: TestLogBatcherDelegate!
+    private var testDelegate: TestLogBufferDelegate!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
     private var scope: Scope!
-    
-    private func getSut() -> SentryLogBatcher {
-        return SentryLogBatcher(
+
+    private func getSut() -> SentryLogBuffer {
+        return SentryLogBuffer(
             options: options,
             flushTimeout: 0.1, // Very small timeout for testing
             maxLogCount: 10, // Maximum 10 logs per batch
@@ -30,7 +30,7 @@ final class SentryLogBatcherTests: XCTestCase {
         options.enableLogs = true
 
         testDateProvider = TestCurrentDateProvider()
-        testDelegate = TestLogBatcherDelegate()
+        testDelegate = TestLogBufferDelegate()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
         
@@ -239,7 +239,7 @@ final class SentryLogBatcherTests: XCTestCase {
     
     func testConcurrentAdds_ThreadSafe() throws {
         // -- Arrange --
-        let sutWithRealQueue = SentryLogBatcher(
+        let sutWithRealQueue = SentryLogBuffer(
             options: options,
             flushTimeout: 5,
             maxLogCount: 1_000, // Maximum 1000 logs per batch
@@ -270,7 +270,7 @@ final class SentryLogBatcherTests: XCTestCase {
 
     func testDispatchAfterTimeoutWithRealDispatchQueue() throws {
         // -- Arrange --
-        let sutWithRealQueue = SentryLogBatcher(
+        let sutWithRealQueue = SentryLogBuffer(
             options: options,
             flushTimeout: 0.2,
             maxLogCount: 1_000, // Maximum 1000 logs per batch
@@ -787,7 +787,7 @@ final class SentryLogBatcherTests: XCTestCase {
 
 // MARK: - Test Helpers
 
-final class TestLogBatcherDelegate: NSObject, SentryLogBatcherDelegate {
+final class TestLogBufferDelegate: NSObject, SentryLogBufferDelegate {
     var captureLogsDataInvocations = Invocations<(data: Data, count: NSNumber)>()
     
     func capture(logsData: NSData, count: NSNumber) {

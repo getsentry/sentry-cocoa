@@ -52,12 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
         [self logWithOptionName:@"enableUIViewControllerTracing"];
         return NO;
     }
-
-    if ((integrationOptions & kIntegrationOptionEnableUserInteractionTracing)
-        && !options.enableUserInteractionTracing) {
-        [self logWithOptionName:@"enableUserInteractionTracing"];
-        return NO;
-    }
 #endif
 
     if (integrationOptions & kIntegrationOptionEnableAppHangTracking) {
