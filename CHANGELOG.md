@@ -4,7 +4,7 @@
 
 ### Features
 
-- feat: Log error message for HTTP 413 responses (#7261)
+- feat: Transport logs error message for HTTP 413 responses (#7261)
 
 ### Fixes
 
