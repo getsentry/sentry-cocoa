@@ -45,10 +45,69 @@ jobs:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
 
+  # Build xcframeworks from source code once for all integration tests.
+  # This ensures tests use the current source code instead of the latest GitHub release.
+  # We only build the Static variant for iphonesimulator since tests run on iOS simulator.
+  build-xcframeworks:
+    name: Build XCFrameworks
+    needs: files-changed
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
+    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - name: Select Xcode
+        run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Build XCFrameworks (macOS only)
+        run: |
+          rm -rf XCFrameworkBuildPath/
+          mkdir -p XCFrameworkBuildPath
+
+          # Build Sentry (Static)
+          ./scripts/build-xcframework-slice.sh "macosx" "Sentry" "" "staticlib" "" "skip-swiftlint"
+          ./scripts/assemble-xcframework.sh "Sentry" "" "" "macosx" "$(pwd)/XCFrameworkBuildPath/archive/Sentry/macosx.xcarchive"
+          ./scripts/validate-xcframework-format.sh "Sentry.xcframework"
+          ./scripts/compress-xcframework.sh --not-signed Sentry
+          mv Sentry.xcframework.zip XCFrameworkBuildPath/Sentry.xcframework.zip
+
+          # Build Sentry-Dynamic
+          ./scripts/build-xcframework-slice.sh "macosx" "Sentry" "-Dynamic" "mh_dylib" "" "skip-swiftlint"
+          ./scripts/assemble-xcframework.sh "Sentry" "-Dynamic" "" "macosx" "$(pwd)/XCFrameworkBuildPath/archive/Sentry-Dynamic/macosx.xcarchive"
+          ./scripts/validate-xcframework-format.sh "Sentry-Dynamic.xcframework"
+          ./scripts/compress-xcframework.sh --not-signed Sentry-Dynamic
+          mv Sentry-Dynamic.xcframework.zip XCFrameworkBuildPath/Sentry-Dynamic.xcframework.zip
+
+          # Build Sentry-Dynamic-WithARM64e
+          ./scripts/build-xcframework-slice.sh "macosx" "Sentry" "-Dynamic-WithARM64e" "mh_dylib" "" "skip-swiftlint"
+          ./scripts/assemble-xcframework.sh "Sentry" "-Dynamic-WithARM64e" "" "macosx" "$(pwd)/XCFrameworkBuildPath/archive/Sentry-Dynamic-WithARM64e/macosx.xcarchive"
+          ./scripts/validate-xcframework-format.sh "Sentry-Dynamic-WithARM64e.xcframework"
+          ./scripts/compress-xcframework.sh --not-signed Sentry-Dynamic-WithARM64e
+          mv Sentry-Dynamic-WithARM64e.xcframework.zip XCFrameworkBuildPath/Sentry-Dynamic-WithARM64e.xcframework.zip
+
+          # Build Sentry-WithoutUIKitOrAppKit
+          ./scripts/build-xcframework-slice.sh "macosx" "Sentry" "-WithoutUIKitOrAppKit" "mh_dylib" "WithoutUIKit" "skip-swiftlint"
+          ./scripts/assemble-xcframework.sh "Sentry" "-WithoutUIKitOrAppKit" "WithoutUIKit" "macosx" "$(pwd)/XCFrameworkBuildPath/archive/Sentry-WithoutUIKitOrAppKit/macosx.xcarchive"
+          ./scripts/validate-xcframework-format.sh "Sentry-WithoutUIKitOrAppKit.xcframework"
+          ./scripts/compress-xcframework.sh --not-signed Sentry-WithoutUIKitOrAppKit
+          mv Sentry-WithoutUIKitOrAppKit.xcframework.zip XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit.xcframework.zip
+
+          # Build Sentry-WithoutUIKitOrAppKit-WithARM64e
+          ./scripts/build-xcframework-slice.sh "macosx" "Sentry" "-WithoutUIKitOrAppKit-WithARM64e" "mh_dylib" "WithoutUIKit" "skip-swiftlint"
+          ./scripts/assemble-xcframework.sh "Sentry" "-WithoutUIKitOrAppKit-WithARM64e" "WithoutUIKit" "macosx" "$(pwd)/XCFrameworkBuildPath/archive/Sentry-WithoutUIKitOrAppKit-WithARM64e/macosx.xcarchive"
+          ./scripts/validate-xcframework-format.sh "Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework"
+          ./scripts/compress-xcframework.sh --not-signed Sentry-WithoutUIKitOrAppKit-WithARM64e
+          mv Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip
+      - name: Upload XCFrameworks
+        uses: actions/upload-artifact@v6
+        with:
+          name: xcframeworks-for-integration-tests
+          path: XCFrameworkBuildPath/*.zip
+          retention-days: 1
+
   # SPM tests for all 3rd-party integrations
   test-integrations-spm:
     name: SPM Tests | ${{matrix.integration_dir}}
-    needs: files-changed
+    needs: [files-changed, build-xcframeworks]
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
     runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
     timeout-minutes: 30
@@ -64,6 +123,17 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Select Xcode
         run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Download XCFrameworks
+        uses: actions/download-artifact@v7
+        with:
+          name: xcframeworks-for-integration-tests
+          path: XCFrameworkBuildPath
+      - name: Copy XCFramework zips to root
+        run: |
+          # Copy all zip files to root where Package.swift expects them
+          cp XCFrameworkBuildPath/*.xcframework.zip .
+      - name: Modify Package.swift to use local xcframeworks
+        run: ./scripts/prepare-package.sh --package-file Package.swift --change-path true
       - name: Use local sentry-cocoa
         working-directory: 3rd-party-integrations/${{matrix.integration_dir}}
         run: swift package edit sentry-cocoa --path ../..
