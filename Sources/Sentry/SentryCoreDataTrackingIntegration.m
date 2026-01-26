@@ -3,7 +3,6 @@
 #import "SentryCoreDataTracker.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryLogC.h"
-#import "SentryNSDataSwizzling.h"
 #import "SentrySwift.h"
 
 @interface SentryCoreDataTrackingIntegration ()
