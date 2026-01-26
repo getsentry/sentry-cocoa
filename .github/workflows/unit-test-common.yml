@@ -152,10 +152,8 @@ jobs:
 
       - name: SPM Package - Modify sentry-cocoa Package.swift to use XCFrameworks
         if: ${{ inputs.test_spm_package }}
-        env:
-          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
         run: |
-          "$SCRIPTS_DIRECTORY/prepare-package.sh" --package-file Package.swift --is-pr true --remove-duplicate true --change-path true
+          "${{ github.workspace }}/scripts/prepare-package.sh" --package-file Package.swift --is-pr true --remove-duplicate true --change-path true
 
       - name: SPM Package - Modify integration Package.swift to use local sentry-cocoa
         if: ${{ inputs.test_spm_package }}
