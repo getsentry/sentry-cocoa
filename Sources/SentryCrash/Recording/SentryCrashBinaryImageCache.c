@@ -74,6 +74,9 @@ static PublishedBinaryImage g_images[MAX_DYLD_IMAGES];
 static _Atomic(uint32_t) g_next_index = 0;
 static _Atomic(uint32_t) g_overflowed = 0;
 
+static _Atomic(sentrycrashbic_cacheChangeCallback) g_addedCallback = NULL;
+static _Atomic(sentrycrashbic_cacheChangeCallback) g_removedCallback = NULL;
+
 static void add_dyld_image(const struct mach_header* mh) {
     uint32_t idx =
         atomic_fetch_add_explicit(&g_next_index, 1, memory_order_relaxed);
@@ -91,16 +94,52 @@ static void add_dyld_image(const struct mach_header* mh) {
     PublishedBinaryImage* entry = &g_images[idx];
     sentrycrashdl_getBinaryImageForHeader(mh, info.dli_fname, &entry->image, false);
 
+    // Read callback BEFORE publishing to avoid race with registerAddedCallback.
+    // If callback is NULL here, the registering thread will see ready=1 and call it.
+    // If callback is non-NULL here, we call it and the registering thread will either
+    // not have started iterating yet, or will skip this image since it wasn't ready
+    // when it read g_next_index.
+    sentrycrashbic_cacheChangeCallback callback =
+        atomic_load_explicit(&g_addedCallback, memory_order_acquire);
+
     // ---- Publish ----
     atomic_store_explicit(&entry->ready, 1, memory_order_release);
+
+    if (callback != NULL) {
+        callback(&entry->image);
+    }
 }
 
 static void dyld_add_image_cb(const struct mach_header* mh, intptr_t slide) {
     add_dyld_image(mh);
 }
 
+static void dyld_remove_image_cb(const struct mach_header* mh, intptr_t slide) {
+    sentrycrashbic_cacheChangeCallback callback =
+        atomic_load_explicit(&g_removedCallback, memory_order_acquire);
+    if (callback == NULL) {
+        return;
+    }
+
+    // Find the image in our cache by matching the header address
+    uint32_t count = atomic_load_explicit(&g_next_index, memory_order_acquire);
+    if (count > MAX_DYLD_IMAGES) count = MAX_DYLD_IMAGES;
+
+    for (uint32_t i = 0; i < count; i++) {
+        PublishedBinaryImage* src = &g_images[i];
+        if (!atomic_load_explicit(&src->ready, memory_order_acquire)) {
+            break;
+        }
+        if (src->image.address == (uintptr_t)mh) {
+            callback(&src->image);
+            return;
+        }
+    }
+}
+
 void dyld_tracker_start(void) {
   sentry_dyld_register_func_for_add_image(dyld_add_image_cb);
+  sentry_dyld_register_func_for_remove_image(dyld_remove_image_cb);
 }
 
 void
@@ -181,17 +220,31 @@ sentrycrashbic_startCache(void)
 void
 sentrycrashbic_stopCache(void)
 {
-    // TODO: Why do we need to support stopping it?
+    // Not supported
 }
 
 void
 sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback callback)
 {
-    // TODO: I think this is only for when we used to have on-device symbolication. Should be able to remove now
+    atomic_store_explicit(&g_addedCallback, callback, memory_order_release);
+
+    if (callback != NULL) {
+        // Call for all existing images already in the cache
+        uint32_t count = atomic_load_explicit(&g_next_index, memory_order_acquire);
+        if (count > MAX_DYLD_IMAGES) count = MAX_DYLD_IMAGES;
+
+        for (uint32_t i = 0; i < count; i++) {
+            PublishedBinaryImage* src = &g_images[i];
+            if (!atomic_load_explicit(&src->ready, memory_order_acquire)) {
+                break;
+            }
+            callback(&src->image);
+        }
+    }
 }
 
 void
 sentrycrashbic_registerRemovedCallback(sentrycrashbic_cacheChangeCallback callback)
 {
-    // TODO: I think this is only for when we used to have on-device symbolication. Should be able to remove now
+    atomic_store_explicit(&g_removedCallback, callback, memory_order_release);
 }
