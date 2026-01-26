@@ -27,8 +27,9 @@ static BOOL swizzlingIsActive = FALSE;
     SentrySwizzleInstanceMethod(NSManagedObjectContext.class, fetchSelector,
         SentrySWReturnType(NSArray *),
         SentrySWArguments(NSFetchRequest * originalRequest, NSError * *error), SentrySWReplacement({
-            return _tracker != nil
-                ? [_tracker
+            SentryCoreDataTracker *tracker = _tracker;
+            return tracker != nil
+                ? [tracker
                       managedObjectContext:self
                        executeFetchRequest:originalRequest
                                      error:error
@@ -42,12 +43,13 @@ static BOOL swizzlingIsActive = FALSE;
     SEL saveSelector = NSSelectorFromString(@"save:");
     SentrySwizzleInstanceMethod(NSManagedObjectContext.class, saveSelector,
         SentrySWReturnType(BOOL), SentrySWArguments(NSError * *error), SentrySWReplacement({
-            return _tracker != nil ? [_tracker managedObjectContext:self
-                                                               save:error
-                                                        originalImp:^BOOL(NSError **outError) {
-                                                            return SentrySWCallOriginal(outError);
-                                                        }]
-                                   : SentrySWCallOriginal(error);
+            SentryCoreDataTracker *tracker = _tracker;
+            return tracker != nil ? [tracker managedObjectContext:self
+                                                             save:error
+                                                      originalImp:^BOOL(NSError **outError) {
+                                                          return SentrySWCallOriginal(outError);
+                                                      }]
+                                  : SentrySWCallOriginal(error);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)saveSelector);
 }
