@@ -529,8 +529,16 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
   - "Brewfile*"
 
 run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_prs
+  - "Sources/**"
   - "3rd-party-integrations/**"
 
   # GH Actions
   - ".github/workflows/test-3rd-party-integrations.yml"
   - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/ci-select-xcode.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "Package*.swift"
