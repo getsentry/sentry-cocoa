@@ -84,182 +84,32 @@ jobs:
   # xcodebuild-based tests for SPM packages (using xcodebuild with --spm-project flag)
   # These packages are SPM-only but can be tested via xcodebuild using the package name as the scheme
   test-integrations-xcodebuild:
-    name: Xcodebuild Tests | ${{matrix.integration_dir}} | ${{matrix.name}}
+    name: Xcodebuild Tests | ${{matrix.integration_dir}}
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
     secrets: inherit
     with:
-      name: ${{matrix.integration_dir}} | ${{matrix.name}}
-      scheme: ${{matrix.scheme}}
-      working_directory: ${{matrix.working_directory}}
+      name: Xcodebuild Tests | ${{matrix.integration_dir}}
+      scheme: ${{matrix.integration_dir}}
+      working_directory: 3rd-party-integrations/${{matrix.integration_dir}}
       scripts_directory: ../../scripts
-      xcode: ${{ matrix.xcode }}
-      test-destination-os: ${{ matrix.test-destination-os }}
-      device: ${{ matrix.device }}
-      platform: ${{ matrix.platform }}
-      runs-on: ${{ matrix.macos_version }}
+      xcode: "16.4"
+      test-destination-os: "18.5"
+      device: "iPhone 16 Pro"
+      platform: "iOS"
+      runs-on: sequoia
+      run_on_cirrus_labs: true
       timeout: 10
       test_spm_package: true
     strategy:
       fail-fast: false
       matrix:
-        include:
-          # SwiftLog tests
-          - integration_dir: SentrySwiftLog
-            scheme: SentrySwiftLog
-            working_directory: 3rd-party-integrations/SentrySwiftLog
-            name: iOS 18
-            xcode: "16.4"
-            macos_version: macos-15
-            test-destination-os: "18.5"
-            platform: "iOS"
-            device: "iPhone 16 Pro"
-
-          - integration_dir: SentrySwiftLog
-            scheme: SentrySwiftLog
-            working_directory: 3rd-party-integrations/SentrySwiftLog
-            name: iOS 26
-            macos_version: macos-26
-            xcode: "26.1.1"
-            test-destination-os: "26.1"
-            platform: "iOS"
-            device: "iPhone 17 Pro"
-
-          - integration_dir: SentrySwiftLog
-            scheme: SentrySwiftLog
-            working_directory: 3rd-party-integrations/SentrySwiftLog
-            name: macOS 15
-            macos_version: macos-15
-            xcode: "16.4"
-            test-destination-os: "latest"
-            platform: "macOS"
-
-          - integration_dir: SentrySwiftLog
-            scheme: SentrySwiftLog
-            working_directory: 3rd-party-integrations/SentrySwiftLog
-            name: macOS 26
-            macos_version: macos-26
-            xcode: "26.1.1"
-            test-destination-os: "26.1"
-            platform: "macOS"
-
-          # SwiftyBeaver tests
-          - integration_dir: SentrySwiftyBeaver
-            scheme: SentrySwiftyBeaver
-            working_directory: 3rd-party-integrations/SentrySwiftyBeaver
-            name: iOS 18
-            xcode: "16.4"
-            macos_version: macos-15
-            test-destination-os: "18.5"
-            platform: "iOS"
-            device: "iPhone 16 Pro"
-
-          - integration_dir: SentrySwiftyBeaver
-            scheme: SentrySwiftyBeaver
-            working_directory: 3rd-party-integrations/SentrySwiftyBeaver
-            name: iOS 26
-            macos_version: macos-26
-            xcode: "26.1.1"
-            test-destination-os: "26.1"
-            platform: "iOS"
-            device: "iPhone 17 Pro"
-
-          - integration_dir: SentrySwiftyBeaver
-            scheme: SentrySwiftyBeaver
-            working_directory: 3rd-party-integrations/SentrySwiftyBeaver
-            name: macOS 15
-            macos_version: macos-15
-            xcode: "16.4"
-            test-destination-os: "latest"
-            platform: "macOS"
-
-          - integration_dir: SentrySwiftyBeaver
-            scheme: SentrySwiftyBeaver
-            working_directory: 3rd-party-integrations/SentrySwiftyBeaver
-            name: macOS 26
-            macos_version: macos-26
-            xcode: "26.1.1"
-            test-destination-os: "26.1"
-            platform: "macOS"
-
-          # CocoaLumberjack tests
-          - integration_dir: SentryCocoaLumberjack
-            scheme: SentryCocoaLumberjack
-            working_directory: 3rd-party-integrations/SentryCocoaLumberjack
-            name: iOS 18
-            xcode: "16.4"
-            macos_version: macos-15
-            test-destination-os: "18.5"
-            platform: "iOS"
-            device: "iPhone 16 Pro"
-
-          - integration_dir: SentryCocoaLumberjack
-            scheme: SentryCocoaLumberjack
-            working_directory: 3rd-party-integrations/SentryCocoaLumberjack
-            name: iOS 26
-            macos_version: macos-26
-            xcode: "26.1.1"
-            test-destination-os: "26.1"
-            platform: "iOS"
-            device: "iPhone 17 Pro"
-
-          - integration_dir: SentryCocoaLumberjack
-            scheme: SentryCocoaLumberjack
-            working_directory: 3rd-party-integrations/SentryCocoaLumberjack
-            name: macOS 15
-            macos_version: macos-15
-            xcode: "16.4"
-            test-destination-os: "latest"
-            platform: "macOS"
-
-          - integration_dir: SentryCocoaLumberjack
-            scheme: SentryCocoaLumberjack
-            working_directory: 3rd-party-integrations/SentryCocoaLumberjack
-            name: macOS 26
-            macos_version: macos-26
-            xcode: "26.1.1"
-            test-destination-os: "26.1"
-            platform: "macOS"
-
-          # Pulse tests
-          - integration_dir: SentryPulse
-            scheme: SentryPulse
-            working_directory: 3rd-party-integrations/SentryPulse
-            name: iOS 18
-            xcode: "16.4"
-            macos_version: macos-15
-            test-destination-os: "18.5"
-            platform: "iOS"
-            device: "iPhone 16 Pro"
-
-          - integration_dir: SentryPulse
-            scheme: SentryPulse
-            working_directory: 3rd-party-integrations/SentryPulse
-            name: iOS 26
-            macos_version: macos-26
-            xcode: "26.1.1"
-            test-destination-os: "26.1"
-            platform: "iOS"
-            device: "iPhone 17 Pro"
-
-          - integration_dir: SentryPulse
-            scheme: SentryPulse
-            working_directory: 3rd-party-integrations/SentryPulse
-            name: macOS 15
-            macos_version: macos-15
-            xcode: "16.4"
-            test-destination-os: "latest"
-            platform: "macOS"
-
-          - integration_dir: SentryPulse
-            scheme: SentryPulse
-            working_directory: 3rd-party-integrations/SentryPulse
-            name: macOS 26
-            macos_version: macos-26
-            xcode: "26.1.1"
-            test-destination-os: "26.1"
-            platform: "macOS"
+        integration_dir:
+          - SentrySwiftLog
+          - SentrySwiftyBeaver
+          - SentryCocoaLumberjack
+          - SentryPulse
 
   unit-tests-required-check:
     needs:
