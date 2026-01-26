@@ -11,8 +11,6 @@ typealias AutoBreadcrumbTrackingIntegrationProvider = FileManagerProvider
 #endif
 
 final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumbTrackingIntegrationProvider>: NSObject, SwiftIntegration, SentryBreadcrumbDelegate {
-    private let options: Options
-    private let fileManager: SentryFileManager
     private var breadcrumbTracker: SentryBreadcrumbTracker?
 
     #if os(iOS) && !SENTRY_NO_UIKIT
@@ -29,9 +27,6 @@ final class SentryAutoBreadcrumbTrackingIntegration<Dependencies: AutoBreadcrumb
             SentrySDKLog.fatal("File manager is not available")
             return nil
         }
-
-        self.options = options
-        self.fileManager = fileManager
 
         super.init()
 
