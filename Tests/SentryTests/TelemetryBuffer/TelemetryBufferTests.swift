@@ -94,15 +94,15 @@ final class TelemetryBufferTests: XCTestCase {
         maxItemCount: Int = 10,
         maxBufferSizeBytes: Int = 8_000,
         beforeSendItem: ((TestItem) -> TestItem?)? = nil
-    ) -> TelemetryBuffer<MockTelemetryBuffer, TestItem, TestScope> {
-        var config = TelemetryBuffer<MockTelemetryBuffer, TestItem, TestScope>.Config(
+    ) -> DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem, TestScope> {
+        var config = DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem, TestScope>.Config(
             sendDefaultPii: sendDefaultPii,
             flushTimeout: flushTimeout,
             maxItemCount: maxItemCount,
             maxBufferSizeBytes: maxBufferSizeBytes,
             beforeSendItem: beforeSendItem
         )
-        let metadata = TelemetryBuffer<MockTelemetryBuffer, TestItem, TestScope>.Metadata(
+        let metadata = DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem, TestScope>.Metadata(
             environment: "test",
             releaseName: "test-release",
             installationId: "test-installation-id"
@@ -111,7 +111,7 @@ final class TelemetryBufferTests: XCTestCase {
             self?.capturedDataInvocations.record((data, count))
         }
         
-        return TelemetryBuffer(
+        return DefaultTelemetryBuffer(
             config: config,
             metadata: metadata,
             buffer: testTelemetryBuffer,

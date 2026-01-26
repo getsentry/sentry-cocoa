@@ -52,6 +52,20 @@ NS_ASSUME_NONNULL_BEGIN
         mode, key);
 #    pragma clang diagnostic pop
 }
+
++ (void)swizzleSendEvent:(void (^)(UIEvent *_Nullable event))callback;
+{
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
+    SEL selector = NSSelectorFromString(@"sendEvent:");
+    SentrySwizzleInstanceMethod([UIApplication class], selector, SentrySWReturnType(void),
+        SentrySWArguments(UIEvent * event), SentrySWReplacement({
+            callback(event);
+            SentrySWCallOriginal(event);
+        }),
+        SentrySwizzleModeOncePerClass, (void *)selector);
+#    pragma clang diagnostic pop
+}
 #endif // SENTRY_HAS_UIKIT
 
 + (void)swizzleURLSessionTask:(SentryNetworkTracker *)networkTracker

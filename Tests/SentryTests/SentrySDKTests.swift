@@ -416,7 +416,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 1)
         XCTAssertEqual(fixture.client.captureLogInvocations.first?.log.body, "Test log message")
         
-        // Flush the SDK - this should trigger the log batcher to flush
+        // Flush the SDK - this should trigger the log buffer to flush
         SentrySDK.flush(timeout: 1.0)
         
         // The log should still be captured (flush doesn't clear the invocations)
