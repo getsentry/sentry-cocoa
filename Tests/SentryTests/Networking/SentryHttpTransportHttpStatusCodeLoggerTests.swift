@@ -1,7 +1,7 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
-final class SentryHttpTransportErrorLoggerTests: XCTestCase {
+final class SentryHttpTransportHttpStatusCodeLoggerTests: XCTestCase {
 
     // MARK: - HTTP 413 Tests
 
@@ -18,14 +18,14 @@ final class SentryHttpTransportErrorLoggerTests: XCTestCase {
         let sizeInBytes = request.httpBody?.count ?? 0
 
         // Act
-        SentryHttpTransportErrorLogger.logHttpResponseError(statusCode: 413, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: 413, envelope: envelope, request: request)
 
         // Assert
         let logMessages = logOutput.loggedMessages.filter {
             $0.contains("[Sentry] [error]") &&
-            $0.contains("Envelope discarded due to size limit") &&
-            $0.contains("Size: \(sizeInBytes) bytes (compressed)") &&
-            $0.contains("item types: event")
+            $0.contains("Upstream returned HTTP 413 Content Too Large") &&
+            $0.contains("The envelope size in bytes (compressed): \(sizeInBytes)") &&
+            $0.contains("item types ( event )")
         }
         XCTAssertEqual(logMessages.count, 1)
     }
@@ -53,11 +53,11 @@ final class SentryHttpTransportErrorLoggerTests: XCTestCase {
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportErrorLogger.logHttpResponseError(statusCode: 413, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: 413, envelope: envelope, request: request)
 
         // Assert
         let logMessages = logOutput.loggedMessages.filter {
-            $0.contains("item types: event, session, attachment")
+            $0.contains("item types ( event, session, attachment )")
         }
         XCTAssertEqual(logMessages.count, 1)
     }
@@ -67,7 +67,6 @@ final class SentryHttpTransportErrorLoggerTests: XCTestCase {
         let logOutput = TestLogOutput()
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.configureLog(true, diagnosticLevel: .error)
-
 
         let event1 = Event()
         event1.message = SentryMessage(formatted: "First event")
@@ -84,11 +83,11 @@ final class SentryHttpTransportErrorLoggerTests: XCTestCase {
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportErrorLogger.logHttpResponseError(statusCode: 413, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: 413, envelope: envelope, request: request)
 
         // Assert
         let logMessages = logOutput.loggedMessages.filter {
-            $0.contains("item types: event, event")
+            $0.contains("item types ( event, event )")
         }
         XCTAssertEqual(logMessages.count, 1)
     }
@@ -99,16 +98,15 @@ final class SentryHttpTransportErrorLoggerTests: XCTestCase {
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.configureLog(true, diagnosticLevel: .error)
 
-
         let envelope = SentryEnvelope(id: nil, items: [])
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportErrorLogger.logHttpResponseError(statusCode: 413, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: 413, envelope: envelope, request: request)
 
         // Assert
         let logMessages = logOutput.loggedMessages.filter {
-            $0.contains("item types: ")
+            $0.contains("item types (  )")
         }
         XCTAssertEqual(logMessages.count, 1)
     }
@@ -119,7 +117,6 @@ final class SentryHttpTransportErrorLoggerTests: XCTestCase {
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.configureLog(true, diagnosticLevel: .error)
 
-
         let event = Event()
         let envelope = SentryEnvelope(event: event)
         let url = try XCTUnwrap(URL(string: "https://sentry.io/api/123/envelope/"))
@@ -127,11 +124,11 @@ final class SentryHttpTransportErrorLoggerTests: XCTestCase {
         request.httpBody = nil
 
         // Act
-        SentryHttpTransportErrorLogger.logHttpResponseError(statusCode: 413, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: 413, envelope: envelope, request: request)
 
         // Assert
         let logMessages = logOutput.loggedMessages.filter {
-            $0.contains("Size: 0 bytes (compressed)")
+            $0.contains("The envelope size in bytes (compressed): 0")
         }
         XCTAssertEqual(logMessages.count, 1)
     }
@@ -141,7 +138,6 @@ final class SentryHttpTransportErrorLoggerTests: XCTestCase {
         let logOutput = TestLogOutput()
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.configureLog(true, diagnosticLevel: .error)
-
 
         let event = Event()
         let session = SentrySession(releaseName: "1.0.0", distinctId: "user-123")
@@ -159,30 +155,29 @@ final class SentryHttpTransportErrorLoggerTests: XCTestCase {
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportErrorLogger.logHttpResponseError(statusCode: 413, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: 413, envelope: envelope, request: request)
 
         // Assert
         let logMessages = logOutput.loggedMessages.filter {
-            $0.contains("item types: attachment, event, session")
+            $0.contains("item types ( attachment, event, session )")
         }
         XCTAssertEqual(logMessages.count, 1)
     }
 
     // MARK: - Non-413 Status Code Tests
 
-    func testLogHttpResponseError_when400_shouldNotLog() throws {
+    func testLogHttpResponseError_when412_shouldNotLog() throws {
         // Arrange
         let logOutput = TestLogOutput()
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.configureLog(true, diagnosticLevel: .error)
-
 
         let event = Event()
         let envelope = SentryEnvelope(event: event)
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportErrorLogger.logHttpResponseError(statusCode: 400, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: 412, envelope: envelope, request: request)
 
         // Assert
         XCTAssertEqual(logOutput.loggedMessages.count, 0)
@@ -194,13 +189,12 @@ final class SentryHttpTransportErrorLoggerTests: XCTestCase {
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.configureLog(true, diagnosticLevel: .error)
 
-
         let event = Event()
         let envelope = SentryEnvelope(event: event)
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportErrorLogger.logHttpResponseError(statusCode: 429, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: 429, envelope: envelope, request: request)
 
         // Assert
         XCTAssertEqual(logOutput.loggedMessages.count, 0)
@@ -212,13 +206,12 @@ final class SentryHttpTransportErrorLoggerTests: XCTestCase {
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.configureLog(true, diagnosticLevel: .error)
 
-
         let event = Event()
         let envelope = SentryEnvelope(event: event)
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportErrorLogger.logHttpResponseError(statusCode: 500, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: 500, envelope: envelope, request: request)
 
         // Assert
         XCTAssertEqual(logOutput.loggedMessages.count, 0)
@@ -230,13 +223,12 @@ final class SentryHttpTransportErrorLoggerTests: XCTestCase {
         SentrySDKLog.setLogOutput(logOutput)
         SentrySDKLog.configureLog(true, diagnosticLevel: .error)
 
-
         let event = Event()
         let envelope = SentryEnvelope(event: event)
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportErrorLogger.logHttpResponseError(statusCode: 200, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: 200, envelope: envelope, request: request)
 
         // Assert
         XCTAssertEqual(logOutput.loggedMessages.count, 0)
