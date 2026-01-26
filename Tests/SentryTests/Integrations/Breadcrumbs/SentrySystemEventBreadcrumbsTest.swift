@@ -373,7 +373,7 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     func testStopCallsSpecificRemoveObserverMethods() {
         sut = fixture.getSut(currentDevice: nil)
         sut.stop()
-        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 7)
+        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 8)
     }
     
     private func postBatteryLevelNotification(uiDevice: UIDevice?) {

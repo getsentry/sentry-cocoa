@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-#if os(iOS) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
 
 final class SentrySystemEventBreadcrumbs: NSObject {
@@ -301,4 +301,4 @@ final class SentrySystemEventBreadcrumbs: NSObject {
     }
 }
 
-#endif // os(iOS) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
