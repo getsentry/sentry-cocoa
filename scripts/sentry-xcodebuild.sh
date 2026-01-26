@@ -181,6 +181,7 @@ fi
 
 # Build xcodebuild arguments based on project type
 XCODEBUILD_ARGS=()
+# For SPM packages, xcodebuild automatically discovers schemes and doesn't need workspace/configuration flags
 if [ "$SPM_PROJECT" != "true" ]; then
     XCODEBUILD_ARGS+=("-workspace" "Sentry.xcworkspace")
     XCODEBUILD_ARGS+=("-configuration" "$CONFIGURATION")

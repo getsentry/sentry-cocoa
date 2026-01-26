@@ -68,12 +68,11 @@ jobs:
           ./scripts/assemble-xcframework.sh "Sentry" "" "" "macosx" "$(pwd)/XCFrameworkBuildPath/archive/Sentry/macosx.xcarchive"
           ./scripts/validate-xcframework-format.sh "Sentry.xcframework"
           ./scripts/compress-xcframework.sh --not-signed Sentry
-          mv Sentry.xcframework.zip XCFrameworkBuildPath/Sentry.xcframework.zip
       - name: Upload XCFrameworks
         uses: actions/upload-artifact@v6
         with:
-          name: xcframeworks-for-integration-tests
-          path: XCFrameworkBuildPath/*.zip
+          name: xcframeworks-for-3rd-party-integration-tests
+          path: "*.xcframework.zip"
           retention-days: 1
 
   # SPM tests for all 3rd-party integrations
@@ -98,12 +97,7 @@ jobs:
       - name: Download XCFrameworks
         uses: actions/download-artifact@v7
         with:
-          name: xcframeworks-for-integration-tests
-          path: XCFrameworkBuildPath
-      - name: Copy XCFramework zips to root
-        run: |
-          # Copy all zip files to root where Package.swift expects them
-          cp XCFrameworkBuildPath/*.xcframework.zip .
+          name: xcframeworks-for-3rd-party-integration-tests
       - name: Modify Package.swift to use local xcframeworks
         run: ./scripts/prepare-package.sh --package-file Package.swift --is-pr true --remove-duplicate true --change-path true
       - name: Use local sentry-cocoa
@@ -128,7 +122,7 @@ jobs:
   test-integrations-xcodebuild:
     name: Xcodebuild Tests | ${{matrix.integration_dir}}
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
-    needs: files-changed
+    needs: [files-changed, build-xcframeworks]
     uses: ./.github/workflows/unit-test-common.yml
     secrets: inherit
     with:

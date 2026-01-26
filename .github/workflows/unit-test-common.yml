@@ -144,10 +144,24 @@ jobs:
         run: |
           "$SCRIPTS_DIRECTORY/ci-boot-simulator.sh" --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION" --platform "$PLATFORM"
 
-      - name: Use local sentry-cocoa
+      - name: SPM Package - Download pre-build XCFrameworks
+        if: ${{ inputs.test_spm_package }}
+        uses: actions/download-artifact@v7
+        with:
+          name: xcframeworks-for-3rd-party-integration-tests
+
+      - name: SPM Package - Modify sentry-cocoa Package.swift to use XCFrameworks
+        if: ${{ inputs.test_spm_package }}
+        env:
+          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
+        run: |
+          "$SCRIPTS_DIRECTORY/prepare-package.sh" --package-file Package.swift --is-pr true --remove-duplicate true --change-path true
+
+      - name: SPM Package - Modify integration Package.swift to use local sentry-cocoa
         if: ${{ inputs.test_spm_package }}
         working-directory: ${{ inputs.working_directory }}
-        run: swift package edit sentry-cocoa --path ../..
+        run: |
+          sed -i '' 's|\.package(url: "https://github\.com/getsentry/sentry-cocoa", from: "[^"]*")|.package(name: "sentry-cocoa", path: "../..")|g' Package.swift
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build Tests
