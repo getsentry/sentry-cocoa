@@ -9,15 +9,22 @@ final class SentrySystemEventBreadcrumbs: NSObject {
     private let currentDeviceProvider: SentryUIDeviceWrapperProvider
     private let fileManager: SentryFileManager
     private let notificationCenterWrapper: SentryNSNotificationCenterWrapper
+    private let dateProvider: SentryCurrentDateProvider
+    
+    // Track whether we enabled these device notifications so we can disable them on stop
+    private var didEnableBatteryMonitoring = false
+    private var didBeginGeneratingOrientationNotifications = false
 
     init(
         currentDeviceProvider: SentryUIDeviceWrapperProvider,
         fileManager: SentryFileManager,
-        notificationCenterWrapper: SentryNSNotificationCenterWrapper
+        notificationCenterWrapper: SentryNSNotificationCenterWrapper,
+        dateProvider: SentryCurrentDateProvider = SentryDependencyContainer.sharedInstance().dateProvider
     ) {
         self.currentDeviceProvider = currentDeviceProvider
         self.fileManager = fileManager
         self.notificationCenterWrapper = notificationCenterWrapper
+        self.dateProvider = dateProvider
         super.init()
     }
 
@@ -51,6 +58,18 @@ final class SentrySystemEventBreadcrumbs: NSObject {
         notificationCenterWrapper.removeObserver(self, name: UIDevice.batteryStateDidChangeNotification, object: nil)
         notificationCenterWrapper.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
         notificationCenterWrapper.removeObserver(self, name: UIApplication.significantTimeChangeNotification, object: nil)
+        notificationCenterWrapper.removeObserver(self, name: NSNotification.Name.NSSystemTimeZoneDidChange, object: nil)
+        
+        // Disable device notifications that we enabled
+        let currentDevice = currentDeviceProvider.uiDeviceWrapper.currentDevice
+        if didEnableBatteryMonitoring {
+            currentDevice.isBatteryMonitoringEnabled = false
+            didEnableBatteryMonitoring = false
+        }
+        if didBeginGeneratingOrientationNotifications {
+            currentDevice.endGeneratingDeviceOrientationNotifications()
+            didBeginGeneratingOrientationNotifications = false
+        }
     }
 
     // MARK: - Battery Observer
@@ -58,6 +77,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
     private func initBatteryObserver(_ currentDevice: UIDevice) {
         if !currentDevice.isBatteryMonitoringEnabled {
             currentDevice.isBatteryMonitoringEnabled = true
+            didEnableBatteryMonitoring = true
         }
 
         // Posted when the battery level changes.
@@ -123,6 +143,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
     private func initOrientationObserver(_ currentDevice: UIDevice) {
         if !currentDevice.isGeneratingDeviceOrientationNotifications {
             currentDevice.beginGeneratingDeviceOrientationNotifications()
+            didBeginGeneratingOrientationNotifications = true
         }
 
         // Posted when the orientation of the device changes.
@@ -206,7 +227,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
         if storedTimezoneOffset == nil {
             updateStoredTimezone()
         } else if let storedOffset = storedTimezoneOffset?.intValue,
-                  storedOffset != SentryDependencyContainer.sharedInstance().dateProvider.timezoneOffset() {
+                  storedOffset != dateProvider.timezoneOffset() {
             timezoneEventTriggered(storedTimezoneOffset: storedTimezoneOffset)
         }
 
@@ -227,7 +248,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
         let storedOffset = storedTimezoneOffset ?? fileManager.readTimezoneOffset()
 
         let crumb = Breadcrumb(level: .info, category: "device.event")
-        let offset = SentryDependencyContainer.sharedInstance().dateProvider.timezoneOffset()
+        let offset = dateProvider.timezoneOffset()
 
         crumb.type = "system"
 
@@ -247,7 +268,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
     }
 
     private func updateStoredTimezone() {
-        fileManager.storeTimezoneOffset(SentryDependencyContainer.sharedInstance().dateProvider.timezoneOffset())
+        fileManager.storeTimezoneOffset(dateProvider.timezoneOffset())
     }
 
     // MARK: - Significant Time Change Observer

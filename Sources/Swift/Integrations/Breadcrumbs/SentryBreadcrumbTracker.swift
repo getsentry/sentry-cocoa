@@ -22,6 +22,9 @@ import Cocoa
     private weak var delegate: SentryBreadcrumbDelegate?
     private let reportAccessibilityIdentifier: Bool
     
+    // Store notification observer tokens for cleanup
+    private var notificationObservers: [NSObjectProtocol] = []
+    
     @objc(initReportAccessibilityIdentifier:)
     init(reportAccessibilityIdentifier: Bool) {
         self.reportAccessibilityIdentifier = reportAccessibilityIdentifier
@@ -50,11 +53,17 @@ import Cocoa
     
     @objc
     func stop() {
-        // All breadcrumbs are guarded by checking the client of the current hub, which we remove when
-        // uninstalling the SDK. Therefore, we don't clean up everything.
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
         SentryDependencyContainer.sharedInstance().swizzleWrapper.removeSwizzleSendAction(forKey: Self.swizzleSendActionKey)
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        
+        // Remove all notification observers
+        let notificationCenter = NotificationCenter.default
+        for observer in notificationObservers {
+            notificationCenter.removeObserver(observer)
+        }
+        notificationObservers.removeAll()
+        
         delegate = nil
         stopTrackNetworkConnectivityChanges()
     }
@@ -74,7 +83,7 @@ import Cocoa
         let notificationCenter = NotificationCenter.default
         
         // not available for macOS
-        _ = notificationCenter.addObserver(
+        let memoryWarningObserver = notificationCenter.addObserver(
             forName: UIApplication.didReceiveMemoryWarningNotification,
             object: nil,
             queue: nil
@@ -86,8 +95,9 @@ import Cocoa
             crumb.message = "Low memory"
             self.delegate?.add(crumb)
         }
+        notificationObservers.append(memoryWarningObserver)
         
-        _ = notificationCenter.addObserver(
+        let backgroundObserver = notificationCenter.addObserver(
             forName: UIApplication.didEnterBackgroundNotification,
             object: nil,
             queue: nil
@@ -95,8 +105,9 @@ import Cocoa
             guard let self = self else { return }
             self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "background")
         }
+        notificationObservers.append(backgroundObserver)
         
-        _ = notificationCenter.addObserver(
+        let foregroundObserver = notificationCenter.addObserver(
             forName: UIApplication.didBecomeActiveNotification,
             object: nil,
             queue: nil
@@ -104,6 +115,7 @@ import Cocoa
             guard let self = self else { return }
             self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "foreground")
         }
+        notificationObservers.append(foregroundObserver)
     }
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     
@@ -113,7 +125,7 @@ import Cocoa
         
         // Will resign Active notification is the nearest one to
         // UIApplicationDidEnterBackgroundNotification
-        _ = notificationCenter.addObserver(
+        let backgroundObserver = notificationCenter.addObserver(
             forName: NSApplication.willResignActiveNotification,
             object: nil,
             queue: nil
@@ -121,8 +133,9 @@ import Cocoa
             guard let self = self else { return }
             self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "background")
         }
+        notificationObservers.append(backgroundObserver)
         
-        _ = notificationCenter.addObserver(
+        let foregroundObserver = notificationCenter.addObserver(
             forName: NSApplication.didBecomeActiveNotification,
             object: nil,
             queue: nil
@@ -130,6 +143,7 @@ import Cocoa
             guard let self = self else { return }
             self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "foreground")
         }
+        notificationObservers.append(foregroundObserver)
     }
 #endif // os(macOS)
     
