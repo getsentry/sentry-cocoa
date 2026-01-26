@@ -154,6 +154,7 @@ jobs:
       [
         ready-to-merge-gate,
         files-changed,
+        build-xcframeworks,
         test-integrations-spm,
         test-integrations-xcodebuild,
       ]
