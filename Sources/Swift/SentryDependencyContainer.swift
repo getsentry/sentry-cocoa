@@ -114,6 +114,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var timerFactory = SentryNSTimerFactory()
     @objc public var fileIOTracker = Dependencies.fileIOTracker
     @objc public var threadInspector = Dependencies.threadInspector
+    var nsDataSwizzling = SentryNSDataSwizzling()
+    var nsFileManagerSwizzling = SentryNSFileManagerSwizzling()
     @objc public var rateLimits: RateLimits = DefaultRateLimits(
         retryAfterHeaderParser: RetryAfterHeaderParser(httpDateParser: HttpDateParser(), currentDateProvider: Dependencies.dateProvider),
         andRateLimitParser: RateLimitParser(currentDateProvider: Dependencies.dateProvider),
@@ -329,20 +331,28 @@ extension SentryDependencyContainer: DateProviderProvider {}
 
 extension SentryDependencyContainer: AutoSessionTrackingProvider { }
 
+protocol FileIOTrackerProvider {
+    var fileIOTracker: SentryFileIOTracker { get }
+}
+
+protocol NSDataSwizzlingProvider {
+    var nsDataSwizzling: SentryNSDataSwizzling { get }
+}
+
+protocol NSFileManagerSwizzlingProvider {
+    var nsFileManagerSwizzling: SentryNSFileManagerSwizzling { get }
+}
+
+extension SentryDependencyContainer: FileIOTrackerProvider { }
+extension SentryDependencyContainer: NSDataSwizzlingProvider { }
+extension SentryDependencyContainer: NSFileManagerSwizzlingProvider { }
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 protocol FramesTrackingProvider {
     var framesTracker: SentryFramesTracker { get }
 }
 
 extension SentryDependencyContainer: FramesTrackingProvider { }
-#endif
-
-#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
-protocol NotificationCenterProvider {
-    var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
-}
-
-extension SentryDependencyContainer: NotificationCenterProvider { }
 #endif
 
 #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
@@ -359,15 +369,65 @@ protocol ViewHierarchyProviderProvider {
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
 #endif
 
-protocol DispatchQueueWrapperProvider {
-    var dispatchQueueWrapper: SentryDispatchQueueWrapper { get }
+protocol SessionReplayEnvironmentCheckerProvider {
+    var sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentCheckerProvider { get }
 }
-extension SentryDependencyContainer: DispatchQueueWrapperProvider { }
+extension SentryDependencyContainer: SessionReplayEnvironmentCheckerProvider {}
+
+protocol NotificationCenterProvider {
+    var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
+}
+extension SentryDependencyContainer: NotificationCenterProvider {}
+
+protocol RateLimitsProvider {
+    var rateLimits: RateLimits { get }
+}
+extension SentryDependencyContainer: RateLimitsProvider {}
+
+protocol CurrentDateProvider {
+    var dateProvider: SentryCurrentDateProvider { get }
+}
+extension SentryDependencyContainer: CurrentDateProvider {}
+
+protocol RandomProvider {
+    var random: SentryRandomProtocol { get }
+}
+extension SentryDependencyContainer: RandomProvider {}
+
+protocol FileManagerProvider {
+    var fileManager: SentryFileManager? { get }
+}
+extension SentryDependencyContainer: FileManagerProvider {}
+
+protocol ReachabilityProvider {
+    var reachability: SentryReachability { get }
+}
+extension SentryDependencyContainer: ReachabilityProvider {}
 
 protocol CrashWrapperProvider {
     var crashWrapper: SentryCrashWrapper { get }
 }
-extension SentryDependencyContainer: CrashWrapperProvider { }
+extension SentryDependencyContainer: CrashWrapperProvider {}
+
+protocol GlobalEventProcessorProvider {
+    var globalEventProcessor: SentryGlobalEventProcessor { get }
+}
+extension SentryDependencyContainer: GlobalEventProcessorProvider {}
+
+protocol DispatchQueueWrapperProvider {
+    var dispatchQueueWrapper: SentryDispatchQueueWrapper { get }
+}
+extension SentryDependencyContainer: DispatchQueueWrapperProvider {}
+
+protocol ApplicationProvider {
+    func application() -> SentryApplication?
+}
+extension SentryDependencyContainer: ApplicationProvider {}
+
+protocol DispatchFactoryProvider {
+    var dispatchFactory: SentryDispatchFactory { get }
+}
+extension SentryDependencyContainer: DispatchFactoryProvider {}
 
 protocol ExtensionDetectorProvider {
     var extensionDetector: SentryExtensionDetector { get }
@@ -383,11 +443,6 @@ protocol ThreadInspectorProvider {
     var threadInspector: SentryThreadInspector { get }
 }
 extension SentryDependencyContainer: ThreadInspectorProvider { }
-
-protocol FileManagerProvider {
-    var fileManager: SentryFileManager? { get }
-}
-extension SentryDependencyContainer: FileManagerProvider { }
 
 protocol ANRTrackerBuilder {
     func getANRTracker(_ interval: TimeInterval) -> SentryANRTracker
