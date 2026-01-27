@@ -7,9 +7,7 @@ final class SentryCoreDataSwizzling: NSObject {
     }
 
     func stop() {
-#if SENTRY_TEST || SENTRY_TEST_CI
         SentryCoreDataSwizzlingHelper.unswizzle()
-#endif
     }
 }
 // swiftlint:enable missing_docs
