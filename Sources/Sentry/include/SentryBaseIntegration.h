@@ -14,7 +14,6 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionEnableAutoPerformanceTracing = 1 << 2,
     kIntegrationOptionEnableUIViewControllerTracing = 1 << 3,
     kIntegrationOptionAttachScreenshot = 1 << 4,
-    kIntegrationOptionEnableUserInteractionTracing = 1 << 5,
     kIntegrationOptionEnableAppHangTracking = 1 << 6,
     kIntegrationOptionEnableFileIOTracing = 1 << 8,
     kIntegrationOptionEnableNetworkBreadcrumbs = 1 << 9,
