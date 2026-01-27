@@ -542,6 +542,12 @@ protocol BinaryImageCacheProvider {
 extension SentryDependencyContainer: BinaryImageCacheProvider {}
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+protocol SentryUIDeviceWrapperProvider {
+    var uiDeviceWrapper: SentryUIDeviceWrapper { get }
+}
+
+extension SentryDependencyContainer: SentryUIDeviceWrapperProvider {}
+
 protocol UIViewControllerPerformanceTrackerProvider {
     var uiViewControllerPerformanceTracker: SentryUIViewControllerPerformanceTracker { get }
 }
@@ -556,6 +562,6 @@ protocol SentryEventTrackerBuilder {
     func getUIEventTracker(_ options: Options) -> SentryUIEventTracker
 }
 extension SentryDependencyContainer: SentryEventTrackerBuilder {}
-#endif
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 
 //swiftlint:enable file_length missing_docs

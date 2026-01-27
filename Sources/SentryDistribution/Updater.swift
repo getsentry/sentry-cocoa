@@ -96,6 +96,11 @@ public final class Updater: Sendable {
     if let bundleVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
       components.queryItems?.append(URLQueryItem(name: "build_number", value: bundleVersion))
     }
+      if let installGroups = params.installGroupsOverride {
+        for group in installGroups {
+          components.queryItems?.append(URLQueryItem(name: "install_groups", value: group))
+        }
+      }
     
     guard let url = components.url else {
       completion(.failure(.invalidUrl))

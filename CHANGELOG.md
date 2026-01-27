@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- feat: Transport logs error message for HTTP 413 responses (#7261)
+- Add `installGroupsOverride` parameter to `CheckForUpdateParams` and `installGroups` property to `ReleaseInfo` for SentryDistribution (#7278)
+
 ### Fixes
 
 - Fix deadlock in network reachability observer when restarting the SDK (#7246)
