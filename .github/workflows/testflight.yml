@@ -51,12 +51,12 @@ jobs:
     if: (github.event_name != 'pull_request' && needs.files-changed.outputs.run_testflight_for_pushes == 'true' ) || ( github.event_name == 'pull_request' && needs.files-changed.outputs.run_testflight_for_prs == 'true' && needs.files-changed.outputs.is_contributor == 'true' )
     needs: files-changed
     name: Build and Upload iOS-Swift to Testflight
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - run: ./scripts/ci-select-xcode.sh 26.2
       - name: Setup Ruby
-        uses: ruby/setup-ruby@675dd7ba1b06c8786a1480d89c384f5620a42647 # v1.281.0
+        uses: ruby/setup-ruby@80740b3b13bf9857e28854481ca95a84e78a2bdf # v1.284.0
         with:
           bundler-cache: true
 
@@ -115,11 +115,12 @@ jobs:
   # to make testflight a required check with only running the upload_to_testflight when required.
   # So, we don't have to run upload_to_testflight, for example, for unrelated changes.
   testflight-required-check:
-    needs: [
-      files-changed,
-      upload_to_testflight,
-      skip-testflight-for-non-contributors,
-    ]
+    needs:
+      [
+        files-changed,
+        upload_to_testflight,
+        skip-testflight-for-non-contributors,
+      ]
     name: Testflight
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

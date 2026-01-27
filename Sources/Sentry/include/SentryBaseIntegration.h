@@ -14,7 +14,6 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionEnableAutoPerformanceTracing = 1 << 2,
     kIntegrationOptionEnableUIViewControllerTracing = 1 << 3,
     kIntegrationOptionAttachScreenshot = 1 << 4,
-    kIntegrationOptionEnableUserInteractionTracing = 1 << 5,
     kIntegrationOptionEnableAppHangTracking = 1 << 6,
     kIntegrationOptionEnableFileIOTracing = 1 << 8,
     kIntegrationOptionEnableNetworkBreadcrumbs = 1 << 9,
@@ -24,10 +23,8 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionIsTracingEnabled = 1 << 13,
     kIntegrationOptionDebuggerNotAttached = 1 << 14,
     kIntegrationOptionAttachViewHierarchy = 1 << 15,
-    kIntegrationOptionEnableCrashHandler = 1 << 16,
     kIntegrationOptionEnableMetricKit = 1 << 17,
     kIntegrationOptionEnableReplay = 1 << 18,
-    kIntegrationOptionStartFramesTracker = 1 << 19,
 };
 
 @class SentryOptions;

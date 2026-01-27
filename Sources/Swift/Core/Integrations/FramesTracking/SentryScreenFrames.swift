@@ -158,6 +158,7 @@ public final class SentryScreenFrames: NSObject, NSCopying {
         return hasher.finalize()
     }
 
+    /// nodoc
     public func copy(with zone: NSZone? = nil) -> Any {
 #if SENTRY_NO_UIKIT
         let warningText = "SentryScreenFrames only works with UIKit enabled. Ensure you're using the right configuration of Sentry that links UIKit."

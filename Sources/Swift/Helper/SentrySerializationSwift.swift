@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 @_spi(Private) @objc public final class SentrySerializationSwift: NSObject {
@@ -91,7 +92,7 @@
         data(withJSONObject: session.serialize())
     }
     
-    //swiftlint:disable cyclomatic_complexity function_body_length
+    // swiftlint:disable cyclomatic_complexity function_body_length
     @objc(envelopeWithData:) public static func envelope(with data: Data) -> SentryEnvelope? {
         let newline = UInt8(ascii: "\n")
         var envelopeHeader: SentryEnvelopeHeader?
@@ -229,5 +230,6 @@
 
         return SentryEnvelope(header: envelopeHeaderUnwrapped, items: items)
     }
-    //swiftlint:enable cyclomatic_complexity function_body_length
+    // swiftlint:enable cyclomatic_complexity function_body_length
 }
+// swiftlint:enable missing_docs

@@ -1,4 +1,4 @@
-// swiftlint:disable file_length type_body_length
+// swiftlint:disable file_length type_body_length missing_docs
 @_implementationOnly import _SentryPrivate
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
@@ -18,12 +18,25 @@ public protocol SentryFramesTrackerListener: NSObjectProtocol {
 
 @_spi(Private) @objc
 public class SentryFramesTracker: NSObject {
-
-    var isStarted: Bool = false
-    @objc public private(set) var isRunning: Bool = false
+    
+    private var isStarted: Bool = false
     
     // MARK: Private properties
-    private var lock = NSLock()
+    private var isRunningLock = NSLock()
+    private var _isRunning: Bool = false
+    
+    @objc public private(set) var isRunning: Bool {
+        get {
+            return isRunningLock.synchronized {
+                return _isRunning
+            }
+        }
+        set {
+            isRunningLock.synchronized {
+                _isRunning = newValue
+            }
+        }
+    }
     private var previousFrameTimestamp: CFTimeInterval = SentryFramesTracker.previousFrameInitialValue
     private var previousFrameSystemTimestamp: UInt64 = 0
     private var currentFrameRate: UInt64 = 60
@@ -68,11 +81,23 @@ public class SentryFramesTracker: NSObject {
         resetFrames()
         SentrySDKLog.debug("Initialized frame tracker")
     }
+    
+    deinit {
+        removeObservers()
+        // Need to invalidate so DisplayLink is releasing this object. Calling this is thread-safe.
+        displayLinkWrapper.invalidate()
+    }
 
     // MARK: - Public Methods
 
     @objc
     public func start() {
+        dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
+            self.startInternal()
+        }
+    }
+    
+    private func startInternal() {
         guard !isStarted else { return }
 
         isStarted = true
@@ -96,12 +121,24 @@ public class SentryFramesTracker: NSObject {
 
     @objc
     public func stop() {
+        dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
+            self.stopInternal()
+        }
+    }
+    
+    private func stopInternal() {
         guard isStarted else { return }
 
         isStarted = false
 
         pause()
 
+        removeObservers()
+
+        listeners.removeAllObjects()
+    }
+
+    private func removeObservers() {
         notificationCenter.removeObserver(
             self,
             name: CrossPlatformApplication.didBecomeActiveNotification,
@@ -113,10 +150,6 @@ public class SentryFramesTracker: NSObject {
             name: CrossPlatformApplication.willResignActiveNotification,
             object: nil
         )
-
-        lock.synchronized {
-            listeners.removeAllObjects()
-        }
     }
 
     @objc
@@ -170,10 +203,6 @@ public class SentryFramesTracker: NSObject {
             self.listeners.remove(listener)
         }
     }
-    
-    deinit {
-        stop()
-    }
 
 #if os(iOS)
     @objc public func resetProfilingTimestamps() {
@@ -222,7 +251,7 @@ public class SentryFramesTracker: NSObject {
     private func willResignActive() {
         pause()
     }
-
+    
     private func unpause() {
         guard !isRunning else { return }
 
@@ -243,7 +272,7 @@ public class SentryFramesTracker: NSObject {
         displayLinkWrapper.invalidate()
     }
 
-// swiftlint:disable file_length function_body_length
+// swiftlint:disable function_body_length
     @objc
     private func displayLinkCallback() {
         let thisFrameTimestamp = displayLinkWrapper.timestamp
@@ -332,7 +361,7 @@ public class SentryFramesTracker: NSObject {
         previousFrameSystemTimestamp = thisFrameSystemTimestamp
         reportNewFrame()
     }
-// swiftlint:enable file_length function_body_length
+// swiftlint:enable function_body_length
 
     private func reportNewFrame() {
         let newFrameDate = dateProvider.date()
@@ -384,4 +413,4 @@ public class SentryFramesTracker: NSObject {
 }
 
 #endif
-// swiftlint:enable file_length type_body_length
+// swiftlint:enable file_length type_body_length missing_docs

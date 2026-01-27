@@ -52,12 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
         [self logWithOptionName:@"enableUIViewControllerTracing"];
         return NO;
     }
-
-    if ((integrationOptions & kIntegrationOptionEnableUserInteractionTracing)
-        && !options.enableUserInteractionTracing) {
-        [self logWithOptionName:@"enableUserInteractionTracing"];
-        return NO;
-    }
 #endif
 
     if (integrationOptions & kIntegrationOptionEnableAppHangTracking) {
@@ -135,11 +129,6 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 #endif
-    if ((integrationOptions & kIntegrationOptionEnableCrashHandler)
-        && !options.enableCrashHandler) {
-        [self logWithOptionName:@"enableCrashHandler"];
-        return NO;
-    }
 
 #if SENTRY_HAS_METRIC_KIT
     if ((integrationOptions & kIntegrationOptionEnableMetricKit) && !options.enableMetricKit) {
@@ -147,42 +136,6 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 #endif
-
-    if (integrationOptions & kIntegrationOptionStartFramesTracker) {
-
-#if SENTRY_HAS_UIKIT
-        BOOL performanceDisabled
-            = !options.enableAutoPerformanceTracing || !options.isTracingEnabled;
-        BOOL appHangsDisabled = options.isAppHangTrackingDisabled;
-
-        // The watchdog tracker uses the frames tracker, so frame tracking
-        // must be enabled if watchdog tracking is enabled.
-        BOOL watchdogDisabled = !options.enableWatchdogTerminationTracking;
-
-        if (performanceDisabled && appHangsDisabled && watchdogDisabled) {
-            if (appHangsDisabled) {
-                SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAppHangTracking is "
-                                 @"disabled or the appHangTimeoutInterval is 0.",
-                    self.integrationName);
-            }
-
-            if (performanceDisabled) {
-                SENTRY_LOG_DEBUG(@"Not going to enable %@ because enableAutoPerformanceTracing and "
-                                 @"isTracingEnabled are disabled.",
-                    self.integrationName);
-            }
-
-            if (watchdogDisabled) {
-                SENTRY_LOG_DEBUG(
-                    @"Not going to enable %@ because enableWatchdogTerminationTracking "
-                    @"is disabled.",
-                    self.integrationName);
-            }
-
-            return NO;
-        }
-#endif // SENTRY_HAS_UIKIT
-    }
 
     return YES;
 }

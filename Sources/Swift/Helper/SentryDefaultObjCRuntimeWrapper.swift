@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 import ObjectiveC.runtime
 
@@ -13,3 +14,4 @@ public final class SentryDefaultObjCRuntimeWrapper: NSObject, SentryObjCRuntimeW
         return class_getImageName(cls)
     }
 }
+// swiftlint:enable missing_docs

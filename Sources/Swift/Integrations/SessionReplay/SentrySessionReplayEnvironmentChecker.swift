@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @objc @_spi(Private) public class SentrySessionReplayEnvironmentChecker: NSObject, SentrySessionReplayEnvironmentCheckerProvider {
     /// Represents the reliability assessment of the environment for Session Replay.
     private enum Reliability {
@@ -111,3 +112,4 @@
         }
     }
 }
+// swiftlint:enable missing_docs

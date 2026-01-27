@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_spi(Private) @objc public protocol SentryProcessInfoSource {
     var processDirectoryPath: String { get }
     var processPath: String? { get }
@@ -60,3 +61,4 @@
         #endif
     }
 }
+// swiftlint:enable missing_docs

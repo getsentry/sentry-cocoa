@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 import Foundation
 import UIKit
@@ -17,3 +18,4 @@ extension SentryReplayVideoMaker {
 }
 
 #endif
+// swiftlint:enable missing_docs

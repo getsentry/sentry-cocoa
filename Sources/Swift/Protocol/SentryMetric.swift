@@ -8,6 +8,9 @@ public struct SentryMetric {
     /// A typed attribute that can be attached to structured item entries
     public typealias Attribute = SentryAttributeContent
 
+    /// A typed unit
+    public typealias Unit = SentryUnit
+
     /// The timestamp when the metric was recorded.
     public var timestamp: Date
 
@@ -19,7 +22,7 @@ public struct SentryMetric {
 
     /// The trace ID to associate this metric with distributed tracing.
     ///
-    /// This will be set to a valid non-empty value during processing by the batcher,
+    /// This will be set to a valid non-empty value during processing by the buffer,
     /// which applies scope-based attribute enrichment including trace context.
     public var traceId: SentryId
 
@@ -36,8 +39,8 @@ public struct SentryMetric {
     ///
     /// Examples: "millisecond", "byte", "connection", "request". This helps
     /// provide context for the metric value when viewing in Sentry.
-    public var unit: String?
-    
+    public var unit: SentryUnit?
+
     /// A dictionary of structured attributes added to the metric.
     ///
     /// Attributes provide additional context and can be used for filtering and
@@ -62,7 +65,7 @@ public struct SentryMetric {
         traceId: SentryId,
         name: String,
         value: SentryMetricValue,
-        unit: String?,
+        unit: SentryUnit?,
         attributes: [String: Attribute]
     ) {
         self.timestamp = timestamp
@@ -85,6 +88,7 @@ extension SentryMetric: Encodable {
         case attributes
     }
     
+    /// Encodes the metric to the given encoder.
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
@@ -100,7 +104,7 @@ extension SentryMetric: Encodable {
     }
 }
 
-extension SentryMetric: BatcherItem {
+extension SentryMetric: TelemetryBufferItem {
     var attributesDict: [String: SentryAttributeContent] {
         get {
             attributes

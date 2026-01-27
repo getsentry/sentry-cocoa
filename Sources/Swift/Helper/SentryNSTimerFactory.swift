@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objc
@@ -23,3 +24,4 @@ import Foundation
         return Timer.scheduledTimer(timeInterval: ti, target: aTarget, selector: aSelector, userInfo: userInfo, repeats: yesOrNo)
     }
 }
+// swiftlint:enable missing_docs

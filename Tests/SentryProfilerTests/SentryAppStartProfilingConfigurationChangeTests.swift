@@ -1,4 +1,4 @@
-//swiftlint:disable file_length
+// swiftlint:disable file_length
 
 @testable import Sentry
 @_spi(Private) import SentryTestUtils
@@ -373,4 +373,4 @@ extension SentryAppStartProfilingConfigurationChangeTests {
 
 #endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
 
-//swiftlint:enable file_length
+// swiftlint:enable file_length

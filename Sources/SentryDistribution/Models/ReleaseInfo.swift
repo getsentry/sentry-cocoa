@@ -16,6 +16,8 @@ public struct ReleaseInfo: Decodable, Sendable {
   public let iconUrl: String?
   /// Display name of the app
   public let appName: String
+  /// Install groups of the app
+  public let installGroups: [String]?
   private let createdDate: String
 
   /// Parsed creation date from the server response

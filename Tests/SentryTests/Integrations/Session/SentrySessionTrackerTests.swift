@@ -766,7 +766,7 @@ class SentrySessionTrackerTests: XCTestCase {
         let session = fixture.client.captureSessionInvocations.invocations[endSessionIndex]
         XCTAssertFalse(session.flagInit?.boolValue ?? false)
         XCTAssertEqual(started, session.started)
-        XCTAssertEqual(SentrySessionStatus.exited.description, session.status.description)
+        XCTAssertEqual(SentrySessionStatus.exited.rawValue, session.status.rawValue)
         XCTAssertEqual(errors, session.errors)
         XCTAssertEqual(started.addingTimeInterval(TimeInterval(truncating: duration)), session.timestamp)
         XCTAssertEqual(duration, session.duration)
@@ -786,7 +786,7 @@ class SentrySessionTrackerTests: XCTestCase {
     private func assertSession(session: SentrySession, started: Date, status: SentrySessionStatus, duration: NSNumber) {
         XCTAssertFalse(session.flagInit?.boolValue ?? false)
         XCTAssertEqual(started, session.started)
-        XCTAssertEqual(status.description, session.status.description)
+        XCTAssertEqual(status.rawValue, session.status.rawValue)
         XCTAssertEqual(0, session.errors)
         XCTAssertEqual(started.addingTimeInterval(TimeInterval(truncating: duration)), session.timestamp)
         XCTAssertEqual(duration, session.duration)
@@ -801,7 +801,7 @@ class SentrySessionTrackerTests: XCTestCase {
         let session = try XCTUnwrap(fixture.client.captureSessionInvocations.last)
         XCTAssertTrue(session.flagInit?.boolValue ?? false)
         XCTAssertEqual(sessionStarted, session.started)
-        XCTAssertEqual(SentrySessionStatus.ok.description, session.status.description)
+        XCTAssertEqual(SentrySessionStatus.ok.rawValue, session.status.rawValue)
         XCTAssertEqual(0, session.errors)
         XCTAssertNil(session.timestamp)
         XCTAssertNil(session.duration)

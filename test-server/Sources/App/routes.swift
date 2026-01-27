@@ -1,6 +1,6 @@
 import Vapor
 
-func routes(_ app: Application) throws {
+public func routes(_ app: Application) throws {
     app.get { _ in
         return "It works!"
     }

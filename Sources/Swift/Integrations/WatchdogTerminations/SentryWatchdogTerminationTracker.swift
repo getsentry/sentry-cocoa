@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -113,3 +114,4 @@ final class SentryWatchdogTerminationTracker: NSObject {
     }
 }
 #endif
+// swiftlint:enable missing_docs

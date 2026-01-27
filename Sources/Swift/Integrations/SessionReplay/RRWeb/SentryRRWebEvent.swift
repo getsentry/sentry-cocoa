@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -39,3 +40,4 @@ enum SentryRRWebEventType: Int {
         return result
     }
 }
+// swiftlint:enable missing_docs

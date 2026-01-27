@@ -2,7 +2,7 @@
 #import "SentryInternalDefines.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentryProfilingConditionals.h"
-#import "SentrySpan+Private.h"
+#import "SentrySpanInternal+Private.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 

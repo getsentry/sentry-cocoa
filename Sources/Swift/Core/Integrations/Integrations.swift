@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 // The Swift counterpart to `SentryObjcIntegrationProtocol`. This protocol allows
@@ -34,15 +35,33 @@ private struct AnyIntegration {
 @_spi(Private) @objc public final class SentrySwiftIntegrationInstaller: NSObject {
     @objc public class func install(with options: Options) {
         let dependencies = SentryDependencyContainer.sharedInstance()
-
+        
+        // The order of integrations here is important.
+        // SentryCrashIntegration needs to be initialized before SentryAutoSessionTrackingIntegration.
+        // And SentrySessionReplayIntegration before SentryCrashIntegration.
         var integrations: [AnyIntegration] = [
-            .init(SwiftAsyncIntegration.self),
+            .init(SwiftAsyncIntegration.self)
+        ]
+        
+        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+        integrations.append(.init(SentrySessionReplayIntegration.self))
+        #endif
+        
+        integrations.append(contentsOf: [
+            .init(SentryCrashIntegration.self),
             .init(SentryAutoSessionTrackingIntegration.self),
             .init(SentryNetworkTrackingIntegration.self),
             .init(SentryHangTrackerIntegrationObjC.self),
-            .init(SentryMetricsIntegration.self)
-        ]
-        
+            .init(SentryMetricsIntegration.self),
+            .init(SentryFileIOTrackingIntegration.self)
+        ])
+
+        #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+        integrations.append(.init(SentryFramesTrackingIntegration.self))
+        integrations.append(.init(SentryWatchdogTerminationTrackingIntegration.self))
+        integrations.append(.init(SentryUIEventTrackingIntegration.self))
+        #endif
+
         #if os(iOS) && !SENTRY_NO_UIKIT
         integrations.append(.init(UserFeedbackIntegration.self))
         #endif
@@ -53,6 +72,7 @@ private struct AnyIntegration {
 
         #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
         integrations.append(.init(SentryScreenshotIntegration.self))
+        integrations.append(.init(SentryViewHierarchyIntegration.self))
         #endif
         
         #if os(iOS) || os(macOS)
@@ -68,3 +88,4 @@ private struct AnyIntegration {
         }
     }
 }
+// swiftlint:enable missing_docs

@@ -1,12 +1,13 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryLevel.h"
+#import "SentryScope+PrivateSwift.h"
 #import "SentryScope.h"
 
 @class SentryAttachment;
 @class SentryPropagationContext;
 @class SentrySession;
-@class SentrySpan;
+@class SentrySpanInternal;
 
 @protocol SentryScopeObserver;
 
@@ -43,11 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic) SentryLevel levelEnum;
 
-@property (nonatomic, nullable, copy) NSString *currentScreen;
-
-- (NSArray<SentryBreadcrumb *> *)breadcrumbs;
-
-- (nullable SentrySpan *)getCastedInternalSpan;
+- (nullable SentrySpanInternal *)getCastedInternalSpan;
 
 /**
  * used to add values in event context.
@@ -59,8 +56,6 @@ NS_ASSUME_NONNULL_BEGIN
  * Set global tags -> these will be sent with every event
  */
 @property (atomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
-
-- (void)addObserver:(id<SentryScopeObserver>)observer;
 
 - (nullable SentryEvent *)applyToEvent:(SentryEvent *_Nullable)event
                          maxBreadcrumb:(NSUInteger)maxBreadcrumbs

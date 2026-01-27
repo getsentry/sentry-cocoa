@@ -1,5 +1,6 @@
 import Foundation
 
+/// Options for experimental features that are subject to change or may be removed in future versions.
 @objcMembers
 public final class SentryExperimentalOptions: NSObject {
     /**
@@ -31,13 +32,14 @@ public final class SentryExperimentalOptions: NSObject {
 
     /// When enabled, the SDK sends metrics to Sentry. Metrics can be captured using the SentrySDK.metrics
     /// API, which allows you to send, view and query counters, gauges and measurements.
-    /// @note Default value is @c false.
-    @objc public var enableMetrics: Bool = false
+    /// @note Default value is @c true.
+    @objc public var enableMetrics: Bool = true
 
     /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
     /// drop the metric.
     public var beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
+    // swiftlint:disable:next missing_docs
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }
 }

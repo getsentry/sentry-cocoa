@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 import Foundation
 
 @objcMembers
@@ -28,3 +29,4 @@ import Foundation
     }
     
 }
+// swiftlint:enable missing_docs
