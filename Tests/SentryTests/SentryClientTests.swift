@@ -1120,20 +1120,22 @@ class SentryClientTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     func testCaptureEvent_CallsEventContextEnricher() throws {
         let event = TestData.event
-        event.context = ["existing": "data"]
+        let contextData: [String: [String: Any]] = ["existing": ["key-1": "value-1"]]
+        event.context = contextData
 
-        let enrichedContext = ["existing": "data", "app": ["enriched": true]]
+        var enrichedContext = contextData
+        enrichedContext["app"] = ["in_foreground": true]
         fixture.eventContextEnricher.enrichWithAppStateReturnValue = enrichedContext
 
         fixture.getSut().capture(event: event)
 
         XCTAssertEqual(fixture.eventContextEnricher.enrichWithAppStateInvocations.count, 1)
         let passedContext = try XCTUnwrap(fixture.eventContextEnricher.enrichWithAppStateInvocations.first)
-        XCTAssertEqual(passedContext["existing"] as? String, "data")
+        XCTAssertEqual(passedContext["existing"] as? [String: String], ["key-1": "value-1"])
 
         let actual = try lastSentEvent()
-        let appContext = actual.context?["app"] as? [String: Bool]
-        XCTAssertEqual(appContext?["enriched"], true)
+        let appContext = try XCTUnwrap(actual.context?["app"] as? [String: Any])
+        XCTAssertEqual(appContext["in_foreground"] as? Bool, true)
     }
 
     func testCaptureEvent_EventContextEnricherReceivesEmptyDictWhenContextIsNil() throws {

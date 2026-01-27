@@ -1,11 +1,13 @@
 import Foundation
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 
-class TestEventContextEnricher: SentryEventContextEnricher {
-    var enrichWithAppStateInvocations = Invocations<[String: Any]>()
-    var enrichWithAppStateReturnValue: [String: Any]?
+@_spi(Private) public class TestEventContextEnricher: SentryEventContextEnricher {
+    public init() {}
 
-    func enrichWithAppState(_ context: [String: Any]) -> [String: Any] {
+    public var enrichWithAppStateInvocations = Invocations<[String: Any]>()
+    public var enrichWithAppStateReturnValue: [String: Any]?
+
+    public func enrichWithAppState(_ context: [String: Any]) -> [String: Any] {
         enrichWithAppStateInvocations.record(context)
         return enrichWithAppStateReturnValue ?? context
     }

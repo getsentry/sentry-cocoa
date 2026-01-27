@@ -215,7 +215,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
     func testEnrichEventContext_MultipleCallsWithDifferentStates_ReturnsCorrectValues() throws {
         // Arrange & Act - First call with active state
         let sut1 = SentryDefaultEventContextEnricher(applicationStateProvider: { .active })
-        let result1 = sut1.enrichEventContext([:])
+        let result1 = sut1.enrichWithAppState([:])
 
         // Assert - First call
         let appContext1 = try XCTUnwrap(result1["app"] as? [String: Any])
@@ -224,7 +224,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
 
         // Arrange & Act - Second call with background state
         let sut2 = SentryDefaultEventContextEnricher(applicationStateProvider: { .background })
-        let result2 = sut2.enrichEventContext([:])
+        let result2 = sut2.enrichWithAppState([:])
 
         // Assert - Second call
         let appContext2 = try XCTUnwrap(result2["app"] as? [String: Any])
@@ -233,7 +233,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
 
         // Arrange & Act - Third call with inactive state
         let sut3 = SentryDefaultEventContextEnricher(applicationStateProvider: { .inactive })
-        let result3 = sut3.enrichEventContext([:])
+        let result3 = sut3.enrichWithAppState([:])
 
         // Assert - Third call
         let appContext3 = try XCTUnwrap(result3["app"] as? [String: Any])
