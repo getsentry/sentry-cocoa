@@ -785,6 +785,37 @@ class SentryHttpTransportTests: XCTestCase {
         try assertClientReportNotStoredInMemory()
     }
 
+    func testSendEnvelope_HTTPResponse413_DeletesEnvelopeRecordsClientReportAndStopsSending() throws {
+        // Arrange
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .error)
+
+        let sentryUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
+        let response = HTTPURLResponse(url: sentryUrl, statusCode: SentryHttpStatusCode.contentTooLarge.rawValue, httpVersion: nil, headerFields: nil)
+
+        fixture.requestManager.returnResponse(response: response)
+
+        // Act
+        sendEvent()
+
+        // Assert
+        // HTTP 413 Content Too Large should delete the envelope (no retry)
+        assertEnvelopesStored(envelopeCount: 0)
+        assertRequestsSent(requestCount: 1)
+        // Client report should be recorded with send_error reason
+        try assertClientReportStoredInMemory()
+
+        // Assert that error was logged with size and item types
+        let logMessages = logOutput.loggedMessages.filter {
+            $0.contains("[Sentry] [error]") &&
+            $0.contains("Upstream returned HTTP 413 Content Too Large") &&
+            $0.contains("The envelope size in bytes (compressed):") &&
+            $0.contains("item types (")
+        }
+        XCTAssertEqual(logMessages.count, 1, "HTTP 413 should log error message")
+    }
+
     /// We are very well aware that 599 doesn't exist, but we only use it for testing purposes
     func testSendEnvelope_HTTPResponse599_DeletesEnvelopeRecordsClientReportAndStopsSending() throws {
         // Arrange

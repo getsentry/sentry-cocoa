@@ -2,12 +2,6 @@
 import SentryTestUtils
 import XCTest
 
-extension SentryBreadcrumbTracker {
-    override convenience init() {
-        self.init(reportAccessibilityIdentifier: true)
-    }
-}
-
 class SentryBreadcrumbTrackerTests: XCTestCase {
     
     private var delegate: SentryBreadcrumbTestDelegate!
@@ -26,8 +20,8 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     
     func testStopRemovesSwizzleSendAction() {
-        let sut = SentryBreadcrumbTracker()
-        
+        let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+
         sut.start(with: delegate)
         sut.startSwizzle()
         sut.stop()
@@ -40,7 +34,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         
         SentryDependencyContainer.sharedInstance().reachability = testReachability
         
-        let sut = SentryBreadcrumbTracker()
+        let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
         sut.start(with: delegate)
         let states: [SentryConnectivity] = [.cellular,
                                             .wiFi,
@@ -65,7 +59,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     func testNetworkConnectivityBreadcrumbForSessionReplay() throws {
         let testReachability = TestSentryReachability()
         SentryDependencyContainer.sharedInstance().reachability = testReachability
-        let sut = SentryBreadcrumbTracker()
+        let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
         sut.start(with: delegate)
         testReachability.setReachabilityState(state: .cellular)
         sut.stop()
@@ -101,7 +95,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
         
-        let sut = SentryBreadcrumbTracker()
+        let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
         sut.start(with: delegate)
         sut.startSwizzle()
         
@@ -168,7 +162,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
         
-        let tracker = SentryBreadcrumbTracker()
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
         tracker.start(with: delegate)
         
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -193,7 +187,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let swizzlingWrapper = TestSentrySwizzleWrapper()
         SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzlingWrapper
         
-        let tracker = SentryBreadcrumbTracker()
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
         tracker.start(with: delegate)
         tracker.startSwizzle()
         
@@ -215,7 +209,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let swizzlingWrapper = TestSentrySwizzleWrapper()
         SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzlingWrapper
         
-        let tracker = SentryBreadcrumbTracker()
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
         tracker.start(with: delegate)
         tracker.startSwizzle()
         
@@ -296,7 +290,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let hub = TestHub(client: client, andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
 
-        let sut = SentryBreadcrumbTracker()
+        let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
         sut.start(with: delegate)
         sut.startSwizzle()
 
