@@ -54,10 +54,17 @@ static BOOL swizzlingIsActive = FALSE;
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)saveSelector);
 }
 
-+ (void)unswizzle
++ (void)stop
 {
     _tracker = nil;
 #if SENTRY_TEST || SENTRY_TEST_CI
+    [self unswizzle];
+#endif
+}
+
+#if SENTRY_TEST || SENTRY_TEST_CI
++ (void)unswizzle
+{
     swizzlingIsActive = FALSE;
 
     // Unswizzling is only supported in test targets as it is considered unsafe for production.
@@ -67,11 +74,9 @@ static BOOL swizzlingIsActive = FALSE;
 
     SEL saveSelector = NSSelectorFromString(@"save:");
     SentryUnswizzleInstanceMethod(NSManagedObjectContext.class, saveSelector, (void *)saveSelector);
-#endif
 }
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 
-#if SENTRY_TEST || SENTRY_TEST_CI
 + (BOOL)swizzlingActive
 {
     return swizzlingIsActive;

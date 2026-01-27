@@ -501,9 +501,9 @@ static NSDate *_Nullable startTimestamp = nil;
         [NSMutableArray<Class> arrayWithObjects:[SentryAppStartTrackingIntegration class],
             [SentryPerformanceTrackingIntegration class], nil];
     return defaultIntegrations;
-#endif // SENTRY_HAS_UIKIT
-
+#else
     return @[];
+#endif // SENTRY_HAS_UIKIT
 }
 
 /**

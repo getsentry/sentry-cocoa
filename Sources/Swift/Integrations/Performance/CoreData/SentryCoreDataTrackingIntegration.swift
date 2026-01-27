@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
-typealias CoreDataTrackingIntegrationProvider = ThreadInspectorProvider & ProcessInfoProvider & SentryCoreDataSwizzlingProvider
+typealias CoreDataTrackingIntegrationProvider = SentryCoreDataSwizzlingProvider & SentryCoreDataTrackerBuilder
 
 final class SentryCoreDataTrackingIntegration<Dependencies: CoreDataTrackingIntegrationProvider>: NSObject, SwiftIntegration {
     private let tracker: SentryCoreDataTracker
@@ -28,11 +28,7 @@ final class SentryCoreDataTrackingIntegration<Dependencies: CoreDataTrackingInte
             return nil
         }
 
-        let threadInspector = SentryDefaultThreadInspector(options: options)
-        self.tracker = SentryCoreDataTracker(
-            threadInspector: threadInspector,
-            processInfoWrapper: dependencies.processInfoWrapper
-        )
+        self.tracker = dependencies.getCoreDataTracker(options)
         self.coreDataSwizzling = dependencies.coreDataSwizzling
 
         super.init()

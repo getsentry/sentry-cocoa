@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)swizzleWithTracker:(SENTRY_SWIFT_MIGRATION_ID(SentryCoreDataTracker))tracker;
 
-+ (void)unswizzle;
++ (void)stop;
 
 #if SENTRY_TEST || SENTRY_TEST_CI
 + (BOOL)swizzlingActive;
