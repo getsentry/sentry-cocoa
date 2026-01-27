@@ -25,29 +25,21 @@ class SentryDefaultEventContextEnricher: SentryEventContextEnricher {
     }
 
     func enrichWithAppState(_ context: [String: Any]) -> [String: Any] {
-        // Check if both fields are already set
-        if let appContext = context["app"] as? [String: Any],
-           appContext["in_foreground"] != nil && appContext["is_active"] != nil {
-            // Both fields already exist, don't modify
-            return context
-        }
-
         // Get application state
         guard let appState = applicationStateProvider() else {
             SentrySDKLog.warning("Failed to retrieve application state. Can't enrich event context with in_foreground and is_active fields.")
             return context
         }
 
-        // Add app state information
-        var mutableContext = context
-        var appContext: [String: Any]
+        // Get or create app context
+        var appContext = (context["app"] as? [String: Any]) ?? [:]
 
-        if let existingAppContext = mutableContext["app"] as? [String: Any] {
-            appContext = existingAppContext
-        } else {
-            appContext = [:]
+        // Check if both fields are already set
+        if appContext["in_foreground"] != nil && appContext["is_active"] != nil {
+            return context
         }
 
+        // Add missing app state fields
         let isActive = appState == .active
         let inForeground = appState != .background
 
@@ -59,6 +51,7 @@ class SentryDefaultEventContextEnricher: SentryEventContextEnricher {
             appContext["is_active"] = isActive
         }
 
+        var mutableContext = context
         mutableContext["app"] = appContext
         return mutableContext
     }
