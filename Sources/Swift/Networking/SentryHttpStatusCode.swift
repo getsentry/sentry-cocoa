@@ -30,15 +30,13 @@ public enum SentryHttpStatusCode: Int {
 /// Enables direct comparison between Int and SentryHttpStatusCode.
 /// Allows writing `statusCode == SentryHttpStatusCode.contentTooLarge` instead of `statusCode == SentryHttpStatusCode.contentTooLarge.rawValue`.
 /// Note: This operator is only needed for Swift. In Objective-C, you can already compare the enum directly to an int without .rawValue.
-@_spi(Private)
-public func == (lhs: Int, rhs: SentryHttpStatusCode) -> Bool {
+func == (lhs: Int, rhs: SentryHttpStatusCode) -> Bool {
     return lhs == rhs.rawValue
 }
 
 /// Enables direct comparison between SentryHttpStatusCode and Int.
 /// Allows writing `SentryHttpStatusCode.contentTooLarge == statusCode` instead of `SentryHttpStatusCode.contentTooLarge.rawValue == statusCode`.
 /// Note: This operator is only needed for Swift. In Objective-C, you can already compare the enum directly to an int without .rawValue.
-@_spi(Private)
-public func == (lhs: SentryHttpStatusCode, rhs: Int) -> Bool {
+func == (lhs: SentryHttpStatusCode, rhs: Int) -> Bool {
     return lhs.rawValue == rhs
 }
