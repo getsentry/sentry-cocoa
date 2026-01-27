@@ -40,6 +40,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol SentryEventContextEnricher;
+
 @interface SentryClientInternal () <SentryLogBufferDelegate>
 
 @property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
@@ -48,6 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
 @property (nonatomic, strong) SentryLogBuffer *logBuffer;
+@property (nonatomic, strong) id<SentryEventContextEnricher> eventContextEnricher;
 
 @end
 
