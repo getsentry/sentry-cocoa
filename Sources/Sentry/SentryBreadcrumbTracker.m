@@ -77,10 +77,7 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 - (void)trackApplicationNotifications
 {
 #if SENTRY_HAS_UIKIT
-    NSNotificationName didBecomeActiveNotificationName = UIApplicationDidBecomeActiveNotification;
-    NSNotificationName willResignActiveNotificationName = UIApplicationWillResignActiveNotification;
-
-    NSNotificationName foregroundNotificationName = UIApplicationWillEnterForegroundNotification;
+    NSNotificationName foregroundNotificationName = UIApplicationDidBecomeActiveNotification;
     NSNotificationName backgroundNotificationName = UIApplicationDidEnterBackgroundNotification;
 #elif SENTRY_TARGET_MACOS_HAS_UI
     NSNotificationName foregroundNotificationName = NSApplicationDidBecomeActiveNotification;
@@ -130,28 +127,6 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
                                                                       withLevel:kSentryLevelInfo
                                                                     withDataKey:@"state"
                                                                   withDataValue:@"foreground"];
-                                                }];
-
-    [NSNotificationCenter.defaultCenter addObserverForName:didBecomeActiveNotificationName
-                                                    object:nil
-                                                     queue:nil
-                                                usingBlock:^(NSNotification *notification) {
-                                                    [self addBreadcrumbWithType:@"navigation"
-                                                                   withCategory:@"app.lifecycle"
-                                                                      withLevel:kSentryLevelInfo
-                                                                    withDataKey:@"state"
-                                                                  withDataValue:@"active"];
-                                                }];
-
-    [NSNotificationCenter.defaultCenter addObserverForName:willResignActiveNotificationName
-                                                    object:nil
-                                                     queue:nil
-                                                usingBlock:^(NSNotification *notification) {
-                                                    [self addBreadcrumbWithType:@"navigation"
-                                                                   withCategory:@"app.lifecycle"
-                                                                      withLevel:kSentryLevelInfo
-                                                                    withDataKey:@"state"
-                                                                  withDataValue:@"inactive"];
                                                 }];
 #endif // SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS_HAS_UI
 }
