@@ -220,7 +220,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
 // MARK: - Non-UIKit Platform Tests
 
 #if !(os(iOS) || os(tvOS) || os(visionOS)) || SENTRY_NO_UIKIT
-extension SentryDefaultEventContextEnricherTests {
+class SentryDefaultEventContextEnricherTests: XCTestCase {
     func testEnrichEventContext_OnNonUIKitPlatforms_ReturnsContextUnchanged() throws {
         // Arrange
         let sut = SentryDefaultEventContextEnricher()
