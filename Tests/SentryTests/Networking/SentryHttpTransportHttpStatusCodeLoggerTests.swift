@@ -18,7 +18,7 @@ final class SentryHttpTransportHttpStatusCodeLoggerTests: XCTestCase {
         let sizeInBytes = request.httpBody?.count ?? 0
 
         // Act
-        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCodes.contentTooLarge.rawValue, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCode.contentTooLarge.rawValue, envelope: envelope, request: request)
 
         // Assert
         let logMessages = logOutput.loggedMessages.filter {
@@ -53,7 +53,7 @@ final class SentryHttpTransportHttpStatusCodeLoggerTests: XCTestCase {
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCodes.contentTooLarge.rawValue, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCode.contentTooLarge.rawValue, envelope: envelope, request: request)
 
         // Assert
         let logMessages = logOutput.loggedMessages.filter {
@@ -83,7 +83,7 @@ final class SentryHttpTransportHttpStatusCodeLoggerTests: XCTestCase {
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCodes.contentTooLarge.rawValue, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCode.contentTooLarge.rawValue, envelope: envelope, request: request)
 
         // Assert
         let logMessages = logOutput.loggedMessages.filter {
@@ -102,7 +102,7 @@ final class SentryHttpTransportHttpStatusCodeLoggerTests: XCTestCase {
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCodes.contentTooLarge.rawValue, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCode.contentTooLarge.rawValue, envelope: envelope, request: request)
 
         // Assert
         let logMessages = logOutput.loggedMessages.filter {
@@ -124,7 +124,7 @@ final class SentryHttpTransportHttpStatusCodeLoggerTests: XCTestCase {
         request.httpBody = nil
 
         // Act
-        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCodes.contentTooLarge.rawValue, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCode.contentTooLarge.rawValue, envelope: envelope, request: request)
 
         // Assert
         let logMessages = logOutput.loggedMessages.filter {
@@ -155,7 +155,7 @@ final class SentryHttpTransportHttpStatusCodeLoggerTests: XCTestCase {
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCodes.contentTooLarge.rawValue, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCode.contentTooLarge.rawValue, envelope: envelope, request: request)
 
         // Assert
         let logMessages = logOutput.loggedMessages.filter {
@@ -177,7 +177,7 @@ final class SentryHttpTransportHttpStatusCodeLoggerTests: XCTestCase {
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCodes.preconditionFailed.rawValue, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCode.preconditionFailed.rawValue, envelope: envelope, request: request)
 
         // Assert
         XCTAssertEqual(logOutput.loggedMessages.count, 0)
@@ -194,7 +194,7 @@ final class SentryHttpTransportHttpStatusCodeLoggerTests: XCTestCase {
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCodes.tooManyRequests.rawValue, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCode.tooManyRequests.rawValue, envelope: envelope, request: request)
 
         // Assert
         XCTAssertEqual(logOutput.loggedMessages.count, 0)
@@ -211,7 +211,7 @@ final class SentryHttpTransportHttpStatusCodeLoggerTests: XCTestCase {
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCodes.internalServerError.rawValue, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCode.internalServerError.rawValue, envelope: envelope, request: request)
 
         // Assert
         XCTAssertEqual(logOutput.loggedMessages.count, 0)
@@ -228,7 +228,7 @@ final class SentryHttpTransportHttpStatusCodeLoggerTests: XCTestCase {
         let request = try createRequest(with: envelope)
 
         // Act
-        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCodes.ok.rawValue, envelope: envelope, request: request)
+        SentryHttpTransportHttpStatusCodeLogger.logHttpResponseError(statusCode: SentryHttpStatusCode.ok.rawValue, envelope: envelope, request: request)
 
         // Assert
         XCTAssertEqual(logOutput.loggedMessages.count, 0)

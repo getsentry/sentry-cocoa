@@ -635,6 +635,7 @@
 		8EE017A126704CD500470616 /* SentryUIViewControllerPerformanceTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EA1ED0E2669152F00E62B98 /* SentryUIViewControllerPerformanceTrackerTests.swift */; };
 		8F0D6AA22B04115A00D048B1 /* SentryInstallation+Test.h in Sources */ = {isa = PBXBuildFile; fileRef = 8F0D6AA12B040A0100D048B1 /* SentryInstallation+Test.h */; };
 		8F73BC312B02B87E00C3CEF4 /* SentryInstallationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F73BC302B02B87E00C3CEF4 /* SentryInstallationTests.swift */; };
+		910908AA166149782037180C /* SentryHttpStatusCodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96529D16C36728B8682FD6B7 /* SentryHttpStatusCodeTests.swift */; };
 		92136D672C9D7660002A9FB8 /* SentryNSURLRequestBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92136D662C9D765D002A9FB8 /* SentryNSURLRequestBuilderTests.swift */; };
 		92235CB02E155B2600865983 /* SentryLoggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92235CAF2E155B2600865983 /* SentryLoggerTests.swift */; };
 		9264E1ED2E2E397C00B077CF /* SentryLogMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9264E1EC2E2E397400B077CF /* SentryLogMessageTests.swift */; };
@@ -1793,6 +1794,7 @@
 		92D957722E05A44600E20E66 /* SentryAsyncLog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryAsyncLog.m; sourceTree = "<group>"; };
 		92D957762E05A4F300E20E66 /* SentryAsyncLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryAsyncLog.h; path = include/SentryAsyncLog.h; sourceTree = "<group>"; };
 		92F6726A29C8B7B000BFD34D /* SentryUser+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SentryUser+Private.h"; path = "include/SentryUser+Private.h"; sourceTree = "<group>"; };
+		96529D16C36728B8682FD6B7 /* SentryHttpStatusCodeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SentryHttpStatusCodeTests.swift; sourceTree = "<group>"; };
 		A811D866248E2770008A41EA /* SentrySystemEventBreadcrumbsTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySystemEventBreadcrumbsTest.swift; sourceTree = "<group>"; };
 		A839D89724864B80003B7AFD /* SentrySystemEventBreadcrumbs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySystemEventBreadcrumbs.h; path = include/SentrySystemEventBreadcrumbs.h; sourceTree = "<group>"; };
 		A839D89924864BA8003B7AFD /* SentrySystemEventBreadcrumbs.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySystemEventBreadcrumbs.m; sourceTree = "<group>"; };
@@ -2087,7 +2089,17 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		FA2111C32F22CE8C00DFFABE /* Swift */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Swift; sourceTree = "<group>"; };
+		FA2111C32F22CE8C00DFFABE /* Swift */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = Swift;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3061,6 +3073,7 @@
 				0A9415B928F96CAC006A5DD1 /* TestSentryReachability.swift */,
 				D4FC68192DD63465001B74FF /* SentryDispatchQueueWrapperTests.m */,
 				B2AD6B6EB19ECBDEB8C5826B /* SentryHttpTransportHttpStatusCodeLoggerTests.swift */,
+				96529D16C36728B8682FD6B7 /* SentryHttpStatusCodeTests.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -5347,6 +5360,7 @@
 				C15D3A410F7654A672CFC63B /* PropertyExtractor.swift in Sources */,
 				81BC357F116F0147283DA824 /* PropertyExtractorTests.swift in Sources */,
 				94718EC4074D646516AEFBD8 /* SentryHttpTransportHttpStatusCodeLoggerTests.swift in Sources */,
+				910908AA166149782037180C /* SentryHttpStatusCodeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
