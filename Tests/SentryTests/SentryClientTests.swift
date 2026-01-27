@@ -1123,12 +1123,12 @@ class SentryClientTests: XCTestCase {
         event.context = ["existing": "data"]
 
         let enrichedContext = ["existing": "data", "app": ["enriched": true]]
-        fixture.eventContextEnricher.enrichEventContextReturnValue = enrichedContext
+        fixture.eventContextEnricher.enrichWithAppStateReturnValue = enrichedContext
 
         fixture.getSut().capture(event: event)
 
-        XCTAssertEqual(fixture.eventContextEnricher.enrichEventContextInvocations.count, 1)
-        let passedContext = try XCTUnwrap(fixture.eventContextEnricher.enrichEventContextInvocations.first)
+        XCTAssertEqual(fixture.eventContextEnricher.enrichWithAppStateInvocations.count, 1)
+        let passedContext = try XCTUnwrap(fixture.eventContextEnricher.enrichWithAppStateInvocations.first)
         XCTAssertEqual(passedContext["existing"] as? String, "data")
 
         let actual = try lastSentEvent()
@@ -1136,17 +1136,17 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(appContext?["enriched"], true)
     }
 
-    func testCaptureEvent_EventContextEnricherReceivesEmptyContextWhenNil() throws {
+    func testCaptureEvent_EventContextEnricherReceivesNilWhenContextIsNil() throws {
         let event = TestData.event
         event.context = nil
 
-        fixture.eventContextEnricher.enrichEventContextReturnValue = ["app": ["enriched": true]]
+        fixture.eventContextEnricher.enrichWithAppStateReturnValue = ["app": ["enriched": true]]
 
         fixture.getSut().capture(event: event)
 
-        XCTAssertEqual(fixture.eventContextEnricher.enrichEventContextInvocations.count, 1)
-        let passedContext = try XCTUnwrap(fixture.eventContextEnricher.enrichEventContextInvocations.first)
-        XCTAssertTrue(passedContext.isEmpty)
+        XCTAssertEqual(fixture.eventContextEnricher.enrichWithAppStateInvocations.count, 1)
+        let passedContext = fixture.eventContextEnricher.enrichWithAppStateInvocations.first
+        XCTAssertNil(passedContext)
     }
 #endif
 

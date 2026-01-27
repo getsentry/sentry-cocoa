@@ -723,7 +723,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 #if SENTRY_HAS_UIKIT
     if (!isFatalEvent && eventIsNotReplay) {
         NSDictionary *currentContext = event.context ?: @{};
-        event.context = [self.eventContextEnricher enrichEventContext:currentContext];
+        event.context = [self.eventContextEnricher enrichWithAppState:currentContext];
     }
 #endif
 

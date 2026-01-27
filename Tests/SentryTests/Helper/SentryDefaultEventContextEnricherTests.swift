@@ -12,7 +12,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         let sut = SentryDefaultEventContextEnricher(applicationStateProvider: { .active })
 
         // Act
-        let result = sut.enrichEventContext([:])
+        let result = sut.enrichWithAppState([:])
 
         // Assert
         let appContext = try XCTUnwrap(result["app"] as? [String: Any])
@@ -27,7 +27,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         let sut = SentryDefaultEventContextEnricher(applicationStateProvider: { .inactive })
 
         // Act
-        let result = sut.enrichEventContext([:])
+        let result = sut.enrichWithAppState([:])
 
         // Assert
         let appContext = try XCTUnwrap(result["app"] as? [String: Any])
@@ -42,7 +42,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         let sut = SentryDefaultEventContextEnricher(applicationStateProvider: { .background })
 
         // Act
-        let result = sut.enrichEventContext([:])
+        let result = sut.enrichWithAppState([:])
 
         // Assert
         let appContext = try XCTUnwrap(result["app"] as? [String: Any])
@@ -61,7 +61,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         ]
 
         // Act
-        let result = sut.enrichEventContext(context)
+        let result = sut.enrichWithAppState(context)
 
         // Assert
         let deviceContext = try XCTUnwrap(result["device"] as? [String: String])
@@ -81,7 +81,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         ]
 
         // Act
-        let result = sut.enrichEventContext(context)
+        let result = sut.enrichWithAppState(context)
 
         // Assert
         let appContext = try XCTUnwrap(result["app"] as? [String: Any])
@@ -101,7 +101,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         ]
 
         // Act
-        let result = sut.enrichEventContext(context)
+        let result = sut.enrichWithAppState(context)
 
         // Assert
         let appContext = try XCTUnwrap(result["app"] as? [String: Any])
@@ -117,7 +117,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         ]
 
         // Act
-        let result = sut.enrichEventContext(context)
+        let result = sut.enrichWithAppState(context)
 
         // Assert
         let appContext = try XCTUnwrap(result["app"] as? [String: Any])
@@ -137,7 +137,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         ]
 
         // Act
-        let result = sut.enrichEventContext(context)
+        let result = sut.enrichWithAppState(context)
 
         // Assert
         let appContext = try XCTUnwrap(result["app"] as? [String: Any])
@@ -153,7 +153,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         let sut = SentryDefaultEventContextEnricher(applicationStateProvider: { .active })
 
         // Act
-        let result = sut.enrichEventContext([:])
+        let result = sut.enrichWithAppState([:])
 
         // Assert
         let appContext = try XCTUnwrap(result["app"] as? [String: Any])
@@ -171,7 +171,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         ]
 
         // Act
-        let result = sut.enrichEventContext(context)
+        let result = sut.enrichWithAppState(context)
 
         // Assert
         let appContext = try XCTUnwrap(result["app"] as? [String: Any])
@@ -189,7 +189,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         ]
 
         // Act
-        let result = sut.enrichEventContext(context)
+        let result = sut.enrichWithAppState(context)
 
         // Assert
         XCTAssertEqual(result as NSDictionary, context as NSDictionary)
@@ -205,7 +205,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         ]
 
         // Act
-        let result = sut.enrichEventContext(context)
+        let result = sut.enrichWithAppState(context)
 
         // Assert
         // Should not crash and should handle gracefully
@@ -257,7 +257,7 @@ extension SentryDefaultEventContextEnricherTests {
         ]
 
         // Act
-        let result = sut.enrichEventContext(originalContext)
+        let result = sut.enrichWithAppState(originalContext)
 
         // Assert
         // Context should be returned unchanged
@@ -277,7 +277,7 @@ extension SentryDefaultEventContextEnricherTests {
         let sut = SentryDefaultEventContextEnricher()
 
         // Act
-        let result = sut.enrichEventContext([:])
+        let result = sut.enrichWithAppState([:])
 
         // Assert
         XCTAssertTrue(result.isEmpty)
