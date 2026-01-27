@@ -42,7 +42,13 @@ class SentryDefaultEventContextEnricher: SentryEventContextEnricher {
 
         // Add app state information
         var mutableContext = contextToEnrich
-        var appContext = (mutableContext["app"] as? [String: Any]) ?? [:]
+        var appContext: [String: Any]
+
+        if let existingAppContext = mutableContext["app"] as? [String: Any] {
+            appContext = existingAppContext
+        } else {
+            appContext = [:]
+        }
 
         let isActive = appState == .active
         let inForeground = appState != .background
