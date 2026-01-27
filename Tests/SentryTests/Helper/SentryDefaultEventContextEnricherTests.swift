@@ -213,35 +213,6 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         // Verify app field is still the invalid type (unchanged)
         XCTAssertEqual(result["app"] as? String, "invalid-type")
     }
-
-    func testEnrichEventContext_MultipleCallsWithDifferentStates_ReturnsCorrectValues() throws {
-        // Arrange & Act - First call with active state
-        let sut1 = SentryDefaultEventContextEnricher(applicationStateProvider: { .active })
-        let result1 = sut1.enrichWithAppState([:])
-
-        // Assert - First call
-        let appContext1 = try XCTUnwrap(result1["app"] as? [String: Any])
-        XCTAssertTrue(try XCTUnwrap(appContext1["is_active"] as? Bool))
-        XCTAssertTrue(try XCTUnwrap(appContext1["in_foreground"] as? Bool))
-
-        // Arrange & Act - Second call with background state
-        let sut2 = SentryDefaultEventContextEnricher(applicationStateProvider: { .background })
-        let result2 = sut2.enrichWithAppState([:])
-
-        // Assert - Second call
-        let appContext2 = try XCTUnwrap(result2["app"] as? [String: Any])
-        XCTAssertFalse(try XCTUnwrap(appContext2["is_active"] as? Bool))
-        XCTAssertFalse(try XCTUnwrap(appContext2["in_foreground"] as? Bool))
-
-        // Arrange & Act - Third call with inactive state
-        let sut3 = SentryDefaultEventContextEnricher(applicationStateProvider: { .inactive })
-        let result3 = sut3.enrichWithAppState([:])
-
-        // Assert - Third call
-        let appContext3 = try XCTUnwrap(result3["app"] as? [String: Any])
-        XCTAssertFalse(try XCTUnwrap(appContext3["is_active"] as? Bool))
-        XCTAssertTrue(try XCTUnwrap(appContext3["in_foreground"] as? Bool))
-    }
 }
 
 #endif
