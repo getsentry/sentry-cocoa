@@ -112,6 +112,7 @@ static BOOL swizzlingIsActive = FALSE;
         SentrySwizzleModeOncePerClassAndSuperclasses,
         (void *)initWithContentsOfURLOptionsErrorSelector);
 }
+#pragma clang diagnostic pop
 
 + (void)stop
 {
@@ -149,7 +150,6 @@ static BOOL swizzlingIsActive = FALSE;
     SentryUnswizzleInstanceMethod(NSData.class, initWithContentsOfURLOptionsErrorSelector,
         (void *)initWithContentsOfURLOptionsErrorSelector);
 }
-#    pragma clang diagnostic pop
 
 + (BOOL)swizzlingActive
 {

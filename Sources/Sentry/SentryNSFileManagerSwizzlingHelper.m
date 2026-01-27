@@ -53,6 +53,7 @@ static BOOL swizzlingIsActive = FALSE;
             (void *)createFileAtPathContentsAttributes);
     }
 }
+#pragma clang diagnostic pop
 
 + (void)stop
 {
@@ -75,7 +76,6 @@ static BOOL swizzlingIsActive = FALSE;
             (void *)createFileAtPathContentsAttributes);
     }
 }
-#    pragma clang diagnostic pop
 
 + (BOOL)swizzlingActive
 {
