@@ -23,33 +23,39 @@ final class SentryHttpStatusCodeTests: XCTestCase {
         XCTAssertFalse(SentryHttpStatusCode.contentTooLarge == 200)
     }
 
-    // MARK: - Raw Value Tests
+    // MARK: - Status Code Value Tests
 
-    func testRawValue_whenOk_shouldReturn200() {
-        XCTAssertEqual(SentryHttpStatusCode.ok.rawValue, 200)
+    func testStatusCodeValue_whenOk_shouldBe200() {
+        XCTAssertTrue(200 == SentryHttpStatusCode.ok)
     }
 
-    func testRawValue_whenCreated_shouldReturn201() {
-        XCTAssertEqual(SentryHttpStatusCode.created.rawValue, 201)
+    func testStatusCodeValue_whenCreated_shouldBe201() {
+        XCTAssertTrue(201 == SentryHttpStatusCode.created)
     }
 
-    func testRawValue_whenBadRequest_shouldReturn400() {
-        XCTAssertEqual(SentryHttpStatusCode.badRequest.rawValue, 400)
+    func testStatusCodeValue_whenBadRequest_shouldBe400() {
+        XCTAssertTrue(400 == SentryHttpStatusCode.badRequest)
     }
 
-    func testRawValue_whenContentTooLarge_shouldReturn413() {
+    func testStatusCodeValue_whenPreconditionFailed_shouldBe412() {
+        XCTAssertTrue(412 == SentryHttpStatusCode.preconditionFailed)
+    }
+
+    func testStatusCodeValue_whenContentTooLarge_shouldBe413() {
+        XCTAssertTrue(413 == SentryHttpStatusCode.contentTooLarge)
+    }
+
+    func testStatusCodeValue_whenTooManyRequests_shouldBe429() {
+        XCTAssertTrue(429 == SentryHttpStatusCode.tooManyRequests)
+    }
+
+    func testStatusCodeValue_whenInternalServerError_shouldBe500() {
+        XCTAssertTrue(500 == SentryHttpStatusCode.internalServerError)
+    }
+
+    // MARK: - Raw Value Test
+
+    func testRawValue_shouldReturnCorrectInt() {
         XCTAssertEqual(SentryHttpStatusCode.contentTooLarge.rawValue, 413)
-    }
-
-    func testRawValue_whenPreconditionFailed_shouldReturn412() {
-        XCTAssertEqual(SentryHttpStatusCode.preconditionFailed.rawValue, 412)
-    }
-
-    func testRawValue_whenTooManyRequests_shouldReturn429() {
-        XCTAssertEqual(SentryHttpStatusCode.tooManyRequests.rawValue, 429)
-    }
-
-    func testRawValue_whenInternalServerError_shouldReturn500() {
-        XCTAssertEqual(SentryHttpStatusCode.internalServerError.rawValue, 500)
     }
 }
