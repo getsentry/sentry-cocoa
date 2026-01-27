@@ -52,12 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
         [self logWithOptionName:@"enableUIViewControllerTracing"];
         return NO;
     }
-
-    if ((integrationOptions & kIntegrationOptionEnableUserInteractionTracing)
-        && !options.enableUserInteractionTracing) {
-        [self logWithOptionName:@"enableUserInteractionTracing"];
-        return NO;
-    }
 #endif
 
     if (integrationOptions & kIntegrationOptionEnableAppHangTracking) {
@@ -77,12 +71,6 @@ NS_ASSUME_NONNULL_BEGIN
             [self logWithReason:@"because appHangTimeoutInterval is 0"];
             return NO;
         }
-    }
-
-    if ((integrationOptions & kIntegrationOptionEnableNetworkTracking)
-        && !options.enableNetworkTracking) {
-        [self logWithOptionName:@"enableNetworkTracking"];
-        return NO;
     }
 
     if ((integrationOptions & kIntegrationOptionEnableFileIOTracing)
@@ -141,11 +129,6 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 #endif
-    if ((integrationOptions & kIntegrationOptionEnableCrashHandler)
-        && !options.enableCrashHandler) {
-        [self logWithOptionName:@"enableCrashHandler"];
-        return NO;
-    }
 
 #if SENTRY_HAS_METRIC_KIT
     if ((integrationOptions & kIntegrationOptionEnableMetricKit) && !options.enableMetricKit) {

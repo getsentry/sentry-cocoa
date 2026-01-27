@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 @_spi(Private) @objc public class SentryFileManager: NSObject {
@@ -316,3 +317,4 @@
         SentrySDKLog.debug("Removed \(numberOfEnvelopesToRemove) file(s) from <\((envelopesPath as NSString).lastPathComponent)>")
     }
 }
+// swiftlint:enable missing_docs

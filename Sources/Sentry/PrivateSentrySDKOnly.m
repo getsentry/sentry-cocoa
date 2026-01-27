@@ -10,7 +10,6 @@
 #import "SentryProfileCollector.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
-#import "SentrySessionReplayIntegration+Private.h"
 #import "SentrySwift.h"
 #import "SentryUser+Private.h"
 #import <SentryBreadcrumb.h>

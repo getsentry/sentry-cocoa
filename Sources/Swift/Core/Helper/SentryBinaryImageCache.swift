@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -35,8 +36,23 @@ import Foundation
         lock.synchronized {
             self.isDebug = isDebug
             self.cache = []
-            sentrycrashbic_registerAddedCallback(binaryImageWasAdded)
-            sentrycrashbic_registerRemovedCallback(binaryImageWasRemoved)
+            sentrycrashbic_registerAddedCallback { imagePtr in
+                guard let imagePtr else {
+                    SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
+                    return
+                }
+                let image = imagePtr.pointee
+                SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(
+                    imageName: image.name, vmAddress: image.vmAddress, address: image.address, size: image.size, uuid: image.uuid)
+            }
+            sentrycrashbic_registerRemovedCallback { imagePtr in
+                guard let imagePtr else {
+                    SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
+                    return
+                }
+                let image = imagePtr.pointee
+                SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageRemoved(image.address)
+            }
         }
     }
     
@@ -173,3 +189,4 @@ import Foundation
         }
     }   
 }
+// swiftlint:enable missing_docs

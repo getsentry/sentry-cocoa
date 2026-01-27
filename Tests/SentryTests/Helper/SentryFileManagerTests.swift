@@ -1493,7 +1493,7 @@ private extension SentryFileManagerTests {
         let actualSession = SentrySerializationSwift.session(with: try XCTUnwrap(XCTUnwrap(actualSessionEnvelope?.items.element(at: 1)).data))
         XCTAssertNotNil(actualSession)
 
-        XCTAssertEqual(fixture.expectedSessionUpdate, actualSession)
+        try XCTAssertTrue(fixture.expectedSessionUpdate.isEqual(to: XCTUnwrap(actualSession)))
     }
     
     func assertSessionInitNotMoved(_ actualSessionFileContents: SentryFileContents) throws {
@@ -1503,7 +1503,7 @@ private extension SentryFileManagerTests {
         let actualSession = SentrySerializationSwift.session(with: try XCTUnwrap(XCTUnwrap(actualSessionEnvelope?.items.first).data))
         XCTAssertNotNil(actualSession)
 
-        XCTAssertEqual(fixture.sessionUpdate, actualSession)
+        try XCTAssertTrue(fixture.sessionUpdate.isEqual(to: XCTUnwrap(actualSession)))
     }
 
     func assertSessionEnvelopesStored(count: Int) {

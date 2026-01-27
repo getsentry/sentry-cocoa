@@ -1,4 +1,4 @@
-//swiftlint:disable todo
+// swiftlint:disable todo
 
 import Foundation
 #if os(iOS) && !SENTRY_NO_UIKIT
@@ -132,4 +132,4 @@ final class SentryUserFeedbackWidget {
 
 #endif // os(iOS) && !SENTRY_NO_UIKIT
 
-//swiftlint:enable todo
+// swiftlint:enable todo

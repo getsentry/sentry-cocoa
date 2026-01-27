@@ -97,7 +97,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         let image1 = try XCTUnwrap(actual.first)
         
         XCTAssertEqual(image1.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
-        XCTAssertEqual(image1.type, SentryDebugImageType)
+        XCTAssertEqual(image1.type, "macho")
         XCTAssertEqual(image1.imageVmAddress, "0x0000daf262294000")
         XCTAssertEqual(image1.imageAddress, "0x00000001410b1a00")
         XCTAssertEqual(image1.imageSize, 1_352_256)
@@ -106,7 +106,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         let image2 = try XCTUnwrap(actual.last)
         
         XCTAssertEqual(image2.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
-        XCTAssertEqual(image2.type, SentryDebugImageType)
+        XCTAssertEqual(image2.type, "macho")
         XCTAssertEqual(image2.imageVmAddress, "0x00007fff51af0000")
         XCTAssertEqual(image2.imageAddress, "0x0000000105705000")
         XCTAssertEqual(image2.imageSize, 352_256)
@@ -128,7 +128,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         let image1 = try XCTUnwrap(actual.first)
         
         XCTAssertEqual(image1.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
-        XCTAssertEqual(image1.type, SentryDebugImageType)
+        XCTAssertEqual(image1.type, "macho")
         XCTAssertEqual(image1.imageVmAddress, "0x0000daf262294000")
         XCTAssertEqual(image1.imageAddress, "0x00000001410b1a00")
         XCTAssertEqual(image1.imageSize, 1_352_256)
@@ -137,7 +137,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         let image2 = try XCTUnwrap(actual.last)
         
         XCTAssertEqual(image2.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
-        XCTAssertEqual(image2.type, SentryDebugImageType)
+        XCTAssertEqual(image2.type, "macho")
         XCTAssertEqual(image2.imageVmAddress, "0x00007fff51af0000")
         XCTAssertEqual(image2.imageAddress, "0x0000000105705000")
         XCTAssertEqual(image2.imageSize, 352_256)
@@ -158,7 +158,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         XCTAssertEqual(actual.count, 1)
         let image = try XCTUnwrap(actual.first)
         XCTAssertEqual(image.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
-        XCTAssertEqual(image.type, SentryDebugImageType)
+        XCTAssertEqual(image.type, "macho")
         XCTAssertEqual(image.imageVmAddress, "0x00007fff51af0000")
         XCTAssertEqual(image.imageAddress, "0x0000000105705000")
         XCTAssertEqual(image.imageSize, 352_256)
@@ -184,7 +184,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         let image = try XCTUnwrap(actual.first)
         
         XCTAssertEqual(image.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
-        XCTAssertEqual(image.type, SentryDebugImageType)
+        XCTAssertEqual(image.type, "macho")
         XCTAssertEqual(image.imageVmAddress, "0x0000daf262294000")
         XCTAssertEqual(image.imageAddress, "0x00000001410b1a00")
         XCTAssertEqual(image.imageSize, 1_352_256)
@@ -219,7 +219,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         let coreDataImage = try XCTUnwrap(actual.first { $0.codeFile == "CoreData" })
 
         XCTAssertEqual(coreDataImage.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
-        XCTAssertEqual(coreDataImage.type, SentryDebugImageType)
+        XCTAssertEqual(coreDataImage.type, "macho")
         XCTAssertEqual(coreDataImage.imageVmAddress, "0x000135e572a38000")
         XCTAssertEqual(coreDataImage.imageAddress, "0x000000017ca5e400")
         XCTAssertEqual(coreDataImage.imageSize, 900_256)
@@ -228,7 +228,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         let uiKitImage = try XCTUnwrap(actual.first { $0.codeFile == "UIKit" })
         
         XCTAssertEqual(uiKitImage.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
-        XCTAssertEqual(uiKitImage.type, SentryDebugImageType)
+        XCTAssertEqual(uiKitImage.type, "macho")
         XCTAssertEqual(uiKitImage.imageVmAddress, "0x0000daf262294000")
         XCTAssertEqual(uiKitImage.imageAddress, "0x00000001410b1a00")
         XCTAssertEqual(uiKitImage.imageSize, 1_352_256)
@@ -237,7 +237,7 @@ class SentryDebugImageProviderTests: XCTestCase {
         let dyldImage = try XCTUnwrap(actual.first { $0.codeFile == "dyld_sim" })
         
         XCTAssertEqual(dyldImage.debugID, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
-        XCTAssertEqual(dyldImage.type, SentryDebugImageType)
+        XCTAssertEqual(dyldImage.type, "macho")
         XCTAssertEqual(dyldImage.imageVmAddress, "0x00007fff51af0000")
         XCTAssertEqual(dyldImage.imageAddress, "0x0000000105705000")
         XCTAssertEqual(dyldImage.imageSize, 352_256)

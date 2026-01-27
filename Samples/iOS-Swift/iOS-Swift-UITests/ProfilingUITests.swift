@@ -2,7 +2,7 @@
 import SentrySampleShared
 import XCTest
 
-//swiftlint:disable function_body_length todo
+// swiftlint:disable function_body_length todo
 
 class ProfilingUITests: BaseUITest {
     override var automaticallyLaunchAndTerminateApp: Bool { false }
@@ -199,4 +199,4 @@ extension ProfilingUITests {
     }
 }
 
-//swiftlint:enable function_body_length todo
+// swiftlint:enable function_body_length todo

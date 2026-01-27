@@ -64,7 +64,7 @@ init-local:
 	rbenv exec gem update bundler
 	rbenv exec bundle install
 	# Install the tools needed to update tooling versions locally
-	$(MAKE) init-ci-format
+	"$(MAKE)" init-ci-format
 	./scripts/update-tooling-versions.sh
 
 ## Install CI build dependencies
@@ -310,10 +310,11 @@ test-visionos:
 ## Run test server in background
 #
 # Builds and runs the test server in the background for integration testing.
+# Saves the process ID to test-server/.test-server.pid for safe shutdown.
 .PHONY: run-test-server
 run-test-server:
 	cd ./test-server && swift build
-	cd ./test-server && swift run &
+	cd ./test-server && { swift run & echo $$! > .test-server.pid; }
 
 ## Run test server synchronously
 #
@@ -322,6 +323,25 @@ run-test-server:
 run-test-server-sync:
 	cd ./test-server && swift build
 	cd ./test-server && swift run
+
+## Stop test server
+#
+# Stops the test server using the saved process ID from test-server/.test-server.pid.
+# This is safer than killing by port as it only stops the test server process.
+.PHONY: stop-test-server
+stop-test-server:
+	@if [ -f test-server/.test-server.pid ]; then \
+		pid=$$(cat test-server/.test-server.pid); \
+		if ps -p $$pid > /dev/null 2>&1; then \
+			kill $$pid && echo "Test server (PID $$pid) stopped"; \
+			rm test-server/.test-server.pid; \
+		else \
+			echo "Test server PID $$pid not running (cleaning up PID file)"; \
+			rm test-server/.test-server.pid; \
+		fi \
+	else \
+		echo "No PID file found. Test server may not be running."; \
+	fi
 
 ## Run critical UI tests
 #
@@ -339,22 +359,24 @@ STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | gr
 
 ## Run linting checks on all files
 #
-# Runs SwiftLint, Clang-Format checks, and dprint checks without modifying files.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks without modifying files.
 .PHONY: lint
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
-	swiftlint --strict
+	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
+	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
 
 ## Run linting checks on staged files only
 #
-# Runs SwiftLint, Clang-Format checks, and dprint checks on staged files only.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks on staged files only.
 .PHONY: lint-staged
 lint-staged:
 	@echo "--> Running Swiftlint and Clang-Format on staged files"
 	./scripts/check-clang-format.py -r Sources Tests
-	swiftlint --strict $(STAGED_SWIFT_FILES)
+	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
+	swiftlint --strict --quiet $(STAGED_SWIFT_FILES)
 	dprint check "**/*.{md,json,yaml,yml}"
 
 ## Format all files
@@ -378,7 +400,7 @@ format-clang:
 .PHONY: format-swift-all
 format-swift-all:
 	@echo "Running swiftlint --fix on all files"
-	swiftlint --fix
+	swiftlint --fix --quiet
 
 ## Format staged Swift files
 #
@@ -386,7 +408,7 @@ format-swift-all:
 .PHONY: format-swift-staged
 format-swift-staged:
 	@echo "Running swiftlint --fix on staged files"
-	swiftlint --fix $(STAGED_SWIFT_FILES)
+	swiftlint --fix --quiet $(STAGED_SWIFT_FILES)
 
 ## Format Markdown files
 #
@@ -612,7 +634,7 @@ endef
 .PHONY: help
 help:
 	@if [ -n "$(name)" ]; then \
-		$(MAKE) --no-print-directory help-target name="$(name)"; \
+		"$(MAKE)" --no-print-directory help-target name="$(name)"; \
 	else \
 		echo "=============================================="; \
 		echo "🚀 SENTRY COCOA SDK DEVELOPMENT COMMANDS"; \

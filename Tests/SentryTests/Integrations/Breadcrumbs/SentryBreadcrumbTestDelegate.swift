@@ -1,4 +1,4 @@
-import Foundation
+@_spi(Private) import Sentry
 import SentryTestUtils
 
 class SentryBreadcrumbTestDelegate: NSObject, SentryBreadcrumbDelegate {

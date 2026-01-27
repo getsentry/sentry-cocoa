@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -45,8 +46,12 @@ import Foundation
         if options.experimental.enableUnhandledCPPExceptionsV2 {
             features.append("unhandledCPPExceptionsV2")
         }
+        if options.experimental.enableMetrics {
+            features.append("metrics")
+        }
 
         return features
     }
     // swiftlint:enable cyclomatic_complexity function_body_length
 }
+// swiftlint:enable missing_docs

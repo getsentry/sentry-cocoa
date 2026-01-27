@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 #if !os(watchOS) && !os(macOS) && !SENTRY_NO_UIKIT
 import UIKit
 
@@ -5,6 +6,7 @@ import UIKit
     func start()
     func stop()
     func getSystemVersion() -> String
+    var currentDevice: UIDevice { get }
 
 #if os(iOS)
     var orientation: UIDeviceOrientation { get }
@@ -95,5 +97,10 @@ import UIKit
         systemVersion
     }
     
+    @objc public var currentDevice: UIDevice {
+        UIDevice.current
+    }
+    
 }
 #endif
+// swiftlint:enable missing_docs

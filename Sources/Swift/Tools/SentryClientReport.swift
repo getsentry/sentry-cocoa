@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @objc
 @_spi(Private) public final class SentryClientReport: NSObject, SentrySerializable {
     
@@ -23,3 +24,4 @@
     let discardedEvents: [SentryDiscardedEvent]
     
 }
+// swiftlint:enable missing_docs

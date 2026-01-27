@@ -73,13 +73,14 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             SentrySDKInternal.setCurrentHub(hub)
         }
 
-        func getSut() -> SentryWatchdogTerminationTrackingIntegration {
-            SentryWatchdogTerminationTrackingIntegration()
+        func getSut() -> SentryWatchdogTerminationTrackingIntegration<SentryDependencyContainer>? {
+            let container = SentryDependencyContainer.sharedInstance()
+            return SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: container)
         }
     }
 
     private var fixture: Fixture!
-    private var sut: SentryWatchdogTerminationTrackingIntegration!
+    private var sut: SentryWatchdogTerminationTrackingIntegration<SentryDependencyContainer>!
 
     override func setUpWithError() throws {
         super.setUp()
@@ -99,7 +100,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
 
     // This unit test reflects the behaviour when installing the integration from unit tests.
-    func testInit_withXCTestConfigurationFilePathInProcessEnvironment_shouldUseValue() throws {
+    func testInit_withXCTestConfigurationFilePathInProcessEnvironment_shouldReturnNil() throws {
         // -- Arrange --
         // Make sure that the XCTestConfigurationFilePath is set.
         fixture.processInfoWrapper.overrides.environment = [
@@ -107,70 +108,67 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         ]
 
         // -- Act --
-        let sut = fixture.getSut()
+        let container = SentryDependencyContainer.sharedInstance()
+        let sut = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: container)
 
         // -- Assert --
-        XCTAssertEqual(Dynamic(sut).testConfigurationFilePath.asString, "test_configuration_file_path")
+        XCTAssertNil(sut)
     }
 
-    func testInstallWithOptions_withTestConfigurationFilePathDefined_shouldNotInstall() {
+    func testInit_withTestConfigurationFilePathDefined_shouldReturnNil() {
         // -- Arrange --
         // Make sure that the XCTestConfigurationFilePath is set.
         fixture.processInfoWrapper.overrides.environment = [
             "XCTestConfigurationFilePath": "test_configuration_file_path"
         ]
 
-        let sut = fixture.getSut()
-
         // -- Act --
-        let result = sut.install(with: fixture.options)
+        let container = SentryDependencyContainer.sharedInstance()
+        let sut = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: container)
 
         // -- Assert --
-        XCTAssertFalse(result)
+        XCTAssertNil(sut)
     }
 
-    func testInstallWithOptions_withOptionEnableWatchdogTerminationTrackingDisabled_shouldNotInstall() throws {
+    func testInit_withOptionEnableWatchdogTerminationTrackingDisabled_shouldReturnNil() throws {
         // -- Arrange --
         let options = fixture.options
         options.enableWatchdogTerminationTracking = false
 
         let fixture = try Fixture(options: options)
-        let sut = fixture.getSut()
 
         // -- Act --
-        let result = sut.install(with: fixture.options)
+        let container = SentryDependencyContainer.sharedInstance()
+        let sut = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: container)
 
         // -- Assert --
-        XCTAssertFalse(result)
+        XCTAssertNil(sut)
     }
 
-    func testInstallWithOptions_withOptionEnableCrashHandlerDisabled_shouldNotInstall() throws {
+    func testInit_withOptionEnableCrashHandlerDisabled_shouldReturnNil() throws {
         // -- Arrange --
         let options = fixture.options
         options.enableCrashHandler = false
 
         let fixture = try Fixture(options: options)
-        let sut = fixture.getSut()
 
         // -- Act --
-        let result = sut.install(with: fixture.options)
+        let container = SentryDependencyContainer.sharedInstance()
+        let sut = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: container)
 
         // -- Assert --
-        XCTAssertFalse(result)
+        XCTAssertNil(sut)
     }
 
-    func testInstallWithOptions_whenNoUnitTests_trackerInitialized() {
-        let sut = SentryWatchdogTerminationTrackingIntegration()
-        Dynamic(sut).setTestConfigurationFilePath(nil)
-        sut.install(with: Options())
+    func testInit_whenNoUnitTests_trackerInitialized() throws {
+        let dependencies = MockDependencies()
+        _ = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: dependencies)
 
-        XCTAssertNotNil(Dynamic(sut).tracker.asAnyObject)
+        XCTAssertTrue(dependencies.getWatchdogTerminationTrackerCalled)
     }
 
-    func testInstallWithOptions_shouldAddScopeObserverToHub() throws {
+    func testInit_shouldAddScopeObserverToHub() throws {
         // -- Arrange --
-        let sut = fixture.getSut()
-
         // Check pre-condition
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setContextInvocations.count, 0)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 0)
@@ -181,7 +179,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 0)
 
         // -- Act --
-        sut.install(with: fixture.options)
+        _ = fixture.getSut()
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setContextInvocations.count, 1)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setUserInvocations.count, 1)
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setDistInvocations.count, 1)
@@ -221,9 +219,8 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 2)
     }
 
-    func testInstallWithOptions_shouldSetCurrentContextOnScopeObserver() throws {
+    func testInit_shouldSetCurrentContextOnScopeObserver() throws {
         // -- Arrange --
-        let sut = fixture.getSut()
         fixture.scope.contextDictionary = ["foo": ["key": "value"]]
         fixture.scope.userObject = User(userId: "user1234")
         fixture.scope.distString = "dist-124"
@@ -243,7 +240,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 0)
 
         // -- Act --
-        sut.install(with: fixture.options)
+        _ = fixture.getSut()
 
         // -- Assert --
         // As the instance of the scope observer is dynamically created by the dependency container,
@@ -270,11 +267,10 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     func testANRDetected_UpdatesAppStateToTrue() throws {
         // -- Arrange --
         fixture.crashWrapper.internalIsBeingTraced = false
-        let sut = fixture.getSut()
-        sut.install(with: Options())
+        let sut = try XCTUnwrap(fixture.getSut())
 
         // -- Act --
-        Dynamic(sut).hangStarted()
+        sut.hangStarted()
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
@@ -284,15 +280,38 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     func testANRStopped_UpdatesAppStateToFalse() throws {
         // -- Arrange --
         fixture.crashWrapper.internalIsBeingTraced = false
-        let sut = fixture.getSut()
-        sut.install(with: Options())
+        let sut = try XCTUnwrap(fixture.getSut())
 
         // -- Act --
-        Dynamic(sut).hangStopped()
+        sut.hangStopped()
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         XCTAssertFalse(appState.isANROngoing)
+    }
+}
+
+private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder {
+    func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
+        SentryDependencyContainer.sharedInstance().getANRTracker(interval)
+    }
+    
+    var processInfoWrapper: any Sentry.SentryProcessInfoSource {
+        SentryDependencyContainer.sharedInstance().processInfoWrapper
+    }
+    
+    var appStateManager: Sentry.SentryAppStateManager {
+        SentryDependencyContainer.sharedInstance().appStateManager
+    }
+    
+    func getWatchdogTerminationScopeObserverWithOptions(_ options: Sentry.Options) -> any Sentry.SentryScopeObserver {
+        return SentryDependencyContainer.sharedInstance().getWatchdogTerminationScopeObserverWithOptions(options)
+    }
+    
+    var getWatchdogTerminationTrackerCalled: Bool = false
+    func getWatchdogTerminationTracker(_ options: Sentry.Options) -> Sentry.SentryWatchdogTerminationTracker? {
+        getWatchdogTerminationTrackerCalled = true
+        return SentryDependencyContainer.sharedInstance().getWatchdogTerminationTracker(options)
     }
 }
 

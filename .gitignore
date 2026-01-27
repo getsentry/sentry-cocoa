@@ -122,3 +122,6 @@ analyzer
 # Output folder for Sentry local builds
 XCFrameworkBuildPath/
 *.xcresult
+
+# Local Claude Code settings that should not be committed
+.claude/settings.local.json

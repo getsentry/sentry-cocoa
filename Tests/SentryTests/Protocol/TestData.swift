@@ -43,7 +43,7 @@ class TestData {
         event.logger = "logger"
         event.message = SentryMessage(formatted: "message")
         event.modules = ["module": "1"]
-        event.platform = SentryPlatformName
+        event.platform = "cocoa"
         event.releaseName = SentryMeta.versionString
         event.sdk = sdk
         event.serverName = "serverName"
@@ -272,6 +272,7 @@ class TestData {
         return SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", vendorId: someUUID, isDebugging: false, systemBootTimestamp: timestamp)
     }
     
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     static var oomEvent: Event {
         let event = Event(level: SentryLevel.fatal)
         let exception = Exception(value: SentryWatchdogTerminationConstants.ExceptionValue, type: SentryWatchdogTerminationConstants.ExceptionType)
@@ -279,6 +280,7 @@ class TestData {
         event.exceptions = [exception]
         return event
     }
+#endif
 
 #if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
     

@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
 /**
@@ -38,3 +39,4 @@
     }
     #endif // SENTRY_TEST || SENTRY_TEST_CI
 }
+// swiftlint:enable missing_docs

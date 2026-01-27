@@ -1,4 +1,4 @@
-import Sentry
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryFileIoTrackingUnitTests: XCTestCase {
@@ -6,9 +6,8 @@ class SentryFileIoTrackingUnitTests: XCTestCase {
     func test_FileIOTracking_Disabled() {
         let options = Options()
         options.enableFileIOTracing = false
-        let sut = SentryFileIOTrackingIntegration()
-        let result = sut.install(with: options)
+        let sut = SentryFileIOTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
         
-        XCTAssertFalse(result)
+        XCTAssertNil(sut)
     }
 }
