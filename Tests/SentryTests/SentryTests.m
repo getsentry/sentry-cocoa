@@ -1,6 +1,5 @@
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
-#import "SentryBreadcrumbTracker.h"
 #import "SentryClient.h"
 #import "SentryDataCategory.h"
 #import "SentryDateUtils.h"
@@ -13,12 +12,6 @@
 #import "SentrySDK+Private.h"
 #import <XCTest/XCTest.h>
 @import Sentry;
-
-@interface SentryBreadcrumbTracker ()
-
-+ (NSString *)sanitizeViewControllerName:(NSString *)controller;
-
-@end
 
 @interface SentryTests : XCTestCase
 

@@ -43,7 +43,7 @@ class TestData {
         event.logger = "logger"
         event.message = SentryMessage(formatted: "message")
         event.modules = ["module": "1"]
-        event.platform = SentryPlatformName
+        event.platform = "cocoa"
         event.releaseName = SentryMeta.versionString
         event.sdk = sdk
         event.serverName = "serverName"

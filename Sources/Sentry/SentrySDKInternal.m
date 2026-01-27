@@ -1,7 +1,6 @@
 #import "SentrySDKInternal.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCoreDataTrackingIntegration.h"
@@ -501,8 +500,7 @@ static NSDate *_Nullable startTimestamp = nil;
 #if SENTRY_HAS_UIKIT
             [SentryAppStartTrackingIntegration class], [SentryPerformanceTrackingIntegration class],
 #endif // SENTRY_HAS_UIKIT
-        [SentryAutoBreadcrumbTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
-        nil];
+        [SentryCoreDataTrackingIntegration class], nil];
 
     return defaultIntegrations;
 }

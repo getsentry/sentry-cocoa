@@ -6,6 +6,7 @@ import UIKit
     func start()
     func stop()
     func getSystemVersion() -> String
+    var currentDevice: UIDevice { get }
 
 #if os(iOS)
     var orientation: UIDeviceOrientation { get }
@@ -94,6 +95,10 @@ import UIKit
     
     @objc public func getSystemVersion() -> String {
         systemVersion
+    }
+    
+    @objc public var currentDevice: UIDevice {
+        UIDevice.current
     }
     
 }

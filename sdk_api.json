@@ -36126,6 +36126,454 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryHttpStatusCode",
+                    "printedName": "Sentry.SentryHttpStatusCode",
+                    "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryHttpStatusCode?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "implicit": true,
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$sSo20SentryHttpStatusCodeV8rawValueABSgSi_tcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "usr": "s:So20SentryHttpStatusCodeV8rawValueABSgSi_tcfc"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "implicit": true,
+            "kind": "TypeAlias",
+            "mangledName": "$sSo20SentryHttpStatusCodeV8RawValuea",
+            "moduleName": "Sentry",
+            "name": "RawValue",
+            "printedName": "RawValue",
+            "usr": "s:So20SentryHttpStatusCodeV8RawValuea"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryHttpStatusCode",
+                        "printedName": "Sentry.SentryHttpStatusCode",
+                        "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryHttpStatusCode.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryHttpStatusCode",
+                    "printedName": "Sentry.SentryHttpStatusCode",
+                    "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryHttpStatusCode.Type) -> Sentry.SentryHttpStatusCode"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "badRequest",
+            "printedName": "badRequest",
+            "usr": "c:@M@Sentry@E@SentryHttpStatusCode@SentryHttpStatusCodeBadRequest"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryHttpStatusCode",
+                        "printedName": "Sentry.SentryHttpStatusCode",
+                        "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryHttpStatusCode.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryHttpStatusCode",
+                    "printedName": "Sentry.SentryHttpStatusCode",
+                    "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryHttpStatusCode.Type) -> Sentry.SentryHttpStatusCode"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "contentTooLarge",
+            "printedName": "contentTooLarge",
+            "usr": "c:@M@Sentry@E@SentryHttpStatusCode@SentryHttpStatusCodeContentTooLarge"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryHttpStatusCode",
+                        "printedName": "Sentry.SentryHttpStatusCode",
+                        "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryHttpStatusCode.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryHttpStatusCode",
+                    "printedName": "Sentry.SentryHttpStatusCode",
+                    "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryHttpStatusCode.Type) -> Sentry.SentryHttpStatusCode"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "created",
+            "printedName": "created",
+            "usr": "c:@M@Sentry@E@SentryHttpStatusCode@SentryHttpStatusCodeCreated"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryHttpStatusCode",
+                        "printedName": "Sentry.SentryHttpStatusCode",
+                        "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryHttpStatusCode.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryHttpStatusCode",
+                    "printedName": "Sentry.SentryHttpStatusCode",
+                    "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryHttpStatusCode.Type) -> Sentry.SentryHttpStatusCode"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "internalServerError",
+            "printedName": "internalServerError",
+            "usr": "c:@M@Sentry@E@SentryHttpStatusCode@SentryHttpStatusCodeInternalServerError"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryHttpStatusCode",
+                        "printedName": "Sentry.SentryHttpStatusCode",
+                        "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryHttpStatusCode.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryHttpStatusCode",
+                    "printedName": "Sentry.SentryHttpStatusCode",
+                    "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryHttpStatusCode.Type) -> Sentry.SentryHttpStatusCode"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "ok",
+            "printedName": "ok",
+            "usr": "c:@M@Sentry@E@SentryHttpStatusCode@SentryHttpStatusCodeOk"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryHttpStatusCode",
+                        "printedName": "Sentry.SentryHttpStatusCode",
+                        "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryHttpStatusCode.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryHttpStatusCode",
+                    "printedName": "Sentry.SentryHttpStatusCode",
+                    "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryHttpStatusCode.Type) -> Sentry.SentryHttpStatusCode"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "preconditionFailed",
+            "printedName": "preconditionFailed",
+            "usr": "c:@M@Sentry@E@SentryHttpStatusCode@SentryHttpStatusCodePreconditionFailed"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo20SentryHttpStatusCodeV8rawValueSivg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:So20SentryHttpStatusCodeV8rawValueSivg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "implicit": true,
+            "kind": "Var",
+            "mangledName": "$sSo20SentryHttpStatusCodeV8rawValueSivp",
+            "moduleName": "Sentry",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "usr": "s:So20SentryHttpStatusCodeV8rawValueSivp"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryHttpStatusCode",
+                        "printedName": "Sentry.SentryHttpStatusCode",
+                        "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryHttpStatusCode.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryHttpStatusCode",
+                    "printedName": "Sentry.SentryHttpStatusCode",
+                    "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryHttpStatusCode.Type) -> Sentry.SentryHttpStatusCode"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "tooManyRequests",
+            "printedName": "tooManyRequests",
+            "usr": "c:@M@Sentry@E@SentryHttpStatusCode@SentryHttpStatusCodeTooManyRequests"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "RawValue",
+                    "printedName": "Sentry.SentryHttpStatusCode.RawValue"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$sSY",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "usr": "s:SY"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8SendableP",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP"
+          }
+        ],
+        "declAttributes": [
+          "Dynamic",
+          "ObjC",
+          "Sendable",
+          "SynthesizedProtocol",
+          "SynthesizedProtocol"
+        ],
+        "declKind": "Enum",
+        "enumRawTypeName": "Int",
+        "kind": "TypeDecl",
+        "moduleName": "Sentry",
+        "name": "SentryHttpStatusCode",
+        "objc_name": "SentryHttpStatusCode",
+        "printedName": "SentryHttpStatusCode",
+        "usr": "c:@M@Sentry@E@SentryHttpStatusCode"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "kind": "TypeNominal",
