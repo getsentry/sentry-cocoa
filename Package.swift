@@ -93,7 +93,7 @@ var targets: [Target] = [
             dependencies: ["_SentryPrivate", "SentryHeaders"],
             path: "Sources/Swift",
             swiftSettings: [
-                .unsafeFlags(["-enable-library-evolution"])
+                // .unsafeFlags(["-enable-library-evolution"])
             ]),
         .target(
             name: "SentryObjc",
