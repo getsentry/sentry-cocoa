@@ -45,7 +45,6 @@
 // otherwise it wont compile
 #import "SentryANRTrackerV1.h"
 #import "SentryANRTrackerV2.h"
-#import "SentryAppStateManager.h"
 #import "SentryAsyncLog.h"
 #import "SentryContinuousProfiler.h"
 #import "SentryCrash.h"

@@ -270,7 +270,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let sut = try XCTUnwrap(fixture.getSut())
 
         // -- Act --
-        sut.hangStarted()
+        sut.anrDetected(type: .unknown)
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
@@ -283,7 +283,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let sut = try XCTUnwrap(fixture.getSut())
 
         // -- Act --
-        sut.hangStopped()
+        sut.anrStopped(result: nil)
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())

@@ -8,7 +8,6 @@ struct RunLoopIteration {
     let endTime: TimeInterval
 }
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
 protocol HangTracker {
     // The callback must be called on a background thread, because the main thread is blocked
     func addLateRunLoopObserver(handler: @escaping (UUID, TimeInterval) -> Void) -> UUID
@@ -24,17 +23,12 @@ protocol RunLoopObserver { }
 
 extension DefaultHangTracker: HangTracker { }
 extension CFRunLoopObserver: RunLoopObserver { }
-#else
-typealias HangTracker = DefaultHangTracker<CFRunLoopObserver>
-typealias RunLoopObserver = CFRunLoopObserver
-#endif
 
 typealias CreateObserverFunc<T> = (_ allocator: CFAllocator?, _ activities: CFOptionFlags, _ repeats: Bool, _ order: CFIndex, _ block: ((T?, CFRunLoopActivity) -> Void)?) -> T?
 typealias AddObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFRunLoopMode?) -> Void
 typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFRunLoopMode?) -> Void
 
 final class DefaultHangTracker<T: RunLoopObserver> {
-
     init(
         dateProvider: SentryCurrentDateProvider,
         createObserver: @escaping CreateObserverFunc<T>,
@@ -47,6 +41,7 @@ final class DefaultHangTracker<T: RunLoopObserver> {
         self.addObserver = addObserver
         self.removeObserver = removeObserver
         self.queue = queue
+
 #if canImport(UIKit) && !SENTRY_NO_UIKIT && (!swift(>=5.9) || !os(visionOS)) && !os(watchOS)
         var maxFPS = 60.0
         if #available(iOS 13.0, tvOS 13.0, *) {
@@ -198,19 +193,7 @@ extension DefaultHangTracker where T == CFRunLoopObserver {
             dateProvider: dateProvider,
             createObserver: CFRunLoopObserverCreateWithHandler,
             addObserver: CFRunLoopAddObserver,
-            removeObserver: CFRunLoopRemoveObserver)
-    }
-}
-
-@objc
-@_spi(Private) public final class SentryHangTrackerObjcBridge: NSObject {
-
-    let tracker: HangTracker
-
-    @objc public init(
-        dateProvider: SentryCurrentDateProvider
-    ) {
-        tracker = DefaultHangTracker(
-            dateProvider: dateProvider)
+            removeObserver: CFRunLoopRemoveObserver
+        )
     }
 }
