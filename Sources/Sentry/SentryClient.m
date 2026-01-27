@@ -81,6 +81,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryDefaultThreadInspector *threadInspector =
         [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 
+    id<SentryEventContextEnricher> eventContextEnricher
+        = SentryDependencyContainer.sharedInstance.eventContextEnricher;
+
     return [self initWithOptions:options
                     dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
                 transportAdapter:transportAdapter
@@ -89,7 +92,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
               debugImageProvider:[SentryDependencyContainer sharedInstance].debugImageProvider
                           random:[SentryDependencyContainer sharedInstance].random
                           locale:[NSLocale autoupdatingCurrentLocale]
-                        timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
+                        timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone
+            eventContextEnricher:eventContextEnricher];
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options
@@ -101,6 +105,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          random:(id<SentryRandomProtocol>)random
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
+           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
 {
     if (self = [super init]) {
         _isEnabled = YES;
@@ -113,6 +118,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.locale = locale;
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
+        self.eventContextEnricher = eventContextEnricher;
 
         self.logBuffer = [[SentryLogBuffer alloc] initWithOptions:options
                                                      dateProvider:dateProvider
@@ -713,28 +719,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 #if SENTRY_HAS_UIKIT
     if (!isFatalEvent && eventIsNotReplay) {
-        NSMutableDictionary *context =
-            [event.context mutableCopy] ?: [NSMutableDictionary dictionary];
-        if (context[@"app"] == nil
-            || ([context[@"app"] isKindOfClass:NSDictionary.self]
-                && (context[@"app"][@"in_foreground"] == nil
-                    || context[@"app"][@"is_active"] == nil))) {
-            NSMutableDictionary *app =
-                [(NSDictionary *)context[@"app"] mutableCopy] ?: [NSMutableDictionary dictionary];
-            context[@"app"] = app;
-
-            UIApplicationState appState =
-                [SentryDependencyContainer sharedInstance].threadsafeApplication.applicationState;
-            BOOL isActive = appState == UIApplicationStateActive;
-            BOOL inForeground = appState != UIApplicationStateBackground;
-            if (app[@"in_foreground"] == nil) {
-                app[@"in_foreground"] = @(inForeground);
-            }
-            if (app[@"is_active"] == nil) {
-                app[@"is_active"] = @(isActive);
-            }
-            event.context = context;
-        }
+        NSDictionary *currentContext = event.context ?: @{};
+        event.context = [self.eventContextEnricher enrichEventContext:currentContext];
     }
 #endif
 

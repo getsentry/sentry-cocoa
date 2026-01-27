@@ -12,6 +12,8 @@
 @class SentrySession;
 @class SentryDefaultThreadInspector;
 
+@protocol SentryEventContextEnricher;
+
 @protocol SentrySessionDelegate <NSObject>
 
 - (nullable SentrySession *)incrementSessionErrors;
@@ -34,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryDefaultThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, weak, nullable) id<SentrySessionDelegate> sessionDelegate;
+@property (nonatomic, strong) id<SentryEventContextEnricher> eventContextEnricher;
 
 - (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
