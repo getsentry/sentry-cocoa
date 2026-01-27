@@ -202,6 +202,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
                 scopePersistentStore: scopeStore)
         }
     }
+    
+    func getUIEventTracker(_ options: Options) -> SentryUIEventTracker {
+        let mode = SentryUIEventTrackerTransactionMode(idleTimeout: options.idleTimeout)
+        return SentryUIEventTracker(
+            mode: mode,
+            reportAccessibilityIdentifier: options.reportAccessibilityIdentifier
+        )
+    }
 #endif
     
     private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
@@ -504,5 +512,11 @@ protocol SentryUIDeviceWrapperProvider {
 }
 
 extension SentryDependencyContainer: SentryUIDeviceWrapperProvider {}
+
+protocol SentryEventTrackerBuilder {
+    func getUIEventTracker(_ options: Options) -> SentryUIEventTracker
+}
+extension SentryDependencyContainer: SentryEventTrackerBuilder {}
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+
 //swiftlint:enable file_length missing_docs

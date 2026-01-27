@@ -7,7 +7,6 @@
 #    import "SentryDefaultUIViewControllerPerformanceTracker.h"
 #    import "SentryUIEventTracker.h"
 #    import "SentryUIEventTrackerTransactionMode.h"
-#    import "SentryUIEventTrackingIntegration.h"
 #    import "SentryUIViewControllerSwizzling+Test.h"
 #    import "SentryUIViewControllerSwizzling.h"
 #    import "UIViewController+Sentry.h"

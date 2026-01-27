@@ -2,15 +2,19 @@
 import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 class SentryUIEventTrackerIntegrationTests: XCTestCase {
-    
+
     private class Fixture {
-          
-        func getSut() -> SentryUIEventTrackingIntegration {
-            return SentryUIEventTrackingIntegration()
+
+        func getSut(options: Options? = nil) -> SentryUIEventTrackingIntegration<SentryDependencyContainer>? {
+            let container = SentryDependencyContainer.sharedInstance()
+            return SentryUIEventTrackingIntegration(
+                with: options ?? optionForUIEventTracking(),
+                dependencies: container
+            )
         }
-        
+
         func optionForUIEventTracking(enableSwizzling: Bool = true, enableAutoPerformanceTracing: Bool = true, enableUserInteractionTracing: Bool = true, tracesSampleRate: Double = 1.0) -> Options {
             let res = Options()
             res.enableSwizzling = enableSwizzling
@@ -34,53 +38,42 @@ class SentryUIEventTrackerIntegrationTests: XCTestCase {
     }
     
     func test_noInstallation_SwizzlingDisabled() {
-        let sut = fixture.getSut()
-        sut.install(with: fixture.optionForUIEventTracking(enableSwizzling: false))
-        assertNoInstallation(sut)
+        let sut = fixture.getSut(options: fixture.optionForUIEventTracking(enableSwizzling: false))
+        XCTAssertNil(sut)
         XCTAssertFalse(SentrySwizzleWrapper.hasCallbacks())
     }
-    
+
     func test_noInstallation_AutoPerformanceDisabled() {
-        let sut = fixture.getSut()
-        sut.install(with: fixture.optionForUIEventTracking(enableAutoPerformanceTracing: false))
-        assertNoInstallation(sut)
+        let sut = fixture.getSut(options: fixture.optionForUIEventTracking(enableAutoPerformanceTracing: false))
+        XCTAssertNil(sut)
         XCTAssertFalse(SentrySwizzleWrapper.hasCallbacks())
     }
-    
+
     func test_noInstallation_UserInteractionDisabled() {
-        let sut = fixture.getSut()
-        sut.install(with: fixture.optionForUIEventTracking(enableUserInteractionTracing: false))
-        assertNoInstallation(sut)
+        let sut = fixture.getSut(options: fixture.optionForUIEventTracking(enableUserInteractionTracing: false))
+        XCTAssertNil(sut)
         XCTAssertFalse(SentrySwizzleWrapper.hasCallbacks())
     }
-    
+
     func test_noInstallation_NoSampleRate() {
-        let sut = fixture.getSut()
-        sut.install(with: fixture.optionForUIEventTracking(tracesSampleRate: 0))
-        assertNoInstallation(sut)
+        let sut = fixture.getSut(options: fixture.optionForUIEventTracking(tracesSampleRate: 0))
+        XCTAssertNil(sut)
         XCTAssertFalse(SentrySwizzleWrapper.hasCallbacks())
     }
     
-    func test_Installation() {
-        let sut = fixture.getSut()
-        sut.install(with: fixture.optionForUIEventTracking())
-        XCTAssertNotNil(Dynamic(sut).uiEventTracker as SentryUIEventTracker?)
+    func test_Installation() throws {
+        let sut = try XCTUnwrap(fixture.getSut())
         XCTAssertTrue(SentrySwizzleWrapper.hasCallbacks())
-    }
-    
-    func test_Uninstall() {
-        let sut = fixture.getSut()
-        sut.install(with: fixture.optionForUIEventTracking())
-        XCTAssertNotNil(Dynamic(sut).uiEventTracker as SentryUIEventTracker?)
-        XCTAssertTrue(SentrySwizzleWrapper.hasCallbacks())
-        
         sut.uninstall()
-        
-        XCTAssertFalse(SentrySwizzleWrapper.hasCallbacks())
     }
-    
-    private func assertNoInstallation(_ integration: SentryUIEventTrackingIntegration) {
-        XCTAssertNil(Dynamic(integration).uiEventTracker as SentryUIEventTracker?)
+
+    func test_Uninstall() throws {
+        let sut = try XCTUnwrap(fixture.getSut())
+        XCTAssertTrue(SentrySwizzleWrapper.hasCallbacks())
+
+        sut.uninstall()
+
+        XCTAssertFalse(SentrySwizzleWrapper.hasCallbacks())
     }
     
 }
