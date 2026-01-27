@@ -1,6 +1,8 @@
 // swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
+// Wraps `SentryBinaryImageCache` which is not reentrant. It's a faster way to get an image name from an address
+// but cannot be used from async signal safe code.
 @_spi(Private) public class SentryDebugImageProvider: NSObject {
     
     @objc let helper = SentryDebugImageProviderInternal()
