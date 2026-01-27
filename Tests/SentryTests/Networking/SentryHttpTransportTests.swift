@@ -792,7 +792,7 @@ class SentryHttpTransportTests: XCTestCase {
         SentrySDKLog.configureLog(true, diagnosticLevel: .error)
 
         let sentryUrl = try XCTUnwrap(URL(string: "https://sentry.io"))
-        let response = HTTPURLResponse(url: sentryUrl, statusCode: 413, httpVersion: nil, headerFields: nil)
+        let response = HTTPURLResponse(url: sentryUrl, statusCode: SentryHttpStatusCode.contentTooLarge.rawValue, httpVersion: nil, headerFields: nil)
 
         fixture.requestManager.returnResponse(response: response)
 
