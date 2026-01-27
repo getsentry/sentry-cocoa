@@ -14,7 +14,7 @@ public final class SentryHttpTransportHttpStatusCodeLogger: NSObject {
         envelope: SentryEnvelope,
         request: URLRequest
     ) {
-        guard statusCode == 413 else {
+        guard statusCode == SentryHttpStatusCodes.contentTooLarge else {
             // We don't log here, because this would log for almost every request.
             return
         }
