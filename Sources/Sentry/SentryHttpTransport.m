@@ -420,12 +420,21 @@
 
             SENTRY_LOG_DEBUG(@"Received response status code: %li", (long)response.statusCode);
 
+            // Log specific error messages for certain HTTP status codes.
+            // See https://develop.sentry.dev/sdk/expected-features/#dealing-with-network-failures
+            // We didn't want to inline the logic in here, so we can have more Swift code.
+            [SentryHttpTransportHttpStatusCodeLogger
+                logHttpResponseErrorWithStatusCode:response.statusCode
+                                          envelope:envelope
+                                           request:request];
+
             BOOL is2xx = (response.statusCode >= 200 && response.statusCode < 300);
             BOOL is4xxOr5xx = (response.statusCode >= 400 && response.statusCode < 600);
 
             // Relay already records a client report for a 429, so we must not record it again
             // to avoid double-counting.
-            BOOL isNotRateLimitStatusCode = response.statusCode != 429;
+            BOOL isNotRateLimitStatusCode
+                = response.statusCode != SentryHttpStatusCodeTooManyRequests;
 
             if (is4xxOr5xx && isNotRateLimitStatusCode) {
                 [weakSelf recordLostEventFor:envelope.items];

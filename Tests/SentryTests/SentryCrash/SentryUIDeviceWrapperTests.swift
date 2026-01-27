@@ -46,5 +46,11 @@ class SentryUIDeviceWrapperTests: XCTestCase {
         }
         XCTAssertEqual(dispatchQueue.blockOnMainInvocations.count, 2)
     }
+    
+    func testCurrentDevice() {
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        let sut = SentryDefaultUIDeviceWrapper(queueWrapper: dispatchQueue)
+        XCTAssertEqual(sut.currentDevice, UIDevice.current)
+    }
 }
 #endif
