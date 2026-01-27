@@ -9,6 +9,7 @@
 ### Fixes
 
 - Fix deadlock in network reachability observer when restarting the SDK (#7246)
+- Fix missing stack traces for `NSException` objects reported via `NSApplication.shared.reportException(_:)` on macOS (#7284)
 
 ## 9.2.0
 
