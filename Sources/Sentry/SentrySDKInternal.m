@@ -5,6 +5,7 @@
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
 #import "SentryHub+Private.h"
+#import "SentryIntegrationProtocol.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMeta.h"
@@ -494,14 +495,15 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (NSArray<Class> *)defaultIntegrationClasses
 {
-    // The order of integrations here is important.
-    NSMutableArray<Class> *defaultIntegrations = [NSMutableArray<Class> arrayWithObjects:
 #if SENTRY_HAS_UIKIT
-            [SentryAppStartTrackingIntegration class], [SentryPerformanceTrackingIntegration class],
-#endif // SENTRY_HAS_UIKIT
-        nil];
-
+    // The order of integrations here is important.
+    NSMutableArray<Class> *defaultIntegrations =
+        [NSMutableArray<Class> arrayWithObjects:[SentryAppStartTrackingIntegration class],
+            [SentryPerformanceTrackingIntegration class], nil];
     return defaultIntegrations;
+#endif // SENTRY_HAS_UIKIT
+
+    return @[];
 }
 
 /**
