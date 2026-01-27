@@ -1,9 +1,11 @@
 @testable import Sentry
 import XCTest
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
-
 class SentryDefaultEventContextEnricherTests: XCTestCase {
+
+    // MARK: - UIKit Platform Tests
+
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 
     // MARK: - Active State Tests
 
@@ -213,14 +215,13 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         // Verify app field is still the invalid type (unchanged)
         XCTAssertEqual(result["app"] as? String, "invalid-type")
     }
-}
 
-#endif
+    #endif
 
-// MARK: - Non-UIKit Platform Tests
+    // MARK: - Non-UIKit Platform Tests
 
-#if !(os(iOS) || os(tvOS) || os(visionOS)) || SENTRY_NO_UIKIT
-class SentryDefaultEventContextEnricherTests: XCTestCase {
+    #if !(os(iOS) || os(tvOS) || os(visionOS)) || SENTRY_NO_UIKIT
+
     func testEnrichEventContext_OnNonUIKitPlatforms_ReturnsContextUnchanged() throws {
         // Arrange
         let sut = SentryDefaultEventContextEnricher()
@@ -255,5 +256,6 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         // Assert
         XCTAssertTrue(result.isEmpty)
     }
+
+    #endif
 }
-#endif
