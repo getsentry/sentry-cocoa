@@ -498,11 +498,11 @@ protocol CrashInstallationReporterBuilder {
 }
 extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
 
-#if os(iOS) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 protocol SentryUIDeviceWrapperProvider {
     var uiDeviceWrapper: SentryUIDeviceWrapper { get }
 }
 
 extension SentryDependencyContainer: SentryUIDeviceWrapperProvider {}
-#endif
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 //swiftlint:enable file_length missing_docs

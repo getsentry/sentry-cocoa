@@ -10,10 +10,12 @@ final class SentrySystemEventBreadcrumbs: NSObject {
     private let fileManager: SentryFileManager
     private let notificationCenterWrapper: SentryNSNotificationCenterWrapper
     private let dateProvider: SentryCurrentDateProvider
-    
+
+    #if os(iOS)
     // Track whether we enabled these device notifications so we can disable them on stop
     private var didEnableBatteryMonitoring = false
     private var didBeginGeneratingOrientationNotifications = false
+    #endif
 
     init(
         currentDeviceProvider: SentryUIDeviceWrapperProvider,
@@ -36,9 +38,11 @@ final class SentrySystemEventBreadcrumbs: NSObject {
 
     func start(with delegate: SentryBreadcrumbDelegate) {
         self.delegate = delegate
+        #if os(iOS)
         initBatteryObserver(currentDeviceProvider.uiDeviceWrapper.currentDevice)
         initOrientationObserver(currentDeviceProvider.uiDeviceWrapper.currentDevice)
         initKeyboardVisibilityObserver()
+        #endif
         initScreenshotObserver()
         initTimezoneObserver()
         initSignificantTimeChangeObserver()
@@ -51,15 +55,17 @@ final class SentrySystemEventBreadcrumbs: NSObject {
     func stop() {
         // Remove the observers with the most specific detail possible, see
         // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-        notificationCenterWrapper.removeObserver(self, name: UIResponder.keyboardDidShowNotification, object: nil)
-        notificationCenterWrapper.removeObserver(self, name: UIResponder.keyboardDidHideNotification, object: nil)
+
         notificationCenterWrapper.removeObserver(self, name: UIApplication.userDidTakeScreenshotNotification, object: nil)
-        notificationCenterWrapper.removeObserver(self, name: UIDevice.batteryLevelDidChangeNotification, object: nil)
-        notificationCenterWrapper.removeObserver(self, name: UIDevice.batteryStateDidChangeNotification, object: nil)
-        notificationCenterWrapper.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
         notificationCenterWrapper.removeObserver(self, name: UIApplication.significantTimeChangeNotification, object: nil)
         notificationCenterWrapper.removeObserver(self, name: NSNotification.Name.NSSystemTimeZoneDidChange, object: nil)
-        
+        #if os(iOS)
+        notificationCenterWrapper.removeObserver(self, name: UIDevice.batteryLevelDidChangeNotification, object: nil)
+        notificationCenterWrapper.removeObserver(self, name: UIDevice.batteryStateDidChangeNotification, object: nil)
+        notificationCenterWrapper.removeObserver(self, name: UIResponder.keyboardDidShowNotification, object: nil)
+        notificationCenterWrapper.removeObserver(self, name: UIResponder.keyboardDidHideNotification, object: nil)
+        notificationCenterWrapper.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
+
         // Disable device notifications that we enabled
         let currentDevice = currentDeviceProvider.uiDeviceWrapper.currentDevice
         if didEnableBatteryMonitoring {
@@ -70,10 +76,12 @@ final class SentrySystemEventBreadcrumbs: NSObject {
             currentDevice.endGeneratingDeviceOrientationNotifications()
             didBeginGeneratingOrientationNotifications = false
         }
+        #endif
     }
 
     // MARK: - Battery Observer
 
+    #if os(iOS)
     private func initBatteryObserver(_ currentDevice: UIDevice) {
         if !currentDevice.isBatteryMonitoringEnabled {
             currentDevice.isBatteryMonitoringEnabled = true
@@ -197,6 +205,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
             object: nil
         )
     }
+    #endif
 
     @objc private func systemEventTriggered(_ notification: Notification) {
         let crumb = Breadcrumb(level: .info, category: "device.event")
