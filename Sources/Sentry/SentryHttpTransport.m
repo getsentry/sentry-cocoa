@@ -428,10 +428,8 @@
                                           envelope:envelope
                                            request:request];
 
-            BOOL is2xx
-                = (response.statusCode >= SentryHttpStatusCodeOk && response.statusCode < 300);
-            BOOL is4xxOr5xx = (response.statusCode >= SentryHttpStatusCodeBadRequest
-                && response.statusCode < 600);
+            BOOL is2xx = (response.statusCode >= 200 && response.statusCode < 300);
+            BOOL is4xxOr5xx = (response.statusCode >= 400 && response.statusCode < 600);
 
             // Relay already records a client report for a 429, so we must not record it again
             // to avoid double-counting.
