@@ -312,6 +312,89 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         sut.start()
         XCTAssertTrue(sut.swizzleUIViewControllersOfImageCalled)
     }
+
+    func testStop_whenStartedAndStopped_shouldDeactivateSwizzling() {
+        // -- Arrange --
+        let sut = fixture.sut
+        sut.start()
+
+        // -- Act --
+        sut.stop()
+
+        // -- Assert --
+        XCTAssertFalse(SentryUIViewControllerSwizzlingHelper.swizzlingActive())
+    }
+
+    func testStop_whenStartedAndStopped_shouldNotTrackViewController() {
+        // -- Arrange --
+        let sut = fixture.sut
+        sut.start()
+
+        // Create a view controller and verify it gets tracked
+        let controller1 = TestViewController()
+        controller1.loadView()
+        let span1 = SentrySDK.span
+        XCTAssertNotNil(span1, "ViewController should be tracked after start()")
+
+        // Clean up the first transaction
+        controller1.viewWillAppear(false)
+        Dynamic(SentryDependencyContainer.sharedInstance().framesTracker).reportNewFrame()
+        controller1.viewDidAppear(false)
+
+        // -- Act --
+        sut.stop()
+
+        // -- Assert --
+        // Create another view controller and verify it is NOT tracked after stop
+        let controller2 = TestViewController()
+        controller2.loadView()
+        let span2 = SentrySDK.span
+        XCTAssertNil(span2, "ViewController should not be tracked after stop()")
+    }
+
+    func testStop_whenCalledMultipleTimes_shouldNotCrash() {
+        // -- Arrange --
+        let sut = fixture.sut
+        sut.start()
+
+        // -- Act --
+        sut.stop()
+        sut.stop()
+        sut.stop()
+
+        // -- Assert --
+        XCTAssertFalse(SentryUIViewControllerSwizzlingHelper.swizzlingActive())
+    }
+
+    func testStop_whenCalledWithoutStart_shouldNotCrash() {
+        // -- Arrange --
+        let sut = fixture.sut
+
+        // -- Act & Assert --
+        // Should not crash when stop is called without start
+        sut.stop()
+
+        XCTAssertFalse(SentryUIViewControllerSwizzlingHelper.swizzlingActive())
+    }
+
+    func testStop_whenCalled_shouldUnswizzleUIViewController() {
+        // -- Arrange --
+        let sut = fixture.sut
+        sut.start()
+        XCTAssertTrue(SentryUIViewControllerSwizzlingHelper.swizzlingActive())
+
+        // -- Act --
+        sut.stop()
+
+        // -- Assert --
+        // Verify that swizzling is no longer active
+        XCTAssertFalse(SentryUIViewControllerSwizzlingHelper.swizzlingActive())
+
+        // Verify that UIViewController loadView doesn't create transactions
+        let controller = UIViewController()
+        controller.loadView()
+        XCTAssertNil(SentrySDK.span)
+    }
 }
 
 private class MockApplication: NSObject, SentryUIApplication {

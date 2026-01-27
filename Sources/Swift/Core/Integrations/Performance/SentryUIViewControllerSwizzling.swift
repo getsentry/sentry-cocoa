@@ -79,6 +79,10 @@ class SentryUIViewControllerSwizzling {
         SentryUIViewControllerSwizzlingHelper.swizzleUIViewController(withTracker: performanceTracker)
         performanceTracker.inAppLogic = inAppLogic
     }
+    
+    func stop() {
+        SentryUIViewControllerSwizzlingHelper.stop()
+    }
 
     private func findApp() -> SentryUIApplication? {
         guard UIApplication.responds(to: #selector(getter: UIApplication.shared)) else {

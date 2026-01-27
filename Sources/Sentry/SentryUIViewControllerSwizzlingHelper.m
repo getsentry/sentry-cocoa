@@ -172,20 +172,29 @@ static BOOL swizzlingIsActive = FALSE;
         SentrySwizzleModeOncePerClass, (void *)didSelector);
 }
 
-+ (void)unswizzle
++ (void)stop
 {
-#    if SENTRY_TEST || SENTRY_TEST_CI
     _tracker = nil;
-    swizzlingIsActive = FALSE;
-
-    // Unswizzling is only supported in test targets as it is considered unsafe for production.
-    SEL loadViewSelector = NSSelectorFromString(@"loadView");
-    SentryUnswizzleInstanceMethod(
-        UIViewController.class, loadViewSelector, (void *)loadViewSelector);
-#    endif // SENTRY_TEST || SENTRY_TEST_CI
+#    if SENTRY_TEST || SENTRY_TEST_CI
+    [self unswizzle];
+#    endif
 }
 
 #    if SENTRY_TEST || SENTRY_TEST_CI
++ (void)unswizzle
+{
+    swizzlingIsActive = FALSE;
+
+    // Unswizzling is only supported in test targets as it is considered unsafe for production.
+    // Only unswizzle the base UIViewController.loadView since that's the only method swizzled
+    // on the base class. Other lifecycle methods are swizzled per-subclass and we don't track
+    // which subclasses were swizzled, so we can't safely unswizzle them.
+    // The stop method sets _tracker = nil which makes all swizzled methods no-ops anyway.
+    SEL loadViewSelector = NSSelectorFromString(@"loadView");
+    SentryUnswizzleInstanceMethod(
+        UIViewController.class, loadViewSelector, (void *)loadViewSelector);
+}
+
 + (BOOL)swizzlingActive
 {
     return swizzlingIsActive;

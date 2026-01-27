@@ -39,7 +39,7 @@ final class SentryPerformanceTrackingIntegration<Dependencies: PerformanceTracki
     }
 
     func uninstall() {
-        // Swizzling is not reversed
+        swizzling.stop()
     }
 
     static var name: String {

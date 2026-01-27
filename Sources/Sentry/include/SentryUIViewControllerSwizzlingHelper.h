@@ -23,12 +23,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)swizzleViewControllerSubClass:(Class)class;
 
++ (void)stop;
+
+#    if SENTRY_TEST || SENTRY_TEST_CI
+
 /**
  * Unswizzles all UIViewController methods. Only available in test targets.
  */
 + (void)unswizzle;
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
 /**
  * Returns whether swizzling is currently active. Only available in test targets.
  */
