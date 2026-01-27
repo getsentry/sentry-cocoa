@@ -31,6 +31,12 @@ class SentryDefaultEventContextEnricher: SentryEventContextEnricher {
             return context
         }
 
+        // Check if app context exists but is invalid type
+        if let appValue = context["app"], !(appValue is [String: Any]) {
+            SentrySDKLog.warning("Event context contains app field with invalid type. Expected dictionary but got \(type(of: appValue)). Can't enrich with app state.")
+            return context
+        }
+
         // Get or create app context
         var appContext = (context["app"] as? [String: Any]) ?? [:]
 

@@ -197,19 +197,21 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
         XCTAssertNil(result["app"])
     }
 
-    func testEnrichEventContext_WhenAppContextIsNotDictionary_ReplacesWithCorrectFormat() {
+    func testEnrichEventContext_WhenAppContextIsInvalidType_ReturnsUnchangedAndLogsWarning() {
         // Arrange
         let sut = SentryDefaultEventContextEnricher(applicationStateProvider: { .active })
         let context: [String: Any] = [
-            "app": "invalid-type"
+            "app": "invalid-type",
+            "device": ["model": "iPhone"]
         ]
 
         // Act
         let result = sut.enrichWithAppState(context)
 
         // Assert
-        // Should not crash and should handle gracefully
-        XCTAssertNotNil(result)
+        XCTAssertEqual(result as NSDictionary, context as NSDictionary)
+        // Verify app field is still the invalid type (unchanged)
+        XCTAssertEqual(result["app"] as? String, "invalid-type")
     }
 
     func testEnrichEventContext_MultipleCallsWithDifferentStates_ReturnsCorrectValues() throws {
