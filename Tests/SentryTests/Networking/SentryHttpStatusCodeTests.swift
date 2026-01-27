@@ -26,31 +26,31 @@ final class SentryHttpStatusCodeTests: XCTestCase {
     // MARK: - Status Code Value Tests
 
     func testStatusCodeValue_whenOk_shouldBe200() {
-        XCTAssertTrue(200 == SentryHttpStatusCode.ok)
+        XCTAssertTrue(SentryHttpStatusCode.ok == 200)
     }
 
     func testStatusCodeValue_whenCreated_shouldBe201() {
-        XCTAssertTrue(201 == SentryHttpStatusCode.created)
+        XCTAssertTrue(SentryHttpStatusCode.created == 201)
     }
 
     func testStatusCodeValue_whenBadRequest_shouldBe400() {
-        XCTAssertTrue(400 == SentryHttpStatusCode.badRequest)
+        XCTAssertTrue(SentryHttpStatusCode.badRequest == 400)
     }
 
     func testStatusCodeValue_whenPreconditionFailed_shouldBe412() {
-        XCTAssertTrue(412 == SentryHttpStatusCode.preconditionFailed)
+        XCTAssertTrue(SentryHttpStatusCode.preconditionFailed == 412)
     }
 
     func testStatusCodeValue_whenContentTooLarge_shouldBe413() {
-        XCTAssertTrue(413 == SentryHttpStatusCode.contentTooLarge)
+        XCTAssertTrue(SentryHttpStatusCode.contentTooLarge == 413)
     }
 
     func testStatusCodeValue_whenTooManyRequests_shouldBe429() {
-        XCTAssertTrue(429 == SentryHttpStatusCode.tooManyRequests)
+        XCTAssertTrue(SentryHttpStatusCode.tooManyRequests == 429)
     }
 
     func testStatusCodeValue_whenInternalServerError_shouldBe500() {
-        XCTAssertTrue(500 == SentryHttpStatusCode.internalServerError)
+        XCTAssertTrue(SentryHttpStatusCode.internalServerError == 500)
     }
 
     // MARK: - Raw Value Test
