@@ -9,7 +9,6 @@ import Foundation
     func anrStopped(result: SentryANRStoppedResult?)
 }
 
-@objcMembers
 @_spi(Private) public final class SentryANRStoppedResult: NSObject {
     
     public let minDuration: TimeInterval
