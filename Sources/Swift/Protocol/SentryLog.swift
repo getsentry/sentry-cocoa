@@ -1,7 +1,6 @@
 /// A structured log entry that captures log data with associated attribute metadata.
 ///
 /// Use the `options.beforeSendLog` callback to modify or filter log data.
-@objc
 @objcMembers
 public final class SentryLog: NSObject {
     /// Alias for `SentryAttribute` to maintain backward compatibility after `SentryLog.Attribute` was renamed to `SentryAttribute`.
