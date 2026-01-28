@@ -135,11 +135,24 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper)
 #endif
 
+    private var _eventContextEnricher: SentryEventContextEnricher?
+    @objc public var eventContextEnricher: SentryEventContextEnricher {
+        getLazyVar(\._eventContextEnricher) {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+            SentryDefaultEventContextEnricher(applicationStateProvider: { [weak self] in
+                self?.threadsafeApplication.applicationState
+            })
+#else
+            SentryDefaultEventContextEnricher()
+#endif
+        }
+    }
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     @objc public var uiDeviceWrapper: SentryUIDeviceWrapper = Dependencies.uiDeviceWrapper
     @objc public var threadsafeApplication = SentryThreadsafeApplication(applicationProvider: defaultApplicationProvider, notificationCenter: Dependencies.notificationCenterWrapper)
     @objc public var swizzleWrapper = SentrySwizzleWrapper()
-    
+
     // MARK: Lazy Vars
     
     private var _watchdogTerminationAttributesProcessor: SentryWatchdogTerminationAttributesProcessor?

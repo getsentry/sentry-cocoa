@@ -2,6 +2,7 @@
 
 @protocol SentryCurrentDateProvider;
 @protocol SentryRandomProtocol;
+@protocol SentryEventContextEnricher;
 
 @class SentryCrashWrapper;
 @class SentryDispatchQueueWrapper;
@@ -21,7 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
              debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
                          random:(id<SentryRandomProtocol>)random
                          locale:(NSLocale *)locale
-                       timezone:(NSTimeZone *)timezone;
+                       timezone:(NSTimeZone *)timezone
+           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher;
 
 @end
 

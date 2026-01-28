@@ -233,7 +233,8 @@ class SentryFeedbackTests: XCTestCase {
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),
             locale: Locale(identifier: "en_US"),
-            timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna"))
+            timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna")),
+            eventContextEnricher: TestEventContextEnricher()
         )
         let hub = TestHub(client: client, andScope: nil)
 
@@ -277,7 +278,8 @@ class SentryFeedbackTests: XCTestCase {
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),
             locale: Locale(identifier: "en_US"),
-            timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna"))
+            timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna")),
+            eventContextEnricher: TestEventContextEnricher()
         )
         let hub = TestHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
@@ -321,7 +323,8 @@ class SentryFeedbackTests: XCTestCase {
             debugImageProvider: TestDebugImageProvider(),
             random: TestRandom(value: 1.0),
             locale: Locale(identifier: "en_US"),
-            timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna"))
+            timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna")),
+            eventContextEnricher: TestEventContextEnricher()
         )
         let hub = TestHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
