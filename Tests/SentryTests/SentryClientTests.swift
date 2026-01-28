@@ -200,7 +200,7 @@ class SentryClientTests: XCTestCase {
         // - SentryInstallation.cacheIDAsyncWithCacheDirectoryPath(cacheDirectoryPath:)
         XCTAssertEqual(dispatchQueue.dispatchAsyncInvocations.count, 2)
 
-        let nonCachedID = SentryInstallation.id(withCacheDirectoryPathNonCached: options.cacheDirectoryPath)
+        let nonCachedID = SentryInstallation.idNonCached(withCacheDirectoryPath: options.cacheDirectoryPath)
         
         // We remove the file containing the installation ID, but the cached ID is still in memory
         try FileManager().removeItem(atPath: options.cacheDirectoryPath)
