@@ -17,7 +17,7 @@ final class SentryNSDataSwizzling: NSObject {
     }
 
     func stop() {
-        SentryNSDataSwizzlingHelper.unswizzle()
+        SentryNSDataSwizzlingHelper.stop()
     }
 }
 // swiftlint:enable missing_docs

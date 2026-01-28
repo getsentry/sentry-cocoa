@@ -129,6 +129,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var extensionDetector: SentryExtensionDetector = {
         SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
+    var coreDataSwizzling = SentryCoreDataSwizzling()
     
 #if os(iOS) && !SENTRY_NO_UIKIT
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
@@ -338,6 +339,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             )
         }
     }
+    
+    func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker {
+        let threadInspector = SentryDefaultThreadInspector(options: options)
+        return SentryCoreDataTracker(
+            threadInspector: threadInspector,
+            processInfoWrapper: processInfoWrapper
+        )
+    }
 }
 // swiftlint:enable type_body_length
 
@@ -541,6 +550,11 @@ protocol BinaryImageCacheProvider {
 }
 extension SentryDependencyContainer: BinaryImageCacheProvider {}
 
+protocol SentryCoreDataSwizzlingProvider {
+    var coreDataSwizzling: SentryCoreDataSwizzling { get }
+}
+extension SentryDependencyContainer: SentryCoreDataSwizzlingProvider {}
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 protocol SentryUIDeviceWrapperProvider {
     var uiDeviceWrapper: SentryUIDeviceWrapper { get }
@@ -563,5 +577,10 @@ protocol SentryEventTrackerBuilder {
 }
 extension SentryDependencyContainer: SentryEventTrackerBuilder {}
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+
+protocol SentryCoreDataTrackerBuilder {
+    func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker
+}
+extension SentryDependencyContainer: SentryCoreDataTrackerBuilder {}
 
 //swiftlint:enable file_length missing_docs

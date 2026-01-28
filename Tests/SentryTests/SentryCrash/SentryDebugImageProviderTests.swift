@@ -16,7 +16,7 @@ class SentryDebugImageProviderTests: XCTestCase {
             cache = SentryBinaryImageCache()
         }
         
-        func getSut(images: [SentryCrashBinaryImage] = []) -> SentryDebugImageProvider {            
+        func getSut(images: [SentryCrashBinaryImage] = []) -> SentryDebugImageProvider {
             cache.start(false)
             for image in images {
                 cache.binaryImageAdded(imageName: image.name,
@@ -25,9 +25,9 @@ class SentryDebugImageProviderTests: XCTestCase {
                                        size: image.size,
                                        uuid: image.uuid)
             }
-            
+
             let provider = SentryDebugImageProvider()
-            Dynamic(Dynamic(provider).helper).binaryImageCache = cache
+            provider.binaryImageCache = cache
             return provider
         }
         
