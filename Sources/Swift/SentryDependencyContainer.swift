@@ -540,16 +540,6 @@ protocol CrashInstallationReporterBuilder {
 }
 extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
 
-protocol ObjCRuntimeWrapperProvider {
-    var objcRuntimeWrapper: SentryObjCRuntimeWrapper { get }
-}
-extension SentryDependencyContainer: ObjCRuntimeWrapperProvider {}
-
-protocol BinaryImageCacheProvider {
-    var binaryImageCache: SentryBinaryImageCache { get }
-}
-extension SentryDependencyContainer: BinaryImageCacheProvider {}
-
 protocol SentryCoreDataSwizzlingProvider {
     var coreDataSwizzling: SentryCoreDataSwizzling { get }
 }

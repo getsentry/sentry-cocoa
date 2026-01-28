@@ -233,7 +233,7 @@ class SentryUIViewControllerSwizzling {
         }
     }
 
-    func swizzleViewControllerSubClass(_ targetClass: AnyClass) {
+    private func swizzleViewControllerSubClass(_ targetClass: AnyClass) {
         guard shouldSwizzleViewController(targetClass) else {
             SentrySDKLog.debug("Skipping swizzling of class: \(targetClass)")
             return
@@ -242,8 +242,7 @@ class SentryUIViewControllerSwizzling {
         SentryUIViewControllerSwizzlingHelper.swizzleViewControllerSubClass(targetClass)
     }
 
-    /// For testing.
-    func shouldSwizzleViewController(_ targetClass: AnyClass) -> Bool {
+    private func shouldSwizzleViewController(_ targetClass: AnyClass) -> Bool {
         let className = NSStringFromClass(targetClass)
 
         let shouldExcludeClassFromSwizzling = SentrySwizzleClassNameExclude.shouldExcludeClass(
@@ -257,6 +256,13 @@ class SentryUIViewControllerSwizzling {
 
         return inAppLogic.isClassInApp(targetClass)
     }
+    
+#if SENTRY_TEST || SENTRY_TEST_CI
+        // Exposes shouldSwizzle for testing
+    func testShouldSwizzleViewController(_ targetClass: AnyClass) -> Bool {
+        shouldSwizzleViewController(targetClass)
+    }
+    #endif
 }
 
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT

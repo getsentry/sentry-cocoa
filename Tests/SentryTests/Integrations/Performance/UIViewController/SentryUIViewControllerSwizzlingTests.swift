@@ -75,32 +75,32 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
 
     func testShouldSwizzle_TestViewController() {
-        let result = fixture.sut.shouldSwizzleViewController(TestViewController.self)
+        let result = fixture.sut.testShouldSwizzleViewController(TestViewController.self)
         XCTAssertTrue(result)
     }
     
     func testShouldNotSwizzle_NoImageClass() {
         let noImageClass: AnyClass = objc_allocateClassPair(NSObject.self, "NoImageClass", 0)!
-        let result = fixture.sut.shouldSwizzleViewController(noImageClass)
+        let result = fixture.sut.testShouldSwizzleViewController(noImageClass)
 
         XCTAssertFalse(result)
     }
     
     func testShouldNotSwizzle_UIViewController() {
-        let result = fixture.sut.shouldSwizzleViewController(UIViewController.self)
+        let result = fixture.sut.testShouldSwizzleViewController(UIViewController.self)
         XCTAssertFalse(result)
     }
     
     func testShouldNotSwizzle_UIViewControllerExcludedFromSwizzling() {
         fixture.options.swizzleClassNameExcludes = ["TestViewController"]
         
-        XCTAssertFalse(fixture.sut.shouldSwizzleViewController(TestViewController.self))
+        XCTAssertFalse(fixture.sut.testShouldSwizzleViewController(TestViewController.self))
     }
     
     func testShouldSwizzle_UIViewControllerNotExcludedFromSwizzling() {
         fixture.options.swizzleClassNameExcludes = ["TestViewController1"]
         
-        XCTAssertTrue(fixture.sut.shouldSwizzleViewController(TestViewController.self))
+        XCTAssertTrue(fixture.sut.testShouldSwizzleViewController(TestViewController.self))
     }
     
     func testUIViewController_loadView_noTransactionBoundToScope() {
