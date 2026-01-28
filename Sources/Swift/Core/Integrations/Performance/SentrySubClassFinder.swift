@@ -99,20 +99,22 @@ class SentrySubClassFinder: NSObject {
     }
 
     private func isClass(_ childClass: AnyClass?, subClassOf parentClass: AnyClass) -> Bool {
-        guard var currentClass = childClass, currentClass != parentClass else {
+        guard childClass != nil, childClass != parentClass else {
             return false
         }
+        
+        var currentClass: AnyClass? = childClass
 
         // Using a do while loop, like pointed out in Cocoa with Love
         // (https://www.cocoawithlove.com/2010/01/getting-subclasses-of-objective-c-class.html)
         // can lead to EXC_I386_GPFLT which stands for General Protection Fault and means we
         // are doing something we shouldn't do. It's safer to use a regular while loop to check
         // if superClass is valid.
-        while let superClass = class_getSuperclass(currentClass), superClass != parentClass {
-            currentClass = superClass
+        while currentClass != nil, currentClass != parentClass {
+            currentClass = class_getSuperclass(currentClass)
         }
 
-        return class_getSuperclass(currentClass) == parentClass
+        return currentClass != nil
     }
 }
 
