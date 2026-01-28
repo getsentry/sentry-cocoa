@@ -23,6 +23,7 @@ DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
 TEST_PLAN=""
 RESULT_BUNDLE_PATH="results.xcresult"
+SPM_PROJECT="false"
 
 usage() {
     echo "Usage: $0"
@@ -36,6 +37,7 @@ usage() {
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
     echo "  -t|--test-plan <plan>           Test plan name (default: empty)"
     echo "  -R|--result-bundle <path>       Result bundle path (default: results.xcresult)"
+    echo "  -S|--spm-project <bool>         Use SPM project (default: false)"
     exit 1
 }
 
@@ -80,6 +82,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -R|--result-bundle)
             RESULT_BUNDLE_PATH="$2"
+            shift 2
+            ;;
+        -S|--spm-project)
+            SPM_PROJECT="$2"
             shift 2
             ;;
         *)
@@ -173,16 +179,23 @@ if [ -n "$TEST_PLAN" ]; then
     TEST_PLAN_ARGS+=("-testPlan" "$TEST_PLAN")
 fi
 
+# Build xcodebuild arguments based on project type
+XCODEBUILD_ARGS=()
+# For SPM packages, xcodebuild automatically discovers schemes and doesn't need workspace/configuration flags
+if [ "$SPM_PROJECT" != "true" ]; then
+    XCODEBUILD_ARGS+=("-workspace" "Sentry.xcworkspace")
+    XCODEBUILD_ARGS+=("-configuration" "$CONFIGURATION")
+fi
+XCODEBUILD_ARGS+=("-scheme" "$TEST_SCHEME")
+XCODEBUILD_ARGS+=("${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}")
+XCODEBUILD_ARGS+=("-destination" "$DESTINATION")
+
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
     log_notice "Running xcodebuild build-for-testing"
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
-        -scheme "$TEST_SCHEME" \
-        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
-        -configuration "$CONFIGURATION" \
-        -destination "$DESTINATION" \
+        "${XCODEBUILD_ARGS[@]}" \
         build-for-testing 2>&1 |
         tee raw-build-for-testing-output.log |
         xcbeautify --preserve-unbeautified
@@ -197,13 +210,10 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         rm -rf "$RESULT_BUNDLE_PATH"
     fi
 
+    XCODEBUILD_ARGS+=("-resultBundlePath" "$RESULT_BUNDLE_PATH")
+
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
-        -scheme "$TEST_SCHEME" \
-        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
-        -configuration "$CONFIGURATION" \
-        -destination "$DESTINATION" \
-        -resultBundlePath "$RESULT_BUNDLE_PATH" \
+        "${XCODEBUILD_ARGS[@]}" \
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --report junit
