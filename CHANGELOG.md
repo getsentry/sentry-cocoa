@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Improvements
+
+- The watchdog termination integration uses a runloop observer instead of fixed interval main thread work to avoid creating a busy runloop (#6237)
+
 ### Features
 
 - Transport logs error message for HTTP 413 responses (#7261)

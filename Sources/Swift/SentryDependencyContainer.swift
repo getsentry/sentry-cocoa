@@ -301,7 +301,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         #endif
         }
     }
-    
+
+    var hangTracker: HangTracker = {
+        DefaultHangTracker(dateProvider: Dependencies.dateProvider)
+    }()
+
     private var crashInstallationReporter: SentryCrashInstallationReporter?
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
         getLazyVar(\.crashInstallationReporter) {
@@ -477,6 +481,25 @@ protocol WatchdogTerminationTrackerBuilder {
     func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker?
 }
 extension SentryDependencyContainer: WatchdogTerminationTrackerBuilder {}
+
+protocol WatchdogTerminationHangTrackerBuilder {
+    func getWatchdogTerminationHangTracker(
+        timeoutInterval: TimeInterval,
+        hangStarted: @escaping () -> Void,
+        hangStopped: @escaping () -> Void
+    ) -> SentryWatchdogTerminationHangTracker?
+}
+extension SentryDependencyContainer: WatchdogTerminationHangTrackerBuilder {
+    func getWatchdogTerminationHangTracker(timeoutInterval: TimeInterval, hangStarted: @escaping () -> Void, hangStopped: @escaping () -> Void) -> SentryWatchdogTerminationHangTracker? {
+        SentryWatchdogTerminationHangTracker(
+            queue: dispatchQueueWrapper,
+            hangTracker: hangTracker,
+            timeoutInterval: timeoutInterval,
+            hangStarted: hangStarted,
+            hangStopped: hangStopped
+        )
+    }
+}
 #endif
 
 protocol NetworkTrackerProvider {
@@ -517,6 +540,15 @@ protocol SentryEventTrackerBuilder {
     func getUIEventTracker(_ options: Options) -> SentryUIEventTracker
 }
 extension SentryDependencyContainer: SentryEventTrackerBuilder {}
+
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+
+#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+protocol HangTrackerProvider {
+    var hangTracker: HangTracker { get }
+}
+
+extension SentryDependencyContainer: HangTrackerProvider {}
+#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
 
 //swiftlint:enable file_length missing_docs
