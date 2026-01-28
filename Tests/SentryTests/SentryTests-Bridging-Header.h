@@ -30,7 +30,6 @@
 
 #import "Helper/ExceptionCatcher.h"
 #import "NSData+Unzip.h"
-#import "NSLocale+Sentry.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "PrivateSentrySDKOnly.h"
 #import "Sentry/Sentry-Swift.h"
@@ -44,7 +43,6 @@
 #import "SentryBooleanSerialization.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBuildAppStartSpans.h"
-#import "SentryByteCountFormatter.h"
 #import "SentryClassRegistrator.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"

@@ -1,5 +1,4 @@
 #import "SentryClient.h"
-#import "NSLocale+Sentry.h"
 #import "SentryAttachment.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
