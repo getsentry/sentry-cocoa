@@ -46,6 +46,8 @@
 #import "SentryANRTrackerV2.h"
 #import "SentryAsyncLog.h"
 #import "SentryContinuousProfiler.h"
+#import "SentryCoreDataSwizzlingHelper.h"
+#import "SentryCoreDataTracker.h"
 #import "SentryCrash.h"
 #import "SentryCrashDebug.h"
 #import "SentryCrashInstallation+Private.h"
