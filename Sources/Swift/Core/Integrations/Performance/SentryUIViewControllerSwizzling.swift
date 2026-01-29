@@ -82,6 +82,12 @@ class SentryUIViewControllerSwizzling {
     
     func stop() {
         SentryUIViewControllerSwizzlingHelper.stop()
+        // Remove observers
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIScene.willConnectNotification,
+            object: nil
+        )
     }
 
     private func findApp() -> SentryUIApplication? {

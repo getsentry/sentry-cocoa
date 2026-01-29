@@ -26,7 +26,7 @@
     }
     
     func createHighPriorityQueue(_ name: UnsafePointer<CChar>) -> SentryDispatchQueueWrapper {
-        return SentryDispatchQueueWrapper(name: name, isHighPriority: true)
+        return SentryDispatchQueueWrapper(highPriority: name)
     }
 }
 // swiftlint:enable missing_docs

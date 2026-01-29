@@ -28,7 +28,7 @@ import Foundation
         dateProvider: SentryCurrentDateProvider,
         delegate: SentryLogBufferDelegate
     ) {
-        let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher", isHighPriority: false)
+        let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
         self.init(
             options: options,
             flushTimeout: 5,

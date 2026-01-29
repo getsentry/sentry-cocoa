@@ -7,17 +7,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init
 {
-    self = [self initWithName:"io.sentry.default" isHighPriority:FALSE];
+    self = [self initWithName:"io.sentry.default"];
     return self;
 }
 
-- (instancetype)initWithName:(const char *)name isHighPriority:(BOOL)isHighPriority
+- (instancetype)initWithName:(const char *)name
 {
     if (self = [super init]) {
-        qos_class_t class = isHighPriority ? DISPATCH_QUEUE_PRIORITY_HIGH : QOS_CLASS_DEFAULT;
-        dispatch_queue_attr_t attributes
-            = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, class, 0);
-        _queue = dispatch_queue_create(name, attributes);
+        _queue = dispatch_queue_create(name,
+            dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_DEFAULT, 0));
     }
     return self;
 }
@@ -41,6 +39,14 @@ NS_ASSUME_NONNULL_BEGIN
         _queue = dispatch_queue_create(name, attributes);
     }
     return self;
+}
+
+- (instancetype)initHighPrioritytWithName:(const char *)name
+{
+    // High Priority is mapped to User Initiated QoS
+    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
+        DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
+    return [self initWithName:name attributes:attributes];
 }
 
 - (void)dispatchAsyncOnMainQueueIfNotMainThread:(void (^)(void))block

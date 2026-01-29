@@ -12,12 +12,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic) dispatch_queue_t queue;
 
-- (instancetype)initWithName:(const char *)name isHighPriority:(BOOL)isHighPriority;
+- (instancetype)initWithName:(const char *)name;
 
 - (instancetype)initWithName:(const char *)name
                   attributes:(nullable dispatch_queue_attr_t)attributes;
 
 - (instancetype)initWithName:(const char *)name relativePriority:(int)relativePriority;
+
+- (instancetype)initHighPrioritytWithName:(const char *)name;
 
 - (void)dispatchAsyncWithBlock:(void (^)(void))block;
 
