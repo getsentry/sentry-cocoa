@@ -245,10 +245,6 @@ test: test-ios test-macos test-catalyst test-tvos test-visionos
 .PHONY: test-ios
 test-ios:
 	@echo "--> Running iOS tests"
-	@ONLY_TESTING_ARG=""; \
-	if [ -n "$(ONLY_TESTING)" ]; then \
-		ONLY_TESTING_ARG="--only-testing $(ONLY_TESTING)"; \
-	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform iOS \
 		--os $(IOS_SIMULATOR_OS) \
@@ -256,7 +252,7 @@ test-ios:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
-		$$ONLY_TESTING_ARG
+		--only-testing "$(ONLY_TESTING)"
 
 ## Run macOS tests
 #
@@ -270,17 +266,13 @@ test-ios:
 .PHONY: test-macos
 test-macos:
 	@echo "--> Running macOS tests"
-	@ONLY_TESTING_ARG=""; \
-	if [ -n "$(ONLY_TESTING)" ]; then \
-		ONLY_TESTING_ARG="--only-testing $(ONLY_TESTING)"; \
-	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform macOS \
 		--os latest \
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
-		$$ONLY_TESTING_ARG
+		--only-testing "$(ONLY_TESTING)"
 
 ## Run Catalyst tests
 #
@@ -294,17 +286,13 @@ test-macos:
 .PHONY: test-catalyst
 test-catalyst:
 	@echo "--> Running Catalyst tests"
-	@ONLY_TESTING_ARG=""; \
-	if [ -n "$(ONLY_TESTING)" ]; then \
-		ONLY_TESTING_ARG="--only-testing $(ONLY_TESTING)"; \
-	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform Catalyst \
 		--os latest \
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
-		$$ONLY_TESTING_ARG
+		--only-testing "$(ONLY_TESTING)"
 
 ## Run tvOS tests
 #
@@ -318,10 +306,6 @@ test-catalyst:
 .PHONY: test-tvos
 test-tvos:
 	@echo "--> Running tvOS tests"
-	@ONLY_TESTING_ARG=""; \
-	if [ -n "$(ONLY_TESTING)" ]; then \
-		ONLY_TESTING_ARG="--only-testing $(ONLY_TESTING)"; \
-	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform tvOS \
 		--os $(TVOS_SIMULATOR_OS) \
@@ -329,7 +313,7 @@ test-tvos:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
-		$$ONLY_TESTING_ARG
+		--only-testing "$(ONLY_TESTING)"
 
 ## Run visionOS tests
 #
@@ -343,10 +327,6 @@ test-tvos:
 .PHONY: test-visionos
 test-visionos:
 	@echo "--> Running visionOS tests"
-	@ONLY_TESTING_ARG=""; \
-	if [ -n "$(ONLY_TESTING)" ]; then \
-		ONLY_TESTING_ARG="--only-testing $(ONLY_TESTING)"; \
-	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform visionOS \
 		--os $(VISIONOS_SIMULATOR_OS) \
@@ -354,7 +334,7 @@ test-visionos:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
-		$$ONLY_TESTING_ARG
+		--only-testing "$(ONLY_TESTING)"
 
 # Note: test-watchos target is not available because watchOS does not support XCTest.
 # Tests cannot be run on watchOS as the XCTest framework is not available on that platform.
