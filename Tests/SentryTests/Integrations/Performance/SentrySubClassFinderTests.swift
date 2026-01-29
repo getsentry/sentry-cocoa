@@ -1,4 +1,5 @@
 import ObjectiveC
+@testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 

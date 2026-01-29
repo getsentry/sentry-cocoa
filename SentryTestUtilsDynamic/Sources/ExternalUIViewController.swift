@@ -1,6 +1,6 @@
 import Foundation
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 
 /// This class is used to test swizzling of view controllers in external libs

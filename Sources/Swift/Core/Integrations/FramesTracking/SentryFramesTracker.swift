@@ -410,6 +410,13 @@ public class SentryFramesTracker: NSObject {
         // Therefore we subtract one, because otherwise almost all frames would be slow.
         return 1.0 / CFTimeInterval(actualFramesPerSecond - 1)
     }
+    
+    // MARK: - Test Utils
+    #if SENTRY_TEST || SENTRY_TEST_CI
+    func manualReportNewFrame() {
+        reportNewFrame()
+    }
+    #endif
 }
 
 #endif

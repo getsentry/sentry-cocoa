@@ -23,8 +23,8 @@ protocol SentryDispatchQueueWrapperProtocol {
         internalWrapper = _SentryDispatchQueueWrapperInternal()
     }
 
-    public init(name: UnsafePointer<CChar>) {
-        internalWrapper = _SentryDispatchQueueWrapperInternal(name: name)
+    public init(name: UnsafePointer<CChar>, isHighPriority: Bool) {
+        internalWrapper = _SentryDispatchQueueWrapperInternal(name: name, isHighPriority: isHighPriority)
     }
     
     public init(name: UnsafePointer<CChar>, relativePriority: Int32) {

@@ -16,6 +16,9 @@ static BOOL swizzlingIsActive = FALSE;
 // fine and we accept this warning.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
+
+// We only need to swizzle once, then we can control execution by checking if _tracker is nil.
+// The SentrySwizzleModeOncePerClassAndSuperclasses ensures swizzling only happens once per class.
 + (void)swizzleWithTracker:(SentryCoreDataTracker *)tracker
 {
     _tracker = tracker;

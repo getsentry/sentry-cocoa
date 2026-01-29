@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     // -- Act --
     SentryDispatchQueueWrapper *wrappedQueue =
-        [[SentryDispatchQueueWrapper alloc] initWithName:queueName];
+        [[SentryDispatchQueueWrapper alloc] initWithName:queueName isHighPriority:FALSE];
 
     // -- Assert --
     const char *actualName = dispatch_queue_get_label(wrappedQueue.queue);

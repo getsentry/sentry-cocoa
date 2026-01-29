@@ -24,5 +24,9 @@
     @objc(sourceWithInterval:leeway:queueName:attributes:eventHandler:) public func source(withInterval interval: NSInteger, leeway: NSInteger, queueName: UnsafePointer<CChar>, attributes: __OS_dispatch_queue_attr, eventHandler: @escaping () -> Void) -> SentryDispatchSourceWrapper {
         SentryDispatchSourceWrapper(interval: interval, leeway: leeway, queue: self.queue(withName: queueName, attributes: attributes), eventHandler: eventHandler)
     }
+    
+    func createHighPriorityQueue(_ name: UnsafePointer<CChar>) -> SentryDispatchQueueWrapper {
+        return SentryDispatchQueueWrapper(name: name, isHighPriority: true)
+    }
 }
 // swiftlint:enable missing_docs
