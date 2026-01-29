@@ -235,6 +235,17 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             reportAccessibilityIdentifier: options.reportAccessibilityIdentifier
         )
     }
+    
+    func getAppStartTracker(_ options: Options) -> SentryAppStartTracker {
+        return SentryAppStartTracker(
+            dispatchQueueWrapper: SentryDispatchQueueWrapper(),
+            appStateManager: appStateManager,
+            framesTracker: framesTracker,
+            enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing,
+            dateProvider: dateProvider,
+            sysctlWrapper: sysctlWrapper
+        )
+    }
 #endif
     
     private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
@@ -566,6 +577,11 @@ protocol SentryEventTrackerBuilder {
     func getUIEventTracker(_ options: Options) -> SentryUIEventTracker
 }
 extension SentryDependencyContainer: SentryEventTrackerBuilder {}
+
+protocol SentryAppStartTrackerBuilder {
+    func getAppStartTracker(_ options: Options) -> SentryAppStartTracker
+}
+extension SentryDependencyContainer: SentryAppStartTrackerBuilder {}
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 
 protocol SentryCoreDataTrackerBuilder {

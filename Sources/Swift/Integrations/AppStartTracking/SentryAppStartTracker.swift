@@ -38,6 +38,8 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     private var previousAppState: SentryAppState?
     private var wasInBackground = false
     private var didFinishLaunchingTimestamp: Date
+    private var dateProvider: SentryCurrentDateProvider
+    private var sysctlWrapper: SentrySysctl
 
     #if !(SENTRY_TEST || SENTRY_TEST_CI || DEBUG)
     private var onceToken: Int = 0
@@ -49,14 +51,18 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         dispatchQueueWrapper: SentryDispatchQueueWrapper,
         appStateManager: SentryAppStateManager,
         framesTracker: SentryFramesTracker,
-        enablePreWarmedAppStartTracing: Bool
+        enablePreWarmedAppStartTracing: Bool,
+        dateProvider: SentryCurrentDateProvider,
+        sysctlWrapper: SentrySysctl
     ) {
         self.dispatchQueue = dispatchQueueWrapper
         self.appStateManager = appStateManager
         self.framesTracker = framesTracker
         self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
         self.previousAppState = appStateManager.loadPreviousAppState()
-        self.didFinishLaunchingTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
+        self.dateProvider = dateProvider
+        self.didFinishLaunchingTimestamp = dateProvider.date()
+        self.sysctlWrapper = sysctlWrapper
 
         super.init()
 
@@ -73,8 +79,8 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         // It can happen that the OS posts the didFinishLaunching notification before we register for it
         // or we just don't receive it. In this case the didFinishLaunchingTimestamp would be nil. As
         // the SDK should be initialized in application:didFinishLaunchingWithOptions: or in the init of
-        // @main of a SwiftUI  we set the timestamp here.
-        didFinishLaunchingTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
+        // @main of a SwiftUI we set the timestamp here.
+        didFinishLaunchingTimestamp = dateProvider.date()
 
         NotificationCenter.default.addObserver(
             self,
@@ -91,7 +97,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         )
 
         if PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode {
-            buildAppStartMeasurement(SentryDependencyContainer.sharedInstance().dateProvider.date())
+            buildAppStartMeasurement(dateProvider.date())
         }
 
         appStateManager.start()
@@ -176,7 +182,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
             // https://twitter.com/steipete/status/1466013492180312068,
             // https://github.com/MobileNativeFoundation/discussions/discussions/146
             // https://eisel.me/startup
-            let sysctl = SentryDependencyContainer.sharedInstance().sysctlWrapper
+            let sysctl = self.sysctlWrapper
             let appStartTimestamp: Date
             let appStartDuration: TimeInterval
 
@@ -281,7 +287,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
 
     @objc
     private func didFinishLaunching() {
-        didFinishLaunchingTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
+        didFinishLaunchingTimestamp = dateProvider.date()
     }
 
     @objc

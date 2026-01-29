@@ -65,7 +65,9 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
                 dispatchQueueWrapper: TestSentryDispatchQueueWrapper(),
                 appStateManager: appStateManager,
                 framesTracker: framesTracker,
-                enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing
+                enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing,
+                dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
+                sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper
             )
             return sut
         }
