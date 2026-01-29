@@ -190,7 +190,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     
     func testAppLaunches_OSPrewarmedProcess_AppStartUpShortened() {
         setenv("ActivePrewarm", "1", 1)
-        SentryAppStartTracker.load()
+        SentryAppStartTracker.reloadEnvironment()
         givenSystemNotRebooted()
 
         fixture.fileManager.moveAppStateToPreviousAppState()
@@ -204,9 +204,9 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     
     func testAppLaunches_OSPrewarmedProcess_FeatureDisabled_NoAppStartUp() {
         fixture.enablePreWarmedAppStartTracing = false
-        
+
         setenv("ActivePrewarm", "1", 1)
-        SentryAppStartTracker.load()
+        SentryAppStartTracker.reloadEnvironment()
         givenSystemNotRebooted()
 
         fixture.fileManager.moveAppStateToPreviousAppState()
@@ -220,7 +220,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     
     func testAppLaunches_OSStopsAtLaterAppLaunchStep_NoAppStartUp() {
         setenv("ActivePrewarm", "1", 1)
-        SentryAppStartTracker.load()
+        SentryAppStartTracker.reloadEnvironment()
         givenSystemNotRebooted()
         givenModuleInitializationTimestamp(timestamp: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-200))
 
@@ -236,7 +236,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 
     func testAppLaunches_WrongEnvValue_AppStartUp() {
         setenv("ActivePrewarm", "0", 1)
-        SentryAppStartTracker.load()
+        SentryAppStartTracker.reloadEnvironment()
         givenSystemNotRebooted()
 
         fixture.fileManager.moveAppStateToPreviousAppState()
@@ -339,7 +339,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     
     private func givenRuntimeInitTimestamp(sut: SentryAppStartTracker, timestamp: Date? = nil) {
         fixture.runtimeInitTimestamp = timestamp ?? SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(0.2)
-        Dynamic(sut).setRuntimeInit(fixture.runtimeInitTimestamp)
+        sut.setRuntimeInit(fixture.runtimeInitTimestamp)
     }
     
     private func givenModuleInitializationTimestamp(timestamp: Date? = nil) {
@@ -390,7 +390,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         fixture.didFinishLaunchingTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
         
         sut = fixture.sut
-        Dynamic(sut).setRuntimeInit(fixture.runtimeInitTimestamp)
+        sut.setRuntimeInit(fixture.runtimeInitTimestamp)
         givenModuleInitializationTimestamp()
 
         didFinishLaunching()
