@@ -1,6 +1,6 @@
 final class SentryWatchdogTerminationHangTracker {
     private let queue: SentryDispatchQueueWrapperProtocol
-    private let tracker: HangTracker
+    private let tracker: SentryHangTracker
     private let timeoutInterval: TimeInterval
     private let hangStarted: () -> Void
     private let hangStopped: () -> Void
@@ -11,7 +11,7 @@ final class SentryWatchdogTerminationHangTracker {
 
     init(
         queue: SentryDispatchQueueWrapperProtocol,
-        hangTracker: HangTracker,
+        hangTracker: SentryHangTracker,
         timeoutInterval: TimeInterval,
         hangStarted: @escaping () -> Void,
         hangStopped: @escaping () -> Void

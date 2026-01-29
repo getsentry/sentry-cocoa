@@ -263,35 +263,9 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(extrasInvocation?["key"] as? String, "value")
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 1)
     }
-
-    func testANRDetected_UpdatesAppStateToTrue() throws {
-        // -- Arrange --
-        fixture.crashWrapper.internalIsBeingTraced = false
-        let sut = try XCTUnwrap(fixture.getSut())
-
-        // -- Act --
-        sut.anrDetected(type: .unknown)
-
-        // -- Assert --
-        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
-        XCTAssertTrue(appState.isANROngoing)
-    }
-
-    func testANRStopped_UpdatesAppStateToFalse() throws {
-        // -- Arrange --
-        fixture.crashWrapper.internalIsBeingTraced = false
-        let sut = try XCTUnwrap(fixture.getSut())
-
-        // -- Act --
-        sut.anrStopped(result: nil)
-
-        // -- Assert --
-        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
-        XCTAssertFalse(appState.isANROngoing)
-    }
 }
 
-private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder {
+private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & WatchdogTerminationHangTrackerBuilder {
     func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
     }
@@ -312,6 +286,12 @@ private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppSta
     func getWatchdogTerminationTracker(_ options: Sentry.Options) -> Sentry.SentryWatchdogTerminationTracker? {
         getWatchdogTerminationTrackerCalled = true
         return SentryDependencyContainer.sharedInstance().getWatchdogTerminationTracker(options)
+    }
+
+    var getWatchdogTerminationHangTrackerInvocations = Invocations<(timeoutInterval: TimeInterval, hangStarted: () -> Void, hangStopped: () -> Void)>()
+    func getWatchdogTerminationHangTracker(timeoutInterval: TimeInterval, hangStarted: @escaping () -> Void, hangStopped: @escaping () -> Void) -> SentryWatchdogTerminationHangTracker? {
+        getWatchdogTerminationHangTrackerInvocations.record((timeoutInterval, hangStarted, hangStopped))
+        return SentryDependencyContainer.sharedInstance().getWatchdogTerminationHangTracker(timeoutInterval: timeoutInterval, hangStarted: hangStarted, hangStopped: hangStopped)
     }
 }
 

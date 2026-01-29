@@ -302,9 +302,16 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 
-    var hangTracker: HangTracker = {
-        DefaultHangTracker(dateProvider: Dependencies.dateProvider)
-    }()
+    private var _hangTracker: SentryHangTracker?
+    var hangTracker: SentryHangTracker {
+        getLazyVar(\._hangTracker) {
+            SentryDefaultHangTracker(
+                applicationProvider: self,
+                dateProvider: dateProvider,
+                queue: dispatchQueueWrapper
+            )
+        }
+    }
 
     private var crashInstallationReporter: SentryCrashInstallationReporter?
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
@@ -545,7 +552,7 @@ extension SentryDependencyContainer: SentryEventTrackerBuilder {}
 
 #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
 protocol HangTrackerProvider {
-    var hangTracker: HangTracker { get }
+    var hangTracker: SentryHangTracker { get }
 }
 
 extension SentryDependencyContainer: HangTrackerProvider {}
