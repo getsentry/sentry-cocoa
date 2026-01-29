@@ -36,8 +36,6 @@
 #import "SentryANRTrackerV1.h"
 #import "SentryANRTrackerV2.h"
 #import "SentryAppStartMeasurement+Private.h"
-#import "SentryAppStartTracker.h"
-#import "SentryAppStartTrackingIntegration.h"
 #import "SentryArray.h"
 #import "SentryAttachment+Private.h"
 #import "SentryBaseIntegration.h"

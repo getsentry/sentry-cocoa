@@ -1,7 +1,6 @@
 #import "SentryDefines.h"
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryAppStartTracker.h"
 #    import "SentryDefaultUIViewControllerPerformanceTracker.h"
 #endif // SENTRY_HAS_UIKIT
 
@@ -17,6 +16,7 @@
 
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement+Private.h"
+#import "SentryAppStartTrackerHelper.h"
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
 #import "SentryCrash+Test.h"
