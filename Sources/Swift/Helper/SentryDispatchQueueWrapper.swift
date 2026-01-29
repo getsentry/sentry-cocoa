@@ -36,7 +36,7 @@ protocol SentryDispatchQueueWrapperProtocol {
     }
     
     public init(highPriority name: UnsafePointer<CChar>) {
-        internalWrapper = _SentryDispatchQueueWrapperInternal(highPrioritytWithName: name)
+        internalWrapper = _SentryDispatchQueueWrapperInternal(highPriorityWithName: name)
     }
     
     public var queue: DispatchQueue {

@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (instancetype)initHighPrioritytWithName:(const char *)name
+- (instancetype)initHighPriorityWithName:(const char *)name
 {
     // High Priority is mapped to User Initiated QoS
     dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
