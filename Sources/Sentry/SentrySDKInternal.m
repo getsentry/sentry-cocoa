@@ -488,11 +488,6 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDKInternal.currentHub endSession];
 }
 
-+ (NSArray<Class> *)defaultIntegrationClasses
-{
-    return @[];
-}
-
 /**
  * Install integrations and keeps ref in @c SentryHub.integrations
  */
@@ -504,24 +499,6 @@ static NSDate *_Nullable startTimestamp = nil;
     }
     SentryOptions *options = [SentrySDKInternal.currentHub getClient].options;
 
-    NSArray<Class> *integrationClasses = [SentrySDKInternal defaultIntegrationClasses];
-
-    for (Class integrationClass in integrationClasses) {
-        if ([SentrySDKInternal.currentHub isIntegrationInstalled:integrationClass]) {
-            SENTRY_LOG_ERROR(
-                @"[SentryHub doInstallIntegrations] already installed \"%@\" -> skipping.",
-                NSStringFromClass(integrationClass));
-            continue;
-        }
-
-        id<SentryObjCIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
-        BOOL shouldInstall = [integrationInstance installWithOptions:options];
-        if (shouldInstall) {
-            [SentrySDKInternal.currentHub
-                addInstalledIntegration:integrationInstance
-                                   name:NSStringFromClass(integrationClass)];
-        }
-    }
     [SentrySwiftIntegrationInstaller installWith:options];
 }
 

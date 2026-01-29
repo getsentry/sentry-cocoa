@@ -1,9 +1,8 @@
 // swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
-// The Swift counterpart to `SentryObjcIntegrationProtocol`. This protocol allows
-// injecting the dependencies in a way that does not require the Integration to
-// depend on SentryDependencyContainer.
+// This protocol allows injecting the dependencies in a way that does not
+// require the Integration to depend on SentryDependencyContainer.
 protocol SwiftIntegration: SentryIntegrationProtocol {
     // The dependencies required for the integration. The easiest way to satisfy this requirement when migrating from ObjC
     // is to define it as `SentryDependencyContainer` with a typealias. However, a generic Swift class that has a protocol

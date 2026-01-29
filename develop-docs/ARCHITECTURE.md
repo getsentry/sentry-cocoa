@@ -21,7 +21,7 @@ At the highest level, the SDK is composed of a few key components:
 
 ### Integrations
 
-The SDK packages most feature areas in "integrations" that inherit from the `SentryBaseIntegration` superclass. By default, it installs the following (order matters for initialization):
+The SDK packages most feature areas in "integrations" that implement the `SwiftIntegration` protocol. By default, it installs the following (order matters for initialization):
 
 **Core Integrations** (all platforms):
 
