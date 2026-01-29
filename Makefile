@@ -235,6 +235,13 @@ test: test-ios test-macos test-catalyst test-tvos test-visionos
 #
 # Runs unit tests for iOS Simulator.
 # Outputs logs and uses xcbeautify for formatted output.
+#
+# Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Examples:
+#   make test-ios
+#   make test-ios ONLY_TESTING=SentryHttpTransportTests
+#   make test-ios ONLY_TESTING=SentryHttpTransportTests,SentryHubTests
+#   make test-ios ONLY_TESTING=SentryHttpTransportTests/testFlush_WhenNoInternet
 .PHONY: test-ios
 test-ios:
 	@echo "--> Running iOS tests"
@@ -244,12 +251,18 @@ test-ios:
 		--device "$(IOS_DEVICE_NAME)" \
 		--ref $(GIT-REF) \
 		--command test \
-		--configuration Test
+		--configuration Test \
+		--only-testing "$(ONLY_TESTING)"
 
 ## Run macOS tests
 #
 # Runs unit tests for macOS.
 # Outputs logs and uses xcbeautify for formatted output.
+#
+# Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Examples:
+#   make test-macos
+#   make test-macos ONLY_TESTING=SentryHttpTransportTests
 .PHONY: test-macos
 test-macos:
 	@echo "--> Running macOS tests"
@@ -258,12 +271,18 @@ test-macos:
 		--os latest \
 		--ref $(GIT-REF) \
 		--command test \
-		--configuration Test
+		--configuration Test \
+		--only-testing "$(ONLY_TESTING)"
 
 ## Run Catalyst tests
 #
 # Runs unit tests for Mac Catalyst.
 # Outputs logs and uses xcbeautify for formatted output.
+#
+# Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Examples:
+#   make test-catalyst
+#   make test-catalyst ONLY_TESTING=SentryHttpTransportTests
 .PHONY: test-catalyst
 test-catalyst:
 	@echo "--> Running Catalyst tests"
@@ -272,12 +291,18 @@ test-catalyst:
 		--os latest \
 		--ref $(GIT-REF) \
 		--command test \
-		--configuration Test
+		--configuration Test \
+		--only-testing "$(ONLY_TESTING)"
 
 ## Run tvOS tests
 #
 # Runs unit tests for tvOS Simulator.
 # Outputs logs and uses xcbeautify for formatted output.
+#
+# Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Examples:
+#   make test-tvos
+#   make test-tvos ONLY_TESTING=SentryHttpTransportTests
 .PHONY: test-tvos
 test-tvos:
 	@echo "--> Running tvOS tests"
@@ -287,12 +312,18 @@ test-tvos:
 		--device "$(TVOS_DEVICE_NAME)" \
 		--ref $(GIT-REF) \
 		--command test \
-		--configuration Test
+		--configuration Test \
+		--only-testing "$(ONLY_TESTING)"
 
 ## Run visionOS tests
 #
 # Runs unit tests for visionOS Simulator.
 # Outputs logs and uses xcbeautify for formatted output.
+#
+# Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Examples:
+#   make test-visionos
+#   make test-visionos ONLY_TESTING=SentryHttpTransportTests
 .PHONY: test-visionos
 test-visionos:
 	@echo "--> Running visionOS tests"
@@ -302,7 +333,8 @@ test-visionos:
 		--device "$(VISIONOS_DEVICE_NAME)" \
 		--ref $(GIT-REF) \
 		--command test \
-		--configuration Test
+		--configuration Test \
+		--only-testing "$(ONLY_TESTING)"
 
 # Note: test-watchos target is not available because watchOS does not support XCTest.
 # Tests cannot be run on watchOS as the XCTest framework is not available on that platform.
