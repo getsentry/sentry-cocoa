@@ -619,7 +619,7 @@ final class SentryUIRedactBuilder {
         // - In Sentry's own SubClassFinder where storing or accessing class objects on a background thread caused crashes due to `+initialize` being called on UIKit classes [2]
         //
         // [1] https://github.com/EmergeTools/SnapshotPreviews/blob/main/Sources/SnapshotPreviewsCore/View%2BSnapshot.swift#L248
-        // [2] https://github.com/getsentry/sentry-cocoa/blob/550283f01aaf7c1a84d7fe7732422daadf530ffd/Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift#L50-L83
+        // [2] Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift
         let viewTypeId = type(of: view).description()
 
         // Check if the view type id is in the list of included view classes (exact matching).
