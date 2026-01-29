@@ -26,13 +26,17 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         }
 
         func getSut(options: Options? = nil) throws -> SentryAppStartTrackingIntegration<SentryDependencyContainer> {
+            return try XCTUnwrap(getOptionalSut(options: options))
+        }
+        
+        func getOptionalSut(options: Options? = nil) -> SentryAppStartTrackingIntegration<SentryDependencyContainer>? {
             let container = SentryDependencyContainer.sharedInstance()
             container.fileManager = fileManager
 
-            return try XCTUnwrap(SentryAppStartTrackingIntegration(
+            return SentryAppStartTrackingIntegration(
                 with: options ?? self.options,
                 dependencies: container
-            ))
+            )
         }
     }
 
@@ -78,12 +82,12 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         XCTAssertFalse(tracker.isRunning, "AppStartTracking should not be running")
     }
 
-    func testNoSampleRate_noTracker() throws {
+    func testNoSampleRate_noIntegration() throws {
         let options = fixture.options
         options.tracesSampleRate = 0.0
         options.tracesSampler = nil
 
-        let sut = try fixture.getSut(options: options)
+        let sut = fixture.getOptionalSut(options: options)
         XCTAssertNil(sut)
     }
 
@@ -103,28 +107,20 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         try assertTrackerSetupAndRunning(tracker)
     }
 
-    func testOnlyAppStartMeasuringEnabled_noTracker() throws {
+    func testOnlyAppStartMeasuringEnabled_noIntegration() throws {
         let options = fixture.options
         options.tracesSampleRate = 0.0
         options.tracesSampler = nil
 
-        let sut = try fixture.getSut(options: options)
+        let sut = fixture.getOptionalSut(options: options)
         XCTAssertNil(sut)
     }
 
-    func testAutoPerformanceTrackingDisabled_noTracker() throws {
+    func test_PerformanceTrackingDisabled_noIntegration() throws {
         let options = fixture.options
         options.enableAutoPerformanceTracing = false
 
-        let sut = try fixture.getSut(options: options)
-        XCTAssertNil(sut)
-    }
-
-    func test_PerformanceTrackingDisabled() throws {
-        let options = fixture.options
-        options.enableAutoPerformanceTracing = false
-
-        let sut = try fixture.getSut(options: options)
+        let sut = fixture.getOptionalSut(options: options)
         XCTAssertNil(sut)
     }
 
