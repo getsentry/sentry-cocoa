@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
 @property (nonatomic, strong) SentryLogBuffer *logBuffer;
-@property (nonatomic, strong) SentryDefaultScopeApplier *scopeApplier;
+@property (nonatomic, strong) id<SentryLogScopeApplier> scopeApplier;
 
 @end
 
@@ -124,8 +124,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                  installationId:[SentryInstallation
                                     cachedIdWithCacheDirectoryPath:options.cacheDirectoryPath]];
         self.scopeApplier =
-            [[SentryDefaultScopeApplier alloc] initWithMetadata:metadata
-                                                 sendDefaultPii:options.sendDefaultPii];
+            [[SentryDefaultLogScopeApplier alloc] initWithMetadata:metadata
+                                                    sendDefaultPii:options.sendDefaultPii];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.

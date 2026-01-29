@@ -20,7 +20,7 @@ typealias SentryMetricsIntegrationDependencies = DateProviderProvider & Dispatch
 
 final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol, FlushableIntegration {
     private let metricsBuffer: SentryMetricsTelemetryBuffer
-    private let scopeApplier: SentryDefaultScopeApplier
+    private let scopeApplier: SentryDefaultMetricScopeApplier
     #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
     private let notificationCenter: SentryNSNotificationCenterWrapper
     #endif
@@ -33,7 +33,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
             releaseName: options.releaseName,
             installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
         )
-        self.scopeApplier = SentryDefaultScopeApplier(metadata: metadata, sendDefaultPii: options.sendDefaultPii)
+        self.scopeApplier = SentryDefaultMetricScopeApplier(metadata: metadata, sendDefaultPii: options.sendDefaultPii)
 
         self.metricsBuffer = DefaultSentryMetricsTelemetryBuffer(
             options: options,

@@ -9,8 +9,13 @@ protocol SentryScopeApplyingMetadata {
 }
 
 @_spi(Private)
-public protocol SentryScopeApplier {
+@objc
+public protocol SentryLogScopeApplier {
     func applyScope(_ scope: Scope, toLog log: SentryLog) -> SentryLog
+}
+
+@_spi(Private)
+public protocol SentryMetricScopeApplier {
     func applyScope(_ scope: Scope, toMetric metric: SentryMetric) -> SentryMetric
 }
 
@@ -30,7 +35,8 @@ public class SentryDefaultScopeApplyingMetadata: NSObject, SentryScopeApplyingMe
 
 @_spi(Private)
 @objc
-public class SentryDefaultScopeApplier: NSObject, SentryScopeApplier {
+@objcMembers
+public class SentryDefaultLogScopeApplier: NSObject, SentryLogScopeApplier {
     private let metadata: SentryScopeApplyingMetadata
     private let sendDefaultPii: Bool
 
@@ -43,6 +49,17 @@ public class SentryDefaultScopeApplier: NSObject, SentryScopeApplier {
         var mutableLog = log
         scope.addAttributesToItem(&mutableLog, sendDefaultPii: sendDefaultPii, metadata: metadata)
         return mutableLog
+    }
+}
+
+@_spi(Private)
+public class SentryDefaultMetricScopeApplier: SentryMetricScopeApplier {
+    private let metadata: SentryScopeApplyingMetadata
+    private let sendDefaultPii: Bool
+
+    public init(metadata: SentryDefaultScopeApplyingMetadata, sendDefaultPii: Bool) {
+        self.metadata = metadata
+        self.sendDefaultPii = sendDefaultPii
     }
 
     public func applyScope(_ scope: Scope, toMetric metric: SentryMetric) -> SentryMetric {
