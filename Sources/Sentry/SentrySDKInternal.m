@@ -22,7 +22,6 @@
 
 #if SENTRY_HAS_UIKIT
 #    import "SentryAppStartTrackingIntegration.h"
-#    import "SentryPerformanceTrackingIntegration.h"
 #endif // SENTRY_HAS_UIKIT
 
 #if TARGET_OS_OSX
@@ -496,11 +495,7 @@ static NSDate *_Nullable startTimestamp = nil;
 + (NSArray<Class> *)defaultIntegrationClasses
 {
 #if SENTRY_HAS_UIKIT
-    // The order of integrations here is important.
-    NSMutableArray<Class> *defaultIntegrations =
-        [NSMutableArray<Class> arrayWithObjects:[SentryAppStartTrackingIntegration class],
-            [SentryPerformanceTrackingIntegration class], nil];
-    return defaultIntegrations;
+    return @[ [SentryAppStartTrackingIntegration class] ];
 #else
     return @[];
 #endif // SENTRY_HAS_UIKIT
