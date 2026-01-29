@@ -2,7 +2,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-protocol ScopeApplyingMetadata {
+protocol SentryScopeApplyingMetadata {
     var environment: String { get }
     var releaseName: String? { get }
     var installationId: String? { get }
@@ -14,14 +14,9 @@ public protocol SentryScopeApplier {
     func applyScope(_ scope: Scope, toLog log: SentryLog) -> SentryLog
 }
 
-protocol SentryScopeApplierInternal: SentryScopeApplier {
-    func applyScope(_ scope: Scope, toMetric metric: SentryMetric) -> SentryMetric
-}
-
 @_spi(Private)
 @objc
-@objcMembers
-public class SentryScopeApplyingMetadata: NSObject, ScopeApplyingMetadata {
+public class SentryDefaultScopeApplyingMetadata: NSObject, SentryScopeApplyingMetadata {
     let environment: String
     let releaseName: String?
     let installationId: String?
@@ -35,12 +30,11 @@ public class SentryScopeApplyingMetadata: NSObject, ScopeApplyingMetadata {
 
 @_spi(Private)
 @objc
-@objcMembers
-public class SentryDefaultScopeApplier: NSObject, SentryScopeApplier, SentryScopeApplierInternal {
+public class SentryDefaultScopeApplier: NSObject, SentryScopeApplier {
     private let metadata: SentryScopeApplyingMetadata
     private let sendDefaultPii: Bool
 
-    @objc public init(metadata: SentryScopeApplyingMetadata, sendDefaultPii: Bool) {
+    @objc public init(metadata: SentryDefaultScopeApplyingMetadata, sendDefaultPii: Bool) {
         self.metadata = metadata
         self.sendDefaultPii = sendDefaultPii
     }

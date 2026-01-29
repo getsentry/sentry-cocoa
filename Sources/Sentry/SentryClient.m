@@ -118,7 +118,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                      dateProvider:dateProvider
                                                          delegate:self];
 
-        SentryScopeApplyingMetadata *metadata = [[SentryScopeApplyingMetadata alloc]
+        SentryDefaultScopeApplyingMetadata *metadata = [[SentryDefaultScopeApplyingMetadata alloc]
             initWithEnvironment:options.environment
                     releaseName:options.releaseName
                  installationId:[SentryInstallation

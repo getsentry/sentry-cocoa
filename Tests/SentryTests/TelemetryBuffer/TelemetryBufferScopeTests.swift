@@ -23,7 +23,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         }
     }
 
-    private struct TestMetadata: ScopeApplyingMetadata {
+    private struct TestMetadata: SentryScopeApplyingMetadata {
         let environment: String
         let releaseName: String?
         let installationId: String?

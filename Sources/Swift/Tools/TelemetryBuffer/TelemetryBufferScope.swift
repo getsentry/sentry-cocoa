@@ -13,7 +13,7 @@ protocol TelemetryBufferScope {
     /// Used for type-safe access of the attributes, uses default implementation in extension
     var attributesDict: [String: SentryAttributeContent] { get }
 
-    func addAttributesToItem<Item: TelemetryBufferItem, Metadata: ScopeApplyingMetadata>(
+    func addAttributesToItem<Item: TelemetryBufferItem, Metadata: SentryScopeApplyingMetadata>(
         _ item: inout Item,
         sendDefaultPii: Bool,
         metadata: Metadata
@@ -27,7 +27,7 @@ extension TelemetryBufferScope {
         }
     }
 
-    func addAttributesToItem<Item: TelemetryBufferItem, Metadata: ScopeApplyingMetadata>(
+    func addAttributesToItem<Item: TelemetryBufferItem, Metadata: SentryScopeApplyingMetadata>(
         _ item: inout Item,
         sendDefaultPii: Bool,
         metadata: Metadata
@@ -52,7 +52,7 @@ extension TelemetryBufferScope {
         item.traceId = span?.traceId ?? propagationContextTraceId
     }
 
-    private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any ScopeApplyingMetadata) {
+    private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any SentryScopeApplyingMetadata) {
         attributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
         attributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
         attributes["sentry.environment"] = .string(metadata.environment)
@@ -127,7 +127,7 @@ extension TelemetryBufferScope {
     private func addDefaultUserIdIfNeeded(
         to attributes: inout [String: SentryAttributeContent],
         sendDefaultPii: Bool,
-        metadata: any ScopeApplyingMetadata
+        metadata: any SentryScopeApplyingMetadata
     ) {
         guard attributes["user.id"] == nil && attributes["user.name"] == nil && attributes["user.email"] == nil else {
             return

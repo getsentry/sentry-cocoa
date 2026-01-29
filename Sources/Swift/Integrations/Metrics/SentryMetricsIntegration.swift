@@ -28,7 +28,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     init?(with options: Options, dependencies: Dependencies) {
         guard options.experimental.enableMetrics else { return nil }
 
-        let metadata = SentryScopeApplyingMetadata(
+        let metadata = SentryDefaultScopeApplyingMetadata(
             environment: options.environment,
             releaseName: options.releaseName,
             installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
