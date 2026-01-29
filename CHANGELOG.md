@@ -13,6 +13,10 @@
 
 ## 9.2.0
 
+> [!IMPORTANT]
+> This release contains a bug fix to only include user attributes in logs when `options.sendDefaultPii = true`.
+> Make sure to enable the option in case you rely on these attributes to be set.
+
 ### Features
 
 - Add options `options.sessionReplay.includedViewClasses` and `options.sessionReplay.excludedViewClasses` to ignore views from subtree traversal (#7063)
