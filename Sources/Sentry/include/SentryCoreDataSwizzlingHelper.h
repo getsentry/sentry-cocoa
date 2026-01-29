@@ -2,9 +2,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryNSFileManagerSwizzlingHelper : NSObject
+@interface SentryCoreDataSwizzlingHelper : NSObject
 
-+ (void)swizzleWithTracker:(SENTRY_SWIFT_MIGRATION_ID(SentryFileIOTracker))tracker;
++ (void)swizzleWithTracker:(SENTRY_SWIFT_MIGRATION_ID(SentryCoreDataTracker))tracker;
 
 + (void)stop;
 

@@ -54,6 +54,7 @@ private struct AnyIntegration {
             .init(SentryHangTrackerIntegrationObjC.self),
             .init(SentryAutoBreadcrumbTrackingIntegration.self),
             .init(SentryMetricsIntegration.self),
+            .init(SentryCoreDataTrackingIntegration.self),
             .init(SentryFileIOTrackingIntegration.self)
         ])
 
