@@ -235,74 +235,126 @@ test: test-ios test-macos test-catalyst test-tvos test-visionos
 #
 # Runs unit tests for iOS Simulator.
 # Outputs logs and uses xcbeautify for formatted output.
+#
+# Optional: TEST=ClassName to run specific test class(es)
+# Examples:
+#   make test-ios
+#   make test-ios TEST=SentryHttpTransportTests
+#   make test-ios TEST=SentryHttpTransportTests,SentryHubTests
+#   make test-ios TEST=SentryHttpTransportTests/testFlush_WhenNoInternet
 .PHONY: test-ios
 test-ios:
 	@echo "--> Running iOS tests"
+	@EXTRA_ARGS=""; \
+	if [ -n "$(TEST)" ]; then \
+		EXTRA_ARGS="--tests $(TEST)"; \
+	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform iOS \
 		--os $(IOS_SIMULATOR_OS) \
 		--device "$(IOS_DEVICE_NAME)" \
 		--ref $(GIT-REF) \
 		--command test \
-		--configuration Test
+		--configuration Test \
+		$$EXTRA_ARGS
 
 ## Run macOS tests
 #
 # Runs unit tests for macOS.
 # Outputs logs and uses xcbeautify for formatted output.
+#
+# Optional: TEST=ClassName to run specific test class(es)
+# Examples:
+#   make test-macos
+#   make test-macos TEST=SentryHttpTransportTests
 .PHONY: test-macos
 test-macos:
 	@echo "--> Running macOS tests"
+	@EXTRA_ARGS=""; \
+	if [ -n "$(TEST)" ]; then \
+		EXTRA_ARGS="--tests $(TEST)"; \
+	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform macOS \
 		--os latest \
 		--ref $(GIT-REF) \
 		--command test \
-		--configuration Test
+		--configuration Test \
+		$$EXTRA_ARGS
 
 ## Run Catalyst tests
 #
 # Runs unit tests for Mac Catalyst.
 # Outputs logs and uses xcbeautify for formatted output.
+#
+# Optional: TEST=ClassName to run specific test class(es)
+# Examples:
+#   make test-catalyst
+#   make test-catalyst TEST=SentryHttpTransportTests
 .PHONY: test-catalyst
 test-catalyst:
 	@echo "--> Running Catalyst tests"
+	@EXTRA_ARGS=""; \
+	if [ -n "$(TEST)" ]; then \
+		EXTRA_ARGS="--tests $(TEST)"; \
+	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform Catalyst \
 		--os latest \
 		--ref $(GIT-REF) \
 		--command test \
-		--configuration Test
+		--configuration Test \
+		$$EXTRA_ARGS
 
 ## Run tvOS tests
 #
 # Runs unit tests for tvOS Simulator.
 # Outputs logs and uses xcbeautify for formatted output.
+#
+# Optional: TEST=ClassName to run specific test class(es)
+# Examples:
+#   make test-tvos
+#   make test-tvos TEST=SentryHttpTransportTests
 .PHONY: test-tvos
 test-tvos:
 	@echo "--> Running tvOS tests"
+	@EXTRA_ARGS=""; \
+	if [ -n "$(TEST)" ]; then \
+		EXTRA_ARGS="--tests $(TEST)"; \
+	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform tvOS \
 		--os $(TVOS_SIMULATOR_OS) \
 		--device "$(TVOS_DEVICE_NAME)" \
 		--ref $(GIT-REF) \
 		--command test \
-		--configuration Test
+		--configuration Test \
+		$$EXTRA_ARGS
 
 ## Run visionOS tests
 #
 # Runs unit tests for visionOS Simulator.
 # Outputs logs and uses xcbeautify for formatted output.
+#
+# Optional: TEST=ClassName to run specific test class(es)
+# Examples:
+#   make test-visionos
+#   make test-visionos TEST=SentryHttpTransportTests
 .PHONY: test-visionos
 test-visionos:
 	@echo "--> Running visionOS tests"
+	@EXTRA_ARGS=""; \
+	if [ -n "$(TEST)" ]; then \
+		EXTRA_ARGS="--tests $(TEST)"; \
+	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform visionOS \
 		--os $(VISIONOS_SIMULATOR_OS) \
 		--device "$(VISIONOS_DEVICE_NAME)" \
 		--ref $(GIT-REF) \
 		--command test \
-		--configuration Test
+		--configuration Test \
+		$$EXTRA_ARGS
 
 # Note: test-watchos target is not available because watchOS does not support XCTest.
 # Tests cannot be run on watchOS as the XCTest framework is not available on that platform.

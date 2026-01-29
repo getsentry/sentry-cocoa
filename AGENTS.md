@@ -31,11 +31,54 @@ This file provides comprehensive guidance for AI coding agents working with the 
 
 ### Testing Instructions
 
-- Find the CI plan in the .github/workflows folder.
-- Run unit tests: `make test` (test server is NOT required for most tests)
-- Run important UI tests: `make test-ui-critical`
-- Fix any test or type errors until the whole suite is green.
-- Add or update tests for the code you change, even if nobody asked.
+**Impact-Driven Testing Approach:**
+
+Before running tests, analyze which test classes are affected by your changes and run those specific tests first. This provides faster feedback during development.
+
+**Quick Commands:**
+
+```bash
+# Run all iOS tests (fastest platform, recommended for development)
+make test-ios
+
+# Run specific test class (when you know which tests are affected)
+make test-ios TEST=SentryHttpTransportTests
+
+# Run multiple test classes
+make test-ios TEST=SentryHttpTransportTests,SentryHubTests
+
+# Run specific test method
+make test-ios TEST=SentryHttpTransportTests/testFlush_WhenNoInternet
+
+# Run all platform tests
+make test
+
+# Run important UI tests
+make test-ui-critical
+```
+
+**Determining Which Tests to Run:**
+
+1. **Identify affected test classes** - Test classes follow the naming pattern `<SourceFile>Tests`
+   - Changed `SentryHttpTransport.swift` → Run `TEST=SentryHttpTransportTests`
+   - Changed `SentryHub.m` → Run `TEST=SentryHubTests`
+   - Changed files in `SessionReplay/` → Run `TEST=SentrySessionReplayTests,SentryOnDemandReplayTests`
+
+2. **Platform selection** - Default to iOS unless changing platform-specific code
+   - Most changes → `make test-ios` (fastest)
+   - macOS-specific → `make test-macos`
+   - Cross-platform → Run specific platform or all platforms
+
+3. **Scope assessment:**
+   - **Specific feature changes** → Run related test classes
+   - **Core SDK changes** (`SentryHub`, `SentryClient`, `SentrySDK`) → Run `make test-ios` (broader impact)
+   - **Multiple feature areas** → Run `make test-ios` or `make test`
+
+**General Guidelines:**
+
+- Find the CI plan in the .github/workflows folder
+- Fix any test or type errors until the whole suite is green
+- Add or update tests for the code you change, even if nobody asked
 
 #### Test Server Requirements
 
