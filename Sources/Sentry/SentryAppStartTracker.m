@@ -9,6 +9,10 @@
 #    import <SentryInternalDefines.h>
 #    import <SentryInternalNotificationNames.h>
 #    import <SentryLogC.h>
+#import "SentryTracerConfiguration.h"
+#import "SentrySDKInternal.h"
+#import "SentryHub+Private.h"
+#import "SentryTracer.h"
 #    import <SentrySDK+Private.h>
 #    import <SentrySwift.h>
 #    import <UIKit/UIKit.h>
@@ -206,6 +210,18 @@ static const NSTimeInterval SENTRY_APP_START_MAX_DURATION = 180.0;
                                 didFinishLaunchingTimestamp:self.didFinishLaunchingTimestamp];
 
         SentrySDKInternal.appStartMeasurement = appStartMeasurement;
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        SentryTransactionContext *ctx = [[SentryTransactionContext alloc] initWithName:@"App Launch" operation:@"ui.load"];
+        SentryTracer *transaction = [SentrySDKInternal.currentHub
+            startTransactionWithContext:ctx
+                            bindToScope:YES
+                  customSamplingContext:@{}
+                          configuration:[SentryTracerConfiguration configurationWithBlock:^(
+                                            SentryTracerConfiguration *config) {
+                              config.waitForChildren = YES;
+                                            }]];
+        [transaction finish];
+      });
     };
 
 // With only running this once we know that the process is a new one when the following
