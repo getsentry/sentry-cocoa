@@ -288,10 +288,10 @@ private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppSta
         return SentryDependencyContainer.sharedInstance().getWatchdogTerminationTracker(options)
     }
 
-    var getWatchdogTerminationHangTrackerInvocations = Invocations<(timeoutInterval: TimeInterval, hangStarted: () -> Void, hangStopped: () -> Void)>()
-    func getWatchdogTerminationHangTracker(timeoutInterval: TimeInterval, hangStarted: @escaping () -> Void, hangStopped: @escaping () -> Void) -> SentryWatchdogTerminationHangTracker? {
-        getWatchdogTerminationHangTrackerInvocations.record((timeoutInterval, hangStarted, hangStopped))
-        return SentryDependencyContainer.sharedInstance().getWatchdogTerminationHangTracker(timeoutInterval: timeoutInterval, hangStarted: hangStarted, hangStopped: hangStopped)
+    var getWatchdogTerminationHangTrackerInvocations = Invocations<TimeInterval>()
+    func getWatchdogTerminationHangTracker(timeoutInterval: TimeInterval) -> SentryWatchdogTerminationHangTracker? {
+        getWatchdogTerminationHangTrackerInvocations.record(timeoutInterval)
+        return SentryDependencyContainer.sharedInstance().getWatchdogTerminationHangTracker(timeoutInterval: timeoutInterval)
     }
 }
 

@@ -12,15 +12,23 @@ final class SentryWatchdogTerminationHangTracker {
     init(
         queue: SentryDispatchQueueWrapperProtocol,
         hangTracker: SentryHangTracker,
-        timeoutInterval: TimeInterval,
-        hangStarted: @escaping () -> Void,
-        hangStopped: @escaping () -> Void
+        appStateManager: SentryAppStateManager,
+        timeoutInterval: TimeInterval
     ) {
         self.queue = queue
         self.tracker = hangTracker
         self.timeoutInterval = timeoutInterval
-        self.hangStarted = hangStarted
-        self.hangStopped = hangStopped
+        self.hangStarted = { [weak appStateManager] in
+            SentrySDKLog.debug("App hang detected in watchdog termination tracking")
+            appStateManager?.updateAppState { appState in
+                appState.isANROngoing = true
+            }
+        }
+        self.hangStopped = { [weak appStateManager] in
+            appStateManager?.updateAppState { appState in
+                appState.isANROngoing = false
+            }
+        }
     }
 
     func start() {

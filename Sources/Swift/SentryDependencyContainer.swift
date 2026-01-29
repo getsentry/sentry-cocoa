@@ -499,20 +499,15 @@ protocol WatchdogTerminationTrackerBuilder {
 extension SentryDependencyContainer: WatchdogTerminationTrackerBuilder {}
 
 protocol WatchdogTerminationHangTrackerBuilder {
-    func getWatchdogTerminationHangTracker(
-        timeoutInterval: TimeInterval,
-        hangStarted: @escaping () -> Void,
-        hangStopped: @escaping () -> Void
-    ) -> SentryWatchdogTerminationHangTracker?
+    func getWatchdogTerminationHangTracker(timeoutInterval: TimeInterval) -> SentryWatchdogTerminationHangTracker?
 }
 extension SentryDependencyContainer: WatchdogTerminationHangTrackerBuilder {
-    func getWatchdogTerminationHangTracker(timeoutInterval: TimeInterval, hangStarted: @escaping () -> Void, hangStopped: @escaping () -> Void) -> SentryWatchdogTerminationHangTracker? {
+    func getWatchdogTerminationHangTracker(timeoutInterval: TimeInterval) -> SentryWatchdogTerminationHangTracker? {
         SentryWatchdogTerminationHangTracker(
             queue: dispatchQueueWrapper,
             hangTracker: hangTracker,
-            timeoutInterval: timeoutInterval,
-            hangStarted: hangStarted,
-            hangStopped: hangStopped
+            appStateManager: appStateManager,
+            timeoutInterval: timeoutInterval
         )
     }
 }

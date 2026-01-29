@@ -3,11 +3,10 @@ import Foundation
 
 #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
 
-typealias WatchdogTerminationTrackingProvider = ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & WatchdogTerminationHangTrackerBuilder
+typealias WatchdogTerminationTrackingProvider = ProcessInfoProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & WatchdogTerminationHangTrackerBuilder
 
 final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogTerminationTrackingProvider>: NSObject, SwiftIntegration {
 
-    private let appStateManager: SentryAppStateManager
     private let terminationTracker: SentryWatchdogTerminationTracker
     private let hangTracker: SentryWatchdogTerminationHangTracker
 
@@ -30,21 +29,7 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         }
         self.terminationTracker = terminationTracker
 
-        appStateManager = dependencies.appStateManager
-        guard let hangTracker = dependencies.getWatchdogTerminationHangTracker(
-            timeoutInterval: options.appHangTimeoutInterval,
-            hangStarted: { [weak appStateManager] in
-                SentrySDKLog.debug("App hang detected in watchdog termination tracking")
-                appStateManager?.updateAppState { appState in
-                    appState.isANROngoing = true
-                }
-            },
-            hangStopped: { [weak appStateManager] in
-                appStateManager?.updateAppState { appState in
-                    appState.isANROngoing = false
-                }
-            }
-        ) else {
+        guard let hangTracker = dependencies.getWatchdogTerminationHangTracker(timeoutInterval: options.appHangTimeoutInterval) else {
             SentrySDKLog.fatal("Watchdog Termination tracker not available")
             return nil
         }
