@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
 @property (nonatomic, strong) SentryLogBuffer *logBuffer;
-@property (nonatomic, strong) id<SentryScopeApplier> scopeApplier;
+@property (nonatomic, strong) SentryDefaultScopeApplier *scopeApplier;
 
 @end
 

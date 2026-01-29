@@ -9,9 +9,9 @@ protocol SentryScopeApplyingMetadata {
 }
 
 @_spi(Private)
-@objc
 public protocol SentryScopeApplier {
     func applyScope(_ scope: Scope, toLog log: SentryLog) -> SentryLog
+    func applyScope(_ scope: Scope, toMetric metric: SentryMetric) -> SentryMetric
 }
 
 @_spi(Private)
