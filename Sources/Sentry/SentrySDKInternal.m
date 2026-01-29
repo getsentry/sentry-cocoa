@@ -20,10 +20,6 @@
 #import "SentryTransactionContext.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
 
-#if SENTRY_HAS_UIKIT
-#    import "SentryPerformanceTrackingIntegration.h"
-#endif // SENTRY_HAS_UIKIT
-
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
 #endif // TARGET_OS_MAC
@@ -494,14 +490,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (NSArray<Class> *)defaultIntegrationClasses
 {
-#if SENTRY_HAS_UIKIT
-    // The order of integrations here is important.
-    NSMutableArray<Class> *defaultIntegrations =
-        [NSMutableArray<Class> arrayWithObjects:[SentryPerformanceTrackingIntegration class], nil];
-    return defaultIntegrations;
-#else
     return @[];
-#endif // SENTRY_HAS_UIKIT
 }
 
 /**

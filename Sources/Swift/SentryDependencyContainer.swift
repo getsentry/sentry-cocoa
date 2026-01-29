@@ -34,6 +34,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #endif
 
 // MARK: - SentryDependencyContainer
+// swiftlint:disable type_body_length
 @_spi(Private) @objc public final class SentryDependencyContainer: NSObject {
 
     // MARK: Private
@@ -204,6 +205,29 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
     
+    func getUIViewControllerSwizzlingBuilder(_ options: Options) -> SentryUIViewControllerSwizzling {
+
+        let dispatchQueue = dispatchFactory.createHighPriorityQueue("io.sentry.ui-view-controller-swizzling")
+
+        let subClassFinder = SentrySubClassFinder(
+            dispatchQueue: dispatchQueue,
+            objcRuntimeWrapper: objcRuntimeWrapper,
+            swizzleClassNameExcludes: options.swizzleClassNameExcludes
+        )
+
+        let swizzling = SentryUIViewControllerSwizzling(
+            options: options,
+            dispatchQueue: dispatchQueue,
+            objcRuntimeWrapper: objcRuntimeWrapper,
+            subClassFinder: subClassFinder,
+            processInfoWrapper: processInfoWrapper,
+            binaryImageCache: binaryImageCache,
+            performanceTracker: uiViewControllerPerformanceTracker
+        )
+
+        return swizzling
+    }
+
     func getUIEventTracker(_ options: Options) -> SentryUIEventTracker {
         let mode = SentryUIEventTrackerTransactionMode(idleTimeout: options.idleTimeout)
         return SentryUIEventTracker(
@@ -324,6 +348,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         )
     }
 }
+// swiftlint:enable type_body_length
 
 #if os(iOS) && !SENTRY_NO_UIKIT
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
@@ -526,6 +551,16 @@ protocol SentryUIDeviceWrapperProvider {
 }
 
 extension SentryDependencyContainer: SentryUIDeviceWrapperProvider {}
+
+protocol UIViewControllerPerformanceTrackerProvider {
+    var uiViewControllerPerformanceTracker: SentryUIViewControllerPerformanceTracker { get }
+}
+extension SentryDependencyContainer: UIViewControllerPerformanceTrackerProvider {}
+
+protocol UIViewControllerSwizzlingBuilder {
+    func getUIViewControllerSwizzlingBuilder(_ options: Options) -> SentryUIViewControllerSwizzling
+}
+extension SentryDependencyContainer: UIViewControllerSwizzlingBuilder {}
 
 protocol SentryEventTrackerBuilder {
     func getUIEventTracker(_ options: Options) -> SentryUIEventTracker
