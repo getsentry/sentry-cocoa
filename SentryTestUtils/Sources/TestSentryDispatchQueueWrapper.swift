@@ -47,6 +47,15 @@ import Foundation
             block()
         }
     }
+    
+    public var dispatchSyncInvocations = Invocations<() -> Void>()
+    public var dispatchSyncExecutesBlock = true
+    public override func dispatchSync(_ block: @escaping () -> Void) {
+        dispatchSyncInvocations.record(block)
+        if dispatchSyncExecutesBlock {
+            block()
+        }
+    }
 
     public var dispatchAfterInvocations = Invocations<(interval: TimeInterval, block: () -> Void)>()
     public override func dispatch(after interval: TimeInterval, block: @escaping () -> Void) {

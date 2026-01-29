@@ -11,6 +11,9 @@ import Foundation
     private var _value: Int
     private var _shouldTimeout: Bool = false
     private var _timeoutDelay: TimeInterval = 0
+    private var _timeoutCount: Int = 0
+    private var _maxTimeouts: Int = Int.max // Maximum number of timeouts before returning success
+    private var _signaled: Bool = false // Whether the semaphore has been signaled
     
     /// Whether the next `wait()` call should timeout.
     /// Setting this to `true` allows tests to simulate timeout behavior deterministically.
@@ -34,6 +37,18 @@ import Foundation
         }
     }
     
+    /// Maximum number of timeouts before returning success.
+    /// This allows tests to simulate a hang that eventually completes.
+    /// Default is unlimited (Int.max).
+    public var maxTimeouts: Int {
+        get {
+            lock.synchronized { _maxTimeouts }
+        }
+        set {
+            lock.synchronized { _maxTimeouts = newValue }
+        }
+    }
+    
     /// Current semaphore value.
     public var value: Int {
         lock.synchronized { _value }
@@ -53,6 +68,7 @@ import Foundation
         let previousValue = lock.synchronized {
             let prev = _value
             _value += 1
+            _signaled = true // Mark as signaled so wait() returns success
             signalInvocations.record(prev)
             return prev
         }
@@ -60,10 +76,35 @@ import Foundation
     }
     
     public func wait(timeout: DispatchTime) -> DispatchTimeoutResult {
-        let shouldTimeout = lock.synchronized { _shouldTimeout }
-        let timeoutDelay = lock.synchronized { _timeoutDelay }
+        // Check if semaphore was signaled first (highest priority)
+        let signaled = lock.synchronized { _signaled }
+        if signaled {
+            let result: DispatchTimeoutResult = .success
+            lock.synchronized {
+                waitInvocations.record((timeout: timeout, result: result))
+            }
+            return result
+        }
+        
+        let (shouldTimeout, timeoutDelay, maxTimeouts) = lock.synchronized {
+            (_shouldTimeout, _timeoutDelay, _maxTimeouts)
+        }
         
         if shouldTimeout {
+            let timeoutCount = lock.synchronized {
+                _timeoutCount += 1
+                return _timeoutCount
+            }
+            
+            // If we've exceeded max timeouts, return success to break the loop
+            if timeoutCount > maxTimeouts {
+                let result: DispatchTimeoutResult = .success
+                lock.synchronized {
+                    waitInvocations.record((timeout: timeout, result: result))
+                }
+                return result
+            }
+            
             // Simulate timeout - wait for the specified delay then return timeout
             if timeoutDelay > 0 {
                 Thread.sleep(forTimeInterval: timeoutDelay)
@@ -90,6 +131,9 @@ import Foundation
             _value = 0
             _shouldTimeout = false
             _timeoutDelay = 0
+            _timeoutCount = 0
+            _maxTimeouts = Int.max
+            _signaled = false
             waitInvocations.removeAll()
             signalInvocations.removeAll()
         }

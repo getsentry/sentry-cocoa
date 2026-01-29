@@ -11,14 +11,10 @@ struct RunLoopIteration {
 }
 
 protocol SentryHangTracker {
-    // The callback must be called on a background thread, because the main thread is blocked
-    func addLateRunLoopObserver(handler: @escaping (UUID, TimeInterval) -> Void) -> UUID
-    
+    func addLateRunLoopObserver(handler: @escaping (UUID, TimeInterval) -> Void) -> UUID    
     func removeLateRunLoopObserver(id: UUID)
 
-    // The callback is always called on the main thread
-    func addFinishedRunLoopObserver(handler: @escaping (RunLoopIteration) -> Void) -> UUID
-    
+    func addFinishedRunLoopObserver(handler: @escaping (RunLoopIteration) -> Void) -> UUID 
     func removeFinishedRunLoopObserver(id: UUID)
 }
 
@@ -34,7 +30,7 @@ typealias CreateSemaphoreFunc = (_ value: Int) -> SentryDispatchSemaphore
 ///
 /// This module provides hang detection for the main thread by observing the CFRunLoop.
 /// It detects when the main thread is blocked for longer than the configured threshold,
-/// which typically indicates an Application Not Responding (ANR) condition.
+/// which typically indicates an App Hang / Application Not Responding (ANR) condition.
 ///
 /// Key Concepts:
 /// - Run Loop Iterations: The main thread processes events in discrete iterations.
@@ -96,49 +92,69 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
     /// This queue is used to detect main thread hangs, they need to be detected on a background thread since the main thread is hanging.
     private let queue: SentryDispatchQueueWrapperProtocol
 
+    /// Factory function to create a semaphore.
+    private let createSemaphore: CreateSemaphoreFunc
+
     /// Ratio used to calculate the hang notification threshold in relation to the target FPS of the current window
+    ///
+    /// A value of 1.5 means that a hang can take up to 50% more time than the expected frame duration to detect a hang.
+    ///
+    /// - Example: 60 FPS = 16.67ms per frame, so hang threshold = 25ms
     private let hangNotifyThresholdToFPSRatio = 1.5
+
+    /// The hang notification threshold in seconds.
     private let hangNotifyThreshold: TimeInterval
 
     private let createObserver: CreateObserverFunc<T>
     private let addObserver: AddObserverFunc<T>
     private let removeObserver: RemoveObserverFunc<T>
-    private let createSemaphore: CreateSemaphoreFunc
 
     private var observer: T?
     
     /// Lock protecting `finishedRunLoop` dictionary.
+    ///
     /// This lock is accessed from multiple threads: main thread (observer callbacks) and any thread (add/remove methods).
     private let finishedRunLoopLock = NSLock()
     
     /// Dictionary of finished run loop observers, keyed by their UUID.
+    ///
     /// Must be accessed within `finishedRunLoopLock.synchronized` blocks to ensure thread safety.
     private var finishedRunLoop = [UUID: (RunLoopIteration) -> Void]()
     
     /// Start time of the current run loop iteration, set in `afterWaiting` callback.
+    ///
     /// Only accessed from main thread (in observer callbacks), so no synchronization needed.
     private var loopStartTime: TimeInterval?
     
     /// Current semaphore used for hang detection of the active run loop iteration.
     ///
-    /// Thread Safety: This property is ONLY accessed from the main thread:
+    /// This property is ONLY accessed from the main thread:
     /// - Set in `afterWaiting` callback (main thread)
     /// - Read and signaled in `beforeWaiting` callback (main thread)
-    /// - Background thread receives its own copy via parameter, so no synchronization needed
-    ///
-    /// Why this is safe: The CFRunLoop observer callbacks always execute on the main thread's run loop,
-    /// so there's no race condition between setting and signaling the semaphore.
     private var currentSemaphore: SentryDispatchSemaphore?
 
     /// Dictionary of late run loop observers, keyed by their UUID.
-    /// This dictionary is only accessed from the background queue via `queue.dispatchSync`,
+    ///
+    /// This dictionary is only accessed from the background queue,
     /// ensuring serialized access without needing a separate lock.
     private var lateRunLoop = [UUID: (UUID, TimeInterval) -> Void]()
 
     /// Current hang ID for the active hang detection session.
+    ///
     /// This is updated when a new hang detection starts (in afterWaiting callback).
+    /// As there can be only be one hang detection session at a time, we only need to track one hang ID.
     private var hangId = UUID()
 
+    /// Initializes the hang tracker.
+    ///
+    /// - Parameters:
+    ///   - applicationProvider: The application provider to get the key window's maximum FPS.
+    ///   - dateProvider: The date provider to get the system uptime.
+    ///   - queue: The queue to dispatch the hang detection to the background queue.
+    ///   - createObserver: The function to create a run loop observer.
+    ///   - addObserver: The function to add a run loop observer.
+    ///   - removeObserver: The function to remove a run loop observer.
+    ///   - createSemaphore: The function to create a semaphore.
     init(
         applicationProvider: ApplicationProvider,
         dateProvider: SentryCurrentDateProvider,
@@ -181,16 +197,15 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
     
     /// Adds an observer that gets called when a hang is detected.
     ///
-    /// The handler is called on a background thread (since the main thread is blocked during a hang).
-    /// The handler receives:
-    /// - `UUID`: A unique identifier for this hang instance
-    /// - `TimeInterval`: The duration of the hang so far
+    /// The handler is called on a background thread (since the main thread is blocked during a hang) and receives:
+    /// - `id`: A unique identifier for this hang instance
+    /// - `interval`: The duration of the hang so far
     ///
     /// - Important: Registration is asynchronous. The UUID is returned immediately, but the handler
     ///   is not active until the async dispatch completes. If a hang occurs between calling this method
     ///   and the async registration completing, the handler will not be called for that hang.
     ///   This trade-off is intentional to avoid potential deadlocks when called from the background queue.
-    func addLateRunLoopObserver(handler: @escaping (UUID, TimeInterval) -> Void) -> UUID {
+    func addLateRunLoopObserver(handler: @escaping (_ id: UUID, _ interval: TimeInterval) -> Void) -> UUID {
         let id = UUID()
         queue.dispatchAsync { [weak self] in
             guard let self = self else {
@@ -225,6 +240,7 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
             guard lateRunLoop.isEmpty else {
                 return
             }
+            // If this was the last late run loop observer, we can stop the run loop observation entirely.
             self.queue.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
                 guard let self = self else {
                     return
@@ -234,6 +250,7 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
                 let finishedRunLoopIsEmpty = self.finishedRunLoopLock.synchronized {
                     return self.finishedRunLoop.isEmpty
                 }
+                // If there are no finished run loop observers, we can stop the run loop observation entirely.
                 if finishedRunLoopIsEmpty {
                     self.stop()
                 }
@@ -245,7 +262,7 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
     ///
     /// The handler is always called on the main thread and receives a `RunLoopIteration` containing
     /// the start and end time of the completed iteration.
-    func addFinishedRunLoopObserver(handler: @escaping (RunLoopIteration) -> Void) -> UUID {
+    func addFinishedRunLoopObserver(handler: @escaping (_ iteration: RunLoopIteration) -> Void) -> UUID {
         let id = UUID()
         // Synchronize access to the `finishedRunLoop` dictionary to prevent race conditions when observers are added/removed concurrently or during iteration.
         finishedRunLoopLock.synchronized {
@@ -288,7 +305,7 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
                 let stillEmpty = finishedRunLoopLock.synchronized {
                     return self.finishedRunLoop.isEmpty
                 }
-                
+                // If there are no finished run loop observers, we can stop the run loop observation.
                 guard stillEmpty else {
                     return
                 }

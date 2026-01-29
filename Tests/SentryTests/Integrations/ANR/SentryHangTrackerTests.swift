@@ -72,12 +72,16 @@ final class SentryHangTrackerTests: XCTestCase {
     
     /// Helper to create a mock semaphore configured for hang detection testing.
     ///
-    /// - Parameter shouldTimeout: Whether the semaphore should timeout (simulating a hang)
+    /// - Parameters:
+    ///   - shouldTimeout: Whether the semaphore should timeout (simulating a hang)
+    ///   - maxTimeouts: Maximum number of timeouts before returning success. Default is 1 to allow
+    ///     one timeout (hang detection) then break the loop. Set higher for tests that need multiple consecutive timeouts.
     /// - Returns: A configured TestSentryDispatchSemaphore
-    private func createMockSemaphore(shouldTimeout: Bool = true) -> TestSentryDispatchSemaphore {
+    private func createMockSemaphore(shouldTimeout: Bool = true, maxTimeouts: Int = 1) -> TestSentryDispatchSemaphore {
         let semaphore = TestSentryDispatchSemaphore(value: 0)
         semaphore.shouldTimeout = shouldTimeout
         semaphore.timeoutDelay = 0 // Immediate timeout for deterministic testing
+        semaphore.maxTimeouts = maxTimeouts // Allow one timeout by default, then return success to break the loop
         return semaphore
     }
     
@@ -154,6 +158,7 @@ final class SentryHangTrackerTests: XCTestCase {
         let testSemaphore = TestSentryDispatchSemaphore(value: 0)
         testSemaphore.shouldTimeout = true // Simulate timeout for hang detection
         testSemaphore.timeoutDelay = 0 // Immediate timeout for deterministic testing
+        testSemaphore.maxTimeouts = 1 // Allow one timeout, then return success to break the loop
         
         let sut = createSut(
             dateProvider: dateProvider,
@@ -177,14 +182,26 @@ final class SentryHangTrackerTests: XCTestCase {
         // -- Act --
         observationBlock?(testObserver, CFRunLoopActivity.afterWaiting)
         
-        // Advance time for interval calculation
+        // Advance time for interval calculation (before executing hang detection)
+        // This simulates time passing during the hang
         let elapsedTime = hangThreshold * 2.0
         dateProvider.setSystemUptime(elapsedTime)
         
-        // Trigger hang detection - the mock semaphore will timeout immediately
+        // Execute the async block that starts waitForHangIterative
+        // The waitForHangIterative loop will:
+        // 1. Call wait() -> timeout (timeoutCount = 1, <= maxTimeouts) -> returns .timedOut
+        // 2. Report hang via dispatchSync (this executes synchronously) with interval = elapsedTime - startTime
+        // 3. Call wait() again -> timeoutCount = 2, > maxTimeouts (1) -> returns .success, loop exits
+        // Note: drainAsyncQueue() executes blocks synchronously, so the entire loop completes.
+        // With maxTimeouts = 1, the loop will exit after the second wait() call returns success.
         drainAsyncQueue()
         
+        // Call beforeWaiting to signal the semaphore (this happens in real flow)
+        // This ensures the semaphore is marked as signaled for any subsequent waits
         observationBlock?(testObserver, CFRunLoopActivity.beforeWaiting)
+        
+        // Drain any remaining async work
+        drainAsyncQueue()
         
         sut.removeLateRunLoopObserver(id: id)
         
@@ -308,7 +325,8 @@ final class SentryHangTrackerTests: XCTestCase {
         let dateProvider = TestCurrentDateProvider()
         let startTime: TimeInterval = 0
         dateProvider.setSystemUptime(startTime)
-        let testSemaphore = createMockSemaphore(shouldTimeout: true)
+        // Allow multiple timeouts to simulate consecutive hangs
+        let testSemaphore = createMockSemaphore(shouldTimeout: true, maxTimeouts: 3)
         
         let sut = createSut(
             dateProvider: dateProvider,
@@ -372,11 +390,17 @@ final class SentryHangTrackerTests: XCTestCase {
         // -- Act --
         observationBlock?(testObserver, CFRunLoopActivity.afterWaiting)
         
-        // Deallocate sut before timeout completes
+        // Deallocate sut before the async block executes waitForHangIterative
+        // Clear observationBlock to remove any strong references that might retain sut
+        observationBlock = nil
         sut = nil
         
         // Advance time and trigger timeout - the loop should exit when it detects deallocation
         dateProvider.setSystemUptime(hangThreshold * 2.0)
+        
+        // Execute the async block that starts waitForHangIterative
+        // When waitForHangIterative times out and checks self, it will be nil,
+        // so shouldContinue will remain false and the loop will exit without calling handlers
         drainAsyncQueue()
         
         // -- Assert --
