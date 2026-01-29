@@ -24,12 +24,22 @@ public protocol SentryMetricScopeApplier {
 public class SentryDefaultScopeApplyingMetadata: NSObject, SentryScopeApplyingMetadata {
     let environment: String
     let releaseName: String?
-    let installationId: String?
+    private let cacheDirectoryPath: String
 
-    @objc public init(environment: String, releaseName: String?, installationId: String?) {
+    @objc public init(environment: String, releaseName: String?, cacheDirectoryPath: String) {
         self.environment = environment
         self.releaseName = releaseName
-        self.installationId = installationId
+        self.cacheDirectoryPath = cacheDirectoryPath
+    }
+
+    /// Returns the installation ID lazily to avoid file I/O on the calling thread.
+    ///
+    /// The SDK stores the installation ID in a file. The first call requires file I/O.
+    /// By returning it lazily via a computed property, we defer this I/O until the
+    /// installation ID is actually accessed during scope application, rather than
+    /// blocking the thread that creates this metadata object.
+    var installationId: String? {
+        return SentryInstallation.cachedId(withCacheDirectoryPath: cacheDirectoryPath)
     }
 }
 

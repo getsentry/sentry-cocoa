@@ -31,7 +31,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         let metadata = SentryDefaultScopeApplyingMetadata(
             environment: options.environment,
             releaseName: options.releaseName,
-            installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
+            cacheDirectoryPath: options.cacheDirectoryPath
         )
         self.scopeApplier = SentryDefaultMetricScopeApplier(metadata: metadata, sendDefaultPii: options.sendDefaultPii)
 
