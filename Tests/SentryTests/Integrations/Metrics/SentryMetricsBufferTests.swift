@@ -56,8 +56,8 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric1, scope: scope)
-        sut.addMetric(metric2, scope: scope)
+        sut.addMetric(metric1)
+        sut.addMetric(metric2)
 
         // Trigger flush manually
         sut.captureMetrics()
@@ -93,7 +93,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         
         // -- Act --
         let sut = getSut()
-        sut.addMetric(largeMetric, scope: scope)
+        sut.addMetric(largeMetric)
 
         // -- Assert --
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
@@ -112,13 +112,13 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         let sut = getSut()
         for i in 0..<9 {
             let metric = createTestMetric(name: "metric.\(i + 1)", value: .counter(UInt(i + 1)))
-            sut.addMetric(metric, scope: scope)
+            sut.addMetric(metric)
         }
         
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
         
         let metric = createTestMetric(name: "metric.10", value: .counter(10)) // Reached 10 max metrics limit
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         
         // -- Assert -- Should have flushed once when reaching maxMetricCount
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
@@ -135,7 +135,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
 
         // -- Assert --
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
@@ -158,13 +158,13 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric1, scope: scope)
+        sut.addMetric(metric1)
 
         // -- Assert --
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.interval, 0.1)
         
-        sut.addMetric(metric2, scope: scope)
+        sut.addMetric(metric2)
         
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         
@@ -187,7 +187,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         let metric = createTestMetric(name: "test.metric", value: .counter(1))
 
         // -- Act --
-        defaultBuffer.addMetric(metric, scope: scope)
+        defaultBuffer.addMetric(metric)
         
         // -- Assert --
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
@@ -207,14 +207,14 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         // -- Act -- Add exactly 99 metrics (should not flush)
         for i in 0..<99 {
             let metric = createTestMetric(name: "metric.\(i + 1)", value: .counter(UInt(i + 1)))
-            defaultBuffer.addMetric(metric, scope: scope)
+            defaultBuffer.addMetric(metric)
         }
         
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0, "Should not flush before reaching default maxMetricCount")
         
         // Add the 100th metric (should trigger flush)
         let metric100 = createTestMetric(name: "metric.100", value: .counter(100))
-        defaultBuffer.addMetric(metric100, scope: scope)
+        defaultBuffer.addMetric(metric100)
         
         // -- Assert --
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1, "Should flush when reaching default maxMetricCount of 100")
@@ -255,7 +255,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
                 unit: nil,
                 attributes: attributes
             )
-            defaultBuffer.addMetric(metric, scope: scope)
+            defaultBuffer.addMetric(metric)
         }
         
         // -- Assert --
@@ -275,8 +275,8 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric1, scope: scope)
-        sut.addMetric(metric2, scope: scope)
+        sut.addMetric(metric1)
+        sut.addMetric(metric2)
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
         
         let duration = sut.captureMetrics()
@@ -293,7 +293,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         // -- Arrange --
         let sut = getSut()
         let metric = createTestMetric(name: "test.metric", value: .counter(1))
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         let timerWorkItem = try XCTUnwrap(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem)
         
@@ -312,7 +312,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         // Add multiple metrics to ensure there's actual work being done
         for i in 0..<5 {
             let metric = createTestMetric(name: "metric.\(i)", value: .counter(UInt(i)))
-            sut.addMetric(metric, scope: scope)
+            sut.addMetric(metric)
         }
         
         // -- Act --
@@ -339,7 +339,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         let duration = sut.captureMetrics()
         
         // -- Assert --
@@ -374,12 +374,12 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric1, scope: scope)
+        sut.addMetric(metric1)
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         let timerWorkItem = try XCTUnwrap(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem)
         
-        sut.addMetric(metric2, scope: scope)
+        sut.addMetric(metric2)
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
         timerWorkItem.perform()
@@ -395,13 +395,13 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric1, scope: scope)
+        sut.addMetric(metric1)
         let duration1 = sut.captureMetrics()
         
         XCTAssertGreaterThanOrEqual(duration1, 0)
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
-        sut.addMetric(metric2, scope: scope)
+        sut.addMetric(metric2)
         let duration2 = sut.captureMetrics()
         
         // -- Assert --
@@ -431,7 +431,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         sut.captureMetrics()
         
         // -- Assert --
@@ -456,7 +456,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         sut.captureMetrics()
         
         // -- Assert --
@@ -483,7 +483,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         sut.captureMetrics()
         
         // -- Assert --
@@ -501,7 +501,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         sut.captureMetrics()
         
         // -- Assert --
@@ -518,7 +518,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         sut.captureMetrics()
         
         // -- Assert --
@@ -544,7 +544,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         sut.captureMetrics()
         
         // -- Assert --
@@ -575,7 +575,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         sut.captureMetrics()
         
         // -- Assert --
@@ -597,7 +597,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         sut.captureMetrics()
         
         // -- Assert --
@@ -618,7 +618,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         sut.captureMetrics()
         
         // -- Assert --
@@ -645,7 +645,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         let duration = sut.captureMetrics()
         
         // -- Assert --
@@ -665,7 +665,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         let duration = sut.captureMetrics()
         
         // -- Assert --
@@ -685,7 +685,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         sut.captureMetrics()
 
         // -- Assert --
@@ -709,7 +709,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         sut.captureMetrics()
 
         // -- Assert --
@@ -733,7 +733,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
         // -- Act --
         let sut = getSut()
-        sut.addMetric(metric, scope: scope)
+        sut.addMetric(metric)
         sut.captureMetrics()
         
         // -- Assert --

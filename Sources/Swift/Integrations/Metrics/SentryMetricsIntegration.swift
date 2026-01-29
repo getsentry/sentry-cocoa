@@ -20,12 +20,20 @@ typealias SentryMetricsIntegrationDependencies = DateProviderProvider & Dispatch
 
 final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol, FlushableIntegration {
     private let metricsBuffer: SentryMetricsTelemetryBuffer
+    private let scopeApplyingHelper: SentryDefaultScopeApplier
     #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
     private let notificationCenter: SentryNSNotificationCenterWrapper
     #endif
 
     init?(with options: Options, dependencies: Dependencies) {
         guard options.experimental.enableMetrics else { return nil }
+
+        let metadata = SentryScopeApplyingMetadata(
+            environment: options.environment,
+            releaseName: options.releaseName,
+            installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
+        )
+        self.scopeApplyingHelper = SentryDefaultScopeApplier(metadata: metadata, sendDefaultPii: options.sendDefaultPii)
 
         self.metricsBuffer = DefaultSentryMetricsTelemetryBuffer(
             options: options,
@@ -80,7 +88,8 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     // MARK: - Public API for Metrics
 
     func addMetric(_ metric: SentryMetric, scope: Scope) {
-        metricsBuffer.addMetric(metric, scope: scope)
+        let enrichedMetric = scopeApplyingHelper.applyScope(scope, toMetric: metric)
+        metricsBuffer.addMetric(enrichedMetric)
     }
 
     /// Captures batched metrics synchronously and returns the duration.

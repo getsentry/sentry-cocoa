@@ -13,9 +13,9 @@ protocol TelemetryBufferScope {
     /// Used for type-safe access of the attributes, uses default implementation in extension
     var attributesDict: [String: SentryAttributeContent] { get }
 
-    func applyToItem<Item: TelemetryBufferItem, Config: TelemetryBufferConfig<Item>, Metadata: TelemetryBufferMetadata>(
+    func addAttributesToItem<Item: TelemetryBufferItem, Metadata: ScopeApplyingMetadata>(
         _ item: inout Item,
-        config: Config,
+        sendDefaultPii: Bool,
         metadata: Metadata
     )
 }
@@ -27,23 +27,23 @@ extension TelemetryBufferScope {
         }
     }
 
-    func applyToItem<Item: TelemetryBufferItem, Config: TelemetryBufferConfig<Item>, Metadata: TelemetryBufferMetadata>(
+    func addAttributesToItem<Item: TelemetryBufferItem, Metadata: ScopeApplyingMetadata>(
         _ item: inout Item,
-        config: Config,
+        sendDefaultPii: Bool,
         metadata: Metadata
     ) {
         // Extract attributesDict once to avoid multiple getter/setter calls on computed property
         // Each inout parameter access triggers both getter and setter, which is expensive for
         // computed properties that perform dictionary conversions.
         var attributes = item.attributesDict
-        
-        addDefaultAttributes(to: &attributes, config: config, metadata: metadata)
-        addOSAttributes(to: &attributes, config: config)
-        addDeviceAttributes(to: &attributes, config: config)
-        addUserAttributes(to: &attributes, config: config)
-        addReplayAttributes(to: &attributes, config: config)
-        addScopeAttributes(to: &attributes, config: config)
-        addDefaultUserIdIfNeeded(to: &attributes, config: config, metadata: metadata)
+
+        addDefaultAttributes(to: &attributes, metadata: metadata)
+        addOSAttributes(to: &attributes)
+        addDeviceAttributes(to: &attributes)
+        addUserAttributes(to: &attributes, sendDefaultPii: sendDefaultPii)
+        addReplayAttributes(to: &attributes)
+        addScopeAttributes(to: &attributes)
+        addDefaultUserIdIfNeeded(to: &attributes, sendDefaultPii: sendDefaultPii, metadata: metadata)
 
         // Set the modified dictionary back once
         item.attributesDict = attributes
@@ -52,7 +52,7 @@ extension TelemetryBufferScope {
         item.traceId = span?.traceId ?? propagationContextTraceId
     }
 
-    private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], config: any TelemetryBufferConfig, metadata: any TelemetryBufferMetadata) {
+    private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any ScopeApplyingMetadata) {
         attributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
         attributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
         attributes["sentry.environment"] = .string(metadata.environment)
@@ -64,7 +64,7 @@ extension TelemetryBufferScope {
         }
     }
 
-    private func addOSAttributes(to attributes: inout [String: SentryAttributeContent], config: any TelemetryBufferConfig) {
+    private func addOSAttributes(to attributes: inout [String: SentryAttributeContent]) {
         guard let osContext = self.getContextForKey(SENTRY_CONTEXT_OS_KEY) else {
             return
         }
@@ -76,7 +76,7 @@ extension TelemetryBufferScope {
         }
     }
 
-    private func addDeviceAttributes(to attributes: inout [String: SentryAttributeContent], config: any TelemetryBufferConfig) {
+    private func addDeviceAttributes(to attributes: inout [String: SentryAttributeContent]) {
         guard let deviceContext = self.getContextForKey(SENTRY_CONTEXT_DEVICE_KEY) else {
             return
         }
@@ -91,8 +91,8 @@ extension TelemetryBufferScope {
         }
     }
 
-    private func addUserAttributes(to attributes: inout [String: SentryAttributeContent], config: any TelemetryBufferConfig) {
-        guard config.sendDefaultPii else {
+    private func addUserAttributes(to attributes: inout [String: SentryAttributeContent], sendDefaultPii: Bool) {
+        guard sendDefaultPii else {
             return
         }
         if let userId = userObject?.userId {
@@ -106,7 +106,7 @@ extension TelemetryBufferScope {
         }
     }
 
-    private func addReplayAttributes(to attributes: inout [String: SentryAttributeContent], config: any TelemetryBufferConfig) {
+    private func addReplayAttributes(to attributes: inout [String: SentryAttributeContent]) {
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 #if os(iOS) || os(tvOS)
         if let scopeReplayId = replayId {
@@ -117,7 +117,7 @@ extension TelemetryBufferScope {
 #endif
     }
 
-    private func addScopeAttributes(to attributes: inout [String: SentryAttributeContent], config: any TelemetryBufferConfig) {
+    private func addScopeAttributes(to attributes: inout [String: SentryAttributeContent]) {
         // Scope attributes should not override any existing attribute in the item
         for (key, value) in self.attributesDict where attributes[key] == nil {
             attributes[key] = value
@@ -126,8 +126,8 @@ extension TelemetryBufferScope {
 
     private func addDefaultUserIdIfNeeded(
         to attributes: inout [String: SentryAttributeContent],
-        config: any TelemetryBufferConfig,
-        metadata: any TelemetryBufferMetadata
+        sendDefaultPii: Bool,
+        metadata: any ScopeApplyingMetadata
     ) {
         guard attributes["user.id"] == nil && attributes["user.name"] == nil && attributes["user.email"] == nil else {
             return

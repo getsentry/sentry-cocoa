@@ -21,7 +21,17 @@ final class SentryLogBufferTests: XCTestCase {
             delegate: testDelegate
         )
     }
-    
+
+    private func applyScope(_ scope: Scope, toLog log: SentryLog) -> SentryLog {
+        let metadata = SentryScopeApplyingMetadata(
+            environment: options.environment,
+            releaseName: options.releaseName,
+            installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
+        )
+        let helper = SentryDefaultScopeApplier(metadata: metadata, sendDefaultPii: options.sendDefaultPii)
+        return helper.applyScope(scope, toLog: log)
+    }
+
     override func setUp() {
         super.setUp()
         
@@ -53,8 +63,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log2 = createTestLog(body: "Log 2")
         
         // -- Act --
-        sut.addLog(log1, scope: scope)
-        sut.addLog(log2, scope: scope)
+        sut.addLog(log1)
+        sut.addLog(log2)
         sut.captureLogs()
         
         // -- Assert --
@@ -75,7 +85,7 @@ final class SentryLogBufferTests: XCTestCase {
         let largeLog = createTestLog(body: largeLogBody)
         
         // -- Act --
-        sut.addLog(largeLog, scope: scope)
+        sut.addLog(largeLog)
         
         // -- Assert --
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 1)
@@ -94,13 +104,13 @@ final class SentryLogBufferTests: XCTestCase {
         // -- Act --
         for i in 0..<9 {
             let log = createTestLog(body: "Log \(i + 1)")
-            sut.addLog(log, scope: scope)
+            sut.addLog(log)
         }
         
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
         
         let log = createTestLog(body: "Log \(10)") // Reached 10 max logs limit
-        sut.addLog(log, scope: scope)
+        sut.addLog(log)
         
         // -- Assert --
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 1)
@@ -117,7 +127,7 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog()
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        sut.addLog(log)
         testDispatchQueue.invokeLastDispatchAfterWorkItem()
         
         // -- Assert --
@@ -136,8 +146,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log2 = createTestLog(body: "Log 2")
         
         // -- Act --
-        sut.addLog(log1, scope: scope)
-        sut.addLog(log2, scope: scope)
+        sut.addLog(log1)
+        sut.addLog(log2)
         testDispatchQueue.invokeLastDispatchAfterWorkItem()
         
         // -- Assert --
@@ -158,8 +168,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log2 = createTestLog(body: "Log 2")
         
         // -- Act --
-        sut.addLog(log1, scope: scope)
-        sut.addLog(log2, scope: scope)
+        sut.addLog(log1)
+        sut.addLog(log2)
         sut.captureLogs()
         
         // -- Assert --
@@ -173,7 +183,7 @@ final class SentryLogBufferTests: XCTestCase {
         // -- Arrange --
         let sut = getSut()
         let log = createTestLog()
-        sut.addLog(log, scope: scope)
+        sut.addLog(log)
         let timerWorkItem = try XCTUnwrap(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem)
         
         // -- Act --
@@ -205,9 +215,9 @@ final class SentryLogBufferTests: XCTestCase {
         let log2 = createTestLog(body: largeLogBody)
         
         // -- Act --
-        sut.addLog(log1, scope: scope)
+        sut.addLog(log1)
         let timerWorkItem = try XCTUnwrap(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem)
-        sut.addLog(log2, scope: scope)
+        sut.addLog(log2)
         timerWorkItem.perform()
         
         // -- Assert --
@@ -221,9 +231,9 @@ final class SentryLogBufferTests: XCTestCase {
         let log2 = createTestLog(body: "Log 2")
         
         // -- Act --
-        sut.addLog(log1, scope: scope)
+        sut.addLog(log1)
         sut.captureLogs()
-        sut.addLog(log2, scope: scope)
+        sut.addLog(log2)
         sut.captureLogs()
         
         // -- Assert --
@@ -256,7 +266,7 @@ final class SentryLogBufferTests: XCTestCase {
         for i in 0..<10 {
             DispatchQueue.global().async {
                 let log = self.createTestLog(body: "Log \(i)")
-                sutWithRealQueue.addLog(log, scope: self.scope)
+                sutWithRealQueue.addLog(log)
                 expectation.fulfill()
             }
         }
@@ -284,7 +294,7 @@ final class SentryLogBufferTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Real timeout flush")
         
         // -- Act --
-        sutWithRealQueue.addLog(log, scope: scope)
+        sutWithRealQueue.addLog(log)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             expectation.fulfill()
         }
@@ -311,7 +321,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test log message")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -335,7 +346,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test log message")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -359,7 +371,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test log message with trace ID")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -382,7 +395,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test log message with user")
 
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
 
         // -- Assert --
@@ -410,7 +424,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test log message with user")
 
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
 
         // -- Assert --
@@ -436,7 +451,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test log message with partial user")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -455,7 +471,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test log message without user")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -475,7 +492,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test log message without user")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -499,7 +517,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test log message")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -524,7 +543,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test log message")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -547,7 +567,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test log message")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -573,7 +594,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test log message with user")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -599,7 +621,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test log message with user", attributes: [ "log-attribute": .init(value: false)])
 
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
 
         // -- Assert --
@@ -623,7 +646,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test message")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -640,7 +664,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test message")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -673,7 +698,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(level: .info, body: "Original message")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -697,7 +723,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "This log should be dropped")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -712,7 +739,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(level: .debug, body: "Debug message")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -739,7 +767,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "Test message", attributes: logAttributes)
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --
@@ -759,7 +788,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "This log should be ignored")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        let enrichedLog = applyScope(scope, toLog: log)
+        sut.addLog(enrichedLog)
         sut.captureLogs()
         
         // -- Assert --

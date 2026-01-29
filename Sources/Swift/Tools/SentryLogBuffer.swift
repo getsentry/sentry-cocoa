@@ -11,7 +11,7 @@ import Foundation
 @objcMembers
 @_spi(Private) public class SentryLogBuffer: NSObject {
     private let options: Options
-    private let buffer: any TelemetryBuffer<SentryLog, Scope>
+    private let buffer: any TelemetryBuffer<SentryLog>
     private weak var delegate: SentryLogBufferDelegate?
 
     /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
@@ -77,11 +77,6 @@ import Foundation
                     delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
                 }
             ),
-            metadata: .init(
-                environment: options.environment,
-                releaseName: options.releaseName,
-                installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
-            ),
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue
@@ -93,14 +88,13 @@ import Foundation
 
     /// Adds a log to the buffer.
     /// - Parameters:
-    ///   - log: The log to add
-    ///   - scope: The scope to add the log to
-    @_spi(Private) @objc public func addLog(_ log: SentryLog, scope: Scope) {
+    ///   - log: The log to add (should already have scope enrichment applied)
+    @_spi(Private) @objc public func addLog(_ log: SentryLog) {
         guard options.enableLogs else {
             return
         }
 
-        buffer.add(log, scope: scope)
+        buffer.add(log)
     }
 
     /// Captures buffered logs sync and returns the duration.

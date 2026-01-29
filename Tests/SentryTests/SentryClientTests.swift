@@ -2424,8 +2424,8 @@ class SentryClientTests: XCTestCase {
         
         // Verify that the log was passed to the log buffer
         XCTAssertEqual(testBuffer.addLogInvocations.count, 1)
-        XCTAssertEqual(testBuffer.addLogInvocations.first?.log.body, "Test log message")
-        XCTAssertEqual(testBuffer.addLogInvocations.first?.log.level, .info)
+        XCTAssertEqual(testBuffer.addLogInvocations.first?.body, "Test log message")
+        XCTAssertEqual(testBuffer.addLogInvocations.first?.level, .info)
     }
     
     func testFlushCallsLogBufferCaptureLogs() {
@@ -2756,11 +2756,11 @@ private extension SentryClientTests {
 }
 
 final class TestLogBufferForClient: SentryLogBuffer {
-    var addLogInvocations = Invocations<(log: SentryLog, scope: Scope)>()
+    var addLogInvocations = Invocations<SentryLog>()
     var captureLogsInvocations = Invocations<Void>()
-    
-    override func addLog(_ log: SentryLog, scope: Scope) {
-        addLogInvocations.record((log, scope))
+
+    override func addLog(_ log: SentryLog) {
+        addLogInvocations.record(log)
     }
     
     @discardableResult
