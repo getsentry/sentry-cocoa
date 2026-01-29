@@ -120,7 +120,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         //by calling `viewWillAppear` and reporting a new frame
         controller.viewWillAppear(false)
         //This will call SentryTimeToDisplayTracker.framesTrackerHasNewFrame and finish the span its managing.
-        Dynamic(SentryDependencyContainer.sharedInstance().framesTracker).reportNewFrame()
+        SentryDependencyContainer.sharedInstance().framesTracker.manualReportNewFrame()
         
         XCTAssertNotNil(SentrySDK.span)
         controller.viewDidAppear(false)
@@ -338,7 +338,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
 
         // Clean up the first transaction
         controller1.viewWillAppear(false)
-        Dynamic(SentryDependencyContainer.sharedInstance().framesTracker).reportNewFrame()
+        SentryDependencyContainer.sharedInstance().framesTracker.manualReportNewFrame()
         controller1.viewDidAppear(false)
 
         // -- Act --
