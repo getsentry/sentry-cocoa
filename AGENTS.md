@@ -42,13 +42,13 @@ Before running tests, analyze which test classes are affected by your changes an
 make test-ios
 
 # Run specific test class (when you know which tests are affected)
-make test-ios TEST=SentryHttpTransportTests
+make test-ios ONLY_TESTING=SentryHttpTransportTests
 
 # Run multiple test classes
-make test-ios TEST=SentryHttpTransportTests,SentryHubTests
+make test-ios ONLY_TESTING=SentryHttpTransportTests,SentryHubTests
 
 # Run specific test method
-make test-ios TEST=SentryHttpTransportTests/testFlush_WhenNoInternet
+make test-ios ONLY_TESTING=SentryHttpTransportTests/testFlush_WhenNoInternet
 
 # Run all platform tests
 make test
@@ -60,9 +60,9 @@ make test-ui-critical
 **Determining Which Tests to Run:**
 
 1. **Identify affected test classes** - Test classes follow the naming pattern `<SourceFile>Tests`
-   - Changed `SentryHttpTransport.swift` → Run `TEST=SentryHttpTransportTests`
-   - Changed `SentryHub.m` → Run `TEST=SentryHubTests`
-   - Changed files in `SessionReplay/` → Run `TEST=SentrySessionReplayTests,SentryOnDemandReplayTests`
+   - Changed `SentryHttpTransport.swift` → Run `ONLY_TESTING=SentryHttpTransportTests`
+   - Changed `SentryHub.m` → Run `ONLY_TESTING=SentryHubTests`
+   - Changed files in `SessionReplay/` → Run `ONLY_TESTING=SentrySessionReplayTests,SentryOnDemandReplayTests`
 
 2. **Platform selection** - Default to iOS unless changing platform-specific code
    - Most changes → `make test-ios` (fastest)

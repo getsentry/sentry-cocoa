@@ -236,18 +236,18 @@ test: test-ios test-macos test-catalyst test-tvos test-visionos
 # Runs unit tests for iOS Simulator.
 # Outputs logs and uses xcbeautify for formatted output.
 #
-# Optional: TEST=ClassName to run specific test class(es)
+# Optional: ONLY_TESTING=ClassName to run specific test class(es)
 # Examples:
 #   make test-ios
-#   make test-ios TEST=SentryHttpTransportTests
-#   make test-ios TEST=SentryHttpTransportTests,SentryHubTests
-#   make test-ios TEST=SentryHttpTransportTests/testFlush_WhenNoInternet
+#   make test-ios ONLY_TESTING=SentryHttpTransportTests
+#   make test-ios ONLY_TESTING=SentryHttpTransportTests,SentryHubTests
+#   make test-ios ONLY_TESTING=SentryHttpTransportTests/testFlush_WhenNoInternet
 .PHONY: test-ios
 test-ios:
 	@echo "--> Running iOS tests"
 	@EXTRA_ARGS=""; \
-	if [ -n "$(TEST)" ]; then \
-		EXTRA_ARGS="--tests $(TEST)"; \
+	if [ -n "$(ONLY_TESTING)" ]; then \
+		EXTRA_ARGS="--only-testing $(ONLY_TESTING)"; \
 	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform iOS \
@@ -263,16 +263,16 @@ test-ios:
 # Runs unit tests for macOS.
 # Outputs logs and uses xcbeautify for formatted output.
 #
-# Optional: TEST=ClassName to run specific test class(es)
+# Optional: ONLY_TESTING=ClassName to run specific test class(es)
 # Examples:
 #   make test-macos
-#   make test-macos TEST=SentryHttpTransportTests
+#   make test-macos ONLY_TESTING=SentryHttpTransportTests
 .PHONY: test-macos
 test-macos:
 	@echo "--> Running macOS tests"
 	@EXTRA_ARGS=""; \
-	if [ -n "$(TEST)" ]; then \
-		EXTRA_ARGS="--tests $(TEST)"; \
+	if [ -n "$(ONLY_TESTING)" ]; then \
+		EXTRA_ARGS="--only-testing $(ONLY_TESTING)"; \
 	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform macOS \
@@ -287,16 +287,16 @@ test-macos:
 # Runs unit tests for Mac Catalyst.
 # Outputs logs and uses xcbeautify for formatted output.
 #
-# Optional: TEST=ClassName to run specific test class(es)
+# Optional: ONLY_TESTING=ClassName to run specific test class(es)
 # Examples:
 #   make test-catalyst
-#   make test-catalyst TEST=SentryHttpTransportTests
+#   make test-catalyst ONLY_TESTING=SentryHttpTransportTests
 .PHONY: test-catalyst
 test-catalyst:
 	@echo "--> Running Catalyst tests"
 	@EXTRA_ARGS=""; \
-	if [ -n "$(TEST)" ]; then \
-		EXTRA_ARGS="--tests $(TEST)"; \
+	if [ -n "$(ONLY_TESTING)" ]; then \
+		EXTRA_ARGS="--only-testing $(ONLY_TESTING)"; \
 	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform Catalyst \
@@ -311,16 +311,16 @@ test-catalyst:
 # Runs unit tests for tvOS Simulator.
 # Outputs logs and uses xcbeautify for formatted output.
 #
-# Optional: TEST=ClassName to run specific test class(es)
+# Optional: ONLY_TESTING=ClassName to run specific test class(es)
 # Examples:
 #   make test-tvos
-#   make test-tvos TEST=SentryHttpTransportTests
+#   make test-tvos ONLY_TESTING=SentryHttpTransportTests
 .PHONY: test-tvos
 test-tvos:
 	@echo "--> Running tvOS tests"
 	@EXTRA_ARGS=""; \
-	if [ -n "$(TEST)" ]; then \
-		EXTRA_ARGS="--tests $(TEST)"; \
+	if [ -n "$(ONLY_TESTING)" ]; then \
+		EXTRA_ARGS="--only-testing $(ONLY_TESTING)"; \
 	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform tvOS \
@@ -336,16 +336,16 @@ test-tvos:
 # Runs unit tests for visionOS Simulator.
 # Outputs logs and uses xcbeautify for formatted output.
 #
-# Optional: TEST=ClassName to run specific test class(es)
+# Optional: ONLY_TESTING=ClassName to run specific test class(es)
 # Examples:
 #   make test-visionos
-#   make test-visionos TEST=SentryHttpTransportTests
+#   make test-visionos ONLY_TESTING=SentryHttpTransportTests
 .PHONY: test-visionos
 test-visionos:
 	@echo "--> Running visionOS tests"
 	@EXTRA_ARGS=""; \
-	if [ -n "$(TEST)" ]; then \
-		EXTRA_ARGS="--tests $(TEST)"; \
+	if [ -n "$(ONLY_TESTING)" ]; then \
+		EXTRA_ARGS="--only-testing $(ONLY_TESTING)"; \
 	fi; \
 	./scripts/sentry-xcodebuild.sh \
 		--platform visionOS \

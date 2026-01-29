@@ -23,7 +23,7 @@ DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
 TEST_PLAN=""
 RESULT_BUNDLE_PATH="results.xcresult"
-TESTS=""
+ONLY_TESTING=""
 
 usage() {
     echo "Usage: $0"
@@ -36,7 +36,7 @@ usage() {
     echo "  -D|--derived-data <path>        Derived data path"
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
     echo "  -t|--test-plan <plan>           Test plan name (default: empty)"
-    echo "  -T|--tests <tests>              Comma-separated test classes (default: empty, runs all tests)"
+    echo "  --only-testing <tests>          Comma-separated test classes (default: empty, runs all tests)"
     echo "  -R|--result-bundle <path>       Result bundle path (default: results.xcresult)"
     exit 1
 }
@@ -80,8 +80,8 @@ while [[ $# -gt 0 ]]; do
             TEST_PLAN="$2"
             shift 2
             ;;
-        -T|--tests)
-            TESTS="$2"
+        --only-testing)
+            ONLY_TESTING="$2"
             shift 2
             ;;
         -R|--result-bundle)
@@ -179,11 +179,11 @@ if [ -n "$TEST_PLAN" ]; then
     TEST_PLAN_ARGS+=("-testPlan" "$TEST_PLAN")
 fi
 
-TEST_FILTER_ARGS=()
-if [ -n "$TESTS" ]; then
-    IFS=',' read -ra TEST_ARRAY <<< "$TESTS"
+ONLY_TESTING_ARGS=()
+if [ -n "$ONLY_TESTING" ]; then
+    IFS=',' read -ra TEST_ARRAY <<< "$ONLY_TESTING"
     for test in "${TEST_ARRAY[@]}"; do
-        TEST_FILTER_ARGS+=("-only-testing:SentryTests/$test")
+        ONLY_TESTING_ARGS+=("-only-testing:SentryTests/$test")
     done
 fi
 
@@ -195,7 +195,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
         "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
-        "${TEST_FILTER_ARGS[@]+${TEST_FILTER_ARGS[@]}}" \
+        "${ONLY_TESTING_ARGS[@]+${ONLY_TESTING_ARGS[@]}}" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         build-for-testing 2>&1 |
@@ -216,7 +216,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
         "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
-        "${TEST_FILTER_ARGS[@]+${TEST_FILTER_ARGS[@]}}" \
+        "${ONLY_TESTING_ARGS[@]+${ONLY_TESTING_ARGS[@]}}" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -resultBundlePath "$RESULT_BUNDLE_PATH" \
