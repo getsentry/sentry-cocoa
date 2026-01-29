@@ -36,7 +36,7 @@ usage() {
     echo "  -D|--derived-data <path>        Derived data path"
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
     echo "  -t|--test-plan <plan>           Test plan name (default: empty)"
-    echo "  --only-testing <tests>          Comma-separated test classes (default: empty, runs all tests)"
+    echo "  -T|--only-testing <tests>       Comma-separated test classes (default: empty, runs all tests)"
     echo "  -R|--result-bundle <path>       Result bundle path (default: results.xcresult)"
     exit 1
 }
@@ -80,7 +80,7 @@ while [[ $# -gt 0 ]]; do
             TEST_PLAN="$2"
             shift 2
             ;;
-        --only-testing)
+        -T|--only-testing)
             ONLY_TESTING="$2"
             shift 2
             ;;
