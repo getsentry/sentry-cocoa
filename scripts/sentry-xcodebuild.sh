@@ -36,7 +36,7 @@ usage() {
     echo "  -D|--derived-data <path>        Derived data path"
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
     echo "  -t|--test-plan <plan>           Test plan name (default: empty)"
-    echo "  -ot|--only-testing <tests>      Comma-separated test classes (default: empty, runs all tests)"
+    echo "  --only-testing <tests>          Comma-separated test classes (default: empty, runs all tests)"
     echo "  -R|--result-bundle <path>       Result bundle path (default: results.xcresult)"
     exit 1
 }
@@ -80,7 +80,8 @@ while [[ $# -gt 0 ]]; do
             TEST_PLAN="$2"
             shift 2
             ;;
-        -ot|--only-testing)
+        --only-testing)
+            # Note: No short option to avoid confusion with -o (used by --os)
             ONLY_TESTING="$2"
             shift 2
             ;;
