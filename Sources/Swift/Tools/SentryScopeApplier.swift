@@ -1,3 +1,4 @@
+// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -7,8 +8,13 @@ protocol ScopeApplyingMetadata {
     var installationId: String? { get }
 }
 
-protocol SentryScopeApplier {
+@_spi(Private)
+@objc
+public protocol SentryScopeApplier {
     func applyScope(_ scope: Scope, toLog log: SentryLog) -> SentryLog
+}
+
+protocol SentryScopeApplierInternal: SentryScopeApplier {
     func applyScope(_ scope: Scope, toMetric metric: SentryMetric) -> SentryMetric
 }
 
@@ -30,7 +36,7 @@ public class SentryScopeApplyingMetadata: NSObject, ScopeApplyingMetadata {
 @_spi(Private)
 @objc
 @objcMembers
-public class SentryDefaultScopeApplier: NSObject, SentryScopeApplier {
+public class SentryDefaultScopeApplier: NSObject, SentryScopeApplier, SentryScopeApplierInternal {
     private let metadata: SentryScopeApplyingMetadata
     private let sendDefaultPii: Bool
 
@@ -51,3 +57,5 @@ public class SentryDefaultScopeApplier: NSObject, SentryScopeApplier {
         return mutableMetric
     }
 }
+
+// swiftlint:enable missing_docs

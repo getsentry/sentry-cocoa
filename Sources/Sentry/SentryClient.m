@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
 @property (nonatomic, strong) SentryLogBuffer *logBuffer;
-@property (nonatomic, strong) SentryDefaultScopeApplier *scopeApplyingHelper;
+@property (nonatomic, strong) id<SentryScopeApplier> scopeApplier;
 
 @end
 
@@ -117,6 +117,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.logBuffer = [[SentryLogBuffer alloc] initWithOptions:options
                                                      dateProvider:dateProvider
                                                          delegate:self];
+
+        SentryScopeApplyingMetadata *metadata = [[SentryScopeApplyingMetadata alloc]
+            initWithEnvironment:options.environment
+                    releaseName:options.releaseName
+                 installationId:[SentryInstallation
+                                    cachedIdWithCacheDirectoryPath:options.cacheDirectoryPath]];
+        self.scopeApplier =
+            [[SentryDefaultScopeApplier alloc] initWithMetadata:metadata
+                                                 sendDefaultPii:options.sendDefaultPii];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.
@@ -1099,27 +1108,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return processedAttachments;
 }
 
-- (SentryDefaultScopeApplier *)scopeApplyingHelper
-{
-    if (_scopeApplyingHelper == nil) {
-        SentryScopeApplyingMetadata *metadata = [[SentryScopeApplyingMetadata alloc]
-            initWithEnvironment:self.options.environment
-                    releaseName:self.options.releaseName
-                 installationId:[SentryInstallation
-                                    cachedIdWithCacheDirectoryPath:self.options
-                                                                       .cacheDirectoryPath]];
-        _scopeApplyingHelper =
-            [[SentryDefaultScopeApplier alloc] initWithMetadata:metadata
-                                                 sendDefaultPii:self.options.sendDefaultPii];
-    }
-    return _scopeApplyingHelper;
-}
-
 - (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope
 {
     if ([log isKindOfClass:[SentryLog class]]) {
         SentryLog *sentryLog = (SentryLog *)log;
-        SentryLog *enrichedLog = [self.scopeApplyingHelper applyScope:scope toLog:sentryLog];
+        SentryLog *enrichedLog = [self.scopeApplier applyScope:scope toLog:sentryLog];
         [self.logBuffer addLog:enrichedLog];
     }
 }

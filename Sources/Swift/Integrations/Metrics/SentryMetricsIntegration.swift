@@ -20,7 +20,7 @@ typealias SentryMetricsIntegrationDependencies = DateProviderProvider & Dispatch
 
 final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol, FlushableIntegration {
     private let metricsBuffer: SentryMetricsTelemetryBuffer
-    private let scopeApplyingHelper: SentryDefaultScopeApplier
+    private let scopeApplier: SentryDefaultScopeApplier
     #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
     private let notificationCenter: SentryNSNotificationCenterWrapper
     #endif
@@ -33,7 +33,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
             releaseName: options.releaseName,
             installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
         )
-        self.scopeApplyingHelper = SentryDefaultScopeApplier(metadata: metadata, sendDefaultPii: options.sendDefaultPii)
+        self.scopeApplier = SentryDefaultScopeApplier(metadata: metadata, sendDefaultPii: options.sendDefaultPii)
 
         self.metricsBuffer = DefaultSentryMetricsTelemetryBuffer(
             options: options,
@@ -88,7 +88,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     // MARK: - Public API for Metrics
 
     func addMetric(_ metric: SentryMetric, scope: Scope) {
-        let enrichedMetric = scopeApplyingHelper.applyScope(scope, toMetric: metric)
+        let enrichedMetric = scopeApplier.applyScope(scope, toMetric: metric)
         metricsBuffer.addMetric(enrichedMetric)
     }
 
