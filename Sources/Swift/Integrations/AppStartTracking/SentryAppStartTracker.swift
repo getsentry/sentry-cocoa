@@ -71,7 +71,6 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
 
     deinit {
         stop()
-        NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - Public Methods
