@@ -1,4 +1,4 @@
-//swiftlint:disable file_length missing_docs
+//swiftlint:disable file_length missing_docs type_body_length
 
 @_implementationOnly import _SentryPrivate
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
@@ -128,6 +128,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var extensionDetector: SentryExtensionDetector = {
         SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
+    var coreDataSwizzling = SentryCoreDataSwizzling()
     
 #if os(iOS) && !SENTRY_NO_UIKIT
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
@@ -324,6 +325,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
                 dispatchQueue: dispatchQueueWrapper
             )
         }
+    }
+    
+    func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker {
+        let threadInspector = SentryDefaultThreadInspector(options: options)
+        return SentryCoreDataTracker(
+            threadInspector: threadInspector,
+            processInfoWrapper: processInfoWrapper
+        )
     }
 }
 
@@ -536,6 +545,11 @@ protocol CrashInstallationReporterBuilder {
 }
 extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
 
+protocol SentryCoreDataSwizzlingProvider {
+    var coreDataSwizzling: SentryCoreDataSwizzling { get }
+}
+extension SentryDependencyContainer: SentryCoreDataSwizzlingProvider {}
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 protocol SentryUIDeviceWrapperProvider {
     var uiDeviceWrapper: SentryUIDeviceWrapper { get }
@@ -550,6 +564,11 @@ extension SentryDependencyContainer: SentryEventTrackerBuilder {}
 
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 
+protocol SentryCoreDataTrackerBuilder {
+    func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker
+}
+extension SentryDependencyContainer: SentryCoreDataTrackerBuilder {}
+
 #if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
 protocol HangTrackerProvider {
     var hangTracker: SentryHangTracker { get }
@@ -558,4 +577,4 @@ protocol HangTrackerProvider {
 extension SentryDependencyContainer: HangTrackerProvider {}
 #endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
 
-//swiftlint:enable file_length missing_docs
+//swiftlint:enable file_length missing_docs type_body_length

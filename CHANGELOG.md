@@ -1,10 +1,10 @@
 # Changelog
 
-## Unreleased
+## 9.3.0
 
 ### Features
 
-- feat: Transport logs error message for HTTP 413 responses (#7261)
+- Transport logs error message for HTTP 413 responses (#7261)
 - Add `installGroupsOverride` parameter to `CheckForUpdateParams` and `installGroups` property to `ReleaseInfo` for SentryDistribution (#7278)
 
 ### Improvements
