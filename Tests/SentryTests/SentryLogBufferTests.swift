@@ -8,7 +8,6 @@ final class SentryLogBufferTests: XCTestCase {
     private var testDateProvider: TestCurrentDateProvider!
     private var testDelegate: TestLogBufferDelegate!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
-    private var scope: Scope!
 
     private func getSut() -> SentryLogBuffer {
         return SentryLogBuffer(
@@ -33,15 +32,12 @@ final class SentryLogBufferTests: XCTestCase {
         testDelegate = TestLogBufferDelegate()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
-        
-        scope = Scope()
     }
     
     override func tearDown() {
         super.tearDown()
         testDelegate = nil
         testDispatchQueue = nil
-        scope = nil
     }
     
     // MARK: - Basic Functionality Tests

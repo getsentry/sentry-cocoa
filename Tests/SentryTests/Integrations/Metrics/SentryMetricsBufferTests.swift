@@ -8,7 +8,6 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
     private var testDateProvider: TestCurrentDateProvider!
     private var testCallbackHelper: TestMetricsBufferCallbackHelper!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
-    private var scope: Scope!
     
     override func setUp() {
         super.setUp()
@@ -21,8 +20,6 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         testCallbackHelper = TestMetricsBufferCallbackHelper()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
-
-        scope = Scope()
     }
 
     override func tearDown() {
@@ -30,7 +27,6 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         clearTestState()
         testCallbackHelper = nil
         testDispatchQueue = nil
-        scope = nil
     }
 
     private func getSut() -> DefaultSentryMetricsTelemetryBuffer {
