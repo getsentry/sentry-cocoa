@@ -1,5 +1,6 @@
+#import "SentrySwift.h"
 #import <Foundation/Foundation.h>
-@import Sentry;
+
 @class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
