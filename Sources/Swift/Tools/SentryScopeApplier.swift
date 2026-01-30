@@ -9,15 +9,13 @@ protocol SentryScopeApplyingMetadata {
     var sendDefaultPii: Bool { get }
 }
 
-@_spi(Private)
-@objc
-public class SentryDefaultScopeApplyingMetadata: NSObject, SentryScopeApplyingMetadata {
+class SentryDefaultScopeApplyingMetadata: SentryScopeApplyingMetadata {
     let environment: String
     let releaseName: String?
     private let cacheDirectoryPath: String
     let sendDefaultPii: Bool
 
-    @objc public init(environment: String, releaseName: String?, cacheDirectoryPath: String, sendDefaultPii: Bool) {
+    public init(environment: String, releaseName: String?, cacheDirectoryPath: String, sendDefaultPii: Bool) {
         self.environment = environment
         self.releaseName = releaseName
         self.cacheDirectoryPath = cacheDirectoryPath
@@ -46,11 +44,9 @@ public protocol SentryLogScopeApplier {
 @objcMembers
 public class SentryDefaultLogScopeApplier: NSObject, SentryLogScopeApplier {
     private let metadata: SentryScopeApplyingMetadata
-    private let sendDefaultPii: Bool
 
-    @objc public init(metadata: SentryDefaultScopeApplyingMetadata, sendDefaultPii: Bool) {
-        self.metadata = metadata
-        self.sendDefaultPii = sendDefaultPii
+    @objc public init(environment: String, releaseName: String?, cacheDirectoryPath: String, sendDefaultPii: Bool) {
+        self.metadata = SentryDefaultScopeApplyingMetadata(environment: environment, releaseName: releaseName, cacheDirectoryPath: cacheDirectoryPath, sendDefaultPii: sendDefaultPii)
     }
 
     @objc public func applyScope(_ scope: Scope, toLog log: SentryLog) -> SentryLog {

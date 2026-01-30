@@ -117,15 +117,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.logBuffer = [[SentryLogBuffer alloc] initWithOptions:options
                                                      dateProvider:dateProvider
                                                          delegate:self];
-
-        SentryDefaultScopeApplyingMetadata *metadata = [[SentryDefaultScopeApplyingMetadata alloc]
-            initWithEnvironment:options.environment
-                    releaseName:options.releaseName
-             cacheDirectoryPath:options.cacheDirectoryPath
-                 sendDefaultPii:options.sendDefaultPii];
         self.scopeApplier =
-            [[SentryDefaultLogScopeApplier alloc] initWithMetadata:metadata
-                                                    sendDefaultPii:options.sendDefaultPii];
+            [[SentryDefaultLogScopeApplier alloc] initWithEnvironment:options.environment
+                                                          releaseName:options.releaseName
+                                                   cacheDirectoryPath:options.cacheDirectoryPath
+                                                       sendDefaultPii:options.sendDefaultPii];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.
