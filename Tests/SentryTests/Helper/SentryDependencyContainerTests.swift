@@ -115,6 +115,7 @@ final class SentryDependencyContainerTests: XCTestCase {
 #endif
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().globalEventProcessor)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().eventContextEnricher)
                 }
 
                 expectation.fulfill()
@@ -243,7 +244,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
         SentrySDK.setStart(with: options)
-        
+
         let container = SentryDependencyContainer.sharedInstance()
 
         // -- Act --
@@ -255,5 +256,37 @@ final class SentryDependencyContainerTests: XCTestCase {
         XCTAssertIdentical(tracker.application, container.application())
         XCTAssertIdentical(tracker.dateProvider, container.dateProvider)
         XCTAssertIdentical(tracker.notificationCenter, container.notificationCenterWrapper)
+    }
+
+    func testEventContextEnricher_shouldReturnSameInstance() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(with: options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let enricher1 = container.eventContextEnricher
+        let enricher2 = container.eventContextEnricher
+
+        // -- Assert --
+        XCTAssertIdentical(enricher1, enricher2)
+    }
+
+    func testEventContextEnricher_shouldBeInitialized() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(with: options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let enricher = container.eventContextEnricher
+
+        // -- Assert --
+        XCTAssertNotNil(enricher)
+        XCTAssertTrue(enricher is SentryDefaultEventContextEnricher)
     }
 }
