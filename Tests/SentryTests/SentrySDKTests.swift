@@ -27,10 +27,10 @@ class SentrySDKTests: XCTestCase {
         let currentDate = TestCurrentDateProvider()
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
         let observer: SentryWatchdogTerminationScopeObserver
         let scopePersistentStore: TestSentryScopePersistentStore
-#endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif //  os(iOS) || os(tvOS)
 
         let scopeBlock: (Scope) -> Void = { scope in
             scope.setTag(value: "tag", key: "tag")
@@ -60,7 +60,7 @@ class SentrySDKTests: XCTestCase {
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
             
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
             options.dsn = SentrySDKTests.dsnAsString
 
             let fileManager = try XCTUnwrap(TestFileManager(
@@ -75,7 +75,7 @@ class SentrySDKTests: XCTestCase {
                 scopePersistentStore: scopePersistentStore
             )
             observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, attributesProcessor: attributesProcessor)
-#endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif //  os(iOS) || os(tvOS)
         }
     }
 
@@ -137,9 +137,9 @@ class SentrySDKTests: XCTestCase {
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations.append("SentryANRTrackingIntegration")
         }
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
         expectedIntegrations.append("SentryFramesTrackingIntegration")
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
 
         assertIntegrationsInstalled(integrations: expectedIntegrations)
     }

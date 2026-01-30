@@ -1034,7 +1034,7 @@ class SentryHubTests: XCTestCase {
         assertNoEventsSent()
     }
     
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     func testCaptureFatalAppHangEvent_AbnormalSessionExists() {
         // Arrange
         sut = fixture.getSut(fixture.options, fixture.scope)
@@ -1130,7 +1130,7 @@ class SentryHubTests: XCTestCase {
         // Assert
         assertNoEventsSent()
     }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
 
     func testCaptureEnvelope_WithEventWithError() throws {
         sut.startSession()
@@ -1271,7 +1271,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(beginSession, endSession)
     }
     
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     func test_reportFullyDisplayed_enableTimeToFullDisplay_YES() {
         // -- Arrange --
         let sut = fixture.getSut(fixture.options)
@@ -1818,7 +1818,7 @@ class SentryHubTests: XCTestCase {
 #endif
 }
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
     
     init(waitForFullDisplay: Bool = false) {

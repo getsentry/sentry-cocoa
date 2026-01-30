@@ -80,7 +80,7 @@ class NotificationCenterTestCase: XCTestCase {
     }
     
     func uiWindowDidBecomeVisible() {
-        #if os(tvOS) || os(iOS) || targetEnvironment(macCatalyst)
+        #if os(tvOS) || os(iOS)
         post(name: UIWindow.didBecomeVisibleNotification)
         #endif
     }

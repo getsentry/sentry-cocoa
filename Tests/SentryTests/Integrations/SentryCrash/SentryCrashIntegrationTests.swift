@@ -136,7 +136,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         assertCrashedSessionStored(expected: expectedCrashedSession)
     }
     
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    #if os(iOS) || os(tvOS)
     func testEndSessionAsCrashed_WhenOOM_WithCurrentSession() throws {
         givenOOMAppState()
         SentrySDKInternal.startInvocations = 1
@@ -201,7 +201,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     // Abnormal sessions only work when we the SDK can detect fatal app hang events. These only work on iOS, tvOS and macCatalyst
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     
     func testEndSessionAsAbnormal_NoHubBound() throws {
         // Arrange
@@ -325,7 +325,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertNil(fileManager.readAbnormalSession())
     }
     
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
             
     func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() throws {
         let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
@@ -650,7 +650,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         return session
     }
     
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    #if os(iOS) || os(tvOS)
     private func givenOOMAppState() {
         let appState = SentryAppState(releaseName: TestData.appState.releaseName, osVersion: UIDevice.current.systemVersion, vendorId: UIDevice.current.identifierForVendor?.uuidString ?? "", isDebugging: false, systemBootTimestamp: SentryDependencyContainer.sharedInstance().dateProvider.date())
         appState.isActive = true
@@ -668,7 +668,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
     
     private func givenSutWithGlobalHubAndCrashWrapper(_ options: Options? = nil) throws -> (SentryCrashIntegration<MockCrashDependencies>, SentryHubInternal) {
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
         SentryDependencyContainer.sharedInstance().uiDeviceWrapper.start()
 #endif
         let sut = try fixture.getSut(crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper, options: options)
