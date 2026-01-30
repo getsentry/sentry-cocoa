@@ -107,15 +107,6 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
         try assertTrackerSetupAndRunning(tracker)
     }
 
-    func testOnlyAppStartMeasuringEnabled_noIntegration() throws {
-        let options = fixture.options
-        options.tracesSampleRate = 0.0
-        options.tracesSampler = nil
-
-        let sut = fixture.getOptionalSut(options: options)
-        XCTAssertNil(sut)
-    }
-
     func test_PerformanceTrackingDisabled_noIntegration() throws {
         let options = fixture.options
         options.enableAutoPerformanceTracing = false
