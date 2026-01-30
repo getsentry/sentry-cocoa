@@ -9,10 +9,6 @@ protocol SentryMetricsTelemetryBuffer {
 protocol SentryMetricsTelemetryBufferOptions {
     var enableMetrics: Bool { get }
     var beforeSendMetric: ((SentryMetric) -> SentryMetric?)? { get }
-    var environment: String { get }
-    var releaseName: String? { get }
-    var cacheDirectoryPath: String { get }
-    var sendDefaultPii: Bool { get }
 }
 
 /// DefaultSentryMetricsTelemetryBuffer is responsible for buffering metrics.
