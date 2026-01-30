@@ -273,6 +273,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["device.model"])
+        XCTAssertEqual(item.attributesDict["device.brand"], .string("Apple"))
     }
 
     func testApplyToItem_withDeviceContextWithoutFamily_shouldNotAddDeviceFamily() {
@@ -287,6 +288,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["device.family"])
+        XCTAssertEqual(item.attributesDict["device.brand"], .string("Apple"))
     }
 
     func testApplyToItem_withoutDeviceContext_shouldNotAddDeviceAttributes() {
@@ -514,6 +516,24 @@ final class TelemetryScopeApplierTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["user.id"])
+    }
+
+    func testApplyToItem_whenSendDefaultPiiFalse_withoutUser_shouldStillAddInstallationIdAsUserId() {
+        // -- Arrange --
+        let scope = TestScope(propagationContextTraceId: SentryId())
+        let metadata = createTestMetadata(
+            installationId: "installation-456",
+            sendDefaultPii: false
+        )
+        var item = createTestItem()
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict["user.id"], .string("installation-456"))
+        XCTAssertNil(item.attributesDict["user.name"])
+        XCTAssertNil(item.attributesDict["user.email"])
     }
 
     func testApplyToItem_withUser_shouldNotAddInstallationIdAsUserId() {
