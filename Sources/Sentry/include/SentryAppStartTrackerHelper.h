@@ -11,6 +11,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryAppStartTrackerHelper : NSObject
 
+- (NSDate *)runtimeInitTimestamp;
+- (BOOL)isActivePrewarm;
+
 @end
 
 NS_ASSUME_NONNULL_END

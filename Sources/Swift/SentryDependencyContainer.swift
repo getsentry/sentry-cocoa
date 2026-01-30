@@ -130,6 +130,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
     var coreDataSwizzling = SentryCoreDataSwizzling()
+    var appStartInfoProvider: AppStartInfoProvider = SentryAppStartTrackerHelper()
     
 #if os(iOS) && !SENTRY_NO_UIKIT
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
@@ -256,7 +257,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             framesTracker: framesTracker,
             enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing,
             dateProvider: dateProvider,
-            sysctlWrapper: sysctlWrapper
+            sysctlWrapper: sysctlWrapper,
+            appStartInfoProvider: appStartInfoProvider
         )
     }
 #endif
@@ -595,6 +597,10 @@ protocol SentryAppStartTrackerBuilder {
     func getAppStartTracker(_ options: Options) -> SentryAppStartTracker
 }
 extension SentryDependencyContainer: SentryAppStartTrackerBuilder {}
+
+protocol AppStartInfoProviderProvider {
+    var appStartInfoProvider: AppStartInfoProvider { get }
+}
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 
 protocol SentryCoreDataTrackerBuilder {

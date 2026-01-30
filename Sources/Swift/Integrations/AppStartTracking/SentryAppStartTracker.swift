@@ -3,6 +3,13 @@
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
 
+protocol AppStartInfoProvider {
+    func runtimeInitTimestamp() -> Date
+    func isActivePrewarm() -> Bool
+}
+
+extension SentryAppStartTrackerHelper: AppStartInfoProvider {}
+
 /// Tracks cold and warm app start time for iOS, tvOS, and Mac Catalyst. The logic for the different
 /// app start types is based on https://developer.apple.com/videos/play/wwdc2019/423/. Cold start:
 /// After reboot of the device, the app is not in memory and no process exists. Warm start: When the
@@ -15,16 +22,6 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     /// The watchdog usually kicks in after an app hanging for 30 seconds. As the app could hang in
     /// multiple stages during the launch we pick a higher threshold.
     private static let maxAppStartDuration: TimeInterval = 180.0
-
-    /// Invoked whenever this class is added to the Objective-C runtime.
-    /// Set when the class is first loaded via SentryAppStartTrackerHelper.
-    @objc public static var runtimeInitTimestamp = Date()
-
-    /// The OS sets this environment variable if the app start is pre warmed. There are no official
-    /// docs for this. Found at https://eisel.me/startup. Investigations show that this variable is
-    /// deleted after UIApplicationDidFinishLaunchingNotification, so we have to check it here.
-    /// Set via SentryAppStartTrackerHelper.
-    @objc public static var isActivePrewarm = false
 
     // MARK: - Instance Properties
     // swiftlint:disable:next missing_docs
@@ -40,6 +37,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     private var didFinishLaunchingTimestamp: Date
     private var dateProvider: SentryCurrentDateProvider
     private var sysctlWrapper: SentrySysctl
+    private var appStartInfoProvider: AppStartInfoProvider
 
     #if !(SENTRY_TEST || SENTRY_TEST_CI || DEBUG)
     private var onceToken: Int = 0
@@ -53,7 +51,8 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         framesTracker: SentryFramesTracker,
         enablePreWarmedAppStartTracing: Bool,
         dateProvider: SentryCurrentDateProvider,
-        sysctlWrapper: SentrySysctl
+        sysctlWrapper: SentrySysctl,
+        appStartInfoProvider: AppStartInfoProvider
     ) {
         self.dispatchQueue = dispatchQueueWrapper
         self.appStateManager = appStateManager
@@ -63,6 +62,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         self.dateProvider = dateProvider
         self.didFinishLaunchingTimestamp = dateProvider.date()
         self.sysctlWrapper = sysctlWrapper
+        self.appStartInfoProvider = appStartInfoProvider
 
         super.init()
 
@@ -141,7 +141,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
             self.stop()
 
             var isPreWarmed = false
-            if self.isActivePrewarmAvailable() && Self.isActivePrewarm {
+            if self.isActivePrewarmAvailable() && self.appStartInfoProvider.isActivePrewarm() {
                 SentrySDKLog.info("The app was prewarmed.")
 
                 if self.enablePreWarmedAppStartTracing {
@@ -222,7 +222,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
                 appStartTimestamp: appStartTimestamp,
                 runtimeInitSystemTimestamp: sysctl.runtimeInitSystemTimestamp,
                 duration: finalAppStartDuration,
-                runtimeInitTimestamp: Self.runtimeInitTimestamp,
+                runtimeInitTimestamp: self.appStartInfoProvider.runtimeInitTimestamp(),
                 moduleInitializationTimestamp: sysctl.moduleInitializationTimestamp,
                 sdkStartTimestamp: sdkStart,
                 didFinishLaunchingTimestamp: finalDidFinishLaunchingTimestamp
@@ -293,23 +293,6 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     private func didEnterBackground() {
         wasInBackground = true
     }
-
-    // MARK: - Test Helpers
-
-    #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
-    /// Reloads static properties from the environment. Needed for testing.
-    @objc
-    public static func reloadEnvironment() {
-        isActivePrewarm = ProcessInfo.processInfo.environment["ActivePrewarm"] == "1"
-        runtimeInitTimestamp = Date()
-    }
-
-    /// Sets the runtime init timestamp. Needed for testing, not public.
-    @objc
-    public func setRuntimeInit(_ value: Date) {
-        Self.runtimeInitTimestamp = value
-    }
-    #endif
 }
 
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
