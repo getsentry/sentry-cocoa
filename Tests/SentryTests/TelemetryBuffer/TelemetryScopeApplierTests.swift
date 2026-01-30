@@ -3,7 +3,7 @@
 import XCTest
 
 final class TelemetryScopeApplierTests: XCTestCase {
-    private struct TestItem: TelemetryBufferItem, Encodable {
+    private struct TestItem: TelemetryItem, Encodable {
         var attributes: [String: SentryAttribute]
         var attributesDict: [String: SentryAttributeContent]
         var traceId: SentryId

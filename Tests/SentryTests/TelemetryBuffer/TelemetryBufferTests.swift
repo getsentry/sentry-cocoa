@@ -19,7 +19,7 @@ private struct TestScope: TelemetryScopeApplier {
     }
 }
 
-private struct TestItem: TelemetryBufferItem {
+private struct TestItem: TelemetryItem {
     var attributesDict: [String: SentryAttributeContent]
     var traceId: SentryId
     var body: String

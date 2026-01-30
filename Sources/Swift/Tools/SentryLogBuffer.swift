@@ -104,7 +104,7 @@ import Foundation
     }
 }
 
-extension SentryLog: TelemetryBufferItem {
+extension SentryLog: TelemetryItem {
     var attributesDict: [String: SentryAttributeContent] {
         get {
             attributes.mapValues { value in

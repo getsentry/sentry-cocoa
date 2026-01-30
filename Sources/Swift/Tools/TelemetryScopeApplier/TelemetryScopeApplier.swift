@@ -13,7 +13,7 @@ protocol TelemetryScopeApplier {
     /// Used for type-safe access of the attributes, uses default implementation in extension
     var attributesDict: [String: SentryAttributeContent] { get }
 
-    func addAttributesToItem<Item: TelemetryBufferItem, Metadata: SentryScopeApplyingMetadata>(
+    func addAttributesToItem<Item: TelemetryItem, Metadata: SentryScopeApplyingMetadata>(
         _ item: inout Item,
         metadata: Metadata
     )
@@ -26,7 +26,7 @@ extension TelemetryScopeApplier {
         }
     }
 
-    func addAttributesToItem<Item: TelemetryBufferItem, Metadata: SentryScopeApplyingMetadata>(
+    func addAttributesToItem<Item: TelemetryItem, Metadata: SentryScopeApplyingMetadata>(
         _ item: inout Item,
         metadata: Metadata
     ) {

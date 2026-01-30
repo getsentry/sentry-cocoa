@@ -2,13 +2,13 @@
 import Foundation
 
 protocol TelemetryBuffer<Item> {
-    associatedtype Item: TelemetryBufferItem
+    associatedtype Item: TelemetryItem
 
     func add(_ item: Item)
     func capture() -> TimeInterval
 }
 
-final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<Item>, Item: TelemetryBufferItem>: TelemetryBuffer {
+final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<Item>, Item: TelemetryItem>: TelemetryBuffer {
     struct Config: TelemetryBufferConfig {
         let sendDefaultPii: Bool
 
