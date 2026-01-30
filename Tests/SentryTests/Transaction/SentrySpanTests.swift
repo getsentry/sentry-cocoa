@@ -15,7 +15,7 @@ class SentrySpanTests: XCTestCase {
         let options: Options
         let notificationCenter = TestNSNotificationCenterWrapper()
         let currentDateProvider = TestCurrentDateProvider()
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
         let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
 #else
         let tracer = SentryTracer(context: SpanContext(operation: "TEST"))
@@ -41,7 +41,7 @@ class SentrySpanTests: XCTestCase {
         }
         
         func getSutWithTracer() -> SentrySpanInternal {
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
             return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided), framesTracker: nil)
 #else
             return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: someOperation, sampled: .undecided))
@@ -65,7 +65,7 @@ class SentrySpanTests: XCTestCase {
         clearTestState()
     }
     
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
     func testSpanDoesNotSubscribeToNotificationsIfAlreadyCapturedContinuousProfileID() {
         SentryContinuousProfiler.start()
         SentrySDK.setStart(with: fixture.options)
@@ -200,7 +200,7 @@ class SentrySpanTests: XCTestCase {
         let serialized = span.serialize()
         XCTAssertNil(serialized["profile_id"])
     }
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)
     
     func testInitAndCheckForTimestamps() {
         let span = fixture.getSut()
@@ -538,7 +538,7 @@ class SentrySpanTests: XCTestCase {
         // Span has a weak reference to tracer. If we don't keep a reference
         // to the tracer ARC will deallocate the tracer.
         let sutGenerator: () -> Span = {
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
             let tracer = SentryTracer(context: SpanContext(operation: "TEST"), framesTracker: nil)
             return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: ""), framesTracker: nil)
 #else
@@ -628,7 +628,7 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(expectedBaggage, sut.baggageHttpHeader())
     }
     
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     func testAddSlowFrozenFramesToData() {
         let (displayLinkWrapper, framesTracker) = givenFramesTracker()
         
@@ -706,5 +706,5 @@ class SentrySpanTests: XCTestCase {
         
         return (displayLinkWrapper, framesTracker)
     }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
 }

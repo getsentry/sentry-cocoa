@@ -2,7 +2,7 @@
 import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 
 class SentrySwizzleWrapperTests: XCTestCase {
     

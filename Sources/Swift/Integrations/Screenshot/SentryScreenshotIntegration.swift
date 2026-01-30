@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 
 // We need to use a global variable because C doesn't allow capturing var
 // nor we want to continue using the DependencyContainer
@@ -61,7 +61,7 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
             return attachments
         }
 
-#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS)
         if event.isMetricKitEvent() {
             return attachments
         }

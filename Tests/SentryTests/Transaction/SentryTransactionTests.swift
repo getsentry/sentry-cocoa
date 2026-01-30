@@ -397,7 +397,7 @@ class SentryTransactionTests: XCTestCase {
         XCTAssertNotNil(try XCTUnwrap(data["thread.name"]))
     }
     
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
     func testTransactionWithContinuousProfile() throws {
         let options = Options()
         SentrySDK.setStart(with: options)
@@ -410,5 +410,5 @@ class SentryTransactionTests: XCTestCase {
         let profileIdFromContexts = try XCTUnwrap(profileData["profiler_id"] as? String)
         XCTAssertEqual(profileId, profileIdFromContexts)
     }
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)
 }

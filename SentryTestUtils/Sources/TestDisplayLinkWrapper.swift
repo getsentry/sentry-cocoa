@@ -1,7 +1,7 @@
 import Foundation
 @_spi(Private) @testable import Sentry
 
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 public enum GPUFrame {
     case normal
