@@ -49,9 +49,9 @@ class SentryClientTests: XCTestCase {
         let trace = SentryTracer(transactionContext: TransactionContext(name: "SomeTransaction", operation: "SomeOperation"), hub: nil)
         let transaction: Transaction
         let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
-        #if os(iOS) || targetEnvironment(macCatalyst)
+        #if os(iOS)
         let deviceWrapper = TestSentryUIDeviceWrapper()
-        #endif // os(iOS) || targetEnvironment(macCatalyst)
+        #endif // os(iOS)
         let processWrapper = MockSentryProcessInfo()
         let extraContentProvider: SentryExtraContextProvider
         let locale = Locale(identifier: "en_US")
@@ -94,11 +94,11 @@ class SentryClientTests: XCTestCase {
             
             debugImageProvider.debugImages = [TestData.debugImage]
 
-#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS)
             extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper, deviceWrapper: deviceWrapper)
             #else
             extraContentProvider = SentryExtraContextProvider(crashWrapper: crashWrapper, processInfoWrapper: processWrapper)
-#endif // os(iOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS)
             SentryDependencyContainer.sharedInstance().extraContextProvider = extraContentProvider
         }
 
@@ -326,7 +326,7 @@ class SentryClientTests: XCTestCase {
         eventId.assertIsEmpty()
     }
     
-#if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+#if os(iOS) || os(tvOS)
     func testCaptureEventWithCurrentScreen() throws {
         let testApplication = TestSentryUIApplication()
         SentryDependencyContainer.sharedInstance().applicationOverride = testApplication
@@ -911,7 +911,7 @@ class SentryClientTests: XCTestCase {
         XCTAssertNil(event.tags, "Tags from scope must not be applied to crash events.")
     }
     
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
     func testCaptureOOMEvent_RemovesMutableInfoFromDeviceContext() throws {
         // Arrange
         let oomEvent = TestData.oomEvent
@@ -1052,7 +1052,7 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(fixture.processWrapper.processorCount, cpuCoreCount)
     }
     
-#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS)
     func testCaptureEvent_DeviceProperties() throws {
         fixture.getSut().capture(event: TestData.event)
 
@@ -1113,7 +1113,7 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(expectedValue, actual.context?["user info"]?["key"] as? String)
     }
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     func testCaptureExceptionWithAppStateInForegroudWhenAppIsInForeground() throws {
         let app = TestSentryUIApplication()
         app.unsafeApplicationState = .active
@@ -1955,9 +1955,9 @@ class SentryClientTests: XCTestCase {
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
         expectedIntegrations.append("FramesTracking")
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
 
         let actual = try lastSentEvent()
         assertArrayEquals(
@@ -2605,7 +2605,7 @@ private extension SentryClientTests {
     }
     
     private func getSpan(operation: String, tracer: SentryTracer) -> Span {
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
         return SentrySpanInternal(tracer: tracer, context: SpanContext(operation: operation), framesTracker: nil)
 #else
         return  SentrySpanInternal(tracer: tracer, context: SpanContext(operation: operation))
@@ -2798,7 +2798,7 @@ extension SentryClientErrorWithDebugDescription: CustomNSError {
     }
 }
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 var active: () -> SentryApplication = {
     let application = TestSentryUIApplication()
     application.unsafeApplicationState = .active

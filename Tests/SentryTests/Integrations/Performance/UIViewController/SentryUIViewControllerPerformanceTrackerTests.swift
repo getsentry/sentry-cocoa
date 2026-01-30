@@ -975,4 +975,4 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         Dynamic(SentryDependencyContainer.sharedInstance().framesTracker).displayLinkCallback()
     }
 }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)

@@ -864,7 +864,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertTrue(sut.sentryPath.hasPrefix("/var/tmp/io.sentry"))
     }
     
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     
     func testReadPreviousBreadcrumbs() throws {
         let breadcrumbProcessor = SentryWatchdogTerminationBreadcrumbProcessor(maxBreadcrumbs: 2, fileManager: sut)
@@ -926,7 +926,7 @@ class SentryFileManagerTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(result.first as? NSDictionary)["message"] as? String, "4")
     }
     
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
 
     func testReadGarbageTimezoneOffset() throws {
         try "garbage".write(to: URL(fileURLWithPath: sut.timezoneOffsetFilePath), atomically: true, encoding: .utf8)
@@ -1144,7 +1144,7 @@ class SentryFileManagerTests: XCTestCase {
     }
 }
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
 // MARK: App Launch profiling tests
 extension SentryFileManagerTests {
     // if app launch profiling was configured to take place
@@ -1409,7 +1409,7 @@ private extension SentryFileManagerTests {
         }
     }
 }
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)
 
 // MARK: Private
 private extension SentryFileManagerTests {

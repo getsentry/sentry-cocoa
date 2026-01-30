@@ -1,4 +1,4 @@
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 
 @_spi(Private) @testable import Sentry
 @_spi(Private) @testable import SentryTestUtils
@@ -154,7 +154,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         XCTAssertEqual(newAttachmentList.count, 0)
     }
 
-#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS)
     func test_noScreenShot_MetricKitEvent() throws {
         let sut = try fixture.getSut()
         defer {
@@ -165,7 +165,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
         
         XCTAssertEqual(newAttachmentList.count, 0)
     }
-#endif // os(iOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS)
     
     func test_NoScreenShot_WhenDiscardedInCallback() throws {
         let expectation = expectation(description: "BeforeCaptureScreenshot must be called.")
@@ -255,4 +255,4 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     
 }
 
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
