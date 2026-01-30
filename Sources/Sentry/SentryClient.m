@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
 @property (nonatomic, strong) SentryLogBuffer *logBuffer;
-@property (nonatomic, strong) id<SentryLogScopeApplier> scopeApplier;
+@property (nonatomic, strong) id<SentryLogScopeApplier> logScopeApplier;
 
 @end
 
@@ -117,7 +117,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.logBuffer = [[SentryLogBuffer alloc] initWithOptions:options
                                                      dateProvider:dateProvider
                                                          delegate:self];
-        self.scopeApplier =
+        self.logScopeApplier =
             [[SentryDefaultLogScopeApplier alloc] initWithEnvironment:options.environment
                                                           releaseName:options.releaseName
                                                    cacheDirectoryPath:options.cacheDirectoryPath
@@ -1108,7 +1108,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     if ([log isKindOfClass:[SentryLog class]]) {
         SentryLog *sentryLog = (SentryLog *)log;
-        SentryLog *enrichedLog = [self.scopeApplier applyScope:scope toLog:sentryLog];
+        SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope toLog:sentryLog];
         [self.logBuffer addLog:enrichedLog];
     }
 }

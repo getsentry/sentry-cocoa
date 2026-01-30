@@ -2427,7 +2427,44 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(testBuffer.addLogInvocations.first?.body, "Test log message")
         XCTAssertEqual(testBuffer.addLogInvocations.first?.level, .info)
     }
-    
+
+    func testCaptureLog_appliesScopeToLog() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        let testDelegate = TestLogBufferDelegateForClient()
+        let testBuffer = TestLogBufferForClient(
+            options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            delegate: testDelegate
+        )
+        Dynamic(sut).logBuffer = testBuffer
+
+        let log = SentryLog(
+            timestamp: Date(timeIntervalSince1970: 1_627_846_801),
+            traceId: SentryId.empty,
+            level: .info,
+            body: "Test log message",
+            attributes: [:]
+        )
+        let scope = Scope()
+
+        // -- Act --
+        sut._swiftCaptureLog(log, with: scope)
+
+        // -- Assert --
+        XCTAssertEqual(testBuffer.addLogInvocations.count, 1)
+        let enrichedLog = try XCTUnwrap(testBuffer.addLogInvocations.first)
+
+        XCTAssertEqual(enrichedLog.attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
+        XCTAssertEqual(enrichedLog.attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
+        XCTAssertEqual(enrichedLog.attributes["sentry.environment"]?.value as? String, sut.options.environment)
+    }
+
     func testFlushCallsLogBufferCaptureLogs() {
         let sut = fixture.getSut()
         
