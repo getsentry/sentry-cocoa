@@ -121,7 +121,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         SentryDefaultScopeApplyingMetadata *metadata = [[SentryDefaultScopeApplyingMetadata alloc]
             initWithEnvironment:options.environment
                     releaseName:options.releaseName
-             cacheDirectoryPath:options.cacheDirectoryPath];
+             cacheDirectoryPath:options.cacheDirectoryPath
+                 sendDefaultPii:options.sendDefaultPii];
         self.scopeApplier =
             [[SentryDefaultLogScopeApplier alloc] initWithMetadata:metadata
                                                     sendDefaultPii:options.sendDefaultPii];

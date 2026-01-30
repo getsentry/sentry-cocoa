@@ -6,17 +6,7 @@ protocol SentryScopeApplyingMetadata {
     var environment: String { get }
     var releaseName: String? { get }
     var installationId: String? { get }
-}
-
-@_spi(Private)
-@objc
-public protocol SentryLogScopeApplier {
-    func applyScope(_ scope: Scope, toLog log: SentryLog) -> SentryLog
-}
-
-@_spi(Private)
-public protocol SentryMetricScopeApplier {
-    func applyScope(_ scope: Scope, toMetric metric: SentryMetric) -> SentryMetric
+    var sendDefaultPii: Bool { get }
 }
 
 @_spi(Private)
@@ -25,11 +15,13 @@ public class SentryDefaultScopeApplyingMetadata: NSObject, SentryScopeApplyingMe
     let environment: String
     let releaseName: String?
     private let cacheDirectoryPath: String
+    let sendDefaultPii: Bool
 
-    @objc public init(environment: String, releaseName: String?, cacheDirectoryPath: String) {
+    @objc public init(environment: String, releaseName: String?, cacheDirectoryPath: String, sendDefaultPii: Bool) {
         self.environment = environment
         self.releaseName = releaseName
         self.cacheDirectoryPath = cacheDirectoryPath
+        self.sendDefaultPii = sendDefaultPii
     }
 
     /// Returns the installation ID lazily to avoid file I/O on the calling thread.
@@ -41,6 +33,12 @@ public class SentryDefaultScopeApplyingMetadata: NSObject, SentryScopeApplyingMe
     var installationId: String? {
         return SentryInstallation.cachedId(withCacheDirectoryPath: cacheDirectoryPath)
     }
+}
+
+@_spi(Private)
+@objc
+public protocol SentryLogScopeApplier {
+    func applyScope(_ scope: Scope, toLog log: SentryLog) -> SentryLog
 }
 
 @_spi(Private)
@@ -57,25 +55,8 @@ public class SentryDefaultLogScopeApplier: NSObject, SentryLogScopeApplier {
 
     @objc public func applyScope(_ scope: Scope, toLog log: SentryLog) -> SentryLog {
         var mutableLog = log
-        scope.addAttributesToItem(&mutableLog, sendDefaultPii: sendDefaultPii, metadata: metadata)
+        scope.addAttributesToItem(&mutableLog, metadata: metadata)
         return mutableLog
-    }
-}
-
-@_spi(Private)
-public class SentryDefaultMetricScopeApplier: SentryMetricScopeApplier {
-    private let metadata: SentryScopeApplyingMetadata
-    private let sendDefaultPii: Bool
-
-    public init(metadata: SentryDefaultScopeApplyingMetadata, sendDefaultPii: Bool) {
-        self.metadata = metadata
-        self.sendDefaultPii = sendDefaultPii
-    }
-
-    public func applyScope(_ scope: Scope, toMetric metric: SentryMetric) -> SentryMetric {
-        var mutableMetric = metric
-        scope.addAttributesToItem(&mutableMetric, sendDefaultPii: sendDefaultPii, metadata: metadata)
-        return mutableMetric
     }
 }
 

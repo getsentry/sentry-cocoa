@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-protocol TelemetryBuffer<Item>: AnyObject {
+protocol TelemetryBuffer<Item> {
     associatedtype Item: TelemetryBufferItem
 
     func add(_ item: Item)

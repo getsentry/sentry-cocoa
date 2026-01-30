@@ -15,7 +15,6 @@ protocol TelemetryBufferScope {
 
     func addAttributesToItem<Item: TelemetryBufferItem, Metadata: SentryScopeApplyingMetadata>(
         _ item: inout Item,
-        sendDefaultPii: Bool,
         metadata: Metadata
     )
 }
@@ -29,7 +28,6 @@ extension TelemetryBufferScope {
 
     func addAttributesToItem<Item: TelemetryBufferItem, Metadata: SentryScopeApplyingMetadata>(
         _ item: inout Item,
-        sendDefaultPii: Bool,
         metadata: Metadata
     ) {
         // Extract attributesDict once to avoid multiple getter/setter calls on computed property
@@ -40,10 +38,10 @@ extension TelemetryBufferScope {
         addDefaultAttributes(to: &attributes, metadata: metadata)
         addOSAttributes(to: &attributes)
         addDeviceAttributes(to: &attributes)
-        addUserAttributes(to: &attributes, sendDefaultPii: sendDefaultPii)
+        addUserAttributes(to: &attributes, metadata: metadata)
         addReplayAttributes(to: &attributes)
         addScopeAttributes(to: &attributes)
-        addDefaultUserIdIfNeeded(to: &attributes, sendDefaultPii: sendDefaultPii, metadata: metadata)
+        addDefaultUserIdIfNeeded(to: &attributes, metadata: metadata)
 
         // Set the modified dictionary back once
         item.attributesDict = attributes
@@ -91,8 +89,8 @@ extension TelemetryBufferScope {
         }
     }
 
-    private func addUserAttributes(to attributes: inout [String: SentryAttributeContent], sendDefaultPii: Bool) {
-        guard sendDefaultPii else {
+    private func addUserAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any SentryScopeApplyingMetadata) {
+        guard metadata.sendDefaultPii else {
             return
         }
         if let userId = userObject?.userId {
@@ -126,7 +124,6 @@ extension TelemetryBufferScope {
 
     private func addDefaultUserIdIfNeeded(
         to attributes: inout [String: SentryAttributeContent],
-        sendDefaultPii: Bool,
         metadata: any SentryScopeApplyingMetadata
     ) {
         guard attributes["user.id"] == nil && attributes["user.name"] == nil && attributes["user.email"] == nil else {

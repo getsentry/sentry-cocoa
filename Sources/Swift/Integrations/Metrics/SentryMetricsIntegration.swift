@@ -20,7 +20,8 @@ typealias SentryMetricsIntegrationDependencies = DateProviderProvider & Dispatch
 
 final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol, FlushableIntegration {
     private let metricsBuffer: SentryMetricsTelemetryBuffer
-    private let scopeApplier: SentryDefaultMetricScopeApplier
+    private let scopeMetaData: SentryDefaultScopeApplyingMetadata
+
     #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
     private let notificationCenter: SentryNSNotificationCenterWrapper
     #endif
@@ -28,12 +29,12 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     init?(with options: Options, dependencies: Dependencies) {
         guard options.experimental.enableMetrics else { return nil }
 
-        let metadata = SentryDefaultScopeApplyingMetadata(
+        self.scopeMetaData = SentryDefaultScopeApplyingMetadata(
             environment: options.environment,
             releaseName: options.releaseName,
-            cacheDirectoryPath: options.cacheDirectoryPath
+            cacheDirectoryPath: options.cacheDirectoryPath,
+            sendDefaultPii: options.sendDefaultPii
         )
-        self.scopeApplier = SentryDefaultMetricScopeApplier(metadata: metadata, sendDefaultPii: options.sendDefaultPii)
 
         self.metricsBuffer = DefaultSentryMetricsTelemetryBuffer(
             options: options,
@@ -88,8 +89,9 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     // MARK: - Public API for Metrics
 
     func addMetric(_ metric: SentryMetric, scope: Scope) {
-        let enrichedMetric = scopeApplier.applyScope(scope, toMetric: metric)
-        metricsBuffer.addMetric(enrichedMetric)
+        var mutableMetric = metric
+        scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
+        metricsBuffer.addMetric(mutableMetric)
     }
 
     /// Captures batched metrics synchronously and returns the duration.

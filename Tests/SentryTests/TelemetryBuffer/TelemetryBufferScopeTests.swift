@@ -27,6 +27,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         let environment: String
         let releaseName: String?
         let installationId: String?
+        let sendDefaultPii: Bool
     }
 
     private struct TestScope: TelemetryBufferScope {
@@ -36,7 +37,6 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var userObject: User?
         var contextStore: [String: [String: Any]] = [:]
         var attributes: [String: Any] = [:]
-        var sendDefaultPii = true
 
         func getContextForKey(_ key: String) -> [String: Any]? {
             return contextStore[key]
@@ -56,7 +56,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["sentry.sdk.name"], .string(SentryMeta.sdkName))
@@ -69,7 +69,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["sentry.sdk.version"], .string(SentryMeta.versionString))
@@ -82,7 +82,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["sentry.environment"], .string("test-environment"))
@@ -95,7 +95,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["sentry.release"], .string("test-release-1.0.0"))
@@ -108,7 +108,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["sentry.release"])
@@ -126,7 +126,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["span_id"], .string(span.spanId.sentrySpanIdString))
@@ -139,7 +139,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["sentry.trace.parent_span_id"])
@@ -155,7 +155,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["os.name"], .string("iOS"))
@@ -169,7 +169,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["os.version"], .string("17.0"))
@@ -183,7 +183,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["os.name"])
@@ -197,7 +197,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["os.version"])
@@ -210,7 +210,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["os.name"])
@@ -227,7 +227,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["device.brand"], .string("Apple"))
@@ -241,7 +241,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["device.model"], .string("iPhone15,2"))
@@ -255,7 +255,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["device.family"], .string("iPhone"))
@@ -269,7 +269,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["device.model"])
@@ -283,7 +283,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["device.family"])
@@ -296,7 +296,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["device.brand"])
@@ -317,7 +317,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["user.id"], .string("user-123"))
@@ -335,7 +335,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["user.name"], .string("John Doe"))
@@ -353,7 +353,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["user.email"], .string("john@example.com"))
@@ -372,7 +372,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["user.id"], .string("user-123"))
@@ -387,7 +387,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["user.id"])
@@ -409,7 +409,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["sentry.replay_id"], .string("replay-123"))
@@ -422,7 +422,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["sentry.replay_id"])
@@ -440,7 +440,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["custom.key"], .string("custom.value"))
@@ -457,7 +457,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         item.attributesDict["custom.key"] = .string("item.value")
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         // Scope attributes should not override existing item attributes
@@ -473,7 +473,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["user.id"], .string("installation-123"))
@@ -486,7 +486,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["user.id"])
@@ -503,7 +503,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["user.id"], .string("user-123"))
@@ -522,7 +522,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["user.id"])
@@ -540,7 +540,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["user.id"])
@@ -556,7 +556,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.traceId, traceId)
@@ -572,7 +572,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         item.traceId = traceId2
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.traceId, traceId1)
@@ -594,7 +594,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         // When a span is active, traceId should come from the span, not propagationContext
@@ -625,7 +625,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         item.traceId = SentryId()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         // traceId should be from span, ensuring correlation with span_id
@@ -658,7 +658,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         // Default attributes
@@ -694,7 +694,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         var item = createTestItem()
 
         // -- Act --
-        scope.addAttributesToItem(&item, sendDefaultPii: true, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         // Should always have these
@@ -725,12 +725,14 @@ final class TelemetryBufferScopeTests: XCTestCase {
     private func createTestMetadata(
         environment: String = "test-environment",
         releaseName: String? = "test-release",
-        installationId: String? = "test-installation-id"
+        installationId: String? = "test-installation-id",
+        sendDefaultPii: Bool = true
     ) -> TestMetadata {
         return TestMetadata(
             environment: environment,
             releaseName: releaseName,
-            installationId: installationId
+            installationId: installationId,
+            sendDefaultPii: sendDefaultPii
         )
     }
 }
