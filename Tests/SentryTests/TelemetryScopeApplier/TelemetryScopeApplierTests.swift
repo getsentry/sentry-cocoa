@@ -395,6 +395,30 @@ final class TelemetryScopeApplierTests: XCTestCase {
         XCTAssertNil(item.attributesDict["user.email"])
     }
 
+    func testApplyToItem_whenSendDefaultPiiFalse_shouldNotAddUserNameAndEmail() {
+        // -- Arrange --
+        let user = User(userId: "user-123")
+        user.name = "John Doe"
+        user.email = "john@example.com"
+        let scope = TestScope(
+            propagationContextTraceId: SentryId(),
+            userObject: user
+        )
+        let metadata = createTestMetadata(
+            installationId: "installation-123",
+            sendDefaultPii: false
+        )
+        var item = createTestItem()
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict["user.id"], .string("installation-123"))
+        XCTAssertNil(item.attributesDict["user.name"])
+        XCTAssertNil(item.attributesDict["user.email"])
+    }
+
     // MARK: - Replay Attributes Tests
 
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
