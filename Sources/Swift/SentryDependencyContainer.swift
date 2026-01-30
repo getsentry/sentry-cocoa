@@ -130,7 +130,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
     var coreDataSwizzling = SentryCoreDataSwizzling()
-    var appStartInfoProvider: AppStartInfoProvider = SentryAppStartTrackerHelper()
     
 #if os(iOS) && !SENTRY_NO_UIKIT
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
@@ -260,6 +259,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             sysctlWrapper: sysctlWrapper,
             appStartInfoProvider: appStartInfoProvider
         )
+    }
+    
+    var _appStartInfoProvider: AppStartInfoProvider?
+    lazy var appStartInfoProvider: AppStartInfoProvider = getLazyVar(\._appStartInfoProvider) {
+        SentryAppStartTrackerHelper()
     }
 #endif
     
