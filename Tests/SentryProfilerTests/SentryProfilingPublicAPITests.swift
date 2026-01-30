@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
 
 // swiftlint:disable file_length
 class SentryProfilingPublicAPITests: XCTestCase {
@@ -495,4 +495,4 @@ private extension SentryProfilingPublicAPITests {
     }
 }
 
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)

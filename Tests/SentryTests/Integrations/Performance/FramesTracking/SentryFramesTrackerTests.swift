@@ -6,7 +6,7 @@ import XCTest
 // swiftlint:disable file_length
 // This test class also includes tests for delayed frames calculation which is quite complex.
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 final class SentryFramesTrackerTests: XCTestCase {
     
     private class Fixture {
@@ -159,7 +159,7 @@ final class SentryFramesTrackerTests: XCTestCase {
     }
 
     func testFrameRateChange() throws {
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
         let hub = TestHub(client: nil, andScope: nil)
         let tracer = SentryTracer(transactionContext: TransactionContext(name: "test transaction", operation: "test operation"), hub: hub)
         
@@ -178,7 +178,7 @@ final class SentryFramesTrackerTests: XCTestCase {
         
         SentryTraceProfiler.getCurrentProfiler()?.stop(for: SentryProfilerTruncationReason.normal)
         SentryTraceProfiler.resetConcurrencyTracking()
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)
     }
     
     /**
@@ -983,7 +983,7 @@ final class SentryFramesTrackerTests: XCTestCase {
         try assert(slow: 0, frozen: 0, total: 4)
     }
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
     func testResetProfilingTimestamps_FromBackgroundThread() {
         let sut = fixture.sut
         sut.start()
@@ -1002,7 +1002,7 @@ final class SentryFramesTrackerTests: XCTestCase {
             self.fixture.displayLinkWrapper.normalFrame()
         }
     }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
     
     private func givenMoreDelayedFramesThanTransactionMaxDuration(_ framesTracker: SentryFramesTracker) -> (UInt64, UInt, Double) {
         let displayLink = fixture.displayLinkWrapper
@@ -1051,12 +1051,12 @@ private extension SentryFramesTrackerTests {
             XCTAssertEqual(currentFrames.frozen, frozen)
         }
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
         try  assertProfilingData(slow: slow, frozen: frozen, frameRates: frameRates)
 #endif
     }
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
     func assertProfilingData(slow: UInt? = nil, frozen: UInt? = nil, frameRates: UInt? = nil) throws {
         if sentry_threadSanitizerIsPresent() {
             // profiling data will not have been gathered with TSAN running

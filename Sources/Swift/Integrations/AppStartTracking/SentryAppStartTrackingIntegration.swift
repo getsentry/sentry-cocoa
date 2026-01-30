@@ -2,10 +2,7 @@
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 
-// Combine existing provider protocols for dependency injection
-typealias AppStartTrackingIntegrationProvider = AppStateManagerProvider & FramesTrackingProvider
-
-final class SentryAppStartTrackingIntegration<Dependencies: AppStartTrackingIntegrationProvider>: NSObject, SwiftIntegration {
+final class SentryAppStartTrackingIntegration<Dependencies: SentryAppStartTrackerBuilder>: NSObject, SwiftIntegration {
     let tracker: SentryAppStartTracker
 
     init?(with options: Options, dependencies: Dependencies) {
@@ -18,14 +15,7 @@ final class SentryAppStartTrackingIntegration<Dependencies: AppStartTrackingInte
             }
         }
 
-        // Initialize the app start tracker with dependencies
-        // WIP, move this
-        tracker = SentryAppStartTracker(
-            dispatchQueueWrapper: SentryDispatchQueueWrapper(),
-            appStateManager: dependencies.appStateManager,
-            framesTracker: dependencies.framesTracker,
-            enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing
-        )
+        tracker = dependencies.getAppStartTracker(options)
 
         super.init()
 

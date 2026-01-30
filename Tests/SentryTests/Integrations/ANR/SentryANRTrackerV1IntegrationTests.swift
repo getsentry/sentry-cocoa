@@ -1,7 +1,7 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 
 final class SentryANRTrackerV1IntegrationTests: XCTestCase {
 
@@ -29,4 +29,4 @@ final class SentryANRTrackerV1IntegrationTests: XCTestCase {
     }
 }
 
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)

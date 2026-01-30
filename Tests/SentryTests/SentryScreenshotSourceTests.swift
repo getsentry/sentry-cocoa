@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 class SentryScreenshotSourceTests: XCTestCase {
     private class Fixture {
         let uiApplication = TestSentryUIApplication()

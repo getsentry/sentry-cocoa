@@ -3,6 +3,13 @@
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
 
+protocol AppStartInfoProvider {
+    func runtimeInitTimestamp() -> Date
+    func isActivePrewarm() -> Bool
+}
+
+extension SentryAppStartTrackerHelper: AppStartInfoProvider {}
+
 /// Tracks cold and warm app start time for iOS, tvOS, and Mac Catalyst. The logic for the different
 /// app start types is based on https://developer.apple.com/videos/play/wwdc2019/423/. Cold start:
 /// After reboot of the device, the app is not in memory and no process exists. Warm start: When the
@@ -16,16 +23,6 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     /// multiple stages during the launch we pick a higher threshold.
     private static let maxAppStartDuration: TimeInterval = 180.0
 
-    /// Invoked whenever this class is added to the Objective-C runtime.
-    /// Set when the class is first loaded via SentryAppStartTrackerHelper.
-    @objc public static var runtimeInitTimestamp = Date()
-
-    /// The OS sets this environment variable if the app start is pre warmed. There are no official
-    /// docs for this. Found at https://eisel.me/startup. Investigations show that this variable is
-    /// deleted after UIApplicationDidFinishLaunchingNotification, so we have to check it here.
-    /// Set via SentryAppStartTrackerHelper.
-    @objc public static var isActivePrewarm = false
-
     // MARK: - Instance Properties
     // swiftlint:disable:next missing_docs
     @objc public private(set) var isRunning = false
@@ -38,6 +35,9 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     private var previousAppState: SentryAppState?
     private var wasInBackground = false
     private var didFinishLaunchingTimestamp: Date
+    private var dateProvider: SentryCurrentDateProvider
+    private var sysctlWrapper: SentrySysctl
+    private var appStartInfoProvider: AppStartInfoProvider
 
     #if !(SENTRY_TEST || SENTRY_TEST_CI || DEBUG)
     private var onceToken: Int = 0
@@ -49,14 +49,20 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         dispatchQueueWrapper: SentryDispatchQueueWrapper,
         appStateManager: SentryAppStateManager,
         framesTracker: SentryFramesTracker,
-        enablePreWarmedAppStartTracing: Bool
+        enablePreWarmedAppStartTracing: Bool,
+        dateProvider: SentryCurrentDateProvider,
+        sysctlWrapper: SentrySysctl,
+        appStartInfoProvider: AppStartInfoProvider
     ) {
         self.dispatchQueue = dispatchQueueWrapper
         self.appStateManager = appStateManager
         self.framesTracker = framesTracker
         self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
         self.previousAppState = appStateManager.loadPreviousAppState()
-        self.didFinishLaunchingTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
+        self.dateProvider = dateProvider
+        self.didFinishLaunchingTimestamp = dateProvider.date()
+        self.sysctlWrapper = sysctlWrapper
+        self.appStartInfoProvider = appStartInfoProvider
 
         super.init()
 
@@ -65,7 +71,6 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
 
     deinit {
         stop()
-        NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - Public Methods
@@ -73,8 +78,8 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         // It can happen that the OS posts the didFinishLaunching notification before we register for it
         // or we just don't receive it. In this case the didFinishLaunchingTimestamp would be nil. As
         // the SDK should be initialized in application:didFinishLaunchingWithOptions: or in the init of
-        // @main of a SwiftUI  we set the timestamp here.
-        didFinishLaunchingTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
+        // @main of a SwiftUI we set the timestamp here.
+        didFinishLaunchingTimestamp = dateProvider.date()
 
         NotificationCenter.default.addObserver(
             self,
@@ -91,7 +96,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         )
 
         if PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode {
-            buildAppStartMeasurement(SentryDependencyContainer.sharedInstance().dateProvider.date())
+            buildAppStartMeasurement(dateProvider.date())
         }
 
         appStateManager.start()
@@ -136,7 +141,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
             self.stop()
 
             var isPreWarmed = false
-            if self.isActivePrewarmAvailable() && Self.isActivePrewarm {
+            if self.isActivePrewarmAvailable() && self.appStartInfoProvider.isActivePrewarm() {
                 SentrySDKLog.info("The app was prewarmed.")
 
                 if self.enablePreWarmedAppStartTracing {
@@ -176,7 +181,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
             // https://twitter.com/steipete/status/1466013492180312068,
             // https://github.com/MobileNativeFoundation/discussions/discussions/146
             // https://eisel.me/startup
-            let sysctl = SentryDependencyContainer.sharedInstance().sysctlWrapper
+            let sysctl = self.sysctlWrapper
             let appStartTimestamp: Date
             let appStartDuration: TimeInterval
 
@@ -217,7 +222,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
                 appStartTimestamp: appStartTimestamp,
                 runtimeInitSystemTimestamp: sysctl.runtimeInitSystemTimestamp,
                 duration: finalAppStartDuration,
-                runtimeInitTimestamp: Self.runtimeInitTimestamp,
+                runtimeInitTimestamp: self.appStartInfoProvider.runtimeInitTimestamp(),
                 moduleInitializationTimestamp: sysctl.moduleInitializationTimestamp,
                 sdkStartTimestamp: sdkStart,
                 didFinishLaunchingTimestamp: finalDidFinishLaunchingTimestamp
@@ -281,30 +286,13 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
 
     @objc
     private func didFinishLaunching() {
-        didFinishLaunchingTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
+        didFinishLaunchingTimestamp = dateProvider.date()
     }
 
     @objc
     private func didEnterBackground() {
         wasInBackground = true
     }
-
-    // MARK: - Test Helpers
-
-    #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
-    /// Reloads static properties from the environment. Needed for testing.
-    @objc
-    public static func reloadEnvironment() {
-        isActivePrewarm = ProcessInfo.processInfo.environment["ActivePrewarm"] == "1"
-        runtimeInitTimestamp = Date()
-    }
-
-    /// Sets the runtime init timestamp. Needed for testing, not public.
-    @objc
-    public func setRuntimeInit(_ value: Date) {
-        Self.runtimeInitTimestamp = value
-    }
-    #endif
 }
 
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT

@@ -1,7 +1,7 @@
 import Foundation
 @_spi(Private) @testable import Sentry
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 class TestSentrySwizzleWrapper: SentrySwizzleWrapper {
     
     var callbacks = [String: SentrySwizzleSendActionCallback]()

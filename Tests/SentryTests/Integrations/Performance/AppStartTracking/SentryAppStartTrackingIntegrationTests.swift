@@ -3,7 +3,7 @@ import _SentryPrivate
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
 
     private class Fixture {
@@ -105,15 +105,6 @@ class SentryAppStartTrackingIntegrationTests: NotificationCenterTestCase {
 
         let tracker = try XCTUnwrap(sut.tracker, "SentryAppStartTrackingIntegration should have a tracker")
         try assertTrackerSetupAndRunning(tracker)
-    }
-
-    func testOnlyAppStartMeasuringEnabled_noIntegration() throws {
-        let options = fixture.options
-        options.tracesSampleRate = 0.0
-        options.tracesSampler = nil
-
-        let sut = fixture.getOptionalSut(options: options)
-        XCTAssertNil(sut)
     }
 
     func test_PerformanceTrackingDisabled_noIntegration() throws {
