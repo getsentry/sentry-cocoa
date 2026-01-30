@@ -261,7 +261,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         )
     }
     
-    var _appStartInfoProvider: AppStartInfoProvider?
+    private var _appStartInfoProvider: AppStartInfoProvider?
     lazy var appStartInfoProvider: AppStartInfoProvider = getLazyVar(\._appStartInfoProvider) {
         SentryAppStartTrackerHelper()
     }
