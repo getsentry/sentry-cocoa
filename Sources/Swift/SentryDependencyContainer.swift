@@ -601,10 +601,6 @@ protocol SentryAppStartTrackerBuilder {
     func getAppStartTracker(_ options: Options) -> SentryAppStartTracker
 }
 extension SentryDependencyContainer: SentryAppStartTrackerBuilder {}
-
-protocol AppStartInfoProviderProvider {
-    var appStartInfoProvider: AppStartInfoProvider { get }
-}
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 
 protocol SentryCoreDataTrackerBuilder {
