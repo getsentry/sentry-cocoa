@@ -18,10 +18,7 @@ public final class SentryAttribute: NSObject {
     /// - `boolean`
     /// - `integer`
     /// - `double`
-    /// - `string[]`
-    /// - `boolean[]`
-    /// - `integer[]`
-    /// - `double[]`
+    /// - `array`
     public let type: String
 
     /// The actual value stored in this attribute
@@ -76,7 +73,7 @@ public final class SentryAttribute: NSObject {
     ///
     /// - Parameter values: The array of string values to store in the attribute.
     public init(stringArray values: [String]) {
-        self.type = SentryAttributeType.stringArray.rawValue
+        self.type = SentryAttributeType.array.rawValue
         self.value = values
         super.init()
     }
@@ -85,7 +82,7 @@ public final class SentryAttribute: NSObject {
     ///
     /// - Parameter values: The array of boolean values to store in the attribute.
     public init(booleanArray values: [Bool]) {
-        self.type = SentryAttributeType.booleanArray.rawValue
+        self.type = SentryAttributeType.array.rawValue
         self.value = values
         super.init()
     }
@@ -94,7 +91,7 @@ public final class SentryAttribute: NSObject {
     ///
     /// - Parameter values: The array of integer values to store in the attribute.
     public init(integerArray values: [Int]) {
-        self.type = SentryAttributeType.integerArray.rawValue
+        self.type = SentryAttributeType.array.rawValue
         self.value = values
         super.init()
     }
@@ -103,7 +100,7 @@ public final class SentryAttribute: NSObject {
     ///
     /// - Parameter values: The array of double values to store in the attribute.
     public init(doubleArray values: [Double]) {
-        self.type = SentryAttributeType.doubleArray.rawValue
+        self.type = SentryAttributeType.array.rawValue
         self.value = values
         super.init()
     }
@@ -112,7 +109,7 @@ public final class SentryAttribute: NSObject {
     ///
     /// - Parameter values: The array of float values to store in the attribute.
     public init(floatArray values: [Float]) {
-        self.type = SentryAttributeType.doubleArray.rawValue
+        self.type = SentryAttributeType.array.rawValue
         self.value = values.map(Double.init)
         super.init()
     }
@@ -135,16 +132,16 @@ public final class SentryAttribute: NSObject {
             self.type = SentryAttributeType.double.rawValue
             self.value = value
         case .booleanArray(let array):
-            self.type = SentryAttributeType.booleanArray.rawValue
+            self.type = SentryAttributeType.array.rawValue
             self.value = array
         case .stringArray(let array):
-            self.type = SentryAttributeType.stringArray.rawValue
+            self.type = SentryAttributeType.array.rawValue
             self.value = array
         case .integerArray(let array):
-            self.type = SentryAttributeType.integerArray.rawValue
+            self.type = SentryAttributeType.array.rawValue
             self.value = array
         case .doubleArray(let array):
-            self.type = SentryAttributeType.doubleArray.rawValue
+            self.type = SentryAttributeType.array.rawValue
             self.value = array
         }
     }
@@ -170,19 +167,19 @@ public final class SentryAttribute: NSObject {
             self.type = SentryAttributeType.double.rawValue
             self.value = Double(floatValue)
         case let stringValues as [String]:
-            self.type = SentryAttributeType.stringArray.rawValue
+            self.type = SentryAttributeType.array.rawValue
             self.value = stringValues
         case let boolValues as [Bool]:
-            self.type = SentryAttributeType.booleanArray.rawValue
+            self.type = SentryAttributeType.array.rawValue
             self.value = boolValues
         case let intValues as [Int]:
-            self.type = SentryAttributeType.integerArray.rawValue
+            self.type = SentryAttributeType.array.rawValue
             self.value = intValues
         case let doubleValues as [Double]:
-            self.type = SentryAttributeType.doubleArray.rawValue
+            self.type = SentryAttributeType.array.rawValue
             self.value = doubleValues
         case let floatValues as [Float]:
-            self.type = SentryAttributeType.doubleArray.rawValue
+            self.type = SentryAttributeType.array.rawValue
             self.value = floatValues.map(Double.init)
         case let attributable as SentryAttributeValue:
             let value = attributable.asSentryAttributeContent
@@ -236,20 +233,14 @@ public final class SentryAttribute: NSObject {
             if let val = self.value as? Double {
                 return .double(val)
             }
-        case SentryAttributeType.stringArray.rawValue:
+        case SentryAttributeType.array.rawValue:
             if let val = self.value as? [String] {
                 return .stringArray(val)
-            }
-        case SentryAttributeType.booleanArray.rawValue:
-            if let val = self.value as? [Bool] {
+            } else if let val = self.value as? [Bool] {
                 return .booleanArray(val)
-            }
-        case SentryAttributeType.integerArray.rawValue:
-            if let val = self.value as? [Int] {
+            } else if let val = self.value as? [Int] {
                 return .integerArray(val)
-            }
-        case SentryAttributeType.doubleArray.rawValue:
-            if let val = self.value as? [Double] {
+            } else if let val = self.value as? [Double] {
                 return .doubleArray(val)
             }
         default:

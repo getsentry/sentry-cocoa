@@ -55,7 +55,7 @@ final class SentryAttributeTests: XCTestCase {
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
         // -- Assert --
-        XCTAssertEqual(json["type"] as? String, "string[]")
+        XCTAssertEqual(json["type"] as? String, "array")
         let arrayValue = try XCTUnwrap(json["value"] as? [String])
         XCTAssertEqual(arrayValue, ["hello", "world", "test"])
     }
@@ -69,7 +69,7 @@ final class SentryAttributeTests: XCTestCase {
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
         // -- Assert --
-        XCTAssertEqual(json["type"] as? String, "boolean[]")
+        XCTAssertEqual(json["type"] as? String, "array")
         let arrayValue = try XCTUnwrap(json["value"] as? [Bool])
         XCTAssertEqual(arrayValue, [true, false, true])
     }
@@ -83,7 +83,7 @@ final class SentryAttributeTests: XCTestCase {
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
         // -- Assert --
-        XCTAssertEqual(json["type"] as? String, "integer[]")
+        XCTAssertEqual(json["type"] as? String, "array")
         let arrayValue = try XCTUnwrap(json["value"] as? [Int])
         XCTAssertEqual(arrayValue, [1, 2, 3, 42])
     }
@@ -97,7 +97,7 @@ final class SentryAttributeTests: XCTestCase {
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
         // -- Assert --
-        XCTAssertEqual(json["type"] as? String, "double[]")
+        XCTAssertEqual(json["type"] as? String, "array")
         let arrayValue = try XCTUnwrap(json["value"] as? [Double])
         XCTAssertEqual(arrayValue.count, 3)
         XCTAssertEqual(arrayValue[0], 1.1, accuracy: 0.00001)
@@ -114,7 +114,7 @@ final class SentryAttributeTests: XCTestCase {
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
         // -- Assert --
-        XCTAssertEqual(json["type"] as? String, "double[]")
+        XCTAssertEqual(json["type"] as? String, "array")
         let arrayValue = try XCTUnwrap(json["value"] as? [Double])
         XCTAssertEqual(arrayValue.count, 3)
         XCTAssertEqual(arrayValue[0], 1.1, accuracy: 0.00001)
@@ -195,7 +195,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(stringArray: ["hello", "world", "test"])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "string[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [String]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, ["hello", "world", "test"])
@@ -206,7 +206,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(stringArray: [])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "string[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [String]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [])
@@ -217,7 +217,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(stringArray: ["single"])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "string[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [String]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, ["single"])
@@ -228,7 +228,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(booleanArray: [true, false, true])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "boolean[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [Bool]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [true, false, true])
@@ -239,7 +239,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(booleanArray: [])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "boolean[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [Bool]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [])
@@ -250,7 +250,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(booleanArray: [false])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "boolean[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [Bool]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [false])
@@ -261,7 +261,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(integerArray: [1, 2, 3, 42])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "integer[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [Int]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [1, 2, 3, 42])
@@ -272,7 +272,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(integerArray: [])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "integer[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [Int]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [])
@@ -283,7 +283,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(integerArray: [-1, -2, 0, 42])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "integer[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [Int]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [-1, -2, 0, 42])
@@ -294,7 +294,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(doubleArray: [1.1, 2.2, 3.14159])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "double[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [Double]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!.count, 3)
@@ -308,7 +308,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(doubleArray: [])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "double[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [Double]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [])
@@ -319,7 +319,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(doubleArray: [-1.5, 0.0, 3.14])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "double[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [Double]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!.count, 3)
@@ -333,7 +333,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(floatArray: [Float(1.1), Float(2.2), Float(3.14159)])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "double[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [Double]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!.count, 3)
@@ -347,7 +347,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryAttribute(floatArray: [])
         
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "double[]")
+        XCTAssertEqual(attribute.type, "array")
         let arrayValue = attribute.value as? [Double]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [])
@@ -420,7 +420,7 @@ final class SentryAttributeTests: XCTestCase {
     func testInitializer_ProtocolBasedConversion_StringArray() {
         let stringArray: [String] = ["a", "b", "c"]
         let attribute = SentryLog.Attribute(value: stringArray)
-        XCTAssertEqual(attribute.type, "string[]")
+        XCTAssertEqual(attribute.type, "array")
         XCTAssertEqual(attribute.value as? [String], ["a", "b", "c"])
     }
     
@@ -428,7 +428,7 @@ final class SentryAttributeTests: XCTestCase {
     func testInitializer_ProtocolBasedConversion_BoolArray() {
         let boolArray: [Bool] = [true, false, true]
         let attribute = SentryLog.Attribute(value: boolArray)
-        XCTAssertEqual(attribute.type, "boolean[]")
+        XCTAssertEqual(attribute.type, "array")
         XCTAssertEqual(attribute.value as? [Bool], [true, false, true])
     }
     
@@ -436,7 +436,7 @@ final class SentryAttributeTests: XCTestCase {
     func testInitializer_ProtocolBasedConversion_IntArray() {
         let intArray: [Int] = [1, 2, 3]
         let attribute = SentryLog.Attribute(value: intArray)
-        XCTAssertEqual(attribute.type, "integer[]")
+        XCTAssertEqual(attribute.type, "array")
         XCTAssertEqual(attribute.value as? [Int], [1, 2, 3])
     }
     
@@ -444,7 +444,7 @@ final class SentryAttributeTests: XCTestCase {
     func testInitializer_ProtocolBasedConversion_DoubleArray() {
         let doubleArray: [Double] = [1.1, 2.2, 3.3]
         let attribute = SentryLog.Attribute(value: doubleArray)
-        XCTAssertEqual(attribute.type, "double[]")
+        XCTAssertEqual(attribute.type, "array")
         XCTAssertEqual(attribute.value as? [Double], [1.1, 2.2, 3.3])
     }
     
@@ -462,7 +462,7 @@ final class SentryAttributeTests: XCTestCase {
         let attribute = SentryLog.Attribute(value: floatArray)
         
         // -- Assert --
-        XCTAssertEqual(attribute.type, "double[]")
+        XCTAssertEqual(attribute.type, "array")
         let doubleArray = try XCTUnwrap(attribute.value as? [Double])
         XCTAssertEqual(doubleArray.count, 3)
         XCTAssertEqual(doubleArray[0], 1.1, accuracy: 0.00001)

@@ -1,13 +1,10 @@
 // swiftlint:disable missing_docs
 internal enum SentryAttributeType: String {
-    case string = "string"
-    case boolean = "boolean"
-    case integer = "integer"
-    case double = "double"
-    case stringArray = "string[]"
-    case booleanArray = "boolean[]"
-    case integerArray = "integer[]"
-    case doubleArray = "double[]"
+    case string
+    case boolean
+    case integer
+    case double
+    case array
 }
 
 /// A type-safe representation of attribute values used by structured logging.
@@ -39,13 +36,13 @@ public enum SentryAttributeContent: Equatable, Hashable {
         case .double:
             return SentryAttributeType.double.rawValue
         case .stringArray:
-            return SentryAttributeType.stringArray.rawValue
+            return SentryAttributeType.array.rawValue
         case .booleanArray:
-            return SentryAttributeType.booleanArray.rawValue
+            return SentryAttributeType.array.rawValue
         case .integerArray:
-            return SentryAttributeType.integerArray.rawValue
+            return SentryAttributeType.array.rawValue
         case .doubleArray:
-            return SentryAttributeType.doubleArray.rawValue
+            return SentryAttributeType.array.rawValue
         }
     }
 }

@@ -42,7 +42,7 @@ final class SentryAttributeContentTests: XCTestCase {
         let value = SentryAttributeContent.stringArray(["a", "b"])
         
         // -- Act & Assert --
-        XCTAssertEqual(value.type, "string[]")
+        XCTAssertEqual(value.type, "array")
     }
     
     func testType_whenBooleanArray_shouldReturnBooleanArray() {
@@ -50,7 +50,7 @@ final class SentryAttributeContentTests: XCTestCase {
         let value = SentryAttributeContent.booleanArray([true, false])
         
         // -- Act & Assert --
-        XCTAssertEqual(value.type, "boolean[]")
+        XCTAssertEqual(value.type, "array")
     }
     
     func testType_whenIntegerArray_shouldReturnIntegerArray() {
@@ -58,7 +58,7 @@ final class SentryAttributeContentTests: XCTestCase {
         let value = SentryAttributeContent.integerArray([1, 2])
         
         // -- Act & Assert --
-        XCTAssertEqual(value.type, "integer[]")
+        XCTAssertEqual(value.type, "array")
     }
     
     func testType_whenDoubleArray_shouldReturnDoubleArray() {
@@ -66,7 +66,7 @@ final class SentryAttributeContentTests: XCTestCase {
         let value = SentryAttributeContent.doubleArray([1.1, 2.2])
         
         // -- Act & Assert --
-        XCTAssertEqual(value.type, "double[]")
+        XCTAssertEqual(value.type, "array")
     }
     
     // MARK: - Encoding Tests
@@ -133,7 +133,7 @@ final class SentryAttributeContentTests: XCTestCase {
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
         // -- Assert --
-        XCTAssertEqual(json["type"] as? String, "string[]")
+        XCTAssertEqual(json["type"] as? String, "array")
         let arrayValue = try XCTUnwrap(json["value"] as? [String])
         XCTAssertEqual(arrayValue, ["hello", "world"])
     }
@@ -147,7 +147,7 @@ final class SentryAttributeContentTests: XCTestCase {
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
         // -- Assert --
-        XCTAssertEqual(json["type"] as? String, "boolean[]")
+        XCTAssertEqual(json["type"] as? String, "array")
         let arrayValue = try XCTUnwrap(json["value"] as? [Bool])
         XCTAssertEqual(arrayValue, [true, false, true])
     }
@@ -161,7 +161,7 @@ final class SentryAttributeContentTests: XCTestCase {
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
         // -- Assert --
-        XCTAssertEqual(json["type"] as? String, "integer[]")
+        XCTAssertEqual(json["type"] as? String, "array")
         let arrayValue = try XCTUnwrap(json["value"] as? [Int])
         XCTAssertEqual(arrayValue, [1, 2, 3])
     }
@@ -175,7 +175,7 @@ final class SentryAttributeContentTests: XCTestCase {
         let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
         
         // -- Assert --
-        XCTAssertEqual(json["type"] as? String, "double[]")
+        XCTAssertEqual(json["type"] as? String, "array")
         let arrayValue = try XCTUnwrap(json["value"] as? [Double])
         XCTAssertEqual(arrayValue.count, 3)
         XCTAssertEqual(arrayValue[0], 1.1, accuracy: 0.00001)
