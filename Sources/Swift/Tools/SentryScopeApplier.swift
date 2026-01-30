@@ -9,13 +9,14 @@ protocol SentryScopeApplyingMetadata {
     var sendDefaultPii: Bool { get }
 }
 
-class SentryDefaultScopeApplyingMetadata: SentryScopeApplyingMetadata {
+struct SentryDefaultScopeApplyingMetadata: SentryScopeApplyingMetadata {
     let environment: String
     let releaseName: String?
-    private let cacheDirectoryPath: String
     let sendDefaultPii: Bool
 
-    public init(environment: String, releaseName: String?, cacheDirectoryPath: String, sendDefaultPii: Bool) {
+    private let cacheDirectoryPath: String
+
+    init(environment: String, releaseName: String?, cacheDirectoryPath: String, sendDefaultPii: Bool) {
         self.environment = environment
         self.releaseName = releaseName
         self.cacheDirectoryPath = cacheDirectoryPath
