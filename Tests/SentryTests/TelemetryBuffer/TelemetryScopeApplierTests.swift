@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-final class TelemetryBufferScopeTests: XCTestCase {
+final class TelemetryScopeApplierTests: XCTestCase {
     private struct TestItem: TelemetryBufferItem, Encodable {
         var attributes: [String: SentryAttribute]
         var attributesDict: [String: SentryAttributeContent]
@@ -30,7 +30,7 @@ final class TelemetryBufferScopeTests: XCTestCase {
         let sendDefaultPii: Bool
     }
 
-    private struct TestScope: TelemetryBufferScope {
+    private struct TestScope: TelemetryScopeApplier {
         var replayId: String?
         var propagationContextTraceId: SentryId
         var span: Span?

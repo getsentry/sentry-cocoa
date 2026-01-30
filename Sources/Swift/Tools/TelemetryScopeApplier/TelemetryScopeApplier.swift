@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-protocol TelemetryBufferScope {
+protocol TelemetryScopeApplier {
     var replayId: String? { get }
     var propagationContextTraceId: SentryId { get }
     var span: Span? { get }
@@ -19,7 +19,7 @@ protocol TelemetryBufferScope {
     )
 }
 
-extension TelemetryBufferScope {
+extension TelemetryScopeApplier {
     var attributesDict: [String: SentryAttributeContent] {
         self.attributes.mapValues { value in
             SentryAttributeContent.from(anyValue: value)
@@ -138,4 +138,4 @@ extension TelemetryBufferScope {
     }
 }
 
-extension Scope: TelemetryBufferScope {}
+extension Scope: TelemetryScopeApplier {}

@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-private struct TestScope: TelemetryBufferScope {
+private struct TestScope: TelemetryScopeApplier {
     var replayId: String?
     var propagationContextTraceId: SentryId
     var span: Span?
