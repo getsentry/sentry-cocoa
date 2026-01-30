@@ -64,7 +64,6 @@ import Foundation
     ) {
         self.buffer = DefaultTelemetryBuffer(
             config: .init(
-                sendDefaultPii: options.sendDefaultPii,
                 flushTimeout: flushTimeout,
                 maxItemCount: maxLogCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,

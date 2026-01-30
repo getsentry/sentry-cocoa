@@ -2,23 +2,6 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-private struct TestScope: TelemetryScopeApplier {
-    var replayId: String?
-    var propagationContextTraceId: SentryId
-    var span: Span?
-    var userObject: User?
-    var contextStore: [String: [String: Any]] = [:]
-    var attributes: [String: Any] = [:]
-    
-    init(propagationContextTraceId: SentryId = SentryId()) {
-        self.propagationContextTraceId = propagationContextTraceId
-    }
-
-    func getContextForKey(_ key: String) -> [String: Any]? {
-        return contextStore[key]
-    }
-}
-
 private struct TestItem: TelemetryItem {
     var attributesDict: [String: SentryAttributeContent]
     var traceId: SentryId
@@ -76,7 +59,6 @@ final class TelemetryBufferTests: XCTestCase {
     private var testTelemetryBuffer: MockTelemetryBuffer!
     private var testDateProvider: TestCurrentDateProvider!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
-    private var testScope: TestScope!
 
     override func setUp() {
         super.setUp()
@@ -85,18 +67,15 @@ final class TelemetryBufferTests: XCTestCase {
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true
         testTelemetryBuffer = MockTelemetryBuffer()
-        testScope = TestScope()
     }
 
     private func getSut(
-        sendDefaultPii: Bool = false,
         flushTimeout: TimeInterval = 0.1,
         maxItemCount: Int = 10,
         maxBufferSizeBytes: Int = 8_000,
         beforeSendItem: ((TestItem) -> TestItem?)? = nil
     ) -> DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem> {
         var config = DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem>.Config(
-            sendDefaultPii: sendDefaultPii,
             flushTimeout: flushTimeout,
             maxItemCount: maxItemCount,
             maxBufferSizeBytes: maxBufferSizeBytes,

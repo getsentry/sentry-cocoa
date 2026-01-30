@@ -1,8 +1,6 @@
 protocol TelemetryBufferConfig<Item> {
     associatedtype Item
 
-    var sendDefaultPii: Bool { get }
-
     var flushTimeout: TimeInterval { get }
     var maxItemCount: Int { get }
     var maxBufferSizeBytes: Int { get }

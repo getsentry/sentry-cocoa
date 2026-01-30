@@ -10,8 +10,6 @@ protocol TelemetryBuffer<Item> {
 
 final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<Item>, Item: TelemetryItem>: TelemetryBuffer {
     struct Config: TelemetryBufferConfig {
-        let sendDefaultPii: Bool
-
         let flushTimeout: TimeInterval
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
