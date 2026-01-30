@@ -13,7 +13,7 @@ protocol TelemetryScopeApplier {
     /// Used for type-safe access of the attributes, uses default implementation in extension
     var attributesDict: [String: SentryAttributeContent] { get }
 
-    func addAttributesToItem<Item: TelemetryItem, Metadata: SentryScopeApplyingMetadata>(
+    func addAttributesToItem<Item: TelemetryItem, Metadata: TelemetryScopeMetadata>(
         _ item: inout Item,
         metadata: Metadata
     )
@@ -26,7 +26,7 @@ extension TelemetryScopeApplier {
         }
     }
 
-    func addAttributesToItem<Item: TelemetryItem, Metadata: SentryScopeApplyingMetadata>(
+    func addAttributesToItem<Item: TelemetryItem, Metadata: TelemetryScopeMetadata>(
         _ item: inout Item,
         metadata: Metadata
     ) {
@@ -50,7 +50,7 @@ extension TelemetryScopeApplier {
         item.traceId = span?.traceId ?? propagationContextTraceId
     }
 
-    private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any SentryScopeApplyingMetadata) {
+    private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any TelemetryScopeMetadata) {
         attributes["sentry.sdk.name"] = .string(SentryMeta.sdkName)
         attributes["sentry.sdk.version"] = .string(SentryMeta.versionString)
         attributes["sentry.environment"] = .string(metadata.environment)
@@ -89,7 +89,7 @@ extension TelemetryScopeApplier {
         }
     }
 
-    private func addUserAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any SentryScopeApplyingMetadata) {
+    private func addUserAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any TelemetryScopeMetadata) {
         guard metadata.sendDefaultPii else {
             return
         }
@@ -124,7 +124,7 @@ extension TelemetryScopeApplier {
 
     private func addDefaultUserIdIfNeeded(
         to attributes: inout [String: SentryAttributeContent],
-        metadata: any SentryScopeApplyingMetadata
+        metadata: any TelemetryScopeMetadata
     ) {
         guard attributes["user.id"] == nil && attributes["user.name"] == nil && attributes["user.email"] == nil else {
             return

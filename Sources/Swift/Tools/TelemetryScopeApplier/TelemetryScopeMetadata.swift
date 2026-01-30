@@ -2,14 +2,14 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-protocol SentryScopeApplyingMetadata {
+protocol TelemetryScopeMetadata {
     var environment: String { get }
     var releaseName: String? { get }
     var installationId: String? { get }
     var sendDefaultPii: Bool { get }
 }
 
-struct SentryDefaultScopeApplyingMetadata: SentryScopeApplyingMetadata {
+struct SentryDefaultScopeApplyingMetadata: TelemetryScopeMetadata {
     let environment: String
     let releaseName: String?
     let sendDefaultPii: Bool
@@ -44,7 +44,7 @@ public protocol SentryLogScopeApplier {
 @objc
 @objcMembers
 public class SentryDefaultLogScopeApplier: NSObject, SentryLogScopeApplier {
-    private let metadata: SentryScopeApplyingMetadata
+    private let metadata: TelemetryScopeMetadata
 
     @objc public init(environment: String, releaseName: String?, cacheDirectoryPath: String, sendDefaultPii: Bool) {
         self.metadata = SentryDefaultScopeApplyingMetadata(environment: environment, releaseName: releaseName, cacheDirectoryPath: cacheDirectoryPath, sendDefaultPii: sendDefaultPii)
