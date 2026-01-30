@@ -36,7 +36,6 @@
 #import "SentryAppStartMeasurement+Private.h"
 #import "SentryArray.h"
 #import "SentryAttachment+Private.h"
-#import "SentryBaseIntegration.h"
 #import "SentryBooleanSerialization.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryBuildAppStartSpans.h"
