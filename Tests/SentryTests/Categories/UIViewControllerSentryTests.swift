@@ -1,6 +1,6 @@
 import XCTest
 
- #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+ #if os(iOS) || os(tvOS)
  class UIViewControllerSentryTests: XCTestCase {
 
      func testOnlyOneViewController() {

@@ -82,7 +82,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         
         let tracker = try XCTUnwrap(sut?.tracker)
 
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
         XCTAssertTrue(tracker.helper is SentryANRTrackerV2, "Expected SentryANRTrackerV2, but got \(type(of: tracker))")
 #else
         XCTAssertTrue(tracker.helper is SentryANRTrackerV1, "Expected SentryANRTrackerV1 on macOS, but got \(type(of: tracker))")
@@ -286,7 +286,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     }
 #endif // os(macOS)
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     func testANRDetected_NonFullyBlockedDisabled_EventNotCaptured() throws {
         fixture.options.enableReportNonFullyBlockingAppHangs = false
         givenInitializedTracker()
@@ -329,7 +329,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         assertNoEventCaptured()
     }
     
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     func testANRDetected_ButBackground_EventNotCaptured() {
 
         givenInitializedTracker()
@@ -342,7 +342,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
 
         assertNoEventCaptured()
     }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
 
     func testDealloc_CallsUninstall() throws {
         givenInitializedTracker()
@@ -362,7 +362,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(1, listeners.count)
     }
     
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     func testV2_ANRDetected_StoresAppHangEventInFile() throws {
         // Arrange
         options.releaseName = "my-release-name-test"
@@ -729,7 +729,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         // Assert
         assertNoEventCaptured()
     }
-#endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif //  os(iOS) || os(tvOS)
     
     func testV1_ANRStopped_DoesNotCaptureEvent() throws {
         // Arrange

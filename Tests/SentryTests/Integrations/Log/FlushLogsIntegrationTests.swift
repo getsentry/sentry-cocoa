@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 final class FlushLogsIntegrationTests: XCTestCase {
     
     private struct TestDependencies: NotificationCenterProvider {
@@ -96,4 +96,4 @@ final class FlushLogsIntegrationTests: XCTestCase {
         XCTAssertEqual(client.captureLogsInvocations.count, 3)
     }
 }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)

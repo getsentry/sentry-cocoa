@@ -1,6 +1,6 @@
 import Sentry
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
 
 public class TestSentrySystemWrapper: SentrySystemWrapper {
     public struct Override {
@@ -40,4 +40,4 @@ public class TestSentrySystemWrapper: SentrySystemWrapper {
     }
 #endif
 }
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)

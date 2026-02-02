@@ -1,7 +1,7 @@
 @_spi(Private) import Sentry
 import XCTest
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
 
 final class SentryMetricKitEventTests: XCTestCase {
 
@@ -17,7 +17,7 @@ final class SentryMetricKitEventTests: XCTestCase {
         XCTAssertTrue(createMetricKitEventWith(mechanismType: "mx_hang_diagnostic").isMetricKitEvent())
     }
     
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
     func testWatchDogEvent_IsNotMetricKitEvent() {
         XCTAssertFalse(TestData.oomEvent.isMetricKitEvent())
     }
@@ -41,4 +41,4 @@ final class SentryMetricKitEventTests: XCTestCase {
     }
 }
 
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)
