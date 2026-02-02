@@ -80,12 +80,8 @@ import Foundation
     ///
     /// - Note: This feature is currently in open beta.
     ///
-    /// - Important: The Metrics API has been designed and optimized for Swift. Objective-C support is not
-    ///   currently available. If you need Objective-C support, please open an issue at
-    ///   https://github.com/getsentry/sentry-cocoa/issues to show demand for this feature.
-    ///
     /// - SeeAlso: For complete documentation, visit https://docs.sentry.io/platforms/apple/metrics/
-    public static var metrics: SentryMetricsApiProtocol = SentryMetricsApi(dependencies: SentryDependencyContainer.sharedInstance())
+    @objc public static var metrics: SentryMetrics = SentryMetrics(api: SentryMetricsApi(dependencies: SentryDependencyContainer.sharedInstance()))
 
     /// Inits and configures Sentry (`SentryHub`, `SentryClient`) and sets up all integrations. Make sure to
     /// set a valid DSN.
