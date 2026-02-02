@@ -22,7 +22,6 @@
 #import "SentryFormatterSwift.h"
 #import "SentryHub+Private.h"
 #import "SentryHub+SwiftPrivate.h"
-#import "SentryIntegrationProtocol.h"
 #import "SentryNSDataSwizzlingHelper.h"
 #import "SentryNSDataUtils.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"

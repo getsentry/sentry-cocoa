@@ -231,8 +231,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     
     func testAppLaunches_OSPrewarmedProcess_FeatureDisabled_NoAppStartUp() {
         fixture.enablePreWarmedAppStartTracing = false
-
-        setenv("ActivePrewarm", "1", 1)
         fixture.appStartInfoProvider.mockIsActivePrewarm = true
         givenSystemNotRebooted()
 
