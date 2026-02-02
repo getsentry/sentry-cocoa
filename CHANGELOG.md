@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix mismatch of `in_foreground` app context (#7188) The app context `in_foreground` for handled and unhandled events was sometimes different. This is fixed now by aligning the implementation and adding a new `is_active` app context field.
+- Fix missing stack traces for `NSException` objects reported via `NSApplication.shared.reportException(_:)` on macOS (#7284)
 
 ## 9.3.0
 
@@ -16,7 +17,6 @@
 ### Fixes
 
 - Fix deadlock in network reachability observer when restarting the SDK (#7246)
-- Fix missing stack traces for `NSException` objects reported via `NSApplication.shared.reportException(_:)` on macOS (#7284)
 
 ## 9.2.0
 
