@@ -101,14 +101,17 @@ public final class SentryMetrics: NSObject {
 
 // Conformance needed so SentryMetrics can also be used through the protocol-based Swift API.
 extension SentryMetrics: SentryMetricsApiProtocol {
+    /// Records a count metric with type-safe Swift parameters.
     public func count(key: String, value: UInt, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
         api.count(key: key, value: value, unit: unit, attributes: attributes)
     }
 
+    /// Records a distribution metric with type-safe Swift parameters.
     public func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
         api.distribution(key: key, value: value, unit: unit, attributes: attributes)
     }
 
+    /// Records a gauge metric with type-safe Swift parameters.
     public func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
         api.gauge(key: key, value: value, unit: unit, attributes: attributes)
     }
