@@ -33,7 +33,7 @@ class TestCleanup: NSObject {
 
         SentrySDKLog.setDefaultTestLogConfiguration()
 
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        #if os(iOS) || os(tvOS)
 
         setenv("ActivePrewarm", "0", 1)
         SentryAppStartTracker.load()
@@ -41,14 +41,14 @@ class TestCleanup: NSObject {
         SentryDependencyContainer.sharedInstance().swizzleWrapper.removeAllCallbacks()
         SentryDependencyContainer.sharedInstance().fileManager?.clearDiskState()
         
-        #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        #endif // os(iOS) || os(tvOS)
         
         SentryDependencyContainer.reset()
         SentryPerformanceTracker.shared.clear()
 
         SentryTracer.resetAppStartMeasurementRead()
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
         _sentry_threadUnsafe_traceProfileTimeoutTimer = nil
         SentryTraceProfiler.getCurrentProfiler()?.stop(for: SentryProfilerTruncationReason.normal)
         SentryTraceProfiler.resetConcurrencyTracking()
@@ -58,12 +58,12 @@ class TestCleanup: NSObject {
         if SentryContinuousProfiler.isCurrentlyProfiling() {
             SentryContinuousProfiler.stopTimerAndCleanup()
         }
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)
 
-        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        #if os(iOS) || os(tvOS)
         PrivateSentrySDKOnly.onAppStartMeasurementAvailable = nil
         SentrySDKInternal.setAppStartMeasurement(nil)
-        #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        #endif // os(iOS) || os(tvOS)
 
         sentrycrash_scopesync_reset()
 

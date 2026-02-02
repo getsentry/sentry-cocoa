@@ -1,6 +1,6 @@
 import Foundation
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
 
 /// An object containing configuration for the Sentry profiler.
 /// - warning: Continuous profiling is an experimental feature and may still contain bugs.
@@ -77,4 +77,4 @@ public final class SentryProfileOptions: NSObject {
     public var profileAppStarts: Bool = false
 }
 
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)

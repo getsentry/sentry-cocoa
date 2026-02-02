@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix mismatch of `in_foreground` app context (#7188) The app context `in_foreground` for handled and unhandled events was sometimes different. This is fixed now by aligning the implementation and adding a new `is_active` app context field.
+
 ## 9.3.0
 
 ### Features
@@ -12,6 +18,10 @@
 - Fix deadlock in network reachability observer when restarting the SDK (#7246)
 
 ## 9.2.0
+
+> [!IMPORTANT]
+> This release contains a bug fix to only include user attributes in logs when `options.sendDefaultPii = true`.
+> Make sure to enable the option in case you rely on these attributes to be set.
 
 ### Features
 

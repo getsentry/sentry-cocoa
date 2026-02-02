@@ -34,6 +34,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #endif
 
 // MARK: - SentryDependencyContainer
+// swiftlint:disable type_body_length
 @_spi(Private) @objc public final class SentryDependencyContainer: NSObject {
 
     // MARK: Private
@@ -136,11 +137,24 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper)
 #endif
 
+    private var _eventContextEnricher: SentryEventContextEnricher?
+    @objc public var eventContextEnricher: SentryEventContextEnricher {
+        getLazyVar(\._eventContextEnricher) {
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+            SentryDefaultEventContextEnricher(applicationStateProvider: { [weak self] in
+                self?.threadsafeApplication.applicationState
+            })
+#else
+            SentryDefaultEventContextEnricher()
+#endif
+        }
+    }
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     @objc public var uiDeviceWrapper: SentryUIDeviceWrapper = Dependencies.uiDeviceWrapper
     @objc public var threadsafeApplication = SentryThreadsafeApplication(applicationProvider: defaultApplicationProvider, notificationCenter: Dependencies.notificationCenterWrapper)
     @objc public var swizzleWrapper = SentrySwizzleWrapper()
-    
+
     // MARK: Lazy Vars
     
     private var _watchdogTerminationAttributesProcessor: SentryWatchdogTerminationAttributesProcessor?
@@ -204,12 +218,52 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
     
+    func getUIViewControllerSwizzlingBuilder(_ options: Options) -> SentryUIViewControllerSwizzling {
+
+        let dispatchQueue = dispatchFactory.createHighPriorityQueue("io.sentry.ui-view-controller-swizzling")
+
+        let subClassFinder = SentrySubClassFinder(
+            dispatchQueue: dispatchQueue,
+            objcRuntimeWrapper: objcRuntimeWrapper,
+            swizzleClassNameExcludes: options.swizzleClassNameExcludes
+        )
+
+        let swizzling = SentryUIViewControllerSwizzling(
+            options: options,
+            dispatchQueue: dispatchQueue,
+            objcRuntimeWrapper: objcRuntimeWrapper,
+            subClassFinder: subClassFinder,
+            processInfoWrapper: processInfoWrapper,
+            binaryImageCache: binaryImageCache,
+            performanceTracker: uiViewControllerPerformanceTracker
+        )
+
+        return swizzling
+    }
+
     func getUIEventTracker(_ options: Options) -> SentryUIEventTracker {
         let mode = SentryUIEventTrackerTransactionMode(idleTimeout: options.idleTimeout)
         return SentryUIEventTracker(
             mode: mode,
             reportAccessibilityIdentifier: options.reportAccessibilityIdentifier
         )
+    }
+    
+    func getAppStartTracker(_ options: Options) -> SentryAppStartTracker {
+        return SentryAppStartTracker(
+            dispatchQueueWrapper: SentryDispatchQueueWrapper(),
+            appStateManager: appStateManager,
+            framesTracker: framesTracker,
+            enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing,
+            dateProvider: dateProvider,
+            sysctlWrapper: sysctlWrapper,
+            appStartInfoProvider: appStartInfoProvider
+        )
+    }
+    
+    private var _appStartInfoProvider: AppStartInfoProvider?
+    lazy var appStartInfoProvider: AppStartInfoProvider = getLazyVar(\._appStartInfoProvider) {
+        SentryAppStartTrackerHelper()
     }
 #endif
     
@@ -324,6 +378,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         )
     }
 }
+// swiftlint:enable type_body_length
 
 #if os(iOS) && !SENTRY_NO_UIKIT
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
@@ -372,7 +427,7 @@ protocol FramesTrackingProvider {
 extension SentryDependencyContainer: FramesTrackingProvider { }
 #endif
 
-#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
 protocol ScreenshotIntegrationProvider {
     var screenshotSource: SentryScreenshotSource? { get }
 }
@@ -527,10 +582,25 @@ protocol SentryUIDeviceWrapperProvider {
 
 extension SentryDependencyContainer: SentryUIDeviceWrapperProvider {}
 
+protocol UIViewControllerPerformanceTrackerProvider {
+    var uiViewControllerPerformanceTracker: SentryUIViewControllerPerformanceTracker { get }
+}
+extension SentryDependencyContainer: UIViewControllerPerformanceTrackerProvider {}
+
+protocol UIViewControllerSwizzlingBuilder {
+    func getUIViewControllerSwizzlingBuilder(_ options: Options) -> SentryUIViewControllerSwizzling
+}
+extension SentryDependencyContainer: UIViewControllerSwizzlingBuilder {}
+
 protocol SentryEventTrackerBuilder {
     func getUIEventTracker(_ options: Options) -> SentryUIEventTracker
 }
 extension SentryDependencyContainer: SentryEventTrackerBuilder {}
+
+protocol SentryAppStartTrackerBuilder {
+    func getAppStartTracker(_ options: Options) -> SentryAppStartTracker
+}
+extension SentryDependencyContainer: SentryAppStartTrackerBuilder {}
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 
 protocol SentryCoreDataTrackerBuilder {

@@ -22,7 +22,6 @@
 #import "SentryFormatterSwift.h"
 #import "SentryHub+Private.h"
 #import "SentryHub+SwiftPrivate.h"
-#import "SentryIntegrationProtocol.h"
 #import "SentryNSDataSwizzlingHelper.h"
 #import "SentryNSDataUtils.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"
@@ -38,12 +37,15 @@
 #import "SentryUIEventTrackerTransactionMode.h"
 #import "SentryUserAccess.h"
 #import "SentryViewHierarchyProviderHelper.h"
+#import "UIViewController+Sentry.h"
 #import "_SentryDispatchQueueWrapperInternal.h"
 
 // Headers that also import SentryDefines should be at the end of this list
 // otherwise it wont compile
 #import "SentryANRTrackerV1.h"
 #import "SentryANRTrackerV2.h"
+#import "SentryAppStartMeasurement+Private.h"
+#import "SentryAppStartTrackerHelper.h"
 #import "SentryAsyncLog.h"
 #import "SentryContinuousProfiler.h"
 #import "SentryCoreDataSwizzlingHelper.h"
@@ -86,5 +88,6 @@
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTraceProfiler.h"
+#import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryUncaughtNSExceptions.h"
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"
