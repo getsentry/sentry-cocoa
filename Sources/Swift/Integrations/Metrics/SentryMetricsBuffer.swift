@@ -75,8 +75,8 @@ struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
 }
 
 extension Options: SentryMetricsTelemetryBufferOptions {
-    // As soon as the feature is not experimental anymore, we can remove these two bridging methods.
-        
+    // As soon as the feature is not experimental anymore, we can remove this bridging method.
+
     var enableMetrics: Bool {
         return experimental.enableMetrics
     }
