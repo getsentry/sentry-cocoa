@@ -27,17 +27,8 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     private let notificationCenter: SentryNSNotificationCenterWrapper
     #endif
 
-    init?(with options: Options, dependencies: Dependencies) {
-        guard options.experimental.enableMetrics else { return nil }
-
-        self.scopeMetaData = SentryDefaultScopeApplyingMetadata(
-            environment: options.environment,
-            releaseName: options.releaseName,
-            cacheDirectoryPath: options.cacheDirectoryPath,
-            sendDefaultPii: options.sendDefaultPii
-        )
-
-        self.metricsBuffer = DefaultSentryMetricsTelemetryBuffer(
+    convenience init?(with options: Options, dependencies: Dependencies) {
+        let metricsBuffer = DefaultSentryMetricsTelemetryBuffer(
             options: options,
             dateProvider: dependencies.dateProvider,
             dispatchQueue: dependencies.dispatchQueueWrapper,
@@ -50,6 +41,22 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
                 client.captureMetricsData(data, with: NSNumber(value: count))
             }
         )
+
+        self.init(with: options, dependencies: dependencies, metricsBuffer: metricsBuffer)
+    }
+
+    /// Initializer for testing that allows injecting a custom metrics buffer
+    init?(with options: Options, dependencies: Dependencies, metricsBuffer: SentryMetricsTelemetryBuffer) {
+        guard options.experimental.enableMetrics else { return nil }
+
+        self.scopeMetaData = SentryDefaultScopeApplyingMetadata(
+            environment: options.environment,
+            releaseName: options.releaseName,
+            cacheDirectoryPath: options.cacheDirectoryPath,
+            sendDefaultPii: options.sendDefaultPii
+        )
+
+        self.metricsBuffer = metricsBuffer
 
         #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
         self.notificationCenter = dependencies.notificationCenterWrapper
