@@ -1,4 +1,4 @@
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 import ObjectiveC
 @_spi(Private) @testable import Sentry
@@ -975,4 +975,4 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         Dynamic(SentryDependencyContainer.sharedInstance().framesTracker).displayLinkCallback()
     }
 }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)

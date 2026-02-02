@@ -1,7 +1,7 @@
 import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
 class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
     override func setUp() {
         super.setUp()
@@ -241,4 +241,4 @@ class SentryAppLaunchProfilingMalformedConfigFileTests: XCTestCase {
         XCTAssertFalse(appLaunchProfileConfigFileExists())
     }
 }
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)

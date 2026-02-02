@@ -10,6 +10,8 @@ excluded:
   - .build/**
   - .git/**
   - XCFrameworkBuildPath/**
+  - 3rd-party-integrations/**/Packages/sentry-cocoa
+  - 3rd-party-integrations/**/.build
 
 only_rules:
   - class_delegate_protocol

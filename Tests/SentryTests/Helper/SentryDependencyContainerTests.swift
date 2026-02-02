@@ -10,7 +10,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         SentryDependencyContainer.reset()
     }
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     func testReset_CallsFramesTrackerStop() throws {
         let framesTracker = SentryDependencyContainer.sharedInstance().framesTracker
         framesTracker.start()
@@ -80,9 +80,9 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().rateLimits)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().reachability)
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().uiDeviceWrapper)
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
 
                     // Lazy Dependencies
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().fileManager)
@@ -94,27 +94,28 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debugImageProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().dispatchFactory)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().timerFactory)
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().swizzleWrapper)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().framesTracker)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().screenshotSource)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().viewHierarchyProvider)
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().uiViewControllerPerformanceTracker)
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().watchdogTerminationAttributesProcessor)
 #endif
 
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().globalEventProcessor)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().eventContextEnricher)
                 }
 
                 expectation.fulfill()
@@ -143,7 +144,7 @@ final class SentryDependencyContainerTests: XCTestCase {
     }
 
     func testSentryWatchdogTerminationAttributesProcessor_shouldReturnSameInstance() throws {
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
         // -- Arrange --
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
@@ -163,7 +164,7 @@ final class SentryDependencyContainerTests: XCTestCase {
     }
 
     func testSentryWatchdogTerminationAttributesProcessor_shouldUseLowPriorityQueue() throws {
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
         // -- Arrange --
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
@@ -243,7 +244,7 @@ final class SentryDependencyContainerTests: XCTestCase {
         let options = Options()
         options.dsn = SentryDependencyContainerTests.dsn
         SentrySDK.setStart(with: options)
-        
+
         let container = SentryDependencyContainer.sharedInstance()
 
         // -- Act --
@@ -255,5 +256,37 @@ final class SentryDependencyContainerTests: XCTestCase {
         XCTAssertIdentical(tracker.application, container.application())
         XCTAssertIdentical(tracker.dateProvider, container.dateProvider)
         XCTAssertIdentical(tracker.notificationCenter, container.notificationCenterWrapper)
+    }
+
+    func testEventContextEnricher_shouldReturnSameInstance() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(with: options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let enricher1 = container.eventContextEnricher
+        let enricher2 = container.eventContextEnricher
+
+        // -- Assert --
+        XCTAssertIdentical(enricher1, enricher2)
+    }
+
+    func testEventContextEnricher_shouldBeInitialized() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDK.setStart(with: options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+
+        // -- Act --
+        let enricher = container.eventContextEnricher
+
+        // -- Assert --
+        XCTAssertNotNil(enricher)
+        XCTAssertTrue(enricher is SentryDefaultEventContextEnricher)
     }
 }

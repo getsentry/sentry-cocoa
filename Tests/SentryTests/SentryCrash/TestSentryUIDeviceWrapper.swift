@@ -1,6 +1,6 @@
 @_spi(Private) import Sentry
 
-#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS)
 class TestSentryUIDeviceWrapper: SentryUIDeviceWrapper {
     
     var internalOrientation = UIDeviceOrientation.portrait
@@ -8,12 +8,17 @@ class TestSentryUIDeviceWrapper: SentryUIDeviceWrapper {
     var internalBatteryLevel: Float = 0.6
     var internalBatteryState = UIDevice.BatteryState.charging
     var started = false
+    var internalCurrentDevice = UIDevice.current
 
     func start() {
         started = true
     }
     func stop() {
         started = false
+    }
+
+    var currentDevice: UIDevice {
+        return internalCurrentDevice
     }
 
     var orientation: UIDeviceOrientation {
@@ -36,4 +41,4 @@ class TestSentryUIDeviceWrapper: SentryUIDeviceWrapper {
         ""
     }
 }
-#endif // os(iOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS)

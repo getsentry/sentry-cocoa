@@ -2,8 +2,15 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix mismatch of `in_foreground` app context (#7188) The app context `in_foreground` for handled and unhandled events was sometimes different. This is fixed now by aligning the implementation and adding a new `is_active` app context field.
+
+## 9.3.0
+
 ### Features
 
+- Transport logs error message for HTTP 413 responses (#7261)
 - Add `installGroupsOverride` parameter to `CheckForUpdateParams` and `installGroups` property to `ReleaseInfo` for SentryDistribution (#7278)
 
 ### Fixes
@@ -12,6 +19,10 @@
 - Fix missing stack traces for `NSException` objects reported via `NSApplication.shared.reportException(_:)` on macOS (#7284)
 
 ## 9.2.0
+
+> [!IMPORTANT]
+> This release contains a bug fix to only include user attributes in logs when `options.sendDefaultPii = true`.
+> Make sure to enable the option in case you rely on these attributes to be set.
 
 ### Features
 

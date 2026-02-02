@@ -1,7 +1,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
 final class SentryAppLaunchProfilingTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
 
@@ -210,4 +210,4 @@ extension SentryAppLaunchProfilingTests {
     }
 }
 #endif // !os(macOS)
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)

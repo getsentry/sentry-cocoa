@@ -2,7 +2,7 @@ import Sentry
 @_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
 
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 #endif
 
@@ -43,7 +43,7 @@ class TestData {
         event.logger = "logger"
         event.message = SentryMessage(formatted: "message")
         event.modules = ["module": "1"]
-        event.platform = SentryPlatformName
+        event.platform = "cocoa"
         event.releaseName = SentryMeta.versionString
         event.sdk = sdk
         event.serverName = "serverName"
@@ -282,7 +282,7 @@ class TestData {
     }
 #endif
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
     
     static var metricKitEvent: Event {
         let event = Event(level: .warning)
@@ -292,7 +292,7 @@ class TestData {
         return event
     }
 
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)
     
     static func scopeWith(observer: SentryScopeObserver) -> Scope {
         let scope = Scope()
@@ -342,7 +342,7 @@ class TestData {
         return request
     }
 
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
+    #if os(iOS) || os(tvOS) || os(visionOS)
 
     static func getAppStartMeasurement(
         type: SentryAppStartType,
@@ -371,5 +371,5 @@ class TestData {
             didFinishLaunchingTimestamp: didFinishLaunching)
     }
 
-    #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    #endif // os(iOS) || os(tvOS)
 }
