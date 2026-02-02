@@ -137,7 +137,148 @@ class SentryMetricsIntegrationTests: XCTestCase {
         // Should not crash and metrics should be dropped silently
         // The callback should handle nil client gracefully (verified by no crash)
     }
-    
+
+    // MARK: - BeforeSendMetric Callback Tests
+
+    func testAddMetric_beforeSendMetricModifiesMetric() throws {
+        // -- Arrange --
+        let testBuffer = TestMetricsTelemetryBuffer()
+
+        var beforeSendCalled = false
+        let integration = TestableMetricsIntegration(
+            metricsBuffer: testBuffer,
+            beforeSendMetric: { metric in
+                beforeSendCalled = true
+
+                XCTAssertEqual(metric.name, "test.metric")
+                XCTAssertEqual(metric.value, .counter(1))
+
+                var modifiedMetric = metric
+                modifiedMetric.attributes["modified_by_callback"] = .string("test_value")
+                return modifiedMetric
+            }
+        )
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        XCTAssertTrue(beforeSendCalled, "beforeSendMetric should be called")
+        XCTAssertEqual(testBuffer.addMetricInvocations.count, 1, "Modified metric should be added to buffer")
+
+        let capturedMetric = try XCTUnwrap(testBuffer.addMetricInvocations.first)
+        XCTAssertEqual(capturedMetric.attributes["modified_by_callback"]?.anyValue as? String, "test_value",
+                      "Metric should have modified attribute")
+    }
+
+    func testAddMetric_beforeSendMetricReturnsNil_metricDropped() throws {
+        // -- Arrange --
+        let testBuffer = TestMetricsTelemetryBuffer()
+
+        var beforeSendCalled = false
+        let integration = TestableMetricsIntegration(
+            metricsBuffer: testBuffer,
+            beforeSendMetric: { _ in
+                beforeSendCalled = true
+                return nil // Drop the metric
+            }
+        )
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        XCTAssertTrue(beforeSendCalled, "beforeSendMetric should be called")
+        XCTAssertEqual(testBuffer.addMetricInvocations.count, 0, "Metric should be dropped when beforeSendMetric returns nil")
+    }
+
+    func testAddMetric_beforeSendMetricNotSet_metricCapturedUnmodified() throws {
+        // -- Arrange --
+        let testBuffer = TestMetricsTelemetryBuffer()
+        let integration = TestableMetricsIntegration(
+            metricsBuffer: testBuffer,
+            beforeSendMetric: nil
+        )
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        XCTAssertEqual(testBuffer.addMetricInvocations.count, 1, "Metric should be added to buffer when beforeSendMetric is not set")
+
+        let capturedMetric = try XCTUnwrap(testBuffer.addMetricInvocations.first)
+        XCTAssertEqual(capturedMetric.name, "test.metric")
+        XCTAssertEqual(capturedMetric.value, .counter(1))
+    }
+
+    func testAddMetric_beforeSendMetricCalledAfterScopeIsApplied() throws {
+        // -- Arrange --
+        let testBuffer = TestMetricsTelemetryBuffer()
+
+        var beforeSendCalled = false
+        let integration = TestableMetricsIntegration(
+            metricsBuffer: testBuffer,
+            beforeSendMetric: { metric in
+                beforeSendCalled = true
+
+                // Verify that scope attributes were already applied before the callback runs
+                XCTAssertEqual(metric.attributes["sentry.sdk.name"]?.anyValue as? String, SentryMeta.sdkName,
+                              "Scope should be applied BEFORE beforeSendMetric callback")
+                XCTAssertEqual(metric.attributes["sentry.environment"]?.anyValue as? String, "production",
+                              "Scope should be applied BEFORE beforeSendMetric callback")
+
+                return metric
+            }
+        )
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        XCTAssertTrue(beforeSendCalled, "beforeSendMetric should be called")
+        XCTAssertEqual(testBuffer.addMetricInvocations.count, 1, "Metric should be added to buffer")
+    }
+
     func testName_shouldReturnCorrectName() {
         // -- Act & Assert --
         XCTAssertEqual(SentryMetricsIntegration<SentryDependencyContainer>.name, "SentryMetricsIntegration")
@@ -370,5 +511,55 @@ class SentryMetricsIntegrationTests: XCTestCase {
 
     private func getSut() throws -> SentryMetricsIntegration<SentryDependencyContainer> {
         return try XCTUnwrap(SentrySDKInternal.currentHub().getInstalledIntegration(SentryMetricsIntegration<SentryDependencyContainer>.self) as? SentryMetricsIntegration)
+    }
+}
+
+// MARK: - Test Doubles
+
+final class TestMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
+    var addMetricInvocations = Invocations<SentryMetric>()
+    var captureMetricsInvocations = Invocations<Void>()
+
+    func addMetric(_ metric: SentryMetric) {
+        addMetricInvocations.record(metric)
+    }
+
+    @discardableResult
+    func captureMetrics() -> TimeInterval {
+        captureMetricsInvocations.record(())
+        return 0.0
+    }
+}
+
+final class TestableMetricsIntegration: SentryMetricsIntegrationProtocol {
+    private let metricsBuffer: SentryMetricsTelemetryBuffer
+    private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
+    private let scopeMetaData = SentryDefaultScopeApplyingMetadata(
+        environment: "production",
+        releaseName: "1.0.0",
+        cacheDirectoryPath: "",
+        sendDefaultPii: false
+    )
+
+    init(metricsBuffer: SentryMetricsTelemetryBuffer, beforeSendMetric: ((SentryMetric) -> SentryMetric?)?) {
+        self.metricsBuffer = metricsBuffer
+        self.beforeSendMetric = beforeSendMetric
+    }
+
+    func addMetric(_ metric: SentryMetric, scope: Scope) {
+        var mutableMetric = metric
+        scope.addAttributesToItem(&mutableMetric, metadata: scopeMetaData)
+
+        // The before send item closure can be used to drop metrics by returning nil
+        // In case it is nil, we can discard the metric here
+        if let beforeSendMetric = beforeSendMetric {
+            // If the before send hook returns nil, the item should be dropped
+            guard let processedItem = beforeSendMetric(mutableMetric) else {
+                return
+            }
+            mutableMetric = processedItem
+        }
+
+        metricsBuffer.addMetric(mutableMetric)
     }
 }

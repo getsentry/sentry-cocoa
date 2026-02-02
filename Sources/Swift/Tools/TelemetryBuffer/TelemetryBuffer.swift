@@ -13,9 +13,6 @@ final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<I
         let flushTimeout: TimeInterval
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
-
-        let beforeSendItem: ((Item) -> Item?)?
-
         var capturedDataCallback: (Data, Int) -> Void = { _, _ in }
     }
 
@@ -54,26 +51,10 @@ final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<I
     /// Adds an item to the buffer.
     /// - Parameters:
     ///   - item: The item to add to the batch (should already have scope enrichment applied)
-    ///
-    /// - Note: The `beforeSendItem` callback is executed synchronously on the caller's thread.
-    ///        Only encoding and buffering happen asynchronously on the buffer's serial dispatch queue.
-    ///        If `config.beforeSendItem` returns `nil`, the item is dropped and not added to the batch.
-    ///
+    ///   
     /// - Important: Scope enrichment must be applied to the item BEFORE calling this method.
     ///             The buffer no longer applies scope automatically.
     func add(_ item: Item) {
-        var item = item
-
-        // The before send item closure can be used to drop items by returning nil
-        // In case it is nil, we can stop processing
-        if let beforeSendItem = config.beforeSendItem {
-            // If the before send hook returns nil, the item should be dropped
-            guard let processedItem = beforeSendItem(item) else {
-                return
-            }
-            item = processedItem
-        }
-
         dispatchQueue.dispatchAsync { [weak self] in
             self?.encodeAndBuffer(item: item)
         }

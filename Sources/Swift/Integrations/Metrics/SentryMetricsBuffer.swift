@@ -8,7 +8,6 @@ protocol SentryMetricsTelemetryBuffer {
 
 protocol SentryMetricsTelemetryBufferOptions {
     var enableMetrics: Bool { get }
-    var beforeSendMetric: ((SentryMetric) -> SentryMetric?)? { get }
 }
 
 /// DefaultSentryMetricsTelemetryBuffer is responsible for buffering metrics.
@@ -46,7 +45,6 @@ struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
                 flushTimeout: flushTimeout,
                 maxItemCount: maxMetricCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
-                beforeSendItem: options.beforeSendMetric,
                 capturedDataCallback: capturedDataCallback
             ),
             buffer: InMemoryInternalTelemetryBuffer(),
@@ -81,9 +79,5 @@ extension Options: SentryMetricsTelemetryBufferOptions {
         
     var enableMetrics: Bool {
         return experimental.enableMetrics
-    }
-
-    var beforeSendMetric: ((SentryMetric) -> SentryMetric?)? {
-        return experimental.beforeSendMetric
     }
 }

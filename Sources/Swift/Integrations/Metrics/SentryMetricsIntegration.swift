@@ -21,6 +21,7 @@ typealias SentryMetricsIntegrationDependencies = DateProviderProvider & Dispatch
 final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol, FlushableIntegration {
     private let metricsBuffer: SentryMetricsTelemetryBuffer
     private let scopeMetaData: SentryDefaultScopeApplyingMetadata
+    private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
     #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
     private let notificationCenter: SentryNSNotificationCenterWrapper
@@ -53,6 +54,8 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
         self.notificationCenter = dependencies.notificationCenterWrapper
         #endif
+
+        self.beforeSendMetric = options.experimental.beforeSendMetric
 
         super.init()
 
@@ -91,6 +94,17 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     func addMetric(_ metric: SentryMetric, scope: Scope) {
         var mutableMetric = metric
         scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
+
+        // The before send item closure can be used to drop metrics by returning nil
+        // In case it is nil, we can discard the metric here
+        if let beforeSendMetric = beforeSendMetric {
+            // If the before send hook returns nil, the item should be dropped
+            guard let processedItem = beforeSendMetric(mutableMetric) else {
+                return
+            }
+            mutableMetric = processedItem
+        }
+
         metricsBuffer.addMetric(mutableMetric)
     }
 

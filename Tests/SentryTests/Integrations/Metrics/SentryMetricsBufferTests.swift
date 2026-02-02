@@ -413,50 +413,6 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         XCTAssertEqual(capturedMetrics.count, 2)
     }
     
-    // MARK: - Attribute Enrichment Tests
-                                        
-    // MARK: - BeforeSendMetric Tests
-    
-    func testAddMetric_whenBeforeSendMetricModifiesMetric_shouldCaptureModifiedMetric() throws {
-        // -- Arrange --
-        options.experimental.beforeSendMetric = { metric in
-            var modifiedMetric = metric
-            modifiedMetric.attributes["test-attr"] = .string("modified")
-            return modifiedMetric
-        }
-        
-        let metric = createTestMetric(name: "test.metric", value: .counter(1))
-        
-        // -- Act --
-        let sut = getSut()
-        sut.addMetric(metric)
-        let duration = sut.captureMetrics()
-        
-        // -- Assert --
-        XCTAssertGreaterThanOrEqual(duration, 0, "captureMetrics should return a non-negative duration")
-        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
-        let capturedMetric = try XCTUnwrap(capturedMetrics.first)
-        let attributes = try XCTUnwrap(capturedMetric["attributes"] as? [String: Any])
-        let testAttr = try XCTUnwrap(attributes["test-attr"] as? [String: Any])
-        XCTAssertEqual(testAttr["value"] as? String, "modified")
-    }
-    
-    func testAddMetric_whenBeforeSendMetricReturnsNil_shouldDropMetric() throws {
-        // -- Arrange --
-        options.experimental.beforeSendMetric = { _ in nil }
-
-        let metric = createTestMetric(name: "test.metric", value: .counter(1))
-        
-        // -- Act --
-        let sut = getSut()
-        sut.addMetric(metric)
-        let duration = sut.captureMetrics()
-        
-        // -- Assert --
-        XCTAssertGreaterThanOrEqual(duration, 0, "captureMetrics should return a non-negative duration even when metric is dropped")
-        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
-    }
-    
     // MARK: - Metric Type Tests
     
     func testAddMetric_whenCounterType_shouldCaptureCounter() throws {
