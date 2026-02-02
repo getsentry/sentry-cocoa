@@ -31,15 +31,6 @@
 
 #import "SentryLogC.h"
 
-/** Initialize stack cursor from exception.
- * If the exception has callStackReturnAddresses, use them.
- * Otherwise, capture the current thread's stack trace.
- *
- * @param cursor The stack cursor to initialize.
- * @param exception The exception to extract stack trace from.
- * @return Pointer to allocated callstack array if exception had addresses, NULL otherwise.
- *         Caller is responsible for freeing this pointer after the cursor is no longer needed.
- */
 uintptr_t *
 sentrycrashcm_nsexception_initStackCursor(SentryCrashStackCursor *cursor, NSException *exception)
 {
