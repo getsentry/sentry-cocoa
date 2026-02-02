@@ -42,6 +42,8 @@
 #include <memory.h>
 
 #include "SentryAsyncSafeLog.h"
+#include <pthread.h>
+#include <signal.h>
 
 // ============================================================================
 #pragma mark - Globals -
@@ -82,8 +84,9 @@ static int g_monitorsCount = sizeof(g_monitors) / sizeof(*g_monitors);
 
 static SentryCrashMonitorType g_activeMonitors = SentryCrashMonitorTypeNone;
 
-static bool g_handlingFatalException = false;
-static bool g_crashedDuringExceptionHandling = false;
+static volatile sig_atomic_t g_handlingFatalException = 0;
+static volatile bool g_crashedDuringExceptionHandling = false;
+static volatile pthread_t g_crashingThread = 0;
 static bool g_requiresAsyncSafety = false;
 
 static void (*g_onExceptionEvent)(struct SentryCrash_MonitorContext *monitorContext);
@@ -192,17 +195,23 @@ sentrycrashcm_getActiveMonitors(void)
 bool
 sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment)
 {
-    g_requiresAsyncSafety |= isAsyncSafeEnvironment; // Don't let it be unset.
-    if (g_handlingFatalException) {
-        g_crashedDuringExceptionHandling = true;
+    g_requiresAsyncSafety |= isAsyncSafeEnvironment;
+
+    pthread_t self = pthread_self();
+    if (__sync_val_compare_and_swap(&g_handlingFatalException, 0, 1) != 0) {
+        if (g_crashingThread == self) {
+            g_crashedDuringExceptionHandling = true;
+            SENTRY_ASYNC_SAFE_LOG_INFO(
+                "Detected crash in the crash reporter. Uninstalling SentryCrash.");
+            sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
+        } else {
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Concurrent crash from different thread. Discarding.");
+            return false;
+        }
+    } else {
+        g_crashingThread = self;
     }
-    g_handlingFatalException = true;
-    if (g_crashedDuringExceptionHandling) {
-        SENTRY_ASYNC_SAFE_LOG_INFO(
-            "Detected crash in the crash reporter. Uninstalling SentryCrash.");
-        sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
-    }
-    return g_crashedDuringExceptionHandling;
+    return true;
 }
 
 void
@@ -225,4 +234,13 @@ sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context)
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Exception is fatal. Restoring original handlers.");
         sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
     }
+}
+
+void
+sentrycrashcm_resetState(void)
+{
+    g_handlingFatalException = 0;
+    g_crashedDuringExceptionHandling = false;
+    g_crashingThread = 0;
+    g_requiresAsyncSafety = false;
 }

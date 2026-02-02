@@ -82,8 +82,17 @@ typedef struct {
 /** Notify that a fatal exception has been captured.
  *  This allows the system to take appropriate steps in preparation.
  *
- * @oaram isAsyncSafeEnvironment If true, only async-safe functions are allowed
+ * Implements "first crash wins" semantics: only the first crashing thread
+ * is allowed to proceed. Concurrent crashes from different threads are
+ * rejected. However, if the same thread re-enters (a "recrash"), it is
+ * allowed to proceed.
+ *
+ * @param isAsyncSafeEnvironment If true, only async-safe functions are allowed
  * from now on.
+ *
+ * @return true if the caller should proceed with crash handling (first crash
+ *         or same-thread recrash), false if the caller should discard this
+ *         crash (concurrent crash from a different thread).
  */
 bool sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment);
 
@@ -92,6 +101,11 @@ bool sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment);
  * @oaram context Contextual information about the exception.
  */
 void sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context);
+
+/** Reset the crash handling state.
+ * Called on uninstall to clear state between sessions.
+ */
+void sentrycrashcm_resetState(void);
 
 #ifdef __cplusplus
 }

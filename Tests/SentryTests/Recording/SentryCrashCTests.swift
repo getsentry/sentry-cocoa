@@ -235,6 +235,57 @@ class SentryCrashCTests: XCTestCase {
         ))
     }
 
+    // MARK: - Concurrent Crash Guard Tests
+    
+    func testNotifyFatalException_concurrentFromDifferentThreads_secondShouldBeDiscarded() throws {
+        sentrycrashcm_resetState()
+        
+        let thread1ShouldProceed = sentrycrashcm_notifyFatalExceptionCaptured(false)
+        
+        let expectation2 = expectation(description: "Thread 2 completed")
+        var thread2ShouldProceed = true
+        
+        DispatchQueue(label: "crash2").async {
+            thread2ShouldProceed = sentrycrashcm_notifyFatalExceptionCaptured(false)
+            expectation2.fulfill()
+        }
+        
+        wait(for: [expectation2], timeout: 5.0)
+
+        XCTAssertTrue(thread1ShouldProceed)
+        XCTAssertFalse(thread2ShouldProceed)
+    }
+    
+    func testNotifyFatalException_sameThreadCalledTwice_shouldAllowRecrash() throws {
+        let expectation = expectation(description: "Test completed")
+        var firstCallResult = false
+        var secondCallResult = false
+        
+        DispatchQueue(label: "test").async {
+            sentrycrashcm_resetState()
+            firstCallResult = sentrycrashcm_notifyFatalExceptionCaptured(false)
+            secondCallResult = sentrycrashcm_notifyFatalExceptionCaptured(false)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+
+        XCTAssertTrue(firstCallResult)
+        XCTAssertTrue(secondCallResult)
+    }
+    
+    func testNotifyFatalException_afterReset_shouldAllowNewCrash() throws {
+        sentrycrashcm_resetState()
+        
+        let firstResult = sentrycrashcm_notifyFatalExceptionCaptured(false)
+        XCTAssertTrue(firstResult)
+        
+        sentrycrashcm_resetState()
+        
+        let secondResult = sentrycrashcm_notifyFatalExceptionCaptured(false)
+        XCTAssertTrue(secondResult)
+    }
+
     // MARK: - Helper
 
     private func readFirstReportFromDisk(reportsDir: URL) throws -> NSDictionary {

@@ -287,6 +287,18 @@ sentrycrashcm_hasReservedThreads(void)
 #    pragma mark - Handler -
 // ============================================================================
 
+static void
+replyToMachExceptionMessage(MachExceptionMessage *exceptionMessage, MachReplyMessage *replyMessage)
+{
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Replying to mach exception message.");
+    // Send a reply saying "I didn't handle this exception".
+    replyMessage->header = exceptionMessage->header;
+    replyMessage->NDR = exceptionMessage->NDR;
+    replyMessage->returnCode = KERN_FAILURE;
+    mach_msg(&replyMessage->header, MACH_SEND_MSG, sizeof(*replyMessage), 0, MACH_PORT_NULL,
+        MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
+}
+
 /** Our exception handler thread routine.
  * Wait for an exception message, uninstall our exception port, record the
  * exception information, and write a report.
@@ -326,8 +338,12 @@ handleExceptions(void *const userData)
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         sentrycrashmc_suspendEnvironment(&threads, &numThreads);
+        if (!sentrycrashcm_notifyFatalExceptionCaptured(true)) {
+            sentrycrashmc_resumeEnvironment(threads, numThreads);
+            replyToMachExceptionMessage(&exceptionMessage, &replyMessage);
+            return NULL;
+        }
         g_isHandlingCrash = true;
-        sentrycrashcm_notifyFatalExceptionCaptured(true);
 
         SENTRY_ASYNC_SAFE_LOG_DEBUG(
             "Exception handler is installed. Continuing exception handling.");
@@ -392,15 +408,7 @@ handleExceptions(void *const userData)
         sentrycrashmc_resumeEnvironment(threads, numThreads);
     }
 
-    SENTRY_ASYNC_SAFE_LOG_DEBUG("Replying to mach exception message.");
-    // Send a reply saying "I didn't handle this exception".
-    replyMessage.header = exceptionMessage.header;
-    replyMessage.NDR = exceptionMessage.NDR;
-    replyMessage.returnCode = KERN_FAILURE;
-
-    mach_msg(&replyMessage.header, MACH_SEND_MSG, sizeof(replyMessage), 0, MACH_PORT_NULL,
-        MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
-
+    replyToMachExceptionMessage(&exceptionMessage, &replyMessage);
     return NULL;
 }
 

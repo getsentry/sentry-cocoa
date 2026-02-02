@@ -83,12 +83,18 @@ static void
 handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped signal %d", sigNum);
-    if (g_isEnabled) {
-        thread_act_array_t threads = NULL;
-        mach_msg_type_number_t numThreads = 0;
-        sentrycrashmc_suspendEnvironment(&threads, &numThreads);
-        sentrycrashcm_notifyFatalExceptionCaptured(false);
+    if (!g_isEnabled) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
+        // This is technically not allowed, but it works in OSX and iOS.
+        raise(sigNum);
+        return;
+    }
 
+    thread_act_array_t threads = NULL;
+    mach_msg_type_number_t numThreads = 0;
+    sentrycrashmc_suspendEnvironment(&threads, &numThreads);
+
+    if (sentrycrashcm_notifyFatalExceptionCaptured(false)) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Filling out context.");
         SentryCrashMC_NEW_CONTEXT(machineContext);
         sentrycrashmc_getContextForSignal(userContext, machineContext);
@@ -107,8 +113,9 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
         crashContext->stackCursor = &g_stackCursor;
 
         sentrycrashcm_handleException(crashContext);
-        sentrycrashmc_resumeEnvironment(threads, numThreads);
     }
+
+    sentrycrashmc_resumeEnvironment(threads, numThreads);
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
     // This is technically not allowed, but it works in OSX and iOS.
