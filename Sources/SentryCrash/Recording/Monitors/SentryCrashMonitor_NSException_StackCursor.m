@@ -53,13 +53,13 @@ sentrycrashcm_nsexception_initStackCursor(SentryCrashStackCursor *cursor, NSExce
             @"callStackReturnAddresses is empty, capturing current thread stack trace");
         sentrycrashsc_initSelfThread(cursor, 0);
         return NULL;
-    } else {
-        uintptr_t *callstack = malloc(numFrames * sizeof(*callstack));
-        assert(callstack != NULL);
-        for (NSUInteger i = 0; i < numFrames; i++) {
-            callstack[i] = (uintptr_t)[addresses[i] unsignedLongLongValue];
-        }
-        sentrycrashsc_initWithBacktrace(cursor, callstack, (int)numFrames, 0);
-        return callstack;
     }
+
+    uintptr_t *callstack = malloc(numFrames * sizeof(*callstack));
+    assert(callstack != NULL);
+    for (NSUInteger i = 0; i < numFrames; i++) {
+        callstack[i] = (uintptr_t)[addresses[i] unsignedLongLongValue];
+    }
+    sentrycrashsc_initWithBacktrace(cursor, callstack, (int)numFrames, 0);
+    return callstack;
 }
