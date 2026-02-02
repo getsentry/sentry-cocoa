@@ -23,6 +23,12 @@ public final class SentryMetrics: NSObject {
 
     // MARK: - Count
 
+    /// Records a count metric, incrementing the specified key by 1.
+    @objc(countWithKey:)
+    public func count(key: String) {
+        api.count(key: key, value: 1)
+    }
+
     /// Records a count metric with the specified key and value.
     @objc(countWithKey:value:)
     public func count(key: String, value: UInt) {
