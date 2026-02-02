@@ -57,6 +57,12 @@ sentrycrashcm_nsexception_initStackCursor(SentryCrashStackCursor *cursor, NSExce
 
     uintptr_t *callstack = malloc(numFrames * sizeof(*callstack));
     assert(callstack != NULL);
+    if (callstack == NULL) {
+        SENTRY_LOG_DEBUG(@"Failed to allocate memory, capturing current thread");
+        sentrycrashsc_initSelfThread(cursor, 0);
+        return NULL;
+    }
+
     for (NSUInteger i = 0; i < numFrames; i++) {
         callstack[i] = (uintptr_t)[addresses[i] unsignedLongLongValue];
     }
