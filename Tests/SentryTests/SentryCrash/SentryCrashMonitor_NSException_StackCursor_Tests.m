@@ -58,11 +58,12 @@
     XCTAssertTrue(cursor.stackEntry.address > 0, "Should have stackEntry.addresses");
 
     int frameCount = 1; // Already advanced once
-    while (cursor.advanceCursor(&cursor) && frameCount < 3) {
+    while (cursor.advanceCursor(&cursor)) {
         XCTAssertTrue(cursor.stackEntry.address > 0, "Stack frame address should be valid");
         frameCount++;
     }
-    XCTAssertGreaterThan(frameCount, 0, "Should have captured multiple stack frames");
+    XCTAssertGreaterThanOrEqual(
+        frameCount, 1, "Should have captured at least one stack frame from current thread");
 }
 
 - (void)testExceptionWithCallStackReturnAddresses_UsesExceptionStackTrace
@@ -96,13 +97,14 @@
         "Should be able to advance stack cursor when valid addresses exist");
     XCTAssertTrue(cursor.stackEntry.address > 0, "Should have stackEntry.address");
 
+    NSUInteger expectedFrameCount = addresses.count;
     int frameCount = 1; // Already advanced once
-    while (cursor.advanceCursor(&cursor) && frameCount < 5) {
+    while (cursor.advanceCursor(&cursor)) {
         XCTAssertTrue(cursor.stackEntry.address > 0, "Stack frame address should be valid");
         frameCount++;
     }
-    XCTAssertGreaterThan(
-        frameCount, 0, "Should have captured multiple stack frames from exception");
+    XCTAssertEqual((NSUInteger)frameCount, expectedFrameCount,
+        "Cursor should expose exactly the frames from exception callStackReturnAddresses");
 
     // Cleanup
     if (callstack != NULL) {
