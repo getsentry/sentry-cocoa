@@ -6,9 +6,12 @@ import Foundation
 /// It accepts `String` for units (matching the raw value of ``SentryUnit``) and `[String: Any]`
 /// for attributes, converting them to the Swift-native types internally.
 ///
-/// For Swift code, prefer using ``SentrySDK/metrics`` with the ``SentryMetricsApiProtocol``
-/// directly, which provides a more idiomatic Swift API with type-safe ``SentryUnit`` and
-/// ``SentryAttributeValue`` protocol.
+/// Swift callers can use the type-safe ``SentryUnit`` and ``SentryAttributeValue`` parameters
+/// directly through the ``SentryMetricsApiProtocol`` conformance on this class.
+///
+/// - Important: From Objective-C, pass unit names as plain strings (e.g., `@"millisecond"`,
+///   `@"byte"`) and attributes as `NSDictionary<NSString *, id>`. The wrapper converts these
+///   to the Swift-native types internally.
 @objc
 public final class SentryMetrics: NSObject {
     private let api: SentryMetricsApiProtocol
