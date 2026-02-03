@@ -2,16 +2,9 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-@objc @_spi(Private) public protocol SentryLogBufferDelegate: AnyObject {
-    @objc(captureLogsData:with:)
-    func capture(logsData: NSData, count: NSNumber)
-}
-
-@objc
-@objcMembers
-@_spi(Private) public class SentryLogBuffer: NSObject {
+class SentryLogBuffer {
     private let buffer: any TelemetryBuffer<SentryLog>
-    private weak var delegate: SentryLogBufferDelegate?
+    private let scheduler: LogTelemetryScheduler
 
     /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
     /// Creates its own serial dispatch queue with DEFAULT QoS for thread-safe access to mutable state.
@@ -22,9 +15,9 @@ import Foundation
     /// - Note: Uses DEFAULT priority (not LOW) because captureLogs() is called synchronously during
     ///         app lifecycle events (willResignActive, willTerminate) and needs to complete quickly.
     /// - Note: Setting `maxLogCount` to 100. While Replay hard limit is 1000, we keep this lower, as it's hard to lower once released.
-    @_spi(Private) public convenience init(
+    convenience init(
         dateProvider: SentryCurrentDateProvider,
-        delegate: SentryLogBufferDelegate
+        scheduler: LogTelemetryScheduler
     ) {
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
         self.init(
@@ -33,7 +26,7 @@ import Foundation
             maxBufferSizeBytes: 1_024 * 1_024, // 1MB buffer size
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue,
-            delegate: delegate
+            scheduler: scheduler
         )
     }
 
@@ -49,45 +42,44 @@ import Foundation
     ///              Passing a concurrent queue will result in undefined behavior and potential data races.
     ///
     /// - Note: Logs are flushed when either `maxLogCount` or `maxBufferSizeBytes` limit is reached.
-    @_spi(Private) public init(
+    init(
         flushTimeout: TimeInterval,
         maxLogCount: Int,
         maxBufferSizeBytes: Int,
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
-        delegate: SentryLogBufferDelegate
+        scheduler: LogTelemetryScheduler
     ) {
         self.buffer = DefaultTelemetryBuffer(
             config: .init(
                 flushTimeout: flushTimeout,
                 maxItemCount: maxLogCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
-                capturedDataCallback: { [weak delegate] data, count in
-                    guard let delegate else {
+                capturedDataCallback: { [weak scheduler] data, count in
+                    guard let scheduler else {
                         SentrySDKLog.debug("SentryLogBuffer: Delegate not set, not capturing logs data.")
                         return
                     }
-                    delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
+                    scheduler.capture(logsData: data, count: count)
                 }
             ),
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue
         )
-        self.delegate = delegate
-        super.init()
+        self.scheduler = scheduler
     }
 
     /// Adds a log to the buffer.
     /// - Parameters:
     ///   - log: The log to add (should already have scope enrichment applied)
-    @_spi(Private) @objc public func addLog(_ log: SentryLog) {
+    func addLog(_ log: SentryLog) {
         buffer.add(log)
     }
 
     /// Captures buffered logs sync and returns the duration.
     @discardableResult
-    @_spi(Private) @objc public func captureLogs() -> TimeInterval {
+    func captureLogs() -> TimeInterval {
         return buffer.capture()
     }
 }
