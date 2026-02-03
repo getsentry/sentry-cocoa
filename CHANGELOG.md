@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+- `Sentry.metrics.count(..)` does not support units, therefore the API was incorrectly defined. This breaking change applies to a method marked as experimental. (#7358)
+
 ### Fixes
 
 - Fix mismatch of `in_foreground` app context (#7188) The app context `in_foreground` for handled and unhandled events was sometimes different. This is fixed now by aligning the implementation and adding a new `is_active` app context field.
