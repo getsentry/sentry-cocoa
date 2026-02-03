@@ -11,7 +11,6 @@ final class SentryLogBufferTests: XCTestCase {
 
     private func getSut() -> SentryLogBuffer {
         return SentryLogBuffer(
-            options: options,
             flushTimeout: 0.1, // Very small timeout for testing
             maxLogCount: 10, // Maximum 10 logs per batch
             maxBufferSizeBytes: 8_000, // byte limit for testing (log with attributes ~390 bytes)
@@ -23,10 +22,9 @@ final class SentryLogBufferTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        
+
         options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
-        options.enableLogs = true
 
         testDateProvider = TestCurrentDateProvider()
         testDelegate = TestLogBufferDelegate()
@@ -236,7 +234,6 @@ final class SentryLogBufferTests: XCTestCase {
     func testConcurrentAdds_ThreadSafe() throws {
         // -- Arrange --
         let sutWithRealQueue = SentryLogBuffer(
-            options: options,
             flushTimeout: 5,
             maxLogCount: 1_000, // Maximum 1000 logs per batch
             maxBufferSizeBytes: 10_000,
@@ -267,7 +264,6 @@ final class SentryLogBufferTests: XCTestCase {
     func testDispatchAfterTimeoutWithRealDispatchQueue() throws {
         // -- Arrange --
         let sutWithRealQueue = SentryLogBuffer(
-            options: options,
             flushTimeout: 0.2,
             maxLogCount: 1_000, // Maximum 1000 logs per batch
             maxBufferSizeBytes: 10_000,
@@ -293,23 +289,7 @@ final class SentryLogBufferTests: XCTestCase {
         XCTAssertEqual(capturedLogs.count, 1, "Should contain exactly one log")
         XCTAssertEqual(capturedLogs[0].body, "Real timeout test log")
     }
-    
-    func testAddLog_WithLogsDisabled_DoesNotCaptureLog() {
-        // -- Arrange --
-        options.enableLogs = false
-        let sut = getSut()
-        let log = createTestLog(body: "This log should be ignored")
-        
-        // -- Act --
-        sut.addLog(log)
-        sut.captureLogs()
-        
-        // -- Assert --
-        XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
-        let capturedLogs = testDelegate.getCapturedLogs()
-        XCTAssertEqual(capturedLogs.count, 0)
-    }
-    
+
     // MARK: - Helper Methods
     
     private func createTestLog(

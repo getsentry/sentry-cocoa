@@ -10,7 +10,6 @@ import Foundation
 @objc
 @objcMembers
 @_spi(Private) public class SentryLogBuffer: NSObject {
-    private let options: Options
     private let buffer: any TelemetryBuffer<SentryLog>
     private weak var delegate: SentryLogBufferDelegate?
 
@@ -30,7 +29,6 @@ import Foundation
     ) {
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
         self.init(
-            options: options,
             flushTimeout: 5,
             maxLogCount: 100, // Maximum 100 logs per batch
             maxBufferSizeBytes: 1_024 * 1_024, // 1MB buffer size
@@ -42,7 +40,6 @@ import Foundation
 
     /// Initializes a new SentryLogBuffer.
     /// - Parameters:
-    ///   - options: The Sentry configuration options
     ///   - flushTimeout: The timeout interval after which buffered logs will be flushed
     ///   - maxLogCount: Maximum number of logs to batch before triggering an immediate flush.
     ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
@@ -54,7 +51,6 @@ import Foundation
     ///
     /// - Note: Logs are flushed when either `maxLogCount` or `maxBufferSizeBytes` limit is reached.
     @_spi(Private) public init(
-        options: Options,
         flushTimeout: TimeInterval,
         maxLogCount: Int,
         maxBufferSizeBytes: Int,
@@ -79,7 +75,6 @@ import Foundation
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue
         )
-        self.options = options
         self.delegate = delegate
         super.init()
     }
@@ -88,10 +83,6 @@ import Foundation
     /// - Parameters:
     ///   - log: The log to add (should already have scope enrichment applied)
     @_spi(Private) @objc public func addLog(_ log: SentryLog) {
-        guard options.enableLogs else {
-            return
-        }
-
         buffer.add(log)
     }
 

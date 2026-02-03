@@ -1102,6 +1102,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope
 {
+    if (self.options.enableLogs == NO) {
+        SENTRY_LOG_DEBUG(@"Dropping log, because the option enableLogs is false.");
+        return;
+    }
+
     if ([log isKindOfClass:[SentryLog class]]) {
         SentryLog *sentryLog = (SentryLog *)log;
         SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope toLog:sentryLog];
