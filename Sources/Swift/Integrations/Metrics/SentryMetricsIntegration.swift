@@ -3,7 +3,7 @@
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
 private typealias CrossPlatformApplication = UIApplication
-#elseif os(macOS)
+#elseif os(macOS) && !SENTRY_NO_UIKIT
 import AppKit
 private typealias CrossPlatformApplication = NSApplication
 #endif
@@ -12,7 +12,7 @@ protocol SentryMetricsIntegrationProtocol {
     func addMetric(_ metric: SentryMetric, scope: Scope)
 }
 
-#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+#if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UIKIT
 typealias SentryMetricsIntegrationDependencies = DateProviderProvider & DispatchQueueWrapperProvider & NotificationCenterProvider
 #else
 typealias SentryMetricsIntegrationDependencies = DateProviderProvider & DispatchQueueWrapperProvider
@@ -20,7 +20,7 @@ typealias SentryMetricsIntegrationDependencies = DateProviderProvider & Dispatch
 
 final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol, FlushableIntegration {
     private let metricsBuffer: SentryMetricsTelemetryBuffer
-    #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+    #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UIKIT
     private let notificationCenter: SentryNSNotificationCenterWrapper
     #endif
 
@@ -41,7 +41,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
             }
         )
 
-        #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+        #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UIKIT
         self.notificationCenter = dependencies.notificationCenterWrapper
         #endif
 
@@ -110,7 +110,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     // MARK: - Lifecycle Handling
     
     private func setupLifecycleObservers() {
-        #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+        #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UIKIT
         notificationCenter.addObserver(
             self,
             selector: #selector(willResignActive),
@@ -128,7 +128,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     }
     
     private func removeLifecycleObservers() {
-        #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+        #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UIKIT
         notificationCenter.removeObserver(
             self,
             name: CrossPlatformApplication.willResignActiveNotification,
@@ -145,7 +145,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     
     // These methods are implemented in the main class body (not in an extension)
     // because extensions of generic classes cannot contain @objc members.
-    #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+    #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UIKIT
     @objc private func willResignActive() {
         // Flush metrics directly via the integration's flush method
         _ = flush() // Use discardable result

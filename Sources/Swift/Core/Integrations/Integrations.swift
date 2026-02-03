@@ -76,7 +76,7 @@ private struct AnyIntegration {
         integrations.append(.init(UserFeedbackIntegration.self))
         #endif
         
-        #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+        #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UIKIT
         integrations.append(.init(FlushLogsIntegration.self))
         #endif
 
