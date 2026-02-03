@@ -61,6 +61,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         if deleteFileDirectory {
             try FileManager.default.removeItem(at: fixture.fileDirectory)
         }
+        clearTestState()
         SentrySDK.close()
     }
     

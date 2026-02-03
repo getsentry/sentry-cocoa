@@ -86,12 +86,6 @@ class TestCoreDataStack {
         return obj
     }
     
-    func saveContext() throws {
-        if managedObjectContext.hasChanges {
-            try managedObjectContext.save()
-        }
-    }
-    
     func initializeStoreCoordinator() throws {
         guard let tempDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return }
 

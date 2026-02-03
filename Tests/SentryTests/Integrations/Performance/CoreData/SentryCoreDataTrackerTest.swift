@@ -200,9 +200,9 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         let transaction = try startTransaction()
         
-        XCTAssertNoThrow(try sut.managedObjectContext(fixture.context) { _ in
+        try sut.managedObjectContext(fixture.context) { _ in
             return true
-        })
+        }
         
         XCTAssertEqual(transaction.children.count, 1)
         
@@ -266,9 +266,9 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         let context = fixture.context
         
-        XCTAssertNoThrow(try sut.fetchManagedObjectContext(context, request: fetch, isErrorNil: true) { _, _ in
+        _ = try sut.fetchManagedObjectContext(context, request: fetch, isErrorNil: true) { _, _ in
             return nil
-        })
+        }
         
         XCTAssertEqual(transaction.children.count, 1)
         XCTAssertEqual(try XCTUnwrap(transaction.children.first).status, .internalError)
@@ -304,9 +304,9 @@ class SentryCoreDataTrackerTests: XCTestCase {
         
         let transaction = try startTransaction()
         
-        XCTAssertNoThrow(try sut.managedObjectContext(fixture.context) { _ in
+        try sut.managedObjectContext(fixture.context) { _ in
             return true
-        })
+        }
         
         XCTAssertEqual(transaction.children.count, 0)
     }
@@ -320,9 +320,9 @@ private extension SentryCoreDataTrackerTests {
         
         let transaction = try startTransaction()
         
-        XCTAssertNoThrow(try sut.managedObjectContext(fixture.context) { _ in
+        try sut.managedObjectContext(fixture.context) { _ in
             return true
-        }, file: file, line: line)
+        }
 
         let dbSpan = try XCTUnwrap(transaction.children.first)
         

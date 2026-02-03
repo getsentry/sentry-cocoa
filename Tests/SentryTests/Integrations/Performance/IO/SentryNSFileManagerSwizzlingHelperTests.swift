@@ -49,7 +49,7 @@ final class SentryNSFileManagerSwizzlingHelperTests: XCTestCase {
             try FileManager.default.removeItem(at: fileUrl)
         }
         if deleteFileDirectory {
-            XCTAssertNoThrow(try FileManager.default.removeItem(at: fileDirectory))
+            try FileManager.default.removeItem(at: fileDirectory)
         }
 
         super.tearDown()
