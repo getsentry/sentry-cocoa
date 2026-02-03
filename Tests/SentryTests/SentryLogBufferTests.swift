@@ -8,7 +8,6 @@ final class SentryLogBufferTests: XCTestCase {
     private var testDateProvider: TestCurrentDateProvider!
     private var testDelegate: TestLogBufferDelegate!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
-    private var scope: Scope!
 
     private func getSut() -> SentryLogBuffer {
         return SentryLogBuffer(
@@ -21,7 +20,7 @@ final class SentryLogBufferTests: XCTestCase {
             delegate: testDelegate
         )
     }
-    
+
     override func setUp() {
         super.setUp()
         
@@ -33,15 +32,12 @@ final class SentryLogBufferTests: XCTestCase {
         testDelegate = TestLogBufferDelegate()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
-        
-        scope = Scope()
     }
     
     override func tearDown() {
         super.tearDown()
         testDelegate = nil
         testDispatchQueue = nil
-        scope = nil
     }
     
     // MARK: - Basic Functionality Tests
@@ -53,8 +49,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log2 = createTestLog(body: "Log 2")
         
         // -- Act --
-        sut.addLog(log1, scope: scope)
-        sut.addLog(log2, scope: scope)
+        sut.addLog(log1)
+        sut.addLog(log2)
         sut.captureLogs()
         
         // -- Assert --
@@ -75,7 +71,7 @@ final class SentryLogBufferTests: XCTestCase {
         let largeLog = createTestLog(body: largeLogBody)
         
         // -- Act --
-        sut.addLog(largeLog, scope: scope)
+        sut.addLog(largeLog)
         
         // -- Assert --
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 1)
@@ -94,13 +90,13 @@ final class SentryLogBufferTests: XCTestCase {
         // -- Act --
         for i in 0..<9 {
             let log = createTestLog(body: "Log \(i + 1)")
-            sut.addLog(log, scope: scope)
+            sut.addLog(log)
         }
         
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
         
         let log = createTestLog(body: "Log \(10)") // Reached 10 max logs limit
-        sut.addLog(log, scope: scope)
+        sut.addLog(log)
         
         // -- Assert --
         XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 1)
@@ -117,7 +113,7 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog()
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        sut.addLog(log)
         testDispatchQueue.invokeLastDispatchAfterWorkItem()
         
         // -- Assert --
@@ -136,8 +132,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log2 = createTestLog(body: "Log 2")
         
         // -- Act --
-        sut.addLog(log1, scope: scope)
-        sut.addLog(log2, scope: scope)
+        sut.addLog(log1)
+        sut.addLog(log2)
         testDispatchQueue.invokeLastDispatchAfterWorkItem()
         
         // -- Assert --
@@ -158,8 +154,8 @@ final class SentryLogBufferTests: XCTestCase {
         let log2 = createTestLog(body: "Log 2")
         
         // -- Act --
-        sut.addLog(log1, scope: scope)
-        sut.addLog(log2, scope: scope)
+        sut.addLog(log1)
+        sut.addLog(log2)
         sut.captureLogs()
         
         // -- Assert --
@@ -173,7 +169,7 @@ final class SentryLogBufferTests: XCTestCase {
         // -- Arrange --
         let sut = getSut()
         let log = createTestLog()
-        sut.addLog(log, scope: scope)
+        sut.addLog(log)
         let timerWorkItem = try XCTUnwrap(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem)
         
         // -- Act --
@@ -205,9 +201,9 @@ final class SentryLogBufferTests: XCTestCase {
         let log2 = createTestLog(body: largeLogBody)
         
         // -- Act --
-        sut.addLog(log1, scope: scope)
+        sut.addLog(log1)
         let timerWorkItem = try XCTUnwrap(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem)
-        sut.addLog(log2, scope: scope)
+        sut.addLog(log2)
         timerWorkItem.perform()
         
         // -- Assert --
@@ -221,9 +217,9 @@ final class SentryLogBufferTests: XCTestCase {
         let log2 = createTestLog(body: "Log 2")
         
         // -- Act --
-        sut.addLog(log1, scope: scope)
+        sut.addLog(log1)
         sut.captureLogs()
-        sut.addLog(log2, scope: scope)
+        sut.addLog(log2)
         sut.captureLogs()
         
         // -- Assert --
@@ -256,7 +252,7 @@ final class SentryLogBufferTests: XCTestCase {
         for i in 0..<10 {
             DispatchQueue.global().async {
                 let log = self.createTestLog(body: "Log \(i)")
-                sutWithRealQueue.addLog(log, scope: self.scope)
+                sutWithRealQueue.addLog(log)
                 expectation.fulfill()
             }
         }
@@ -284,7 +280,7 @@ final class SentryLogBufferTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Real timeout flush")
         
         // -- Act --
-        sutWithRealQueue.addLog(log, scope: scope)
+        sutWithRealQueue.addLog(log)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             expectation.fulfill()
         }
@@ -298,460 +294,6 @@ final class SentryLogBufferTests: XCTestCase {
         XCTAssertEqual(capturedLogs[0].body, "Real timeout test log")
     }
     
-    // MARK: - Attribute Enrichment Tests
-    
-    func testAddLog_AddsDefaultAttributes() throws {
-        // -- Arrange --
-        options.environment = "test-environment"
-        options.releaseName = "1.0.0"
-        let sut = getSut()
-
-        let span = SentryTracer(transactionContext: TransactionContext(name: "Test Transaction", operation: "test-operation"), hub: nil)
-        scope.span = span
-        let log = createTestLog(body: "Test log message")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        XCTAssertEqual(capturedLogs.count, 1)
-        
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributes
-        
-        XCTAssertEqual(attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
-        XCTAssertEqual(attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
-        XCTAssertEqual(attributes["sentry.environment"]?.value as? String, "test-environment")
-        XCTAssertEqual(attributes["sentry.release"]?.value as? String, "1.0.0")
-        XCTAssertEqual(attributes["span_id"]?.value as? String, span.spanId.sentrySpanIdString)
-    }
-    
-    func testAddLog_DoesNotAddNilDefaultAttributes() throws {
-        // -- Arrange --
-        options.releaseName = nil
-        let sut = getSut()
-        let log = createTestLog(body: "Test log message")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributes
-        
-        XCTAssertNil(attributes["sentry.release"])
-        XCTAssertNil(attributes["span_id"])
-        XCTAssertEqual(attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
-        XCTAssertEqual(attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
-        XCTAssertNotNil(attributes["sentry.environment"])
-    }
-    
-    func testAddLog_SetsTraceIdFromPropagationContext() throws {
-        // -- Arrange --
-        let expectedTraceId = SentryId()
-        let propagationContext = SentryPropagationContext(traceId: expectedTraceId, spanId: SpanId())
-        scope.propagationContext = propagationContext
-        let sut = getSut()
-        let log = createTestLog(body: "Test log message with trace ID")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        XCTAssertEqual(capturedLog.traceId, expectedTraceId)
-    }
-    
-    func testAddLog_whenSendDefaultPiiTrue_shouldAddUserAttributes() throws {
-        // -- Arrange --
-        options.sendDefaultPii = true
-
-        let user = User()
-        user.userId = "123"
-        user.email = "test@test.com"
-        user.name = "test-name"
-        scope.setUser(user)
-
-        let sut = getSut()
-        let log = createTestLog(body: "Test log message with user")
-
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributes
-
-        XCTAssertEqual(attributes["user.id"]?.value as? String, "123")
-        XCTAssertEqual(attributes["user.name"]?.value as? String, "test-name")
-        XCTAssertEqual(attributes["user.email"]?.value as? String, "test@test.com")
-    }
-
-    func testAddLog_whenSendDefaultPiiFalse_shouldNotAddUserAttributes() throws {
-        // -- Arrange --
-        let installationId = SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath)
-        options.sendDefaultPii = false
-
-        let user = User()
-        user.userId = "123"
-        user.email = "test@test.com"
-        user.name = "test-name"
-        scope.setUser(user)
-
-        let sut = getSut()
-        let log = createTestLog(body: "Test log message with user")
-
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributes
-
-        // The installation id is used as a fallback for the user.id
-        XCTAssertEqual(attributes["user.id"]?.value as? String, installationId)
-        XCTAssertNil(attributes["user.name"])
-        XCTAssertNil(attributes["user.email"])
-    }
-
-    func testAddLog_whenSendDefaultPiiTrue_shouldNotAddNilUserAttributes() throws {
-        // -- Arrange --
-        options.sendDefaultPii = true
-
-        let user = User()
-        user.userId = "123"
-        scope.setUser(user)
-        
-        let sut = getSut()
-        let log = createTestLog(body: "Test log message with partial user")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributes
-        
-        XCTAssertEqual(attributes["user.id"]?.value as? String, "123")
-        XCTAssertNil(attributes["user.name"])
-        XCTAssertNil(attributes["user.email"])
-    }
-    
-    func testAddLog_NoUserAtributesAreSetIfInstallationIdIsNotCached() throws {
-        // -- Arrange --
-        let sut = getSut()
-        let log = createTestLog(body: "Test log message without user")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributes
-        
-        XCTAssertNil(attributes["user.id"])
-        XCTAssertNil(attributes["user.name"])
-        XCTAssertNil(attributes["user.email"])
-    }
-    
-    func testAddLog_OnlySetsUserIdToInstallationIdWhenNoUserIsSet() throws {
-        // -- Arrange --
-        _ = SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath)
-        let sut = getSut()
-        let log = createTestLog(body: "Test log message without user")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributes
-        
-        XCTAssertNotNil(attributes["user.id"])
-        XCTAssertEqual(attributes["user.id"]?.value as? String, SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath))
-        XCTAssertNil(attributes["user.name"])
-        XCTAssertNil(attributes["user.email"])
-    }
-    
-    func testAddLog_AddsOSAndDeviceAttributes() throws {
-        // -- Arrange --
-        let osContext = ["name": "iOS", "version": "16.0.1"]
-        let deviceContext = ["family": "iOS", "model": "iPhone14,4"]
-        scope.setContext(value: osContext, key: "os")
-        scope.setContext(value: deviceContext, key: "device")
-        let sut = getSut()
-        let log = createTestLog(body: "Test log message")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributes
-        
-        XCTAssertEqual(attributes["os.name"]?.value as? String, "iOS")
-        XCTAssertEqual(attributes["os.version"]?.value as? String, "16.0.1")
-        XCTAssertEqual(attributes["device.brand"]?.value as? String, "Apple")
-        XCTAssertEqual(attributes["device.model"]?.value as? String, "iPhone14,4")
-        XCTAssertEqual(attributes["device.family"]?.value as? String, "iOS")
-    }
-    
-    func testAddLog_HandlesPartialOSAndDeviceAttributes() throws {
-        // -- Arrange --
-        let osContext = ["name": "macOS"]
-        let deviceContext = ["family": "macOS"]
-        scope.setContext(value: osContext, key: "os")
-        scope.setContext(value: deviceContext, key: "device")
-        let sut = getSut()
-        let log = createTestLog(body: "Test log message")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributes
-        
-        XCTAssertEqual(attributes["os.name"]?.value as? String, "macOS")
-        XCTAssertNil(attributes["os.version"])
-        XCTAssertEqual(attributes["device.brand"]?.value as? String, "Apple")
-        XCTAssertNil(attributes["device.model"])
-        XCTAssertEqual(attributes["device.family"]?.value as? String, "macOS")
-    }
-    
-    func testAddLog_HandlesMissingOSAndDeviceContext() throws {
-        // -- Arrange --
-        scope.removeContext(key: "os")
-        scope.removeContext(key: "device")
-        let sut = getSut()
-        let log = createTestLog(body: "Test log message")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributes
-        
-        XCTAssertNil(attributes["os.name"])
-        XCTAssertNil(attributes["os.version"])
-        XCTAssertNil(attributes["device.brand"])
-        XCTAssertNil(attributes["device.model"])
-        XCTAssertNil(attributes["device.family"])
-    }
-    
-    func testAddLog_AddsScopeAttributes() throws {
-        // -- Arrange --
-        let scope = Scope()
-        scope.setAttribute(value: "aString", key: "string-attribute")
-        scope.setAttribute(value: false, key: "bool-attribute")
-        scope.setAttribute(value: 1.765, key: "double-attribute")
-        scope.setAttribute(value: 5, key: "integer-attribute")
-        let sut = getSut()
-        let log = createTestLog(body: "Test log message with user")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributes
-        
-        XCTAssertEqual(attributes["string-attribute"]?.value as? String, "aString")
-        XCTAssertEqual(attributes["string-attribute"]?.type, "string")
-        XCTAssertEqual(attributes["bool-attribute"]?.value as? Bool, false)
-        XCTAssertEqual(attributes["bool-attribute"]?.type, "boolean")
-        XCTAssertEqual(attributes["double-attribute"]?.value as? Double, 1.765)
-        XCTAssertEqual(attributes["double-attribute"]?.type, "double")
-        XCTAssertEqual(attributes["integer-attribute"]?.value as? Int, 5)
-        XCTAssertEqual(attributes["integer-attribute"]?.type, "integer")
-    }
-
-    func testAddLog_ScopeAttributesDoNotOverrideLogAttribute() throws {
-        // -- Arrange --
-        let scope = Scope()
-        scope.setAttribute(value: true, key: "log-attribute")
-        let sut = getSut()
-        let log = createTestLog(body: "Test log message with user", attributes: [ "log-attribute": .init(value: false)])
-
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributes
-
-        XCTAssertEqual(attributes["log-attribute"]?.value as? Bool, false)
-        XCTAssertEqual(attributes["log-attribute"]?.type, "boolean")
-    }
-
-    // MARK: - Replay Attributes Tests
-    
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
-#if os(iOS) || os(tvOS)
-    func testAddLog_ReplayAttributes_SessionMode_AddsReplayId() throws {
-        // -- Arrange --
-        let replayId = "12345678-1234-1234-1234-123456789012"
-        scope.replayId = replayId
-        let sut = getSut()
-        let log = createTestLog(body: "Test message")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        XCTAssertEqual(capturedLog.attributes["sentry.replay_id"]?.value as? String, replayId)
-        XCTAssertNil(capturedLog.attributes["sentry._internal.replay_is_buffering"])
-    }
-    
-    func testAddLog_ReplayAttributes_NoReplayId_NoAttributesAdded() throws {
-        // -- Arrange --
-        scope.replayId = nil
-        let sut = getSut()
-        let log = createTestLog(body: "Test message")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        XCTAssertNil(capturedLog.attributes["sentry.replay_id"])
-        XCTAssertNil(capturedLog.attributes["sentry._internal.replay_is_buffering"])
-    }
-#endif
-#endif
-    
-    // MARK: - BeforeSendLog Callback Tests
-    
-    func testBeforeSendLog_ReturnsModifiedLog() throws {
-        // -- Arrange --
-        var beforeSendCalled = false
-        options.beforeSendLog = { log in
-            beforeSendCalled = true
-            
-            XCTAssertEqual(log.level, .info)
-            XCTAssertEqual(log.body, "Original message")
-            
-            log.body = "Modified by callback"
-            log.level = .warn
-            log.attributes["callback_modified"] = SentryLog.Attribute(boolean: true)
-            
-            return log
-        }
-        let sut = getSut()
-        let log = createTestLog(level: .info, body: "Original message")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        XCTAssertTrue(beforeSendCalled)
-        
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        XCTAssertEqual(capturedLog.level, .warn)
-        XCTAssertEqual(capturedLog.body, "Modified by callback")
-        XCTAssertEqual(capturedLog.attributes["callback_modified"]?.value as? Bool, true)
-    }
-    
-    func testBeforeSendLog_ReturnsNil_LogNotCaptured() {
-        // -- Arrange --
-        var beforeSendCalled = false
-        options.beforeSendLog = { _ in
-            beforeSendCalled = true
-            return nil // Drop the log
-        }
-        let sut = getSut()
-        let log = createTestLog(body: "This log should be dropped")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        XCTAssertTrue(beforeSendCalled)
-        XCTAssertEqual(testDelegate.captureLogsDataInvocations.count, 0)
-    }
-    
-    func testBeforeSendLog_NotSet_LogCapturedUnmodified() throws {
-        // -- Arrange --
-        options.beforeSendLog = nil
-        let sut = getSut()
-        let log = createTestLog(level: .debug, body: "Debug message")
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        XCTAssertEqual(capturedLogs.count, 1)
-        
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        XCTAssertEqual(capturedLog.level, .debug)
-        XCTAssertEqual(capturedLog.body, "Debug message")
-    }
-    
-    func testBeforeSendLog_PreservesOriginalLogAttributes() throws {
-        // -- Arrange --
-        options.beforeSendLog = { log in
-            log.attributes["added_by_callback"] = SentryLog.Attribute(string: "callback_value")
-            return log
-        }
-        let sut = getSut()
-        
-        let logAttributes: [String: SentryLog.Attribute] = [
-            "original_key": SentryLog.Attribute(string: "original_value"),
-            "user_id": SentryLog.Attribute(integer: 12_345)
-        ]
-        let log = createTestLog(body: "Test message", attributes: logAttributes)
-        
-        // -- Act --
-        sut.addLog(log, scope: scope)
-        sut.captureLogs()
-        
-        // -- Assert --
-        let capturedLogs = testDelegate.getCapturedLogs()
-        let capturedLog = try XCTUnwrap(capturedLogs.first)
-        let attributes = capturedLog.attributes
-        
-        XCTAssertEqual(attributes["original_key"]?.value as? String, "original_value")
-        XCTAssertEqual(attributes["user_id"]?.value as? Int, 12_345)
-        XCTAssertEqual(attributes["added_by_callback"]?.value as? String, "callback_value")
-    }
-    
     func testAddLog_WithLogsDisabled_DoesNotCaptureLog() {
         // -- Arrange --
         options.enableLogs = false
@@ -759,7 +301,7 @@ final class SentryLogBufferTests: XCTestCase {
         let log = createTestLog(body: "This log should be ignored")
         
         // -- Act --
-        sut.addLog(log, scope: scope)
+        sut.addLog(log)
         sut.captureLogs()
         
         // -- Assert --

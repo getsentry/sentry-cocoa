@@ -11,7 +11,7 @@ import Foundation
 @objcMembers
 @_spi(Private) public class SentryLogBuffer: NSObject {
     private let options: Options
-    private let buffer: any TelemetryBuffer<SentryLog, Scope>
+    private let buffer: any TelemetryBuffer<SentryLog>
     private weak var delegate: SentryLogBufferDelegate?
 
     /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
@@ -64,11 +64,9 @@ import Foundation
     ) {
         self.buffer = DefaultTelemetryBuffer(
             config: .init(
-                sendDefaultPii: options.sendDefaultPii,
                 flushTimeout: flushTimeout,
                 maxItemCount: maxLogCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
-                beforeSendItem: options.beforeSendLog,
                 capturedDataCallback: { [weak delegate] data, count in
                     guard let delegate else {
                         SentrySDKLog.debug("SentryLogBuffer: Delegate not set, not capturing logs data.")
@@ -76,11 +74,6 @@ import Foundation
                     }
                     delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
                 }
-            ),
-            metadata: .init(
-                environment: options.environment,
-                releaseName: options.releaseName,
-                installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
             ),
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
@@ -93,14 +86,13 @@ import Foundation
 
     /// Adds a log to the buffer.
     /// - Parameters:
-    ///   - log: The log to add
-    ///   - scope: The scope to add the log to
-    @_spi(Private) @objc public func addLog(_ log: SentryLog, scope: Scope) {
+    ///   - log: The log to add (should already have scope enrichment applied)
+    @_spi(Private) @objc public func addLog(_ log: SentryLog) {
         guard options.enableLogs else {
             return
         }
 
-        buffer.add(log, scope: scope)
+        buffer.add(log)
     }
 
     /// Captures buffered logs sync and returns the duration.
@@ -110,7 +102,7 @@ import Foundation
     }
 }
 
-extension SentryLog: TelemetryBufferItem {
+extension SentryLog: TelemetryItem {
     var attributesDict: [String: SentryAttributeContent] {
         get {
             attributes.mapValues { value in
