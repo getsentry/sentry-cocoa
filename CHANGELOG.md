@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix mismatch of `in_foreground` app context (#7188) The app context `in_foreground` for handled and unhandled events was sometimes different. This is fixed now by aligning the implementation and adding a new `is_active` app context field.
+- Fix App hangs report with high durations (#7354)
 
 ## 9.3.0
 
