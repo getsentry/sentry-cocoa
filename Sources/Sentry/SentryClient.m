@@ -1105,6 +1105,16 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     if ([log isKindOfClass:[SentryLog class]]) {
         SentryLog *sentryLog = (SentryLog *)log;
         SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope toLog:sentryLog];
+
+        // Call beforeSendLog callback if configured
+        if (self.options.beforeSendLog != nil) {
+            enrichedLog = self.options.beforeSendLog(enrichedLog);
+            if (enrichedLog == nil) {
+                SENTRY_LOG_DEBUG(@"Log dropped by beforeSendLog callback.");
+                return;
+            }
+        }
+
         [self.logBuffer addLog:enrichedLog];
     }
 }
