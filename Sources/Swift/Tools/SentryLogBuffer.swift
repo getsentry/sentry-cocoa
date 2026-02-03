@@ -67,7 +67,6 @@ import Foundation
                 flushTimeout: flushTimeout,
                 maxItemCount: maxLogCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
-                beforeSendItem: options.beforeSendLog,
                 capturedDataCallback: { [weak delegate] data, count in
                     guard let delegate else {
                         SentrySDKLog.debug("SentryLogBuffer: Delegate not set, not capturing logs data.")

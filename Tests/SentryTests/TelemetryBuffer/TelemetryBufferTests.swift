@@ -72,14 +72,12 @@ final class TelemetryBufferTests: XCTestCase {
     private func getSut(
         flushTimeout: TimeInterval = 0.1,
         maxItemCount: Int = 10,
-        maxBufferSizeBytes: Int = 8_000,
-        beforeSendItem: ((TestItem) -> TestItem?)? = nil
+        maxBufferSizeBytes: Int = 8_000
     ) -> DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem> {
         var config = DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem>.Config(
             flushTimeout: flushTimeout,
             maxItemCount: maxItemCount,
-            maxBufferSizeBytes: maxBufferSizeBytes,
-            beforeSendItem: beforeSendItem
+            maxBufferSizeBytes: maxBufferSizeBytes
         )
         config.capturedDataCallback = { [weak self] data, count in
             self?.capturedDataInvocations.record((data, count))
@@ -253,44 +251,6 @@ final class TelemetryBufferTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1, "Timer should be cancelled")
-    }
-    
-    // MARK: - BeforeSendItem Callback Tests
-    
-    func testAdd_whenBeforeSendItemModifiesItem_shouldAppendModifiedItem() {
-        // -- Arrange --
-        var beforeSendCalled = false
-        let sut = getSut(
-            beforeSendItem: { item in
-                beforeSendCalled = true
-                var modified = item
-                modified.body = "Modified"
-                return modified
-            }
-        )
-        
-        // -- Act --
-        sut.add(TestItem(body: "Original"))
-        // Check before capture since capture flushes the buffer
-        XCTAssertEqual(testTelemetryBuffer.appendedItems.first?.body, "Modified")
-        _ = sut.capture()
-        
-        // -- Assert --
-        XCTAssertTrue(beforeSendCalled)
-        XCTAssertEqual(capturedDataInvocations.count, 1)
-    }
-    
-    func testAdd_whenBeforeSendItemReturnsNil_shouldDropItem() {
-        // -- Arrange --
-        let sut = getSut(beforeSendItem: { _ in nil })
-        
-        // -- Act --
-        sut.add(TestItem())
-        _ = sut.capture()
-        
-        // -- Assert --
-        XCTAssertEqual(capturedDataInvocations.count, 0)
-        XCTAssertEqual(testTelemetryBuffer.itemsCount, 0)
     }
     
     // MARK: - Edge Cases Tests

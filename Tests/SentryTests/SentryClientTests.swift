@@ -2447,6 +2447,158 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(enrichedLog.attributes["sentry.environment"]?.value as? String, sut.options.environment)
     }
 
+    // MARK: - BeforeSendLog Callback Tests
+
+    func testCaptureLog_beforeSendLogModifiesLog() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        var beforeSendCalled = false
+        sut.options.beforeSendLog = { log in
+            beforeSendCalled = true
+
+            XCTAssertEqual(log.level, .info)
+            XCTAssertEqual(log.body, "Original message")
+
+            log.body = "Modified by callback"
+            log.level = .warn
+            log.setAttribute(SentryLog.Attribute(boolean: true), forKey: "callback_modified")
+
+            return log
+        }
+
+        let testDelegate = TestLogBufferDelegateForClient()
+        let testBuffer = TestLogBufferForClient(
+            options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            delegate: testDelegate
+        )
+        Dynamic(sut).logBuffer = testBuffer
+
+        let log = SentryLog(level: .info, body: "Original message")
+        let scope = Scope()
+
+        // -- Act --
+        sut._swiftCaptureLog(log, with: scope)
+
+        // -- Assert --
+        XCTAssertTrue(beforeSendCalled)
+        XCTAssertEqual(testBuffer.addLogInvocations.count, 1)
+
+        let capturedLog = try XCTUnwrap(testBuffer.addLogInvocations.first)
+        XCTAssertEqual(capturedLog.level, .warn)
+        XCTAssertEqual(capturedLog.body, "Modified by callback")
+        XCTAssertEqual(capturedLog.attributes["callback_modified"]?.value as? Bool, true)
+    }
+
+    func testCaptureLog_beforeSendLogReturnsNil_logDropped() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        var beforeSendCalled = false
+        sut.options.beforeSendLog = { _ in
+            beforeSendCalled = true
+            return nil // Drop the log
+        }
+
+        let testDelegate = TestLogBufferDelegateForClient()
+        let testBuffer = TestLogBufferForClient(
+            options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            delegate: testDelegate
+        )
+        Dynamic(sut).logBuffer = testBuffer
+
+        let log = SentryLog(level: .info, body: "This log should be dropped")
+        let scope = Scope()
+
+        // -- Act --
+        sut._swiftCaptureLog(log, with: scope)
+
+        // -- Assert --
+        XCTAssertTrue(beforeSendCalled)
+        XCTAssertEqual(testBuffer.addLogInvocations.count, 0, "Log should be dropped when beforeSendLog returns nil")
+    }
+
+    func testCaptureLog_beforeSendLogNotSet_logCapturedUnmodified() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        sut.options.beforeSendLog = nil
+
+        let testDelegate = TestLogBufferDelegateForClient()
+        let testBuffer = TestLogBufferForClient(
+            options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            delegate: testDelegate
+        )
+        Dynamic(sut).logBuffer = testBuffer
+
+        let log = SentryLog(level: .debug, body: "Debug message")
+        let scope = Scope()
+
+        // -- Act --
+        sut._swiftCaptureLog(log, with: scope)
+
+        // -- Assert --
+        XCTAssertEqual(testBuffer.addLogInvocations.count, 1)
+
+        let capturedLog = try XCTUnwrap(testBuffer.addLogInvocations.first)
+        XCTAssertEqual(capturedLog.level, .debug)
+        XCTAssertEqual(capturedLog.body, "Debug message")
+    }
+
+    func testCaptureLog_beforeSendLogCalledAfterScopeIsApplied() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        var beforeSendCalled = false
+        sut.options.beforeSendLog = { log in
+            beforeSendCalled = true
+
+            // Verify that scope attributes were already applied before the callback runs
+            XCTAssertEqual(log.attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName,
+                          "Scope should be applied BEFORE beforeSendLog callback")
+            XCTAssertEqual(log.attributes["sentry.environment"]?.value as? String, sut.options.environment,
+                          "Scope should be applied BEFORE beforeSendLog callback")
+
+            return log
+        }
+
+        let testDelegate = TestLogBufferDelegateForClient()
+        let testBuffer = TestLogBufferForClient(
+            options: sut.options,
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            delegate: testDelegate
+        )
+        Dynamic(sut).logBuffer = testBuffer
+
+        let log = SentryLog(level: .info, body: "Test message")
+        let scope = Scope()
+
+        // -- Act --
+        sut._swiftCaptureLog(log, with: scope)
+
+        // -- Assert --
+        XCTAssertTrue(beforeSendCalled, "beforeSendLog should be called")
+        XCTAssertEqual(testBuffer.addLogInvocations.count, 1)
+    }
+
     func testFlushCallsLogBufferCaptureLogs() {
         let sut = fixture.getSut()
         
