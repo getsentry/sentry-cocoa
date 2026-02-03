@@ -16,14 +16,13 @@ import Foundation
     /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
     /// Creates its own serial dispatch queue with DEFAULT QoS for thread-safe access to mutable state.
     /// - Parameters:
-    ///   - options: The Sentry configuration options
+    ///   - dateProvider: The current date provider
     ///   - delegate: The delegate to handle captured log batches
     ///
     /// - Note: Uses DEFAULT priority (not LOW) because captureLogs() is called synchronously during
     ///         app lifecycle events (willResignActive, willTerminate) and needs to complete quickly.
     /// - Note: Setting `maxLogCount` to 100. While Replay hard limit is 1000, we keep this lower, as it's hard to lower once released.
     @_spi(Private) public convenience init(
-        options: Options,
         dateProvider: SentryCurrentDateProvider,
         delegate: SentryLogBufferDelegate
     ) {

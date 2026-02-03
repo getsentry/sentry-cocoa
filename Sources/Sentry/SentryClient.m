@@ -123,9 +123,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.attachmentProcessors = [[NSMutableArray alloc] init];
         self.eventContextEnricher = eventContextEnricher;
 
-        self.logBuffer = [[SentryLogBuffer alloc] initWithOptions:options
-                                                     dateProvider:dateProvider
-                                                         delegate:self];
+        self.logBuffer = [[SentryLogBuffer alloc] initWithDateProvider:dateProvider delegate:self];
         self.logScopeApplier =
             [[SentryDefaultLogScopeApplier alloc] initWithEnvironment:options.environment
                                                           releaseName:options.releaseName
