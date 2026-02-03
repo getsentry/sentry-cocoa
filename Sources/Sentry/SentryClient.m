@@ -49,6 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
 @property (nonatomic, strong) SentryLogBuffer *logBuffer;
+@property (nonatomic, strong) id<SentryLogScopeApplier> logScopeApplier;
 @property (nonatomic, strong) id<SentryEventContextEnricher> eventContextEnricher;
 
 @end
@@ -125,6 +126,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.logBuffer = [[SentryLogBuffer alloc] initWithOptions:options
                                                      dateProvider:dateProvider
                                                          delegate:self];
+        self.logScopeApplier =
+            [[SentryDefaultLogScopeApplier alloc] initWithEnvironment:options.environment
+                                                          releaseName:options.releaseName
+                                                   cacheDirectoryPath:options.cacheDirectoryPath
+                                                       sendDefaultPii:options.sendDefaultPii];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.
@@ -1097,7 +1103,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope
 {
     if ([log isKindOfClass:[SentryLog class]]) {
-        [self.logBuffer addLog:(SentryLog *)log scope:scope];
+        SentryLog *sentryLog = (SentryLog *)log;
+        SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope toLog:sentryLog];
+        [self.logBuffer addLog:enrichedLog];
     }
 }
 
