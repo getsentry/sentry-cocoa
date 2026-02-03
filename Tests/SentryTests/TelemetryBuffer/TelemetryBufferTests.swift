@@ -2,24 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-private struct TestScope: TelemetryBufferScope {
-    var replayId: String?
-    var propagationContextTraceId: SentryId
-    var span: Span?
-    var userObject: User?
-    var contextStore: [String: [String: Any]] = [:]
-    var attributes: [String: Any] = [:]
-    
-    init(propagationContextTraceId: SentryId = SentryId()) {
-        self.propagationContextTraceId = propagationContextTraceId
-    }
-
-    func getContextForKey(_ key: String) -> [String: Any]? {
-        return contextStore[key]
-    }
-}
-
-private struct TestItem: TelemetryBufferItem {
+private struct TestItem: TelemetryItem {
     var attributesDict: [String: SentryAttributeContent]
     var traceId: SentryId
     var body: String
@@ -76,7 +59,6 @@ final class TelemetryBufferTests: XCTestCase {
     private var testTelemetryBuffer: MockTelemetryBuffer!
     private var testDateProvider: TestCurrentDateProvider!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
-    private var testScope: TestScope!
 
     override func setUp() {
         super.setUp()
@@ -85,35 +67,26 @@ final class TelemetryBufferTests: XCTestCase {
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true
         testTelemetryBuffer = MockTelemetryBuffer()
-        testScope = TestScope()
     }
 
     private func getSut(
-        sendDefaultPii: Bool = false,
         flushTimeout: TimeInterval = 0.1,
         maxItemCount: Int = 10,
         maxBufferSizeBytes: Int = 8_000,
         beforeSendItem: ((TestItem) -> TestItem?)? = nil
-    ) -> DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem, TestScope> {
-        var config = DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem, TestScope>.Config(
-            sendDefaultPii: sendDefaultPii,
+    ) -> DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem> {
+        var config = DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem>.Config(
             flushTimeout: flushTimeout,
             maxItemCount: maxItemCount,
             maxBufferSizeBytes: maxBufferSizeBytes,
             beforeSendItem: beforeSendItem
         )
-        let metadata = DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem, TestScope>.Metadata(
-            environment: "test",
-            releaseName: "test-release",
-            installationId: "test-installation-id"
-        )
         config.capturedDataCallback = { [weak self] data, count in
             self?.capturedDataInvocations.record((data, count))
         }
-        
+
         return DefaultTelemetryBuffer(
             config: config,
-            metadata: metadata,
             buffer: testTelemetryBuffer,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue
@@ -128,7 +101,7 @@ final class TelemetryBufferTests: XCTestCase {
         let item = TestItem(body: "test item")
         
         // -- Act --
-        sut.add(item, scope: testScope)
+        sut.add(item)
         
         // -- Assert --
         XCTAssertEqual(testTelemetryBuffer.itemsCount, 1)
@@ -140,8 +113,8 @@ final class TelemetryBufferTests: XCTestCase {
         let sut = getSut()
         
         // -- Act --
-        sut.add(TestItem(body: "Item 1"), scope: testScope)
-        sut.add(TestItem(body: "Item 2"), scope: testScope)
+        sut.add(TestItem(body: "Item 1"))
+        sut.add(TestItem(body: "Item 2"))
         
         // -- Assert --
         XCTAssertEqual(testTelemetryBuffer.itemsCount, 2)
@@ -156,11 +129,11 @@ final class TelemetryBufferTests: XCTestCase {
         let sut = getSut(maxItemCount: 3)
         
         // -- Act --
-        sut.add(TestItem(body: "Item 1"), scope: testScope)
-        sut.add(TestItem(body: "Item 2"), scope: testScope)
+        sut.add(TestItem(body: "Item 1"))
+        sut.add(TestItem(body: "Item 2"))
         XCTAssertEqual(capturedDataInvocations.count, 0)
         
-        sut.add(TestItem(body: "Item 3"), scope: testScope)
+        sut.add(TestItem(body: "Item 3"))
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
@@ -174,10 +147,10 @@ final class TelemetryBufferTests: XCTestCase {
         let sut = getSut(maxBufferSizeBytes: 200) // Each item is ~100 bytes
         
         // -- Act --
-        sut.add(TestItem(body: "Item 1"), scope: testScope)
+        sut.add(TestItem(body: "Item 1"))
         XCTAssertEqual(capturedDataInvocations.count, 0)
         
-        sut.add(TestItem(body: "Item 2"), scope: testScope) // Total ~200 bytes
+        sut.add(TestItem(body: "Item 2")) // Total ~200 bytes
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
@@ -191,7 +164,7 @@ final class TelemetryBufferTests: XCTestCase {
         let sut = getSut()
         
         // -- Act --
-        sut.add(TestItem(), scope: testScope)
+        sut.add(TestItem())
         
         // -- Assert --
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
@@ -203,7 +176,7 @@ final class TelemetryBufferTests: XCTestCase {
         let sut = getSut()
         
         // -- Act --
-        sut.add(TestItem(), scope: testScope)
+        sut.add(TestItem())
         testDispatchQueue.invokeLastDispatchAfterWorkItem()
         
         // -- Assert --
@@ -216,9 +189,9 @@ final class TelemetryBufferTests: XCTestCase {
         let sut = getSut()
         
         // -- Act --
-        sut.add(TestItem(), scope: testScope)
+        sut.add(TestItem())
         let initialTimerCount = testDispatchQueue.dispatchAfterWorkItemInvocations.count
-        sut.add(TestItem(), scope: testScope)
+        sut.add(TestItem())
         
         // -- Assert --
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, initialTimerCount)
@@ -229,8 +202,8 @@ final class TelemetryBufferTests: XCTestCase {
     func testCapture_whenItemsInTelemetryBuffer_shouldFlushImmediately() {
         // -- Arrange --
         let sut = getSut()
-        sut.add(TestItem(body: "Item 1"), scope: testScope)
-        sut.add(TestItem(body: "Item 2"), scope: testScope)
+        sut.add(TestItem(body: "Item 1"))
+        sut.add(TestItem(body: "Item 2"))
         
         // -- Act --
         _ = sut.capture()
@@ -243,9 +216,9 @@ final class TelemetryBufferTests: XCTestCase {
     func testCapture_whenMultipleItems_shouldPassCorrectItemCount() {
         // -- Arrange --
         let sut = getSut()
-        sut.add(TestItem(body: "Item 1"), scope: testScope)
-        sut.add(TestItem(body: "Item 2"), scope: testScope)
-        sut.add(TestItem(body: "Item 3"), scope: testScope)
+        sut.add(TestItem(body: "Item 1"))
+        sut.add(TestItem(body: "Item 2"))
+        sut.add(TestItem(body: "Item 3"))
         
         // -- Act --
         _ = sut.capture()
@@ -271,7 +244,7 @@ final class TelemetryBufferTests: XCTestCase {
     func testCapture_whenTimerScheduled_shouldCancelTimer() {
         // -- Arrange --
         let sut = getSut()
-        sut.add(TestItem(), scope: testScope)
+        sut.add(TestItem())
         let timerWorkItem = testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem
         
         // -- Act --
@@ -297,7 +270,7 @@ final class TelemetryBufferTests: XCTestCase {
         )
         
         // -- Act --
-        sut.add(TestItem(body: "Original"), scope: testScope)
+        sut.add(TestItem(body: "Original"))
         // Check before capture since capture flushes the buffer
         XCTAssertEqual(testTelemetryBuffer.appendedItems.first?.body, "Modified")
         _ = sut.capture()
@@ -312,7 +285,7 @@ final class TelemetryBufferTests: XCTestCase {
         let sut = getSut(beforeSendItem: { _ in nil })
         
         // -- Act --
-        sut.add(TestItem(), scope: testScope)
+        sut.add(TestItem())
         _ = sut.capture()
         
         // -- Assert --
@@ -325,11 +298,11 @@ final class TelemetryBufferTests: XCTestCase {
     func testAdd_whenScheduledFlushAfterManualFlush_shouldNotFlushAgain() {
         // -- Arrange --
         let sut = getSut(maxBufferSizeBytes: 200)
-        sut.add(TestItem(), scope: testScope)
+        sut.add(TestItem())
         let timerWorkItem = testDispatchQueue.dispatchAfterWorkItemInvocations.first?.workItem
         
         // -- Act --
-        sut.add(TestItem(), scope: testScope) // Triggers immediate flush
+        sut.add(TestItem()) // Triggers immediate flush
         timerWorkItem?.perform() // Try to flush again
         
         // -- Assert --
@@ -342,9 +315,9 @@ final class TelemetryBufferTests: XCTestCase {
         let sut = getSut()
         
         // -- Act --
-        sut.add(TestItem(body: "Item 1"), scope: testScope)
+        sut.add(TestItem(body: "Item 1"))
         _ = sut.capture()
-        sut.add(TestItem(body: "Item 2"), scope: testScope)
+        sut.add(TestItem(body: "Item 2"))
         _ = sut.capture()
         
         // -- Assert --
