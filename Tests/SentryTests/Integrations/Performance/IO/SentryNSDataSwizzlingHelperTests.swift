@@ -14,15 +14,15 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
     private var deleteFileDirectory = false
     private var mockTracker: MockFileIOTracker!
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
 
         let directories = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         fileDirectory = directories.first!
 
         if !FileManager.default.fileExists(atPath: fileDirectory.path) {
             deleteFileDirectory = true
-            try? FileManager.default.createDirectory(
+            try FileManager.default.createDirectory(
                 at: fileDirectory,
                 withIntermediateDirectories: true,
                 attributes: nil
@@ -39,15 +39,17 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
         mockTracker.enable()
     }
 
-    override func tearDown() {
+    override func tearDownWithError() throws {
         mockTracker.disable()
         SentryNSDataSwizzlingHelper.stop()
 
         XCTAssertFalse(SentryNSDataSwizzlingHelper.swizzlingActive(), "Swizzling should be inactive after stop call")
 
-        try? FileManager.default.removeItem(at: fileUrl)
+        if FileManager.default.fileExists(atPath: fileUrl.path) {
+            try FileManager.default.removeItem(at: fileUrl)
+        }
         if deleteFileDirectory {
-            try? FileManager.default.removeItem(at: fileDirectory)
+            try FileManager.default.removeItem(at: fileDirectory)
         }
 
         super.tearDown()

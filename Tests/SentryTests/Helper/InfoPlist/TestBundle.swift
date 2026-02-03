@@ -136,14 +136,14 @@ class TestBundle {
     
     /// Cleans up a temporary test bundle
     /// - Parameter bundle: The bundle to clean up
-    static func cleanup(_ bundle: Bundle?) {
+    static func cleanup(_ bundle: Bundle?) throws {
         guard let bundle = bundle else {
             return
         }
         
         // Only delete if it's in the temp directory (safety check)
         if bundle.bundleURL.path.contains(FileManager.default.temporaryDirectory.path) {
-            try? FileManager.default.removeItem(at: bundle.bundleURL)
+            try FileManager.default.removeItem(at: bundle.bundleURL)
         }
     }
 }

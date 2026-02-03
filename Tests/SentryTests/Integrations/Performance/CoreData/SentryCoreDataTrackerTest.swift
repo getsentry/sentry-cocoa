@@ -13,8 +13,8 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let threadInspector = TestDefaultThreadInspector.instance
         let imageProvider = TestDebugImageProvider()
 
-        init(testName: String) {
-            coreDataStack = TestCoreDataStack(
+        init(testName: String) throws {
+            coreDataStack = try TestCoreDataStack(
                 databaseFilename: "db-\(testName.hashValue).sqlite"
             )
         }
@@ -49,9 +49,9 @@ class SentryCoreDataTrackerTests: XCTestCase {
     
     private var fixture: Fixture!
     
-    override func setUp() {
+    override func setUpWithError() throws {
         super.setUp()
-        fixture = Fixture(testName: self.name)
+        fixture = try Fixture(testName: self.name)
     }
     
     override func tearDown() {
@@ -72,6 +72,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let expect = expectation(description: "Operation in background thread")
         DispatchQueue.global(qos: .default).async {
             let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
+            // swiftlint:disable:next no_try_optional_in_tests
             try? self.assertRequest(
                 fetch,
                 expectedDescription: "SELECT 'TestEntity'",
@@ -124,6 +125,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let expect = expectation(description: "Operation in background thread")
         DispatchQueue.global(qos: .default).async {
             self.fixture.context.inserted = [self.fixture.testEntity()]
+            // swiftlint:disable:next no_try_optional_in_tests
             try? self.assertSave(
                 "INSERTED 1 'TestEntity'",
                 mainThread: false,
@@ -248,8 +250,7 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let sut = fixture.getSut()
         
         let context = fixture.context
-        
-        let _ = try?  sut.fetchManagedObjectContext(context, request: fetch) { _, _ in
+        _ = try sut.fetchManagedObjectContext(context, request: fetch) { _, _ in
             return nil
         }
         
@@ -343,12 +344,11 @@ private extension SentryCoreDataTrackerTests {
         let context = fixture.context
         
         let someEntity = fixture.testEntity()
-        
-        let result = try? sut.fetchManagedObjectContext(context, request: fetch) { _, _ in
+        let result = try sut.fetchManagedObjectContext(context, request: fetch) { _, _ in
             return [someEntity]
         }
 
-        XCTAssertEqual(result?.count, 1, file: file, line: line)
+        XCTAssertEqual(result.count, 1, file: file, line: line)
 
         let dbSpan = try XCTUnwrap(transaction.children.first, file: file, line: line)
         XCTAssertEqual(dbSpan.data["read_count"] as? Int, 1, file: file, line: line)

@@ -844,7 +844,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
         )
         defer {
-            try? fixture.tearDownDI()
+            XCTAssertNoThrow(try fixture.tearDownDI())
         }
         crashWrapper.internalIsBeingTraced = false
 

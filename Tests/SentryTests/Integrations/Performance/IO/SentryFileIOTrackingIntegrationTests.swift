@@ -30,11 +30,8 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             filePath = fileURL?.path
         }
 
-        func assertDataWritten(toUrl url: URL, file: StaticString = #file, line: UInt = #line) {
-            guard let data = try? Data(contentsOf: url) else {
-                XCTFail("Could not load written resource file", file: file, line: line)
-                return
-            }
+        func assertDataWritten(toUrl url: URL, file: StaticString = #file, line: UInt = #line) throws {
+            let data = try Data(contentsOf: url)
             XCTAssertEqual(self.data, data, file: file, line: line)
         }
 
@@ -51,56 +48,55 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         fixture = try Fixture()
         
         if  !FileManager.default.fileExists(atPath: fixture.fileDirectory.path) {
-            try? FileManager.default.createDirectory(at: fixture.fileDirectory, withIntermediateDirectories: true, attributes: nil)
+            try FileManager.default.createDirectory(at: fixture.fileDirectory, withIntermediateDirectories: true, attributes: nil)
             deleteFileDirectory = true
         }
-        
-        try? fixture.data.write(to: fixture.fileURL)
+
+        try fixture.data.write(to: fixture.fileURL)
     }
 
-    override func tearDown() {
-        super.tearDown()
-        try? FileManager.default.removeItem(at: fixture.fileURL)
+    override func tearDownWithError() throws {
+        try super.tearDownWithError()
+        try FileManager.default.removeItem(at: fixture.fileURL)
         if deleteFileDirectory {
-            try? FileManager.default.removeItem(at: fixture.fileDirectory)
+            try FileManager.default.removeItem(at: fixture.fileDirectory)
         }
-        clearTestState()
         SentrySDK.close()
     }
     
-    func test_WritingTrackingDisabled_forIOOption() {
+    func test_WritingTrackingDisabled_forIOOption() throws {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(enableFileIOTracing: false))
 
         // -- Assert --
-        assertWriteWithNoSpans()
+        try assertWriteWithNoSpans()
     }
     
-    func test_WritingTrackingDisabled_forSwizzlingOption() {
+    func test_WritingTrackingDisabled_forSwizzlingOption() throws {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(enableSwizzling: false))
 
         // -- Assert --
-        assertWriteWithNoSpans()
+        try assertWriteWithNoSpans()
     }
     
-    func test_WritingTrackingDisabled_forAutoPerformanceTrackingOption() {
+    func test_WritingTrackingDisabled_forAutoPerformanceTrackingOption() throws {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(enableAutoPerformanceTracing: false))
 
         // -- Assert --
-        assertWriteWithNoSpans()
+        try assertWriteWithNoSpans()
     }
     
-    func test_WritingTrackingDisabled_TracingDisabled() {
+    func test_WritingTrackingDisabled_TracingDisabled() throws {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(tracesSampleRate: 0))
 
         // -- Assert --
-        assertWriteWithNoSpans()
+        try assertWriteWithNoSpans()
     }
     
-    func testData_Writing_Tracking() {
+    func testData_Writing_Tracking() throws {
         // -- Arrange --
         let expectedSpanCount: Int
         if #available(iOS 18, macOS 15, tvOS 18, *) {
@@ -116,12 +112,12 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         SentrySDK.start(options: fixture.getOptions())
 
         // -- Assert --
-        assertSpans(expectedSpanCount, "file.write") {
-            try? fixture.data.write(to: fixture.fileURL)
+        try assertSpans(expectedSpanCount, "file.write") {
+            try fixture.data.write(to: fixture.fileURL)
         }
     }
 
-    func testData_WritingWithOption_Tracking() {
+    func testData_WritingWithOption_Tracking() throws {
         // -- Arrange --
         let expectedSpanCount: Int
         if #available(iOS 18, macOS 15, tvOS 18, *) {
@@ -137,44 +133,44 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         SentrySDK.start(options: fixture.getOptions())
 
         // -- Assert --
-        assertSpans(expectedSpanCount, "file.write") {
-            try? fixture.data.write(to: fixture.fileURL, options: .atomic)
+        try assertSpans(expectedSpanCount, "file.write") {
+            try fixture.data.write(to: fixture.fileURL, options: .atomic)
         }
     }
 
-    func test_ReadingTrackingDisabled_forIOOption() {
+    func test_ReadingTrackingDisabled_forIOOption() throws {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(enableFileIOTracing: false))
 
         // -- Assert --
-        assertWriteWithNoSpans()
+        try assertWriteWithNoSpans()
     }
     
-    func test_ReadingTrackingDisabled_forSwizzlingOption() {
+    func test_ReadingTrackingDisabled_forSwizzlingOption() throws {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(enableSwizzling: false))
 
         // -- Assert --
-        assertWriteWithNoSpans()
+        try assertWriteWithNoSpans()
     }
     
-    func test_ReadingTrackingDisabled_forAutoPerformanceTrackingOption() {
+    func test_ReadingTrackingDisabled_forAutoPerformanceTrackingOption() throws {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(enableAutoPerformanceTracing: false))
 
         // -- Assert --
-        assertWriteWithNoSpans()
+        try assertWriteWithNoSpans()
     }
     
-    func test_ReadingTrackingDisabled_TracingDisabled() {
+    func test_ReadingTrackingDisabled_TracingDisabled() throws {
         // -- Act --
         SentrySDK.start(options: fixture.getOptions(tracesSampleRate: 0))
 
         // -- Assert --
-        assertWriteWithNoSpans()
+        try assertWriteWithNoSpans()
     }
     
-    func testData_ReadingURL_Tracking() {
+    func testData_ReadingURL_Tracking() throws {
         // -- Arrange --
         let expectedSpanCount: Int
         if #available(iOS 18.0, macOS 15.0, tvOS 18.0, *) {
@@ -188,8 +184,8 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
         // -- Act & Assert --
         SentrySDK.start(options: fixture.getOptions())
-        assertSpans(expectedSpanCount, "file.read") {
-            let _ = try? Data(contentsOf: fixture.fileURL)
+        try assertSpans(expectedSpanCount, "file.read") {
+            let _ = try Data(contentsOf: fixture.fileURL)
         }
     }
 
@@ -207,10 +203,10 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
         // -- Act & Assert --
         SentrySDK.start(options: fixture.getOptions())
-        let data = assertSpans(expectedSpanCount, "file.read") {
-            try? Data(contentsOf: fixture.fileURL, options: .uncached)
+        let data = try assertSpans(expectedSpanCount, "file.read") {
+            try Data(contentsOf: fixture.fileURL, options: .uncached)
         }
-        XCTAssertEqual(data?.count, fixture.data.count)
+        XCTAssertEqual(data.count, fixture.data.count)
     }
 
     func test_ReadingFile_Tracking() {
@@ -224,18 +220,18 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         XCTAssertEqual(data?.count, fixture.data.count)
     }
     
-    func test_ReadingFileWithOptions_Tracking() {
+    func test_ReadingFileWithOptions_Tracking() throws {
         // -- Arrange --
         SentrySDK.start(options: fixture.getOptions())
 
         // -- Act & Assert --
-        let data = assertSpans(1, "file.read") {
-            try? NSData(contentsOfFile: fixture.filePath, options: .uncached)
+        let data = try assertSpans(1, "file.read") {
+            try NSData(contentsOfFile: fixture.filePath, options: .uncached)
         }
-        XCTAssertEqual(data?.count, fixture.data.count)
+        XCTAssertEqual(data.count, fixture.data.count)
     }
     
-    func test_ReadingBigFile() {
+    func test_ReadingBigFile() throws {
         // -- Arrange --
         SentrySDK.start(options: fixture.getOptions())
         guard let jsonFile = getBigFilePath() else {
@@ -243,31 +239,28 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
             return
         }
         // -- Act & Assert --
-        let data = assertSpans(1, "file.read") {
-            try? NSData(contentsOfFile: jsonFile, options: .uncached)
+        let data = try assertSpans(1, "file.read") {
+            try NSData(contentsOfFile: jsonFile, options: .uncached)
         }
-        XCTAssertEqual(data?.count, 295_760)
+        XCTAssertEqual(data.count, 295_760)
     }
     
-    func test_WritingBigFile() {
+    func test_WritingBigFile() throws {
         // -- Arrange --
         guard let jsonFile = getBigFilePath() else {
             XCTFail("Could not open Resource")
             return
         }
-        
-        guard let data = try? NSData(contentsOfFile: jsonFile, options: .uncached) else {
-            XCTFail("Could not load File")
-            return
-        }
+
+        let data = try NSData(contentsOfFile: jsonFile, options: .uncached)
         
         SentrySDK.start(options: fixture.getOptions())
 
         // -- Act & Assert --
-        assertSpans(1, "file.write") {
-            try? data.write(to: fixture.fileURL, options: .atomic)
+        try assertSpans(1, "file.write") {
+            try data.write(to: fixture.fileURL, options: .atomic)
         }
-        let size = try? fixture.fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+        let size = try fixture.fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
         XCTAssertEqual(size, 295_760)
     }
     
@@ -278,40 +271,34 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         ?? bundle.path(forResource: "fatal-error-binary-images-message2", ofType: "json")
     }
     
-    func test_DataConsistency_readUrl() {
+    func test_DataConsistency_readUrl() throws {
         SentrySDK.start(options: fixture.getOptions())
-        
+
         let randomValue = UUID().uuidString
-        try? randomValue.data(using: .utf8)?.write(to: fixture.fileURL, options: .atomic)
+        try randomValue.data(using: .utf8)?.write(to: fixture.fileURL, options: .atomic)
         print("\(String(describing: fixture.fileURL))")
-        guard let data = try? Data(contentsOf: fixture.fileURL, options: .uncached) else {
-            XCTFail("Could not load resource file")
-            return
-        }
+        let data = try Data(contentsOf: fixture.fileURL, options: .uncached)
         let readValue = String(data: data, encoding: .utf8)
         XCTAssertEqual(randomValue, readValue)
     }
     
-    func test_DataConsistency_readPath() {
+    func test_DataConsistency_readPath() throws {
         SentrySDK.start(options: fixture.getOptions())
-        
+
         let randomValue = UUID().uuidString
-        try? randomValue.data(using: .utf8)?.write(to: fixture.fileURL, options: .atomic)
-        guard let data = try? NSData(contentsOfFile: fixture.filePath) as Data else {
-            XCTFail("Could not load resource file")
-            return 
-        }
+        try randomValue.data(using: .utf8)?.write(to: fixture.fileURL, options: .atomic)
+        let data = try NSData(contentsOfFile: fixture.filePath) as Data
         let readValue = String(data: data, encoding: .utf8)
         XCTAssertEqual(randomValue, readValue)
     }
 
-    func testEnableDataSwizzling_isNotEnabled_shouldNotSwizzleNSDataMethods() {
+    func testEnableDataSwizzling_isNotEnabled_shouldNotSwizzleNSDataMethods() throws {
         // -- Arrange --
         let options = fixture.getOptions(enableDataSwizzling: false)
         SentrySDK.start(options: options)
 
         // -- Act & Assert --
-        assertWriteWithNoSpans()
+        try assertWriteWithNoSpans()
     }
 
     func testDisableFileManagerSwizzling_isNotEnabledAndDataSwizzlingIsEnabled_shouldTrackWithSpan() throws {
@@ -344,9 +331,9 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
     }
 
-    private func assertWriteWithNoSpans() {
-        assertSpans(0, "file.write") {
-            try? fixture.data.write(to: fixture.fileURL)
+    private func assertWriteWithNoSpans() throws {
+        try assertSpans(0, "file.write") {
+            try fixture.data.write(to: fixture.fileURL)
         }
     }
 
@@ -355,13 +342,13 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         _ spansCount: Int,
         _ operation: String,
         _ description: String = "TestFile",
-        _ block: () -> ReturnValue,
+        _ block: () throws -> ReturnValue,
         file: StaticString = #file,
         line: UInt = #line
-    ) -> ReturnValue {
+    ) rethrows -> ReturnValue {
         let parentTransaction = SentrySDK.startTransaction(name: "Transaction", operation: "Test", bindToScope: true)
-        
-        let result = block()
+
+        let result = try block()
 
         let childrenSelector = NSSelectorFromString("children")
         
