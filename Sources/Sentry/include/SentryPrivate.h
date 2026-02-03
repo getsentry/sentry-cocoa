@@ -26,7 +26,6 @@
 #import "SentryNSDataUtils.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"
 #import "SentryNetworkTracker.h"
-#import "SentryOptionsInternal.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySessionReplaySyncC.h"
