@@ -62,7 +62,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         #endif
 
         var enableUncaughtNSExceptionReporting = false
-        #if os(macOS)
+        #if os(macOS) && !SENTRY_NO_UIKIT
         if options.enableSwizzling {
             enableUncaughtNSExceptionReporting = options.enableUncaughtNSExceptionReporting
         }
@@ -129,7 +129,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
         installation?.install(cacheDirectory)
 
-        #if os(macOS)
+        #if os(macOS) && !SENTRY_NO_UIKIT
         if enableReportingUncaughtExceptions {
             SentryUncaughtNSExceptions.configureCrashOnExceptions()
             SentryUncaughtNSExceptions.swizzleNSApplicationReportException()

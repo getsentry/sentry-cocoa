@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !SENTRY_NO_UIKIT
 
 #    import "SentryCrash.h"
 #    import "SentryCrashExceptionApplication.h"
