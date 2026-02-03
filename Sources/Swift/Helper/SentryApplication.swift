@@ -1,7 +1,8 @@
 // swiftlint:disable missing_docs
 #if canImport(AppKit) && !SENTRY_NO_UIKIT
 import AppKit
-#elseif canImport(UIKit) && !SENTRY_NO_UIKIT
+#endif
+#if canImport(UIKit) && !SENTRY_NO_UIKIT
 import UIKit
 #endif
 
