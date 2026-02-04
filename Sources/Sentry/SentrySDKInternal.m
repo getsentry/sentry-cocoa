@@ -229,6 +229,12 @@ static NSDate *_Nullable startTimestamp = nil;
                                                                       andScope:scope];
             [SentrySDKInternal setCurrentHub:hub];
 
+            // Execute any pending tasks that were queued before the SDK was fully initialized.
+            // This handles the race condition when SDK is started on a background thread
+            // and methods like setUser are called before main thread initialization finishes.
+            // See https://github.com/getsentry/sentry-cocoa/issues/6872
+            [SentryDependencyContainer.sharedInstance.pendingTaskQueue executePendingTasks];
+
             [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
             [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
 
@@ -450,13 +456,14 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)setUser:(SentryUser *_Nullable)user
 {
     if (![SentrySDKInternal isEnabled]) {
-        // We must log with level fatal because only fatal messages get logged even when the SDK
-        // isn't started. We've seen multiple times that users try to set the user before starting
-        // the SDK, and it confuses them. Ideally, we would do something to store the user and set
-        // it once we start the SDK, but this is a breaking change, so we live with the workaround
-        // for now.
-        SENTRY_LOG_FATAL(@"The SDK is disabled, so setUser doesn't work. Please ensure to start "
-                         @"the SDK before setting the user.");
+        // The SDK isn't fully initialized yet. This can happen when:
+        // 1. The user calls setUser before starting the SDK
+        // 2. The SDK was started on a background thread and main thread initialization
+        //    hasn't completed yet (see https://github.com/getsentry/sentry-cocoa/issues/6872)
+        // Enqueue the task to be executed once the SDK is fully initialized.
+        [SentryDependencyContainer.sharedInstance.pendingTaskQueue
+            enqueue:^{ [SentrySDKInternal.currentHub setUser:user]; }];
+        return;
     }
 
     [SentrySDKInternal.currentHub setUser:user];
@@ -535,6 +542,9 @@ static NSDate *_Nullable startTimestamp = nil;
 + (void)close
 {
     SENTRY_LOG_DEBUG(@"Starting to close SDK.");
+
+    // Clear any pending tasks that were queued before the SDK was fully initialized.
+    [SentryDependencyContainer.sharedInstance.pendingTaskQueue clearPendingTasks];
 
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchSyncOnMainQueue:^{
 
