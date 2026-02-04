@@ -72,13 +72,16 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let expect = expectation(description: "Operation in background thread")
         DispatchQueue.global(qos: .default).async {
             let fetch = NSFetchRequest<TestEntity>(entityName: "TestEntity")
-            // swiftlint:disable:next no_try_optional_in_tests
-            try? self.assertRequest(
-                fetch,
-                expectedDescription: "SELECT 'TestEntity'",
-                mainThread: false,
-                databaseFilename: self.fixture.databaseFilename
-            )
+            do {
+                try self.assertRequest(
+                    fetch,
+                    expectedDescription: "SELECT 'TestEntity'",
+                    mainThread: false,
+                    databaseFilename: self.fixture.databaseFilename
+                )
+            } catch {
+                XCTFail("Background thread fetch request assertion failed: \(error)")
+            }
             expect.fulfill()
         }
 
@@ -125,12 +128,15 @@ class SentryCoreDataTrackerTests: XCTestCase {
         let expect = expectation(description: "Operation in background thread")
         DispatchQueue.global(qos: .default).async {
             self.fixture.context.inserted = [self.fixture.testEntity()]
-            // swiftlint:disable:next no_try_optional_in_tests
-            try? self.assertSave(
-                "INSERTED 1 'TestEntity'",
-                mainThread: false,
-                databaseFilename: self.fixture.databaseFilename
-            )
+            do {
+                try self.assertSave(
+                    "INSERTED 1 'TestEntity'",
+                    mainThread: false,
+                    databaseFilename: self.fixture.databaseFilename
+                )
+            } catch {
+                XCTFail("Background thread save assertion failed: \(error)")
+            }
             expect.fulfill()
         }
 
