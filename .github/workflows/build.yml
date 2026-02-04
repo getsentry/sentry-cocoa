@@ -247,7 +247,7 @@ jobs:
             --derived-data uikit-check-build
 
       - name: Ensure UIKit is not linked
-        run: ./scripts/check-ui-framework-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
+        run: ./scripts/check-ui-framework-linkage.sh --configuration DebugWithoutUIKit --derived-data uikit-check-build --linkage unlinked --module SentryWithoutUIKit
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
@@ -274,7 +274,7 @@ jobs:
             --derived-data uikit-check-build
 
       - name: Ensure UIKit is not linked
-        run: ./scripts/check-ui-framework-linkage.sh ReleaseWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
+        run: ./scripts/check-ui-framework-linkage.sh --configuration ReleaseWithoutUIKit --derived-data uikit-check-build --linkage unlinked --module SentryWithoutUIKit
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
@@ -301,7 +301,7 @@ jobs:
             --derived-data uikit-check-build
 
       - name: Ensure UIKit is linked
-        run: ./scripts/check-ui-framework-linkage.sh Debug uikit-check-build linked Sentry
+        run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data uikit-check-build --linkage linked --module Sentry
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
@@ -328,7 +328,7 @@ jobs:
             --derived-data uikit-check-build
 
       - name: Ensure UIKit is linked
-        run: ./scripts/check-ui-framework-linkage.sh Release uikit-check-build linked Sentry
+        run: ./scripts/check-ui-framework-linkage.sh --configuration Release --derived-data uikit-check-build --linkage linked --module Sentry
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
@@ -354,7 +354,7 @@ jobs:
             --derived-data appkit-check-build
 
       - name: Ensure AppKit is linked
-        run: ./scripts/check-ui-framework-linkage.sh Release appkit-check-build linked Sentry AppKit
+        run: ./scripts/check-ui-framework-linkage.sh --configuration Release --derived-data appkit-check-build --linkage linked --module Sentry --framework AppKit
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
@@ -380,7 +380,7 @@ jobs:
             --derived-data no-appkit-check-build
 
       - name: Ensure AppKit is not linked
-        run: ./scripts/check-ui-framework-linkage.sh ReleaseWithoutUIKit no-appkit-check-build unlinked SentryWithoutUIKit AppKit
+        run: ./scripts/check-ui-framework-linkage.sh --configuration ReleaseWithoutUIKit --derived-data no-appkit-check-build --linkage unlinked --module SentryWithoutUIKit --framework AppKit
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
