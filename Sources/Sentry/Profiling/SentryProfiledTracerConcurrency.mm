@@ -25,7 +25,6 @@
 #    import "SentryTransaction.h"
 
 #    if SENTRY_HAS_UIKIT
-#        import "SentryAppStartMeasurement.h"
 #        import "SentryProfilingScreenFramesHelper.h"
 #    endif // SENTRY_HAS_UIKIT
 
@@ -238,12 +237,8 @@ SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTra
 void
 sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
     SentryDispatchQueueWrapper *dispatchQueue, SentryTransaction *transaction, BOOL isProfiling,
-    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
-#    if SENTRY_HAS_UIKIT
-    ,
-    SentryAppStartMeasurement *appStartMeasurement
-#    endif // SENTRY_HAS_UIKIT
-)
+    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime,
+    NSDate *_Nullable appStartRuntimeInitTimestamp, uint64_t appStartRuntimeInitSystemTimestamp)
 {
     if (sentry_profileConfiguration != nil && sentry_profileConfiguration.isProfilingThisLaunch
         && sentry_profileConfiguration.profileOptions != nil
@@ -273,11 +268,9 @@ sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
 
     NSDate *startTimestamp;
 
-#    if SENTRY_HAS_UIKIT
-    if (appStartMeasurement != nil) {
-        startTimestamp = appStartMeasurement.runtimeInitTimestamp;
+    if (appStartRuntimeInitTimestamp != nil) {
+        startTimestamp = appStartRuntimeInitTimestamp;
     }
-#    endif // SENTRY_HAS_UIKIT
 
     if (startTimestamp == nil) {
         startTimestamp = traceStartTimestamp;
@@ -293,13 +286,11 @@ sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
     SENTRY_LOG_DEBUG(@"Tracer start time: %llu", startSystemTime);
 
     transaction.startSystemTime = startSystemTime;
-#    if SENTRY_HAS_UIKIT
-    if (appStartMeasurement != nil) {
+    if (appStartRuntimeInitSystemTimestamp != 0) {
         SENTRY_LOG_DEBUG(@"Assigning transaction start time as app start system time (%llu)",
-            appStartMeasurement.runtimeInitSystemTimestamp);
-        transaction.startSystemTime = appStartMeasurement.runtimeInitSystemTimestamp;
+            appStartRuntimeInitSystemTimestamp);
+        transaction.startSystemTime = appStartRuntimeInitSystemTimestamp;
     }
-#    endif // SENTRY_HAS_UIKIT
 
     [SentryTraceProfiler recordMetrics];
     transaction.endSystemTime = sentry_getSystemTime();

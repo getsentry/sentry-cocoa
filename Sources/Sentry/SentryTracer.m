@@ -31,7 +31,6 @@
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryAppStartMeasurement.h"
 #    import "SentryBuildAppStartSpans.h"
 #endif // SENTRY_HAS_UIKIT
 
@@ -578,13 +577,17 @@ static BOOL appStartMeasurementRead;
     SentryTransaction *transaction = [self toTransaction];
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    sentry_stopProfilerDueToFinishedTransaction(
-        _hub, _dispatchQueue, transaction, _isProfiling, self.startTimestamp, _startSystemTime
+    NSDate *appStartRuntimeInitTimestamp = nil;
+    uint64_t appStartRuntimeInitSystemTimestamp = 0;
 #    if SENTRY_HAS_UIKIT
-        ,
-        appStartMeasurement
+    if (appStartMeasurement != nil) {
+        appStartRuntimeInitTimestamp = appStartMeasurement.runtimeInitTimestamp;
+        appStartRuntimeInitSystemTimestamp = appStartMeasurement.runtimeInitSystemTimestamp;
+    }
 #    endif // SENTRY_HAS_UIKIT
-    );
+    sentry_stopProfilerDueToFinishedTransaction(
+        _hub, _dispatchQueue, transaction, _isProfiling, self.startTimestamp, _startSystemTime,
+        appStartRuntimeInitTimestamp, appStartRuntimeInitSystemTimestamp);
     _isProfiling = NO;
 #else
     [_hub captureTransaction:transaction withScope:_hub.scope];

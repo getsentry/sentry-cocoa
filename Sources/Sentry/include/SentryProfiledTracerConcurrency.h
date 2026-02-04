@@ -14,9 +14,6 @@
 @class SentryTracerConfiguration;
 @class SentryProfileOptions;
 @class SentryId;
-#if SENTRY_HAS_UIKIT
-@class SentryAppStartMeasurement;
-#endif // SENTRY_HAS_UIKIT
 @class SentryTransactionContext;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -35,15 +32,13 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
 /**
  * @note Only called for transaction-based profiling or continuous profiling V2 with trace lifecycle
  * option configured.
+ * @param appStartRuntimeInitTimestamp The runtime init timestamp from app start measurement, or nil if not available.
+ * @param appStartRuntimeInitSystemTimestamp The runtime init system timestamp from app start measurement, or 0 if not available.
  */
 SENTRY_EXTERN void sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
     SentryDispatchQueueWrapper *dispatchQueue, SentryTransaction *transaction, BOOL isProfiling,
-    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime
-#    if SENTRY_HAS_UIKIT
-    ,
-    SentryAppStartMeasurement *appStartMeasurement
-#    endif // SENTRY_HAS_UIKIT
-);
+    NSDate *_Nullable traceStartTimestamp, uint64_t startSystemTime,
+    NSDate *_Nullable appStartRuntimeInitTimestamp, uint64_t appStartRuntimeInitSystemTimestamp);
 
 /**
  * Associate the provided profiler and tracer so that profiling data may be retrieved by the tracer

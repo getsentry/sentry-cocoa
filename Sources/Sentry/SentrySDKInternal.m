@@ -1,6 +1,5 @@
 #import "SentrySDKInternal.h"
 #import "PrivateSentrySDKOnly.h"
-#import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
