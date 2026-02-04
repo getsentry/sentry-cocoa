@@ -152,11 +152,14 @@ echo "$OTOOL_OUTPUT"
 end_group
 
 # Set the grep pattern based on the framework type
-if [ "$FRAMEWORK_TYPE" = "UIKit" ]; then
+case "$FRAMEWORK_TYPE" in
+"UIKit")
     MATCHES=$(echo "$OTOOL_OUTPUT" | grep -c -e "UIKit.framework/UIKit" -e "libswiftUIKit.dylib" ||:)
-else
+    ;;
+"AppKit")
     MATCHES=$(echo "$OTOOL_OUTPUT" | grep -c -e "/System/Library/Frameworks/AppKit.framework/Versions/" -e "libswiftAppKit.dylib" ||:)
-fi
+    ;;
+esac
 log_notice "Matches: $MATCHES"
 
 # Check the linkage.
@@ -175,9 +178,5 @@ case "$LINKAGE_TEST" in
         exit 1
     fi
     log_notice "Success! ${FRAMEWORK_TYPE}.framework not linked."
-    ;;
-*)
-    log_error "Provide an argument for either 'linked' or 'unlinked' check."
-    exit 1
     ;;
 esac
