@@ -23,7 +23,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "tvos.app.interaction.string",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "interaction_type": interactionType,
                 "device": "apple_tv"
@@ -34,7 +33,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "tvos.app.interaction.boolean",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "focused": focused,
                 "active": false
@@ -45,7 +43,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "tvos.app.interaction.integer",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "session_id": sessionId,
                 "retry_count": 0
@@ -56,7 +53,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "tvos.app.interaction.double",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "interaction_duration": interactionDuration,
                 "avg_duration": 0.4
@@ -67,7 +63,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "tvos.app.interaction.string_array",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "interaction_types": interactionTypes,
                 "devices": ["apple_tv", "remote"]
@@ -78,7 +73,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "tvos.app.interaction.boolean_array",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "focus_states": focusStates,
                 "active_states": [true, false]
@@ -89,7 +83,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "tvos.app.interaction.integer_array",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "session_ids": sessionIds,
                 "retry_counts": [0, 1, 2]
@@ -100,7 +93,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "tvos.app.interaction.double_array",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "interaction_durations": interactionDurations,
                 "avg_durations": [0.3, 0.4]

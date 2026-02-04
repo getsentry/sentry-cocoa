@@ -57,7 +57,7 @@ jobs:
         with:
           repository: getsentry/sentry-react-native
           path: sentry-react-native
-          ref: antonis/cocoa-9.1.1
+          ref: v8
 
       - name: Enable Corepack
         working-directory: sentry-react-native

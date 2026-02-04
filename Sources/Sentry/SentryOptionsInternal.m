@@ -79,7 +79,7 @@
     [self setBool:options[@"enableCrashHandler"]
             block:^(BOOL value) { sentryOptions.enableCrashHandler = value; }];
 
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !SENTRY_NO_UIKIT
     [self setBool:options[@"enableUncaughtNSExceptionReporting"]
             block:^(BOOL value) { sentryOptions.enableUncaughtNSExceptionReporting = value; }];
 #endif // TARGET_OS_OSX

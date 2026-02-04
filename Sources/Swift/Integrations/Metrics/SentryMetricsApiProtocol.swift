@@ -13,14 +13,12 @@ public protocol SentryMetricsApiProtocol {
     ///          Prefer stable, lowercase, dot-delimited names to aid aggregation and filtering.
     ///   - value: The count value to record. A non-negative integer (e.g., 1 to increment by one).
     ///            Defaults to 1.
-    ///   - unit: Optional unit of measurement. Use ``SentryUnit`` enum cases for type safety
-    ///           (e.g., `.millisecond`, `.byte`, `.percent`), or `.generic("custom")` for custom units.
     ///   - attributes: Optional dictionary of attributes to attach to the metric.
     ///                 Supported types: `String`, `Bool`, `Int`, `Double`, and their array variants
     ///                 (`[String]`, `[Bool]`, `[Int]`, `[Double]`). Mixed arrays and unsupported
     ///                 types are converted to strings.
     ///                 Example: `["endpoint": "api/users", "success": true, "status_code": 200]`
-    func count(key: String, value: UInt, unit: SentryUnit?, attributes: [String: SentryAttributeValue])
+    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue])
 
     /// Records a distribution metric for the specified key.
     ///
@@ -76,10 +74,9 @@ public extension SentryMetricsApiProtocol {
     /// - Parameters:
     ///   - key: A namespaced identifier for the metric
     ///   - value: The count value to record (defaults to 1)
-    ///   - unit: Optional unit of measurement (defaults to nil)
     ///   - attributes: Optional dictionary of attributes (defaults to empty)
-    func count(key: String, value: UInt = 1, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        self.count(key: key, value: value, unit: unit, attributes: attributes)
+    func count(key: String, value: UInt = 1, attributes: [String: SentryAttributeValue] = [:]) {
+        self.count(key: key, value: value, attributes: attributes)
     }
 
     /// Records a distribution metric with default parameter values.

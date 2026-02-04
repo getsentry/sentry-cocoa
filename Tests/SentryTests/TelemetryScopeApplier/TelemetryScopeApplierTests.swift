@@ -2,8 +2,8 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-final class TelemetryBufferScopeTests: XCTestCase {
-    private struct TestItem: TelemetryBufferItem, Encodable {
+final class TelemetryScopeApplierTests: XCTestCase {
+    private struct TestItem: TelemetryItem, Encodable {
         var attributes: [String: SentryAttribute]
         var attributesDict: [String: SentryAttributeContent]
         var traceId: SentryId
@@ -23,34 +23,20 @@ final class TelemetryBufferScopeTests: XCTestCase {
         }
     }
 
-    private struct TestConfig: TelemetryBufferConfig {
-        typealias Item = TestItem
-
-        let sendDefaultPii: Bool
-
-        let flushTimeout: TimeInterval
-        let maxItemCount: Int
-        let maxBufferSizeBytes: Int
-
-        let beforeSendItem: ((TestItem) -> TestItem?)?
-
-        var capturedDataCallback: (Data, Int) -> Void
-    }
-
-    private struct TestMetadata: TelemetryBufferMetadata {
+    private struct TestMetadata: TelemetryScopeMetadata {
         let environment: String
         let releaseName: String?
         let installationId: String?
+        let sendDefaultPii: Bool
     }
 
-    private struct TestScope: TelemetryBufferScope {
+    private struct TestScope: TelemetryScopeApplier {
         var replayId: String?
         var propagationContextTraceId: SentryId
         var span: Span?
         var userObject: User?
         var contextStore: [String: [String: Any]] = [:]
         var attributes: [String: Any] = [:]
-        var sendDefaultPii = true
 
         func getContextForKey(_ key: String) -> [String: Any]? {
             return contextStore[key]
@@ -66,12 +52,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
     func testApplyToItem_shouldAddSDKName() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["sentry.sdk.name"], .string(SentryMeta.sdkName))
@@ -80,12 +65,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
     func testApplyToItem_shouldAddSDKVersion() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["sentry.sdk.version"], .string(SentryMeta.versionString))
@@ -94,12 +78,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
     func testApplyToItem_shouldAddEnvironment() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
-        let config = createTestConfig()
         let metadata = createTestMetadata(environment: "test-environment")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["sentry.environment"], .string("test-environment"))
@@ -108,12 +91,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
     func testApplyToItem_withReleaseName_shouldAddRelease() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
-        let config = createTestConfig()
         let metadata = createTestMetadata(releaseName: "test-release-1.0.0")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["sentry.release"], .string("test-release-1.0.0"))
@@ -122,12 +104,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
     func testApplyToItem_withoutReleaseName_shouldNotAddRelease() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
-        let config = createTestConfig()
         let metadata = createTestMetadata(releaseName: nil)
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["sentry.release"])
@@ -141,12 +122,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
             propagationContextTraceId: SentryId(),
             span: span
         )
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["span_id"], .string(span.spanId.sentrySpanIdString))
@@ -155,12 +135,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
     func testApplyToItem_withoutSpan_shouldNotAddParentSpanId() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["sentry.trace.parent_span_id"])
@@ -172,12 +151,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
         // -- Arrange --
         var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["name": "iOS", "version": "17.0"], key: "os")
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["os.name"], .string("iOS"))
@@ -187,12 +165,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
         // -- Arrange --
         var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["name": "iOS", "version": "17.0"], key: "os")
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["os.version"], .string("17.0"))
@@ -202,12 +179,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
         // -- Arrange --
         var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["version": "17.0"], key: "os")
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["os.name"])
@@ -217,12 +193,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
         // -- Arrange --
         var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["name": "iOS"], key: "os")
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["os.version"])
@@ -231,12 +206,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
     func testApplyToItem_withoutOSContext_shouldNotAddOSAttributes() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["os.name"])
@@ -249,12 +223,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
         // -- Arrange --
         var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["model": "iPhone15,2"], key: "device")
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["device.brand"], .string("Apple"))
@@ -264,12 +237,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
         // -- Arrange --
         var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["model": "iPhone15,2"], key: "device")
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["device.model"], .string("iPhone15,2"))
@@ -279,12 +251,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
         // -- Arrange --
         var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["family": "iPhone"], key: "device")
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["device.family"], .string("iPhone"))
@@ -294,41 +265,40 @@ final class TelemetryBufferScopeTests: XCTestCase {
         // -- Arrange --
         var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["family": "iPhone"], key: "device")
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["device.model"])
+        XCTAssertEqual(item.attributesDict["device.brand"], .string("Apple"))
     }
 
     func testApplyToItem_withDeviceContextWithoutFamily_shouldNotAddDeviceFamily() {
         // -- Arrange --
         var scope = TestScope(propagationContextTraceId: SentryId())
         scope.setContext(value: ["model": "iPhone15,2"], key: "device")
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["device.family"])
+        XCTAssertEqual(item.attributesDict["device.brand"], .string("Apple"))
     }
 
     func testApplyToItem_withoutDeviceContext_shouldNotAddDeviceAttributes() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["device.brand"])
@@ -345,12 +315,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
             propagationContextTraceId: SentryId(),
             userObject: user
         )
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["user.id"], .string("user-123"))
@@ -364,12 +333,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
             propagationContextTraceId: SentryId(),
             userObject: user
         )
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["user.name"], .string("John Doe"))
@@ -383,12 +351,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
             propagationContextTraceId: SentryId(),
             userObject: user
         )
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["user.email"], .string("john@example.com"))
@@ -403,12 +370,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
             propagationContextTraceId: SentryId(),
             userObject: user
         )
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["user.id"], .string("user-123"))
@@ -419,15 +385,38 @@ final class TelemetryBufferScopeTests: XCTestCase {
     func testApplyToItem_withoutUser_shouldNotAddUserAttributes() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
-        let config = createTestConfig()
         let metadata = createTestMetadata(installationId: nil)
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["user.id"])
+        XCTAssertNil(item.attributesDict["user.name"])
+        XCTAssertNil(item.attributesDict["user.email"])
+    }
+
+    func testApplyToItem_whenSendDefaultPiiFalse_shouldNotAddUserNameAndEmail() {
+        // -- Arrange --
+        let user = User(userId: "user-123")
+        user.name = "John Doe"
+        user.email = "john@example.com"
+        let scope = TestScope(
+            propagationContextTraceId: SentryId(),
+            userObject: user
+        )
+        let metadata = createTestMetadata(
+            installationId: "installation-123",
+            sendDefaultPii: false
+        )
+        var item = createTestItem()
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict["user.id"], .string("installation-123"))
         XCTAssertNil(item.attributesDict["user.name"])
         XCTAssertNil(item.attributesDict["user.email"])
     }
@@ -442,12 +431,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
             replayId: "replay-123",
             propagationContextTraceId: SentryId()
         )
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["sentry.replay_id"], .string("replay-123"))
@@ -456,12 +444,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
     func testApplyToItem_withoutReplayId_shouldNotAddReplayId() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["sentry.replay_id"])
@@ -475,12 +462,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
         // -- Arrange --
         var scope = TestScope(propagationContextTraceId: SentryId())
         scope.attributes = ["custom.key": "custom.value", "custom.number": 42, "custom.bool": true]
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["custom.key"], .string("custom.value"))
@@ -492,13 +478,12 @@ final class TelemetryBufferScopeTests: XCTestCase {
         // -- Arrange --
         var scope = TestScope(propagationContextTraceId: SentryId())
         scope.attributes = ["custom.key": "scope.value"]
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
         item.attributesDict["custom.key"] = .string("item.value")
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         // Scope attributes should not override existing item attributes
@@ -510,12 +495,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
     func testApplyToItem_withoutUserAndWithInstallationId_shouldAddInstallationIdAsUserId() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
-        let config = createTestConfig()
         let metadata = createTestMetadata(installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["user.id"], .string("installation-123"))
@@ -524,15 +508,32 @@ final class TelemetryBufferScopeTests: XCTestCase {
     func testApplyToItem_withoutUserAndWithoutInstallationId_shouldNotAddUserId() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
-        let config = createTestConfig()
         let metadata = createTestMetadata(installationId: nil)
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["user.id"])
+    }
+
+    func testApplyToItem_whenSendDefaultPiiFalse_withoutUser_shouldStillAddInstallationIdAsUserId() {
+        // -- Arrange --
+        let scope = TestScope(propagationContextTraceId: SentryId())
+        let metadata = createTestMetadata(
+            installationId: "installation-456",
+            sendDefaultPii: false
+        )
+        var item = createTestItem()
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata)
+
+        // -- Assert --
+        XCTAssertEqual(item.attributesDict["user.id"], .string("installation-456"))
+        XCTAssertNil(item.attributesDict["user.name"])
+        XCTAssertNil(item.attributesDict["user.email"])
     }
 
     func testApplyToItem_withUser_shouldNotAddInstallationIdAsUserId() {
@@ -542,12 +543,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
             propagationContextTraceId: SentryId(),
             userObject: user
         )
-        let config = createTestConfig()
         let metadata = createTestMetadata(installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.attributesDict["user.id"], .string("user-123"))
@@ -562,12 +562,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
             propagationContextTraceId: SentryId(),
             userObject: user
         )
-        let config = createTestConfig()
         let metadata = createTestMetadata(installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["user.id"])
@@ -581,12 +580,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
             propagationContextTraceId: SentryId(),
             userObject: user
         )
-        let config = createTestConfig()
         let metadata = createTestMetadata(installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertNil(item.attributesDict["user.id"])
@@ -598,12 +596,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
         // -- Arrange --
         let traceId = SentryId()
         let scope = TestScope(propagationContextTraceId: traceId)
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.traceId, traceId)
@@ -614,13 +611,12 @@ final class TelemetryBufferScopeTests: XCTestCase {
         let traceId1 = SentryId()
         let traceId2 = SentryId()
         let scope = TestScope(propagationContextTraceId: traceId1)
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
         item.traceId = traceId2
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         XCTAssertEqual(item.traceId, traceId1)
@@ -638,12 +634,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
             propagationContextTraceId: propagationTraceId,
             span: span
         )
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         // When a span is active, traceId should come from the span, not propagationContext
@@ -668,14 +663,13 @@ final class TelemetryBufferScopeTests: XCTestCase {
             propagationContextTraceId: propagationTraceId,
             span: span
         )
-        let config = createTestConfig()
         let metadata = createTestMetadata()
         var item = createTestItem()
         // Set initial traceId to something else to verify it gets overwritten
         item.traceId = SentryId()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         // traceId should be from span, ensuring correlation with span_id
@@ -704,12 +698,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
         scope.setContext(value: ["name": "iOS", "version": "17.0"], key: "os")
         scope.setContext(value: ["model": "iPhone15,2", "family": "iPhone"], key: "device")
 
-        let config = createTestConfig()
         let metadata = createTestMetadata(environment: "production", releaseName: "1.0.0", installationId: "installation-123")
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         // Default attributes
@@ -741,12 +734,11 @@ final class TelemetryBufferScopeTests: XCTestCase {
         // -- Arrange --
         let traceId = SentryId()
         let scope = TestScope(propagationContextTraceId: traceId)
-        let config = createTestConfig()
         let metadata = createTestMetadata(environment: "test", releaseName: nil, installationId: nil)
         var item = createTestItem()
 
         // -- Act --
-        scope.applyToItem(&item, config: config, metadata: metadata)
+        scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
         // Should always have these
@@ -774,26 +766,17 @@ final class TelemetryBufferScopeTests: XCTestCase {
         )
     }
 
-    private func createTestConfig() -> TestConfig {
-        return TestConfig(
-            sendDefaultPii: true,
-            flushTimeout: 0.1,
-            maxItemCount: 10,
-            maxBufferSizeBytes: 8_000,
-            beforeSendItem: nil,
-            capturedDataCallback: { _, _ in }
-        )
-    }
-
     private func createTestMetadata(
         environment: String = "test-environment",
         releaseName: String? = "test-release",
-        installationId: String? = "test-installation-id"
+        installationId: String? = "test-installation-id",
+        sendDefaultPii: Bool = true
     ) -> TestMetadata {
         return TestMetadata(
             environment: environment,
             releaseName: releaseName,
-            installationId: installationId
+            installationId: installationId,
+            sendDefaultPii: sendDefaultPii
         )
     }
 }
