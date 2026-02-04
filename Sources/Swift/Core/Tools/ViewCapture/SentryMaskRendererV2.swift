@@ -1,4 +1,4 @@
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 
 import UIKit
@@ -18,4 +18,4 @@ final class SentryMaskRendererV2: SentryDefaultMaskRenderer {
 extension SentryGraphicsImageRenderer.Context: SentryMaskRendererContext {}
 
 #endif // os(iOS) || os(tvOS)
-#endif // canImport(UIKit) && !SENTRY_NO_UIKIT
+#endif // canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK

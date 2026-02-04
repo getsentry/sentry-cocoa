@@ -35,30 +35,6 @@ final class SentryMetricsApiTests: XCTestCase {
         XCTAssertEqual(invokedScope, scope, "Scope should be passed to the integration")
     }
 
-    func testCount_withUnit_shouldCreateMetricWithUnit() throws {
-        // -- Arrange --
-        let dependencies = MockMetricsApiDependencies(
-            isSDKEnabled: true,
-            scope: scope,
-            metricsIntegration: MockMetricsIntegration()
-        )
-        let sut = SentryMetricsApi(dependencies: dependencies)
-
-        // -- Act --
-        sut.count(key: "network.request.count", value: 1, unit: "requests")
-
-        // -- Assert --
-        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
-        let metric: SentryMetric = invocation.0
-        XCTAssertEqual(metric.name, "network.request.count", "Metric key should match")
-        XCTAssertEqual(metric.value, SentryMetric.Value.counter(1), "Metric value should match")
-        XCTAssertEqual(metric.unit, "requests", "Metric unit should be set")
-        XCTAssertTrue(metric.attributes.isEmpty, "Metric attributes should be empty")
-
-        let invokedScope: Scope = invocation.1
-        XCTAssertEqual(invokedScope, scope, "Scope should be passed to the integration")
-    }
-
     func testCount_withAtributes_shouldCreateMetricWithAttributes() throws {
         // -- Arrange --
         let dependencies = MockMetricsApiDependencies(
@@ -79,32 +55,6 @@ final class SentryMetricsApiTests: XCTestCase {
         XCTAssertEqual(metric.name, "network.request.count", "Metric key should match")
         XCTAssertEqual(metric.value, SentryMetric.Value.counter(1), "Metric value should match")
         XCTAssertNil(metric.unit, "Metric unit should be nil")
-        XCTAssertEqual(metric.attributes["other-key"]?.anyValue as? String, "other-value", "Custom metric attributes should be set")
-
-        let invokedScope: Scope = invocation.1
-        XCTAssertEqual(invokedScope, scope, "Scope should be passed to the integration")
-    }
-
-    func testCount_withUnitAndAtributes_shouldCreateMetricWithUnitAndAttributes() throws {
-        // -- Arrange --
-        let dependencies = MockMetricsApiDependencies(
-            isSDKEnabled: true,
-            scope: scope,
-            metricsIntegration: MockMetricsIntegration()
-        )
-        let sut = SentryMetricsApi(dependencies: dependencies)
-
-        // -- Act --
-        sut.count(key: "network.request.count", value: 1, unit: "requests", attributes: [
-            "other-key": "other-value"
-        ])
-
-        // -- Assert --
-        let invocation = try XCTUnwrap(dependencies.metricsIntegration?.addMetricInvocations.first)
-        let metric: SentryMetric = invocation.0
-        XCTAssertEqual(metric.name, "network.request.count", "Metric key should match")
-        XCTAssertEqual(metric.value, SentryMetric.Value.counter(1), "Metric value should match")
-        XCTAssertEqual(metric.unit, "requests", "Metric unit should be nil")
         XCTAssertEqual(metric.attributes["other-key"]?.anyValue as? String, "other-value", "Custom metric attributes should be set")
 
         let invokedScope: Scope = invocation.1

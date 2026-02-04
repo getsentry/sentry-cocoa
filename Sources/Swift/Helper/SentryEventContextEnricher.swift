@@ -1,6 +1,6 @@
 import Foundation
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 #endif
 
@@ -17,7 +17,7 @@ import UIKit
 /// On other platforms, returns the context unchanged.
 class SentryDefaultEventContextEnricher: SentryEventContextEnricher {
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let applicationStateProvider: () -> UIApplication.State?
 
     init(applicationStateProvider: @escaping () -> UIApplication.State?) {

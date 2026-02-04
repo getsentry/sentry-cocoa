@@ -5,6 +5,8 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    labels:
+      - "ready-to-merge"
     ignore:
       - dependency-name: fastlane
         versions:
@@ -14,3 +16,5 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+    labels:
+      - "ready-to-merge"

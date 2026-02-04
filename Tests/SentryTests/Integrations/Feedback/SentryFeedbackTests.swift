@@ -1,5 +1,5 @@
 import Foundation
-#if os(iOS) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
@@ -353,4 +353,4 @@ class SentryFeedbackTests: XCTestCase {
     }
 }
 
-#endif // os(iOS) && !SENTRY_NO_UIKIT
+#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK

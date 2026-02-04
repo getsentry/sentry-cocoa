@@ -789,7 +789,7 @@ class MockCrashDependencies: CrashIntegrationProvider {
         guard let fileManager else {
             return nil
         }
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
                                                    crashAdapter: mockedCrashWrapper,
                                                    appStateManager: appStateManager)

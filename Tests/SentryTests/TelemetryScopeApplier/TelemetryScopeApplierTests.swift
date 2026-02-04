@@ -423,7 +423,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
 
     // MARK: - Replay Attributes Tests
 
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
     func testApplyToItem_withReplayId_shouldAddReplayId() {
         // -- Arrange --

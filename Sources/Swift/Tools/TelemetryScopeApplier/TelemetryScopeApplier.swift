@@ -105,7 +105,7 @@ extension TelemetryScopeApplier {
     }
 
     private func addReplayAttributes(to attributes: inout [String: SentryAttributeContent]) {
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
         if let scopeReplayId = replayId {
             // Session mode: use scope replay ID
