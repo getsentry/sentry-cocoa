@@ -154,11 +154,8 @@ end_group
 # Set the grep pattern based on the framework type
 if [ "$FRAMEWORK_TYPE" = "UIKit" ]; then
     MATCHES=$(echo "$OTOOL_OUTPUT" | grep -c -e "UIKit.framework/UIKit" -e "libswiftUIKit.dylib" ||:)
-elif [ "$FRAMEWORK_TYPE" = "AppKit" ]; then
-    MATCHES=$(echo "$OTOOL_OUTPUT" | grep -c -e "/System/Library/Frameworks/AppKit.framework/Versions/" -e "libswiftAppKit.dylib" ||:)
 else
-    log_error "Invalid framework type: $FRAMEWORK_TYPE. Must be 'UIKit' or 'AppKit'."
-    exit 1
+    MATCHES=$(echo "$OTOOL_OUTPUT" | grep -c -e "/System/Library/Frameworks/AppKit.framework/Versions/" -e "libswiftAppKit.dylib" ||:)
 fi
 log_notice "Matches: $MATCHES"
 
