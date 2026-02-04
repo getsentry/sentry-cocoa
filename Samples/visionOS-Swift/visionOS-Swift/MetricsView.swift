@@ -23,7 +23,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "visionos.app.interaction.string",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "interaction_type": interactionType,
                 "device": "vision_pro"
@@ -34,7 +33,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "visionos.app.interaction.boolean",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "hand_tracking": handTracking,
                 "eye_tracking": false
@@ -45,7 +43,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "visionos.app.interaction.integer",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "session_id": sessionId,
                 "retry_count": 0
@@ -56,7 +53,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "visionos.app.interaction.double",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "interaction_accuracy": interactionAccuracy,
                 "avg_accuracy": 0.93
@@ -67,7 +63,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "visionos.app.interaction.string_array",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "interaction_types": interactionTypes,
                 "devices": ["vision_pro", "hand"]
@@ -78,7 +73,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "visionos.app.interaction.boolean_array",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "hand_tracking_states": handTrackingStates,
                 "eye_tracking_states": [true, false]
@@ -89,7 +83,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "visionos.app.interaction.integer_array",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "session_ids": sessionIds,
                 "retry_counts": [0, 1, 2]
@@ -100,7 +93,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "visionos.app.interaction.double_array",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "interaction_accuracies": interactionAccuracies,
                 "avg_accuracies": [0.9, 0.95]

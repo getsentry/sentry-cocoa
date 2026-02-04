@@ -10,7 +10,7 @@ import UIKit
 let defaultApplicationProvider: () -> SentryApplication? = {
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     return UIApplication.shared
-#elseif os(macOS)
+#elseif os(macOS) && !SENTRY_NO_UIKIT
     return NSApplication.shared
 #else
     return nil

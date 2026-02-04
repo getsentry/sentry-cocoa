@@ -71,7 +71,7 @@ import Cocoa
     private func trackApplicationNotifications() {
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
         trackApplicationNotificationsUIKit()
-#elseif os(macOS)
+#elseif os(macOS) && !SENTRY_NO_UIKIT
         trackApplicationNotificationsMacOS()
 #else // watchOS or other platforms
         SentrySDKLog.debug("NO UIKit, macOS and Catalyst -> [SentryBreadcrumbTracker trackApplicationNotifications] does nothing.")
@@ -119,7 +119,7 @@ import Cocoa
     }
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
     
-#if os(macOS)
+#if os(macOS) && !SENTRY_NO_UIKIT
     private func trackApplicationNotificationsMacOS() {
         let notificationCenter = NotificationCenter.default
         
