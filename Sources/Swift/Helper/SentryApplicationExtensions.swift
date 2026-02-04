@@ -187,7 +187,7 @@ extension SentryApplication {
 }
 #endif
 
-#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+#if canImport(AppKit) && !targetEnvironment(macCatalyst) && !SENTRY_NO_UIKIT
 @objc @_spi(Private) extension NSApplication: SentryApplication {
     public var mainThread_isActive: Bool {
         isActive

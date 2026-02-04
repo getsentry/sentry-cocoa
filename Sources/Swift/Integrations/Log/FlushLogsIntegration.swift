@@ -3,12 +3,12 @@
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 import UIKit
 private typealias CrossPlatformApplication = UIApplication
-#elseif os(macOS)
+#elseif os(macOS) && !SENTRY_NO_UIKIT
 import AppKit
 private typealias CrossPlatformApplication = NSApplication
 #endif
 
-#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+#if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UIKIT
 
 final class FlushLogsIntegration<Dependencies: NotificationCenterProvider>: NSObject, SwiftIntegration {
     

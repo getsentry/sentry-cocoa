@@ -6,7 +6,7 @@
 
 // Required for capturing uncaught exceptions in macOS. For more info see
 // https://docs.sentry.io/platforms/apple/guides/macos/usage/#capturing-uncaught-exceptions-in-macos
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !SENTRY_NO_UIKIT
 #    import <AppKit/NSApplication.h>
 @interface SentryCrashExceptionApplication : NSApplication
 @end

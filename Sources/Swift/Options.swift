@@ -74,7 +74,7 @@
     /// @note Crash reporting is automatically disabled if a debugger is attached.
     @objc public var enableCrashHandler: Bool = true
 
-    #if os(macOS)
+    #if os(macOS) && !SENTRY_NO_UIKIT
     /// When enabled, the SDK captures uncaught NSExceptions. As this feature uses swizzling, disabling
     /// enableSwizzling also disables this feature.
     ///
