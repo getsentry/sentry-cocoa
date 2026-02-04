@@ -70,7 +70,6 @@
 #import "SentryEvent+Private.h"
 #import "SentryFileIOTrackerHelper.h"
 #import "SentryFileManagerHelper.h"
-#import "SentryInstallation.h"
 #import "SentryMeta.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDataSwizzlingHelper.h"

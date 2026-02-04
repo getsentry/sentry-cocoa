@@ -104,7 +104,7 @@ extension SentryMetric: Encodable {
     }
 }
 
-extension SentryMetric: TelemetryBufferItem {
+extension SentryMetric: TelemetryItem {
     var attributesDict: [String: SentryAttributeContent] {
         get {
             attributes

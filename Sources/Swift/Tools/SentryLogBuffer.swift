@@ -10,27 +10,24 @@ import Foundation
 @objc
 @objcMembers
 @_spi(Private) public class SentryLogBuffer: NSObject {
-    private let options: Options
-    private let buffer: any TelemetryBuffer<SentryLog, Scope>
+    private let buffer: any TelemetryBuffer<SentryLog>
     private weak var delegate: SentryLogBufferDelegate?
 
     /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
     /// Creates its own serial dispatch queue with DEFAULT QoS for thread-safe access to mutable state.
     /// - Parameters:
-    ///   - options: The Sentry configuration options
+    ///   - dateProvider: The current date provider
     ///   - delegate: The delegate to handle captured log batches
     ///
     /// - Note: Uses DEFAULT priority (not LOW) because captureLogs() is called synchronously during
     ///         app lifecycle events (willResignActive, willTerminate) and needs to complete quickly.
     /// - Note: Setting `maxLogCount` to 100. While Replay hard limit is 1000, we keep this lower, as it's hard to lower once released.
     @_spi(Private) public convenience init(
-        options: Options,
         dateProvider: SentryCurrentDateProvider,
         delegate: SentryLogBufferDelegate
     ) {
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
         self.init(
-            options: options,
             flushTimeout: 5,
             maxLogCount: 100, // Maximum 100 logs per batch
             maxBufferSizeBytes: 1_024 * 1_024, // 1MB buffer size
@@ -42,7 +39,6 @@ import Foundation
 
     /// Initializes a new SentryLogBuffer.
     /// - Parameters:
-    ///   - options: The Sentry configuration options
     ///   - flushTimeout: The timeout interval after which buffered logs will be flushed
     ///   - maxLogCount: Maximum number of logs to batch before triggering an immediate flush.
     ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
@@ -54,7 +50,6 @@ import Foundation
     ///
     /// - Note: Logs are flushed when either `maxLogCount` or `maxBufferSizeBytes` limit is reached.
     @_spi(Private) public init(
-        options: Options,
         flushTimeout: TimeInterval,
         maxLogCount: Int,
         maxBufferSizeBytes: Int,
@@ -64,11 +59,9 @@ import Foundation
     ) {
         self.buffer = DefaultTelemetryBuffer(
             config: .init(
-                sendDefaultPii: options.sendDefaultPii,
                 flushTimeout: flushTimeout,
                 maxItemCount: maxLogCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
-                beforeSendItem: options.beforeSendLog,
                 capturedDataCallback: { [weak delegate] data, count in
                     guard let delegate else {
                         SentrySDKLog.debug("SentryLogBuffer: Delegate not set, not capturing logs data.")
@@ -77,30 +70,19 @@ import Foundation
                     delegate.capture(logsData: data as NSData, count: NSNumber(value: count))
                 }
             ),
-            metadata: .init(
-                environment: options.environment,
-                releaseName: options.releaseName,
-                installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
-            ),
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue
         )
-        self.options = options
         self.delegate = delegate
         super.init()
     }
 
     /// Adds a log to the buffer.
     /// - Parameters:
-    ///   - log: The log to add
-    ///   - scope: The scope to add the log to
-    @_spi(Private) @objc public func addLog(_ log: SentryLog, scope: Scope) {
-        guard options.enableLogs else {
-            return
-        }
-
-        buffer.add(log, scope: scope)
+    ///   - log: The log to add (should already have scope enrichment applied)
+    @_spi(Private) @objc public func addLog(_ log: SentryLog) {
+        buffer.add(log)
     }
 
     /// Captures buffered logs sync and returns the duration.
@@ -110,7 +92,7 @@ import Foundation
     }
 }
 
-extension SentryLog: TelemetryBufferItem {
+extension SentryLog: TelemetryItem {
     var attributesDict: [String: SentryAttributeContent] {
         get {
             attributes.mapValues { value in

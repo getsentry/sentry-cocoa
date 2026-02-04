@@ -677,7 +677,7 @@ class SentryHubTests: XCTestCase {
     
     // MARK: - Replay Attributes Tests
     
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
     func testCaptureLog_ReplayAttributes_SessionMode_AddsReplayId() throws {
         // Setup replay integration
@@ -1744,7 +1744,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertLessThan(clientTimeout, 0.2, "Client timeout should be small after two integrations")
     }
     
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
     func testGetSessionReplayId_ReturnsNilWhenIntegrationNotInstalled() {
         let result = sut.getSessionReplayId()
@@ -1863,7 +1863,7 @@ class SlowFlushIntegration: NSObject, SentryIntegrationProtocol {
     }
 }
 
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 private class MockScreenshotProvider: NSObject, SentryViewScreenshotProvider {
     func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
