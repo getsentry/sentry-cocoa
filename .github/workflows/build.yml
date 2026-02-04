@@ -247,7 +247,7 @@ jobs:
             --derived-data uikit-check-build
 
       - name: Ensure UIKit is not linked
-        run: ./scripts/check-uikit-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
+        run: ./scripts/check-ui-framework-linkage.sh --configuration DebugWithoutUIKit --derived-data uikit-check-build --linkage unlinked --module SentryWithoutUIKit
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
@@ -274,7 +274,7 @@ jobs:
             --derived-data uikit-check-build
 
       - name: Ensure UIKit is not linked
-        run: ./scripts/check-uikit-linkage.sh ReleaseWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
+        run: ./scripts/check-ui-framework-linkage.sh --configuration ReleaseWithoutUIKit --derived-data uikit-check-build --linkage unlinked --module SentryWithoutUIKit
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
@@ -301,7 +301,7 @@ jobs:
             --derived-data uikit-check-build
 
       - name: Ensure UIKit is linked
-        run: ./scripts/check-uikit-linkage.sh Debug uikit-check-build linked Sentry
+        run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data uikit-check-build --linkage linked --module Sentry
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
@@ -328,7 +328,59 @@ jobs:
             --derived-data uikit-check-build
 
       - name: Ensure UIKit is linked
-        run: ./scripts/check-uikit-linkage.sh Release uikit-check-build linked Sentry
+        run: ./scripts/check-ui-framework-linkage.sh --configuration Release --derived-data uikit-check-build --linkage linked --module Sentry
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
+  check-release-with-AppKit:
+    name: Check AppKit linkage (Release)
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - run: ./scripts/ci-select-xcode.sh 16.4
+
+      - name: Build for Release
+        run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform macOS \
+            --os 15.0 \
+            --ref ${{ github.ref }} \
+            --command build \
+            --configuration Release \
+            --derived-data appkit-check-build
+
+      - name: Ensure AppKit is linked
+        run: ./scripts/check-ui-framework-linkage.sh --configuration Release --derived-data appkit-check-build --linkage linked --module Sentry --framework AppKit
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
+  check-release-without-AppKit:
+    name: Check no AppKit linkage (ReleaseWithoutUIKit)
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - run: ./scripts/ci-select-xcode.sh 16.4
+
+      - name: Build for Release
+        run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform macOS \
+            --os 15.0 \
+            --ref ${{ github.ref }} \
+            --command build \
+            --configuration ReleaseWithoutUIKit \
+            --derived-data no-appkit-check-build
+
+      - name: Ensure AppKit is not linked
+        run: ./scripts/check-ui-framework-linkage.sh --configuration ReleaseWithoutUIKit --derived-data no-appkit-check-build --linkage unlinked --module SentryWithoutUIKit --framework AppKit
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
@@ -383,6 +435,8 @@ jobs:
         check-release-without-UIKit,
         check-debug-with-UIKit,
         check-release-with-UIKit,
+        check-release-with-AppKit,
+        check-release-without-AppKit,
         check-compiling-async-safe-logs,
         ready-to-merge-gate,
       ]
