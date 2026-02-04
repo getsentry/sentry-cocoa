@@ -57,8 +57,10 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
 
     override func tearDownWithError() throws {
         try super.tearDownWithError()
-        try FileManager.default.removeItem(at: fixture.fileURL)
-        if deleteFileDirectory {
+        if FileManager.default.fileExists(atPath: fixture.fileURL.path) {
+            try FileManager.default.removeItem(at: fixture.fileURL)
+        }
+        if deleteFileDirectory && FileManager.default.fileExists(atPath: fixture.fileDirectory.path) {
             try FileManager.default.removeItem(at: fixture.fileDirectory)
         }
         clearTestState()

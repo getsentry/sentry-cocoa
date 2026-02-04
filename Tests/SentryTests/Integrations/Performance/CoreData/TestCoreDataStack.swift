@@ -75,7 +75,10 @@ class TestCoreDataStack {
     func reset() throws {
         guard let tempDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return }
         let url = tempDir.appendingPathComponent(databaseFilename)
-        try FileManager.default.removeItem(at: url)
+
+        if FileManager.default.fileExists(atPath: url.path) {
+            try FileManager.default.removeItem(at: url)
+        }
     }
     
     func getEntity<T: NSManagedObject>() -> T {

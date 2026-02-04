@@ -163,7 +163,9 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
         func cleanTestImagePath() throws {
             let testImagePath = FileManager.default.temporaryDirectory.appendingPathComponent("test.png")
-            try FileManager.default.removeItem(atPath: testImagePath.path)
+            if FileManager.default.fileExists(atPath: testImagePath.path) {
+                try FileManager.default.removeItem(at: testImagePath)
+            }
         }
     }
 
