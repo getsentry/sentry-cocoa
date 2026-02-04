@@ -1,10 +1,14 @@
 // swiftlint:disable missing_docs
 internal enum SentryAttributeType: String {
-    case string
-    case boolean
-    case integer
-    case double
-    case array
+    case string = "string"
+    case boolean = "boolean"
+    case integer = "integer"
+    case double = "double"
+    case stringArray = "string[]"
+    case booleanArray = "boolean[]"
+    case integerArray = "integer[]"
+    case doubleArray = "double[]"
+    case array = "array"
 }
 
 /// A type-safe representation of attribute values used by structured logging.
@@ -36,13 +40,13 @@ public enum SentryAttributeContent: Equatable, Hashable {
         case .double:
             return SentryAttributeType.double.rawValue
         case .stringArray:
-            return SentryAttributeType.array.rawValue
+            return SentryAttributeType.stringArray.rawValue
         case .booleanArray:
-            return SentryAttributeType.array.rawValue
+            return SentryAttributeType.booleanArray.rawValue
         case .integerArray:
-            return SentryAttributeType.array.rawValue
+            return SentryAttributeType.integerArray.rawValue
         case .doubleArray:
-            return SentryAttributeType.array.rawValue
+            return SentryAttributeType.doubleArray.rawValue
         }
     }
 }
@@ -56,12 +60,14 @@ extension SentryAttributeContent: Encodable {
     /// Encodes the attribute value to the given encoder.
     ///
     /// The encoded format includes both the type identifier and the value itself.
+    /// Array types are encoded with type "array" regardless of element type.
     ///
     /// - Parameter encoder: The encoder to write data to.
     /// - Throws: An error if encoding fails.
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(type, forKey: .type)
+        
+        try container.encode(typeForContent(), forKey: .type)
 
         switch self {
         case .string(let value):
@@ -80,6 +86,15 @@ extension SentryAttributeContent: Encodable {
             try container.encode(value, forKey: .value)
         case .doubleArray(let value):
             try container.encode(value, forKey: .value)
+        }
+    }
+    
+    private func typeForContent() -> String {
+        switch self {
+        case .string(_), .boolean(_), .integer(_), .double(_):
+            return type
+        case .stringArray(_), .booleanArray(_), .integerArray(_), .doubleArray(_):
+            return SentryAttributeType.array.rawValue
         }
     }
 }

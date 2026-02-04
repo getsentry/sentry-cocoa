@@ -193,108 +193,108 @@ final class SentryAttributeTests: XCTestCase {
     func testInitializer_StringArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(stringArray: ["hello", "world", "test"])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "string[]")
         let arrayValue = attribute.value as? [String]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, ["hello", "world", "test"])
     }
-    
+
     func testInitializer_EmptyStringArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(stringArray: [])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "string[]")
         let arrayValue = attribute.value as? [String]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [])
     }
-    
+
     func testInitializer_SingleStringArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(stringArray: ["single"])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "string[]")
         let arrayValue = attribute.value as? [String]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, ["single"])
     }
-    
+
     func testInitializer_BooleanArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(booleanArray: [true, false, true])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "boolean[]")
         let arrayValue = attribute.value as? [Bool]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [true, false, true])
     }
-    
+
     func testInitializer_EmptyBooleanArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(booleanArray: [])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "boolean[]")
         let arrayValue = attribute.value as? [Bool]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [])
     }
-    
+
     func testInitializer_SingleBooleanArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(booleanArray: [false])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "boolean[]")
         let arrayValue = attribute.value as? [Bool]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [false])
     }
-    
+
     func testInitializer_IntegerArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(integerArray: [1, 2, 3, 42])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "integer[]")
         let arrayValue = attribute.value as? [Int]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [1, 2, 3, 42])
     }
-    
+
     func testInitializer_EmptyIntegerArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(integerArray: [])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "integer[]")
         let arrayValue = attribute.value as? [Int]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [])
     }
-    
+
     func testInitializer_NegativeIntegerArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(integerArray: [-1, -2, 0, 42])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "integer[]")
         let arrayValue = attribute.value as? [Int]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [-1, -2, 0, 42])
     }
-    
+
     func testInitializer_DoubleArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(doubleArray: [1.1, 2.2, 3.14159])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "double[]")
         let arrayValue = attribute.value as? [Double]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!.count, 3)
@@ -306,20 +306,20 @@ final class SentryAttributeTests: XCTestCase {
     func testInitializer_EmptyDoubleArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(doubleArray: [])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "double[]")
         let arrayValue = attribute.value as? [Double]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [])
     }
-    
+
     func testInitializer_NegativeDoubleArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(doubleArray: [-1.5, 0.0, 3.14])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "double[]")
         let arrayValue = attribute.value as? [Double]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!.count, 3)
@@ -327,13 +327,13 @@ final class SentryAttributeTests: XCTestCase {
         XCTAssertEqual(arrayValue![1], 0.0, accuracy: 0.00001)
         XCTAssertEqual(arrayValue![2], 3.14, accuracy: 0.00001)
     }
-    
+
     func testInitializer_FloatArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(floatArray: [Float(1.1), Float(2.2), Float(3.14159)])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "double[]")
         let arrayValue = attribute.value as? [Double]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!.count, 3)
@@ -341,13 +341,13 @@ final class SentryAttributeTests: XCTestCase {
         XCTAssertEqual(arrayValue![1], 2.2, accuracy: 0.00001)
         XCTAssertEqual(arrayValue![2], 3.14159, accuracy: 0.00001)
     }
-    
+
     func testInitializer_EmptyFloatArrayValue() {
         // -- Arrange --
         let attribute = SentryAttribute(floatArray: [])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "double[]")
         let arrayValue = attribute.value as? [Double]
         XCTAssertNotNil(arrayValue)
         XCTAssertEqual(arrayValue!, [])
@@ -420,34 +420,34 @@ final class SentryAttributeTests: XCTestCase {
     func testInitializer_ProtocolBasedConversion_StringArray() {
         let stringArray: [String] = ["a", "b", "c"]
         let attribute = SentryLog.Attribute(value: stringArray)
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "string[]")
         XCTAssertEqual(attribute.value as? [String], ["a", "b", "c"])
     }
-    
+
     /// Verifies that protocol-based conversion works for Bool arrays through init(value: Any)
     func testInitializer_ProtocolBasedConversion_BoolArray() {
         let boolArray: [Bool] = [true, false, true]
         let attribute = SentryLog.Attribute(value: boolArray)
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "boolean[]")
         XCTAssertEqual(attribute.value as? [Bool], [true, false, true])
     }
-    
+
     /// Verifies that protocol-based conversion works for Int arrays through init(value: Any)
     func testInitializer_ProtocolBasedConversion_IntArray() {
         let intArray: [Int] = [1, 2, 3]
         let attribute = SentryLog.Attribute(value: intArray)
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "integer[]")
         XCTAssertEqual(attribute.value as? [Int], [1, 2, 3])
     }
-    
+
     /// Verifies that protocol-based conversion works for Double arrays through init(value: Any)
     func testInitializer_ProtocolBasedConversion_DoubleArray() {
         let doubleArray: [Double] = [1.1, 2.2, 3.3]
         let attribute = SentryLog.Attribute(value: doubleArray)
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "double[]")
         XCTAssertEqual(attribute.value as? [Double], [1.1, 2.2, 3.3])
     }
-    
+
     /// Verifies that protocol-based conversion works for Float arrays through init(value: Any)
     ///
     /// Note: Float literals like `1.1`, `2.2`, `3.3` are already approximations in binary representation
@@ -457,12 +457,12 @@ final class SentryAttributeTests: XCTestCase {
     func testInitializer_ProtocolBasedConversion_FloatArray() throws {
         // -- Arrange --
         let floatArray: [Float] = [1.1, 2.2, 3.3]
-        
+
         // -- Act --
         let attribute = SentryLog.Attribute(value: floatArray)
-        
+
         // -- Assert --
-        XCTAssertEqual(attribute.type, "array")
+        XCTAssertEqual(attribute.type, "double[]")
         let doubleArray = try XCTUnwrap(attribute.value as? [Double])
         XCTAssertEqual(doubleArray.count, 3)
         XCTAssertEqual(doubleArray[0], 1.1, accuracy: 0.00001)

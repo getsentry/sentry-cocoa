@@ -40,33 +40,33 @@ final class SentryAttributeContentTests: XCTestCase {
     func testType_whenStringArray_shouldReturnStringArray() {
         // -- Arrange --
         let value = SentryAttributeContent.stringArray(["a", "b"])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(value.type, "array")
+        XCTAssertEqual(value.type, "string[]")
     }
-    
+
     func testType_whenBooleanArray_shouldReturnBooleanArray() {
         // -- Arrange --
         let value = SentryAttributeContent.booleanArray([true, false])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(value.type, "array")
+        XCTAssertEqual(value.type, "boolean[]")
     }
-    
+
     func testType_whenIntegerArray_shouldReturnIntegerArray() {
         // -- Arrange --
         let value = SentryAttributeContent.integerArray([1, 2])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(value.type, "array")
+        XCTAssertEqual(value.type, "integer[]")
     }
-    
+
     func testType_whenDoubleArray_shouldReturnDoubleArray() {
         // -- Arrange --
         let value = SentryAttributeContent.doubleArray([1.1, 2.2])
-        
+
         // -- Act & Assert --
-        XCTAssertEqual(value.type, "array")
+        XCTAssertEqual(value.type, "double[]")
     }
     
     // MARK: - Encoding Tests

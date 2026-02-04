@@ -547,20 +547,22 @@ final class SentryLoggerTests: XCTestCase {
                 let expectedValue = try XCTUnwrap(expectedAttribute.value as? Double)
                 let actualValue = try XCTUnwrap(actualAttribute.value as? Double)
                 XCTAssertEqual(actualValue, expectedValue, accuracy: 0.000001, "Double attribute value mismatch for key: \(key)", file: file, line: line)
-            case "array":
-                if let expectedValue = expectedAttribute.value as? [String] {
-                    let actualValue = try XCTUnwrap(actualAttribute.value as? [String])
-                    XCTAssertEqual(actualValue, expectedValue, "String array attribute value mismatch for key: \(key)", file: file, line: line)
-                } else if let expectedValue = expectedAttribute.value as? [Bool] {
-                    let actualValue = try XCTUnwrap(actualAttribute.value as? [Bool])
-                    XCTAssertEqual(actualValue, expectedValue, "Boolean array attribute value mismatch for key: \(key)", file: file, line: line)
-                } else if let expectedValue = expectedAttribute.value as? [Int] {
-                    let actualValue = try XCTUnwrap(actualAttribute.value as? [Int])
-                    XCTAssertEqual(actualValue, expectedValue, "Integer array attribute value mismatch for key: \(key)", file: file, line: line)
-                } else if let expectedValue = expectedAttribute.value as? [Double] {
-                    let actualValue = try XCTUnwrap(actualAttribute.value as? [Double])
-                    XCTAssertEqual(actualValue, expectedValue, "Double array attribute value mismatch for key: \(key)", file: file, line: line)
-                }
+            case "string[]":
+                let expectedValue = try XCTUnwrap(expectedAttribute.value as? [String])
+                let actualValue = try XCTUnwrap(actualAttribute.value as? [String])
+                XCTAssertEqual(actualValue, expectedValue, "String array attribute value mismatch for key: \(key)", file: file, line: line)
+            case "boolean[]":
+                let expectedValue = try XCTUnwrap(expectedAttribute.value as? [Bool])
+                let actualValue = try XCTUnwrap(actualAttribute.value as? [Bool])
+                XCTAssertEqual(actualValue, expectedValue, "Boolean array attribute value mismatch for key: \(key)", file: file, line: line)
+            case "integer[]":
+                let expectedValue = try XCTUnwrap(expectedAttribute.value as? [Int])
+                let actualValue = try XCTUnwrap(actualAttribute.value as? [Int])
+                XCTAssertEqual(actualValue, expectedValue, "Integer array attribute value mismatch for key: \(key)", file: file, line: line)
+            case "double[]":
+                let expectedValue = try XCTUnwrap(expectedAttribute.value as? [Double])
+                let actualValue = try XCTUnwrap(actualAttribute.value as? [Double])
+                XCTAssertEqual(actualValue, expectedValue, "Double array attribute value mismatch for key: \(key)", file: file, line: line)
             default:
                 XCTFail("Unknown attribute type for key: \(key). Type: \(expectedAttribute.type)", file: file, line: line)
             }
