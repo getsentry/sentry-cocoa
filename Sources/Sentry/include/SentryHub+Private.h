@@ -14,7 +14,6 @@
 @class SentryReplayEvent;
 @class SentryAttachment;
 @class SentryReplayRecording;
-@protocol SentryIntegrationProtocol;
 @protocol SentrySessionListener;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -22,8 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryHubInternal ()
 
 @property (nullable, nonatomic, strong) SentrySession *session;
-
-@property (nonatomic, strong) NSMutableArray<id<SentryIntegrationProtocol>> *installedIntegrations;
 
 @property (nonatomic, readonly, strong) NSObject *_swiftLogger;
 
@@ -33,9 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSArray<NSString *> *)trimmedInstalledIntegrationNames;
 
-- (void)addInstalledIntegration:(SENTRY_SWIFT_MIGRATION_ID(
-                                    id<SentryIntegrationProtocol>))integration
-                           name:(NSString *)name;
+- (void)addInstalledIntegration:(id)integration name:(NSString *)name;
 - (void)removeAllIntegrations;
 
 - (SentryClientInternal *_Nullable)client;
@@ -76,8 +71,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)storeEnvelope:(SentryEnvelope *)envelope;
 - (void)captureEnvelope:(SentryEnvelope *)envelope;
 
-- (nullable SENTRY_SWIFT_MIGRATION_ID(
-    id<SentryIntegrationProtocol>))getInstalledIntegration:(Class)integrationClass;
 - (NSSet<NSString *> *)installedIntegrationNames;
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED

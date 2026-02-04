@@ -510,20 +510,12 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)pauseAppHangTracking
 {
-    SentryHangTrackerIntegrationObjC *anrTrackingIntegration
-        = (SentryHangTrackerIntegrationObjC *)[SentrySDKInternal.currentHub
-            getInstalledIntegration:[SentryHangTrackerIntegrationObjC class]];
-
-    [anrTrackingIntegration pauseAppHangTracking];
+    [[SentryHangTrackingHelper getHangTrackerIntegration] pauseAppHangTracking];
 }
 
 + (void)resumeAppHangTracking
 {
-    SentryHangTrackerIntegrationObjC *anrTrackingIntegration
-        = (SentryHangTrackerIntegrationObjC *)[SentrySDKInternal.currentHub
-            getInstalledIntegration:[SentryHangTrackerIntegrationObjC class]];
-
-    [anrTrackingIntegration resumeAppHangTracking];
+    [[SentryHangTrackingHelper getHangTrackerIntegration] resumeAppHangTracking];
 }
 
 + (void)flush:(NSTimeInterval)timeout

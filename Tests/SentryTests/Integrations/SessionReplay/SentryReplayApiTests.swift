@@ -33,7 +33,7 @@ class SentryReplayApiTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(mockReplayIntegration.startCalled)
-        XCTAssertEqual(mockHub.installedIntegrations().count, 1) // No new integration added
+        XCTAssertEqual(mockHub.integrationRegistry.allIntegrations.count, 1) // No new integration added
     }
 
     func testStart_whenReplayIntegrationNilAndUnreliableToEnable_shouldNotCreateIntegration() {
@@ -54,7 +54,7 @@ class SentryReplayApiTests: XCTestCase {
         sut.start()
 
         // Assert
-        XCTAssertTrue(mockHub.installedIntegrations().isEmpty)
+        XCTAssertTrue(mockHub.integrationRegistry.allIntegrations.isEmpty)
     }
 
     func testStart_whenReplayIntegrationNilWithUnreliableEnvironmentAndOverrideOptionEnabled_shouldCreateAndInstallIntegration() throws {
@@ -84,8 +84,8 @@ class SentryReplayApiTests: XCTestCase {
         sut.start()
         
         // Assert
-        XCTAssertEqual(mockHub.installedIntegrations().count, 1)
-        let integration = try XCTUnwrap(mockHub.installedIntegrations().first as? SentrySessionReplayIntegration)
+        XCTAssertEqual(mockHub.integrationRegistry.allIntegrations.count, 1)
+        let integration = try XCTUnwrap(mockHub.integrationRegistry.getIntegration(SentrySessionReplayIntegration.self))
         XCTAssertNotNil(integration.sessionReplay)
         XCTAssertTrue(integration.sessionReplay?.isRunning ?? false)
         SentrySDKInternal.currentHub().endSession()

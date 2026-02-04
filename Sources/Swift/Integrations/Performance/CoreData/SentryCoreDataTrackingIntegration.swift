@@ -3,7 +3,7 @@
 
 typealias CoreDataTrackingIntegrationProvider = SentryCoreDataSwizzlingProvider & SentryCoreDataTrackerBuilder
 
-final class SentryCoreDataTrackingIntegration<Dependencies: CoreDataTrackingIntegrationProvider>: NSObject, SwiftIntegration {
+final class SentryCoreDataTrackingIntegration<Dependencies: CoreDataTrackingIntegrationProvider>: SwiftIntegration {
     private let tracker: SentryCoreDataTracker
     private let coreDataSwizzling: SentryCoreDataSwizzling
 
@@ -30,8 +30,6 @@ final class SentryCoreDataTrackingIntegration<Dependencies: CoreDataTrackingInte
 
         self.tracker = dependencies.getCoreDataTracker(options)
         self.coreDataSwizzling = dependencies.coreDataSwizzling
-
-        super.init()
 
         self.coreDataSwizzling.start(with: tracker)
     }

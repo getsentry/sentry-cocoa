@@ -392,8 +392,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     func getTouchTracker() -> SentryTouchTracker? { touchTracker }
     
-    // Helper function to cast SentrySessionReplayIntegration to SentryIntegrationProtocol
-    // Used only for testing with `addInstalledIntegration` or it fails to compile
+    // Helper function used for testing to add the integration to the hub
     func addItselfToSentryHub(hub: SentryHubInternal) {
         hub.addInstalledIntegration(self, name: Self.name)
     }

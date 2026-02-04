@@ -483,7 +483,7 @@ extension SentrySDKTests {
     }
     
     private func assertIntegrationsInstalled(integrations: [String]) {
-        XCTAssertEqual(integrations.count, SentrySDKInternal.currentHub().installedIntegrations().count)
+        XCTAssertEqual(integrations.count, SentrySDKInternal.currentHub().integrationRegistry.allIntegrations.count)
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
                 XCTAssertTrue(SentrySDKInternal.currentHub().isIntegrationInstalled(integrationClass), "\(integration) not installed")

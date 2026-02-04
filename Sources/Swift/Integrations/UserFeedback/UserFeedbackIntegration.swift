@@ -6,7 +6,7 @@ protocol ScreenshotSourceProvider {
     var screenshotSource: SentryScreenshotSource? { get }
 }
 
-final class UserFeedbackIntegration<Dependencies: ScreenshotSourceProvider>: NSObject, SwiftIntegration {
+final class UserFeedbackIntegration<Dependencies: ScreenshotSourceProvider>: SwiftIntegration {
 
     let driver: SentryUserFeedbackIntegrationDriver
 

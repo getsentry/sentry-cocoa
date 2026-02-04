@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-final class SwiftAsyncIntegration<Dependencies>: NSObject, SwiftIntegration {
+final class SwiftAsyncIntegration<Dependencies>: SwiftIntegration {
     init?(with options: Options, dependencies: Dependencies) {
         guard options.swiftAsyncStacktraces else { return nil }
 

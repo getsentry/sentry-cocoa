@@ -323,17 +323,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (nullable SentrySessionReplayIntegration *)getReplayIntegration
 {
-
-    NSArray *integrations = [[SentrySDKInternal currentHub] installedIntegrations];
-    SentrySessionReplayIntegration *replayIntegration;
-    for (id obj in integrations) {
-        if ([obj isKindOfClass:[SentrySessionReplayIntegration class]]) {
-            replayIntegration = obj;
-            break;
-        }
-    }
-
-    return replayIntegration;
+    return [SentryReplayApiHelper getSessionReplayIntegration];
 }
 
 + (void)captureReplay

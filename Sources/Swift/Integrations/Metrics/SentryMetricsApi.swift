@@ -90,6 +90,6 @@ extension SentryDependencyContainer: SentryMetricsApiDependencies {
     }
 
     var metricsIntegration: SentryMetricsIntegration<SentryDependencyContainer>? {
-        SentrySDKInternal.currentHub().getInstalledIntegration(SentryMetricsIntegration<SentryDependencyContainer>.self) as? SentryMetricsIntegration
+        SentrySDKInternal.currentHub().integrationRegistry.getIntegration(SentryMetricsIntegration<SentryDependencyContainer>.self)
     }
 }

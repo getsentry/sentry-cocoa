@@ -519,7 +519,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
     }
     
     private func getIntegration() throws -> SentryMetricsIntegration<SentryDependencyContainer>? {
-        return SentrySDKInternal.currentHub().getInstalledIntegration(SentryMetricsIntegration<SentryDependencyContainer>.self) as? SentryMetricsIntegration
+        return SentrySDKInternal.currentHub().integrationRegistry.getIntegration(SentryMetricsIntegration<SentryDependencyContainer>.self)
     }
     
     private func flushMetrics() throws {

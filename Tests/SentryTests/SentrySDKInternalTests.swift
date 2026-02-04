@@ -442,9 +442,9 @@ class SentrySDKInternalTests: XCTestCase {
         }
 
         let hub = SentrySDKInternal.currentHub()
-        XCTAssertEqual(1, hub.installedIntegrations().count)
+        XCTAssertEqual(1, hub.integrationRegistry.allIntegrations.count)
         SentrySDK.close()
-        XCTAssertEqual(0, hub.installedIntegrations().count)
+        XCTAssertEqual(0, hub.integrationRegistry.allIntegrations.count)
         assertIntegrationsInstalled(integrations: [])
     }
 
@@ -546,7 +546,7 @@ class SentrySDKInternalTests: XCTestCase {
         let client = fixture.client
         SentrySDKInternal.currentHub().bindClient(client)
 
-        let anrTrackingIntegration = try XCTUnwrap(SentrySDKInternal.currentHub().getInstalledIntegration(SentryHangTrackerIntegrationObjC.self))
+        let anrTrackingIntegration = try XCTUnwrap(SentrySDKInternal.currentHub().integrationRegistry.getIntegration(SentryHangTrackerIntegrationObjC.self))
 
         SentrySDK.pauseAppHangTracking()
         Dynamic(anrTrackingIntegration).anrDetectedWithType(SentryANRType.unknown)
@@ -973,7 +973,7 @@ private extension SentrySDKInternalTests {
     }
 
     func assertIntegrationsInstalled(integrations: [String]) {
-        XCTAssertEqual(integrations.count, SentrySDKInternal.currentHub().installedIntegrations().count)
+        XCTAssertEqual(integrations.count, SentrySDKInternal.currentHub().integrationRegistry.allIntegrations.count)
         integrations.forEach { integration in
             if let integrationClass = NSClassFromString(integration) {
                 XCTAssertTrue(SentrySDKInternal.currentHub().isIntegrationInstalled(integrationClass), "\(integration) not installed")

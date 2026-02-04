@@ -5,7 +5,7 @@ protocol AutoSessionTrackingProvider {
     var processInfoWrapper: SentryProcessInfoSource { get }
 }
 
-final class SentryAutoSessionTrackingIntegration<Dependencies: AutoSessionTrackingProvider>: NSObject, SwiftIntegration {
+final class SentryAutoSessionTrackingIntegration<Dependencies: AutoSessionTrackingProvider>: SwiftIntegration {
     let tracker: SessionTracker
     
     init?(with options: Options, dependencies: Dependencies) {

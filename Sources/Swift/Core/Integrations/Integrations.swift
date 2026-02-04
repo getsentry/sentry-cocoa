@@ -1,16 +1,9 @@
 // swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
-// We cannot expose `SwiftIntegration` to objc due to the associated type, so we have this base integration protocol
-@_spi(Private) @objc public protocol SentryIntegrationProtocol: NSObjectProtocol {
-    
-    // Uninstalls the integration
-    func uninstall()
-}
-
 // This protocol allows injecting the dependencies in a way that does not
 // require the Integration to depend on SentryDependencyContainer.
-protocol SwiftIntegration: SentryIntegrationProtocol {
+protocol SwiftIntegration {
     // The dependencies required for the integration. The easiest way to satisfy this requirement when migrating from ObjC
     // is to define it as `SentryDependencyContainer` with a typealias. However, a generic Swift class that has a protocol
     // constraint on the `Dependencies` type can make it easier to test and to use without a direct dependency on all
@@ -22,6 +15,9 @@ protocol SwiftIntegration: SentryIntegrationProtocol {
     
     // Name of the integration that is used by `SentrySdkInfo`
     static var name: String { get }
+    
+    /// Uninstalls the integration
+    func uninstall()
 }
 
 // Type erases the `Integration` so that it can be stored in an array and used for `addInstalledIntegration`

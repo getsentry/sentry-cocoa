@@ -143,6 +143,6 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     }
     
     private func getInstalledIntegration() throws -> SentryCoreDataTrackingIntegration<SentryDependencyContainer> {
-        return try XCTUnwrap(SentrySDKInternal.currentHub().getInstalledIntegration(SentryCoreDataTrackingIntegration<SentryDependencyContainer>.self) as? SentryCoreDataTrackingIntegration)
+        return try XCTUnwrap(SentrySDKInternal.currentHub().integrationRegistry.getIntegration(SentryCoreDataTrackingIntegration<SentryDependencyContainer>.self))
     }
 }

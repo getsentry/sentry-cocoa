@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, strong) SentryScope *scope;
 @property (nonatomic) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) NSMutableSet<NSString *> *installedIntegrationNames;
+@property (nonatomic, strong, readwrite) IntegrationRegistry *integrationRegistry;
 @property (nonatomic) NSUInteger errorsBeforeSession;
 @property (nonatomic, weak) id<SentrySessionListener> sessionListener;
 
@@ -37,7 +37,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryHubInternal {
     NSObject *_sessionLock;
-    NSObject *_integrationsLock;
 }
 
 - (instancetype)initWithClient:(nullable SentryClientInternal *)client
@@ -62,9 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
         _crashWrapper = crashWrapper;
         _dispatchQueue = dispatchQueue;
         _sessionLock = [[NSObject alloc] init];
-        _integrationsLock = [[NSObject alloc] init];
-        _installedIntegrations = [[NSMutableArray alloc] init];
-        _installedIntegrationNames = [[NSMutableSet alloc] init];
+        _integrationRegistry = [[IntegrationRegistry alloc] init];
         _errorsBeforeSession = 0;
 
         if (_client != nil) {
@@ -617,71 +614,27 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)isIntegrationInstalled:(Class)integrationClass
 {
-    @synchronized(_integrationsLock) {
-        for (id<SentryIntegrationProtocol> item in _installedIntegrations) {
-            if ([item isKindOfClass:integrationClass]) {
-                return YES;
-            }
-        }
-        return NO;
-    }
-}
-
-- (nullable id<SentryIntegrationProtocol>)getInstalledIntegration:(Class)integrationClass
-{
-    @synchronized(_integrationsLock) {
-        for (id<SentryIntegrationProtocol> item in _installedIntegrations) {
-            if ([item isKindOfClass:integrationClass]) {
-                return item;
-            }
-        }
-        return nil;
-    }
+    return [_integrationRegistry isInstalled:integrationClass];
 }
 
 - (BOOL)hasIntegration:(NSString *)integrationName
 {
-    // installedIntegrations and installedIntegrationNames share the same lock.
-    // Instead of creating an extra lock object, we use _installedIntegrations.
-    @synchronized(_integrationsLock) {
-        return [_installedIntegrationNames containsObject:integrationName];
-    }
+    return [_integrationRegistry hasIntegration:integrationName];
 }
 
-- (void)addInstalledIntegration:(id<SentryIntegrationProtocol>)integration name:(NSString *)name
+- (void)addInstalledIntegration:(id)integration name:(NSString *)name
 {
-    @synchronized(_integrationsLock) {
-        [_installedIntegrations addObject:integration];
-        [_installedIntegrationNames addObject:name];
-    }
-    SENTRY_LOG_DEBUG(@"Integration installed: %@", name);
+    [_integrationRegistry add:integration name:name];
 }
 
 - (void)removeAllIntegrations
 {
-    for (NSObject<SentryIntegrationProtocol> *integration in self.installedIntegrations) {
-        if ([integration respondsToSelector:@selector(uninstall)]) {
-            [integration uninstall];
-        }
-    }
-    @synchronized(_integrationsLock) {
-        [_installedIntegrations removeAllObjects];
-        [_installedIntegrationNames removeAllObjects];
-    }
-}
-
-- (NSArray<id<SentryIntegrationProtocol>> *)installedIntegrations
-{
-    @synchronized(_integrationsLock) {
-        return _installedIntegrations.copy;
-    }
+    [_integrationRegistry removeAll];
 }
 
 - (NSSet<NSString *> *)installedIntegrationNames
 {
-    @synchronized(_integrationsLock) {
-        return _installedIntegrationNames.copy;
-    }
+    return _integrationRegistry.allIntegrationNames;
 }
 
 - (void)setUser:(nullable SentryUser *)user
@@ -835,51 +788,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSTimeInterval)flushIntegrations:(NSTimeInterval)timeout
 {
-    id<SentryCurrentDateProvider> dateProvider
-        = SentryDependencyContainer.sharedInstance.dateProvider;
-    UInt64 startTimeNs = [dateProvider getAbsoluteTime];
-
-    @synchronized(_integrationsLock) {
-        for (id<SentryIntegrationProtocol> integration in _installedIntegrations) {
-            // We use respondsToSelector: instead of conformsToProtocol: for FlushableIntegration
-            // because Swift @objc protocols defined in files with @_implementationOnly import
-            // are not reliably accessible from Objective-C code at compile time. The protocol
-            // definition exists for Swift type safety and documentation, but Objective-C code
-            // needs to use respondsToSelector: to check for the flush method dynamically.
-            // This Swift-first approach allows us to maintain protocol-oriented design in Swift
-            // while ensuring Objective-C interop works correctly.
-            SEL flushSelector = NSSelectorFromString(@"flush");
-            if ([integration respondsToSelector:flushSelector]) {
-                // Check if we've exceeded the timeout before flushing this integration
-                // We check at the start of each iteration to ensure we don't start a flush
-                // that would exceed the timeout. Since we can't predict flush duration,
-                // we stop if we're already at or very close to the timeout.
-                UInt64 currentTimeNs = [dateProvider getAbsoluteTime];
-                NSTimeInterval elapsedTime = nanosecondsToTimeInterval(currentTimeNs - startTimeNs);
-                if (elapsedTime >= timeout) {
-                    // Timeout exceeded, stop flushing remaining integrations
-                    SENTRY_LOG_DEBUG(@"Flush integrations timeout exceeded (%.3fs >= %.3fs). "
-                                     @"Stopping flush of remaining integrations.",
-                        elapsedTime, timeout);
-                    break;
-                }
-
-                // Use NSInvocation to call flush and get the NSTimeInterval return value.
-                // We can't use performSelector: because it doesn't support non-object return types.
-                NSMethodSignature *signature =
-                    [(id)integration methodSignatureForSelector:flushSelector];
-                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-                [invocation setSelector:flushSelector];
-                [invocation setTarget:integration];
-                [invocation invoke];
-            }
-        }
-    }
-
-    // Return actual elapsed time to ensure we account for all overhead and respect the timeout
-    UInt64 endTimeNs = [dateProvider getAbsoluteTime];
-    NSTimeInterval actualDuration = nanosecondsToTimeInterval(endTimeNs - startTimeNs);
-    return actualDuration;
+    return [_integrationRegistry flushIntegrationsWithTimeout:timeout];
 }
 
 - (void)close
@@ -949,8 +858,7 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 - (NSString *__nullable)getSessionReplayId
 {
-    SentrySessionReplayIntegration *integration = (SentrySessionReplayIntegration *)[self
-        getInstalledIntegration:[SentrySessionReplayIntegration class]];
+    SentrySessionReplayIntegration *integration = [SentryReplayApiHelper getSessionReplayIntegration];
     if (integration == nil || integration.sessionReplay == nil) {
         return nil;
     }

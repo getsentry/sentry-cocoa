@@ -2,7 +2,7 @@
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-final class SentryAppStartTrackingIntegration<Dependencies: SentryAppStartTrackerBuilder>: NSObject, SwiftIntegration {
+final class SentryAppStartTrackingIntegration<Dependencies: SentryAppStartTrackerBuilder>: SwiftIntegration {
     let tracker: SentryAppStartTracker
 
     init?(with options: Options, dependencies: Dependencies) {
@@ -16,8 +16,6 @@ final class SentryAppStartTrackingIntegration<Dependencies: SentryAppStartTracke
         }
 
         tracker = dependencies.getAppStartTracker(options)
-
-        super.init()
 
         // Start tracking
         tracker.start()

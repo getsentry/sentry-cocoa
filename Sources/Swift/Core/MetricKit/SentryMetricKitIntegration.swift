@@ -2,7 +2,7 @@
 import MetricKit
 
 @available(macOS 12.0, *)
-final class SentryMetricKitIntegration<Dependencies>: NSObject, SwiftIntegration {
+final class SentryMetricKitIntegration<Dependencies>: SwiftIntegration {
     
     let mxManager: SentryMXManager
     
@@ -12,7 +12,6 @@ final class SentryMetricKitIntegration<Dependencies>: NSObject, SwiftIntegration
         }
 
         mxManager = SentryMXManager(inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes), attachDiagnosticAsAttachment: options.enableMetricKitRawPayload)
-        super.init()
 
         mxManager.receiveReports()
     }

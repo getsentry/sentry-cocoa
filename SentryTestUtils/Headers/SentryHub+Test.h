@@ -4,7 +4,8 @@
 @class SentryCrashWrapper;
 @class SentryDispatchQueueWrapper;
 @class SentryClientInternal;
-@protocol SentryIntegrationProtocol;
+@class IntegrationRegistry;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** Expose the internal test init for testing. */
@@ -15,7 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
                andCrashWrapper:(SentryCrashWrapper *)crashAdapter
               andDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
-- (NSArray<id<SentryIntegrationProtocol>> *)installedIntegrations;
+@property (nonatomic, readonly, strong) IntegrationRegistry *integrationRegistry;
+
 - (NSSet<NSString *> *)installedIntegrationNames;
 
 - (BOOL)eventContainsOnlyHandledErrors:(NSDictionary *)eventDictionary;

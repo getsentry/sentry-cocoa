@@ -445,7 +445,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
 
     private func getFirstIntegrationAsReplay() throws -> SentrySessionReplayIntegration {
-        return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
+        return try XCTUnwrap(SentrySDKInternal.currentHub().integrationRegistry.getIntegration(SentrySessionReplayIntegration.self))
     }
     
     private let VALID_REPLAY_ID = "0eac7ab503354dd5819b03e263627a29"

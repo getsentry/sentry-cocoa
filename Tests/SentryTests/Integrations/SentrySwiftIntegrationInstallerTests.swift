@@ -36,7 +36,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         // Assert
         XCTAssertEqual(testHub.installedIntegrationNames().count, 1)
         XCTAssertEqual(try XCTUnwrap(testHub.installedIntegrationNames().first), "SentrySwiftAsyncIntegration")
-        XCTAssertEqual(testHub.installedIntegrations().count, 1)
+        XCTAssertEqual(testHub.integrationRegistry.allIntegrations.count, 1)
     }
 
     func testInstall_WithDisabledIntegration_DoesNotAddIntegration() {
@@ -63,6 +63,6 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(testHub.installedIntegrationNames().count, 0)
-        XCTAssertEqual(testHub.installedIntegrations().count, 0)
+        XCTAssertEqual(testHub.integrationRegistry.allIntegrations.count, 0)
     }
 }

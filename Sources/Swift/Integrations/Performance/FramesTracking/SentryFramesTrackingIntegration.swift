@@ -2,7 +2,7 @@
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-final class SentryFramesTrackingIntegration<Dependencies: FramesTrackingProvider>: NSObject, SwiftIntegration {
+final class SentryFramesTrackingIntegration<Dependencies: FramesTrackingProvider>: SwiftIntegration {
     let tracker: SentryFramesTracker
 
     init?(with options: Options, dependencies: Dependencies) {

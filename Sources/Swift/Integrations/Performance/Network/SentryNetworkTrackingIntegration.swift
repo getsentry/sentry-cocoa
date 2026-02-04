@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvider>: NSObject, SwiftIntegration {
+final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvider>: SwiftIntegration {
     
     /// References the shared `SentryNetworkTracker` instance (injected via dependencies).
     ///
@@ -37,8 +37,6 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
         guard shouldEnableNetworkTracking || options.enableNetworkBreadcrumbs || options.enableCaptureFailedRequests else {
             return nil
         }
-
-        super.init()
 
         SentrySwizzleWrapperHelper.swizzleURLSessionTask(networkTracker)
     }

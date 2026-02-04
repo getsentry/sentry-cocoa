@@ -22,7 +22,7 @@
     }
     
     private func getIntegration() -> UserFeedbackIntegration<SentryDependencyContainer>? {
-        SentrySDKInternal.currentHub().getInstalledIntegration(UserFeedbackIntegration<SentryDependencyContainer>.self) as? UserFeedbackIntegration<SentryDependencyContainer>
+        SentrySDKInternal.currentHub().integrationRegistry.getIntegration(UserFeedbackIntegration<SentryDependencyContainer>.self)
     }
 }
 #endif

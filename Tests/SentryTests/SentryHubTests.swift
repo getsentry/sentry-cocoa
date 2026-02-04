@@ -1341,7 +1341,7 @@ class SentryHubTests: XCTestCase {
         let logs = logOutput.loggedMessages.joined()
         XCTAssertTrue(logs.contains("Integration installed: MyIntegrationName"), "Should log when MyIntegrationName is installed")
         XCTAssertTrue(sut.hasIntegration("MyIntegrationName"))
-        XCTAssertNotNil(sut.getInstalledIntegration(EmptyIntegration.self))
+        XCTAssertNotNil(sut.integrationRegistry.getIntegration(EmptyIntegration.self))
     }
     
     func testModifyIntegrationsConcurrently() {
@@ -1362,7 +1362,7 @@ class SentryHubTests: XCTestCase {
                     let integrationName = "Integration\(i)\(j)"
                     sut.addInstalledIntegration(EmptyIntegration(), name: integrationName)
                     XCTAssertTrue(sut.hasIntegration(integrationName))
-                    XCTAssertNotNil(sut.getInstalledIntegration(EmptyIntegration.self))
+                    XCTAssertNotNil(sut.integrationRegistry.getIntegration(EmptyIntegration.self))
                 }
                 expectation.fulfill()
             }
@@ -1370,7 +1370,7 @@ class SentryHubTests: XCTestCase {
 
         wait(for: [expectation], timeout: 5.0)
 
-        XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrations().count)
+        XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.integrationRegistry.allIntegrations.count)
         XCTAssertEqual(innerLoopAmount * outerLoopAmount, sut.installedIntegrationNames().count)
         
     }
@@ -1395,10 +1395,10 @@ class SentryHubTests: XCTestCase {
                     sut.addInstalledIntegration(EmptyIntegration(), name: integrationName)
                     sut.hasIntegration(integrationName)
                     sut.isIntegrationInstalled(EmptyIntegration.self)
-                    sut.getInstalledIntegration(EmptyIntegration.self)
+                    sut.integrationRegistry.getIntegration(EmptyIntegration.self)
                 }
-                XCTAssertLessThanOrEqual(0, sut.installedIntegrations().count)
-                sut.installedIntegrations().forEach { XCTAssertNotNil($0) }
+                XCTAssertLessThanOrEqual(0, sut.integrationRegistry.allIntegrations.count)
+                sut.integrationRegistry.allIntegrations.forEach { XCTAssertNotNil($0) }
                 
                 XCTAssertLessThanOrEqual(0, sut.installedIntegrationNames().count)
                 sut.installedIntegrationNames().forEach { XCTAssertNotNil($0) }
@@ -1415,7 +1415,7 @@ class SentryHubTests: XCTestCase {
         let integration = EmptyIntegration()
         sut.addInstalledIntegration(integration, name: "EmptyIntegration")
         
-        let installedIntegration = sut.getInstalledIntegration(EmptyIntegration.self) as? NSObject
+        let installedIntegration = sut.integrationRegistry.getIntegration(EmptyIntegration.self)
         
         XCTAssert(integration === installedIntegration)
     }
@@ -1424,7 +1424,7 @@ class SentryHubTests: XCTestCase {
         let integration = EmptyIntegration()
         sut.addInstalledIntegration(integration, name: "EmptyIntegration")
         
-        XCTAssertNil(sut.getInstalledIntegration(SentryHangTrackerIntegrationObjC.self))
+        XCTAssertNil(sut.integrationRegistry.getIntegration(SentryHangTrackerIntegrationObjC.self))
     }
     
     func testEventContainsOnlyHandledErrors() {

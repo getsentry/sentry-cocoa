@@ -4,7 +4,7 @@
 ///
 /// Integrations conforming to this protocol can be flushed synchronously,
 /// typically during app lifecycle events or manual flush operations.
-protocol FlushableIntegration: SentryIntegrationProtocol {
+protocol FlushableIntegration: SwiftIntegration {
     /// Flushes any buffered data synchronously.
     /// - Returns: The time taken to flush in seconds
     @discardableResult func flush() -> TimeInterval

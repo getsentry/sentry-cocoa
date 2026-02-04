@@ -47,7 +47,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     private func getSut() throws -> SentrySessionReplayIntegration {
-        return try XCTUnwrap(SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration)
+        return try XCTUnwrap(SentrySDKInternal.currentHub().integrationRegistry.getIntegration(SentrySessionReplayIntegration.self))
     }
     
     private func startSDK(sessionSampleRate: Float, errorSampleRate: Float, enableSwizzling: Bool = true, noIntegrations: Bool = false, configure: ((Options) -> Void)? = nil) {
@@ -80,7 +80,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testInstallNoSwizzlingNoTouchTracker() {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0, enableSwizzling: false)
-        guard let integration = SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration
+        guard let integration = SentrySDKInternal.currentHub().integrationRegistry.getIntegration(SentrySessionReplayIntegration.self)
         else {
             XCTFail("Could not find session replay integration")
             return
@@ -385,7 +385,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     
     func testStartWithNoSessionReplay() throws {
         startSDK(sessionSampleRate: 0, errorSampleRate: 0, noIntegrations: true)
-        var sut = SentrySDKInternal.currentHub().installedIntegrations().first as? SentrySessionReplayIntegration
+        var sut = SentrySDKInternal.currentHub().integrationRegistry.getIntegration(SentrySessionReplayIntegration.self)
         XCTAssertNil(sut)
         SentrySDK.replay.start()
         sut = try getSut()
