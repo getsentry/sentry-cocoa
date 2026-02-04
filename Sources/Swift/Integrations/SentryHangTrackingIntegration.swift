@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 #endif
 
@@ -46,7 +46,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     private let threadInspector: SentryThreadInspector
     private var reportAppHangs: Bool = true
     private let reportAppHangsLock = NSRecursiveLock()
-    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     let enableReportNonFullyBlockingAppHangs: Bool
     #endif
     let sentryANRMechanismDataAppHangDuration = "app_hang_duration"
@@ -75,14 +75,14 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
         self.debugImageProvider = dependencies.debugImageProvider
         self.threadInspector = dependencies.threadInspector
         self.options = options
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         enableReportNonFullyBlockingAppHangs = options.enableReportNonFullyBlockingAppHangs
         #endif
         super.init()
         
         tracker.add(listener: self)
 
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         captureStoredAppHangEvent()
         #endif
     }
@@ -125,7 +125,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
             SentrySDKLog.debug("AppHangTracking paused. Ignoring reported app hang.")
             return
         }
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         guard type != .nonFullyBlocking || enableReportNonFullyBlockingAppHangs else {
             SentrySDKLog.debug("Ignoring non fully blocking app hang.")
             return
@@ -157,7 +157,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
 
         event.debugMeta = debugImageProvider.getDebugImagesFromCacheForThreads(threads: threads)
 
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         mechanism.data = [sentryANRMechanismDataAppHangDuration: appHangDurationInfo]
         let scope = SentrySDKInternal.currentHub().scope
         scope.applyTo(event: event, maxBreadcrumbs: options.maxBreadcrumbs)
@@ -180,7 +180,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     }
 
     public func anrStopped(result: SentryANRStoppedResult?) {
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         guard let result else {
             SentrySDKLog.warning("ANR stopped for V2 but result was nil.")
             return
@@ -203,7 +203,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
         #endif
     }
 
-    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private func captureStoredAppHangEvent() {
         dispatchQueueWrapper.dispatchAsync { [weak self] in
             guard let self else { return }

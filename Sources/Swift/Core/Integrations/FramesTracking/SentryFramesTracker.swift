@@ -1,15 +1,15 @@
 // swiftlint:disable file_length type_body_length missing_docs
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 private typealias CrossPlatformApplication = UIApplication
-#elseif (os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
+#elseif (os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UI_FRAMEWORK
 import AppKit
 private typealias CrossPlatformApplication = NSApplication
 #endif
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 @_spi(Private) @objc
 public protocol SentryFramesTrackerListener: NSObjectProtocol {

@@ -56,11 +56,11 @@ public final class SentryScreenFrames: NSObject, NSCopying {
     ///   - frozen: Number of frozen frames
     ///   - slow: Number of slow frames
     @objc public init(total: UInt, frozen: UInt, slow: UInt) {
-#if SENTRY_NO_UIKIT
+#if SENTRY_NO_UI_FRAMEWORK
         let warningText = "SentryScreenFrames only works with UIKit enabled. Ensure you're using the right configuration of Sentry that links UIKit."
         SentrySDKLog.warning(warningText)
         assertionFailure(warningText)
-#endif // SENTRY_NO_UIKIT
+#endif // SENTRY_NO_UI_FRAMEWORK
         
     #if os(iOS)
         self.total = total
@@ -96,11 +96,11 @@ public final class SentryScreenFrames: NSObject, NSCopying {
         frameRateTimestamps: SentryFrameInfoTimeSeries
     ) {
         
-    #if SENTRY_NO_UIKIT
+    #if SENTRY_NO_UI_FRAMEWORK
         let warningText = "SentryScreenFrames only works with UIKit enabled. Ensure you're using the right configuration of Sentry that links UIKit."
         SentrySDKLog.warning(warningText)
         assertionFailure(warningText)
-    #endif // SENTRY_NO_UIKIT
+    #endif // SENTRY_NO_UI_FRAMEWORK
         self.total = total
         self.frozen = frozen
         self.slow = slow
@@ -160,11 +160,11 @@ public final class SentryScreenFrames: NSObject, NSCopying {
 
     /// nodoc
     public func copy(with zone: NSZone? = nil) -> Any {
-#if SENTRY_NO_UIKIT
+#if SENTRY_NO_UI_FRAMEWORK
         let warningText = "SentryScreenFrames only works with UIKit enabled. Ensure you're using the right configuration of Sentry that links UIKit."
         SentrySDKLog.warning(warningText)
         assertionFailure(warningText)
-#endif // SENTRY_NO_UIKIT
+#endif // SENTRY_NO_UI_FRAMEWORK
         
 #if os(iOS)
         return SentryScreenFrames(

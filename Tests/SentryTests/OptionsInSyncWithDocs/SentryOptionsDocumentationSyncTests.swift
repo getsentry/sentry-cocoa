@@ -19,16 +19,16 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             "experimental"
         ]
         
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("screenshot")
         #endif
 
         // Session replay (documented at https://docs.sentry.io/platforms/apple/session-replay/)
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("sessionReplay")
         #endif
 
-        #if os(iOS) && !SENTRY_NO_UIKIT
+        #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
         options.insert("userFeedbackConfiguration") // @_spi(Private) - internal backing for configureUserFeedback
         options.insert("configureUserFeedback")
         #endif

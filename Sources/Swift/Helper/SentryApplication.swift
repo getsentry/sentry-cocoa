@@ -1,8 +1,8 @@
 // swiftlint:disable missing_docs
-#if canImport(AppKit) && !SENTRY_NO_UIKIT
+#if canImport(AppKit) && !SENTRY_NO_UI_FRAMEWORK
 import AppKit
 #endif
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 #endif
 
@@ -11,7 +11,7 @@ import UIKit
     // This can only be accessed on the main thread
     var mainThread_isActive: Bool { get }
 
-    #if !os(macOS) && !os(watchOS) && !SENTRY_NO_UIKIT
+    #if !os(macOS) && !os(watchOS) && !SENTRY_NO_UI_FRAMEWORK
     
     /**
      * Returns the application state available at @c UIApplication.sharedApplication.applicationState
@@ -37,6 +37,6 @@ import UIKit
  * result to a string array with the class name of each view controller.
  */
     func relevantViewControllersNames() -> [String]?
-    #endif // canImport(UIKit) && !SENTRY_NO_UIKIT
+    #endif // canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 }
 // swiftlint:enable missing_docs

@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 #endif
 
@@ -62,7 +62,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         #endif
 
         var enableUncaughtNSExceptionReporting = false
-        #if os(macOS) && !SENTRY_NO_UIKIT
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         if options.enableSwizzling {
             enableUncaughtNSExceptionReporting = options.enableUncaughtNSExceptionReporting
         }
@@ -129,7 +129,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
         installation?.install(cacheDirectory)
 
-        #if os(macOS) && !SENTRY_NO_UIKIT
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         if enableReportingUncaughtExceptions {
             SentryUncaughtNSExceptions.configureCrashOnExceptions()
             SentryUncaughtNSExceptions.swizzleNSApplicationReportException()
