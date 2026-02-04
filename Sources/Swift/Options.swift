@@ -247,13 +247,13 @@
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
 
     /// When enabled, the SDK tracks performance for UIViewController subclasses.
-    /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
+    /// @warning This feature is not available in @c DebugWithoutUIFramework and @c ReleaseWithoutUIFramework
     /// configurations even when targeting iOS or tvOS platforms.
     /// @note The default is @c true.
     @objc public var enableUIViewControllerTracing: Bool = true
 
     /// Automatically attaches a screenshot when capturing an error or exception.
-    /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
+    /// @warning This feature is not available in @c DebugWithoutUIFramework and @c ReleaseWithoutUIFramework
     /// configurations even when targeting iOS or tvOS platforms.
     /// @note Default value is @c false.
     @objc public var attachScreenshot: Bool = false
@@ -264,28 +264,28 @@
     /// @warning This is an experimental feature and may still have bugs.
     /// @brief Automatically attaches a textual representation of the view hierarchy when capturing an
     /// error event.
-    /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
+    /// @warning This feature is not available in @c DebugWithoutUIFramework and @c ReleaseWithoutUIFramework
     /// configurations even when targeting iOS or tvOS platforms.
     /// @note Default value is @c false.
     @objc public var attachViewHierarchy: Bool = false
 
     /// @brief If enabled, view hierarchy attachment will contain view `accessibilityIdentifier`.
     /// Set it to @c false if your project uses `accessibilityIdentifier` for PII.
-    /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
+    /// @warning This feature is not available in @c DebugWithoutUIFramework and @c ReleaseWithoutUIFramework
     /// configurations even when targeting iOS or tvOS platforms.
     /// @note Default value is @c true.
     @objc public var reportAccessibilityIdentifier: Bool = true
 
     /// When enabled, the SDK creates transactions for UI events like buttons clicks, switch toggles,
     /// and other ui elements that uses UIControl @c sendAction:to:forEvent:
-    /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
+    /// @warning This feature is not available in @c DebugWithoutUIFramework and @c ReleaseWithoutUIFramework
     /// configurations even when targeting iOS or tvOS platforms.
     /// @note Default value is @c true.
     @objc public var enableUserInteractionTracing: Bool = true
 
     /// How long an idle transaction waits for new children after all its child spans finished. Only UI
     /// event transactions are idle transactions.
-    /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
+    /// @warning This feature is not available in @c DebugWithoutUIFramework and @c ReleaseWithoutUIFramework
     /// configurations even when targeting iOS or tvOS platforms.
     /// @note The default is 3 seconds.
     @objc public var idleTimeout: TimeInterval = 3.0
@@ -298,7 +298,7 @@
     /// @c app_start_type:cold.prewarmed ,
     /// @c app_start_type:warm.prewarmed , @c app_start_type:cold , and @c app_start_type:warm .
     ///
-    /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
+    /// @warning This feature is not available in @c DebugWithoutUIFramework and @c ReleaseWithoutUIFramework
     /// configurations even when targeting iOS or tvOS platforms.
     ///
     /// @note Default value is @c true.

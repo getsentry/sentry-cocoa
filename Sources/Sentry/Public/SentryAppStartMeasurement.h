@@ -21,8 +21,8 @@ SENTRY_NO_INIT
 @end
 
 /**
- * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
- * configurations even when targeting iOS or tvOS platforms.
+ * @warning This feature is not available in @c DebugWithoutUIFramework and
+ * @c ReleaseWithoutUIFramework configurations even when targeting iOS or tvOS platforms.
  */
 @interface SentryAppStartMeasurement : NSObject
 SENTRY_NO_INIT

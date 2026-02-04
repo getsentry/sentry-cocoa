@@ -7,8 +7,8 @@ WATCHOS_DEPLOYMENT_TARGET = 8.0
 TVOS_DEPLOYMENT_TARGET = 15.0
 MACH_O_TYPE = mh_dylib
 
-OTHER_LDFLAGS_DebugWithoutUIKit = -framework SentryWithoutUIKit
-OTHER_LDFLAGS_ReleaseWithoutUIKit = -framework SentryWithoutUIKit
+OTHER_LDFLAGS_DebugWithoutUIFramework = -framework SentryWithoutUIKit
+OTHER_LDFLAGS_ReleaseWithoutUIFramework = -framework SentryWithoutUIKit
 OTHER_LDFLAGS_Debug = -framework Sentry
 OTHER_LDFLAGS_Test = -framework Sentry
 OTHER_LDFLAGS_TestCI = -framework Sentry

@@ -227,7 +227,7 @@ jobs:
         run: ./scripts/ci-diagnostics.sh
 
   check-debug-without-UIKit:
-    name: Check no UIKit linkage (DebugWithoutUIKit)
+    name: Check no UIKit linkage (DebugWithoutUIFramework)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
@@ -243,18 +243,18 @@ jobs:
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
-            --configuration DebugWithoutUIKit \
+            --configuration DebugWithoutUIFramework \
             --derived-data uikit-check-build
 
       - name: Ensure UIKit is not linked
-        run: ./scripts/check-uikit-linkage.sh DebugWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
+        run: ./scripts/check-uikit-linkage.sh DebugWithoutUIFramework uikit-check-build unlinked SentryWithoutUIKit
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
 
   check-release-without-UIKit:
-    name: Check no UIKit linkage (ReleaseWithoutUIKit)
+    name: Check no UIKit linkage (ReleaseWithoutUIFramework)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
     runs-on: macos-15
@@ -270,11 +270,11 @@ jobs:
             --ref ${{ github.ref }} \
             --command build \
             --device "iPhone 16 Pro" \
-            --configuration ReleaseWithoutUIKit \
+            --configuration ReleaseWithoutUIFramework \
             --derived-data uikit-check-build
 
       - name: Ensure UIKit is not linked
-        run: ./scripts/check-uikit-linkage.sh ReleaseWithoutUIKit uikit-check-build unlinked SentryWithoutUIKit
+        run: ./scripts/check-uikit-linkage.sh ReleaseWithoutUIFramework uikit-check-build unlinked SentryWithoutUIKit
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}

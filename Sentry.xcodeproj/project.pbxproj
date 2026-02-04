@@ -5596,7 +5596,7 @@
 			};
 			name = TestCI;
 		};
-		841C60C32A69DE6B00E1C00F /* DebugWithoutUIKit */ = {
+		841C60C32A69DE6B00E1C00F /* DebugWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
@@ -5608,9 +5608,9 @@
 					"-Wno-error=nullability-completeness",
 				);
 			};
-			name = DebugWithoutUIKit;
+			name = DebugWithoutUIFramework;
 		};
-		841C60C42A69DE6B00E1C00F /* DebugWithoutUIKit */ = {
+		841C60C42A69DE6B00E1C00F /* DebugWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
@@ -5620,9 +5620,9 @@
 					"-Wnullability-completeness",
 				);
 			};
-			name = DebugWithoutUIKit;
+			name = DebugWithoutUIFramework;
 		};
-		841C60C52A69DE6B00E1C00F /* DebugWithoutUIKit */ = {
+		841C60C52A69DE6B00E1C00F /* DebugWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -5654,9 +5654,9 @@
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
 			};
-			name = DebugWithoutUIKit;
+			name = DebugWithoutUIFramework;
 		};
-		841C60C72A69DE6B00E1C00F /* DebugWithoutUIKit */ = {
+		841C60C72A69DE6B00E1C00F /* DebugWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8199DCF29376FF40074249E /* SentrySwiftUI.xcconfig */;
 			buildSettings = {
@@ -5701,9 +5701,9 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = DebugWithoutUIKit;
+			name = DebugWithoutUIFramework;
 		};
-		841C60C82A69DE6B00E1C00F /* DebugWithoutUIKit */ = {
+		841C60C82A69DE6B00E1C00F /* DebugWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -5731,9 +5731,9 @@
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
 			};
-			name = DebugWithoutUIKit;
+			name = DebugWithoutUIFramework;
 		};
-		841C60C92A69DE6B00E1C00F /* DebugWithoutUIKit */ = {
+		841C60C92A69DE6B00E1C00F /* DebugWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -5762,7 +5762,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
-			name = DebugWithoutUIKit;
+			name = DebugWithoutUIFramework;
 		};
 		8431EFD529B27B1100D8DC56 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -6003,7 +6003,7 @@
 			};
 			name = Release;
 		};
-		8483D06A2AC7627800143615 /* ReleaseWithoutUIKit */ = {
+		8483D06A2AC7627800143615 /* ReleaseWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
 			buildSettings = {
@@ -6015,9 +6015,9 @@
 					"-Wno-error=nullability-completeness",
 				);
 			};
-			name = ReleaseWithoutUIKit;
+			name = ReleaseWithoutUIFramework;
 		};
-		8483D06B2AC7627800143615 /* ReleaseWithoutUIKit */ = {
+		8483D06B2AC7627800143615 /* ReleaseWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA75C51EB8B00100D153DE /* Sentry.xcconfig */;
 			buildSettings = {
@@ -6027,9 +6027,9 @@
 					"-Wnullability-completeness",
 				);
 			};
-			name = ReleaseWithoutUIKit;
+			name = ReleaseWithoutUIFramework;
 		};
-		8483D06C2AC7627800143615 /* ReleaseWithoutUIKit */ = {
+		8483D06C2AC7627800143615 /* ReleaseWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -6061,9 +6061,9 @@
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
 			};
-			name = ReleaseWithoutUIKit;
+			name = ReleaseWithoutUIFramework;
 		};
-		8483D06E2AC7627800143615 /* ReleaseWithoutUIKit */ = {
+		8483D06E2AC7627800143615 /* ReleaseWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8199DCF29376FF40074249E /* SentrySwiftUI.xcconfig */;
 			buildSettings = {
@@ -6107,9 +6107,9 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = ReleaseWithoutUIKit;
+			name = ReleaseWithoutUIFramework;
 		};
-		8483D06F2AC7627800143615 /* ReleaseWithoutUIKit */ = {
+		8483D06F2AC7627800143615 /* ReleaseWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -6136,9 +6136,9 @@
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
 			};
-			name = ReleaseWithoutUIKit;
+			name = ReleaseWithoutUIFramework;
 		};
-		8483D0702AC7627800143615 /* ReleaseWithoutUIKit */ = {
+		8483D0702AC7627800143615 /* ReleaseWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -6165,7 +6165,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
 				SWIFT_VERSION = 5.0;
 			};
-			name = ReleaseWithoutUIKit;
+			name = ReleaseWithoutUIFramework;
 		};
 		D4CBA24A2DE06D0200581618 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -6189,7 +6189,7 @@
 			};
 			name = Debug;
 		};
-		D4CBA24B2DE06D0200581618 /* DebugWithoutUIKit */ = {
+		D4CBA24B2DE06D0200581618 /* DebugWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -6208,7 +6208,7 @@
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 			};
-			name = DebugWithoutUIKit;
+			name = DebugWithoutUIFramework;
 		};
 		D4CBA24C2DE06D0200581618 /* Test */ = {
 			isa = XCBuildConfiguration;
@@ -6276,7 +6276,7 @@
 			};
 			name = Release;
 		};
-		D4CBA24F2DE06D0200581618 /* ReleaseWithoutUIKit */ = {
+		D4CBA24F2DE06D0200581618 /* ReleaseWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -6296,7 +6296,7 @@
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_VERSION = 5.0;
 			};
-			name = ReleaseWithoutUIKit;
+			name = ReleaseWithoutUIFramework;
 		};
 		D8079A6727178911004B0F61 /* Test */ = {
 			isa = XCBuildConfiguration;
@@ -6579,7 +6579,7 @@
 			};
 			name = Debug;
 		};
-		D833D72F2D1321C100961E7A /* DebugWithoutUIKit */ = {
+		D833D72F2D1321C100961E7A /* DebugWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -6610,7 +6610,7 @@
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
 			};
-			name = DebugWithoutUIKit;
+			name = DebugWithoutUIFramework;
 		};
 		D833D7302D1321C100961E7A /* Test */ = {
 			isa = XCBuildConfiguration;
@@ -6713,7 +6713,7 @@
 			};
 			name = Release;
 		};
-		D833D7332D1321C100961E7A /* ReleaseWithoutUIKit */ = {
+		D833D7332D1321C100961E7A /* ReleaseWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
 			buildSettings = {
@@ -6744,7 +6744,7 @@
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
 			};
-			name = ReleaseWithoutUIKit;
+			name = ReleaseWithoutUIFramework;
 		};
 		D84DAD522B17428D003CF120 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -6800,7 +6800,7 @@
 			};
 			name = Debug;
 		};
-		D84DAD532B17428D003CF120 /* DebugWithoutUIKit */ = {
+		D84DAD532B17428D003CF120 /* DebugWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -6852,7 +6852,7 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = DebugWithoutUIKit;
+			name = DebugWithoutUIFramework;
 		};
 		D84DAD542B17428D003CF120 /* Test */ = {
 			isa = XCBuildConfiguration;
@@ -7010,7 +7010,7 @@
 			};
 			name = Release;
 		};
-		D84DAD572B17428D003CF120 /* ReleaseWithoutUIKit */ = {
+		D84DAD572B17428D003CF120 /* ReleaseWithoutUIFramework */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -7060,7 +7060,7 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = ReleaseWithoutUIKit;
+			name = ReleaseWithoutUIFramework;
 		};
 /* End XCBuildConfiguration section */
 
@@ -7069,11 +7069,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6327C5E51EB8A783004E799B /* Debug */,
-				841C60C32A69DE6B00E1C00F /* DebugWithoutUIKit */,
+				841C60C32A69DE6B00E1C00F /* DebugWithoutUIFramework */,
 				D8079A6727178911004B0F61 /* Test */,
 				7BFC80A8282B736400E83A05 /* TestCI */,
 				6327C5E61EB8A783004E799B /* Release */,
-				8483D06A2AC7627800143615 /* ReleaseWithoutUIKit */,
+				8483D06A2AC7627800143615 /* ReleaseWithoutUIFramework */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -7082,11 +7082,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				63AA75A11EB8AEF500D153DE /* Debug */,
-				841C60C42A69DE6B00E1C00F /* DebugWithoutUIKit */,
+				841C60C42A69DE6B00E1C00F /* DebugWithoutUIFramework */,
 				D8079A6827178911004B0F61 /* Test */,
 				7BFC80A9282B736400E83A05 /* TestCI */,
 				63AA75A21EB8AEF500D153DE /* Release */,
-				8483D06B2AC7627800143615 /* ReleaseWithoutUIKit */,
+				8483D06B2AC7627800143615 /* ReleaseWithoutUIFramework */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -7095,11 +7095,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				63AA766D1EB8CB2F00D153DE /* Debug */,
-				841C60C52A69DE6B00E1C00F /* DebugWithoutUIKit */,
+				841C60C52A69DE6B00E1C00F /* DebugWithoutUIFramework */,
 				D8079A6927178911004B0F61 /* Test */,
 				7BFC80AA282B736400E83A05 /* TestCI */,
 				63AA766E1EB8CB2F00D153DE /* Release */,
-				8483D06C2AC7627800143615 /* ReleaseWithoutUIKit */,
+				8483D06C2AC7627800143615 /* ReleaseWithoutUIFramework */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -7108,11 +7108,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8431EFD529B27B1100D8DC56 /* Debug */,
-				841C60C82A69DE6B00E1C00F /* DebugWithoutUIKit */,
+				841C60C82A69DE6B00E1C00F /* DebugWithoutUIFramework */,
 				8431EFD629B27B1100D8DC56 /* Test */,
 				8431EFD729B27B1100D8DC56 /* TestCI */,
 				8431EFD829B27B1100D8DC56 /* Release */,
-				8483D06F2AC7627800143615 /* ReleaseWithoutUIKit */,
+				8483D06F2AC7627800143615 /* ReleaseWithoutUIFramework */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -7121,11 +7121,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8431F01129B284F200D8DC56 /* Debug */,
-				841C60C92A69DE6B00E1C00F /* DebugWithoutUIKit */,
+				841C60C92A69DE6B00E1C00F /* DebugWithoutUIFramework */,
 				8431F01229B284F200D8DC56 /* Test */,
 				8431F01329B284F200D8DC56 /* TestCI */,
 				8431F01429B284F200D8DC56 /* Release */,
-				8483D0702AC7627800143615 /* ReleaseWithoutUIKit */,
+				8483D0702AC7627800143615 /* ReleaseWithoutUIFramework */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -7134,11 +7134,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D4CBA24A2DE06D0200581618 /* Debug */,
-				D4CBA24B2DE06D0200581618 /* DebugWithoutUIKit */,
+				D4CBA24B2DE06D0200581618 /* DebugWithoutUIFramework */,
 				D4CBA24C2DE06D0200581618 /* Test */,
 				D4CBA24D2DE06D0200581618 /* TestCI */,
 				D4CBA24E2DE06D0200581618 /* Release */,
-				D4CBA24F2DE06D0200581618 /* ReleaseWithoutUIKit */,
+				D4CBA24F2DE06D0200581618 /* ReleaseWithoutUIFramework */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -7147,11 +7147,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D8199DAE29376E9B0074249E /* Debug */,
-				841C60C72A69DE6B00E1C00F /* DebugWithoutUIKit */,
+				841C60C72A69DE6B00E1C00F /* DebugWithoutUIFramework */,
 				D8199DAF29376E9B0074249E /* Test */,
 				D8199DB029376E9B0074249E /* TestCI */,
 				D8199DB129376E9B0074249E /* Release */,
-				8483D06E2AC7627800143615 /* ReleaseWithoutUIKit */,
+				8483D06E2AC7627800143615 /* ReleaseWithoutUIFramework */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -7160,11 +7160,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D833D72E2D1321C100961E7A /* Debug */,
-				D833D72F2D1321C100961E7A /* DebugWithoutUIKit */,
+				D833D72F2D1321C100961E7A /* DebugWithoutUIFramework */,
 				D833D7302D1321C100961E7A /* Test */,
 				D833D7312D1321C100961E7A /* TestCI */,
 				D833D7322D1321C100961E7A /* Release */,
-				D833D7332D1321C100961E7A /* ReleaseWithoutUIKit */,
+				D833D7332D1321C100961E7A /* ReleaseWithoutUIFramework */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -7173,11 +7173,11 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D84DAD522B17428D003CF120 /* Debug */,
-				D84DAD532B17428D003CF120 /* DebugWithoutUIKit */,
+				D84DAD532B17428D003CF120 /* DebugWithoutUIFramework */,
 				D84DAD542B17428D003CF120 /* Test */,
 				D84DAD552B17428D003CF120 /* TestCI */,
 				D84DAD562B17428D003CF120 /* Release */,
-				D84DAD572B17428D003CF120 /* ReleaseWithoutUIKit */,
+				D84DAD572B17428D003CF120 /* ReleaseWithoutUIFramework */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

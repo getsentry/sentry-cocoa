@@ -9,7 +9,7 @@ import Foundation
 
 /// Represents screen frame metrics including total, slow, and frozen frames.
 ///
-/// - Warning: This feature is not available in `DebugWithoutUIKit` and `ReleaseWithoutUIKit`
+/// - Warning: This feature is not available in `DebugWithoutUIFramework` and `ReleaseWithoutUIFramework`
 /// configurations even when targeting iOS or tvOS platforms.
 @objc @_spi(Private)
 public final class SentryScreenFrames: NSObject, NSCopying {
