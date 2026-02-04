@@ -37,25 +37,43 @@ class DefaultSentryTelemetryProcessor: SentryTelemetryProcessor {
     }
 }
 
-protocol LogTelemetryScheduler: AnyObject {
-    func capture(logsData: Data, count: Int)
+protocol TelemetryScheduler {
+    func capture(data: Data, count: Int, telemetryType: TelemetrySchedulerItemType, )
 }
 
-class DefaultTelemetryScheduler: LogTelemetryScheduler {
+enum TelemetrySchedulerItemType {
+    case log
+}
+
+struct DefaultTelemetryScheduler: TelemetryScheduler {
+
+    struct EnvelopeInfo {
+        let itemType: String
+        let contentType: String
+    }
+
     private let transport: SentryTelemetryProcessorTransport
 
     init(transport: SentryTelemetryProcessorTransport) {
         self.transport = transport
     }
 
-    public func capture(logsData: Data, count: Int) {
-        let envelopeItem = SentryEnvelopeItem(type: SentryEnvelopeItemTypes.log, data: logsData, contentType: "application/vnd.sentry.items.log+json", itemCount: NSNumber(value: count))
+    public func capture(data: Data, count: Int, telemetryType: TelemetrySchedulerItemType) {
+
+        let envelopeInfo = getEnvelopeInfo(telemetryType: telemetryType)
+
+        let envelopeItem = SentryEnvelopeItem(type: envelopeInfo.itemType, data: data, contentType: envelopeInfo.contentType, itemCount: NSNumber(value: count))
 
         let envelope = SentryEnvelope(header: SentryEnvelopeHeader.empty(), items: [envelopeItem])
 
         transport.sendEnvelope(envelope: envelope)
     }
 
+    private func getEnvelopeInfo(telemetryType: TelemetrySchedulerItemType) -> EnvelopeInfo {
+        switch telemetryType {
+            case .log: return EnvelopeInfo(itemType: SentryEnvelopeItemTypes.log, contentType: "application/vnd.sentry.items.log+json")
+        }
+    }
 }
 
 @objc @_spi(Private) public protocol SentryTelemetryProcessorTransport {

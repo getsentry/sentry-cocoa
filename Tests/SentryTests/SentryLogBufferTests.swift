@@ -53,7 +53,8 @@ final class SentryLogBufferTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(testScheduler.captureLogsDataInvocations.count, 1)
-        
+        XCTAssertEqual(testScheduler.captureLogsDataInvocations.invocations.first?.telemetryType, .log)
+
         let capturedLogs = testScheduler.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 2)
         XCTAssertEqual(capturedLogs[0].body, "Log 1")
@@ -73,7 +74,8 @@ final class SentryLogBufferTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(testScheduler.captureLogsDataInvocations.count, 1)
-        
+        XCTAssertEqual(testScheduler.captureLogsDataInvocations.invocations.first?.telemetryType, .log)
+
         let capturedLogs = testScheduler.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 1)
         XCTAssertEqual(capturedLogs[0].body, largeLogBody)
@@ -98,7 +100,8 @@ final class SentryLogBufferTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(testScheduler.captureLogsDataInvocations.count, 1)
-        
+        XCTAssertEqual(testScheduler.captureLogsDataInvocations.invocations.first?.telemetryType, .log)
+
         let capturedLogs = testScheduler.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 10, "Should have captured exactly \(10) logs")
     }
@@ -118,7 +121,8 @@ final class SentryLogBufferTests: XCTestCase {
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.interval, 0.1)
         XCTAssertEqual(testScheduler.captureLogsDataInvocations.count, 1)
-        
+        XCTAssertEqual(testScheduler.captureLogsDataInvocations.invocations.first?.telemetryType, .log)
+
         let capturedLogs = testScheduler.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 1)
     }
@@ -138,7 +142,8 @@ final class SentryLogBufferTests: XCTestCase {
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.interval, 0.1)
         XCTAssertEqual(testScheduler.captureLogsDataInvocations.count, 1)
-        
+        XCTAssertEqual(testScheduler.captureLogsDataInvocations.invocations.first?.telemetryType, .log)
+
         let capturedLogs = testScheduler.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 2)
     }
@@ -158,7 +163,8 @@ final class SentryLogBufferTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(testScheduler.captureLogsDataInvocations.count, 1)
-        
+        XCTAssertEqual(testScheduler.captureLogsDataInvocations.invocations.first?.telemetryType, .log)
+
         let capturedLogs = testScheduler.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 2)
     }
@@ -176,8 +182,9 @@ final class SentryLogBufferTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(testScheduler.captureLogsDataInvocations.count, 1, "Manual flush should work and timer should be cancelled")
+        XCTAssertEqual(testScheduler.captureLogsDataInvocations.invocations.first?.telemetryType, .log)
     }
-    
+
     func testManualCaptureLogs_WithEmptyBuffer_DoesNothing() {
         // -- Arrange --
         let sut = getSut()
@@ -206,8 +213,9 @@ final class SentryLogBufferTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(testScheduler.captureLogsDataInvocations.count, 1)
+        XCTAssertEqual(testScheduler.captureLogsDataInvocations.invocations.first?.telemetryType, .log)
     }
-    
+
     func testAddLogAfterFlush_StartsNewBatch() throws {
         // -- Arrange --
         let sut = getSut()
@@ -222,7 +230,9 @@ final class SentryLogBufferTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(testScheduler.captureLogsDataInvocations.count, 2)
-        
+        XCTAssertEqual(testScheduler.captureLogsDataInvocations.invocations[0].telemetryType, .log)
+        XCTAssertEqual(testScheduler.captureLogsDataInvocations.invocations[1].telemetryType, .log)
+
         let allCapturedLogs = testScheduler.getCapturedLogs()
         XCTAssertEqual(allCapturedLogs.count, 2)
         XCTAssertEqual(allCapturedLogs[0].body, "Log 1")
@@ -284,7 +294,8 @@ final class SentryLogBufferTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(testScheduler.captureLogsDataInvocations.count, 1, "Timeout should trigger flush")
-        
+        XCTAssertEqual(testScheduler.captureLogsDataInvocations.invocations.first?.telemetryType, .log)
+
         let capturedLogs = self.testScheduler.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 1, "Should contain exactly one log")
         XCTAssertEqual(capturedLogs[0].body, "Real timeout test log")
@@ -309,11 +320,11 @@ final class SentryLogBufferTests: XCTestCase {
 
 // MARK: - Test Helpers
 
-final class TestLogTelemetryScheduler: LogTelemetryScheduler {
-    var captureLogsDataInvocations = Invocations<(data: Data, count: Int)>()
+final class TestLogTelemetryScheduler: TelemetryScheduler {
+    var captureLogsDataInvocations = Invocations<(data: Data, count: Int, telemetryType: TelemetrySchedulerItemType)>()
 
-    func capture(logsData: Data, count: Int) {
-        captureLogsDataInvocations.record((logsData, count))
+    func capture(data: Data, count: Int, telemetryType: TelemetrySchedulerItemType) {
+        captureLogsDataInvocations.record((data, count, telemetryType))
     }
 
     // Helper to get captured logs

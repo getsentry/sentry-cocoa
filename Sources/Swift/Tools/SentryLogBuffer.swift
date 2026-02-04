@@ -4,7 +4,6 @@ import Foundation
 
 class SentryLogBuffer {
     private let buffer: any TelemetryBuffer<SentryLog>
-    private let scheduler: LogTelemetryScheduler
 
     /// Convenience initializer with default flush timeout, max log count (100), and buffer size.
     /// Creates its own serial dispatch queue with DEFAULT QoS for thread-safe access to mutable state.
@@ -17,7 +16,7 @@ class SentryLogBuffer {
     /// - Note: Setting `maxLogCount` to 100. While Replay hard limit is 1000, we keep this lower, as it's hard to lower once released.
     convenience init(
         dateProvider: SentryCurrentDateProvider,
-        scheduler: LogTelemetryScheduler
+        scheduler: any TelemetryScheduler
     ) {
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
         self.init(
@@ -48,26 +47,21 @@ class SentryLogBuffer {
         maxBufferSizeBytes: Int,
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
-        scheduler: LogTelemetryScheduler
+        scheduler: some TelemetryScheduler
     ) {
         self.buffer = DefaultTelemetryBuffer(
             config: .init(
                 flushTimeout: flushTimeout,
                 maxItemCount: maxLogCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
-                capturedDataCallback: { [weak scheduler] data, count in
-                    guard let scheduler else {
-                        SentrySDKLog.debug("SentryLogBuffer: Delegate not set, not capturing logs data.")
-                        return
-                    }
-                    scheduler.capture(logsData: data, count: count)
+                capturedDataCallback: { data, count in
+                    scheduler.capture(data: data, count: count, telemetryType: .log, )
                 }
             ),
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue
         )
-        self.scheduler = scheduler
     }
 
     /// Adds a log to the buffer.
