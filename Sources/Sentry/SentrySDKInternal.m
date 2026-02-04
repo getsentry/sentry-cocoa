@@ -192,7 +192,7 @@ static NSDate *_Nullable startTimestamp = nil;
     SENTRY_LOG_DEBUG(@"Configured options: %@", options.debugDescription);
 #endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
-#if TARGET_OS_OSX && !SENTRY_NO_UIKIT
+#if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
     // Reference to SentryCrashExceptionApplication to prevent compiler from stripping it
     // Only do this if we are not building without UIKit, because otherwise the class should not be
     // available

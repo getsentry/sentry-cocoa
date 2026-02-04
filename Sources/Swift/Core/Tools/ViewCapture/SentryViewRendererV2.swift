@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 
 import UIKit
@@ -25,5 +25,5 @@ final class SentryViewRendererV2: NSObject, SentryViewRenderer {
 }
 
 #endif // os(iOS) || os(tvOS)
-#endif // canImport(UIKit) && !SENTRY_NO_UIKIT
+#endif // canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 // swiftlint:enable missing_docs

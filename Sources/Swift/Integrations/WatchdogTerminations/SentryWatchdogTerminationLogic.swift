@@ -2,7 +2,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 @_spi(Private) @objc
 public final class SentryWatchdogTerminationLogic: NSObject {
 

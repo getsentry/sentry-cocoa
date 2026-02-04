@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-#if os(iOS) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 
 protocol ScreenshotSourceProvider {
     var screenshotSource: SentryScreenshotSource? { get }

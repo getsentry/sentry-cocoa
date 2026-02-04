@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 @_implementationOnly import _SentryPrivate
 import UIKit
