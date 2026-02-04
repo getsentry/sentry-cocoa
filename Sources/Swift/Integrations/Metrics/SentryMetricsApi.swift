@@ -19,8 +19,8 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         self.dependencies = dependencies
     }
 
-    func count(key: String, value: UInt, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .counter(value), unit: unit, attributes: attributes)
+    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue] = [:]) {
+        captureMetric(name: key, value: .counter(value), unit: nil, attributes: attributes)
     }
 
     func distribution(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
