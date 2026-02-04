@@ -5,7 +5,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
 
     // MARK: - UIKit Platform Tests
 
-    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
     // MARK: - Active State Tests
 
@@ -220,7 +220,7 @@ class SentryDefaultEventContextEnricherTests: XCTestCase {
 
     // MARK: - Non-UIKit Platform Tests
 
-    #if !(os(iOS) || os(tvOS) || os(visionOS)) || SENTRY_NO_UIKIT
+    #if !(os(iOS) || os(tvOS) || os(visionOS)) || SENTRY_NO_UI_FRAMEWORK
 
     func testEnrichEventContext_OnNonUIKitPlatforms_ReturnsContextUnchanged() throws {
         // Arrange

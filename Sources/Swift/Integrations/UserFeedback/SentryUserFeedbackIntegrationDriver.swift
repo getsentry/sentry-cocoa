@@ -1,6 +1,6 @@
 // swiftlint:disable missing_docs
 import Foundation
-#if os(iOS) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 @_implementationOnly import _SentryPrivate
 import UIKit
 
@@ -185,5 +185,5 @@ extension UIView {
     }
 }
 
-#endif // os(iOS) && !SENTRY_NO_UIKIT
+#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 // swiftlint:enable missing_docs

@@ -3,7 +3,7 @@
 import SentryTestUtils
 import XCTest
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 class SentryPerformanceTrackingIntegrationTests: XCTestCase {
     private class Fixture {
         let defaultOptions: Options

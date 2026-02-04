@@ -1,11 +1,11 @@
 // swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 #endif
 
-#if (os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
+#if (os(macOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UI_FRAMEWORK
 import Cocoa
 #endif
 
@@ -43,19 +43,19 @@ import Cocoa
         trackNetworkConnectivityChanges()
     }
     
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     @objc
     func startSwizzle() {
         swizzleSendAction()
         swizzleViewDidAppear()
     }
-#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     
     @objc
     func stop() {
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         SentryDependencyContainer.sharedInstance().swizzleWrapper.removeSwizzleSendAction(forKey: Self.swizzleSendActionKey)
-#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         
         // Remove all notification observers
         let notificationCenter = NotificationCenter.default
@@ -69,16 +69,16 @@ import Cocoa
     }
     
     private func trackApplicationNotifications() {
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         trackApplicationNotificationsUIKit()
-#elseif os(macOS) && !SENTRY_NO_UIKIT
+#elseif os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         trackApplicationNotificationsMacOS()
 #else // watchOS or other platforms
         SentrySDKLog.debug("NO UIKit, macOS and Catalyst -> [SentryBreadcrumbTracker trackApplicationNotifications] does nothing.")
 #endif
     }
     
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private func trackApplicationNotificationsUIKit() {
         let notificationCenter = NotificationCenter.default
         
@@ -117,9 +117,9 @@ import Cocoa
         }
         notificationObservers.append(foregroundObserver)
     }
-#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     
-#if os(macOS) && !SENTRY_NO_UIKIT
+#if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     private func trackApplicationNotificationsMacOS() {
         let notificationCenter = NotificationCenter.default
         
@@ -169,7 +169,7 @@ import Cocoa
         delegate?.add(crumb)
     }
     
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private static func avoidSender(_ sender: Any?, forTarget target: Any?, action: String) -> Bool {
         guard let sender = sender, let target = target else {
             return true
@@ -284,7 +284,7 @@ import Cocoa
         
         return info
     }
-#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 }
 
 extension SentryBreadcrumbTracker: SentryReachabilityObserver {

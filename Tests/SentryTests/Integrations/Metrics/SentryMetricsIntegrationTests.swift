@@ -332,7 +332,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
     }
     
     func testWillResignActive_whenClientAvailable_shouldFlushMetrics() throws {
-        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS))
+        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK) || os(macOS))
         throw XCTSkip("Not supported on this platform")
         #else
         // -- Arrange --
@@ -384,7 +384,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         client.captureMetricsDataInvocations.removeAll()
 
         // -- Act --
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         notificationCenterWrapper.post(Notification(name: UIApplication.willResignActiveNotification))
         #elseif os(macOS)
         notificationCenterWrapper.post(Notification(name: NSApplication.willResignActiveNotification))
@@ -396,7 +396,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
     }
     
     func testWillTerminate_whenClientAvailable_shouldFlushMetrics() throws {
-        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS))
+        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK) || os(macOS))
         throw XCTSkip("Not supported on this platform")
         #else
         // -- Arrange --
@@ -448,7 +448,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         client.captureMetricsDataInvocations.removeAll()
         
         // -- Act --
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         notificationCenterWrapper.post(Notification(name: UIApplication.willTerminateNotification))
         #elseif os(macOS)
         notificationCenterWrapper.post(Notification(name: NSApplication.willTerminateNotification))
@@ -460,7 +460,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
     }
     
     func testWillResignActive_whenNoClient_shouldNotCrash() throws {
-        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS))
+        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK) || os(macOS))
         throw XCTSkip("Not supported on this platform")
         #else
         // -- Arrange --
@@ -497,7 +497,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         
         // -- Act & Assert --
         // Should not crash when no client is available
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         notificationCenterWrapper.post(Notification(name: UIApplication.willResignActiveNotification))
         #elseif os(macOS)
         notificationCenterWrapper.post(Notification(name: NSApplication.willResignActiveNotification))
