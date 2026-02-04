@@ -112,6 +112,7 @@ class SentryClientTests: XCTestCase {
                     "dsn": SentryClientTests.dsn
                 ])
                 options.removeAllIntegrations()
+                options.enableLogs = true
                 configureOptions(options)
 
                 client = SentryClientInternal(
@@ -2379,11 +2380,10 @@ class SentryClientTests: XCTestCase {
     
     func testCaptureLog() throws {
         let sut = fixture.getSut()
-        
+
         // Create a test log buffer to verify addLog is called
         let testDelegate = TestLogBufferDelegateForClient()
         let testBuffer = TestLogBufferForClient(
-            options: sut.options,
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
@@ -2416,7 +2416,6 @@ class SentryClientTests: XCTestCase {
 
         let testDelegate = TestLogBufferDelegateForClient()
         let testBuffer = TestLogBufferForClient(
-            options: sut.options,
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
@@ -2469,7 +2468,6 @@ class SentryClientTests: XCTestCase {
 
         let testDelegate = TestLogBufferDelegateForClient()
         let testBuffer = TestLogBufferForClient(
-            options: sut.options,
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
@@ -2507,7 +2505,6 @@ class SentryClientTests: XCTestCase {
 
         let testDelegate = TestLogBufferDelegateForClient()
         let testBuffer = TestLogBufferForClient(
-            options: sut.options,
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
@@ -2535,7 +2532,6 @@ class SentryClientTests: XCTestCase {
 
         let testDelegate = TestLogBufferDelegateForClient()
         let testBuffer = TestLogBufferForClient(
-            options: sut.options,
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
@@ -2578,7 +2574,6 @@ class SentryClientTests: XCTestCase {
 
         let testDelegate = TestLogBufferDelegateForClient()
         let testBuffer = TestLogBufferForClient(
-            options: sut.options,
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
@@ -2604,7 +2599,6 @@ class SentryClientTests: XCTestCase {
         
         let testDelegate = TestLogBufferDelegateForClient()
         let testBuffer = TestLogBufferForClient(
-            options: sut.options,
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
@@ -2626,7 +2620,6 @@ class SentryClientTests: XCTestCase {
         
         let testDelegate = TestLogBufferDelegateForClient()
         let testBuffer = TestLogBufferForClient(
-            options: sut.options,
             flushTimeout: 5,
             maxLogCount: 100,
             maxBufferSizeBytes: 1_024 * 1_024,
@@ -2642,7 +2635,33 @@ class SentryClientTests: XCTestCase {
         
         XCTAssertEqual(testBuffer.captureLogsInvocations.count, 1)
     }
-    
+
+    func testCaptureLog_withLogsDisabled_logDropped() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        sut.options.enableLogs = false
+
+        let testDelegate = TestLogBufferDelegateForClient()
+        let testBuffer = TestLogBufferForClient(
+            flushTimeout: 5,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024 * 1_024,
+            dateProvider: TestCurrentDateProvider(),
+            dispatchQueue: TestSentryDispatchQueueWrapper(),
+            delegate: testDelegate
+        )
+        Dynamic(sut).logBuffer = testBuffer
+
+        let log = SentryLog(level: .info, body: "This log should be dropped")
+        let scope = Scope()
+
+        // -- Act --
+        sut._swiftCaptureLog(log, with: scope)
+
+        // -- Assert --
+        XCTAssertEqual(testBuffer.addLogInvocations.count, 0, "Log should be dropped when enableLogs is false")
+    }
+
     func testCaptureMetricsData_whenCalled_shouldCreateEnvelopeWithCorrectItem() throws {
         // -- Arrange --
         let testData = Data("test metrics data".utf8)
