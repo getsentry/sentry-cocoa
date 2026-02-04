@@ -303,7 +303,19 @@
     ///
     /// @note Default value is @c true.
     @objc public var enablePreWarmedAppStartTracing: Bool = true
-    
+
+    /// When enabled, the SDK captures app startup time as a standalone transaction,
+    /// instead of attaching it to the first @c ui.load transaction.
+    ///
+    /// This allows capturing app startup time regardless of whether a @c ui.load transaction
+    /// is created within 5 seconds of app start.
+    ///
+    /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
+    /// configurations even when targeting iOS or tvOS platforms.
+    ///
+    /// @note Default value is @c false.
+    @objc public var enableStandaloneAppStartTransaction: Bool = false
+
     /// When enabled the SDK reports non-fully-blocking app hangs. A non-fully-blocking app hang is when
     /// the app appears stuck to the user but can still render a few frames.
     ///

@@ -403,7 +403,42 @@ import Foundation
     @objc public static func resumeAppHangTracking() {
         SentrySDKInternal.resumeAppHangTracking()
     }
-    
+
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    // MARK: - App Launch Tracking
+
+    /// Returns a task object that can be used to extend the app launch duration measurement.
+    ///
+    /// When ``Options/enableStandaloneAppStartTransaction`` is enabled, the SDK captures app startup
+    /// time as a standalone transaction. By default, the app launch ends when the first frame is rendered.
+    ///
+    /// Call this method to get a task object, then call ``SentryAppLaunchTask/finish()`` on it when
+    /// your app has completed its initialization and is ready for user interaction. This extends the
+    /// app startup measurement to include additional initialization work.
+    ///
+    /// - Returns: A task object to mark app launch completion, or `nil` if:
+    ///   - ``Options/enableStandaloneAppStartTransaction`` is not enabled
+    ///   - The app start transaction has already been created
+    ///   - An extended launch task has already been created
+    ///
+    /// - Note: This method must be called before the first frame is rendered for the task to have any effect.
+    ///
+    /// - Important: This method must be called from the main thread.
+    ///
+    /// ## Example
+    /// ```swift
+    /// // In your AppDelegate or early initialization code:
+    /// let launchTask = SentrySDK.extendedAppLaunchTask()
+    ///
+    /// // After your initialization is complete:
+    /// launchTask?.finish()
+    /// ```
+    @objc public static func extendedAppLaunchTask() -> SentryAppLaunchTask? {
+        // Must be called on main thread
+        return SentryStandaloneAppStartTrackingIntegration.createExtendedAppLaunchTask()
+    }
+    #endif
+
     /// Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
     /// timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
     /// doesn't dispose the client or the hub.

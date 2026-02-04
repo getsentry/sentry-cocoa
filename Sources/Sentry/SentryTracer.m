@@ -795,6 +795,13 @@ static BOOL appStartMeasurementRead;
         return nil;
     }
 
+    // When standalone app start transaction is enabled, don't attach to ui.load transactions.
+    if (PrivateSentrySDKOnly.options.enableStandaloneAppStartTransaction) {
+        SENTRY_LOG_DEBUG(@"Not returning app start measurements because standalone app start "
+                         @"transaction is enabled.");
+        return nil;
+    }
+
     // Double-Checked Locking to avoid acquiring unnecessary locks.
     if (appStartMeasurementRead == YES) {
         SENTRY_LOG_DEBUG(@"Not returning app start measurements because it was already reported.");
