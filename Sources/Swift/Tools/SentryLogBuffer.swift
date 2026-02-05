@@ -16,7 +16,7 @@ class SentryLogBuffer {
     /// - Note: Setting `maxLogCount` to 100. While Replay hard limit is 1000, we keep this lower, as it's hard to lower once released.
     convenience init(
         dateProvider: SentryCurrentDateProvider,
-        scheduler: any TelemetryScheduler
+        scheduler: TelemetryScheduler
     ) {
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
         self.init(
@@ -47,7 +47,7 @@ class SentryLogBuffer {
         maxBufferSizeBytes: Int,
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
-        scheduler: some TelemetryScheduler
+        scheduler: TelemetryScheduler
     ) {
         self.buffer = DefaultTelemetryBuffer(
             config: .init(
