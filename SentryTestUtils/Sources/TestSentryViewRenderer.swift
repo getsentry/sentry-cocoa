@@ -1,4 +1,4 @@
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 
 @_spi(Private) @testable import Sentry
@@ -27,4 +27,4 @@ import UIKit
 }
 
 #endif // os(iOS) || os(tvOS)
-#endif // canImport(UIKit) && !SENTRY_NO_UIKIT
+#endif // canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK

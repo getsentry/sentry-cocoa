@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 @_spi(Private) public typealias SentrySwizzleSendActionCallback = (String, Any?, Any?, UIEvent?) -> Void

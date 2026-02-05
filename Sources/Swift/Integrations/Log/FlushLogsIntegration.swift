@@ -1,14 +1,14 @@
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 private typealias CrossPlatformApplication = UIApplication
-#elseif os(macOS)
+#elseif os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 import AppKit
 private typealias CrossPlatformApplication = NSApplication
 #endif
 
-#if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
+#if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 final class FlushLogsIntegration<Dependencies: NotificationCenterProvider>: NSObject, SwiftIntegration {
     

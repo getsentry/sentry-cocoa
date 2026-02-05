@@ -112,6 +112,7 @@ class SentryClientTests: XCTestCase {
                     "dsn": SentryClientTests.dsn
                 ])
                 options.removeAllIntegrations()
+                options.enableLogs = true
                 configureOptions(options)
 
                 client = SentryClientInternal(
@@ -204,7 +205,7 @@ class SentryClientTests: XCTestCase {
         // - SentryInstallation.cacheIDAsyncWithCacheDirectoryPath(cacheDirectoryPath:)
         XCTAssertEqual(dispatchQueue.dispatchAsyncInvocations.count, 2)
 
-        let nonCachedID = SentryInstallation.id(withCacheDirectoryPathNonCached: options.cacheDirectoryPath)
+        let nonCachedID = SentryInstallation.idNonCached(withCacheDirectoryPath: options.cacheDirectoryPath)
         
         // We remove the file containing the installation ID, but the cached ID is still in memory
         try FileManager().removeItem(atPath: options.cacheDirectoryPath)
@@ -2379,19 +2380,10 @@ class SentryClientTests: XCTestCase {
     
     func testCaptureLog() throws {
         let sut = fixture.getSut()
-        
+
         // Create a test log buffer to verify addLog is called
-        let testDelegate = TestLogBufferDelegateForClient()
-        let testBuffer = TestLogBufferForClient(
-            options: sut.options,
-            flushTimeout: 5,
-            maxLogCount: 100,
-            maxBufferSizeBytes: 1_024 * 1_024,
-            dateProvider: TestCurrentDateProvider(),
-            dispatchQueue: TestSentryDispatchQueueWrapper(),
-            delegate: testDelegate
-        )
-        Dynamic(sut).logBuffer = testBuffer
+        let testProcessor = TestTelemetryProcessorForClient()
+        Dynamic(sut).telemetryProcessor = testProcessor
         
         let log = SentryLog(
             timestamp: Date(timeIntervalSince1970: 1_627_846_801),
@@ -2405,26 +2397,17 @@ class SentryClientTests: XCTestCase {
         sut._swiftCaptureLog(log, with: scope)
         
         // Verify that the log was passed to the log buffer
-        XCTAssertEqual(testBuffer.addLogInvocations.count, 1)
-        XCTAssertEqual(testBuffer.addLogInvocations.first?.body, "Test log message")
-        XCTAssertEqual(testBuffer.addLogInvocations.first?.level, .info)
+        XCTAssertEqual(testProcessor.addLogInvocations.count, 1)
+        XCTAssertEqual(testProcessor.addLogInvocations.first?.body, "Test log message")
+        XCTAssertEqual(testProcessor.addLogInvocations.first?.level, .info)
     }
 
     func testCaptureLog_appliesScopeToLog() throws {
         // -- Arrange --
         let sut = fixture.getSut()
 
-        let testDelegate = TestLogBufferDelegateForClient()
-        let testBuffer = TestLogBufferForClient(
-            options: sut.options,
-            flushTimeout: 5,
-            maxLogCount: 100,
-            maxBufferSizeBytes: 1_024 * 1_024,
-            dateProvider: TestCurrentDateProvider(),
-            dispatchQueue: TestSentryDispatchQueueWrapper(),
-            delegate: testDelegate
-        )
-        Dynamic(sut).logBuffer = testBuffer
+        let testProcessor = TestTelemetryProcessorForClient()
+        Dynamic(sut).telemetryProcessor = testProcessor
 
         let log = SentryLog(
             timestamp: Date(timeIntervalSince1970: 1_627_846_801),
@@ -2439,8 +2422,8 @@ class SentryClientTests: XCTestCase {
         sut._swiftCaptureLog(log, with: scope)
 
         // -- Assert --
-        XCTAssertEqual(testBuffer.addLogInvocations.count, 1)
-        let enrichedLog = try XCTUnwrap(testBuffer.addLogInvocations.first)
+        XCTAssertEqual(testProcessor.addLogInvocations.count, 1)
+        let enrichedLog = try XCTUnwrap(testProcessor.addLogInvocations.first)
 
         XCTAssertEqual(enrichedLog.attributes["sentry.sdk.name"]?.value as? String, SentryMeta.sdkName)
         XCTAssertEqual(enrichedLog.attributes["sentry.sdk.version"]?.value as? String, SentryMeta.versionString)
@@ -2467,17 +2450,8 @@ class SentryClientTests: XCTestCase {
             return log
         }
 
-        let testDelegate = TestLogBufferDelegateForClient()
-        let testBuffer = TestLogBufferForClient(
-            options: sut.options,
-            flushTimeout: 5,
-            maxLogCount: 100,
-            maxBufferSizeBytes: 1_024 * 1_024,
-            dateProvider: TestCurrentDateProvider(),
-            dispatchQueue: TestSentryDispatchQueueWrapper(),
-            delegate: testDelegate
-        )
-        Dynamic(sut).logBuffer = testBuffer
+        let testProcessor = TestTelemetryProcessorForClient()
+        Dynamic(sut).telemetryProcessor = testProcessor
 
         let log = SentryLog(level: .info, body: "Original message")
         let scope = Scope()
@@ -2487,9 +2461,9 @@ class SentryClientTests: XCTestCase {
 
         // -- Assert --
         XCTAssertTrue(beforeSendCalled)
-        XCTAssertEqual(testBuffer.addLogInvocations.count, 1)
+        XCTAssertEqual(testProcessor.addLogInvocations.count, 1)
 
-        let capturedLog = try XCTUnwrap(testBuffer.addLogInvocations.first)
+        let capturedLog = try XCTUnwrap(testProcessor.addLogInvocations.first)
         XCTAssertEqual(capturedLog.level, .warn)
         XCTAssertEqual(capturedLog.body, "Modified by callback")
         XCTAssertEqual(capturedLog.attributes["callback_modified"]?.value as? Bool, true)
@@ -2505,17 +2479,8 @@ class SentryClientTests: XCTestCase {
             return nil // Drop the log
         }
 
-        let testDelegate = TestLogBufferDelegateForClient()
-        let testBuffer = TestLogBufferForClient(
-            options: sut.options,
-            flushTimeout: 5,
-            maxLogCount: 100,
-            maxBufferSizeBytes: 1_024 * 1_024,
-            dateProvider: TestCurrentDateProvider(),
-            dispatchQueue: TestSentryDispatchQueueWrapper(),
-            delegate: testDelegate
-        )
-        Dynamic(sut).logBuffer = testBuffer
+        let testProcessor = TestTelemetryProcessorForClient()
+        Dynamic(sut).telemetryProcessor = testProcessor
 
         let log = SentryLog(level: .info, body: "This log should be dropped")
         let scope = Scope()
@@ -2525,7 +2490,7 @@ class SentryClientTests: XCTestCase {
 
         // -- Assert --
         XCTAssertTrue(beforeSendCalled)
-        XCTAssertEqual(testBuffer.addLogInvocations.count, 0, "Log should be dropped when beforeSendLog returns nil")
+        XCTAssertEqual(testProcessor.addLogInvocations.count, 0, "Log should be dropped when beforeSendLog returns nil")
     }
 
     func testCaptureLog_beforeSendLogNotSet_logCapturedUnmodified() throws {
@@ -2533,17 +2498,8 @@ class SentryClientTests: XCTestCase {
         let sut = fixture.getSut()
         sut.options.beforeSendLog = nil
 
-        let testDelegate = TestLogBufferDelegateForClient()
-        let testBuffer = TestLogBufferForClient(
-            options: sut.options,
-            flushTimeout: 5,
-            maxLogCount: 100,
-            maxBufferSizeBytes: 1_024 * 1_024,
-            dateProvider: TestCurrentDateProvider(),
-            dispatchQueue: TestSentryDispatchQueueWrapper(),
-            delegate: testDelegate
-        )
-        Dynamic(sut).logBuffer = testBuffer
+        let testProcessor = TestTelemetryProcessorForClient()
+        Dynamic(sut).telemetryProcessor = testProcessor
 
         let log = SentryLog(level: .debug, body: "Debug message")
         let scope = Scope()
@@ -2552,9 +2508,9 @@ class SentryClientTests: XCTestCase {
         sut._swiftCaptureLog(log, with: scope)
 
         // -- Assert --
-        XCTAssertEqual(testBuffer.addLogInvocations.count, 1)
+        XCTAssertEqual(testProcessor.addLogInvocations.count, 1)
 
-        let capturedLog = try XCTUnwrap(testBuffer.addLogInvocations.first)
+        let capturedLog = try XCTUnwrap(testProcessor.addLogInvocations.first)
         XCTAssertEqual(capturedLog.level, .debug)
         XCTAssertEqual(capturedLog.body, "Debug message")
     }
@@ -2576,17 +2532,8 @@ class SentryClientTests: XCTestCase {
             return log
         }
 
-        let testDelegate = TestLogBufferDelegateForClient()
-        let testBuffer = TestLogBufferForClient(
-            options: sut.options,
-            flushTimeout: 5,
-            maxLogCount: 100,
-            maxBufferSizeBytes: 1_024 * 1_024,
-            dateProvider: TestCurrentDateProvider(),
-            dispatchQueue: TestSentryDispatchQueueWrapper(),
-            delegate: testDelegate
-        )
-        Dynamic(sut).logBuffer = testBuffer
+        let testProcessor = TestTelemetryProcessorForClient()
+        Dynamic(sut).telemetryProcessor = testProcessor
 
         let log = SentryLog(level: .info, body: "Test message")
         let scope = Scope()
@@ -2596,53 +2543,70 @@ class SentryClientTests: XCTestCase {
 
         // -- Assert --
         XCTAssertTrue(beforeSendCalled, "beforeSendLog should be called")
-        XCTAssertEqual(testBuffer.addLogInvocations.count, 1)
+        XCTAssertEqual(testProcessor.addLogInvocations.count, 1)
+    }
+
+    func testCaptureLog_beforeSendDroppingLogItem() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        sut.options.beforeSendLog = { _ in
+            return nil
+        }
+
+        let log = SentryLog(level: .info, body: "Test message")
+        let scope = Scope()
+
+        // -- Act --
+        sut._swiftCaptureLog(log, with: scope)
+
+        // -- Assert --
+        assertLostEventRecorded(category: .logItem, reason: .beforeSend)
     }
 
     func testFlushCallsLogBufferCaptureLogs() {
         let sut = fixture.getSut()
         
-        let testDelegate = TestLogBufferDelegateForClient()
-        let testBuffer = TestLogBufferForClient(
-            options: sut.options,
-            flushTimeout: 5,
-            maxLogCount: 100,
-            maxBufferSizeBytes: 1_024 * 1_024,
-            dateProvider: TestCurrentDateProvider(),
-            dispatchQueue: TestSentryDispatchQueueWrapper(),
-            delegate: testDelegate
-        )
-        Dynamic(sut).logBuffer = testBuffer
+        let testProcessor = TestTelemetryProcessorForClient()
+        Dynamic(sut).telemetryProcessor = testProcessor
         
-        XCTAssertEqual(testBuffer.captureLogsInvocations.count, 0)
+        XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 0)
         
         sut.flush(timeout: 1.0)
         
-        XCTAssertEqual(testBuffer.captureLogsInvocations.count, 1)
+        XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 1)
     }
     
     func testCaptureLogsCallsLogBufferCaptureLogs() {
         let sut = fixture.getSut()
         
-        let testDelegate = TestLogBufferDelegateForClient()
-        let testBuffer = TestLogBufferForClient(
-            options: sut.options,
-            flushTimeout: 5,
-            maxLogCount: 100,
-            maxBufferSizeBytes: 1_024 * 1_024,
-            dateProvider: TestCurrentDateProvider(),
-            dispatchQueue: TestSentryDispatchQueueWrapper(),
-            delegate: testDelegate
-        )
-        Dynamic(sut).logBuffer = testBuffer
+        let testProcessor = TestTelemetryProcessorForClient()
+        Dynamic(sut).telemetryProcessor = testProcessor
         
-        XCTAssertEqual(testBuffer.captureLogsInvocations.count, 0)
+        XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 0)
         
         sut.captureLogs()
         
-        XCTAssertEqual(testBuffer.captureLogsInvocations.count, 1)
+        XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 1)
     }
-    
+
+    func testCaptureLog_withLogsDisabled_logDropped() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        sut.options.enableLogs = false
+
+        let testProcessor = TestTelemetryProcessorForClient()
+        Dynamic(sut).telemetryProcessor = testProcessor
+
+        let log = SentryLog(level: .info, body: "This log should be dropped")
+        let scope = Scope()
+
+        // -- Act --
+        sut._swiftCaptureLog(log, with: scope)
+
+        // -- Assert --
+        XCTAssertEqual(testProcessor.addLogInvocations.count, 0, "Log should be dropped when enableLogs is false")
+    }
+
     func testCaptureMetricsData_whenCalled_shouldCreateEnvelopeWithCorrectItem() throws {
         // -- Arrange --
         let testData = Data("test metrics data".utf8)
@@ -2926,24 +2890,17 @@ private extension SentryClientTests {
     
 }
 
-final class TestLogBufferForClient: SentryLogBuffer {
+final class TestTelemetryProcessorForClient: SentryTelemetryProcessor {
     var addLogInvocations = Invocations<SentryLog>()
-    var captureLogsInvocations = Invocations<Void>()
+    var forwardTelemetryDataInvocations = Invocations<Void>()
 
-    override func addLog(_ log: SentryLog) {
+    func add(log: SentryLog) {
         addLogInvocations.record(log)
     }
-    
-    @discardableResult
-    override func captureLogs() -> TimeInterval {
-        captureLogsInvocations.record(())
-        return super.captureLogs()
-    }
-}
 
-final class TestLogBufferDelegateForClient: NSObject, SentryLogBufferDelegate {
-    func capture(logsData: NSData, count: NSNumber) {
-        // No-op for tests that don't need to verify delegate calls
+    func forwardTelemetryData() -> TimeInterval {
+        forwardTelemetryDataInvocations.record(())
+        return 0.0
     }
 }
 

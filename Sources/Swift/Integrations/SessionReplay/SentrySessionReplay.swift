@@ -1,6 +1,6 @@
 // swiftlint:disable file_length missing_docs
 import Foundation
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 @_implementationOnly import _SentryPrivate
 import UIKit
 

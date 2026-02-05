@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 protocol AppStartInfoProvider {
@@ -295,4 +295,4 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     }
 }
 
-#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

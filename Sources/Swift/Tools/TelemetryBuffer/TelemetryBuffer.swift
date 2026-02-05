@@ -36,7 +36,7 @@ final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<I
     ///
     /// - Note: Items are flushed when either `config.maxItemCount` or `config.maxBufferSizeBytes` limit is reached,
     ///        or after `config.flushTimeout` seconds have elapsed since the first item was added to an empty buffer.
-    @_spi(Private) public init(
+    init(
         config: Config,
         buffer: InternalBufferType,
         dateProvider: SentryCurrentDateProvider,

@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if !os(macOS) && !os(watchOS) && !SENTRY_NO_UIKIT
+#if !os(macOS) && !os(watchOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 @objc @_spi(Private) public final class SentryThreadsafeApplication: NSObject {
