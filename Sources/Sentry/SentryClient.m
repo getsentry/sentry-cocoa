@@ -638,12 +638,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)flush:(NSTimeInterval)timeout
 {
-    NSTimeInterval captureLogsDuration = [self.telemetryProcessor flush];
+    NSTimeInterval forwardingTelemetryDataDuration = [self.telemetryProcessor forwardTelemetryData];
     // Calculate remaining timeout for transport flush.
     // We subtract the time already spent capturing logs to respect the overall timeout.
     // If log capture took longer than the timeout, we use 0.0 which will still trigger
     // sending events but won't block waiting for completion.
-    NSTimeInterval remainingTimeout = fmax(0.0, timeout - captureLogsDuration);
+    NSTimeInterval remainingTimeout = fmax(0.0, timeout - forwardingTelemetryDataDuration);
     [self.transportAdapter flush:remainingTimeout];
 }
 
@@ -1127,7 +1127,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)captureLogs
 {
-    (void)[self.telemetryProcessor flush];
+    (void)[self.telemetryProcessor forwardTelemetryData];
 }
 
 - (void)captureMetricsData:(NSData *)data with:(NSNumber *)itemCount

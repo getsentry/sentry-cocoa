@@ -8,7 +8,9 @@ import Foundation
 /// See dev docs for details (work in progress): https://develop.sentry.dev/sdk/telemetry/telemetry-processor/
 @objc @_spi(Private) public protocol SentryTelemetryProcessor {
     func add(log: SentryLog)
-    func flush() -> TimeInterval
+    /// Forwards buffered telemetry data to the transport for sending.
+    /// Temporary name; will be renamed to `flush()` once flushing logic moves from FlushLogsIntegration and SentryMetricsIntegration.
+    func forwardTelemetryData() -> TimeInterval
 }
 
 class DefaultSentryTelemetryProcessor: SentryTelemetryProcessor {
@@ -23,7 +25,7 @@ class DefaultSentryTelemetryProcessor: SentryTelemetryProcessor {
         self.logBuffer.addLog(log)
     }
 
-    func flush() -> TimeInterval {
+    func forwardTelemetryData() -> TimeInterval {
         return self.logBuffer.captureLogs()
     }
 }

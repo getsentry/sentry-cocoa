@@ -25,7 +25,7 @@ final class SentryTelemetryProcessorFactoryTests: XCTestCase {
 
         // -- Act --
         processor.add(log: log)
-        _ = processor.flush()
+        _ = processor.forwardTelemetryData()
 
         // -- Assert --
         XCTAssertEqual(transport.sendEnvelopeInvocations.count, 1)

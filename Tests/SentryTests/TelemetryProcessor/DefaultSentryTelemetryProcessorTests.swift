@@ -27,7 +27,7 @@ final class DefaultSentryTelemetryProcessorTests: XCTestCase {
 
         // -- Act --
         sut.add(log: log)
-        _ = sut.flush()
+        _ = sut.forwardTelemetryData()
 
         // -- Assert --
         XCTAssertEqual(scheduler.captureInvocations.count, 1)
@@ -59,7 +59,7 @@ final class DefaultSentryTelemetryProcessorTests: XCTestCase {
         sut.add(log: log1)
         sut.add(log: log2)
         sut.add(log: log3)
-        _ = sut.flush()
+        _ = sut.forwardTelemetryData()
 
         // -- Assert --
         XCTAssertEqual(scheduler.captureInvocations.count, 1)
@@ -96,7 +96,7 @@ final class DefaultSentryTelemetryProcessorTests: XCTestCase {
         sut.add(log: log)
 
         // -- Act --
-        _ = sut.flush()
+        _ = sut.forwardTelemetryData()
 
         // -- Assert --
         XCTAssertEqual(scheduler.captureInvocations.count, 1)
@@ -123,7 +123,7 @@ final class DefaultSentryTelemetryProcessorTests: XCTestCase {
         sut.add(log: log)
 
         // -- Act --
-        let duration = sut.flush()
+        let duration = sut.forwardTelemetryData()
 
         // -- Assert --
         XCTAssertGreaterThanOrEqual(duration, 0.0)

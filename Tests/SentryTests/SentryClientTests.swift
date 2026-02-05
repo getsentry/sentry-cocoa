@@ -2552,11 +2552,11 @@ class SentryClientTests: XCTestCase {
         let testProcessor = TestTelemetryProcessorForClient()
         Dynamic(sut).telemetryProcessor = testProcessor
         
-        XCTAssertEqual(testProcessor.flushInvocations.count, 0)
+        XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 0)
         
         sut.flush(timeout: 1.0)
         
-        XCTAssertEqual(testProcessor.flushInvocations.count, 1)
+        XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 1)
     }
     
     func testCaptureLogsCallsLogBufferCaptureLogs() {
@@ -2565,11 +2565,11 @@ class SentryClientTests: XCTestCase {
         let testProcessor = TestTelemetryProcessorForClient()
         Dynamic(sut).telemetryProcessor = testProcessor
         
-        XCTAssertEqual(testProcessor.flushInvocations.count, 0)
+        XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 0)
         
         sut.captureLogs()
         
-        XCTAssertEqual(testProcessor.flushInvocations.count, 1)
+        XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 1)
     }
 
     func testCaptureLog_withLogsDisabled_logDropped() {
@@ -2875,14 +2875,14 @@ private extension SentryClientTests {
 
 final class TestTelemetryProcessorForClient: SentryTelemetryProcessor {
     var addLogInvocations = Invocations<SentryLog>()
-    var flushInvocations = Invocations<Void>()
+    var forwardTelemetryDataInvocations = Invocations<Void>()
 
     func add(log: SentryLog) {
         addLogInvocations.record(log)
     }
 
-    func flush() -> TimeInterval {
-        flushInvocations.record(())
+    func forwardTelemetryData() -> TimeInterval {
+        forwardTelemetryDataInvocations.record(())
         return 0.0
     }
 }
