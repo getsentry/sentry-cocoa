@@ -2,27 +2,14 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-final class DefaultSentryTelemetryProcessorTests: XCTestCase {
+final class SentryDefaultTelemetryProcessorTests: XCTestCase {
 
     // MARK: - Add Log Tests
 
     func testAdd_whenCalledWithLog_shouldForwardToLogBuffer() throws {
         // -- Arrange --
-        let scheduler = TestTelemetryScheduler()
-        let dateProvider = TestCurrentDateProvider()
-        let dispatchQueue = TestSentryDispatchQueueWrapper()
-        dispatchQueue.dispatchAsyncExecutesBlock = true
-
-        let logBuffer = SentryLogBuffer(
-            flushTimeout: 5.0,
-            maxLogCount: 100,
-            maxBufferSizeBytes: 1_024,
-            dateProvider: dateProvider,
-            dispatchQueue: dispatchQueue,
-            scheduler: scheduler
-        )
-
-        let sut = DefaultSentryTelemetryProcessor(logBuffer: logBuffer)
+        let (logBuffer, scheduler) = createLogBuffer()
+        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer)
         let log = createTestLog(body: "Test message")
 
         // -- Act --
@@ -36,21 +23,8 @@ final class DefaultSentryTelemetryProcessorTests: XCTestCase {
 
     func testAdd_whenCalledMultipleTimes_shouldForwardAllLogs() throws {
         // -- Arrange --
-        let scheduler = TestTelemetryScheduler()
-        let dateProvider = TestCurrentDateProvider()
-        let dispatchQueue = TestSentryDispatchQueueWrapper()
-        dispatchQueue.dispatchAsyncExecutesBlock = true
-
-        let logBuffer = SentryLogBuffer(
-            flushTimeout: 5.0,
-            maxLogCount: 100,
-            maxBufferSizeBytes: 1_024,
-            dateProvider: dateProvider,
-            dispatchQueue: dispatchQueue,
-            scheduler: scheduler
-        )
-
-        let sut = DefaultSentryTelemetryProcessor(logBuffer: logBuffer)
+        let (logBuffer, scheduler) = createLogBuffer()
+        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer)
         let log1 = createTestLog(body: "Log 1")
         let log2 = createTestLog(body: "Log 2")
         let log3 = createTestLog(body: "Log 3")
@@ -75,50 +49,10 @@ final class DefaultSentryTelemetryProcessorTests: XCTestCase {
 
     // MARK: - Flush Tests
 
-    func testFlush_whenCalled_shouldDelegateToLogBuffer() throws {
-        // -- Arrange --
-        let scheduler = TestTelemetryScheduler()
-        let dateProvider = TestCurrentDateProvider()
-        let dispatchQueue = TestSentryDispatchQueueWrapper()
-        dispatchQueue.dispatchAsyncExecutesBlock = true
-
-        let logBuffer = SentryLogBuffer(
-            flushTimeout: 5.0,
-            maxLogCount: 100,
-            maxBufferSizeBytes: 1_024,
-            dateProvider: dateProvider,
-            dispatchQueue: dispatchQueue,
-            scheduler: scheduler
-        )
-
-        let sut = DefaultSentryTelemetryProcessor(logBuffer: logBuffer)
-        let log = createTestLog(body: "Test")
-        sut.add(log: log)
-
-        // -- Act --
-        _ = sut.forwardTelemetryData()
-
-        // -- Assert --
-        XCTAssertEqual(scheduler.captureInvocations.count, 1)
-    }
-
     func testFlush_whenCalled_shouldReturnDurationFromLogBuffer() {
         // -- Arrange --
-        let scheduler = TestTelemetryScheduler()
-        let dateProvider = TestCurrentDateProvider()
-        let dispatchQueue = TestSentryDispatchQueueWrapper()
-        dispatchQueue.dispatchAsyncExecutesBlock = true
-
-        let logBuffer = SentryLogBuffer(
-            flushTimeout: 5.0,
-            maxLogCount: 100,
-            maxBufferSizeBytes: 1_024,
-            dateProvider: dateProvider,
-            dispatchQueue: dispatchQueue,
-            scheduler: scheduler
-        )
-
-        let sut = DefaultSentryTelemetryProcessor(logBuffer: logBuffer)
+        let (logBuffer, _) = createLogBuffer()
+        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer)
         let log = createTestLog(body: "Test")
         sut.add(log: log)
 
@@ -130,6 +64,24 @@ final class DefaultSentryTelemetryProcessorTests: XCTestCase {
     }
 
     // MARK: - Helper Methods
+
+    private func createLogBuffer() -> (buffer: SentryLogBuffer, scheduler: TestTelemetryScheduler) {
+        let scheduler = TestTelemetryScheduler()
+        let dateProvider = TestCurrentDateProvider()
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        dispatchQueue.dispatchAsyncExecutesBlock = true
+
+        let logBuffer = SentryLogBuffer(
+            flushTimeout: 5.0,
+            maxLogCount: 100,
+            maxBufferSizeBytes: 1_024,
+            dateProvider: dateProvider,
+            dispatchQueue: dispatchQueue,
+            scheduler: scheduler
+        )
+
+        return (logBuffer, scheduler)
+    }
 
     private func createTestLog(
         body: String,

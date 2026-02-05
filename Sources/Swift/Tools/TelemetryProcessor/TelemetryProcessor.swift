@@ -14,7 +14,7 @@ import Foundation
     func forwardTelemetryData() -> TimeInterval
 }
 
-class DefaultSentryTelemetryProcessor: SentryTelemetryProcessor {
+class SentryDefaultTelemetryProcessor: SentryTelemetryProcessor {
 
     private let logBuffer: SentryLogBuffer
 
@@ -39,7 +39,7 @@ class DefaultSentryTelemetryProcessor: SentryTelemetryProcessor {
     public static func getProcessor(transport: SentryTelemetryProcessorTransport) -> SentryTelemetryProcessor {
         let scheduler = DefaultTelemetryScheduler(transport: transport)
         let logBuffer = SentryLogBuffer(dateProvider: SentryDefaultCurrentDateProvider(), scheduler: scheduler)
-        return DefaultSentryTelemetryProcessor(logBuffer: logBuffer)
+        return SentryDefaultTelemetryProcessor(logBuffer: logBuffer)
     }
 }
 
