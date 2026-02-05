@@ -455,14 +455,22 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (void)setUser:(SentryUser *_Nullable)user
 {
+    SentryPendingTaskQueue *pendingTaskQueue
+        = SentryDependencyContainer.sharedInstance.pendingTaskQueue;
+
+    // Clear any older pending setUser tasks so only the latest value is kept.
+    // This also handles the race condition window between setCurrentHub and
+    // executePendingTasks: if setUser is called directly while an older setUser
+    // task is still queued, the stale task is removed before it can overwrite.
+    // See https://github.com/getsentry/sentry-cocoa/issues/6872
+    [pendingTaskQueue removeAllWithType:SentryPendingTaskTypeSetUser];
+
     if (![SentrySDKInternal isEnabled]) {
-        // The SDK isn't fully initialized yet. This can happen when:
-        // 1. The user calls setUser before starting the SDK
-        // 2. The SDK was started on a background thread and main thread initialization
-        //    hasn't completed yet (see https://github.com/getsentry/sentry-cocoa/issues/6872)
-        // Enqueue the task to be executed once the SDK is fully initialized.
-        [SentryDependencyContainer.sharedInstance.pendingTaskQueue
-            enqueue:^{ [SentrySDKInternal.currentHub setUser:user]; }];
+        // The SDK isn't fully initialized yet. Enqueue the task to be executed
+        // once the SDK is fully initialized.
+        [pendingTaskQueue
+            enqueue:^{ [SentrySDKInternal.currentHub setUser:user]; }
+               type:SentryPendingTaskTypeSetUser];
         return;
     }
 

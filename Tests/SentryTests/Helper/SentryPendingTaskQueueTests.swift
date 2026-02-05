@@ -21,7 +21,7 @@ class SentryPendingTaskQueueTests: XCTestCase {
         XCTAssertEqual(0, sut.pendingTaskCount)
 
         // -- Act --
-        sut.enqueue { }
+        sut.enqueue({ }, type: .setUser)
 
         // -- Assert --
         XCTAssertEqual(1, sut.pendingTaskCount)
@@ -32,9 +32,9 @@ class SentryPendingTaskQueueTests: XCTestCase {
         XCTAssertEqual(0, sut.pendingTaskCount)
 
         // -- Act --
-        sut.enqueue { }
-        sut.enqueue { }
-        sut.enqueue { }
+        sut.enqueue({ }, type: .setUser)
+        sut.enqueue({ }, type: .setUser)
+        sut.enqueue({ }, type: .setUser)
 
         // -- Assert --
         XCTAssertEqual(3, sut.pendingTaskCount)
@@ -44,9 +44,9 @@ class SentryPendingTaskQueueTests: XCTestCase {
         // -- Arrange --
         var executionOrder: [Int] = []
 
-        sut.enqueue { executionOrder.append(1) }
-        sut.enqueue { executionOrder.append(2) }
-        sut.enqueue { executionOrder.append(3) }
+        sut.enqueue({ executionOrder.append(1) }, type: .setUser)
+        sut.enqueue({ executionOrder.append(2) }, type: .setUser)
+        sut.enqueue({ executionOrder.append(3) }, type: .setUser)
 
         // -- Act --
         sut.executePendingTasks()
@@ -70,7 +70,7 @@ class SentryPendingTaskQueueTests: XCTestCase {
     func testClearPendingTasks_whenTasksExist_shouldRemoveAllWithoutExecuting() {
         // -- Arrange --
         var wasExecuted = false
-        sut.enqueue { wasExecuted = true }
+        sut.enqueue({ wasExecuted = true }, type: .setUser)
         XCTAssertEqual(1, sut.pendingTaskCount)
 
         // -- Act --
@@ -84,7 +84,7 @@ class SentryPendingTaskQueueTests: XCTestCase {
     func testExecutePendingTasks_whenCalledTwice_shouldOnlyExecuteOnce() {
         // -- Arrange --
         var executionCount = 0
-        sut.enqueue { executionCount += 1 }
+        sut.enqueue({ executionCount += 1 }, type: .setUser)
 
         // -- Act --
         sut.executePendingTasks()
@@ -92,6 +92,54 @@ class SentryPendingTaskQueueTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(1, executionCount)
+    }
+
+    // MARK: - removeAll(type:)
+
+    func testRemoveAllWithType_shouldRemoveMatchingTasks() {
+        // -- Arrange --
+        var executedValue = ""
+        sut.enqueue({ executedValue = "old" }, type: .setUser)
+        XCTAssertEqual(1, sut.pendingTaskCount)
+
+        // -- Act --
+        sut.removeAll(type: .setUser)
+
+        // -- Assert --
+        XCTAssertEqual(0, sut.pendingTaskCount)
+        sut.executePendingTasks()
+        XCTAssertEqual("", executedValue)
+    }
+
+    func testRemoveAllWithType_shouldRemoveAllMatchingTasks() {
+        // -- Arrange --
+        sut.enqueue({ }, type: .setUser)
+        sut.enqueue({ }, type: .setUser)
+        sut.enqueue({ }, type: .setUser)
+        XCTAssertEqual(3, sut.pendingTaskCount)
+
+        // -- Act --
+        sut.removeAll(type: .setUser)
+
+        // -- Assert --
+        XCTAssertEqual(0, sut.pendingTaskCount)
+    }
+
+    func testRemoveAllThenEnqueue_shouldKeepOnlyLatestTask() {
+        // -- Arrange --
+        var executedValues: [String] = []
+
+        sut.enqueue({ executedValues.append("old-user") }, type: .setUser)
+
+        // -- Act --
+        // Simulates what setUser does: clear old, enqueue new
+        sut.removeAll(type: .setUser)
+        sut.enqueue({ executedValues.append("new-user") }, type: .setUser)
+
+        // -- Assert --
+        XCTAssertEqual(1, sut.pendingTaskCount)
+        sut.executePendingTasks()
+        XCTAssertEqual(["new-user"], executedValues)
     }
 
     func testEnqueueAndExecute_whenConcurrent_shouldBeThreadSafe() {
@@ -107,20 +155,20 @@ class SentryPendingTaskQueueTests: XCTestCase {
         // -- Act --
         for _ in 0..<50 {
             queue1.async {
-                self.sut.enqueue {
-                    lock.withLock {
+                self.sut.enqueue({
+                    lock.synchronized {
                         executionCount += 1
                     }
-                }
+                }, type: .setUser)
                 expectation.fulfill()
             }
 
             queue2.async {
-                self.sut.enqueue {
-                    lock.withLock {
+                self.sut.enqueue({
+                    lock.synchronized {
                         executionCount += 1
                     }
-                }
+                }, type: .setUser)
                 expectation.fulfill()
             }
         }
