@@ -8,9 +8,8 @@ final class DefaultTelemetrySchedulerTests: XCTestCase {
 
     func testCapture_whenLogType_shouldCreateEnvelopeWithLogItemType() throws {
         // -- Arrange --
-        let transport = TestTelemetryProcessorTransport()
-        let sut = DefaultTelemetryScheduler(transport: transport)
-        let testData = Data("test".utf8)
+        let (sut, transport) = createScheduler()
+        let testData = try getLogData()
 
         // -- Act --
         sut.capture(data: testData, count: 1, telemetryType: .log)
@@ -23,9 +22,8 @@ final class DefaultTelemetrySchedulerTests: XCTestCase {
 
     func testCapture_whenLogType_shouldCreateEnvelopeWithLogContentType() throws {
         // -- Arrange --
-        let transport = TestTelemetryProcessorTransport()
-        let sut = DefaultTelemetryScheduler(transport: transport)
-        let testData = Data("test".utf8)
+        let (sut, transport) = createScheduler()
+        let testData = try getLogData()
 
         // -- Act --
         sut.capture(data: testData, count: 1, telemetryType: .log)
@@ -38,9 +36,8 @@ final class DefaultTelemetrySchedulerTests: XCTestCase {
 
     func testCapture_whenCalled_shouldCreateEnvelopeWithEmptyHeader() throws {
         // -- Arrange --
-        let transport = TestTelemetryProcessorTransport()
-        let sut = DefaultTelemetryScheduler(transport: transport)
-        let testData = Data("test".utf8)
+        let (sut, transport) = createScheduler()
+        let testData = try getLogData()
 
         // -- Act --
         sut.capture(data: testData, count: 1, telemetryType: .log)
@@ -53,9 +50,8 @@ final class DefaultTelemetrySchedulerTests: XCTestCase {
 
     func testCapture_whenCalled_shouldCreateEnvelopeWithSingleItem() throws {
         // -- Arrange --
-        let transport = TestTelemetryProcessorTransport()
-        let sut = DefaultTelemetryScheduler(transport: transport)
-        let testData = Data("test".utf8)
+        let (sut, transport) = createScheduler()
+        let testData = try getLogData()
 
         // -- Act --
         sut.capture(data: testData, count: 1, telemetryType: .log)
@@ -69,9 +65,8 @@ final class DefaultTelemetrySchedulerTests: XCTestCase {
 
     func testCapture_whenCalledWithData_shouldPassDataToEnvelopeItem() throws {
         // -- Arrange --
-        let transport = TestTelemetryProcessorTransport()
-        let sut = DefaultTelemetryScheduler(transport: transport)
-        let testData = Data("test log data".utf8)
+        let (sut, transport) = createScheduler()
+        let testData = try getLogData(body: "test log data")
 
         // -- Act --
         sut.capture(data: testData, count: 1, telemetryType: .log)
@@ -84,9 +79,8 @@ final class DefaultTelemetrySchedulerTests: XCTestCase {
 
     func testCapture_whenCalledWithCount_shouldPassCountAsNSNumber() throws {
         // -- Arrange --
-        let transport = TestTelemetryProcessorTransport()
-        let sut = DefaultTelemetryScheduler(transport: transport)
-        let testData = Data("test".utf8)
+        let (sut, transport) = createScheduler()
+        let testData = try getLogData()
         let count = 42
 
         // -- Act --
@@ -100,11 +94,10 @@ final class DefaultTelemetrySchedulerTests: XCTestCase {
 
     // MARK: - Transport Interaction Tests
 
-    func testCapture_whenCalled_shouldSendEnvelopeViaTransport() {
+    func testCapture_whenCalled_shouldSendEnvelopeViaTransport() throws {
         // -- Arrange --
-        let transport = TestTelemetryProcessorTransport()
-        let sut = DefaultTelemetryScheduler(transport: transport)
-        let testData = Data("test".utf8)
+        let (sut, transport) = createScheduler()
+        let testData = try getLogData()
 
         // -- Act --
         sut.capture(data: testData, count: 1, telemetryType: .log)
@@ -115,10 +108,9 @@ final class DefaultTelemetrySchedulerTests: XCTestCase {
 
     func testCapture_whenCalledMultipleTimes_shouldSendMultipleEnvelopes() throws {
         // -- Arrange --
-        let transport = TestTelemetryProcessorTransport()
-        let sut = DefaultTelemetryScheduler(transport: transport)
-        let testData1 = Data("test1".utf8)
-        let testData2 = Data("test2".utf8)
+        let (sut, transport) = createScheduler()
+        let testData1 = try getLogData(body: "test1")
+        let testData2 = try getLogData(body: "test2")
 
         // -- Act --
         sut.capture(data: testData1, count: 1, telemetryType: .log)
@@ -130,16 +122,18 @@ final class DefaultTelemetrySchedulerTests: XCTestCase {
         let envelope1 = try XCTUnwrap(transport.sendEnvelopeInvocations.invocations[0])
         let envelope2 = try XCTUnwrap(transport.sendEnvelopeInvocations.invocations[1])
 
-        XCTAssertEqual(envelope1.items.first?.data, testData1)
-        XCTAssertEqual(envelope2.items.first?.data, testData2)
+        let item1 = try XCTUnwrap(envelope1.items.first)
+        let item2 = try XCTUnwrap(envelope2.items.first)
+
+        XCTAssertEqual(item1.data, testData1)
+        XCTAssertEqual(item2.data, testData2)
     }
 
     // MARK: - Edge Cases Tests
 
     func testCapture_whenDataIsEmpty_shouldStillSendEnvelope() throws {
         // -- Arrange --
-        let transport = TestTelemetryProcessorTransport()
-        let sut = DefaultTelemetryScheduler(transport: transport)
+        let (sut, transport) = createScheduler()
         let emptyData = Data()
 
         // -- Act --
@@ -155,9 +149,8 @@ final class DefaultTelemetrySchedulerTests: XCTestCase {
 
     func testCapture_whenCountIsZero_shouldStillSendEnvelope() throws {
         // -- Arrange --
-        let transport = TestTelemetryProcessorTransport()
-        let sut = DefaultTelemetryScheduler(transport: transport)
-        let testData = Data("test".utf8)
+        let (sut, transport) = createScheduler()
+        let testData = try getLogData()
 
         // -- Act --
         sut.capture(data: testData, count: 0, telemetryType: .log)
@@ -168,6 +161,26 @@ final class DefaultTelemetrySchedulerTests: XCTestCase {
         let envelope = try XCTUnwrap(transport.sendEnvelopeInvocations.first)
         let item = try XCTUnwrap(envelope.items.first)
         XCTAssertEqual(item.header.itemCount, NSNumber(value: 0))
+    }
+
+    // MARK: - Helper Methods
+
+    private func createScheduler() -> (scheduler: DefaultTelemetryScheduler, transport: TestTelemetryProcessorTransport) {
+        let transport = TestTelemetryProcessorTransport()
+        let scheduler = DefaultTelemetryScheduler(transport: transport)
+        return (scheduler, transport)
+    }
+
+    private func getLogData(body: String = "test log", level: SentryLog.Level = .info) throws -> Data {
+        let log = SentryLog(
+            timestamp: Date(timeIntervalSince1970: 1_627_846_801),
+            traceId: SentryId(uuidString: "12345678-1234-1234-1234-123456789012"),
+            level: level,
+            body: body,
+            attributes: [:]
+        )
+
+        return try encodeToJSONData(data: log)
     }
 }
 
