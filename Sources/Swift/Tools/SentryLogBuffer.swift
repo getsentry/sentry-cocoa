@@ -55,7 +55,7 @@ class SentryLogBuffer {
                 maxItemCount: maxLogCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
                 capturedDataCallback: { data, count in
-                    scheduler.capture(data: data, count: count, telemetryType: .log, )
+                    scheduler.capture(data: data, count: count, telemetryType: .log)
                 }
             ),
             buffer: InMemoryInternalTelemetryBuffer(),

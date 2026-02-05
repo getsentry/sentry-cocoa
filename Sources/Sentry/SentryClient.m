@@ -1121,7 +1121,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             }
         }
 
-        [self.telemetryProcessor addWithLog:enrichedLog];
+        [self.telemetryProcessor addLog:enrichedLog];
     }
 }
 

@@ -14,7 +14,7 @@ protocol TelemetryScheduler {
     func capture(data: Data, count: Int, telemetryType: TelemetrySchedulerItemType)
 }
 
-struct DefaultTelemetryScheduler: TelemetryScheduler {
+final class DefaultTelemetryScheduler: TelemetryScheduler {
 
     struct EnvelopeInfo {
         let itemType: String
@@ -27,7 +27,7 @@ struct DefaultTelemetryScheduler: TelemetryScheduler {
         self.transport = transport
     }
 
-    public func capture(data: Data, count: Int, telemetryType: TelemetrySchedulerItemType) {
+    func capture(data: Data, count: Int, telemetryType: TelemetrySchedulerItemType) {
 
         let envelopeInfo = getEnvelopeInfo(telemetryType: telemetryType)
 

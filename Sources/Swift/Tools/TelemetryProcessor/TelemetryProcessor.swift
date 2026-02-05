@@ -2,11 +2,12 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-/// Telemetry processor sitting between the client and transport to efficiently deliver telemetry to Sentry (as of 2026-02-04).
+/// The Telemetry processor is sitting between the client and transport to efficiently deliver telemetry to Sentry (as of 2026-02-04).
 /// Currently used for logs only; planned to cover all telemetry (e.g. metrics) with buffering, rate limiting, client reports, and priority-based sending.
 /// Offline caching is still handled by the transport today, but the long-term goal is to move it here so the transport focuses on sending only.
 /// See dev docs for details (work in progress): https://develop.sentry.dev/sdk/telemetry/telemetry-processor/
 @objc @_spi(Private) public protocol SentryTelemetryProcessor {
+    @objc(addLog:)
     func add(log: SentryLog)
     /// Forwards buffered telemetry data to the transport for sending.
     /// Temporary name; will be renamed to `flush()` once flushing logic moves from FlushLogsIntegration and SentryMetricsIntegration.
