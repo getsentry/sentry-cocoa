@@ -8,7 +8,6 @@
 #import "SentryDeviceContextKeys.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
-#import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"

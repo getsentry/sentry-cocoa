@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs
 import Foundation
 
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 #endif
 
@@ -14,7 +14,7 @@ import UIKit
     }
 
     /// UIViewControllers aren't available on watchOS
-#if canImport(UIKit) && !os(watchOS) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !os(watchOS) && !SENTRY_NO_UI_FRAMEWORK
     @objc
     public static func getViewControllerClassName(_ object: UIViewController) -> String {
         if let object = object as? SentryUIViewControllerDescriptor {

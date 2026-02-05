@@ -42470,21 +42470,6 @@
                 "usr": "s:SD"
               },
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryUnit",
-                    "printedName": "Sentry.SentryUnit",
-                    "usr": "s:6Sentry0A4UnitO"
-                  }
-                ],
-                "hasDefaultArg": true,
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.SentryUnit?",
-                "usr": "s:Sq"
-              },
-              {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
@@ -42508,11 +42493,11 @@
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE5count3key5value4unit10attributesySS_SuAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolPAAE5count3key5value10attributesySS_SuSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "name": "count",
-            "printedName": "count(key:value:unit:attributes:)",
-            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE5count3key5value4unit10attributesySS_SuAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF"
+            "printedName": "count(key:value:attributes:)",
+            "usr": "s:6Sentry0A18MetricsApiProtocolPAAE5count3key5value10attributesySS_SuSDySSAA0A14AttributeValue_pGtF"
           },
           {
             "children": [
@@ -42537,20 +42522,6 @@
                 "usr": "s:SD"
               },
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryUnit",
-                    "printedName": "Sentry.SentryUnit",
-                    "usr": "s:6Sentry0A4UnitO"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.SentryUnit?",
-                "usr": "s:Sq"
-              },
-              {
                 "kind": "TypeNominal",
                 "name": "String",
                 "printedName": "Swift.String",
@@ -42572,13 +42543,13 @@
             "funcSelfKind": "NonMutating",
             "genericSig": "<Self where Self : Sentry.SentryMetricsApiProtocol>",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A18MetricsApiProtocolP5count3key5value4unit10attributesySS_SuAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF",
+            "mangledName": "$s6Sentry0A18MetricsApiProtocolP5count3key5value10attributesySS_SuSDySSAA0A14AttributeValue_pGtF",
             "moduleName": "Sentry",
             "name": "count",
-            "printedName": "count(key:value:unit:attributes:)",
+            "printedName": "count(key:value:attributes:)",
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
-            "usr": "s:6Sentry0A18MetricsApiProtocolP5count3key5value4unit10attributesySS_SuAA0A4UnitOSgSDySSAA0A14AttributeValue_pGtF"
+            "usr": "s:6Sentry0A18MetricsApiProtocolP5count3key5value10attributesySS_SuSDySSAA0A14AttributeValue_pGtF"
           },
           {
             "children": [

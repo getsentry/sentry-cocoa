@@ -24,7 +24,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "watchos.app.interaction.string",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "action_type": actionType,
                 "screen": "main"
@@ -35,7 +34,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "watchos.app.interaction.boolean",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "complication_visible": complicationVisible,
                 "always_on": false
@@ -46,7 +44,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "watchos.app.interaction.integer",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "workout_id": workoutId,
                 "retry_count": 0
@@ -57,7 +54,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "watchos.app.interaction.double",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "tap_accuracy": tapAccuracy,
                 "avg_accuracy": 0.97
@@ -68,7 +64,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "watchos.app.interaction.string_array",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "action_types": actionTypes,
                 "screens": ["main", "workout"]
@@ -79,7 +74,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "watchos.app.interaction.boolean_array",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "complication_states": complicationStates,
                 "always_on_states": [true, false]
@@ -90,7 +84,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "watchos.app.interaction.integer_array",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "workout_ids": workoutIds,
                 "retry_counts": [0, 1, 2]
@@ -101,7 +94,6 @@ struct MetricsView: View {
         SentrySDK.metrics.count(
             key: "watchos.app.interaction.double_array",
             value: 1,
-            unit: "interaction",
             attributes: [
                 "tap_accuracies": tapAccuracies,
                 "avg_accuracies": [0.95, 0.98]

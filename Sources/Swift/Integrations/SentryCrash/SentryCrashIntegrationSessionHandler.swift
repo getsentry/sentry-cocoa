@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 #endif
 
@@ -10,11 +10,11 @@ final class SentryCrashIntegrationSessionHandler: NSObject {
     private let crashWrapper: SentryCrashWrapper
     private let fileManager: SentryFileManager
 
-    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let watchdogTerminationLogic: SentryWatchdogTerminationLogic
     #endif
 
-    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     init(
         crashWrapper: SentryCrashWrapper,
         watchdogTerminationLogic: SentryWatchdogTerminationLogic,
@@ -48,7 +48,7 @@ final class SentryCrashIntegrationSessionHandler: NSObject {
             return
         }
 
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         let shouldEndAsCrashed = crashWrapper.crashedLastLaunch || watchdogTerminationLogic.isWatchdogTermination()
         #else
         let shouldEndAsCrashed = crashWrapper.crashedLastLaunch
@@ -62,7 +62,7 @@ final class SentryCrashIntegrationSessionHandler: NSObject {
             fileManager.storeCrashedSession(session)
             fileManager.deleteCurrentSession()
         } else {
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
             // Checking the file existence is way cheaper than reading the file and parsing its contents
             // to an Event.
             guard fileManager.appHangEventExists() else {

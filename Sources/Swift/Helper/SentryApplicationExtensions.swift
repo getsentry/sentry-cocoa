@@ -5,7 +5,7 @@
 // is referenced. Once `SentryAppliction` is not using `@objc` this can be removed.
 @_spi(Private) @objc public final class PlaceholderSentryApplication: NSObject { }
 
-#if !os(macOS) && !os(watchOS) && !SENTRY_NO_UIKIT
+#if !os(macOS) && !os(watchOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 @objc @_spi(Private) extension UIApplication: SentryApplication {
@@ -187,7 +187,7 @@ extension SentryApplication {
 }
 #endif
 
-#if canImport(AppKit) && !targetEnvironment(macCatalyst)
+#if canImport(AppKit) && !targetEnvironment(macCatalyst) && !SENTRY_NO_UI_FRAMEWORK
 @objc @_spi(Private) extension NSApplication: SentryApplication {
     public var mainThread_isActive: Bool {
         isActive

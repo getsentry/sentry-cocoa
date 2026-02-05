@@ -74,7 +74,7 @@
     /// @note Crash reporting is automatically disabled if a debugger is attached.
     @objc public var enableCrashHandler: Bool = true
 
-    #if os(macOS)
+    #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     /// When enabled, the SDK captures uncaught NSExceptions. As this feature uses swizzling, disabling
     /// enableSwizzling also disables this feature.
     ///
@@ -244,7 +244,7 @@
     /// @note The default simply returns the passed in scope.
     @objc public var initialScope: ((Scope) -> Scope) = { return $0 }
     
-    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
     /// When enabled, the SDK tracks performance for UIViewController subclasses.
     /// @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
@@ -317,7 +317,7 @@
     
     #endif
     
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     
     /// Configuration options for Session Replay.
     @objc public var sessionReplay = SentryReplayOptions()
@@ -617,7 +617,7 @@
     /// Options for experimental features that are subject to change.
     @objc public var experimental = SentryExperimentalOptions()
     
-#if os(iOS) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public var userFeedbackConfiguration: SentryUserFeedbackConfiguration?
