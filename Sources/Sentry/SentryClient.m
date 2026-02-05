@@ -1113,6 +1113,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             enrichedLog = self.options.beforeSendLog(enrichedLog);
             if (enrichedLog == nil) {
                 SENTRY_LOG_DEBUG(@"Log dropped by beforeSendLog callback.");
+                [self recordLostEvent:kSentryDataCategoryLogItem
+                               reason:kSentryDiscardReasonBeforeSend];
                 return;
             }
         }
