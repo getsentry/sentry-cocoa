@@ -2594,6 +2594,23 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(testBuffer.addLogInvocations.count, 1)
     }
 
+    func testCaptureLog_beforeSendDroppingLogItem() {
+        // -- Arrange --
+        let sut = fixture.getSut()
+        sut.options.beforeSendLog = { _ in
+            return nil
+        }
+
+        let log = SentryLog(level: .info, body: "Test message")
+        let scope = Scope()
+
+        // -- Act --
+        sut._swiftCaptureLog(log, with: scope)
+
+        // -- Assert --
+        assertLostEventRecorded(category: .logItem, reason: .beforeSend)
+    }
+
     func testFlushCallsLogBufferCaptureLogs() {
         let sut = fixture.getSut()
         
