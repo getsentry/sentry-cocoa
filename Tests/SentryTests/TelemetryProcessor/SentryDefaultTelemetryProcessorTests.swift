@@ -70,6 +70,7 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         let dateProvider = TestCurrentDateProvider()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         dispatchQueue.dispatchAsyncExecutesBlock = true
+        let notificationCenter = TestNSNotificationCenterWrapper()
 
         let logBuffer = SentryLogBuffer(
             flushTimeout: 5.0,
@@ -77,7 +78,8 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
             maxBufferSizeBytes: 1_024,
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue,
-            scheduler: scheduler
+            scheduler: scheduler,
+            notificationCenter: notificationCenter
         )
 
         return (logBuffer, scheduler)

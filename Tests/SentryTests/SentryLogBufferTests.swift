@@ -8,6 +8,7 @@ final class SentryLogBufferTests: XCTestCase {
     private var testDateProvider: TestCurrentDateProvider!
     private var testScheduler: TestLogTelemetryScheduler!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
+    private var testNotificationCenter: TestNSNotificationCenterWrapper!
 
     private func getSut() -> SentryLogBuffer {
         return SentryLogBuffer(
@@ -16,7 +17,8 @@ final class SentryLogBufferTests: XCTestCase {
             maxBufferSizeBytes: 8_000, // byte limit for testing (log with attributes ~390 bytes)
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
-            scheduler: testScheduler
+            scheduler: testScheduler,
+            notificationCenter: testNotificationCenter
         )
     }
 
@@ -29,6 +31,7 @@ final class SentryLogBufferTests: XCTestCase {
         testDateProvider = TestCurrentDateProvider()
         testScheduler = TestLogTelemetryScheduler()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
+        testNotificationCenter = TestNSNotificationCenterWrapper()
         testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
     }
 
@@ -249,7 +252,8 @@ final class SentryLogBufferTests: XCTestCase {
             maxBufferSizeBytes: 10_000,
             dateProvider: testDateProvider,
             dispatchQueue: SentryDispatchQueueWrapper(),
-            scheduler: testScheduler
+            scheduler: testScheduler,
+            notificationCenter: testNotificationCenter
         )
         
         let expectation = XCTestExpectation(description: "Concurrent adds")
@@ -279,7 +283,8 @@ final class SentryLogBufferTests: XCTestCase {
             maxBufferSizeBytes: 10_000,
             dateProvider: testDateProvider,
             dispatchQueue: SentryDispatchQueueWrapper(),
-            scheduler: testScheduler
+            scheduler: testScheduler,
+            notificationCenter: testNotificationCenter
         )
         
         let log = createTestLog(body: "Real timeout test log")

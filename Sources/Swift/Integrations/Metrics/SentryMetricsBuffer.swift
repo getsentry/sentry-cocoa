@@ -49,7 +49,8 @@ struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
             ),
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
-            dispatchQueue: dispatchQueue
+            dispatchQueue: dispatchQueue,
+            itemForwarding: NoOpTelemetryBufferDataForwardingTriggers()
         )
     }
     

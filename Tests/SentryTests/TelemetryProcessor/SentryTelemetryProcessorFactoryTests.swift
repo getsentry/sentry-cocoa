@@ -9,9 +9,10 @@ final class SentryTelemetryProcessorFactoryTests: XCTestCase {
     func testGetProcessor_whenCalled_shouldReturnProcessor() {
         // -- Arrange --
         let transport = TestTelemetryProcessorTransport()
+        let notificationCenter = TestNSNotificationCenterWrapper()
 
         // -- Act --
-        let processor = SentryTelemetryProcessorFactory.getProcessor(transport: transport)
+        let processor = SentryTelemetryProcessorFactory.getProcessor(transport: transport, notificationCenter: notificationCenter)
 
         // -- Assert --
         XCTAssertNotNil(processor)
@@ -20,7 +21,8 @@ final class SentryTelemetryProcessorFactoryTests: XCTestCase {
     func testGetProcessor_whenLogAddedAndFlushed_shouldSendViaTransport() throws {
         // -- Arrange --
         let transport = TestTelemetryProcessorTransport()
-        let processor = SentryTelemetryProcessorFactory.getProcessor(transport: transport)
+        let notificationCenter = TestNSNotificationCenterWrapper()
+        let processor = SentryTelemetryProcessorFactory.getProcessor(transport: transport, notificationCenter: notificationCenter)
         let log = createTestLog(body: "End-to-end test")
 
         // -- Act --

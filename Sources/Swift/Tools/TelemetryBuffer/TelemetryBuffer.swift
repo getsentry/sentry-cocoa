@@ -21,6 +21,7 @@ final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<I
     private var buffer: InternalBufferType
     private let dateProvider: SentryCurrentDateProvider
     private let dispatchQueue: SentryDispatchQueueWrapperProtocol
+    private let itemForwarding: TelemetryBufferItemForwardingTriggers
 
     private var timerWorkItem: DispatchWorkItem?
 
@@ -40,12 +41,18 @@ final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<I
         config: Config,
         buffer: InternalBufferType,
         dateProvider: SentryCurrentDateProvider,
-        dispatchQueue: SentryDispatchQueueWrapperProtocol
+        dispatchQueue: SentryDispatchQueueWrapperProtocol,
+        itemForwarding: TelemetryBufferItemForwardingTriggers
     ) {
         self.config = config
         self.buffer = buffer
         self.dateProvider = dateProvider
         self.dispatchQueue = dispatchQueue
+        self.itemForwarding = itemForwarding
+
+        self.itemForwarding.registerForwardItemsCallback { [weak self] in
+            self?.capture()
+        }
     }
 
     /// Adds an item to the buffer.

@@ -87,7 +87,8 @@ final class TelemetryBufferTests: XCTestCase {
             config: config,
             buffer: testTelemetryBuffer,
             dateProvider: testDateProvider,
-            dispatchQueue: testDispatchQueue
+            dispatchQueue: testDispatchQueue,
+            itemForwarding: NoOpTelemetryBufferDataForwardingTriggers()
         )
     }
 
@@ -283,5 +284,87 @@ final class TelemetryBufferTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 2)
         XCTAssertEqual(testTelemetryBuffer.flushCallCount, 2)
+    }
+
+    // MARK: - Item Forwarding Tests
+
+    func testItemForwardingCallback_whenInvoked_capturesItems() {
+        // -- Arrange --
+        let mockItemForwarding = MockTelemetryBufferDataForwardingTriggers()
+        var config = DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem>.Config(
+            flushTimeout: 0.1,
+            maxItemCount: 10,
+            maxBufferSizeBytes: 8_000
+        )
+        config.capturedDataCallback = { [weak self] data, count in
+            self?.capturedDataInvocations.record((data, count))
+        }
+
+        let sut = DefaultTelemetryBuffer(
+            config: config,
+            buffer: testTelemetryBuffer,
+            dateProvider: testDateProvider,
+            dispatchQueue: testDispatchQueue,
+            itemForwarding: mockItemForwarding
+        )
+
+        sut.add(TestItem(body: "Item 1"))
+        sut.add(TestItem(body: "Item 2"))
+
+        // -- Act --
+        mockItemForwarding.invokeCallback()
+
+        // -- Assert --
+        XCTAssertEqual(capturedDataInvocations.count, 1)
+        XCTAssertEqual(testTelemetryBuffer.flushCallCount, 1)
+    }
+
+    func testItemForwardingCallback_usesWeakSelf_avoidsRetainCycle() {
+        // -- Arrange --
+        let mockItemForwarding = MockTelemetryBufferDataForwardingTriggers()
+
+        func createBuffer() -> DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem>? {
+            var config = DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem>.Config(
+                flushTimeout: 0.1,
+                maxItemCount: 10,
+                maxBufferSizeBytes: 8_000
+            )
+            config.capturedDataCallback = { [weak self] data, count in
+                self?.capturedDataInvocations.record((data, count))
+            }
+
+            let sut = DefaultTelemetryBuffer(
+                config: config,
+                buffer: testTelemetryBuffer,
+                dateProvider: testDateProvider,
+                dispatchQueue: testDispatchQueue,
+                itemForwarding: mockItemForwarding
+            )
+
+            XCTAssertNotNil(sut)
+            return sut
+        }
+
+        weak var weakSut: DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem>?
+
+        // -- Act --
+        weakSut = createBuffer()
+
+        // -- Assert --
+        XCTAssertNil(weakSut, "Buffer should be deallocated after leaving function scope, proving no retain cycle")
+    }
+}
+
+// MARK: - Mock Item Forwarding
+
+private class MockTelemetryBufferDataForwardingTriggers: TelemetryBufferItemForwardingTriggers {
+    private var callback: (() -> Void)?
+
+    func registerForwardItemsCallback(forwardItems: @escaping () -> Void) {
+        callback = forwardItems
+    }
+
+    func invokeCallback() {
+        callback?()
     }
 }

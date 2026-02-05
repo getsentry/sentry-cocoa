@@ -10,7 +10,7 @@ import Foundation
     @objc(addLog:)
     func add(log: SentryLog)
     /// Forwards buffered telemetry data to the transport for sending.
-    /// Temporary name; will be renamed to `flush()` once flushing logic moves from FlushLogsIntegration and SentryMetricsIntegration.
+    /// Temporary name; will be renamed to `flush()` once flushing logic moves from SentryMetricsIntegration.
     func forwardTelemetryData() -> TimeInterval
 }
 
@@ -36,9 +36,9 @@ class SentryDefaultTelemetryProcessor: SentryTelemetryProcessor {
 @objc
 @objcMembers
 @_spi(Private) public class SentryTelemetryProcessorFactory: NSObject {
-    public static func getProcessor(transport: SentryTelemetryProcessorTransport) -> SentryTelemetryProcessor {
+    public static func getProcessor(transport: SentryTelemetryProcessorTransport, notificationCenter: SentryNSNotificationCenterWrapper) -> SentryTelemetryProcessor {
         let scheduler = DefaultTelemetryScheduler(transport: transport)
-        let logBuffer = SentryLogBuffer(dateProvider: SentryDefaultCurrentDateProvider(), scheduler: scheduler)
+        let logBuffer = SentryLogBuffer(dateProvider: SentryDefaultCurrentDateProvider(), scheduler: scheduler, notificationCenter: notificationCenter)
         return SentryDefaultTelemetryProcessor(logBuffer: logBuffer)
     }
 }
