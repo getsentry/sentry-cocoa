@@ -3,6 +3,7 @@
 @protocol SentryCurrentDateProvider;
 @protocol SentryRandomProtocol;
 @protocol SentryEventContextEnricher;
+@protocol SentryNSNotificationCenterWrapper;
 
 @class SentryCrashWrapper;
 @class SentryDispatchQueueWrapper;

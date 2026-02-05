@@ -11,14 +11,6 @@
 @class SentryReplayRecording;
 @class SentrySession;
 @class SentryDefaultThreadInspector;
-@class SentryDebugImageProvider;
-@class SentryTransportAdapter;
-@class SentryOptions;
-
-@protocol SentryCurrentDateProvider;
-@protocol SentryRandomProtocol;
-@protocol SentryEventContextEnricher;
-@protocol SentryNSNotificationCenterWrapper;
 
 @protocol SentrySessionDelegate <NSObject>
 
@@ -42,18 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryDefaultThreadInspector *threadInspector;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, weak, nullable) id<SentrySessionDelegate> sessionDelegate;
-
-- (instancetype)initWithOptions:(SentryOptions *)options
-                   dateProvider:(id<SentryCurrentDateProvider>)dateProvider
-               transportAdapter:(SentryTransportAdapter *)transportAdapter
-                    fileManager:(SentryFileManager *)fileManager
-                threadInspector:(SentryDefaultThreadInspector *)threadInspector
-             debugImageProvider:(SentryDebugImageProvider *)debugImageProvider
-                         random:(id<SentryRandomProtocol>)random
-                         locale:(NSLocale *)locale
-                       timezone:(NSTimeZone *)timezone
-           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
-             notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter;
 
 - (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
