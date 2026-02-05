@@ -19,7 +19,8 @@ public class TestClient: SentryClientInternal {
             random: SentryDependencyContainer.sharedInstance().random,
             locale: NSLocale.autoupdatingCurrent,
             timezone: NSCalendar.autoupdatingCurrent.timeZone,
-            eventContextEnricher: SentryDependencyContainer.sharedInstance().eventContextEnricher
+            eventContextEnricher: SentryDependencyContainer.sharedInstance().eventContextEnricher,
+            notificationCenter: TestNSNotificationCenterWrapper()
         )
     }
     
@@ -35,7 +36,8 @@ public class TestClient: SentryClientInternal {
         random: SentryRandomProtocol,
         locale: Locale,
         timezone: TimeZone,
-        eventContextEnricher: SentryEventContextEnricher
+        eventContextEnricher: SentryEventContextEnricher,
+        notificationCenter: SentryNSNotificationCenterWrapper
     ) {
         super.init(
             options: options,
@@ -47,7 +49,8 @@ public class TestClient: SentryClientInternal {
             random: random,
             locale: locale,
             timezone: timezone,
-            eventContextEnricher: eventContextEnricher
+            eventContextEnricher: eventContextEnricher,
+            notificationCenter: notificationCenter
         )
     }
     
@@ -181,11 +184,6 @@ public class TestClient: SentryClientInternal {
         if let castLog = log as? SentryLog {
             captureLogInvocations.record((castLog, scope))
         }
-    }
-    
-    public var captureLogsInvocations = Invocations<Void>()
-    public override func captureLogs() {
-        captureLogsInvocations.record(())
     }
 
     public var captureMetricsDataInvocations = Invocations<(data: Data, count: NSNumber)>()

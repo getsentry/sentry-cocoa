@@ -1131,11 +1131,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 }
 
-- (void)captureLogs
-{
-    (void)[self.telemetryProcessor forwardTelemetryData];
-}
-
 - (void)captureMetricsData:(NSData *)data with:(NSNumber *)itemCount
 {
     [self captureData:data

@@ -9,7 +9,7 @@ import AppKit
 private typealias CrossPlatformApplication = NSApplication
 #endif
 
-@_spi(Private) public protocol TelemetryBufferItemForwardingTriggers {
+protocol TelemetryBufferItemForwardingTriggers {
     /// Registers a single callback to be invoked on app lifecycle events.
     /// - Important: Only supports ONE callback per instance. Multiple calls will replace the previous callback.
     func registerForwardItemsCallback(forwardItems: @escaping () -> Void)
@@ -89,6 +89,9 @@ final class DefaultTelemetryBufferDataForwardingTriggers: TelemetryBufferItemFor
 
 }
 
+#else
+/// No-op version for platforms without UI framework support
+typealias DefaultTelemetryBufferDataForwardingTriggers = NoOpTelemetryBufferDataForwardingTriggers
 #endif
 
 // swiftlint:enable missing_docs

@@ -23,7 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
                          random:(id<SentryRandomProtocol>)random
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
-           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher;
+           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
+             notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter;
 
 @end
 
