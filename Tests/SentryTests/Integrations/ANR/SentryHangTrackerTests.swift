@@ -1,3 +1,5 @@
+#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+
 @_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
@@ -502,3 +504,5 @@ final class SentryHangTrackerTests: XCTestCase {
         drainAsyncQueue()
     }
 }
+
+#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
