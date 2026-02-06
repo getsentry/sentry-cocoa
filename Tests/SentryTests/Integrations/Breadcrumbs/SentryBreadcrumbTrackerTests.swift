@@ -17,7 +17,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         clearTestState()
     }
     
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     
     func testStopRemovesSwizzleSendAction() {
         let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)

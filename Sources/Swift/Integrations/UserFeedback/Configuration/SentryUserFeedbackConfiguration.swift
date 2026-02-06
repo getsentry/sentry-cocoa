@@ -1,5 +1,5 @@
 import Foundation
-#if os(iOS) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 /**
@@ -152,4 +152,4 @@ public final class SentryUserFeedbackConfiguration: NSObject {
     let margin: CGFloat = 32
 }
 
-#endif // os(iOS) && !SENTRY_NO_UIKIT
+#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK

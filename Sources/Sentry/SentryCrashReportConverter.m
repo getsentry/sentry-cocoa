@@ -132,6 +132,7 @@
             appContext = [NSMutableDictionary new];
         }
         appContext[@"in_foreground"] = self.applicationStats[@"application_in_foreground"];
+        appContext[@"is_active"] = self.applicationStats[@"application_active"];
         mutableContext[@"app"] = appContext;
         event.context = mutableContext;
 

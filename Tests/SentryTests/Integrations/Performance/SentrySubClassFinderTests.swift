@@ -1,8 +1,9 @@
 import ObjectiveC
+@testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 class SentrySubClassFinderTests: XCTestCase {
     
     private class Fixture {

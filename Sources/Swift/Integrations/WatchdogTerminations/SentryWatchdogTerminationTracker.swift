@@ -2,7 +2,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 /**
  * Detect watchdog terminations based on heuristics described in a blog post:
  * https://engineering.fb.com/2015/08/24/ios/reducing-fooms-in-the-facebook-ios-app/ If a watchdog

@@ -19,8 +19,8 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         self.dependencies = dependencies
     }
 
-    func count(key: String, value: UInt, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
-        captureMetric(name: key, value: .counter(value), unit: unit, attributes: attributes)
+    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue] = [:]) {
+        captureMetric(name: key, value: .counter(value), unit: nil, attributes: attributes)
     }
 
     func distribution(key: String, value: Double, unit: SentryUnit? = nil, attributes: [String: SentryAttributeValue] = [:]) {
@@ -49,17 +49,16 @@ struct SentryMetricsApi<Dependencies: SentryMetricsApiDependencies>: SentryMetri
         }
 
         // Capture the traceId at metric creation time to ensure it reflects the active trace
-        // when the metric was captured, not when it gets flushed by the buffer.
+        // when the metric was captured, not a later scope state.
         //
-        // This logic is intentionally duplicated from TelemetryBufferScope.applyToItem (used by Logs)
-        // for the following reasons:
-        // 1. Safety: If buffer enrichment is skipped or fails, metrics still have valid traceIds
+        // This logic is intentionally duplicated from TelemetryScopeApplier.addAttributesToItem
+        // (used by Logs and by SentryMetricsIntegration.addMetric) for the following reasons:
+        // 1. Safety: If scope enrichment is skipped or fails, metrics still have valid traceIds
         //    rather than empty ones, which would break trace correlation entirely.
         // 2. Semantic correctness: A metric captured during a network request should correlate
         //    with that request's trace, matching how we capture timestamp at creation time.
-        // 3. Fail-safe redundancy: The buffer's scope enrichment will overwrite this value, producing
-        //    the same result but with a safety net for edge cases. We can not remove the duplication from
-        //    the buffer scope because it is used by Logs and other integrations.
+        // 3. Fail-safe redundancy: The integration's scope enrichment will overwrite this value,
+        //    producing the same result but with a safety net for edge cases.
         //
         // When a span is active, use its traceId to ensure consistency with span_id.
         // Otherwise, fall back to propagationContext traceId.

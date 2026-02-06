@@ -9,7 +9,7 @@ class SwizzlingCallTests: XCTestCase {
         initSDKForSwizzling()
     }
     
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     func testViewController_SwizzlingCall() {
         let testViewController = TestViewController()
         testViewController.viewDidLoad()
@@ -37,7 +37,7 @@ class SwizzlingCallTests: XCTestCase {
         SentrySDK.start { options in
             options.dsn = ""
             options.tracesSampleRate = 1.0
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
             let n = class_getImageName(TestViewController.self)
             let s = NSString(cString: n!, encoding: String.Encoding.utf8.rawValue)
             options.add(inAppInclude: s!.lastPathComponent)

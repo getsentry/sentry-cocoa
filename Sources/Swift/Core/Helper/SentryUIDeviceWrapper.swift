@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if !os(watchOS) && !os(macOS) && !SENTRY_NO_UIKIT
+#if !os(watchOS) && !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 @_spi(Private) @objc public protocol SentryUIDeviceWrapper {

@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       run_benchmarking_for_prs: ${{ steps.changes.outputs.run_benchmarking_for_prs }}
+      is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Get changed files
@@ -37,7 +38,8 @@ jobs:
     name: Skip Benchmarking for Non-Contributors
     runs-on: ubuntu-latest
     needs: files-changed
-    if: github.event_name == 'pull_request' && needs.files-changed.outputs.run_benchmarking_for_prs == 'true' && !contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association)
+    # Skip for non-contributors, but not for dependabot (handled in build-benchmark-test-target)
+    if: github.event_name == 'pull_request' && needs.files-changed.outputs.run_benchmarking_for_prs == 'true' && !contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association) && needs.files-changed.outputs.is_dependabot == 'false'
     steps:
       - name: Skip Benchmarking for Non-Contributors
         run: |
@@ -46,57 +48,89 @@ jobs:
 
   build-benchmark-test-target:
     name: Build App and Test Runner
-    # Run the job only for PRs with related changes (from contributors) or non-PR events.
-    if: github.event_name != 'pull_request' || (needs.files-changed.outputs.run_benchmarking_for_prs == 'true' && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association))
+    # Run for PRs with related changes (including dependabot) or non-PR events.
+    if: |
+      github.event_name != 'pull_request' || (
+        needs.files-changed.outputs.run_benchmarking_for_prs == 'true' && (
+          contains(
+          fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'),
+          github.event.pull_request.author_association
+        ) ||
+        needs.files-changed.outputs.is_dependabot == 'true')
+      )
     needs: files-changed
     runs-on: macos-26
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - run: ./scripts/ci-select-xcode.sh 26.1.1
       - name: Setup Ruby
-        uses: ruby/setup-ruby@90be1154f987f4dc0fe0dd0feedac9e473aa4ba8 # v1.286.0
+        uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
         with:
           bundler-cache: true
       - run: make init-ci-build
       - run: make xcode-ci
-      - name: Install SentryCli
+      - name: Install Sentry CLI
+        if: needs.files-changed.outputs.is_dependabot != 'true'
         run: brew install getsentry/tools/sentry-cli
-      - run: bundle exec fastlane build_ios_swift_for_tests
-        env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
-          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
-          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - run: bundle exec fastlane build_ios_benchmark_test
-        env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
-          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
-          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - name: Upload dSYMs
+
+      # When running the workflows for dependabot PRs, we need to skip code signing, because the code signing secrets are not available for dependabot PRs.
+      # We still want to run as much of the full workflow as possible, to verify the behaviour.
+      - name: Build iOS-Swift for tests
         run: |
-          sentry-cli --auth-token ${{ secrets.SENTRY_AUTH_TOKEN }} upload-dif --org sentry-sdks --project sentry-cocoa DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
+          bundle exec fastlane build_ios_swift_for_tests \
+            skip_codesigning:${{ needs.files-changed.outputs.is_dependabot == 'true' }}
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+      - name: Build iOS benchmark test
+        run: |
+          bundle exec fastlane build_ios_benchmark_test \
+            skip_codesigning:${{ needs.files-changed.outputs.is_dependabot == 'true' }}
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+
+      - name: Upload dSYMs
+        if: needs.files-changed.outputs.is_dependabot != 'true'
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          sentry-cli upload-dif \
+            --org sentry-sdks \
+            --project sentry-cocoa \
+            DerivedData/Build/Products/Debug-iphoneos/iOS-Swift.app.dSYM
+
       - name: Upload Built Apps for SauceLabs
+        if: needs.files-changed.outputs.is_dependabot != 'true'
         uses: actions/upload-artifact@v6
         with:
           name: benchmark-apps
           path: |
             **/Debug-iphoneos/iOS-Swift.app
             **/Debug-iphoneos/iOS-Benchmarking-Runner.app
+
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
 
   run-ui-tests-with-sauce:
     name: Run Benchmarks ${{matrix.suite}}
-    # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_benchmarking_for_prs == 'true'
+    # Run the job only for PRs with related changes (excluding dependabot) or non-PR events.
+    if: |
+      github.event_name != 'pull_request' || (
+        needs.files-changed.outputs.run_benchmarking_for_prs == 'true' &&
+        needs.files-changed.outputs.is_dependabot == 'false'
+      )
     runs-on: ubuntu-latest
     needs: [files-changed, build-benchmark-test-target]
     strategy:
@@ -190,12 +224,13 @@ jobs:
         run: ./scripts/ci-diagnostics.sh
 
   benchmarking-required-check:
-    needs: [
-      files-changed,
-      build-benchmark-test-target,
-      run-ui-tests-with-sauce,
-      skip-benchmarking-for-non-contributors,
-    ]
+    needs:
+      [
+        files-changed,
+        build-benchmark-test-target,
+        run-ui-tests-with-sauce,
+        skip-benchmarking-for-non-contributors,
+      ]
     name: Benchmarking
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

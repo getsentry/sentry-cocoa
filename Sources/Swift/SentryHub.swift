@@ -249,7 +249,7 @@ import Foundation
     
     // MARK: Internal
     
-    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+    #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     func getSessionReplayId() -> String? {
         helper.getSessionReplayId()
     }

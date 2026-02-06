@@ -2,7 +2,7 @@ import Sentry
 @_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
 
-#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 #endif
 
@@ -272,7 +272,7 @@ class TestData {
         return SentryAppState(releaseName: "1.0.0", osVersion: "14.4.1", vendorId: someUUID, isDebugging: false, systemBootTimestamp: timestamp)
     }
     
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     static var oomEvent: Event {
         let event = Event(level: SentryLevel.fatal)
         let exception = Exception(value: SentryWatchdogTerminationConstants.ExceptionValue, type: SentryWatchdogTerminationConstants.ExceptionType)
@@ -282,7 +282,7 @@ class TestData {
     }
 #endif
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
     
     static var metricKitEvent: Event {
         let event = Event(level: .warning)
@@ -292,7 +292,7 @@ class TestData {
         return event
     }
 
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)
     
     static func scopeWith(observer: SentryScopeObserver) -> Scope {
         let scope = Scope()
@@ -342,7 +342,7 @@ class TestData {
         return request
     }
 
-    #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)
+    #if os(iOS) || os(tvOS) || os(visionOS)
 
     static func getAppStartMeasurement(
         type: SentryAppStartType,
@@ -371,5 +371,5 @@ class TestData {
             didFinishLaunchingTimestamp: didFinishLaunching)
     }
 
-    #endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    #endif // os(iOS) || os(tvOS)
 }

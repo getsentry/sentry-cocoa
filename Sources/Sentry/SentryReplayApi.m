@@ -76,7 +76,7 @@
                                                                     dependencies:sharedContainer];
 
                 [SentrySDKInternal.currentHub
-                    addInstalledIntegration:(id<SentryIntegrationProtocol>)replayIntegration
+                    addInstalledIntegration:replayIntegration
                                        name:[SentrySessionReplayIntegration name]];
             }
         }

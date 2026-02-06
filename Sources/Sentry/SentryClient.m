@@ -3,11 +3,11 @@
 #import "SentryClient+Private.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashStackEntryMapper.h"
+#import "SentryDefaultTelemetryProcessorTransport.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryDeviceContextKeys.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
-#import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
 #import "SentryMechanism.h"
@@ -39,14 +39,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClientInternal () <SentryLogBufferDelegate>
+@protocol SentryEventContextEnricher;
+
+@interface SentryClientInternal ()
 
 @property (nonatomic, strong) SentryTransportAdapter *transportAdapter;
 @property (nonatomic, strong) SentryDebugImageProvider *debugImageProvider;
 @property (nonatomic, strong) id<SentryRandomProtocol> random;
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
-@property (nonatomic, strong) SentryLogBuffer *logBuffer;
+@property (nonatomic, strong) id<SentryLogScopeApplier> logScopeApplier;
+@property (nonatomic, strong) id<SentryTelemetryProcessor> telemetryProcessor;
+@property (nonatomic, strong) id<SentryEventContextEnricher> eventContextEnricher;
 
 @end
 
@@ -80,6 +84,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryDefaultThreadInspector *threadInspector =
         [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 
+    id<SentryEventContextEnricher> eventContextEnricher
+        = SentryDependencyContainer.sharedInstance.eventContextEnricher;
+
     return [self initWithOptions:options
                     dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
                 transportAdapter:transportAdapter
@@ -88,7 +95,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
               debugImageProvider:[SentryDependencyContainer sharedInstance].debugImageProvider
                           random:[SentryDependencyContainer sharedInstance].random
                           locale:[NSLocale autoupdatingCurrentLocale]
-                        timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone];
+                        timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone
+            eventContextEnricher:eventContextEnricher];
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options
@@ -100,6 +108,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          random:(id<SentryRandomProtocol>)random
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
+           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
 {
     if (self = [super init]) {
         _isEnabled = YES;
@@ -112,10 +121,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.locale = locale;
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
+        self.eventContextEnricher = eventContextEnricher;
 
-        self.logBuffer = [[SentryLogBuffer alloc] initWithOptions:options
-                                                     dateProvider:dateProvider
-                                                         delegate:self];
+        self.telemetryProcessor = [SentryTelemetryProcessorFactory
+            getProcessorWithTransport:[[SentryDefaultTelemetryProcessorTransport alloc]
+                                          initWithTransportAdapter:transportAdapter]];
+
+        self.logScopeApplier =
+            [[SentryDefaultLogScopeApplier alloc] initWithEnvironment:options.environment
+                                                          releaseName:options.releaseName
+                                                   cacheDirectoryPath:options.cacheDirectoryPath
+                                                       sendDefaultPii:options.sendDefaultPii];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.
@@ -622,12 +638,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)flush:(NSTimeInterval)timeout
 {
-    NSTimeInterval captureLogsDuration = [self.logBuffer captureLogs];
+    NSTimeInterval forwardingTelemetryDataDuration = [self.telemetryProcessor forwardTelemetryData];
     // Calculate remaining timeout for transport flush.
     // We subtract the time already spent capturing logs to respect the overall timeout.
     // If log capture took longer than the timeout, we use 0.0 which will still trigger
     // sending events but won't block waiting for completion.
-    NSTimeInterval remainingTimeout = fmax(0.0, timeout - captureLogsDuration);
+    NSTimeInterval remainingTimeout = fmax(0.0, timeout - forwardingTelemetryDataDuration);
     [self.transportAdapter flush:remainingTimeout];
 }
 
@@ -712,21 +728,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 #if SENTRY_HAS_UIKIT
     if (!isFatalEvent && eventIsNotReplay) {
-        NSMutableDictionary *context =
-            [event.context mutableCopy] ?: [NSMutableDictionary dictionary];
-        if (context[@"app"] == nil
-            || ([context[@"app"] isKindOfClass:NSDictionary.self]
-                && context[@"app"][@"in_foreground"] == nil)) {
-            NSMutableDictionary *app =
-                [(NSDictionary *)context[@"app"] mutableCopy] ?: [NSMutableDictionary dictionary];
-            context[@"app"] = app;
-
-            UIApplicationState appState =
-                [SentryDependencyContainer sharedInstance].threadsafeApplication.applicationState;
-            BOOL inForeground = appState == UIApplicationStateActive;
-            app[@"in_foreground"] = @(inForeground);
-            event.context = context;
-        }
+        NSDictionary *currentContext = event.context ?: @{};
+        event.context = [self.eventContextEnricher enrichWithAppState:currentContext];
     }
 #endif
 
@@ -1100,22 +1103,33 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope
 {
+    if (self.options.enableLogs == NO) {
+        SENTRY_LOG_DEBUG(@"Dropping log, because the option enableLogs is false.");
+        return;
+    }
+
     if ([log isKindOfClass:[SentryLog class]]) {
-        [self.logBuffer addLog:(SentryLog *)log scope:scope];
+        SentryLog *sentryLog = (SentryLog *)log;
+        SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope toLog:sentryLog];
+
+        // Call beforeSendLog callback if configured
+        if (self.options.beforeSendLog != nil) {
+            enrichedLog = self.options.beforeSendLog(enrichedLog);
+            if (enrichedLog == nil) {
+                SENTRY_LOG_DEBUG(@"Log dropped by beforeSendLog callback.");
+                [self recordLostEvent:kSentryDataCategoryLogItem
+                               reason:kSentryDiscardReasonBeforeSend];
+                return;
+            }
+        }
+
+        [self.telemetryProcessor addLog:enrichedLog];
     }
 }
 
 - (void)captureLogs
 {
-    [self.logBuffer captureLogs];
-}
-
-- (void)captureLogsData:(NSData *)data with:(NSNumber *)itemCount
-{
-    [self captureData:data
-                 with:itemCount
-                 type:SentryEnvelopeItemTypes.log
-          contentType:@"application/vnd.sentry.items.log+json"];
+    (void)[self.telemetryProcessor forwardTelemetryData];
 }
 
 - (void)captureMetricsData:(NSData *)data with:(NSNumber *)itemCount

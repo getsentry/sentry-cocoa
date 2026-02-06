@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-#if os(iOS) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 
 /// API for interacting with the feature User Feedback  
 @objc public final class SentryFeedbackAPI: NSObject {

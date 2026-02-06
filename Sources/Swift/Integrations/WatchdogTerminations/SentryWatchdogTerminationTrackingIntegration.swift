@@ -1,7 +1,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 typealias WatchdogTerminationTrackingProvider = ProcessInfoProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & WatchdogTerminationHangTrackerBuilder
 
@@ -70,4 +70,4 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
     }
 }
 
-#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
