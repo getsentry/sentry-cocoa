@@ -1,10 +1,14 @@
 # Changelog
 
-## Unreleased
+## 9.4.0
 
 ### Breaking Changes
 
 - `Sentry.metrics.count(..)` does not support units, therefore the API was incorrectly defined. This breaking change applies to a method marked as experimental. (#7358)
+
+### Improvements
+
+- Record client report when dropping in `beforeSendLog` (#7379)
 
 ### Fixes
 
