@@ -42,55 +42,58 @@ typealias CreateSemaphoreFunc = (_ value: Int) -> SentryDispatchSemaphore
 ///
 /// Thread Model:
 ///
-/// ┌──────────────────────────────────────────────────────────────────────────────────┐
-/// │                              MAIN THREAD                                         │
-/// │  ┌─────────────────────────────────────────────────────────────────────────────┐ │
-/// │  │  CFRunLoopObserver Callbacks                                                │ │
-/// │  │  • afterWaiting: set loopStartTime, create semaphore, dispatch hang detect  │ │
-/// │  │  • beforeWaiting: signal semaphore, notify finishedRunLoop                  │ │
-/// │  └─────────────────────────────────────────────────────────────────────────────┘ │
-/// │                                    │                                             │
-/// │  Accesses without lock:            │   Accesses WITH lock:                       │
-/// │  • observer                        │   • finishedRunLoop (copy handlers)         │
-/// │  • currentSemaphore                │                                             │
-/// │  • loopStartTime                   │                                             │
-/// │  • hangId                          │                                             │
-/// └────────────────────────────────────┼─────────────────────────────────────────────┘
+/// ```
+/// ┌───────────────────────────────────────────────────────────────────────────────────┐
+/// │                              MAIN THREAD                                          │
+/// │  ┌─────────────────────────────────────────────────────────────────────────────┐  │
+/// │  │  CFRunLoopObserver Callbacks                                                │  │
+/// │  │  • afterWaiting: set loopStartTime, create semaphore, dispatch hang detect  │  │
+/// │  │  • beforeWaiting: signal semaphore, notify finishedRunLoop                  │  │
+/// │  └─────────────────────────────────────────────────────────────────────────────┘  │
+/// │                                    │                                              │
+/// │  Accesses without lock:            │   Accesses WITH lock:                        │
+/// │  • observer                        │   • finishedRunLoop (copy handlers)          │
+/// │  • currentSemaphore                │                                              │
+/// │  • loopStartTime                   │                                              │
+/// │  • hangId                          │                                              │
+/// └────────────────────────────────────┼──────────────────────────────────────────────┘
 ///                                      │
 ///                           DispatchSemaphore.signal()
 ///                                      │
 ///                                      ▼
-/// ┌──────────────────────────────────────────────────────────────────────────────────┐
-/// │                      BACKGROUND QUEUE (serial)                                   │
-/// │  ┌─────────────────────────────────────────────────────────────────────────────┐ │
-/// │  │  waitForHangIterative()                                                     │ │
-/// │  │  • Blocks the serial queue thread with semaphore.wait(timeout:)             │ │
-/// │  │  • On timeout: accesses lateRunLoop directly (already on queue)             │ │
-/// │  │  • Observer add/remove blocks are enqueued and execute after hang resolves  │ │
-/// │  └─────────────────────────────────────────────────────────────────────────────┘ │
-/// │                                                                                  │
-/// │  Accesses (serialized on this queue):                                            │
-/// │  • lateRunLoop (add/remove/iterate)                                              │
-/// │                                                                                  │
-/// │  IMPORTANT: waitForHangIterative blocks this queue's thread while waiting.       │
-/// │  This means add/removeLateRunLoopObserver blocks are delayed until the hang      │
-/// │  resolves (semaphore signaled). This is acceptable because observer              │
-/// │  registration during an active hang is not time-critical.                        │
-/// │  Do NOT use dispatchSync from within waitForHangIterative — it would deadlock    │
-/// │  because the serial queue's current block hasn't returned.                       │
-/// └──────────────────────────────────────────────────────────────────────────────────┘
+/// ┌───────────────────────────────────────────────────────────────────────────────────┐
+/// │                      BACKGROUND QUEUE (serial)                                    │
+/// │  ┌─────────────────────────────────────────────────────────────────────────────┐  │
+/// │  │  waitForHangIterative()                                                     │  │
+/// │  │  • Blocks the serial queue thread with semaphore.wait(timeout:)             │  │
+/// │  │  • On timeout: accesses lateRunLoop directly (already on queue)             │  │
+/// │  │  • Observer add/remove blocks are enqueued and execute after hang resolves  │  │
+/// │  └─────────────────────────────────────────────────────────────────────────────┘  │
+/// │                                                                                   │
+/// │  Accesses (serialized on this queue):                                             │
+/// │  • lateRunLoop (add/remove/iterate)                                               │
+/// │                                                                                   │
+/// │  IMPORTANT: waitForHangIterative blocks this queue's thread while waiting.        │
+/// │  This means add/removeLateRunLoopObserver blocks are delayed until the hang       │
+/// │  resolves (semaphore signaled). This is acceptable because observer               │
+/// │  registration during an active hang is not time-critical.                         │
+/// │  Do NOT use dispatchSync from within waitForHangIterative — it would deadlock     │
+/// │  because the serial queue's current block hasn't returned.                        │
+/// └───────────────────────────────────────────────────────────────────────────────────┘
 ///                                      │
 ///                                      ▼
-/// ┌──────────────────────────────────────────────────────────────────────────────────┐
-/// │                               ANY THREAD                                         │
-/// │  Public API calls:                                                               │
-/// │  • addFinishedRunLoopObserver() - LOCK REQUIRED                                  │
-/// │  • removeFinishedRunLoopObserver() - LOCK REQUIRED                               │
-/// │  • addLateRunLoopObserver() - dispatches to background queue                     │
-/// │  • removeLateRunLoopObserver() - dispatches to background queue                  │
-/// └──────────────────────────────────────────────────────────────────────────────────┘
+/// ┌───────────────────────────────────────────────────────────────────────────────────┐
+/// │                               ANY THREAD                                          │
+/// │  Public API calls:                                                                │
+/// │  • addFinishedRunLoopObserver() - LOCK REQUIRED                                   │
+/// │  • removeFinishedRunLoopObserver() - LOCK REQUIRED                                │
+/// │  • addLateRunLoopObserver() - dispatches to background queue                      │
+/// │  • removeLateRunLoopObserver() - dispatches to background queue                   │
+/// └───────────────────────────────────────────────────────────────────────────────────┘
+/// ```
 ///
-/// Hang Detection Algorithm:
+/// ### Hang Detection Algorithm:
+///
 /// 1. When run loop starts (afterWaiting): Create a semaphore and dispatch hang detection to background queue
 /// 2. If timeout occurs: Report hang and continue waiting (iterative, not recursive to avoid stack overflow)
 /// 3. When run loop completes (beforeWaiting): Signal semaphore to stop hang detection

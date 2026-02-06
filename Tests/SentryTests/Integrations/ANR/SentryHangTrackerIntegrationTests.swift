@@ -2,261 +2,247 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-// Shared test types for integration tests
-fileprivate struct IntegrationTestRunLoopObserver: RunLoopObserver { }
-
+// Shared test types
 fileprivate struct IntegrationTestApplicationProvider: ApplicationProvider {
     func application() -> SentryApplication? {
         return nil
     }
 }
 
-/// Integration tests for SentryHangTracker using real DispatchSemaphore.
+/// Helper class that manages a dedicated thread with its own CFRunLoop for testing.
 ///
-/// These tests verify the hang tracker works correctly with real semaphore timeouts
-/// and actual timing behavior, complementing the unit tests which use mocked semaphores.
+/// This allows us to test hang detection end-to-end without interfering with the test
+/// framework's main RunLoop. Each thread has its own RunLoop (per Apple's CFRunLoop docs).
 ///
-/// Integration tests use real DispatchSemaphore to test:
-/// - Real semaphore timeout behavior
-/// - Actual timing interactions between main thread and background thread
-/// - End-to-end hang detection with real system timing
+/// - SeeAlso: https://developer.apple.com/documentation/corefoundation/cfrunloop
+private class RunLoopThread {
+    private var thread: Thread?
+    private var runLoop: CFRunLoop?
+    private let runLoopReady = DispatchSemaphore(value: 0)
+    private let runLoopStopped = DispatchSemaphore(value: 0)
+    
+    /// Starts a new thread with its own RunLoop.
+    /// Blocks until the RunLoop is ready.
+    func start() {
+        let thread = Thread { [weak self] in
+            guard let self = self else { return }
+            // Get this thread's RunLoop (each thread has its own)
+            let currentRunLoop = CFRunLoopGetCurrent()
+            self.runLoop = currentRunLoop
+            
+            // Add a dummy timer to keep the RunLoop alive.
+            // The timer fires far in the future and repeats, keeping the RunLoop running.
+            var timerContext = CFRunLoopTimerContext(version: 0, info: nil, retain: nil, release: nil, copyDescription: nil)
+            let timer = CFRunLoopTimerCreate(nil, CFAbsoluteTimeGetCurrent() + 1_000, 1_000, 0, 0, { _, _ in }, &timerContext)
+            CFRunLoopAddTimer(currentRunLoop, timer, .commonModes)
+            
+            // Signal that RunLoop is ready
+            self.runLoopReady.signal()
+            
+            // Run the RunLoop until stopped
+            CFRunLoopRun()
+            
+            // Signal that RunLoop has stopped
+            self.runLoopStopped.signal()
+        }
+        self.thread = thread
+        thread.start()
+        
+        // Wait for RunLoop to be ready
+        _ = runLoopReady.wait(timeout: .now() + 2.0)
+    }
+    
+    /// Stops the RunLoop and cancels the thread.
+    func stop() {
+        guard let runLoop = runLoop else { return }
+        CFRunLoopStop(runLoop)
+        thread?.cancel()
+        _ = runLoopStopped.wait(timeout: .now() + 2.0)
+    }
+    
+    /// Returns the RunLoop for this thread.
+    /// Must be called after `start()`.
+    func getRunLoop() -> CFRunLoop {
+        guard let runLoop = runLoop else {
+            fatalError("RunLoop not ready. Call start() first.")
+        }
+        return runLoop
+    }
+    
+    /// Schedules a block to execute on this thread's RunLoop.
+    /// The RunLoop will wake up to process it.
+    func performBlock(_ block: @escaping () -> Void) {
+        let runLoop = getRunLoop()
+        CFRunLoopPerformBlock(runLoop, CFRunLoopMode.commonModes.rawValue, block)
+        CFRunLoopWakeUp(runLoop)
+    }
+}
+
+/// Integration tests for SentryHangTracker using a secondary RunLoop on a dedicated thread.
+///
+/// These tests verify the full end-to-end chain: `CFRunLoopObserver -> semaphore timeout -> handler`.
+/// By using a secondary RunLoop, we avoid interfering with the test framework's main RunLoop.
+///
+/// Everything is real — no mocks:
+/// - Real `CFRunLoopObserver` (via `CFRunLoopObserverCreateWithHandler`)
+/// - Real `SentryDispatchQueueWrapper` (real serial GCD queue)
+/// - Real `DispatchSemaphore` (real timing behavior)
+/// - Real `SentryCurrentDateProvider` (real wall-clock time)
+///
+/// The only injection is redirecting `addObserver`/`removeObserver` to the test thread's
+/// RunLoop instead of the main RunLoop.
 final class SentryHangTrackerIntegrationTests: XCTestCase {
     
-    private var observationBlock: ((IntegrationTestRunLoopObserver?, CFRunLoopActivity) -> Void)?
-    private var testObserver = IntegrationTestRunLoopObserver()
-    private var calledRemoveObserver = false
-    private var calledAddObserver = false
-    private var dispatchQueueWrapper: TestSentryDispatchQueueWrapper!
+    private var runLoopThread: RunLoopThread!
     
     override func setUp() {
         super.setUp()
-        observationBlock = nil
-        calledRemoveObserver = false
-        calledAddObserver = false
-        dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        runLoopThread = RunLoopThread()
+        runLoopThread.start()
     }
     
-    private func createSut(dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider()) -> SentryDefaultHangTracker<IntegrationTestRunLoopObserver> {
-        // Use real DispatchSemaphore for integration tests
-        return SentryDefaultHangTracker<IntegrationTestRunLoopObserver>(
+    override func tearDown() {
+        runLoopThread?.stop()
+        runLoopThread = nil
+        super.tearDown()
+    }
+    
+    private func createSut() -> SentryDefaultHangTracker<CFRunLoopObserver> {
+        let testRunLoop = runLoopThread.getRunLoop()
+        
+        return SentryDefaultHangTracker<CFRunLoopObserver>(
             applicationProvider: IntegrationTestApplicationProvider(),
-            dateProvider: dateProvider,
-            queue: dispatchQueueWrapper,
-            createObserver: { [weak self] _, _, _, _, block in
-                self?.observationBlock = block
-                return self?.testObserver
+            dateProvider: SentryDefaultCurrentDateProvider(),
+            queue: SentryDispatchQueueWrapper(name: "io.sentry.hang-tracker.test"),
+            createObserver: CFRunLoopObserverCreateWithHandler,
+            addObserver: { _, observer, mode in
+                // Redirect to the test RunLoop instead of main
+                CFRunLoopAddObserver(testRunLoop, observer, mode)
             },
-            addObserver: { [weak self] _, _, _ in
-                self?.calledAddObserver = true
-            },
-            removeObserver: { [weak self] _, _, _ in
-                self?.calledRemoveObserver = true
-            },
-            createSemaphore: { DispatchSemaphore(value: $0) }
+            removeObserver: { _, observer, mode in
+                CFRunLoopRemoveObserver(testRunLoop, observer, mode)
+            }
         )
     }
     
-    // MARK: - Integration Tests with Real Semaphore
-    
-    func testAddLateRunLoopObserver_whenHangDetected_shouldCallLateCallback() {
-        // -- Arrange --
-        let dateProvider = TestCurrentDateProvider()
-        let startTime: TimeInterval = 0
-        dateProvider.setSystemUptime(startTime)
-        let sut = createSut(dateProvider: dateProvider)
-        var observerIds = Set<UUID>()
-        var observerLastInterval: TimeInterval = 0
-        
-        // -- Act --
-        let id = sut.addLateRunLoopObserver { id, interval in
-            observerIds.insert(id)
-            observerLastInterval = interval
-        }
-        
-        // Invoke async setup blocks
-        dispatchQueueWrapper.invokeLastDispatchAsync()
-        dispatchQueueWrapper.blockOnMainInvocations.invocations.last?()
-        
-        // -- Assert --
-        XCTAssertTrue(calledAddObserver, "Expected add observer to be called")
-        
-        // -- Act --
-        observationBlock?(testObserver, CFRunLoopActivity.afterWaiting)
-        
-        // Wait for real semaphore timeout (~25ms) with generous buffer for CI
-        let expectation = XCTestExpectation()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            // Advance test date provider time for interval calculation
-            dateProvider.setSystemUptime(startTime + 0.1)
+    /// Waits for async observer registration to complete.
+    ///
+    /// `addLateRunLoopObserver` dispatches to the serial queue, then to main.
+    /// We spin the main RunLoop briefly to let both async steps finish.
+    private func waitForRegistration() {
+        let expectation = XCTestExpectation(description: "Registration complete")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
             expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 0.5)
-        
-        // Give time for handler to be called via dispatchSync
-        let handlerExpectation = XCTestExpectation()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-            handlerExpectation.fulfill()
-        }
-        wait(for: [handlerExpectation], timeout: 0.1)
-        
-        observationBlock?(testObserver, CFRunLoopActivity.beforeWaiting)
-        
-        sut.removeLateRunLoopObserver(id: id)
-        
-        // Invoke cleanup blocks
-        dispatchQueueWrapper.invokeLastDispatchAsync()
-        dispatchQueueWrapper.blockOnMainInvocations.invocations.last?()
-        
-        // -- Assert --
-        XCTAssertGreaterThanOrEqual(observerIds.count, 1, "Expected late run loop callback at least once")
-        XCTAssertGreaterThan(observerLastInterval, 0, "Expected hang interval to be positive")
-        XCTAssertTrue(calledRemoveObserver, "Expected observer to be removed")
+        wait(for: [expectation], timeout: 1.0)
     }
     
-    func testHangDetection_whenRunLoopCompletesQuickly_shouldNotReportHang() {
+    // MARK: - Late Run Loop Observer (Hang Detection)
+    
+    func testHangDetection_shouldCallLateHandler() {
         // -- Arrange --
-        let dateProvider = TestCurrentDateProvider()
-        dateProvider.setSystemUptime(0)
-        let sut = createSut(dateProvider: dateProvider)
-        var hangDetected = false
+        let sut = createSut()
+        var handlerCalled = false
+        var hangInterval: TimeInterval = 0
         
-        let id = sut.addLateRunLoopObserver { _, _ in
-            hangDetected = true
+        let id = sut.addLateRunLoopObserver { _, interval in
+            handlerCalled = true
+            hangInterval = max(hangInterval, interval)
         }
-        
-        // Invoke async setup
-        dispatchQueueWrapper.invokeLastDispatchAsync()
-        dispatchQueueWrapper.blockOnMainInvocations.invocations.last?()
+        waitForRegistration()
         
         // -- Act --
-        observationBlock?(testObserver, CFRunLoopActivity.afterWaiting)
+        // Schedule blocking work on the test RunLoop to simulate a hang.
+        // afterWaiting fires -> Thread.sleep blocks for 100ms -> beforeWaiting fires.
+        // During the sleep, waitForHangIterative times out every ~8.3ms and calls handlers.
+        runLoopThread.performBlock {
+            Thread.sleep(forTimeInterval: 0.1)
+        }
         
-        // Complete run loop quickly (before timeout)
-        dateProvider.setSystemUptime(0.001) // 1ms, well below ~25ms threshold
-        observationBlock?(testObserver, CFRunLoopActivity.beforeWaiting)
-        
-        // Wait to ensure timeout doesn't fire
-        let expectation = XCTestExpectation()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        // Wait for the hang to complete plus a small buffer
+        let expectation = XCTestExpectation(description: "Hang cycle complete")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 0.5)
+        wait(for: [expectation], timeout: 1.0)
         
         // -- Assert --
-        XCTAssertFalse(hangDetected, "Should not detect hang when run loop completes quickly")
+        XCTAssertTrue(handlerCalled, "Handler should be called when hang is detected")
+        XCTAssertGreaterThan(hangInterval, 0, "Hang interval should be positive")
         
         // Cleanup
         sut.removeLateRunLoopObserver(id: id)
-        dispatchQueueWrapper.invokeLastDispatchAsync()
-        dispatchQueueWrapper.blockOnMainInvocations.invocations.last?()
     }
     
-    func testWaitForHang_whenMultipleConsecutiveHangs_shouldNotCauseStackOverflow() {
-        // This test verifies that iterative approach prevents stack overflow with real timing
-        
+    func testNoHang_whenRunLoopCompletesQuickly_shouldNotCallHandler() {
         // -- Arrange --
-        let dateProvider = TestCurrentDateProvider()
-        let startTime: TimeInterval = 0
-        dateProvider.setSystemUptime(startTime)
-        let sut = createSut(dateProvider: dateProvider)
-        var hangCount = 0
+        let sut = createSut()
+        var handlerCalled = false
         
         let id = sut.addLateRunLoopObserver { _, _ in
-            hangCount += 1
+            handlerCalled = true
         }
-        
-        // Invoke async setup
-        dispatchQueueWrapper.invokeLastDispatchAsync()
-        dispatchQueueWrapper.blockOnMainInvocations.invocations.last?()
+        waitForRegistration()
         
         // -- Act --
-        // Simulate multiple consecutive hangs by waiting for multiple timeouts
-        observationBlock?(testObserver, .afterWaiting)
+        // Schedule fast work (1ms, well below the ~25ms threshold)
+        runLoopThread.performBlock {
+            Thread.sleep(forTimeInterval: 0.001)
+        }
         
-        // Wait for multiple timeouts (each timeout is ~25ms)
-        // The iterative approach should handle this without stack overflow
-        let expectation = XCTestExpectation()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-            dateProvider.setSystemUptime(startTime + 0.15)
+        // Wait to ensure any timeout would have fired
+        let expectation = XCTestExpectation(description: "Wait for potential timeout")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
             expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 0.5)
-        
-        observationBlock?(testObserver, CFRunLoopActivity.beforeWaiting)
-        
-        sut.removeLateRunLoopObserver(id: id)
-        
-        // Invoke cleanup
-        dispatchQueueWrapper.invokeLastDispatchAsync()
-        dispatchQueueWrapper.blockOnMainInvocations.invocations.last?()
+        wait(for: [expectation], timeout: 1.0)
         
         // -- Assert --
-        // Should handle multiple consecutive hangs without stack overflow
-        XCTAssertGreaterThanOrEqual(hangCount, 1, "Should detect at least one hang")
-    }
-    
-    func testHangId_whenMultipleIterations_shouldHaveUniqueIds() {
-        // -- Arrange --
-        let dateProvider = TestCurrentDateProvider()
-        var currentTime: TimeInterval = 0
-        dateProvider.setSystemUptime(currentTime)
-        let sut = createSut(dateProvider: dateProvider)
-        var hangIds = Set<UUID>()
-        
-        let id = sut.addLateRunLoopObserver { hangId, _ in
-            hangIds.insert(hangId)
-        }
-        
-        // Invoke async setup
-        dispatchQueueWrapper.invokeLastDispatchAsync()
-        dispatchQueueWrapper.blockOnMainInvocations.invocations.last?()
-        
-        // -- Act --
-        // Trigger first hang
-        observationBlock?(testObserver, .afterWaiting)
-        
-        let expectation1 = XCTestExpectation()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            currentTime += 0.05
-            dateProvider.setSystemUptime(currentTime)
-            expectation1.fulfill()
-        }
-        wait(for: [expectation1], timeout: 0.2)
-        
-        let handlerExpectation1 = XCTestExpectation()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-            handlerExpectation1.fulfill()
-        }
-        wait(for: [handlerExpectation1], timeout: 0.1)
-        
-        observationBlock?(testObserver, CFRunLoopActivity.beforeWaiting)
-        
-        // Trigger second hang (new iteration)
-        observationBlock?(testObserver, .afterWaiting)
-        
-        let expectation2 = XCTestExpectation()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            currentTime += 0.05
-            dateProvider.setSystemUptime(currentTime)
-            expectation2.fulfill()
-        }
-        wait(for: [expectation2], timeout: 0.2)
-        
-        let handlerExpectation2 = XCTestExpectation()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-            handlerExpectation2.fulfill()
-        }
-        wait(for: [handlerExpectation2], timeout: 0.1)
-        
-        observationBlock?(testObserver, CFRunLoopActivity.beforeWaiting)
-        
-        // -- Assert --
-        // Each iteration should have a unique hang ID
-        XCTAssertGreaterThanOrEqual(hangIds.count, 1, "Should detect at least one hang")
+        XCTAssertFalse(handlerCalled, "Handler should NOT be called when RunLoop completes quickly")
         
         // Cleanup
         sut.removeLateRunLoopObserver(id: id)
-        dispatchQueueWrapper.invokeLastDispatchAsync()
-        dispatchQueueWrapper.blockOnMainInvocations.invocations.last?()
+    }
+    
+    // MARK: - Finished Run Loop Observer
+    
+    func testFinishedRunLoopObserver_shouldCallHandler() {
+        // -- Arrange --
+        let sut = createSut()
+        var handlerCalled = false
+        var iteration: RunLoopIteration?
+        
+        let id = sut.addFinishedRunLoopObserver { iter in
+            handlerCalled = true
+            iteration = iter
+        }
+        
+        // -- Act --
+        // Trigger one RunLoop iteration on the test thread.
+        // afterWaiting fires -> block runs -> beforeWaiting fires (calls finished handler).
+        let iterationExpectation = XCTestExpectation(description: "RunLoop iteration")
+        runLoopThread.performBlock {
+            // Small sleep to ensure endTime > startTime
+            Thread.sleep(forTimeInterval: 0.001)
+            iterationExpectation.fulfill()
+        }
+        wait(for: [iterationExpectation], timeout: 1.0)
+        
+        // Small buffer for the beforeWaiting callback to fire
+        let callbackExpectation = XCTestExpectation(description: "Callback processed")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            callbackExpectation.fulfill()
+        }
+        wait(for: [callbackExpectation], timeout: 1.0)
+        
+        // -- Assert --
+        XCTAssertTrue(handlerCalled, "Handler should be called when RunLoop iteration completes")
+        XCTAssertNotNil(iteration)
+        if let iter = iteration {
+            XCTAssertGreaterThan(iter.endTime, iter.startTime, "End time should be after start time")
+        }
+        
+        // Cleanup
+        sut.removeFinishedRunLoopObserver(id: id)
     }
 }
