@@ -8,7 +8,7 @@ protocol TelemetryBuffer<Item> {
     func capture() -> TimeInterval
 }
 
-final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<Item>, Item: TelemetryItem>: TelemetryBuffer {
+final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<Item>, Item: TelemetryItem>: TelemetryBuffer, TelemetryBufferItemForwardingDelegate {
     struct Config: TelemetryBufferConfig {
         let flushTimeout: TimeInterval
         let maxItemCount: Int
@@ -49,10 +49,7 @@ final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<I
         self.dateProvider = dateProvider
         self.dispatchQueue = dispatchQueue
         self.itemForwarding = itemForwarding
-
-        self.itemForwarding.registerForwardItemsCallback { [weak self] in
-            self?.capture()
-        }
+        self.itemForwarding.setDelegate(self)
     }
 
     /// Adds an item to the buffer.
@@ -141,5 +138,15 @@ final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<I
             return
         }
         config.capturedDataCallback(buffer.batchedData, buffer.itemsCount)
+    }
+
+    deinit {
+        itemForwarding.setDelegate(nil)
+    }
+
+    // MARK: - TelemetryBufferItemForwardingDelegate
+
+    func forwardItems() {
+        capture()
     }
 }

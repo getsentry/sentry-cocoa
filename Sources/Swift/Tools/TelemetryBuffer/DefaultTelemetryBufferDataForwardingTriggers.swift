@@ -9,15 +9,20 @@ import AppKit
 private typealias CrossPlatformApplication = NSApplication
 #endif
 
+protocol TelemetryBufferItemForwardingDelegate: AnyObject {
+    func forwardItems()
+}
+
 protocol TelemetryBufferItemForwardingTriggers {
-    /// Registers a single callback to be invoked on app lifecycle events.
-    /// - Important: Only supports ONE callback per instance. Multiple calls will replace the previous callback.
-    func registerForwardItemsCallback(forwardItems: @escaping () -> Void)
+    /// Sets the delegate to be invoked on app lifecycle events.
+    /// - Parameter delegate: The delegate instance, or nil to unregister
+    /// - Important: Only supports ONE delegate per instance. Multiple calls will replace the previous delegate.
+    func setDelegate(_ delegate: TelemetryBufferItemForwardingDelegate?)
 }
 
 struct NoOpTelemetryBufferDataForwardingTriggers: TelemetryBufferItemForwardingTriggers {
-    func registerForwardItemsCallback(forwardItems: @escaping () -> Void) {
-        // Empty on purpose
+    func setDelegate(_ delegate: TelemetryBufferItemForwardingDelegate?) {
+        // Empty on purpose - ignore delegate assignment
     }
 }
 
@@ -32,7 +37,7 @@ struct NoOpTelemetryBufferDataForwardingTriggers: TelemetryBufferItemForwardingT
 final class DefaultTelemetryBufferDataForwardingTriggers: TelemetryBufferItemForwardingTriggers {
 
     private let notificationCenter: SentryNSNotificationCenterWrapper
-    private var forwardItems: (() -> Void)?
+    private weak var delegate: TelemetryBufferItemForwardingDelegate?
 
     init(notificationCenter: SentryNSNotificationCenterWrapper) {
         self.notificationCenter = notificationCenter
@@ -52,24 +57,24 @@ final class DefaultTelemetryBufferDataForwardingTriggers: TelemetryBufferItemFor
         )
     }
 
-    func registerForwardItemsCallback(forwardItems: @escaping () -> Void) {
-        self.forwardItems = forwardItems
+    func setDelegate(_ delegate: TelemetryBufferItemForwardingDelegate?) {
+        self.delegate = delegate
     }
 
     @objc private func willResignActive() {
-        guard let forwardItems = forwardItems else {
-            SentrySDKLog.warning("ForwardItems is nil. Can't forward items.")
+        guard let delegate = delegate else {
+            SentrySDKLog.warning("Delegate is nil. Can't forward items.")
             return
         }
-        forwardItems()
+        delegate.forwardItems()
     }
 
     @objc private func willTerminate() {
-        guard let forwardItems = forwardItems else {
-            SentrySDKLog.warning("ForwardItems is nil. Can't forward items.")
+        guard let delegate = delegate else {
+            SentrySDKLog.warning("Delegate is nil. Can't forward items.")
             return
         }
-        forwardItems()
+        delegate.forwardItems()
     }
 
     deinit {
@@ -84,7 +89,7 @@ final class DefaultTelemetryBufferDataForwardingTriggers: TelemetryBufferItemFor
             name: CrossPlatformApplication.willTerminateNotification,
             object: nil
         )
-        self.forwardItems = nil
+        self.delegate = nil
     }
 
 }

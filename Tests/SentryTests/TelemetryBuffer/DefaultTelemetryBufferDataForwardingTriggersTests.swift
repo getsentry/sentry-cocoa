@@ -3,6 +3,15 @@
 import XCTest
 
 #if os(iOS) || os(tvOS) || os(macOS)
+
+private class MockDelegate: TelemetryBufferItemForwardingDelegate {
+    var forwardItemsCallCount = 0
+
+    func forwardItems() {
+        forwardItemsCallCount += 1
+    }
+}
+
 final class DefaultTelemetryBufferDataForwardingTriggersTests: XCTestCase {
 
     // MARK: - Initialization Tests
@@ -21,24 +30,22 @@ final class DefaultTelemetryBufferDataForwardingTriggersTests: XCTestCase {
 
     // MARK: - willResignActive Tests
 
-    func testWillResignActive_whenCallbackRegistered_invokesCallback() {
+    func testWillResignActive_whenDelegateSet_invokesDelegate() {
         // -- Arrange --
         let notificationCenter = TestNSNotificationCenterWrapper()
         let sut = DefaultTelemetryBufferDataForwardingTriggers(notificationCenter: notificationCenter)
-        var callbackInvocations = 0
+        let delegate = MockDelegate()
 
-        sut.registerForwardItemsCallback {
-            callbackInvocations += 1
-        }
+        sut.setDelegate(delegate)
 
         // -- Act --
         notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
 
         // -- Assert --
-        XCTAssertEqual(callbackInvocations, 1)
+        XCTAssertEqual(delegate.forwardItemsCallCount, 1)
     }
 
-    func testWillResignActive_whenCallbackNotRegistered_doesNotCrash() {
+    func testWillResignActive_whenDelegateNotSet_doesNotCrash() {
         // -- Arrange --
         let notificationCenter = TestNSNotificationCenterWrapper()
         let sut = DefaultTelemetryBufferDataForwardingTriggers(notificationCenter: notificationCenter)
@@ -47,30 +54,28 @@ final class DefaultTelemetryBufferDataForwardingTriggersTests: XCTestCase {
         notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
 
         // -- Assert --
-        // Should not crash when callback is nil
+        // Should not crash when delegate is nil
         XCTAssertNotNil(sut)
     }
 
     // MARK: - willTerminate Tests
 
-    func testWillTerminate_whenCallbackRegistered_invokesCallback() {
+    func testWillTerminate_whenDelegateSet_invokesDelegate() {
         // -- Arrange --
         let notificationCenter = TestNSNotificationCenterWrapper()
         let sut = DefaultTelemetryBufferDataForwardingTriggers(notificationCenter: notificationCenter)
-        var callbackInvocations = 0
+        let delegate = MockDelegate()
 
-        sut.registerForwardItemsCallback {
-            callbackInvocations += 1
-        }
+        sut.setDelegate(delegate)
 
         // -- Act --
         notificationCenter.post(Notification(name: CrossPlatformApplication.willTerminateNotification))
 
         // -- Assert --
-        XCTAssertEqual(callbackInvocations, 1)
+        XCTAssertEqual(delegate.forwardItemsCallCount, 1)
     }
 
-    func testWillTerminate_whenCallbackNotRegistered_doesNotCrash() {
+    func testWillTerminate_whenDelegateNotSet_doesNotCrash() {
         // -- Arrange --
         let notificationCenter = TestNSNotificationCenterWrapper()
         let sut = DefaultTelemetryBufferDataForwardingTriggers(notificationCenter: notificationCenter)
@@ -79,21 +84,19 @@ final class DefaultTelemetryBufferDataForwardingTriggersTests: XCTestCase {
         notificationCenter.post(Notification(name: CrossPlatformApplication.willTerminateNotification))
 
         // -- Assert --
-        // Should not crash when callback is nil
+        // Should not crash when delegate is nil
         XCTAssertNotNil(sut)
     }
 
     // MARK: - Multiple Notifications Tests
 
-    func testMultipleNotifications_invokesCallbackMultipleTimes() {
+    func testMultipleNotifications_invokesDelegateMultipleTimes() {
         // -- Arrange --
         let notificationCenter = TestNSNotificationCenterWrapper()
         let sut = DefaultTelemetryBufferDataForwardingTriggers(notificationCenter: notificationCenter)
-        var callbackInvocations = 0
+        let delegate = MockDelegate()
 
-        sut.registerForwardItemsCallback {
-            callbackInvocations += 1
-        }
+        sut.setDelegate(delegate)
 
         // -- Act --
         notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
@@ -101,32 +104,27 @@ final class DefaultTelemetryBufferDataForwardingTriggersTests: XCTestCase {
         notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
 
         // -- Assert --
-        XCTAssertEqual(callbackInvocations, 3)
+        XCTAssertEqual(delegate.forwardItemsCallCount, 3)
     }
 
-    // MARK: - Callback Replacement Tests
+    // MARK: - Delegate Replacement Tests
 
-    func testRegisterCallback_replacePreviousCallback() {
+    func testSetDelegate_replacesPreviousDelegate() {
         // -- Arrange --
         let notificationCenter = TestNSNotificationCenterWrapper()
         let sut = DefaultTelemetryBufferDataForwardingTriggers(notificationCenter: notificationCenter)
-        var firstCallbackInvoked = false
-        var secondCallbackInvoked = false
+        let firstDelegate = MockDelegate()
+        let secondDelegate = MockDelegate()
 
-        sut.registerForwardItemsCallback {
-            firstCallbackInvoked = true
-        }
-
-        sut.registerForwardItemsCallback {
-            secondCallbackInvoked = true
-        }
+        sut.setDelegate(firstDelegate)
+        sut.setDelegate(secondDelegate)
 
         // -- Act --
         notificationCenter.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
 
         // -- Assert --
-        XCTAssertFalse(firstCallbackInvoked)
-        XCTAssertTrue(secondCallbackInvoked)
+        XCTAssertEqual(firstDelegate.forwardItemsCallCount, 0)
+        XCTAssertEqual(secondDelegate.forwardItemsCallCount, 1)
     }
 
     // MARK: - Deinit Tests
@@ -134,12 +132,10 @@ final class DefaultTelemetryBufferDataForwardingTriggersTests: XCTestCase {
     func testDeinit_removesObservers() {
         // -- Arrange --
         let notificationCenter = TestNSNotificationCenterWrapper()
+        let delegate = MockDelegate()
         var sut: DefaultTelemetryBufferDataForwardingTriggers? = DefaultTelemetryBufferDataForwardingTriggers(notificationCenter: notificationCenter)
-        var callbackInvocations = 0
 
-        sut?.registerForwardItemsCallback {
-            callbackInvocations += 1
-        }
+        sut?.setDelegate(delegate)
 
         // -- Act --
         sut = nil
@@ -147,7 +143,7 @@ final class DefaultTelemetryBufferDataForwardingTriggersTests: XCTestCase {
         notificationCenter.post(Notification(name: CrossPlatformApplication.willTerminateNotification))
 
         // -- Assert --
-        XCTAssertEqual(callbackInvocations, 0)
+        XCTAssertEqual(delegate.forwardItemsCallCount, 0)
     }
 }
 #endif // os(iOS) || os(tvOS) || os(macOS)

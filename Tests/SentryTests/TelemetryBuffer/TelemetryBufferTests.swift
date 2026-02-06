@@ -288,7 +288,7 @@ final class TelemetryBufferTests: XCTestCase {
 
     // MARK: - Item Forwarding Tests
 
-    func testItemForwardingCallback_whenInvoked_capturesItems() {
+    func testItemForwardingDelegate_whenInvoked_capturesItems() {
         // -- Arrange --
         let mockItemForwarding = MockTelemetryBufferDataForwardingTriggers()
         var config = DefaultTelemetryBuffer<MockTelemetryBuffer, TestItem>.Config(
@@ -312,14 +312,14 @@ final class TelemetryBufferTests: XCTestCase {
         sut.add(TestItem(body: "Item 2"))
 
         // -- Act --
-        mockItemForwarding.invokeCallback()
+        mockItemForwarding.invokeDelegate()
 
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
         XCTAssertEqual(testTelemetryBuffer.flushCallCount, 1)
     }
 
-    func testItemForwardingCallback_usesWeakSelf_avoidsRetainCycle() {
+    func testItemForwardingDelegate_usesWeakReference_avoidsRetainCycle() {
         // -- Arrange --
         let mockItemForwarding = MockTelemetryBufferDataForwardingTriggers()
 
@@ -358,13 +358,13 @@ final class TelemetryBufferTests: XCTestCase {
 // MARK: - Mock Item Forwarding
 
 private class MockTelemetryBufferDataForwardingTriggers: TelemetryBufferItemForwardingTriggers {
-    private var callback: (() -> Void)?
+    private weak var delegate: TelemetryBufferItemForwardingDelegate?
 
-    func registerForwardItemsCallback(forwardItems: @escaping () -> Void) {
-        callback = forwardItems
+    func setDelegate(_ delegate: TelemetryBufferItemForwardingDelegate?) {
+        self.delegate = delegate
     }
 
-    func invokeCallback() {
-        callback?()
+    func invokeDelegate() {
+        delegate?.forwardItems()
     }
 }
