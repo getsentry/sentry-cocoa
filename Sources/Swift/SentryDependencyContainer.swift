@@ -360,10 +360,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     private var _hangTracker: SentryHangTracker?
     var hangTracker: SentryHangTracker {
         getLazyVar(\._hangTracker) {
-            SentryDefaultHangTracker(
+            // The hang tracker needs its own dedicated serial queue because waitForHangIterative
+            // blocks it with semaphore.wait(timeout:) during hang detection. Using the shared
+            // dispatchQueueWrapper would block unrelated SDK operations during hangs.
+            let hangTrackerQueue = SentryDispatchQueueWrapper(name: "io.sentry.hang-tracker")
+            return SentryDefaultHangTracker(
                 applicationProvider: self,
                 dateProvider: dateProvider,
-                queue: dispatchQueueWrapper
+                queue: hangTrackerQueue
             )
         }
     }

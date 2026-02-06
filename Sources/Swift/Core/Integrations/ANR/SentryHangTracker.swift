@@ -46,7 +46,7 @@ typealias CreateSemaphoreFunc = (_ value: Int) -> SentryDispatchSemaphore
 /// │                              MAIN THREAD                                         │
 /// │  ┌─────────────────────────────────────────────────────────────────────────────┐ │
 /// │  │  CFRunLoopObserver Callbacks                                                │ │
-/// │  │  • afterWaiting: set loopStartTime, create semaphore, start wait            │ │
+/// │  │  • afterWaiting: set loopStartTime, create semaphore, dispatch hang detect  │ │
 /// │  │  • beforeWaiting: signal semaphore, notify finishedRunLoop                  │ │
 /// │  └─────────────────────────────────────────────────────────────────────────────┘ │
 /// │                                    │                                             │
@@ -61,15 +61,23 @@ typealias CreateSemaphoreFunc = (_ value: Int) -> SentryDispatchSemaphore
 ///                                      │
 ///                                      ▼
 /// ┌──────────────────────────────────────────────────────────────────────────────────┐
-/// │                            BACKGROUND QUEUE                                      │
+/// │                      BACKGROUND QUEUE (serial)                                   │
 /// │  ┌─────────────────────────────────────────────────────────────────────────────┐ │
 /// │  │  waitForHangIterative()                                                     │ │
-/// │  │  • Semaphore.wait(timeout:) in while loop                                   │ │
-/// │  │  • On timeout: notify lateRunLoop handlers                                  │ │
+/// │  │  • Blocks the serial queue thread with semaphore.wait(timeout:)             │ │
+/// │  │  • On timeout: accesses lateRunLoop directly (already on queue)             │ │
+/// │  │  • Observer add/remove blocks are enqueued and execute after hang resolves  │ │
 /// │  └─────────────────────────────────────────────────────────────────────────────┘ │
 /// │                                                                                  │
 /// │  Accesses (serialized on this queue):                                            │
 /// │  • lateRunLoop (add/remove/iterate)                                              │
+/// │                                                                                  │
+/// │  IMPORTANT: waitForHangIterative blocks this queue's thread while waiting.       │
+/// │  This means add/removeLateRunLoopObserver blocks are delayed until the hang      │
+/// │  resolves (semaphore signaled). This is acceptable because observer              │
+/// │  registration during an active hang is not time-critical.                        │
+/// │  Do NOT use dispatchSync from within waitForHangIterative — it would deadlock    │
+/// │  because the serial queue's current block hasn't returned.                       │
 /// └──────────────────────────────────────────────────────────────────────────────────┘
 ///                                      │
 ///                                      ▼
@@ -83,13 +91,23 @@ typealias CreateSemaphoreFunc = (_ value: Int) -> SentryDispatchSemaphore
 /// └──────────────────────────────────────────────────────────────────────────────────┘
 ///
 /// Hang Detection Algorithm:
-/// 1. When run loop starts (afterWaiting): Create a semaphore and start background thread waiting for timeout
+/// 1. When run loop starts (afterWaiting): Create a semaphore and dispatch hang detection to background queue
 /// 2. If timeout occurs: Report hang and continue waiting (iterative, not recursive to avoid stack overflow)
 /// 3. When run loop completes (beforeWaiting): Signal semaphore to stop hang detection
 final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
     private let dateProvider: SentryCurrentDateProvider
 
-    /// This queue is used to detect main thread hangs, they need to be detected on a background thread since the main thread is hanging.
+    /// Serial background queue used for hang detection and `lateRunLoop` synchronization.
+    ///
+    /// **Must be a serial queue.** The hang tracker relies on serial execution for two reasons:
+    /// 1. `lateRunLoop` dictionary access is serialized by this queue instead of a lock.
+    /// 2. `waitForHangIterative` blocks this queue's thread with `semaphore.wait(timeout:)`.
+    ///    Using `dispatchSync` from within that blocked thread would deadlock on a serial queue,
+    ///    which is why we access `lateRunLoop` directly instead. A concurrent queue would break
+    ///    the serialization guarantee and cause data races on `lateRunLoop`.
+    ///
+    /// **Should be a dedicated queue** (not shared with other SDK components) because
+    /// `waitForHangIterative` blocks it for the duration of each hang detection cycle.
     private let queue: SentryDispatchQueueWrapperProtocol
 
     /// Factory function to create a semaphore.
@@ -150,7 +168,8 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
     /// - Parameters:
     ///   - applicationProvider: The application provider to get the key window's maximum FPS.
     ///   - dateProvider: The date provider to get the system uptime.
-    ///   - queue: The queue to dispatch the hang detection to the background queue.
+    ///   - queue: A **serial** background queue dedicated to hang detection. Must not be shared
+    ///     with other components, as `waitForHangIterative` blocks it during hang detection.
     ///   - createObserver: The function to create a run loop observer.
     ///   - addObserver: The function to add a run loop observer.
     ///   - removeObserver: The function to remove a run loop observer.
@@ -274,38 +293,38 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
     
     /// Removes a finished run loop observer.
     ///
-    /// - Important: Removal is asynchronous. The method returns immediately, but the handler
-    ///   is not removed until the async dispatch completes. If a hang occurs between calling this
-    ///   method and the async removal completing, the handler may still be called for that hang.
-    ///   This trade-off is intentional to avoid potential deadlocks when called from the background queue.
+    /// If this was the last finished run loop observer and there are no late run loop observers,
+    /// this will stop the run loop observation entirely to free resources.
     func removeFinishedRunLoopObserver(id: UUID) {
-        // This method implements a double-check pattern to handle a race condition where:
-        // 1. Thread A removes the last observer and checks `finishedRunLoop.isEmpty == true`
-        // 2. Thread B adds a new observer before Thread A's async dispatch completes
-        // 3. Thread A's async dispatch would incorrectly stop tracking
-        //
-        // We check `isEmpty` before dispatching to the main thread, then double-check after the async dispatch completes to handle the race condition.
         let isEmpty = finishedRunLoopLock.synchronized {
             finishedRunLoop.removeValue(forKey: id)
             return finishedRunLoop.isEmpty
         }
+        // Early return: if other finished observers remain, no need to consider stopping.
         guard isEmpty else {
             return
         }
+        // Dispatch to the background queue to safely check lateRunLoop.isEmpty.
+        // lateRunLoop is only accessed from this serial queue, so we must be on it to read safely.
         queue.dispatchAsync { [weak self] in
             guard let self = self else {
+                return
+            }
+            // If late observers are still registered, we must keep the run loop observer alive
+            // for hang detection. Only stop if both dictionaries are empty.
+            guard self.lateRunLoop.isEmpty else {
                 return
             }
             self.queue.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
                 guard let self = self else {
                     return
                 }
-                // Double-check after async dispatch to handle race condition where a new observer
-                // might have been added between the initial check and this point
+                // Double-check finishedRunLoop after async dispatch to handle a race condition:
+                // a new finished observer might have been added between the initial isEmpty check
+                // and this point, which would make stopping incorrect.
                 let stillEmpty = finishedRunLoopLock.synchronized {
                     return self.finishedRunLoop.isEmpty
                 }
-                // If there are no finished run loop observers, we can stop the run loop observation.
                 guard stillEmpty else {
                     return
                 }
@@ -375,9 +394,14 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
                     // The semaphore is used to signal that the run loop iteration completed normally,
                     // which stops the hang detection timeout.
                     self.currentSemaphore = localSemaphore
+
+                    // Dispatch hang detection to the serial background queue.
+                    // waitForHangIterative will block this queue's thread with semaphore.wait(timeout:),
+                    // which is intentional: the serial queue provides exclusive access to lateRunLoop
+                    // without needing dispatchSync (which would deadlock from within the blocked thread).
+                    // Any pending add/remove observer blocks execute after the hang resolves.
                     queue.dispatchAsync { [weak self] in
-                        guard let self = self else { return }
-                        self.waitForHang(semaphore: localSemaphore, started: started, hangId: newHangId)
+                        self?.waitForHangIterative(semaphore: localSemaphore, started: started, hangId: newHangId)
                     }
                 default:
                     fatalError()
@@ -400,28 +424,26 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
         }
     }
     
-    /// Initiates hang detection on the background queue.
-    ///
-    /// This method dispatches to the background queue where the actual hang detection happens.
-    /// The semaphore is used to detect when the run loop iteration completes (signaled from main thread).
-    private func waitForHang(semaphore: SentryDispatchSemaphore, started: TimeInterval, hangId: UUID) {
-        queue.dispatchAsync { [weak self] in
-            guard let self = self else { return }
-            self.waitForHangIterative(semaphore: semaphore, started: started, hangId: hangId)
-        }
-    }
-    
     /// Iteratively waits for hang detection timeout, reporting hangs as they occur.
+    ///
+    /// This method runs on the serial background queue and blocks the queue's thread with
+    /// `semaphore.wait(timeout:)`. This is by design:
+    /// - The serial queue provides exclusive access to `lateRunLoop` without needing a lock.
+    /// - Any pending add/remove observer blocks are enqueued and execute after the hang resolves.
+    /// - We MUST NOT call `queue.dispatchSync` from here — it would deadlock because this
+    ///   block is the currently-executing block on the serial queue, and `dispatch_sync` waits
+    ///   for the queue to be free.
     ///
     /// Algorithm:
     /// 1. Wait for semaphore with timeout = hangNotifyThreshold
     /// 2. If timeout: Report hang and continue waiting (same hang instance)
     /// 3. If signaled: Run loop completed normally, stop detection
-    /// 4. If self is deallocated: Exit loop to prevent infinite waiting
+    ///
+    /// Note: The `afterWaiting` dispatch uses `[weak self]` so `self` can be nil on entry,
+    /// but once we enter the method body, `self` is strongly held for the method's duration.
+    /// This means self cannot be deallocated mid-loop. If self is deallocated before this
+    /// method starts, the optional chaining (`self?.waitForHangIterative`) prevents entry.
     private func waitForHangIterative(semaphore: SentryDispatchSemaphore, started: TimeInterval, hangId: UUID) {
-        let currentStarted = started
-        let currentHangId = hangId
-
         // This method uses an iterative approach (while loop) instead of recursion to avoid stack overflow
         // when multiple consecutive timeouts occur during a long hang.
         while true {
@@ -429,31 +451,19 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
             let result = semaphore.wait(timeout: timeout)
             switch result {
             case .timedOut:
-                // Hang detected - report it and continue waiting for the same hang instance
-                // Use the hangId passed in (generated when hang detection started in afterWaiting)
-                var shouldContinue = false
-                queue.dispatchSync { [weak self] in
-                    // If the hang tracker is deallocated while this method is running, the semaphore will never
-                    // be signaled (since `beforeWaiting` won't run). We check `self` on each timeout and exit
-                    // the loop if deallocated, preventing the background thread from being blocked forever.
-                    guard let self = self else {
-                        // Self was deallocated - we'll exit the loop after this block
-                        return
-                    }
-                    shouldContinue = true
-                    let handlers = Array(self.lateRunLoop.values)
-                    let currentTime = self.dateProvider.systemUptime()
-                    handlers.forEach { $0(currentHangId, currentTime - currentStarted) }
-                }
-                // If self was deallocated, exit the loop to prevent infinite waiting.
-                // The semaphore will never be signaled since beforeWaiting won't run.
-                if !shouldContinue {
-                    return
-                }
-                // Continue waiting - the semaphore will be signaled when beforeWaiting occurs,
-                // indicating the run loop iteration completed
+                // Hang detected - report it and continue waiting for the same hang instance.
+                //
+                // We access lateRunLoop directly here without dispatchSync because this method
+                // is already executing on the serial background queue. Using dispatchSync would
+                // deadlock: the serial queue considers this block as in-flight, so it won't
+                // process a synchronously-enqueued block until this one returns — but this one
+                // is waiting for the sync block to complete. Classic serial queue deadlock.
+                let handlers = Array(lateRunLoop.values)
+                let currentTime = dateProvider.systemUptime()
+                handlers.forEach { $0(hangId, currentTime - started) }
+
             case .success:
-                // Semaphore was signaled - run loop iteration completed normally, stop detection
+                // Semaphore was signaled — run loop iteration completed normally, stop detection.
                 return
             }
         }
