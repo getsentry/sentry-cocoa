@@ -38,9 +38,7 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(scheduler.captureInvocations.count, 1)
 
-        let capturedData = try XCTUnwrap(scheduler.captureInvocations.first?.data)
-        let capturedLogs = parseLogsFromData(capturedData)
-
+        let capturedLogs = scheduler.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 3)
         XCTAssertEqual(capturedLogs[0].body, "Log 1")
         XCTAssertEqual(capturedLogs[1].body, "Log 2")
@@ -187,45 +185,6 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         )
     }
 
-    private func parseLogsFromData(_ data: Data) -> [SentryLog] {
-        var logs: [SentryLog] = []
-
-        guard let jsonObject = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let items = jsonObject["items"] as? [[String: Any]] else {
-            return logs
-        }
-
-        for item in items {
-            if let log = parseSentryLog(from: item) {
-                logs.append(log)
-            }
-        }
-
-        return logs
-    }
-
-    private func parseSentryLog(from dict: [String: Any]) -> SentryLog? {
-        guard let body = dict["body"] as? String,
-              let levelString = dict["level"] as? String,
-              let level = try? SentryLog.Level(value: levelString) else {
-            return nil
-        }
-
-        let timestamp = Date(timeIntervalSince1970: (dict["timestamp"] as? TimeInterval) ?? 0)
-        let traceIdString = dict["trace_id"] as? String ?? ""
-        let traceId = SentryId(uuidString: traceIdString)
-
-        var attributes: [String: SentryLog.Attribute] = [:]
-        if let attributesDict = dict["attributes"] as? [String: [String: Any]] {
-            for (key, value) in attributesDict {
-                if let attrValue = value["value"] {
-                    attributes[key] = SentryLog.Attribute(value: attrValue)
-                }
-            }
-        }
-
-        return SentryLog(timestamp: timestamp, traceId: traceId, level: level, body: body, attributes: attributes)
-    }
 }
 
 // MARK: - Test Helpers
