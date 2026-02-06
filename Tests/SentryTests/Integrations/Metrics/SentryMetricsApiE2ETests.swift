@@ -26,7 +26,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         XCTAssertFalse(capturedMetrics.data.isEmpty, "Captured metrics data should not be empty")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "network.request.count", "Metric key should match")
@@ -78,7 +78,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first, "Metrics should be created for zero values")
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "button.click", "Metric key should match")
@@ -99,7 +99,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first, "Metric should be created for large values")
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "events.processed", "Metric key should match")
@@ -129,7 +129,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first, "Metric should be created with attributes")
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "api.request.count", "Metric key should match")
@@ -167,7 +167,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         XCTAssertFalse(capturedMetrics.data.isEmpty, "Captured metrics data should not be empty")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "http.request.duration", "Metric key should match")
@@ -219,7 +219,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first, "Metrics should be created for zero values")
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "response.time", "Metric key should match")
@@ -240,7 +240,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first, "Metric should be created for large values")
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "processing.duration", "Metric key should match")
@@ -261,7 +261,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first, "Metrics should be created for negative values")
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "latency", "Metric key should match")
@@ -291,7 +291,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first, "Metric should be created with attributes")
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "db.query.duration", "Metric key should match")
@@ -329,7 +329,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         XCTAssertFalse(capturedMetrics.data.isEmpty, "Captured metrics data should not be empty")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "memory.usage", "Metric key should match")
@@ -381,7 +381,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first, "Metrics should be created for zero values")
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "queue.depth", "Metric key should match")
@@ -402,7 +402,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first, "Metric should be created for large values")
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "active.connections", "Metric key should match")
@@ -424,7 +424,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         XCTAssertFalse(capturedMetrics.data.isEmpty, "Captured metrics data should not be empty")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "temperature", "Metric key should match")
@@ -457,7 +457,7 @@ class SentryMetricsApiE2ETests: XCTestCase {
         let capturedMetrics = try XCTUnwrap(client.captureMetricsDataInvocations.first, "Metric should be created with attributes")
         XCTAssertEqual(capturedMetrics.count.intValue, 1, "Should capture 1 metric")
         
-        let metrics = getCapturedMetrics(from: client)
+        let metrics = try getCapturedMetrics(from: client)
         XCTAssertEqual(metrics.count, 1, "Should have exactly 1 metric")
         let metric = try XCTUnwrap(metrics.first)
         XCTAssertEqual(metric["name"] as? String, "system.cpu.usage", "Metric key should match")
@@ -541,18 +541,18 @@ class SentryMetricsApiE2ETests: XCTestCase {
     // JSONSerialization provides a good middle ground: it parses the JSON structure without duplicating
     // the encoding/decoding logic, and it's order-agnostic, making tests stable while still verifying
     // the actual data structure produced by the buffer.
-    private func getCapturedMetrics(from client: TestClient) -> [[String: Any]] {
+    private func getCapturedMetrics(from client: TestClient) throws -> [[String: Any]] {
         var allMetrics: [[String: Any]] = []
-        
+
         for invocation in client.captureMetricsDataInvocations.invocations {
-            if let jsonObject = try? JSONSerialization.jsonObject(with: invocation.data) as? [String: Any],
-               let items = jsonObject["items"] as? [[String: Any]] {
+            let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: invocation.data) as? [String: Any])
+            if let items = jsonObject["items"] as? [[String: Any]] {
                 for item in items {
                     allMetrics.append(item)
                 }
             }
         }
-        
+
         return allMetrics
     }
 }

@@ -39,7 +39,7 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         XCTAssertEqual(scheduler.captureInvocations.count, 1)
 
         let capturedData = try XCTUnwrap(scheduler.captureInvocations.first?.data)
-        let capturedLogs = parseLogsFromData(capturedData)
+        let capturedLogs = try parseLogsFromData(capturedData)
 
         XCTAssertEqual(capturedLogs.count, 3)
         XCTAssertEqual(capturedLogs[0].body, "Log 1")
@@ -98,29 +98,27 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         )
     }
 
-    private func parseLogsFromData(_ data: Data) -> [SentryLog] {
+    private func parseLogsFromData(_ data: Data) throws -> [SentryLog] {
         var logs: [SentryLog] = []
 
-        guard let jsonObject = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let items = jsonObject["items"] as? [[String: Any]] else {
-            return logs
-        }
-
-        for item in items {
-            if let log = parseSentryLog(from: item) {
-                logs.append(log)
+        let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        if let items = jsonObject["items"] as? [[String: Any]] {
+            for item in items {
+                if let log = try parseSentryLog(from: item) {
+                    logs.append(log)
+                }
             }
         }
 
         return logs
     }
 
-    private func parseSentryLog(from dict: [String: Any]) -> SentryLog? {
+    private func parseSentryLog(from dict: [String: Any]) throws -> SentryLog? {
         guard let body = dict["body"] as? String,
-              let levelString = dict["level"] as? String,
-              let level = try? SentryLog.Level(value: levelString) else {
+              let levelString = dict["level"] as? String else {
             return nil
         }
+        let level = try SentryLog.Level(value: levelString)
 
         let timestamp = Date(timeIntervalSince1970: (dict["timestamp"] as? TimeInterval) ?? 0)
         let traceIdString = dict["trace_id"] as? String ?? ""
@@ -134,7 +132,7 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
                 }
             }
         }
-
+        
         return SentryLog(timestamp: timestamp, traceId: traceId, level: level, body: body, attributes: attributes)
     }
 }
