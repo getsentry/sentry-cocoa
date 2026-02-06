@@ -7,7 +7,7 @@
 #    import "SentryInternalDefines.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfilingSwiftHelpers.h"
-#    import "SentrySample.h"
+#    import "SentrySwift.h"
 #    import <mach/mach_types.h>
 #    import <mach/port.h>
 #    import <mutex>

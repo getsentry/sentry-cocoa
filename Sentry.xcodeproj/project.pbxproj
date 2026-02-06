@@ -493,8 +493,6 @@
 		841325C52BF49EC40029228F /* SentryLaunchProfiling+Tests.h in Headers */ = {isa = PBXBuildFile; fileRef = 841325C42BF49EC40029228F /* SentryLaunchProfiling+Tests.h */; };
 		841325DF2BFED0510029228F /* TestFramesTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841325DE2BFED0510029228F /* TestFramesTracker.swift */; };
 		84281C432A578E5600EE88F2 /* SentryProfilerState.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84281C422A578E5600EE88F2 /* SentryProfilerState.mm */; };
-		84281C462A57905700EE88F2 /* SentrySample.h in Headers */ = {isa = PBXBuildFile; fileRef = 84281C442A57905700EE88F2 /* SentrySample.h */; };
-		84281C472A57905700EE88F2 /* SentrySample.m in Sources */ = {isa = PBXBuildFile; fileRef = 84281C452A57905700EE88F2 /* SentrySample.m */; };
 		84281C622A579D0700EE88F2 /* SentryProfilerMocksSwiftCompatible.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84281C4D2A579A0C00EE88F2 /* SentryProfilerMocksSwiftCompatible.mm */; };
 		84281C632A579D0700EE88F2 /* SentryProfilerMocks.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84281C492A57933600EE88F2 /* SentryProfilerMocks.mm */; };
 		84302A812B5767A50027A629 /* SentryLaunchProfiling.m in Sources */ = {isa = PBXBuildFile; fileRef = 84302A7F2B5767A50027A629 /* SentryLaunchProfiling.m */; };
@@ -1584,8 +1582,6 @@
 		841325C42BF49EC40029228F /* SentryLaunchProfiling+Tests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SentryLaunchProfiling+Tests.h"; sourceTree = "<group>"; };
 		841325DE2BFED0510029228F /* TestFramesTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestFramesTracker.swift; sourceTree = "<group>"; };
 		84281C422A578E5600EE88F2 /* SentryProfilerState.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryProfilerState.mm; sourceTree = "<group>"; };
-		84281C442A57905700EE88F2 /* SentrySample.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySample.h; path = ../include/SentrySample.h; sourceTree = "<group>"; };
-		84281C452A57905700EE88F2 /* SentrySample.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySample.m; sourceTree = "<group>"; };
 		84281C482A57933600EE88F2 /* SentryProfilerMocks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProfilerMocks.h; sourceTree = "<group>"; };
 		84281C492A57933600EE88F2 /* SentryProfilerMocks.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryProfilerMocks.mm; sourceTree = "<group>"; };
 		84281C4C2A579A0C00EE88F2 /* SentryProfilerMocksSwiftCompatible.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryProfilerMocksSwiftCompatible.h; sourceTree = "<group>"; };
@@ -2049,28 +2045,8 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		62205C872F2CA40D00F66691 /* TelemetryScopeApplier */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			path = TelemetryScopeApplier;
-			sourceTree = "<group>";
-		};
-		FA2111C32F22CE8C00DFFABE /* Swift */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			path = Swift;
-			sourceTree = "<group>";
-		};
+		62205C872F2CA40D00F66691 /* TelemetryScopeApplier */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TelemetryScopeApplier; sourceTree = "<group>"; };
+		FA2111C32F22CE8C00DFFABE /* Swift */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Swift; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3404,8 +3380,6 @@
 				84354E0F29BF944900CDBB8B /* SentryProfileTimeseries.h */,
 				84354E1029BF944900CDBB8B /* SentryProfileTimeseries.m */,
 				03BCC38D27E2A377003232C7 /* SentryProfilingConditionals.h */,
-				84281C442A57905700EE88F2 /* SentrySample.h */,
-				84281C452A57905700EE88F2 /* SentrySample.m */,
 				03F84D3027DD4191008FE43F /* SentrySamplingProfiler.cpp */,
 				03F84D1527DD414C008FE43F /* SentrySamplingProfiler.hpp */,
 				03F84D1427DD414C008FE43F /* SentryStackBounds.hpp */,
@@ -4268,7 +4242,6 @@
 				632331F9240506DF008D91D6 /* SentryScope+Private.h in Headers */,
 				D8603DD8284F894C000E1227 /* SentryBaggage.h in Headers */,
 				03F84D2127DD414C008FE43F /* SentrySamplingProfiler.hpp in Headers */,
-				84281C462A57905700EE88F2 /* SentrySample.h in Headers */,
 				63FE712B20DA4C1100CDBAE8 /* SentryCrashStackCursor.h in Headers */,
 				7BA61CBF247CEA8100C130A8 /* SentryFormatter.h in Headers */,
 				D8370B6C273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h in Headers */,
@@ -4864,7 +4837,6 @@
 				63FE717520DA4C1100CDBAE8 /* SentryCrash.m in Sources */,
 				7BAF3DCE243DCBFE008A5414 /* SentryTransportFactory.m in Sources */,
 				7D65260E237F649E00113EA2 /* SentryScope.m in Sources */,
-				84281C472A57905700EE88F2 /* SentrySample.m in Sources */,
 				62A456E52B0370E0003F19A1 /* SentryUIEventTrackerTransactionMode.m in Sources */,
 				D43A2A122DD47FCE00114724 /* SentryWeakMap.m in Sources */,
 				63FE712D20DA4C1100CDBAE8 /* SentryCrashJSONCodecObjC.m in Sources */,

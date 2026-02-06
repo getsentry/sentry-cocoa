@@ -12,7 +12,6 @@
 #    import "SentryProfilingScreenFramesHelper.h"
 #    import "SentryProfilingSwiftHelpers.h"
 #    import "SentrySDK+Private.h"
-#    import "SentrySample.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
