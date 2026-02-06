@@ -10,13 +10,15 @@ class SentryLogBuffer {
     /// - Parameters:
     ///   - dateProvider: The current date provider
     ///   - delegate: The delegate to handle captured log batches
+    ///   - itemForwarding: Triggers for lifecycle-based flushing (e.g., willResignActive)
     ///
     /// - Note: Uses DEFAULT priority (not LOW) because captureLogs() is called synchronously during
     ///         app lifecycle events (willResignActive, willTerminate) and needs to complete quickly.
     /// - Note: Setting `maxLogCount` to 100. While Replay hard limit is 1000, we keep this lower, as it's hard to lower once released.
     convenience init(
         dateProvider: SentryCurrentDateProvider,
-        scheduler: TelemetryScheduler
+        scheduler: any TelemetryScheduler,
+        itemForwardingTriggers: TelemetryBufferItemForwardingTriggers
     ) {
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
         self.init(
@@ -25,7 +27,8 @@ class SentryLogBuffer {
             maxBufferSizeBytes: 1_024 * 1_024, // 1MB buffer size
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue,
-            scheduler: scheduler
+            scheduler: scheduler,
+            itemForwardingTriggers: itemForwardingTriggers
         )
     }
 
@@ -36,6 +39,7 @@ class SentryLogBuffer {
     ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
     ///   - delegate: The delegate to handle captured log batches
+    ///   - itemForwarding: Triggers for lifecycle-based flushing (e.g., willResignActive)
     ///
     /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
     ///              Passing a concurrent queue will result in undefined behavior and potential data races.
@@ -47,7 +51,8 @@ class SentryLogBuffer {
         maxBufferSizeBytes: Int,
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
-        scheduler: TelemetryScheduler
+        scheduler: some TelemetryScheduler,
+        itemForwardingTriggers: TelemetryBufferItemForwardingTriggers
     ) {
         self.buffer = DefaultTelemetryBuffer(
             config: .init(
@@ -60,7 +65,8 @@ class SentryLogBuffer {
             ),
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
-            dispatchQueue: dispatchQueue
+            dispatchQueue: dispatchQueue,
+            itemForwardingTriggers: itemForwardingTriggers
         )
     }
 

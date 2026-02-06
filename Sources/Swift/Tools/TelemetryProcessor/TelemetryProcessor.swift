@@ -10,7 +10,7 @@ import Foundation
     @objc(addLog:)
     func add(log: SentryLog)
     /// Forwards buffered telemetry data to the transport for sending.
-    /// Temporary name; will be renamed to `flush()` once flushing logic moves from FlushLogsIntegration and SentryMetricsIntegration.
+    /// Temporary name; will be renamed to `flush()` once flushing logic moves from SentryMetricsIntegration.
     func forwardTelemetryData() -> TimeInterval
 }
 
@@ -31,14 +31,54 @@ class SentryDefaultTelemetryProcessor: SentryTelemetryProcessor {
     }
 }
 
-/// Factory (not the dependency container) used because the transport + its adapter are created in `SentryClient`, not resolved via DI (as of 2026-02-04).
-/// This allows passing the client-owned transport into the telemetry processor while keeping Swift internals hidden from ObjC.
+#if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
+typealias SentryTelemetryProcessorFactoryDependencies = DateProviderProvider & NotificationCenterProvider
+#else
+typealias SentryTelemetryProcessorFactoryDependencies = DateProviderProvider
+#endif
+
+/// Factory for creating telemetry processors.
+///
+/// Unlike integrations (e.g., `SentryMetricsIntegration`), this factory cannot yet use the full dependency injection pattern
+/// because the `SentryTelemetryProcessorTransport` is created in `SentryClient` (Objective-C) and must be passed in explicitly.
+///
+/// **Current approach:**
+/// - Public method: `getProcessor(transport:dependencies:)` - called from Objective-C with concrete `SentryDependencyContainer`
+/// - Internal method: `getProcessorInternal(transport:dependencies:)` - uses protocol-constrained generics for testability
+///
+/// **Future migration path:**
+/// Once the transport is resolved via DI, we can refactor to match the integration pattern:
+/// ```swift
+/// init?(transport: SentryTelemetryProcessorTransport, dependencies: Dependencies)
+/// ```
+/// The internal method is already structured to make this transition straightforward.
 @objc
 @objcMembers
 @_spi(Private) public class SentryTelemetryProcessorFactory: NSObject {
-    public static func getProcessor(transport: SentryTelemetryProcessorTransport) -> SentryTelemetryProcessor {
+    public static func getProcessor(transport: SentryTelemetryProcessorTransport, dependencies: SentryDependencyContainer) -> SentryTelemetryProcessor {
+        return getProcessorInternal(transport: transport, dependencies: dependencies)
+    }
+
+    private static func getProcessorInternal<Dependencies: SentryTelemetryProcessorFactoryDependencies>(
+        transport: SentryTelemetryProcessorTransport,
+        dependencies: Dependencies
+    ) -> SentryTelemetryProcessor {
         let scheduler = DefaultTelemetryScheduler(transport: transport)
-        let logBuffer = SentryLogBuffer(dateProvider: SentryDefaultCurrentDateProvider(), scheduler: scheduler)
+
+        #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
+        let itemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers(
+            notificationCenter: dependencies.notificationCenterWrapper
+        )
+        #else
+        let itemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers()
+        #endif
+
+        let logBuffer = SentryLogBuffer(
+            dateProvider: dependencies.dateProvider,
+            scheduler: scheduler,
+            itemForwardingTriggers: itemForwardingTriggers
+        )
+
         return SentryDefaultTelemetryProcessor(logBuffer: logBuffer)
     }
 }

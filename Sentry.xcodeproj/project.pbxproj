@@ -576,6 +576,7 @@
 		84F994E82A6894BD00EC0190 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84F994E72A6894BD00EC0190 /* SystemConfiguration.framework */; platformFilters = (ios, maccatalyst, macos, tvos, ); };
 		861265F92404EC1500C4AFDE /* SentryArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 861265F72404EC1500C4AFDE /* SentryArray.h */; };
 		861265FA2404EC1500C4AFDE /* SentryArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 861265F82404EC1500C4AFDE /* SentryArray.m */; };
+		8786A62A94A5510DE781472D /* DefaultTelemetryBufferDataForwardingTriggersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665BB83A698AF5CE0C37E11E /* DefaultTelemetryBufferDataForwardingTriggersTests.swift */; };
 		8E0551E026A7A63C00400526 /* TestProtocolClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E0551DF26A7A63C00400526 /* TestProtocolClient.swift */; };
 		8E133FA225E72DEF00ABD0BF /* SentrySamplingContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E133FA025E72DEF00ABD0BF /* SentrySamplingContext.m */; };
 		8E133FA625E72EB400ABD0BF /* SentrySamplingContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E133FA525E72EB400ABD0BF /* SentrySamplingContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -619,7 +620,6 @@
 		9264E1ED2E2E397C00B077CF /* SentryLogMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9264E1EC2E2E397400B077CF /* SentryLogMessageTests.swift */; };
 		92672BB629C9A2A9006B021C /* SentryBreadcrumb+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 92672BB529C9A2A9006B021C /* SentryBreadcrumb+Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		927A5CC42DD7626B00B82404 /* SentryEnvelopeItemHeaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927A5CC32DD7626400B82404 /* SentryEnvelopeItemHeaderTests.swift */; };
-		927D21FB2ED5DE8A00916D31 /* FlushLogsIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 927D21FA2ED5DE7F00916D31 /* FlushLogsIntegrationTests.swift */; };
 		928207C42E251B8F009285A4 /* SentryScope+PrivateSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 928207C32E251B8F009285A4 /* SentryScope+PrivateSwift.h */; };
 		9286059529A5096600F96038 /* SentryGeo.h in Headers */ = {isa = PBXBuildFile; fileRef = 9286059429A5096600F96038 /* SentryGeo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9286059729A5098900F96038 /* SentryGeo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9286059629A5098900F96038 /* SentryGeo.m */; };
@@ -1349,6 +1349,7 @@
 		63FE71F920DA66EB00CDBAE8 /* SentryCrashJSONCodec_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashJSONCodec_Tests.m; sourceTree = "<group>"; };
 		63FE71FB20DA66EB00CDBAE8 /* SentryCrashMonitor_NSException_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashMonitor_NSException_Tests.m; sourceTree = "<group>"; };
 		63FE71FC20DA66EB00CDBAE8 /* SentryCrashFileUtils_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryCrashFileUtils_Tests.m; sourceTree = "<group>"; };
+		665BB83A698AF5CE0C37E11E /* DefaultTelemetryBufferDataForwardingTriggersTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DefaultTelemetryBufferDataForwardingTriggersTests.swift; sourceTree = "<group>"; };
 		69BEE6F62620729E006DF9DF /* UrlSessionDelegateSpy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrlSessionDelegateSpy.swift; sourceTree = "<group>"; };
 		7071C2D29C27DFEA10F7C5EE /* SentryOptionsDocumentationSyncTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SentryOptionsDocumentationSyncTests.swift; sourceTree = "<group>"; };
 		71F11CDEF5952DF5CC69AC74 /* SentryCrashUUIDConversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCrashUUIDConversion.h; path = ../../../Sentry/include/SentryCrashUUIDConversion.h; sourceTree = "<group>"; };
@@ -1740,7 +1741,6 @@
 		9264E1EC2E2E397400B077CF /* SentryLogMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryLogMessageTests.swift; sourceTree = "<group>"; };
 		92672BB529C9A2A9006B021C /* SentryBreadcrumb+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SentryBreadcrumb+Private.h"; sourceTree = "<group>"; };
 		927A5CC32DD7626400B82404 /* SentryEnvelopeItemHeaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentryEnvelopeItemHeaderTests.swift; sourceTree = "<group>"; };
-		927D21FA2ED5DE7F00916D31 /* FlushLogsIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlushLogsIntegrationTests.swift; sourceTree = "<group>"; };
 		928207C32E251B8F009285A4 /* SentryScope+PrivateSwift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryScope+PrivateSwift.h"; path = "include/SentryScope+PrivateSwift.h"; sourceTree = "<group>"; };
 		9286059429A5096600F96038 /* SentryGeo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryGeo.h; path = Public/SentryGeo.h; sourceTree = "<group>"; };
 		9286059629A5098900F96038 /* SentryGeo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryGeo.m; sourceTree = "<group>"; };
@@ -2049,8 +2049,28 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		62205C872F2CA40D00F66691 /* TelemetryScopeApplier */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TelemetryScopeApplier; sourceTree = "<group>"; };
-		FA2111C32F22CE8C00DFFABE /* Swift */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Swift; sourceTree = "<group>"; };
+		62205C872F2CA40D00F66691 /* TelemetryScopeApplier */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = TelemetryScopeApplier;
+			sourceTree = "<group>";
+		};
+		FA2111C32F22CE8C00DFFABE /* Swift */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = Swift;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3571,7 +3591,6 @@
 		927D21F42ED5DE7800916D31 /* Log */ = {
 			isa = PBXGroup;
 			children = (
-				927D21FA2ED5DE7F00916D31 /* FlushLogsIntegrationTests.swift */,
 			);
 			path = Log;
 			sourceTree = "<group>";
@@ -3789,6 +3808,7 @@
 			children = (
 				D4DDC0F32EE8572F00F321F6 /* TelemetryBufferTests.swift */,
 				D4D7AA752EEADF4800E28DFB /* InMemoryInternalTelemetryBufferTests.swift */,
+				665BB83A698AF5CE0C37E11E /* DefaultTelemetryBufferDataForwardingTriggersTests.swift */,
 			);
 			path = TelemetryBuffer;
 			sourceTree = "<group>";
@@ -5079,7 +5099,6 @@
 				D4E3F35D2D4A864600F79E2B /* SentryNSDictionarySanitizeTests.swift in Sources */,
 				D48954052EF575960086F240 /* SentryMetricValueTests.swift in Sources */,
 				7B984A9F28E572AF001F4BEE /* CrashReport.swift in Sources */,
-				927D21FB2ED5DE8A00916D31 /* FlushLogsIntegrationTests.swift in Sources */,
 				D46712622DCD059900D4074A /* SentryRedactDefaultOptionsTests.swift in Sources */,
 				D480F9DB2DE47AF2009A0594 /* SentryScopePersistentStoreTests.swift in Sources */,
 				F4DC35582E1FFE1F0077CE89 /* SentryVideoFrameProcessorTests.swift in Sources */,
@@ -5275,6 +5294,7 @@
 				BFDDD07049314D65F21F1991 /* DefaultTelemetrySchedulerTests.swift in Sources */,
 				611A33ED09F42C61D92B3381 /* SentryDefaultTelemetryProcessorTests.swift in Sources */,
 				6B8D7F6BB0DCC4CB4FF3EE7C /* SentryTelemetryProcessorFactoryTests.swift in Sources */,
+				8786A62A94A5510DE781472D /* DefaultTelemetryBufferDataForwardingTriggersTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -18,7 +18,8 @@ extension SentryClientInternal {
             random: SentryDependencyContainer.sharedInstance().random,
             locale: Locale.autoupdatingCurrent,
             timezone: Calendar.autoupdatingCurrent.timeZone,
-            eventContextEnricher: TestEventContextEnricher())
+            eventContextEnricher: TestEventContextEnricher()
+        )
     }
 }
 
@@ -63,6 +64,7 @@ class SentryClientTests: XCTestCase {
         let feedback = SentryFeedback(message: "A test message", name: "Abe Tester", email: "abe.tester@sentry.io", source: .custom, associatedEventId: SentryId())
 
         let eventContextEnricher = TestEventContextEnricher()
+        let notificationCenter = TestNSNotificationCenterWrapper()
 
         init() throws {
             session = SentrySession(releaseName: "release", distinctId: "some-id")
@@ -2546,23 +2548,6 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(testProcessor.addLogInvocations.count, 1)
     }
 
-    func testCaptureLog_beforeSendDroppingLogItem() {
-        // -- Arrange --
-        let sut = fixture.getSut()
-        sut.options.beforeSendLog = { _ in
-            return nil
-        }
-
-        let log = SentryLog(level: .info, body: "Test message")
-        let scope = Scope()
-
-        // -- Act --
-        sut._swiftCaptureLog(log, with: scope)
-
-        // -- Assert --
-        assertLostEventRecorded(category: .logItem, reason: .beforeSend)
-    }
-
     func testFlushCallsLogBufferCaptureLogs() {
         let sut = fixture.getSut()
         
@@ -2572,19 +2557,6 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 0)
         
         sut.flush(timeout: 1.0)
-        
-        XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 1)
-    }
-    
-    func testCaptureLogsCallsLogBufferCaptureLogs() {
-        let sut = fixture.getSut()
-        
-        let testProcessor = TestTelemetryProcessorForClient()
-        Dynamic(sut).telemetryProcessor = testProcessor
-        
-        XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 0)
-        
-        sut.captureLogs()
         
         XCTAssertEqual(testProcessor.forwardTelemetryDataInvocations.count, 1)
     }

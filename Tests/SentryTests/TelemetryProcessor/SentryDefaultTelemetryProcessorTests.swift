@@ -70,6 +70,7 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         let dateProvider = TestCurrentDateProvider()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         dispatchQueue.dispatchAsyncExecutesBlock = true
+        let itemForwardingTriggers = MockTelemetryBufferDataForwardingTriggers()
 
         let logBuffer = SentryLogBuffer(
             flushTimeout: 5.0,
@@ -77,7 +78,8 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
             maxBufferSizeBytes: 1_024,
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue,
-            scheduler: scheduler
+            scheduler: scheduler,
+            itemForwardingTriggers: itemForwardingTriggers
         )
 
         return (logBuffer, scheduler)
@@ -144,5 +146,17 @@ final class TestTelemetryScheduler: TelemetryScheduler {
 
     func capture(data: Data, count: Int, telemetryType: TelemetrySchedulerItemType) {
         captureInvocations.record((data, count, telemetryType))
+    }
+}
+
+private class MockTelemetryBufferDataForwardingTriggers: TelemetryBufferItemForwardingTriggers {
+    private weak var delegate: TelemetryBufferItemForwardingDelegate?
+
+    func setDelegate(_ delegate: TelemetryBufferItemForwardingDelegate?) {
+        self.delegate = delegate
+    }
+
+    func invokeDelegate() {
+        delegate?.forwardItems()
     }
 }
