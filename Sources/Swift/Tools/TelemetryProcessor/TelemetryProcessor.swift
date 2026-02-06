@@ -66,17 +66,17 @@ typealias SentryTelemetryProcessorFactoryDependencies = DateProviderProvider
         let scheduler = DefaultTelemetryScheduler(transport: transport)
 
         #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
-        let itemForwarding = DefaultTelemetryBufferDataForwardingTriggers(
+        let itemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers(
             notificationCenter: dependencies.notificationCenterWrapper
         )
         #else
-        let itemForwarding = DefaultTelemetryBufferDataForwardingTriggers()
+        let itemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers()
         #endif
 
         let logBuffer = SentryLogBuffer(
             dateProvider: dependencies.dateProvider,
             scheduler: scheduler,
-            itemForwarding: itemForwarding
+            itemForwardingTriggers: itemForwardingTriggers
         )
 
         return SentryDefaultTelemetryProcessor(logBuffer: logBuffer)

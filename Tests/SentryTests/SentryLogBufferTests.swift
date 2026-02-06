@@ -9,7 +9,7 @@ final class SentryLogBufferTests: XCTestCase {
     private var testScheduler: TestLogTelemetryScheduler!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
     private var testNotificationCenter: TestNSNotificationCenterWrapper!
-    private var testItemForwarding: MockTelemetryBufferDataForwardingTriggers!
+    private var testItemForwardingTriggers: MockTelemetryBufferDataForwardingTriggers!
 
     private func getSut() -> SentryLogBuffer {
         return SentryLogBuffer(
@@ -19,7 +19,7 @@ final class SentryLogBufferTests: XCTestCase {
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
             scheduler: testScheduler,
-            itemForwarding: testItemForwarding
+            itemForwardingTriggers: testItemForwardingTriggers
         )
     }
 
@@ -33,7 +33,7 @@ final class SentryLogBufferTests: XCTestCase {
         testScheduler = TestLogTelemetryScheduler()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testNotificationCenter = TestNSNotificationCenterWrapper()
-        testItemForwarding = MockTelemetryBufferDataForwardingTriggers()
+        testItemForwardingTriggers = MockTelemetryBufferDataForwardingTriggers()
         testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
     }
 
@@ -255,7 +255,7 @@ final class SentryLogBufferTests: XCTestCase {
             dateProvider: testDateProvider,
             dispatchQueue: SentryDispatchQueueWrapper(),
             scheduler: testScheduler,
-            itemForwarding: testItemForwarding
+            itemForwardingTriggers: testItemForwardingTriggers
         )
         
         let expectation = XCTestExpectation(description: "Concurrent adds")
@@ -286,7 +286,7 @@ final class SentryLogBufferTests: XCTestCase {
             dateProvider: testDateProvider,
             dispatchQueue: SentryDispatchQueueWrapper(),
             scheduler: testScheduler,
-            itemForwarding: testItemForwarding
+            itemForwardingTriggers: testItemForwardingTriggers
         )
         
         let log = createTestLog(body: "Real timeout test log")

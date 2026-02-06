@@ -88,7 +88,7 @@ final class TelemetryBufferTests: XCTestCase {
             buffer: testTelemetryBuffer,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
-            itemForwarding: NoOpTelemetryBufferDataForwardingTriggers()
+            itemForwardingTriggers: NoOpTelemetryBufferDataForwardingTriggers()
         )
     }
 
@@ -305,7 +305,7 @@ final class TelemetryBufferTests: XCTestCase {
             buffer: testTelemetryBuffer,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
-            itemForwarding: mockItemForwarding
+            itemForwardingTriggers: mockItemForwarding
         )
 
         sut.add(TestItem(body: "Item 1"))
@@ -338,7 +338,7 @@ final class TelemetryBufferTests: XCTestCase {
                 buffer: testTelemetryBuffer,
                 dateProvider: testDateProvider,
                 dispatchQueue: testDispatchQueue,
-                itemForwarding: mockItemForwarding
+                itemForwardingTriggers: mockItemForwarding
             )
 
             XCTAssertNotNil(sut)

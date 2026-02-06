@@ -18,7 +18,7 @@ class SentryLogBuffer {
     convenience init(
         dateProvider: SentryCurrentDateProvider,
         scheduler: any TelemetryScheduler,
-        itemForwarding: TelemetryBufferItemForwardingTriggers
+        itemForwardingTriggers: TelemetryBufferItemForwardingTriggers
     ) {
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
         self.init(
@@ -28,7 +28,7 @@ class SentryLogBuffer {
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue,
             scheduler: scheduler,
-            itemForwarding: itemForwarding
+            itemForwardingTriggers: itemForwardingTriggers
         )
     }
 
@@ -52,7 +52,7 @@ class SentryLogBuffer {
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
         scheduler: some TelemetryScheduler,
-        itemForwarding: TelemetryBufferItemForwardingTriggers
+        itemForwardingTriggers: TelemetryBufferItemForwardingTriggers
     ) {
         self.buffer = DefaultTelemetryBuffer(
             config: .init(
@@ -66,7 +66,7 @@ class SentryLogBuffer {
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue,
-            itemForwarding: itemForwarding
+            itemForwardingTriggers: itemForwardingTriggers
         )
     }
 

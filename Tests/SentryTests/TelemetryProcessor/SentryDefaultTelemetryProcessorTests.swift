@@ -70,7 +70,7 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         let dateProvider = TestCurrentDateProvider()
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         dispatchQueue.dispatchAsyncExecutesBlock = true
-        let itemForwarding = MockTelemetryBufferDataForwardingTriggers()
+        let itemForwardingTriggers = MockTelemetryBufferDataForwardingTriggers()
 
         let logBuffer = SentryLogBuffer(
             flushTimeout: 5.0,
@@ -79,7 +79,7 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue,
             scheduler: scheduler,
-            itemForwarding: itemForwarding
+            itemForwardingTriggers: itemForwardingTriggers
         )
 
         return (logBuffer, scheduler)
