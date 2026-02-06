@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 import Foundation
 import ObjectiveC.NSObjCRuntime

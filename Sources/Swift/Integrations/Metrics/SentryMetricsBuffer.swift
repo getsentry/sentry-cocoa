@@ -49,7 +49,9 @@ struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
             ),
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
-            dispatchQueue: dispatchQueue
+            dispatchQueue: dispatchQueue,
+            // The MetricsIntegration still contains the data forwarding triggers. Therefore, we still use the NoOpTelemetryBufferDataForwardingTriggers here.
+            itemForwardingTriggers: NoOpTelemetryBufferDataForwardingTriggers()
         )
     }
     

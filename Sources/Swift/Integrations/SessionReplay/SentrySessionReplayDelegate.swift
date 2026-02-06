@@ -1,6 +1,6 @@
 // swiftlint:disable missing_docs
 import Foundation
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 @objc
 @_spi(Private) public protocol SentrySessionReplayDelegate: NSObjectProtocol {

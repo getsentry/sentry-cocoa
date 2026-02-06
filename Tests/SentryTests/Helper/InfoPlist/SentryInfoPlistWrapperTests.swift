@@ -27,8 +27,8 @@ class SentryInfoPlistWrapperTests: XCTestCase {
         sut = SentryInfoPlistWrapper(bundle: testBundle)
     }
     
-    override func tearDown() {
-        TestBundle.cleanup(testBundle)
+    override func tearDownWithError() throws {
+        try TestBundle.cleanup(testBundle)
         testBundle = nil
         sut = nil
         super.tearDown()

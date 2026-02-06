@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 typealias SentryViewHierarchyIntegrationProvider = ViewHierarchyProviderProvider & ClientProvider
 
@@ -92,4 +92,4 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
     }
 }
 
-#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK

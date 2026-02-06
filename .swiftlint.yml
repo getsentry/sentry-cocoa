@@ -111,3 +111,12 @@ missing_docs:
   excludes_inherited_types: false
   excludes_trivial_init: false
   severity: error
+
+custom_rules:
+  no_try_optional_in_tests:
+    name: "No try? in tests"
+    message: "Avoid `try?` in tests. Use `try XCTUnwrap(...)` instead."
+    regex: 'try\?'
+    severity: error
+    included:
+      - "./Tests/.*\\.swift"

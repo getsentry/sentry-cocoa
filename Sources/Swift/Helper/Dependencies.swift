@@ -17,9 +17,9 @@
     @objc public static let sysctlWrapper = SentrySysctl()
     @objc public static let dateProvider = SentryDefaultCurrentDateProvider()
     public static let objcRuntimeWrapper = SentryDefaultObjCRuntimeWrapper()
-#if !os(watchOS) && !os(macOS) && !SENTRY_NO_UIKIT
+#if !os(watchOS) && !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     @objc public static let uiDeviceWrapper = SentryDefaultUIDeviceWrapper(queueWrapper: Dependencies.dispatchQueueWrapper)
-#endif // !os(watchOS) && !os(macOS) && !SENTRY_NO_UIKIT
+#endif // !os(watchOS) && !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     @objc public static var threadInspector = SentryThreadInspector()
     @objc public static var fileIOTracker = SentryFileIOTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
 }

@@ -12,18 +12,18 @@ final class SentryCoreDataSwizzlingHelperTests: XCTestCase {
     private var coreDataStack: TestCoreDataStack!
     private var mockTracker: MockCoreDataTracker!
 
-    override func setUp() {
+    override func setUpWithError() throws {
         super.setUp()
 
-        coreDataStack = TestCoreDataStack(databaseFilename: "db-swizzling-\(UUID().uuidString).sqlite")
+        coreDataStack = try TestCoreDataStack(databaseFilename: "db-swizzling-\(UUID().uuidString).sqlite")
         mockTracker = MockCoreDataTracker()
     }
 
-    override func tearDown() {
+    override func tearDownWithError() throws {
         SentryCoreDataSwizzlingHelper.stop()
         XCTAssertFalse(SentryCoreDataSwizzlingHelper.swizzlingActive(), "Swizzling should be inactive after stop called")
 
-        coreDataStack.reset()
+        try coreDataStack.reset()
 
         super.tearDown()
     }

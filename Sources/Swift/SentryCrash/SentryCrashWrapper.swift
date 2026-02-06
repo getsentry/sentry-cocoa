@@ -3,9 +3,9 @@
 import Darwin
 import Foundation
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
-#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 /**
  * A wrapper around SentryCrash for testability.
@@ -252,12 +252,12 @@ public final class SentryCrashWrapper: NSObject {
     private func getOSVersion() -> String {
         // For MacCatalyst the UIDevice returns the current version of MacCatalyst and not the
         // macOSVersion. Therefore we have to use NSProcessInfo.
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT && !targetEnvironment(macCatalyst)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && !targetEnvironment(macCatalyst)
         return Dependencies.uiDeviceWrapper.getSystemVersion()
 #else
         let version = ProcessInfo.processInfo.operatingSystemVersion
         return "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
-#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT && !targetEnvironment(macCatalyst)
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK && !targetEnvironment(macCatalyst)
     }
     
     private func isSimulator() -> Bool {
@@ -280,13 +280,13 @@ public final class SentryCrashWrapper: NSObject {
     
     private func setScreenDimensions(_ deviceData: inout [String: Any]) {
         // The UIWindowScene is unavailable on visionOS
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         let screenSize = SentryDependencyContainerSwiftHelper.activeScreenSize()
         if screenSize != CGSize.zero {
             deviceData["screen_height_pixels"] = screenSize.height
             deviceData["screen_width_pixels"] = screenSize.width
         }
-#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     }
 }
 // swiftlint:enable missing_docs
