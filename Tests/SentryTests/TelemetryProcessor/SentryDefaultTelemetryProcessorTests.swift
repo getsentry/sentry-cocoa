@@ -100,7 +100,7 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         _ = sut.forwardTelemetryData()
 
         // -- Assert --
-        let capturedLogs = scheduler.getCapturedLogs()
+        let capturedLogs = try scheduler.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 10, "All 10 concurrently added logs should be in the batch")
     }
 
@@ -140,7 +140,7 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         XCTAssertEqual(scheduler.captureInvocations.count, 1, "Timeout should trigger flush")
         XCTAssertEqual(scheduler.captureInvocations.first?.telemetryType, .log)
 
-        let capturedLogs = scheduler.getCapturedLogs()
+        let capturedLogs = try scheduler.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 1, "Should contain exactly one log")
         XCTAssertEqual(capturedLogs[0].body, "Real timeout test log")
     }
@@ -200,7 +200,7 @@ final class TestTelemetryScheduler: TelemetryScheduler {
         var allLogs: [SentryLog] = []
 
         for invocation in captureInvocations.invocations {
-            let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+            let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: invocation.data) as? [String: Any])
             if let items = jsonObject["items"] as? [[String: Any]] {
                 for item in items {
                     if let log = try parseSentryLog(from: item) {
