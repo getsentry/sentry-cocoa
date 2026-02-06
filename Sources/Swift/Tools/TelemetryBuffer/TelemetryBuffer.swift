@@ -8,7 +8,7 @@ protocol TelemetryBuffer<Item> {
     func capture() -> TimeInterval
 }
 
-final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<Item>, Item: TelemetryItem>: TelemetryBuffer {
+final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<Item>, Item: TelemetryItem>: TelemetryBuffer, TelemetryBufferItemForwardingDelegate {
     struct Config: TelemetryBufferConfig {
         let flushTimeout: TimeInterval
         let maxItemCount: Int
@@ -21,6 +21,7 @@ final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<I
     private var buffer: InternalBufferType
     private let dateProvider: SentryCurrentDateProvider
     private let dispatchQueue: SentryDispatchQueueWrapperProtocol
+    private let itemForwardingTriggers: TelemetryBufferItemForwardingTriggers
 
     private var timerWorkItem: DispatchWorkItem?
 
@@ -36,16 +37,19 @@ final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<I
     ///
     /// - Note: Items are flushed when either `config.maxItemCount` or `config.maxBufferSizeBytes` limit is reached,
     ///        or after `config.flushTimeout` seconds have elapsed since the first item was added to an empty buffer.
-    @_spi(Private) public init(
+    init(
         config: Config,
         buffer: InternalBufferType,
         dateProvider: SentryCurrentDateProvider,
-        dispatchQueue: SentryDispatchQueueWrapperProtocol
+        dispatchQueue: SentryDispatchQueueWrapperProtocol,
+        itemForwardingTriggers: TelemetryBufferItemForwardingTriggers
     ) {
         self.config = config
         self.buffer = buffer
         self.dateProvider = dateProvider
         self.dispatchQueue = dispatchQueue
+        self.itemForwardingTriggers = itemForwardingTriggers
+        self.itemForwardingTriggers.setDelegate(self)
     }
 
     /// Adds an item to the buffer.
@@ -134,5 +138,15 @@ final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<I
             return
         }
         config.capturedDataCallback(buffer.batchedData, buffer.itemsCount)
+    }
+
+    deinit {
+        itemForwardingTriggers.setDelegate(nil)
+    }
+
+    // MARK: - TelemetryBufferItemForwardingDelegate
+
+    func forwardItems() {
+        capture()
     }
 }
