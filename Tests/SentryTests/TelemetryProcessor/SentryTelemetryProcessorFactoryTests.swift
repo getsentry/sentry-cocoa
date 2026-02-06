@@ -9,10 +9,10 @@ final class SentryTelemetryProcessorFactoryTests: XCTestCase {
     func testGetProcessor_whenCalled_shouldReturnProcessor() {
         // -- Arrange --
         let transport = TestTelemetryProcessorTransport()
-        let notificationCenter = TestNSNotificationCenterWrapper()
+        let dependencies = createTestDependencies()
 
         // -- Act --
-        let processor = SentryTelemetryProcessorFactory.getProcessor(transport: transport, notificationCenter: notificationCenter)
+        let processor = SentryTelemetryProcessorFactory.getProcessor(transport: transport, dependencies: dependencies)
 
         // -- Assert --
         XCTAssertNotNil(processor)
@@ -21,8 +21,8 @@ final class SentryTelemetryProcessorFactoryTests: XCTestCase {
     func testGetProcessor_whenLogAddedAndFlushed_shouldSendViaTransport() throws {
         // -- Arrange --
         let transport = TestTelemetryProcessorTransport()
-        let notificationCenter = TestNSNotificationCenterWrapper()
-        let processor = SentryTelemetryProcessorFactory.getProcessor(transport: transport, notificationCenter: notificationCenter)
+        let dependencies = createTestDependencies()
+        let processor = SentryTelemetryProcessorFactory.getProcessor(transport: transport, dependencies: dependencies)
         let log = createTestLog(body: "End-to-end test")
 
         // -- Act --
@@ -41,6 +41,10 @@ final class SentryTelemetryProcessorFactoryTests: XCTestCase {
     }
 
     // MARK: - Helper Methods
+
+    private func createTestDependencies() -> SentryDependencyContainer {
+        return SentryDependencyContainer.sharedInstance()
+    }
 
     private func createTestLog(
         body: String,

@@ -18,8 +18,8 @@ extension SentryClientInternal {
             random: SentryDependencyContainer.sharedInstance().random,
             locale: Locale.autoupdatingCurrent,
             timezone: Calendar.autoupdatingCurrent.timeZone,
-            eventContextEnricher: TestEventContextEnricher(),
-        notificationCenter: TestNSNotificationCenterWrapper())
+            eventContextEnricher: TestEventContextEnricher()
+        )
     }
 }
 
@@ -127,8 +127,7 @@ class SentryClientTests: XCTestCase {
                     random: random,
                     locale: locale,
                     timezone: timezone,
-                    eventContextEnricher: eventContextEnricher,
-                    notificationCenter: notificationCenter
+                    eventContextEnricher: eventContextEnricher
                 )
             } catch {
                 XCTFail("Options could not be created")

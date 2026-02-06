@@ -10,6 +10,7 @@ class SentryLogBuffer {
     /// - Parameters:
     ///   - dateProvider: The current date provider
     ///   - delegate: The delegate to handle captured log batches
+    ///   - itemForwarding: Triggers for lifecycle-based flushing (e.g., willResignActive)
     ///
     /// - Note: Uses DEFAULT priority (not LOW) because captureLogs() is called synchronously during
     ///         app lifecycle events (willResignActive, willTerminate) and needs to complete quickly.
@@ -17,7 +18,7 @@ class SentryLogBuffer {
     convenience init(
         dateProvider: SentryCurrentDateProvider,
         scheduler: any TelemetryScheduler,
-        notificationCenter: SentryNSNotificationCenterWrapper
+        itemForwarding: TelemetryBufferItemForwardingTriggers
     ) {
         let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
         self.init(
@@ -27,7 +28,7 @@ class SentryLogBuffer {
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue,
             scheduler: scheduler,
-            notificationCenter: notificationCenter
+            itemForwarding: itemForwarding
         )
     }
 
@@ -38,6 +39,7 @@ class SentryLogBuffer {
     ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
     ///   - delegate: The delegate to handle captured log batches
+    ///   - itemForwarding: Triggers for lifecycle-based flushing (e.g., willResignActive)
     ///
     /// - Important: The `dispatchQueue` parameter MUST be a serial queue to ensure thread safety.
     ///              Passing a concurrent queue will result in undefined behavior and potential data races.
@@ -50,7 +52,7 @@ class SentryLogBuffer {
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
         scheduler: some TelemetryScheduler,
-        notificationCenter: SentryNSNotificationCenterWrapper
+        itemForwarding: TelemetryBufferItemForwardingTriggers
     ) {
         self.buffer = DefaultTelemetryBuffer(
             config: .init(
@@ -64,7 +66,7 @@ class SentryLogBuffer {
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue,
-            itemForwarding: DefaultTelemetryBufferDataForwardingTriggers(notificationCenter: notificationCenter)
+            itemForwarding: itemForwarding
         )
     }
 

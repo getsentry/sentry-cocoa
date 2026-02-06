@@ -19,8 +19,7 @@ public class TestClient: SentryClientInternal {
             random: SentryDependencyContainer.sharedInstance().random,
             locale: NSLocale.autoupdatingCurrent,
             timezone: NSCalendar.autoupdatingCurrent.timeZone,
-            eventContextEnricher: SentryDependencyContainer.sharedInstance().eventContextEnricher,
-            notificationCenter: TestNSNotificationCenterWrapper()
+            eventContextEnricher: SentryDependencyContainer.sharedInstance().eventContextEnricher
         )
     }
     
@@ -36,8 +35,7 @@ public class TestClient: SentryClientInternal {
         random: SentryRandomProtocol,
         locale: Locale,
         timezone: TimeZone,
-        eventContextEnricher: SentryEventContextEnricher,
-        notificationCenter: SentryNSNotificationCenterWrapper
+        eventContextEnricher: SentryEventContextEnricher
     ) {
         super.init(
             options: options,
@@ -49,8 +47,7 @@ public class TestClient: SentryClientInternal {
             random: random,
             locale: locale,
             timezone: timezone,
-            eventContextEnricher: eventContextEnricher,
-            notificationCenter: notificationCenter
+            eventContextEnricher: eventContextEnricher
         )
     }
     

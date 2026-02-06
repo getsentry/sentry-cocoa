@@ -87,9 +87,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     id<SentryEventContextEnricher> eventContextEnricher
         = SentryDependencyContainer.sharedInstance.eventContextEnricher;
 
-    id<SentryNSNotificationCenterWrapper> notificationCenter
-        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
-
     return [self initWithOptions:options
                     dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
                 transportAdapter:transportAdapter
@@ -99,8 +96,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                           random:[SentryDependencyContainer sharedInstance].random
                           locale:[NSLocale autoupdatingCurrentLocale]
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone
-            eventContextEnricher:eventContextEnricher
-              notificationCenter:notificationCenter];
+            eventContextEnricher:eventContextEnricher];
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options
@@ -113,7 +109,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
            eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
-             notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter
 {
     if (self = [super init]) {
         _isEnabled = YES;
@@ -131,7 +126,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.telemetryProcessor = [SentryTelemetryProcessorFactory
             getProcessorWithTransport:[[SentryDefaultTelemetryProcessorTransport alloc]
                                           initWithTransportAdapter:transportAdapter]
-                   notificationCenter:notificationCenter];
+                         dependencies:SentryDependencyContainer.sharedInstance];
 
         self.logScopeApplier =
             [[SentryDefaultLogScopeApplier alloc] initWithEnvironment:options.environment

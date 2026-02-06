@@ -9,6 +9,7 @@ final class SentryLogBufferTests: XCTestCase {
     private var testScheduler: TestLogTelemetryScheduler!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
     private var testNotificationCenter: TestNSNotificationCenterWrapper!
+    private var testItemForwarding: MockTelemetryBufferDataForwardingTriggers!
 
     private func getSut() -> SentryLogBuffer {
         return SentryLogBuffer(
@@ -18,7 +19,7 @@ final class SentryLogBufferTests: XCTestCase {
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
             scheduler: testScheduler,
-            notificationCenter: testNotificationCenter
+            itemForwarding: testItemForwarding
         )
     }
 
@@ -32,6 +33,7 @@ final class SentryLogBufferTests: XCTestCase {
         testScheduler = TestLogTelemetryScheduler()
         testDispatchQueue = TestSentryDispatchQueueWrapper()
         testNotificationCenter = TestNSNotificationCenterWrapper()
+        testItemForwarding = MockTelemetryBufferDataForwardingTriggers()
         testDispatchQueue.dispatchAsyncExecutesBlock = true // Execute encoding immediately
     }
 
@@ -253,7 +255,7 @@ final class SentryLogBufferTests: XCTestCase {
             dateProvider: testDateProvider,
             dispatchQueue: SentryDispatchQueueWrapper(),
             scheduler: testScheduler,
-            notificationCenter: testNotificationCenter
+            itemForwarding: testItemForwarding
         )
         
         let expectation = XCTestExpectation(description: "Concurrent adds")
@@ -284,7 +286,7 @@ final class SentryLogBufferTests: XCTestCase {
             dateProvider: testDateProvider,
             dispatchQueue: SentryDispatchQueueWrapper(),
             scheduler: testScheduler,
-            notificationCenter: testNotificationCenter
+            itemForwarding: testItemForwarding
         )
         
         let log = createTestLog(body: "Real timeout test log")
@@ -371,5 +373,19 @@ final class TestLogTelemetryScheduler: TelemetryScheduler {
         }
         
         return SentryLog(timestamp: timestamp, traceId: traceId, level: level, body: body, attributes: attributes)
+    }
+}
+
+// MARK: - Mock Item Forwarding
+
+private class MockTelemetryBufferDataForwardingTriggers: TelemetryBufferItemForwardingTriggers {
+    private weak var delegate: TelemetryBufferItemForwardingDelegate?
+
+    func setDelegate(_ delegate: TelemetryBufferItemForwardingDelegate?) {
+        self.delegate = delegate
+    }
+
+    func invokeDelegate() {
+        delegate?.forwardItems()
     }
 }

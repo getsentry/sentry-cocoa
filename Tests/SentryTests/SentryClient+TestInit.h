@@ -3,7 +3,6 @@
 @protocol SentryCurrentDateProvider;
 @protocol SentryRandomProtocol;
 @protocol SentryEventContextEnricher;
-@protocol SentryNSNotificationCenterWrapper;
 
 @class SentryCrashWrapper;
 @class SentryDispatchQueueWrapper;
@@ -24,8 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
                          random:(id<SentryRandomProtocol>)random
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
-           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
-             notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter;
+           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher;
 
 @end
 
