@@ -1,3 +1,5 @@
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+
 final class SentryWatchdogTerminationHangTracker {
     private let queue: SentryDispatchQueueWrapperProtocol
     private let tracker: SentryHangTracker
@@ -62,3 +64,5 @@ final class SentryWatchdogTerminationHangTracker {
         }
     }
 }
+
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

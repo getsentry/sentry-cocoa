@@ -1,4 +1,7 @@
 // swiftlint:disable file_length
+
+#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+
 @_implementationOnly import _SentryPrivate
 #if canImport(UIKit) && !SENTRY_NO_UIKIT
 import UIKit
@@ -496,4 +499,7 @@ extension SentryDefaultHangTracker where T == CFRunLoopObserver {
         )
     }
 }
+
+#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+
 // swiftlint:enable file_length

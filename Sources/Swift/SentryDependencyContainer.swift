@@ -357,6 +357,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 
+#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
     private var _hangTracker: SentryHangTracker?
     var hangTracker: SentryHangTracker {
         getLazyVar(\._hangTracker) {
@@ -371,6 +372,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             )
         }
     }
+#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
 
     private var crashInstallationReporter: SentryCrashInstallationReporter?
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
