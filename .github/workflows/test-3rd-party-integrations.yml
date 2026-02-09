@@ -59,22 +59,12 @@ jobs:
       - name: Select Xcode
         run: ./scripts/ci-select-xcode.sh 16.4
       - name: Build XCFramework (Static)
-        run: |
-          rm -rf XCFrameworkBuildPath/
-          mkdir -p XCFrameworkBuildPath
-
-          # Build Sentry (Static) - the only variant needed by 3rd-party integrations
-          # Build both macosx and iphonesimulator slices since tests run on iOS Simulator
-          ./scripts/build-xcframework-slice.sh "macosx" "Sentry" "" "staticlib" ""
-          ./scripts/build-xcframework-slice.sh "iphonesimulator" "Sentry" "" "staticlib" ""
-          ./scripts/assemble-xcframework.sh "Sentry" "" "" "macosx,iphonesimulator" "$(pwd)/XCFrameworkBuildPath/archive/Sentry/SDK_NAME.xcarchive"
-          ./scripts/validate-xcframework-format.sh "Sentry.xcframework"
-          ./scripts/compress-xcframework.sh --not-signed Sentry
+        run: ./scripts/build-xcframework-local.sh simulatorAndmacOSOnly StaticOnly --not-signed
       - name: Upload XCFrameworks
         uses: actions/upload-artifact@v6
         with:
           name: xcframeworks-for-3rd-party-integration-tests
-          path: "*.xcframework.zip"
+          path: "XCFrameworkBuildPath/*.xcframework.zip"
           retention-days: 1
 
   # SPM tests for all 3rd-party integrations
