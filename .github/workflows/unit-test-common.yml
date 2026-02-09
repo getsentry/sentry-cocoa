@@ -82,6 +82,7 @@ jobs:
           XCODE_VERSION: ${{inputs.xcode}}
 
       - name: Install Slather
+        if: ${{ !inputs.test_spm_package }}
         run: gem install slather
 
       - name: Ensure required runtime is loaded
