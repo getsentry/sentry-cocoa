@@ -1,7 +1,6 @@
 /// A structured log entry that captures log data with associated attribute metadata.
 ///
 /// Use the `options.beforeSendLog` callback to modify or filter log data.
-@objc
 @objcMembers
 public final class SentryLog: NSObject {
     /// Alias for `SentryAttribute` to maintain backward compatibility after `SentryLog.Attribute` was renamed to `SentryAttribute`.
@@ -82,6 +81,22 @@ public final class SentryLog: NSObject {
             attributes[key] = attribute
         } else {
             attributes.removeValue(forKey: key)
+        }
+    }
+}
+
+// MARK: - TelemetryItem Conformance
+extension SentryLog: TelemetryItem {
+    var attributesDict: [String: SentryAttributeContent] {
+        get {
+            attributes.mapValues { value in
+                SentryAttributeContent.from(anyValue: value)
+            }
+        }
+        set {
+            attributes = newValue.mapValues { value in
+                SentryAttribute(attributableValue: value)
+            }
         }
     }
 }

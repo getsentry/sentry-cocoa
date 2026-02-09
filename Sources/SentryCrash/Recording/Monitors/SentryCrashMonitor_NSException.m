@@ -29,7 +29,8 @@
 #import "SentryCrash.h"
 #include "SentryCrashID.h"
 #include "SentryCrashMonitorContext.h"
-#import "SentryCrashStackCursor_Backtrace.h"
+#import "SentryCrashMonitor_NSException_StackCursor.h"
+#import "SentryCrashStackCursor.h"
 #include "SentryCrashThread.h"
 #import "SentrySwift.h"
 
@@ -70,21 +71,14 @@ handleException(NSException *exception)
         }
 
         SENTRY_LOG_DEBUG(@"Filling out context.");
-        NSArray *addresses = [exception callStackReturnAddresses];
-        NSUInteger numFrames = addresses.count;
-        uintptr_t *callstack = malloc(numFrames * sizeof(*callstack));
-        assert(callstack != NULL);
-
-        for (NSUInteger i = 0; i < numFrames; i++) {
-            callstack[i] = (uintptr_t)[addresses[i] unsignedLongLongValue];
-        }
 
         char eventID[37];
         sentrycrashid_generate(eventID);
         SentryCrashMC_NEW_CONTEXT(machineContext);
         sentrycrashmc_getContextForThread(sentrycrashthread_self(), machineContext, true);
         SentryCrashStackCursor cursor;
-        sentrycrashsc_initWithBacktrace(&cursor, callstack, (int)numFrames, 0);
+
+        uintptr_t *callstack = sentrycrashcm_nsexception_initStackCursor(&cursor, exception);
 
         SentryCrash_MonitorContext *crashContext = &g_monitorContext;
         memset(crashContext, 0, sizeof(*crashContext));
@@ -102,7 +96,9 @@ handleException(NSException *exception)
         SENTRY_LOG_DEBUG(@"Calling main crash handler.");
         sentrycrashcm_handleException(crashContext);
 
-        free(callstack);
+        if (callstack != NULL) {
+            free(callstack);
+        }
         if (g_previousUncaughtExceptionHandler != NULL) {
             SENTRY_LOG_DEBUG(@"Calling original exception handler.");
             g_previousUncaughtExceptionHandler(exception);

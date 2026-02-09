@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 final class SentryAppStartTrackingIntegration<Dependencies: SentryAppStartTrackerBuilder>: NSObject, SwiftIntegration {
     let tracker: SentryAppStartTracker
@@ -32,4 +32,4 @@ final class SentryAppStartTrackingIntegration<Dependencies: SentryAppStartTracke
     }
 }
 
-#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

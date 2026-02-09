@@ -1,6 +1,6 @@
 // swiftlint:disable missing_docs
 import Foundation
-#if os(iOS) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 /**
@@ -140,5 +140,5 @@ public final class SentryUserFeedbackThemeConfiguration: NSObject {
     public var inputForeground: UIColor = UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor.lightText : UIColor.darkText
 }
 
-#endif // os(iOS) && !SENTRY_NO_UIKIT
+#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 // swiftlint:enable missing_docs

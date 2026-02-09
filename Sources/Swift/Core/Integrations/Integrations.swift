@@ -49,7 +49,7 @@ private struct AnyIntegration {
             .init(SwiftAsyncIntegration.self)
         ]
         
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentrySessionReplayIntegration.self))
         #endif
         
@@ -64,7 +64,7 @@ private struct AnyIntegration {
             .init(SentryFileIOTrackingIntegration.self)
         ])
 
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryAppStartTrackingIntegration.self))
         integrations.append(.init(SentryPerformanceTrackingIntegration.self))
         integrations.append(.init(SentryFramesTrackingIntegration.self))
@@ -72,15 +72,11 @@ private struct AnyIntegration {
         integrations.append(.init(SentryUIEventTrackingIntegration.self))
         #endif
 
-        #if os(iOS) && !SENTRY_NO_UIKIT
+        #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(UserFeedbackIntegration.self))
         #endif
-        
-        #if ((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS)
-        integrations.append(.init(FlushLogsIntegration.self))
-        #endif
 
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryScreenshotIntegration.self))
         integrations.append(.init(SentryViewHierarchyIntegration.self))
         #endif

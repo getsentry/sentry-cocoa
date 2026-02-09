@@ -91,8 +91,6 @@
 #import "SentryHub+Private.h"
 #import "SentryHub+Test.h"
 #import "SentryInitializeForGettingSubclassesNotCalled.h"
-#import "SentryInstallation+Test.h"
-#import "SentryInstallation.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryInvalidJSONString.h"
 #import "SentryLevelMapper.h"

@@ -1,18 +1,17 @@
 // swiftlint:disable missing_docs
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 
 import UIKit
 
-@objcMembers
-@_spi(Private) public final class SentryViewRendererV2: NSObject, SentryViewRenderer {
+final class SentryViewRendererV2: NSObject, SentryViewRenderer {
     let enableFastViewRendering: Bool
 
-    public init(enableFastViewRendering: Bool) {
+    init(enableFastViewRendering: Bool) {
         self.enableFastViewRendering = enableFastViewRendering
     }
 
-    public func render(view: UIView) -> UIImage {
+    func render(view: UIView) -> UIImage {
         let scale = (view as? UIWindow ?? view.window)?.screen.scale ?? 1
         let image = SentryGraphicsImageRenderer(size: view.bounds.size, scale: scale).image { context in
             if enableFastViewRendering {
@@ -26,5 +25,5 @@ import UIKit
 }
 
 #endif // os(iOS) || os(tvOS)
-#endif // canImport(UIKit) && !SENTRY_NO_UIKIT
+#endif // canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 // swiftlint:enable missing_docs

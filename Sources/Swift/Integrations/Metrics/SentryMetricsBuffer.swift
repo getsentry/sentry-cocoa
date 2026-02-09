@@ -2,23 +2,18 @@
 import Foundation
 
 protocol SentryMetricsTelemetryBuffer {
-    func addMetric(_ metric: SentryMetric, scope: Scope)
+    func addMetric(_ metric: SentryMetric)
     @discardableResult func captureMetrics() -> TimeInterval
 }
 
 protocol SentryMetricsTelemetryBufferOptions {
     var enableMetrics: Bool { get }
-    var beforeSendMetric: ((SentryMetric) -> SentryMetric?)? { get }
-    var environment: String { get }
-    var releaseName: String? { get }
-    var cacheDirectoryPath: String { get }
-    var sendDefaultPii: Bool { get }
 }
 
-/// DefaultSentryMetricsTelemetryBuffer is responsible for buffering metrics with scope-based attribute enrichment.
+/// DefaultSentryMetricsTelemetryBuffer is responsible for buffering metrics.
 struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
     private let isEnabled: Bool
-    private let buffer: any TelemetryBuffer<SentryMetric, Scope>
+    private let buffer: any TelemetryBuffer<SentryMetric>
 
     /// Initializes a new MetricsBuffer.
     /// - Parameters:
@@ -47,33 +42,27 @@ struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
         self.isEnabled = options.enableMetrics
         self.buffer = DefaultTelemetryBuffer(
             config: .init(
-                sendDefaultPii: options.sendDefaultPii,
                 flushTimeout: flushTimeout,
                 maxItemCount: maxMetricCount,
                 maxBufferSizeBytes: maxBufferSizeBytes,
-                beforeSendItem: options.beforeSendMetric,
                 capturedDataCallback: capturedDataCallback
-            ),
-            metadata: .init(
-                environment: options.environment,
-                releaseName: options.releaseName,
-                installationId: SentryInstallation.cachedId(withCacheDirectoryPath: options.cacheDirectoryPath)
             ),
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
-            dispatchQueue: dispatchQueue
+            dispatchQueue: dispatchQueue,
+            // The MetricsIntegration still contains the data forwarding triggers. Therefore, we still use the NoOpTelemetryBufferDataForwardingTriggers here.
+            itemForwardingTriggers: NoOpTelemetryBufferDataForwardingTriggers()
         )
     }
     
     /// Adds a metric to the buffer.
     /// - Parameters:
-    ///   - metric: The metric to add
-    ///   - scope: The scope to add the metric to
-    func addMetric(_ metric: SentryMetric, scope: Scope) {
+    ///   - metric: The metric to add (should already have scope enrichment applied)
+    func addMetric(_ metric: SentryMetric) {
         guard isEnabled else {
             return
         }
-        buffer.add(metric, scope: scope)
+        buffer.add(metric)
     }
 
     /// Captures buffered metrics synchronously and returns the duration.
@@ -88,13 +77,9 @@ struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
 }
 
 extension Options: SentryMetricsTelemetryBufferOptions {
-    // As soon as the feature is not experimental anymore, we can remove these two bridging methods.
-        
+    // As soon as the feature is not experimental anymore, we can remove this bridging method.
+
     var enableMetrics: Bool {
         return experimental.enableMetrics
-    }
-
-    var beforeSendMetric: ((SentryMetric) -> SentryMetric?)? {
-        return experimental.beforeSendMetric
     }
 }
