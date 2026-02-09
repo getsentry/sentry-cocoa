@@ -1,11 +1,12 @@
 // swiftlint:disable missing_docs
-#if !os(watchOS) && !os(macOS) && !SENTRY_NO_UIKIT
+#if !os(watchOS) && !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 @_spi(Private) @objc public protocol SentryUIDeviceWrapper {
     func start()
     func stop()
     func getSystemVersion() -> String
+    var currentDevice: UIDevice { get }
 
 #if os(iOS)
     var orientation: UIDeviceOrientation { get }
@@ -94,6 +95,10 @@ import UIKit
     
     @objc public func getSystemVersion() -> String {
         systemVersion
+    }
+    
+    @objc public var currentDevice: UIDevice {
+        UIDevice.current
     }
     
 }

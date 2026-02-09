@@ -10,13 +10,22 @@ public struct CheckForUpdateParams {
   ///   - hostname: Sentry hostname (defaults to "us.sentry.io")
   ///   - binaryIdentifierOverride: Optional UUID override for the main binary
   ///   - appIdOverride: Optional bundle identifier override
-  public init(accessToken: String, organization: String, project: String, hostname: String = "us.sentry.io", binaryIdentifierOverride: String? = nil, appIdOverride: String? = nil) {
+  ///   - installGroupsOverride: Optional override of the install groups
+  public init(
+    accessToken: String,
+    organization: String,
+    project: String,
+    hostname: String = "us.sentry.io",
+    binaryIdentifierOverride: String? = nil,
+    appIdOverride: String? = nil,
+    installGroupsOverride: [String]? = nil) {
     self.accessToken = accessToken
     self.organization = organization
     self.project = project
     self.hostname = hostname
     self.binaryIdentifierOverride = binaryIdentifierOverride
     self.appIdOverride = appIdOverride
+    self.installGroupsOverride = installGroupsOverride
   }
 
   let accessToken: String
@@ -25,4 +34,5 @@ public struct CheckForUpdateParams {
   let hostname: String
   let binaryIdentifierOverride: String?
   let appIdOverride: String?
+  let installGroupsOverride: [String]?
 }

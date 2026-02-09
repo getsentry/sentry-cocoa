@@ -1,6 +1,6 @@
 @_spi(Private) @testable import Sentry
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 @_spi(Private) public class TestFramesTracker: SentryFramesTracker {
     @_spi(Private) public var expectedFrames: SentryScreenFrames?
     
@@ -8,4 +8,4 @@
         expectedFrames ?? super.currentFrames()
     }
 }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)

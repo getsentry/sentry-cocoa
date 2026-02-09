@@ -22,6 +22,7 @@ extension XCTest {
         let expectedElements = unzippedExpected.backwardCompatibleSplit(separator: newline)
         let actualElements = unzippedActual.backwardCompatibleSplit(separator: newline)
         let expectedData = try expectedElements.map { data -> EnvelopeData in
+            // swiftlint:disable:next no_try_optional_in_tests
             if let json = try? JSONSerialization.jsonObject(with: data) as? NSDictionary {
                 return .dictionary(json)
             }
@@ -29,6 +30,7 @@ extension XCTest {
             return .string(dataAsString)
         }
         let actualData = try actualElements.map { data -> EnvelopeData in
+            // swiftlint:disable:next no_try_optional_in_tests
             if let json = try? JSONSerialization.jsonObject(with: data) as? NSDictionary {
                 return .dictionary(json)
             }

@@ -18,7 +18,7 @@ import Foundation
         return SentrySDKInternal.isEnabled
     }
 
-    #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+    #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
     /// API to control session replay
     @objc public static var replay: SentryReplayApi {
         return SentrySDKInternal.replay
@@ -45,14 +45,15 @@ import Foundation
     /// using their individual attributes.
     ///
     /// The `metrics` namespace exposes three methods to capture different types of metric information:
-    /// - ``SentryMetricsApiProtocol/count(key:value:unit:attributes:)``: Track discrete occurrence counts
+    /// - ``SentryMetricsApiProtocol/count(key:value:attributes:)``: Track discrete occurrence counts
     ///   (e.g., button clicks, API requests, errors).
     /// - ``SentryMetricsApiProtocol/gauge(key:value:unit:attributes:)``: Track values that can go up and down
     ///   (e.g., memory usage, queue depth, active connections).
     /// - ``SentryMetricsApiProtocol/distribution(key:value:unit:attributes:)``: Track the distribution of a value
     ///   over time for statistical analysis like percentiles (e.g., response times, request durations).
     ///
-    /// Each method supports optional units (via ``SentryUnit``) and attributes for filtering and grouping.
+    /// Gauge and distribution methods support optional units (via ``SentryUnit``) and attributes for filtering and grouping.
+    /// Count metrics do not support units.
     ///
     /// ## Example Usage
     ///
@@ -72,7 +73,7 @@ import Foundation
     /// ## Requirements
     ///
     /// Metrics are enabled by default even though it is an experimental feature, because you must still
-    /// manually call the API methods (``SentryMetricsApiProtocol/count(key:value:unit:attributes:)``,
+    /// manually call the API methods (``SentryMetricsApiProtocol/count(key:value:attributes:)``,
     /// ``SentryMetricsApiProtocol/gauge(key:value:unit:attributes:)``, or
     /// ``SentryMetricsApiProtocol/distribution(key:value:unit:attributes:)``) to use it.
     ///
@@ -303,7 +304,7 @@ import Foundation
         attachments: feedback.attachmentsForEnvelope())
     }
     
-    #if os(iOS) && !SENTRY_NO_UIKIT
+    #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     /// The API for capturing user feedback.
     ///
     /// Use this to programmatically show the feedback form or access feedback-related functionality.

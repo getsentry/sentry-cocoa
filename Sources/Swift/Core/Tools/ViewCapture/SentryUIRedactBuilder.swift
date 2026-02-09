@@ -1,5 +1,5 @@
 // swiftlint:disable file_length type_body_length
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 import Foundation
 import ObjectiveC.NSObjCRuntime
@@ -619,7 +619,7 @@ final class SentryUIRedactBuilder {
         // - In Sentry's own SubClassFinder where storing or accessing class objects on a background thread caused crashes due to `+initialize` being called on UIKit classes [2]
         //
         // [1] https://github.com/EmergeTools/SnapshotPreviews/blob/main/Sources/SnapshotPreviewsCore/View%2BSnapshot.swift#L248
-        // [2] https://github.com/getsentry/sentry-cocoa/blob/00d97404946a37e983eabb21cc64bd3d5d2cb474/Sources/Sentry/SentrySubClassFinder.m#L58-L84
+        // [2] Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift
         let viewTypeId = type(of: view).description()
 
         // Check if the view type id is in the list of included view classes (exact matching).

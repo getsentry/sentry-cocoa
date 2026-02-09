@@ -50,7 +50,7 @@ class SentrySessionReplayTests: XCTestCase {
             lastCallToCreateVideo = CreateVideoCall(beginning: beginning, end: end)
             let outputFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("tempvideo.mp4")
             
-            try? "Video Data".write(to: outputFileURL, atomically: true, encoding: .utf8)
+            XCTAssertNoThrow(try "Video Data".write(to: outputFileURL, atomically: true, encoding: .utf8))
             let videoInfo = SentryVideoInfo(path: outputFileURL, height: 1_024, width: 480, duration: end.timeIntervalSince(overrideBeginning ?? beginning), frameCount: 5, frameRate: 1, start: overrideBeginning ?? beginning, end: end, fileSize: 10, screens: screens)
             
             createVideoCallBack?(videoInfo)

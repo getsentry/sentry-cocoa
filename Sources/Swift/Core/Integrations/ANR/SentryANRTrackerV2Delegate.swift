@@ -9,13 +9,12 @@ import Foundation
     func anrStopped(result: SentryANRStoppedResult?)
 }
 
-@objcMembers
-@_spi(Private) public final class SentryANRStoppedResult: NSObject {
+@objc @_spi(Private) public final class SentryANRStoppedResult: NSObject {
     
-    public let minDuration: TimeInterval
-    public let maxDuration: TimeInterval
+    let minDuration: TimeInterval
+    let maxDuration: TimeInterval
     
-    public init(minDuration: TimeInterval, maxDuration: TimeInterval) {
+    init(minDuration: TimeInterval, maxDuration: TimeInterval) {
         self.minDuration = minDuration
         self.maxDuration = maxDuration
     }

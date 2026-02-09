@@ -1,4 +1,4 @@
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 
 @_spi(Private) @testable import Sentry
 
@@ -18,4 +18,4 @@ class TestSentryScreenshotSource: SentryScreenshotSource {
     }
 }
 
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)

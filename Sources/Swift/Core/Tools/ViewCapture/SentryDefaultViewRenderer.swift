@@ -1,12 +1,11 @@
 // swiftlint:disable missing_docs
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 
 import UIKit
 
-@objcMembers
-@_spi(Private) public final class SentryDefaultViewRenderer: NSObject, SentryViewRenderer {
-    public func render(view: UIView) -> UIImage {
+final class SentryDefaultViewRenderer: NSObject, SentryViewRenderer {
+    func render(view: UIView) -> UIImage {
         let image = UIGraphicsImageRenderer(size: view.bounds.size).image { _ in
             view.drawHierarchy(in: view.bounds, afterScreenUpdates: false)
         }
@@ -15,5 +14,5 @@ import UIKit
 }
 
 #endif // os(iOS) || os(tvOS)
-#endif // canImport(UIKit) && !SENTRY_NO_UIKIT
+#endif // canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 // swiftlint:enable missing_docs

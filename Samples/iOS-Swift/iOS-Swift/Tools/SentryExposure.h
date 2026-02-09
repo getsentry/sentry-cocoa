@@ -6,13 +6,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryBreadcrumbTracker : NSObject
-
-+ (nullable NSDictionary *)extractDataFromView:(UIView *)view
-                   withAccessibilityIdentifier:(BOOL)includeIdentifier;
-
-@end
-
 @interface SentryClientInternal : NSObject
 
 @property (nonatomic) SentryOptions *options;

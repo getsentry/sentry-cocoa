@@ -1,10 +1,8 @@
 #import "SentrySDKInternal.h"
 #import "PrivateSentrySDKOnly.h"
 #import "SentryAppStartMeasurement.h"
-#import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
-#import "SentryCoreDataTrackingIntegration.h"
 #import "SentryCrash.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
@@ -20,12 +18,6 @@
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 #import "SentryUseNSExceptionCallstackWrapper.h"
-
-#if SENTRY_HAS_UIKIT
-#    import "SentryAppStartTrackingIntegration.h"
-#    import "SentryPerformanceTrackingIntegration.h"
-#    import "SentryUIEventTrackingIntegration.h"
-#endif // SENTRY_HAS_UIKIT
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -200,8 +192,10 @@ static NSDate *_Nullable startTimestamp = nil;
     SENTRY_LOG_DEBUG(@"Configured options: %@", options.debugDescription);
 #endif // defined(DEBUG) || defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
     // Reference to SentryCrashExceptionApplication to prevent compiler from stripping it
+    // Only do this if we are not building without UIKit, because otherwise the class should not be
+    // available
     [SentryCrashExceptionApplication class];
 #endif
     // These classes must be referenced somewhere for their files to not be stripped.
@@ -495,20 +489,6 @@ static NSDate *_Nullable startTimestamp = nil;
     [SentrySDKInternal.currentHub endSession];
 }
 
-+ (NSArray<Class> *)defaultIntegrationClasses
-{
-    // The order of integrations here is important.
-    NSMutableArray<Class> *defaultIntegrations = [NSMutableArray<Class> arrayWithObjects:
-#if SENTRY_HAS_UIKIT
-            [SentryAppStartTrackingIntegration class], [SentryPerformanceTrackingIntegration class],
-        [SentryUIEventTrackingIntegration class],
-#endif // SENTRY_HAS_UIKIT
-        [SentryAutoBreadcrumbTrackingIntegration class], [SentryCoreDataTrackingIntegration class],
-        nil];
-
-    return defaultIntegrations;
-}
-
 /**
  * Install integrations and keeps ref in @c SentryHub.integrations
  */
@@ -520,24 +500,6 @@ static NSDate *_Nullable startTimestamp = nil;
     }
     SentryOptions *options = [SentrySDKInternal.currentHub getClient].options;
 
-    NSArray<Class> *integrationClasses = [SentrySDKInternal defaultIntegrationClasses];
-
-    for (Class integrationClass in integrationClasses) {
-        if ([SentrySDKInternal.currentHub isIntegrationInstalled:integrationClass]) {
-            SENTRY_LOG_ERROR(
-                @"[SentryHub doInstallIntegrations] already installed \"%@\" -> skipping.",
-                NSStringFromClass(integrationClass));
-            continue;
-        }
-
-        id<SentryObjCIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
-        BOOL shouldInstall = [integrationInstance installWithOptions:options];
-        if (shouldInstall) {
-            [SentrySDKInternal.currentHub
-                addInstalledIntegration:integrationInstance
-                                   name:NSStringFromClass(integrationClass)];
-        }
-    }
     [SentrySwiftIntegrationInstaller installWith:options];
 }
 

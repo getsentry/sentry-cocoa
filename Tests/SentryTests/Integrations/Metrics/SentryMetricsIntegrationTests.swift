@@ -137,7 +137,185 @@ class SentryMetricsIntegrationTests: XCTestCase {
         // Should not crash and metrics should be dropped silently
         // The callback should handle nil client gracefully (verified by no crash)
     }
-    
+
+    // MARK: - BeforeSendMetric Callback Tests
+
+    func testAddMetric_beforeSendMetricModifiesMetric() throws {
+        // -- Arrange --
+        let testBuffer = TestMetricsTelemetryBuffer()
+        let options = Options()
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self)
+        options.experimental.enableMetrics = true
+
+        var beforeSendCalled = false
+        options.experimental.beforeSendMetric = { metric in
+            beforeSendCalled = true
+
+            XCTAssertEqual(metric.name, "test.metric")
+            XCTAssertEqual(metric.value, .counter(1))
+
+            var modifiedMetric = metric
+            modifiedMetric.attributes["modified_by_callback"] = .string("test_value")
+            return modifiedMetric
+        }
+
+        let dependencies = SentryDependencyContainer.sharedInstance()
+        let integration = try XCTUnwrap(
+            SentryMetricsIntegration<SentryDependencyContainer>(
+                with: options,
+                dependencies: dependencies,
+                metricsBuffer: testBuffer
+            )
+        )
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        XCTAssertTrue(beforeSendCalled, "beforeSendMetric should be called")
+        XCTAssertEqual(testBuffer.addMetricInvocations.count, 1, "Modified metric should be added to buffer")
+
+        let capturedMetric = try XCTUnwrap(testBuffer.addMetricInvocations.first)
+        XCTAssertEqual(capturedMetric.attributes["modified_by_callback"]?.anyValue as? String, "test_value",
+                      "Metric should have modified attribute")
+    }
+
+    func testAddMetric_beforeSendMetricReturnsNil_metricDropped() throws {
+        // -- Arrange --
+        let testBuffer = TestMetricsTelemetryBuffer()
+        let options = Options()
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self)
+        options.experimental.enableMetrics = true
+
+        var beforeSendCalled = false
+        options.experimental.beforeSendMetric = { _ in
+            beforeSendCalled = true
+            return nil // Drop the metric
+        }
+
+        let dependencies = SentryDependencyContainer.sharedInstance()
+        let integration = try XCTUnwrap(
+            SentryMetricsIntegration<SentryDependencyContainer>(
+                with: options,
+                dependencies: dependencies,
+                metricsBuffer: testBuffer
+            )
+        )
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        XCTAssertTrue(beforeSendCalled, "beforeSendMetric should be called")
+        XCTAssertEqual(testBuffer.addMetricInvocations.count, 0, "Metric should be dropped when beforeSendMetric returns nil")
+    }
+
+    func testAddMetric_beforeSendMetricNotSet_metricCapturedUnmodified() throws {
+        // -- Arrange --
+        let testBuffer = TestMetricsTelemetryBuffer()
+        let options = Options()
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self)
+        options.experimental.enableMetrics = true
+        options.experimental.beforeSendMetric = nil
+
+        let dependencies = SentryDependencyContainer.sharedInstance()
+        let integration = try XCTUnwrap(
+            SentryMetricsIntegration<SentryDependencyContainer>(
+                with: options,
+                dependencies: dependencies,
+                metricsBuffer: testBuffer
+            )
+        )
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        XCTAssertEqual(testBuffer.addMetricInvocations.count, 1, "Metric should be added to buffer when beforeSendMetric is not set")
+
+        let capturedMetric = try XCTUnwrap(testBuffer.addMetricInvocations.first)
+        XCTAssertEqual(capturedMetric.name, "test.metric")
+        XCTAssertEqual(capturedMetric.value, .counter(1))
+    }
+
+    func testAddMetric_beforeSendMetricCalledAfterScopeIsApplied() throws {
+        // -- Arrange --
+        let testBuffer = TestMetricsTelemetryBuffer()
+        let options = Options()
+        options.dsn = TestConstants.dsnForTestCase(type: Self.self)
+        options.experimental.enableMetrics = true
+        options.environment = "test"
+
+        var beforeSendCalled = false
+        options.experimental.beforeSendMetric = { metric in
+            beforeSendCalled = true
+
+            // Verify that scope attributes were already applied before the callback runs
+            XCTAssertEqual(metric.attributes["sentry.sdk.name"]?.anyValue as? String, SentryMeta.sdkName,
+                          "Scope should be applied BEFORE beforeSendMetric callback")
+            XCTAssertEqual(metric.attributes["sentry.environment"]?.anyValue as? String, "test",
+                          "Scope should be applied BEFORE beforeSendMetric callback")
+
+            return metric
+        }
+
+        let dependencies = SentryDependencyContainer.sharedInstance()
+        let integration = try XCTUnwrap(
+            SentryMetricsIntegration<SentryDependencyContainer>(
+                with: options,
+                dependencies: dependencies,
+                metricsBuffer: testBuffer
+            )
+        )
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        XCTAssertTrue(beforeSendCalled, "beforeSendMetric should be called")
+        XCTAssertEqual(testBuffer.addMetricInvocations.count, 1, "Metric should be added to buffer")
+    }
+
     func testName_shouldReturnCorrectName() {
         // -- Act & Assert --
         XCTAssertEqual(SentryMetricsIntegration<SentryDependencyContainer>.name, "SentryMetricsIntegration")
@@ -154,7 +332,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
     }
     
     func testWillResignActive_whenClientAvailable_shouldFlushMetrics() throws {
-        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS))
+        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK) || os(macOS))
         throw XCTSkip("Not supported on this platform")
         #else
         // -- Arrange --
@@ -206,7 +384,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         client.captureMetricsDataInvocations.removeAll()
 
         // -- Act --
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         notificationCenterWrapper.post(Notification(name: UIApplication.willResignActiveNotification))
         #elseif os(macOS)
         notificationCenterWrapper.post(Notification(name: NSApplication.willResignActiveNotification))
@@ -218,7 +396,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
     }
     
     func testWillTerminate_whenClientAvailable_shouldFlushMetrics() throws {
-        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS))
+        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK) || os(macOS))
         throw XCTSkip("Not supported on this platform")
         #else
         // -- Arrange --
@@ -270,7 +448,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         client.captureMetricsDataInvocations.removeAll()
         
         // -- Act --
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         notificationCenterWrapper.post(Notification(name: UIApplication.willTerminateNotification))
         #elseif os(macOS)
         notificationCenterWrapper.post(Notification(name: NSApplication.willTerminateNotification))
@@ -282,7 +460,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
     }
     
     func testWillResignActive_whenNoClient_shouldNotCrash() throws {
-        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT) || os(macOS))
+        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK) || os(macOS))
         throw XCTSkip("Not supported on this platform")
         #else
         // -- Arrange --
@@ -319,7 +497,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         
         // -- Act & Assert --
         // Should not crash when no client is available
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         notificationCenterWrapper.post(Notification(name: UIApplication.willResignActiveNotification))
         #elseif os(macOS)
         notificationCenterWrapper.post(Notification(name: NSApplication.willResignActiveNotification))
@@ -356,10 +534,10 @@ class SentryMetricsIntegrationTests: XCTestCase {
             andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
             andDispatchQueue: SentryDispatchQueueWrapper()
         )
-        
+
         SentrySDK.setStart(with: options)
         SentrySDKInternal.setCurrentHub(hub)
-        
+
         // Manually install the MetricsIntegration since we're not using SentrySDK.start()
         let dependencies = SentryDependencyContainer.sharedInstance()
         let integration = try XCTUnwrap(SentryMetricsIntegration<SentryDependencyContainer>(with: options, dependencies: dependencies) as Any as? SentryIntegrationProtocol)
@@ -370,5 +548,22 @@ class SentryMetricsIntegrationTests: XCTestCase {
 
     private func getSut() throws -> SentryMetricsIntegration<SentryDependencyContainer> {
         return try XCTUnwrap(SentrySDKInternal.currentHub().getInstalledIntegration(SentryMetricsIntegration<SentryDependencyContainer>.self) as? SentryMetricsIntegration)
+    }
+}
+
+// MARK: - Test Doubles
+
+final class TestMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
+    var addMetricInvocations = Invocations<SentryMetric>()
+    var captureMetricsInvocations = Invocations<Void>()
+
+    func addMetric(_ metric: SentryMetric) {
+        addMetricInvocations.record(metric)
+    }
+
+    @discardableResult
+    func captureMetrics() -> TimeInterval {
+        captureMetricsInvocations.record(())
+        return 0.0
     }
 }

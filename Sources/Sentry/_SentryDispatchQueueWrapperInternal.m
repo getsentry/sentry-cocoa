@@ -14,9 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithName:(const char *)name
 {
     if (self = [super init]) {
-        dispatch_queue_attr_t attributes
-            = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_DEFAULT, 0);
-        _queue = dispatch_queue_create(name, attributes);
+        _queue = dispatch_queue_create(name,
+            dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_DEFAULT, 0));
     }
     return self;
 }
@@ -40,6 +39,14 @@ NS_ASSUME_NONNULL_BEGIN
         _queue = dispatch_queue_create(name, attributes);
     }
     return self;
+}
+
+- (instancetype)initHighPriorityWithName:(const char *)name
+{
+    // High Priority is mapped to User Initiated QoS
+    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
+        DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
+    return [self initWithName:name attributes:attributes];
 }
 
 - (void)dispatchAsyncOnMainQueueIfNotMainThread:(void (^)(void))block

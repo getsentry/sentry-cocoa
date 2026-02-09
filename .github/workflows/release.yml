@@ -46,6 +46,7 @@ jobs:
     needs: ready-to-merge-gate
     outputs:
       run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
+      is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - name: Get changed files
@@ -265,15 +266,23 @@ jobs:
     name: Collect App Metrics
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
-    # Run the job only for PRs with related changes (from contributors) or non-PR events.
-    if: github.event_name != 'pull_request' || (needs.files-changed.outputs.run_release_for_prs == 'true' && contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association))
+    # Run for PRs with related changes (including dependabot) or non-PR events.
+    if: |
+      github.event_name != 'pull_request' || (
+        needs.files-changed.outputs.run_release_for_prs == 'true' && (
+          contains(
+          fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'),
+          github.event.pull_request.author_association
+        ) ||
+        needs.files-changed.outputs.is_dependabot == 'true')
+      )
     timeout-minutes: 20
     steps:
       - name: Git checkout
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       - name: Setup Ruby
-        uses: ruby/setup-ruby@80740b3b13bf9857e28854481ca95a84e78a2bdf # v1.284.0
+        uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
         with:
           bundler-cache: true
       - uses: actions/cache@v5
@@ -281,9 +290,13 @@ jobs:
         with:
           path: Tests/Perf/test-app-plain.ipa
           key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ hashFiles('fastlane/Fastfile', 'Tests/Perf/test-app-plain/**') }}
+      # When running the workflows for dependabot PRs, we need to skip code signing, because the code signing secrets are not available for dependabot PRs.
+      # We still want to run as much of the full workflow as possible, to verify the behaviour.
       - name: Build test app plain
         if: steps.app-plain-cache.outputs['cache-hit'] != 'true'
-        run: bundle exec fastlane build_perf_test_app_plain
+        run: |
+          bundle exec fastlane build_perf_test_app_plain \
+            skip_codesigning:${{ needs.files-changed.outputs.is_dependabot == 'true' }}
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -298,7 +311,9 @@ jobs:
           path: XCFrameworkBuildPath/
       - run: find XCFrameworkBuildPath -name "Sentry-Dynamic.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
       - name: Build test app with sentry
-        run: bundle exec fastlane build_perf_test_app_sentry
+        run: |
+          bundle exec fastlane build_perf_test_app_sentry \
+            skip_codesigning:${{ needs.files-changed.outputs.is_dependabot == 'true' }}
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -308,11 +323,16 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Collect app metrics
+        if: needs.files-changed.outputs.is_dependabot != 'true'
         uses: getsentry/action-app-sdk-overhead-metrics@5f2d99b8e5a7b833386524924d24320501099a44
         with:
           config: Tests/Perf/metrics-test.yml
           sauce-user: ${{ secrets.SAUCE_USERNAME }}
           sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}
+      - name: App metrics collection skipped
+        if: needs.files-changed.outputs.is_dependabot == 'true'
+        run: |
+          echo "::warning::App metrics collection was SKIPPED ON PURPOSE for dependabot PR. Code signing secrets are not available for dependabot PRs."
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
@@ -366,7 +386,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@c6e2f04939b6ee67030588afbb5af76b127d8203 # v2
+        uses: getsentry/craft@63d1636bead951f6e034ed62c2a3610965fef010 # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

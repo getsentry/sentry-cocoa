@@ -2,8 +2,6 @@
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryEvent+Private.h"
 #import "SentryHub+Private.h"
-#import "SentryInstallation.h"
-#import "SentryIntegrationProtocol.h"
 #import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"

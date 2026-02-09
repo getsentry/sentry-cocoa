@@ -19,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithName:(const char *)name relativePriority:(int)relativePriority;
 
+- (instancetype)initHighPriorityWithName:(const char *)name;
+
 - (void)dispatchAsyncWithBlock:(void (^)(void))block;
 
 - (void)dispatchSync:(void (^)(void))block;

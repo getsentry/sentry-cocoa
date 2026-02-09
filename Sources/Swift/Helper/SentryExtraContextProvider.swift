@@ -11,7 +11,7 @@
     private let crashWrapper: SentryCrashWrapper
     private let processInfoWrapper: SentryProcessInfoSource
     
-    #if (os(iOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
+    #if (os(iOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let deviceWrapper: SentryUIDeviceWrapper
 
     init(crashWrapper: SentryCrashWrapper, processInfoWrapper: SentryProcessInfoSource, deviceWrapper: SentryUIDeviceWrapper) {
@@ -53,7 +53,7 @@
             SentrySDKLog.warning("Unexpected thermal state enum value: \(thermalState)")
         }
         
-        #if (os(iOS) || targetEnvironment(macCatalyst)) && !SENTRY_NO_UIKIT
+        #if (os(iOS)) && !SENTRY_NO_UI_FRAMEWORK
         if deviceWrapper.orientation != .unknown {
             extraDeviceContext["orientation"]
             = deviceWrapper.orientation.isPortrait ? "portrait" : "landscape"

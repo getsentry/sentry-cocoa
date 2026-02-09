@@ -14,15 +14,15 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
     private var deleteFileDirectory = false
     private var mockTracker: MockFileIOTracker!
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
 
         let directories = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         fileDirectory = directories.first!
 
         if !FileManager.default.fileExists(atPath: fileDirectory.path) {
             deleteFileDirectory = true
-            try? FileManager.default.createDirectory(
+            try FileManager.default.createDirectory(
                 at: fileDirectory,
                 withIntermediateDirectories: true,
                 attributes: nil
@@ -39,15 +39,17 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
         mockTracker.enable()
     }
 
-    override func tearDown() {
+    override func tearDownWithError() throws {
         mockTracker.disable()
-        SentryNSDataSwizzlingHelper.unswizzle()
+        SentryNSDataSwizzlingHelper.stop()
 
-        XCTAssertFalse(SentryNSDataSwizzlingHelper.swizzlingActive(), "Swizzling should be inactive after unswizzle")
+        XCTAssertFalse(SentryNSDataSwizzlingHelper.swizzlingActive(), "Swizzling should be inactive after stop call")
 
-        try? FileManager.default.removeItem(at: fileUrl)
+        if FileManager.default.fileExists(atPath: fileUrl.path) {
+            try FileManager.default.removeItem(at: fileUrl)
+        }
         if deleteFileDirectory {
-            try? FileManager.default.removeItem(at: fileDirectory)
+            try FileManager.default.removeItem(at: fileDirectory)
         }
 
         super.tearDown()
@@ -229,24 +231,24 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
         XCTAssertTrue(SentryNSDataSwizzlingHelper.swizzlingActive(), "Swizzling should be active after swizzle call")
     }
 
-    func testSwizzlingActive_whenUnswizzled_shouldBeFalse() {
+    func testSwizzlingActive_whenStopSwizzlingCalled_shouldBeFalse() {
         // -- Arrange --
         swizzle()
         XCTAssertTrue(SentryNSDataSwizzlingHelper.swizzlingActive(), "Swizzling should initially be active")
 
         // -- Act --
-        SentryNSDataSwizzlingHelper.unswizzle()
+        SentryNSDataSwizzlingHelper.stop()
 
         // -- Assert --
-        XCTAssertFalse(SentryNSDataSwizzlingHelper.swizzlingActive(), "Swizzling should be inactive after unswizzle")
+        XCTAssertFalse(SentryNSDataSwizzlingHelper.swizzlingActive(), "Swizzling should be inactive after stop call")
 
         // Re-enable for proper tearDown
         SentryNSDataSwizzlingHelper.swizzle(withTracker: mockTracker as Any)
     }
 
-    // MARK: - Unswizzle Tests
+    // MARK: - Stop Tests
 
-    func testUnswizzle_whenCalled_shouldStopTrackingCalls() throws {
+    func testStop_whenCalled_shouldStopTrackingCalls() throws {
         // -- Arrange --
         swizzle()
         XCTAssertEqual(mockTracker.writeCalls.count, 0, "Should start with no write calls")
@@ -257,23 +259,23 @@ final class SentryNSDataSwizzlingHelperTests: XCTestCase {
         try FileManager.default.removeItem(at: fileUrl)
 
         // -- Act --
-        SentryNSDataSwizzlingHelper.unswizzle()
+        SentryNSDataSwizzlingHelper.stop()
         _ = (testData as NSData).write(toFile: filePath, atomically: true)
 
         // -- Assert --
-        XCTAssertEqual(mockTracker.writeCalls.count, 1, "Should not track new calls after unswizzle")
+        XCTAssertEqual(mockTracker.writeCalls.count, 1, "Should not track new calls after stop call")
         try assertFileContainsTestData()
     }
 
-    func testUnswizzle_whenCalledMultipleTimes_shouldNotCrash() {
+    func testStop_whenCalledMultipleTimes_shouldNotCrash() {
         // -- Arrange --
         swizzle()
 
         // -- Act & Assert --
-        // Should not crash when unswizzling multiple times
-        SentryNSDataSwizzlingHelper.unswizzle()
-        SentryNSDataSwizzlingHelper.unswizzle()
-        SentryNSDataSwizzlingHelper.unswizzle()
+        // Should not crash when stop called multiple times
+        SentryNSDataSwizzlingHelper.stop()
+        SentryNSDataSwizzlingHelper.stop()
+        SentryNSDataSwizzlingHelper.stop()
     }
 
     // MARK: - Multiple Operations
