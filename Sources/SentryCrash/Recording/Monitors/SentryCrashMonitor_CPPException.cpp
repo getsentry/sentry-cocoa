@@ -192,9 +192,6 @@ sentrycrashcm_cppexception_callOriginalTerminationHandler(void)
 static void
 CPPExceptionTerminate(void)
 {
-    // Check exception type BEFORE suspending threads. isNSExceptionOrSubclass uses the
-    // ObjC runtime (objc_getClass) which takes locks internally. If we suspended
-    // threads first, we could deadlock if another thread held the ObjC runtime lock.
     const char *name = NULL;
     std::type_info *tinfo = __cxxabiv1::__cxa_current_exception_type();
     if (tinfo != NULL) {
