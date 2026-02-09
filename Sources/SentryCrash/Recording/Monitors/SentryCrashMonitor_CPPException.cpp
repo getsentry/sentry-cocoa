@@ -197,14 +197,14 @@ CPPExceptionTerminate(void)
     if (tinfo != NULL) {
         name = tinfo->name();
     }
-    bool isNSException = isNSExceptionOrSubclass(name);
+    bool isNSExceptionOrSubC = isNSExceptionOrSubclass(name);
 
     thread_act_array_t threads = NULL;
     mach_msg_type_number_t numThreads = 0;
     sentrycrashmc_suspendEnvironment(&threads, &numThreads);
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped c++ exception");
 
-    if (!isNSException) {
+    if (!isNSExceptionOrSubC) {
         sentrycrashcm_notifyFatalExceptionCaptured(false);
         SentryCrash_MonitorContext *crashContext = &g_monitorContext;
         memset(crashContext, 0, sizeof(*crashContext));
