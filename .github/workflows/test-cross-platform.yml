@@ -95,12 +95,13 @@ jobs:
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         run: sed -i '' "s/parallelizable = \"YES\"/parallelizable = \"NO\"/" RNSentryCocoaTester.xcodeproj/xcshareddata/xcschemes/RNSentryCocoaTester.xcscheme
 
-      - name: Change ruby to 3.3.10
+      - name: Setup Ruby
         # We use the same ruby version used by Cirrus to install fastlane and other tools
         # see: https://github.com/cirruslabs/macos-image-templates/blob/9115ef25530497999073cdf0f5497a4d142e3256/templates/xcode.pkr.hcl#L235
-        working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
-        run: |
-          rbenv global 3.3.10
+        uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
+        with:
+          ruby-version: "3.3.10"
+          bundler-cache: true
 
       - name: Install cocoapods
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
