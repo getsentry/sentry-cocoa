@@ -1,5 +1,11 @@
 # Changelog
 
+## UNreleased
+
+### Fixes
+
+- Write reports on concurrent crashes (#7340)
+
 ## 9.4.0
 
 ### Breaking Changes
@@ -13,7 +19,6 @@
 ### Fixes
 
 - Fix mismatch of `in_foreground` app context (#7188) The app context `in_foreground` for handled and unhandled events was sometimes different. This is fixed now by aligning the implementation and adding a new `is_active` app context field.
-- Write reports on concurrent crashes (first wins) (#7340) Some concurrent crashes were incorrecly detected as re-crash on the same thread, and none has been written correcly as a consequence
 - Fix missing stack traces for `NSException` objects reported via `NSApplication.shared.reportException(_:)` on macOS (#7284)
 
 ## 9.3.0
