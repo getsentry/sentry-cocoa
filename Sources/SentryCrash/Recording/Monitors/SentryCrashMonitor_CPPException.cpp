@@ -78,11 +78,12 @@ static SentryCrashStackCursor g_stackCursor;
  * Uses the ObjC runtime to walk the class hierarchy.
  */
 static bool
-isNSExceptionClass(const char *typeName)
+isNSExceptionOrSubclass(const char *typeName)
 {
     if (typeName == NULL) {
         return false;
     }
+
     if (strcmp(typeName, "NSException") == 0) {
         return true;
     }
@@ -111,7 +112,7 @@ captureStackTrace(void *, std::type_info *tinfo, void (*)(void *)) KEEP_FUNCTION
     SENTRY_ASYNC_SAFE_LOG_TRACE("Entering captureStackTrace");
 
     // We handle NSExceptions (and subclasses) in SentryCrashMonitor_NSException.
-    if (tinfo != nullptr && isNSExceptionClass(tinfo->name())) {
+    if (tinfo != nullptr && isNSExceptionOrSubclass(tinfo->name())) {
         return;
     }
 
@@ -191,7 +192,7 @@ sentrycrashcm_cppexception_callOriginalTerminationHandler(void)
 static void
 CPPExceptionTerminate(void)
 {
-    // Check exception type BEFORE suspending threads. isNSExceptionClass uses the
+    // Check exception type BEFORE suspending threads. isNSExceptionOrSubclass uses the
     // ObjC runtime (objc_getClass) which takes locks internally. If we suspended
     // threads first, we could deadlock if another thread held the ObjC runtime lock.
     const char *name = NULL;
@@ -199,7 +200,7 @@ CPPExceptionTerminate(void)
     if (tinfo != NULL) {
         name = tinfo->name();
     }
-    bool isNSException = isNSExceptionClass(name);
+    bool isNSException = isNSExceptionOrSubclass(name);
 
     thread_act_array_t threads = NULL;
     mach_msg_type_number_t numThreads = 0;
