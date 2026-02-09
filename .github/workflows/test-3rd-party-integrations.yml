@@ -111,35 +111,6 @@ jobs:
         if: failure()
         run: ./scripts/ci-diagnostics.sh
 
-  # xcodebuild-based tests for SPM packages (using xcodebuild with --spm-project flag)
-  # These packages are SPM-only but can be tested via xcodebuild using the package name as the scheme
-  test-integrations-xcodebuild:
-    name: Xcodebuild Tests | ${{matrix.integration_dir}}
-    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
-    needs: [files-changed, build-xcframeworks]
-    uses: ./.github/workflows/unit-test-common.yml
-    secrets: inherit
-    with:
-      name: Xcodebuild Tests | ${{matrix.integration_dir}}
-      scheme: ${{matrix.integration_dir}}
-      working_directory: 3rd-party-integrations/${{matrix.integration_dir}}
-      xcode: "16.4"
-      test-destination-os: "18.5"
-      device: "iPhone 16 Pro"
-      platform: "iOS"
-      runs-on: sequoia
-      run_on_cirrus_labs: true
-      timeout: 10
-      test_spm_package: true
-    strategy:
-      fail-fast: false
-      matrix:
-        integration_dir:
-          - SentrySwiftLog
-          - SentrySwiftyBeaver
-          - SentryCocoaLumberjack
-          - SentryPulse
-
   unit-tests-required-check:
     needs:
       [
@@ -147,7 +118,6 @@ jobs:
         files-changed,
         build-xcframeworks,
         test-integrations-spm,
-        test-integrations-xcodebuild,
       ]
     name: 3rd Party Integration Tests - Required Check
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
