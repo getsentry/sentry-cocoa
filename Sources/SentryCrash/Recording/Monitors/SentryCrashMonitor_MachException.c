@@ -338,11 +338,7 @@ handleExceptions(void *const userData)
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         sentrycrashmc_suspendEnvironment(&threads, &numThreads);
-        if (!sentrycrashcm_notifyFatalExceptionCaptured(true)) {
-            sentrycrashmc_resumeEnvironment(threads, numThreads);
-            replyToMachExceptionMessage(&exceptionMessage, &replyMessage);
-            return NULL;
-        }
+        sentrycrashcm_notifyFatalExceptionCaptured(true);
         g_isHandlingCrash = true;
 
         SENTRY_ASYNC_SAFE_LOG_DEBUG(

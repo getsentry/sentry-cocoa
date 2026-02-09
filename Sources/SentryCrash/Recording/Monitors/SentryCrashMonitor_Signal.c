@@ -93,27 +93,26 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
     thread_act_array_t threads = NULL;
     mach_msg_type_number_t numThreads = 0;
     sentrycrashmc_suspendEnvironment(&threads, &numThreads);
+    sentrycrashcm_notifyFatalExceptionCaptured(false);
 
-    if (sentrycrashcm_notifyFatalExceptionCaptured(false)) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Filling out context.");
-        SentryCrashMC_NEW_CONTEXT(machineContext);
-        sentrycrashmc_getContextForSignal(userContext, machineContext);
-        sentrycrashsc_initWithMachineContext(&g_stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Filling out context.");
+    SentryCrashMC_NEW_CONTEXT(machineContext);
+    sentrycrashmc_getContextForSignal(userContext, machineContext);
+    sentrycrashsc_initWithMachineContext(&g_stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
 
-        SentryCrash_MonitorContext *crashContext = &g_monitorContext;
-        memset(crashContext, 0, sizeof(*crashContext));
-        crashContext->crashType = SentryCrashMonitorTypeSignal;
-        crashContext->eventID = g_eventID;
-        crashContext->offendingMachineContext = machineContext;
-        crashContext->registersAreValid = true;
-        crashContext->faultAddress = (uintptr_t)signalInfo->si_addr;
-        crashContext->signal.userContext = userContext;
-        crashContext->signal.signum = signalInfo->si_signo;
-        crashContext->signal.sigcode = signalInfo->si_code;
-        crashContext->stackCursor = &g_stackCursor;
+    SentryCrash_MonitorContext *crashContext = &g_monitorContext;
+    memset(crashContext, 0, sizeof(*crashContext));
+    crashContext->crashType = SentryCrashMonitorTypeSignal;
+    crashContext->eventID = g_eventID;
+    crashContext->offendingMachineContext = machineContext;
+    crashContext->registersAreValid = true;
+    crashContext->faultAddress = (uintptr_t)signalInfo->si_addr;
+    crashContext->signal.userContext = userContext;
+    crashContext->signal.signum = signalInfo->si_signo;
+    crashContext->signal.sigcode = signalInfo->si_code;
+    crashContext->stackCursor = &g_stackCursor;
 
-        sentrycrashcm_handleException(crashContext);
-    }
+    sentrycrashcm_handleException(crashContext);
 
     sentrycrashmc_resumeEnvironment(threads, numThreads);
 

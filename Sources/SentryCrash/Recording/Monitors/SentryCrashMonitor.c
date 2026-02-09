@@ -43,7 +43,8 @@
 
 #include "SentryAsyncSafeLog.h"
 #include <pthread.h>
-#include <signal.h>
+#include <stdatomic.h>
+#include <unistd.h>
 
 // ============================================================================
 #pragma mark - Globals -
@@ -84,9 +85,9 @@ static int g_monitorsCount = sizeof(g_monitors) / sizeof(*g_monitors);
 
 static SentryCrashMonitorType g_activeMonitors = SentryCrashMonitorTypeNone;
 
-static volatile sig_atomic_t g_handlingFatalException = 0;
-static volatile bool g_crashedDuringExceptionHandling = false;
-static volatile pthread_t g_crashingThread = 0;
+static _Atomic bool g_isHandlingFatalException = false;
+static _Atomic bool g_crashedDuringExceptionHandling = false;
+static _Atomic pthread_t g_crashingThread = 0;
 static bool g_requiresAsyncSafety = false;
 
 static void (*g_onExceptionEvent)(struct SentryCrash_MonitorContext *monitorContext);
@@ -192,26 +193,56 @@ sentrycrashcm_getActiveMonitors(void)
 #pragma mark - Private API -
 // ============================================================================
 
-bool
+void
 sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment)
 {
+    // Simplified version of KSCrash's notifyException() decision logic.
+    // See:
+    // https://github.com/kstenerud/KSCrash/blob/master/Sources/KSCrashRecordingCore/KSCrashMonitor.c
+    //
+    // If another exception occurs while we are already handling an exception, we
+    // need to decide what to do based on whether the exception is fatal and whether
+    // there's already a handler running on this thread (i.e. our handler has
+    // crashed).
+    //
+    // | 1st exc | 2nd exc | same handler thread? | Procedure        |
+    // | ------- | ------- | -------------------- | ---------------- |
+    // | any     |         |                      | normal handling  |
+    // | fatal   | any     | N                    | block            |
+    // | any     | any     | Y                    | recrash handling |
+    //
+    // Where:
+    // - Normal handling means build a standard crash report.
+    // - Recrash handling means build a minimal recrash report and be very cautious.
+    // - Block means block this thread for a few seconds so it doesn't return
+    //   before the other handler does.
+
     g_requiresAsyncSafety |= isAsyncSafeEnvironment;
 
-    pthread_t self = pthread_self();
-    if (__sync_val_compare_and_swap(&g_handlingFatalException, 0, 1) != 0) {
-        if (g_crashingThread == self) {
-            g_crashedDuringExceptionHandling = true;
-            SENTRY_ASYNC_SAFE_LOG_INFO(
-                "Detected crash in the crash reporter. Uninstalling SentryCrash.");
-            sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
-        } else {
-            SENTRY_ASYNC_SAFE_LOG_DEBUG("Concurrent crash from different thread. Discarding.");
-            return false;
-        }
+    const pthread_t self = pthread_self();
+
+    bool expected = false;
+    const bool wasHandlingFatalException
+        = !atomic_compare_exchange_strong(&g_isHandlingFatalException, &expected, true);
+    const bool isCrashedDuringExceptionHandling
+        = wasHandlingFatalException && (atomic_load(&g_crashingThread) == self);
+
+    if (isCrashedDuringExceptionHandling) {
+        // This is a recrash, so be more conservative in our handling.
+        atomic_store(&g_crashedDuringExceptionHandling, true);
+        SENTRY_ASYNC_SAFE_LOG_INFO(
+            "Detected crash in the crash reporter. Uninstalling SentryCrash.");
+        sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
+    } else if (wasHandlingFatalException) {
+        // This is an incidental exception that happened while we were handling a
+        // fatal exception. Pause this handler to allow the other handler to finish.
+        // 2 seconds should be ample time for it to finish and terminate the app.
+        SENTRY_ASYNC_SAFE_LOG_DEBUG(
+            "Concurrent crash from different thread. Blocking to let first handler finish.");
+        sleep(2);
     } else {
-        g_crashingThread = self;
+        atomic_store(&g_crashingThread, self);
     }
-    return true;
 }
 
 void
@@ -230,7 +261,7 @@ sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context)
 
     g_onExceptionEvent(context);
 
-    if (g_handlingFatalException && !g_crashedDuringExceptionHandling) {
+    if (g_isHandlingFatalException && !g_crashedDuringExceptionHandling) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Exception is fatal. Restoring original handlers.");
         sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
     }
@@ -239,8 +270,8 @@ sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context)
 void
 sentrycrashcm_resetState(void)
 {
-    g_handlingFatalException = 0;
-    g_crashedDuringExceptionHandling = false;
-    g_crashingThread = 0;
+    atomic_store(&g_isHandlingFatalException, false);
+    atomic_store(&g_crashedDuringExceptionHandling, false);
+    atomic_store(&g_crashingThread, (pthread_t)0);
     g_requiresAsyncSafety = false;
 }

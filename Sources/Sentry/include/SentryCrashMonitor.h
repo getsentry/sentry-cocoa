@@ -82,19 +82,14 @@ typedef struct {
 /** Notify that a fatal exception has been captured.
  *  This allows the system to take appropriate steps in preparation.
  *
- * Implements "first crash wins" semantics: only the first crashing thread
- * is allowed to proceed. Concurrent crashes from different threads are
- * rejected. However, if the same thread re-enters (a "recrash"), it is
- * allowed to proceed.
+ * Simplified version of KSCrash's notifyException() decision logic.
+ * See:
+ * https://github.com/kstenerud/KSCrash/blob/master/Sources/KSCrashRecordingCore/KSCrashMonitor.c
  *
  * @param isAsyncSafeEnvironment If true, only async-safe functions are allowed
  * from now on.
- *
- * @return true if the caller should proceed with crash handling (first crash
- *         or same-thread recrash), false if the caller should discard this
- *         crash (concurrent crash from a different thread).
  */
-bool sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment);
+void sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment);
 
 /** Start general exception processing.
  *

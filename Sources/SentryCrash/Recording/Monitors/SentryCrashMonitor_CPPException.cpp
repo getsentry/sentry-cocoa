@@ -171,11 +171,7 @@ CPPExceptionTerminate(void)
     }
 
     if (name == NULL || strcmp(name, "NSException") != 0) {
-        if (!sentrycrashcm_notifyFatalExceptionCaptured(false)) {
-            sentrycrashmc_resumeEnvironment(threads, numThreads);
-            sentrycrashcm_cppexception_callOriginalTerminationHandler();
-            return;
-        }
+        sentrycrashcm_notifyFatalExceptionCaptured(false);
         SentryCrash_MonitorContext *crashContext = &g_monitorContext;
         memset(crashContext, 0, sizeof(*crashContext));
 
