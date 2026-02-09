@@ -253,9 +253,9 @@ final class SentryCrashCTests: XCTestCase {
 
         // Thread 2 calls from a different thread — should sleep(2) then return.
         let expectation = expectation(description: "Concurrent thread returned after blocking")
-        let start = CFAbsoluteTimeGetCurrent()
 
         DispatchQueue.global().async {
+            let start = CFAbsoluteTimeGetCurrent()
             sentrycrashcm_notifyFatalExceptionCaptured(false)
             let elapsed = CFAbsoluteTimeGetCurrent() - start
             // Must have blocked for ~2 seconds.
