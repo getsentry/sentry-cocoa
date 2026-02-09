@@ -249,14 +249,14 @@ final class SentryCrashCTests: XCTestCase {
         sentrycrashcm_resetState()
 
         // Thread 1 claims the crash.
-        sentrycrashcm_notifyFatalExceptionCaptured(false)
+        sentrycrashcm_notifyFatalException(false, nil, nil)
 
         // Thread 2 calls from a different thread — should sleep(2) then return.
         let expectation = expectation(description: "Concurrent thread returned after blocking")
 
         DispatchQueue.global().async {
             let start = CFAbsoluteTimeGetCurrent()
-            sentrycrashcm_notifyFatalExceptionCaptured(false)
+            sentrycrashcm_notifyFatalException(false, nil, nil)
             let elapsed = CFAbsoluteTimeGetCurrent() - start
             // Must have blocked for ~2 seconds.
             XCTAssertGreaterThanOrEqual(elapsed, 1.5, "Expected blocking for ~2s")
@@ -282,9 +282,9 @@ final class SentryCrashCTests: XCTestCase {
 
         DispatchQueue(label: "test").async {
             sentrycrashcm_resetState()
-            sentrycrashcm_notifyFatalExceptionCaptured(false)
+            sentrycrashcm_notifyFatalException(false, nil, nil)
             // Second call on the same thread = recrash. Must return (not hang/exit).
-            sentrycrashcm_notifyFatalExceptionCaptured(false)
+            sentrycrashcm_notifyFatalException(false, nil, nil)
             expectation.fulfill()
         }
 
@@ -293,11 +293,11 @@ final class SentryCrashCTests: XCTestCase {
 
     func testNotifyFatalException_afterReset_shouldAllowNewCrash() throws {
         sentrycrashcm_resetState()
-        sentrycrashcm_notifyFatalExceptionCaptured(false)
+        sentrycrashcm_notifyFatalException(false, nil, nil)
 
         sentrycrashcm_resetState()
         // After reset, a new crash on any thread must succeed (not hang/exit).
-        sentrycrashcm_notifyFatalExceptionCaptured(false)
+        sentrycrashcm_notifyFatalException(false, nil, nil)
     }
 
     // MARK: - Helper

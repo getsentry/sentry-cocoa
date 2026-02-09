@@ -30,6 +30,7 @@
 #include "SentryCrashMonitorType.h"
 
 #include "SentryCrashDebug.h"
+#include "SentryCrashMachineContext.h"
 #include "SentryCrashMonitor_AppState.h"
 #include "SentryCrashMonitor_CPPException.h"
 #include "SentryCrashMonitor_MachException.h"
@@ -194,7 +195,8 @@ sentrycrashcm_getActiveMonitors(void)
 // ============================================================================
 
 void
-sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment)
+sentrycrashcm_notifyFatalException(
+    bool isAsyncSafeEnvironment, thread_act_array_t *threads, mach_msg_type_number_t *numThreads)
 {
     // Simplified version of KSCrash's notifyException() decision logic.
     // See:
@@ -242,6 +244,12 @@ sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment)
         sleep(2);
     } else {
         atomic_store(&g_crashingThread, self);
+    }
+
+    // Suspend after the concurrency check so a blocked thread never freezes
+    // the first handler.
+    if (threads != NULL && numThreads != NULL) {
+        sentrycrashmc_suspendEnvironment(threads, numThreads);
     }
 }
 

@@ -34,6 +34,7 @@
 #include "SentryCrashMonitorType.h"
 #include "SentryCrashThread.h"
 
+#include <mach/mach.h>
 #include <stdbool.h>
 
 #ifdef __cplusplus
@@ -79,8 +80,10 @@ typedef struct {
     void (*addContextualInfoToEvent)(struct SentryCrash_MonitorContext *eventContext);
 } SentryCrashMonitorAPI;
 
-/** Notify that a fatal exception has been captured.
- *  This allows the system to take appropriate steps in preparation.
+/** Notify that a fatal exception has been captured, then suspend the
+ * runtime environment. Combining both into one call ensures the concurrency
+ * check always runs before any threads are suspended, preventing a deadlock
+ * where a second crashing thread freezes the first handler.
  *
  * Simplified version of KSCrash's notifyException() decision logic.
  * See:
@@ -88,8 +91,11 @@ typedef struct {
  *
  * @param isAsyncSafeEnvironment If true, only async-safe functions are allowed
  * from now on.
+ * @param threads Out-param for suspended threads. Pass NULL to skip suspension.
+ * @param numThreads Out-param for count of suspended threads. Pass NULL to skip.
  */
-void sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment);
+void sentrycrashcm_notifyFatalException(
+    bool isAsyncSafeEnvironment, thread_act_array_t *threads, mach_msg_type_number_t *numThreads);
 
 /** Start general exception processing.
  *

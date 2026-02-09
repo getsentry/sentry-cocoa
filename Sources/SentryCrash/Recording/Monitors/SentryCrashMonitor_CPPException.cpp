@@ -159,9 +159,6 @@ sentrycrashcm_cppexception_callOriginalTerminationHandler(void)
 static void
 CPPExceptionTerminate(void)
 {
-    thread_act_array_t threads = NULL;
-    mach_msg_type_number_t numThreads = 0;
-    sentrycrashmc_suspendEnvironment(&threads, &numThreads);
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped c++ exception");
 
     const char *name = NULL;
@@ -171,7 +168,10 @@ CPPExceptionTerminate(void)
     }
 
     if (name == NULL || strcmp(name, "NSException") != 0) {
-        sentrycrashcm_notifyFatalExceptionCaptured(false);
+        thread_act_array_t threads = NULL;
+        mach_msg_type_number_t numThreads = 0;
+        sentrycrashcm_notifyFatalException(false, &threads, &numThreads);
+
         SentryCrash_MonitorContext *crashContext = &g_monitorContext;
         memset(crashContext, 0, sizeof(*crashContext));
 
@@ -246,11 +246,11 @@ CPPExceptionTerminate(void)
         crashContext->offendingMachineContext = machineContext;
 
         sentrycrashcm_handleException(crashContext);
+        sentrycrashmc_resumeEnvironment(threads, numThreads);
     } else {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Detected NSException. Letting the current "
                                     "NSException handler deal with it.");
     }
-    sentrycrashmc_resumeEnvironment(threads, numThreads);
 
     sentrycrashcm_cppexception_callOriginalTerminationHandler();
 }

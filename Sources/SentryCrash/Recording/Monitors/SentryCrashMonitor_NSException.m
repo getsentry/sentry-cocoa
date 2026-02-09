@@ -64,8 +64,7 @@ handleException(NSException *exception)
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
-        sentrycrashmc_suspendEnvironment(&threads, &numThreads);
-        sentrycrashcm_notifyFatalExceptionCaptured(false);
+        sentrycrashcm_notifyFatalException(false, &threads, &numThreads);
 
         SENTRY_LOG_DEBUG(@"Filling out context.");
 
