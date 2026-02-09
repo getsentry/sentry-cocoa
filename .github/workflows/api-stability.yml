@@ -51,6 +51,7 @@ jobs:
           ./scripts/update-api.sh
 
       - name: Diagnose breaking changes for Sentry
+        if: always()
         run: |
           if diff -q "sdk_api_base.json" "sdk_api.json" > /dev/null; then
             echo "No Sentry API changes detected."
@@ -69,6 +70,7 @@ jobs:
           fi
 
       - name: Diagnose breaking changes for SentrySwiftUI
+        if: always()
         run: |
           if diff -q "sdk_api_sentryswiftui_base.json" "sdk_api_sentryswiftui.json" > /dev/null; then
             echo "No SentrySwiftUI API changes detected."
