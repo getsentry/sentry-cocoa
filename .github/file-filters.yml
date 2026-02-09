@@ -534,10 +534,17 @@ run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_
 
   # GH Actions
   - ".github/workflows/test-3rd-party-integrations.yml"
+  - ".github/workflows/unit-test-common.yml"
   - ".github/file-filters.yml"
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-boot-simulator.sh"
+  - "scripts/ci-ensure-runtime-loaded.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/sentry-xcodebuild.sh"
+  - "scripts/prepare-package.sh"
+  - "scripts/build-xcframework-local.sh"
 
   # Project files
   - "Sentry.xcodeproj/**"
