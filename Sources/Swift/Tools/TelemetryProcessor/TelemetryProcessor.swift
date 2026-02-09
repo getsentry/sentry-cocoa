@@ -16,18 +16,18 @@ import Foundation
 
 class SentryDefaultTelemetryProcessor: SentryTelemetryProcessor {
 
-    private let logBuffer: SentryLogBuffer
+    private let logBuffer: any TelemetryBuffer<SentryLog>
 
-    init(logBuffer: SentryLogBuffer) {
+    init(logBuffer: any TelemetryBuffer<SentryLog>) {
         self.logBuffer = logBuffer
     }
 
     func add(log: SentryLog) {
-        self.logBuffer.addLog(log)
+        self.logBuffer.add(log)
     }
 
     func forwardTelemetryData() -> TimeInterval {
-        return self.logBuffer.captureLogs()
+        return self.logBuffer.capture()
     }
 }
 
@@ -73,9 +73,22 @@ typealias SentryTelemetryProcessorFactoryDependencies = DateProviderProvider
         let itemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers()
         #endif
 
-        let logBuffer = SentryLogBuffer(
+        // Uses DEFAULT priority (not LOW) because capture() is called synchronously during
+        // app lifecycle events (willResignActive, willTerminate) and needs to complete quickly.
+        let dispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.log-batcher")
+
+        let logBuffer = DefaultTelemetryBuffer<InMemoryInternalTelemetryBuffer<SentryLog>, SentryLog>(
+            config: .init(
+                flushTimeout: 5,
+                maxItemCount: 100, // Maximum 100 logs per batch; keep lower than Replay hard limit of 1000
+                maxBufferSizeBytes: 1_024 * 1_024, // 1MB buffer size
+                capturedDataCallback: { data, count in
+                    scheduler.capture(data: data, count: count, telemetryType: .log)
+                }
+            ),
+            buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dependencies.dateProvider,
-            scheduler: scheduler,
+            dispatchQueue: dispatchQueue,
             itemForwardingTriggers: itemForwardingTriggers
         )
 
