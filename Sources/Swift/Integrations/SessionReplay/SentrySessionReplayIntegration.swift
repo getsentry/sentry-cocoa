@@ -368,6 +368,12 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = replayId.sentryIdString }
     }
 
+    public func sessionReplayEnded() {
+        SentrySDKLog.debug("[Session Replay] Session replay ended")
+        stop()
+        SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = nil }
+    }
+
     public func breadcrumbsForSessionReplay() -> [Breadcrumb] {
         var result: [Breadcrumb] = []
         SentrySDKInternal.currentHub().configureScope { scope in result = scope.breadcrumbs() }
