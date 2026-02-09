@@ -63,12 +63,6 @@ on:
         default: "."
         type: string
 
-      scripts_directory:
-        description: "The directory containing the scripts to run"
-        default: ./scripts
-        required: false
-        type: string
-
       test_spm_package:
         description: "Whether to test the SPM package"
         default: false
@@ -83,13 +77,9 @@ jobs:
     if: ${{!inputs.should_skip}}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-      - name: Select Xcode version
-        working-directory: ${{ inputs.working_directory }}
+      - run: ${{ github.workspace }}/scripts/ci-select-xcode.sh "$XCODE_VERSION"
         env:
           XCODE_VERSION: ${{inputs.xcode}}
-          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
-        run: |
-          "$SCRIPTS_DIRECTORY/ci-select-xcode.sh" "$XCODE_VERSION"
 
       - name: Install Slather
         run: gem install slather
@@ -98,27 +88,21 @@ jobs:
         if: ${{ inputs.platform == 'iOS' || inputs.platform == 'tvOS' || inputs.platform == 'visionOS' }}
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
         timeout-minutes: 5 # 5 minutes timeout
-        working-directory: ${{ inputs.working_directory }}
         env:
           OS_VERSION: ${{ inputs.test-destination-os }}
           PLATFORM: ${{ inputs.platform }}
-          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
-        run: |
-          "$SCRIPTS_DIRECTORY/ci-ensure-runtime-loaded.sh" --os-version "$OS_VERSION" --platform "$PLATFORM"
+        run: ${{ github.workspace }}/scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       # Boot created simulators to ensure they're ready before tests run
       # Based on CircleCI forum comment, booting is especially important for Xcode 26: https://discuss.circleci.com/t/xcode-26-rc/54066/18
       - name: Boot simulator
         if: ${{ inputs.platform == 'iOS' || inputs.platform == 'visionOS' }}
-        working-directory: ${{ inputs.working_directory }}
         env:
           XCODE_VERSION: ${{ inputs.xcode }}
           DEVICE_NAME: ${{ inputs.device }}
           OS_VERSION: ${{ inputs.test-destination-os }}
           PLATFORM: ${{ inputs.platform }}
-          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
-        run: |
-          "$SCRIPTS_DIRECTORY/ci-boot-simulator.sh" --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION" --platform "$PLATFORM"
+        run: ${{ github.workspace }}/scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       - name: SPM Package - Download pre-build XCFrameworks
         if: ${{ inputs.test_spm_package }}
@@ -147,10 +131,9 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           DEVICE_NAME: ${{ inputs.device }}
           SCHEME: ${{ inputs.scheme }}
-          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
           TEST_SPM_PACKAGE: ${{ inputs.test_spm_package }}
         run: |
-          "$SCRIPTS_DIRECTORY/sentry-xcodebuild.sh" \
+          "${{ github.workspace }}/scripts/sentry-xcodebuild.sh" \
             --platform "$PLATFORM" \
             --os "$OS_VERSION" \
             --ref "$REF_NAME" \
@@ -174,9 +157,8 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           DEVICE_NAME: ${{ inputs.device }}
           SCHEME: ${{ inputs.scheme }}
-          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
         run: |
-          "$SCRIPTS_DIRECTORY/sentry-xcodebuild.sh" \
+          "${{ github.workspace }}/scripts/sentry-xcodebuild.sh" \
             --platform "$PLATFORM" \
             --os "$OS_VERSION" \
             --ref "$REF_NAME" \
@@ -199,10 +181,9 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           DEVICE_NAME: ${{ inputs.device }}
           SCHEME: ${{ inputs.scheme }}
-          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
           TEST_SPM_PACKAGE: ${{ inputs.test_spm_package }}
         run: |
-          "$SCRIPTS_DIRECTORY/sentry-xcodebuild.sh" \
+          "${{ github.workspace }}/scripts/sentry-xcodebuild.sh" \
             --platform "$PLATFORM" \
             --os "$OS_VERSION" \
             --ref "$REF_NAME" \
@@ -300,11 +281,7 @@ jobs:
 
       - name: Run CI Diagnostics
         if: failure()
-        working-directory: ${{ inputs.working_directory }}
-        env:
-          SCRIPTS_DIRECTORY: ${{ inputs.scripts_directory }}
-        run: |
-          "$SCRIPTS_DIRECTORY/ci-diagnostics.sh"
+        run: ${{ github.workspace }}/scripts/ci-diagnostics.sh
 
       - name: Store screenshot
         uses: ./.github/actions/capture-screenshot
