@@ -7,6 +7,7 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "ready-to-merge"
+      - "dependencies"
     ignore:
       - dependency-name: fastlane
         versions:
@@ -18,3 +19,4 @@ updates:
       interval: weekly
     labels:
       - "ready-to-merge"
+      - "dependencies"
