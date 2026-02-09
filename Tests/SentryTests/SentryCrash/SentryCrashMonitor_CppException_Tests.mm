@@ -3,8 +3,13 @@
 #import "SentryCrashMonitor_CPPException.h"
 #import <XCTest/XCTest.h>
 
-#include <iostream>
 #include <stdexcept>
+
+@interface SentryTestNSExceptionSubclass : NSException
+@end
+
+@implementation SentryTestNSExceptionSubclass
+@end
 
 @interface SentryCrashMonitor_CppException_Tests : XCTestCase
 
@@ -15,6 +20,7 @@
 bool terminateCalled = false;
 SentryCrashMonitorAPI *api;
 NSString *capturedExceptionContextCrashReason;
+SentryCrashMonitorType capturedCrashType;
 
 void
 mockTerminationHandler(void)
@@ -39,6 +45,7 @@ mockTerminationHandler(void)
     }
     sentrycrashcm_setEventCallback(NULL);
     capturedExceptionContextCrashReason = NULL;
+    capturedCrashType = (SentryCrashMonitorType)0;
 }
 
 - (void)testCallTerminationHandler_NotEnabled
@@ -121,10 +128,54 @@ void
 mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
 {
     if (!context) {
-        XCTFail("Received null context in handler");
         return;
     }
-    capturedExceptionContextCrashReason = [NSString stringWithUTF8String:context->crashReason];
+    capturedCrashType = context->crashType;
+    if (context->crashReason) {
+        capturedExceptionContextCrashReason = [NSString stringWithUTF8String:context->crashReason];
+    }
+}
+
+- (void)testThrowNSExceptionSubclass_ShouldNotCaptureStacktrace
+{
+    // Arrange
+    api->setEnabled(true);
+    sentrycrashcm_cppexception_enable_swap_cxa_throw();
+
+    @try {
+        // Act
+        [[SentryTestNSExceptionSubclass exceptionWithName:@"TestException"
+                                                   reason:@"Test"
+                                                 userInfo:nil] raise];
+    } @catch (...) {
+    }
+
+    // Assert
+    SentryCrashStackCursor stackCursor = sentrycrashcm_cppexception_getStackCursor();
+    stackCursor.advanceCursor(&stackCursor);
+    XCTAssertEqual(
+        stackCursor.stackEntry.address, (uintptr_t)0, "Stack trace should NOT be captured.");
+}
+
+- (void)testTerminateWithNSExceptionSubclass_NotHandledByCppHandler
+{
+    // Arrange
+    std::set_terminate(&mockTerminationHandler);
+    sentrycrashcm_setEventCallback(mockHandleExceptionHandler);
+    api->setEnabled(true);
+
+    // Act
+    @try {
+        [[SentryTestNSExceptionSubclass exceptionWithName:@"TestException"
+                                                   reason:@"Test"
+                                                 userInfo:nil] raise];
+    } @catch (...) {
+        std::get_terminate()();
+    }
+
+    // Assert
+    XCTAssertNotEqual(capturedCrashType, SentryCrashMonitorTypeCPPException,
+        "NSException subclass should NOT be handled by C++ exception handler.");
 }
 
 - (void)testCallHandler_shouldCaptureExceptionDescription
