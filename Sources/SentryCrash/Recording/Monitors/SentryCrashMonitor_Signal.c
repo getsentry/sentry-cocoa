@@ -83,37 +83,31 @@ static void
 handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped signal %d", sigNum);
-    if (!g_isEnabled) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
-        // This is technically not allowed, but it works in OSX and iOS.
-        raise(sigNum);
-        return;
+    if (g_isEnabled) {
+        thread_act_array_t threads = NULL;
+        mach_msg_type_number_t numThreads = 0;
+        sentrycrashcm_notifyFatalException(false, &threads, &numThreads);
+
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Filling out context.");
+        SentryCrashMC_NEW_CONTEXT(machineContext);
+        sentrycrashmc_getContextForSignal(userContext, machineContext);
+        sentrycrashsc_initWithMachineContext(&g_stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
+
+        SentryCrash_MonitorContext *crashContext = &g_monitorContext;
+        memset(crashContext, 0, sizeof(*crashContext));
+        crashContext->crashType = SentryCrashMonitorTypeSignal;
+        crashContext->eventID = g_eventID;
+        crashContext->offendingMachineContext = machineContext;
+        crashContext->registersAreValid = true;
+        crashContext->faultAddress = (uintptr_t)signalInfo->si_addr;
+        crashContext->signal.userContext = userContext;
+        crashContext->signal.signum = signalInfo->si_signo;
+        crashContext->signal.sigcode = signalInfo->si_code;
+        crashContext->stackCursor = &g_stackCursor;
+
+        sentrycrashcm_handleException(crashContext);
+        sentrycrashmc_resumeEnvironment(threads, numThreads);
     }
-
-    thread_act_array_t threads = NULL;
-    mach_msg_type_number_t numThreads = 0;
-    sentrycrashcm_notifyFatalException(false, &threads, &numThreads);
-
-    SENTRY_ASYNC_SAFE_LOG_DEBUG("Filling out context.");
-    SentryCrashMC_NEW_CONTEXT(machineContext);
-    sentrycrashmc_getContextForSignal(userContext, machineContext);
-    sentrycrashsc_initWithMachineContext(&g_stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
-
-    SentryCrash_MonitorContext *crashContext = &g_monitorContext;
-    memset(crashContext, 0, sizeof(*crashContext));
-    crashContext->crashType = SentryCrashMonitorTypeSignal;
-    crashContext->eventID = g_eventID;
-    crashContext->offendingMachineContext = machineContext;
-    crashContext->registersAreValid = true;
-    crashContext->faultAddress = (uintptr_t)signalInfo->si_addr;
-    crashContext->signal.userContext = userContext;
-    crashContext->signal.signum = signalInfo->si_signo;
-    crashContext->signal.sigcode = signalInfo->si_code;
-    crashContext->stackCursor = &g_stackCursor;
-
-    sentrycrashcm_handleException(crashContext);
-
-    sentrycrashmc_resumeEnvironment(threads, numThreads);
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
     // This is technically not allowed, but it works in OSX and iOS.
