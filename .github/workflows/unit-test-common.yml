@@ -158,7 +158,7 @@ jobs:
             --device "$DEVICE_NAME" \
             --configuration TestCI \
             --scheme "$SCHEME" \
-            $([ "$TEST_SPM_PACKAGE" = "true" ] && echo "--spm-project true")
+            $([ "$TEST_SPM_PACKAGE" = "true" ] && echo "--spm-project")
 
       # Run Flaky Tests TestPlan which has a retry mechanism on failure.
       # We intentionally run these before the other test plan to fail early.
@@ -210,7 +210,7 @@ jobs:
             --device "$DEVICE_NAME" \
             --configuration TestCI \
             --scheme "$SCHEME" \
-            $([ "$TEST_SPM_PACKAGE" = "true" ] && echo "--spm-project true") \
+            $([ "$TEST_SPM_PACKAGE" = "true" ] && echo "--spm-project") \
             --result-bundle results.xcresult
 
       - name: Publish Test Report

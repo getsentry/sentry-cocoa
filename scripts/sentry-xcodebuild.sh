@@ -23,7 +23,7 @@ DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
 TEST_PLAN=""
 RESULT_BUNDLE_PATH="results.xcresult"
-SPM_PROJECT="false"
+SPM_PROJECT=false
 ONLY_TESTING=""
 
 usage() {
@@ -39,7 +39,7 @@ usage() {
     echo "  -t|--test-plan <plan>           Test plan name (default: empty)"
     echo "  --only-testing <tests>          Comma-separated test classes (default: empty, runs all tests)"
     echo "  -R|--result-bundle <path>       Result bundle path (default: results.xcresult)"
-    echo "  -S|--spm-project <bool>         Use SPM project (default: false)"
+    echo "  -S|--spm-project                Use SPM project instead of xcworkspace"
     exit 1
 }
 
@@ -92,8 +92,8 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         -S|--spm-project)
-            SPM_PROJECT="$2"
-            shift 2
+            SPM_PROJECT=true
+            shift
             ;;
         *)
             echo "Unknown option: $1"

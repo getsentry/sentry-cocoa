@@ -48,6 +48,7 @@ jobs:
   # Build xcframeworks from source code once for all integration tests.
   # This ensures tests use the current source code instead of the latest GitHub release.
   # We only build the Static variant since 3rd-party integrations only use the "Sentry" product.
+  # Intentionally skipped on release branches.
   build-xcframeworks:
     name: Build XCFrameworks
     needs: files-changed
@@ -59,7 +60,7 @@ jobs:
       - name: Select Xcode
         run: ./scripts/ci-select-xcode.sh 16.4
       - name: Build XCFramework (Static)
-        run: ./scripts/build-xcframework-local.sh simulatorAndmacOSOnly StaticOnly --not-signed
+        run: ./scripts/build-xcframework-local.sh macOSAndSimulatorOnly StaticOnly --not-signed
       - name: Upload XCFrameworks
         uses: actions/upload-artifact@v6
         with:
