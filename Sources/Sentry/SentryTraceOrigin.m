@@ -9,6 +9,7 @@ NSString *const SentryTraceOriginAutoNSData = @"auto.file.ns_data";
 NSString *const SentryTraceOriginAutoUiEventTracker = @"auto.ui.event_tracker";
 NSString *const SentryTraceOriginAutoUITimeToDisplay = @"auto.ui.time_to_display";
 NSString *const SentryTraceOriginAutoUIViewController = @"auto.ui.view_controller";
+NSString *const SentryTraceOriginAutoUISwiftUI = @"auto.ui.swift_ui";
 
 NSString *const SentryTraceOriginManual = @"manual";
 NSString *const SentryTraceOriginManualFileData = @"manual.file.data";

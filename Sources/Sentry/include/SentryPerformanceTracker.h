@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The span id.
  */
 - (SentrySpanId *)startSpanWithName:(NSString *)name
-                         nameSource:(SentryTransactionNameSource)source
+                         nameSource:(NSInteger)source
                           operation:(NSString *)operation
                              origin:(NSString *)origin;
 
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param block Block to be measured.
  */
 - (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(SentryTransactionNameSource)source
+                        nameSource:(NSInteger)source
                          operation:(NSString *)operation
                             origin:(NSString *)origin
                            inBlock:(void (^)(void))block;
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param block Block to be measured.
  */
 - (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(SentryTransactionNameSource)source
+                        nameSource:(NSInteger)source
                          operation:(NSString *)operation
                             origin:(NSString *)origin
                       parentSpanId:(SentrySpanId *)parentSpanId

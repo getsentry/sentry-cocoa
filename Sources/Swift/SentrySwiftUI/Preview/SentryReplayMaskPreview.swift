@@ -1,11 +1,9 @@
-#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
+#if canImport(SwiftUI) && canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
 import Sentry
 import SwiftUI
 import UIKit
 
-#if XCODE || SWIFT_PACKAGE
-@_implementationOnly import SentryInternal
-#endif
+@_implementationOnly import _SentryPrivate
 
 struct SentryReplayMaskPreview: ViewModifier {
     let redactOptions: SentryRedactOptions

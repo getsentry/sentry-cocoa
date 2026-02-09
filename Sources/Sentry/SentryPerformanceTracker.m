@@ -48,10 +48,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentrySpanId *)startSpanWithName:(NSString *)name
-                         nameSource:(SentryTransactionNameSource)source
+                         nameSource:(NSInteger)source
                           operation:(NSString *)operation
                              origin:(NSString *)origin
 {
+    SentryTransactionNameSource nameSource = (SentryTransactionNameSource)source;
+
     id<SentrySpan> activeSpan;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
     activeSpan = sentry_launchTracer;
@@ -68,10 +70,11 @@ NS_ASSUME_NONNULL_BEGIN
         newSpan = [activeSpan startChildWithOperation:operation description:name];
         newSpan.origin = origin;
     } else {
-        SentryTransactionContext *context = [[SentryTransactionContext alloc] initWithName:name
-                                                                                nameSource:source
-                                                                                 operation:operation
-                                                                                    origin:origin];
+        SentryTransactionContext *context =
+            [[SentryTransactionContext alloc] initWithName:name
+                                                nameSource:nameSource
+                                                 operation:operation
+                                                    origin:origin];
 
         id<SentrySpan> span = SentrySDKInternal.currentHub.scope.span;
 
@@ -121,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(SentryTransactionNameSource)source
+                        nameSource:(NSInteger)source
                          operation:(NSString *)operation
                             origin:(NSString *)origin
                            inBlock:(void (^)(void))block
@@ -139,7 +142,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(SentryTransactionNameSource)source
+                        nameSource:(NSInteger)source
                          operation:(NSString *)operation
                             origin:(NSString *)origin
                       parentSpanId:(SentrySpanId *)parentSpanId
