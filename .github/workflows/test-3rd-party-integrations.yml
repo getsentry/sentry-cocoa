@@ -65,8 +65,8 @@ jobs:
 
           # Build Sentry (Static) - the only variant needed by 3rd-party integrations
           # Build both macosx and iphonesimulator slices since tests run on iOS Simulator
-          ./scripts/build-xcframework-slice.sh "macosx" "Sentry" "" "staticlib" "" "skip-swiftlint"
-          ./scripts/build-xcframework-slice.sh "iphonesimulator" "Sentry" "" "staticlib" "" "skip-swiftlint"
+          ./scripts/build-xcframework-slice.sh "macosx" "Sentry" "" "staticlib" ""
+          ./scripts/build-xcframework-slice.sh "iphonesimulator" "Sentry" "" "staticlib" ""
           ./scripts/assemble-xcframework.sh "Sentry" "" "" "macosx,iphonesimulator" "$(pwd)/XCFrameworkBuildPath/archive/Sentry/SDK_NAME.xcarchive"
           ./scripts/validate-xcframework-format.sh "Sentry.xcframework"
           ./scripts/compress-xcframework.sh --not-signed Sentry

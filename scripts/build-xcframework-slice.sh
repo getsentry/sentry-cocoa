@@ -9,17 +9,10 @@ scheme="$2"
 suffix="${3:-}"
 MACH_O_TYPE="${4-mh_dylib}"
 configuration_suffix="${5-}"
-skip_swiftlint="${6:-}"
 
 resolved_configuration="Release$configuration_suffix"
 resolved_product_name="$scheme$configuration_suffix.framework"
 OTHER_LDFLAGS=""
-
-# Set SKIP_SWIFTLINT only if the parameter is provided
-SKIP_SWIFTLINT_FLAG=""
-if [ -n "$skip_swiftlint" ]; then
-    SKIP_SWIFTLINT_FLAG="SKIP_SWIFTLINT=1"
-fi
 
 GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
 if [ "$MACH_O_TYPE" = "staticlib" ]; then
@@ -57,7 +50,6 @@ if [ "$sdk" = "maccatalyst" ]; then
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
         OTHER_LDFLAGS="$OTHER_LDFLAGS" \
-        $SKIP_SWIFTLINT_FLAG \
         2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify
 
     maccatalyst_build_product_directory="XCFrameworkBuildPath/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
@@ -85,7 +77,6 @@ else
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
         OTHER_LDFLAGS="$OTHER_LDFLAGS" \
-        $SKIP_SWIFTLINT_FLAG \
         2>&1 | tee "${slice_id}.log" | xcbeautify
 fi
 
