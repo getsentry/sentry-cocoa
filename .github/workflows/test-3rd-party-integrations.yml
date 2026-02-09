@@ -60,7 +60,7 @@ jobs:
       - name: Select Xcode
         run: ./scripts/ci-select-xcode.sh 16.4
       - name: Build XCFramework (Static)
-        run: ./scripts/build-xcframework-local.sh macOSAndSimulatorOnly StaticOnly --not-signed
+        run: ./scripts/build-xcframework-local.sh macOSOnly StaticOnly --not-signed
       - name: Upload XCFrameworks
         uses: actions/upload-artifact@v6
         with:

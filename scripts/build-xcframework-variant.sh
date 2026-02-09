@@ -15,8 +15,6 @@ elif [ "$sdks_to_build" = "macOSOnly" ]; then
     sdks=( macosx )
 elif [ "$sdks_to_build" = "macCatalystOnly" ]; then
     sdks=( maccatalyst )
-elif [ "$sdks_to_build" = "macOSAndSimulatorOnly" ]; then
-    sdks=( iphonesimulator macosx )
 else
     sdks=( iphoneos iphonesimulator macosx maccatalyst appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
 fi
