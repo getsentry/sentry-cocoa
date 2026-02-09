@@ -295,7 +295,7 @@ platform :ios do
       skip_waiting_for_build_processing: true,
     )
 
-    sentry_upload_dif(
+    sentry_debug_files_upload(
       auth_token: ENV["SENTRY_AUTH_TOKEN"],
       org_slug: 'sentry-sdks',
       project_slug: 'sentry-cocoa',
