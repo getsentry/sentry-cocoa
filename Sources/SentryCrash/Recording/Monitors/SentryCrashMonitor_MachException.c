@@ -287,18 +287,6 @@ sentrycrashcm_hasReservedThreads(void)
 #    pragma mark - Handler -
 // ============================================================================
 
-static void
-replyToMachExceptionMessage(MachExceptionMessage *exceptionMessage, MachReplyMessage *replyMessage)
-{
-    SENTRY_ASYNC_SAFE_LOG_DEBUG("Replying to mach exception message.");
-    // Send a reply saying "I didn't handle this exception".
-    replyMessage->header = exceptionMessage->header;
-    replyMessage->NDR = exceptionMessage->NDR;
-    replyMessage->returnCode = KERN_FAILURE;
-    mach_msg(&replyMessage->header, MACH_SEND_MSG, sizeof(*replyMessage), 0, MACH_PORT_NULL,
-        MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
-}
-
 /** Our exception handler thread routine.
  * Wait for an exception message, uninstall our exception port, record the
  * exception information, and write a report.
@@ -403,7 +391,15 @@ handleExceptions(void *const userData)
         sentrycrashmc_resumeEnvironment(threads, numThreads);
     }
 
-    replyToMachExceptionMessage(&exceptionMessage, &replyMessage);
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Replying to mach exception message.");
+    // Send a reply saying "I didn't handle this exception".
+    replyMessage.header = exceptionMessage.header;
+    replyMessage.NDR = exceptionMessage.NDR;
+    replyMessage.returnCode = KERN_FAILURE;
+
+    mach_msg(&replyMessage.header, MACH_SEND_MSG, sizeof(replyMessage), 0, MACH_PORT_NULL,
+        MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
+
     return NULL;
 }
 
