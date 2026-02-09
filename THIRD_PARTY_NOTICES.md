@@ -8,7 +8,7 @@ In the event that a required notice is missing or incorrect, please inform us by
 
 ## KSCrash (MIT)
 
-**Source:** https://github.com/kstenerud/KSCrash\
+**Source:** https://github.com/kstenerud/KSCrash<br>
 **License:** MIT License\
 **Copyright:** © 2012 Karl Stenerud
 
@@ -80,7 +80,7 @@ SOFTWARE.
 
 ## facebook/fishhook (BSD 3-Clause)
 
-**Source:** https://github.com/facebook/fishhook\
+**Source:** https://github.com/facebook/fishhook<br>
 **License:** BSD 3-Clause License\
 **Copyright:** © 2013 Facebook, Inc.
 
