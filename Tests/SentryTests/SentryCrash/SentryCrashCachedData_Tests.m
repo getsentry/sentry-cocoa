@@ -33,15 +33,21 @@
 
 @implementation SentryCrashCachedData_Tests
 
-- (void)testGetThreadName
+- (void)setUp
 {
+    [super setUp];
     sentrycrashccd_close();
+}
 
-    NSString *expectedName = @"This is a test thread";
+// MARK: - Helper
+
+/** Start a named TestThread and wait for it to be running. */
+- (TestThread *)startThreadWithName:(NSString *)name
+{
     NSObject *notificationObject = [[NSObject alloc] init];
     TestThread *thread = [[TestThread alloc] init];
     thread.notificationObject = notificationObject;
-    thread.name = expectedName;
+    thread.name = name;
 
     XCTestExpectation *exp = [self expectationWithDescription:@"thread started"];
     [NSNotificationCenter.defaultCenter
@@ -58,16 +64,144 @@
 
     [thread start];
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    return thread;
+}
+
+// MARK: - Tests
+
+- (void)testGetThreadName_whenFrozen_shouldReturnCorrectName
+{
+    // -- Arrange --
+    NSString *expectedName = @"This is a test thread";
+    TestThread *thread = [self startThreadWithName:expectedName];
+
+    sentrycrashccd_init(10);
+    // Give the background thread time to populate the cache.
+    [NSThread sleepForTimeInterval:0.1];
+
+    // -- Act --
+    sentrycrashccd_freeze();
+    const char *cName = sentrycrashccd_getThreadName(thread.thread);
+
+    // -- Assert --
+    XCTAssertTrue(cName != NULL, @"Thread name should not be NULL");
+    NSString *name = [NSString stringWithUTF8String:cName];
+    XCTAssertEqualObjects(name, expectedName);
+
+    sentrycrashccd_unfreeze();
+    [thread cancel];
+}
+
+- (void)testGetThreadName_whenNotFrozen_shouldReturnNil
+{
+    // -- Arrange --
+    TestThread *thread = [self startThreadWithName:@"Some thread"];
 
     sentrycrashccd_init(10);
     [NSThread sleepForTimeInterval:0.1];
+
+    // -- Act --
+    // Do NOT call freeze — readers should get NULL from the frozen cache.
+    const char *cName = sentrycrashccd_getThreadName(thread.thread);
+
+    // -- Assert --
+    XCTAssertTrue(cName == NULL, @"Thread name should be NULL when cache is not frozen");
+
     [thread cancel];
+}
+
+- (void)testGetThreadName_whenUnknownThread_shouldReturnNil
+{
+    // -- Arrange --
+    sentrycrashccd_init(10);
+    [NSThread sleepForTimeInterval:0.1];
+
+    // -- Act --
+    sentrycrashccd_freeze();
+    // Use an invalid thread ID that cannot match any real thread.
+    const char *cName = sentrycrashccd_getThreadName((SentryCrashThread)UINTPTR_MAX);
+
+    // -- Assert --
+    XCTAssertTrue(cName == NULL, @"Thread name should be NULL for unknown thread");
+
+    sentrycrashccd_unfreeze();
+}
+
+- (void)testInit_whenCalledTwice_shouldNotCrash
+{
+    // -- Act --
+    sentrycrashccd_init(10);
+    sentrycrashccd_init(10);
+
+    // -- Assert --
+    // No crash, and the cache thread is running.
+    XCTAssertTrue(sentrycrashccd_hasThreadStarted());
+}
+
+- (void)testClose_whenReinitializing_shouldReturnThreadName
+{
+    // -- Arrange --
+    NSString *expectedName = @"Reinitialized thread";
+    sentrycrashccd_init(10);
+    sentrycrashccd_close();
+    XCTAssertFalse(sentrycrashccd_hasThreadStarted());
+
+    TestThread *thread = [self startThreadWithName:expectedName];
+
+    // -- Act --
+    sentrycrashccd_init(10);
+    [NSThread sleepForTimeInterval:0.1];
+
     sentrycrashccd_freeze();
     const char *cName = sentrycrashccd_getThreadName(thread.thread);
-    XCTAssertTrue(cName != NULL);
+
+    // -- Assert --
+    XCTAssertTrue(sentrycrashccd_hasThreadStarted());
+    XCTAssertTrue(cName != NULL, @"Thread name should be available after reinit");
     NSString *name = [NSString stringWithUTF8String:cName];
     XCTAssertEqualObjects(name, expectedName);
+
     sentrycrashccd_unfreeze();
+    [thread cancel];
+}
+
+- (void)testUnfreeze_whenNotFrozen_shouldNotCrash
+{
+    // -- Arrange --
+    sentrycrashccd_init(10);
+
+    // -- Act & Assert --
+    // Calling unfreeze without a prior freeze should not crash or corrupt state.
+    sentrycrashccd_unfreeze();
+
+    // Verify normal operation still works afterwards.
+    [NSThread sleepForTimeInterval:0.1];
+    sentrycrashccd_freeze();
+    XCTAssertTrue(sentrycrashccd_hasThreadStarted());
+    sentrycrashccd_unfreeze();
+}
+
+- (void)testFreezeUnfreeze_whenCycledMultipleTimes_shouldReturnConsistentResults
+{
+    // -- Arrange --
+    NSString *expectedName = @"Cycling thread";
+    TestThread *thread = [self startThreadWithName:expectedName];
+
+    sentrycrashccd_init(10);
+    [NSThread sleepForTimeInterval:0.1];
+
+    // -- Act & Assert --
+    // Multiple freeze/unfreeze cycles should always return the same thread name.
+    for (int i = 0; i < 5; i++) {
+        sentrycrashccd_freeze();
+        const char *cName = sentrycrashccd_getThreadName(thread.thread);
+        XCTAssertTrue(cName != NULL, @"Cycle %d: thread name should not be NULL", i);
+        NSString *name = [NSString stringWithUTF8String:cName];
+        XCTAssertEqualObjects(name, expectedName, @"Cycle %d: name mismatch", i);
+        sentrycrashccd_unfreeze();
+    }
+
+    [thread cancel];
 }
 
 @end
