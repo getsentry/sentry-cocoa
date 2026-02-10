@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Deprecations
+
+- The `SentrySwiftUI` module is now deprecated. All SwiftUI APIs (`SentryTracedView`, `sentryTrace()`, `sentryReplayMask()`, `sentryReplayUnmask()`) have been merged into the main `Sentry` module. You can replace `import SentrySwiftUI` with `import Sentry` in your code. The `SentrySwiftUI` module still works via a re-export but will be removed in the next major version. (#7422)
+
 ## 9.4.0
 
 ### Breaking Changes
