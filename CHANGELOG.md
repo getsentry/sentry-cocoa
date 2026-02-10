@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add pending task queue during SDK initialization on a background queue (#7377)
+
 ## 9.4.0
 
 ### Breaking Changes

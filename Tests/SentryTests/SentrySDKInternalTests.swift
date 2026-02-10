@@ -229,25 +229,26 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(event?.user, user)
     }
 
-    func testSetUserBeforeStartingSDK_LogsFatalMessage() throws {
-        // Arrange
-        let oldOutput = SentrySDKLog.getLogOutput()
+    func testSetUserBeforeStartingSDK_EnqueuesTaskForLaterExecution() throws {
+        // -- Arrange --
+        let pendingTaskQueue = SentryDependencyContainer.sharedInstance().pendingTaskQueue
+        pendingTaskQueue.clearPendingTasks()
 
-        defer {
-            SentrySDKLog.setOutput(oldOutput)
-        }
+        // -- Act --
+        let user = TestData.user
+        SentrySDK.setUser(user)
 
-        let logOutput = TestLogOutput()
-        SentrySDKLog.setLogOutput(logOutput)
+        // -- Assert --
+        // Task should be enqueued
+        XCTAssertEqual(1, pendingTaskQueue.pendingTaskCount)
 
-        // Act
-        SentrySDK.setUser(nil)
+        // Start SDK and verify user is applied
+        givenSdkWithHub()
+        pendingTaskQueue.executePendingTasks()
 
-        // Assert
-        let actualLogMessage = try XCTUnwrap(logOutput.loggedMessages.first)
-        let expectedLogMessage = "The SDK is disabled, so setUser doesn't work. Please ensure to start the SDK before setting the user."
-
-        XCTAssertTrue(actualLogMessage.contains(expectedLogMessage), "Expected log message to contain '\(expectedLogMessage)', but got '\(actualLogMessage)'")
+        let actualScope = SentrySDKInternal.currentHub().scope
+        let event = actualScope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
+        XCTAssertEqual(event?.user, user)
     }
 
     func testSetUserAFterStartingSDK_DoesNotLogFatalMessage() {
@@ -312,6 +313,126 @@ class SentrySDKInternalTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(0, logOutput.loggedMessages.count, "Expected no log messages, but got \(logOutput.loggedMessages.count)")
+    }
+
+    /// Tests the race condition fix for https://github.com/getsentry/sentry-cocoa/issues/6872
+    /// When SDK is started on a background thread and setUser is called before main thread
+    /// initialization completes, the user should still be set correctly.
+    func testSetUser_whenSDKStartedOnBackgroundThread_shouldApplyUserAfterInit() throws {
+        // -- Arrange --
+        SentryDependencyContainer.sharedInstance().pendingTaskQueue.clearPendingTasks()
+        clearTestState()
+
+        let expectation = XCTestExpectation(description: "SDK started on background thread")
+
+        // -- Act --
+        // Start SDK on background thread
+        DispatchQueue.global(qos: .utility).async {
+            SentrySDK.start { options in
+                options.dsn = SentrySDKInternalTests.dsnAsString
+                options.removeAllIntegrations()
+            }
+
+            // SDK is started but main thread init may not be complete yet
+            // Set user immediately (simulating the race condition)
+            let user = User(userId: "test-user-123")
+            user.email = "test@example.com"
+            SentrySDK.setUser(user)
+
+            // Wait for main thread dispatch to complete
+            SentryDependencyContainer.sharedInstance().dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
+                expectation.fulfill()
+            }
+        }
+
+        wait(for: [expectation], timeout: 5.0)
+
+        // -- Assert --
+        let actualScope = SentrySDKInternal.currentHub().scope
+        let event = actualScope.applyTo(event: Event(), maxBreadcrumbs: 10)
+        XCTAssertEqual("test-user-123", event?.user?.userId)
+        XCTAssertEqual("test@example.com", event?.user?.email)
+    }
+
+    /// Tests the race condition fix between setCurrentHub and executePendingTasks.
+    /// When setUser is called after setCurrentHub but before executePendingTasks,
+    /// the stale queued task should be cleared so it doesn't overwrite the newer value.
+    func testSetUser_whenCalledAfterInitWithStalePendingTask_shouldClearStaleTask() throws {
+        // -- Arrange --
+        let pendingTaskQueue = SentryDependencyContainer.sharedInstance().pendingTaskQueue
+        pendingTaskQueue.clearPendingTasks()
+
+        // Simulate: setUser called before SDK init → enqueued
+        SentrySDK.setUser(User(userId: "old-user"))
+        XCTAssertEqual(1, pendingTaskQueue.pendingTaskCount)
+
+        // Simulate: SDK init completes (setCurrentHub called, isEnabled is now true)
+        // but executePendingTasks hasn't run yet
+        givenSdkWithHub()
+
+        // -- Act --
+        // setUser called from another thread during the race window.
+        // This goes through the direct path (isEnabled is true) and also
+        // clears the stale pending setUser task via removeAll.
+        let newUser = User(userId: "new-user")
+        newUser.email = "new@example.com"
+        SentrySDK.setUser(newUser)
+
+        // The stale pending task should have been removed
+        XCTAssertEqual(0, pendingTaskQueue.pendingTaskCount)
+
+        // Simulate: executePendingTasks runs (nothing to replay)
+        pendingTaskQueue.executePendingTasks()
+
+        // -- Assert --
+        // The newer user should not have been overwritten
+        let actualScope = SentrySDKInternal.currentHub().scope
+        let event = actualScope.applyTo(event: Event(), maxBreadcrumbs: 10)
+        XCTAssertEqual("new-user", event?.user?.userId)
+        XCTAssertEqual("new@example.com", event?.user?.email)
+    }
+
+    /// Tests that multiple setUser calls before SDK init are deduplicated,
+    /// so only the latest value is applied when pending tasks execute.
+    func testSetUser_whenCalledMultipleTimesBeforeInit_shouldDeduplicateAndKeepLatest() throws {
+        // -- Arrange --
+        let pendingTaskQueue = SentryDependencyContainer.sharedInstance().pendingTaskQueue
+        pendingTaskQueue.clearPendingTasks()
+
+        // -- Act --
+        // Multiple setUser calls before SDK is initialized
+        SentrySDK.setUser(User(userId: "user-1"))
+        SentrySDK.setUser(User(userId: "user-2"))
+        SentrySDK.setUser(User(userId: "user-3"))
+
+        // -- Assert --
+        // Only one setUser task should remain due to deduplication
+        XCTAssertEqual(1, pendingTaskQueue.pendingTaskCount)
+
+        // Start SDK and execute pending tasks
+        givenSdkWithHub()
+        pendingTaskQueue.executePendingTasks()
+
+        let actualScope = SentrySDKInternal.currentHub().scope
+        let event = actualScope.applyTo(event: Event(), maxBreadcrumbs: 10)
+        XCTAssertEqual("user-3", event?.user?.userId)
+    }
+
+    func testClose_whenPendingTasksExist_shouldClearThem() {
+        // -- Arrange --
+        let pendingTaskQueue = SentryDependencyContainer.sharedInstance().pendingTaskQueue
+        pendingTaskQueue.clearPendingTasks()
+
+        // Enqueue some tasks before SDK is started
+        SentrySDK.setUser(User(userId: "should-be-cleared"))
+        XCTAssertEqual(1, pendingTaskQueue.pendingTaskCount)
+
+        // -- Act --
+        SentrySDK.close()
+
+        // -- Assert --
+        // After close, the dependency container is reset, so we need to get the new instance
+        XCTAssertEqual(0, SentryDependencyContainer.sharedInstance().pendingTaskQueue.pendingTaskCount)
     }
 
     func testStartTransaction() throws {

@@ -105,6 +105,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     
     @objc public var dispatchQueueWrapper = Dependencies.dispatchQueueWrapper
     @objc public var random = Dependencies.random
+    @objc public var pendingTaskQueue = SentryPendingTaskQueue()
     @objc public var threadWrapper = Dependencies.threadWrapper
     @objc public var binaryImageCache = Dependencies.binaryImageCache
     @objc public var dateProvider: SentryCurrentDateProvider = Dependencies.dateProvider
