@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix App hangs report with high durations (#7354)
+
 ## 9.4.0
 
 ### Breaking Changes
