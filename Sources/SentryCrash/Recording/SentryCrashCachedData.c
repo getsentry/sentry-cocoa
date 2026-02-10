@@ -154,25 +154,32 @@ cleanup_threads:
 static void
 updateCache(void)
 {
-    // Acquire exclusive access: set g_activeCache to NULL.
-    SentryCrashThreadCacheData *oldCache = atomic_exchange(&g_activeCache, NULL);
-    if (oldCache == NULL) {
+    // Build new cache first so g_activeCache keeps the old (valid) pointer
+    // during construction.  If a crash occurs mid-build, freeze() will
+    // still find usable data instead of NULL.
+    SentryCrashThreadCacheData *newCache = createCache();
+    if (newCache == NULL) {
+        // Creation failed; keep the old cache so readers still work.
+        return;
+    }
+
+    // Install new cache via compare-and-swap.  If freeze() has acquired
+    // the cache (set g_activeCache to NULL) since our load, the CAS fails
+    // and we discard the new cache — the crash handler owns the pointer.
+    SentryCrashThreadCacheData *expected = atomic_load(&g_activeCache);
+    if (expected == NULL) {
         // Cache is currently acquired by the crash handler via freeze().
         // Skip this update cycle — the crash handler will restore it.
+        freeCache(newCache);
         return;
     }
 
-    SentryCrashThreadCacheData *newCache = createCache();
-
-    if (newCache == NULL) {
-        // Creation failed; restore the old cache so readers still work.
-        atomic_store(&g_activeCache, oldCache);
-        return;
+    if (atomic_compare_exchange_strong(&g_activeCache, &expected, newCache)) {
+        freeCache(expected);
+    } else {
+        // Cache was acquired by freeze() between our load and CAS.
+        freeCache(newCache);
     }
-
-    // Install new cache and free old.
-    atomic_store(&g_activeCache, newCache);
-    freeCache(oldCache);
 }
 
 static void *
