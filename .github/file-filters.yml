@@ -74,15 +74,11 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "scripts/build-xcframework-slice.sh"
   - "scripts/assemble-xcframework.sh"
   - "scripts/update-api.sh"
-  - "scripts/verify-sentryswiftui-api-compatibility.sh"
   - "scripts/ci-diagnostics.sh"
 
   # API files
   - "sdk_api.json"
   - "sdk_api_sentryswiftui.json"
-
-  # SentrySwiftUI compatibility verification sample
-  - "Samples/XCFramework-Validation/**"
 
   # Build configuration
   - "Makefile"
