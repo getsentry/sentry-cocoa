@@ -345,15 +345,6 @@ jobs:
             platform: "tvOS"
             scheme: "Sentry"
 
-          # iOS 17 - SwiftUI
-          - name: iOS 17 SentrySwiftUI
-            runs-on: sequoia
-            xcode: "16.4"
-            test-destination-os: "17.5"
-            platform: "iOS"
-            device: "iPhone 15 Pro"
-            scheme: "SentrySwiftUI"
-
           # tvOS 18
           - name: tvOS 18 Sentry
             runs-on: sequoia

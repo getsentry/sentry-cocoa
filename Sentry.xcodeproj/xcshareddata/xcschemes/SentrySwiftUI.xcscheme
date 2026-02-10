@@ -27,13 +27,8 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      codeCoverageEnabled = "YES">
-      <TestPlans>
-         <TestPlanReference
-            reference = "container:Plans/SentrySwiftUI_Base.xctestplan"
-            default = "YES">
-         </TestPlanReference>
-      </TestPlans>
+      codeCoverageEnabled = "YES"
+      shouldAutocreateTestPlan = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
