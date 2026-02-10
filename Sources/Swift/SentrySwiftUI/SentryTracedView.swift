@@ -1,4 +1,4 @@
-#if canImport(SwiftUI) && (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if canImport(SwiftUI) && (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 import Foundation
 import SwiftUI
@@ -105,7 +105,6 @@ class SentryTraceViewModel {
 ///         //The part of your content you want to measure
 ///     }.sentryTrace("My Awesome Screen")
 ///
-@available(iOS 15.0, tvOS 15.0, *)
 public struct SentryTracedView<Content: View>: View {
     @State private var viewModel: SentryTraceViewModel
     let content: () -> Content
@@ -150,7 +149,6 @@ public struct SentryTracedView<Content: View>: View {
 }
 
 /// nodoc
-@available(iOS 15.0, tvOS 15.0, *)
 public extension View {
     /// Wraps this view in a `SentryTracedView` to measure its performance and send the result as a transaction to Sentry.
     ///
