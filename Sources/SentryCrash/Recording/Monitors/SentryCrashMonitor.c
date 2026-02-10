@@ -198,8 +198,7 @@ void
 sentrycrashcm_notifyFatalException(
     bool isAsyncSafeEnvironment, thread_act_array_t *threads, mach_msg_type_number_t *numThreads)
 {
-    // Simplified version of KSCrash's notifyException() decision logic.
-    // See:
+    // Subset of KSCrash's notifyException() decision logic, we only do fatal exception handling.
     // https://github.com/kstenerud/KSCrash/blob/master/Sources/KSCrashRecordingCore/KSCrashMonitor.c
     //
     // If another exception occurs while we are already handling an exception, we
