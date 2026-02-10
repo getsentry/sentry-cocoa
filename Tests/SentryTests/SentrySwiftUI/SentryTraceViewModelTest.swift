@@ -1,4 +1,4 @@
-#if canImport(UIKit) && canImport(SwiftUI)
+#if canImport(UIKit) && canImport(SwiftUI) && (os(iOS) || os(tvOS))
 @testable import Sentry
 import XCTest
 

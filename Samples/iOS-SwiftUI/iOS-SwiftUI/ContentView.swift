@@ -236,9 +236,8 @@ struct ContentView: View {
 
 struct SecondView: View {
     var body: some View {
-        SentryTracedView("Second View") {
-            Text("This is the detail view 1")
-        }
+        Text("This is the detail view 1")
+            .sentryTrace("Second View")
     }
 }
 
