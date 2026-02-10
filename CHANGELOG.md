@@ -5,6 +5,7 @@
 ### Fixes
 
 - Cleanup SessionReplay when maximum duration reached (#7421)
+- Fix App hangs report with high durations (#7354)
 
 ## 9.4.0
 
