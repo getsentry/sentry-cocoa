@@ -5,6 +5,7 @@
 #    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryFormatter.h"
 #    import "SentryInternalDefines.h"
+#    import "SentryProfileDebugLoggerHelper.h"
 #    import "SentryProfileTimeseries.h"
 #    import "SentryProfilerSampleCreation.h"
 #    import "SentryProfilingSwiftHelpers.h"
