@@ -164,7 +164,8 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
 #    if defined(DEBUG)
         if (backtraceFunctionNames.count > 0) {
             SENTRY_ASYNC_SAFE_LOG_DEBUG("Recorded backtrace for thread %s at %llu: %s",
-                threadID.UTF8String, sample.absoluteTimestamp,
+                threadID.UTF8String,
+                [SentryProfileLoggerHelper getAbsoluteTimeStampFromSample:sample],
                 backtraceFunctionNames.description.UTF8String);
         }
 #    endif // defined(DEBUG)
