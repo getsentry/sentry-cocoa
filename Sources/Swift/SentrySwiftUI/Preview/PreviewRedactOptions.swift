@@ -1,5 +1,4 @@
 #if canImport(SwiftUI) && canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
-import Sentry
 
 /**
  * Redaction options for the session replay masking preview.

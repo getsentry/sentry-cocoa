@@ -1,6 +1,5 @@
 #if canImport(UIKit) && canImport(SwiftUI)
 @testable import Sentry
-@testable import SentrySwiftUI
 import SwiftUI
 import XCTest
 

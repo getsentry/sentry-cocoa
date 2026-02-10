@@ -1,7 +1,5 @@
 #if canImport(UIKit) && canImport(SwiftUI)
 @testable import Sentry
-import SentryInternal
-@testable import SentrySwiftUI
 import XCTest
 
 class SentryTraceViewModelTestCase: XCTestCase {
@@ -42,7 +40,12 @@ class SentryTraceViewModelTestCase: XCTestCase {
         let option = Options()
         SentrySDKInternal.setCurrentHub(SentryHubInternal(client: SentryClientInternal(options: option), andScope: nil))
         
-        let testSpan = SentryPerformanceTracker.shared.startSpan(withName: "Test Root", nameSource: .component, operation: "Testing", origin: "Test")
+        let testSpan = SentryPerformanceTracker.shared.startSpan(
+            withName: "Test Root",
+            nameSource: SentryTransactionNameSource.component.rawValue,
+            operation: "Testing",
+            origin: "Test"
+        )
         SentryPerformanceTracker.shared.pushActiveSpan(testSpan)
         
         let viewModel = SentryTraceViewModel(name: "ViewContent",
