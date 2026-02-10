@@ -1,12 +1,13 @@
+#import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
-#if defined(DEBUG)
+#if SENTRY_TARGET_PROFILING_SUPPORTED && defined(DEBUG)
 
 @class SentrySample;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryProfileLoggerHelper : NSObject
+@interface SentryProfileDebugLoggerHelper : NSObject
 
 + (uint64_t)getAbsoluteTimeStampFromSample:(SentrySample *)sample;
 
@@ -14,4 +15,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-#endif defined(DEBUG)
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED && defined(DEBUG)

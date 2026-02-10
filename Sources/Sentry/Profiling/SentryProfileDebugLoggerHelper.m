@@ -1,9 +1,9 @@
-#if defined(DEBUG)
+#if SENTRY_TARGET_PROFILING_SUPPORTED && defined(DEBUG)
 
-#    import "SentryProfileLoggerHelper.h"
+#    import "SentryProfileDebugLoggerHelper.h"
 #    import "SentrySwift.h"
 
-@implementation SentryProfileLoggerHelper
+@implementation SentryProfileDebugLoggerHelper
 
 + (uint64_t)getAbsoluteTimeStampFromSample:(SentrySample *)sample
 {
