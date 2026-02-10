@@ -85,6 +85,22 @@ public final class SentryLog: NSObject {
     }
 }
 
+// MARK: - TelemetryItem Conformance
+extension SentryLog: TelemetryItem {
+    var attributesDict: [String: SentryAttributeContent] {
+        get {
+            attributes.mapValues { value in
+                SentryAttributeContent.from(anyValue: value)
+            }
+        }
+        set {
+            attributes = newValue.mapValues { value in
+                SentryAttribute(attributableValue: value)
+            }
+        }
+    }
+}
+
 // MARK: - Internal Encodable Support
 @_spi(Private) extension SentryLog: Encodable {
     private enum CodingKeys: String, CodingKey {
