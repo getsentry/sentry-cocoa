@@ -27619,37 +27619,6 @@
           {
             "children": [
               {
-                "kind": "TypeNominal",
-                "name": "SentryRedactOptions",
-                "printedName": "any Sentry.SentryRedactOptions",
-                "usr": "c:@M@Sentry@objc(pl)SentryRedactOptions"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "UIView",
-                "printedName": "UIKit.UIView",
-                "usr": "c:objc(cs)UIView"
-              }
-            ],
-            "declAttributes": [
-              "DiscardableResult",
-              "Dynamic",
-              "ObjC"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "isOpen": true,
-            "kind": "Function",
-            "moduleName": "Sentry",
-            "name": "sessionReplayMaskingOverlay",
-            "objc_name": "sessionReplayMaskingOverlay:",
-            "printedName": "sessionReplayMaskingOverlay(_:)",
-            "static": true,
-            "usr": "c:objc(cs)PrivateSentrySDKOnly(cm)sessionReplayMaskingOverlay:"
-          },
-          {
-            "children": [
-              {
                 "children": [
                   {
                     "kind": "TypeNominal",

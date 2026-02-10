@@ -17,7 +17,7 @@ class SentryRedactModifierTests: XCTestCase {
         // Eventually this can be replaced with a more stable solution.
         let candidates = [
             "ModifiedContent<Text, SentryReplayModifier>",
-            "SwiftUI.ModifiedContent<SwiftUI.Text, SentrySwiftUI.SentryReplayModifier>"
+            "SwiftUI.ModifiedContent<SwiftUI.Text, Sentry.SentryReplayModifier>"
         ]
         XCTAssertTrue(
             candidates.contains(where: { typeOfRedactedText.contains($0) }),
@@ -37,7 +37,7 @@ class SentryRedactModifierTests: XCTestCase {
         // Eventually this can be replaced with a more stable solution.
         let candidates = [
             "ModifiedContent<Text, SentryReplayModifier>",
-            "SwiftUI.ModifiedContent<SwiftUI.Text, SentrySwiftUI.SentryReplayModifier>"
+            "SwiftUI.ModifiedContent<SwiftUI.Text, Sentry.SentryReplayModifier>"
         ]
         XCTAssertTrue(
             candidates.contains(where: { typeOfRedactedText.contains($0) }),
