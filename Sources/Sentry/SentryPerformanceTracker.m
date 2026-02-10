@@ -48,7 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentrySpanId *)startSpanWithName:(NSString *)name
-                         nameSource:(NSInteger)source
+                         nameSource:(SENTRY_SWIFT_MIGRATION_VALUE(
+                                        SentryTransactionNameSource))source
                           operation:(NSString *)operation
                              origin:(NSString *)origin
 {
@@ -124,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(NSInteger)source
+                        nameSource:(SENTRY_SWIFT_MIGRATION_VALUE(SentryTransactionNameSource))source
                          operation:(NSString *)operation
                             origin:(NSString *)origin
                            inBlock:(void (^)(void))block
@@ -142,7 +143,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)measureSpanWithDescription:(NSString *)description
-                        nameSource:(NSInteger)source
+                        nameSource:(SENTRY_SWIFT_MIGRATION_VALUE(SentryTransactionNameSource))source
                          operation:(NSString *)operation
                             origin:(NSString *)origin
                       parentSpanId:(SentrySpanId *)parentSpanId
