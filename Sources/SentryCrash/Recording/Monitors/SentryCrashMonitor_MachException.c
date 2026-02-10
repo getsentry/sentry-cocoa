@@ -325,8 +325,8 @@ handleExceptions(void *const userData)
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
-        sentrycrashcm_notifyFatalException(true, &threads, &numThreads);
         g_isHandlingCrash = true;
+        sentrycrashcm_notifyFatalException(true, &threads, &numThreads);
 
         SENTRY_ASYNC_SAFE_LOG_DEBUG(
             "Exception handler is installed. Continuing exception handling.");
