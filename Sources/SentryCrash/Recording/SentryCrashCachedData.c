@@ -38,10 +38,6 @@
 
 // MARK: - Types
 
-/** Consolidates all cached thread data into a single struct so that it can be
- *  swapped atomically as one unit. This eliminates the data race that existed
- *  when four separate global pointers were swapped individually.
- */
 typedef struct {
     SentryCrashThread *machThreads;
     SentryCrashThread *pthreads;
