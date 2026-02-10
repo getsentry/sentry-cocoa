@@ -370,8 +370,9 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     public func sessionReplayEnded() {
         SentrySDKLog.debug("[Session Replay] Session replay ended")
-        stop()
         SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = nil }
+        removeBackgroundForegroundObservers()
+        sessionReplay = nil
     }
 
     public func breadcrumbsForSessionReplay() -> [Breadcrumb] {
