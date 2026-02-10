@@ -47,14 +47,16 @@ jobs:
       - name: Generate HEAD SDK
         run: |
           mv sdk_api.json sdk_api_base.json
+          mv sdk_api_sentryswiftui.json sdk_api_sentryswiftui_base.json
           ./scripts/update-api.sh
 
-      - name: Diagnose breaking changes
+      - name: Diagnose breaking changes for Sentry
+        if: always()
         run: |
           if diff -q "sdk_api_base.json" "sdk_api.json" > /dev/null; then
-            echo "No API changes detected."
+            echo "No Sentry API changes detected."
           else
-            echo "❌ Public API changes are detected. If they're intended run "make generate-public-api" and commit the changes."
+            echo "❌ Sentry public API changes are detected. If they're intended run "make generate-public-api" and commit the changes."
             diff "sdk_api_base.json" "sdk_api.json" || true
             xcrun --sdk iphoneos swift-api-digester \
               -diagnose-sdk \
@@ -66,6 +68,25 @@ jobs:
             cat result.json
             exit 1
           fi
+
+      - name: Diagnose breaking changes for SentrySwiftUI
+        if: always()
+        run: |
+          if diff -q "sdk_api_sentryswiftui_base.json" "sdk_api_sentryswiftui.json" > /dev/null; then
+            echo "No SentrySwiftUI API changes detected."
+          else
+            echo "❌ SentrySwiftUI public API changes are detected. If they're intended run "make generate-public-api" and commit the changes."
+            diff "sdk_api_sentryswiftui_base.json" "sdk_api_sentryswiftui.json" || true
+            xcrun --sdk iphoneos swift-api-digester \
+              -diagnose-sdk \
+              -o sentryswiftui_result.json \
+              -input-paths sdk_api_sentryswiftui_base.json \
+              -input-paths sdk_api_sentryswiftui.json \
+              -json \
+              -v
+            cat sentryswiftui_result.json
+            exit 1
+          fi
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
@@ -75,11 +96,7 @@ jobs:
   # So, we don't have to run API stability checks, for example, for Changelog or ReadMe changes.
 
   api-stability-required-check:
-    needs:
-      [
-        files-changed,
-        api-stability,
-      ]
+    needs: [files-changed, api-stability]
     name: API Stability
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()
