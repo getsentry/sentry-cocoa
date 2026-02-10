@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Cleanup SessionReplay when maximum duration reached (#7421)
+
 ## 9.4.0
 
 ### Breaking Changes
