@@ -226,6 +226,13 @@ sentrycrashcm_notifyFatalException(
     bool expected = false;
     const bool wasHandlingFatalException
         = !atomic_compare_exchange_strong(&g_isHandlingFatalException, &expected, true);
+
+    // Record the crashing thread right after winning the CAS so that a
+    // re-entrant signal on the same thread always takes the recrash path.
+    if (!wasHandlingFatalException) {
+        atomic_store(&g_crashingThread, self);
+    }
+
     const bool isCrashedDuringExceptionHandling
         = wasHandlingFatalException && (atomic_load(&g_crashingThread) == self);
 
@@ -242,8 +249,6 @@ sentrycrashcm_notifyFatalException(
         SENTRY_ASYNC_SAFE_LOG_DEBUG(
             "Concurrent crash from different thread. Blocking to let first handler finish.");
         sleep(2);
-    } else {
-        atomic_store(&g_crashingThread, self);
     }
 
     // Suspend after the concurrency check so a blocked thread never freezes
