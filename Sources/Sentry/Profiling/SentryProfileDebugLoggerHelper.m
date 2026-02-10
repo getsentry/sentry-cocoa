@@ -1,6 +1,7 @@
+#import "SentryProfileDebugLoggerHelper.h"
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED && defined(DEBUG)
 
-#    import "SentryProfileDebugLoggerHelper.h"
 #    import "SentrySwift.h"
 
 @implementation SentryProfileDebugLoggerHelper
