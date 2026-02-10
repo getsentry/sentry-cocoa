@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Write reports on concurrent crashes (#7340)
+
 ## 9.4.0
 
 ### Breaking Changes
