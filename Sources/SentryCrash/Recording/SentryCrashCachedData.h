@@ -24,7 +24,7 @@
 //
 
 /** Maintains a cache of thread information that would be difficult to retrieve
- *  during a crash, such as thread names and dispatch queue names.
+ *  during a crash. This includes thread names and dispatch queue names.
  *
  *  The cache uses lock-free atomic operations for thread safety. A background
  *  thread periodically updates the cache, and crash handlers can acquire
@@ -32,8 +32,10 @@
  *
  *  Usage pattern:
  *    sentrycrashccd_freeze();     // Acquire exclusive access
- *    // ... call getThreadName / getQueueName ...
+ *    // ... call sentrycrashccd_getAllThreads, sentrycrashccd_getThreadName,
+ *    //         sentrycrashccd_getQueueName ...
  *    sentrycrashccd_unfreeze();   // Release access
+ *
  */
 
 #ifndef SentryCrashCachedData_h
@@ -49,24 +51,14 @@
  */
 void sentrycrashccd_init(int pollingIntervalInSeconds);
 
-/** Stop the background monitoring thread and free all cached data. */
-void sentrycrashccd_close(void);
-
-/** Check whether the background monitoring thread has been started.
- *
- *  @return true if init() was called and close() has not been called.
- */
-bool sentrycrashccd_hasThreadStarted(void);
-
 /** Freeze the cache to prevent updates during crash handling.
  *
- *  This atomically acquires exclusive access to the cache so the background
- *  thread cannot modify or free it while the crash handler reads from it.
- *  Must be paired with sentrycrashccd_unfreeze().
+ *  This acquires exclusive access to the cache using lock-free atomics.
+ *  Must be paired with sentrycrashccd_unfreeze() when done.
  */
 void sentrycrashccd_freeze(void);
 
-/** Unfreeze the cache to allow the background thread to resume updates.
+/** Unfreeze the cache to allow updates to resume.
  *
  *  Releases exclusive access acquired by sentrycrashccd_freeze().
  */
@@ -77,7 +69,7 @@ void sentrycrashccd_unfreeze(void);
  *  Must be called between sentrycrashccd_freeze() and sentrycrashccd_unfreeze().
  *
  *  @param thread The mach thread to look up.
- *  @return The thread name, or NULL if not found or cache unavailable.
+ *  @return The thread name, or NULL if not found.
  */
 const char *sentrycrashccd_getThreadName(SentryCrashThread thread);
 
@@ -90,5 +82,17 @@ const char *sentrycrashccd_getThreadName(SentryCrashThread thread);
  *  @return Always NULL (queue name caching not implemented).
  */
 const char *sentrycrashccd_getQueueName(SentryCrashThread thread);
+
+/** Check whether the background monitoring thread has been started.
+ *  Sentry addition, not present in KSCrash upstream.
+ *
+ *  @return true if init() was called and close() has not been called.
+ */
+bool sentrycrashccd_hasThreadStarted(void);
+
+/** Stop the background monitoring thread and free all cached data.
+ *  Sentry addition, not present in KSCrash upstream.
+ */
+void sentrycrashccd_close(void);
 
 #endif /* SentryCrashCachedData_h */

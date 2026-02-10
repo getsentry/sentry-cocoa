@@ -47,9 +47,9 @@ typedef struct {
 
 // MARK: - Globals
 
-static int g_pollingIntervalInSeconds;
+static atomic_int g_pollingIntervalInSeconds;
 static pthread_t g_cacheThread;
-static _Atomic(bool) g_hasThreadStarted;
+static atomic_bool g_hasThreadStarted;
 
 /** The active cache. NULL means either not yet initialized or currently
  *  acquired by the crash handler via sentrycrashccd_freeze().
@@ -92,7 +92,6 @@ freeCache(SentryCrashThreadCacheData *cache)
     free(cache);
 }
 
-/** Build a new cache snapshot from the current process threads. */
 static SentryCrashThreadCacheData *
 createCache(void)
 {
@@ -183,7 +182,7 @@ monitorThreadCache(__unused void *const userData)
     usleep(1);
     for (;;) {
         updateCache();
-        unsigned pollInterval = (unsigned)g_pollingIntervalInSeconds;
+        unsigned pollInterval = (unsigned)atomic_load(&g_pollingIntervalInSeconds);
         if (quickPollCount > 0) {
             // Lots can happen in the first few seconds of operation.
             quickPollCount--;
@@ -203,10 +202,10 @@ sentrycrashccd_init(int pollingIntervalInSeconds)
         return;
     }
 
-    g_pollingIntervalInSeconds = pollingIntervalInSeconds;
+    atomic_store(&g_pollingIntervalInSeconds, pollingIntervalInSeconds);
     atomic_store(&g_frozenCache, NULL);
 
-    // Create initial cache so data is available immediately.
+    // Create initial cache
     SentryCrashThreadCacheData *initialCache = createCache();
     atomic_store(&g_activeCache, initialCache);
 
@@ -220,28 +219,6 @@ sentrycrashccd_init(int pollingIntervalInSeconds)
         SENTRY_ASYNC_SAFE_LOG_ERROR("pthread_create: %s", SENTRY_STRERROR_R(error));
     }
     pthread_attr_destroy(&attr);
-}
-
-void
-sentrycrashccd_close(void)
-{
-    if (atomic_exchange(&g_hasThreadStarted, false)) {
-        pthread_cancel(g_cacheThread);
-
-        // Free both caches. freeze() atomically moves the pointer from
-        // g_activeCache to g_frozenCache, so they never alias each other.
-        SentryCrashThreadCacheData *active = atomic_exchange(&g_activeCache, NULL);
-        freeCache(active);
-
-        SentryCrashThreadCacheData *frozen = atomic_exchange(&g_frozenCache, NULL);
-        freeCache(frozen);
-    }
-}
-
-bool
-sentrycrashccd_hasThreadStarted(void)
-{
-    return atomic_load(&g_hasThreadStarted);
 }
 
 void
@@ -295,4 +272,26 @@ sentrycrashccd_getQueueName(__unused SentryCrashThread thread)
     // to resolve dispatch_queue_t and then dispatch_queue_get_label().
     // See: https://github.com/kstenerud/KSCrash/blob/master/Sources/KSCrashRecordingCore/KSThread.c
     return NULL;
+}
+
+void
+sentrycrashccd_close(void)
+{
+    if (atomic_exchange(&g_hasThreadStarted, false)) {
+        pthread_cancel(g_cacheThread);
+
+        // Free both caches. freeze() atomically moves the pointer from
+        // g_activeCache to g_frozenCache, so they never alias each other.
+        SentryCrashThreadCacheData *active = atomic_exchange(&g_activeCache, NULL);
+        freeCache(active);
+
+        SentryCrashThreadCacheData *frozen = atomic_exchange(&g_frozenCache, NULL);
+        freeCache(frozen);
+    }
+}
+
+bool
+sentrycrashccd_hasThreadStarted(void)
+{
+    return atomic_load(&g_hasThreadStarted);
 }
