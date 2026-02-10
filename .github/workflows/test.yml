@@ -250,7 +250,7 @@ jobs:
       test-destination-os: ${{matrix.test-destination-os || 'latest'}}
       timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device || ''}}
-      scheme: ${{matrix.scheme || 'Sentry'}}
+      scheme: "Sentry"
       run_on_cirrus_labs: true # We always run tests on Cirrus Labs
     strategy:
       fail-fast: false
@@ -266,7 +266,6 @@ jobs:
             test-destination-os: "17.5"
             platform: "iOS"
             device: "iPhone 15 Pro"
-            scheme: "Sentry"
 
           # iOS 18
           - name: iOS 18 Sentry
@@ -275,7 +274,6 @@ jobs:
             test-destination-os: "18.5"
             platform: "iOS"
             device: "iPhone 16 Pro"
-            scheme: "Sentry"
 
           # iOS 26
           - name: iOS 26 Sentry
@@ -284,7 +282,6 @@ jobs:
             test-destination-os: "26.1"
             platform: "iOS"
             device: "iPhone 17 Pro"
-            scheme: "Sentry"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
@@ -296,7 +293,6 @@ jobs:
             xcode: "16.1"
             test-destination-os: "latest"
             platform: "macOS"
-            scheme: "Sentry"
 
           # macOS 15
           - name: macOS 15 Sentry
@@ -304,7 +300,6 @@ jobs:
             xcode: "16.4"
             test-destination-os: "latest"
             platform: "macOS"
-            scheme: "Sentry"
 
           # macOS 26
           - name: macOS 26 Sentry
@@ -312,7 +307,6 @@ jobs:
             xcode: "26.1.1"
             test-destination-os: "26.1"
             platform: "macOS"
-            scheme: "Sentry"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
@@ -322,14 +316,12 @@ jobs:
             xcode: "16.1"
             test-destination-os: "latest"
             platform: "Catalyst"
-            scheme: "Sentry"
 
           - name: Catalyst 15 Sentry
             runs-on: sequoia
             xcode: "16.4"
             test-destination-os: "latest"
             platform: "Catalyst"
-            scheme: "Sentry"
 
           ## We don't run unit tests on macCatalyst 26 yet because of https://github.com/getsentry/sentry-cocoa/issues/6165.
 
@@ -343,7 +335,6 @@ jobs:
             xcode: "16.4"
             test-destination-os: "17.5"
             platform: "tvOS"
-            scheme: "Sentry"
 
           # tvOS 18
           - name: tvOS 18 Sentry
@@ -351,7 +342,6 @@ jobs:
             xcode: "16.4"
             test-destination-os: "18.5"
             platform: "tvOS"
-            scheme: "Sentry"
 
           # tvOS 26
           - name: tvOS 26 Sentry
@@ -360,7 +350,6 @@ jobs:
             test-destination-os: "26.1"
             platform: "tvOS"
             device: "Apple TV"
-            scheme: "Sentry"
 
           # visionOS 26
           - name: visionOS 26 Sentry
@@ -368,7 +357,6 @@ jobs:
             xcode: "26.1.1"
             test-destination-os: "26.1"
             platform: "visionOS"
-            scheme: "Sentry"
             device: "Apple Vision Pro"
             timeout: 30
 

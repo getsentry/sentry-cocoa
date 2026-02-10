@@ -49,7 +49,7 @@ var targets: [Target] = [
         name: "SentrySwiftUI",
         dependencies: ["Sentry"],
         path: "Sources/SentrySwiftUI",
-        exclude: ["SentryInternal/", "module.modulemap"],
+        exclude: ["module.modulemap"],
         linkerSettings: [
             .linkedFramework("Sentry")
         ]

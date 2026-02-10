@@ -738,8 +738,6 @@
 		D808FB8B281BCE96009A2A33 /* TestSentrySwizzleWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D808FB89281BCE46009A2A33 /* TestSentrySwizzleWrapper.swift */; };
 		D808FB92281BF6EC009A2A33 /* SentryUIEventTrackingIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D808FB90281BF6E9009A2A33 /* SentryUIEventTrackingIntegrationTests.swift */; };
 		D8137D54272B53070082656C /* TestSentrySpan.m in Sources */ = {isa = PBXBuildFile; fileRef = D8137D53272B53070082656C /* TestSentrySpan.m */; };
-		D8199DBE29376EDE0074249E /* SentryInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = D8199DB829376ECC0074249E /* SentryInternal.h */; };
-		D8199DBF29376EE20074249E /* SentryInternal.m in Sources */ = {isa = PBXBuildFile; fileRef = D8199DB929376ECC0074249E /* SentryInternal.m */; };
 		D8199DC029376EE80074249E /* SentrySwiftUI.h in Headers */ = {isa = PBXBuildFile; fileRef = D8199DB529376ECC0074249E /* SentrySwiftUI.h */; };
 		D81A346C291AECC7005A27A9 /* PrivateSentrySDKOnly.h in Headers */ = {isa = PBXBuildFile; fileRef = D81A346B291AECC7005A27A9 /* PrivateSentrySDKOnly.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D81FDF12280EA1060045E0E4 /* SentryScreenshotSourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81FDF10280EA0080045E0E4 /* SentryScreenshotSourceTests.swift */; };
@@ -1834,8 +1832,6 @@
 		D8137D53272B53070082656C /* TestSentrySpan.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestSentrySpan.m; sourceTree = "<group>"; };
 		D8199DAA29376E9B0074249E /* SentrySwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentrySwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8199DB529376ECC0074249E /* SentrySwiftUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentrySwiftUI.h; sourceTree = "<group>"; };
-		D8199DB829376ECC0074249E /* SentryInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryInternal.h; sourceTree = "<group>"; };
-		D8199DB929376ECC0074249E /* SentryInternal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryInternal.m; sourceTree = "<group>"; };
 		D8199DCF29376FF40074249E /* SentrySwiftUI.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = SentrySwiftUI.xcconfig; sourceTree = "<group>"; };
 		D8199DD029377C130074249E /* SentrySwiftUI.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = SentrySwiftUI.podspec; sourceTree = "<group>"; };
 		D81A346B291AECC7005A27A9 /* PrivateSentrySDKOnly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PrivateSentrySDKOnly.h; path = Public/PrivateSentrySDKOnly.h; sourceTree = "<group>"; };
@@ -3796,21 +3792,11 @@
 		D8199DB329376ECC0074249E /* SentrySwiftUI */ = {
 			isa = PBXGroup;
 			children = (
-				D8199DB429376ECC0074249E /* SentryInternal */,
 				D8199DB529376ECC0074249E /* SentrySwiftUI.h */,
 				D88D25E92B8E0BAC0073C3D5 /* module.modulemap */,
 				D41A231A2F3B2A3800F279C9 /* SentrySwiftUIExports.swift */,
 			);
 			path = SentrySwiftUI;
-			sourceTree = "<group>";
-		};
-		D8199DB429376ECC0074249E /* SentryInternal */ = {
-			isa = PBXGroup;
-			children = (
-				D8199DB829376ECC0074249E /* SentryInternal.h */,
-				D8199DB929376ECC0074249E /* SentryInternal.m */,
-			);
-			path = SentryInternal;
 			sourceTree = "<group>";
 		};
 		D81FDF0F280E9FEC0045E0E4 /* Tools */ = {
@@ -4284,7 +4270,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8199DBE29376EDE0074249E /* SentryInternal.h in Headers */,
 				D8199DC029376EE80074249E /* SentrySwiftUI.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5275,7 +5260,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8199DBF29376EE20074249E /* SentryInternal.m in Sources */,
 				D41A231B2F3B2A3800F279CA /* SentrySwiftUIExports.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
