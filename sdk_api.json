@@ -770,6 +770,13 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
+        "name": "SwiftUI",
+        "printedName": "SwiftUI"
+      },
+      {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
         "name": "UIKit",
         "printedName": "UIKit"
       },
@@ -6134,6 +6141,42 @@
             "name": "Sequence",
             "printedName": "Sequence",
             "usr": "s:ST"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "TransferRepresentation",
+                            "printedName": "CoreTransferable.TransferRepresentation",
+                            "usr": "s:16CoreTransferable22TransferRepresentationP"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "OpaqueTypeArchetype",
+                        "printedName": "some CoreTransferable.TransferRepresentation"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Representation",
+                    "printedName": "Foundation.Data.Representation"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "Representation",
+                "printedName": "Representation"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$s16CoreTransferable0B0P",
+            "name": "Transferable",
+            "printedName": "Transferable",
+            "usr": "s:16CoreTransferable0B0P"
           }
         ],
         "declAttributes": [
@@ -6966,6 +7009,35 @@
                     "children": [
                       {
                         "kind": "TypeNominal",
+                        "name": "Double",
+                        "printedName": "Swift.Double",
+                        "usr": "s:Sd"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "AnimatableData",
+                    "printedName": "Swift.Double.AnimatableData"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "AnimatableData",
+                "printedName": "AnimatableData"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$s7SwiftUI10AnimatableP",
+            "name": "Animatable",
+            "printedName": "Animatable",
+            "usr": "s:7SwiftUI10AnimatableP"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
                         "name": "UInt",
                         "printedName": "Swift.UInt",
                         "usr": "s:Su"
@@ -7377,6 +7449,13 @@
             "name": "TextOutputStreamable",
             "printedName": "TextOutputStreamable",
             "usr": "s:s20TextOutputStreamableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$s7SwiftUI16VectorArithmeticP",
+            "name": "VectorArithmetic",
+            "printedName": "VectorArithmetic",
+            "usr": "s:7SwiftUI16VectorArithmeticP"
           }
         ],
         "declAttributes": [
@@ -12303,6 +12382,13 @@
             "name": "TextOutputStreamable",
             "printedName": "TextOutputStreamable",
             "usr": "s:s20TextOutputStreamableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$s7SwiftUI16VectorArithmeticP",
+            "name": "VectorArithmetic",
+            "printedName": "VectorArithmetic",
+            "usr": "s:7SwiftUI16VectorArithmeticP"
           }
         ],
         "declAttributes": [
@@ -26023,6 +26109,721 @@
         ],
         "superclassUsr": "c:objc(cs)NSObject",
         "usr": "c:@M@Sentry@objc(cs)SentryOptions"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "ProtocolComposition",
+                                    "printedName": "AnyObject"
+                                  }
+                                ],
+                                "kind": "TypeNameAlias",
+                                "name": "AnyObject",
+                                "printedName": "Builtin.AnyObject"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "AnyObject",
+                            "printedName": "Swift.AnyObject"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "ExistentialMetatype",
+                        "printedName": "any Swift.AnyObject.Type"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "AnyClass",
+                    "printedName": "Swift.AnyClass"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.AnyClass]",
+                "usr": "s:Sa"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "ProtocolComposition",
+                                    "printedName": "AnyObject"
+                                  }
+                                ],
+                                "kind": "TypeNameAlias",
+                                "name": "AnyObject",
+                                "printedName": "Builtin.AnyObject"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "AnyObject",
+                            "printedName": "Swift.AnyObject"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "ExistentialMetatype",
+                        "printedName": "any Swift.AnyObject.Type"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "AnyClass",
+                    "printedName": "Swift.AnyClass"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.AnyClass]",
+                "usr": "s:Sa"
+              },
+              {
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "PreviewRedactOptions",
+                "printedName": "Sentry.PreviewRedactOptions",
+                "usr": "s:6Sentry20PreviewRedactOptionsC"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.String>",
+                "usr": "s:Sh"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.String>",
+                "usr": "s:Sh"
+              }
+            ],
+            "declKind": "Constructor",
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$s6Sentry20PreviewRedactOptionsC11maskAllText0eF6Images17maskedViewClasses08unmaskedjK008excludedjK008includedjK006enableJ10RendererV2ACSb_SbSayyXlXpGAKShySSGALSbtcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "printedName": "init(maskAllText:maskAllImages:maskedViewClasses:unmaskedViewClasses:excludedViewClasses:includedViewClasses:enableViewRendererV2:)",
+            "usr": "s:6Sentry20PreviewRedactOptionsC11maskAllText0eF6Images17maskedViewClasses08unmaskedjK008excludedjK008includedjK006enableJ10RendererV2ACSb_SbSayyXlXpGAKShySSGALSbtcfc"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry20PreviewRedactOptionsC20enableViewRendererV2Sbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry20PreviewRedactOptionsC20enableViewRendererV2Sbvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry20PreviewRedactOptionsC20enableViewRendererV2Sbvp",
+            "moduleName": "Sentry",
+            "name": "enableViewRendererV2",
+            "printedName": "enableViewRendererV2",
+            "usr": "s:6Sentry20PreviewRedactOptionsC20enableViewRendererV2Sbvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.String>",
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry20PreviewRedactOptionsC19excludedViewClassesShySSGvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "objc_name": "excludedViewClasses",
+                "printedName": "Get()",
+                "usr": "s:6Sentry20PreviewRedactOptionsC19excludedViewClassesShySSGvg"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.String>",
+                "usr": "s:Sh"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry20PreviewRedactOptionsC19excludedViewClassesShySSGvp",
+            "moduleName": "Sentry",
+            "name": "excludedViewClasses",
+            "objc_name": "excludedViewClasses",
+            "printedName": "excludedViewClasses",
+            "usr": "s:6Sentry20PreviewRedactOptionsC19excludedViewClassesShySSGvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Set",
+                    "printedName": "Swift.Set<Swift.String>",
+                    "usr": "s:Sh"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry20PreviewRedactOptionsC19includedViewClassesShySSGvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "objc_name": "includedViewClasses",
+                "printedName": "Get()",
+                "usr": "s:6Sentry20PreviewRedactOptionsC19includedViewClassesShySSGvg"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Set",
+                "printedName": "Swift.Set<Swift.String>",
+                "usr": "s:Sh"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry20PreviewRedactOptionsC19includedViewClassesShySSGvp",
+            "moduleName": "Sentry",
+            "name": "includedViewClasses",
+            "objc_name": "includedViewClasses",
+            "printedName": "includedViewClasses",
+            "usr": "s:6Sentry20PreviewRedactOptionsC19includedViewClassesShySSGvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry20PreviewRedactOptionsC13maskAllImagesSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "objc_name": "maskAllImages",
+                "printedName": "Get()",
+                "usr": "s:6Sentry20PreviewRedactOptionsC13maskAllImagesSbvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry20PreviewRedactOptionsC13maskAllImagesSbvp",
+            "moduleName": "Sentry",
+            "name": "maskAllImages",
+            "objc_name": "maskAllImages",
+            "printedName": "maskAllImages",
+            "usr": "s:6Sentry20PreviewRedactOptionsC13maskAllImagesSbvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry20PreviewRedactOptionsC11maskAllTextSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "objc_name": "maskAllText",
+                "printedName": "Get()",
+                "usr": "s:6Sentry20PreviewRedactOptionsC11maskAllTextSbvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry20PreviewRedactOptionsC11maskAllTextSbvp",
+            "moduleName": "Sentry",
+            "name": "maskAllText",
+            "objc_name": "maskAllText",
+            "printedName": "maskAllText",
+            "usr": "s:6Sentry20PreviewRedactOptionsC11maskAllTextSbvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "children": [
+                                      {
+                                        "kind": "TypeNominal",
+                                        "name": "ProtocolComposition",
+                                        "printedName": "AnyObject"
+                                      }
+                                    ],
+                                    "kind": "TypeNameAlias",
+                                    "name": "AnyObject",
+                                    "printedName": "Builtin.AnyObject"
+                                  }
+                                ],
+                                "kind": "TypeNameAlias",
+                                "name": "AnyObject",
+                                "printedName": "Swift.AnyObject"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "ExistentialMetatype",
+                            "printedName": "any Swift.AnyObject.Type"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "AnyClass",
+                        "printedName": "Swift.AnyClass"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.AnyClass]",
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry20PreviewRedactOptionsC17maskedViewClassesSayyXlXpGvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "objc_name": "maskedViewClasses",
+                "printedName": "Get()",
+                "usr": "s:6Sentry20PreviewRedactOptionsC17maskedViewClassesSayyXlXpGvg"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "ProtocolComposition",
+                                    "printedName": "AnyObject"
+                                  }
+                                ],
+                                "kind": "TypeNameAlias",
+                                "name": "AnyObject",
+                                "printedName": "Builtin.AnyObject"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "AnyObject",
+                            "printedName": "Swift.AnyObject"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "ExistentialMetatype",
+                        "printedName": "any Swift.AnyObject.Type"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "AnyClass",
+                    "printedName": "Swift.AnyClass"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.AnyClass]",
+                "usr": "s:Sa"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry20PreviewRedactOptionsC17maskedViewClassesSayyXlXpGvp",
+            "moduleName": "Sentry",
+            "name": "maskedViewClasses",
+            "objc_name": "maskedViewClasses",
+            "printedName": "maskedViewClasses",
+            "usr": "s:6Sentry20PreviewRedactOptionsC17maskedViewClassesSayyXlXpGvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "children": [
+                                      {
+                                        "kind": "TypeNominal",
+                                        "name": "ProtocolComposition",
+                                        "printedName": "AnyObject"
+                                      }
+                                    ],
+                                    "kind": "TypeNameAlias",
+                                    "name": "AnyObject",
+                                    "printedName": "Builtin.AnyObject"
+                                  }
+                                ],
+                                "kind": "TypeNameAlias",
+                                "name": "AnyObject",
+                                "printedName": "Swift.AnyObject"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "ExistentialMetatype",
+                            "printedName": "any Swift.AnyObject.Type"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "AnyClass",
+                        "printedName": "Swift.AnyClass"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.AnyClass]",
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry20PreviewRedactOptionsC19unmaskedViewClassesSayyXlXpGvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "objc_name": "unmaskedViewClasses",
+                "printedName": "Get()",
+                "usr": "s:6Sentry20PreviewRedactOptionsC19unmaskedViewClassesSayyXlXpGvg"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "ProtocolComposition",
+                                    "printedName": "AnyObject"
+                                  }
+                                ],
+                                "kind": "TypeNameAlias",
+                                "name": "AnyObject",
+                                "printedName": "Builtin.AnyObject"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "AnyObject",
+                            "printedName": "Swift.AnyObject"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "ExistentialMetatype",
+                        "printedName": "any Swift.AnyObject.Type"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "AnyClass",
+                    "printedName": "Swift.AnyClass"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.AnyClass]",
+                "usr": "s:Sa"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry20PreviewRedactOptionsC19unmaskedViewClassesSayyXlXpGvp",
+            "moduleName": "Sentry",
+            "name": "unmaskedViewClasses",
+            "objc_name": "unmaskedViewClasses",
+            "printedName": "unmaskedViewClasses",
+            "usr": "s:6Sentry20PreviewRedactOptionsC19unmaskedViewClassesSayyXlXpGvp"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$s6Sentry0A13RedactOptionsP",
+            "name": "SentryRedactOptions",
+            "printedName": "SentryRedactOptions",
+            "usr": "c:@M@Sentry@objc(pl)SentryRedactOptions"
+          }
+        ],
+        "declAttributes": [
+          "Final"
+        ],
+        "declKind": "Class",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry20PreviewRedactOptionsC",
+        "moduleName": "Sentry",
+        "name": "PreviewRedactOptions",
+        "printedName": "PreviewRedactOptions",
+        "usr": "s:6Sentry20PreviewRedactOptionsC"
       },
       {
         "children": [
@@ -51570,6 +52371,82 @@
       {
         "children": [
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A13SpanOperationO6uiLoadSSvgZ",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "s:6Sentry0A13SpanOperationO6uiLoadSSvgZ"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A13SpanOperationO6uiLoadSSvpZ",
+            "moduleName": "Sentry",
+            "name": "uiLoad",
+            "printedName": "uiLoad",
+            "static": true,
+            "usr": "s:6Sentry0A13SpanOperationO6uiLoadSSvpZ"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declAttributes": [
+          "Available"
+        ],
+        "declKind": "Enum",
+        "deprecated": true,
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A13SpanOperationO",
+        "moduleName": "Sentry",
+        "name": "SentrySpanOperation",
+        "printedName": "SentrySpanOperation",
+        "usr": "s:6Sentry0A13SpanOperationO"
+      },
+      {
+        "children": [
+          {
             "children": [
               {
                 "children": [
@@ -53718,6 +54595,370 @@
         ],
         "superclassUsr": "c:objc(cs)NSObject",
         "usr": "c:objc(cs)SentryThread"
+      },
+      {
+        "children": [
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11TraceOriginO13autoUISwiftUISSvgZ",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "s:6Sentry0A11TraceOriginO13autoUISwiftUISSvgZ"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11TraceOriginO13autoUISwiftUISSvpZ",
+            "moduleName": "Sentry",
+            "name": "autoUISwiftUI",
+            "printedName": "autoUISwiftUI",
+            "static": true,
+            "usr": "s:6Sentry0A11TraceOriginO13autoUISwiftUISSvpZ"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11TraceOriginO19autoUITimeToDisplaySSvgZ",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "s:6Sentry0A11TraceOriginO19autoUITimeToDisplaySSvgZ"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11TraceOriginO19autoUITimeToDisplaySSvpZ",
+            "moduleName": "Sentry",
+            "name": "autoUITimeToDisplay",
+            "printedName": "autoUITimeToDisplay",
+            "static": true,
+            "usr": "s:6Sentry0A11TraceOriginO19autoUITimeToDisplaySSvpZ"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declAttributes": [
+          "Available"
+        ],
+        "declKind": "Enum",
+        "deprecated": true,
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A11TraceOriginO",
+        "moduleName": "Sentry",
+        "name": "SentryTraceOrigin",
+        "printedName": "SentryTraceOrigin",
+        "usr": "s:6Sentry0A11TraceOriginO"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "Content"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "() -> Content"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Bool?",
+                "usr": "s:Sq"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "usr": "s:Sq"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "Content"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "SentryTracedView",
+                "printedName": "Sentry.SentryTracedView<Content>",
+                "usr": "s:6Sentry0A10TracedViewV"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Preconcurrency"
+            ],
+            "declKind": "Constructor",
+            "genericSig": "<Content where Content : SwiftUI.View>",
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$s6Sentry0A10TracedViewV_18waitForFullDisplay7contentACyxGSSSg_SbSgxyctcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "printedName": "init(_:waitForFullDisplay:content:)",
+            "usr": "s:6Sentry0A10TracedViewV_18waitForFullDisplay7contentACyxGSSSg_SbSgxyctcfc"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Available"
+            ],
+            "declKind": "TypeAlias",
+            "genericSig": "<Content where Content : SwiftUI.View>",
+            "intro_iOS": "15.0",
+            "intro_tvOS": "15.0",
+            "kind": "TypeAlias",
+            "mangledName": "$s6Sentry0A10TracedViewV4Bodya",
+            "moduleName": "Sentry",
+            "name": "Body",
+            "printedName": "Body",
+            "usr": "s:6Sentry0A10TracedViewV4Bodya"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "View",
+                        "printedName": "SwiftUI.View",
+                        "usr": "s:7SwiftUI4ViewP"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "OpaqueTypeArchetype",
+                    "printedName": "some SwiftUI.View"
+                  }
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Content where Content : SwiftUI.View>",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A10TracedViewV4bodyQrvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A10TracedViewV4bodyQrvg"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Preconcurrency"
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A10TracedViewV4bodyQrvp",
+            "moduleName": "Sentry",
+            "name": "body",
+            "printedName": "body",
+            "usr": "s:6Sentry0A10TracedViewV4bodyQrvp"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8SendableP",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "View",
+                            "printedName": "SwiftUI.View",
+                            "usr": "s:7SwiftUI4ViewP"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "OpaqueTypeArchetype",
+                        "printedName": "some SwiftUI.View"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Body",
+                    "printedName": "Sentry.SentryTracedView<Content>.Body"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "Body",
+                "printedName": "Body"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$s7SwiftUI4ViewP",
+            "name": "View",
+            "printedName": "View",
+            "usr": "s:7SwiftUI4ViewP"
+          }
+        ],
+        "declAttributes": [
+          "Available",
+          "Available",
+          "Custom",
+          "Preconcurrency"
+        ],
+        "declKind": "Struct",
+        "genericSig": "<Content where Content : SwiftUI.View>",
+        "intro_iOS": "15.0",
+        "intro_tvOS": "15.0",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A10TracedViewV",
+        "moduleName": "Sentry",
+        "name": "SentryTracedView",
+        "printedName": "SentryTracedView",
+        "usr": "s:6Sentry0A10TracedViewV"
       },
       {
         "children": [
@@ -65669,6 +66910,42 @@
             "name": "TextOutputStreamable",
             "printedName": "TextOutputStreamable",
             "usr": "s:s20TextOutputStreamableP"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "TransferRepresentation",
+                            "printedName": "CoreTransferable.TransferRepresentation",
+                            "usr": "s:16CoreTransferable22TransferRepresentationP"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "OpaqueTypeArchetype",
+                        "printedName": "some CoreTransferable.TransferRepresentation"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Representation",
+                    "printedName": "Swift.String.Representation"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "Representation",
+                "printedName": "Representation"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$s16CoreTransferable0B0P",
+            "name": "Transferable",
+            "printedName": "Transferable",
+            "usr": "s:16CoreTransferable0B0P"
           }
         ],
         "declAttributes": [
@@ -69086,6 +70363,228 @@
         ],
         "superclassUsr": "c:objc(cs)NSObject",
         "usr": "c:objc(cs)SentryUser"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "genericSig": "<Self where Self : SwiftUI.View>",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s7SwiftUI4ViewP6SentryE16sentryReplayMaskQryF",
+            "moduleName": "Sentry",
+            "name": "sentryReplayMask",
+            "printedName": "sentryReplayMask()",
+            "usr": "s:7SwiftUI4ViewP6SentryE16sentryReplayMaskQryF"
+          },
+          {
+            "children": [
+              {
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Float",
+                "printedName": "Swift.Float",
+                "usr": "s:Sf"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryRedactOptions",
+                    "printedName": "any Sentry.SentryRedactOptions",
+                    "usr": "c:@M@Sentry@objc(pl)SentryRedactOptions"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "(any Sentry.SentryRedactOptions)?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "genericSig": "<Self where Self : SwiftUI.View>",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s7SwiftUI4ViewP6SentryE23sentryReplayPreviewMask13redactOptions7opacityQrAD0d6RedactJ0_pSg_SftF",
+            "moduleName": "Sentry",
+            "name": "sentryReplayPreviewMask",
+            "printedName": "sentryReplayPreviewMask(redactOptions:opacity:)",
+            "usr": "s:7SwiftUI4ViewP6SentryE23sentryReplayPreviewMask13redactOptions7opacityQrAD0d6RedactJ0_pSg_SftF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "genericSig": "<Self where Self : SwiftUI.View>",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s7SwiftUI4ViewP6SentryE18sentryReplayUnmaskQryF",
+            "moduleName": "Sentry",
+            "name": "sentryReplayUnmask",
+            "printedName": "sentryReplayUnmask()",
+            "usr": "s:7SwiftUI4ViewP6SentryE18sentryReplayUnmaskQryF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.Bool?",
+                "usr": "s:Sq"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "genericSig": "<Self where Self : SwiftUI.View>",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s7SwiftUI4ViewP6SentryE11sentryTrace_18waitForFullDisplayQrSSSg_SbSgtF",
+            "moduleName": "Sentry",
+            "name": "sentryTrace",
+            "printedName": "sentryTrace(_:waitForFullDisplay:)",
+            "usr": "s:7SwiftUI4ViewP6SentryE11sentryTrace_18waitForFullDisplayQrSSSg_SbSgtF"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declAttributes": [
+          "Available",
+          "Available",
+          "Available",
+          "Available",
+          "Custom",
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "Preconcurrency",
+          "TypeEraser"
+        ],
+        "declKind": "Protocol",
+        "genericSig": "<Self.Body : SwiftUI.View>",
+        "intro_Macosx": "10.15",
+        "intro_iOS": "13.0",
+        "intro_tvOS": "13.0",
+        "intro_watchOS": "6.0",
+        "isExternal": true,
+        "kind": "TypeDecl",
+        "mangledName": "$s7SwiftUI4ViewP",
+        "moduleName": "SwiftUICore",
+        "name": "View",
+        "printedName": "View",
+        "usr": "s:7SwiftUI4ViewP"
       },
       {
         "children": [
