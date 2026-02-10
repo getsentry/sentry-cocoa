@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Don't report NSException subclasses as C++ exceptions (#7420)
+
 ## 9.4.0
 
 ### Breaking Changes
