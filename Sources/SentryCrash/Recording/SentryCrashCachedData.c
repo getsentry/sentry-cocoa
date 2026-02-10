@@ -242,7 +242,12 @@ sentrycrashccd_freeze(void)
         cache = atomic_exchange(&g_activeCache, NULL);
     }
 
-    atomic_store(&g_frozenCache, cache);
+    // Only update g_frozenCache if we actually acquired a cache.
+    // A nested freeze (recrash scenario) gets NULL from g_activeCache;
+    // we must not overwrite the still-valid frozen pointer from the first freeze.
+    if (cache != NULL) {
+        atomic_store(&g_frozenCache, cache);
+    }
 }
 
 void

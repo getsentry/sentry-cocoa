@@ -181,6 +181,43 @@
     sentrycrashccd_unfreeze();
 }
 
+- (void)testFreeze_whenCalledTwiceWithoutUnfreeze_shouldPreserveFrozenCache
+{
+    // -- Arrange --
+    // Simulates a recrash scenario: the first crash calls freeze() inside
+    // writeStandardReport, but before unfreeze() is reached a second crash
+    // triggers writeRecrashReport which calls freeze() again.
+    NSString *expectedName = @"Recrash thread";
+    TestThread *thread = [self startThreadWithName:expectedName];
+
+    sentrycrashccd_init(10);
+    [NSThread sleepForTimeInterval:0.1];
+
+    // -- Act --
+    // First freeze (simulates writeStandardReport path).
+    sentrycrashccd_freeze();
+
+    // Verify the cache is valid after first freeze.
+    const char *nameAfterFirstFreeze = sentrycrashccd_getThreadName(thread.thread);
+    XCTAssertTrue(
+        nameAfterFirstFreeze != NULL, @"Thread name should be available after first freeze");
+
+    // Second freeze without unfreeze (simulates the recrash path).
+    sentrycrashccd_freeze();
+
+    // -- Assert --
+    // The frozen cache should still be valid — the second freeze must not
+    // overwrite it with NULL.
+    const char *nameAfterSecondFreeze = sentrycrashccd_getThreadName(thread.thread);
+    XCTAssertTrue(nameAfterSecondFreeze != NULL,
+        @"Thread name should still be available after nested freeze (recrash scenario)");
+    NSString *name = [NSString stringWithUTF8String:nameAfterSecondFreeze];
+    XCTAssertEqualObjects(name, expectedName);
+
+    sentrycrashccd_unfreeze();
+    [thread cancel];
+}
+
 - (void)testFreezeUnfreeze_whenCycledMultipleTimes_shouldReturnConsistentResults
 {
     // -- Arrange --
