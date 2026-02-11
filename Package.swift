@@ -47,20 +47,12 @@ var targets: [Target] = [
     ),
     .target(
         name: "SentrySwiftUI",
-        dependencies: ["Sentry", "SentryInternal"],
+        dependencies: ["Sentry"],
         path: "Sources/SentrySwiftUI",
-        exclude: ["SentryInternal/", "module.modulemap"],
+        exclude: ["module.modulemap"],
         linkerSettings: [
             .linkedFramework("Sentry")
         ]
-    ),
-    .target(
-        name: "SentryInternal",
-        path: "Sources/SentrySwiftUI",
-        sources: [
-            "SentryInternal/"
-        ],
-        publicHeadersPath: "SentryInternal/"
     ),
     .target(
         name: "SentryCppHelper",

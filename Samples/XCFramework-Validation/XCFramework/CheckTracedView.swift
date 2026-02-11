@@ -2,6 +2,7 @@ import Foundation
 import SentrySwiftUI
 import SwiftUI
 
+@available(iOS 15.0, *)
 public struct CheckTracedView<Content: View>: View {
     public let content: () -> Content
 
@@ -16,6 +17,7 @@ public struct CheckTracedView<Content: View>: View {
     }
 }
 
+@available(iOS 15.0, *)
 extension View {
     public func traceView(_ viewName: String? = nil) -> some View {
         sentryTrace(viewName)
