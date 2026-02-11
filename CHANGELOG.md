@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Fix user attributes from scope being omitted from logs when sendDefaultPII is false (#7437)
 - Cleanup SessionReplay when maximum duration reached (#7421)
 - Fix App hangs report with high durations (#7354)
 
