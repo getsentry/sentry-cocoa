@@ -88,7 +88,7 @@ class SentrySessionReplayTests: XCTestCase {
         var lastVideoUrl: URL?
         var lastReplayId: SentryId?
         var currentScreen: String?
-        var sessionReplayEndedCalled = false
+        var sessionReplayEndedInvocations = Invocations<Void>()
 
         func getSut(
             options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0),
@@ -122,7 +122,7 @@ class SentrySessionReplayTests: XCTestCase {
         }
 
         func sessionReplayEnded() {
-            sessionReplayEndedCalled = true
+            sessionReplayEndedInvocations.record(Void())
         }
         
         func breadcrumbsForSessionReplay() -> [Breadcrumb] {
@@ -276,7 +276,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(fixture.displayLink.isRunning())
-        XCTAssertTrue(fixture.sessionReplayEndedCalled)
+        XCTAssertEqual(fixture.sessionReplayEndedInvocations.count, 1)
     }
 
     func testSessionReplayMaximumDuration_whenNotReached_shouldNotCallEnded() {
@@ -292,7 +292,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Assert --
         XCTAssertTrue(fixture.displayLink.isRunning())
-        XCTAssertFalse(fixture.sessionReplayEndedCalled)
+        XCTAssertEqual(fixture.sessionReplayEndedInvocations.count, 0)
     }
     
     func testSdkInfoIsSet() throws {
