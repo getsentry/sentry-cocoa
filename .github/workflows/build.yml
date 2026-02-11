@@ -181,6 +181,9 @@ jobs:
 
       - name: Build Sample
         run: make ${{ matrix.make-target }}
+        env:
+          IOS_SIMULATOR_OS: latest
+          IOS_DEVICE_NAME: iPhone 17 Pro
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}

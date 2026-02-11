@@ -107,14 +107,18 @@ if is_enabled "$REMOVE_BINARY_TARGETS"; then
   # Remove all binary targets.
   sed -i '' '/^[[:space:]]*\.binaryTarget(/,/^[[:space:]]*),\{0,1\}$/d' "$PACKAGE_FILE"
 
-  # Keep only the SentryDistribution library in the products array.
+  # Keep only the SentryDistribution and SentrySPM libraries in the products array.
+  # SentrySPM is needed by the Samples/SPM project which is part of the workspace build.
   sed -i '' '/^var products: \[Product\] = \[/,/^]/c\
 var products: [Product] = [\
     .library(name: "SentryDistribution", targets: ["SentryDistribution"]),\
+    .library(name: "SentrySPM", targets: ["SentrySPM"])\
 ]\
 ' "$PACKAGE_FILE"
 
-  # Keep only the SentryDistribution target in the targets array.
+  # Keep only the SentryDistribution target in the initial targets array.
+  # The compile-from-source targets (SentryHeaders, _SentryPrivate, SentrySwift,
+  # SentryObjCInternal, SentrySPM) are appended via "targets += [...]" and survive this replacement.
   sed -i '' '/^var targets: \[Target\] = \[/,/^]/c\
 var targets: [Target] = [\
     .target(name: "SentryDistribution", path: "Sources/SentryDistribution"),\
