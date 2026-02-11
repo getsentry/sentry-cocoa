@@ -7,7 +7,6 @@ on:
     # See: https://github.com/CocoaPods/trunk.cocoapods.org/blob/a1869790e9ae2229b6985b6af4532da814202558/app/models/session.rb#L9
     - cron: "0 0 * * *" # Runs every day at midnight UTC
   workflow_dispatch:
-  pull_request:
 
 permissions:
   contents: read
