@@ -231,6 +231,8 @@ import UIKit
             SentrySDKLog.debug("[Session Replay] Reached maximum duration, pausing session")
             reachedMaximumDuration = true
             pause()
+            // Notify the delegate that the session replay has ended so it can clear the session replay id.
+            delegate?.sessionReplayEnded()
             return
         }
 
