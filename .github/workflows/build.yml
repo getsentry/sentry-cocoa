@@ -149,6 +149,43 @@ jobs:
         if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
 
+  build-sample-spm:
+    name: Sample SPM ${{ matrix.name }}
+    # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
+    needs: files-changed
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: iOS
+            make-target: build-sample-iOS-SwiftUI-SPM
+          - name: watchOS
+            make-target: build-sample-watchOS-SwiftUI-SPM
+          - name: tvOS
+            make-target: build-sample-tvOS-SwiftUI-SPM
+          - name: macOS
+            make-target: build-sample-macOS-SwiftUI-SPM
+          - name: visionOS
+            make-target: build-sample-visionOS-SwiftUI-SPM
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Select Xcode
+        run: ./scripts/ci-select-xcode.sh 26.2
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Build Sample
+        run: make ${{ matrix.make-target }}
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
   build-distribution:
     name: Build the distribution framework
     runs-on: macos-15
@@ -428,6 +465,7 @@ jobs:
         files-changed,
         ios-swift-release,
         build-sample,
+        build-sample-spm,
         build-distribution,
         build-spm,
         build-v9,

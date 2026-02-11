@@ -5,37 +5,13 @@
       location = "container:"
       name = "Samples">
       <FileRef
-         location = "group:Samples/Shared">
-      </FileRef>
-      <FileRef
          location = "group:Samples/README.md">
       </FileRef>
       <FileRef
+         location = "group:Samples/Shared">
+      </FileRef>
+      <FileRef
          location = "group:Samples/DistributionSample/DistributionSample.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Samples/SPM/SPM.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Samples/SentrySampleShared/SentrySampleShared.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Samples/watchOS-Swift/watchOS-Swift.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Samples/iOS15-SwiftUI/iOS15-SwiftUI.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Samples/iOS-SwiftUI/iOS-SwiftUI.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Samples/tvOS-Swift/tvOS-Swift.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Samples/macOS-SwiftUI/macOS-SwiftUI.xcodeproj">
-      </FileRef>
-      <FileRef
-         location = "group:Samples/macOS-Swift/macOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj">
@@ -47,16 +23,52 @@
          location = "group:Samples/iOS-Swift6/iOS-Swift6.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Samples/iOS-SwiftUI/iOS-SwiftUI.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/iOS15-SwiftUI/iOS15-SwiftUI.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/macOS-Swift/macOS-Swift.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/macOS-SwiftUI/macOS-SwiftUI.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/SDK-Size/SDK-Size.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/SentrySampleShared/SentrySampleShared.xcodeproj">
       </FileRef>
       <FileRef
          location = "group:Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Samples/SPM/SPM.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/tvOS-Swift/tvOS-Swift.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Samples/visionOS-Swift/visionOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Samples/SDK-Size/SDK-Size.xcodeproj">
+         location = "group:Samples/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/watchOS-Swift/watchOS-Swift.xcodeproj">
       </FileRef>
    </Group>
    <FileRef
