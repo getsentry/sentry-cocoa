@@ -45,8 +45,8 @@ extension TelemetryScopeApplier {
 
         // Set the modified dictionary back once
         item.attributesDict = attributes
-        // When a span is active, use its traceId to ensure consistency with span_id.
-        // Otherwise, fall back to propagationContext traceId.
+        // trace_id: From propagation context (https://develop.sentry.dev/sdk/telemetry/logs/#log-envelope-item-payload).
+        // When an active span exists, span.traceId and propagationContextTraceId match; use span's for consistency with span_id.
         item.traceId = span?.traceId ?? propagationContextTraceId
     }
 
@@ -57,6 +57,9 @@ extension TelemetryScopeApplier {
         if let releaseName = metadata.releaseName {
             attributes["sentry.release"] = .string(releaseName)
         }
+        // span_id: Only set when there is an active span (scope.span). A propagated span_id must not be used
+        // (https://develop.sentry.dev/sdk/telemetry/logs/#log-envelope-item-payload,
+        // https://develop.sentry.dev/sdk/telemetry/logs/#tracing).
         if let span = self.span {
             attributes["span_id"] = .string(span.spanId.sentrySpanIdString)
         }
