@@ -19,5 +19,7 @@ jobs:
       COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
 
     steps:
+      - name: Install CocoaPods
+        run: gem install cocoapods
       - name: Refresh CocoaPods Session
         run: pod trunk me > /dev/null 2>&1
