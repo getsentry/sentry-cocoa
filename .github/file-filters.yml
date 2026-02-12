@@ -538,6 +538,7 @@ run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-utils.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/prepare-package.sh"
   - "scripts/build-xcframework-local.sh"
