@@ -222,9 +222,17 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.4
         shell: sh
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
-      - run: set -o pipefail && NSUnbufferedIO=YES EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS' | tee raw-build-output-spm-watchos.log | xcbeautify
+      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+          -scheme SentrySPM \
+          -sdk watchos \
+          -destination 'generic/platform=watchOS' \
+          build | tee raw-build-output-spm-watchos.log | xcbeautify --preserve-unbeautified
         shell: sh
-      - run: set -o pipefail && NSUnbufferedIO=YES EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk iphoneos -destination 'generic/platform=iphoneos' | tee raw-build-output-spm-iphoneos.log | xcbeautify
+      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+          -scheme SentrySPM \
+          -sdk iphoneos \
+          -destination 'generic/platform=iphoneos' \
+          build | tee raw-build-output-spm-iphoneos.log | xcbeautify --preserve-unbeautified
         shell: sh
 
       - name: Upload SPM Build Logs
@@ -236,32 +244,6 @@ jobs:
             raw-build-output-spm-watchos.log
             raw-build-output-spm-iphoneos.log
 
-      - name: Debug Xcode environment
-        if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
-
-  build-v9:
-    name: Build SDK v9
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
-      - run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform iOS \
-            --os 18.5 \
-            --command build \
-            --device "iPhone 16 Pro"  \
-            --configuration Debug
-      - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@v6
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: raw-build-output-v9
-          path: |
-            raw-build-output.log
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
@@ -471,7 +453,6 @@ jobs:
         build-sample-spm,
         build-distribution,
         build-spm,
-        build-v9,
         check-debug-without-UIKit,
         check-release-without-UIKit,
         check-debug-with-UIKit,
