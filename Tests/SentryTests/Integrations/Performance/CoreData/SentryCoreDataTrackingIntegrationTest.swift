@@ -11,8 +11,8 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
         let defaultOptions: Options
         let coreDataStack: TestCoreDataStack
 
-        init(testName: String) {
-            coreDataStack = TestCoreDataStack(databaseFilename: "db-\(testName.hashValue).sqlite")
+        init(testName: String) throws {
+            coreDataStack = try TestCoreDataStack(databaseFilename: "db-\(testName.hashValue).sqlite")
             let options = Options()
             options.dsn = TestConstants.dsnForTestCase(type: SentryCoreDataTrackingIntegrationTests.self)
             options.removeAllIntegrations()
@@ -35,14 +35,14 @@ class SentryCoreDataTrackingIntegrationTests: XCTestCase {
     
     private var fixture: Fixture!
 
-    override func setUp() {
+    override func setUpWithError() throws {
         super.setUp()
-        fixture = Fixture(testName: self.name)
+        fixture = try Fixture(testName: self.name)
     }
     
-    override func tearDown() {
+    override func tearDownWithError() throws {
         super.tearDown()
-        fixture.coreDataStack.reset()
+        try fixture.coreDataStack.reset()
         clearTestState()
     }
     

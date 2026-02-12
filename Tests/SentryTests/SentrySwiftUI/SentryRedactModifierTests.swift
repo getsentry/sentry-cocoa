@@ -1,6 +1,5 @@
-#if canImport(UIKit) && canImport(SwiftUI)
+#if canImport(UIKit) && canImport(SwiftUI) && (os(iOS) || os(tvOS))
 @testable import Sentry
-@testable import SentrySwiftUI
 import SwiftUI
 import XCTest
 
@@ -18,7 +17,7 @@ class SentryRedactModifierTests: XCTestCase {
         // Eventually this can be replaced with a more stable solution.
         let candidates = [
             "ModifiedContent<Text, SentryReplayModifier>",
-            "SwiftUI.ModifiedContent<SwiftUI.Text, SentrySwiftUI.SentryReplayModifier>"
+            "SwiftUI.ModifiedContent<SwiftUI.Text, Sentry.SentryReplayModifier>"
         ]
         XCTAssertTrue(
             candidates.contains(where: { typeOfRedactedText.contains($0) }),
@@ -38,7 +37,7 @@ class SentryRedactModifierTests: XCTestCase {
         // Eventually this can be replaced with a more stable solution.
         let candidates = [
             "ModifiedContent<Text, SentryReplayModifier>",
-            "SwiftUI.ModifiedContent<SwiftUI.Text, SentrySwiftUI.SentryReplayModifier>"
+            "SwiftUI.ModifiedContent<SwiftUI.Text, Sentry.SentryReplayModifier>"
         ]
         XCTAssertTrue(
             candidates.contains(where: { typeOfRedactedText.contains($0) }),

@@ -125,7 +125,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         self.telemetryProcessor = [SentryTelemetryProcessorFactory
             getProcessorWithTransport:[[SentryDefaultTelemetryProcessorTransport alloc]
-                                          initWithTransportAdapter:transportAdapter]];
+                                          initWithTransportAdapter:transportAdapter]
+                         dependencies:SentryDependencyContainer.sharedInstance];
 
         self.logScopeApplier =
             [[SentryDefaultLogScopeApplier alloc] initWithEnvironment:options.environment
@@ -1125,11 +1126,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         [self.telemetryProcessor addLog:enrichedLog];
     }
-}
-
-- (void)captureLogs
-{
-    (void)[self.telemetryProcessor forwardTelemetryData];
 }
 
 - (void)captureMetricsData:(NSData *)data with:(NSNumber *)itemCount

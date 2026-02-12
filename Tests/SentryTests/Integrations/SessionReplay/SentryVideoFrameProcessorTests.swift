@@ -123,7 +123,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
             outputFileURL = FileManager.default.temporaryDirectory.appendingPathComponent("test_video.mp4")
             videoWriter = try XCTUnwrap(TestAVAssetWriter(url: outputFileURL, fileType: .mp4))
 
-            createTestImage()
+            try createTestImage()
         }
 
         func getSut() -> SentryVideoFrameProcessor {
@@ -154,16 +154,18 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         }
 
         @discardableResult
-        func createTestImage() -> String {
+        func createTestImage() throws -> String {
             let testImage = createTestUIImage()
             let testImagePath = FileManager.default.temporaryDirectory.appendingPathComponent("test.png")
-            try? testImage.pngData()?.write(to: testImagePath)
+            try testImage.pngData()?.write(to: testImagePath)
             return testImagePath.path
         }
 
-        func cleanTestImagePath() {
+        func cleanTestImagePath() throws {
             let testImagePath = FileManager.default.temporaryDirectory.appendingPathComponent("test.png")
-            try? FileManager.default.removeItem(atPath: testImagePath.path)
+            if FileManager.default.fileExists(atPath: testImagePath.path) {
+                try FileManager.default.removeItem(at: testImagePath)
+            }
         }
     }
 
@@ -174,11 +176,13 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         fixture = try Fixture()
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDownWithError() throws {
+        try super.tearDownWithError()
         // Clean up test files
-        try? FileManager.default.removeItem(at: fixture.outputFileURL)
-        fixture.cleanTestImagePath()
+        if FileManager.default.fileExists(atPath: fixture.outputFileURL.path) {
+            try FileManager.default.removeItem(at: fixture.outputFileURL)
+        }
+        try fixture.cleanTestImagePath()
     }
 
     // MARK: - Initialization Tests
@@ -325,7 +329,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
     // MARK: - Finish Video Tests
 
-    func testFinishVideo_WhenWriterCompleted_ShouldReturnVideoInfo() {
+    func testFinishVideo_WhenWriterCompleted_ShouldReturnVideoInfo() throws {
         let sut = fixture.getSut()
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
         fixture.videoWriter.add(videoWriterInput)
@@ -334,7 +338,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
         // Create a test video file
         let testData = Data("test video data".utf8)
-        try? testData.write(to: fixture.outputFileURL)
+        try testData.write(to: fixture.outputFileURL)
 
         // Add some used frames
         sut.usedFrames = fixture.videoFrames
@@ -474,7 +478,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         }
     }
 
-    func testFinishVideo_WhenOutputFileDoesNotExist_ShouldReturnError() {
+    func testFinishVideo_WhenOutputFileDoesNotExist_ShouldReturnError() throws {
         let sut = fixture.getSut()
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
         fixture.videoWriter.add(videoWriterInput)
@@ -482,7 +486,9 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
 
         // Ensure the output file doesn't exist
-        try? FileManager.default.removeItem(at: fixture.outputFileURL)
+        if FileManager.default.fileExists(atPath: fixture.outputFileURL.path) {
+            try FileManager.default.removeItem(at: fixture.outputFileURL)
+        }
 
         // Add some used frames
         sut.usedFrames = fixture.videoFrames
@@ -545,12 +551,12 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         ))
     }
 
-    func testGetVideoInfo_WithEmptyUsedFrames_ShouldThrowError() {
+    func testGetVideoInfo_WithEmptyUsedFrames_ShouldThrowError() throws {
         let sut = fixture.getSut()
 
         // Create a test video file
         let testData = Data("test video data".utf8)
-        try? testData.write(to: fixture.outputFileURL)
+        try testData.write(to: fixture.outputFileURL)
 
         XCTAssertThrowsError(try sut.getVideoInfo(
             from: fixture.outputFileURL,
@@ -605,15 +611,15 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         XCTAssertEqual(sut.frameIndex, 10)
     }
 
-    func testProcessFrames_WithMixedValidAndInvalidFrames_ShouldProcessValidFrames() {
+    func testProcessFrames_WithMixedValidAndInvalidFrames_ShouldProcessValidFrames() throws {
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
 
         // Create mixed frames (valid and invalid)
         let mixedFrames = [
-            SentryReplayFrame(imagePath: fixture.createTestImage(), time: Date(), screenName: "Valid1"),
+            SentryReplayFrame(imagePath: try fixture.createTestImage(), time: Date(), screenName: "Valid1"),
             SentryReplayFrame(imagePath: "/non/existent/path.png", time: Date(), screenName: "Invalid"),
-            SentryReplayFrame(imagePath: fixture.createTestImage(), time: Date(), screenName: "Valid2")
+            SentryReplayFrame(imagePath: try fixture.createTestImage(), time: Date(), screenName: "Valid2")
         ]
 
         let sutWithMixedFrames = SentryVideoFrameProcessor(

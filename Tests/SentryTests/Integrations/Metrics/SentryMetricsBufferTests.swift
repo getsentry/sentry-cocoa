@@ -61,7 +61,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
-        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
+        let capturedMetrics = try testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.element(at: 0)?["name"] as? String, "metric.one")
         XCTAssertEqual(capturedMetrics.element(at: 1)?["name"] as? String, "metric.two")
 
@@ -94,7 +94,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
-        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
+        let capturedMetrics = try testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.element(at: 0)?["name"] as? String, "large.metric")
 
         // Assert no further metrics
@@ -119,7 +119,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         // -- Assert -- Should have flushed once when reaching maxMetricCount
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
-        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
+        let capturedMetrics = try testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.count, 10, "Should have captured exactly 10 metrics")
     }
     
@@ -143,7 +143,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         
         // Verify flush occurred
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
-        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
+        let capturedMetrics = try testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.count, 1)
     }
     
@@ -215,7 +215,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1, "Should flush when reaching default maxMetricCount of 100")
         
-        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
+        let capturedMetrics = try testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.count, 100, "Should have captured exactly 100 metrics")
     }
     
@@ -257,7 +257,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1, "Should flush when exceeding default maxBufferSizeBytes of 1MB")
         
-        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
+        let capturedMetrics = try testCallbackHelper.getCapturedMetrics()
         XCTAssertGreaterThan(capturedMetrics.count, 0, "Should have captured at least one metric")
         XCTAssertLessThanOrEqual(capturedMetrics.count, 600, "Should not have captured more metrics than were added")
     }
@@ -281,7 +281,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(duration, 0, "captureMetrics should return a non-negative duration")
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1)
         
-        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
+        let capturedMetrics = try testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.count, 2)
     }
     
@@ -321,7 +321,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         // The actual duration depends on system performance, so we just verify it's non-negative
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 1, "Should invoke callback once")
         
-        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
+        let capturedMetrics = try testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.count, 5, "Should capture all 5 metrics")
     }
     
@@ -405,7 +405,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 2)
         
         // Verify each flush contains only one metric
-        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
+        let capturedMetrics = try testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.element(at: 0)?["name"] as? String, "metric.1")
         XCTAssertEqual(capturedMetrics.element(at: 1)?["name"] as? String, "metric.2")
 
@@ -429,7 +429,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         sut.captureMetrics()
 
         // -- Assert --
-        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
+        let capturedMetrics = try testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         XCTAssertEqual(capturedMetric["type"] as? String, "counter")
         XCTAssertEqual(capturedMetric["value"] as? Int64, 42)
@@ -453,7 +453,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         sut.captureMetrics()
 
         // -- Assert --
-        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
+        let capturedMetrics = try testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         XCTAssertEqual(capturedMetric["type"] as? String, "distribution")
         XCTAssertEqual(capturedMetric["value"] as? Double, 42.123456)
@@ -477,7 +477,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         sut.captureMetrics()
         
         // -- Assert --
-        let capturedMetrics = testCallbackHelper.getCapturedMetrics()
+        let capturedMetrics = try testCallbackHelper.getCapturedMetrics()
         let capturedMetric = try XCTUnwrap(capturedMetrics.first)
         XCTAssertEqual(capturedMetric["type"] as? String, "gauge")
         XCTAssertEqual(capturedMetric["value"] as? Double, 42.0)
@@ -525,18 +525,18 @@ final class TestMetricsBufferCallbackHelper {
     // JSONSerialization provides a good middle ground: it parses the JSON structure without duplicating
     // the encoding/decoding logic, and it's order-agnostic, making tests stable while still verifying
     // the actual data structure produced by the buffer.
-    func getCapturedMetrics() -> [[String: Any]] {
+    func getCapturedMetrics() throws -> [[String: Any]] {
         var allMetrics: [[String: Any]] = []
 
         for invocation in captureMetricsDataInvocations.invocations {
-            if let jsonObject = try? JSONSerialization.jsonObject(with: invocation.data) as? [String: Any],
-               let items = jsonObject["items"] as? [[String: Any]] {
+            let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: invocation.data) as? [String: Any])
+            if let items = jsonObject["items"] as? [[String: Any]] {
                 for item in items {
                     allMetrics.append(item)
                 }
             }
         }
-        
+
         return allMetrics
     }
 }

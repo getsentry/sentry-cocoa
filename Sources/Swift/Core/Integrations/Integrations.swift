@@ -75,10 +75,6 @@ private struct AnyIntegration {
         #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(UserFeedbackIntegration.self))
         #endif
-        
-        #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
-        integrations.append(.init(FlushLogsIntegration.self))
-        #endif
 
         #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentryScreenshotIntegration.self))
