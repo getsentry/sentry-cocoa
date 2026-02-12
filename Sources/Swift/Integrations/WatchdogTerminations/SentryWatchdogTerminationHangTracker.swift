@@ -1,14 +1,18 @@
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 final class SentryWatchdogTerminationHangTracker {
+    private struct CallbackIds {
+        let late: UUID
+        let finishedRunLoop: UUID
+    }
+
     private let queue: SentryDispatchQueueWrapperProtocol
     private let tracker: SentryHangTracker
     private let timeoutInterval: TimeInterval
     private let hangStarted: () -> Void
     private let hangStopped: () -> Void
 
-    private var callbackId: (late: UUID, finishedRunLoop: UUID)?
-    private var finishedRunLoopId: UUID?
+    private var callbackId: CallbackIds?
     private var currentHangId: UUID?
 
     init(
@@ -47,9 +51,15 @@ final class SentryWatchdogTerminationHangTracker {
                 self.hangStarted()
             }
             let finished = tracker.addFinishedRunLoopObserver { [weak self] _ in
-                self?.hangStopped()
+                guard let self = self else { return }
+                // Only call hangStopped when a hang was actually active; otherwise we'd trigger
+                // disk I/O (updateAppState) 60-120 times per second on every run loop iteration.
+                if self.currentHangId != nil {
+                    self.currentHangId = nil
+                    self.hangStopped()
+                }
             }
-            callbackId = (late, finished)
+            callbackId = CallbackIds(late: late, finishedRunLoop: finished)
         }
     }
 

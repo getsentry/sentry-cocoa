@@ -1,9 +1,9 @@
 // swiftlint:disable file_length
 
-#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 @_implementationOnly import _SentryPrivate
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 #endif
 
@@ -207,9 +207,9 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
         // The hang threshold is calculated as: (1.0 / maxFPS) * 1.5
         // This means a hang is detected if a run loop iteration takes longer than 1.5 frame durations.
         // For example: 60 FPS = 16.67ms per frame, so hang threshold = 25ms
-        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         let application = applicationProvider.application()
-        let windows = application?.connectedScenes.flatMap { ($0 as? UIWindowScene)?.windows ?? [] } ?? []
+        let windows = application?.connectedScenes.compactMap { $0 as? UIWindowScene }.flatMap { $0.windows } ?? []
         let keyWindow = windows.first { $0.isKeyWindow }
         let maxFPS = Double(keyWindow?.screen.maximumFramesPerSecond ?? 60)
         #else
@@ -500,6 +500,6 @@ extension SentryDefaultHangTracker where T == CFRunLoopObserver {
     }
 }
 
-#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 // swiftlint:enable file_length

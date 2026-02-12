@@ -1,4 +1,4 @@
-#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 @_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
@@ -64,17 +64,15 @@ private class RunLoopThread {
     
     /// Returns the RunLoop for this thread.
     /// Must be called after `start()`.
-    func getRunLoop() -> CFRunLoop {
-        guard let runLoop = runLoop else {
-            fatalError("RunLoop not ready. Call start() first.")
-        }
-        return runLoop
+    /// - Throws: If the RunLoop is not yet ready (e.g. `start()` was not called).
+    func getRunLoop() throws -> CFRunLoop {
+        try XCTUnwrap(runLoop, "RunLoop not ready. Call start() first.")
     }
     
     /// Schedules a block to execute on this thread's RunLoop.
     /// The RunLoop will wake up to process it.
-    func performBlock(_ block: @escaping () -> Void) {
-        let runLoop = getRunLoop()
+    func performBlock(_ block: @escaping () -> Void) throws {
+        let runLoop = try getRunLoop()
         CFRunLoopPerformBlock(runLoop, CFRunLoopMode.commonModes.rawValue, block)
         CFRunLoopWakeUp(runLoop)
     }
@@ -109,8 +107,8 @@ final class SentryHangTrackerIntegrationTests: XCTestCase {
         super.tearDown()
     }
     
-    private func createSut() -> SentryDefaultHangTracker<CFRunLoopObserver> {
-        let testRunLoop = runLoopThread.getRunLoop()
+    private func createSut() throws -> SentryDefaultHangTracker<CFRunLoopObserver> {
+        let testRunLoop = try runLoopThread.getRunLoop()
         
         return SentryDefaultHangTracker<CFRunLoopObserver>(
             applicationProvider: IntegrationTestApplicationProvider(),
@@ -141,9 +139,9 @@ final class SentryHangTrackerIntegrationTests: XCTestCase {
     
     // MARK: - Late Run Loop Observer (Hang Detection)
     
-    func testHangDetection_shouldCallLateHandler() {
+    func testHangDetection_shouldCallLateHandler() throws {
         // -- Arrange --
-        let sut = createSut()
+        let sut = try createSut()
         var handlerCalled = false
         var hangInterval: TimeInterval = 0
         
@@ -157,7 +155,7 @@ final class SentryHangTrackerIntegrationTests: XCTestCase {
         // Schedule blocking work on the test RunLoop to simulate a hang.
         // afterWaiting fires -> Thread.sleep blocks for 100ms -> beforeWaiting fires.
         // During the sleep, waitForHangIterative times out every ~8.3ms and calls handlers.
-        runLoopThread.performBlock {
+        try runLoopThread.performBlock {
             Thread.sleep(forTimeInterval: 0.1)
         }
         
@@ -176,9 +174,9 @@ final class SentryHangTrackerIntegrationTests: XCTestCase {
         sut.removeLateRunLoopObserver(id: id)
     }
     
-    func testNoHang_whenRunLoopCompletesQuickly_shouldNotCallHandler() {
+    func testNoHang_whenRunLoopCompletesQuickly_shouldNotCallHandler() throws {
         // -- Arrange --
-        let sut = createSut()
+        let sut = try createSut()
         var handlerCalled = false
         
         let id = sut.addLateRunLoopObserver { _, _ in
@@ -188,7 +186,7 @@ final class SentryHangTrackerIntegrationTests: XCTestCase {
         
         // -- Act --
         // Schedule fast work (1ms, well below the ~25ms threshold)
-        runLoopThread.performBlock {
+        try runLoopThread.performBlock {
             Thread.sleep(forTimeInterval: 0.001)
         }
         
@@ -208,9 +206,9 @@ final class SentryHangTrackerIntegrationTests: XCTestCase {
     
     // MARK: - Finished Run Loop Observer
     
-    func testFinishedRunLoopObserver_shouldCallHandler() {
+    func testFinishedRunLoopObserver_shouldCallHandler() throws {
         // -- Arrange --
-        let sut = createSut()
+        let sut = try createSut()
         var handlerCalled = false
         var iteration: RunLoopIteration?
         
@@ -223,7 +221,7 @@ final class SentryHangTrackerIntegrationTests: XCTestCase {
         // Trigger one RunLoop iteration on the test thread.
         // afterWaiting fires -> block runs -> beforeWaiting fires (calls finished handler).
         let iterationExpectation = XCTestExpectation(description: "RunLoop iteration")
-        runLoopThread.performBlock {
+        try runLoopThread.performBlock {
             // Small sleep to ensure endTime > startTime
             Thread.sleep(forTimeInterval: 0.001)
             iterationExpectation.fulfill()
@@ -249,4 +247,4 @@ final class SentryHangTrackerIntegrationTests: XCTestCase {
     }
 }
 
-#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

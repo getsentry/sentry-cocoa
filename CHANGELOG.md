@@ -9,6 +9,7 @@
 ### Improvements
 
 - Record client report when dropping in `beforeSendLog` (#7379)
+- The watchdog termination integration uses a runloop observer instead of fixed interval main thread work to avoid creating a busy runloop (#6237)
 
 ### Fixes
 
@@ -21,10 +22,6 @@
 
 - Transport logs error message for HTTP 413 responses (#7261)
 - Add `installGroupsOverride` parameter to `CheckForUpdateParams` and `installGroups` property to `ReleaseInfo` for SentryDistribution (#7278)
-
-### Improvements
-
-- The watchdog termination integration uses a runloop observer instead of fixed interval main thread work to avoid creating a busy runloop (#6237)
 
 ### Fixes
 
