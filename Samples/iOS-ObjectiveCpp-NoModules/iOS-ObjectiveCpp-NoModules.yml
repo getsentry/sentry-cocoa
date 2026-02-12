@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+#
+# This sample replicates the issue from #4543: using Sentry from Objective-C++
+# without modules (-fmodules / -fcxx-modules). Many projects (React Native ≤0.76,
+# Haxe, custom build systems) cannot enable modules and must use #import instead
+# of @import. With CLANG_ENABLE_MODULES=NO, Swift APIs (SentrySDK, sessionReplay,
+# etc.) are not available via #import <Sentry/Sentry.h> alone.
+#
+# This sample does NOT build with the current SDK. It exists to:
+# - Document the exact failure mode for ObjC++ consumers
+# - Serve as a test case for the fix in #6342 (pure ObjC SDK wrapper)
+#
+# See README.md in this directory for details.
+
+name: iOS-ObjectiveCpp-NoModules
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+fileGroups:
+  - ../Shared/Config
+  - iOS-ObjectiveCpp-NoModules.yml
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  iOS-ObjectiveCpp-NoModules:
+    type: application
+    platform: auto
+    deploymentTarget: "15.0"
+    sources:
+      - ../Shared/SampleAssets.xcassets
+      - iOS-ObjectiveCpp-NoModules
+    dependencies:
+      - target: Sentry/Sentry
+      - target: Sentry/SentrySwiftUI
+    configFiles:
+      Debug: iOS-ObjectiveCpp-NoModules.xcconfig
+      Release: iOS-ObjectiveCpp-NoModules.xcconfig
+schemes:
+  iOS-ObjectiveCpp-NoModules:
+    build:
+      targets:
+        iOS-ObjectiveCpp-NoModules: all
+    run:
+      config: Debug
+    archive:
+      config: Release
