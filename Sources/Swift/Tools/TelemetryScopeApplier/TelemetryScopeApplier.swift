@@ -89,10 +89,7 @@ extension TelemetryScopeApplier {
         }
     }
 
-    private func addUserAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any TelemetryScopeMetadata) {
-        guard metadata.sendDefaultPii else {
-            return
-        }
+    private func addUserAttributes(to attributes: inout [String: SentryAttributeContent], metadata _: any TelemetryScopeMetadata) {
         if let userId = userObject?.userId {
             attributes["user.id"] = .string(userId)
         }
