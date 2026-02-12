@@ -15,7 +15,7 @@ typealias SentryLogOutput = ((String) -> Void)
 /// the log messages in the tests over adding locking for all log messages.
 @objc
 @_spi(Private) public final class SentrySDKLog: NSObject {
-    
+
     static private(set) var isDebug = true
     static private(set) var diagnosticLevel = SentryLevel.error
 
@@ -30,11 +30,11 @@ typealias SentryLogOutput = ((String) -> Void)
         self.isDebug = isDebug
         self.diagnosticLevel = diagnosticLevel
     }
-    
+
     @objc
     public static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
-        
+
         // We use the time interval because date format is
         // expensive and we only care about the time difference between the
         // log messages. We don't use system uptime because of privacy concerns
@@ -57,21 +57,23 @@ typealias SentryLogOutput = ((String) -> Void)
         }
         return isDebug && level.rawValue >= diagnosticLevel.rawValue
     }
- 
-    #if SENTRY_TEST || SENTRY_TEST_CI
-    
-    static func setOutput(_ output: @escaping SentryLogOutput) {
+
+    // Sets a custom log output handler. This allows hybrid SDKs (React Native, Flutter, etc.)
+    // to intercept SDK log messages and forward them to their respective consoles.
+    public static func setOutput(_ output: @escaping (String) -> Void) {
         logOutput = output
     }
-    
-    static func getOutput() -> SentryLogOutput {
-        return logOutput
-    }
-    
-    static func setDateProvider(_ dateProvider: SentryCurrentDateProvider) {
-        self.dateProvider = dateProvider
-    }
-    
+
+    #if SENTRY_TEST || SENTRY_TEST_CI
+
+        static func getOutput() -> SentryLogOutput {
+            return logOutput
+        }
+
+        static func setDateProvider(_ dateProvider: SentryCurrentDateProvider) {
+            self.dateProvider = dateProvider
+        }
+
     #endif
 }
 
@@ -82,23 +84,23 @@ extension SentrySDKLog {
         let fileName = (path.lastPathComponent as NSString).deletingPathExtension
         log(message: "[\(fileName):\(line)] \(message)", andLevel: level)
     }
-    
+
     static func debug(_ message: String, file: String = #file, line: Int = #line) {
         log(level: .debug, message: message, file: file, line: line)
     }
-    
+
     static func info(_ message: String, file: String = #file, line: Int = #line) {
         log(level: .info, message: message, file: file, line: line)
     }
-    
+
     static func warning(_ message: String, file: String = #file, line: Int = #line) {
         log(level: .warning, message: message, file: file, line: line)
     }
-    
+
     static func error(_ message: String, file: String = #file, line: Int = #line) {
         log(level: .error, message: message, file: file, line: line)
     }
-    
+
     static func fatal(_ message: String, file: String = #file, line: Int = #line) {
         log(level: .fatal, message: message, file: file, line: line)
     }
