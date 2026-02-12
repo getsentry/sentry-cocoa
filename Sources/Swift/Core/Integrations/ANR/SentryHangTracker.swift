@@ -58,7 +58,6 @@ typealias CreateSemaphoreFunc = (_ value: Int) -> SentryDispatchSemaphore
 /// │  • observer                        │   • finishedRunLoop (copy handlers)          │
 /// │  • currentSemaphore                │                                              │
 /// │  • loopStartTime                   │                                              │
-/// │  • hangId                          │                                              │
 /// └────────────────────────────────────┼──────────────────────────────────────────────┘
 ///                                      │
 ///                           DispatchSemaphore.signal()
@@ -163,12 +162,6 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
     /// ensuring serialized access without needing a separate lock.
     private var lateRunLoop = [UUID: (UUID, TimeInterval) -> Void]()
 
-    /// Current hang ID for the active hang detection session.
-    ///
-    /// This is updated when a new hang detection starts (in afterWaiting callback).
-    /// As there can be only be one hang detection session at a time, we only need to track one hang ID.
-    private var hangId = UUID()
-
     /// Initializes the hang tracker.
     ///
     /// - Parameters:
@@ -203,6 +196,9 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
         // - On UIKit platforms (iOS, tvOS): Query the key window's maximum FPS to adapt
         //   to ProMotion displays (120Hz) or standard displays (60Hz)
         // - On non-UIKit platforms (macOS): Default to 60 FPS
+        //
+        // Note: FPS is detected once at initialization and will not update if the app
+        // moves to a different display (e.g., connecting/disconnecting an external monitor).
         //
         // The hang threshold is calculated as: (1.0 / maxFPS) * 1.5
         // This means a hang is detected if a run loop iteration takes longer than 1.5 frame durations.
@@ -389,17 +385,16 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
                     let started = currentTime
                     self.loopStartTime = currentTime
 
-                    // Generate hangId immediately when hang detection starts, not after timeout.
-                    // This ensures each hang instance has a unique ID from the start, even if multiple
-                    // timeouts occur before the first completes.
-                    let newHangId = UUID()
-                    self.hangId = newHangId
-
                     let localSemaphore = self.createSemaphore(0)
                     // Store semaphore for beforeWaiting to signal (main thread only, no sync needed)
                     // The semaphore is used to signal that the run loop iteration completed normally,
                     // which stops the hang detection timeout.
                     self.currentSemaphore = localSemaphore
+
+                    // Generate hangId immediately when hang detection starts, not after timeout.
+                    // This ensures each hang instance has a unique ID from the start, even if multiple
+                    // timeouts occur before the first completes.
+                    let newHangId = UUID()
 
                     // Dispatch hang detection to the serial background queue.
                     // waitForHangIterative will block this queue's thread with semaphore.wait(timeout:),
@@ -410,7 +405,7 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
                         self?.waitForHangIterative(semaphore: localSemaphore, started: started, hangId: newHangId)
                     }
                 default:
-                    fatalError()
+                    SentrySDKLog.error("[Hang Tracker] Unexpected run loop activity: \(activity.rawValue)")
                 }
             }
             self.observer = observer

@@ -1,4 +1,4 @@
-#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 @_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
@@ -292,6 +292,49 @@ final class SentryHangTrackerTests: XCTestCase {
         drainAsyncQueue()
     }
     
+    func testMultipleLateRunLoopObservers_whenThreeSimultaneousObservers_shouldCallAllThree() {
+        // Verifies explicit behavior with 3 simultaneous late run loop observers.
+        // Each observer should receive the hang callback with the same hang ID.
+        
+        // -- Arrange --
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setSystemUptime(0)
+        let testSemaphore = createMockSemaphore(shouldTimeout: true)
+        
+        let sut = createSut(
+            dateProvider: dateProvider,
+            createSemaphore: { _ in testSemaphore }
+        )
+        var observer1HangIds = Set<UUID>()
+        var observer2HangIds = Set<UUID>()
+        var observer3HangIds = Set<UUID>()
+        
+        // -- Act --
+        let id1 = sut.addLateRunLoopObserver { hangId, _ in observer1HangIds.insert(hangId) }
+        let id2 = sut.addLateRunLoopObserver { hangId, _ in observer2HangIds.insert(hangId) }
+        let id3 = sut.addLateRunLoopObserver { hangId, _ in observer3HangIds.insert(hangId) }
+        drainAsyncQueue()
+        
+        observationBlock?(testObserver, CFRunLoopActivity.afterWaiting)
+        dateProvider.setSystemUptime(hangThreshold * 2.0)
+        drainAsyncQueue()
+        
+        observationBlock?(testObserver, CFRunLoopActivity.beforeWaiting)
+        
+        // -- Assert --
+        XCTAssertEqual(observer1HangIds.count, 1, "Observer 1 should receive exactly one hang notification")
+        XCTAssertEqual(observer2HangIds.count, 1, "Observer 2 should receive exactly one hang notification")
+        XCTAssertEqual(observer3HangIds.count, 1, "Observer 3 should receive exactly one hang notification")
+        XCTAssertEqual(observer1HangIds, observer2HangIds, "All observers should receive the same hang ID")
+        XCTAssertEqual(observer2HangIds, observer3HangIds)
+        
+        // Cleanup
+        sut.removeLateRunLoopObserver(id: id1)
+        sut.removeLateRunLoopObserver(id: id2)
+        sut.removeLateRunLoopObserver(id: id3)
+        drainAsyncQueue()
+    }
+    
     func testHangDetection_whenRunLoopCompletesQuickly_shouldNotReportHang() {
         // -- Arrange --
         let dateProvider = TestCurrentDateProvider()
@@ -505,4 +548,4 @@ final class SentryHangTrackerTests: XCTestCase {
     }
 }
 
-#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

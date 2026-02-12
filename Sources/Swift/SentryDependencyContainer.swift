@@ -357,7 +357,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 
-#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _hangTracker: SentryHangTracker?
     var hangTracker: SentryHangTracker {
         getLazyVar(\._hangTracker) {
@@ -372,7 +372,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             )
         }
     }
-#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
     private var crashInstallationReporter: SentryCrashInstallationReporter?
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
@@ -639,12 +639,12 @@ protocol SentryCoreDataTrackerBuilder {
 }
 extension SentryDependencyContainer: SentryCoreDataTrackerBuilder {}
 
-#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 protocol HangTrackerProvider {
     var hangTracker: SentryHangTracker { get }
 }
 
 extension SentryDependencyContainer: HangTrackerProvider {}
-#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 //swiftlint:enable file_length missing_docs type_body_length
