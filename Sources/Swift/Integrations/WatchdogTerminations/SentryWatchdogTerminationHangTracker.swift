@@ -82,6 +82,7 @@ final class SentryWatchdogTerminationHangTracker {
             }
             tracker.removeLateRunLoopObserver(id: callbackId.late)
             tracker.removeFinishedRunLoopObserver(id: callbackId.finishedRunLoop)
+            self.callbackId = nil
         }
     }
 }

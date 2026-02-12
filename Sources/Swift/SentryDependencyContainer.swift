@@ -639,12 +639,4 @@ protocol SentryCoreDataTrackerBuilder {
 }
 extension SentryDependencyContainer: SentryCoreDataTrackerBuilder {}
 
-#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-protocol HangTrackerProvider {
-    var hangTracker: SentryHangTracker { get }
-}
-
-extension SentryDependencyContainer: HangTrackerProvider {}
-#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-
 //swiftlint:enable file_length missing_docs type_body_length
