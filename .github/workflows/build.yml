@@ -127,15 +127,13 @@ jobs:
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
       #       we did not yet migrate this step to use the script yet.
-      - run: >-
-          set -o pipefail && NSUnbufferedIO=YES xcodebuild
-          -workspace Sentry.xcworkspace
-          -scheme '${{matrix.scheme}}'
-          -configuration '${{matrix.config}}'
-          CODE_SIGNING_ALLOWED="NO"
-          build 2>&1
-          | tee raw-build-output.log
-          | xcbeautify --preserve-unbeautified
+      - run: |
+          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace Sentry.xcworkspace \
+            -scheme '${{matrix.scheme}}' \
+            -configuration '${{matrix.config}}' \
+            CODE_SIGNING_ALLOWED="NO" \
+            build 2>&1 | tee raw-build-output.log | xcbeautify --preserve-unbeautified
 
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@v6
@@ -201,7 +199,12 @@ jobs:
         shell: sh
 
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
-      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme SentryDistribution -sdk iphoneos -destination 'generic/platform=iphoneos' | tee raw-build-output-spm.log | xcbeautify
+      - run: |
+          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -scheme SentryDistribution \
+            -sdk iphoneos \
+            -destination 'generic/platform=iphoneos' \
+            build | tee raw-build-output-spm.log | xcbeautify --preserve-unbeautified
         shell: sh
       - name: Upload SPM Build Logs
         uses: actions/upload-artifact@v6
@@ -222,17 +225,19 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.4
         shell: sh
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
-      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-          -scheme SentrySPM \
-          -sdk watchos \
-          -destination 'generic/platform=watchOS' \
-          build | tee raw-build-output-spm-watchos.log | xcbeautify --preserve-unbeautified
+      - run: |
+          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -scheme SentrySPM \
+            -sdk watchos \
+            -destination 'generic/platform=watchOS' \
+            build | tee raw-build-output-spm-watchos.log | xcbeautify --preserve-unbeautified
         shell: sh
-      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-          -scheme SentrySPM \
-          -sdk iphoneos \
-          -destination 'generic/platform=iphoneos' \
-          build | tee raw-build-output-spm-iphoneos.log | xcbeautify --preserve-unbeautified
+      - run: |
+          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -scheme SentrySPM \
+            -sdk iphoneos \
+            -destination 'generic/platform=iphoneos' \
+            build | tee raw-build-output-spm-iphoneos.log | xcbeautify --preserve-unbeautified
         shell: sh
 
       - name: Upload SPM Build Logs
