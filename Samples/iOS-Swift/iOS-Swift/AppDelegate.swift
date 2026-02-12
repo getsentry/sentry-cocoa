@@ -15,18 +15,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        print("[iOS-Swift] [debug] launch arguments: \(args)")
-        print("[iOS-Swift] [debug] launch environment: \(env)")
+//        print("[iOS-Swift] [debug] launch arguments: \(args)")
+//        print("[iOS-Swift] [debug] launch environment: \(env)")
+//
+//        if args.contains(SentrySDKOverrides.Special.wipeDataOnLaunch.rawValue) {
+//            removeAppData()
+//        }
+//
+//        SentrySDKWrapper.shared.startSentry()
+//        SampleAppDebugMenu.shared.display()
+//        
+//        metricKit.receiveReports()
 
-        if args.contains(SentrySDKOverrides.Special.wipeDataOnLaunch.rawValue) {
-            removeAppData()
+        SentrySDK.start { options in
+            options.dsn = SentrySDKWrapper.defaultDSN
+            options.debug = true
+            options.enableLogs = true
+            options.tracesSampleRate = 1
         }
 
-        SentrySDKWrapper.shared.startSentry()
-        SampleAppDebugMenu.shared.display()
-        
-        metricKit.receiveReports()
-        
+        let transaction = SentrySDK.startTransaction(name: "camera-test", operation: "configure-test")
+        DispatchQueue.main.async {
+            SentrySDK.logger.warn("Going to error")
+            SentrySDK.capture(error: NSError(domain: "camera", code: 404))
+            DispatchQueue.main.async {
+                SentrySDK.logger.warn("After error")
+                transaction.finish()
+                // Can't run this because it will block the main thread
+                // SentrySDK.flush(timeout: 5) 
+                print("done")
+            }
+        }
+
         return true
     }
     

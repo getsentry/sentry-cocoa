@@ -48,6 +48,11 @@ extension TelemetryScopeApplier {
         // trace_id: From propagation context (https://develop.sentry.dev/sdk/telemetry/logs/#log-envelope-item-payload).
         // When an active span exists, span.traceId and propagationContextTraceId match; use span's for consistency with span_id.
         item.traceId = span?.traceId ?? propagationContextTraceId
+        // span_id: Top-level field per spec, only set when there is an active span (scope.span).
+        // A propagated span_id must not be used
+        // (https://develop.sentry.dev/sdk/telemetry/logs/#log-envelope-item-payload,
+        // https://develop.sentry.dev/sdk/telemetry/logs/#tracing).
+        item.spanId = span?.spanId
     }
 
     private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any TelemetryScopeMetadata) {
@@ -56,12 +61,6 @@ extension TelemetryScopeApplier {
         attributes["sentry.environment"] = .string(metadata.environment)
         if let releaseName = metadata.releaseName {
             attributes["sentry.release"] = .string(releaseName)
-        }
-        // span_id: Only set when there is an active span (scope.span). A propagated span_id must not be used
-        // (https://develop.sentry.dev/sdk/telemetry/logs/#log-envelope-item-payload,
-        // https://develop.sentry.dev/sdk/telemetry/logs/#tracing).
-        if let span = self.span {
-            attributes["span_id"] = .string(span.spanId.sentrySpanIdString)
         }
     }
 
