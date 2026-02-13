@@ -49,28 +49,29 @@ Plans:
 
 Plans:
 
-- [ ] 02-01-PLAN.md — Refactor SentryCrashWrapper to use bridge for systemInfo and activeScreenSize
-- [ ] 02-02-PLAN.md — Refactor SentryCrashIntegrationSessionHandler to use bridge for dateProvider
+- [x] 02-01-PLAN.md — Refactor SentryCrashWrapper to use bridge for systemInfo and activeScreenSize
+- [x] 02-02-PLAN.md — Refactor SentryCrashIntegrationSessionHandler to use bridge for dateProvider
 
 ### Phase 3: ObjC Isolation
 
 **Goal**: Objective-C SentryCrash files consume dependencies through the facade, not SentryDependencyContainer
 **Depends on**: Phase 2
 **Requirements**: OBJC-01, OBJC-02, OBJC-03
+**Plans**: 3 plans in 1 wave
+
 **Success Criteria** (what must be TRUE):
 
-1. `SentryCrash.m` imports only necessary headers, not `SentryDependencyContainer`
-2. `SentryCrash.m` receives notificationCenterWrapper from facade, not container (4 accesses eliminated)
-3. `SentryCrashInstallation.m` receives crashReporter from facade, not container (3 accesses eliminated)
-4. `SentryCrashMonitor_NSException.m` receives uncaughtExceptionHandler from facade, not container (1 access eliminated)
-5. All SentryCrash integration tests pass without modification (or with minimal fixture updates)
-   **Plans**: TBD
+1. `SentryCrash.m` imports Sentry-Swift.h and uses bridge.notificationCenterWrapper (4 accesses eliminated)
+2. `SentryCrashInstallation.m` imports Sentry-Swift.h and uses bridge.crashReporter (4 accesses eliminated)
+3. `SentryCrashWrapper.swift` uses bridge for crashedLastLaunch and activeDurationSinceLastCrash (2 remaining accesses eliminated)
+4. All SentryCrash integration tests pass
+5. Fallback patterns preserve compatibility when bridge not set
 
 Plans:
 
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
-- [ ] 03-03: TBD
+- [ ] 03-01-PLAN.md — Inject bridge into SentryCrash.m for notificationCenterWrapper access (4 refs eliminated)
+- [ ] 03-02-PLAN.md — Inject bridge into SentryCrashInstallation.m for crashReporter access (4 refs eliminated)
+- [ ] 03-03-PLAN.md — Complete SentryCrashWrapper isolation (2 remaining refs eliminated)
 
 ### Phase 4: Verification
 
@@ -112,6 +113,6 @@ Plans:
 | --------------------------------- | -------------- | ----------- | ---------- |
 | 1. Facade Design & Implementation | 2/2            | ✓ Complete  | 2026-02-13 |
 | 2. Swift Isolation                | 2/2            | ✓ Complete  | 2026-02-13 |
-| 3. ObjC Isolation                 | 0/0            | Not started | -          |
+| 3. ObjC Isolation                 | 0/3            | Not started | -          |
 | 4. Verification                   | 0/0            | Not started | -          |
 | 5. Documentation                  | 0/0            | Not started | -          |
