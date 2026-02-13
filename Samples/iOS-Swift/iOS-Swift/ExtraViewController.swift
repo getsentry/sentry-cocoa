@@ -421,6 +421,150 @@ class ExtraViewController: UIViewController {
         picker.delegate = self
         self.present(picker, animated: true, completion: nil)
     }
+    
+    @IBAction func testNetworkCapture(_ sender: UIButton) {
+        highlightButton(sender)
+        let networkTestingVC = NetworkTestingViewController()
+        navigationController?.pushViewController(networkTestingVC, animated: true)
+    }
+    
+    private func performNetworkCaptureTest() {
+        guard let url = URL(string: "https://httpbin.org/post") else {
+            print("[NetworkCaptureTestClient] Failed to create URL")
+            return
+        }
+        
+        guard let request = createNetworkTestRequest(url: url) else {
+            return
+        }
+        
+        logRequestDetails(request)
+        executeNetworkRequest(request)
+    }
+    
+    private func createNetworkTestRequest(url: URL) -> URLRequest? {
+        let requestData = [
+            "test": "network_capture",
+            "timestamp": Date().timeIntervalSince1970,
+            "source": "iOS-Swift-ExtraViewController",
+            "purpose": "Testing network request/response capture for Session Replay"
+        ] as [String: Any]
+        
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: requestData, options: []) else {
+            print("[NetworkCaptureTestClient] Failed to serialize JSON data")
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.httpBody = jsonData
+        
+        configureRequestHeaders(&request, bodySize: jsonData.count)
+        return request
+    }
+    
+    private func configureRequestHeaders(_ request: inout URLRequest, bodySize: Int) {
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("\(bodySize)", forHTTPHeaderField: "Content-Length")
+        request.setValue("application/json, text/plain, */*", forHTTPHeaderField: "Accept")
+        request.setValue("sentry-ios-test-agent/1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("test-header-value", forHTTPHeaderField: "X-Custom-Header")
+        request.setValue("network-capture-test-\(UUID().uuidString)", forHTTPHeaderField: "X-Request-ID")
+    }
+    
+    private func logRequestDetails(_ request: URLRequest) {
+        print("[NetworkCaptureTestClient] ========== REQUEST DETAILS ==========")
+        print("[NetworkCaptureTestClient] URL: \(request.url?.absoluteString ?? "unknown")")
+        print("[NetworkCaptureTestClient] Method: \(request.httpMethod ?? "GET")")
+        print("[NetworkCaptureTestClient] Request Headers:")
+        
+        if let headers = request.allHTTPHeaderFields {
+            for (key, value) in headers.sorted(by: { $0.key < $1.key }) {
+                print("[NetworkCaptureTestClient]   \(key): \(value)")
+            }
+        } else {
+            print("[NetworkCaptureTestClient]   (no headers)")
+        }
+        
+        if let bodyData = request.httpBody {
+            print("[NetworkCaptureTestClient] Request Body Size: \(bodyData.count) bytes")
+            if let bodyString = String(data: bodyData, encoding: .utf8) {
+                print("[NetworkCaptureTestClient] Request Body: \(bodyString)")
+            }
+        }
+        
+        print("[NetworkCaptureTestClient] =====================================")
+    }
+    
+    private func executeNetworkRequest(_ request: URLRequest) {
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        let dataTask = session.dataTask(with: request) { [weak self] data, response, error in
+            self?.handleNetworkResponse(data: data, response: response, error: error)
+        }
+        
+        print("[NetworkCaptureTestClient] Starting request...")
+        dataTask.resume()
+    }
+    
+    private func handleNetworkResponse(data: Data?, response: URLResponse?, error: Error?) {
+        print("[NetworkCaptureTestClient] ========== RESPONSE DETAILS ==========")
+        
+        if let error = error {
+            logNetworkError(error)
+        } else if let httpResponse = response as? HTTPURLResponse {
+            logSuccessfulResponse(httpResponse, data: data)
+        } else {
+            print("[NetworkCaptureTestClient] ⚠️ Unexpected response type: \(type(of: response))")
+        }
+        
+        print("[NetworkCaptureTestClient] ======================================")
+    }
+    
+    private func logNetworkError(_ error: Error) {
+        print("[NetworkCaptureTestClient] ❌ Network request failed: \(error)")
+        print("[NetworkCaptureTestClient] Error domain: \((error as NSError).domain)")
+        print("[NetworkCaptureTestClient] Error code: \((error as NSError).code)")
+    }
+    
+    private func logSuccessfulResponse(_ httpResponse: HTTPURLResponse, data: Data?) {
+        print("[NetworkCaptureTestClient] ✅ Response received")
+        print("[NetworkCaptureTestClient] URL: \(httpResponse.url?.absoluteString ?? "unknown")")
+        print("[NetworkCaptureTestClient] Status Code: \(httpResponse.statusCode)")
+        print("[NetworkCaptureTestClient] Status Description: \(HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode))")
+        
+        print("[NetworkCaptureTestClient] Response Headers:")
+        for (key, value) in httpResponse.allHeaderFields.sorted(by: { String(describing: $0.key) < String(describing: $1.key) }) {
+            print("[NetworkCaptureTestClient]   \(key): \(value)")
+        }
+        
+        if let data = data {
+            logResponseBody(data)
+        }
+    }
+    
+    private func logResponseBody(_ data: Data) {
+        print("[NetworkCaptureTestClient] Response Body Size: \(data.count) bytes")
+        
+        if let json = try? JSONSerialization.jsonObject(with: data, options: []),
+           let prettyData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
+           let prettyString = String(data: prettyData, encoding: .utf8) {
+            let preview = String(prettyString.prefix(1_000))
+            print("[NetworkCaptureTestClient] Response Body (JSON):")
+            print(preview)
+            if prettyString.count > 1_000 {
+                print("[NetworkCaptureTestClient] ... (truncated, total: \(prettyString.count) characters)")
+            }
+        } else if let responseString = String(data: data, encoding: .utf8) {
+            let preview = String(responseString.prefix(500))
+            print("[NetworkCaptureTestClient] Response Body (Raw):")
+            print(preview)
+            if responseString.count > 500 {
+                print("[NetworkCaptureTestClient] ... (truncated, total: \(responseString.count) characters)")
+            }
+        } else {
+            print("[NetworkCaptureTestClient] Response Body: (binary data, cannot display)")
+        }
+    }
 }
 
 extension ExtraViewController: ASWebAuthenticationPresentationContextProviding {
