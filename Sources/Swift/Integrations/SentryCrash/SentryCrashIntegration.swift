@@ -134,6 +134,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             }
 
             self.installation = dependencies.getCrashInstallationReporter(options)
+            // Inject bridge into installation so it can access crashReporter
+            installation?.setValue(bridge, forKey: "bridge")
             canSendReports = true
         }
 
