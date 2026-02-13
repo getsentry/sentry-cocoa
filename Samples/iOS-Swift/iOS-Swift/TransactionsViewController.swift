@@ -58,12 +58,15 @@ class TransactionsViewController: UIViewController {
     }
     
     private func loadSentryBrandImage() {
-        guard let imgUrl = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") else {
-            return
+        dispatchQueue.async {
+            if let imageURL = URL(string: "https://sentry-brand.storage.googleapis.com/sentry-logo-black.png") {
+                let data = try? Data(contentsOf: imageURL)
+                if data != nil {
+                    // This is just to create a scenario where we have something to do
+                    // after downloading the image.
+                }
+            }
         }
-        let session = URLSession(configuration: URLSessionConfiguration.default)
-        let dataTask = session.dataTask(with: imgUrl) { (_, _, _) in }
-        dataTask.resume()
     }
 
     var spans = [Span]()
