@@ -51,28 +51,28 @@
 
 ## Traceability
 
-| Requirement | Phase | Status  |
-| ----------- | ----- | ------- |
-| FACADE-01   |       | Pending |
-| FACADE-02   |       | Pending |
-| FACADE-03   |       | Pending |
-| SWIFT-01    |       | Pending |
-| SWIFT-02    |       | Pending |
-| OBJC-01     |       | Pending |
-| OBJC-02     |       | Pending |
-| OBJC-03     |       | Pending |
-| VERIFY-01   |       | Pending |
-| VERIFY-02   |       | Pending |
-| VERIFY-03   |       | Pending |
-| DOCS-01     |       | Pending |
+| Requirement | Phase   | Status  |
+| ----------- | ------- | ------- |
+| FACADE-01   | Phase 1 | Pending |
+| FACADE-02   | Phase 1 | Pending |
+| FACADE-03   | Phase 1 | Pending |
+| SWIFT-01    | Phase 2 | Pending |
+| SWIFT-02    | Phase 2 | Pending |
+| OBJC-01     | Phase 3 | Pending |
+| OBJC-02     | Phase 3 | Pending |
+| OBJC-03     | Phase 3 | Pending |
+| VERIFY-01   | Phase 4 | Pending |
+| VERIFY-02   | Phase 4 | Pending |
+| VERIFY-03   | Phase 4 | Pending |
+| DOCS-01     | Phase 5 | Pending |
 
 **Coverage:**
 
 - v1 requirements: 12 total
-- Mapped to phases: 0
-- Unmapped: 12
+- Mapped to phases: 12
+- Unmapped: 0
 
 ---
 
 _Requirements defined: 2026-02-13_
-_Last updated: 2026-02-13 after initial definition_
+_Last updated: 2026-02-13 after roadmap creation_
