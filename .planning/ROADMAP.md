@@ -19,19 +19,19 @@ This roadmap delivers complete isolation of SentryCrash from SentryDependencyCon
 **Goal**: SDK provides a concrete bridge class that SentryCrash can consume for all its service dependencies
 **Depends on**: Nothing (first phase)
 **Requirements**: FACADE-01, FACADE-02, FACADE-03
+**Plans**: 2 plans in 2 waves
+
 **Success Criteria** (what must be TRUE):
 
 1. `SentryCrashBridge` class exists in SDK-side code (Sources/Swift or Sources/Sentry)
 2. Facade exposes all five services SentryCrash needs: notificationCenterWrapper, dateProvider, crashReporter, uncaughtExceptionHandler, activeScreenSize
 3. Facade is marked `@objc` and accessible from both Swift and Objective-C code
 4. SDK initialization path configures and provides the facade instance before SentryCrash installation
-   **Plans**: TBD
 
 Plans:
 
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md — Create SentryCrashBridge facade class with all five service properties
+- [ ] 01-02-PLAN.md — Integrate bridge into SentryCrashIntegration initialization flow
 
 ### Phase 2: Swift Isolation
 
@@ -109,7 +109,7 @@ Plans:
 
 | Phase                             | Plans Complete | Status      | Completed |
 | --------------------------------- | -------------- | ----------- | --------- |
-| 1. Facade Design & Implementation | 0/0            | Not started | -         |
+| 1. Facade Design & Implementation | 0/2            | Not started | -         |
 | 2. Swift Isolation                | 0/0            | Not started | -         |
 | 3. ObjC Isolation                 | 0/0            | Not started | -         |
 | 4. Verification                   | 0/0            | Not started | -         |
