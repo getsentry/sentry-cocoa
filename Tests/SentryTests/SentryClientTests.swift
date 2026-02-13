@@ -1988,13 +1988,13 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: PrivateSentrySDKOnly.options.cacheDirectoryPath), actual.user?.userId)
     }
     
-    func testInstallationIdNotSetWhenUserIsSetWithoutId() throws {
+    func testInstallationIdSetWhenUserIsSetWithoutId() throws {
         let scope = fixture.scope
         scope.setUser(fixture.user)
         fixture.getSut().capture(message: "any message", scope: scope)
-        
+
         let actual = try lastSentEventWithAttachment()
-        XCTAssertEqual(fixture.user.userId, actual.user?.userId)
+        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: PrivateSentrySDKOnly.options.cacheDirectoryPath), actual.user?.userId)
         XCTAssertEqual(fixture.user.email, actual.user?.email)
     }
     
