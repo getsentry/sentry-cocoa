@@ -78,7 +78,7 @@ public final class SentryCrashWrapper: NSObject {
     
     @objc
     public var crashedLastLaunch: Bool {
-        return SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch
+        return bridge.crashReporter.crashedLastLaunch
     }
     
     @objc
@@ -88,7 +88,7 @@ public final class SentryCrashWrapper: NSObject {
     
     @objc
     public var activeDurationSinceLastCrash: TimeInterval {
-        return SentryDependencyContainer.sharedInstance().crashReporter.activeDurationSinceLastCrash
+        return bridge.crashReporter.activeDurationSinceLastCrash
     }
     
     @objc
