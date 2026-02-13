@@ -206,7 +206,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-        XCTAssert(features.contains("watchdogTerminationRunLoopHangTracker"))
+        XCTAssert(features.contains("watchdog-termination.run-loop-hang-tracker.enabled"))
     }
 
     func testEnableWatchdogTerminationRunLoopHangTracker_isDisabled_shouldNotAddFeature() throws {
