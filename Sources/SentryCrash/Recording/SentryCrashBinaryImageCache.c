@@ -102,7 +102,9 @@ add_dyld_image(const struct mach_header *mh)
     }
 
     PublishedBinaryImage *entry = &g_images[idx];
-    sentrycrashdl_getBinaryImageForHeader(mh, info.dli_fname, &entry->image, false);
+    if (!sentrycrashdl_getBinaryImageForHeader(mh, info.dli_fname, &entry->image, false)) {
+        return;
+    }
 
     // Read callback BEFORE publishing to avoid race with registerAddedCallback.
     // If callback is NULL here, the registering thread will see ready=1 and call it.
@@ -146,8 +148,8 @@ dyld_remove_image_cb(const struct mach_header *mh, intptr_t slide)
             atomic_store_explicit(&src->ready, 0, memory_order_release);
             if (callback) {
                 callback(&src->image);
-                return;
             }
+            return;
         }
     }
 }
@@ -290,7 +292,7 @@ sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback callback
         for (uint32_t i = 0; i < count; i++) {
             PublishedBinaryImage *src = &g_images[i];
             if (!atomic_load_explicit(&src->ready, memory_order_acquire)) {
-                break;
+                continue;
             }
             callback(&src->image);
         }
