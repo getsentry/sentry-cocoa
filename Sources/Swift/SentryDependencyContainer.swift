@@ -234,7 +234,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             objcRuntimeWrapper: objcRuntimeWrapper,
             subClassFinder: subClassFinder,
             processInfoWrapper: processInfoWrapper,
-            binaryImageCache: binaryImageCache,
             performanceTracker: uiViewControllerPerformanceTracker
         )
 

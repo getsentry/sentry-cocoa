@@ -59,6 +59,17 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     [array addObject:[NSValue valueWithPointer:image]];
 }
 
+static void
+addBinaryImageNameToArray(SentryCrashBinaryImage *image, void *context)
+{
+    NSMutableArray *array = (__bridge NSMutableArray *)context;
+    if (image->name) {
+        [array addObject:[NSString stringWithUTF8String:image->name]];
+    } else {
+        [array addObject:@"<null>"];
+    }
+}
+
 dispatch_semaphore_t delaySemaphore = NULL;
 dispatch_semaphore_t delayCalled = NULL;
 static void
@@ -288,7 +299,11 @@ delayAddBinaryImage(void)
     [imageCache start:false];
     // by calling start, SentryBinaryImageCache will register a callback with
     // `SentryCrashBinaryImageCache` that should be called for every image already cached.
-    XCTAssertEqual(5, imageCache.cache.count);
+    NSMutableArray<NSString *> *paths = [NSMutableArray new];
+    [imageCache.cache enumerateObjectsUsingBlock:^(SentryBinaryImageInfo *_Nonnull obj,
+        NSUInteger __unused idx, BOOL *_Nonnull __unused stop) { [paths addObject:obj.name]; }];
+    XCTAssertEqual(
+        5, imageCache.cache.count, @"Cache should start with 5 images but contained %@", paths);
 
     addBinaryImage([mach_headers_test_cache[5] pointerValue], 0);
     XCTAssertEqual(6, imageCache.cache.count);
@@ -306,7 +321,10 @@ delayAddBinaryImage(void)
 {
     int counter = 0;
     sentrycrashbic_iterateOverImages(countNumberOfImagesInCache, &counter);
-    XCTAssertEqual(counter, expected);
+    NSMutableArray<NSString *> *names = [NSMutableArray new];
+    sentrycrashbic_iterateOverImages(addBinaryImageNameToArray, (__bridge void *)(names));
+    XCTAssertEqual(
+        counter, expected, @"Cache should have %d images but contained %@", expected, names);
 }
 
 - (void)assertCachedBinaryImages
