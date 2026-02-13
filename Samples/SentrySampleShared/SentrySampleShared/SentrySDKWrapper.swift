@@ -54,7 +54,7 @@ public struct SentrySDKWrapper {
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
         if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disable.boolValue {
             options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionSampleRate.floatValue ?? 0,
+                sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionSampleRate.floatValue ?? 1,
                 onErrorSampleRate: SentrySDKOverrides.SessionReplay.onErrorSampleRate.floatValue ?? 1,
                 maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.boolValue,
                 maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue,
@@ -62,6 +62,25 @@ public struct SentrySDKWrapper {
                 // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
                 enableFastViewRendering: SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
             )
+            
+            // Configure network detail capture for testing
+            options.sessionReplay.networkDetailAllowUrls = [
+                "httpbin.org"
+            ]
+            options.sessionReplay.networkDetailDenyUrls = [
+                try! NSRegularExpression(pattern: ".*\\.sentry\\.io.*", options: [])
+            ]
+
+            options.sessionReplay.networkRequestHeaders = [
+                "User-Agent",
+                "X-Custom-Header",
+                "X-Request-ID"
+            ]
+            options.sessionReplay.networkResponseHeaders = [
+                "Server",
+                "Access-Control-Allow-Origin",
+                "access-control-allow-credentials"
+            ]
             let defaultReplayQuality = options.sessionReplay.quality
             options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
 
