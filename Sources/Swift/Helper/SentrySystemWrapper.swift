@@ -38,7 +38,10 @@ import Darwin
             return 0
         }
 
-        if count >= mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.stride / MemoryLayout<natural_t>.stride) {
+        // Match ObjC: use TASK_VM_INFO_REV1_COUNT (kernel may return rev1-sized data).
+        // The macro is unavailable in Swift; REV1 = full count - (rev2..rev7 deltas) = -55.
+        let taskVmInfoRev1Count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.stride / MemoryLayout<natural_t>.stride) - 55
+        if count >= taskVmInfoRev1Count {
             return info.phys_footprint
         }
         return info.resident_size
