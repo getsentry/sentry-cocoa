@@ -925,12 +925,15 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)setUserIdIfNoUserSet:(SentryEvent *)event
 {
-    // We only want to set the id if the customer didn't set a user so we at least set something to
-    // identify the user.
+    // We want to set the installationId as the userId if no userId is set so we at least set
+    // something to identify the user. This aligns with the Android SDK behavior.
     if (event.user == nil) {
         SentryUser *user = [[SentryUser alloc] init];
         user.userId = [SentryInstallation idWithCacheDirectoryPath:self.options.cacheDirectoryPath];
         event.user = user;
+    } else if (event.user.userId == nil || event.user.userId.length == 0) {
+        event.user.userId =
+            [SentryInstallation idWithCacheDirectoryPath:self.options.cacheDirectoryPath];
     }
 }
 
