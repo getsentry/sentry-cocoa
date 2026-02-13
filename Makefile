@@ -220,6 +220,80 @@ build-xcframework-sample:
 	xcodebuild -project "Samples/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
 # ============================================================================
+# SAMPLE APPS
+# ============================================================================
+
+## Build all SentrySPM sample apps
+#
+# Builds all compile-from-source SPM sample apps for every supported platform.
+.PHONY: build-sample-spm
+build-sample-spm: \
+	build-sample-iOS-SwiftUI-SPM \
+	build-sample-watchOS-SwiftUI-SPM \
+	build-sample-tvOS-SwiftUI-SPM \
+	build-sample-macOS-SwiftUI-SPM \
+	build-sample-visionOS-SwiftUI-SPM
+
+## Build the iOS-SwiftUI-SPM sample app
+#
+# Builds the iOS SentrySPM sample app for the iOS Simulator.
+.PHONY: build-sample-iOS-SwiftUI-SPM
+build-sample-iOS-SwiftUI-SPM:
+	xcodegen --spec Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj" \
+		-scheme iOS-SwiftUI-SPM \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the watchOS-SwiftUI-SPM sample app
+#
+# Builds the watchOS SentrySPM sample app for the watchOS Simulator.
+.PHONY: build-sample-watchOS-SwiftUI-SPM
+build-sample-watchOS-SwiftUI-SPM:
+	xcodegen --spec Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj" \
+		-scheme watchOS-SwiftUI-SPM \
+		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the tvOS-SwiftUI-SPM sample app
+#
+# Builds the tvOS SentrySPM sample app for the tvOS Simulator.
+.PHONY: build-sample-tvOS-SwiftUI-SPM
+build-sample-tvOS-SwiftUI-SPM:
+	xcodegen --spec Samples/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.xcodeproj" \
+		-scheme tvOS-SwiftUI-SPM \
+		-destination 'platform=tvOS Simulator,OS=$(TVOS_SIMULATOR_OS),name=$(TVOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the macOS-SwiftUI-SPM sample app
+#
+# Builds the macOS SentrySPM sample app.
+.PHONY: build-sample-macOS-SwiftUI-SPM
+build-sample-macOS-SwiftUI-SPM:
+	xcodegen --spec Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.xcodeproj" \
+		-scheme macOS-SwiftUI-SPM \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the visionOS-SwiftUI-SPM sample app
+#
+# Builds the visionOS SentrySPM sample app for the visionOS Simulator.
+.PHONY: build-sample-visionOS-SwiftUI-SPM
+build-sample-visionOS-SwiftUI-SPM:
+	xcodegen --spec Samples/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.xcodeproj" \
+		-scheme visionOS-SwiftUI-SPM \
+		-destination 'platform=visionOS Simulator,OS=$(VISIONOS_SIMULATOR_OS),name=$(VISIONOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+# ============================================================================
 # TESTING
 # ============================================================================
 
@@ -590,6 +664,10 @@ xcode-ci:
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
 	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
 	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
+	xcodegen --spec Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml
+	xcodegen --spec Samples/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.yml
+	xcodegen --spec Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.yml
+	xcodegen --spec Samples/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.yml
 	xcodegen --spec Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.yml
 	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
 	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml

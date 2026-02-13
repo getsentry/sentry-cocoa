@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+#
+# Minimal macOS sample app using the SentrySPM compile-from-source product.
+
+name: macOS-SwiftUI-SPM
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+packages:
+  Sentry:
+    path: ../..
+fileGroups:
+  - macOS-SwiftUI-SPM.yml
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  macOS-SwiftUI-SPM:
+    type: application
+    platform: macOS
+    deploymentTarget: "11.0"
+    sources:
+      - Sources
+    dependencies:
+      - package: Sentry
+        product: SentrySPM
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.sentry.macOS-SwiftUI-SPM
+        SWIFT_VERSION: "5.0"
+    info:
+      path: Resources/Info.plist
+      properties:
+        CFBundleDisplayName: macOS-SwiftUI-SPM
+    entitlements:
+      path: Resources/Entitlements.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+schemes:
+  macOS-SwiftUI-SPM:
+    build:
+      targets:
+        macOS-SwiftUI-SPM: all
+    run:
+      config: Debug
+    archive:
+      config: Release
