@@ -57,6 +57,9 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         )
         self.bridge = bridge
 
+        // Inject bridge into crash reporter so ObjC SentryCrash can access it
+        crashReporter.setBridge(bridge)
+
         self.sessionHandler = dependencies.getCrashIntegrationSessionBuilder(options, bridge: bridge)
         self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
 
