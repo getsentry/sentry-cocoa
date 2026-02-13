@@ -6,7 +6,7 @@ This roadmap delivers complete isolation of SentryCrash from SentryDependencyCon
 
 ## Phases
 
-- [ ] **Phase 1: Facade Design & Implementation** - Create SDK-side bridge class that provides all services SentryCrash needs
+- [x] **Phase 1: Facade Design & Implementation** - Create SDK-side bridge class that provides all services SentryCrash needs
 - [ ] **Phase 2: Swift Isolation** - Remove container references from Swift SentryCrash files
 - [ ] **Phase 3: ObjC Isolation** - Remove container references from Objective-C SentryCrash files
 - [ ] **Phase 4: Verification** - Validate complete isolation through tests and grep checks
@@ -107,10 +107,10 @@ Plans:
 
 ## Progress
 
-| Phase                             | Plans Complete | Status      | Completed |
-| --------------------------------- | -------------- | ----------- | --------- |
-| 1. Facade Design & Implementation | 0/2            | Not started | -         |
-| 2. Swift Isolation                | 0/0            | Not started | -         |
-| 3. ObjC Isolation                 | 0/0            | Not started | -         |
-| 4. Verification                   | 0/0            | Not started | -         |
-| 5. Documentation                  | 0/0            | Not started | -         |
+| Phase                             | Plans Complete | Status      | Completed  |
+| --------------------------------- | -------------- | ----------- | ---------- |
+| 1. Facade Design & Implementation | 2/2            | ✓ Complete  | 2026-02-13 |
+| 2. Swift Isolation                | 0/0            | Not started | -          |
+| 3. ObjC Isolation                 | 0/0            | Not started | -          |
+| 4. Verification                   | 0/0            | Not started | -          |
+| 5. Documentation                  | 0/0            | Not started | -          |
