@@ -76,6 +76,7 @@
 @synthesize onCrash = _onCrash;
 @synthesize bundleName = _bundleName;
 @synthesize basePath = _basePath;
+@synthesize bridge = _bridge;
 @synthesize introspectMemory = _introspectMemory;
 @synthesize doNotIntrospectClasses = _doNotIntrospectClasses;
 @synthesize demangleLanguages = _demangleLanguages;
@@ -235,8 +236,9 @@
     }
 
 #if SENTRY_HAS_UIKIT
-    id<SentryNSNotificationCenterWrapper> notificationCenter
-        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+    id<SentryNSNotificationCenterWrapper> notificationCenter = self.bridge
+        ? self.bridge.notificationCenterWrapper
+        : SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidBecomeActive)
                                name:UIApplicationDidBecomeActiveNotification
@@ -259,8 +261,9 @@
                              object:nil];
 #endif // SENTRY_HAS_UIKIT
 #if SENTRY_HAS_NSEXTENSION
-    id<SentryNSNotificationCenterWrapper> notificationCenter
-        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+    id<SentryNSNotificationCenterWrapper> notificationCenter = self.bridge
+        ? self.bridge.notificationCenterWrapper
+        : SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidBecomeActive)
                                name:NSExtensionHostDidBecomeActiveNotification
@@ -291,8 +294,9 @@
     sentrycrash_uninstall();
 
 #if SENTRY_HAS_UIKIT
-    id<SentryNSNotificationCenterWrapper> notificationCenter
-        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+    id<SentryNSNotificationCenterWrapper> notificationCenter = self.bridge
+        ? self.bridge.notificationCenterWrapper
+        : SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenter removeObserver:self
                                   name:UIApplicationDidBecomeActiveNotification
                                 object:nil];
@@ -308,8 +312,9 @@
     [notificationCenter removeObserver:self name:UIApplicationWillTerminateNotification object:nil];
 #endif // SENTRY_HAS_UIKIT
 #if SENTRY_HAS_NSEXTENSION
-    id<SentryNSNotificationCenterWrapper> notificationCenter
-        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+    id<SentryNSNotificationCenterWrapper> notificationCenter = self.bridge
+        ? self.bridge.notificationCenterWrapper
+        : SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
     [notificationCenter removeObserver:self
                                   name:NSExtensionHostDidBecomeActiveNotification
                                 object:nil];
