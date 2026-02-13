@@ -195,4 +195,30 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(features.contains("metrics"))
     }
+
+    func testEnableWatchdogTerminationRunLoopHangTracker_isEnabled_shouldAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableWatchdogTerminationRunLoopHangTracker = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssert(features.contains("watchdogTerminationRunLoopHangTracker"))
+    }
+
+    func testEnableWatchdogTerminationRunLoopHangTracker_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        options.experimental.enableWatchdogTerminationRunLoopHangTracker = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("watchdogTerminationRunLoopHangTracker"))
+    }
 }

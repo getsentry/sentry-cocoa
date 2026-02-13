@@ -420,7 +420,8 @@ final class SentryDefaultHangTracker<T: RunLoopObserver>: SentryHangTracker {
         // The removal of the observer must be done on the main thread, so we dispatch to the main queue to avoid potential misuse.
         queue.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
             guard let self = self else { return }
-            self.removeObserver(CFRunLoopGetMain(), self.observer, .commonModes)
+            guard let observer = self.observer else { return }
+            self.removeObserver(CFRunLoopGetMain(), observer, .commonModes)
             self.observer = nil
         }
     }

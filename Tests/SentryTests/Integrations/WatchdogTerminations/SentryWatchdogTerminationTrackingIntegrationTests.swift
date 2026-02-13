@@ -167,6 +167,40 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertTrue(dependencies.getWatchdogTerminationTrackerCalled)
     }
 
+    func testInit_whenRunLoopHangTrackerDisabled_shouldUseANRTracker() throws {
+        // -- Arrange --
+        let options = fixture.options
+        options.experimental.enableWatchdogTerminationRunLoopHangTracker = false
+
+        let dependencies = MockDependencies()
+
+        // -- Act --
+        _ = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
+
+        // -- Assert --
+        XCTAssertTrue(dependencies.getWatchdogTerminationTrackerCalled)
+        XCTAssertEqual(dependencies.getANRTrackerInvocations.count, 1)
+        XCTAssertEqual(dependencies.getANRTrackerInvocations.first, options.appHangTimeoutInterval)
+        XCTAssertEqual(dependencies.getWatchdogTerminationHangTrackerInvocations.count, 0)
+    }
+
+    func testInit_whenRunLoopHangTrackerEnabled_shouldUseHangTracker() throws {
+        // -- Arrange --
+        let options = fixture.options
+        options.experimental.enableWatchdogTerminationRunLoopHangTracker = true
+
+        let dependencies = MockDependencies()
+
+        // -- Act --
+        _ = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
+
+        // -- Assert --
+        XCTAssertTrue(dependencies.getWatchdogTerminationTrackerCalled)
+        XCTAssertEqual(dependencies.getWatchdogTerminationHangTrackerInvocations.count, 1)
+        XCTAssertEqual(dependencies.getWatchdogTerminationHangTrackerInvocations.first, options.appHangTimeoutInterval)
+        XCTAssertEqual(dependencies.getANRTrackerInvocations.count, 0)
+    }
+
     func testInit_shouldAddScopeObserverToHub() throws {
         // -- Arrange --
         // Check pre-condition
@@ -263,11 +297,39 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(extrasInvocation?["key"] as? String, "value")
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 1)
     }
+
+    func testANRDetected_UpdatesAppStateToTrue() throws {
+        // -- Arrange --
+        fixture.crashWrapper.internalIsBeingTraced = false
+        let sut = try XCTUnwrap(fixture.getSut())
+
+        // -- Act --
+        sut.anrDetected(type: .unknown)
+
+        // -- Assert --
+        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
+        XCTAssertTrue(appState.isANROngoing)
+    }
+
+    func testANRStopped_UpdatesAppStateToFalse() throws {
+        // -- Arrange --
+        fixture.crashWrapper.internalIsBeingTraced = false
+        let sut = try XCTUnwrap(fixture.getSut())
+
+        // -- Act --
+        sut.anrStopped(result: nil)
+
+        // -- Assert --
+        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
+        XCTAssertFalse(appState.isANROngoing)
+    }
 }
 
 private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & WatchdogTerminationHangTrackerBuilder {
+    var getANRTrackerInvocations = Invocations<TimeInterval>()
     func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
-        SentryDependencyContainer.sharedInstance().getANRTracker(interval)
+        getANRTrackerInvocations.record(interval)
+        return SentryDependencyContainer.sharedInstance().getANRTracker(interval)
     }
     
     var processInfoWrapper: any Sentry.SentryProcessInfoSource {
