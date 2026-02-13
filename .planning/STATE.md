@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 3 of 5 (ObjC Isolation)
-Plan: 1 of 3
+Plan: 2 of 3
 Status: In Progress
-Last activity: 2026-02-13 — Completed 03-03-PLAN.md (Eliminate final container refs from SentryCrashWrapper)
+Last activity: 2026-02-13 — Completed 03-01-PLAN.md (Bridge injection into SentryCrash and NSException monitor)
 
 Progress: [████████░░] 33%
 
@@ -20,9 +20,9 @@ Progress: [████████░░] 33%
 
 **Velocity:**
 
-- Total plans completed: 5
-- Average duration: 6.9 min
-- Total execution time: 0.69 hours
+- Total plans completed: 6
+- Average duration: 9.0 min
+- Total execution time: 0.90 hours
 
 **By Phase:**
 
@@ -30,12 +30,12 @@ Progress: [████████░░] 33%
 | ----- | ----- | ----- | -------- |
 | 01    | 2     | 825s  | 412.5s   |
 | 02    | 2     | 1052s | 526.0s   |
-| 03    | 1     | 279s  | 279.0s   |
+| 03    | 2     | 1363s | 681.5s   |
 
 **Recent Trend:**
 
-- Last 5 plans: 01-02 (573s), 02-01 (491s), 02-02 (561s), 03-03 (279s)
-- Trend: Phase 03 in progress
+- Last 5 plans: 02-01 (491s), 02-02 (561s), 03-03 (279s), 03-01 (1084s)
+- Trend: Phase 03 in progress (1 of 3 plans complete)
 
 _Updated after each plan completion_
 
@@ -61,6 +61,11 @@ Recent decisions affecting current work:
 - Preserve test-only initializer for backward compatibility — Phase 02 Plan 01
 - Leave crashedLastLaunch and activeDurationSinceLastCrash for Phase 3 — Phase 02 Plan 01
 - Create bridge in Dependencies.crashWrapper using container services — Phase 02 Plan 01
+- Use KVC for bridge property access in Swift wrapper to avoid compile-time type visibility issues — Phase 03 Plan 01
+- Add NS_ASSUME_NONNULL audit regions to SentryCrash.h for nullability consistency — Phase 03 Plan 01
+- Static bridge variable pattern for C-style monitor code where object context unavailable — Phase 03 Plan 01
+- Wrap ObjC-specific bridge code in **OBJC** guards for C header compatibility — Phase 03 Plan 01
+- Fallback pattern for bridge access: bridge ? bridge.service : container.service — Phase 03 Plan 01
 
 ### Pending Todos
 
@@ -73,7 +78,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-13 (plan execution)
-Stopped at: Completed 03-03-PLAN.md - Eliminated final container references from SentryCrashWrapper
+Stopped at: Completed 03-01-PLAN.md - Bridge injection into SentryCrash and NSException monitor (5 container refs eliminated)
 Resume file: None
 
 ---
