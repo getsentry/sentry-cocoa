@@ -6,7 +6,6 @@
 #    import "SentryFormatter.h"
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"
-#    import "SentrySystemWrapper.h"
 #    import "SentryTime.h"
 #    import "SentryTransaction.h"
 
