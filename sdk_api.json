@@ -35586,6 +35586,82 @@
             "name": "enableUnhandledCPPExceptionsV2",
             "printedName": "enableUnhandledCPPExceptionsV2",
             "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableUnhandledCPPExceptionsV2"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC43enableWatchdogTerminationRunLoopHangTrackerSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableWatchdogTerminationRunLoopHangTracker"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC43enableWatchdogTerminationRunLoopHangTrackerSbvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableWatchdogTerminationRunLoopHangTracker:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A19ExperimentalOptionsC43enableWatchdogTerminationRunLoopHangTrackerSbvp",
+            "moduleName": "Sentry",
+            "name": "enableWatchdogTerminationRunLoopHangTracker",
+            "printedName": "enableWatchdogTerminationRunLoopHangTracker",
+            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableWatchdogTerminationRunLoopHangTracker"
           }
         ],
         "conformances": [
