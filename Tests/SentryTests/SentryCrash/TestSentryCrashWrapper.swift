@@ -5,9 +5,9 @@ import Foundation
  * This is a test wrapper around SentryCrashWrapper for testing purposes.
  */
 class TestSentryCrashWrapper: SentryCrashWrapper {
-    
+
     // MARK: - Test Properties
-    
+
     var internalCrashedLastLaunch = false
     var internalDurationFromCrashStateInitToLastCrash: TimeInterval = 0
     var internalActiveDurationSinceLastCrash: TimeInterval = 0
@@ -19,6 +19,19 @@ class TestSentryCrashWrapper: SentryCrashWrapper {
     var binaryCacheStarted = false
     var binaryCacheStopped = false
     var enrichScopeCalled = false
+
+    // MARK: - Initialization
+
+    init(processInfoWrapper: SentryProcessInfoSource) {
+        // Create a test bridge from the shared container
+        let container = SentryDependencyContainer.sharedInstance()
+        let bridge = SentryCrashBridge(
+            notificationCenterWrapper: container.notificationCenterWrapper,
+            dateProvider: container.dateProvider,
+            crashReporter: container.crashReporter
+        )
+        super.init(processInfoWrapper: processInfoWrapper, bridge: bridge)
+    }
     
     // MARK: - Overridden Methods
     
@@ -55,11 +68,7 @@ class TestSentryCrashWrapper: SentryCrashWrapper {
     override var isApplicationInForeground: Bool {
         return internalIsApplicationInForeground
     }
-    
-    override var systemInfo: [String: Any] {
-        return [:]
-    }
-    
+
     override var freeMemorySize: UInt64 {
         return internalFreeMemorySize
     }
