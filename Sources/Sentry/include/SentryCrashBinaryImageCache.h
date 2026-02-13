@@ -20,15 +20,15 @@ void sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback index
 void sentrycrashbic_startCache(void);
 
 /**
- * Stops the cache from monitoring binary image being loaded or removed.
- * This will also clean the cache.
+ * This is a no-op TODO: Remove this
  */
 void sentrycrashbic_stopCache(void);
 
 /**
  * Register a callback to be called every time a new binary image is added to the cache.
  * After register, this callback will be called for every image already in the cache,
- * this is a thread safe operation.
+ * this is a thread safe operation. The callback can be called multiple times for the same image
+ * If the image was being registered on a different thread at the same time the callback is registered.
  */
 void sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback callback);
 

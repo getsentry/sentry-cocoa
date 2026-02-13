@@ -6,11 +6,12 @@
 #include <mach-o/dyld.h>
 #include <mach-o/dyld_images.h>
 
-// Exposing test only functions from `SentryCrashBinaryImageCache.m`
+// Exposing test only functions from `SentryCrashBinaryImageCache.c`
 void sentry_setRegisterFuncForAddImage(void *addFunction);
 void sentry_setRegisterFuncForRemoveImage(void *removeFunction);
 void sentry_resetFuncForAddRemoveImage(void);
 void sentry_setFuncForBeforeAdd(void (*callback)(void));
+void sentry_resetBinaryImageCache(void);
 
 static void (*addBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slide);
 static void (*removeBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slide);
@@ -114,8 +115,7 @@ delayAddBinaryImage(void)
 - (void)tearDown
 {
     sentrycrashdl_clearDyld();
-    sentry_resetFuncForAddRemoveImage();
-    sentrycrashbic_stopCache();
+    sentry_resetBinaryImageCache();
     sentry_setFuncForBeforeAdd(NULL);
     [SentryDependencyContainer reset];
 }

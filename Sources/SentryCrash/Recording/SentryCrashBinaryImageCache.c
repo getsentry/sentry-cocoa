@@ -64,14 +64,20 @@ sentry_resetFuncForAddRemoveImage(void)
 
 #define MAX_DYLD_IMAGES 4096
 
+// Entry lifecycle states
+#define IMAGE_EMPTY 0   // Slot reserved but data not written, or write failed
+#define IMAGE_READY 1   // Published, visible to readers
+#define IMAGE_REMOVED 3 // Image was unloaded
+
 typedef struct {
-    _Atomic(uint32_t) ready; // 0 = not published, 1 = published
+    _Atomic(uint32_t) state;
     SentryCrashBinaryImage image;
 } PublishedBinaryImage;
 
+// g_next_index monotonically increases and is never reset (except in test-only reset).
+// Each slot is used at most once, so there are no stale state flags from prior runs.
 static PublishedBinaryImage g_images[MAX_DYLD_IMAGES];
 static _Atomic(uint32_t) g_next_index = 0;
-static _Atomic(uint32_t) g_started = 0;
 
 static _Atomic(sentrycrashbic_cacheChangeCallback) g_addedCallback = NULL;
 static _Atomic(sentrycrashbic_cacheChangeCallback) g_removedCallback = NULL;
@@ -79,14 +85,7 @@ static _Atomic(sentrycrashbic_cacheChangeCallback) g_removedCallback = NULL;
 static void
 add_dyld_image(const struct mach_header *mh)
 {
-    // Don't add images if the cache is not started
-    if (!atomic_load_explicit(&g_started, memory_order_acquire)) {
-        return;
-    }
-
     // Check dladdr first, before reserving a slot in the array.
-    // If we increment g_next_index before this check and dladdr fails,
-    // we'd create a "hole" with ready=0 that stops iteration.
     Dl_info info;
     if (!dladdr(mh, &info) || info.dli_fname == NULL) {
         return;
@@ -102,18 +101,16 @@ add_dyld_image(const struct mach_header *mh)
     }
 
     PublishedBinaryImage *entry = &g_images[idx];
-    sentrycrashdl_getBinaryImageForHeader(mh, info.dli_fname, &entry->image, false);
 
-    // Read callback BEFORE publishing to avoid race with registerAddedCallback.
-    // If callback is NULL here, the registering thread will see ready=1 and call it.
-    // If callback is non-NULL here, we call it and the registering thread will either
-    // not have started iterating yet, or will skip this image since it wasn't ready
-    // when it read g_next_index.
+    if (!sentrycrashdl_getBinaryImageForHeader(mh, info.dli_fname, &entry->image, false)) {
+        // Leave state as IMAGE_EMPTY so the entry is never published.
+        return;
+    }
+
     sentrycrashbic_cacheChangeCallback callback
         = atomic_load_explicit(&g_addedCallback, memory_order_acquire);
 
-    // ---- Publish ----
-    atomic_store_explicit(&entry->ready, 1, memory_order_release);
+    atomic_store_explicit(&entry->state, IMAGE_READY, memory_order_release);
 
     if (callback != NULL) {
         callback(&entry->image);
@@ -132,22 +129,18 @@ dyld_remove_image_cb(const struct mach_header *mh, intptr_t slide)
     sentrycrashbic_cacheChangeCallback callback
         = atomic_load_explicit(&g_removedCallback, memory_order_acquire);
 
-    // Find the image in our cache by matching the header address
     uint32_t count = atomic_load_explicit(&g_next_index, memory_order_acquire);
     if (count > MAX_DYLD_IMAGES)
         count = MAX_DYLD_IMAGES;
 
     for (uint32_t i = 0; i < count; i++) {
         PublishedBinaryImage *src = &g_images[i];
-        if (!atomic_load_explicit(&src->ready, memory_order_acquire)) {
-            continue;
-        }
         if (src->image.address == (uintptr_t)mh) {
-            atomic_store_explicit(&src->ready, 0, memory_order_release);
+            atomic_store_explicit(&src->state, IMAGE_REMOVED, memory_order_release);
             if (callback) {
                 callback(&src->image);
-                return;
             }
+            return;
         }
     }
 }
@@ -162,10 +155,6 @@ dyld_tracker_start(void)
 void
 sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback callback, void *context)
 {
-    if (!atomic_load_explicit(&g_started, memory_order_acquire)) {
-        return;
-    }
-
     uint32_t count = atomic_load_explicit(&g_next_index, memory_order_acquire);
 
     if (count > MAX_DYLD_IMAGES)
@@ -174,7 +163,7 @@ sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback callback, 
     for (uint32_t i = 0; i < count; i++) {
         PublishedBinaryImage *src = &g_images[i];
 
-        if (atomic_load_explicit(&src->ready, memory_order_acquire)) {
+        if (atomic_load_explicit(&src->state, memory_order_acquire) == IMAGE_READY) {
             callback(&src->image, context);
         }
     }
@@ -214,34 +203,20 @@ sentrycrashbic_addDyldNode(void)
     PublishedBinaryImage *entry = &g_images[idx];
     if (!sentrycrashdl_getBinaryImageForHeader(
             (const void *)header, "dyld", &entry->image, false)) {
-        // Decrement because we couldn't add the image
-        atomic_fetch_sub_explicit(&g_next_index, 1, memory_order_relaxed);
         return;
     }
 
-    atomic_store_explicit(&entry->ready, 1, memory_order_release);
+    atomic_store_explicit(&entry->state, IMAGE_READY, memory_order_release);
 }
 
 static void
 sentrycrashbic_startCacheImpl(void)
 {
-    // Check if already started
-    uint32_t expected = 0;
-    if (!atomic_compare_exchange_strong_explicit(
-            &g_started, &expected, 1, memory_order_acq_rel, memory_order_relaxed)) {
-        return;
-    }
-
-    // Reset g_next_index here rather than in stopCache to avoid the race where
-    // a concurrent add_dyld_image increments g_next_index after stopCache resets it.
-    // The compare-exchange above guarantees we are the only thread in this function.
-    atomic_store_explicit(&g_next_index, 0, memory_order_release);
-
     if (sentrycrashbic_shouldAddDyld()) {
         sentrycrashdl_initialize();
         sentrycrashbic_addDyldNode();
     }
-
+    // During this call the callback is invoked synchronously for every existing image.
     dyld_tracker_start();
 }
 
@@ -259,29 +234,41 @@ sentrycrashbic_startCache(void)
 #if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     sentrycrashbic_startCacheImpl();
 #else
-    dispatch_async(
-        dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{ sentrycrashbic_startCacheImpl(); });
+    static dispatch_once_t once_token = 0;
+    dispatch_once(&once_token, ^{
+        dispatch_async(
+                       dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{ sentrycrashbic_startCacheImpl(); });
+    });
 #endif
 }
 
 void
 sentrycrashbic_stopCache(void)
+{ }
+
+// Resetting can create race conditions so should only be done in controlled test environments.
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+void
+sentry_resetBinaryImageCache(void)
 {
-    // Only flip the started flag. We intentionally do NOT reset g_next_index here
-    // because a concurrent add_dyld_image (that already passed the g_started check)
-    // could increment g_next_index after our reset, leaving the cache in an
-    // inconsistent state. Instead, g_next_index is reset in startCacheImpl where
-    // we have exclusive access via the compare-exchange. iterateOverImages checks
-    // g_started before reading g_next_index, so the cache appears empty immediately.
-    atomic_store_explicit(&g_started, 0, memory_order_release);
+    uint32_t count = atomic_load_explicit(&g_next_index, memory_order_relaxed);
+    if (count > MAX_DYLD_IMAGES)
+        count = MAX_DYLD_IMAGES;
+    for (uint32_t i = 0; i < count; i++) {
+        atomic_store_explicit(&g_images[i].state, IMAGE_EMPTY, memory_order_relaxed);
+    }
+    atomic_store_explicit(&g_next_index, 0, memory_order_relaxed);
+    atomic_store_explicit(&g_addedCallback, NULL, memory_order_relaxed);
+    atomic_store_explicit(&g_removedCallback, NULL, memory_order_relaxed);
 }
+#endif
 
 void
 sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback callback)
 {
     atomic_store_explicit(&g_addedCallback, callback, memory_order_release);
 
-    if (callback != NULL && atomic_load_explicit(&g_started, memory_order_acquire)) {
+    if (callback != NULL) {
         // Call for all existing images already in the cache
         uint32_t count = atomic_load_explicit(&g_next_index, memory_order_acquire);
         if (count > MAX_DYLD_IMAGES)
@@ -289,8 +276,8 @@ sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback callback
 
         for (uint32_t i = 0; i < count; i++) {
             PublishedBinaryImage *src = &g_images[i];
-            if (!atomic_load_explicit(&src->ready, memory_order_acquire)) {
-                break;
+            if (atomic_load_explicit(&src->state, memory_order_acquire) != IMAGE_READY) {
+                continue;
             }
             callback(&src->image);
         }
