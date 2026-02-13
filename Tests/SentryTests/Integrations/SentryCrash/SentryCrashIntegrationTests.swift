@@ -806,7 +806,15 @@ class MockCrashDependencies: CrashIntegrationProvider {
     var crashReporter: Sentry.SentryCrashSwift {
         SentryDependencyContainer.sharedInstance().crashReporter
     }
-    
+
+    var dateProvider: SentryCurrentDateProvider {
+        SentryDependencyContainer.sharedInstance().dateProvider
+    }
+
+    var notificationCenterWrapper: SentryNSNotificationCenterWrapper {
+        SentryDependencyContainer.sharedInstance().notificationCenterWrapper
+    }
+
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
         let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
 
