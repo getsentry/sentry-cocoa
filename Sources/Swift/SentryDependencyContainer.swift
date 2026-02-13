@@ -268,14 +268,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #endif
     
     private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
-    func getCrashIntegrationSessionBuilder(_ options: Options) -> SentryCrashIntegrationSessionHandler? {
+    func getCrashIntegrationSessionBuilder(_ options: Options, bridge: SentryCrashBridge) -> SentryCrashIntegrationSessionHandler? {
         getOptionalLazyVar(\.crashIntegrationSessionHandler) {
-            
+
             guard let fileManager = fileManager else {
                 SentrySDKLog.fatal("File manager is not available")
                 return nil
             }
-            
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
             let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
                                                        crashAdapter: crashWrapper,
@@ -283,10 +283,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             return SentryCrashIntegrationSessionHandler(
                 crashWrapper: crashWrapper,
                 watchdogTerminationLogic: watchdogLogic,
-                fileManager: fileManager
+                fileManager: fileManager,
+                bridge: bridge
             )
 #else
-            return SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper, fileManager: fileManager)
+            return SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper, fileManager: fileManager, bridge: bridge)
 #endif
         }
     }
@@ -561,7 +562,7 @@ protocol SentryCrashReporterProvider {
 extension SentryDependencyContainer: SentryCrashReporterProvider {}
 
 protocol CrashIntegrationSessionHandlerBuilder {
-    func getCrashIntegrationSessionBuilder(_ options: Options) -> SentryCrashIntegrationSessionHandler?
+    func getCrashIntegrationSessionBuilder(_ options: Options, bridge: SentryCrashBridge) -> SentryCrashIntegrationSessionHandler?
 }
 extension SentryDependencyContainer: CrashIntegrationSessionHandlerBuilder {}
 

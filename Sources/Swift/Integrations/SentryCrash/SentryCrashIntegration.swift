@@ -57,7 +57,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         )
         self.bridge = bridge
 
-        self.sessionHandler = dependencies.getCrashIntegrationSessionBuilder(options)
+        self.sessionHandler = dependencies.getCrashIntegrationSessionBuilder(options, bridge: bridge)
         self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
 
         guard self.sessionHandler != nil, self.scopeObserver != nil else {
