@@ -32,6 +32,7 @@
 #import "SentryCrashJSONCodecObjC.h"
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashMonitor_AppState.h"
+#import "SentryCrashMonitor_NSException.h"
 #import "SentryCrashMonitor_System.h"
 #import "SentryCrashNSErrorUtil.h"
 #import "SentryCrashReportFields.h"
@@ -234,6 +235,9 @@
     if (self.monitoring == 0) {
         return false;
     }
+
+    // Set bridge for NSException monitor before enabling monitors
+    sentrycrashcm_nsexception_setBridge(self.bridge);
 
 #if SENTRY_HAS_UIKIT
     id<SentryNSNotificationCenterWrapper> notificationCenter = self.bridge
