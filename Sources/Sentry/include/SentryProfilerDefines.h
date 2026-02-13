@@ -3,13 +3,12 @@
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
 #    import "SentryDefines.h"
-#    import <mach/mach.h>
 
 /**
- * mach_vm_size_t is a type defined in mach headers as an unsigned 64-bit type used to express
- * the amount of working memory the process currently has allocated.
+ * Unsigned 64-bit type used to express the amount of working memory the process currently has
+ * allocated. Equivalent to mach_vm_size_t on Darwin.
  */
-typedef mach_vm_size_t SentryRAMBytes;
+typedef uint64_t SentryRAMBytes;
 
 typedef NS_ENUM(NSUInteger, SentryProfilerMode) {
     SentryProfilerModeTrace,
