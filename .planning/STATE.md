@@ -9,31 +9,32 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 
 ## Current Position
 
-Phase: 1 of 5 (Facade Design & Implementation)
-Plan: 2 of 2
-Status: Complete
-Last activity: 2026-02-13 — Completed 01-02-PLAN.md (Bridge integration into SentryCrashIntegration)
+Phase: 2 of 5 (Swift Isolation)
+Plan: 1 of 2
+Status: In Progress
+Last activity: 2026-02-13 — Completed 02-01-PLAN.md (Inject bridge into SentryCrashWrapper)
 
-Progress: [██████████] 100%
+Progress: [████████░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 2
-- Average duration: 6.9 min
-- Total execution time: 0.23 hours
+- Total plans completed: 3
+- Average duration: 7.3 min
+- Total execution time: 0.37 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 | ----- | ----- | ----- | -------- |
 | 01    | 2     | 825s  | 412.5s   |
+| 02    | 1     | 491s  | 491.0s   |
 
 **Recent Trend:**
 
-- Last 5 plans: 01-01 (252s), 01-02 (573s)
-- Trend: Phase 01 complete
+- Last 5 plans: 01-01 (252s), 01-02 (573s), 02-01 (491s)
+- Trend: Phase 02 in progress (1 of 2 complete)
 
 _Updated after each plan completion_
 
@@ -53,6 +54,10 @@ Recent decisions affecting current work:
 - Extended CrashIntegrationProvider typealias with DateProviderProvider and NotificationCenterProvider protocols — Phase 01 Plan 02
 - Bridge created after super.init() but before startCrashHandler() to ensure proper initialization order — Phase 01 Plan 02
 - Bridge stored as optional property matching pattern of sessionHandler and scopeObserver — Phase 01 Plan 02
+- Convert lazy var systemInfo to immutable let initialized from bridge — Phase 02 Plan 01
+- Preserve test-only initializer for backward compatibility — Phase 02 Plan 01
+- Leave crashedLastLaunch and activeDurationSinceLastCrash for Phase 3 — Phase 02 Plan 01
+- Create bridge in Dependencies.crashWrapper using container services — Phase 02 Plan 01
 
 ### Pending Todos
 
@@ -65,7 +70,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-13 (plan execution)
-Stopped at: Completed 01-02-PLAN.md - Bridge integrated into SentryCrashIntegration with dependency injection
+Stopped at: Completed 02-01-PLAN.md - Injected bridge into SentryCrashWrapper, eliminated 2 of 3 container references
 Resume file: None
 
 ---
@@ -75,4 +80,9 @@ Resume file: None
 - 01-01-PLAN.md: SentryCrashBridge facade class (252s)
 - 01-02-PLAN.md: Bridge integration into SDK initialization (573s)
 
-Next: Phase 02 - SentryCrash Refactoring (wire bridge, remove container references)
+**Phase 02 Status: In Progress** (1 of 2)
+
+- 02-01-PLAN.md: Inject bridge into SentryCrashWrapper (491s) ✓
+- 02-02-PLAN.md: TBD
+
+Next: Phase 02 Plan 02 - Continue SentryCrash refactoring
