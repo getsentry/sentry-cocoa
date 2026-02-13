@@ -1,4 +1,4 @@
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 
 import UIKit
@@ -90,4 +90,4 @@ final class SentryGraphicsImageRenderer {
 }
 
 #endif // os(iOS) || os(tvOS)
-#endif // canImport(UIKit) && !SENTRY_NO_UIKIT
+#endif // canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK

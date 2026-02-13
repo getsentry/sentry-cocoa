@@ -17,12 +17,13 @@ PLATFORM=""
 OS="latest"
 REF_NAME="HEAD"
 COMMAND="test"
-DEVICE="iPhone 14 Pro"
+DEVICE="iPhone 16 Pro"
 CONFIGURATION_OVERRIDE=""
 DERIVED_DATA_PATH=""
 TEST_SCHEME="Sentry"
 TEST_PLAN=""
 RESULT_BUNDLE_PATH="results.xcresult"
+ONLY_TESTING=""
 
 usage() {
     echo "Usage: $0"
@@ -30,11 +31,12 @@ usage() {
     echo "  -o|--os <os>                    OS version (default: latest)"
     echo "  -r|--ref <ref>                  Reference name (default: HEAD)"
     echo "  -c|--command <command>          Command (build/build-for-testing/test-without-building/test)"
-    echo "  -d|--device <device>            Device name (default: iPhone 14 Pro)"
+    echo "  -d|--device <device>            Device name (default: iPhone 16 Pro)"
     echo "  -C|--configuration <config>     Configuration override"
     echo "  -D|--derived-data <path>        Derived data path"
     echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
     echo "  -t|--test-plan <plan>           Test plan name (default: empty)"
+    echo "  --only-testing <tests>          Comma-separated test classes (default: empty, runs all tests)"
     echo "  -R|--result-bundle <path>       Result bundle path (default: results.xcresult)"
     exit 1
 }
@@ -76,6 +78,11 @@ while [[ $# -gt 0 ]]; do
             ;;
         -t|--test-plan)
             TEST_PLAN="$2"
+            shift 2
+            ;;
+        --only-testing)
+            # Note: No short option to avoid confusion with -o (used by --os)
+            ONLY_TESTING="$2"
             shift 2
             ;;
         -R|--result-bundle)
@@ -173,6 +180,14 @@ if [ -n "$TEST_PLAN" ]; then
     TEST_PLAN_ARGS+=("-testPlan" "$TEST_PLAN")
 fi
 
+ONLY_TESTING_ARGS=()
+if [ -n "$ONLY_TESTING" ]; then
+    IFS=',' read -ra TEST_ARRAY <<< "$ONLY_TESTING"
+    for test in "${TEST_ARRAY[@]}"; do
+        ONLY_TESTING_ARGS+=("-only-testing:SentryTests/$test")
+    done
+fi
+
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
     log_notice "Running xcodebuild build-for-testing"
@@ -181,6 +196,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
         "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
+        "${ONLY_TESTING_ARGS[@]+${ONLY_TESTING_ARGS[@]}}" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         build-for-testing 2>&1 |
@@ -201,6 +217,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         -workspace Sentry.xcworkspace \
         -scheme "$TEST_SCHEME" \
         "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
+        "${ONLY_TESTING_ARGS[@]+${ONLY_TESTING_ARGS[@]}}" \
         -configuration "$CONFIGURATION" \
         -destination "$DESTINATION" \
         -resultBundlePath "$RESULT_BUNDLE_PATH" \

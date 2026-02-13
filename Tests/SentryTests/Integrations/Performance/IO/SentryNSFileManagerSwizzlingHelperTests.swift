@@ -14,15 +14,15 @@ final class SentryNSFileManagerSwizzlingHelperTests: XCTestCase {
     private var deleteFileDirectory = false
     private var mockTracker: MockFileIOTracker!
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
 
         let directories = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         fileDirectory = directories.first!
 
         if !FileManager.default.fileExists(atPath: fileDirectory.path) {
             deleteFileDirectory = true
-            try? FileManager.default.createDirectory(
+            try FileManager.default.createDirectory(
                 at: fileDirectory,
                 withIntermediateDirectories: true,
                 attributes: nil
@@ -39,15 +39,17 @@ final class SentryNSFileManagerSwizzlingHelperTests: XCTestCase {
         mockTracker.enable()
     }
 
-    override func tearDown() {
+    override func tearDownWithError() throws {
         mockTracker.disable()
-        SentryNSFileManagerSwizzlingHelper.unswizzle()
+        SentryNSFileManagerSwizzlingHelper.stop()
 
-        XCTAssertFalse(SentryNSFileManagerSwizzlingHelper.swizzlingActive(), "Swizzling should be inactive after unswizzle")
+        XCTAssertFalse(SentryNSFileManagerSwizzlingHelper.swizzlingActive(), "Swizzling should be inactive after stop called")
 
-        try? FileManager.default.removeItem(at: fileUrl)
+        if FileManager.default.fileExists(atPath: fileUrl.path) {
+            try FileManager.default.removeItem(at: fileUrl)
+        }
         if deleteFileDirectory {
-            try? FileManager.default.removeItem(at: fileDirectory)
+            try FileManager.default.removeItem(at: fileDirectory)
         }
 
         super.tearDown()
@@ -162,7 +164,7 @@ final class SentryNSFileManagerSwizzlingHelperTests: XCTestCase {
         XCTAssertTrue(SentryNSFileManagerSwizzlingHelper.swizzlingActive(), "Swizzling should be active after swizzle call")
     }
 
-    func testSwizzlingActive_whenUnswizzled_shouldBeFalse() throws {
+    func testSwizzlingActive_whenStopCalled_shouldBeFalse() throws {
         guard #available(iOS 18, macOS 15, tvOS 18, *) else {
             throw XCTSkip("Test only targets iOS 18, macOS 15, tvOS 18 or later")
         }
@@ -172,18 +174,18 @@ final class SentryNSFileManagerSwizzlingHelperTests: XCTestCase {
         XCTAssertTrue(SentryNSFileManagerSwizzlingHelper.swizzlingActive(), "Swizzling should initially be active")
 
         // -- Act --
-        SentryNSFileManagerSwizzlingHelper.unswizzle()
+        SentryNSFileManagerSwizzlingHelper.stop()
 
         // -- Assert --
-        XCTAssertFalse(SentryNSFileManagerSwizzlingHelper.swizzlingActive(), "Swizzling should be inactive after unswizzle")
+        XCTAssertFalse(SentryNSFileManagerSwizzlingHelper.swizzlingActive(), "Swizzling should be inactive after stop called")
 
         // Re-enable for proper tearDown
         SentryNSFileManagerSwizzlingHelper.swizzle(withTracker: mockTracker as Any)
     }
 
-    // MARK: - Unswizzle Tests
+    // MARK: - Stop Tests
 
-    func testUnswizzle_whenCalled_shouldStopTrackingCalls() throws {
+    func testStop_whenCalled_shouldStopTrackingCalls() throws {
         guard #available(iOS 18, macOS 15, tvOS 18, *) else {
             throw XCTSkip("Test only targets iOS 18, macOS 15, tvOS 18 or later")
         }
@@ -198,16 +200,16 @@ final class SentryNSFileManagerSwizzlingHelperTests: XCTestCase {
         try FileManager.default.removeItem(at: fileUrl)
 
         // -- Act --
-        SentryNSFileManagerSwizzlingHelper.unswizzle()
+        SentryNSFileManagerSwizzlingHelper.stop()
         let success = FileManager.default.createFile(atPath: filePath, contents: testData, attributes: nil)
 
         // -- Assert --
         XCTAssertTrue(success, "createFile should succeed")
-        XCTAssertEqual(mockTracker.createFileCalls.count, 1, "Should not track new calls after unswizzle")
+        XCTAssertEqual(mockTracker.createFileCalls.count, 1, "Should not track new calls after stop called")
         try assertFileContainsTestData()
     }
 
-    func testUnswizzle_whenCalledMultipleTimes_shouldNotCrash() throws {
+    func testStop_whenCalledMultipleTimes_shouldNotCrash() throws {
         guard #available(iOS 18, macOS 15, tvOS 18, *) else {
             throw XCTSkip("Test only targets iOS 18, macOS 15, tvOS 18 or later")
         }
@@ -216,10 +218,10 @@ final class SentryNSFileManagerSwizzlingHelperTests: XCTestCase {
         swizzle()
 
         // -- Act & Assert --
-        // Should not crash when unswizzling multiple times
-        SentryNSFileManagerSwizzlingHelper.unswizzle()
-        SentryNSFileManagerSwizzlingHelper.unswizzle()
-        SentryNSFileManagerSwizzlingHelper.unswizzle()
+        // Should not crash when stop called multiple times
+        SentryNSFileManagerSwizzlingHelper.stop()
+        SentryNSFileManagerSwizzlingHelper.stop()
+        SentryNSFileManagerSwizzlingHelper.stop()
     }
 
     // MARK: - Multiple Operations

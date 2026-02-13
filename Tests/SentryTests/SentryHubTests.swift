@@ -677,7 +677,7 @@ class SentryHubTests: XCTestCase {
     
     // MARK: - Replay Attributes Tests
     
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
     func testCaptureLog_ReplayAttributes_SessionMode_AddsReplayId() throws {
         // Setup replay integration
@@ -1034,7 +1034,7 @@ class SentryHubTests: XCTestCase {
         assertNoEventsSent()
     }
     
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     func testCaptureFatalAppHangEvent_AbnormalSessionExists() {
         // Arrange
         sut = fixture.getSut(fixture.options, fixture.scope)
@@ -1130,7 +1130,7 @@ class SentryHubTests: XCTestCase {
         // Assert
         assertNoEventsSent()
     }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
 
     func testCaptureEnvelope_WithEventWithError() throws {
         sut.startSession()
@@ -1271,7 +1271,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(beginSession, endSession)
     }
     
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     func test_reportFullyDisplayed_enableTimeToFullDisplay_YES() {
         // -- Arrange --
         let sut = fixture.getSut(fixture.options)
@@ -1744,7 +1744,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertLessThan(clientTimeout, 0.2, "Client timeout should be small after two integrations")
     }
     
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
     func testGetSessionReplayId_ReturnsNilWhenIntegrationNotInstalled() {
         let result = sut.getSessionReplayId()
@@ -1818,7 +1818,7 @@ class SentryHubTests: XCTestCase {
 #endif
 }
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 class TestTimeToDisplayTracker: SentryTimeToDisplayTracker {
     
     init(waitForFullDisplay: Bool = false) {
@@ -1863,7 +1863,7 @@ class SlowFlushIntegration: NSObject, SentryIntegrationProtocol {
     }
 }
 
-#if canImport(UIKit) && !SENTRY_NO_UIKIT
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK
 #if os(iOS) || os(tvOS)
 private class MockScreenshotProvider: NSObject, SentryViewScreenshotProvider {
     func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
@@ -1875,6 +1875,7 @@ private class MockReplayDelegate: NSObject, SentrySessionReplayDelegate {
     func sessionReplayShouldCaptureReplayForError() -> Bool { return true }
     func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL) {}
     func sessionReplayStarted(replayId: SentryId) {}
+    func sessionReplayEnded() {}
     func breadcrumbsForSessionReplay() -> [Breadcrumb] { return [] }
     func currentScreenNameForSessionReplay() -> String? { return nil }
 }

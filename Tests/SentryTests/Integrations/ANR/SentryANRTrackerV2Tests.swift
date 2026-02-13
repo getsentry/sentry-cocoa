@@ -2,9 +2,9 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 
-class SentryANRTrackerV2Tests: XCTestCase {
+final class SentryANRTrackerV2Tests: XCTestCase {
     
     private let waitTimeout: TimeInterval = 10.0
     private var timeoutInterval: TimeInterval = 2
@@ -381,6 +381,203 @@ class SentryANRTrackerV2Tests: XCTestCase {
         triggerFullyBlockingAppHang(currentDate)
 
         wait(for: [listener.anrDetectedExpectation, listener.anrStoppedExpectation], timeout: waitTimeout)
+    }
+    
+    /// Background time should be excluded from hang duration.
+    ///
+    /// [||||------BACKGROUND------||||]
+    /// | means a rendered frame
+    /// - means no frame rendered
+    func testFullyBlockingAppHang_whenAppGoesToBackgroundDuringHang_shouldNotIncludeBackgroundTimeInDuration() throws {
+        timeoutInterval = 0.5
+        let (sut, currentDate, displayLinkWrapper, crashWrapper, threadWrapper, _) = try getSut()
+        defer { sut.clear() }
+        
+        let listener = SentryANRTrackerV2TestDelegate()
+        sut.add(listener: listener)
+        
+        let backgroundDuration = 3.0
+        var backgroundIterations = 0
+        let iterationsInBackground = 3
+        let backgroundCompleted = expectation(description: "Background iterations completed")
+        
+        threadWrapper.blockWhenSleeping = {
+            guard listener.anrsDetected.count > 0 else { return }
+            
+            switch backgroundIterations {
+            case 0:
+                crashWrapper.internalIsApplicationInForeground = false
+                fallthrough
+            case 1..<iterationsInBackground:
+                currentDate.advance(by: backgroundDuration / Double(iterationsInBackground))
+                backgroundIterations += 1
+            case iterationsInBackground:
+                crashWrapper.internalIsApplicationInForeground = true
+                backgroundIterations += 1
+                backgroundCompleted.fulfill()
+            default:
+                break
+            }
+        }
+        
+        triggerFullyBlockingAppHang(currentDate)
+        wait(for: [listener.anrDetectedExpectation], timeout: waitTimeout)
+        
+        wait(for: [backgroundCompleted], timeout: waitTimeout)
+        threadWrapper.blockWhenSleeping = {}
+        
+        renderNormalFramesToStopAppHang(displayLinkWrapper)
+        wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
+        
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
+        
+        XCTAssertLessThan(actual.maxDuration, backgroundDuration)
+    }
+    
+    /// Multiple background periods should all be excluded.
+    ///
+    /// [||||---BG---||---BG---||||]
+    /// | means a rendered frame
+    /// - means no frame rendered
+    func testFullyBlockingAppHang_whenAppGoesToBackgroundMultipleTimes_shouldExcludeAllBackgroundTime() throws {
+        timeoutInterval = 0.5
+        let (sut, currentDate, displayLinkWrapper, crashWrapper, threadWrapper, _) = try getSut()
+        defer { sut.clear() }
+        
+        let listener = SentryANRTrackerV2TestDelegate()
+        sut.add(listener: listener)
+        
+        let backgroundDurationPerCycle = 3.0
+        let numberOfBackgroundCycles = 2
+        let iterationsPerCycle = 2
+        let totalBackgroundDuration = backgroundDurationPerCycle * Double(numberOfBackgroundCycles)
+        var iteration = 0
+        let totalIterations = numberOfBackgroundCycles * (iterationsPerCycle + 1)
+        let backgroundCompleted = expectation(description: "Background iterations completed")
+        
+        threadWrapper.blockWhenSleeping = {
+            guard listener.anrsDetected.count > 0 else { return }
+            guard iteration < totalIterations else { return }
+            
+            let cycleIteration = iteration % (iterationsPerCycle + 1)
+            
+            if cycleIteration == 0 {
+                crashWrapper.internalIsApplicationInForeground = false
+            }
+            
+            if cycleIteration < iterationsPerCycle {
+                currentDate.advance(by: backgroundDurationPerCycle / Double(iterationsPerCycle))
+            } else {
+                crashWrapper.internalIsApplicationInForeground = true
+            }
+            
+            iteration += 1
+            
+            if iteration == totalIterations {
+                backgroundCompleted.fulfill()
+            }
+        }
+        
+        triggerFullyBlockingAppHang(currentDate)
+        wait(for: [listener.anrDetectedExpectation], timeout: waitTimeout)
+        
+        wait(for: [backgroundCompleted], timeout: waitTimeout)
+        threadWrapper.blockWhenSleeping = {}
+        
+        renderNormalFramesToStopAppHang(displayLinkWrapper)
+        wait(for: [listener.anrStoppedExpectation], timeout: waitTimeout)
+        
+        let actual = try XCTUnwrap(listener.anrStoppedResults.last)
+        
+        XCTAssertLessThan(actual.maxDuration, totalBackgroundDuration)
+    }
+    
+    /// Background time from previous hang should not affect the next hang.
+    ///
+    /// [||||---BG---||||||||||---BG---||||]
+    /// | means a rendered frame
+    /// - means no frame rendered
+    func testFullyBlockingAppHang_whenSecondHangAfterBackgroundedHang_shouldNotIncludePreviousBackgroundTime() throws {
+        timeoutInterval = 0.5
+        let (sut, currentDate, displayLinkWrapper, crashWrapper, threadWrapper, _) = try getSut()
+        defer { sut.clear() }
+        
+        let firstListener = SentryANRTrackerV2TestDelegate()
+        firstListener.anrDetectedExpectation.assertForOverFulfill = false
+        firstListener.anrStoppedExpectation.assertForOverFulfill = false
+        sut.add(listener: firstListener)
+        
+        let firstHangBackgroundDuration = 3.0
+        var firstHangBackgroundIterations = 0
+        let firstIterationsInBackground = 3
+        let firstBackgroundCompleted = expectation(description: "First background completed")
+        
+        threadWrapper.blockWhenSleeping = {
+            guard firstListener.anrsDetected.count > 0 else { return }
+            
+            switch firstHangBackgroundIterations {
+            case 0:
+                crashWrapper.internalIsApplicationInForeground = false
+                fallthrough
+            case 1..<firstIterationsInBackground:
+                currentDate.advance(by: firstHangBackgroundDuration / Double(firstIterationsInBackground))
+                firstHangBackgroundIterations += 1
+            case firstIterationsInBackground:
+                crashWrapper.internalIsApplicationInForeground = true
+                firstHangBackgroundIterations += 1
+                firstBackgroundCompleted.fulfill()
+            default:
+                break
+            }
+        }
+        
+        triggerFullyBlockingAppHang(currentDate)
+        wait(for: [firstListener.anrDetectedExpectation], timeout: waitTimeout)
+        
+        wait(for: [firstBackgroundCompleted], timeout: waitTimeout)
+        threadWrapper.blockWhenSleeping = {}
+        
+        renderNormalFramesToStopAppHang(displayLinkWrapper)
+        wait(for: [firstListener.anrStoppedExpectation], timeout: waitTimeout)
+        
+        let secondListener = SentryANRTrackerV2TestDelegate()
+        sut.add(listener: secondListener)
+        
+        let secondHangBackgroundDuration = 3.0
+        var secondHangBackgroundIterations = 0
+        let secondIterationsInBackground = 3
+        let secondBackgroundCompleted = expectation(description: "Second background completed")
+        
+        threadWrapper.blockWhenSleeping = {
+            guard secondListener.anrsDetected.count > 0 else { return }
+            
+            switch secondHangBackgroundIterations {
+            case 0:
+                crashWrapper.internalIsApplicationInForeground = false
+                fallthrough
+            case 1..<secondIterationsInBackground:
+                currentDate.advance(by: secondHangBackgroundDuration / Double(secondIterationsInBackground))
+                secondHangBackgroundIterations += 1
+            case secondIterationsInBackground:
+                crashWrapper.internalIsApplicationInForeground = true
+                secondHangBackgroundIterations += 1
+                secondBackgroundCompleted.fulfill()
+            default:
+                break
+            }
+        }
+        
+        triggerFullyBlockingAppHang(currentDate)
+        wait(for: [secondListener.anrDetectedExpectation], timeout: waitTimeout)
+        
+        wait(for: [secondBackgroundCompleted], timeout: waitTimeout)
+        threadWrapper.blockWhenSleeping = {}
+        
+        renderNormalFramesToStopAppHang(displayLinkWrapper)
+        wait(for: [secondListener.anrStoppedExpectation], timeout: waitTimeout)
+        
+        let secondHangDuration = try XCTUnwrap(secondListener.anrStoppedResults.last)
+        XCTAssertLessThan(secondHangDuration.maxDuration, firstHangBackgroundDuration)
     }
     
     func testRemoveListener_StopsReporting() throws {

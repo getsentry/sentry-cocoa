@@ -9,7 +9,6 @@ class MetricsViewController: NSViewController {
         SentrySDK.metrics.count(
             key: "macos.app.action.string",
             value: 1,
-            unit: "action",
             attributes: [
                 "action_type": actionType,
                 "window": "main"
@@ -20,7 +19,6 @@ class MetricsViewController: NSViewController {
         SentrySDK.metrics.count(
             key: "macos.app.action.boolean",
             value: 1,
-            unit: "action",
             attributes: [
                 "window_active": windowActive,
                 "focused": false
@@ -31,7 +29,6 @@ class MetricsViewController: NSViewController {
         SentrySDK.metrics.count(
             key: "macos.app.action.integer",
             value: 1,
-            unit: "action",
             attributes: [
                 "click_count": clickCount,
                 "retry_count": 3
@@ -42,7 +39,6 @@ class MetricsViewController: NSViewController {
         SentrySDK.metrics.count(
             key: "macos.app.action.double",
             value: 1,
-            unit: "action",
             attributes: [
                 "click_duration": clickDuration,
                 "avg_duration": 0.15
@@ -53,7 +49,6 @@ class MetricsViewController: NSViewController {
         SentrySDK.metrics.count(
             key: "macos.app.action.string_array",
             value: 1,
-            unit: "action",
             attributes: [
                 "action_types": actionTypes,
                 "windows": ["main", "secondary"]
@@ -64,7 +59,6 @@ class MetricsViewController: NSViewController {
         SentrySDK.metrics.count(
             key: "macos.app.action.boolean_array",
             value: 1,
-            unit: "action",
             attributes: [
                 "window_states": windowStates,
                 "focus_states": [true, false]
@@ -75,7 +69,6 @@ class MetricsViewController: NSViewController {
         SentrySDK.metrics.count(
             key: "macos.app.action.integer_array",
             value: 1,
-            unit: "action",
             attributes: [
                 "click_counts": clickCounts,
                 "retry_counts": [1, 2, 3]
@@ -86,7 +79,6 @@ class MetricsViewController: NSViewController {
         SentrySDK.metrics.count(
             key: "macos.app.action.double_array",
             value: 1,
-            unit: "action",
             attributes: [
                 "click_durations": clickDurations,
                 "avg_durations": [0.1, 0.2]

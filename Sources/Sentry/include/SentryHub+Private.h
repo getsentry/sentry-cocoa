@@ -1,3 +1,4 @@
+#import "SentryDefines.h"
 #import "SentryHub+SwiftPrivate.h"
 #import "SentryHub.h"
 
@@ -32,7 +33,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSArray<NSString *> *)trimmedInstalledIntegrationNames;
 
-- (void)addInstalledIntegration:(id<SentryIntegrationProtocol>)integration name:(NSString *)name;
+- (void)addInstalledIntegration:(SENTRY_SWIFT_MIGRATION_ID(
+                                    id<SentryIntegrationProtocol>))integration
+                           name:(NSString *)name;
 - (void)removeAllIntegrations;
 
 - (SentryClientInternal *_Nullable)client;
@@ -73,7 +76,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)storeEnvelope:(SentryEnvelope *)envelope;
 - (void)captureEnvelope:(SentryEnvelope *)envelope;
 
-- (nullable id<SentryIntegrationProtocol>)getInstalledIntegration:(Class)integrationClass;
+- (nullable SENTRY_SWIFT_MIGRATION_ID(
+    id<SentryIntegrationProtocol>))getInstalledIntegration:(Class)integrationClass;
 - (NSSet<NSString *> *)installedIntegrationNames;
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED

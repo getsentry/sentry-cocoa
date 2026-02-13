@@ -178,21 +178,25 @@ platform :ios do
     )
   end
 
-  lane :build_ios_swift_for_tests do
+  lane :build_ios_swift_for_tests do |options|
+    skip_codesigning = options[:skip_codesigning] || false
+
     setup_ci(
       force: true
     ) if is_ci
 
-    sync_code_signing(
-      type: "development",
-      app_identifier: [
-        "io.sentry.sample.iOS-Swift",
-        "io.sentry.sample.iOS-Swift.Clip",
-        "io.sentry.sample.iOS-Swift.ShareExtension",
-        "io.sentry.sample.iOS-Swift.IntentExtension",
-        "io.sentry.sample.iOS-Swift.ActionExtension"
-      ]
-    )
+    unless skip_codesigning
+      sync_code_signing(
+        type: "development",
+        app_identifier: [
+          "io.sentry.sample.iOS-Swift",
+          "io.sentry.sample.iOS-Swift.Clip",
+          "io.sentry.sample.iOS-Swift.ShareExtension",
+          "io.sentry.sample.iOS-Swift.IntentExtension",
+          "io.sentry.sample.iOS-Swift.ActionExtension"
+        ]
+      )
+    end
 
     # Using the project instead of the workspace allows us to avoid resolving SPM dependencies.
     build_app(
@@ -200,7 +204,8 @@ platform :ios do
       scheme: "iOS-Swift",
       derived_data_path: "DerivedData",
       skip_archive: true,
-      skip_package_dependencies_resolution: true # See SKIP_SPM_RESOLUTION_NOTE
+      skip_package_dependencies_resolution: true, # See SKIP_SPM_RESOLUTION_NOTE
+      xcargs: skip_codesigning ? "CODE_SIGNING_ALLOWED=NO" : nil
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") if is_ci
@@ -229,28 +234,32 @@ platform :ios do
     delete_keychain(name: "fastlane_tmp_keychain") if is_ci
   end
 
-  lane :build_ios_benchmark_test do
+  lane :build_ios_benchmark_test do |options|
+    skip_codesigning = options[:skip_codesigning] || false
+
     setup_ci(
       force: true
     ) if is_ci
 
-    sync_code_signing(
-      type: "development",
-      app_identifier: [
-        "io.sentry.sample.iOS-Swift", 
-        "io.sentry.sample.iOS-Swift.Clip", 
-        "io.sentry.sample.iOS-Swift.ShareExtension", 
-        "io.sentry.sample.iOS-Swift.IntentExtension",
-        "io.sentry.sample.iOS-Swift.ActionExtension",
-        "io.sentry.iOS-Benchmarking.xctrunner"
-      ],
-    )
+    unless skip_codesigning
+      sync_code_signing(
+        type: "development",
+        app_identifier: [
+          "io.sentry.sample.iOS-Swift",
+          "io.sentry.sample.iOS-Swift.Clip",
+          "io.sentry.sample.iOS-Swift.ShareExtension",
+          "io.sentry.sample.iOS-Swift.IntentExtension",
+          "io.sentry.sample.iOS-Swift.ActionExtension",
+          "io.sentry.iOS-Benchmarking.xctrunner"
+        ],
+      )
+    end
 
     # Using the project instead of the workspace allows us to avoid resolving SPM dependencies.
     build_app(
       project: "Samples/iOS-Swift/iOS-Swift.xcodeproj",
       scheme: "iOS-Benchmarking",
-      xcargs: "build-for-testing",
+      xcargs: "#{skip_codesigning ? "CODE_SIGNING_ALLOWED=NO" : ""} build-for-testing",
       derived_data_path: "DerivedData",
       skip_archive: true,
       skip_package_dependencies_resolution: true # See SKIP_SPM_RESOLUTION_NOTE
@@ -286,7 +295,7 @@ platform :ios do
       skip_waiting_for_build_processing: true,
     )
 
-    sentry_upload_dif(
+    sentry_debug_files_upload(
       auth_token: ENV["SENTRY_AUTH_TOKEN"],
       org_slug: 'sentry-sdks',
       project_slug: 'sentry-cocoa',
@@ -351,17 +360,21 @@ platform :ios do
   end
 
   desc "Build Perf-test app without Sentry"
-  lane :build_perf_test_app_plain do
+  lane :build_perf_test_app_plain do |options|
+    skip_codesigning = options[:skip_codesigning] || false
+
     setup_ci(
       force: true
     ) if is_ci
 
-    sync_code_signing(
-      type: "development",
-      app_identifier: [
-        "io.sentry.cocoa.perf-test-app-plain"
-      ]
-    )
+    unless skip_codesigning
+      sync_code_signing(
+        type: "development",
+        app_identifier: [
+          "io.sentry.cocoa.perf-test-app-plain"
+        ]
+      )
+    end
 
     build_app(
       project: "Tests/Perf/test-app-plain/test-app-plain.xcodeproj",
@@ -371,24 +384,30 @@ platform :ios do
       export_method: "development",
       output_directory: "Tests/Perf/",
       output_name: "test-app-plain.ipa",
-      skip_package_dependencies_resolution: true # See SKIP_SPM_RESOLUTION_NOTE
+      skip_package_dependencies_resolution: true, # See SKIP_SPM_RESOLUTION_NOTE
+      xcargs: skip_codesigning ? "CODE_SIGNING_ALLOWED=NO" : nil,
+      skip_package_ipa: skip_codesigning
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") if is_ci
   end
 
   desc "Build Perf-test app with Sentry"
-  lane :build_perf_test_app_sentry do
+  lane :build_perf_test_app_sentry do |options|
+    skip_codesigning = options[:skip_codesigning] || false
+
     setup_ci(
       force: true
     ) if is_ci
 
-    sync_code_signing(
-      type: "development",
-      app_identifier: [
-        "io.sentry.cocoa.perf-test-app-sentry"
-      ],
-    )
+    unless skip_codesigning
+      sync_code_signing(
+        type: "development",
+        app_identifier: [
+          "io.sentry.cocoa.perf-test-app-sentry"
+        ],
+      )
+    end
 
     build_app(
       project: "Tests/Perf/test-app-sentry/test-app-sentry.xcodeproj",
@@ -398,7 +417,9 @@ platform :ios do
       export_method: "development",
       output_directory: "Tests/Perf/",
       output_name: "test-app-sentry.ipa",
-      skip_package_dependencies_resolution: true # See SKIP_SPM_RESOLUTION_NOTE
+      skip_package_dependencies_resolution: true, # See SKIP_SPM_RESOLUTION_NOTE
+      xcargs: skip_codesigning ? "CODE_SIGNING_ALLOWED=NO" : nil,
+      skip_package_ipa: skip_codesigning
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") if is_ci
@@ -431,15 +452,19 @@ platform :ios do
 end
 
 desc "Build and Upload for Size Analysis"
-lane :build_ios_for_size_analysis do
-  setup_ci if is_ci
+lane :build_ios_for_size_analysis do |options|
+  skip_codesigning = options[:skip_codesigning] || false
 
-  sync_code_signing(
+  setup_ci if is_ci && !skip_codesigning
+
+  unless skip_codesigning
+    sync_code_signing(
       type: "appstore",
       app_identifier: [
         "io.sentry.sample.SDK-Size"
       ],
-  )
+    )
+  end
 
   build_ios_app(
     workspace: "Sentry.xcworkspace",
@@ -448,18 +473,21 @@ lane :build_ios_for_size_analysis do
     configuration: 'Release',
     skip_package_ipa: true,
     archive_path: './build/SDK-Size.xcarchive',
+    xcargs: skip_codesigning ? "CODE_SIGNING_ALLOWED=NO" : nil,
   )
 
-  sentry_upload_build(
-    xcarchive_path: './build/SDK-Size.xcarchive',
-    auth_token: ENV['SENTRY_AUTH_TOKEN'],
-    org_slug: 'sentry-sdks',
-    project_slug: 'sentry-cocoa',
-    build_configuration: 'Release',
-    log_level: 'debug'
-  )
+  unless skip_codesigning
+    sentry_upload_build(
+      xcarchive_path: './build/SDK-Size.xcarchive',
+      auth_token: ENV['SENTRY_AUTH_TOKEN'],
+      org_slug: 'sentry-sdks',
+      project_slug: 'sentry-cocoa',
+      build_configuration: 'Release',
+      log_level: 'debug'
+    )
+  end
 
-  delete_keychain(name: "fastlane_tmp_keychain") if is_ci
+  delete_keychain(name: "fastlane_tmp_keychain") if is_ci && !skip_codesigning
 end
 
 # SKIP_SPM_RESOLUTION_NOTE:

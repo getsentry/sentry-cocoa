@@ -28,10 +28,10 @@ class SentrySDKInternalTests: XCTestCase {
         let currentDate = TestCurrentDateProvider()
 
         let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
         let observer: SentryWatchdogTerminationScopeObserver
         let scopePersistentStore: TestSentryScopePersistentStore
-#endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif //  os(iOS) || os(tvOS)
 
         let scopeBlock: (Scope) -> Void = { scope in
             scope.setTag(value: "tag", key: "tag")
@@ -61,7 +61,7 @@ class SentrySDKInternalTests: XCTestCase {
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
             options.dsn = SentrySDKInternalTests.dsnAsString
 
             let fileManager = try XCTUnwrap(TestFileManager(
@@ -76,7 +76,7 @@ class SentrySDKInternalTests: XCTestCase {
                 scopePersistentStore: scopePersistentStore
             )
             observer = SentryWatchdogTerminationScopeObserver(breadcrumbProcessor: breadcrumbProcessor, attributesProcessor: attributesProcessor)
-#endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif //  os(iOS) || os(tvOS)
         }
     }
 
@@ -476,7 +476,7 @@ class SentrySDKInternalTests: XCTestCase {
     }
 #endif
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     func testReportFullyDisplayed() {
         fixture.options.enableTimeToFullDisplayTracing = true
 
@@ -682,7 +682,7 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(1, dispatchQueueWrapper.blockOnMainInvocations.count, "Close should dispatch exactly once to main queue")
     }
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 
     func testSetAppStartMeasurementConcurrently() {
         let runtimeInitSystemTimestamp = SentryDependencyContainer.sharedInstance().dateProvider.date()
@@ -942,7 +942,7 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(result["tag1"], "value1")
         XCTAssertEqual(result["tag2"], "value2")
     }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
 
 #if os(macOS)
     func testCaptureCrashOnException() {

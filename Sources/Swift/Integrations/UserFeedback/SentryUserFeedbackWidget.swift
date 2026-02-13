@@ -1,7 +1,7 @@
 // swiftlint:disable todo
 
 import Foundation
-#if os(iOS) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 var displayingForm = false
@@ -130,6 +130,6 @@ final class SentryUserFeedbackWidget {
     }
 }
 
-#endif // os(iOS) && !SENTRY_NO_UIKIT
+#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 
 // swiftlint:enable todo

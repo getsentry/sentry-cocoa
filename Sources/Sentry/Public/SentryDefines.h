@@ -29,9 +29,10 @@
 #endif
 
 // SENTRY_HAS_UIKIT means we're on a platform that can link UIKit and we're building a configuration
-// that will allow it to be autolinked. SENTRY_NO_UIKIT is set in GCC_PREPROCESSOR_DEFINITIONS
-// for configurations that we will not allow to link UIKit by setting CLANG_MODULES_AUTOLINK to NO.
-#if SENTRY_UIKIT_AVAILABLE && !SENTRY_NO_UIKIT
+// that will allow it to be autolinked. SENTRY_NO_UI_FRAMEWORK is set in
+// GCC_PREPROCESSOR_DEFINITIONS for configurations that we will not allow to link UIKit by setting
+// CLANG_MODULES_AUTOLINK to NO.
+#if SENTRY_UIKIT_AVAILABLE && !SENTRY_NO_UI_FRAMEWORK
 #    define SENTRY_HAS_UIKIT 1
 #else
 #    define SENTRY_HAS_UIKIT 0
@@ -43,7 +44,7 @@
 #    define SENTRY_TARGET_MACOS 0
 #endif
 
-#if (TARGET_OS_OSX || TARGET_OS_MACCATALYST) && !SENTRY_NO_UIKIT
+#if (TARGET_OS_OSX || TARGET_OS_MACCATALYST) && !SENTRY_NO_UI_FRAMEWORK
 #    define SENTRY_TARGET_MACOS_HAS_UI 1
 #else
 #    define SENTRY_TARGET_MACOS_HAS_UI 0
@@ -80,6 +81,26 @@
  * @endcode
  */
 #define SENTRY_SWIFT_MIGRATION_ID(className) id
+
+/**
+ * Temporary macro used during Swift migration to track places where we use @c NSInteger instead of
+ * a Swift enum type due to Objective-C/Swift interoperability issues.
+ * The macro takes the intended enum name as a parameter for documentation purposes.
+ *
+ * Usage: @c SENTRY_SWIFT_MIGRATION_VALUE(EnumName) instead of the enum type directly.
+ *
+ * To find all places that need updating after Swift migration is complete, comment out the
+ * macro definition below. The compiler will then show errors at all usage sites, making it
+ * easy to locate and fix them.
+ *
+ * Example:
+ * @code
+ * // Temporary workaround during migration:
+ * - (void)doSomething:(SENTRY_SWIFT_MIGRATION_VALUE(SentryMyEnum))value;
+ *
+ * @endcode
+ */
+#define SENTRY_SWIFT_MIGRATION_VALUE(enumName) NSInteger
 
 #define SENTRY_NO_INIT                                                                             \
     -(instancetype)init NS_UNAVAILABLE;                                                            \

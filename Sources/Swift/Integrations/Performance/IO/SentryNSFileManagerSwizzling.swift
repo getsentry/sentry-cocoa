@@ -17,7 +17,7 @@ final class SentryNSFileManagerSwizzling: NSObject {
     }
 
     func stop() {
-        SentryNSFileManagerSwizzlingHelper.unswizzle()
+        SentryNSFileManagerSwizzlingHelper.stop()
     }
 }
 

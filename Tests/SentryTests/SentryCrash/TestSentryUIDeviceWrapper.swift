@@ -1,6 +1,6 @@
 @_spi(Private) import Sentry
 
-#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS)
 class TestSentryUIDeviceWrapper: SentryUIDeviceWrapper {
     
     var internalOrientation = UIDeviceOrientation.portrait
@@ -41,4 +41,4 @@ class TestSentryUIDeviceWrapper: SentryUIDeviceWrapper {
         ""
     }
 }
-#endif // os(iOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS)

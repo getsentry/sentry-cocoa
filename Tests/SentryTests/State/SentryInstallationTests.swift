@@ -3,9 +3,8 @@
 import XCTest
 
 final class SentryInstallationTests: XCTestCase {
-    
-    // FileManager().temporaryDirectory already has a trailing slash
-    private let basePath = "\(FileManager().temporaryDirectory)\(UUID().uuidString)"
+
+    private let basePath = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).path
     
     override func setUpWithError() throws {
         try super.setUpWithError()
@@ -14,6 +13,7 @@ final class SentryInstallationTests: XCTestCase {
     
     override func tearDownWithError() throws {
         super.tearDown()
+        SentryInstallation.clearCachedInstallationIds()
         let fileManager = FileManager.default
         if fileManager.fileExists(atPath: basePath) {
             try FileManager().removeItem(atPath: basePath)
@@ -40,7 +40,7 @@ final class SentryInstallationTests: XCTestCase {
     
     func testSentryInstallationIdFromFileCache() {
         let id1 = SentryInstallation.id(withCacheDirectoryPath: basePath)
-        SentryInstallation.installationStringsByCacheDirectoryPaths.removeAllObjects()
+        SentryInstallation.clearCachedInstallationIds()
         XCTAssertEqual(id1, SentryInstallation.id(withCacheDirectoryPath: basePath))
     }
     
@@ -59,12 +59,12 @@ final class SentryInstallationTests: XCTestCase {
         
         SentryInstallation.cacheIDAsync(withCacheDirectoryPath: basePath)
 
-        let nonCachedID = SentryInstallation.id(withCacheDirectoryPathNonCached: basePath)
+        let nonCachedID = SentryInstallation.idNonCached(withCacheDirectoryPath: basePath)
         
         // We remove the file containing the installation ID, but the cached ID is still in memory
         try FileManager().removeItem(atPath: basePath)
         
-        let nonCachedIDAfterDeletingFile = SentryInstallation.id(withCacheDirectoryPathNonCached: basePath)
+        let nonCachedIDAfterDeletingFile = SentryInstallation.idNonCached(withCacheDirectoryPath: basePath)
         XCTAssertNil(nonCachedIDAfterDeletingFile)
         
         let cachedID = SentryInstallation.id(withCacheDirectoryPath: basePath)

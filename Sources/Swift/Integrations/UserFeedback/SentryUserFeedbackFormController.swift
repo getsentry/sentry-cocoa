@@ -1,7 +1,7 @@
 // swiftlint:disable type_body_length
 
 import Foundation
-#if os(iOS) && !SENTRY_NO_UIKIT
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
@@ -161,6 +161,6 @@ struct ViewControllerWrapper: UIViewControllerRepresentable {
 }
 #endif // DEBUG && swift(>=5.10)
 
-#endif // os(iOS) && !SENTRY_NO_UIKIT
+#endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 
 // swiftlint:enable type_body_length

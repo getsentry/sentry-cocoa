@@ -1,6 +1,6 @@
 // swiftlint:disable file_length missing_docs
 import Foundation
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 @_implementationOnly import _SentryPrivate
 import UIKit
 
@@ -231,6 +231,8 @@ import UIKit
             SentrySDKLog.debug("[Session Replay] Reached maximum duration, pausing session")
             reachedMaximumDuration = true
             pause()
+            // Notify the delegate that the session replay has ended so it can clear the session replay id.
+            delegate?.sessionReplayEnded()
             return
         }
 

@@ -44,7 +44,8 @@ if [[ "$XCODE_MAJOR_VERSION" != "16" ]]; then
 fi
 end_group
 
-begin_group "Build XCFramework"
+# Build both frameworks at once, as they depend on each other
+begin_group "Build Sentry-Dynamic XCFramework"
 log_notice "Building Sentry-Dynamic slice"
 ./scripts/build-xcframework-slice.sh "iphoneos" "Sentry" "-Dynamic" "mh_dylib"
 
@@ -52,13 +53,21 @@ log_notice "Assembling Sentry-Dynamic xcframework"
 ./scripts/assemble-xcframework.sh "Sentry" "-Dynamic" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/Sentry-Dynamic/SDK_NAME.xcarchive"
 end_group
 
+begin_group "Build SentrySwiftUI XCFramework"
+log_notice "Building SentrySwiftUI slice"
+./scripts/build-xcframework-slice.sh "iphoneos" "SentrySwiftUI" "" "mh_dylib"
+
+log_notice "Assembling SentrySwiftUI xcframework"
+./scripts/assemble-xcframework.sh "SentrySwiftUI" "" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/SentrySwiftUI/SDK_NAME.xcarchive"
+end_group
+
 begin_group "Extract Public API"
-log_notice "Deleting private .swiftinterface files"
 # Delete private .swiftinterface files before running swift-api-digester
 # This ensures only public interfaces are analyzed
+log_notice "Deleting private .swiftinterface files"
 find ./Sentry-Dynamic.xcframework -name "*.private.swiftinterface" -type f -delete
 
-log_notice "Running swift-api-digester"
+log_notice "Running swift-api-digester for Sentry module"
 xcrun --sdk iphoneos swift-api-digester \
     -dump-sdk \
     -o sdk_api.json \
@@ -72,4 +81,27 @@ xcrun --sdk iphoneos swift-api-digester \
 # Sort the JSON keys and arrays for stable output across runs
 log_notice "Sorting JSON keys and arrays for stable output"
 jq -S 'walk(if type == "array" then sort_by(tostring) else . end)' sdk_api.json > sdk_api.json.tmp && mv sdk_api.json.tmp sdk_api.json
+end_group
+
+begin_group "Extract SentrySwiftUI Public API"
+# Delete private .swiftinterface files before running swift-api-digester
+# This ensures only public interfaces are analyzed
+log_notice "Deleting private .swiftinterface files from SentrySwiftUI"
+find ./SentrySwiftUI.xcframework -name "*.private.swiftinterface" -type f -delete
+
+log_notice "Running swift-api-digester for SentrySwiftUI module"
+xcrun --sdk iphoneos swift-api-digester \
+    -dump-sdk \
+    -o sdk_api_sentryswiftui.json \
+    -abort-on-module-fail \
+    -avoid-tool-args \
+    -avoid-location \
+    -module SentrySwiftUI \
+    -target arm64-apple-ios10.0 \
+    -iframework "$(pwd)/SentrySwiftUI.xcframework/ios-arm64_arm64e" \
+    -iframework "$(pwd)/Sentry-Dynamic.xcframework/ios-arm64_arm64e"
+
+# Sort the JSON keys and arrays for stable output across runs
+log_notice "Sorting JSON keys and arrays for stable output"
+jq -S 'walk(if type == "array" then sort_by(tostring) else . end)' sdk_api_sentryswiftui.json > sdk_api_sentryswiftui.json.tmp && mv sdk_api_sentryswiftui.json.tmp sdk_api_sentryswiftui.json
 end_group

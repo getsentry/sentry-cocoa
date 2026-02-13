@@ -112,14 +112,14 @@ class ViewLifecycleTestViewController: UIViewController {
 
     fileprivate func assertSwizzlingIsEnabled() {
         let stacktraceContainsUIViewControllerSwizzling = Thread.callStackSymbols.contains { frame in
-            frame.contains("SentryUIViewControllerSwizzling swizzle")
+            frame.contains("SentryUIViewControllerSwizzlingHelper swizzle")
         }
         assert(stacktraceContainsUIViewControllerSwizzling, "view life cycle method should be swizzled")
     }
 
     fileprivate func assertSwizzlingIsDisabled() {
         let stacktraceContainsUIViewControllerSwizzling = Thread.callStackSymbols.contains { frame in
-            frame.contains("SentryUIViewControllerSwizzling swizzle")
+            frame.contains("SentryUIViewControllerSwizzlingHelper swizzle")
         }
         assert(!stacktraceContainsUIViewControllerSwizzling, "view life cycle method should not be swizzled")
     }

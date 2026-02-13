@@ -1,5 +1,5 @@
 // swiftlint:disable missing_docs
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 import UIKit
 
@@ -31,7 +31,7 @@ import UIKit
     }
 }
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 extension SentryDisplayLinkWrapper: SentryReplayDisplayLinkWrapper {}
 #endif
 

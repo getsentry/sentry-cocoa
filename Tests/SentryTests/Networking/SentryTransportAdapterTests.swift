@@ -95,20 +95,27 @@ enum EnvelopeUtils {
         XCTAssertEqual(expected.header.sdkInfo, actual.header.sdkInfo)
         XCTAssertEqual(expected.items.count, actual.items.count)
         
-        expected.items.forEach { expectedItem in
+        try expected.items.forEach { expectedItem in
             let expectedHeader = expectedItem.header
             let containsHeader = actual.items.contains { _ in
                 expectedHeader.type == expectedItem.header.type &&
                 expectedHeader.contentType == expectedItem.header.contentType
             }
-            
+
             XCTAssertTrue(containsHeader, "Envelope doesn't contain item with type:\(expectedHeader.type).")
-            
-            let jsonExpected = try? JSONSerialization.jsonObject(with: XCTUnwrap(expectedItem.data)) as? NSDictionary
-            let containsData = actual.items.contains { actualItem in
+
+            let expectedData = try XCTUnwrap(expectedItem.data)
+            let jsonExpected: NSDictionary? = if !expectedData.isEmpty {
+                try JSONSerialization.jsonObject(with: expectedData) as? NSDictionary
+            } else {
+                nil
+            }
+            let containsData = try actual.items.contains { actualItem in
                 // JSON cannot compare the raw Data because the keys are not guaranteed to be in the same order.
                 if let jsonExpected {
-                    if let jsonActual = try? JSONSerialization.jsonObject(with: XCTUnwrap(actualItem.data)) as? NSDictionary {
+                    let actualData = try XCTUnwrap(actualItem.data)
+                    if !actualData.isEmpty {
+                        let jsonActual = try JSONSerialization.jsonObject(with: actualData) as? NSDictionary
                         return jsonExpected == jsonActual
                     }
                     return false
@@ -116,7 +123,7 @@ enum EnvelopeUtils {
                     return actualItem.data == expectedItem.data
                 }
             }
-            
+
             XCTAssertTrue(containsData, "Envelope data with type:\(expectedHeader.type) doesn't match.")
         }
     }

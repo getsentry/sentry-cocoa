@@ -1,46 +1,33 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-protocol TelemetryBuffer<Item, Scope>: AnyObject {
-    associatedtype Item: TelemetryBufferItem
-    associatedtype Scope: TelemetryBufferScope
+protocol TelemetryBuffer<Item> {
+    associatedtype Item: TelemetryItem
 
-    func add(_ item: Item, scope: Scope)
+    func add(_ item: Item)
     func capture() -> TimeInterval
 }
 
-final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<Item>, Item: TelemetryBufferItem, Scope: TelemetryBufferScope>: TelemetryBuffer {
+final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<Item>, Item: TelemetryItem>: TelemetryBuffer, TelemetryBufferItemForwardingDelegate {
     struct Config: TelemetryBufferConfig {
-        let sendDefaultPii: Bool
-
         let flushTimeout: TimeInterval
         let maxItemCount: Int
         let maxBufferSizeBytes: Int
-        
-        let beforeSendItem: ((Item) -> Item?)?
-
         var capturedDataCallback: (Data, Int) -> Void = { _, _ in }
     }
 
-    struct Metadata: TelemetryBufferMetadata {
-        let environment: String
-        let releaseName: String?
-        let installationId: String?
-    }
-
     private let config: Config
-    private let metadata: Metadata
 
     private var buffer: InternalBufferType
     private let dateProvider: SentryCurrentDateProvider
     private let dispatchQueue: SentryDispatchQueueWrapperProtocol
+    private let itemForwardingTriggers: TelemetryBufferItemForwardingTriggers
 
     private var timerWorkItem: DispatchWorkItem?
 
     /// Initializes a new buffer.
     /// - Parameters:
     ///   - config: The buffer configuration containing flush timeout, limits, and callbacks
-    ///   - metadata: The buffer metadata containing fields like environment or release
     ///   - buffer: The buffer implementation for buffering items
     ///   - dateProvider: Provider for current date/time used for timing measurements
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
@@ -50,43 +37,28 @@ final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<I
     ///
     /// - Note: Items are flushed when either `config.maxItemCount` or `config.maxBufferSizeBytes` limit is reached,
     ///        or after `config.flushTimeout` seconds have elapsed since the first item was added to an empty buffer.
-    @_spi(Private) public init(
+    init(
         config: Config,
-        metadata: Metadata,
         buffer: InternalBufferType,
         dateProvider: SentryCurrentDateProvider,
-        dispatchQueue: SentryDispatchQueueWrapperProtocol
+        dispatchQueue: SentryDispatchQueueWrapperProtocol,
+        itemForwardingTriggers: TelemetryBufferItemForwardingTriggers
     ) {
         self.config = config
-        self.metadata = metadata
         self.buffer = buffer
         self.dateProvider = dateProvider
         self.dispatchQueue = dispatchQueue
+        self.itemForwardingTriggers = itemForwardingTriggers
+        self.itemForwardingTriggers.setDelegate(self)
     }
 
-    /// Adds an item to the buffer with the given scope.
+    /// Adds an item to the buffer.
     /// - Parameters:
-    ///   - item: The item to add to the batch
-    ///   - scope: The scope to apply to the item (adds attributes, trace ID, etc.)
-    ///
-    /// - Note: Scope application (attribute enrichment) and the `beforeSendItem` callback are executed
-    ///        synchronously on the caller's thread. Only encoding and buffering happen asynchronously
-    ///        on the buffer's serial dispatch queue. If `config.beforeSendItem` returns `nil`,
-    ///        the item is dropped and not added to the batch.
-    func add(_ item: Item, scope: Scope) {
-        var item = item
-        scope.applyToItem(&item, config: config, metadata: metadata)
-
-        // The before send item closure can be used to drop items by returning nil
-        // In case it is nil, we can stop processing
-        if let beforeSendItem = config.beforeSendItem {
-            // If the before send hook returns nil, the item should be dropped
-            guard let processedItem = beforeSendItem(item) else {
-                return
-            }
-            item = processedItem
-        }
-
+    ///   - item: The item to add to the batch (should already have scope enrichment applied)
+    ///   
+    /// - Important: Scope enrichment must be applied to the item BEFORE calling this method.
+    ///             The buffer no longer applies scope automatically.
+    func add(_ item: Item) {
         dispatchQueue.dispatchAsync { [weak self] in
             self?.encodeAndBuffer(item: item)
         }
@@ -166,5 +138,15 @@ final class DefaultTelemetryBuffer<InternalBufferType: InternalTelemetryBuffer<I
             return
         }
         config.capturedDataCallback(buffer.batchedData, buffer.itemsCount)
+    }
+
+    deinit {
+        itemForwardingTriggers.setDelegate(nil)
+    }
+
+    // MARK: - TelemetryBufferItemForwardingDelegate
+
+    func forwardItems() {
+        capture()
     }
 }

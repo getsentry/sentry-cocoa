@@ -51,7 +51,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssert(scopeSpan === transaction)
         XCTAssertTrue(Dynamic(transaction).configuration.waitForChildren.asBool ?? false)
         XCTAssertEqual(transaction.transactionContext.name, fixture.someTransaction)
-        XCTAssertEqual(transaction.transactionContext.nameSource, .custom)
+        XCTAssertEqual(transaction.transactionContext.nameSource, SentryTransactionNameSource.custom)
         XCTAssertEqual(transaction.transactionContext.origin, fixture.origin)
     }
     
@@ -68,7 +68,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssert(scopeSpan === firstTransaction)
     }
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
     func testStartSpan_ScopeWithUIActionSpan_FinishesSpan() {
         let sut = fixture.getSut()
         let firstTransaction = SentrySDK.startTransaction(name: fixture.someTransaction, operation: "ui.action", bindToScope: true)
@@ -82,7 +82,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         XCTAssertTrue(firstTransaction.isFinished)
         XCTAssertEqual(.cancelled, firstTransaction.status)
     }
-#endif // os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(tvOS)
     
     func testStartSpan_WithActiveSpan() {
         let sut = fixture.getSut()
@@ -160,7 +160,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         
         let expect = expectation(description: "Callback Expectation")
         
-        sut.measureSpan(withDescription: fixture.someTransaction, nameSource: .custom, operation: fixture.someOperation, origin: fixture.origin) {
+        sut.measureSpan(withDescription: fixture.someTransaction, nameSource: SentryTransactionNameSource.custom.rawValue, operation: fixture.someOperation, origin: fixture.origin) {
             let spanId = sut.activeSpanId()!
             
             span = sut.getSpan(spanId)
@@ -180,7 +180,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         
         let expect = expectation(description: "Callback Expectation")
         
-        sut.measureSpan(withDescription: fixture.someTransaction, nameSource: .custom, operation: fixture.someOperation, origin: fixture.origin, parentSpanId: SpanId()) {
+        sut.measureSpan(withDescription: fixture.someTransaction, nameSource: SentryTransactionNameSource.custom.rawValue, operation: fixture.someOperation, origin: fixture.origin, parentSpanId: SpanId()) {
             expect.fulfill()
         }
         
@@ -191,7 +191,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
     func testNotSampled() throws {
         fixture.client.options.tracesSampleRate = 0
         let sut = fixture.getSut()
-        let spanId = sut.startSpan(withName: fixture.someTransaction, nameSource: .custom, operation: fixture.someOperation, origin: fixture.origin)
+        let spanId = sut.startSpan(withName: fixture.someTransaction, nameSource: SentryTransactionNameSource.custom.rawValue, operation: fixture.someOperation, origin: fixture.origin)
         let span = try XCTUnwrap(sut.getSpan(spanId))
         XCTAssertEqual(span.sampled, .no)
     }
@@ -199,7 +199,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
     func testSampled() throws {
         fixture.client.options.tracesSampleRate = 1
         let sut = fixture.getSut()
-        let spanId = sut.startSpan(withName: fixture.someTransaction, nameSource: .custom, operation: fixture.someOperation, origin: fixture.origin)
+        let spanId = sut.startSpan(withName: fixture.someTransaction, nameSource: SentryTransactionNameSource.custom.rawValue, operation: fixture.someOperation, origin: fixture.origin)
         let span = try XCTUnwrap(sut.getSpan(spanId))
         XCTAssertEqual(span.sampled, .yes)
     }
@@ -276,7 +276,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let activeSpans = Dynamic(sut).activeSpanStack as NSMutableArray?
         activeSpans?.add(TestSentrySpan())
                 
-        let spanId = sut.startSpan(withName: fixture.someTransaction, nameSource: .custom, operation: fixture.someOperation, origin: fixture.origin)
+        let spanId = sut.startSpan(withName: fixture.someTransaction, nameSource: SentryTransactionNameSource.custom.rawValue, operation: fixture.someOperation, origin: fixture.origin)
         
         XCTAssertEqual(spanId, SpanId.empty)
     }
@@ -351,7 +351,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
     }
     
     private func startSpan(tracker: SentryPerformanceTracker) -> SpanId {
-        return tracker.startSpan(withName: fixture.someTransaction, nameSource: .custom, operation: fixture.someOperation, origin: fixture.origin)
+        return tracker.startSpan(withName: fixture.someTransaction, nameSource: SentryTransactionNameSource.custom.rawValue, operation: fixture.someOperation, origin: fixture.origin)
     }
         
 }

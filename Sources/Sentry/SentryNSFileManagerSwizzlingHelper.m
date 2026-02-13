@@ -53,11 +53,19 @@ static BOOL swizzlingIsActive = FALSE;
             (void *)createFileAtPathContentsAttributes);
     }
 }
+#pragma clang diagnostic pop
 
++ (void)stop
+{
+    _tracker = nil;
+#if SENTRY_TEST || SENTRY_TEST_CI
+    [self unswizzle];
+#endif
+}
+
+#if SENTRY_TEST || SENTRY_TEST_CI
 + (void)unswizzle
 {
-#if SENTRY_TEST || SENTRY_TEST_CI
-    _tracker = nil;
     swizzlingIsActive = FALSE;
 
     // Unswizzling is only supported in test targets as it is considered unsafe for production.
@@ -67,11 +75,8 @@ static BOOL swizzlingIsActive = FALSE;
         SentryUnswizzleInstanceMethod(NSFileManager.class, createFileAtPathContentsAttributes,
             (void *)createFileAtPathContentsAttributes);
     }
-#endif // SENTRY_TEST || SENTRY_TEST_CI
 }
-#pragma clang diagnostic pop
 
-#if SENTRY_TEST || SENTRY_TEST_CI
 + (BOOL)swizzlingActive
 {
     return swizzlingIsActive;

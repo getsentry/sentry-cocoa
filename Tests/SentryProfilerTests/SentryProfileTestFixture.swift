@@ -3,7 +3,7 @@ import _SentryPrivate
 @_spi(Private) @testable import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
 
 #if !os(macOS)
 class TestDelayedWrapper: SentryDelayedFramesTracker {}
@@ -404,4 +404,4 @@ class SentryProfileTestFixture {
 #endif // !os(macOS)
 }
 
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)

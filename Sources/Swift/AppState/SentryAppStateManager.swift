@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 #endif
 
@@ -10,7 +10,7 @@ import UIKit
     private let releaseName: String?
     private let crashWrapper: SentryCrashWrapper
     private let fileManager: SentryFileManager?
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let _updateAppState: (@escaping (SentryAppState) -> Void) -> Void
     private let _buildCurrentAppState: () -> SentryAppState
     private let helper: SentryDefaultAppStateManager
@@ -20,7 +20,7 @@ import UIKit
         self.releaseName = releaseName
         self.crashWrapper = crashWrapper
         self.fileManager = fileManager
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         let lock = NSRecursiveLock()
         let buildCurrentAppState = {
             // Is the current process being traced or not? If it is a debugger is attached.
@@ -54,7 +54,7 @@ import UIKit
 #endif
     }
     
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 #if SENTRY_TEST || SENTRY_TEST_CI
     /// Test-only initializer to allow injecting a custom `buildCurrentAppState` closure for testing

@@ -2,7 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 class SentryViewHierarchyProviderTests: XCTestCase {
     private class Fixture {
         let uiApplication = TestSentryUIApplication()
@@ -20,7 +20,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         fixture = Fixture()
     }
 
-    func test_Multiple_Window() {
+    func test_Multiple_Window() throws {
         let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         let secondWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
 
@@ -31,8 +31,8 @@ class SentryViewHierarchyProviderTests: XCTestCase {
             return
         }
 
-        let object = try? JSONSerialization.jsonObject(with: descriptions) as? NSDictionary
-        let windows = object?["windows"] as? NSArray
+        let object = try XCTUnwrap(JSONSerialization.jsonObject(with: descriptions) as? NSDictionary)
+        let windows = object["windows"] as? NSArray
         XCTAssertNotNil(windows)
         XCTAssertEqual(windows?.count, 2)
     }
@@ -66,7 +66,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"IdWindow\",\"width\":20,\"height\":30,\"x\":1,\"y\":2,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
     }
 
-    func test_Window_with_children() {
+    func test_Window_with_children() throws {
         let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         let childView = UIView(frame: CGRect(x: 1, y: 1, width: 8, height: 8))
         let secondChildView = UIView(frame: CGRect(x: 2, y: 2, width: 6, height: 6))
@@ -82,8 +82,8 @@ class SentryViewHierarchyProviderTests: XCTestCase {
             return
         }
 
-        let object = try? JSONSerialization.jsonObject(with: descriptions) as? NSDictionary
-        let window = (object?["windows"] as? NSArray)?.firstObject as? NSDictionary
+        let object = try XCTUnwrap(JSONSerialization.jsonObject(with: descriptions) as? NSDictionary)
+        let window = (object["windows"] as? NSArray)?.firstObject as? NSDictionary
         let children = window?["children"] as? NSArray
 
         let firstChild = children?.firstObject as? NSDictionary
@@ -92,7 +92,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         XCTAssertEqual(firstChild?["type"] as? String, "UIView")
     }
 
-    func test_ViewHierarchy_with_ViewController() {
+    func test_ViewHierarchy_with_ViewController() throws {
         let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         let viewController = UIViewController()
         firstWindow.rootViewController = viewController
@@ -106,8 +106,8 @@ class SentryViewHierarchyProviderTests: XCTestCase {
             return
         }
 
-        let object = try? JSONSerialization.jsonObject(with: descriptions) as? NSDictionary
-        let window = (object?["windows"] as? NSArray)?.firstObject as? NSDictionary
+        let object = try XCTUnwrap(JSONSerialization.jsonObject(with: descriptions) as? NSDictionary)
+        let window = (object["windows"] as? NSArray)?.firstObject as? NSDictionary
         let children = window?["children"] as? NSArray
 
         let firstChild = children?.firstObject as? NSDictionary
@@ -115,7 +115,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         XCTAssertEqual(firstChild?["view_controller"] as? String, "UIViewController")
     }
 
-    func test_ViewHierarchy_save() {
+    func test_ViewHierarchy_save() throws {
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
@@ -124,7 +124,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         let path = FileManager.default.temporaryDirectory.appendingPathComponent("view.json").path
         self.fixture.sut.saveViewHierarchy(path)
 
-        let descriptions = (try? String(contentsOfFile: path)) ?? ""
+        let descriptions = try String(contentsOfFile: path)
 
         XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
     }

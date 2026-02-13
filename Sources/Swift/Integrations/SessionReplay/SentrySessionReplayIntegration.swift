@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs file_length
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
 typealias SessionReplayIntegrationScope = SessionReplayEnvironmentCheckerProvider & NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & CrashWrapperProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider
@@ -368,6 +368,13 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = replayId.sentryIdString }
     }
 
+    public func sessionReplayEnded() {
+        SentrySDKLog.debug("[Session Replay] Session replay ended")
+        SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = nil }
+        removeBackgroundForegroundObservers()
+        sessionReplay = nil
+    }
+
     public func breadcrumbsForSessionReplay() -> [Breadcrumb] {
         var result: [Breadcrumb] = []
         SentrySDKInternal.currentHub().configureScope { scope in result = scope.breadcrumbs() }
@@ -401,5 +408,5 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 }
 // swiftlint:enable type_body_length
 
-#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+#endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 // swiftlint:enable missing_docs file_length

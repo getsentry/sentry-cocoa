@@ -3,7 +3,7 @@ import _SentryPrivate
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(macOS)
 
 final class SentryContinuousProfilerTests: XCTestCase {
     private var fixture: SentryProfileTestFixture!
@@ -266,9 +266,9 @@ private extension SentryContinuousProfilerTests {
             try fixture.timeoutTimerFactory.check()
             XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
             try assertValidData(expectedEnvironment: expectedEnvironment, expectedAddresses: expectedAddresses, countMetricsReadingAtProfileStart: countMetricsReadingAtProfileStart)
-    #if  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    #if  os(iOS) || os(tvOS)
             fixture.resetProfileGPUExpectations()
-    #endif //  os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    #endif //  os(iOS) || os(tvOS)
             fixture.currentDateProvider.advanceBy(interval: 1)
         }
         
@@ -447,4 +447,4 @@ private extension SentryContinuousProfilerTests {
     }
 }
 
-#endif // os(iOS) || os(macOS) || targetEnvironment(macCatalyst)
+#endif // os(iOS) || os(macOS)
