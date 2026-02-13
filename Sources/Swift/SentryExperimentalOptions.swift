@@ -35,6 +35,13 @@ public final class SentryExperimentalOptions: NSObject {
     /// @note Default value is @c true.
     @objc public var enableMetrics: Bool = true
 
+    /// When enabled, the watchdog termination integration uses a run loop observer instead of the
+    /// ANR tracker to detect main thread hangs. The run loop observer avoids creating a busy
+    /// run loop, which can interfere with idle-time processing.
+    /// @note Default value is @c false.
+    /// @note This option is experimental and may be removed or changed in future versions.
+    @objc public var enableWatchdogTerminationRunLoopHangTracker: Bool = false
+
     /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
     /// drop the metric.
     public var beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
