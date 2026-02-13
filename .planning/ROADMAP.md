@@ -30,26 +30,27 @@ This roadmap delivers complete isolation of SentryCrash from SentryDependencyCon
 
 Plans:
 
-- [ ] 01-01-PLAN.md — Create SentryCrashBridge facade class with all five service properties
-- [ ] 01-02-PLAN.md — Integrate bridge into SentryCrashIntegration initialization flow
+- [x] 01-01-PLAN.md — Create SentryCrashBridge facade class with all five service properties
+- [x] 01-02-PLAN.md — Integrate bridge into SentryCrashIntegration initialization flow
 
 ### Phase 2: Swift Isolation
 
 **Goal**: Swift SentryCrash files consume dependencies through the facade, not SentryDependencyContainer
 **Depends on**: Phase 1
 **Requirements**: SWIFT-01, SWIFT-02
+**Plans**: 2 plans in 1 wave
+
 **Success Criteria** (what must be TRUE):
 
 1. `SentryCrashWrapper.swift` imports only necessary modules, not `SentryDependencyContainer`
 2. `SentryCrashWrapper.swift` receives systemInfo and activeScreenSize from facade, not container (2 accesses eliminated)
 3. `SentryCrashIntegrationSessionHandler.swift` receives dateProvider from facade, not container (1 access eliminated)
 4. All SentryCrashWrapper tests pass without modification (or with minimal fixture updates for facade injection)
-   **Plans**: TBD
 
 Plans:
 
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Refactor SentryCrashWrapper to use bridge for systemInfo and activeScreenSize
+- [ ] 02-02-PLAN.md — Refactor SentryCrashIntegrationSessionHandler to use bridge for dateProvider
 
 ### Phase 3: ObjC Isolation
 
@@ -110,7 +111,7 @@ Plans:
 | Phase                             | Plans Complete | Status      | Completed  |
 | --------------------------------- | -------------- | ----------- | ---------- |
 | 1. Facade Design & Implementation | 2/2            | ✓ Complete  | 2026-02-13 |
-| 2. Swift Isolation                | 0/0            | Not started | -          |
+| 2. Swift Isolation                | 0/2            | Not started | -          |
 | 3. ObjC Isolation                 | 0/0            | Not started | -          |
 | 4. Verification                   | 0/0            | Not started | -          |
 | 5. Documentation                  | 0/0            | Not started | -          |
