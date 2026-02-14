@@ -1,22 +1,26 @@
-import Sentry
+@_spi(Private) import Sentry
 
 #if os(iOS) || os(macOS)
 
-public class TestSentrySystemWrapper: SentrySystemWrapper {
-    public struct Override {
-        public var memoryFootprintError: NSError?
-        public var memoryFootprintBytes: SentryRAMBytes?
-
-        public var cpuUsageError: NSError?
-        public var cpuUsage: NSNumber?
-
-        public var cpuEnergyUsageError: NSError?
-        public var cpuEnergyUsage: NSNumber?
+class TestSentrySystemWrapper: SentrySystemWrapper {
+    override init(processorCount: Int = 4) {
+        super.init(processorCount: processorCount)
     }
 
-    public var overrides = Override()
+    struct Override {
+        var memoryFootprintError: NSError?
+        var memoryFootprintBytes: mach_vm_size_t?
 
-    public override func memoryFootprintBytes(_ error: NSErrorPointer) -> SentryRAMBytes {
+        var cpuUsageError: NSError?
+        var cpuUsage: NSNumber?
+
+        var cpuEnergyUsageError: NSError?
+        var cpuEnergyUsage: NSNumber?
+    }
+
+    var overrides = Override()
+
+    override func memoryFootprintBytes(_ error: NSErrorPointer) -> mach_vm_size_t {
         if let errorOverride = overrides.memoryFootprintError {
             error?.pointee = errorOverride
             return 0
@@ -24,7 +28,7 @@ public class TestSentrySystemWrapper: SentrySystemWrapper {
         return overrides.memoryFootprintBytes ?? super.memoryFootprintBytes(error)
     }
 
-    public override func cpuUsage() throws -> NSNumber {
+    override func cpuUsage() throws -> NSNumber {
         if let errorOverride = overrides.cpuUsageError {
             throw errorOverride
         }
@@ -32,7 +36,7 @@ public class TestSentrySystemWrapper: SentrySystemWrapper {
     }
 
 #if arch(arm) || arch(arm64)
-    public override func cpuEnergyUsage() throws -> NSNumber {
+    override func cpuEnergyUsage() throws -> NSNumber {
         if let errorOverride = overrides.cpuEnergyUsageError {
             throw errorOverride
         }

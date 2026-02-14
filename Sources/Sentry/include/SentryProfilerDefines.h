@@ -4,6 +4,12 @@
 
 #    import "SentryDefines.h"
 
+/**
+ * Unsigned 64-bit type used to express the amount of working memory the process currently has
+ * allocated. Equivalent to mach_vm_size_t on Darwin.
+ */
+typedef uint64_t SentryRAMBytes;
+
 typedef NS_ENUM(NSUInteger, SentryProfilerMode) {
     SentryProfilerModeTrace,
     SentryProfilerModeContinuous,
