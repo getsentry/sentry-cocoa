@@ -643,6 +643,55 @@ class SentrySDKInternalTests: XCTestCase {
 
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 0)
     }
+
+    /// Simulates COCOA-1119 scenario: transaction with bindToScope, then logs and error capture
+    /// inside DispatchQueue.main.async. Documents that logs are captured and verifies the scenario
+    /// runs without crashing. When COCOA-1119 is fixed, logs should have trace_id and span_id
+    /// matching the transaction (scope.span should be set when the async block runs).
+    func testLogger_TransactionWithBindToScope_LogsInsideDispatchQueueMainAsync_simulatesCOCOA1119() {
+        // Ensure test runs on main thread so setup and async block share the same run loop context.
+        // XCTest may run tests on a background thread, which can cause scope/span to not propagate
+        // to DispatchQueue.main.async when the hub is set on a different thread.
+        let runOnMain = self.expectation(description: "Run on main")
+        DispatchQueue.main.async {
+            self.runCOCOA1119TestBody()
+            runOnMain.fulfill()
+        }
+        waitForExpectations(timeout: 5.0)
+    }
+
+    private func runCOCOA1119TestBody() {
+        // -- Arrange --
+        fixture.options.enableLogs = true
+        fixture.options.tracesSampleRate = 1
+        givenSdkWithHub()
+
+        let transaction = SentrySDK.startTransaction(name: "camera-test", operation: "configure-test", bindToScope: true)
+
+        let expectation = self.expectation(description: "Async blocks complete")
+
+        // -- Act --
+        DispatchQueue.main.async {
+            SentrySDK.logger.warn("Going to error")
+            SentrySDK.capture(error: NSError(domain: "camera", code: 404))
+            DispatchQueue.main.async {
+                SentrySDK.logger.warn("After error")
+                transaction.finish()
+                expectation.fulfill()
+            }
+        }
+
+        waitForExpectations(timeout: 5.0)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.client.captureLogInvocations.count, 2, "Expected 2 logs: 'Going to error' and 'After error'")
+
+        for invocation in fixture.client.captureLogInvocations.invocations {
+            XCTAssertNotNil(invocation.scope.span, "Log should have scope.span when captured in async block")
+            XCTAssertEqual(invocation.scope.span?.traceId, transaction.traceId)
+            XCTAssertEqual(invocation.scope.span?.spanId, transaction.spanId)
+        }
+    }
     
     func testFlush_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in

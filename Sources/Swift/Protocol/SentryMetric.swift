@@ -26,6 +26,9 @@ public struct SentryMetric {
     /// which applies scope-based attribute enrichment including trace context.
     public var traceId: SentryId
 
+    /// The span ID is not used for metrics; exists to satisfy ``TelemetryItem`` conformance.
+    public var spanId: SpanId?
+
     /// The numeric value of the metric.
     ///
     /// The setter performs automatic type conversion when needed:
