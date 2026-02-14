@@ -111,7 +111,6 @@
 #import "SentryOptionsInternal.h"
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryPerformanceTracker.h"
-#import "SentryPredicateDescriptor.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentrySDK+Private.h"
