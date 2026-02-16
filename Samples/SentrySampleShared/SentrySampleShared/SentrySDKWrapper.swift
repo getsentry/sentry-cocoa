@@ -27,7 +27,9 @@ public struct SentrySDKWrapper {
         }
 
         if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
+            print("[Sentry] lastRunStatus before start: \(SentrySDK.lastRunStatus)")
             SentrySDK.start(configureOptions: configureSentryOptions(options:))
+            print("[Sentry] lastRunStatus after start: \(SentrySDK.lastRunStatus)")
         }
     }
 
@@ -132,6 +134,11 @@ public struct SentrySDKWrapper {
         options.enableSwizzling = !SentrySDKOverrides.Other.disableSwizzling.boolValue
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
+
+        options.onLastRunStatus = { status, crashEvent in
+            let eventId = crashEvent?.eventId.sentryIdString ?? "nil"
+            print("[Sentry] lastRunStatus: \(status) (event: \(eventId))")
+        }
         options.enableTimeToFullDisplayTracing = !SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.boolValue
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
 
