@@ -1,14 +1,9 @@
-#if canImport(SwiftUI) && canImport(UIKit) && os(iOS) || os(tvOS)
-import Sentry
+#if canImport(SwiftUI) && canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
 import UIKit
-
-#if XCODE || SWIFT_PACKAGE
-@_implementationOnly import SentryInternal
-#endif
 
 class SentryReplayMaskPreviewUIView: UIView {
     
-    private let maskingOverlay: UIView
+    private let maskingOverlay: SentryMaskingPreviewView
     
     var opacity: CGFloat {
         get { maskingOverlay.alpha }
@@ -16,7 +11,7 @@ class SentryReplayMaskPreviewUIView: UIView {
     }
     
     init(redactOptions: SentryRedactOptions) {
-        maskingOverlay = PrivateSentrySDKOnly.sessionReplayMaskingOverlay(redactOptions)
+        maskingOverlay = SentryMaskingPreviewView(redactOptions: redactOptions)
         super.init(frame: .zero)
     }
     

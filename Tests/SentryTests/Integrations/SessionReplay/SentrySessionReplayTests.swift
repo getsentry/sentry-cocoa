@@ -88,6 +88,7 @@ class SentrySessionReplayTests: XCTestCase {
         var lastVideoUrl: URL?
         var lastReplayId: SentryId?
         var currentScreen: String?
+        var sessionReplayEndedInvocations = Invocations<Void>()
 
         func getSut(
             options: SentryReplayOptions = .init(sessionSampleRate: 0, onErrorSampleRate: 0),
@@ -118,6 +119,10 @@ class SentrySessionReplayTests: XCTestCase {
         
         func sessionReplayStarted(replayId: SentryId) {
             lastReplayId = replayId
+        }
+
+        func sessionReplayEnded() {
+            sessionReplayEndedInvocations.record(Void())
         }
         
         func breadcrumbsForSessionReplay() -> [Breadcrumb] {
@@ -256,18 +261,38 @@ class SentrySessionReplayTests: XCTestCase {
     }
 
     func testSessionReplayMaximumDuration() {
+        // -- Arrange --
         let fixture = Fixture()
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: true)
-        
+
+        // -- Act --
         Dynamic(sut).newFrame(nil)
         fixture.dateProvider.advance(by: 5)
         Dynamic(sut).newFrame(nil)
         XCTAssertTrue(fixture.displayLink.isRunning())
         fixture.dateProvider.advance(by: 3_600)
         Dynamic(sut).newFrame(nil)
-        
+
+        // -- Assert --
         XCTAssertFalse(fixture.displayLink.isRunning())
+        XCTAssertEqual(fixture.sessionReplayEndedInvocations.count, 1)
+    }
+
+    func testSessionReplayMaximumDuration_whenNotReached_shouldNotCallEnded() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        // -- Act --
+        Dynamic(sut).newFrame(nil)
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+
+        // -- Assert --
+        XCTAssertTrue(fixture.displayLink.isRunning())
+        XCTAssertEqual(fixture.sessionReplayEndedInvocations.count, 0)
     }
     
     func testSdkInfoIsSet() throws {

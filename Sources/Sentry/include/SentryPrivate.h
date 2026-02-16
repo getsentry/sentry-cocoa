@@ -84,6 +84,7 @@
 #import "SentrySpanDataKey.h"
 #import "SentrySpanOperation.h"
 #import "SentrySysctlObjC.h"
+#import "SentryTimeToDisplayTracker.h"
 #import "SentryTraceContext+Private.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceOrigin.h"

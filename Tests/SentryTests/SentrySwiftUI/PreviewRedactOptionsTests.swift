@@ -1,5 +1,5 @@
 #if os(iOS) || os(tvOS)
-@testable import SentrySwiftUI
+@testable import Sentry
 import XCTest
 
 class PreviewRedactOptionsTests: XCTestCase {
