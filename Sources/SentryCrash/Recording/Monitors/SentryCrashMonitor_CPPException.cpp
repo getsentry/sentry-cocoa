@@ -29,6 +29,7 @@
 #include "SentryCrashID.h"
 #include "SentryCrashMachineContext.h"
 #include "SentryCrashMonitorContext.h"
+#include "SentryCrashObjC.h"
 #include "SentryCrashStackCursor_SelfThread.h"
 #include "SentryCrashThread.h"
 
@@ -37,7 +38,6 @@
 #include <cxxabi.h>
 #include <dlfcn.h>
 #include <exception>
-#include <objc/runtime.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -74,32 +74,41 @@ static SentryCrashStackCursor g_stackCursor;
 #pragma mark - Helpers -
 // ============================================================================
 
-/** Check if a type_info name refers to NSException or any of its subclasses.
- * Uses the ObjC runtime to walk the class hierarchy.
+/** Check if a C++ exception is an NSException or subclass.
+ * Async-safe: uses SentryCrashObjC introspection (direct memory reads).
+ *
+ * @param typeName The type_info name. May be NULL.
+ * @param exceptionRegion The C++ thrown region. For ObjC exceptions this
+ *        contains an id; for C++ exceptions the dereference won't validate.
  */
 static bool
-isNSExceptionOrSubclass(const char *typeName)
+isNSExceptionOrSubclass(const char *typeName, const void *exceptionRegion)
 {
-    if (typeName == NULL) {
-        return false;
-    }
-
-    if (strcmp(typeName, "NSException") == 0) {
+    if (typeName != NULL && strcmp(typeName, "NSException") == 0) {
         return true;
     }
 
-    Class cls = objc_getClass(typeName);
-    if (cls == Nil) {
+    if (exceptionRegion == NULL) {
         return false;
     }
 
-    Class nsExceptionClass = objc_getClass("NSException");
-    for (Class c = class_getSuperclass(cls); c != Nil; c = class_getSuperclass(c)) {
-        if (c == nsExceptionClass) {
-            return true;
-        }
+    // ObjC exceptions are thrown via objc_exception_throw, which stores the
+    // ObjC object pointer inside a C++ exception region. Dereference to get it.
+    const void *objcObject = *(const void *const *)exceptionRegion;
+    if (objcObject == NULL) {
+        return false;
     }
-    return false;
+
+    if (!sentrycrashobjc_isValidObject(objcObject)) {
+        return false;
+    }
+
+    const void *isaPtr = sentrycrashobjc_isaPointer(objcObject);
+    if (isaPtr == NULL) {
+        return false;
+    }
+
+    return sentrycrashobjc_isKindOfClass(isaPtr, "NSException");
 }
 
 // ============================================================================
@@ -107,12 +116,14 @@ isNSExceptionOrSubclass(const char *typeName)
 // ============================================================================
 
 static NEVER_INLINE void
-captureStackTrace(void *, std::type_info *tinfo, void (*)(void *)) KEEP_FUNCTION_IN_STACKTRACE
+captureStackTrace(
+    void *thrown_exception, std::type_info *tinfo, void (*)(void *)) KEEP_FUNCTION_IN_STACKTRACE
 {
     SENTRY_ASYNC_SAFE_LOG_TRACE("Entering captureStackTrace");
 
     // We handle NSExceptions (and subclasses) in SentryCrashMonitor_NSException.
-    if (tinfo != nullptr && isNSExceptionOrSubclass(tinfo->name())) {
+    const char *name = (tinfo != nullptr) ? tinfo->name() : NULL;
+    if (isNSExceptionOrSubclass(name, thrown_exception)) {
         return;
     }
 
@@ -192,17 +203,25 @@ sentrycrashcm_cppexception_callOriginalTerminationHandler(void)
 static void
 CPPExceptionTerminate(void)
 {
+    thread_act_array_t threads = NULL;
+    mach_msg_type_number_t numThreads = 0;
+    sentrycrashmc_suspendEnvironment(&threads, &numThreads);
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped c++ exception");
+
     const char *name = NULL;
     std::type_info *tinfo = __cxxabiv1::__cxa_current_exception_type();
     if (tinfo != NULL) {
         name = tinfo->name();
     }
-    bool isNSExceptionOrSubC = isNSExceptionOrSubclass(name);
 
-    thread_act_array_t threads = NULL;
-    mach_msg_type_number_t numThreads = 0;
-    sentrycrashmc_suspendEnvironment(&threads, &numThreads);
-    SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped c++ exception");
+    // __cxa_current_primary_exception increments the exception's refcount, so we must decrement
+    // after use:
+    // https://github.com/llvm/llvm-project/blob/1f65d4dda14cfea4323fd7139e222d26c7dc365d/libcxxabi/src/cxa_exception.cpp#L713
+    void *primaryException = __cxxabiv1::__cxa_current_primary_exception();
+    bool isNSExceptionOrSubC = isNSExceptionOrSubclass(name, primaryException);
+    if (primaryException != NULL) {
+        __cxxabiv1::__cxa_decrement_exception_refcount(primaryException);
+    }
 
     if (!isNSExceptionOrSubC) {
         sentrycrashcm_notifyFatalExceptionCaptured(false);

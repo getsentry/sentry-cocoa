@@ -5,6 +5,7 @@
 ### Fixes
 
 - Don't report NSException subclasses as C++ exceptions (#7420)
+
 ## 9.4.1
 
 ### Improvements
