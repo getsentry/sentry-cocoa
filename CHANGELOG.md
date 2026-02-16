@@ -5,6 +5,7 @@
 ### Fixes
 
 - Resolve data race crash in monitorCachedData (#7423)
+
 ## 9.4.1
 
 ### Improvements

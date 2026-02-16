@@ -218,6 +218,44 @@
     [thread cancel];
 }
 
+- (void)testUpdateCache_whenActiveCacheIsNullFromInitFailure_shouldRecoverOnNextCycle
+{
+    // -- Arrange --
+    // Simulates the scenario where createCache() fails during init(),
+    // leaving g_activeCache as NULL (without freeze). The background thread
+    // must detect this is NOT a freeze (g_frozenCache is also NULL) and
+    // install a new cache on the next update cycle.
+    NSString *expectedName = @"Recovery thread";
+    TestThread *thread = [self startThreadWithName:expectedName];
+
+    // Use a 1-second polling interval so the background thread updates
+    // frequently enough for the test to observe recovery in time.
+    // Note: monitorThreadCache uses a static quickPollCount that may be
+    // exhausted by prior tests, so we cannot rely on the quick-poll phase.
+    sentrycrashccd_init(1);
+    [NSThread sleepForTimeInterval:0.1];
+
+    // -- Act --
+    // Clear the active cache to simulate init failure state:
+    // g_activeCache = NULL, g_frozenCache = NULL (not frozen).
+    sentrycrashccd_test_clearActiveCache();
+
+    // Wait for the background thread to run updateCache() and recover.
+    [NSThread sleepForTimeInterval:3.0];
+
+    sentrycrashccd_freeze();
+    const char *cName = sentrycrashccd_getThreadName(thread.thread);
+
+    // -- Assert --
+    XCTAssertTrue(cName != NULL,
+        @"Thread name should be available — background thread must recover from NULL active cache");
+    NSString *name = [NSString stringWithUTF8String:cName];
+    XCTAssertEqualObjects(name, expectedName);
+
+    sentrycrashccd_unfreeze();
+    [thread cancel];
+}
+
 - (void)testFreezeUnfreeze_whenCycledMultipleTimes_shouldReturnConsistentResults
 {
     // -- Arrange --

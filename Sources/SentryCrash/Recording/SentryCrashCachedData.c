@@ -51,8 +51,9 @@ static atomic_int g_pollingIntervalInSeconds;
 static pthread_t g_cacheThread;
 static atomic_bool g_hasThreadStarted;
 
-/** The active cache. NULL means either not yet initialized or currently
- *  acquired by the crash handler via sentrycrashccd_freeze().
+/** The active cache, continuously updated by the background thread.
+ *  NULL when the crash handler has acquired ownership via freeze(),
+ *  or when no cache has been successfully created yet.
  */
 static _Atomic(SentryCrashThreadCacheData *) g_activeCache;
 
@@ -168,9 +169,21 @@ updateCache(void)
     // and we discard the new cache — the crash handler owns the pointer.
     SentryCrashThreadCacheData *expected = atomic_load(&g_activeCache);
     if (expected == NULL) {
-        // Cache is currently acquired by the crash handler via freeze().
-        // Skip this update cycle — the crash handler will restore it.
-        freeCache(newCache);
+        // g_activeCache is NULL. Disambiguate between two cases:
+        // 1. The crash handler has acquired ownership via freeze()
+        //    — g_frozenCache will be non-NULL.
+        // 2. No cache has been successfully created yet (e.g. init failure)
+        //    — g_frozenCache will be NULL.
+        if (atomic_load(&g_frozenCache) != NULL) {
+            // Case 1: frozen by crash handler, skip this update cycle.
+            freeCache(newCache);
+            return;
+        }
+        // Case 2: no cache exists yet. Try to install the new one.
+        if (!atomic_compare_exchange_strong(&g_activeCache, &expected, newCache)) {
+            // Another thread installed a cache concurrently. Discard ours.
+            freeCache(newCache);
+        }
         return;
     }
 
@@ -306,4 +319,13 @@ bool
 sentrycrashccd_hasThreadStarted(void)
 {
     return atomic_load(&g_hasThreadStarted);
+}
+
+// MARK: - Testing
+
+void
+sentrycrashccd_test_clearActiveCache(void)
+{
+    SentryCrashThreadCacheData *cache = atomic_exchange(&g_activeCache, NULL);
+    freeCache(cache);
 }

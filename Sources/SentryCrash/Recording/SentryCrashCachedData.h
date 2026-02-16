@@ -95,4 +95,14 @@ bool sentrycrashccd_hasThreadStarted(void);
  */
 void sentrycrashccd_close(void);
 
+// MARK: - Testing
+
+/** Atomically set the active cache to NULL, simulating a failed createCache()
+ *  during init. Frees the existing cache if present.
+ *
+ *  @warning This is for testing only. It is not async-signal-safe and must
+ *  not be called from production code.
+ */
+void sentrycrashccd_test_clearActiveCache(void);
+
 #endif /* SentryCrashCachedData_h */
