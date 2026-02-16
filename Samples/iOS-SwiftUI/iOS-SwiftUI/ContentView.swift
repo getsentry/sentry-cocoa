@@ -2,6 +2,11 @@ import Sentry
 import SentrySwiftUI
 import SwiftUI
 
+// This sample app also serves as a build-time validation that the SentrySwiftUI module
+// correctly exposes all public APIs (SentryTracedView, sentryTrace(), sentryReplayMask(),
+// sentryReplayUnmask(), etc.). If any of these APIs are accidentally removed or renamed,
+// the build for this sample will fail in CI.
+
 //This is for test purpose
 class DataBag {
 
@@ -236,9 +241,8 @@ struct ContentView: View {
 
 struct SecondView: View {
     var body: some View {
-        SentryTracedView("Second View") {
-            Text("This is the detail view 1")
-        }
+        Text("This is the detail view 1")
+            .sentryTrace("Second View")
     }
 }
 

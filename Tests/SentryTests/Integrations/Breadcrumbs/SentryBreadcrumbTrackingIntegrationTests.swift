@@ -43,6 +43,9 @@ class SentryBreadcrumbTrackingIntegrationTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         fixture = try Fixture()
+        
+        // Ignore the reachability callbacks, so we don't get connectivity breadcrumbs.
+        SentryDependencyContainer.sharedInstance().reachability.setReachabilityIgnoreActualCallback(true)
     }
 
     override func tearDown() {
@@ -72,20 +75,17 @@ class SentryBreadcrumbTrackingIntegrationTests: XCTestCase {
         let scope = Scope()
         let hub = SentryHubInternal(client: TestClient(options: Options()), andScope: scope)
         SentrySDKInternal.setCurrentHub(hub)
+        // Make sure there are no other breadcrumbs in the scope
+        scope.clearBreadcrumbs()
         
+        // Add a sample breadcrumb
         let crumb = TestData.crumb
-        SentrySDKInternal.addBreadcrumb(crumb)
+        sut.add(crumb)
         
         let serializedScope = scope.serialize()
-                
-        XCTAssertNotNil(serializedScope["breadcrumbs"] as? [[String: Any]], "no scope.breadcrumbs")
-        
-        if let breadcrumbs = serializedScope["breadcrumbs"] as? [[String: Any]] {
-            XCTAssertNotNil(breadcrumbs.first, "scope.breadcrumbs is empty")
-            if let actualCrumb = breadcrumbs.first {
-                XCTAssertEqual(crumb.category, actualCrumb["category"] as? String)
-                XCTAssertEqual(crumb.type, actualCrumb["type"] as? String)
-            }
-        }
+        let breadcrumbs = try XCTUnwrap(serializedScope["breadcrumbs"] as? [[String: Any]], "no scope.breadcrumbs")
+        XCTAssertEqual(1, breadcrumbs.count)
+        XCTAssertEqual(crumb.category, try XCTUnwrap(breadcrumbs[0]["category"] as? String))
+        XCTAssertEqual(crumb.type, try XCTUnwrap(breadcrumbs[0]["type"] as? String))
     }
 }
