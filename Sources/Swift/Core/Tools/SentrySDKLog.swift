@@ -58,8 +58,10 @@ typealias SentryLogOutput = ((String) -> Void)
         return isDebug && level.rawValue >= diagnosticLevel.rawValue
     }
 
-    // Sets a custom log output handler. This allows hybrid SDKs (React Native, Flutter, etc.)
-    // to intercept SDK log messages and forward them to their respective consoles.
+    /// Sets a custom log output handler. This allows hybrid SDKs (React Native, Flutter, etc.)
+    /// to intercept SDK log messages and forward them to their respective consoles.
+    /// - Note: Exposed through `PrivateSentrySDKOnly.setLogOutput` for hybrid SDK consumption.
+    @objc
     public static func setOutput(_ output: @escaping (String) -> Void) {
         logOutput = output
     }
