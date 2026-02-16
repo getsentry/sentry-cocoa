@@ -282,7 +282,7 @@ class TestData {
     }
 #endif
 
-#if os(iOS) || os(macOS)
+#if os(iOS) || os(macOS) || os(visionOS)
     
     static var metricKitEvent: Event {
         let event = Event(level: .warning)
@@ -292,7 +292,7 @@ class TestData {
         return event
     }
 
-#endif // os(iOS) || os(macOS)
+#endif // os(iOS) || os(macOS) || os(visionOS)
     
     static func scopeWith(observer: SentryScopeObserver) -> Scope {
         let scope = Scope()
