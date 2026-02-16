@@ -40289,6 +40289,107 @@
                 "accessorKind": "get",
                 "children": [
                   {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SpanId",
+                        "printedName": "Sentry.SpanId",
+                        "usr": "c:objc(cs)SentrySpanId"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SpanId?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A3LogC6spanIdSo0a4SpanD0CSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryLog(im)spanId"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SpanId",
+                        "printedName": "Sentry.SpanId",
+                        "usr": "c:objc(cs)SentrySpanId"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SpanId?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A3LogC6spanIdSo0a4SpanD0CSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryLog(im)setSpanId:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SpanId",
+                    "printedName": "Sentry.SpanId",
+                    "usr": "c:objc(cs)SentrySpanId"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SpanId?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasInitialValue",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A3LogC6spanIdSo0a4SpanD0CSgvp",
+            "moduleName": "Sentry",
+            "name": "spanId",
+            "printedName": "spanId",
+            "usr": "c:@M@Sentry@objc(cs)SentryLog(py)spanId"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
                     "kind": "TypeNominal",
                     "name": "Date",
                     "printedName": "Foundation.Date",
@@ -42556,6 +42657,97 @@
             "name": "name",
             "printedName": "name",
             "usr": "s:6Sentry0A6MetricV4nameSSvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SpanId",
+                        "printedName": "Sentry.SpanId",
+                        "usr": "c:objc(cs)SentrySpanId"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SpanId?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A6MetricV6spanIdSo0a4SpanD0CSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A6MetricV6spanIdSo0a4SpanD0CSgvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SpanId",
+                        "printedName": "Sentry.SpanId",
+                        "usr": "c:objc(cs)SentrySpanId"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SpanId?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A6MetricV6spanIdSo0a4SpanD0CSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry0A6MetricV6spanIdSo0a4SpanD0CSgvs"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SpanId",
+                    "printedName": "Sentry.SpanId",
+                    "usr": "c:objc(cs)SentrySpanId"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SpanId?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A6MetricV6spanIdSo0a4SpanD0CSgvp",
+            "moduleName": "Sentry",
+            "name": "spanId",
+            "printedName": "spanId",
+            "usr": "s:6Sentry0A6MetricV6spanIdSo0a4SpanD0CSgvp"
           },
           {
             "accessors": [

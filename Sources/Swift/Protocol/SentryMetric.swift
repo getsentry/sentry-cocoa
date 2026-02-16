@@ -26,7 +26,9 @@ public struct SentryMetric {
     /// which applies scope-based attribute enrichment including trace context.
     public var traceId: SentryId
 
-    /// The span ID is not used for metrics; exists to satisfy ``TelemetryItem`` conformance.
+    /// The span ID of the span that was active when the metric was collected.
+    ///
+    /// Only set when there is an active span; a propagated span_id must not be used.
     public var spanId: SpanId?
 
     /// The numeric value of the metric.

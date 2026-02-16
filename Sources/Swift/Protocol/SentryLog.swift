@@ -11,7 +11,6 @@ public final class SentryLog: NSObject {
     /// The trace ID to associate this log with distributed tracing. This will be set to a valid non-empty value during processing.
     public var traceId: SentryId
     /// The span ID of the span that was active when the log was collected.
-    /// Only set when there is an active span; a propagated span_id must not be used.
     public var spanId: SpanId?
     /// The severity level of the log entry
     public var level: Level
