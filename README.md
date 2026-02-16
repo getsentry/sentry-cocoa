@@ -11,7 +11,7 @@ _Bad software is everywhere, and we're tired of it. Sentry is on a mission to he
 >
 > For the stable **v8** release, please switch to the [`v8.x` branch](https://github.com/getsentry/sentry-cocoa/tree/v8.x) and refer to the [v8 CHANGELOG](https://github.com/getsentry/sentry-cocoa/blob/v8.x/CHANGELOG.md).
 
-# Official Sentry SDK for iOS / tvOS / macOS / watchOS <sup>(1)</sup>
+# Official Sentry SDK for iOS / iPadOS / tvOS / macOS / watchOS <sup>(1)</sup> / visionOS
 
 [![Build](https://img.shields.io/github/actions/workflow/status/getsentry/sentry-cocoa/build.yml?branch=main)](https://github.com/getsentry/sentry-cocoa/actions/workflows/build.yml?query=branch%3Amain)
 [![codecov.io](https://codecov.io/gh/getsentry/sentry-cocoa/branch/master/graph/badge.svg)](https://codecov.io/gh/getsentry/sentry-cocoa)

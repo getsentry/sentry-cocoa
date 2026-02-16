@@ -1,9 +1,15 @@
 # Changelog
 
-## Unreleased
+## 9.4.1
+
+### Improvements
+
+- Record client report when dropping in `beforeSendLog` (#7379)
 
 ### Fixes
 
+- Fix user attributes from scope being omitted from logs when sendDefaultPII is false (#7437)
+- Cleanup SessionReplay when maximum duration reached (#7421)
 - Fix App hangs report with high durations (#7354)
 
 ### Deprecations
@@ -15,10 +21,6 @@
 ### Breaking Changes
 
 - `Sentry.metrics.count(..)` does not support units, therefore the API was incorrectly defined. This breaking change applies to a method marked as experimental. (#7358)
-
-### Improvements
-
-- Record client report when dropping in `beforeSendLog` (#7379)
 
 ### Fixes
 

@@ -397,7 +397,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
         XCTAssertNil(item.attributesDict["user.email"])
     }
 
-    func testApplyToItem_whenSendDefaultPiiFalse_shouldNotAddUserNameAndEmail() {
+    func testApplyToItem_whenSendDefaultPiiFalse_shouldStillAddUserAttributes() {
         // -- Arrange --
         let user = User(userId: "user-123")
         user.name = "John Doe"
@@ -416,9 +416,10 @@ final class TelemetryScopeApplierTests: XCTestCase {
         scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributesDict["user.id"], .string("installation-123"))
-        XCTAssertNil(item.attributesDict["user.name"])
-        XCTAssertNil(item.attributesDict["user.email"])
+        // User attributes are applied regardless of sendDefaultPII
+        XCTAssertEqual(item.attributesDict["user.id"], .string("user-123"))
+        XCTAssertEqual(item.attributesDict["user.name"], .string("John Doe"))
+        XCTAssertEqual(item.attributesDict["user.email"], .string("john@example.com"))
     }
 
     // MARK: - Replay Attributes Tests
