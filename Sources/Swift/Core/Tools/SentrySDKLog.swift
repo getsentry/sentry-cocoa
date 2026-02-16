@@ -68,13 +68,13 @@ typealias SentryLogOutput = ((String) -> Void)
 
     #if SENTRY_TEST || SENTRY_TEST_CI
 
-        static func getOutput() -> SentryLogOutput {
-            return logOutput
-        }
+    static func getOutput() -> SentryLogOutput {
+        return logOutput
+    }
 
-        static func setDateProvider(_ dateProvider: SentryCurrentDateProvider) {
-            self.dateProvider = dateProvider
-        }
+    static func setDateProvider(_ dateProvider: SentryCurrentDateProvider) {
+        self.dateProvider = dateProvider
+    }
 
     #endif
 }
@@ -89,7 +89,7 @@ extension SentrySDKLog {
 
     static func debug(_ message: String, file: String = #file, line: Int = #line) {
         log(level: .debug, message: message, file: file, line: line)
-    }
+    }d
 
     static func info(_ message: String, file: String = #file, line: Int = #line) {
         log(level: .info, message: message, file: file, line: line)
