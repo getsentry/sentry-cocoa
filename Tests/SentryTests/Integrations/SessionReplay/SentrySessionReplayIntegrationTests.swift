@@ -9,6 +9,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
     private var uiApplication: TestSentryUIApplication!
     private var globalEventProcessor: SentryGlobalEventProcessor!
+    private var dateProvider: TestCurrentDateProvider!
 
     private class TestCrashWrapper: SentryCrashWrapper {
         let traced: Bool
@@ -35,10 +36,12 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         uiApplication = TestSentryUIApplication()
         globalEventProcessor = SentryGlobalEventProcessor()
         uiApplication.windows = [UIWindow()]
+        dateProvider = TestCurrentDateProvider()
 
         SentryDependencyContainer.sharedInstance().applicationOverride = uiApplication
         SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
         SentryDependencyContainer.sharedInstance().globalEventProcessor = globalEventProcessor
+        SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
     }
     
     override func tearDown() {
@@ -766,6 +769,57 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNotNil(instance)
+    }
+
+    func testReplayIdAndSessionReplayCleared_whenMaxDurationReached() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+
+        var replayId: String?
+        SentrySDKInternal.currentHub().configureScope { scope in
+            replayId = scope.replayId
+        }
+        XCTAssertNotNil(replayId)
+
+        // -- Act --
+        // Advance time past the maximum duration (60 minutes)
+        Dynamic(sessionReplay).newFrame(nil)
+        dateProvider.advance(by: 5)
+        Dynamic(sessionReplay).newFrame(nil)
+        dateProvider.advance(by: 3_600)
+        Dynamic(sessionReplay).newFrame(nil)
+
+        // -- Assert --
+        XCTAssertFalse(sessionReplay.isRunning)
+        SentrySDKInternal.currentHub().configureScope { scope in
+            replayId = scope.replayId
+        }
+        XCTAssertNil(replayId)
+        XCTAssertNil(sut.sessionReplay)
+    }
+
+    func testReplayIdAndSessionReplayCleared_whenSessionEnds() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+
+        var replayId: String?
+        SentrySDKInternal.currentHub().configureScope { scope in
+            replayId = scope.replayId
+        }
+        XCTAssertNotNil(replayId)
+
+        // -- Act --
+        sut.sessionReplayEnded()
+
+        // -- Assert --
+        SentrySDKInternal.currentHub().configureScope { scope in
+            replayId = scope.replayId
+        }
+        XCTAssertNil(replayId)
+        XCTAssertNil(sut.sessionReplay)
     }
 
     func testInstallWithOptions_WithoutUnsafe_shouldReturnTrue() {

@@ -7,6 +7,7 @@ import Foundation
     func sessionReplayShouldCaptureReplayForError() -> Bool
     func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL)
     func sessionReplayStarted(replayId: SentryId)
+    func sessionReplayEnded()
     func breadcrumbsForSessionReplay() -> [Breadcrumb]
     func currentScreenNameForSessionReplay() -> String?
 }

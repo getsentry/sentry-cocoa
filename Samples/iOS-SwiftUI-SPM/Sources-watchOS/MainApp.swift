@@ -1,4 +1,4 @@
-import SentrySPM
+import SentrySwift
 import SwiftUI
 
 @main

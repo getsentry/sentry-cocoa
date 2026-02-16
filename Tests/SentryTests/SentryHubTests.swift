@@ -1875,6 +1875,7 @@ private class MockReplayDelegate: NSObject, SentrySessionReplayDelegate {
     func sessionReplayShouldCaptureReplayForError() -> Bool { return true }
     func sessionReplayNewSegment(replayEvent: SentryReplayEvent, replayRecording: SentryReplayRecording, videoUrl: URL) {}
     func sessionReplayStarted(replayId: SentryId) {}
+    func sessionReplayEnded() {}
     func breadcrumbsForSessionReplay() -> [Breadcrumb] { return [] }
     func currentScreenNameForSessionReplay() -> String? { return nil }
 }

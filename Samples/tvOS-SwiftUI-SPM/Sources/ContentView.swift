@@ -1,4 +1,4 @@
-import SentrySPM
+import SentrySwift
 import SwiftUI
 
 private enum SampleError: Error {
