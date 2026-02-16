@@ -248,13 +248,6 @@ sentrycrashccd_freeze(void)
     // cannot free it while the crash handler reads from it.
     SentryCrashThreadCacheData *cache = atomic_exchange(&g_activeCache, NULL);
 
-    if (cache == NULL) {
-        // The background thread is in the middle of an update. Wait briefly
-        // for it to finish and publish the new cache, then retry.
-        usleep(1);
-        cache = atomic_exchange(&g_activeCache, NULL);
-    }
-
     // Only update g_frozenCache if we actually acquired a cache.
     // A nested freeze (recrash scenario) gets NULL from g_activeCache;
     // we must not overwrite the still-valid frozen pointer from the first freeze.
