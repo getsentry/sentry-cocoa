@@ -19,6 +19,7 @@
 
 - SentryRedactViewHelper had been erroneously made public, it has been removed from the public interface ([#7474](https://github.com/getsentry/sentry-cocoa/pull/7474))
 - Write reports on concurrent crashes (#7340)
+- Use different fallback for when MetricKit does not have file path ([#7473](https://github.com/getsentry/sentry-cocoa/pull/7473))
 
 ## 9.4.1
 
