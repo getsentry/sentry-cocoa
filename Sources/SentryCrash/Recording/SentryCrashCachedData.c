@@ -51,6 +51,7 @@ static atomic_int g_pollingIntervalInSeconds;
 static pthread_t g_cacheThread;
 static atomic_bool g_hasThreadStarted;
 static atomic_bool g_isThreadStopping;
+static atomic_int g_quickPollCount;
 
 /** True once a cache has been successfully created. Used by updateCache()
  *  to distinguish g_activeCache == NULL meaning "frozen" vs "never created".
@@ -203,15 +204,14 @@ updateCache(void)
 static void *
 monitorThreadCache(__unused void *const userData)
 {
-    static _Atomic(int) quickPollCount = 4;
     usleep(1);
     while (!atomic_load(&g_isThreadStopping)) {
         updateCache();
         unsigned pollInterval = (unsigned)atomic_load(&g_pollingIntervalInSeconds);
-        int remainingQuickPolls = atomic_load(&quickPollCount);
+        int remainingQuickPolls = atomic_load(&g_quickPollCount);
         if (remainingQuickPolls > 0) {
             // Lots can happen in the first few seconds of operation.
-            atomic_store(&quickPollCount, remainingQuickPolls - 1);
+            atomic_store(&g_quickPollCount, remainingQuickPolls - 1);
             pollInterval = 1;
         }
         for (unsigned i = 0; i < pollInterval && !atomic_load(&g_isThreadStopping); i++) {
@@ -234,6 +234,7 @@ sentrycrashccd_init(int pollingIntervalInSeconds)
     atomic_store(&g_frozenCache, NULL);
     atomic_store(&g_cacheEverCreated, false);
     atomic_store(&g_isThreadStopping, false);
+    atomic_store(&g_quickPollCount, 4);
 
     // Create initial cache
     SentryCrashThreadCacheData *initialCache = createCache();
