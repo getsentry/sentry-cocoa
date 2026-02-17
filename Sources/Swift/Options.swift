@@ -569,7 +569,7 @@
         }
     }
     
-    #if canImport(MetricKit) && !os(tvOS) && !os(visionOS)
+    #if canImport(MetricKit) && !os(tvOS)
     
     /// Use this feature to enable the Sentry MetricKit integration.
     ///

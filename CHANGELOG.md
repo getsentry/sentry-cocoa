@@ -5,6 +5,7 @@
 ### Features
 
 - Add `SentrySDK.lastRunStatus` to distinguish unknown, no-crash and crash (#7469)
+- Enable MetricKit Integration for visionOS ([#7466](https://github.com/getsentry/sentry-cocoa/pull/7466))
 
 ## 9.4.1
 

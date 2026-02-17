@@ -69,13 +69,14 @@ public struct SentrySDKWrapper {
             options.experimental.enableSessionReplayInUnreliableEnvironment = SentrySDKOverrides.SessionReplay.enableInUnreliableEnvironment.boolValue
         }
 
-#if !os(tvOS)
-        if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
+#endif // !os(macOS) && !os(watchOS) && !os(visionOS)
+
+#if !os(tvOS) && !os(watchOS)
+        if #available(iOS 15.0, macOS 12.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
             options.enableMetricKit = true
             options.enableMetricKitRawPayload = !SentrySDKOverrides.Other.disableMetricKitRawPayloads.boolValue
         }
-#endif // !os(tvOS)
-#endif // !os(macOS) && !os(watchOS) && !os(visionOS)
+#endif // !os(tvOS) && !os(watchOS)
 
         options.tracesSampleRate = 1
         if let sampleRate = SentrySDKOverrides.Tracing.sampleRate.floatValue {

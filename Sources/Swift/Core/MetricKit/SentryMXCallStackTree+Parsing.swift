@@ -1,4 +1,4 @@
-#if os(iOS) || os(macOS)
+#if os(iOS) || os(macOS) || os(visionOS)
 
 @_implementationOnly import _SentryPrivate
 
