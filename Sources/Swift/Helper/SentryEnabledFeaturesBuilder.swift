@@ -49,6 +49,9 @@ import Foundation
         if options.experimental.enableMetrics {
             features.append("metrics")
         }
+        if options.experimental.enableWatchdogTerminationRunLoopHangTracker {
+            features.append("watchdog-termination.run-loop-hang-tracker.enabled")
+        }
 
         return features
     }

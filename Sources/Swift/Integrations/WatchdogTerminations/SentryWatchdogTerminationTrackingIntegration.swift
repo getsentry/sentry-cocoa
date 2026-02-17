@@ -3,13 +3,18 @@ import Foundation
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder
+typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & WatchdogTerminationHangTrackerBuilder
 
 final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogTerminationTrackingProvider>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
 
     private let tracker: SentryWatchdogTerminationTracker
-    private let anrTracker: SentryANRTracker
     private let appStateManager: SentryAppStateManager
+
+    /// The old ANR tracker used when `enableWatchdogTerminationRunLoopHangTracker` is disabled.
+    private let anrTracker: SentryANRTracker?
+
+    /// The new run loop-based hang tracker used when `enableWatchdogTerminationRunLoopHangTracker` is enabled.
+    private let hangTracker: SentryWatchdogTerminationHangTracker?
 
     init?(with options: Options, dependencies: Dependencies) {
         guard options.enableWatchdogTerminationTracking else {
@@ -33,13 +38,29 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         }
 
         tracker = terminationTracker
-        anrTracker = dependencies.getANRTracker(options.appHangTimeoutInterval)
         appStateManager = dependencies.appStateManager
+
+        if options.experimental.enableWatchdogTerminationRunLoopHangTracker {
+            guard let hangTracker = dependencies.getWatchdogTerminationHangTracker(timeoutInterval: options.appHangTimeoutInterval) else {
+                SentrySDKLog.fatal("Watchdog Termination hang tracker not available")
+                return nil
+            }
+            self.hangTracker = hangTracker
+            self.anrTracker = nil
+        } else {
+            self.anrTracker = dependencies.getANRTracker(options.appHangTimeoutInterval)
+            self.hangTracker = nil
+        }
 
         super.init()
 
         tracker.start()
-        anrTracker.add(listener: self)
+
+        if let hangTracker = hangTracker {
+            hangTracker.start()
+        } else if let anrTracker = anrTracker {
+            anrTracker.add(listener: self)
+        }
 
         let scopeObserver = dependencies.getWatchdogTerminationScopeObserverWithOptions(options)
 
@@ -68,7 +89,11 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
 
     func uninstall() {
         tracker.stop()
-        anrTracker.remove(listener: self)
+        if let hangTracker = hangTracker {
+            hangTracker.stop()
+        } else if let anrTracker = anrTracker {
+            anrTracker.remove(listener: self)
+        }
     }
 
     // MARK: - SentryANRTrackerDelegate

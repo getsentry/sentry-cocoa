@@ -1,4 +1,4 @@
-//swiftlint:disable file_length missing_docs
+//swiftlint:disable file_length missing_docs type_body_length
 
 @_implementationOnly import _SentryPrivate
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -356,7 +356,24 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         #endif
         }
     }
-    
+
+#if (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    private var _hangTracker: SentryHangTracker?
+    var hangTracker: SentryHangTracker {
+        getLazyVar(\._hangTracker) {
+            // The hang tracker needs its own dedicated serial queue because waitForHangIterative
+            // blocks it with semaphore.wait(timeout:) during hang detection. Using the shared
+            // dispatchQueueWrapper would block unrelated SDK operations during hangs.
+            let hangTrackerQueue = SentryDispatchQueueWrapper(name: "io.sentry.hang-tracker")
+            return SentryDefaultHangTracker(
+                applicationProvider: self,
+                dateProvider: dateProvider,
+                queue: hangTrackerQueue
+            )
+        }
+    }
+#endif // (os(iOS) || os(tvOS) || targetEnvironment(macCatalyst) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+
     private var crashInstallationReporter: SentryCrashInstallationReporter?
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
         getLazyVar(\.crashInstallationReporter) {
@@ -541,6 +558,20 @@ protocol WatchdogTerminationTrackerBuilder {
     func getWatchdogTerminationTracker(_ options: Options) -> SentryWatchdogTerminationTracker?
 }
 extension SentryDependencyContainer: WatchdogTerminationTrackerBuilder {}
+
+protocol WatchdogTerminationHangTrackerBuilder {
+    func getWatchdogTerminationHangTracker(timeoutInterval: TimeInterval) -> SentryWatchdogTerminationHangTracker?
+}
+extension SentryDependencyContainer: WatchdogTerminationHangTrackerBuilder {
+    func getWatchdogTerminationHangTracker(timeoutInterval: TimeInterval) -> SentryWatchdogTerminationHangTracker? {
+        SentryWatchdogTerminationHangTracker(
+            queue: dispatchQueueWrapper,
+            hangTracker: hangTracker,
+            appStateManager: appStateManager,
+            timeoutInterval: timeoutInterval
+        )
+    }
+}
 #endif
 
 protocol NetworkTrackerProvider {
@@ -608,4 +639,4 @@ protocol SentryCoreDataTrackerBuilder {
 }
 extension SentryDependencyContainer: SentryCoreDataTrackerBuilder {}
 
-//swiftlint:enable file_length missing_docs
+//swiftlint:enable file_length missing_docs type_body_length
