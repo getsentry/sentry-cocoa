@@ -51,9 +51,15 @@ static atomic_int g_pollingIntervalInSeconds;
 static pthread_t g_cacheThread;
 static atomic_bool g_hasThreadStarted;
 
+/** True once a cache has been successfully created. Used by updateCache()
+ *  to distinguish g_activeCache == NULL meaning "frozen" vs "never created".
+ */
+static atomic_bool g_cacheEverCreated;
+
 /** The active cache, continuously updated by the background thread.
  *  NULL when the crash handler has acquired ownership via freeze(),
- *  or when no cache has been successfully created yet.
+ *  or when no cache has been successfully created yet (distinguished
+ *  by g_cacheEverCreated).
  */
 static _Atomic(SentryCrashThreadCacheData *) g_activeCache;
 
@@ -156,7 +162,7 @@ static void
 updateCache(void)
 {
     // Build new cache first so g_activeCache keeps the old (valid) pointer
-    // during construction.  If a crash occurs mid-build, freeze() will
+    // during construction. If a crash occurs mid-build, freeze() will
     // still find usable data instead of NULL.
     SentryCrashThreadCacheData *newCache = createCache();
     if (newCache == NULL) {
@@ -164,33 +170,31 @@ updateCache(void)
         return;
     }
 
-    // Install new cache via compare-and-swap.  If freeze() has acquired
-    // the cache (set g_activeCache to NULL) since our load, the CAS fails
-    // and we discard the new cache — the crash handler owns the pointer.
+    // Install new cache via compare-and-swap.
     SentryCrashThreadCacheData *expected = atomic_load(&g_activeCache);
     if (expected == NULL) {
-        // g_activeCache is NULL. Disambiguate between two cases:
-        // 1. The crash handler has acquired ownership via freeze()
-        //    — g_frozenCache will be non-NULL.
-        // 2. No cache has been successfully created yet (e.g. init failure)
-        //    — g_frozenCache will be NULL.
-        if (atomic_load(&g_frozenCache) != NULL) {
-            // Case 1: frozen by crash handler, skip this update cycle.
+        // Disambiguate NULL g_activeCache using g_cacheEverCreated.
+        if (atomic_load(&g_cacheEverCreated)) {
+            // Case 1: Frozen by crash handler, skip this update cycle.
             freeCache(newCache);
             return;
         }
-        // Case 2: no cache exists yet. Try to install the new one.
-        if (!atomic_compare_exchange_strong(&g_activeCache, &expected, newCache)) {
-            // Another thread installed a cache concurrently. Discard ours.
+        // Case 2: No cache exists yet. Try to install the new one.
+        if (atomic_compare_exchange_strong(&g_activeCache, &expected, newCache)) {
+            // Case 2a: Successfully installed new cache.
+            atomic_store(&g_cacheEverCreated, true);
+        } else {
+            // Case 2b: Another thread installed a cache concurrently. Discard ours.
             freeCache(newCache);
         }
         return;
     }
 
     if (atomic_compare_exchange_strong(&g_activeCache, &expected, newCache)) {
+        // Case A: Successfully swapped old cache for new one.
         freeCache(expected);
     } else {
-        // Cache was acquired by freeze() between our load and CAS.
+        // Case B: Cache was acquired by freeze() between our load and CAS.
         freeCache(newCache);
     }
 }
@@ -225,10 +229,14 @@ sentrycrashccd_init(int pollingIntervalInSeconds)
 
     atomic_store(&g_pollingIntervalInSeconds, pollingIntervalInSeconds);
     atomic_store(&g_frozenCache, NULL);
+    atomic_store(&g_cacheEverCreated, false);
 
     // Create initial cache
     SentryCrashThreadCacheData *initialCache = createCache();
     atomic_store(&g_activeCache, initialCache);
+    if (initialCache != NULL) {
+        atomic_store(&g_cacheEverCreated, true);
+    }
 
     // Start background monitoring thread.
     pthread_attr_t attr;
@@ -310,6 +318,8 @@ sentrycrashccd_close(void)
 
         SentryCrashThreadCacheData *frozen = atomic_exchange(&g_frozenCache, NULL);
         freeCache(frozen);
+
+        atomic_store(&g_cacheEverCreated, false);
     }
 }
 
@@ -326,4 +336,6 @@ sentrycrashccd_test_clearActiveCache(void)
 {
     SentryCrashThreadCacheData *cache = atomic_exchange(&g_activeCache, NULL);
     freeCache(cache);
+    // Reset so updateCache() sees "never created" instead of "frozen".
+    atomic_store(&g_cacheEverCreated, false);
 }

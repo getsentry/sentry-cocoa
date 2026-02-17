@@ -5,6 +5,7 @@
 ### Fixes
 
 - Resolve data race crash in monitorCachedData (#7423)
+
 ### Features
 
 - Enable MetricKit Integration for visionOS ([#7466](https://github.com/getsentry/sentry-cocoa/pull/7466))
