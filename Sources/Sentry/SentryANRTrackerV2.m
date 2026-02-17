@@ -96,6 +96,13 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     uint64_t lastAppHangStoppedSystemTime = dateProvider.systemTime - timeoutIntervalInNanos;
     uint64_t lastAppHangStartedSystemTime = 0;
 
+    // Track background time to exclude from hang duration calculation.
+    // When the app goes to background during a hang, we don't want to include
+    // the background time in the reported duration.
+    BOOL wasInBackground = NO;
+    uint64_t wentToBackgroundSystemTime = 0;
+    uint64_t accumulatedBackgroundTime = 0;
+
     // Canceling the thread can take up to sleepInterval.
     while (YES) {
         @synchronized(threadLock) {
@@ -108,9 +115,27 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
         [self.threadWrapper sleepForTimeInterval:sleepInterval];
 
-        if (![self.crashWrapper isApplicationInForeground]) {
+        BOOL isInForeground = [self.crashWrapper isApplicationInForeground];
+
+        if (!isInForeground) {
             SENTRY_LOG_DEBUG(@"Ignoring potential app hangs because the app is in the background");
+
+            // Track when the app goes to background during an ongoing hang.
+            // This is needed to exclude background time from the hang duration.
+            if (reported && !wasInBackground) {
+                wasInBackground = YES;
+                wentToBackgroundSystemTime = dateProvider.systemTime;
+            }
+
             continue;
+        }
+
+        // App is in foreground - check if we're returning from background during a hang.
+        // Accumulate the time spent in background so we can exclude it from the duration.
+        if (reported && wasInBackground) {
+            uint64_t backgroundTime = dateProvider.systemTime - wentToBackgroundSystemTime;
+            accumulatedBackgroundTime += backgroundTime;
+            wasInBackground = NO;
         }
 
         // The sleepDeadline should be roughly executed after the timeoutInterval even if there is
@@ -147,8 +172,16 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
                 // As we check every sleepInterval if the app is hanging, the app could already be
                 // hanging for almost the sleepInterval until we detect it and it could already
                 // stopped hanging almost a sleepInterval until we again detect it's not.
-                uint64_t appHangDurationNanos
-                    = timeoutIntervalInNanos + nowSystemTime - lastAppHangStartedSystemTime;
+                //
+                // Subtract any time spent in background during the hang.
+                // When the app goes to background during a hang, the system time continues
+                // to tick, but we don't want to include that time in the reported duration.
+                uint64_t elapsedSystemTime = nowSystemTime - lastAppHangStartedSystemTime;
+                uint64_t foregroundElapsedTime = elapsedSystemTime > accumulatedBackgroundTime
+                    ? elapsedSystemTime - accumulatedBackgroundTime
+                    : 0;
+                uint64_t appHangDurationNanos = timeoutIntervalInNanos + foregroundElapsedTime;
+
                 NSTimeInterval appHangDurationMinimum
                     = nanosecondsToTimeInterval(appHangDurationNanos - sleepIntervalInNanos);
                 NSTimeInterval appHangDurationMaximum
@@ -162,6 +195,8 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
                 lastAppHangStoppedSystemTime = dateProvider.systemTime;
                 reported = NO;
+                wasInBackground = NO;
+                accumulatedBackgroundTime = 0;
             }
 
             continue;

@@ -486,7 +486,13 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         sut.viewControllerLoadView(viewController) {
             transactionSpan = self.getStack(tracker).first
             lastSpan = self.getStack(tracker).last
-            customSpanId = tracker.startSpan(withName: self.spanName, nameSource: .custom, operation: self.spanOperation, origin: self.origin)
+            customSpanId = tracker
+                .startSpan(
+                    withName: self.spanName,
+                    nameSource: SentryTransactionNameSource.custom.rawValue,
+                    operation: self.spanOperation,
+                    origin: self.origin
+                )
         }
         let unwrappedLastSpan = try XCTUnwrap(lastSpan)
         XCTAssertTrue(unwrappedLastSpan.isFinished)

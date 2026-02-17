@@ -5,16 +5,31 @@
 ### Fixes
 
 - Write reports on concurrent crashes (#7340)
+### Features
+
+- Enable MetricKit Integration for visionOS ([#7466](https://github.com/getsentry/sentry-cocoa/pull/7466))
+
+## 9.4.1
+
+### Improvements
+
+- Record client report when dropping in `beforeSendLog` (#7379)
+
+### Fixes
+
+- Fix user attributes from scope being omitted from logs when sendDefaultPII is false (#7437)
+- Cleanup SessionReplay when maximum duration reached (#7421)
+- Fix App hangs report with high durations (#7354)
+
+### Deprecations
+
+- The `SentrySwiftUI` module is now deprecated. All SwiftUI APIs (`SentryTracedView`, `sentryTrace()`, `sentryReplayMask()`, `sentryReplayUnmask()`) have been merged into the main `Sentry` module. You can replace `import SentrySwiftUI` with `import Sentry` in your code. The `SentrySwiftUI` module still works via a re-export but will be removed in the next major version. (#7422)
 
 ## 9.4.0
 
 ### Breaking Changes
 
 - `Sentry.metrics.count(..)` does not support units, therefore the API was incorrectly defined. This breaking change applies to a method marked as experimental. (#7358)
-
-### Improvements
-
-- Record client report when dropping in `beforeSendLog` (#7379)
 
 ### Fixes
 

@@ -1,7 +1,7 @@
 @_spi(Private) import Sentry
 import XCTest
 
-#if os(iOS) || os(macOS)
+#if os(iOS) || os(macOS) || os(visionOS)
 
 final class SentryMetricKitEventTests: XCTestCase {
 
