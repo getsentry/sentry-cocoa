@@ -198,14 +198,15 @@ updateCache(void)
 static void *
 monitorThreadCache(__unused void *const userData)
 {
-    static int quickPollCount = 4;
+    static _Atomic(int) quickPollCount = 4;
     usleep(1);
     for (;;) {
         updateCache();
         unsigned pollInterval = (unsigned)atomic_load(&g_pollingIntervalInSeconds);
-        if (quickPollCount > 0) {
+        int remainingQuickPolls = atomic_load(&quickPollCount);
+        if (remainingQuickPolls > 0) {
             // Lots can happen in the first few seconds of operation.
-            quickPollCount--;
+            atomic_store(&quickPollCount, remainingQuickPolls - 1);
             pollInterval = 1;
         }
         sleep(pollInterval);
