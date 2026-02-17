@@ -220,6 +220,13 @@ sentrycrashcm_notifyFatalException(
     // - Recrash handling means build a minimal recrash report and be very cautious.
     // - Block means block this thread for a few seconds so it doesn't return
     //   before the other handler does.
+    //
+    // NOTE: This logic is tuned to POSIX signal handling semantics, where
+    // the handler runs on the crashing thread. For monitors where that is
+    // not the case (e.g. Mach exceptions run on a port listener thread),
+    // g_crashingThread tracks the handler thread, not the faulting thread,
+    // and same-thread recrash detection does not apply. See the inline
+    // comments at each monitor's call site for details.
 
     g_requiresAsyncSafety |= isAsyncSafeEnvironment;
 
