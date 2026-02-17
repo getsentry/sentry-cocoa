@@ -50,6 +50,7 @@ typedef struct {
 static atomic_int g_pollingIntervalInSeconds;
 static pthread_t g_cacheThread;
 static atomic_bool g_hasThreadStarted;
+static atomic_bool g_isThreadStopping;
 
 /** True once a cache has been successfully created. Used by updateCache()
  *  to distinguish g_activeCache == NULL meaning "frozen" vs "never created".
@@ -204,7 +205,7 @@ monitorThreadCache(__unused void *const userData)
 {
     static _Atomic(int) quickPollCount = 4;
     usleep(1);
-    for (;;) {
+    while (!atomic_load(&g_isThreadStopping)) {
         updateCache();
         unsigned pollInterval = (unsigned)atomic_load(&g_pollingIntervalInSeconds);
         int remainingQuickPolls = atomic_load(&quickPollCount);
@@ -213,7 +214,9 @@ monitorThreadCache(__unused void *const userData)
             atomic_store(&quickPollCount, remainingQuickPolls - 1);
             pollInterval = 1;
         }
-        sleep(pollInterval);
+        for (unsigned i = 0; i < pollInterval && !atomic_load(&g_isThreadStopping); i++) {
+            sleep(1);
+        }
     }
     return NULL;
 }
@@ -230,6 +233,7 @@ sentrycrashccd_init(int pollingIntervalInSeconds)
     atomic_store(&g_pollingIntervalInSeconds, pollingIntervalInSeconds);
     atomic_store(&g_frozenCache, NULL);
     atomic_store(&g_cacheEverCreated, false);
+    atomic_store(&g_isThreadStopping, false);
 
     // Create initial cache
     SentryCrashThreadCacheData *initialCache = createCache();
@@ -241,7 +245,7 @@ sentrycrashccd_init(int pollingIntervalInSeconds)
     // Start background monitoring thread.
     pthread_attr_t attr;
     pthread_attr_init(&attr);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
     int error = pthread_create(
         &g_cacheThread, &attr, &monitorThreadCache, "SentryCrash Cached Data Monitor");
     if (error != 0) {
@@ -309,7 +313,9 @@ void
 sentrycrashccd_close(void)
 {
     if (atomic_exchange(&g_hasThreadStarted, false)) {
-        pthread_cancel(g_cacheThread);
+        // Signal the thread to exit and wait for it to finish.
+        atomic_store(&g_isThreadStopping, true);
+        pthread_join(g_cacheThread, NULL);
 
         // Free both caches. freeze() atomically moves the pointer from
         // g_activeCache to g_frozenCache, so they never alias each other.
