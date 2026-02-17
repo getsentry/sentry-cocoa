@@ -261,7 +261,11 @@ sentrycrashccd_unfreeze(void)
 {
     SentryCrashThreadCacheData *cache = atomic_exchange(&g_frozenCache, NULL);
     if (cache != NULL) {
-        atomic_store(&g_activeCache, cache);
+        SentryCrashThreadCacheData *expected = NULL;
+        if (!atomic_compare_exchange_strong(&g_activeCache, &expected, cache)) {
+            // updateCache() already installed a fresh cache; discard the stale one.
+            freeCache(cache);
+        }
     }
 }
 
