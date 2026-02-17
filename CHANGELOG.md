@@ -4,7 +4,11 @@
 
 ### Features
 
-- Enable MetricKit Integration for visionOS ([#7466](https://github.com/getsentry/sentry-cocoa/pull/7466))
+- Enable MetricKit Integration for visionOS (#7466)
+
+### Fixes
+
+- Don't finish network spans for suspended URL session tasks (#7471)
 
 ## 9.4.1
 
