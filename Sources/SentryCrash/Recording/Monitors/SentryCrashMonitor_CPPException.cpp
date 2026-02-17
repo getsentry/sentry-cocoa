@@ -30,6 +30,10 @@
 #include "SentryCrashMachineContext.h"
 #include "SentryCrashMonitorContext.h"
 #include "SentryCrashObjC.h"
+
+// Forward-declare from SentryCrashMemory.h to avoid C++ compilation issues
+// with the `restrict` qualifier in the original header.
+extern "C" bool sentrycrashmem_copySafely(const void *src, void *dst, int byteCount);
 #include "SentryCrashStackCursor_SelfThread.h"
 #include "SentryCrashThread.h"
 
@@ -77,30 +81,31 @@ static SentryCrashStackCursor g_stackCursor;
 /** Check if a C++ exception is an NSException or subclass.
  * Async-safe: uses SentryCrashObjC introspection (direct memory reads).
  *
- * @param typeName The type_info name. May be NULL.
- * @param exceptionRegion The C++ thrown region. For ObjC exceptions this
- *        contains an id; for C++ exceptions the dereference won't validate.
+ * @param exceptionRegion The C++ thrown region. Depending on the source,
+ *        this may be the ObjC object pointer directly or a pointer to
+ *        storage containing it. Both cases are handled.
  */
 static bool
-isNSExceptionOrSubclass(const char *typeName, const void *exceptionRegion)
+isNSExceptionOrSubclass(const void *exceptionRegion)
 {
-    if (typeName != NULL && strcmp(typeName, "NSException") == 0) {
-        return true;
-    }
-
     if (exceptionRegion == NULL) {
         return false;
     }
 
-    // ObjC exceptions are thrown via objc_exception_throw, which stores the
-    // ObjC object pointer inside a C++ exception region. Dereference to get it.
-    const void *objcObject = *(const void *const *)exceptionRegion;
-    if (objcObject == NULL) {
-        return false;
-    }
+    // Depending on the source (__cxa_throw param vs __cxa_current_primary_exception),
+    // exceptionRegion may already be the ObjC object pointer, or it may be a
+    // pointer to storage containing it. Try the direct pointer first.
+    const void *objcObject = exceptionRegion;
 
     if (!sentrycrashobjc_isValidObject(objcObject)) {
-        return false;
+        // Fallback: dereference exceptionRegion safely as pointer-to-pointer.
+        objcObject = NULL;
+        if (!sentrycrashmem_copySafely(exceptionRegion, &objcObject, sizeof(objcObject))) {
+            return false;
+        }
+        if (objcObject == NULL || !sentrycrashobjc_isValidObject(objcObject)) {
+            return false;
+        }
     }
 
     const void *isaPtr = sentrycrashobjc_isaPointer(objcObject);
@@ -122,8 +127,7 @@ captureStackTrace(
     SENTRY_ASYNC_SAFE_LOG_TRACE("Entering captureStackTrace");
 
     // We handle NSExceptions (and subclasses) in SentryCrashMonitor_NSException.
-    const char *name = (tinfo != nullptr) ? tinfo->name() : NULL;
-    if (isNSExceptionOrSubclass(name, thrown_exception)) {
+    if (isNSExceptionOrSubclass(thrown_exception)) {
         return;
     }
 
@@ -215,7 +219,7 @@ CPPExceptionTerminate(void)
     // after use:
     // https://github.com/llvm/llvm-project/blob/1f65d4dda14cfea4323fd7139e222d26c7dc365d/libcxxabi/src/cxa_exception.cpp#L713
     void *primaryException = __cxxabiv1::__cxa_current_primary_exception();
-    bool isNSExceptionOrSubC = isNSExceptionOrSubclass(name, primaryException);
+    bool isNSExceptionOrSubC = isNSExceptionOrSubclass(primaryException);
     if (primaryException != NULL) {
         __cxxabiv1::__cxa_decrement_exception_refcount(primaryException);
     }
