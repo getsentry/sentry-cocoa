@@ -218,7 +218,6 @@ class SentryNetworkTrackerTests: XCTestCase {
     func testSuspendedRequest_whenSuspended_shouldNotFinishSpan() throws {
         // Suspended is a non-terminal state — the task can be resumed later.
         // The span should remain open.
-        // See https://github.com/getsentry/sentry-cocoa/issues/6836
 
         // -- Arrange --
         let task = createDataTask()
@@ -234,7 +233,6 @@ class SentryNetworkTrackerTests: XCTestCase {
     func testSuspendedRequest_whenResumedAndCompleted_shouldFinishSpan() throws {
         // A suspended task that is later resumed and completed should
         // finish the span with the correct status.
-        // See https://github.com/getsentry/sentry-cocoa/issues/6836
 
         // -- Arrange --
         let task = createDataTask()
