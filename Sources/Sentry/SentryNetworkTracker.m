@@ -235,7 +235,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    if (newState == NSURLSessionTaskStateRunning) {
+    if (newState == NSURLSessionTaskStateRunning || newState == NSURLSessionTaskStateSuspended) {
         return;
     }
 
@@ -475,8 +475,6 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 - (SentrySpanStatus)statusForSessionTask:(NSURLSessionTask *)task state:(NSURLSessionTaskState)state
 {
     switch (state) {
-    case NSURLSessionTaskStateSuspended:
-        return kSentrySpanStatusAborted;
     case NSURLSessionTaskStateCanceling:
         return kSentrySpanStatusCancelled;
     case NSURLSessionTaskStateCompleted:
@@ -484,6 +482,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
             ? kSentrySpanStatusUnknownError
             : [self spanStatusForHttpResponseStatusCode:[self urlResponseStatusCode:task.response]];
     case NSURLSessionTaskStateRunning:
+        break;
+    case NSURLSessionTaskStateSuspended:
         break;
     }
     return kSentrySpanStatusUndefined;

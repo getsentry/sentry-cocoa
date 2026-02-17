@@ -215,8 +215,40 @@ class SentryNetworkTrackerTests: XCTestCase {
         try assertStatus(status: .cancelled, state: .canceling, response: URLResponse())
     }
 
-    func testCaptureSuspendedRequest() throws {
-        try assertStatus(status: .aborted, state: .suspended, response: URLResponse())
+    func testSuspendedRequest_whenSuspended_shouldNotFinishSpan() throws {
+        // Suspended is a non-terminal state — the task can be resumed later.
+        // The span should remain open.
+        // See https://github.com/getsentry/sentry-cocoa/issues/6836
+
+        // -- Arrange --
+        let task = createDataTask()
+        let span = try XCTUnwrap(spanForTask(task: task))
+
+        // -- Act --
+        try setTaskState(task, state: .suspended)
+
+        // -- Assert --
+        XCTAssertFalse(span.isFinished)
+    }
+
+    func testSuspendedRequest_whenResumedAndCompleted_shouldFinishSpan() throws {
+        // A suspended task that is later resumed and completed should
+        // finish the span with the correct status.
+        // See https://github.com/getsentry/sentry-cocoa/issues/6836
+
+        // -- Arrange --
+        let task = createDataTask()
+        let span = try XCTUnwrap(spanForTask(task: task))
+        task.setResponse(try createResponse(code: 200))
+
+        // -- Act --
+        try setTaskState(task, state: .suspended)
+        try setTaskState(task, state: .running)
+        try setTaskState(task, state: .completed)
+
+        // -- Assert --
+        XCTAssertTrue(span.isFinished)
+        XCTAssertEqual(span.status, .ok)
     }
 
     func testCaptureRequestWithError() throws {
