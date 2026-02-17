@@ -326,6 +326,10 @@ handleExceptions(void *const userData)
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         g_isHandlingCrash = true;
+        // Mach exceptions are handled on a port listener thread, not the
+        // crashing thread, so g_crashingThread tracks the handler thread.
+        // Reentrancy would only occur from another thread if the handler
+        // dispatches to worker threads.
         sentrycrashcm_notifyFatalException(true, &threads, &numThreads);
 
         SENTRY_ASYNC_SAFE_LOG_DEBUG(
