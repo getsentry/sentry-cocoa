@@ -86,6 +86,9 @@ static int g_monitorsCount = sizeof(g_monitors) / sizeof(*g_monitors);
 
 static SentryCrashMonitorType g_activeMonitors = SentryCrashMonitorTypeNone;
 
+// C11 atomics are not officially async-signal-safe per POSIX but on xOS
+// they compile down to atomic instructions and nothing more. Accepted
+// trade-off.
 static _Atomic bool g_isHandlingFatalException = false;
 static _Atomic bool g_crashedDuringExceptionHandling = false;
 static _Atomic pthread_t g_crashingThread = 0;
