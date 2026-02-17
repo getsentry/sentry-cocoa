@@ -220,6 +220,8 @@ sentrycrashcm_notifyFatalException(
 
     g_requiresAsyncSafety |= isAsyncSafeEnvironment;
 
+    // pthread_self() is not listed as async-signal-safe on xOS but is
+    // unlikely to be a problem in practice. Accepted trade-off.
     const pthread_t self = pthread_self();
 
     bool expected = false;
