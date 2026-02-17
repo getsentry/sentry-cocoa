@@ -3,7 +3,7 @@ import MetricKit
 import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(macOS)
+#if os(iOS) || os(macOS) || os(visionOS)
 
 import MetricKit
 
