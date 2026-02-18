@@ -15,7 +15,6 @@ import Foundation
         if let comparison = predicate as? NSComparisonPredicate {
             return comparisonPredicateDescription(comparison)
         }
-        // Note: NSPredicate is never NSExpression; this branch exists for 1:1 ObjC parity
         return "<UNKNOWN PREDICATE>"
     }
 
