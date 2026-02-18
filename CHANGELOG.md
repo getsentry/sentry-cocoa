@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Write reports on concurrent crashes (#7340)
+
+### Features
+
+- Enable MetricKit Integration for visionOS ([#7466](https://github.com/getsentry/sentry-cocoa/pull/7466))
+
 ## 9.4.1
 
 ### Improvements
