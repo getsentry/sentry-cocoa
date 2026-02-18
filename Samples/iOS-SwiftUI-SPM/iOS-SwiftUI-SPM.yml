@@ -1,0 +1,70 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+#
+# This sample app demonstrates using the SentrySPM product (compile-from-source via SPM)
+# instead of the pre-built xcframework binary. It uses a local package reference to the
+# sentry-cocoa repo so changes to the SDK source are immediately reflected.
+
+name: iOS-SwiftUI-SPM
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+packages:
+  Sentry:
+    path: ../..
+fileGroups:
+  - iOS-SwiftUI-SPM.yml
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  iOS-SwiftUI-SPM:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - Sources
+    dependencies:
+      - package: Sentry
+        product: SentrySPM
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.sentry.iOS-SwiftUI-SPM
+        INFOPLIST_FILE: Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Resources/Entitlements.entitlements
+        SWIFT_VERSION: "5.0"
+  watchOS-SwiftUI-SPM:
+    type: application
+    platform: watchOS
+    deploymentTarget: "8.0"
+    sources:
+      - Sources-watchOS
+    dependencies:
+      - package: Sentry
+        product: SentrySPM
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.sentry.watchOS-SwiftUI-SPM
+        SWIFT_VERSION: "5.0"
+    info:
+      path: Resources/watchOS-Info.plist
+      properties:
+        CFBundleDisplayName: watchOS-SwiftUI-SPM
+        WKApplication: true
+schemes:
+  iOS-SwiftUI-SPM:
+    build:
+      targets:
+        iOS-SwiftUI-SPM: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+  watchOS-SwiftUI-SPM:
+    build:
+      targets:
+        watchOS-SwiftUI-SPM: all
+    run:
+      config: Debug
+    archive:
+      config: Release

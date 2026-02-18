@@ -1,4 +1,5 @@
 // swift-tools-version:6.0
+
 #if canImport(Darwin)
 import Darwin.C
 #elseif canImport(Glibc)
@@ -58,49 +59,53 @@ var targets: [Target] = [
         name: "SentryCppHelper",
         path: "Sources/SentryCppHelper",
         linkerSettings: [
-         .linkedLibrary("c++")
+            .linkedLibrary("c++")
         ]
     ),
     .target(name: "SentryDistribution", path: "Sources/SentryDistribution"),
     .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")
 ]
 
-    products.append(.library(name: "SentrySPM", targets: ["SentryObjc"]))
-    targets.append(contentsOf: [
-        // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
-        .target(
-            name: "SentryHeaders",
-            path: "Sources/Sentry", 
-            sources: ["SentryDummyPublicEmptyClass.m"],
-            publicHeadersPath: "Public"
-        ),
-        .target(
-            name: "_SentryPrivate",
-            dependencies: ["SentryHeaders"],
-            path: "Sources/Sentry",
-            sources: ["SentryDummyPrivateEmptyClass.m"],
-            publicHeadersPath: "include"),
-        .target(
-            name: "SentrySwift",
-            dependencies: ["_SentryPrivate", "SentryHeaders"],
-            path: "Sources/Swift",
-            swiftSettings: [
-                .unsafeFlags(["-enable-library-evolution"])
-            ]),
-        .target(
-            name: "SentryObjc",
-            dependencies: ["SentrySwift"],
-            path: "Sources",
-            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
-            cSettings: [
-                .headerSearchPath("Sentry"),
-                .headerSearchPath("SentryCrash/Recording"),
-                .headerSearchPath("SentryCrash/Recording/Monitors"),
-                .headerSearchPath("SentryCrash/Recording/Tools"),
-                .headerSearchPath("SentryCrash/Installations"),
-                .headerSearchPath("SentryCrash/Reporting/Filters"),
-                .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
-    ])
+// Targets required to support compile-from-source builds via SPM.
+products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
+targets += [
+    // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
+    .target(
+        name: "SentryHeaders",
+        path: "Sources/Sentry",
+        sources: ["SentryDummyPublicEmptyClass.m"],
+        publicHeadersPath: "Public"
+    ),
+    .target(
+        name: "_SentryPrivate",
+        dependencies: ["SentryHeaders"],
+        path: "Sources/Sentry",
+        sources: ["SentryDummyPrivateEmptyClass.m"],
+        publicHeadersPath: "include"),
+    .target(
+        name: "SentrySwift",
+        dependencies: ["_SentryPrivate", "SentryHeaders"],
+        path: "Sources/Swift",
+        swiftSettings: [
+            .unsafeFlags(["-enable-library-evolution"])
+        ]),
+
+    // SentryObjCInternal compiles all ObjC/C sources from the repo. Named "Internal"
+    // to reserve "SentryObjC" for a future public Objective-C wrapper around the SDK.
+    .target(
+        name: "SentryObjCInternal",
+        dependencies: ["SentrySwift"],
+        path: "Sources",
+        exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
+        cSettings: [
+            .headerSearchPath("Sentry"),
+            .headerSearchPath("SentryCrash/Recording"),
+            .headerSearchPath("SentryCrash/Recording/Monitors"),
+            .headerSearchPath("SentryCrash/Recording/Tools"),
+            .headerSearchPath("SentryCrash/Installations"),
+            .headerSearchPath("SentryCrash/Reporting/Filters"),
+            .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
+]
 
 let package = Package(
     name: "Sentry",

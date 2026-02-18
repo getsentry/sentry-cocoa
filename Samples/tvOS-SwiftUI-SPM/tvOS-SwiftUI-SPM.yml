@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+#
+# Minimal tvOS sample app using the SentrySPM compile-from-source product.
+
+name: tvOS-SwiftUI-SPM
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+packages:
+  Sentry:
+    path: ../..
+fileGroups:
+  - tvOS-SwiftUI-SPM.yml
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  tvOS-SwiftUI-SPM:
+    type: application
+    platform: tvOS
+    deploymentTarget: "15.0"
+    sources:
+      - Sources
+    dependencies:
+      - package: Sentry
+        product: SentrySPM
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.sentry.tvOS-SwiftUI-SPM
+        SWIFT_VERSION: "5.0"
+    info:
+      path: Resources/Info.plist
+      properties:
+        CFBundleDisplayName: tvOS-SwiftUI-SPM
+        UILaunchScreen: {}
+schemes:
+  tvOS-SwiftUI-SPM:
+    build:
+      targets:
+        tvOS-SwiftUI-SPM: all
+    run:
+      config: Debug
+    archive:
+      config: Release
