@@ -4,8 +4,8 @@ import Foundation
 /// Used to transform an NSPredicate into a human-friendly string.
 /// This class is used for CoreData and omits variable values
 /// and doesn't convert CoreData unsupported instructions.
-@objc(SentryPredicateDescriptor)
-@_spi(Private) public class SentryPredicateDescriptor: NSObject {
+@objc
+@_spi(Private) public final class SentryPredicateDescriptor: NSObject {
 
     @objc
     public func predicateDescription(_ predicate: NSPredicate) -> String {
