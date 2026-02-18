@@ -6,6 +6,10 @@
 
 - Enable MetricKit Integration for visionOS ([#7466](https://github.com/getsentry/sentry-cocoa/pull/7466))
 
+### Improvements
+
+- The watchdog termination integration uses a runloop observer instead of fixed interval main thread work to avoid creating a busy runloop (#7464)
+
 ### Fixes
 
 - SentryRedactViewHelper had been erroneously made public, it has been removed from the public interface ([#7474](https://github.com/getsentry/sentry-cocoa/pull/7474))
