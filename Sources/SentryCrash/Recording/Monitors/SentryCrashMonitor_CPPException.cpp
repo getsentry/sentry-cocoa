@@ -144,6 +144,10 @@ extern "C" {
 void __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
     __attribute__((weak));
 
+void *__cxa_current_primary_exception(void) __attribute__((weak));
+
+void __cxa_decrement_exception_refcount(void *) __attribute__((weak));
+
 void
 __cxa_throw(
     void *thrown_exception, std::type_info *tinfo, void (*dest)(void *)) KEEP_FUNCTION_IN_STACKTRACE
@@ -218,10 +222,16 @@ CPPExceptionTerminate(void)
     // __cxa_current_primary_exception increments the exception's refcount, so we must decrement
     // after use:
     // https://github.com/llvm/llvm-project/blob/1f65d4dda14cfea4323fd7139e222d26c7dc365d/libcxxabi/src/cxa_exception.cpp#L713
-    void *primaryException = __cxxabiv1::__cxa_current_primary_exception();
-    bool isNSExceptionOrSubC = isNSExceptionOrSubclass(primaryException);
-    if (primaryException != NULL) {
-        __cxxabiv1::__cxa_decrement_exception_refcount(primaryException);
+    // These functions are weakly linked and may not be available on all platforms.
+    void *primaryException = NULL;
+    bool isNSExceptionOrSubC = false;
+    
+    if (__cxa_current_primary_exception != NULL) {
+        primaryException = __cxa_current_primary_exception();
+        isNSExceptionOrSubC = isNSExceptionOrSubclass(primaryException);
+        if (primaryException != NULL && __cxa_decrement_exception_refcount != NULL) {
+            __cxa_decrement_exception_refcount(primaryException);
+        }
     }
 
     if (!isNSExceptionOrSubC) {
