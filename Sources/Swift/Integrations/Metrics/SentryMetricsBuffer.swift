@@ -6,23 +6,18 @@ protocol SentryMetricsTelemetryBuffer {
     @discardableResult func captureMetrics() -> TimeInterval
 }
 
-protocol SentryMetricsTelemetryBufferOptions {
-    var enableMetrics: Bool { get }
-}
-
 /// DefaultSentryMetricsTelemetryBuffer is responsible for buffering metrics.
 struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
-    private let isEnabled: Bool
     private let buffer: any TelemetryBuffer<SentryMetric>
 
     /// Initializes a new MetricsBuffer.
     /// - Parameters:
-    ///   - options: The Sentry configuration options
     ///   - flushTimeout: The timeout interval after which buffered metrics will be flushed
     ///   - maxMetricCount: Maximum number of metrics to batch before triggering an immediate flush.
     ///   - maxBufferSizeBytes: The maximum buffer size in bytes before triggering an immediate flush
     ///   - dateProvider: Instance used to determine current time
     ///   - dispatchQueue: A **serial** dispatch queue wrapper for thread-safe access to mutable state
+    ///   - itemForwardingTriggers: Triggers that cause the buffer to flush (e.g. on app lifecycle events)
     ///   - capturedDataCallback: The callback to handle captured metric batches. This callback is responsible
     ///                          for invoking client.captureMetricsData() with the batched data.
     ///
@@ -31,7 +26,6 @@ struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
     ///
     /// - Note: Metrics are flushed when either `maxMetricCount` or `maxBufferSizeBytes` limit is reached.
     init(
-        options: SentryMetricsTelemetryBufferOptions,
         flushTimeout: TimeInterval = 5,
         maxMetricCount: Int = 100, // Maximum 100 metrics per batch
         maxBufferSizeBytes: Int = 1_024 * 1_024, // 1MB buffer size for trace metrics
@@ -40,7 +34,6 @@ struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
         itemForwardingTriggers: TelemetryBufferItemForwardingTriggers,
         capturedDataCallback: @escaping (_ data: Data, _ count: Int) -> Void
     ) {
-        self.isEnabled = options.enableMetrics
         self.buffer = DefaultTelemetryBuffer(
             config: .init(
                 flushTimeout: flushTimeout,
@@ -59,9 +52,6 @@ struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
     /// - Parameters:
     ///   - metric: The metric to add (should already have scope enrichment applied)
     func addMetric(_ metric: SentryMetric) {
-        guard isEnabled else {
-            return
-        }
         buffer.add(metric)
     }
 
@@ -73,13 +63,5 @@ struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
     ///         so calling it from a context that holds locks or is on the buffer's queue itself could cause a deadlock.
     @discardableResult func captureMetrics() -> TimeInterval {
         return buffer.capture()
-    }
-}
-
-extension Options: SentryMetricsTelemetryBufferOptions {
-    // As soon as the feature is not experimental anymore, we can remove this bridging method.
-
-    var enableMetrics: Bool {
-        return experimental.enableMetrics
     }
 }

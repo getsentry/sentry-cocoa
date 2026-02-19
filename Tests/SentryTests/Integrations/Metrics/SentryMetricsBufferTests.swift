@@ -4,17 +4,12 @@ import XCTest
 
 final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
-    private var options: Options!
     private var testDateProvider: TestCurrentDateProvider!
     private var testCallbackHelper: TestMetricsBufferCallbackHelper!
     private var testDispatchQueue: TestSentryDispatchQueueWrapper!
-    
+
     override func setUp() {
         super.setUp()
-        
-        options = Options()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self)
-        options.experimental.enableMetrics = true
 
         testDateProvider = TestCurrentDateProvider()
         testCallbackHelper = TestMetricsBufferCallbackHelper()
@@ -31,7 +26,6 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
 
     private func getSut() -> DefaultSentryMetricsTelemetryBuffer {
         return DefaultSentryMetricsTelemetryBuffer(
-            options: options,
             flushTimeout: 0.1, // Very small timeout for testing
             maxMetricCount: 10, // Maximum 10 metrics per batch
             maxBufferSizeBytes: 8_000, // byte limit for testing
@@ -175,28 +169,26 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         // -- Arrange --
         // Create a new buffer without specifying flushTimeout to use default
         let defaultBuffer = DefaultSentryMetricsTelemetryBuffer(
-            options: options,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
             itemForwardingTriggers: NoOpTelemetryBufferDataForwardingTriggers(),
             capturedDataCallback: testCallbackHelper.captureCallback
         )
-        
+
         let metric = createTestMetric(name: "test.metric", value: .counter(1))
 
         // -- Act --
         defaultBuffer.addMetric(metric)
-        
+
         // -- Assert --
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.count, 1)
         XCTAssertEqual(testDispatchQueue.dispatchAfterWorkItemInvocations.first?.interval, 5.0, "Default flushTimeout should be 5 seconds")
     }
-    
+
     func testInit_whenMaxMetricCountNotProvided_shouldUseDefaultValue() throws {
         // -- Arrange --
         // Create a new buffer without specifying maxMetricCount to use default (100)
         let defaultBuffer = DefaultSentryMetricsTelemetryBuffer(
-            options: options,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
             itemForwardingTriggers: NoOpTelemetryBufferDataForwardingTriggers(),
@@ -228,7 +220,6 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         // Note: Individual trace metrics must not exceed 2KB each (Relay's max_trace_metric_size limit),
         // but the buffer can accumulate up to 1MB before flushing.
         let defaultBuffer = DefaultSentryMetricsTelemetryBuffer(
-            options: options,
             flushTimeout: 0.1,
             maxMetricCount: 100_000, // High count to avoid count-based flush, focus on size limit
             dateProvider: testDateProvider,
@@ -327,24 +318,6 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
         
         let capturedMetrics = try testCallbackHelper.getCapturedMetrics()
         XCTAssertEqual(capturedMetrics.count, 5, "Should capture all 5 metrics")
-    }
-    
-    // MARK: - Metrics Disabled Tests
-    
-    func testAddMetric_whenMetricsDisabled_shouldNotAddMetrics() throws {
-        // -- Arrange --
-        options.experimental.enableMetrics = false
-
-        let metric = createTestMetric(name: "test.metric", value: .counter(1))
-
-        // -- Act --
-        let sut = getSut()
-        sut.addMetric(metric)
-        let duration = sut.captureMetrics()
-        
-        // -- Assert --
-        XCTAssertGreaterThanOrEqual(duration, 0, "captureMetrics should return a non-negative duration even when no metrics are captured")
-        XCTAssertEqual(testCallbackHelper.captureMetricsDataInvocations.count, 0)
     }
     
     // MARK: - Edge Cases Tests
