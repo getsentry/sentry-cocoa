@@ -25,7 +25,6 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         #endif
 
         let metricsBuffer = DefaultSentryMetricsTelemetryBuffer(
-            options: options,
             dateProvider: dependencies.dateProvider,
             dispatchQueue: dependencies.dispatchQueueWrapper,
             itemForwardingTriggers: itemForwardingTriggers,
