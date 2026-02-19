@@ -10,45 +10,11 @@ typealias SentryMetricsIntegrationDependencies = DateProviderProvider & Dispatch
 typealias SentryMetricsIntegrationDependencies = DateProviderProvider & DispatchQueueWrapperProvider
 #endif
 
-final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol, FlushableIntegration {
-    private let metricsBuffer: any TelemetryBuffer<SentryMetric>
+final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol {
     private let scopeMetaData: SentryDefaultScopeApplyingMetadata
     private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
-    convenience init?(with options: Options, dependencies: Dependencies) {
-        #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
-        let itemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers(
-            notificationCenter: dependencies.notificationCenterWrapper
-        )
-        #else
-        let itemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers()
-        #endif
-
-        let metricsBuffer = DefaultTelemetryBuffer<InMemoryInternalTelemetryBuffer<SentryMetric>, SentryMetric>(
-            config: .init(
-                flushTimeout: 5,
-                maxItemCount: 100,
-                maxBufferSizeBytes: 1_024 * 1_024,
-                capturedDataCallback: { data, count in
-                    let hub = SentrySDKInternal.currentHub()
-                    guard let client = hub.getClient() else {
-                        SentrySDKLog.debug("MetricsIntegration: No client available, dropping metrics")
-                        return
-                    }
-                    client.captureMetricsData(data, with: NSNumber(value: count))
-                }
-            ),
-            buffer: InMemoryInternalTelemetryBuffer(),
-            dateProvider: dependencies.dateProvider,
-            dispatchQueue: dependencies.dispatchQueueWrapper,
-            itemForwardingTriggers: itemForwardingTriggers
-        )
-
-        self.init(with: options, dependencies: dependencies, metricsBuffer: metricsBuffer)
-    }
-
-    /// Initializer for testing that allows injecting a custom metrics buffer
-    init?(with options: Options, dependencies: Dependencies, metricsBuffer: any TelemetryBuffer<SentryMetric>) {
+    init?(with options: Options, dependencies: Dependencies) {
         guard options.experimental.enableMetrics else { return nil }
 
         self.scopeMetaData = SentryDefaultScopeApplyingMetadata(
@@ -58,14 +24,13 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
             sendDefaultPii: options.sendDefaultPii
         )
 
-        self.metricsBuffer = metricsBuffer
         self.beforeSendMetric = options.experimental.beforeSendMetric
 
         super.init()
     }
 
     func uninstall() {
-        _ = metricsBuffer.capture()
+        // Empty on purpose. Nothing to uninstall.
     }
 
     static var name: String {
@@ -85,25 +50,28 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
             mutableMetric = processedItem
         }
 
-        metricsBuffer.add(mutableMetric)
+        // We go directly to the client instead of through the hub because metrics only have a
+        // static API today and the hub doesn't implement any metrics methods. This may change in
+        // the future if we add metrics methods to the hub.
+        guard let client = SentrySDKInternal.currentHub().getClient() else {
+            SentrySDKLog.debug("MetricsIntegration: No client available, dropping metric")
+            return
+        }
+        client.captureMetric(mutableMetric)
     }
+}
 
-    /// Captures batched metrics synchronously and returns the duration.
-    @discardableResult func captureMetrics() -> TimeInterval {
-        return metricsBuffer.capture()
+// MARK: - SentryClientInternal Metrics Extension
+
+extension SentryClientInternal {
+
+    /// Captures a metric by forwarding it to the telemetry processor's metrics buffer.
+    /// This method stays entirely in Swift, avoiding the ObjC boundary since SentryMetric is a Swift struct.
+    func captureMetric(_ metric: SentryMetric) {
+        guard let processor = self.getTelemetryProcessor() as? SentryTelemetryProcessor else {
+            SentrySDKLog.error("Cannot capture metric because the telemetry processor is not available. Discarding metric. This is unexpected and indicates a configuration issue.")
+            return
+        }
+        processor.add(metric: metric)
     }
-
-    // MARK: - FlushableIntegration
-
-    /// Flushes any buffered metrics synchronously.
-    ///
-    /// This method is called by SentryHub.flush() via respondsToSelector: check.
-    /// We implement it directly in the class body (not in an extension) because
-    /// extensions of generic classes cannot contain @objc members.
-    /// The @objc attribute is required so Objective-C code can find this method
-    /// via respondsToSelector: at runtime.
-    @objc func flush() -> TimeInterval {
-        return captureMetrics()
-    }
-
 }

@@ -8,8 +8,9 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
 
     func testAdd_whenCalledWithLog_shouldForwardToLogBuffer() throws {
         // -- Arrange --
-        let (logBuffer, scheduler) = createLogBuffer()
-        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer)
+        let (logBuffer, logScheduler) = createLogBuffer()
+        let (metricsBuffer, _) = createMetricsBuffer()
+        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer, metricsBuffer: metricsBuffer)
         let log = createTestLog(body: "Test message")
 
         // -- Act --
@@ -17,14 +18,15 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         _ = sut.forwardTelemetryData()
 
         // -- Assert --
-        XCTAssertEqual(scheduler.captureInvocations.count, 1)
-        XCTAssertEqual(scheduler.captureInvocations.first?.telemetryType, .log)
+        XCTAssertEqual(logScheduler.captureInvocations.count, 1)
+        XCTAssertEqual(logScheduler.captureInvocations.first?.telemetryType, .log)
     }
 
     func testAdd_whenCalledMultipleTimes_shouldForwardAllLogs() throws {
         // -- Arrange --
-        let (logBuffer, scheduler) = createLogBuffer()
-        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer)
+        let (logBuffer, logScheduler) = createLogBuffer()
+        let (metricsBuffer, _) = createMetricsBuffer()
+        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer, metricsBuffer: metricsBuffer)
         let log1 = createTestLog(body: "Log 1")
         let log2 = createTestLog(body: "Log 2")
         let log3 = createTestLog(body: "Log 3")
@@ -36,23 +38,67 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         _ = sut.forwardTelemetryData()
 
         // -- Assert --
-        XCTAssertEqual(scheduler.captureInvocations.count, 1)
+        XCTAssertEqual(logScheduler.captureInvocations.count, 1)
 
-        let capturedLogs = try scheduler.getCapturedLogs()
+        let capturedLogs = try logScheduler.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 3)
         XCTAssertEqual(capturedLogs[0].body, "Log 1")
         XCTAssertEqual(capturedLogs[1].body, "Log 2")
         XCTAssertEqual(capturedLogs[2].body, "Log 3")
     }
 
-    // MARK: - Flush Tests
+    // MARK: - Add Metric Tests
 
-    func testFlush_whenCalled_shouldReturnDurationFromLogBuffer() {
+    func testAdd_whenCalledWithMetric_shouldForwardToMetricsBuffer() throws {
         // -- Arrange --
         let (logBuffer, _) = createLogBuffer()
-        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer)
-        let log = createTestLog(body: "Test")
-        sut.add(log: log)
+        let (metricsBuffer, metricsScheduler) = createMetricsBuffer()
+        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer, metricsBuffer: metricsBuffer)
+        let metric = createTestMetric(name: "test.metric")
+
+        // -- Act --
+        sut.add(metric: metric)
+        _ = sut.forwardTelemetryData()
+
+        // -- Assert --
+        XCTAssertEqual(metricsScheduler.captureInvocations.count, 1)
+        XCTAssertEqual(metricsScheduler.captureInvocations.first?.telemetryType, .metric)
+    }
+
+    func testAdd_whenCalledMultipleTimesWithMetrics_shouldForwardAllMetrics() throws {
+        // -- Arrange --
+        let (logBuffer, _) = createLogBuffer()
+        let (metricsBuffer, metricsScheduler) = createMetricsBuffer()
+        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer, metricsBuffer: metricsBuffer)
+        let metric1 = createTestMetric(name: "metric.1")
+        let metric2 = createTestMetric(name: "metric.2")
+        let metric3 = createTestMetric(name: "metric.3")
+
+        // -- Act --
+        sut.add(metric: metric1)
+        sut.add(metric: metric2)
+        sut.add(metric: metric3)
+        _ = sut.forwardTelemetryData()
+
+        // -- Assert --
+        XCTAssertEqual(metricsScheduler.captureInvocations.count, 1)
+
+        let capturedMetrics = try metricsScheduler.getCapturedMetrics()
+        XCTAssertEqual(capturedMetrics.count, 3)
+        XCTAssertEqual(capturedMetrics[0].name, "metric.1")
+        XCTAssertEqual(capturedMetrics[1].name, "metric.2")
+        XCTAssertEqual(capturedMetrics[2].name, "metric.3")
+    }
+
+    // MARK: - Flush Tests
+
+    func testFlush_whenCalled_shouldReturnDurationFromBothBuffers() {
+        // -- Arrange --
+        let (logBuffer, _) = createLogBuffer()
+        let (metricsBuffer, _) = createMetricsBuffer()
+        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer, metricsBuffer: metricsBuffer)
+        sut.add(log: createTestLog(body: "Test"))
+        sut.add(metric: createTestMetric(name: "test.metric"))
 
         // -- Act --
         let duration = sut.forwardTelemetryData()
@@ -65,9 +111,11 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
 
     func testConcurrentAdds_ThreadSafe() throws {
         // -- Arrange --
-        let scheduler = TestTelemetryScheduler()
+        let logScheduler = TestTelemetryScheduler()
+        let metricsScheduler = TestTelemetryScheduler()
         let dateProvider = TestCurrentDateProvider()
-        let itemForwardingTriggers = MockTelemetryBufferDataForwardingTriggers()
+        let logForwardingTriggers = MockTelemetryBufferDataForwardingTriggers()
+        let metricsForwardingTriggers = MockTelemetryBufferDataForwardingTriggers()
 
         let logBuffer = DefaultTelemetryBuffer<InMemoryInternalTelemetryBuffer<SentryLog>, SentryLog>(
             config: .init(
@@ -75,18 +123,32 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
                 maxItemCount: 1_000,
                 maxBufferSizeBytes: 10_000,
                 capturedDataCallback: { data, count in
-                    scheduler.capture(data: data, count: count, telemetryType: .log)
+                    logScheduler.capture(data: data, count: count, telemetryType: .log)
                 }
             ),
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
             dispatchQueue: SentryDispatchQueueWrapper(),
-            itemForwardingTriggers: itemForwardingTriggers
+            itemForwardingTriggers: logForwardingTriggers
         )
-        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer)
+        let metricsBuffer = DefaultTelemetryBuffer<InMemoryInternalTelemetryBuffer<SentryMetric>, SentryMetric>(
+            config: .init(
+                flushTimeout: 5,
+                maxItemCount: 1_000,
+                maxBufferSizeBytes: 10_000,
+                capturedDataCallback: { data, count in
+                    metricsScheduler.capture(data: data, count: count, telemetryType: .metric)
+                }
+            ),
+            buffer: InMemoryInternalTelemetryBuffer(),
+            dateProvider: dateProvider,
+            dispatchQueue: SentryDispatchQueueWrapper(),
+            itemForwardingTriggers: metricsForwardingTriggers
+        )
+        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer, metricsBuffer: metricsBuffer)
 
         let expectation = XCTestExpectation(description: "Concurrent adds")
-        expectation.expectedFulfillmentCount = 10
+        expectation.expectedFulfillmentCount = 20
 
         // -- Act --
         for i in 0..<10 {
@@ -95,13 +157,21 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
                 sut.add(log: log)
                 expectation.fulfill()
             }
+            DispatchQueue.global().async {
+                let metric = self.createTestMetric(name: "metric.\(i)")
+                sut.add(metric: metric)
+                expectation.fulfill()
+            }
         }
         wait(for: [expectation], timeout: 1.0)
         _ = sut.forwardTelemetryData()
 
         // -- Assert --
-        let capturedLogs = try scheduler.getCapturedLogs()
+        let capturedLogs = try logScheduler.getCapturedLogs()
         XCTAssertEqual(capturedLogs.count, 10, "All 10 concurrently added logs should be in the batch")
+
+        let capturedMetrics = try metricsScheduler.getCapturedMetrics()
+        XCTAssertEqual(capturedMetrics.count, 10, "All 10 concurrently added metrics should be in the batch")
     }
 
     func testDispatchAfterTimeoutWithRealDispatchQueue() throws {
@@ -124,7 +194,8 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
             dispatchQueue: SentryDispatchQueueWrapper(),
             itemForwardingTriggers: itemForwardingTriggers
         )
-        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer)
+        let (metricsBuffer, _) = createMetricsBuffer()
+        let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer, metricsBuffer: metricsBuffer)
 
         let log = createTestLog(body: "Real timeout test log")
         let expectation = XCTestExpectation(description: "Real timeout flush")
@@ -172,6 +243,31 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         return (logBuffer, scheduler)
     }
 
+    private func createMetricsBuffer() -> (buffer: any TelemetryBuffer<SentryMetric>, scheduler: TestTelemetryScheduler) {
+        let scheduler = TestTelemetryScheduler()
+        let dateProvider = TestCurrentDateProvider()
+        let dispatchQueue = TestSentryDispatchQueueWrapper()
+        dispatchQueue.dispatchAsyncExecutesBlock = true
+        let itemForwardingTriggers = MockTelemetryBufferDataForwardingTriggers()
+
+        let metricsBuffer = DefaultTelemetryBuffer<InMemoryInternalTelemetryBuffer<SentryMetric>, SentryMetric>(
+            config: .init(
+                flushTimeout: 5.0,
+                maxItemCount: 100,
+                maxBufferSizeBytes: 1_024,
+                capturedDataCallback: { data, count in
+                    scheduler.capture(data: data, count: count, telemetryType: .metric)
+                }
+            ),
+            buffer: InMemoryInternalTelemetryBuffer(),
+            dateProvider: dateProvider,
+            dispatchQueue: dispatchQueue,
+            itemForwardingTriggers: itemForwardingTriggers
+        )
+
+        return (metricsBuffer, scheduler)
+    }
+
     private func createTestLog(
         body: String,
         level: SentryLog.Level = .info
@@ -181,6 +277,20 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
             traceId: SentryId.empty,
             level: level,
             body: body,
+            attributes: [:]
+        )
+    }
+
+    private func createTestMetric(
+        name: String,
+        value: SentryMetric.Value = .counter(1)
+    ) -> SentryMetric {
+        return SentryMetric(
+            timestamp: Date(timeIntervalSince1970: 1_627_846_801),
+            traceId: SentryId.empty,
+            name: name,
+            value: value,
+            unit: nil,
             attributes: [:]
         )
     }
@@ -213,6 +323,23 @@ final class TestTelemetryScheduler: TelemetryScheduler {
         return allLogs
     }
 
+    func getCapturedMetrics() throws -> [CapturedMetric] {
+        var allMetrics: [CapturedMetric] = []
+
+        for invocation in captureInvocations.invocations {
+            let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: invocation.data) as? [String: Any])
+            if let items = jsonObject["items"] as? [[String: Any]] {
+                for item in items {
+                    if let metric = CapturedMetric(from: item) {
+                        allMetrics.append(metric)
+                    }
+                }
+            }
+        }
+
+        return allMetrics
+    }
+
     private func parseSentryLog(from dict: [String: Any]) throws -> SentryLog? {
         guard let body = dict["body"] as? String,
               let levelString = dict["level"] as? String else {
@@ -232,8 +359,22 @@ final class TestTelemetryScheduler: TelemetryScheduler {
                 }
             }
         }
-        
+
         return SentryLog(timestamp: timestamp, traceId: traceId, level: level, body: body, attributes: attributes)
+    }
+}
+
+/// Lightweight struct for asserting captured metric data from the scheduler.
+struct CapturedMetric {
+    let name: String
+    let traceId: String
+    let type: String
+
+    init?(from dict: [String: Any]) {
+        guard let name = dict["name"] as? String else { return nil }
+        self.name = name
+        self.traceId = dict["trace_id"] as? String ?? ""
+        self.type = dict["type"] as? String ?? ""
     }
 }
 
