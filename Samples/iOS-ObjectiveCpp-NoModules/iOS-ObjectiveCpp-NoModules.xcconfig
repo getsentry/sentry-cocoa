@@ -1,0 +1,18 @@
+#include "../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-ObjectiveCpp-NoModules
+INFOPLIST_FILE = iOS-ObjectiveCpp-NoModules/Info.plist
+CODE_SIGN_ENTITLEMENTS = iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.entitlements
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+
+// Disable modules to replicate the issue from #4543 / #6342.
+// Projects using ObjC++ without -fmodules/-fcxx-modules (e.g. React Native,
+// Haxe, some custom build systems) cannot use @import Sentry and must use
+// #import <Sentry/Sentry.h>. That does not expose Swift APIs (SentrySDK,
+// SentryOptions.sessionReplay, etc.) which require the generated Sentry-Swift.h.
+// This sample exists to verify the fix in #6342 (pure ObjC SDK wrapper).
+CLANG_ENABLE_MODULES = NO
+
+// Without modules, framework linking is not automatic. Link UIKit explicitly.
+OTHER_LDFLAGS = $(inherited) -framework UIKit -framework Foundation
