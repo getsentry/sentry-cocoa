@@ -2,32 +2,46 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-/// The Telemetry processor is sitting between the client and transport to efficiently deliver telemetry to Sentry (as of 2026-02-04).
-/// Currently used for logs only; planned to cover all telemetry (e.g. metrics) with buffering, rate limiting, client reports, and priority-based sending.
-/// Offline caching is still handled by the transport today, but the long-term goal is to move it here so the transport focuses on sending only.
+/// Objective-C compatible subset of the telemetry processor protocol.
+/// Use `SentryTelemetryProcessor` instead when working in Swift, which adds support for
+/// Swift-only types like `SentryMetric`.
 /// See dev docs for details (work in progress): https://develop.sentry.dev/sdk/telemetry/telemetry-processor/
-@objc @_spi(Private) public protocol SentryTelemetryProcessor {
+@objc @_spi(Private) public protocol SentryObjCTelemetryProcessor {
     @objc(addLog:)
     func add(log: SentryLog)
     /// Forwards buffered telemetry data to the transport for sending.
-    /// Temporary name; will be renamed to `flush()` once flushing logic moves from SentryMetricsIntegration.
     func forwardTelemetryData() -> TimeInterval
+}
+
+/// The telemetry processor sits between the client and transport to efficiently deliver telemetry to Sentry.
+/// This extends `SentryObjCTelemetryProcessor` with Swift-only types like `SentryMetric` that cannot
+/// be represented in Objective-C.
+protocol SentryTelemetryProcessor: SentryObjCTelemetryProcessor {
+    func add(metric: SentryMetric)
 }
 
 class SentryDefaultTelemetryProcessor: SentryTelemetryProcessor {
 
     private let logBuffer: any TelemetryBuffer<SentryLog>
+    private let metricsBuffer: any TelemetryBuffer<SentryMetric>
 
-    init(logBuffer: any TelemetryBuffer<SentryLog>) {
+    init(logBuffer: any TelemetryBuffer<SentryLog>, metricsBuffer: any TelemetryBuffer<SentryMetric>) {
         self.logBuffer = logBuffer
+        self.metricsBuffer = metricsBuffer
     }
 
     func add(log: SentryLog) {
         self.logBuffer.add(log)
     }
 
+    func add(metric: SentryMetric) {
+        self.metricsBuffer.add(metric)
+    }
+
     func forwardTelemetryData() -> TimeInterval {
-        return self.logBuffer.capture()
+        let logDuration = self.logBuffer.capture()
+        let metricsDuration = self.metricsBuffer.capture()
+        return logDuration + metricsDuration
     }
 }
 
@@ -55,14 +69,14 @@ typealias SentryTelemetryProcessorFactoryDependencies = DateProviderProvider
 @objc
 @objcMembers
 @_spi(Private) public class SentryTelemetryProcessorFactory: NSObject {
-    public static func getProcessor(transport: SentryTelemetryProcessorTransport, dependencies: SentryDependencyContainer) -> SentryTelemetryProcessor {
+    public static func getProcessor(transport: SentryTelemetryProcessorTransport, dependencies: SentryDependencyContainer) -> SentryObjCTelemetryProcessor {
         return getProcessorInternal(transport: transport, dependencies: dependencies)
     }
 
     private static func getProcessorInternal<Dependencies: SentryTelemetryProcessorFactoryDependencies>(
         transport: SentryTelemetryProcessorTransport,
         dependencies: Dependencies
-    ) -> SentryTelemetryProcessor {
+    ) -> SentryObjCTelemetryProcessor {
         let scheduler = DefaultTelemetryScheduler(transport: transport)
 
         #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -92,7 +106,32 @@ typealias SentryTelemetryProcessorFactoryDependencies = DateProviderProvider
             itemForwardingTriggers: itemForwardingTriggers
         )
 
-        return SentryDefaultTelemetryProcessor(logBuffer: logBuffer)
+        #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
+        let metricsItemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers(
+            notificationCenter: dependencies.notificationCenterWrapper
+        )
+        #else
+        let metricsItemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers()
+        #endif
+
+        let metricsDispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.metric-batcher")
+
+        let metricsBuffer = DefaultTelemetryBuffer<InMemoryInternalTelemetryBuffer<SentryMetric>, SentryMetric>(
+            config: .init(
+                flushTimeout: 5,
+                maxItemCount: 100, // Maximum 100 metrics per batch
+                maxBufferSizeBytes: 1_024 * 1_024, // 1MB buffer size
+                capturedDataCallback: { data, count in
+                    scheduler.capture(data: data, count: count, telemetryType: .metric)
+                }
+            ),
+            buffer: InMemoryInternalTelemetryBuffer(),
+            dateProvider: dependencies.dateProvider,
+            dispatchQueue: metricsDispatchQueue,
+            itemForwardingTriggers: metricsItemForwardingTriggers
+        )
+
+        return SentryDefaultTelemetryProcessor(logBuffer: logBuffer, metricsBuffer: metricsBuffer)
     }
 }
 

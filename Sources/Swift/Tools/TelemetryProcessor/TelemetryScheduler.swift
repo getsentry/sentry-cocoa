@@ -4,6 +4,7 @@ import Foundation
 
 enum TelemetrySchedulerItemType {
     case log
+    case metric
 }
 
 /// The SentryHttpTransport currently does rate limiting, offline caching, recording and sending client reports, etc.
@@ -41,6 +42,7 @@ final class DefaultTelemetryScheduler: TelemetryScheduler {
     private func getEnvelopeInfo(telemetryType: TelemetrySchedulerItemType) -> EnvelopeInfo {
         switch telemetryType {
             case .log: return EnvelopeInfo(itemType: SentryEnvelopeItemTypes.log, contentType: "application/vnd.sentry.items.log+json")
+            case .metric: return EnvelopeInfo(itemType: SentryEnvelopeItemTypes.traceMetric, contentType: "application/vnd.sentry.items.trace-metric+json")
         }
     }
 }
