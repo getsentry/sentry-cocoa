@@ -27,6 +27,26 @@ typealias CreateObserverFunc<T> = (_ allocator: CFAllocator?, _ activities: CFOp
 typealias AddObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFRunLoopMode?) -> Void
 typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFRunLoopMode?) -> Void
 
+// This class finds hangs by detecting when the runloop is blocked. A "healthy" runloop spends most of its
+// time waiting for events, but a hanging runloop is spending a lot of time handling events.
+// A hang can only be detected on a background queue, because the main queue is blocked by the hang.
+// So the tracker runs a background queue that attempts to trigger a callback when the time between "afterWaiting"
+// and "beforeWaiting" has exceeded the expected frame rate. We say "attempts" because it's always possible
+// that the background queue does not get scheduled during the hang and the hang starts and finishes
+// before we are able to detect that it is in progress.
+//
+// The general approach is to create a semaphore when the runloop leaves the waiting state "afterWaiting"
+// and asynchronously start a background queue that waits on that semaphore. When the runloop enters waiting
+// "beforeWaiting" we signal the semaphore. This way, if the background queue waiting times out, we know
+// it took too long for the runloop to go back to waiting and a hang has occured.
+//
+// Design requirements:
+// 1: We don't want the hang tracker to cause any thing more than a constant number of extra runloop iterations.
+// A fixed number of extra runloops per hang is acceptable, for example if it needed to run a dispatch_async
+// on the main queue, but spinning the runloop indefinitely is not acceptable.
+// 2: We don't want to aquire any locks every iteration of the runloop. It's ok to aquire locks in general
+// (the code does not need to be async signal safe) but it's not ok to aquire them on every runloop iteration.
+// 3: As simple as possible. We think it can be straightforward to detect a hang, it shouldn't require 400+ LOC.
 final class DefaultHangTracker<T: RunLoopObserver> {
 
     // Must be initialized on the main queue
@@ -88,15 +108,23 @@ final class DefaultHangTracker<T: RunLoopObserver> {
     // since the main thread is hanging.
     private let queue: DispatchQueue
     private let hangNotifyThreshold: TimeInterval
+    
+    // These are injected dependencies that provide testability
     private let dateProvider: SentryCurrentDateProvider
     private let createObserver: CreateObserverFunc<T>
     private let addObserver: AddObserverFunc<T>
     private let removeObserver: RemoveObserverFunc<T>
+    
+    // Observers is the only state that uses a lock. It should only be modified
+    // on the main queue, while the lock is held. Reading it on the main queue
+    // does not require a lock. Reading it on a background queue does require the lock.
     private let observersLock = NSRecursiveLock()
     private var observers = [UUID: (TimeInterval, Bool) -> Void]()
     
     // MARK: Main queue
 
+    // For the readers convenience, this encapsulate all the mutable state that can
+    // only be used from the main queue.
     struct MainQueueState {
         fileprivate var observer: T?
         fileprivate var semaphore: DispatchSemaphore?

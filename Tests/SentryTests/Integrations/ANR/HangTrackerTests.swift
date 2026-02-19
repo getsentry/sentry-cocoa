@@ -6,6 +6,7 @@ struct TestRunLoopObserver: RunLoopObserver { }
 
 final class HangTrackerTests: XCTestCase {
     
+    private var createdObservationBlock: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?
     private var observationBlock: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?
     private var testObserver = TestRunLoopObserver()
     private var calledRemoveObserver = false
@@ -20,15 +21,17 @@ final class HangTrackerTests: XCTestCase {
     }
     
     private func createObserver(_ allocator: CFAllocator?, _ activities: CFOptionFlags, _ repeats: Bool, _ order: CFIndex, _ block: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?) -> TestRunLoopObserver {
-        observationBlock = block
+        createdObservationBlock = block
         return testObserver
     }
     
     private func addObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) {
+        observationBlock = createdObservationBlock
         calledAddObserver = true
     }
     
     private func removeObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) {
+        observationBlock = nil
         calledRemoveObserver = true
     }
   
@@ -158,6 +161,50 @@ final class HangTrackerTests: XCTestCase {
         sut.removeObserver(id: id)
 
         XCTAssertTrue(calledRemoveObserver, "Expected observer to be removed")
+    }
+    
+    func testRemovesObserverDuringRunloop() {
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setSystemUptime(0)
+        let sut = DefaultHangTracker(
+            dateProvider: dateProvider,
+            createObserver: createObserver,
+            addObserver: addObserver,
+            removeObserver: removeObserver,
+            queue: queue)
+        
+        let id = sut.addOngoingHangObserver { _, _ in }
+        observationBlock?(testObserver, .afterWaiting)
+        sut.removeObserver(id: id)
+        
+        XCTAssertTrue(calledRemoveObserver, "Expected runloop to not be observed after last observer is removed")
+        // Ensure the background queue isn't stuck waiting for another runloop event
+        let expectation = XCTestExpectation()
+        queue.async {
+            expectation.fulfill()
+        }
+        // Ensure the queue is not blocked
+        wait(for: [expectation])
+    }
+    
+    func testHangTrackerDeallocates() {
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setSystemUptime(0)
+        var sut: DefaultHangTracker? = DefaultHangTracker(
+            dateProvider: dateProvider,
+            createObserver: createObserver,
+            addObserver: addObserver,
+            removeObserver: removeObserver,
+            queue: queue)
+        weak let weakSut = sut
+        
+        _ = sut?.addOngoingHangObserver { _, _ in }
+        observationBlock?(testObserver, .afterWaiting)
+        observationBlock?(testObserver, .beforeWaiting)
+        
+        sut = nil
+        
+        XCTAssertNil(weakSut, "Expected observer to be deallocated")
     }
     
 }
