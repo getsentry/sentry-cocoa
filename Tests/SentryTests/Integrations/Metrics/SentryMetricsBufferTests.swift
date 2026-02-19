@@ -37,6 +37,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
             maxBufferSizeBytes: 8_000, // byte limit for testing
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
+            itemForwardingTriggers: NoOpTelemetryBufferDataForwardingTriggers(),
             capturedDataCallback: testCallbackHelper.captureCallback
         )
     }
@@ -177,6 +178,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
             options: options,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
+            itemForwardingTriggers: NoOpTelemetryBufferDataForwardingTriggers(),
             capturedDataCallback: testCallbackHelper.captureCallback
         )
         
@@ -197,6 +199,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
             options: options,
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
+            itemForwardingTriggers: NoOpTelemetryBufferDataForwardingTriggers(),
             capturedDataCallback: testCallbackHelper.captureCallback
         )
         
@@ -230,6 +233,7 @@ final class DefaultSentryMetricsTelemetryBufferTests: XCTestCase {
             maxMetricCount: 100_000, // High count to avoid count-based flush, focus on size limit
             dateProvider: testDateProvider,
             dispatchQueue: testDispatchQueue,
+            itemForwardingTriggers: NoOpTelemetryBufferDataForwardingTriggers(),
             capturedDataCallback: testCallbackHelper.captureCallback
         )
 

@@ -37,6 +37,7 @@ struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
         maxBufferSizeBytes: Int = 1_024 * 1_024, // 1MB buffer size for trace metrics
         dateProvider: SentryCurrentDateProvider,
         dispatchQueue: SentryDispatchQueueWrapper,
+        itemForwardingTriggers: TelemetryBufferItemForwardingTriggers,
         capturedDataCallback: @escaping (_ data: Data, _ count: Int) -> Void
     ) {
         self.isEnabled = options.enableMetrics
@@ -50,8 +51,7 @@ struct DefaultSentryMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dateProvider,
             dispatchQueue: dispatchQueue,
-            // The MetricsIntegration still contains the data forwarding triggers. Therefore, we still use the NoOpTelemetryBufferDataForwardingTriggers here.
-            itemForwardingTriggers: NoOpTelemetryBufferDataForwardingTriggers()
+            itemForwardingTriggers: itemForwardingTriggers
         )
     }
     
