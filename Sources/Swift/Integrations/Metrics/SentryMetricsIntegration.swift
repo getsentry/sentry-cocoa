@@ -11,7 +11,7 @@ typealias SentryMetricsIntegrationDependencies = DateProviderProvider & Dispatch
 #endif
 
 final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol, FlushableIntegration {
-    private let metricsBuffer: SentryMetricsTelemetryBuffer
+    private let metricsBuffer: any TelemetryBuffer<SentryMetric>
     private let scopeMetaData: SentryDefaultScopeApplyingMetadata
     private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
@@ -24,25 +24,31 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         let itemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers()
         #endif
 
-        let metricsBuffer = DefaultSentryMetricsTelemetryBuffer(
+        let metricsBuffer = DefaultTelemetryBuffer<InMemoryInternalTelemetryBuffer<SentryMetric>, SentryMetric>(
+            config: .init(
+                flushTimeout: 5,
+                maxItemCount: 100,
+                maxBufferSizeBytes: 1_024 * 1_024,
+                capturedDataCallback: { data, count in
+                    let hub = SentrySDKInternal.currentHub()
+                    guard let client = hub.getClient() else {
+                        SentrySDKLog.debug("MetricsIntegration: No client available, dropping metrics")
+                        return
+                    }
+                    client.captureMetricsData(data, with: NSNumber(value: count))
+                }
+            ),
+            buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dependencies.dateProvider,
             dispatchQueue: dependencies.dispatchQueueWrapper,
-            itemForwardingTriggers: itemForwardingTriggers,
-            capturedDataCallback: { data, count in
-                let hub = SentrySDKInternal.currentHub()
-                guard let client = hub.getClient() else {
-                    SentrySDKLog.debug("MetricsIntegration: No client available, dropping metrics")
-                    return
-                }
-                client.captureMetricsData(data, with: NSNumber(value: count))
-            }
+            itemForwardingTriggers: itemForwardingTriggers
         )
 
         self.init(with: options, dependencies: dependencies, metricsBuffer: metricsBuffer)
     }
 
     /// Initializer for testing that allows injecting a custom metrics buffer
-    init?(with options: Options, dependencies: Dependencies, metricsBuffer: SentryMetricsTelemetryBuffer) {
+    init?(with options: Options, dependencies: Dependencies, metricsBuffer: any TelemetryBuffer<SentryMetric>) {
         guard options.experimental.enableMetrics else { return nil }
 
         self.scopeMetaData = SentryDefaultScopeApplyingMetadata(
@@ -59,7 +65,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     }
 
     func uninstall() {
-        metricsBuffer.captureMetrics()
+        _ = metricsBuffer.capture()
     }
 
     static var name: String {
@@ -72,33 +78,24 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         var mutableMetric = metric
         scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
 
-        // The before send item closure can be used to drop metrics by returning nil
-        // In case it is nil, we can discard the metric here
         if let beforeSendMetric = beforeSendMetric {
-            // If the before send hook returns nil, the item should be dropped
             guard let processedItem = beforeSendMetric(mutableMetric) else {
                 return
             }
             mutableMetric = processedItem
         }
 
-        metricsBuffer.addMetric(mutableMetric)
+        metricsBuffer.add(mutableMetric)
     }
 
     /// Captures batched metrics synchronously and returns the duration.
-    /// - Returns: The time taken to capture metrics in seconds
-    ///
-    /// - Note: This method calls captureMetrics() on the internal buffer synchronously.
-    ///         This is safe to call from any thread, but be aware that it uses dispatchSync internally.
     @discardableResult func captureMetrics() -> TimeInterval {
-        return metricsBuffer.captureMetrics()
+        return metricsBuffer.capture()
     }
 
     // MARK: - FlushableIntegration
 
     /// Flushes any buffered metrics synchronously.
-    ///
-    /// - Returns: The time taken to flush in seconds
     ///
     /// This method is called by SentryHub.flush() via respondsToSelector: check.
     /// We implement it directly in the class body (not in an extension) because
@@ -108,5 +105,5 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     @objc func flush() -> TimeInterval {
         return captureMetrics()
     }
-    
+
 }
