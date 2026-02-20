@@ -38,10 +38,7 @@ import Darwin
             return 0
         }
 
-        // Match ObjC: use TASK_VM_INFO_REV1_COUNT (kernel may return rev1-sized data).
-        // The macro is unavailable in Swift; REV1 = full count - (rev2..rev7 deltas) = -55.
-        let taskVmInfoRev1Count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.stride / MemoryLayout<natural_t>.stride) - 55
-        if count >= taskVmInfoRev1Count {
+        if count >= swiftTaskVMInfoRev1Count() {
             return info.phys_footprint
         }
         return info.resident_size
@@ -70,10 +67,11 @@ import Darwin
         }
 
         var usage: Float = 0
-        var infoSize = mach_msg_type_number_t(MemoryLayout<thread_basic_info_data_t>.stride / MemoryLayout<natural_t>.stride)
+        let threadBasicInfoCount = mach_msg_type_number_t(MemoryLayout<thread_basic_info_data_t>.stride / MemoryLayout<natural_t>.stride)
         for i in 0..<Int(count) {
             let thread = list[i]
             var threadInfo = thread_basic_info_data_t()
+            var infoSize = threadBasicInfoCount
 
             let threadInfoStatus = withUnsafeMutablePointer(to: &threadInfo) { infoPtr in
                 thread_info(
@@ -116,6 +114,11 @@ import Darwin
     }
 #endif
 
+}
+
+/// Returns TASK_VM_INFO_REV1_COUNT. The macro is unavailable in Swift; REV1 = full count - (rev2..rev7 deltas) = -55.
+private func swiftTaskVMInfoRev1Count() -> mach_msg_type_number_t {
+    mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.stride / MemoryLayout<natural_t>.stride) - 55
 }
 
 private func nsErrorFromKernelError(_ description: String, _ kr: kern_return_t) -> NSError {
