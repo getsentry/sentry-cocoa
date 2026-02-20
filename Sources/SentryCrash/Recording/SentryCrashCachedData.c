@@ -252,6 +252,7 @@ sentrycrashccd_init(int pollingIntervalInSeconds)
         &g_cacheThread, &attr, &monitorThreadCache, "SentryCrash Cached Data Monitor");
     if (error != 0) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("pthread_create: %s", SENTRY_STRERROR_R(error));
+        atomic_store(&g_hasThreadStarted, false);
     }
     pthread_attr_destroy(&attr);
 }
