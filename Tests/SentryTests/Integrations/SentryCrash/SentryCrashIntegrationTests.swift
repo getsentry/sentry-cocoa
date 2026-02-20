@@ -635,7 +635,51 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         // Validate there is no attributes in the user info
         XCTAssertNil(userInfo["attributes"])
     }
-    
+
+    // MARK: - lastRunStatus
+
+    func testInit_setsCrashReporterInstalled() throws {
+        // -- Arrange --
+        XCTAssertFalse(SentrySDKInternal.crashReporterInstalled)
+
+        // -- Act --
+        _ = try fixture.getSut()
+
+        // -- Assert --
+        XCTAssertTrue(SentrySDKInternal.crashReporterInstalled)
+    }
+
+    func testInit_whenNoCrash_shouldCallOnLastRunStatusWithDidNotCrash() throws {
+        // -- Arrange --
+        var receivedStatus: SentryLastRunStatus?
+        var receivedEvent: Event?
+
+        fixture.options.onLastRunStatus = { status, event in
+            receivedStatus = status
+            receivedEvent = event
+        }
+
+        let crash = fixture.sentryCrash
+        crash.internalCrashedLastLaunch = false
+
+        // -- Act --
+        _ = try fixture.getSut(crashWrapper: crash)
+
+        // -- Assert --
+        XCTAssertEqual(receivedStatus, .didNotCrash)
+        XCTAssertNil(receivedEvent)
+    }
+
+    func testInit_whenNoCrashAndNoCallback_shouldNotCrash() throws {
+        // -- Arrange --
+        fixture.options.onLastRunStatus = nil
+        let crash = fixture.sentryCrash
+        crash.internalCrashedLastLaunch = false
+
+        // -- Act & Assert -- (should not crash)
+        _ = try fixture.getSut(crashWrapper: crash)
+    }
+
     private func givenCurrentSession() -> SentrySession {
         // serialize sets the timestamp
         let session = SentrySession(jsonObject: fixture.session.serialize())!

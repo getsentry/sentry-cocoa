@@ -843,12 +843,22 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
     }
 
-    if (event != nil && isFatalEvent && nil != self.options.onCrashedLastRun
-        && !SentrySDKInternal.crashedLastRunCalled) {
-        // We only want to call the callback once. It can occur that multiple crash events are
+    if (event != nil && isFatalEvent && !SentrySDKInternal.lastRunStatusCalled) {
+        // We only want to call the callbacks once. It can occur that multiple crash events are
         // about to be sent.
-        SentrySDKInternal.crashedLastRunCalled = YES;
-        self.options.onCrashedLastRun(SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
+        SentrySDKInternal.lastRunStatusCalled = YES;
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        if (nil != self.options.onCrashedLastRun) {
+            self.options.onCrashedLastRun(SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
+        }
+#pragma clang diagnostic pop
+
+        if (nil != self.options.onLastRunStatus) {
+            self.options.onLastRunStatus(
+                SentryLastRunStatusDidCrash, SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
+        }
     }
 
     return event;

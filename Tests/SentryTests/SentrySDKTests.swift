@@ -226,8 +226,48 @@ class SentrySDKTests: XCTestCase {
         XCTAssertFalse(SentrySDK.isEnabled)
     }
 
+    @available(*, deprecated, message: "Testing deprecated crashedLastRun API")
     func testCrashedLastRun() {
         XCTAssertEqual(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch, SentrySDK.crashedLastRun)
+    }
+
+    // MARK: - lastRunStatus
+
+    func testLastRunStatus_whenCrashStateNotLoaded_shouldReturnUnknown() {
+        // -- Arrange --
+        SentrySDKInternal.crashReporterInstalled = false
+
+        // -- Act --
+        let status = SentrySDK.lastRunStatus
+
+        // -- Assert --
+        XCTAssertEqual(status, .unknown)
+    }
+
+    func testLastRunStatus_whenCrashStateLoadedAndNoCrash_shouldReturnDidNotCrash() {
+        // -- Arrange --
+        SentrySDKInternal.crashReporterInstalled = true
+        // The default test crash reporter returns false for crashedLastLaunch
+
+        // -- Act --
+        let status = SentrySDK.lastRunStatus
+
+        // -- Assert --
+        XCTAssertEqual(status, .didNotCrash)
+    }
+
+    func testLastRunStatus_afterClose_shouldReturnUnknown() {
+        // -- Arrange --
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
+        }
+        SentrySDK.close()
+
+        // -- Act --
+        let status = SentrySDK.lastRunStatus
+
+        // -- Assert --
+        XCTAssertEqual(status, .unknown)
     }
 
     func testDetectedStartUpCrash_DefaultValue() {
