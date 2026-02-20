@@ -12,9 +12,9 @@ This file provides comprehensive guidance for AI coding agents working with the 
 This repository includes pre-configured [MCP servers](https://modelcontextprotocol.io/) in `.mcp.json` that you can use to speed up development:
 
 - **XcodeBuildMCP** — build, run, and test in the iOS simulator. Requires [Node.js](https://nodejs.org/).
-- **Sentry MCP** — query production errors, search issues, and read Sentry docs. Authenticates via OAuth on first use.
+- **sentry** — MCP server to query production errors, search issues, and read Sentry docs. Authenticates via OAuth on first use.
 
-You can use the Sentry MCP server to validate that events still arrive in Sentry after your changes. Use `search_events` to find specific telemetry data, then inspect the event JSON to verify that payloads match expectations. This is useful for confirming that your changes produce correct and complete telemetry.
+You can use the `sentry` MCP server to validate that events still arrive in Sentry after your changes. Use `search_events` to find specific telemetry data, then inspect the event JSON to verify that payloads match expectations. This is useful for confirming that your changes produce correct and complete telemetry.
 
 Read-only MCP tools are pre-approved in `.claude/settings.json`. Mutating tools (build, boot, tap, launch, stop, etc.) require per-developer approval in `.claude/settings.local.json`.
 
