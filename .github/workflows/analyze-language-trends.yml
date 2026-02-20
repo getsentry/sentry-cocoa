@@ -38,7 +38,7 @@ jobs:
         with:
           ruby-version: "3.4"
 
-      - name: Install system dependencies
+      - name: Install linguist build dependencies
         run: sudo apt-get install -y cmake pkg-config libicu-dev
 
       - name: Run language analysis

@@ -7,7 +7,7 @@
 # Usage: ./scripts/analyze-languages.sh [YYYY-MM-DD]
 #        or: make analyze-languages [SINCE=YYYY-MM-DD]
 #
-# The optional date argument sets how far back to analyze. Defaults to 5 years.
+# The optional date argument sets how far back to analyze. Defaults to January 2019.
 #
 # Requirements: Ruby (ships with macOS), Python 3 (ships with macOS)
 # Output: language-trends.html (opened automatically in the default browser)
