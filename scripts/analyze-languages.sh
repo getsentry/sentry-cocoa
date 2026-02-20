@@ -349,6 +349,8 @@ new Chart(document.getElementById('{abs_id}').getContext('2d'), {{
 }});
 """
 
+# The HTML template is kept inline because it uses Python f-string interpolation
+# for the chart data, labels, and dynamic content — it can't function as a standalone file.
 html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
