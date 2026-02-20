@@ -72,9 +72,10 @@ if [ -n "$SINCE_ARG" ]; then
     START_MONTH=$((10#$START_MONTH))
     echo "--> Finding monthly commits since $SINCE_ARG"
 else
-    START_YEAR=$((CURRENT_YEAR - 5))
-    START_MONTH=$CURRENT_MONTH
-    echo "--> Finding monthly commits for the last 5 years"
+    # Default: start from January 2019
+    START_YEAR=2019
+    START_MONTH=1
+    echo "--> Finding monthly commits since January 2019"
 fi
 
 COMMITS=()

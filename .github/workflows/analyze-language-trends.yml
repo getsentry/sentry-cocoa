@@ -1,10 +1,6 @@
 name: Analyze Language Trends
 
 on:
-  push:
-    branches:
-      - feat/analyze-languages
-
   schedule:
     # Run daily at 3:00 AM UTC
     - cron: "0 3 * * *"
@@ -27,7 +23,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           # Full clone required because the script walks the entire git history
-          # to analyze language breakdown at monthly intervals since 2016.
+          # to analyze language breakdown at monthly intervals since 2019.
           fetch-depth: 0
 
       - name: Setup Ruby
@@ -39,7 +35,7 @@ jobs:
         run: sudo apt-get install -y cmake pkg-config libicu-dev
 
       - name: Run language analysis
-        run: ./scripts/analyze-languages.sh 2016-04-01
+        run: ./scripts/analyze-languages.sh 2019-01-01
 
       - name: Upload report
         uses: actions/upload-artifact@v6
