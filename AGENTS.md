@@ -16,7 +16,7 @@ This repository includes pre-configured [MCP servers](https://modelcontextprotoc
 
 You can use the `sentry` MCP server to validate that events still arrive in Sentry after your changes. Use `search_events` to find specific telemetry data, then inspect the event JSON to verify that payloads match expectations. This is useful for confirming that your changes produce correct and complete telemetry.
 
-Read-only MCP tools are pre-approved in `.claude/settings.json`. Mutating tools (build, boot, tap, launch, stop, etc.) require per-developer approval in `.claude/settings.local.json`.
+Read-only MCP tools are pre-approved in `.claude/settings.json`. Mutating tools (build, boot, tap, launch, stop, etc.) require per-developer approval in `.claude/settings.local.json`, except for XcodeBuildMCP's `session_set_defaults` and `session_clear_defaults` tools, which are globally approved there as a limited exception for managing per-session defaults.
 
 ## Best Practices
 
