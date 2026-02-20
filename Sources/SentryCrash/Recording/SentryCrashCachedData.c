@@ -194,6 +194,7 @@ updateCache(void)
 
     if (atomic_compare_exchange_strong(&g_activeCache, &expected, newCache)) {
         // Case A: Successfully swapped old cache for new one.
+        atomic_store(&g_cacheEverCreated, true);
         freeCache(expected);
     } else {
         // Case B: Cache was acquired by freeze() between our load and CAS.

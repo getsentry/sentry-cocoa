@@ -6,6 +6,7 @@
 
 - Resolve data race crash in monitorCachedData (#7423)
 - Write reports on concurrent crashes (#7340)
+
 ## 9.5.0
 
 ### Features
