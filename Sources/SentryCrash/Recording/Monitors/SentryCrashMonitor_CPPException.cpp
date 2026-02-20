@@ -225,7 +225,7 @@ CPPExceptionTerminate(void)
     // These functions are weakly linked and may not be available on all platforms.
     void *primaryException = NULL;
     bool isNSExceptionOrSubC = false;
-    
+
     if (__cxa_current_primary_exception != NULL) {
         primaryException = __cxa_current_primary_exception();
         isNSExceptionOrSubC = isNSExceptionOrSubclass(primaryException);
