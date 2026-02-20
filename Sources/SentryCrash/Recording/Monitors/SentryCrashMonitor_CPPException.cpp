@@ -88,11 +88,16 @@ extern "C" const void *const objc_ehtype_vtable[];
 static bool
 isNSExceptionOrSubclass(const std::type_info *tinfo)
 {
+    if (tinfo == nullptr) {
+        return false;
+    }
     const void *tinfo_vtable = *reinterpret_cast<const void *const *>(tinfo);
     const void *objc_vtable = (const void *)(objc_ehtype_vtable + 2);
     // On arm64e, vtable pointers are signed with pointer authentication codes (PAC).
     // We must strip the signatures before comparing, otherwise the raw address from
     // objc_ehtype_vtable+2 won't match the PAC-signed pointer stored in tinfo.
+    // On non-arm64e architectures (including x86_64), ptrauth_strip is a no-op,
+    // so this reduces to a plain pointer comparison.
     return ptrauth_strip(tinfo_vtable, ptrauth_key_cxx_vtable_pointer)
         == ptrauth_strip(objc_vtable, ptrauth_key_cxx_vtable_pointer);
 }
