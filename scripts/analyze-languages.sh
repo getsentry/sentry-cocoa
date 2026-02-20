@@ -1,11 +1,13 @@
 #!/bin/bash
 #
-# Analyzes the repository's language breakdown over the last 5 years using
-# github-linguist (the same tool GitHub uses). Produces an interactive HTML
-# line chart showing monthly trends, split by Sources/, Tests/, and Overall.
+# Analyzes the repository's language breakdown using github-linguist (the same
+# tool GitHub uses). Produces an interactive HTML line chart showing monthly
+# trends, split by Sources/, Tests/, and Overall.
 #
-# Usage: ./scripts/analyze-languages.sh
-#        or: make analyze-languages
+# Usage: ./scripts/analyze-languages.sh [YYYY-MM-DD]
+#        or: make analyze-languages [SINCE=YYYY-MM-DD]
+#
+# The optional date argument sets how far back to analyze. Defaults to 5 years.
 #
 # Requirements: Ruby (ships with macOS), Python 3 (ships with macOS)
 # Output: language-trends.html (opened automatically in the default browser)
@@ -49,12 +51,26 @@ github-linguist --version > /dev/null 2>&1 || {
     exit 1
 }
 
-# ── 2. Find one commit per month for the last 5 years ────────────────────
-echo "--> Finding monthly commits for the last 5 years"
-
+# ── 2. Find one commit per month for the analysis range ──────────────────
+SINCE_ARG="${1:-}"
 CURRENT_YEAR=$(date +%Y)
 CURRENT_MONTH=$(date +%-m)
-START_YEAR=$((CURRENT_YEAR - 5))
+
+if [ -n "$SINCE_ARG" ]; then
+    # Validate YYYY-MM-DD format
+    if ! [[ "$SINCE_ARG" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+        echo "ERROR: Date must be in YYYY-MM-DD format (got: $SINCE_ARG)"
+        exit 1
+    fi
+    START_YEAR="${SINCE_ARG%%-*}"
+    START_MONTH="$(echo "$SINCE_ARG" | cut -d- -f2)"
+    START_MONTH=$((10#$START_MONTH))
+    echo "--> Finding monthly commits since $SINCE_ARG"
+else
+    START_YEAR=$((CURRENT_YEAR - 5))
+    START_MONTH=$CURRENT_MONTH
+    echo "--> Finding monthly commits for the last 5 years"
+fi
 
 COMMITS=()
 MONTHS=()
@@ -66,7 +82,7 @@ for year in $(seq "$START_YEAR" "$CURRENT_YEAR"); do
             break
         fi
         # Skip months before start
-        if [ "$year" -eq "$START_YEAR" ] && [ "$((10#$month))" -lt "$CURRENT_MONTH" ]; then
+        if [ "$year" -eq "$START_YEAR" ] && [ "$((10#$month))" -lt "$START_MONTH" ]; then
             continue
         fi
 
