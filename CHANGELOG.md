@@ -6,10 +6,16 @@
 
 - Don't report NSException subclasses as C++ exceptions (#7420)
 - Write reports on concurrent crashes (#7340)
+## 9.5.0
 
 ### Features
 
 - Enable MetricKit Integration for visionOS ([#7466](https://github.com/getsentry/sentry-cocoa/pull/7466))
+
+### Fixes
+
+- SentryRedactViewHelper had been erroneously made public, it has been removed from the public interface ([#7474](https://github.com/getsentry/sentry-cocoa/pull/7474))
+- Write reports on concurrent crashes (#7340)
 
 ## 9.4.1
 

@@ -127,15 +127,13 @@ jobs:
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
       #       we did not yet migrate this step to use the script yet.
-      - run: >-
-          set -o pipefail && NSUnbufferedIO=YES xcodebuild
-          -workspace Sentry.xcworkspace
-          -scheme '${{matrix.scheme}}'
-          -configuration '${{matrix.config}}'
-          CODE_SIGNING_ALLOWED="NO"
-          build 2>&1
-          | tee raw-build-output.log
-          | xcbeautify --preserve-unbeautified
+      - run: |
+          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace Sentry.xcworkspace \
+            -scheme '${{matrix.scheme}}' \
+            -configuration '${{matrix.config}}' \
+            CODE_SIGNING_ALLOWED="NO" \
+            build 2>&1 | tee raw-build-output.log | xcbeautify --preserve-unbeautified
 
       - name: Archiving Raw Build Logs
         uses: actions/upload-artifact@v6
@@ -144,6 +142,46 @@ jobs:
           name: raw-build-output-scheme-${{matrix.scheme}}
           path: |
             raw-build-output.log
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
+  build-sample-spm:
+    name: Sample SPM ${{ matrix.name }}
+    # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
+    needs: files-changed
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: iOS
+            make-target: build-sample-iOS-SwiftUI-SPM
+          - name: watchOS
+            make-target: build-sample-watchOS-SwiftUI-SPM
+          - name: tvOS
+            make-target: build-sample-tvOS-SwiftUI-SPM
+          - name: macOS
+            make-target: build-sample-macOS-SwiftUI-SPM
+          - name: visionOS
+            make-target: build-sample-visionOS-SwiftUI-SPM
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Select Xcode
+        run: ./scripts/ci-select-xcode.sh 26.2
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Build Sample
+        run: make ${{ matrix.make-target }}
+        env:
+          IOS_SIMULATOR_OS: latest
+          IOS_DEVICE_NAME: iPhone 17 Pro
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
@@ -161,7 +199,12 @@ jobs:
         shell: sh
 
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
-      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme SentryDistribution -sdk iphoneos -destination 'generic/platform=iphoneos' | tee raw-build-output-spm.log | xcbeautify
+      - run: |
+          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -scheme SentryDistribution \
+            -sdk iphoneos \
+            -destination 'generic/platform=iphoneos' \
+            build | tee raw-build-output-spm.log | xcbeautify --preserve-unbeautified
         shell: sh
       - name: Upload SPM Build Logs
         uses: actions/upload-artifact@v6
@@ -182,9 +225,19 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.4
         shell: sh
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
-      - run: set -o pipefail && NSUnbufferedIO=YES EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk watchos -destination 'generic/platform=watchOS' | tee raw-build-output-spm-watchos.log | xcbeautify
+      - run: |
+          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -scheme SentrySPM \
+            -sdk watchos \
+            -destination 'generic/platform=watchOS' \
+            build | tee raw-build-output-spm-watchos.log | xcbeautify --preserve-unbeautified
         shell: sh
-      - run: set -o pipefail && NSUnbufferedIO=YES EXPERIMENTAL_SPM_BUILDS=1 xcodebuild build -scheme SentrySPM -sdk iphoneos -destination 'generic/platform=iphoneos' | tee raw-build-output-spm-iphoneos.log | xcbeautify
+      - run: |
+          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -scheme SentrySPM \
+            -sdk iphoneos \
+            -destination 'generic/platform=iphoneos' \
+            build | tee raw-build-output-spm-iphoneos.log | xcbeautify --preserve-unbeautified
         shell: sh
 
       - name: Upload SPM Build Logs
@@ -196,32 +249,6 @@ jobs:
             raw-build-output-spm-watchos.log
             raw-build-output-spm-iphoneos.log
 
-      - name: Debug Xcode environment
-        if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
-
-  build-v9:
-    name: Build SDK v9
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
-      - run: |
-          ./scripts/sentry-xcodebuild.sh \
-            --platform iOS \
-            --os 18.5 \
-            --command build \
-            --device "iPhone 16 Pro"  \
-            --configuration Debug
-      - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@v6
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: raw-build-output-v9
-          path: |
-            raw-build-output.log
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
@@ -428,9 +455,9 @@ jobs:
         files-changed,
         ios-swift-release,
         build-sample,
+        build-sample-spm,
         build-distribution,
         build-spm,
-        build-v9,
         check-debug-without-UIKit,
         check-release-without-UIKit,
         check-debug-with-UIKit,
