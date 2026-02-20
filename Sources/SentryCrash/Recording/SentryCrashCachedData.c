@@ -340,6 +340,8 @@ sentrycrashccd_hasThreadStarted(void)
 
 // MARK: - Testing
 
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+
 void
 sentrycrashccd_test_clearActiveCache(void)
 {
@@ -348,3 +350,5 @@ sentrycrashccd_test_clearActiveCache(void)
     // Reset so updateCache() sees "never created" instead of "frozen".
     atomic_store(&g_cacheEverCreated, false);
 }
+
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)

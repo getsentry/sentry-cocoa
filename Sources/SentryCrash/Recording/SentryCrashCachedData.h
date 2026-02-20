@@ -32,7 +32,7 @@
  *
  *  Usage pattern:
  *    sentrycrashccd_freeze();     // Acquire exclusive access
- *    // ... call sentrycrashccd_getAllThreads, sentrycrashccd_getThreadName,
+ *    // ... call sentrycrashccd_getThreadName,
  *    //         sentrycrashccd_getQueueName ...
  *    sentrycrashccd_unfreeze();   // Release access
  *
@@ -97,6 +97,8 @@ void sentrycrashccd_close(void);
 
 // MARK: - Testing
 
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+
 /** Atomically set the active cache to NULL, simulating a failed createCache()
  *  during init. Frees the existing cache if present.
  *
@@ -104,5 +106,7 @@ void sentrycrashccd_close(void);
  *  not be called from production code.
  */
 void sentrycrashccd_test_clearActiveCache(void);
+
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 #endif /* SentryCrashCachedData_h */

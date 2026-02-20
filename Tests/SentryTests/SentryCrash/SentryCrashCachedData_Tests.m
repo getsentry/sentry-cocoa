@@ -230,8 +230,6 @@
 
     // Use a 1-second polling interval so the background thread updates
     // frequently enough for the test to observe recovery in time.
-    // Note: monitorThreadCache uses a static quickPollCount that may be
-    // exhausted by prior tests, so we cannot rely on the quick-poll phase.
     sentrycrashccd_init(1);
     [NSThread sleepForTimeInterval:0.1];
 
