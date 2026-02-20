@@ -448,17 +448,17 @@ class SentryMetricsIntegrationTests: XCTestCase {
 
 // MARK: - Test Doubles
 
-final class TestMetricsTelemetryBuffer: SentryMetricsTelemetryBuffer {
+final class TestMetricsTelemetryBuffer: TelemetryBuffer {
     var addMetricInvocations = Invocations<SentryMetric>()
-    var captureMetricsInvocations = Invocations<Void>()
+    var captureInvocations = Invocations<Void>()
 
-    func addMetric(_ metric: SentryMetric) {
-        addMetricInvocations.record(metric)
+    func add(_ item: SentryMetric) {
+        addMetricInvocations.record(item)
     }
 
     @discardableResult
-    func captureMetrics() -> TimeInterval {
-        captureMetricsInvocations.record(())
+    func capture() -> TimeInterval {
+        captureInvocations.record(())
         return 0.0
     }
 }
