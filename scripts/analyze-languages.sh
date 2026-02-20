@@ -27,6 +27,11 @@ OUTPUT_FILE="$REPO_ROOT/language-trends.html"
 DATA_DIR="$TMP_DIR/data"
 DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
 DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
+# In CI, actions/checkout only creates the triggering branch locally;
+# other branches exist only as remote refs.
+if ! git show-ref --verify --quiet "refs/heads/$DEFAULT_BRANCH"; then
+    DEFAULT_BRANCH="origin/$DEFAULT_BRANCH"
+fi
 
 # ── Cleanup on exit (always remove the temp gem directory) ────────────────
 cleanup() {
