@@ -3,6 +3,14 @@ import Foundation
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+import UIKit
+private typealias CrossPlatformApplication = UIApplication
+#elseif os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+import AppKit
+private typealias CrossPlatformApplication = NSApplication
+#endif
+
 class SentryMetricsIntegrationTests: XCTestCase {
     
     override func tearDown() {
@@ -331,7 +339,9 @@ class SentryMetricsIntegrationTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(duration, 0, "flush() should return non-negative duration")
     }
     
-    func testWillResignActive_whenClientAvailable_shouldFlushMetrics() throws {
+    // MARK: - Lifecycle Forwarding Wiring Test
+
+    func testConvenienceInit_whenWillResignActive_shouldFlushMetrics() throws {
         #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK) || os(macOS))
         throw XCTSkip("Not supported on this platform")
         #else
@@ -339,7 +349,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.experimental.enableMetrics = true
-        
+
         let client = TestClient(options: options)!
         let hub = SentryHubInternal(
             client: client,
@@ -351,25 +361,26 @@ class SentryMetricsIntegrationTests: XCTestCase {
         defer {
             SentrySDKInternal.setCurrentHub(nil)
         }
-        
+
         let notificationCenterWrapper = TestNSNotificationCenterWrapper()
         struct TestDependencies: DateProviderProvider, DispatchQueueWrapperProvider, NotificationCenterProvider {
             let dateProvider: SentryCurrentDateProvider
             let dispatchQueueWrapper: SentryDispatchQueueWrapper
             let notificationCenterWrapper: SentryNSNotificationCenterWrapper
         }
-        
+
         let testDependencies = TestDependencies(
             dateProvider: TestCurrentDateProvider(),
             dispatchQueueWrapper: SentryDispatchQueueWrapper(),
             notificationCenterWrapper: notificationCenterWrapper
         )
-        
-        let integration = try XCTUnwrap(SentryMetricsIntegration<TestDependencies>(with: options, dependencies: testDependencies) as Any as? SentryIntegrationProtocol)
-        hub.addInstalledIntegration(integration, name: SentryMetricsIntegration<TestDependencies>.name)
-        
-        let metricsIntegration = try XCTUnwrap(integration as Any as? SentryMetricsIntegration<TestDependencies>)
-        let scope = Scope()
+
+        // Use the convenience init (production code path) which wires up
+        // DefaultTelemetryBufferDataForwardingTriggers internally.
+        let integration = try XCTUnwrap(
+            SentryMetricsIntegration<TestDependencies>(with: options, dependencies: testDependencies)
+        )
+
         let metric = SentryMetric(
             timestamp: Date(),
             traceId: SentryId(),
@@ -378,132 +389,16 @@ class SentryMetricsIntegrationTests: XCTestCase {
             unit: nil,
             attributes: [:]
         )
-        metricsIntegration.addMetric(metric, scope: scope)
-        
-        // Clear any previous invocations
+        integration.addMetric(metric, scope: Scope())
+
+        // Clear any invocations from addMetric (e.g. if buffer flushed due to size)
         client.captureMetricsDataInvocations.removeAll()
 
         // -- Act --
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        notificationCenterWrapper.post(Notification(name: UIApplication.willResignActiveNotification))
-        #elseif os(macOS)
-        notificationCenterWrapper.post(Notification(name: NSApplication.willResignActiveNotification))
-        #endif
-        
+        notificationCenterWrapper.post(Notification(name: CrossPlatformApplication.willResignActiveNotification))
+
         // -- Assert --
-        XCTAssertEqual(client.captureMetricsDataInvocations.count, 1, "Metrics should be flushed on willResignActive")
-        #endif
-    }
-    
-    func testWillTerminate_whenClientAvailable_shouldFlushMetrics() throws {
-        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK) || os(macOS))
-        throw XCTSkip("Not supported on this platform")
-        #else
-        // -- Arrange --
-        let options = Options()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self)
-        options.experimental.enableMetrics = true
-        
-        let client = TestClient(options: options)!
-        let hub = SentryHubInternal(
-            client: client,
-            andScope: Scope(),
-            andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
-            andDispatchQueue: SentryDispatchQueueWrapper()
-        )
-        SentrySDKInternal.setCurrentHub(hub)
-        defer {
-            SentrySDKInternal.setCurrentHub(nil)
-        }
-        
-        let notificationCenterWrapper = TestNSNotificationCenterWrapper()
-        struct TestDependencies: DateProviderProvider, DispatchQueueWrapperProvider, NotificationCenterProvider {
-            let dateProvider: SentryCurrentDateProvider
-            let dispatchQueueWrapper: SentryDispatchQueueWrapper
-            let notificationCenterWrapper: SentryNSNotificationCenterWrapper
-        }
-        
-        let testDependencies = TestDependencies(
-            dateProvider: TestCurrentDateProvider(),
-            dispatchQueueWrapper: SentryDispatchQueueWrapper(),
-            notificationCenterWrapper: notificationCenterWrapper
-        )
-        
-        let integration = try XCTUnwrap(SentryMetricsIntegration<TestDependencies>(with: options, dependencies: testDependencies) as Any as? SentryIntegrationProtocol)
-        hub.addInstalledIntegration(integration, name: SentryMetricsIntegration<TestDependencies>.name)
-        
-        let metricsIntegration = try XCTUnwrap(integration as Any as? SentryMetricsIntegration<TestDependencies>)
-        let scope = Scope()
-        let metric = SentryMetric(
-            timestamp: Date(),
-            traceId: SentryId(),
-            name: "test.metric",
-            value: .counter(1),
-            unit: nil,
-            attributes: [:]
-        )
-        metricsIntegration.addMetric(metric, scope: scope)
-        
-        // Clear any previous invocations
-        client.captureMetricsDataInvocations.removeAll()
-        
-        // -- Act --
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        notificationCenterWrapper.post(Notification(name: UIApplication.willTerminateNotification))
-        #elseif os(macOS)
-        notificationCenterWrapper.post(Notification(name: NSApplication.willTerminateNotification))
-        #endif
-        
-        // -- Assert --
-        XCTAssertEqual(client.captureMetricsDataInvocations.count, 1, "Metrics should be flushed on willTerminate")
-        #endif
-    }
-    
-    func testWillResignActive_whenNoClient_shouldNotCrash() throws {
-        #if !(((os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK) || os(macOS))
-        throw XCTSkip("Not supported on this platform")
-        #else
-        // -- Arrange --
-        let options = Options()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self)
-        options.experimental.enableMetrics = true
-        
-        let hubWithoutClient = SentryHubInternal(
-            client: nil,
-            andScope: Scope(),
-            andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
-            andDispatchQueue: SentryDispatchQueueWrapper()
-        )
-        SentrySDKInternal.setCurrentHub(hubWithoutClient)
-        defer {
-            SentrySDKInternal.setCurrentHub(nil)
-        }
-        
-        let notificationCenterWrapper = TestNSNotificationCenterWrapper()
-        struct TestDependencies: DateProviderProvider, DispatchQueueWrapperProvider, NotificationCenterProvider {
-            let dateProvider: SentryCurrentDateProvider
-            let dispatchQueueWrapper: SentryDispatchQueueWrapper
-            let notificationCenterWrapper: SentryNSNotificationCenterWrapper
-        }
-        
-        let testDependencies = TestDependencies(
-            dateProvider: TestCurrentDateProvider(),
-            dispatchQueueWrapper: SentryDispatchQueueWrapper(),
-            notificationCenterWrapper: notificationCenterWrapper
-        )
-        
-        let integration = try XCTUnwrap(SentryMetricsIntegration<TestDependencies>(with: options, dependencies: testDependencies) as Any as? SentryIntegrationProtocol)
-        hubWithoutClient.addInstalledIntegration(integration, name: SentryMetricsIntegration<TestDependencies>.name)
-        
-        // -- Act & Assert --
-        // Should not crash when no client is available
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        notificationCenterWrapper.post(Notification(name: UIApplication.willResignActiveNotification))
-        #elseif os(macOS)
-        notificationCenterWrapper.post(Notification(name: NSApplication.willResignActiveNotification))
-        #endif
-        
-        XCTAssertTrue(true, "Should handle missing client gracefully")
+        XCTAssertEqual(client.captureMetricsDataInvocations.count, 1, "Metrics should be flushed when willResignActive is posted")
         #endif
     }
 
