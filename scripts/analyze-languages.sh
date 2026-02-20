@@ -72,7 +72,8 @@ if [ -n "$SINCE_ARG" ]; then
     START_MONTH=$((10#$START_MONTH))
     echo "--> Finding monthly commits since $SINCE_ARG"
 else
-    # Default: start from January 2019
+    # Default: start from January 2019. Before that, the language stats
+    # fluctuate significantly between months, making the chart unreliable.
     START_YEAR=2019
     START_MONTH=1
     echo "--> Finding monthly commits since January 2019"

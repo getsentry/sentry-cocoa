@@ -35,6 +35,7 @@ jobs:
         run: sudo apt-get install -y cmake pkg-config libicu-dev
 
       - name: Run language analysis
+        # Start from 2019; earlier data fluctuates significantly between months.
         run: ./scripts/analyze-languages.sh 2019-01-01
 
       - name: Upload report
