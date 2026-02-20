@@ -40,7 +40,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: language-trends
-          path: language_trends.html
+          path: language-trends.html
           retention-days: 90
 
       - name: Run CI Diagnostics
