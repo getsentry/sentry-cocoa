@@ -86,6 +86,7 @@ extension SentryMetric: Encodable {
     private enum CodingKeys: String, CodingKey {
         case timestamp
         case traceId = "trace_id"
+        case spanId = "span_id"
         case name
         case value
         case type
@@ -99,6 +100,7 @@ extension SentryMetric: Encodable {
         
         try container.encode(timestamp, forKey: .timestamp)
         try container.encode(traceId.sentryIdString, forKey: .traceId)
+        try container.encodeIfPresent(spanId?.sentrySpanIdString, forKey: .spanId)
         try container.encode(name, forKey: .name)
         try container.encodeIfPresent(unit, forKey: .unit)
         try container.encode(attributes, forKey: .attributes)
