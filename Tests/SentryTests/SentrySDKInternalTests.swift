@@ -645,9 +645,9 @@ class SentrySDKInternalTests: XCTestCase {
     }
 
     /// Simulates COCOA-1119 scenario: transaction with bindToScope, then logs and error capture
-    /// inside DispatchQueue.main.async. Documents that logs are captured and verifies the scenario
-    /// runs without crashing. When COCOA-1119 is fixed, logs should have trace_id and span_id
-    /// matching the transaction (scope.span should be set when the async block runs).
+    /// inside DispatchQueue.main.async. Verifies that logs are captured, the scenario runs
+    /// without crashing, and that logs have trace_id and span_id matching the transaction
+    /// (scope.span should be set when the async block runs).
     func testLogger_TransactionWithBindToScope_LogsInsideDispatchQueueMainAsync_simulatesCOCOA1119() {
         // Ensure test runs on main thread so setup and async block share the same run loop context.
         // XCTest may run tests on a background thread, which can cause scope/span to not propagate

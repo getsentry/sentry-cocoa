@@ -46,7 +46,8 @@ extension TelemetryScopeApplier {
         // Set the modified dictionary back once
         item.attributesDict = attributes
         // trace_id originates from propagation context (https://develop.sentry.dev/sdk/telemetry/logs/#log-envelope-item-payload).
-        // When an active span exists, span.traceId and propagationContextTraceId match; use span's for consistency with span_id.
+        // In the common case, span.traceId and propagationContextTraceId match; prefer span.traceId
+        // so that trace_id stays consistent with the active span and span_id when a span is present.
         //
         // span_id is set as a top-level field per spec, only set when there is an active span (scope.span).
         // A propagated span_id must not be used.
