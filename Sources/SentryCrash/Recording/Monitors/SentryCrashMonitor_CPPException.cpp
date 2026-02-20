@@ -42,6 +42,7 @@ extern "C" bool sentrycrashmem_copySafely(const void *src, void *dst, int byteCo
 #include <cxxabi.h>
 #include <dlfcn.h>
 #include <exception>
+#include <ptrauth.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -77,43 +78,23 @@ static SentryCrashStackCursor g_stackCursor;
 // ============================================================================
 #pragma mark - Helpers -
 // ============================================================================
+extern "C" const void *const objc_ehtype_vtable[];
 
 /** Check if a C++ exception is an NSException or subclass.
- * Async-safe: uses SentryCrashObjC introspection (direct memory reads).
+ * Async-safe: only uses pointer comparison and PAC stripping.
  *
- * @param exceptionRegion The C++ thrown region. Depending on the source,
- *        this may be the ObjC object pointer directly or a pointer to
- *        storage containing it. Both cases are handled.
+ * @param tinfo The C++ ABI type info which Objective-C tightly wraps.
  */
 static bool
-isNSExceptionOrSubclass(const void *exceptionRegion)
+isNSExceptionOrSubclass(const std::type_info *tinfo)
 {
-    if (exceptionRegion == NULL) {
-        return false;
-    }
-
-    // Depending on the source (__cxa_throw param vs __cxa_current_primary_exception),
-    // exceptionRegion may already be the ObjC object pointer, or it may be a
-    // pointer to storage containing it. Try the direct pointer first.
-    const void *objcObject = exceptionRegion;
-
-    if (!sentrycrashobjc_isValidObject(objcObject)) {
-        // Fallback: dereference exceptionRegion safely as pointer-to-pointer.
-        objcObject = NULL;
-        if (!sentrycrashmem_copySafely(exceptionRegion, &objcObject, sizeof(objcObject))) {
-            return false;
-        }
-        if (objcObject == NULL || !sentrycrashobjc_isValidObject(objcObject)) {
-            return false;
-        }
-    }
-
-    const void *isaPtr = sentrycrashobjc_isaPointer(objcObject);
-    if (isaPtr == NULL) {
-        return false;
-    }
-
-    return sentrycrashobjc_isKindOfClass(isaPtr, "NSException");
+    const void *tinfo_vtable = *reinterpret_cast<const void *const *>(tinfo);
+    const void *objc_vtable = (const void *)(objc_ehtype_vtable + 2);
+    // On arm64e, vtable pointers are signed with pointer authentication codes (PAC).
+    // We must strip the signatures before comparing, otherwise the raw address from
+    // objc_ehtype_vtable+2 won't match the PAC-signed pointer stored in tinfo.
+    return ptrauth_strip(tinfo_vtable, ptrauth_key_cxx_vtable_pointer)
+        == ptrauth_strip(objc_vtable, ptrauth_key_cxx_vtable_pointer);
 }
 
 // ============================================================================
@@ -127,7 +108,7 @@ captureStackTrace(
     SENTRY_ASYNC_SAFE_LOG_TRACE("Entering captureStackTrace");
 
     // We handle NSExceptions (and subclasses) in SentryCrashMonitor_NSException.
-    if (isNSExceptionOrSubclass(thrown_exception)) {
+    if (isNSExceptionOrSubclass(tinfo)) {
         return;
     }
 
@@ -143,10 +124,6 @@ typedef void (*cxa_rethrow_type)(void);
 extern "C" {
 void __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
     __attribute__((weak));
-
-void *__cxa_current_primary_exception(void) __attribute__((weak));
-
-void __cxa_decrement_exception_refcount(void *) __attribute__((weak));
 
 void
 __cxa_throw(
@@ -213,25 +190,12 @@ CPPExceptionTerminate(void)
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped c++ exception");
 
+    bool isNSExceptionOrSubC = false;
     const char *name = NULL;
     std::type_info *tinfo = __cxxabiv1::__cxa_current_exception_type();
     if (tinfo != NULL) {
         name = tinfo->name();
-    }
-
-    // __cxa_current_primary_exception increments the exception's refcount, so we must decrement
-    // after use:
-    // https://github.com/llvm/llvm-project/blob/1f65d4dda14cfea4323fd7139e222d26c7dc365d/libcxxabi/src/cxa_exception.cpp#L713
-    // These functions are weakly linked and may not be available on all platforms.
-    void *primaryException = NULL;
-    bool isNSExceptionOrSubC = false;
-
-    if (__cxa_current_primary_exception != NULL) {
-        primaryException = __cxa_current_primary_exception();
-        isNSExceptionOrSubC = isNSExceptionOrSubclass(primaryException);
-        if (primaryException != NULL && __cxa_decrement_exception_refcount != NULL) {
-            __cxa_decrement_exception_refcount(primaryException);
-        }
+        isNSExceptionOrSubC = isNSExceptionOrSubclass(tinfo);
     }
 
     if (!isNSExceptionOrSubC) {
