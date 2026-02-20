@@ -17,10 +17,14 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# Source CI utility functions for logging and grouping
+# shellcheck source=./scripts/ci-utils.sh disable=SC1091
+source "${REPO_ROOT}/scripts/ci-utils.sh"
+
 # Verify prerequisites
-command -v ruby &> /dev/null || { echo "ERROR: Ruby is required but not installed"; exit 1; }
-command -v gem &> /dev/null || { echo "ERROR: RubyGems is required but not installed"; exit 1; }
-command -v python3 &> /dev/null || { echo "ERROR: Python 3 is required but not installed"; exit 1; }
+command -v ruby &> /dev/null || { log_error "Ruby is required but not installed"; exit 1; }
+command -v gem &> /dev/null || { log_error "RubyGems is required but not installed"; exit 1; }
+command -v python3 &> /dev/null || { log_error "Python 3 is required but not installed"; exit 1; }
 
 TMP_DIR="$REPO_ROOT/_linguist_tmp"
 OUTPUT_FILE="$REPO_ROOT/language-trends.html"
@@ -36,14 +40,14 @@ fi
 # ── Cleanup on exit (always remove the temp gem directory) ────────────────
 cleanup() {
     if [ -d "$TMP_DIR" ]; then
-        echo "--> Cleaning up temporary linguist installation"
+        log_notice "Cleaning up temporary linguist installation"
         rm -rf "$TMP_DIR"
     fi
 }
 trap cleanup EXIT
 
 # ── 1. Install github-linguist into a temporary directory ─────────────────
-echo "--> Installing github-linguist gem (temporary, will be removed after)"
+begin_group "Installing github-linguist gem"
 mkdir -p "$TMP_DIR" "$DATA_DIR"
 GEM_HOME="$TMP_DIR" gem install github-linguist --no-document 2>&1 | tail -1
 
@@ -52,9 +56,10 @@ export PATH="$TMP_DIR/bin:$PATH"
 
 # Verify it works
 github-linguist --version > /dev/null 2>&1 || {
-    echo "ERROR: github-linguist installation failed"
+    log_error "github-linguist installation failed"
     exit 1
 }
+end_group
 
 # ── 2. Find one commit per month for the analysis range ──────────────────
 SINCE_ARG="${1:-}"
@@ -64,19 +69,19 @@ CURRENT_MONTH=$(date +%-m)
 if [ -n "$SINCE_ARG" ]; then
     # Validate YYYY-MM-DD format
     if ! [[ "$SINCE_ARG" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
-        echo "ERROR: Date must be in YYYY-MM-DD format (got: $SINCE_ARG)"
+        log_error "Date must be in YYYY-MM-DD format (got: $SINCE_ARG)"
         exit 1
     fi
     START_YEAR="${SINCE_ARG%%-*}"
     START_MONTH="$(echo "$SINCE_ARG" | cut -d- -f2)"
     START_MONTH=$((10#$START_MONTH))
-    echo "--> Finding monthly commits since $SINCE_ARG"
+    log_notice "Finding monthly commits since $SINCE_ARG"
 else
     # Default: start from January 2019. Before that, the language stats
     # fluctuate significantly between months, making the chart unreliable.
     START_YEAR=2019
     START_MONTH=1
-    echo "--> Finding monthly commits since January 2019"
+    log_notice "Finding monthly commits since January 2019"
 fi
 
 COMMITS=()
@@ -106,19 +111,20 @@ for year in $(seq "$START_YEAR" "$CURRENT_YEAR"); do
 done
 
 TOTAL=${#COMMITS[@]}
-echo "--> Analyzing $TOTAL revisions (this may take a few minutes)"
 
 # ── 3. Run linguist + git ls-tree on each revision ───────────────────────
+begin_group "Analyzing $TOTAL revisions"
 for i in $(seq 0 $((TOTAL - 1))); do
     month="${MONTHS[$i]}"
     sha="${COMMITS[$i]}"
-    echo "  [$((i + 1))/$TOTAL] $month"
+    log_notice "[$((i + 1))/$TOTAL] $month"
     github-linguist --rev "$sha" --breakdown --json > "$DATA_DIR/${month}.linguist.json" 2>&1
     git ls-tree -r -l "$sha" > "$DATA_DIR/${month}.lstree.txt"
 done
+end_group
 
 # ── 4. Generate the HTML chart using Python ───────────────────────────────
-echo "--> Generating chart"
+begin_group "Generating chart"
 
 python3 << 'PYEOF'
 import json
@@ -393,7 +399,8 @@ with open(output_file, "w") as f:
 print(f"  Written to {output_file}")
 PYEOF
 
-echo "--> Chart written to $OUTPUT_FILE"
+log_notice "Chart written to $OUTPUT_FILE"
+end_group
 
 # ── 5. Open in browser ───────────────────────────────────────────────────
 if [ "${CI:-}" != "true" ]; then
@@ -404,4 +411,4 @@ if [ "${CI:-}" != "true" ]; then
     fi
 fi
 
-echo "--> Done! Temporary gem directory cleaned up."
+log_notice "Done!"

@@ -3,11 +3,8 @@ name: Analyze Language Trends
 on:
   push:
     branches:
+      - main
       - feat/analyze-languages
-
-  schedule:
-    # Run daily at 3:00 AM UTC
-    - cron: "0 3 * * *"
 
   workflow_dispatch:
 
