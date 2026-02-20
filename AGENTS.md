@@ -7,6 +7,17 @@ This file provides comprehensive guidance for AI coding agents working with the 
 - **Continuous Learning**: Whenever an agent performs a task and discovers new patterns, conventions, or best practices that aren't documented here, it should add these learnings to AGENTS.md. This ensures the documentation stays current and helps future agents work more effectively.
 - **Context Management**: When using compaction (which reduces context by summarizing older messages), the agent must re-read AGENTS.md afterwards to ensure it's always fully available in context. This guarantees that all guidelines, conventions, and best practices remain accessible throughout the entire session.
 
+## MCP Servers
+
+This repository includes pre-configured [MCP servers](https://modelcontextprotocol.io/) in `.mcp.json` that you can use to speed up development:
+
+- **XcodeBuildMCP** — build, run, and test in the iOS simulator. Requires [Node.js](https://nodejs.org/).
+- **Sentry MCP** — query production errors, search issues, and read Sentry docs. Authenticates via OAuth on first use.
+
+You can use the Sentry MCP server to validate that events still arrive in Sentry after your changes. Use `search_events` to find specific telemetry data, then inspect the event JSON to verify that payloads match expectations. This is useful for confirming that your changes produce correct and complete telemetry.
+
+Read-only MCP tools are pre-approved in `.claude/settings.json`. Mutating tools (build, boot, tap, launch, stop, etc.) require per-developer approval in `.claude/settings.local.json`.
+
 ## Best Practices
 
 ### Compilation & Testing
