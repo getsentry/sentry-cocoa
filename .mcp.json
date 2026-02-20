@@ -3,7 +3,7 @@
     "XcodeBuildMCP": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "xcodebuildmcp@latest", "mcp"]
+      "args": ["-y", "xcodebuildmcp@0.3.2", "mcp"]
     },
     "sentry": {
       "type": "http",
