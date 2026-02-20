@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Don't report NSException subclasses as C++ exceptions (#7420)
+- Write reports on concurrent crashes (#7340)
+
 ## 9.5.0
 
 ### Features

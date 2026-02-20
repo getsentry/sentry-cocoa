@@ -29,6 +29,11 @@
 #include "SentryCrashID.h"
 #include "SentryCrashMachineContext.h"
 #include "SentryCrashMonitorContext.h"
+#include "SentryCrashObjC.h"
+
+// Forward-declare from SentryCrashMemory.h to avoid C++ compilation issues
+// with the `restrict` qualifier in the original header.
+extern "C" bool sentrycrashmem_copySafely(const void *src, void *dst, int byteCount);
 #include "SentryCrashStackCursor_SelfThread.h"
 #include "SentryCrashThread.h"
 
@@ -70,16 +75,59 @@ static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
 
 // ============================================================================
+#pragma mark - Helpers -
+// ============================================================================
+
+/** Check if a C++ exception is an NSException or subclass.
+ * Async-safe: uses SentryCrashObjC introspection (direct memory reads).
+ *
+ * @param exceptionRegion The C++ thrown region. Depending on the source,
+ *        this may be the ObjC object pointer directly or a pointer to
+ *        storage containing it. Both cases are handled.
+ */
+static bool
+isNSExceptionOrSubclass(const void *exceptionRegion)
+{
+    if (exceptionRegion == NULL) {
+        return false;
+    }
+
+    // Depending on the source (__cxa_throw param vs __cxa_current_primary_exception),
+    // exceptionRegion may already be the ObjC object pointer, or it may be a
+    // pointer to storage containing it. Try the direct pointer first.
+    const void *objcObject = exceptionRegion;
+
+    if (!sentrycrashobjc_isValidObject(objcObject)) {
+        // Fallback: dereference exceptionRegion safely as pointer-to-pointer.
+        objcObject = NULL;
+        if (!sentrycrashmem_copySafely(exceptionRegion, &objcObject, sizeof(objcObject))) {
+            return false;
+        }
+        if (objcObject == NULL || !sentrycrashobjc_isValidObject(objcObject)) {
+            return false;
+        }
+    }
+
+    const void *isaPtr = sentrycrashobjc_isaPointer(objcObject);
+    if (isaPtr == NULL) {
+        return false;
+    }
+
+    return sentrycrashobjc_isKindOfClass(isaPtr, "NSException");
+}
+
+// ============================================================================
 #pragma mark - Callbacks -
 // ============================================================================
 
 static NEVER_INLINE void
-captureStackTrace(void *, std::type_info *tinfo, void (*)(void *)) KEEP_FUNCTION_IN_STACKTRACE
+captureStackTrace(
+    void *thrown_exception, std::type_info *tinfo, void (*)(void *)) KEEP_FUNCTION_IN_STACKTRACE
 {
     SENTRY_ASYNC_SAFE_LOG_TRACE("Entering captureStackTrace");
 
-    // We handle NSExceptions in SentryCrashMonitor_NSException.
-    if (tinfo != nullptr && strcmp(tinfo->name(), "NSException") == 0) {
+    // We handle NSExceptions (and subclasses) in SentryCrashMonitor_NSException.
+    if (isNSExceptionOrSubclass(thrown_exception)) {
         return;
     }
 
@@ -95,6 +143,10 @@ typedef void (*cxa_rethrow_type)(void);
 extern "C" {
 void __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
     __attribute__((weak));
+
+void *__cxa_current_primary_exception(void) __attribute__((weak));
+
+void __cxa_decrement_exception_refcount(void *) __attribute__((weak));
 
 void
 __cxa_throw(
@@ -167,7 +219,22 @@ CPPExceptionTerminate(void)
         name = tinfo->name();
     }
 
-    if (name == NULL || strcmp(name, "NSException") != 0) {
+    // __cxa_current_primary_exception increments the exception's refcount, so we must decrement
+    // after use:
+    // https://github.com/llvm/llvm-project/blob/1f65d4dda14cfea4323fd7139e222d26c7dc365d/libcxxabi/src/cxa_exception.cpp#L713
+    // These functions are weakly linked and may not be available on all platforms.
+    void *primaryException = NULL;
+    bool isNSExceptionOrSubC = false;
+
+    if (__cxa_current_primary_exception != NULL) {
+        primaryException = __cxa_current_primary_exception();
+        isNSExceptionOrSubC = isNSExceptionOrSubclass(primaryException);
+        if (primaryException != NULL && __cxa_decrement_exception_refcount != NULL) {
+            __cxa_decrement_exception_refcount(primaryException);
+        }
+    }
+
+    if (!isNSExceptionOrSubC) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         // The cxa_throw hook reenters only from other threads. Edge case:
