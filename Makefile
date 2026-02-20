@@ -541,6 +541,16 @@ format-yaml:
 # ANALYSIS
 # ============================================================================
 
+## Analyze repository language trends
+#
+# Uses github-linguist to compute the language breakdown at monthly intervals.
+# Produces an interactive HTML chart (language-trends.html) and opens it in the browser.
+# The linguist gem is installed temporarily and removed after the analysis.
+# Optionally pass SINCE=YYYY-MM-DD to set the start date (default: 5 years ago).
+.PHONY: analyze-languages
+analyze-languages:
+	./scripts/analyze-languages.sh $(SINCE)
+
 ## Run static analysis
 #
 # Runs Xcode's static analyzer and reports any issues found.

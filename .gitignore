@@ -129,3 +129,6 @@ XCFrameworkBuildPath/
 
 # Local Claude Code settings that should not be committed
 .claude/settings.local.json
+
+# Output of `make analyze-languages`
+language-trends.html
