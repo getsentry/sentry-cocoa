@@ -270,7 +270,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let sut = try XCTUnwrap(fixture.getSut())
 
         // -- Act --
-        sut.anrDetected(type: .unknown)
+        sut.hangStarted()
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
@@ -281,9 +281,10 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         // -- Arrange --
         fixture.crashWrapper.internalIsBeingTraced = false
         let sut = try XCTUnwrap(fixture.getSut())
+        sut.hangStarted()
 
         // -- Act --
-        sut.anrStopped(result: nil)
+        sut.hangStopped()
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
@@ -291,10 +292,26 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
 }
 
-private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder {
-    func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
-        SentryDependencyContainer.sharedInstance().getANRTracker(interval)
+private class MockDependencies: HangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder {
+    
+    struct TestRunLoopObserver: RunLoopObserver { }
+    
+    private func createObserver(_ allocator: CFAllocator?, _ activities: CFOptionFlags, _ repeats: Bool, _ order: CFIndex, _ block: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?) -> TestRunLoopObserver {
+        return TestRunLoopObserver()
     }
+
+    private func addObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) { }
+
+    private func removeObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) { }
+    
+    lazy var hangTracker: HangTracker = {
+        DefaultHangTracker(
+            dateProvider: TestCurrentDateProvider(),
+            createObserver: createObserver,
+            addObserver: addObserver,
+            removeObserver: removeObserver,
+            queue: DispatchQueue(label: "io.sentry.test-queue"))
+    }()
     
     var processInfoWrapper: any Sentry.SentryProcessInfoSource {
         SentryDependencyContainer.sharedInstance().processInfoWrapper

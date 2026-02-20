@@ -130,6 +130,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
     var coreDataSwizzling = SentryCoreDataSwizzling()
+    let hangTracker: HangTracker = DefaultHangTracker(dateProvider: Dependencies.dateProvider)
     
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
