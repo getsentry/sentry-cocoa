@@ -1,6 +1,10 @@
 name: Analyze Language Trends
 
 on:
+  push:
+    branches:
+      - feat/analyze-languages
+
   schedule:
     # Run daily at 3:00 AM UTC
     - cron: "0 3 * * *"
@@ -11,6 +15,9 @@ on:
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   analyze-languages:
@@ -38,13 +45,32 @@ jobs:
         # Start from 2019; earlier data fluctuates significantly between months.
         run: ./scripts/analyze-languages.sh 2019-01-01
 
-      - name: Upload report
-        uses: actions/upload-artifact@v6
-        with:
-          name: language-trends
-          path: language-trends.html
-          retention-days: 90
+      - name: Prepare Pages site
+        run: |
+          mkdir _site
+          cp language-trends.html _site/index.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
 
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: analyze-languages
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
