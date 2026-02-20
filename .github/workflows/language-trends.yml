@@ -1,0 +1,47 @@
+name: Language Trends
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+# Only the latest result matters, so cancel any in-progress run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-languages:
+    name: Analyze Language Trends
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
+        with:
+          ruby-version: "3.4"
+
+      - name: Install system dependencies
+        run: sudo apt-get install -y cmake pkg-config libicu-dev
+
+      - name: Run language analysis
+        run: ./scripts/analyze-languages.sh 2016-04-01
+
+      - name: Upload report
+        uses: actions/upload-artifact@v6
+        with:
+          name: language-trends
+          path: language_trends.html
+          retention-days: 90
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh

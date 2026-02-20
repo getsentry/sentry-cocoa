@@ -387,10 +387,12 @@ PYEOF
 echo "--> Chart written to $OUTPUT_FILE"
 
 # ── 5. Open in browser ───────────────────────────────────────────────────
-if command -v open &> /dev/null; then
-    open "$OUTPUT_FILE"
-elif command -v xdg-open &> /dev/null; then
-    xdg-open "$OUTPUT_FILE"
+if [ "${CI:-}" != "true" ]; then
+    if command -v open &> /dev/null; then
+        open "$OUTPUT_FILE"
+    elif command -v xdg-open &> /dev/null; then
+        xdg-open "$OUTPUT_FILE"
+    fi
 fi
 
 echo "--> Done! Temporary gem directory cleaned up."
