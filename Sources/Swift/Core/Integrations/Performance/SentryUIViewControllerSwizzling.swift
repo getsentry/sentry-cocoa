@@ -1,4 +1,5 @@
 @_implementationOnly import _SentryPrivate
+import MachO
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
@@ -19,7 +20,6 @@ class SentryUIViewControllerSwizzling {
     private let subClassFinder: SentrySubClassFinder
     private let imagesActedOnSubclassesOfUIViewControllers: NSMutableSet
     private let processInfoWrapper: SentryProcessInfoSource
-    private let binaryImageCache: SentryBinaryImageCache
     private let performanceTracker: SentryUIViewControllerPerformanceTracker
 
     init(
@@ -28,7 +28,6 @@ class SentryUIViewControllerSwizzling {
         objcRuntimeWrapper: SentryObjCRuntimeWrapper,
         subClassFinder: SentrySubClassFinder,
         processInfoWrapper: SentryProcessInfoSource,
-        binaryImageCache: SentryBinaryImageCache,
         performanceTracker: SentryUIViewControllerPerformanceTracker
     ) {
         self.options = options
@@ -38,19 +37,23 @@ class SentryUIViewControllerSwizzling {
         self.subClassFinder = subClassFinder
         self.imagesActedOnSubclassesOfUIViewControllers = NSMutableSet()
         self.processInfoWrapper = processInfoWrapper
-        self.binaryImageCache = binaryImageCache
         self.performanceTracker = performanceTracker
     }
 
     func start() {
-        for inAppInclude in inAppLogic.inAppIncludes {
-            let imagePathsToInAppInclude = binaryImageCache.imagePathsFor(inAppInclude: inAppInclude)
+        let imageNames = (0..<_dyld_image_count()).compactMap { i in
+            _dyld_get_image_name(i).map { String(cString: $0) }
+        }
 
-            if !imagePathsToInAppInclude.isEmpty {
-                for imagePath in imagePathsToInAppInclude {
-                    swizzleUIViewControllers(ofImage: imagePath)
+        for inAppInclude in inAppLogic.inAppIncludes {
+            var found = false
+            for imageName in imageNames {
+                if SentryInAppLogic.isImageNameInApp(imageName, inAppInclude: inAppInclude) {
+                    found = true
+                    swizzleUIViewControllers(ofImage: imageName)
                 }
-            } else {
+            }
+            if !found {
                 SentrySDKLog.warning(
                     "Failed to find the binary image(s) for inAppInclude <\(inAppInclude)> and, therefore can't instrument UIViewControllers in these binaries."
                 )
