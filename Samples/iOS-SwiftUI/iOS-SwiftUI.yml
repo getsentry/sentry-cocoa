@@ -17,16 +17,24 @@ projectReferences:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
+  - App/Configuration
+  - UITests/Configuration
   - iOS-SwiftUI.yml
   - ../../Plans/iOS-SwiftUI_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  iOS-SwiftUI:
+  App:
     type: application
     platform: auto
     sources:
-      - iOS-SwiftUI
+      - App/Sources
+      - path: App/Resources
+        type: group
+        excludes:
+          - "**/Info.plist"
+          - "**/*.entitlements"
       - ../Shared/SampleAssets.xcassets
       - ../../Sources/Sentry/Public/SentrySerializable.h
       - ../../Sources/Sentry/include/SentryTracer.h
@@ -37,10 +45,10 @@ targets:
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: iOS-SwiftUI.xcconfig
-      Release: iOS-SwiftUI.xcconfig
-      Test: iOS-SwiftUI.xcconfig
-      TestCI: iOS-SwiftUI.xcconfig
+      Debug: App/Configuration/iOS-SwiftUI.xcconfig
+      Release: App/Configuration/iOS-SwiftUI.xcconfig
+      Test: App/Configuration/iOS-SwiftUI.xcconfig
+      TestCI: App/Configuration/iOS-SwiftUI.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -49,27 +57,31 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
-  iOS-SwiftUI-UITests:
+  UITests:
     type: bundle.ui-testing
     platform: auto
     dependencies:
       - target: SentrySampleShared/SentrySampleUITestShared
       - target: SentrySampleShared/SentrySampleShared
     sources:
-      - iOS-SwiftUI-UITests
+      - UITests/Sources
+      - path: UITests/Resources
+        type: group
+        excludes:
+          - "**/Info.plist"
     configFiles:
-      Debug: iOS-SwiftUI-UITests.xcconfig
-      Release: iOS-SwiftUI-UITests.xcconfig
-      Test: iOS-SwiftUI-UITests.xcconfig
-      TestCI: iOS-SwiftUI-UITests.xcconfig
+      Debug: UITests/Configuration/iOS-SwiftUI-UITests.xcconfig
+      Release: UITests/Configuration/iOS-SwiftUI-UITests.xcconfig
+      Test: UITests/Configuration/iOS-SwiftUI-UITests.xcconfig
+      TestCI: UITests/Configuration/iOS-SwiftUI-UITests.xcconfig
 schemes:
   iOS-SwiftUI:
     templates:
       - SampleAppScheme
     build:
       targets:
-        iOS-SwiftUI: all
-        iOS-SwiftUI-UITests: test
+        App: all
+        UITests: test
     test:
       config: Test
       testPlans:
