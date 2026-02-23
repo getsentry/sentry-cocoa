@@ -17,31 +17,36 @@ projectReferences:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
+  - App/Configuration
+  - UITests/Configuration
   - iOS-ObjectiveC.yml
   - ../../Plans/iOS-ObjectiveC_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  iOS-ObjectiveC:
+  App:
     type: application
     platform: auto
     sources:
       - ../Shared/SampleAssets.xcassets
-      - path: iOS-ObjectiveC
+      - path: App/Sources
+        type: group
         excludes:
           - NoARCCrash.m
-      - path: iOS-ObjectiveC/NoARCCrash.m
+      - path: App/Sources/NoARCCrash.m
         compilerFlags:
           - "-fno-objc-arc"
+      - App/Resources
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: iOS-ObjectiveC.xcconfig
-      Release: iOS-ObjectiveC.xcconfig
-      Test: iOS-ObjectiveC.xcconfig
-      TestCI: iOS-ObjectiveC.xcconfig
+      Debug: App/Configuration/iOS-ObjectiveC.xcconfig
+      Release: App/Configuration/iOS-ObjectiveC.xcconfig
+      Test: App/Configuration/iOS-ObjectiveC.xcconfig
+      TestCI: App/Configuration/iOS-ObjectiveC.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -50,24 +55,24 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
-  iOS-ObjectiveC-UITests:
+  UITests:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - iOS-ObjectiveC-UITests
+      - UITests/Sources
     configFiles:
-      Debug: iOS-ObjectiveC-UITests.xcconfig
-      Release: iOS-ObjectiveC-UITests.xcconfig
-      Test: iOS-ObjectiveC-UITests.xcconfig
-      TestCI: iOS-ObjectiveC-UITests.xcconfig
+      Debug: UITests/Configuration/iOS-ObjectiveC-UITests.xcconfig
+      Release: UITests/Configuration/iOS-ObjectiveC-UITests.xcconfig
+      Test: UITests/Configuration/iOS-ObjectiveC-UITests.xcconfig
+      TestCI: UITests/Configuration/iOS-ObjectiveC-UITests.xcconfig
 schemes:
   iOS-ObjectiveC:
     templates:
       - SampleAppScheme
     build:
       targets:
-        iOS-ObjectiveC: all
-        iOS-ObjectiveC-UITests: test
+        App: all
+        UITests: test
     test:
       config: Test
       testPlans:
