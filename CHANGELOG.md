@@ -6,6 +6,7 @@
 
 - Don't report NSException subclasses as C++ exceptions (#7420)
 - Write reports on concurrent crashes (#7340)
+- Resolve data race crash in monitorCachedData (#7423)
 
 ## 9.5.0
 
