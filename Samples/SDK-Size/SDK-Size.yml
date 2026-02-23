@@ -14,17 +14,18 @@ fileGroups:
   - SDK-Size.yml
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  SDK-Size:
+  App:
     type: application
     platform: auto
     sources:
-      - SDK-Size
+      - App
     dependencies:
       - target: Sentry/Sentry
     configFiles:
-      Debug: SDK-Size.xcconfig
-      Release: SDK-Size.xcconfig
+      Debug: App/Configuration/SDK-Size.xcconfig
+      Release: App/Configuration/SDK-Size.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -39,4 +40,4 @@ schemes:
       - SampleAppScheme
     build:
       targets:
-        SDK-Size: all
+        App: all

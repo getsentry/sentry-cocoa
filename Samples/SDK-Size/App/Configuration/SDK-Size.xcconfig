@@ -1,8 +1,8 @@
-#include "../Shared/Config/_Common.xcconfig"
+#include "../../../Shared/Config/_Common.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.SDK-Size
-INFOPLIST_FILE = SDK-Size/Info.plist
-CODE_SIGN_ENTITLEMENTS = SDK-Size/SDK-Size.entitlements
+INFOPLIST_FILE = App/Configuration/Info.plist
+CODE_SIGN_ENTITLEMENTS = App/Configuration/SDK-Size.entitlements
 
 PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.SDK-Size
 PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.sample.SDK-Size
