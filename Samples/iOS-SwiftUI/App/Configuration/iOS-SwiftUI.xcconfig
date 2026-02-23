@@ -1,0 +1,13 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-SwiftUI
+INFOPLIST_FILE = App/Configuration/Info.plist
+CODE_SIGN_ENTITLEMENTS = App/Configuration/iOS-SwiftUI.entitlements
+
+SWIFT_OBJC_BRIDGING_HEADER = App/Sources/bridging-headers.h
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+
+IPHONEOS_DEPLOYMENT_TARGET = 15.0
+
+DEVELOPMENT_ASSET_PATHS = "App/Resources/Preview Content"
