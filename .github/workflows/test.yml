@@ -38,7 +38,7 @@ jobs:
     outputs:
       run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -52,7 +52,7 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Cache for Test Server
         id: cache_test_server
         uses: actions/cache@v5
@@ -108,7 +108,7 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -162,7 +162,7 @@ jobs:
             test-destination-os: "15.0"
 
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: actions/download-artifact@v7
         with:
           name: test-server
@@ -360,134 +360,6 @@ jobs:
             device: "Apple Vision Pro"
             timeout: 30
 
-  # This will be replaced once #6945 is merged.
-  swiftlog-integration-unit-tests:
-    name: SentrySwiftLog Unit Tests
-    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
-    needs: files-changed
-    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Select Xcode
-        run: ./scripts/ci-select-xcode.sh 16.4
-
-      - name: Setup local sentry-cocoa dependency
-        working-directory: 3rd-party-integrations/SentrySwiftLog
-        run: swift package edit sentry-cocoa --path ../..
-
-      - name: Run SwiftLog tests
-        working-directory: 3rd-party-integrations/SentrySwiftLog
-        run: swift test
-
-      - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v6
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: raw-output-swiftlog-integration
-          path: |
-            3rd-party-integrations/SentrySwiftLog/.build/**/*.log
-
-      - name: Run CI Diagnostics
-        if: failure()
-        run: ./scripts/ci-diagnostics.sh
-
-  # This will be replaced once #6945 is merged.
-  swiftybeaver-integration-unit-tests:
-    name: SentrySwiftyBeaver Unit Tests
-    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
-    needs: files-changed
-    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Select Xcode
-        run: ./scripts/ci-select-xcode.sh 16.4
-
-      - name: Setup local sentry-cocoa dependency
-        working-directory: 3rd-party-integrations/SentrySwiftyBeaver
-        run: swift package edit sentry-cocoa --path ../..
-
-      - name: Run SwiftyBeaver tests
-        working-directory: 3rd-party-integrations/SentrySwiftyBeaver
-        run: swift test
-
-      - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v6
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: raw-output-swiftybeaver-integration
-          path: |
-            3rd-party-integrations/SentrySwiftyBeaver/.build/**/*.log
-
-      - name: Run CI Diagnostics
-        if: failure()
-        run: ./scripts/ci-diagnostics.sh
-
-  # This will be replaced once #6945 is merged.
-  cocoalumberjack-integration-unit-tests:
-    name: SentryCocoaLumberjack Unit Tests
-    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
-    needs: files-changed
-    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Select Xcode
-        run: ./scripts/ci-select-xcode.sh 16.4
-
-      - name: Setup local sentry-cocoa dependency
-        working-directory: 3rd-party-integrations/SentryCocoaLumberjack
-        run: swift package edit sentry-cocoa --path ../..
-
-      - name: Run CocoaLumberjack tests
-        working-directory: 3rd-party-integrations/SentryCocoaLumberjack
-        run: swift test
-
-      - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v6
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: raw-output-cocoalumberjack-integration
-          path: |
-            3rd-party-integrations/SentryCocoaLumberjack/.build/**/*.log
-
-      - name: Run CI Diagnostics
-        if: failure()
-        run: ./scripts/ci-diagnostics.sh
-
-  # This will be replaced once #6945 is merged.
-  pulse-integration-unit-tests:
-    name: SentryPulse Unit Tests
-    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
-    needs: files-changed
-    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Select Xcode
-        run: ./scripts/ci-select-xcode.sh 16.4
-
-      - name: Setup local sentry-cocoa dependency
-        working-directory: 3rd-party-integrations/SentryPulse
-        run: swift package edit sentry-cocoa --path ../..
-
-      - name: Run Pulse tests
-        working-directory: 3rd-party-integrations/SentryPulse
-        run: swift test
-
-      - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v6
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: raw-output-pulse-integration
-          path: |
-            3rd-party-integrations/SentryPulse/.build/**/*.log
-
-      - name: Run CI Diagnostics
-        if: failure()
-        run: ./scripts/ci-diagnostics.sh
-
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.
   # So, we don't have to run unit tests, for example, for Changelog or ReadMe changes.
@@ -499,10 +371,6 @@ jobs:
         build-test-server,
         distribution-tests,
         unit-tests,
-        swiftlog-integration-unit-tests,
-        swiftybeaver-integration-unit-tests,
-        cocoalumberjack-integration-unit-tests,
-        pulse-integration-unit-tests,
         ready-to-merge-gate,
         unit-tests-with-test-server,
       ]

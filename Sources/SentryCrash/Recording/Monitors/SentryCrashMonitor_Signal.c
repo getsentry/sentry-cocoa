@@ -86,8 +86,9 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
-        sentrycrashmc_suspendEnvironment(&threads, &numThreads);
-        sentrycrashcm_notifyFatalExceptionCaptured(false);
+        // Signal handlers preempt the crashing thread, so reentrancy can
+        // occur from the same thread (handler crashes) or other threads.
+        sentrycrashcm_notifyFatalException(false, &threads, &numThreads);
 
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Filling out context.");
         SentryCrashMC_NEW_CONTEXT(machineContext);

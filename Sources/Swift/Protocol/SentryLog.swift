@@ -10,6 +10,8 @@ public final class SentryLog: NSObject {
     public var timestamp: Date
     /// The trace ID to associate this log with distributed tracing. This will be set to a valid non-empty value during processing.
     public var traceId: SentryId
+    /// The span ID of the span that was active when the log was collected.
+    public var spanId: SpanId?
     /// The severity level of the log entry
     public var level: Level
     /// The main log message content
@@ -58,6 +60,7 @@ public final class SentryLog: NSObject {
     internal init(
         timestamp: Date,
         traceId: SentryId,
+        spanId: SpanId? = nil,
         level: Level,
         body: String,
         attributes: [String: Attribute],
@@ -65,6 +68,7 @@ public final class SentryLog: NSObject {
     ) {
         self.timestamp = timestamp
         self.traceId = traceId
+        self.spanId = spanId
         self.level = level
         self.body = body
         self.attributes = attributes
@@ -106,6 +110,7 @@ extension SentryLog: TelemetryItem {
     private enum CodingKeys: String, CodingKey {
         case timestamp
         case traceId = "trace_id"
+        case spanId = "span_id"
         case level
         case body
         case attributes
@@ -118,6 +123,7 @@ extension SentryLog: TelemetryItem {
         
         try container.encode(timestamp, forKey: .timestamp)
         try container.encode(traceId.sentryIdString, forKey: .traceId)
+        try container.encodeIfPresent(spanId?.sentrySpanIdString, forKey: .spanId)
         try container.encode(level, forKey: .level)
         try container.encode(body, forKey: .body)
         try container.encode(attributes, forKey: .attributes)
