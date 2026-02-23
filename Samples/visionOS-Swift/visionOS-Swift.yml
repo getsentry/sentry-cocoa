@@ -20,22 +20,26 @@ fileGroups:
   - visionOS-Swift.yml
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  visionOS-Swift:
+  App:
     type: application
     platform: auto
     sources:
-      - visionOS-Swift
+      - path: App
+        type: group
+        excludes:
+          - "**/Info.plist"
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: visionOS-Swift.xcconfig
-      Release: visionOS-Swift.xcconfig
-      Test: visionOS-Swift.xcconfig
-      TestCI: visionOS-Swift.xcconfig
+      Debug: App/Configuration/visionOS-Swift.xcconfig
+      Release: App/Configuration/visionOS-Swift.xcconfig
+      Test: App/Configuration/visionOS-Swift.xcconfig
+      TestCI: App/Configuration/visionOS-Swift.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -50,4 +54,4 @@ schemes:
       - SampleAppScheme
     build:
       targets:
-        visionOS-Swift: all
+        App: all

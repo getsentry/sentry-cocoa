@@ -1,0 +1,10 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.VisionOS-Swift
+INFOPLIST_FILE = App/Configuration/Info.plist
+CODE_SIGN_ENTITLEMENTS = App/Configuration/visionOS-Swift.entitlements
+
+SUPPORTED_PLATFORMS = xros xrsimulator
+XROS_DEPLOYMENT_TARGET = 1.0
+DEVELOPMENT_ASSET_PATHS = "App/Preview Content"
+TARGETED_DEVICE_FAMILY = 7
