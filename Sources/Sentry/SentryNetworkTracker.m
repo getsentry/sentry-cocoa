@@ -235,6 +235,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
+    // Suspended is not a terminal state: a task can be suspended and later resumed or
+    // cancelled, so we must wait for a final state before finishing the span.
     if (newState == NSURLSessionTaskStateRunning || newState == NSURLSessionTaskStateSuspended) {
         return;
     }
@@ -483,6 +485,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
             : [self spanStatusForHttpResponseStatusCode:[self urlResponseStatusCode:task.response]];
     case NSURLSessionTaskStateRunning:
         break;
+    // Suspended is not a terminal state: a task can be resumed or cancelled after being
+    // suspended, so we don't map it to a span status.
     case NSURLSessionTaskStateSuspended:
         break;
     }
