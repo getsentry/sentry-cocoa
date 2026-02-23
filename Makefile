@@ -35,8 +35,8 @@ VISIONOS_DEVICE_NAME ?= Apple Vision Pro
 # watchOS Simulator OS version (defaults to 'latest', can be overridden via WATCHOS_SIMULATOR_OS=11.0)
 WATCHOS_SIMULATOR_OS ?= latest
 
-# watchOS Simulator device name (defaults to 'Apple Watch Series 11 (46mm)', can be overridden via WATCHOS_DEVICE_NAME='Apple Watch SE 3 (44mm)')
-WATCHOS_DEVICE_NAME ?= Apple Watch Series 11 (46mm)
+# watchOS Simulator device name (defaults to 'Apple Watch SE 3 (44mm)', can be overridden via WATCHOS_DEVICE_NAME='Apple Watch Ultra 3 (49mm)')
+WATCHOS_DEVICE_NAME ?= Apple Watch SE 3 (44mm)
 
 # Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
