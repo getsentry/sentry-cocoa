@@ -61,9 +61,13 @@ typealias SentryLogOutput = ((String) -> Void)
     /// Sets a custom log output handler. This allows hybrid SDKs (React Native, Flutter, etc.)
     /// to intercept SDK log messages and forward them to their respective consoles.
     /// - Note: Exposed through `PrivateSentrySDKOnly.setLogOutput` for hybrid SDK consumption.
+    /// - Parameter output: A closure to handle log output. If `nil` is passed (which can happen
+    ///   from Objective-C callers despite nullability annotations), the default `print` handler is used.
     @objc
-    public static func setOutput(_ output: @escaping (String) -> Void) {
-        logOutput = output
+    public static func setOutput(_ output: ((String) -> Void)?) {
+        // Objective-C callers can pass nil at runtime despite NS_ASSUME_NONNULL annotations.
+        // Fall back to default print handler to prevent crashes when logging.
+        logOutput = output ?? { print($0) }
     }
 
     #if SENTRY_TEST || SENTRY_TEST_CI
