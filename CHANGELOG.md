@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Resolve data race crash in monitorCachedData (#7423)
+
 ## 9.5.0
 
 ### Features
