@@ -15,13 +15,14 @@ fileGroups:
   - macOS-SwiftUI-SPM.yml
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  macOS-SwiftUI-SPM:
+  App:
     type: application
     platform: macOS
     deploymentTarget: "11.0"
     sources:
-      - Sources
+      - App
     dependencies:
       - package: Sentry
         product: SentrySPM
@@ -30,11 +31,11 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.macOS-SwiftUI-SPM
         SWIFT_VERSION: "5.0"
     info:
-      path: Resources/Info.plist
+      path: App/Resources/Info.plist
       properties:
         CFBundleDisplayName: macOS-SwiftUI-SPM
     entitlements:
-      path: Resources/Entitlements.entitlements
+      path: App/Resources/Entitlements.entitlements
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.network.client: true
@@ -42,7 +43,7 @@ schemes:
   macOS-SwiftUI-SPM:
     build:
       targets:
-        macOS-SwiftUI-SPM: all
+        App: all
     run:
       config: Debug
     archive:
