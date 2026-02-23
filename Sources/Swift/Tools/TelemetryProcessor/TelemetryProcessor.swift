@@ -2,7 +2,10 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-/// Objective-C compatible subset of the telemetry processor protocol.
+/// The Telemetry processor is sitting between the client and transport to efficiently deliver telemetry to Sentry (as of 2026-02-04).
+/// Currently used for logs and metrics only; planned to cover all telemetry (e.g. metrics) with buffering, rate limiting, client reports, and priority-based sending.
+/// Offline caching is still handled by the transport today, but the long-term goal is to move it here so the transport focuses on sending only.
+/// This is an Objective-C compatible subset of the telemetry processor protocol.
 /// Use `SentryTelemetryProcessor` instead when working in Swift, which adds support for
 /// Swift-only types like `SentryMetric`.
 /// See dev docs for details (work in progress): https://develop.sentry.dev/sdk/telemetry/telemetry-processor/
@@ -12,8 +15,6 @@ import Foundation
     /// Forwards buffered telemetry data to the transport for sending.
     func forwardTelemetryData() -> TimeInterval
 }
-
-/// The telemetry processor sits between the client and transport to efficiently deliver telemetry to Sentry.
 /// This extends `SentryObjCTelemetryProcessor` with Swift-only types like `SentryMetric` that cannot
 /// be represented in Objective-C.
 protocol SentryTelemetryProcessor: SentryObjCTelemetryProcessor {
@@ -79,12 +80,13 @@ typealias SentryTelemetryProcessorFactoryDependencies = DateProviderProvider
     ) -> SentryObjCTelemetryProcessor {
         let scheduler = DefaultTelemetryScheduler(transport: transport)
 
+        // Separate instance per buffer because each trigger only supports one delegate.
         #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
-        let itemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers(
+        let logsItemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers(
             notificationCenter: dependencies.notificationCenterWrapper
         )
         #else
-        let itemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers()
+        let logsItemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers()
         #endif
 
         // Uses DEFAULT priority (not LOW) because capture() is called synchronously during
@@ -103,9 +105,10 @@ typealias SentryTelemetryProcessorFactoryDependencies = DateProviderProvider
             buffer: InMemoryInternalTelemetryBuffer(),
             dateProvider: dependencies.dateProvider,
             dispatchQueue: dispatchQueue,
-            itemForwardingTriggers: itemForwardingTriggers
+            itemForwardingTriggers: logsItemForwardingTriggers
         )
 
+        // Separate instance per buffer because each trigger only supports one delegate.
         #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
         let metricsItemForwardingTriggers = DefaultTelemetryBufferDataForwardingTriggers(
             notificationCenter: dependencies.notificationCenterWrapper

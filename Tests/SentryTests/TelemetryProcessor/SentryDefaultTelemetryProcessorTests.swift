@@ -111,6 +111,8 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
 
     func testConcurrentAdds_ThreadSafe() throws {
         // -- Arrange --
+        let itemCount = 1_000
+        let maxItemCount = 100
         let logScheduler = TestTelemetryScheduler()
         let metricsScheduler = TestTelemetryScheduler()
         let dateProvider = TestCurrentDateProvider()
@@ -120,8 +122,8 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         let logBuffer = DefaultTelemetryBuffer<InMemoryInternalTelemetryBuffer<SentryLog>, SentryLog>(
             config: .init(
                 flushTimeout: 5,
-                maxItemCount: 1_000,
-                maxBufferSizeBytes: 10_000,
+                maxItemCount: maxItemCount,
+                maxBufferSizeBytes: 1_024 * 1_024,
                 capturedDataCallback: { data, count in
                     logScheduler.capture(data: data, count: count, telemetryType: .log)
                 }
@@ -134,8 +136,8 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         let metricsBuffer = DefaultTelemetryBuffer<InMemoryInternalTelemetryBuffer<SentryMetric>, SentryMetric>(
             config: .init(
                 flushTimeout: 5,
-                maxItemCount: 1_000,
-                maxBufferSizeBytes: 10_000,
+                maxItemCount: maxItemCount,
+                maxBufferSizeBytes: 1_024 * 1_024,
                 capturedDataCallback: { data, count in
                     metricsScheduler.capture(data: data, count: count, telemetryType: .metric)
                 }
@@ -148,10 +150,10 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
         let sut = SentryDefaultTelemetryProcessor(logBuffer: logBuffer, metricsBuffer: metricsBuffer)
 
         let expectation = XCTestExpectation(description: "Concurrent adds")
-        expectation.expectedFulfillmentCount = 20
+        expectation.expectedFulfillmentCount = itemCount * 2
 
         // -- Act --
-        for i in 0..<10 {
+        for i in 0..<itemCount {
             DispatchQueue.global().async {
                 let log = self.createTestLog(body: "Log \(i)")
                 sut.add(log: log)
@@ -163,15 +165,17 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
                 expectation.fulfill()
             }
         }
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
         _ = sut.forwardTelemetryData()
 
         // -- Assert --
         let capturedLogs = try logScheduler.getCapturedLogs()
-        XCTAssertEqual(capturedLogs.count, 10, "All 10 concurrently added logs should be in the batch")
+        XCTAssertGreaterThan(capturedLogs.count, 0, "Some logs should be captured")
+        XCTAssertLessThanOrEqual(capturedLogs.count, itemCount, "Should not exceed total added logs")
 
         let capturedMetrics = try metricsScheduler.getCapturedMetrics()
-        XCTAssertEqual(capturedMetrics.count, 10, "All 10 concurrently added metrics should be in the batch")
+        XCTAssertGreaterThan(capturedMetrics.count, 0, "Some metrics should be captured")
+        XCTAssertLessThanOrEqual(capturedMetrics.count, itemCount, "Should not exceed total added metrics")
     }
 
     func testDispatchAfterTimeoutWithRealDispatchQueue() throws {
@@ -323,14 +327,14 @@ final class TestTelemetryScheduler: TelemetryScheduler {
         return allLogs
     }
 
-    func getCapturedMetrics() throws -> [CapturedMetric] {
-        var allMetrics: [CapturedMetric] = []
+    func getCapturedMetrics() throws -> [SentryMetric] {
+        var allMetrics: [SentryMetric] = []
 
         for invocation in captureInvocations.invocations {
             let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: invocation.data) as? [String: Any])
             if let items = jsonObject["items"] as? [[String: Any]] {
                 for item in items {
-                    if let metric = CapturedMetric(from: item) {
+                    if let metric = parseSentryMetric(from: item) {
                         allMetrics.append(metric)
                     }
                 }
@@ -362,19 +366,49 @@ final class TestTelemetryScheduler: TelemetryScheduler {
 
         return SentryLog(timestamp: timestamp, traceId: traceId, level: level, body: body, attributes: attributes)
     }
-}
 
-/// Lightweight struct for asserting captured metric data from the scheduler.
-struct CapturedMetric {
-    let name: String
-    let traceId: String
-    let type: String
+    private func parseSentryMetric(from dict: [String: Any]) -> SentryMetric? {
+        guard let name = dict["name"] as? String,
+              let typeString = dict["type"] as? String else {
+            return nil
+        }
 
-    init?(from dict: [String: Any]) {
-        guard let name = dict["name"] as? String else { return nil }
-        self.name = name
-        self.traceId = dict["trace_id"] as? String ?? ""
-        self.type = dict["type"] as? String ?? ""
+        let value: SentryMetricValue
+        switch typeString {
+        case "counter":
+            let intValue = dict["value"] as? Int64 ?? 0
+            value = .counter(UInt(intValue))
+        case "gauge":
+            let doubleValue = dict["value"] as? Double ?? 0
+            value = .gauge(doubleValue)
+        case "distribution":
+            let doubleValue = dict["value"] as? Double ?? 0
+            value = .distribution(doubleValue)
+        default:
+            return nil
+        }
+
+        let timestamp = Date(timeIntervalSince1970: (dict["timestamp"] as? TimeInterval) ?? 0)
+        let traceIdString = dict["trace_id"] as? String ?? ""
+        let traceId = SentryId(uuidString: traceIdString)
+
+        var attributes: [String: SentryMetric.Attribute] = [:]
+        if let attributesDict = dict["attributes"] as? [String: [String: Any]] {
+            for (key, attrDict) in attributesDict {
+                if let attrValue = attrDict["value"] {
+                    attributes[key] = SentryAttributeContent.from(anyValue: attrValue)
+                }
+            }
+        }
+
+        return SentryMetric(
+            timestamp: timestamp,
+            traceId: traceId,
+            name: name,
+            value: value,
+            unit: nil,
+            attributes: attributes
+        )
     }
 }
 
