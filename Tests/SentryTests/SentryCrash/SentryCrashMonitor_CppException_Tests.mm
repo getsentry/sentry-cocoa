@@ -128,6 +128,7 @@ void
 mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
 {
     if (!context) {
+        XCTFail("Received null context in handler");
         return;
     }
     capturedCrashType = context->crashType;
@@ -174,6 +175,8 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
     }
 
     // Assert
+    XCTAssertTrue(
+        terminateCalled, "Original terminate handler should be called for ObjC exceptions.");
     XCTAssertNotEqual(capturedCrashType, SentryCrashMonitorTypeCPPException,
         "NSException subclass should NOT be handled by C++ exception handler.");
 }
