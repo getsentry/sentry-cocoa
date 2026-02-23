@@ -1,0 +1,9 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift6
+INFOPLIST_FILE = App/Configuration/Info.plist
+CODE_SIGN_ENTITLEMENTS = App/Configuration/iOS-Swift6.entitlements
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+SWIFT_VERSION = 6
+IPHONEOS_DEPLOYMENT_TARGET = 15.0
