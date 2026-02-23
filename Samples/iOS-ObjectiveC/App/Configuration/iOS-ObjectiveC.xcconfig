@@ -1,0 +1,8 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_NAME = iOS-ObjectiveC
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-ObjectiveC
+INFOPLIST_FILE = App/Configuration/Info.plist
+CODE_SIGN_ENTITLEMENTS = App/Configuration/iOS-ObjectiveC.entitlements
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
