@@ -20,22 +20,26 @@ fileGroups:
   - macOS-SwiftUI.yml
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  macOS-SwiftUI:
+  App:
     type: application
     platform: auto
     sources:
-      - macOS-SwiftUI
+      - path: App
+        type: group
+        excludes:
+          - "**/Info.plist"
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: macOS-SwiftUI.xcconfig
-      Release: macOS-SwiftUI.xcconfig
-      Test: macOS-SwiftUI.xcconfig
-      TestCI: macOS-SwiftUI.xcconfig
+      Debug: App/Configuration/macOS-SwiftUI.xcconfig
+      Release: App/Configuration/macOS-SwiftUI.xcconfig
+      Test: App/Configuration/macOS-SwiftUI.xcconfig
+      TestCI: App/Configuration/macOS-SwiftUI.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -50,4 +54,4 @@ schemes:
       - SampleAppScheme
     build:
       targets:
-        macOS-SwiftUI: all
+        App: all
