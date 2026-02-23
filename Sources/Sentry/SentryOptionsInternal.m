@@ -139,8 +139,8 @@
 #pragma clang diagnostic pop
     }
 
-    if ([self isBlock:options[@"onLastRunStatus"]]) {
-        sentryOptions.onLastRunStatus = options[@"onLastRunStatus"];
+    if ([self isBlock:options[@"onLastRunStatusDetermined"]]) {
+        sentryOptions.onLastRunStatusDetermined = options[@"onLastRunStatusDetermined"];
     }
 
     if ([options[@"sampleRate"] isKindOfClass:[NSNumber class]]) {

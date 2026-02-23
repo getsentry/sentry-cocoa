@@ -538,23 +538,23 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 {
     void (^callback)(NSInteger, SentryEvent *_Nullable)
         = ^(__unused NSInteger status, __unused SentryEvent *_Nullable event) { };
-    SentryOptions *options = [self getValidOptions:@{ @"onLastRunStatus" : callback }];
+    SentryOptions *options = [self getValidOptions:@{ @"onLastRunStatusDetermined" : callback }];
 
-    XCTAssertNotNil(options.onLastRunStatus);
+    XCTAssertNotNil(options.onLastRunStatusDetermined);
 }
 
 - (void)testDefaultOnLastRunStatus
 {
     SentryOptions *options = [self getValidOptions:@{}];
 
-    XCTAssertNil(options.onLastRunStatus);
+    XCTAssertNil(options.onLastRunStatusDetermined);
 }
 
 - (void)testGarbageOnLastRunStatus_ReturnsNil
 {
-    SentryOptions *options = [self getValidOptions:@{ @"onLastRunStatus" : @"fault" }];
+    SentryOptions *options = [self getValidOptions:@{ @"onLastRunStatusDetermined" : @"fault" }];
 
-    XCTAssertNil(options.onLastRunStatus);
+    XCTAssertNil(options.onLastRunStatusDetermined);
 }
 
 - (void)testSampleRateWithDict
@@ -734,7 +734,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertNil(options.onCrashedLastRun);
 #pragma clang diagnostic pop
-    XCTAssertNil(options.onLastRunStatus);
+    XCTAssertNil(options.onLastRunStatusDetermined);
     XCTAssertEqual(1.0, options.sampleRate.floatValue);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
     XCTAssertEqual(YES, options.enableWatchdogTerminationTracking);

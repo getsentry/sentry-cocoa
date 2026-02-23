@@ -654,7 +654,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         var receivedStatus: SentryLastRunStatus?
         var receivedEvent: Event?
 
-        fixture.options.onLastRunStatus = { status, event in
+        fixture.options.onLastRunStatusDetermined = { status, event in
             receivedStatus = status
             receivedEvent = event
         }
@@ -672,7 +672,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
     func testInit_whenNoCrash_shouldSetLastRunStatusCalled() throws {
         // -- Arrange --
-        fixture.options.onLastRunStatus = { _, _ in }
+        fixture.options.onLastRunStatusDetermined = { _, _ in }
 
         let crash = fixture.sentryCrash
         crash.internalCrashedLastLaunch = false
@@ -688,7 +688,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
     func testInit_whenNoCrashAndNoCallback_shouldNotCrash() throws {
         // -- Arrange --
-        fixture.options.onLastRunStatus = nil
+        fixture.options.onLastRunStatusDetermined = nil
         let crash = fixture.sentryCrash
         crash.internalCrashedLastLaunch = false
 

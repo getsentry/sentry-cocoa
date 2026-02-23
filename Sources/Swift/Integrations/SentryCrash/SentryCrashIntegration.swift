@@ -134,7 +134,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         // isIntegrationInstalled because it's set after init returns.
         SentrySDKInternal.crashReporterInstalled = true
 
-        if !crashReporter.crashedLastLaunch, let callback = options?.onLastRunStatus {
+        if !crashReporter.crashedLastLaunch, let callback = options?.onLastRunStatusDetermined {
             SentrySDKInternal.lastRunStatusCalled = true
             callback(.didNotCrash, nil)
         }

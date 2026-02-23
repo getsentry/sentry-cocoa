@@ -30,8 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
 
 /**
- * SDK private field to store the state if onLastRunStatus (or the deprecated onCrashedLastRun)
- * callback was already called for the current SDK lifecycle.
+ * SDK private field to store the state if onLastRunStatusDetermined (or the deprecated
+ * onCrashedLastRun) callback was already called for the current SDK lifecycle.
  */
 @property (nonatomic, class) BOOL lastRunStatusCalled;
 

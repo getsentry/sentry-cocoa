@@ -136,7 +136,7 @@ public struct SentrySDKWrapper {
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
 
-        options.onLastRunStatus = { status, crashEvent in
+        options.onLastRunStatusDetermined = { status, crashEvent in
             let eventId = crashEvent?.eventId.sentryIdString ?? "nil"
             print("[Sentry] lastRunStatus: \(status) (event: \(eventId))")
         }

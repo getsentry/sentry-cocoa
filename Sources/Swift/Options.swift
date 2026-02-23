@@ -156,7 +156,7 @@
     /// if you prefer a callback for every event.
     /// @warning It is not guaranteed that this is called on the main thread.
     /// @note Crash reporting is automatically disabled if a debugger is attached.
-    @available(*, deprecated, message: "Use onLastRunStatus instead, which is called regardless of whether the app crashed.")
+    @available(*, deprecated, message: "Use onLastRunStatusDetermined instead, which is called regardless of whether the app crashed.")
     @objc public var onCrashedLastRun: SentryOnCrashedLastRunCallback?
 
     /// A block called shortly after the initialization of the SDK when the crash status of the
@@ -174,7 +174,7 @@
     /// - note: Crashes that occur while a debugger is attached are not recorded.
     ///   In that case, the callback reports ``SentryLastRunStatus/didNotCrash``
     ///   even though the app did crash.
-    @objc public var onLastRunStatus: ((SentryLastRunStatus, Event?) -> Void)?
+    @objc public var onLastRunStatusDetermined: ((SentryLastRunStatus, Event?) -> Void)?
 
     /// Indicates the percentage of events being sent to Sentry.
     /// @discussion Specifying 0 discards all events, 1.0 or nil sends all events, 0.01 collects 1% of

@@ -855,8 +855,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
 #pragma clang diagnostic pop
 
-        if (nil != self.options.onLastRunStatus) {
-            self.options.onLastRunStatus(
+        if (nil != self.options.onLastRunStatusDetermined) {
+            self.options.onLastRunStatusDetermined(
                 SentryLastRunStatusDidCrash, SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
         }
     }
