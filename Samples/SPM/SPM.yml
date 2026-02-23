@@ -10,26 +10,27 @@ fileGroups:
   - SPM.yml
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 packages:
   Sentry:
     path: ../../
 targets:
-  SPM:
+  App:
     type: application
     platform: auto
     sources:
-      - SPM
+      - App
     dependencies:
       - package: Sentry
         products:
           - SentrySPM
     configFiles:
-      Debug: SPM.xcconfig
-      Release: SPM.xcconfig
+      Debug: App/Configuration/SPM.xcconfig
+      Release: App/Configuration/SPM.xcconfig
 schemes:
   SPM:
     templates:
       - SampleAppScheme
     build:
       targets:
-        SPM: all
+        App: all
