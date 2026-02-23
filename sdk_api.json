@@ -40289,6 +40289,107 @@
                 "accessorKind": "get",
                 "children": [
                   {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SpanId",
+                        "printedName": "Sentry.SpanId",
+                        "usr": "c:objc(cs)SentrySpanId"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SpanId?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A3LogC6spanIdSo0a4SpanD0CSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryLog(im)spanId"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SpanId",
+                        "printedName": "Sentry.SpanId",
+                        "usr": "c:objc(cs)SentrySpanId"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SpanId?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A3LogC6spanIdSo0a4SpanD0CSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryLog(im)setSpanId:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SpanId",
+                    "printedName": "Sentry.SpanId",
+                    "usr": "c:objc(cs)SentrySpanId"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SpanId?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasInitialValue",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A3LogC6spanIdSo0a4SpanD0CSgvp",
+            "moduleName": "Sentry",
+            "name": "spanId",
+            "printedName": "spanId",
+            "usr": "c:@M@Sentry@objc(cs)SentryLog(py)spanId"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
                     "kind": "TypeNominal",
                     "name": "Date",
                     "printedName": "Foundation.Date",
@@ -42556,6 +42657,97 @@
             "name": "name",
             "printedName": "name",
             "usr": "s:6Sentry0A6MetricV4nameSSvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SpanId",
+                        "printedName": "Sentry.SpanId",
+                        "usr": "c:objc(cs)SentrySpanId"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SpanId?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A6MetricV6spanIdSo0a4SpanD0CSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A6MetricV6spanIdSo0a4SpanD0CSgvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SpanId",
+                        "printedName": "Sentry.SpanId",
+                        "usr": "c:objc(cs)SentrySpanId"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SpanId?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A6MetricV6spanIdSo0a4SpanD0CSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry0A6MetricV6spanIdSo0a4SpanD0CSgvs"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SpanId",
+                    "printedName": "Sentry.SpanId",
+                    "usr": "c:objc(cs)SentrySpanId"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SpanId?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A6MetricV6spanIdSo0a4SpanD0CSgvp",
+            "moduleName": "Sentry",
+            "name": "spanId",
+            "printedName": "spanId",
+            "usr": "s:6Sentry0A6MetricV6spanIdSo0a4SpanD0CSgvp"
           },
           {
             "accessors": [
@@ -45560,141 +45752,6 @@
         "name": "SentryRedactRegionType",
         "printedName": "SentryRedactRegionType",
         "usr": "s:6Sentry0A16RedactRegionTypeO"
-      },
-      {
-        "children": [
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "UIView",
-                "printedName": "UIKit.UIView",
-                "usr": "c:objc(cs)UIView"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A16RedactViewHelperC07clipOutC0yySo6UIViewCFZ",
-            "moduleName": "Sentry",
-            "name": "clipOutView",
-            "printedName": "clipOutView(_:)",
-            "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentryRedactViewHelper(cm)clipOutView:"
-          },
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "UIView",
-                "printedName": "UIKit.UIView",
-                "usr": "c:objc(cs)UIView"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "ObjC"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A16RedactViewHelperC11maskSwiftUIyySo6UIViewCFZ",
-            "moduleName": "Sentry",
-            "name": "maskSwiftUI",
-            "printedName": "maskSwiftUI(_:)",
-            "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentryRedactViewHelper(cm)maskSwiftUI:"
-          }
-        ],
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "mangledName": "$ss7CVarArgP",
-            "name": "CVarArg",
-            "printedName": "CVarArg",
-            "usr": "s:s7CVarArgP"
-          },
-          {
-            "kind": "Conformance",
-            "mangledName": "$ss8CopyableP",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP"
-          },
-          {
-            "kind": "Conformance",
-            "mangledName": "$ss28CustomDebugStringConvertibleP",
-            "name": "CustomDebugStringConvertible",
-            "printedName": "CustomDebugStringConvertible",
-            "usr": "s:s28CustomDebugStringConvertibleP"
-          },
-          {
-            "kind": "Conformance",
-            "mangledName": "$ss23CustomStringConvertibleP",
-            "name": "CustomStringConvertible",
-            "printedName": "CustomStringConvertible",
-            "usr": "s:s23CustomStringConvertibleP"
-          },
-          {
-            "kind": "Conformance",
-            "mangledName": "$sSQ",
-            "name": "Equatable",
-            "printedName": "Equatable",
-            "usr": "s:SQ"
-          },
-          {
-            "kind": "Conformance",
-            "mangledName": "$ss9EscapableP",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "mangledName": "$sSH",
-            "name": "Hashable",
-            "printedName": "Hashable",
-            "usr": "s:SH"
-          },
-          {
-            "kind": "Conformance",
-            "name": "NSObjectProtocol",
-            "printedName": "NSObjectProtocol",
-            "usr": "c:objc(pl)NSObject"
-          }
-        ],
-        "declAttributes": [
-          "Final",
-          "ObjC",
-          "ObjCMembers"
-        ],
-        "declKind": "Class",
-        "hasMissingDesignatedInitializers": true,
-        "inheritsConvenienceInitializers": true,
-        "kind": "TypeDecl",
-        "mangledName": "$s6Sentry0A16RedactViewHelperC",
-        "moduleName": "Sentry",
-        "name": "SentryRedactViewHelper",
-        "printedName": "SentryRedactViewHelper",
-        "superclassNames": [
-          "ObjectiveC.NSObject"
-        ],
-        "superclassUsr": "c:objc(cs)NSObject",
-        "usr": "c:@M@Sentry@objc(cs)SentryRedactViewHelper"
       },
       {
         "children": [
