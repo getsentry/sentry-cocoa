@@ -564,6 +564,14 @@ The repository includes a Makefile that contains common commands for building, t
 - To build the SDK for macOS use `make build-macos`, for iOS use `make build-ios`
 - To run tests use `make test-macos` or `make test-ios` for the respective platforms.
 
+### Sample Projects
+
+- **Structure**: `TargetName/Sources`, `TargetName/Resources`, `TargetName/Configuration` (e.g. `App/Sources`, `App/Resources`, `App/Configuration`)
+- **Info.plist and entitlements**: Live in `Configuration/`, not `Resources/`
+- **Empty directories**: Add `.gitkeep` to empty Sources, Resources, Configuration dirs so git tracks the layout
+- **Build**: `make build-samples` (all) or `make build-sample-<name>` (e.g. `make build-sample-iOS-Swift`)
+- **Regenerate projects**: `make xcode-ci` (all) or `make xcode-ci-<name>` (e.g. `make xcode-ci-SPM`)
+
 ## Helpful Commands
 
 - format code: `make format`
@@ -573,6 +581,8 @@ The repository includes a Makefile that contains common commands for building, t
 - start test server (rarely needed): `make run-test-server`
 - stop test server: `make stop-test-server`
 - build the XCFramework deliverables: `make build-xcframework`
+- build all sample apps: `make build-samples`
+- regenerate sample Xcode projects: `make xcode-ci`
 - lint pod deliverable: `make pod-lint`
 
 ## Resources & Documentation
