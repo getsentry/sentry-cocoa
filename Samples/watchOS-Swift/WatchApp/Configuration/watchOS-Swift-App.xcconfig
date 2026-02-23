@@ -1,0 +1,9 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.watchOS-Swift.watchkitapp
+INFOPLIST_FILE = WatchApp/Configuration/Info.plist
+CODE_SIGN_ENTITLEMENTS = WatchApp/Configuration/watchOS-Swift-App.entitlements
+
+SUPPORTED_PLATFORMS = watchos watchsimulator
+SDKROOT = watchos
+TARGETED_DEVICE_FAMILY = 4
