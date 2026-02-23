@@ -113,6 +113,11 @@ done
 
 TOTAL=${#COMMITS[@]}
 
+if [ "$TOTAL" -eq 0 ]; then
+    log_error "No commits found in the requested date range. Check your SINCE date or branch history."
+    exit 1
+fi
+
 # ── 3. Run linguist + git ls-tree on each revision ───────────────────────
 begin_group "Analyzing $TOTAL revisions"
 for i in $(seq 0 $((TOTAL - 1))); do
