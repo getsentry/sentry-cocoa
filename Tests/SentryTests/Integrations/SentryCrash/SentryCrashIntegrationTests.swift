@@ -670,6 +670,22 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertNil(receivedEvent)
     }
 
+    func testInit_whenNoCrash_shouldSetLastRunStatusCalled() throws {
+        // -- Arrange --
+        fixture.options.onLastRunStatus = { _, _ in }
+
+        let crash = fixture.sentryCrash
+        crash.internalCrashedLastLaunch = false
+
+        // -- Act --
+        _ = try fixture.getSut(crashWrapper: crash)
+
+        // -- Assert --
+        // Ensures a later fatal event (e.g. watchdog termination) won't call
+        // the callback a second time with a contradictory .didCrash status.
+        XCTAssertTrue(SentrySDKInternal.lastRunStatusCalled)
+    }
+
     func testInit_whenNoCrashAndNoCallback_shouldNotCrash() throws {
         // -- Arrange --
         fixture.options.onLastRunStatus = nil

@@ -135,6 +135,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         SentrySDKInternal.crashReporterInstalled = true
 
         if !crashReporter.crashedLastLaunch, let callback = options?.onLastRunStatus {
+            SentrySDKInternal.lastRunStatusCalled = true
             callback(.didNotCrash, nil)
         }
 
