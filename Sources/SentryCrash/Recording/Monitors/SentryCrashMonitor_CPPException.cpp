@@ -29,11 +29,6 @@
 #include "SentryCrashID.h"
 #include "SentryCrashMachineContext.h"
 #include "SentryCrashMonitorContext.h"
-#include "SentryCrashObjC.h"
-
-// Forward-declare from SentryCrashMemory.h to avoid C++ compilation issues
-// with the `restrict` qualifier in the original header.
-extern "C" bool sentrycrashmem_copySafely(const void *src, void *dst, int byteCount);
 #include "SentryCrashStackCursor_SelfThread.h"
 #include "SentryCrashThread.h"
 
@@ -42,6 +37,7 @@ extern "C" bool sentrycrashmem_copySafely(const void *src, void *dst, int byteCo
 #include <cxxabi.h>
 #include <dlfcn.h>
 #include <exception>
+#include <ptrauth.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -78,42 +74,40 @@ static SentryCrashStackCursor g_stackCursor;
 #pragma mark - Helpers -
 // ============================================================================
 
-/** Check if a C++ exception is an NSException or subclass.
- * Async-safe: uses SentryCrashObjC introspection (direct memory reads).
+// The ObjC runtime uses a custom C++ type_info subclass (objc_typeinfo) for all Objective-C
+// exceptions. Its vtable pointer is set to objc_ehtype_vtable+2 (the +2 skips the Itanium C++ ABI
+// vtable prefix: offset-to-top and RTTI pointer). This symbol is exported from libobjc on all Apple
+// platforms and declared in Apple's internal objc-abi.h:
+// https://github.com/apple-oss-distributions/objc4/blob/fb265098/runtime/objc-abi.h#L377-L380
+extern "C" const void *const objc_ehtype_vtable[];
+
+/** Check if a C++ exception type_info represents an Objective-C exception.
+ * Async-safe: only performs a pointer dereference and comparison (plus PAC
+ * stripping on arm64e). Does not touch the exception object itself.
  *
- * @param exceptionRegion The C++ thrown region. Depending on the source,
- *        this may be the ObjC object pointer directly or a pointer to
- *        storage containing it. Both cases are handled.
+ * All ObjC exceptions — NSException, its subclasses, and any object thrown via @throw — share
+ * the same objc_typeinfo vtable, so a single pointer comparison covers every case.
+ *
+ * @param tinfo The C++ ABI type_info pointer for the thrown exception.
+ * @return true if tinfo belongs to an Objective-C exception, false otherwise.
  */
 static bool
-isNSExceptionOrSubclass(const void *exceptionRegion)
+isObjCException(const std::type_info *tinfo)
 {
-    if (exceptionRegion == NULL) {
+    if (tinfo == nullptr) {
         return false;
     }
 
-    // Depending on the source (__cxa_throw param vs __cxa_current_primary_exception),
-    // exceptionRegion may already be the ObjC object pointer, or it may be a
-    // pointer to storage containing it. Try the direct pointer first.
-    const void *objcObject = exceptionRegion;
+    // The first pointer-sized field in any type_info object is the vtable pointer.
+    const void *tinfo_vtable = *reinterpret_cast<const void *const *>(tinfo);
+    const void *objc_vtable = (const void *)(objc_ehtype_vtable + 2);
 
-    if (!sentrycrashobjc_isValidObject(objcObject)) {
-        // Fallback: dereference exceptionRegion safely as pointer-to-pointer.
-        objcObject = NULL;
-        if (!sentrycrashmem_copySafely(exceptionRegion, &objcObject, sizeof(objcObject))) {
-            return false;
-        }
-        if (objcObject == NULL || !sentrycrashobjc_isValidObject(objcObject)) {
-            return false;
-        }
-    }
-
-    const void *isaPtr = sentrycrashobjc_isaPointer(objcObject);
-    if (isaPtr == NULL) {
-        return false;
-    }
-
-    return sentrycrashobjc_isKindOfClass(isaPtr, "NSException");
+    // On arm64e, vtable pointers are signed with pointer authentication codes (PAC).
+    // We must strip the signatures before comparing, otherwise the raw address from
+    // objc_ehtype_vtable+2 won't match the PAC-signed pointer stored in tinfo.
+    // On non-arm64e architectures (arm64, arm64_32, x86_64), ptrauth_strip is a no-op.
+    return ptrauth_strip(tinfo_vtable, ptrauth_key_cxx_vtable_pointer)
+        == ptrauth_strip(objc_vtable, ptrauth_key_cxx_vtable_pointer);
 }
 
 // ============================================================================
@@ -121,13 +115,12 @@ isNSExceptionOrSubclass(const void *exceptionRegion)
 // ============================================================================
 
 static NEVER_INLINE void
-captureStackTrace(
-    void *thrown_exception, std::type_info *tinfo, void (*)(void *)) KEEP_FUNCTION_IN_STACKTRACE
+captureStackTrace(void *, std::type_info *tinfo, void (*)(void *)) KEEP_FUNCTION_IN_STACKTRACE
 {
     SENTRY_ASYNC_SAFE_LOG_TRACE("Entering captureStackTrace");
 
-    // We handle NSExceptions (and subclasses) in SentryCrashMonitor_NSException.
-    if (isNSExceptionOrSubclass(thrown_exception)) {
+    // We handle ObjC exceptions (NSException and subclasses) in SentryCrashMonitor_NSException.
+    if (isObjCException(tinfo)) {
         return;
     }
 
@@ -143,10 +136,6 @@ typedef void (*cxa_rethrow_type)(void);
 extern "C" {
 void __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
     __attribute__((weak));
-
-void *__cxa_current_primary_exception(void) __attribute__((weak));
-
-void __cxa_decrement_exception_refcount(void *) __attribute__((weak));
 
 void
 __cxa_throw(
@@ -213,28 +202,15 @@ CPPExceptionTerminate(void)
 {
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped c++ exception");
 
+    bool isObjCExc = false;
     const char *name = NULL;
     std::type_info *tinfo = __cxxabiv1::__cxa_current_exception_type();
     if (tinfo != NULL) {
         name = tinfo->name();
+        isObjCExc = isObjCException(tinfo);
     }
 
-    // __cxa_current_primary_exception increments the exception's refcount, so we must decrement
-    // after use:
-    // https://github.com/llvm/llvm-project/blob/1f65d4dda14cfea4323fd7139e222d26c7dc365d/libcxxabi/src/cxa_exception.cpp#L713
-    // These functions are weakly linked and may not be available on all platforms.
-    void *primaryException = NULL;
-    bool isNSExceptionOrSubC = false;
-
-    if (__cxa_current_primary_exception != NULL) {
-        primaryException = __cxa_current_primary_exception();
-        isNSExceptionOrSubC = isNSExceptionOrSubclass(primaryException);
-        if (primaryException != NULL && __cxa_decrement_exception_refcount != NULL) {
-            __cxa_decrement_exception_refcount(primaryException);
-        }
-    }
-
-    if (!isNSExceptionOrSubC) {
+    if (!isObjCExc) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         // The cxa_throw hook reenters only from other threads. Edge case:
@@ -318,7 +294,7 @@ CPPExceptionTerminate(void)
         sentrycrashcm_handleException(crashContext);
         sentrycrashmc_resumeEnvironment(threads, numThreads);
     } else {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Detected NSException. Letting the current "
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Detected ObjC exception. Letting the current "
                                     "NSException handler deal with it.");
     }
 
