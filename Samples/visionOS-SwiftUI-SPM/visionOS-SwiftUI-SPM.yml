@@ -15,13 +15,14 @@ fileGroups:
   - visionOS-SwiftUI-SPM.yml
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  visionOS-SwiftUI-SPM:
+  App:
     type: application
     platform: visionOS
     deploymentTarget: "1.0"
     sources:
-      - Sources
+      - App
     dependencies:
       - package: Sentry
         product: SentrySPM
@@ -30,7 +31,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.visionOS-SwiftUI-SPM
         SWIFT_VERSION: "5.0"
     info:
-      path: Resources/Info.plist
+      path: App/Resources/Info.plist
       properties:
         CFBundleDisplayName: visionOS-SwiftUI-SPM
         UILaunchScreen: {}
@@ -38,7 +39,7 @@ schemes:
   visionOS-SwiftUI-SPM:
     build:
       targets:
-        visionOS-SwiftUI-SPM: all
+        App: all
     run:
       config: Debug
     archive:
