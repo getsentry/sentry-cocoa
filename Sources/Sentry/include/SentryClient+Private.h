@@ -88,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// The return type is `id` (not `id<SentryObjCTelemetryProcessor>`) to avoid a
 /// circular dependency: the protocol is defined in Swift and cannot be referenced in ObjC headers
 /// that Swift imports.
-- (id)getTelemetryProcessor; 
+- (SENTRY_SWIFT_MIGRATION_ID(id<SentryObjCTelemetryProcessor>))getTelemetryProcessor;
 
 @end
 
