@@ -137,10 +137,15 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    // Register request start date in the sessionTask to use for breadcrumb
+    // Register request start date in the sessionTask to use for breadcrumb.
+    // Only set on first resume so that suspend/resume cycles preserve the original start time.
     if (self.isNetworkBreadcrumbEnabled) {
-        objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_START_DATE, [NSDate date],
-            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        NSDate *existingStartDate
+            = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_START_DATE);
+        if (existingStartDate == nil) {
+            objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_START_DATE, [NSDate date],
+                OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
     }
 
     if (!self.isNetworkTrackingEnabled) {

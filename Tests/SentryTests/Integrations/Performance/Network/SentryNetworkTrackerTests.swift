@@ -272,6 +272,44 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["method"] as? String), "GET")
     }
 
+    func testSuspendedRequest_whenResumedAfterSuspend_shouldPreserveOriginalStartDate() throws {
+        // When a task is suspended and resumed, the breadcrumb request_start
+        // should reflect the original start time, not the time of the last resume.
+
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        _ = startTransaction()
+
+        let timeBeforeFirstResume = Date()
+        sut.urlSessionTaskResume(task)
+        let timeAfterFirstResume = Date()
+
+        // Suspend and wait to guarantee wall-clock time advances, since
+        // the production code uses [NSDate date] rather than an injected date provider.
+        try setTaskState(task, state: .suspended)
+        Thread.sleep(forTimeInterval: 0.1)
+        let timeBeforeSecondResume = Date()
+        sut.urlSessionTaskResume(task)
+
+        // -- Act --
+        task.setResponse(try createResponse(code: 200))
+        try setTaskState(task, state: .completed)
+
+        // -- Assert --
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+        let requestStart = try XCTUnwrap(breadcrumb.data?["request_start"] as? Date)
+
+        // The start date should be from the first resume window, not the second
+        XCTAssertGreaterThanOrEqual(requestStart, timeBeforeFirstResume,
+            "request_start should be no earlier than the first resume")
+        XCTAssertLessThanOrEqual(requestStart, timeAfterFirstResume,
+            "request_start should be no later than right after the first resume")
+        XCTAssertLessThan(requestStart, timeBeforeSecondResume,
+            "request_start should be before the second resume, proving the original date was preserved")
+    }
+
     func testCaptureRequestWithError() throws {
         let task = createDataTask()
         let span = try XCTUnwrap(spanForTask(task: task))
