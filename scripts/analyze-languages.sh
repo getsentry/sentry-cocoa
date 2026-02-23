@@ -251,8 +251,8 @@ chart_configs = [
 def crossover_js(var_name, ds_var):
     return f"""
 let {var_name} = -1;
-for (let i = 0; i < {ds_var}[0].data.length; i++) {{
-  if ({ds_var}[0].data[i] > {ds_var}[1].data[i]) {{ {var_name} = i; break; }}
+for (let i = 1; i < {ds_var}[0].data.length; i++) {{
+  if ({ds_var}[0].data[i] > {ds_var}[1].data[i] && {ds_var}[0].data[i - 1] <= {ds_var}[1].data[i - 1]) {{ {var_name} = i; break; }}
 }}"""
 
 # Helper to generate crossover annotation plugin JS
