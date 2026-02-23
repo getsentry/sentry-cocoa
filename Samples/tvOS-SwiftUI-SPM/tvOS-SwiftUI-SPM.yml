@@ -15,8 +15,9 @@ fileGroups:
   - tvOS-SwiftUI-SPM.yml
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  tvOS-SwiftUI-SPM:
+  App:
     type: application
     platform: tvOS
     deploymentTarget: "15.0"
@@ -38,7 +39,7 @@ schemes:
   tvOS-SwiftUI-SPM:
     build:
       targets:
-        tvOS-SwiftUI-SPM: all
+        App: all
     run:
       config: Debug
     archive:
