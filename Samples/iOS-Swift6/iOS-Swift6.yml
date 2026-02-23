@@ -17,25 +17,29 @@ projectReferences:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
+  - App/Configuration
+  - UITests/Configuration
   - iOS-Swift6.yml
   - ../../Plans/iOS-Swift6_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  iOS-Swift6:
+  App:
     type: application
     platform: auto
     sources:
-      - iOS-Swift6
+      - App/Sources
+      - App/Resources
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: iOS-Swift6.xcconfig
-      Release: iOS-Swift6.xcconfig
-      Test: iOS-Swift6.xcconfig
-      TestCI: iOS-Swift6.xcconfig
+      Debug: App/Configuration/iOS-Swift6.xcconfig
+      Release: App/Configuration/iOS-Swift6.xcconfig
+      Test: App/Configuration/iOS-Swift6.xcconfig
+      TestCI: App/Configuration/iOS-Swift6.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -44,24 +48,24 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
-  iOS-Swift6-UITests:
+  UITests:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - iOS-Swift6-UITests
+      - UITests/Sources
     configFiles:
-      Debug: iOS-Swift6-UITests.xcconfig
-      Release: iOS-Swift6-UITests.xcconfig
-      Test: iOS-Swift6-UITests.xcconfig
-      TestCI: iOS-Swift6-UITests.xcconfig
+      Debug: UITests/Configuration/iOS-Swift6-UITests.xcconfig
+      Release: UITests/Configuration/iOS-Swift6-UITests.xcconfig
+      Test: UITests/Configuration/iOS-Swift6-UITests.xcconfig
+      TestCI: UITests/Configuration/iOS-Swift6-UITests.xcconfig
 schemes:
   iOS-Swift6:
     templates:
       - SampleAppScheme
     build:
       targets:
-        iOS-Swift6: all
-        iOS-Swift6-UITests: test
+        App: all
+        UITests: test
     test:
       config: Test
       testPlans:
