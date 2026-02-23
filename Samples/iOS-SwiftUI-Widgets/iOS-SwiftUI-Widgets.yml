@@ -10,6 +10,9 @@ configs:
   Release: release
 fileGroups:
   - ../Shared/Config
+  - App/Configuration
+  - WidgetExtension/Configuration
+  - LiveActivity/Configuration
   - iOS-SwiftUI-Widgets.yml
 projectReferences:
   Sentry:
@@ -18,61 +21,65 @@ projectReferences:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 options:
   bundleIdPrefix: io.sentry.sentry-cocoa.samples
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  iOS-SwiftUI-Widgets:
+  App:
     type: application
     platform: iOS
     deploymentTarget: "18.0"
     sources:
-      - iOS-SwiftUI-Widgets
+      - App/Sources
+      - path: App/Resources
+        type: group
+        excludes:
+          - "**/Info.plist"
+          - "**/*.entitlements"
       - Shared
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
-      - target: iOS-SwiftUI-Widgets-WidgetExtension
-      - target: iOS-SwiftUI-Widgets-LiveActivity
+      - target: WidgetExtension
+      - target: LiveActivity
     settings:
-      CODE_SIGN_ENTITLEMENTS: iOS-SwiftUI-Widgets/Resources/Entitlements.entitlements
+      CODE_SIGN_ENTITLEMENTS: App/Configuration/Entitlements.entitlements
     configFiles:
-      Debug: iOS-SwiftUI-Widgets.xcconfig
-      Release: iOS-SwiftUI-Widgets.xcconfig
-  iOS-SwiftUI-Widgets-WidgetExtension:
+      Debug: App/Configuration/iOS-SwiftUI-Widgets.xcconfig
+      Release: App/Configuration/iOS-SwiftUI-Widgets.xcconfig
+  WidgetExtension:
     type: app-extension
     platform: iOS
     deploymentTarget: "18.0"
     sources:
-      - iOS-SwiftUI-Widgets-WidgetExtension
+      - WidgetExtension/Sources
+      - WidgetExtension/Resources
       - Shared
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
-    settings:
-      CODE_SIGN_ENTITLEMENTS: iOS-SwiftUI-Widgets-WidgetExtension/Resources/Entitlements.entitlements
     configFiles:
-      Debug: iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
-      Release: iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
-  iOS-SwiftUI-Widgets-LiveActivity:
+      Debug: WidgetExtension/Configuration/iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
+      Release: WidgetExtension/Configuration/iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
+  LiveActivity:
     type: app-extension
     platform: iOS
     deploymentTarget: "18.0"
     sources:
-      - iOS-SwiftUI-Widgets-LiveActivity
+      - LiveActivity/Sources
+      - LiveActivity/Resources
       - Shared
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
-    settings:
-      CODE_SIGN_ENTITLEMENTS: iOS-SwiftUI-Widgets-LiveActivity/Resources/Entitlements.entitlements
     configFiles:
-      Debug: iOS-SwiftUI-Widgets-LiveActivity.xcconfig
-      Release: iOS-SwiftUI-Widgets-LiveActivity.xcconfig
+      Debug: LiveActivity/Configuration/iOS-SwiftUI-Widgets-LiveActivity.xcconfig
+      Release: LiveActivity/Configuration/iOS-SwiftUI-Widgets-LiveActivity.xcconfig
 schemes:
   iOS-SwiftUI-Widgets:
     build:
       targets:
-        iOS-SwiftUI-Widgets: all
-        iOS-SwiftUI-Widgets-WidgetExtension: all
-        iOS-SwiftUI-Widgets-LiveActivity: all
+        App: all
+        WidgetExtension: all
+        LiveActivity: all
     run:
       config: Debug
     profile:
@@ -82,8 +89,8 @@ schemes:
   iOS-SwiftUI-Widgets-WidgetExtension:
     build:
       targets:
-        iOS-SwiftUI-Widgets: all
-        iOS-SwiftUI-Widgets-WidgetExtension: all
+        App: all
+        WidgetExtension: all
     run:
       config: Debug
       askForAppToLaunch: true
@@ -92,8 +99,8 @@ schemes:
   iOS-SwiftUI-Widgets-WidgetControl:
     build:
       targets:
-        iOS-SwiftUI-Widgets: all
-        iOS-SwiftUI-Widgets-WidgetExtension: all
+        App: all
+        WidgetExtension: all
     run:
       config: Debug
       askForAppToLaunch: true
@@ -102,9 +109,9 @@ schemes:
   iOS-SwiftUI-Widgets-LiveActivity:
     build:
       targets:
-        iOS-SwiftUI-Widgets: all
-        iOS-SwiftUI-Widgets-WidgetExtension: all
-        iOS-SwiftUI-Widgets-LiveActivity: all
+        App: all
+        WidgetExtension: all
+        LiveActivity: all
     run:
       config: Debug
     profile:

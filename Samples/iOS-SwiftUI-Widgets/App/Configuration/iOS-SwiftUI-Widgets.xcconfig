@@ -1,7 +1,7 @@
-#include "../Shared/Config/_Common.xcconfig"
+#include "../../../Shared/Config/_Common.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sentry-cocoa.samples.iOS-SwiftUI-Widgets
-CODE_SIGN_ENTITLEMENTS = iOS-SwiftUI-Widgets/Resources/Entitlements.entitlements
+CODE_SIGN_ENTITLEMENTS = App/Configuration/Entitlements.entitlements
 
 GENERATE_INFOPLIST_FILE = YES
 INFOPLIST_KEY_NSSupportsLiveActivities = YES

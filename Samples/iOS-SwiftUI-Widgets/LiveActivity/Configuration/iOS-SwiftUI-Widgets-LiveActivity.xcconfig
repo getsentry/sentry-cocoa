@@ -1,8 +1,8 @@
-#include "../Shared/Config/_Common.xcconfig"
+#include "../../../Shared/Config/_Common.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sentry-cocoa.samples.iOS-SwiftUI-Widgets.LiveActivity
-INFOPLIST_FILE = iOS-SwiftUI-Widgets-LiveActivity/Resources/Info.plist
-CODE_SIGN_ENTITLEMENTS = iOS-SwiftUI-Widgets-LiveActivity/Resources/Entitlements.entitlements
+INFOPLIST_FILE = LiveActivity/Configuration/Info.plist
+CODE_SIGN_ENTITLEMENTS = LiveActivity/Configuration/Entitlements.entitlements
 
 GENERATE_INFOPLIST_FILE = NO
 
