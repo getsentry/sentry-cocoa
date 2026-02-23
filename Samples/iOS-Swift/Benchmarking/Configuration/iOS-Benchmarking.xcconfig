@@ -1,7 +1,7 @@
-#include "../Shared/Config/_Common.xcconfig"
+#include "../../../Shared/Config/_Common.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-Benchmarking
-INFOPLIST_FILE = iOS-Benchmarking/Info.plist
+INFOPLIST_FILE = Benchmarking/Configuration/Info.plist
 
 PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.iOS-Benchmarking.xctrunner
 PROVISIONING_PROFILE_SPECIFIER_Test =
