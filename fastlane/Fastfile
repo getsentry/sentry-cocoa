@@ -5,11 +5,11 @@ platform :ios do
     ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "10" # sometimes running xcodebuild commands is slow on CI runners. give them more time than the default of 10 seconds. see https://github.com/fastlane-old/gym/issues/188#issuecomment-190320592 and https://docs.fastlane.tools/advanced/lanes/
   end
 
-  ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
-  ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
-  ios_swift_share_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-ShareExtension/Resources/Info.plist"
-  ios_swift_intent_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-IntentExtension/Resources/Info.plist"
-  ios_swift_action_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-ActionExtension/Resources/Info.plist"
+  ios_swift_infoplist_path = "./Samples/iOS-Swift/App/Configuration/Info.plist"
+  ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/AppClip/Configuration/Info.plist"
+  ios_swift_share_extension_infoplist_path = "./Samples/iOS-Swift/ShareExtension/Configuration/Info.plist"
+  ios_swift_intent_extension_infoplist_path = "./Samples/iOS-Swift/IntentExtension/Configuration/Info.plist"
+  ios_swift_action_extension_infoplist_path = "./Samples/iOS-Swift/ActionExtension/Configuration/Info.plist"
 
   # Helper method to run tests with common configuration
   def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false)
@@ -52,7 +52,7 @@ platform :ios do
   lane :remove_preview_version_suffixes do
     version = get_version_number(
       xcodeproj: "Samples/iOS-Swift/iOS-Swift.xcodeproj",
-      target: "iOS-Swift"
+      target: "App"
       )
     new_version = version.split("-", -1)[0]
 

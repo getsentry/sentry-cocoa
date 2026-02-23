@@ -1,7 +1,9 @@
-#include "../Shared/Config/_Common.xcconfig"
+#include "../../../Shared/Config/_Common.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift.ShareExtension
-INFOPLIST_FILE = iOS-Swift-ShareExtension/Info.plist
+INFOPLIST_FILE = ShareExtension/Configuration/Info.plist
+
+SWIFT_OBJC_BRIDGING_HEADER = Shared/Headers/iOS-Swift-Bridging-Header.h
 
 PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.iOS-Swift.ShareExtension
 PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.sample.iOS-Swift.ShareExtension
@@ -14,7 +16,4 @@ CODE_SIGN_STYLE = Manual
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 
-SWIFT_OBJC_BRIDGING_HEADER = iOS-Swift/Tools/iOS-Swift-Bridging-Header.h
-
-// Runtime search paths for app extensions to find frameworks in parent app
 LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks @executable_path/../../Frameworks

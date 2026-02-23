@@ -1,6 +1,7 @@
-#include "../Shared/Config/_Common.xcconfig"
+#include "../../../Shared/Config/_Common.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-Swift-UITests
+INFOPLIST_FILE = UITests/Configuration/Info.plist
 
 PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.iOS-Swift-UITests.xctrunner
 PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.iOS-Swift-UITests.xctrunner
