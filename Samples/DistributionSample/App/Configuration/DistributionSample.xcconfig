@@ -1,4 +1,4 @@
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.DistributionSample
-INFOPLIST_FILE = DistributionSample/Info.plist
+INFOPLIST_FILE = App/Configuration/Info.plist
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 IPHONEOS_DEPLOYMENT_TARGET = 15.0
