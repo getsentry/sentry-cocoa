@@ -22,22 +22,26 @@ fileGroups:
   - ../../Plans/tvOS-SBSwift_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
   tvOS-Swift:
     type: application
     platform: auto
     sources:
-      - tvOS-Swift
+      - path: App
+        type: group
+        excludes:
+          - "**/Info.plist"
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: tvOS-Swift.xcconfig
-      Release: tvOS-Swift.xcconfig
-      Test: tvOS-Swift.xcconfig
-      TestCI: tvOS-Swift.xcconfig
+      Debug: App/Configurations/tvOS-Swift.xcconfig
+      Release: App/Configurations/tvOS-Swift.xcconfig
+      Test: App/Configurations/tvOS-Swift.xcconfig
+      TestCI: App/Configurations/tvOS-Swift.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -50,17 +54,20 @@ targets:
     type: application
     platform: auto
     sources:
-      - tvOS-SBSwift
+      - path: AppSBSwift
+        type: group
+        excludes:
+          - "**/Info.plist"
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: tvOS-SBSwift.xcconfig
-      Release: tvOS-SBSwift.xcconfig
-      Test: tvOS-SBSwift.xcconfig
-      TestCI: tvOS-SBSwift.xcconfig
+      Debug: AppSBSwift/Configurations/tvOS-SBSwift.xcconfig
+      Release: AppSBSwift/Configurations/tvOS-SBSwift.xcconfig
+      Test: AppSBSwift/Configurations/tvOS-SBSwift.xcconfig
+      TestCI: AppSBSwift/Configurations/tvOS-SBSwift.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -73,22 +80,28 @@ targets:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - tvOS-Swift-UITests
+      - path: UITests
+        type: group
+        excludes:
+          - "**/Info.plist"
     configFiles:
-      Debug: tvOS-Swift-UITests.xcconfig
-      Release: tvOS-Swift-UITests.xcconfig
-      Test: tvOS-Swift-UITests.xcconfig
-      TestCI: tvOS-Swift-UITests.xcconfig
+      Debug: UITests/Configurations/tvOS-Swift-UITests.xcconfig
+      Release: UITests/Configurations/tvOS-Swift-UITests.xcconfig
+      Test: UITests/Configurations/tvOS-Swift-UITests.xcconfig
+      TestCI: UITests/Configurations/tvOS-Swift-UITests.xcconfig
   tvOS-SBSwift-UITests:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - tvOS-SBSwift-UITests
+      - path: AppSBSwift-UITests
+        type: group
+        excludes:
+          - "**/Info.plist"
     configFiles:
-      Debug: tvOS-SBSwift-UITests.xcconfig
-      Release: tvOS-SBSwift-UITests.xcconfig
-      Test: tvOS-SBSwift-UITests.xcconfig
-      TestCI: tvOS-SBSwift-UITests.xcconfig
+      Debug: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig
+      Release: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig
+      Test: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig
+      TestCI: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig
 schemes:
   tvOS-Swift:
     templates:
