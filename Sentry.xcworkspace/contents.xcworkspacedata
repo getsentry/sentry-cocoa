@@ -72,4 +72,8 @@
          location = "group:TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj">
       </FileRef>
    </Group>
+   <FileSystemSynchronizedGroup
+      location = "group:Utils"
+      name = "Utils">
+   </FileSystemSynchronizedGroup>
 </Workspace>
