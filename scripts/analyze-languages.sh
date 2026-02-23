@@ -192,12 +192,10 @@ for month in months:
         for fpath, size in file_sizes.items():
             if not fpath.startswith(scope_prefix):
                 continue
+            total_size += size
             lang = file_to_lang.get(fpath)
             if lang and lang in lang_sizes:
                 lang_sizes[lang] += size
-                total_size += size
-            elif lang:
-                total_size += size
 
         for lang in LANGUAGES:
             pct = (lang_sizes[lang] / total_size * 100) if total_size > 0 else 0
