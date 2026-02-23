@@ -29,6 +29,7 @@ command -v python3 &> /dev/null || { log_error "Python 3 is required but not ins
 TMP_DIR="$REPO_ROOT/_linguist_tmp"
 OUTPUT_FILE="$REPO_ROOT/language-trends.html"
 DATA_DIR="$TMP_DIR/data"
+export DATA_DIR OUTPUT_FILE
 DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
 DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
 # In CI, actions/checkout only creates the triggering branch locally;
@@ -49,7 +50,7 @@ trap cleanup EXIT
 # ── 1. Install github-linguist into a temporary directory ─────────────────
 begin_group "Installing github-linguist gem"
 mkdir -p "$TMP_DIR" "$DATA_DIR"
-GEM_HOME="$TMP_DIR" gem install github-linguist --no-document 2>&1 | tail -1
+GEM_HOME="$TMP_DIR" gem install github-linguist -v 9.4.0 --no-document 2>&1 | tail -1
 
 export GEM_HOME="$TMP_DIR"
 export PATH="$TMP_DIR/bin:$PATH"
@@ -118,7 +119,7 @@ for i in $(seq 0 $((TOTAL - 1))); do
     month="${MONTHS[$i]}"
     sha="${COMMITS[$i]}"
     log_notice "[$((i + 1))/$TOTAL] $month"
-    github-linguist --rev "$sha" --breakdown --json > "$DATA_DIR/${month}.linguist.json" 2>&1
+    github-linguist --rev "$sha" --breakdown --json > "$DATA_DIR/${month}.linguist.json" 2>/dev/null
     git ls-tree -r -l "$sha" > "$DATA_DIR/${month}.lstree.txt"
 done
 end_group
@@ -363,7 +364,7 @@ html = f"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sentry Cocoa SDK — Language Trends</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" integrity="sha384-vsrfeLOOY6KuIYKDlmVH5UiBmgIdB1oEf7p01YgWHuqmOHfZr374+odEv96n9tNC" crossorigin="anonymous"></script>
 <style>
   body {{
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
