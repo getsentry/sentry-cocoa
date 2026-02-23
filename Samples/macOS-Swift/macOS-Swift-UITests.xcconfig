@@ -1,9 +1,0 @@
-#include "../Shared/Config/_Common.xcconfig"
-
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-Swift-UITests
-
-SUPPORTED_PLATFORMS = macosx
-
-TEST_TARGET_NAME = macOS-Swift
-
-GENERATE_INFOPLIST_FILE = YES
