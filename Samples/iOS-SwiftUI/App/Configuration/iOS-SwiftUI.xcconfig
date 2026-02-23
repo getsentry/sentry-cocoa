@@ -4,7 +4,7 @@ PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-SwiftUI
 INFOPLIST_FILE = App/Configuration/Info.plist
 CODE_SIGN_ENTITLEMENTS = App/Configuration/iOS-SwiftUI.entitlements
 
-SWIFT_OBJC_BRIDGING_HEADER = App/Sources/bridging-headers.h
+SWIFT_OBJC_BRIDGING_HEADER = App/Headers/iOS-SwiftUI-Bridging-Header.h
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 
