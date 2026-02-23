@@ -76,8 +76,14 @@ static SentryCrashStackCursor g_stackCursor;
 
 // The ObjC runtime uses a custom C++ type_info subclass (objc_typeinfo) for all Objective-C
 // exceptions. Its vtable pointer is set to objc_ehtype_vtable+2 (the +2 skips the Itanium C++ ABI
-// vtable prefix: offset-to-top and RTTI pointer). This symbol is exported from libobjc on all Apple
-// platforms and declared in Apple's internal objc-abi.h:
+// vtable prefix: offset-to-top and RTTI pointer).
+//
+// objc_typeinfo struct definition:
+// https://github.com/apple-oss-distributions/objc4/blob/fb265098/runtime/objc-exception.mm#L313-L320
+//
+// objc_ehtype_vtable is exported from libobjc on all Apple platforms (iOS, macOS, tvOS, watchOS,
+// visionOS) and all architectures (arm64, arm64e, arm64_32, x86_64), declared in Apple's internal
+// objc-abi.h:
 // https://github.com/apple-oss-distributions/objc4/blob/fb265098/runtime/objc-abi.h#L377-L380
 extern "C" const void *const objc_ehtype_vtable[];
 
