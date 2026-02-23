@@ -262,7 +262,13 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
-    if (sessionTask.state == NSURLSessionTaskStateRunning) {
+    // Capture breadcrumbs, failed requests, and response status codes on the first terminal
+    // transition. Because our swizzle runs before the original setState:, sessionTask.state
+    // still reflects the previous state. We check for Running and Suspended to cover:
+    //   - running → completed/canceling (normal completion or cancellation)
+    //   - suspended → canceling (task cancelled while suspended)
+    if (sessionTask.state == NSURLSessionTaskStateRunning
+        || sessionTask.state == NSURLSessionTaskStateSuspended) {
         [self captureFailedRequests:sessionTask];
 
         [self addBreadcrumbForSessionTask:sessionTask];

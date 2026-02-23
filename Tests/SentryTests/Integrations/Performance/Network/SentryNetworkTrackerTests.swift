@@ -249,6 +249,29 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(span.status, .ok)
     }
 
+    func testSuspendedRequest_whenCancelledWhileSuspended_shouldRecordBreadcrumb() throws {
+        // A task cancelled while suspended should still record a breadcrumb,
+        // consistent with the running → canceling path.
+
+        // -- Arrange --
+        let task = createDataTask()
+        _ = try XCTUnwrap(spanForTask(task: task))
+
+        // -- Act --
+        try setTaskState(task, state: .suspended)
+        try setTaskState(task, state: .canceling)
+
+        // -- Assert --
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        XCTAssertEqual(breadcrumbs.count, 1)
+
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.type, "http")
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["url"] as? String), SentryNetworkTrackerTests.testUrl)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["method"] as? String), "GET")
+    }
+
     func testCaptureRequestWithError() throws {
         let task = createDataTask()
         let span = try XCTUnwrap(spanForTask(task: task))
