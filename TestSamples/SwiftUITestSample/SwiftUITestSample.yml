@@ -13,6 +13,7 @@ fileGroups:
   - SwiftUITestSample.yml
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
   SwiftUITestSample:
     type: application
