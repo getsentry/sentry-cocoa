@@ -17,7 +17,6 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         clearTestState()
     }
     
-#if os(iOS) || os(tvOS)
     
     func testStopRemovesSwizzleSendAction() {
         let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
@@ -336,6 +335,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         let viewController = UIViewController()
         viewController.title = "Window Test"
         window.rootViewController = viewController
+        window.makeKeyAndVisible() // Make window active so view hierarchy is established
         _ = viewController.view // Load view so it is in the window hierarchy
 
         viewController.viewDidAppear(false)
@@ -426,6 +426,5 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         }
     }
 
-#endif
     
 }
