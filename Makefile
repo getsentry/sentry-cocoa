@@ -35,8 +35,8 @@ VISIONOS_DEVICE_NAME ?= Apple Vision Pro
 # watchOS Simulator OS version (defaults to 'latest', can be overridden via WATCHOS_SIMULATOR_OS=11.0)
 WATCHOS_SIMULATOR_OS ?= latest
 
-# watchOS Simulator device name (defaults to 'Apple Watch Series 11 (46mm)', can be overridden via WATCHOS_DEVICE_NAME='Apple Watch SE 3 (44mm)')
-WATCHOS_DEVICE_NAME ?= Apple Watch Series 11 (46mm)
+# watchOS Simulator device name (defaults to 'Apple Watch SE 3 (44mm)', can be overridden via WATCHOS_DEVICE_NAME='Apple Watch Ultra 3 (49mm)')
+WATCHOS_DEVICE_NAME ?= Apple Watch SE 3 (44mm)
 
 # Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
@@ -540,6 +540,16 @@ format-yaml:
 # ============================================================================
 # ANALYSIS
 # ============================================================================
+
+## Analyze repository language trends
+#
+# Uses github-linguist to compute the language breakdown at monthly intervals.
+# Produces an interactive HTML chart (language-trends.html) and opens it in the browser.
+# The linguist gem is managed via Bundler in scripts/analyze-languages/.
+# Optionally pass SINCE=YYYY-MM-DD to set the start date (default: 2019-01-01).
+.PHONY: analyze-languages
+analyze-languages:
+	./scripts/analyze-languages/analyze-languages.sh $(if $(SINCE),--since $(SINCE))
 
 ## Run static analysis
 #
