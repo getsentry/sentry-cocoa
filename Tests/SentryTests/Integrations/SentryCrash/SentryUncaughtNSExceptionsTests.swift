@@ -29,8 +29,48 @@ final class SentryUncaughtNSExceptionsTests: XCTestCase {
         // We have to set the flat to false, cause otherwise we would crash
         UserDefaults.standard.set(false, forKey: "NSApplicationCrashOnExceptions")
         NSApplication.shared.reportException(uncaughtInternalInconsistencyException)
+
+        XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
     }
     
+    func testSwizzleNSApplicationCrashOnException_classMethod() throws {
+        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+
+        defer {
+            crashReporter.uncaughtExceptionHandler = nil
+            wasUncaughtExceptionHandlerCalled = false
+        }
+
+        crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
+
+        SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException()
+
+        // Call the class method +[NSApplication _crashOnException:].
+        // In tests, SentrySWCallOriginal is skipped so this won't abort().
+        NSApplication.perform(NSSelectorFromString("_crashOnException:"), with: uncaughtInternalInconsistencyException)
+
+        XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
+    }
+
+    func testSwizzleNSApplicationCrashOnException_instanceMethod() throws {
+        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+
+        defer {
+            crashReporter.uncaughtExceptionHandler = nil
+            wasUncaughtExceptionHandlerCalled = false
+        }
+
+        crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
+
+        SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException()
+
+        // Call the instance method -[NSApp _crashOnException:].
+        // In tests, SentrySWCallOriginal is skipped so this won't abort().
+        NSApplication.shared.perform(NSSelectorFromString("_crashOnException:"), with: uncaughtInternalInconsistencyException)
+
+        XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
+    }
+
     func testCapture_ForwardsException() throws {
         let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
         

@@ -5,6 +5,12 @@
 #    import "SentryCrashExceptionApplication.h"
 #    import "SentryCrashExceptionApplicationHelper.h"
 #    import "SentryUncaughtNSExceptions.h"
+#    import <AppKit/NSApplication.h>
+
+// Private AppKit method called on the application instance during CATransaction flush.
+@interface NSApplication (SentryCrashOnException)
+- (void)_crashOnException:(NSException *)exception;
+@end
 
 @implementation SentryCrashExceptionApplication
 
@@ -19,7 +25,12 @@
 
 - (void)_crashOnException:(NSException *)exception
 {
-    [SentryCrashExceptionApplicationHelper _crashOnException:exception];
+    // AppKit calls -[NSApp _crashOnException:] on the application instance in some code paths
+    // (e.g., CATransaction flush). We capture the exception via the crash reporter's uncaught
+    // exception handler, which synchronously writes the crash report with the exception's original
+    // call stack before the process terminates.
+    [SentryCrashExceptionApplicationHelper reportException:exception];
+    [super _crashOnException:exception];
 }
 
 @end

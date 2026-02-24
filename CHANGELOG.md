@@ -6,6 +6,7 @@
 
 - Resolve data race crash in monitorCachedData (#7423)
 - Don't finish network spans for suspended URL session tasks (#7471)
+- Capture instance and class method `[NSApplication _crashOnException]` exceptions (#7510)
 
 ## 9.5.0
 

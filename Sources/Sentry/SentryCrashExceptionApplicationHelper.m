@@ -5,8 +5,6 @@
 #    import "SentryCrash.h"
 #    import "SentryCrashExceptionApplication.h"
 #    import "SentryCrashExceptionApplicationHelper.h"
-#    import "SentrySDK+Private.h"
-#    import "SentrySDKInternal.h"
 #    import "SentrySwift.h"
 
 @implementation SentryCrashExceptionApplicationHelper
@@ -17,14 +15,6 @@
     if (nil != crash.uncaughtExceptionHandler && nil != exception) {
         crash.uncaughtExceptionHandler(exception);
     }
-}
-
-+ (void)_crashOnException:(NSException *)exception
-{
-    [SentrySDKInternal captureCrashOnException:exception];
-#    if !(SENTRY_TEST || SENTRY_TEST_CI)
-    abort();
-#    endif
 }
 
 @end
