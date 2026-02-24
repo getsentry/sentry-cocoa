@@ -85,6 +85,7 @@ class SentryCrashInstallationTests: XCTestCase {
             dateProvider: container.dateProvider,
             crashReporter: container.crashReporter
         )
+        container.crashReporter.setBridge(bridge)
         installation.bridge = bridge
         return installation
     }

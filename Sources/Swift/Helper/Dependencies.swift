@@ -11,16 +11,6 @@
     }()
     @objc public static let dispatchQueueWrapper = SentryDispatchQueueWrapper()
     @objc public static let notificationCenterWrapper: SentryNSNotificationCenterWrapper = NotificationCenter.default
-    @objc public static let crashWrapper: SentryCrashWrapper = {
-        // Create a bridge for crashWrapper to use
-        let container = SentryDependencyContainer.sharedInstance()
-        let bridge = SentryCrashBridge(
-            notificationCenterWrapper: container.notificationCenterWrapper,
-            dateProvider: container.dateProvider,
-            crashReporter: container.crashReporter
-        )
-        return SentryCrashWrapper(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
-    }()
     @objc public static let binaryImageCache = SentryBinaryImageCache()
     @objc public static let debugImageProvider = SentryDebugImageProvider()
     @objc public static let sysctlWrapper = SentrySysctl()

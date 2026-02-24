@@ -110,7 +110,15 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var dateProvider: SentryCurrentDateProvider = Dependencies.dateProvider
     @objc public var notificationCenterWrapper = Dependencies.notificationCenterWrapper
     @objc public var processInfoWrapper = Dependencies.processInfoWrapper
-    @objc public var crashWrapper = Dependencies.crashWrapper
+    private var _crashWrapper: SentryCrashWrapper?
+    @objc public lazy var crashWrapper: SentryCrashWrapper = getLazyVar(\._crashWrapper) {
+        let bridge = SentryCrashBridge(
+            notificationCenterWrapper: self.notificationCenterWrapper,
+            dateProvider: self.dateProvider,
+            crashReporter: self.crashReporter
+        )
+        return SentryCrashWrapper(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
+    }
     @objc public var dispatchFactory = SentryDispatchFactory()
     @objc public var timerFactory = SentryNSTimerFactory()
     @objc public var fileIOTracker = Dependencies.fileIOTracker
@@ -132,9 +140,15 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var coreDataSwizzling = SentryCoreDataSwizzling()
     
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
-    @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
+    private var _extraContextProvider: SentryExtraContextProvider?
+    @objc public lazy var extraContextProvider: SentryExtraContextProvider = getLazyVar(\._extraContextProvider) {
+        SentryExtraContextProvider(crashWrapper: self.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
+    }
 #else
-    @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper)
+    private var _extraContextProvider: SentryExtraContextProvider?
+    @objc public lazy var extraContextProvider: SentryExtraContextProvider = getLazyVar(\._extraContextProvider) {
+        SentryExtraContextProvider(crashWrapper: self.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper)
+    }
 #endif
 
     private var _eventContextEnricher: SentryEventContextEnricher?
