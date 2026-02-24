@@ -2,7 +2,8 @@ import _SentryPrivate
 import Foundation
 @_spi(Private) @testable import Sentry
 
-public class TestClient: SentryClientInternal {
+/// `open` because subclassed in test targets, e.g. to override `getTelemetryProcessor()`.
+open class TestClient: SentryClientInternal {
 
     public override init?(options: NSObject) {
         super.init(
@@ -181,11 +182,5 @@ public class TestClient: SentryClientInternal {
         if let castLog = log as? SentryLog {
             captureLogInvocations.record((castLog, scope))
         }
-    }
-
-    public var captureMetricsDataInvocations = Invocations<(data: Data, count: NSNumber)>()
-    public override func captureMetricsData(_ data: Data, with itemCount: NSNumber) {
-        captureMetricsDataInvocations.record((data, itemCount))
-        super.captureMetricsData(data, with: itemCount)
     }
 }
