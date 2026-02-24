@@ -93,9 +93,7 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 
 - (void)dealloc
 {
-    SentryCrashSwift *handler = self.bridge
-        ? self.bridge.crashReporter
-        : SentryDependencyContainer.sharedInstance.crashReporter;
+    SentryCrashSwift *handler = self.bridge.crashReporter;
     @synchronized(handler) {
         if (g_crashHandlerData == self.crashHandlerData) {
             g_crashHandlerData = NULL;
@@ -164,9 +162,7 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 
 - (void)install:(NSString *)customCacheDirectory
 {
-    SentryCrashSwift *handler = self.bridge
-        ? self.bridge.crashReporter
-        : SentryDependencyContainer.sharedInstance.crashReporter;
+    SentryCrashSwift *handler = self.bridge.crashReporter;
     @synchronized(handler) {
         handler.basePath = customCacheDirectory;
         g_crashHandlerData = self.crashHandlerData;
@@ -177,9 +173,7 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 
 - (void)uninstall
 {
-    SentryCrashSwift *handler = self.bridge
-        ? self.bridge.crashReporter
-        : SentryDependencyContainer.sharedInstance.crashReporter;
+    SentryCrashSwift *handler = self.bridge.crashReporter;
     @synchronized(handler) {
         if (g_crashHandlerData == self.crashHandlerData) {
             g_crashHandlerData = NULL;
@@ -210,9 +204,7 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 
     sink = [SentryCrashReportFilterPipeline filterWithFilters:sink, nil];
 
-    SentryCrashSwift *handler = self.bridge
-        ? self.bridge.crashReporter
-        : SentryDependencyContainer.sharedInstance.crashReporter;
+    SentryCrashSwift *handler = self.bridge.crashReporter;
     handler.sink =
         [[SentryCrashReportFilterSwift alloc] initWithFilterReports:^(NSArray *_Nonnull array,
             void (^_Nonnull completion)(NSArray *_Nullable, BOOL, NSError *_Nullable)) {

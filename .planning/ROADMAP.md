@@ -102,11 +102,11 @@ Plans:
 2. Documentation explains why SentryCrash must not directly access SentryDependencyContainer
 3. Documentation lists the five services provided through the facade
 4. Documentation provides guidance for adding new SentryCrash dependencies (use facade, not container)
-   **Plans**: TBD
+   **Plans**: 1 plan in 1 wave
 
 Plans:
 
-- [ ] 05-01: TBD
+- [ ] 05-01-PLAN.md — Add Dependency Isolation section to develop-docs/SENTRYCRASH.md
 
 ## Progress
 
@@ -116,4 +116,4 @@ Plans:
 | 2. Swift Isolation                | 2/2            | ✓ Complete  | 2026-02-13 |
 | 3. ObjC Isolation                 | 3/3            | ✓ Complete  | 2026-02-13 |
 | 4. Verification                   | 0/1            | Not started | -          |
-| 5. Documentation                  | 0/0            | Not started | -          |
+| 5. Documentation                  | 0/1            | Planned     | -          |

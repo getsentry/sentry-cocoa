@@ -30,15 +30,9 @@ public class SentryCrashWrapper: NSObject {
 
 #if SENTRY_TEST || SENTRY_TEST_CI
     // This var and initializer are used to inject system info during tests
-    public init(processInfoWrapper: SentryProcessInfoSource, systemInfo: [String: Any]) {
+    public init(processInfoWrapper: SentryProcessInfoSource, systemInfo: [String: Any], bridge: SentryCrashBridge) {
         self.processInfoWrapper = processInfoWrapper
-        // Create a bridge from the shared container for tests
-        let container = SentryDependencyContainer.sharedInstance()
-        self.bridge = SentryCrashBridge(
-            notificationCenterWrapper: container.notificationCenterWrapper,
-            dateProvider: container.dateProvider,
-            crashReporter: container.crashReporter
-        )
+        self.bridge = bridge
         self.systemInfo = systemInfo
         super.init()
     }

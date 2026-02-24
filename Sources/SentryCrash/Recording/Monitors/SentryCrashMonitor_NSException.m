@@ -133,12 +133,7 @@ setEnabled(bool isEnabled)
 
             SENTRY_LOG_DEBUG(@"Setting new handler.");
             NSSetUncaughtExceptionHandler(&handleUncaughtException);
-            if (g_bridge) {
-                g_bridge.crashReporter.uncaughtExceptionHandler = &handleUncaughtException;
-            } else {
-                SentryDependencyContainer.sharedInstance.crashReporter.uncaughtExceptionHandler
-                    = &handleUncaughtException;
-            }
+            g_bridge.crashReporter.uncaughtExceptionHandler = &handleUncaughtException;
         } else {
             SENTRY_LOG_DEBUG(@"Restoring original handler.");
             NSSetUncaughtExceptionHandler(g_previousUncaughtExceptionHandler);
