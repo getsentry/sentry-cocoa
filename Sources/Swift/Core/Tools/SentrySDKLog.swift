@@ -23,7 +23,8 @@ typealias SentryLogOutput = ((String) -> Void)
      * Threshold log level to always log, regardless of the current configuration
      */
     static let alwaysLevel = SentryLevel.fatal
-    private static var logOutput: ((String) -> Void) = { print($0) }
+    private static let defaultLogOutput: SentryLogOutput = { print($0) }
+    private static var logOutput: SentryLogOutput = defaultLogOutput
     private static var dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
 
     static func _configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
@@ -67,7 +68,7 @@ typealias SentryLogOutput = ((String) -> Void)
     public static func setOutput(_ output: ((String) -> Void)?) {
         // Objective-C callers can pass nil at runtime despite NS_ASSUME_NONNULL annotations.
         // Fall back to default print handler to prevent crashes when logging.
-        logOutput = output ?? { print($0) }
+        logOutput = output ?? defaultLogOutput
     }
 
     #if SENTRY_TEST || SENTRY_TEST_CI
