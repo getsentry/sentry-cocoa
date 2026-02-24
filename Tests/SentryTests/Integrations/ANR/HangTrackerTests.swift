@@ -196,7 +196,11 @@ final class HangTrackerTests: XCTestCase {
             addObserver: addObserver,
             removeObserver: removeObserver,
             queue: queue)
+        #if swift(>=6.2)
         weak let weakSut = sut
+        #else
+        weak var weakSut = sut
+        #endif
         
         _ = sut?.addOngoingHangObserver { _, _ in }
         observationBlock?(testObserver, .afterWaiting)
@@ -219,20 +223,22 @@ final class HangTrackerTests: XCTestCase {
             removeObserver: removeObserver,
             queue: queue)
         
+        let lock = NSLock()
         var hangCount = 0
         var lastInterval: TimeInterval = 0
         var lastOngoing: Bool = false
-        
         var hangCallback = XCTestExpectation()
         let id = sut.addOngoingHangObserver { interval, ongoing in
             // Only fulfill one time
-            if lastInterval == 0 {
-                hangCallback.fulfill()
-            }
-            lastInterval = interval
-            lastOngoing = ongoing
-            if !ongoing {
-                hangCount += 1
+            lock.synchronized {
+                if lastInterval == 0 {
+                    hangCallback.fulfill()
+                }
+                lastInterval = interval
+                lastOngoing = ongoing
+                if !ongoing {
+                    hangCount += 1
+                }
             }
         }
         
@@ -241,8 +247,10 @@ final class HangTrackerTests: XCTestCase {
         dateProvider.setSystemUptime(10)
         wait(for: [hangCallback])
         
-        XCTAssertEqual(lastInterval, 10, "First hang interval should be 10")
-        XCTAssertTrue(lastOngoing, "First hang should be ongoing")
+        lock.synchronized {
+            XCTAssertEqual(lastInterval, 10, "First hang interval should be 10")
+            XCTAssertTrue(lastOngoing, "First hang should be ongoing")
+        }
         
         // First hang: complete
         observationBlock?(testObserver, .beforeWaiting)
@@ -253,6 +261,7 @@ final class HangTrackerTests: XCTestCase {
         }
         wait(for: [firstHangEndExpectation])
 
+        // No need for the lock here, the background thread finished
         XCTAssertEqual(hangCount, 1, "First hang should be detected")
         XCTAssertFalse(lastOngoing, "First hang should no longer be ongoing")
         
@@ -260,12 +269,17 @@ final class HangTrackerTests: XCTestCase {
         dateProvider.setSystemUptime(20)
         observationBlock?(testObserver, .afterWaiting)
         dateProvider.setSystemUptime(35) // 15 second hang
-        
-        hangCallback = XCTestExpectation(description: "Second hang detected")
+
+        lock.synchronized {
+            hangCallback = XCTestExpectation(description: "Second hang detected")
+            lastInterval = 0
+        }
         wait(for: [hangCallback])
 
-        XCTAssertEqual(lastInterval, 15, "Second hang interval should be 15")
-        XCTAssertTrue(lastOngoing, "Second hang should be ongoing")
+        lock.synchronized {
+            XCTAssertEqual(lastInterval, 15, "Second hang interval should be 15")
+            XCTAssertTrue(lastOngoing, "Second hang should be ongoing")
+        }
         
         // Second hang: complete
         observationBlock?(testObserver, .beforeWaiting)
@@ -276,6 +290,7 @@ final class HangTrackerTests: XCTestCase {
         }
         wait(for: [secondHangEndExpectation])
         
+        // No need fo rthe lock here, the background thread finished
         XCTAssertEqual(hangCount, 2, "Second hang should be detected after first hang completed")
         XCTAssertFalse(lastOngoing, "Second hang should no longer be ongoing")
         
@@ -295,15 +310,19 @@ final class HangTrackerTests: XCTestCase {
             addObserver: addObserver,
             removeObserver: removeObserver,
             queue: queue)
+        #if swift(>=6.2)
         weak let weakSut = sut
+        #else
+        weak var weakSut = sut
+        #endif
         
         let expectation = XCTestExpectation()
         var hangDetected = false
         _ = sut?.addOngoingHangObserver { _, _ in
             if !hangDetected {
                 expectation.fulfill()
+                hangDetected = true
             }
-            hangDetected = true
         }
         
         // Start the runloop iteration - this triggers the background queue to start waiting
@@ -341,6 +360,7 @@ final class HangTrackerTests: XCTestCase {
             removeObserver: removeObserver,
             queue: queue)
 
+        let lock = NSLock()
         var observer1Interval: TimeInterval = 0
         var observer1Ongoing: Bool = false
         var observer2Interval: TimeInterval = 0
@@ -357,24 +377,30 @@ final class HangTrackerTests: XCTestCase {
             if observer1Interval == 0 {
                 expectation1.fulfill()
             }
-            observer1Interval = interval
-            observer1Ongoing = ongoing
+            lock.synchronized {
+                observer1Interval = interval
+                observer1Ongoing = ongoing
+            }
         }
         let id2 = sut.addOngoingHangObserver { interval, ongoing in
             // Only fulfill one time
             if observer2Interval == 0 {
-                expectation1.fulfill()
+                expectation2.fulfill()
             }
-            observer2Interval = interval
-            observer2Ongoing = ongoing
+            lock.synchronized {
+                observer2Interval = interval
+                observer2Ongoing = ongoing
+            }
         }
         let id3 = sut.addOngoingHangObserver { interval, ongoing in
             // Only fulfill one time
             if observer3Interval == 0 {
-                expectation1.fulfill()
+                expectation3.fulfill()
             }
-            observer3Interval = interval
-            observer3Ongoing = ongoing
+            lock.synchronized {
+                observer3Interval = interval
+                observer3Ongoing = ongoing
+            }
         }
 
         XCTAssertTrue(calledAddObserver, "Expected add observer to be called")
@@ -385,14 +411,16 @@ final class HangTrackerTests: XCTestCase {
 
         wait(for: [expectation1, expectation2, expectation3])
 
-        // All observers should have received the hang with same interval
-        XCTAssertEqual(observer1Interval, 10, "Observer 1 should receive hang interval")
-        XCTAssertEqual(observer2Interval, 10, "Observer 2 should receive hang interval")
-        XCTAssertEqual(observer3Interval, 10, "Observer 3 should receive hang interval")
-
-        XCTAssertTrue(observer1Ongoing, "Observer 1 should report hang as ongoing")
-        XCTAssertTrue(observer2Ongoing, "Observer 2 should report hang as ongoing")
-        XCTAssertTrue(observer3Ongoing, "Observer 3 should report hang as ongoing")
+        lock.synchronized {
+            // All observers should have received the hang with same interval
+            XCTAssertEqual(observer1Interval, 10, "Observer 1 should receive hang interval")
+            XCTAssertEqual(observer2Interval, 10, "Observer 2 should receive hang interval")
+            XCTAssertEqual(observer3Interval, 10, "Observer 3 should receive hang interval")
+            
+            XCTAssertTrue(observer1Ongoing, "Observer 1 should report hang as ongoing")
+            XCTAssertTrue(observer2Ongoing, "Observer 2 should report hang as ongoing")
+            XCTAssertTrue(observer3Ongoing, "Observer 3 should report hang as ongoing")
+        }
 
         // End the hang
         observationBlock?(testObserver, .beforeWaiting)
@@ -403,6 +431,7 @@ final class HangTrackerTests: XCTestCase {
         }
         wait(for: [hangEndExpectation])
 
+        // No need for the lock here because the hang is over
         // All observers should have been notified that the hang ended
         XCTAssertFalse(observer1Ongoing, "Observer 1 should report hang ended")
         XCTAssertFalse(observer2Ongoing, "Observer 2 should report hang ended")

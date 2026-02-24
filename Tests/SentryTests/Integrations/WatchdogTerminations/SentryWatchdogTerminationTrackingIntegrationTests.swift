@@ -290,6 +290,69 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         XCTAssertFalse(appState.isANROngoing)
     }
+
+    func testHangObserver_DurationBelowThreshold_DoesNotUpdateAppState() throws {
+        // -- Arrange --
+        let mockHangTracker = MockHangTracker()
+        let dependencies = MockDependenciesWithControllableHangTracker(mockHangTracker: mockHangTracker)
+
+        // Set a specific timeout interval
+        let timeoutInterval: TimeInterval = 2.0
+        fixture.options.appHangTimeoutInterval = timeoutInterval
+
+        // -- Act --
+        let integration = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: dependencies)
+
+        // Simulate a hang with duration exactly at the threshold (not greater than)
+        mockHangTracker.simulateHang(duration: timeoutInterval, ongoing: true)
+
+        // -- Assert --
+        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
+        XCTAssertFalse(appState.isANROngoing, "App state should NOT be updated when hang duration equals threshold")
+        XCTAssertNotNil(integration)
+    }
+
+    func testHangObserver_DurationAboveThreshold_UpdatesAppState() throws {
+        // -- Arrange --
+        let mockHangTracker = MockHangTracker()
+        let dependencies = MockDependenciesWithControllableHangTracker(mockHangTracker: mockHangTracker)
+
+        // Set a specific timeout interval
+        let timeoutInterval: TimeInterval = 2.0
+        fixture.options.appHangTimeoutInterval = timeoutInterval
+
+        // -- Act --
+        let integration = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: dependencies)
+
+        // Simulate a hang with duration greater than the threshold
+        mockHangTracker.simulateHang(duration: timeoutInterval + 0.1, ongoing: true)
+
+        // -- Assert --
+        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
+        XCTAssertTrue(appState.isANROngoing, "App state should be updated when hang duration exceeds threshold")
+        XCTAssertNotNil(integration)
+    }
+
+    func testHangObserver_DurationBelowThreshold_HangStopped_DoesNotUpdateAppState() throws {
+        // -- Arrange --
+        let mockHangTracker = MockHangTracker()
+        let dependencies = MockDependenciesWithControllableHangTracker(mockHangTracker: mockHangTracker)
+
+        let timeoutInterval: TimeInterval = 2.0
+        fixture.options.appHangTimeoutInterval = timeoutInterval
+
+        // -- Act --
+        let integration = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: dependencies)
+
+        // Simulate a hang stop with duration below threshold
+        mockHangTracker.simulateHang(duration: timeoutInterval - 0.5, ongoing: false)
+
+        // -- Assert --
+        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
+        // Since hangStarted was never called (duration was below threshold), isANROngoing should still be false
+        XCTAssertFalse(appState.isANROngoing)
+        XCTAssertNotNil(integration)
+    }
 }
 
 private class MockDependencies: HangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder {
@@ -328,6 +391,54 @@ private class MockDependencies: HangTrackerProvider & ProcessInfoProvider & AppS
     var getWatchdogTerminationTrackerCalled: Bool = false
     func getWatchdogTerminationTracker(_ options: Sentry.Options) -> Sentry.SentryWatchdogTerminationTracker? {
         getWatchdogTerminationTrackerCalled = true
+        return SentryDependencyContainer.sharedInstance().getWatchdogTerminationTracker(options)
+    }
+}
+
+/// A mock HangTracker that allows manual triggering of hang observer callbacks
+private class MockHangTracker: HangTracker {
+    private var observers: [UUID: (TimeInterval, Bool) -> Void] = [:]
+
+    func addOngoingHangObserver(handler: @escaping (TimeInterval, Bool) -> Void) -> UUID {
+        let id = UUID()
+        observers[id] = handler
+        return id
+    }
+
+    func removeObserver(id: UUID) {
+        observers.removeValue(forKey: id)
+    }
+
+    /// Simulates a hang by calling all registered observers with the given duration and ongoing state
+    func simulateHang(duration: TimeInterval, ongoing: Bool) {
+        for observer in observers.values {
+            observer(duration, ongoing)
+        }
+    }
+}
+
+/// Mock dependencies that use a controllable MockHangTracker for testing threshold behavior
+private class MockDependenciesWithControllableHangTracker: HangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder {
+
+    let hangTracker: HangTracker
+
+    init(mockHangTracker: MockHangTracker) {
+        self.hangTracker = mockHangTracker
+    }
+
+    var processInfoWrapper: any Sentry.SentryProcessInfoSource {
+        SentryDependencyContainer.sharedInstance().processInfoWrapper
+    }
+
+    var appStateManager: Sentry.SentryAppStateManager {
+        SentryDependencyContainer.sharedInstance().appStateManager
+    }
+
+    func getWatchdogTerminationScopeObserverWithOptions(_ options: Sentry.Options) -> any Sentry.SentryScopeObserver {
+        return SentryDependencyContainer.sharedInstance().getWatchdogTerminationScopeObserverWithOptions(options)
+    }
+
+    func getWatchdogTerminationTracker(_ options: Sentry.Options) -> Sentry.SentryWatchdogTerminationTracker? {
         return SentryDependencyContainer.sharedInstance().getWatchdogTerminationTracker(options)
     }
 }
