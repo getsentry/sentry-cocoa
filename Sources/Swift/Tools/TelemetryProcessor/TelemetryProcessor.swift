@@ -3,7 +3,7 @@
 import Foundation
 
 /// The Telemetry processor is sitting between the client and transport to efficiently deliver telemetry to Sentry (as of 2026-02-04).
-/// Currently used for logs and metrics only; planned to cover all telemetry (e.g. metrics) with buffering, rate limiting, client reports, and priority-based sending.
+/// Currently used for logs and metrics only; planned to cover all telemetry with buffering, rate limiting, client reports, and priority-based sending.
 /// Offline caching is still handled by the transport today, but the long-term goal is to move it here so the transport focuses on sending only.
 /// This is an Objective-C compatible subset of the telemetry processor protocol.
 /// Use `SentryTelemetryProcessor` instead when working in Swift, which adds support for
