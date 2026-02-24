@@ -4,17 +4,14 @@ protocol SentryMetricsIntegrationProtocol {
     func addMetric(_ metric: SentryMetric, scope: Scope)
 }
 
-#if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
-typealias SentryMetricsIntegrationDependencies = DateProviderProvider & DispatchQueueWrapperProvider & NotificationCenterProvider
-#else
-typealias SentryMetricsIntegrationDependencies = DateProviderProvider & DispatchQueueWrapperProvider
-#endif
+/// Empty on purpose. Required by the SwiftIntegration protocol constraint.
+protocol SentryMetricsIntegrationDependencies {}
 
 final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol {
     private let scopeMetaData: SentryDefaultScopeApplyingMetadata
     private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
-    init?(with options: Options, dependencies: Dependencies) {
+    init?(with options: Options, dependencies _: Dependencies) {
         guard options.experimental.enableMetrics else { return nil }
 
         self.scopeMetaData = SentryDefaultScopeApplyingMetadata(
