@@ -15,7 +15,7 @@ typealias SentryLogOutput = ((String) -> Void)
 /// the log messages in the tests over adding locking for all log messages.
 @objc
 @_spi(Private) public final class SentrySDKLog: NSObject {
-    
+
     static private(set) var isDebug = true
     static private(set) var diagnosticLevel = SentryLevel.error
 
@@ -23,18 +23,19 @@ typealias SentryLogOutput = ((String) -> Void)
      * Threshold log level to always log, regardless of the current configuration
      */
     static let alwaysLevel = SentryLevel.fatal
-    private static var logOutput: ((String) -> Void) = { print($0) }
+    private static let defaultLogOutput: SentryLogOutput = { print($0) }
+    private static var logOutput: SentryLogOutput = defaultLogOutput
     private static var dateProvider: SentryCurrentDateProvider = SentryDefaultCurrentDateProvider()
 
     static func _configure(_ isDebug: Bool, diagnosticLevel: SentryLevel) {
         self.isDebug = isDebug
         self.diagnosticLevel = diagnosticLevel
     }
-    
+
     @objc
     public static func log(message: String, andLevel level: SentryLevel) {
         guard willLog(atLevel: level) else { return }
-        
+
         // We use the time interval because date format is
         // expensive and we only care about the time difference between the
         // log messages. We don't use system uptime because of privacy concerns
@@ -57,21 +58,29 @@ typealias SentryLogOutput = ((String) -> Void)
         }
         return isDebug && level.rawValue >= diagnosticLevel.rawValue
     }
- 
+
+    /// Sets a custom log output handler. This allows hybrid SDKs (React Native, Flutter, etc.)
+    /// to intercept SDK log messages and forward them to their respective consoles.
+    /// - Note: Exposed through `PrivateSentrySDKOnly.setLogOutput` for hybrid SDK consumption.
+    /// - Parameter output: A closure to handle log output. If `nil` is passed (which can happen
+    ///   from Objective-C callers despite nullability annotations), the default `print` handler is used.
+    @objc
+    public static func setOutput(_ output: ((String) -> Void)?) {
+        // Objective-C callers can pass nil at runtime despite NS_ASSUME_NONNULL annotations.
+        // Fall back to default print handler to prevent crashes when logging.
+        logOutput = output ?? defaultLogOutput
+    }
+
     #if SENTRY_TEST || SENTRY_TEST_CI
-    
-    static func setOutput(_ output: @escaping SentryLogOutput) {
-        logOutput = output
-    }
-    
-    static func getOutput() -> SentryLogOutput {
-        return logOutput
-    }
-    
-    static func setDateProvider(_ dateProvider: SentryCurrentDateProvider) {
-        self.dateProvider = dateProvider
-    }
-    
+
+        static func getOutput() -> SentryLogOutput {
+            return logOutput
+        }
+
+        static func setDateProvider(_ dateProvider: SentryCurrentDateProvider) {
+            self.dateProvider = dateProvider
+        }
+
     #endif
 }
 
@@ -82,23 +91,23 @@ extension SentrySDKLog {
         let fileName = (path.lastPathComponent as NSString).deletingPathExtension
         log(message: "[\(fileName):\(line)] \(message)", andLevel: level)
     }
-    
+
     static func debug(_ message: String, file: String = #file, line: Int = #line) {
         log(level: .debug, message: message, file: file, line: line)
     }
-    
+
     static func info(_ message: String, file: String = #file, line: Int = #line) {
         log(level: .info, message: message, file: file, line: line)
     }
-    
+
     static func warning(_ message: String, file: String = #file, line: Int = #line) {
         log(level: .warning, message: message, file: file, line: line)
     }
-    
+
     static func error(_ message: String, file: String = #file, line: Int = #line) {
         log(level: .error, message: message, file: file, line: line)
     }
-    
+
     static func fatal(_ message: String, file: String = #file, line: Int = #line) {
         log(level: .fatal, message: message, file: file, line: line)
     }

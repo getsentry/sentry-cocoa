@@ -314,6 +314,11 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [SentryOptionsInternal initWithDict:options didFailWithError:error];
 }
 
++ (void)setLogOutput:(void (^)(NSString *))output
+{
+    [SentrySDKLog setOutput:output];
+}
+
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 + (nullable SentrySessionReplayIntegration *)getReplayIntegration
