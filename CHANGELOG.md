@@ -6,6 +6,7 @@
 
 - Resolve data race crash in monitorCachedData (#7423)
 - Don't finish network spans for suspended URL session tasks (#7471)
+- Remove launch profiling logs in sandboxed environments breaking CLI tools (#7294)
 
 ## 9.5.0
 
@@ -495,7 +496,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
   - Fix UISwitch internal images being incorrectly redacted
   - Fix UITextField placeholder text (UITextFieldLabel) not being detected for redaction
   - Use string-based class comparison to avoid triggering Objective-C +initialize on background threads
-  - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
+  - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI.\_UIGraphicsView)
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
 - Fix conversion of frame rate to time interval for session replay (#6623)
