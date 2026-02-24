@@ -5,6 +5,7 @@
 ### Fixes
 
 - Resolve data race crash in monitorCachedData (#7423)
+- Don't finish network spans for suspended URL session tasks (#7471)
 
 ## 9.5.0
 

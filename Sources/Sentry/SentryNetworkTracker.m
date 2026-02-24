@@ -137,10 +137,15 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    // Register request start date in the sessionTask to use for breadcrumb
+    // Register request start date in the sessionTask to use for breadcrumb.
+    // Only set on first resume so that suspend/resume cycles preserve the original start time.
     if (self.isNetworkBreadcrumbEnabled) {
-        objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_START_DATE, [NSDate date],
-            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        NSDate *existingStartDate
+            = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_START_DATE);
+        if (existingStartDate == nil) {
+            objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_START_DATE, [NSDate date],
+                OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
     }
 
     if (!self.isNetworkTrackingEnabled) {
@@ -235,7 +240,9 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    if (newState == NSURLSessionTaskStateRunning) {
+    // Suspended is not a terminal state: a task can be suspended and later resumed or
+    // cancelled, so we must wait for a final state before finishing the span.
+    if (newState == NSURLSessionTaskStateRunning || newState == NSURLSessionTaskStateSuspended) {
         return;
     }
 
@@ -260,7 +267,13 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
-    if (sessionTask.state == NSURLSessionTaskStateRunning) {
+    // Capture breadcrumbs, failed requests, and response status codes on the first terminal
+    // transition. Because our swizzle runs before the original setState:, sessionTask.state
+    // still reflects the previous state. We check for Running and Suspended to cover:
+    //   - running → completed/canceling (normal completion or cancellation)
+    //   - suspended → canceling (task cancelled while suspended)
+    if (sessionTask.state == NSURLSessionTaskStateRunning
+        || sessionTask.state == NSURLSessionTaskStateSuspended) {
         [self captureFailedRequests:sessionTask];
 
         [self addBreadcrumbForSessionTask:sessionTask];
@@ -475,8 +488,6 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 - (SentrySpanStatus)statusForSessionTask:(NSURLSessionTask *)task state:(NSURLSessionTaskState)state
 {
     switch (state) {
-    case NSURLSessionTaskStateSuspended:
-        return kSentrySpanStatusAborted;
     case NSURLSessionTaskStateCanceling:
         return kSentrySpanStatusCancelled;
     case NSURLSessionTaskStateCompleted:
@@ -484,6 +495,10 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
             ? kSentrySpanStatusUnknownError
             : [self spanStatusForHttpResponseStatusCode:[self urlResponseStatusCode:task.response]];
     case NSURLSessionTaskStateRunning:
+        break;
+    // Suspended is not a terminal state: a task can be resumed or cancelled after being
+    // suspended, so we don't map it to a span status.
+    case NSURLSessionTaskStateSuspended:
         break;
     }
     return kSentrySpanStatusUndefined;
