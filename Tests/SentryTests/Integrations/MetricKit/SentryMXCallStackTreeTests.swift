@@ -49,6 +49,17 @@ final class SentryMXCallStackTreeTests: XCTestCase {
         XCTAssertEqual("0x0000000000000003", frames[2].instructionAddress)
     }
     
+    func testInAppTrue_WhenPackageIsNil() throws {
+        let contents = try contentsOfResource("MetricKitCallstacks/per-thread-nil-package")
+        let callStackTree = try SentryMXCallStackTree.from(data: contents)
+        let threads = callStackTree.sentryMXBacktrace(inAppLogic: nil, handled: false)
+        XCTAssertEqual(1, threads.count)
+        let frames = try XCTUnwrap(threads[0].stacktrace).frames
+        XCTAssertEqual(1, frames.count)
+        XCTAssertNil(frames[0].package)
+        XCTAssertEqual(true, frames[0].inApp?.boolValue)
+    }
+    
     func testDecodeCallStackTree_UnknownFieldsPayload() throws {
         let contents = try contentsOfResource("MetricKitCallstacks/tree-unknown-fields")
         let callStackTree = try SentryMXCallStackTree.from(data: contents)

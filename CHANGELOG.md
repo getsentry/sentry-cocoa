@@ -8,6 +8,7 @@
 - Write reports on concurrent crashes (#7340)
 - Resolve data race crash in monitorCachedData (#7423)
 - Don't finish network spans for suspended URL session tasks (#7471)
+- Use different fallback for when MetricKit does not have file path ([#7473](https://github.com/getsentry/sentry-cocoa/pull/7473))
 
 ## 9.5.0
 
