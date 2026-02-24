@@ -78,17 +78,18 @@ Plans:
 **Goal**: Zero container references remain in SentryCrash code and all existing functionality is preserved
 **Depends on**: Phase 3
 **Requirements**: VERIFY-01, VERIFY-02, VERIFY-03
+**Plans**: 1 plan
+
 **Success Criteria** (what must be TRUE):
 
 1. All existing SentryCrash unit tests pass (SentryCrashWrapper, SentryCrash, SentryCrashInstallation tests)
 2. `grep -r "SentryDependencyContainer" Sources/SentryCrash/` returns zero results
 3. `grep -r "SentryDependencyContainer" Sources/Swift/SentryCrash/` returns zero results (no Swift SentryCrash files reference container)
-4. CI passes for all platforms (iOS, macOS, tvOS, watchOS, visionOS)
-   **Plans**: TBD
+4. Multi-platform builds succeed (iOS, macOS, tvOS)
 
 Plans:
 
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md — Run SentryCrash test suite and verify zero container references
 
 ### Phase 5: Documentation
 
@@ -114,5 +115,5 @@ Plans:
 | 1. Facade Design & Implementation | 2/2            | ✓ Complete  | 2026-02-13 |
 | 2. Swift Isolation                | 2/2            | ✓ Complete  | 2026-02-13 |
 | 3. ObjC Isolation                 | 3/3            | ✓ Complete  | 2026-02-13 |
-| 4. Verification                   | 0/0            | Not started | -          |
+| 4. Verification                   | 0/1            | Not started | -          |
 | 5. Documentation                  | 0/0            | Not started | -          |
