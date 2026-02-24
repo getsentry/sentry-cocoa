@@ -7,6 +7,17 @@ This file provides comprehensive guidance for AI coding agents working with the 
 - **Continuous Learning**: Whenever an agent performs a task and discovers new patterns, conventions, or best practices that aren't documented here, it should add these learnings to AGENTS.md. This ensures the documentation stays current and helps future agents work more effectively.
 - **Context Management**: When using compaction (which reduces context by summarizing older messages), the agent must re-read AGENTS.md afterwards to ensure it's always fully available in context. This guarantees that all guidelines, conventions, and best practices remain accessible throughout the entire session.
 
+## MCP Servers
+
+This repository includes pre-configured [MCP servers](https://modelcontextprotocol.io/) in `.mcp.json` that you can use to speed up development:
+
+- **XcodeBuildMCP** — build, run, and test in the iOS simulator. Requires [Node.js](https://nodejs.org/).
+- **sentry** — MCP server to query production errors, search issues, and read Sentry docs. Authenticates via OAuth on first use.
+
+You can use the `sentry` MCP server to validate that events still arrive in Sentry after your changes. Use `search_events` to find specific telemetry data, then inspect the event JSON to verify that payloads match expectations. This is useful for confirming that your changes produce correct and complete telemetry.
+
+Read-only MCP tools are pre-approved in `.claude/settings.json`. Mutating tools (build, boot, tap, launch, stop, etc.) require per-developer approval in `.claude/settings.local.json`, except for XcodeBuildMCP's `session_set_defaults` and `session_clear_defaults` tools, which are globally approved there as a limited exception for managing per-session defaults.
+
 ## Best Practices
 
 ### Compilation & Testing
@@ -552,6 +563,11 @@ The repository includes a Makefile that contains common commands for building, t
 
 - To build the SDK for macOS use `make build-macos`, for iOS use `make build-ios`
 - To run tests use `make test-macos` or `make test-ios` for the respective platforms.
+
+## Shell Script Conventions
+
+- **Use named parameters** (`--since`, `--output`) over positional parameters (`$1`, `$2`) to prevent wrong parameters being passed as scripts evolve
+- **Extract complex logic** into separate scripts (e.g., Python for data processing) rather than inlining via heredocs, to enable IDE support and testing
 
 ## Helpful Commands
 

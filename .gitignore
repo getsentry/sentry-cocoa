@@ -82,24 +82,28 @@ Package.resolved
 Cartfile.resolved
 *.log
 
-Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj
+Samples/DistributionSample/DistributionSample.xcodeproj
 Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj
 Samples/iOS-Swift/iOS-Swift.xcodeproj
 Samples/iOS-Swift6/iOS-Swift6.xcodeproj
-Samples/iOS-SwiftUI/iOS-SwiftUI.xcodeproj
+Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj
 Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.xcodeproj
+Samples/iOS-SwiftUI/iOS-SwiftUI.xcodeproj
 Samples/iOS15-SwiftUI/iOS15-SwiftUI.xcodeproj
 Samples/macOS-Swift/macOS-Swift.xcodeproj
+Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.xcodeproj
 Samples/macOS-SwiftUI/macOS-SwiftUI.xcodeproj
-Samples/tvOS-Swift/tvOS-Swift.xcodeproj
-Samples/visionOS-Swift/visionOS-Swift.xcodeproj
-Samples/watchOS-Swift/watchOS-Swift.xcodeproj
-Samples/SentrySampleShared/SentrySampleShared.xcodeproj
-Samples/DistributionSample/DistributionSample.xcodeproj
-Samples/SPM/SPM.xcodeproj
 Samples/SDK-Size/SDK-Size.xcodeproj
-TestSamples/SwiftUITestSample/SwiftUITestSample.xcodeproj
+Samples/SentrySampleShared/SentrySampleShared.xcodeproj
+Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.xcodeproj
+Samples/SPM/SPM.xcodeproj
+Samples/tvOS-Swift/tvOS-Swift.xcodeproj
+Samples/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.xcodeproj
+Samples/visionOS-Swift/visionOS-Swift.xcodeproj
+Samples/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.xcodeproj
+Samples/watchOS-Swift/watchOS-Swift.xcodeproj
 TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj
+TestSamples/SwiftUITestSample/SwiftUITestSample.xcodeproj
 
 Sentry.xcframework*
 Sentry-Dynamic.xcframework*
@@ -125,3 +129,6 @@ XCFrameworkBuildPath/
 
 # Local Claude Code settings that should not be committed
 .claude/settings.local.json
+
+# Output of `make analyze-languages`
+language-trends.html

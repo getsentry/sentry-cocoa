@@ -35,8 +35,8 @@ VISIONOS_DEVICE_NAME ?= Apple Vision Pro
 # watchOS Simulator OS version (defaults to 'latest', can be overridden via WATCHOS_SIMULATOR_OS=11.0)
 WATCHOS_SIMULATOR_OS ?= latest
 
-# watchOS Simulator device name (defaults to 'Apple Watch Series 11 (46mm)', can be overridden via WATCHOS_DEVICE_NAME='Apple Watch SE 3 (44mm)')
-WATCHOS_DEVICE_NAME ?= Apple Watch Series 11 (46mm)
+# watchOS Simulator device name (defaults to 'Apple Watch SE 3 (44mm)', can be overridden via WATCHOS_DEVICE_NAME='Apple Watch Ultra 3 (49mm)')
+WATCHOS_DEVICE_NAME ?= Apple Watch SE 3 (44mm)
 
 # Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
@@ -218,6 +218,80 @@ build-signed-xcframework:
 .PHONY: build-xcframework-sample
 build-xcframework-sample:
 	xcodebuild -project "Samples/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
+
+# ============================================================================
+# SAMPLE APPS
+# ============================================================================
+
+## Build all SentrySPM sample apps
+#
+# Builds all compile-from-source SPM sample apps for every supported platform.
+.PHONY: build-sample-spm
+build-sample-spm: \
+	build-sample-iOS-SwiftUI-SPM \
+	build-sample-watchOS-SwiftUI-SPM \
+	build-sample-tvOS-SwiftUI-SPM \
+	build-sample-macOS-SwiftUI-SPM \
+	build-sample-visionOS-SwiftUI-SPM
+
+## Build the iOS-SwiftUI-SPM sample app
+#
+# Builds the iOS SentrySPM sample app for the iOS Simulator.
+.PHONY: build-sample-iOS-SwiftUI-SPM
+build-sample-iOS-SwiftUI-SPM:
+	xcodegen --spec Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj" \
+		-scheme iOS-SwiftUI-SPM \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the watchOS-SwiftUI-SPM sample app
+#
+# Builds the watchOS SentrySPM sample app for the watchOS Simulator.
+.PHONY: build-sample-watchOS-SwiftUI-SPM
+build-sample-watchOS-SwiftUI-SPM:
+	xcodegen --spec Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj" \
+		-scheme watchOS-SwiftUI-SPM \
+		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the tvOS-SwiftUI-SPM sample app
+#
+# Builds the tvOS SentrySPM sample app for the tvOS Simulator.
+.PHONY: build-sample-tvOS-SwiftUI-SPM
+build-sample-tvOS-SwiftUI-SPM:
+	xcodegen --spec Samples/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.xcodeproj" \
+		-scheme tvOS-SwiftUI-SPM \
+		-destination 'platform=tvOS Simulator,OS=$(TVOS_SIMULATOR_OS),name=$(TVOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the macOS-SwiftUI-SPM sample app
+#
+# Builds the macOS SentrySPM sample app.
+.PHONY: build-sample-macOS-SwiftUI-SPM
+build-sample-macOS-SwiftUI-SPM:
+	xcodegen --spec Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.xcodeproj" \
+		-scheme macOS-SwiftUI-SPM \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the visionOS-SwiftUI-SPM sample app
+#
+# Builds the visionOS SentrySPM sample app for the visionOS Simulator.
+.PHONY: build-sample-visionOS-SwiftUI-SPM
+build-sample-visionOS-SwiftUI-SPM:
+	xcodegen --spec Samples/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.xcodeproj" \
+		-scheme visionOS-SwiftUI-SPM \
+		-destination 'platform=visionOS Simulator,OS=$(VISIONOS_SIMULATOR_OS),name=$(VISIONOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 
 # ============================================================================
 # TESTING
@@ -467,6 +541,16 @@ format-yaml:
 # ANALYSIS
 # ============================================================================
 
+## Analyze repository language trends
+#
+# Uses github-linguist to compute the language breakdown at monthly intervals.
+# Produces an interactive HTML chart (language-trends.html) and opens it in the browser.
+# The linguist gem is managed via Bundler in scripts/analyze-languages/.
+# Optionally pass SINCE=YYYY-MM-DD to set the start date (default: 2019-01-01).
+.PHONY: analyze-languages
+analyze-languages:
+	./scripts/analyze-languages/analyze-languages.sh $(if $(SINCE),--since $(SINCE))
+
 ## Run static analysis
 #
 # Runs Xcode's static analyzer and reports any issues found.
@@ -590,6 +674,10 @@ xcode-ci:
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
 	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
 	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
+	xcodegen --spec Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml
+	xcodegen --spec Samples/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.yml
+	xcodegen --spec Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.yml
+	xcodegen --spec Samples/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.yml
 	xcodegen --spec Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.yml
 	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
 	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml

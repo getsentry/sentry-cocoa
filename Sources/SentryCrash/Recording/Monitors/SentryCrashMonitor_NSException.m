@@ -64,8 +64,9 @@ handleException(NSException *exception)
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
-        sentrycrashmc_suspendEnvironment(&threads, &numThreads);
-        sentrycrashcm_notifyFatalExceptionCaptured(false);
+        // Apple's documentation for NSSetUncaughtExceptionHandler does
+        // not document threading or reentrancy behavior.
+        sentrycrashcm_notifyFatalException(false, &threads, &numThreads);
 
         SENTRY_LOG_DEBUG(@"Filling out context.");
 

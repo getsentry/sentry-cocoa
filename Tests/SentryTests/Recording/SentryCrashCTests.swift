@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-class SentryCrashCTests: XCTestCase {
+final class SentryCrashCTests: XCTestCase {
     func testOnCrash_notCrashedDuringCrashHandling_shouldWriteReportToDisk() throws {
         // -- Arrange --
         var appName = "SentryCrashCTests".cString(using: .utf8)!
@@ -233,6 +233,71 @@ class SentryCrashCTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(
             atPath: expectedReportsDir.path
         ))
+    }
+
+    // MARK: - Concurrent Crash Guard Tests
+
+    func testNotifyFatalException_concurrentFromDifferentThread_shouldBlockAndFirstReportWritten() throws {
+        // -- Arrange --
+        var appName = "SentryCrashCTests".cString(using: .utf8)!
+        let installDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("SentryCrashCTests-\(UUID().uuidString)")
+        var installPath = installDir.path.cString(using: .utf8)!
+        let expectedReportsDir = installDir.appendingPathComponent("Reports")
+
+        sentrycrash_uninstall()
+        sentrycrash_install(&appName, &installPath)
+        sentrycrashcm_resetState()
+
+        // Thread 1 claims the crash.
+        sentrycrashcm_notifyFatalException(false, nil, nil)
+
+        // Thread 2 calls from a different thread — should sleep(2) then return.
+        let expectation = expectation(description: "Concurrent thread returned after blocking")
+
+        DispatchQueue.global().async {
+            let start = CFAbsoluteTimeGetCurrent()
+            sentrycrashcm_notifyFatalException(false, nil, nil)
+            let elapsed = CFAbsoluteTimeGetCurrent() - start
+            // Must have blocked for ~2 seconds.
+            XCTAssertGreaterThanOrEqual(elapsed, 1.5, "Expected blocking for ~2s")
+            expectation.fulfill()
+        }
+
+        // While thread 2 is blocked, thread 1 writes the crash report.
+        var monitorContext = SentryCrash_MonitorContext()
+        monitorContext.crashedDuringCrashHandling = false
+        sentrycrashcm_handleException(&monitorContext)
+
+        wait(for: [expectation], timeout: 5.0)
+
+        // -- Assert --
+        // The first handler's report must have been written while thread 2 was blocked.
+        let reportUrls = try FileManager.default
+            .contentsOfDirectory(atPath: expectedReportsDir.path)
+        XCTAssertEqual(reportUrls.count, 1)
+    }
+
+    func testNotifyFatalException_sameThreadCalledTwice_shouldNotHang() throws {
+        let expectation = expectation(description: "Test completed")
+
+        DispatchQueue(label: "test").async {
+            sentrycrashcm_resetState()
+            sentrycrashcm_notifyFatalException(false, nil, nil)
+            // Second call on the same thread = recrash. Must return (not hang/exit).
+            sentrycrashcm_notifyFatalException(false, nil, nil)
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 5.0)
+    }
+
+    func testNotifyFatalException_afterReset_shouldAllowNewCrash() throws {
+        sentrycrashcm_resetState()
+        sentrycrashcm_notifyFatalException(false, nil, nil)
+
+        sentrycrashcm_resetState()
+        // After reset, a new crash on any thread must succeed (not hang/exit).
+        sentrycrashcm_notifyFatalException(false, nil, nil)
     }
 
     // MARK: - Helper
