@@ -480,6 +480,14 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         breadcrumbData[@"http.fragment"] = urlComponents.fragment;
     }
 
+    // Add network details if available for session replay
+    SentryReplayNetworkDetails *networkDetails
+        = objc_getAssociatedObject(sessionTask, &SentryNetworkDetailsKey);
+    if (networkDetails) {
+        // Store raw object; serialized at read time by SentrySRDefaultBreadcrumbConverter
+        breadcrumbData[SentryReplayNetworkDetails.replayNetworkDetailsKey] = networkDetails;
+    }
+
     breadcrumb.data = breadcrumbData;
     [SentrySDK addBreadcrumb:breadcrumb];
 

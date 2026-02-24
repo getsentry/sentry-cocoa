@@ -80,8 +80,66 @@ import Foundation
             data[newKey.snakeToCamelCase()] = value
         })
         
+        // Serialize here (not when creating the breadcrumb) to give completionHandler time to
+        // populate response data before setState(.completed) triggers breadcrumb creation.
+        if let networkDetails = breadcrumb.data?[SentryReplayNetworkDetails.replayNetworkDetailsKey] as? SentryReplayNetworkDetails {
+            addNetworkDetails(from: networkDetails.serialize(), to: &data)
+        }
+        
         //We dont have end of the request in the breadcrumb.
         return SentryRRWebSpanEvent(timestamp: startTimestamp, endTimestamp: timestamp, operation: "resource.http", description: description, data: data)
+    }
+    
+    private func addNetworkDetails(from networkData: [String: Any], to data: inout [String: Any]) {
+        // Add top-level network metadata
+        if let method = networkData["method"] as? String {
+            data["method"] = method
+        }
+        if let statusCode = networkData["statusCode"] as? NSNumber {
+            data["statusCode"] = statusCode
+        }
+        if let requestBodySize = networkData["requestBodySize"] as? NSNumber {
+            data["requestBodySize"] = requestBodySize
+        }
+        if let responseBodySize = networkData["responseBodySize"] as? NSNumber {
+            data["responseBodySize"] = responseBodySize
+        }
+        
+        // Process request and response details using shared logic
+        if let request = networkData["request"] as? [String: Any] {
+            if let requestData = processRequestOrResponseData(request), !requestData.isEmpty {
+                data["request"] = requestData
+            }
+        }
+        
+        if let response = networkData["response"] as? [String: Any] {
+            if let responseData = processRequestOrResponseData(response), !responseData.isEmpty {
+                data["response"] = responseData
+            }
+        }
+    }
+    
+    private func processRequestOrResponseData(_ sourceData: [String: Any]) -> [String: Any]? {
+        var result = [String: Any]()
+        
+        if let size = sourceData["size"] as? NSNumber {
+            result["size"] = size
+        }
+        
+        if let body = sourceData["body"] as? [String: Any] {
+            if let bodyContent = body["body"] {
+                result["body"] = bodyContent
+            }
+            if let warnings = body["warnings"] as? [String], !warnings.isEmpty {
+                result["_meta"] = ["warnings": warnings]
+            }
+        }
+        
+        if let headers = sourceData["headers"] as? [String: String], !headers.isEmpty {
+            result["headers"] = headers
+        }
+        
+        return result.isEmpty ? nil : result
     }
 }
 // swiftlint:enable missing_docs

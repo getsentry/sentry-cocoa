@@ -237,7 +237,8 @@ enum NetworkBodyWarning: String {
     static let maxBodySize = 150_000
 
     /// Key used to store network details in breadcrumb data dictionary.
-    @objc public static let replayNetworkDetailsKey = "_networkDetails"
+    /// The __sentry key prefix strips this from event serialization.
+    @objc public static let replayNetworkDetailsKey = "__sentry_networkDetails"
 
     // MARK: - Properties
 
@@ -333,7 +334,7 @@ enum NetworkBodyWarning: String {
     // MARK: - Serialization
 
     /// Serializes to dictionary for inclusion in breadcrumb data.
-    public func serialize() -> [String: Any] {
+    @objc public func serialize() -> [String: Any] {
         var result = [String: Any]()
         if let method { result["method"] = method }
         if let statusCode { result["statusCode"] = statusCode }
