@@ -48,7 +48,7 @@ typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFR
 // A fixed number of extra runloops per hang is acceptable, for example if it needed to run a dispatch_async
 // on the main queue, but spinning the runloop indefinitely is not acceptable.
 // 2: We don't want to acquire any locks every iteration of the runloop. It's ok to acquire locks in general
-// (the code does not need to be async signal safe) but it's not ok to aquire them on every runloop iteration.
+// (the code does not need to be async signal safe) but it's not ok to acquire them on every runloop iteration.
 // 3: As simple as possible, using limited lines of code.
 final class DefaultHangTracker<T: RunLoopObserver> {
 
@@ -205,7 +205,7 @@ final class DefaultHangTracker<T: RunLoopObserver> {
             case .success:
                 semaphoreSuccess = true
                 if hasTimedOut {
-                    // A hang had occured, but now is over
+                    // A hang had occurred, but now is over
                     // Accessing observers off the main queue requires holding the lock
                     // because the main queue could be modifying it
                     observersLock.synchronized {

@@ -225,12 +225,15 @@ final class HangTrackerTests: XCTestCase {
         
         var hangCallback = XCTestExpectation()
         let id = sut.addOngoingHangObserver { interval, ongoing in
+            // Only fulfill one time
+            if lastInterval == 0 {
+                hangCallback.fulfill()
+            }
             lastInterval = interval
             lastOngoing = ongoing
             if !ongoing {
                 hangCount += 1
             }
-            hangCallback.fulfill()
         }
         
         // First hang: start
@@ -280,6 +283,54 @@ final class HangTrackerTests: XCTestCase {
         XCTAssertTrue(calledRemoveObserver, "Expected observer to be removed")
     }
 
+    /// Verifies that when all references to HangTracker are nilled while the background queue
+    /// is still in the waitForHang loop, the class does not deallocate until the loop exits,
+    /// and then the dispatch queue is freed up (not blocked).
+    func testDeallocWhileInWaitForHangLoop() {
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setSystemUptime(0)
+        var sut: DefaultHangTracker? = DefaultHangTracker(
+            dateProvider: dateProvider,
+            createObserver: createObserver,
+            addObserver: addObserver,
+            removeObserver: removeObserver,
+            queue: queue)
+        weak let weakSut = sut
+        
+        let expectation = XCTestExpectation()
+        var hangDetected = false
+        _ = sut?.addOngoingHangObserver { _, _ in
+            if !hangDetected {
+                expectation.fulfill()
+            }
+            hangDetected = true
+        }
+        
+        // Start the runloop iteration - this triggers the background queue to start waiting
+        observationBlock?(testObserver, .afterWaiting)
+        
+        // Wait until the hang is detected
+        wait(for: [expectation])
+        
+        // Now nil all references while the background queue is in the waitForHang loop
+        // The HangTracker should NOT immediately deallocate because the background queue
+        // holds a reference via the closure
+        sut = nil
+        
+        XCTAssertNotNil(weakSut)
+        
+        observationBlock?(testObserver, .beforeWaiting)
+        
+        // Verify the queue is not blocked
+        let queueFreeExpectation = XCTestExpectation(description: "Queue is free")
+        queue.async {
+            queueFreeExpectation.fulfill()
+        }
+        wait(for: [queueFreeExpectation])
+        XCTAssertNil(weakSut)
+        XCTAssertTrue(calledRemoveObserver)
+    }
+
     func testMultipleObserversAllReceiveHangCallback() {
         let dateProvider = TestCurrentDateProvider()
         dateProvider.setSystemUptime(0)
@@ -302,19 +353,28 @@ final class HangTrackerTests: XCTestCase {
         let expectation3 = XCTestExpectation(description: "Observer 3 called")
 
         let id1 = sut.addOngoingHangObserver { interval, ongoing in
+            // Only fulfill one time
+            if observer1Interval == 0 {
+                expectation1.fulfill()
+            }
             observer1Interval = interval
             observer1Ongoing = ongoing
-            expectation1.fulfill()
         }
         let id2 = sut.addOngoingHangObserver { interval, ongoing in
+            // Only fulfill one time
+            if observer2Interval == 0 {
+                expectation1.fulfill()
+            }
             observer2Interval = interval
             observer2Ongoing = ongoing
-            expectation2.fulfill()
         }
         let id3 = sut.addOngoingHangObserver { interval, ongoing in
+            // Only fulfill one time
+            if observer3Interval == 0 {
+                expectation1.fulfill()
+            }
             observer3Interval = interval
             observer3Ongoing = ongoing
-            expectation3.fulfill()
         }
 
         XCTAssertTrue(calledAddObserver, "Expected add observer to be called")
