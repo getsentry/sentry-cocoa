@@ -234,6 +234,30 @@ class SentryMetricsIntegrationTests: XCTestCase {
         XCTAssertTrue(beforeSendCalled, "beforeSendMetric should be called")
     }
 
+    func testAddMetric_whenClientDisabled_shouldDropMetric() throws {
+        // -- Arrange --
+        let client = try givenSdkWithHub()
+        let integration = try getSut()
+
+        client.close()
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0, "Metric should be dropped when client is disabled")
+    }
+
     func testName_shouldReturnCorrectName() {
         // -- Act & Assert --
         XCTAssertEqual(SentryMetricsIntegration<SentryDependencyContainer>.name, "SentryMetricsIntegration")
