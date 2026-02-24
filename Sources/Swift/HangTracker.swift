@@ -27,7 +27,6 @@ typealias CreateObserverFunc<T> = (_ allocator: CFAllocator?, _ activities: CFOp
 typealias AddObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFRunLoopMode?) -> Void
 typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFRunLoopMode?) -> Void
 
-
 /// A class to observe when the main runloop is blocked.
 ///
 /// > Warning: All public APIs must be called on the main queue. This includes init and deinit.

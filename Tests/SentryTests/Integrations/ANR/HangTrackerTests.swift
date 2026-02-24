@@ -207,4 +207,151 @@ final class HangTrackerTests: XCTestCase {
         XCTAssertNil(weakSut, "Expected observer to be deallocated")
     }
     
+    /// Verifies that after one hang completes (ongoing=true then ongoing=false),
+    /// a second hang is properly detected. This catches state-reset bugs with consecutive hangs.
+    func testConsecutiveHangsAreDetected() {
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setSystemUptime(0)
+        let sut = DefaultHangTracker(
+            dateProvider: dateProvider,
+            createObserver: createObserver,
+            addObserver: addObserver,
+            removeObserver: removeObserver,
+            queue: queue)
+        
+        var hangCount = 0
+        var lastInterval: TimeInterval = 0
+        var lastOngoing: Bool = false
+        
+        var hangCallback = XCTestExpectation()
+        let id = sut.addOngoingHangObserver { interval, ongoing in
+            lastInterval = interval
+            lastOngoing = ongoing
+            if !ongoing {
+                hangCount += 1
+            }
+            hangCallback.fulfill()
+        }
+        
+        // First hang: start
+        observationBlock?(testObserver, .afterWaiting)
+        dateProvider.setSystemUptime(10)
+        wait(for: [hangCallback])
+        
+        XCTAssertEqual(lastInterval, 10, "First hang interval should be 10")
+        XCTAssertTrue(lastOngoing, "First hang should be ongoing")
+        
+        // First hang: complete
+        observationBlock?(testObserver, .beforeWaiting)
+        
+        let firstHangEndExpectation = XCTestExpectation(description: "First hang ended")
+        queue.async {
+            firstHangEndExpectation.fulfill()
+        }
+        wait(for: [firstHangEndExpectation])
+
+        XCTAssertEqual(hangCount, 1, "First hang should be detected")
+        XCTAssertFalse(lastOngoing, "First hang should no longer be ongoing")
+        
+        // Second hang: start (simulating another runloop iteration that hangs)
+        dateProvider.setSystemUptime(20)
+        observationBlock?(testObserver, .afterWaiting)
+        dateProvider.setSystemUptime(35) // 15 second hang
+        
+        hangCallback = XCTestExpectation(description: "Second hang detected")
+        wait(for: [hangCallback])
+
+        XCTAssertEqual(lastInterval, 15, "Second hang interval should be 15")
+        XCTAssertTrue(lastOngoing, "Second hang should be ongoing")
+        
+        // Second hang: complete
+        observationBlock?(testObserver, .beforeWaiting)
+        
+        let secondHangEndExpectation = XCTestExpectation(description: "Second hang ended")
+        queue.async {
+            secondHangEndExpectation.fulfill()
+        }
+        wait(for: [secondHangEndExpectation])
+        
+        XCTAssertEqual(hangCount, 2, "Second hang should be detected after first hang completed")
+        XCTAssertFalse(lastOngoing, "Second hang should no longer be ongoing")
+        
+        sut.removeObserver(id: id)
+        XCTAssertTrue(calledRemoveObserver, "Expected observer to be removed")
+    }
+
+    func testMultipleObserversAllReceiveHangCallback() {
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setSystemUptime(0)
+        let sut = DefaultHangTracker(
+            dateProvider: dateProvider,
+            createObserver: createObserver,
+            addObserver: addObserver,
+            removeObserver: removeObserver,
+            queue: queue)
+
+        var observer1Interval: TimeInterval = 0
+        var observer1Ongoing: Bool = false
+        var observer2Interval: TimeInterval = 0
+        var observer2Ongoing: Bool = false
+        var observer3Interval: TimeInterval = 0
+        var observer3Ongoing: Bool = false
+
+        let expectation1 = XCTestExpectation(description: "Observer 1 called")
+        let expectation2 = XCTestExpectation(description: "Observer 2 called")
+        let expectation3 = XCTestExpectation(description: "Observer 3 called")
+
+        let id1 = sut.addOngoingHangObserver { interval, ongoing in
+            observer1Interval = interval
+            observer1Ongoing = ongoing
+            expectation1.fulfill()
+        }
+        let id2 = sut.addOngoingHangObserver { interval, ongoing in
+            observer2Interval = interval
+            observer2Ongoing = ongoing
+            expectation2.fulfill()
+        }
+        let id3 = sut.addOngoingHangObserver { interval, ongoing in
+            observer3Interval = interval
+            observer3Ongoing = ongoing
+            expectation3.fulfill()
+        }
+
+        XCTAssertTrue(calledAddObserver, "Expected add observer to be called")
+
+        // Trigger a hang
+        observationBlock?(testObserver, .afterWaiting)
+        dateProvider.setSystemUptime(10)
+
+        wait(for: [expectation1, expectation2, expectation3])
+
+        // All observers should have received the hang with same interval
+        XCTAssertEqual(observer1Interval, 10, "Observer 1 should receive hang interval")
+        XCTAssertEqual(observer2Interval, 10, "Observer 2 should receive hang interval")
+        XCTAssertEqual(observer3Interval, 10, "Observer 3 should receive hang interval")
+
+        XCTAssertTrue(observer1Ongoing, "Observer 1 should report hang as ongoing")
+        XCTAssertTrue(observer2Ongoing, "Observer 2 should report hang as ongoing")
+        XCTAssertTrue(observer3Ongoing, "Observer 3 should report hang as ongoing")
+
+        // End the hang
+        observationBlock?(testObserver, .beforeWaiting)
+
+        let hangEndExpectation = XCTestExpectation(description: "Hang ended")
+        queue.async {
+            hangEndExpectation.fulfill()
+        }
+        wait(for: [hangEndExpectation])
+
+        // All observers should have been notified that the hang ended
+        XCTAssertFalse(observer1Ongoing, "Observer 1 should report hang ended")
+        XCTAssertFalse(observer2Ongoing, "Observer 2 should report hang ended")
+        XCTAssertFalse(observer3Ongoing, "Observer 3 should report hang ended")
+
+        sut.removeObserver(id: id1)
+        sut.removeObserver(id: id2)
+        sut.removeObserver(id: id3)
+        XCTAssertTrue(calledRemoveObserver, "Expected observer to be removed")
+    }
+
 }
