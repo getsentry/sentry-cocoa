@@ -25,7 +25,7 @@
 - (void)inititialize
 {
     fileDirectory = [[NSURL fileURLWithPath:NSTemporaryDirectory()]
-        URLByAppendingPathComponent:@"SentryFileIOTests"];
+        URLByAppendingPathComponent:@"SentryFileIOTrackingIntegrationObjCTests"];
 
     if (![NSFileManager.defaultManager fileExistsAtPath:fileDirectory.path]) {
         deleteFileDirectory = true;

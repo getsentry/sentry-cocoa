@@ -24,7 +24,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
         
         init() throws {
-            fileDirectory = FileManager.default.temporaryDirectory.appendingPathComponent("SentryFileIOTests")
+            fileDirectory = FileManager.default.temporaryDirectory.appendingPathComponent("SentryFileIOTrackingIntegrationTests")
             fileURL = fileDirectory.appendingPathComponent("TestFile")
             filePath = fileURL?.path
         }
