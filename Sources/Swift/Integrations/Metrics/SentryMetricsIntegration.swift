@@ -51,7 +51,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         }
 
         // We go directly to the client instead of through the hub because metrics only have a
-        // static API today and the hub doesn't implement any metrics methods. Ideally,Metrics should also go 
+        // static API today and the hub doesn't implement any metrics methods. Ideally, metrics should also go
         // through the hub to align with other telemetry types.
         guard let client = SentrySDKInternal.currentHub().getClient() else {
             SentrySDKLog.debug("MetricsIntegration: No client available, dropping metric")
