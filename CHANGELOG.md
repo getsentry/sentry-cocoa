@@ -4,6 +4,8 @@
 
 ### Fixes
 
+- Don't report NSException subclasses as C++ exceptions (#7420)
+- Write reports on concurrent crashes (#7340)
 - Resolve data race crash in monitorCachedData (#7423)
 - Don't finish network spans for suspended URL session tasks (#7471)
 
