@@ -10,7 +10,7 @@ on:
 
 # Only the latest result matters, so cancel any in-progress run.
 concurrency:
-  group: ${{ github.workflow }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
