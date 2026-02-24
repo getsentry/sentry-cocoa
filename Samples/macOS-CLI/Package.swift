@@ -12,7 +12,7 @@ let package = Package(
         .executable(name: "cli-with-spm", targets: ["cli-with-spm"])
     ],
     dependencies: [
-        .package(url: "https://github.com/grpc/grpc-swift.git", .upToNextMajor(from: "1.24.2")),
+        .package(url: "https://github.com/grpc/grpc-swift.git", exact: "1.24.2"),
         .package(name: "sentry-cocoa", path: "../../")
     ],
     targets: [

@@ -869,6 +869,7 @@ void
 writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *config)
 {
     if (!ensureLaunchProfileConfigDirectoryExists()) {
+        SENTRY_LOG_DEBUG(@"Not writing launch profiling config: directory could not be created.");
         return;
     }
     NSURL *_Nullable url = launchProfileConfigFileURL();
