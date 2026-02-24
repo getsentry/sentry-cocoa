@@ -275,7 +275,9 @@ import Cocoa
             info["parentViewController"] = SwiftDescriptor.getViewControllerClassName(parentViewController)
         }
         
-        if let window = controller.view?.window {
+        // Access view to ensure it's loaded (triggers loadView() if view is nil)
+        let view = controller.view
+        if let window = view?.window {
             info["window"] = window.description
             info["window_isKeyWindow"] = window.isKeyWindow ? "true" : "false"
             info["window_windowLevel"] = String(describing: window.windowLevel.rawValue)
