@@ -22,10 +22,10 @@ With modules disabled:
 
 - Uses **Objective-C++** (`.mm` files) for AppDelegate and ViewController
 - Sets **`CLANG_ENABLE_MODULES = NO`** in the build configuration
-- Uses `#import <Sentry/Sentry.h>` and `#import <Sentry/Sentry-Swift.h>`
-- Attempts to call `SentrySDK.startWithConfigureOptions:` and `options.sessionReplay`
+- Uses only `#import <Sentry/Sentry.h>` in `.mm` files (does **not** import `Sentry-Swift.h`)
+- Demonstrates that Swift-bridged APIs like `SentrySDK` and `options.sessionReplay` are unavailable from ObjC++ without modules
 
-**Build status:** The sample **does NOT build** and reproduces the issue. With only `#import <Sentry/Sentry.h>` (no `Sentry-Swift.h`), the compiler reports `error: use of undeclared identifier 'SentrySDK'`. Including `Sentry-Swift.h` fails with forward declaration errors when used from `.mm` files without modules. The sample exists to:
+**Build status:** The sample **does NOT build** and reproduces the issue. With only `#import <Sentry/Sentry.h>` (no `Sentry-Swift.h`), the compiler reports `error: use of undeclared identifier 'SentrySDK'`. Attempting to include `#import <Sentry/Sentry-Swift.h>` in this setup (see comments in `AppDelegate.mm` / `ViewController.mm`) fails with forward declaration errors when used from `.mm` files without modules. The sample exists to:
 
 1. Document the exact pattern that fails for ObjC++ consumers in production
 2. Serve as a test case for the fix in [getsentry/sentry-cocoa#6342](https://github.com/getsentry/sentry-cocoa/issues/6342)
