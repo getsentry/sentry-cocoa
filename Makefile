@@ -549,7 +549,7 @@ format-yaml:
 # Optionally pass SINCE=YYYY-MM-DD to set the start date (default: 2019-01-01).
 .PHONY: analyze-languages
 analyze-languages:
-	./scripts/analyze-languages/analyze-languages.sh $(SINCE)
+	./scripts/analyze-languages/analyze-languages.sh $(if $(SINCE),--since $(SINCE))
 
 ## Run static analysis
 #

@@ -44,7 +44,7 @@ jobs:
 
       - name: Run language analysis
         # Start from 2019; earlier data fluctuates significantly between months.
-        run: ./scripts/analyze-languages/analyze-languages.sh 2019-01-01
+        run: ./scripts/analyze-languages/analyze-languages.sh --since 2019-01-01
 
       - name: Prepare Pages site
         run: |
