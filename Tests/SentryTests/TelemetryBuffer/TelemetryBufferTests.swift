@@ -5,6 +5,7 @@ import XCTest
 private struct TestItem: TelemetryItem {
     var attributesDict: [String: SentryAttributeContent]
     var traceId: SentryId
+    var spanId: SpanId?
     var body: String
 
     init(body: String = "test", attributes: [String: SentryAttributeContent] = [:]) {
