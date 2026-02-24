@@ -17,7 +17,7 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         clearTestState()
     }
     
-    
+#if os(iOS) || os(tvOS)
     func testStopRemovesSwizzleSendAction() {
         let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
 
@@ -425,6 +425,6 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             super.init(nibName: nil, bundle: nil)
         }
     }
-
+#endif
     
 }
