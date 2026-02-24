@@ -293,6 +293,21 @@ build-sample-visionOS-SwiftUI-SPM:
 		-destination 'platform=visionOS Simulator,OS=$(VISIONOS_SIMULATOR_OS),name=$(VISIONOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 
+## Build the iOS-ObjectiveCpp-NoModules sample app
+#
+# Builds the ObjC++ without-modules sample that reproduces #4543.
+# This target is expected to FAIL until the pure ObjC SDK wrapper (#6342)
+# is implemented. Use it to verify the fix.
+.PHONY: build-sample-iOS-ObjectiveCpp-NoModules
+build-sample-iOS-ObjectiveCpp-NoModules:
+	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-ObjectiveCpp-NoModules \
+		-configuration Debug \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
 # ============================================================================
 # TESTING
 # ============================================================================
@@ -671,6 +686,7 @@ xcode-ci:
 	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
+	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
 	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
 	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
