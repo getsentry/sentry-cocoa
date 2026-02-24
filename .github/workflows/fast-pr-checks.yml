@@ -55,6 +55,7 @@ jobs:
       platform: iOS
       device: iPhone 16 Pro
       scheme: Sentry
+      run_on_cirrus_labs: true
 
   fast-checks-required:
     needs: [files-changed, fast-xcframework-slices, fast-unit-tests]

@@ -51,6 +51,11 @@ on:
         required: false
         default: ""
         type: string
+      run_on_cirrus_labs:
+        description: "Whether to run the tests on Cirrus Labs"
+        required: false
+        default: false
+        type: boolean
       should_skip:
         description: "Whether to skip the job"
         required: false
@@ -64,9 +69,7 @@ jobs:
   common-ui-tests:
     if: ${{ !inputs.should_skip }}
     name: UI Tests Common
-    runs-on:
-      - "ghcr.io/cirruslabs/macos-runner:${{ inputs.macos_version }},runner_concurrency_group=${{ github.run_id }}"
-      - "runner_group_id:10"
+    runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.macos_version, github.run_id)) || inputs.macos_version }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6

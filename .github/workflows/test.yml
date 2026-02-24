@@ -252,6 +252,7 @@ jobs:
       timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device || ''}}
       scheme: "Sentry"
+      run_on_cirrus_labs: true # We always run tests on Cirrus Labs
     strategy:
       fail-fast: false
       matrix:
