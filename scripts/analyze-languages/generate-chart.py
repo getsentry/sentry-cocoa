@@ -201,7 +201,7 @@ new Chart(document.getElementById('{pct_id}').getContext('2d'), {{
       tooltip: {{ callbacks: {{ label: function(ctx) {{ return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%'; }} }} }}
     }},
     scales: {{
-      x: {{ grid: {{ display: false }}, ticks: {{ maxRotation: 45, callback: function(v, i) {{ const l = labels[i]; return (l && l.endsWith('-01')) ? l.substring(0, 4) : ''; }}, font: {{ size: 11 }} }} }},
+      x: {{ grid: {{ display: false }}, ticks: {{ maxRotation: 45, callback: function(v) {{ const l = labels[v]; return (l && l.endsWith('-01')) ? l.substring(0, 4) : ''; }}, font: {{ size: 11 }} }} }},
       y: {{ min: 0, ticks: {{ callback: function(v) {{ return v + '%'; }}, stepSize: 10, font: {{ size: 11 }} }}, grid: {{ color: '#e1e4e8' }} }}
     }}
   }},
@@ -236,7 +236,7 @@ new Chart(document.getElementById('{abs_id}').getContext('2d'), {{
       tooltip: {{ callbacks: {{ label: function(ctx) {{ return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(0) + ' KB'; }} }} }}
     }},
     scales: {{
-      x: {{ grid: {{ display: false }}, ticks: {{ maxRotation: 45, callback: function(v, i) {{ const l = labels[i]; return (l && l.endsWith('-01')) ? l.substring(0, 4) : ''; }}, font: {{ size: 11 }} }} }},
+      x: {{ grid: {{ display: false }}, ticks: {{ maxRotation: 45, callback: function(v) {{ const l = labels[v]; return (l && l.endsWith('-01')) ? l.substring(0, 4) : ''; }}, font: {{ size: 11 }} }} }},
       y: {{ min: 0, ticks: {{ callback: function(v) {{ return (v >= 1024) ? (v / 1024).toFixed(1) + ' MB' : v + ' KB'; }}, font: {{ size: 11 }} }}, grid: {{ color: '#e1e4e8' }} }}
     }}
   }},
