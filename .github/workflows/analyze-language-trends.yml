@@ -1,0 +1,77 @@
+name: Analyze Language Trends
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+# Only the latest result matters, so cancel any in-progress run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  analyze-languages:
+    name: Analyze Language Trends
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          # Full clone required because the script walks the entire git history
+          # to analyze language breakdown at monthly intervals since 2019.
+          fetch-depth: 0
+
+      - name: Install linguist build dependencies
+        # These are OS-level C libraries and build tools needed to compile
+        # native extensions in charlock_holmes and rugged gems. Pinning
+        # specific apt versions is impractical as runner images update
+        # frequently; the Gemfile.lock pins the actual gem versions.
+        run: sudo apt-get update && sudo apt-get install -y cmake pkg-config libicu-dev
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
+        with:
+          bundler-cache: true
+
+      - name: Run language analysis
+        # Start from 2019; earlier data fluctuates significantly between months.
+        run: ./scripts/analyze-languages/analyze-languages.sh --since 2019-01-01
+
+      - name: Prepare Pages site
+        run: |
+          mkdir _site
+          cp develop-docs/github-pages/index.html _site/index.html
+          cp language-trends.html _site/language-trends.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: analyze-languages
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
