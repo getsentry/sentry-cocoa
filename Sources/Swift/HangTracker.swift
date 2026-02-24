@@ -27,7 +27,11 @@ typealias CreateObserverFunc<T> = (_ allocator: CFAllocator?, _ activities: CFOp
 typealias AddObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFRunLoopMode?) -> Void
 typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFRunLoopMode?) -> Void
 
-// This class finds hangs by detecting when the runloop is blocked. A "healthy" runloop spends most of its
+
+/// A class to observe when the main runloop is blocked.
+///
+/// > Warning: All public APIs must be called on the main queue. This includes init and deinit.
+// A "healthy" runloop spends most of its
 // time waiting for events, but a hanging runloop is spending a lot of time handling events.
 // A hang can only be detected on a background queue, because the main queue is blocked by the hang.
 // So the tracker runs a background queue that attempts to trigger a callback when the time between "afterWaiting"
@@ -38,15 +42,15 @@ typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFR
 // The general approach is to create a semaphore when the runloop leaves the waiting state "afterWaiting"
 // and asynchronously start a background queue that waits on that semaphore. When the runloop enters waiting
 // "beforeWaiting" we signal the semaphore. This way, if the background queue waiting times out, we know
-// it took too long for the runloop to go back to waiting and a hang has occured.
+// it took too long for the runloop to go back to waiting and a hang has occurred.
 //
 // Design requirements:
 // 1: We don't want the hang tracker to cause any thing more than a constant number of extra runloop iterations.
 // A fixed number of extra runloops per hang is acceptable, for example if it needed to run a dispatch_async
 // on the main queue, but spinning the runloop indefinitely is not acceptable.
-// 2: We don't want to aquire any locks every iteration of the runloop. It's ok to aquire locks in general
+// 2: We don't want to acquire any locks every iteration of the runloop. It's ok to acquire locks in general
 // (the code does not need to be async signal safe) but it's not ok to aquire them on every runloop iteration.
-// 3: As simple as possible. We think it can be straightforward to detect a hang, it shouldn't require 400+ LOC.
+// 3: As simple as possible, using limited lines of code.
 final class DefaultHangTracker<T: RunLoopObserver> {
 
     // Must be initialized on the main queue
@@ -80,9 +84,10 @@ final class DefaultHangTracker<T: RunLoopObserver> {
         removeObserver(CFRunLoopGetMain(), observer, .commonModes)
     }
     
-    // Must be calleld on main queue
-    // The handler is always called on a background queue. If it's called at least once with ongoing = True
-    // it will eventaully be called with ongoing = False, or the app will exit
+    // Must be called on main queue
+    // The handler is always called on the same background queue. This guarantees
+    // sequentially ordering of the callback. If it's called at least once with ongoing = True
+    // it will eventually be called with ongoing = False, or the app will exit
     func addOngoingHangObserver(handler: @escaping (_ duration: TimeInterval, _ ongoing: Bool) -> Void) -> UUID {
         let id = UUID()
         // Modifying observers requires holding the lock
@@ -123,7 +128,7 @@ final class DefaultHangTracker<T: RunLoopObserver> {
     
     // MARK: Main queue
 
-    // For the readers convenience, this encapsulate all the mutable state that can
+    // For the readers convenience, this encapsulates all the mutable state that can
     // only be used from the main queue.
     struct MainQueueState {
         fileprivate var observer: T?
@@ -146,7 +151,7 @@ final class DefaultHangTracker<T: RunLoopObserver> {
             switch activity {
             case .beforeWaiting:
                 mainQueueState.semaphore?.signal()
-                // In the future we may have use cases for reporting any hang, even if we weren't able to observer it while it
+                // In the future we may have use cases for reporting any hang, even if we weren't able to observe it while it
                 // was ongoing. To do that we could add another observer type, and call it here with `currentTime - mainQueueState.loopStartTime`
             case .afterWaiting:
                 let started = currentTime

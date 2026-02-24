@@ -42,7 +42,7 @@ final class HangTrackerTests: XCTestCase {
         addObserver: addObserver,
         removeObserver: removeObserver,
         queue: queue)
-      let _ = sut?.addOngoingHangObserver(handler: { _, _ in })
+    _ = sut?.addOngoingHangObserver(handler: { _, _ in })
       XCTAssertEqual(calledRemoveObserver, false)
       sut = nil
       XCTAssertEqual(calledRemoveObserver, true)
@@ -145,7 +145,7 @@ final class HangTrackerTests: XCTestCase {
         
         // Note: We are writing to these variables on a bg thread but reading them here
         // on the main thread. This is safe without any locks because in our test
-        // environment we know that there will not be any more modifictions
+        // environment we know that there will not be any more modifications
         XCTAssertEqual(10, observerLastInterval, "Expected hang interval to be 10")
         XCTAssertTrue(hangOngoing)
         
