@@ -545,11 +545,11 @@ format-yaml:
 #
 # Uses github-linguist to compute the language breakdown at monthly intervals.
 # Produces an interactive HTML chart (language-trends.html) and opens it in the browser.
-# The linguist gem is installed temporarily and removed after the analysis.
+# The linguist gem is managed via Bundler in scripts/analyze-languages/.
 # Optionally pass SINCE=YYYY-MM-DD to set the start date (default: 2019-01-01).
 .PHONY: analyze-languages
 analyze-languages:
-	./scripts/analyze-languages.sh $(SINCE)
+	./scripts/analyze-languages/analyze-languages.sh $(SINCE)
 
 ## Run static analysis
 #

@@ -4,17 +4,18 @@
 # tool GitHub uses). Produces an interactive HTML line chart showing monthly
 # trends, split by Sources/, Tests/, and Overall.
 #
-# Usage: ./scripts/analyze-languages.sh [YYYY-MM-DD]
+# Usage: ./scripts/analyze-languages/analyze-languages.sh [YYYY-MM-DD]
 #        or: make analyze-languages [SINCE=YYYY-MM-DD]
 #
 # The optional date argument sets how far back to analyze. Defaults to January 2019.
 #
-# Requirements: Ruby (ships with macOS), Python 3 (ships with macOS)
+# Requirements: Ruby + Bundler (ships with macOS), Python 3 (ships with macOS)
 # Output: language-trends.html (opened automatically in the default browser)
 
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 cd "$REPO_ROOT"
 
 # Source CI utility functions for logging and grouping
@@ -23,12 +24,12 @@ source "${REPO_ROOT}/scripts/ci-utils.sh"
 
 # Verify prerequisites
 command -v ruby &> /dev/null || { log_error "Ruby is required but not installed"; exit 1; }
-command -v gem &> /dev/null || { log_error "RubyGems is required but not installed"; exit 1; }
+command -v bundle &> /dev/null || { log_error "Bundler is required but not installed"; exit 1; }
 command -v python3 &> /dev/null || { log_error "Python 3 is required but not installed"; exit 1; }
 
-TMP_DIR="$REPO_ROOT/_linguist_tmp"
+export BUNDLE_GEMFILE="$SCRIPT_DIR/Gemfile"
 OUTPUT_FILE="$REPO_ROOT/language-trends.html"
-DATA_DIR="$TMP_DIR/data"
+DATA_DIR="$(mktemp -d)"
 export DATA_DIR OUTPUT_FILE
 DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
 DEFAULT_BRANCH="${DEFAULT_BRANCH:-main}"
@@ -38,26 +39,27 @@ if ! git show-ref --verify --quiet "refs/heads/$DEFAULT_BRANCH"; then
     DEFAULT_BRANCH="origin/$DEFAULT_BRANCH"
 fi
 
-# ── Cleanup on exit (always remove the temp gem directory) ────────────────
+# ── Cleanup on exit (remove temporary data directory) ─────────────────────
 cleanup() {
-    if [ -d "$TMP_DIR" ]; then
-        log_notice "Cleaning up temporary linguist installation"
-        rm -rf "$TMP_DIR"
+    if [ -d "$DATA_DIR" ]; then
+        rm -rf "$DATA_DIR"
     fi
 }
 trap cleanup EXIT
 
-# ── 1. Install github-linguist into a temporary directory ─────────────────
-begin_group "Installing github-linguist gem"
-mkdir -p "$TMP_DIR" "$DATA_DIR"
-GEM_HOME="$TMP_DIR" gem install github-linguist -v 9.4.0 --no-document 2>&1 | tail -1
+# ── 1. Set up github-linguist via Bundler ─────────────────────────────────
+begin_group "Setting up github-linguist"
 
-export GEM_HOME="$TMP_DIR"
-export PATH="$TMP_DIR/bin:$PATH"
+# Install gems if not already installed (e.g., local development).
+# In CI, bundle install is handled by the workflow before this script runs.
+if ! bundle check > /dev/null 2>&1; then
+    log_notice "Running bundle install for linguist"
+    bundle install
+fi
 
 # Verify it works
-github-linguist --version > /dev/null 2>&1 || {
-    log_error "github-linguist installation failed"
+bundle exec github-linguist --version > /dev/null 2>&1 || {
+    log_error "github-linguist not available via bundle exec"
     exit 1
 }
 end_group
@@ -124,7 +126,7 @@ for i in $(seq 0 $((TOTAL - 1))); do
     month="${MONTHS[$i]}"
     sha="${COMMITS[$i]}"
     log_notice "[$((i + 1))/$TOTAL] $month"
-    github-linguist --rev "$sha" --breakdown --json > "$DATA_DIR/${month}.linguist.json" 2>/dev/null
+    bundle exec github-linguist --rev "$sha" --breakdown --json > "$DATA_DIR/${month}.linguist.json" 2>/dev/null
     git ls-tree -r -l "$sha" > "$DATA_DIR/${month}.lstree.txt"
 done
 end_group
@@ -137,7 +139,7 @@ import json
 import os
 from datetime import date
 
-data_dir = os.environ.get("DATA_DIR", "_linguist_tmp/data")
+data_dir = os.environ["DATA_DIR"]
 output_file = os.environ.get("OUTPUT_FILE", "language-trends.html")
 
 # Collect all months sorted
