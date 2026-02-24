@@ -480,6 +480,14 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         breadcrumbData[@"http.fragment"] = urlComponents.fragment;
     }
 
+    // Add network details if available for session replay
+    SentryReplayNetworkDetails *networkDetails
+        = objc_getAssociatedObject(sessionTask, &SentryNetworkDetailsKey);
+    if (networkDetails) {
+        // Store raw object; serialized at read time by SentrySRDefaultBreadcrumbConverter
+        breadcrumbData[SentryReplayNetworkDetails.replayNetworkDetailsKey] = networkDetails;
+    }
+
     breadcrumb.data = breadcrumbData;
     [SentrySDK addBreadcrumb:breadcrumb];
 
@@ -611,8 +619,8 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
             = objc_getAssociatedObject(task, &SentryNetworkDetailsKey);
         if (!details) {
             SENTRY_LOG_WARN(@"[NetworkCapture] No SentryReplayNetworkDetails found for %@ - "
-                             @"skipping response capture",
-                             urlString);
+                            @"skipping response capture",
+                urlString);
             return;
         }
 
@@ -653,13 +661,13 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
         if (objc_getAssociatedObject(sessionTask, &SentryNetworkDetailsKey)) {
             return;
         }
-        details =
-            [[SentryReplayNetworkDetails alloc] initWithMethod:request.HTTPMethod ?: @"GET"];
+        details = [[SentryReplayNetworkDetails alloc] initWithMethod:request.HTTPMethod ?: @"GET"];
         objc_setAssociatedObject(
             sessionTask, &SentryNetworkDetailsKey, details, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
-    // Prefer originalRequest.HTTPBody: currentRequest may reflect redirects, and its HTTPBody may be nil on in-flight tasks.
+    // Prefer originalRequest.HTTPBody: currentRequest may reflect redirects, and its HTTPBody may
+    // be nil on in-flight tasks.
     NSData *rawBody = sessionTask.originalRequest.HTTPBody ?: request.HTTPBody;
     NSNumber *requestSize = rawBody ? [NSNumber numberWithUnsignedInteger:rawBody.length] : nil;
     NSData *bodyData = networkCaptureBodies ? rawBody : nil;
