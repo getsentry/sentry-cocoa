@@ -4,6 +4,5 @@
 
 @interface SentryCrashExceptionApplicationHelper : NSObject
 + (void)reportException:(NSException *)exception;
-+ (void)_crashOnException:(NSException *)exception;
 @end
 #endif

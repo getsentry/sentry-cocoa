@@ -18,6 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)swizzleNSApplicationReportException;
 
++ (void)swizzleNSApplicationCrashOnException;
+
 + (void)capture:(nullable NSException *)exception;
 
 @end

@@ -33,6 +33,38 @@ NS_ASSUME_NONNULL_BEGIN
 #    pragma clang diagnostic pop
 }
 
++ (void)swizzleNSApplicationCrashOnException
+{
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
+#    if SENTRY_TEST || SENTRY_TEST_CI
+#        pragma clang diagnostic ignored "-Wunused-variable"
+#    endif
+    // AppKit calls _crashOnException: when an exception is caught during CATransaction flush
+    // or view layout, bypassing reportException: entirely. Depending on macOS version, AppKit
+    // may call the class method +[NSApplication _crashOnException:] or the instance method
+    // -[NSApp _crashOnException:], so we swizzle both.
+    SEL selector = NSSelectorFromString(@"_crashOnException:");
+
+    SentrySwizzleClassMethod(NSApplication, selector, SentrySWReturnType(void),
+        SentrySWArguments(NSException * exception), SentrySWReplacement({
+            [SentryUncaughtNSExceptions capture:exception];
+#    if !(SENTRY_TEST || SENTRY_TEST_CI)
+            return SentrySWCallOriginal(exception);
+#    endif
+        }));
+
+    SentrySwizzleInstanceMethod(NSApplication, selector, SentrySWReturnType(void),
+        SentrySWArguments(NSException * exception), SentrySWReplacement({
+            [SentryUncaughtNSExceptions capture:exception];
+#    if !(SENTRY_TEST || SENTRY_TEST_CI)
+            return SentrySWCallOriginal(exception);
+#    endif
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+#    pragma clang diagnostic pop
+}
+
 + (void)capture:(nullable NSException *)exception
 {
     SentryCrashSwift *crash = SentryDependencyContainer.sharedInstance.crashReporter;
