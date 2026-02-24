@@ -10,7 +10,7 @@
 # Options:
 #   --since YYYY-MM-DD   How far back to analyze (default: 2019-01-01)
 #
-# Requirements: Ruby + Bundler (ships with macOS), Python 3 (ships with macOS)
+# Requirements: Ruby (see .ruby-version) + Bundler, Python 3
 # Output: language-trends.html (opened automatically in the default browser)
 
 set -euo pipefail
