@@ -111,7 +111,7 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
 
     func testConcurrentAdds_ThreadSafe() throws {
         // -- Arrange --
-        let itemCount = 1_000
+        let itemCount = 100
         let maxItemCount = 100
         let logScheduler = TestTelemetryScheduler()
         let metricsScheduler = TestTelemetryScheduler()
@@ -170,12 +170,10 @@ final class SentryDefaultTelemetryProcessorTests: XCTestCase {
 
         // -- Assert --
         let capturedLogs = try logScheduler.getCapturedLogs()
-        XCTAssertGreaterThan(capturedLogs.count, 0, "Some logs should be captured")
-        XCTAssertLessThanOrEqual(capturedLogs.count, itemCount, "Should not exceed total added logs")
+        XCTAssertEqual(capturedLogs.count, itemCount, "All concurrently added logs should be captured")
 
         let capturedMetrics = try metricsScheduler.getCapturedMetrics()
-        XCTAssertGreaterThan(capturedMetrics.count, 0, "Some metrics should be captured")
-        XCTAssertLessThanOrEqual(capturedMetrics.count, itemCount, "Should not exceed total added metrics")
+        XCTAssertEqual(capturedMetrics.count, itemCount, "All concurrently added metrics should be captured")
     }
 
     func testDispatchAfterTimeoutWithRealDispatchQueue() throws {
@@ -376,8 +374,8 @@ final class TestTelemetryScheduler: TelemetryScheduler {
         let value: SentryMetricValue
         switch typeString {
         case "counter":
-            let intValue = dict["value"] as? Int64 ?? 0
-            value = .counter(UInt(intValue))
+            let intValue = dict["value"] as? Int ?? 0
+            value = .counter(UInt(max(intValue, 0)))
         case "gauge":
             let doubleValue = dict["value"] as? Double ?? 0
             value = .gauge(doubleValue)
