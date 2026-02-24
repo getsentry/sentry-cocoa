@@ -143,7 +143,10 @@ jobs:
   # of a bug solely on a specific OS version is minimal.
   unit-tests-with-test-server:
     name: Unit with Test Server ${{matrix.name}}
-    runs-on: ${{matrix.runs-on}}
+    runs-on:
+      - ${{ format('ghcr.io/cirruslabs/macos-runner:{0}', matrix.runs-on) }}
+      - "runner_group_id:10"
+      - ${{ (github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/heads/release/') && github.event_name != 'workflow_dispatch') && 'low-priority' || '' }}
     timeout-minutes: 20
     needs: build-test-server
 
@@ -155,8 +158,7 @@ jobs:
           # with communicating with the test server in CI.
           # We are going to add these back in https://github.com/getsentry/sentry-cocoa/issues/6361
           - name: macOS 15
-            runs-on:
-              ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
+            runs-on: sequoia
             platform: "macOS"
             xcode: "16.4"
             test-destination-os: "15.0"

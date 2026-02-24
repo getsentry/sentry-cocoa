@@ -88,7 +88,10 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_critical_for_prs == 'true'
     needs: files-changed
     name: Run SwiftUI Crash Test
-    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
+    runs-on:
+      - "ghcr.io/cirruslabs/macos-runner:sequoia"
+      - "runner_group_id:10"
+      - ${{ (github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/heads/release/') && github.event_name != 'workflow_dispatch') && 'low-priority' || '' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6

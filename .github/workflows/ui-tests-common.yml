@@ -69,7 +69,10 @@ jobs:
   common-ui-tests:
     if: ${{ !inputs.should_skip }}
     name: UI Tests Common
-    runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', inputs.macos_version)) || inputs.macos_version }}
+    runs-on:
+      - ${{ inputs.run_on_cirrus_labs && format('ghcr.io/cirruslabs/macos-runner:{0}', inputs.macos_version) || inputs.macos_version }}
+      - ${{ inputs.run_on_cirrus_labs && 'runner_group_id:10' || '' }}
+      - ${{ (inputs.run_on_cirrus_labs && github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/heads/release/') && github.event_name != 'workflow_dispatch') && 'low-priority' || '' }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6

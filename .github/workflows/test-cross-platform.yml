@@ -39,7 +39,10 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_test_cross_platform_for_prs == 'true'
     needs: files-changed
-    runs-on: ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
+    runs-on:
+      - "ghcr.io/cirruslabs/macos-runner:sequoia"
+      - "runner_group_id:10"
+      - ${{ (github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/heads/release/') && github.event_name != 'workflow_dispatch') && 'low-priority' || '' }}
     # This job can take a while to run, so we set a timeout.
     timeout-minutes: 30
     steps:
