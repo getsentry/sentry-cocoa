@@ -76,13 +76,13 @@ The `SentryProfiler` `+load` method contains a compile-time guard that limits la
 
 The guard uses only `SENTRY_TEST` and `SENTRY_TEST_CI`, which are scoped to the SDK's test targets. When neither is defined (any consumer app), `sentry_startLaunchProfile()` always runs. This ensures launch profiling behaves consistently across debug and release builds for SPM consumers:
 
-| Scenario                                                              | Launch profiling runs? |
-| --------------------------------------------------------------------- | ---------------------- |
-| Pre-built XCFramework (`Sentry` product), any build config            | Yes                    |
-| `SentrySPM`, consumer debug build (default)                           | Yes                    |
-| `SentrySPM`, consumer release build / archive                         | Yes                    |
-| `SentrySPM`, SDK unit tests (SENTRY_TEST or SENTRY_TEST_CI defined)   | No                     |
-| `SentrySPM`, SDK UI tests (with `--io.sentry.ui-test.test-name` env)  | Yes                    |
+| Scenario                                                             | Launch profiling runs? |
+| -------------------------------------------------------------------- | ---------------------- |
+| Pre-built XCFramework (`Sentry` product), any build config           | Yes                    |
+| `SentrySPM`, consumer debug build (default)                          | Yes                    |
+| `SentrySPM`, consumer release build / archive                        | Yes                    |
+| `SentrySPM`, SDK unit tests (SENTRY_TEST or SENTRY_TEST_CI defined)  | No                     |
+| `SentrySPM`, SDK UI tests (with `--io.sentry.ui-test.test-name` env) | Yes                    |
 
 ## Verifying +load Behavior
 
