@@ -564,6 +564,11 @@ The repository includes a Makefile that contains common commands for building, t
 - To build the SDK for macOS use `make build-macos`, for iOS use `make build-ios`
 - To run tests use `make test-macos` or `make test-ios` for the respective platforms.
 
+## Shell Script Conventions
+
+- **Use named parameters** (`--since`, `--output`) over positional parameters (`$1`, `$2`) to prevent wrong parameters being passed as scripts evolve
+- **Extract complex logic** into separate scripts (e.g., Python for data processing) rather than inlining via heredocs, to enable IDE support and testing
+
 ## Helpful Commands
 
 - format code: `make format`

@@ -84,6 +84,7 @@ Cartfile.resolved
 
 Samples/DistributionSample/DistributionSample.xcodeproj
 Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj
+Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.xcodeproj
 Samples/iOS-Swift/iOS-Swift.xcodeproj
 Samples/iOS-Swift6/iOS-Swift6.xcodeproj
 Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj
@@ -129,3 +130,6 @@ XCFrameworkBuildPath/
 
 # Local Claude Code settings that should not be committed
 .claude/settings.local.json
+
+# Output of `make analyze-languages`
+language-trends.html

@@ -82,7 +82,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
 
-- (void)captureMetricsData:(NSData *)data with:(NSNumber *)itemCount;
+/// Exposes the Telemetry Processor so Swift code can forward metrics directly without crossing the
+/// ObjC boundary. SentryMetric is a Swift struct and cannot be passed through ObjC methods, so
+/// we use a Swift extension on SentryClientInternal.
+/// The return type is `id` (not `id<SentryObjCTelemetryProcessor>`) to avoid a
+/// circular dependency: the protocol is defined in Swift and cannot be referenced in ObjC headers
+/// that Swift imports.
+- (SENTRY_SWIFT_MIGRATION_ID(id<SentryObjCTelemetryProcessor>))getTelemetryProcessor;
 
 @end
 
