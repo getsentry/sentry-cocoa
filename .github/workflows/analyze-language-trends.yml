@@ -31,13 +31,16 @@ jobs:
           fetch-depth: 0
 
       - name: Install linguist build dependencies
+        # These are OS-level C libraries and build tools needed to compile
+        # native extensions in charlock_holmes and rugged gems. Pinning
+        # specific apt versions is impractical as runner images update
+        # frequently; the Gemfile.lock pins the actual gem versions.
         run: sudo apt-get update && sudo apt-get install -y cmake pkg-config libicu-dev
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
         with:
           bundler-cache: true
-          working-directory: scripts/analyze-languages
 
       - name: Run language analysis
         # Start from 2019; earlier data fluctuates significantly between months.
