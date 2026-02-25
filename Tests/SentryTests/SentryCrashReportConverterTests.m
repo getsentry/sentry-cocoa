@@ -1056,4 +1056,53 @@
         exception.value);
 }
 
+- (void)testUserException_whenCrashInfoMessagePresent_shouldPreserveOriginalReason
+{
+    // -- Arrange --
+    // User-reported exceptions come from SentrySDK.capture(error:) / capture(exception:).
+    // Their reason is always authoritative and must not be overwritten by a stale
+    // crash_info_message that may have been left in libswiftCore's shared __crash_info buffer.
+    NSString *userReason = @"CustomError: User triggered this error";
+    NSString *unrelatedCrashInfo
+        = @"SWIFT TASK CONTINUATION MISUSE: fetchData() leaked its continuation";
+
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ { @"contents" : @[] }
+            } ],
+            @"error" : @ {
+                @"type" : @"user",
+                @"reason" : userReason,
+                @"user_reported" : @ { @"name" : @"CustomError" }
+            }
+        },
+        @"binary_images" : @[ @{
+            @"name" : @"/usr/lib/swift/libswiftCore.dylib",
+            @"image_addr" : @0x1000,
+            @"image_size" : @0x1000,
+            @"crash_info_message" : unrelatedCrashInfo
+        } ],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertTrue([exception.value containsString:@"User triggered this error"],
+        @"User-reported exception value should preserve the original reason. Got: %@",
+        exception.value);
+    XCTAssertFalse([exception.value containsString:unrelatedCrashInfo],
+        @"User-reported exception value must not be replaced by an unrelated crash_info_message. "
+        @"Got: %@",
+        exception.value);
+}
+
 @end

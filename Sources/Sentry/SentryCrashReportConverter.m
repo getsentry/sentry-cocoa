@@ -462,13 +462,19 @@
 
     [self enhanceValueFromNotableAddresses:exception];
 
-    // For nsexception and cpp_exception the exception value already contains the authoritative
-    // crash reason. The crash_info_message from libswiftCore.dylib's __crash_info section is a
-    // shared buffer that may contain unrelated Swift runtime warnings (e.g. continuation misuse)
-    // that happened before an unrelated crash. Only override for mach/signal exceptions where
-    // crash_info_message IS the crash cause (fatalError, assertionFailure, etc.).
+    // For nsexception, cpp_exception, and user-reported exceptions, the exception value already
+    // contains the authoritative crash reason from the exception context. The crash_info_message
+    // from libswiftCore.dylib's __crash_info section is a shared buffer that may contain unrelated
+    // Swift runtime warnings (e.g. SWIFT TASK CONTINUATION MISUSE) that happened before an
+    // unrelated crash. Only override for mach/signal exceptions where crash_info_message IS the
+    // crash cause (fatalError, assertionFailure, etc.).
+    //
+    // The "user" type covers programmatically reported exceptions (SentrySDK.capture). While
+    // unlikely to co-occur with a stale __crash_info buffer, excluding it is correct because the
+    // user-supplied reason is always authoritative.
     if (![exceptionType isEqualToString:@"nsexception"]
-        && ![exceptionType isEqualToString:@"cpp_exception"]) {
+        && ![exceptionType isEqualToString:@"cpp_exception"]
+        && ![exceptionType isEqualToString:@"user"]) {
         [self enhanceValueFromCrashInfoMessage:exception];
     }
 
