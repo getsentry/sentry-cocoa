@@ -1451,8 +1451,9 @@ extension SentryFileManagerTests {
 private extension SentryFileManagerTests {
     func ensureAppLaunchProfileConfig(exists: Bool = true, tracesSampleRate: Double = 1, tracesSampleRand: Double = 1.0, profilesSampleRate: Double = 1, profilesSampleRand: Double = 1.0) throws {
         let url = try XCTUnwrap(launchProfileConfigFileURL())
-        
+
         if exists {
+            XCTAssertTrue(ensureLaunchProfileConfigDirectoryExists(), "Directory for launch profile config must exist before writing")
             let dict = [
                 kSentryLaunchProfileConfigKeyTracesSampleRate: tracesSampleRate,
                 kSentryLaunchProfileConfigKeyTracesSampleRand: tracesSampleRand,
