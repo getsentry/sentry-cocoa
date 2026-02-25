@@ -595,10 +595,38 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
                     requestURL:(NSURL *)requestURL
                           task:(NSURLSessionTask *)task
 {
-    // TODO: Implementation
-    // 2. Parse response body data
-    // 3. Store in appropriate location for session replay
-    // 4. Handle size limits and truncation if needed
+    NSString *urlString = requestURL.absoluteString;
+    SentryOptions *options = SentrySDK.startOption;
+    if (![self isNetworkDetailCaptureEnabledFor:urlString options:options]) {
+        return;
+    }
+
+    SentryReplayNetworkDetails *details = objc_getAssociatedObject(task, &SentryNetworkDetailsKey);
+    if (!details) {
+        SENTRY_LOG_WARN(@"[NetworkCapture] No SentryReplayNetworkDetails found for %@ - "
+                         @"skipping response capture",
+                         urlString);
+        return;
+    }
+
+    NSInteger statusCode = 0;
+    NSDictionary *allHeaders = nil;
+    NSString *contentType = nil;
+    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        statusCode = httpResponse.statusCode;
+        allHeaders = httpResponse.allHeaderFields;
+        contentType = httpResponse.allHeaderFields[@"Content-Type"];
+    }
+
+    NSData *bodyData = (options.sessionReplay.networkCaptureBodies && data.length > 0) ? data : nil;
+
+    [details setResponseWithStatusCode:statusCode
+                                  size:@(data ? data.length : 0)
+                              bodyData:bodyData
+                           contentType:contentType
+                            allHeaders:allHeaders
+                     configuredHeaders:options.sessionReplay.networkResponseHeaders];
 }
 
 - (void)captureRequestDetails:(NSURLSessionTask *)sessionTask
