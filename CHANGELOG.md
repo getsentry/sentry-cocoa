@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.5.1
 
 ### Fixes
 
@@ -10,6 +10,8 @@
 - Don't finish network spans for suspended URL session tasks (#7471)
 - Use different fallback for when MetricKit does not have file path (#7473)
 - Preserve NSException and C++ exception reason instead of overwriting with unrelated `crash_info_message` from `libswiftCore.dylib` (#7515)
+- Remove launch profiling logs in sandboxed environments breaking CLI tools (#7294)
+- Use different fallback for when MetricKit does not have file path ([#7473](https://github.com/getsentry/sentry-cocoa/pull/7473))
 
 ## 9.5.0
 
@@ -480,6 +482,16 @@ This changelog lists every breaking change. For a high-level overview and upgrad
   This option is still disabled by default and will be enabled in a future major release.
 - Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
+
+## 8.58.0
+
+### Features
+
+- Add options `options.sessionReplay.includedViewClasses` and `options.sessionReplay.excludedViewClasses` to ignore views from subtree traversal (#7063)
+
+### Fixes
+
+- Encode SwiftUI internal class names in session replay redaction to avoid false-positive App Store review rejections (#7123)
 
 ## 8.57.3
 

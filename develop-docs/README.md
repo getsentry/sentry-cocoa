@@ -7,6 +7,7 @@ This is a collection of documents that can help you develop for the SentrySDK.
 - TEST.md: unit testing, UI testing and static/runtime analysis
 - BUILD.md: how we configure and build our SDK deliverables
 - RELEASE.md: our release processes and best practices
+- OBJC-LOAD-AND-LINKING.md: how Objective-C +load interacts with build configurations and distribution formats
 - SDK_HISTORY.md: historical context and FAQ for the SDK
 - [Language Trends Report](https://getsentry.github.io/sentry-cocoa/language-trends.html): interactive chart of the repository's language breakdown over time, updated on every merge to main via GitHub Pages
 

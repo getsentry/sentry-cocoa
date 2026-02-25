@@ -57,16 +57,6 @@ For more information checkout the [docs](https://docs.sentry.io/platforms/apple)
 
 <sup>(1)</sup>limited symbolication support and no crash handling.
 
-# Blog posts
-
-[Mobile Vitals - Four Metrics Every Mobile Developer Should Care About](https://blog.sentry.io/2021/08/23/mobile-vitals-four-metrics-every-mobile-developer-should-care-about/).
-
-[How to use Sentry Attachments with Mobile Applications](https://blog.sentry.io/2021/02/03/how-to-use-sentry-attachments-with-mobile-applications/?utm_source=github&utm_medium=readme&utm_campaign=sentry-cocoa).
-
-[Close the Loop with User Feedback](https://blog.sentry.io/2021/02/16/close-the-loop-with-user-feedback/?utm_source=github&utm_medium=readme&utm_campaign=sentry-cocoa).
-
-[A Sanity Listicle for Mobile Developers](https://blog.sentry.io/2021/03/30/a-sanity-listicle-for-mobile-developers/?utm_source=github&utm_medium=readme&utm_campaign=sentry-cocoa).
-
 # Resources
 
 - [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/apple/)
