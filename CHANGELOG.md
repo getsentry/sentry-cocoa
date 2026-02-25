@@ -480,6 +480,16 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
 
+## 8.58.0
+
+### Features
+
+- Add options `options.sessionReplay.includedViewClasses` and `options.sessionReplay.excludedViewClasses` to ignore views from subtree traversal (#7063)
+
+### Fixes
+
+- Encode SwiftUI internal class names in session replay redaction to avoid false-positive App Store review rejections (#7123)
+
 ## 8.57.3
 
 ### Fixes
