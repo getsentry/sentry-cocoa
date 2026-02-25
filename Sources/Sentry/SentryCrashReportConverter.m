@@ -461,7 +461,17 @@
     }
 
     [self enhanceValueFromNotableAddresses:exception];
-    [self enhanceValueFromCrashInfoMessage:exception];
+
+    // For nsexception and cpp_exception the exception value already contains the authoritative
+    // crash reason. The crash_info_message from libswiftCore.dylib's __crash_info section is a
+    // shared buffer that may contain unrelated Swift runtime warnings (e.g. continuation misuse)
+    // that happened before an unrelated crash. Only override for mach/signal exceptions where
+    // crash_info_message IS the crash cause (fatalError, assertionFailure, etc.).
+    if (![exceptionType isEqualToString:@"nsexception"]
+        && ![exceptionType isEqualToString:@"cpp_exception"]) {
+        [self enhanceValueFromCrashInfoMessage:exception];
+    }
+
     exception.mechanism = [self extractMechanismOfType:exceptionType];
 
     SentryThread *crashedThread = [self crashedThread];
