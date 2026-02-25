@@ -821,12 +821,12 @@ NSDictionary<NSString *, NSNumber *> *_Nullable sentry_persistedLaunchProfileCon
 {
     NSURL *_Nullable url = launchProfileConfigFileURL();
     if (url == nil) {
-        SENTRY_LOG_DEBUG(@"No URL available to retrieve launch profile configs.")
+        SENTRY_LOG_DEBUG(@"No URL available to retrieve launch profile configs.");
         return nil;
     }
     NSString *_Nullable nullablePath = url.path;
     if (nullablePath == nil) {
-        SENTRY_LOG_DEBUG(@"No path available to retrieve launch profile configs.")
+        SENTRY_LOG_DEBUG(@"No path available to retrieve launch profile configs.");
         return nil;
     }
     if (![[NSFileManager defaultManager]
@@ -853,12 +853,12 @@ appLaunchProfileConfigFileExists(void)
 {
     NSURL *_Nullable url = launchProfileConfigFileURL();
     if (url == nil) {
-        SENTRY_LOG_DEBUG(@"No URL available to check for launch profile configs.")
+        SENTRY_LOG_DEBUG(@"No URL available to check for launch profile configs.");
         return NO;
     }
     NSString *_Nullable path = url.path;
     if (path == nil) {
-        SENTRY_LOG_DEBUG(@"No path available to check for launch profile configs.")
+        SENTRY_LOG_DEBUG(@"No path available to check for launch profile configs.");
         return NO;
     }
 
