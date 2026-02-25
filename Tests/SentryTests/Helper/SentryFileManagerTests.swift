@@ -1281,6 +1281,65 @@ extension SentryFileManagerTests {
         sentryLaunchConfigFileURL = (originalURL as? NSURL)
     }
 
+    func testEnsureLaunchProfileConfigDirectoryExists_whenBasePathAvailable_shouldReturnTrue() {
+        // -- Act --
+        let result = ensureLaunchProfileConfigDirectoryExists()
+
+        // -- Assert --
+        XCTAssertTrue(result)
+    }
+
+    func testPersistedLaunchProfileConfigOptions_whenURLIsNil_shouldReturnNil() {
+        // -- Arrange --
+        let originalURL = launchProfileConfigFileURL()
+        sentryLaunchConfigFileURL = nil
+
+        // -- Act --
+        let result = sentry_persistedLaunchProfileConfigurationOptions()
+
+        // -- Assert --
+        XCTAssertNil(result)
+
+        sentryLaunchConfigFileURL = (originalURL as? NSURL)
+    }
+
+    func testPersistedLaunchProfileConfigOptions_whenNoConfigFileExists_shouldReturnNil() throws {
+        // -- Arrange --
+        try ensureAppLaunchProfileConfig(exists: false)
+
+        // -- Act --
+        let result = sentry_persistedLaunchProfileConfigurationOptions()
+
+        // -- Assert --
+        XCTAssertNil(result)
+    }
+
+    func testWriteAppLaunchProfilingConfigFile_whenDirectoryDoesNotExist_shouldCreateItAndWrite() throws {
+        // -- Arrange --
+        let url = try XCTUnwrap(launchProfileConfigFileURL())
+        let directoryURL = url.deletingLastPathComponent()
+        let fm = FileManager.default
+        if fm.fileExists(atPath: directoryURL.path) {
+            try fm.removeItem(at: directoryURL)
+        }
+        XCTAssertFalse(fm.fileExists(atPath: directoryURL.path))
+
+        // -- Act --
+        let config: NSMutableDictionary = [
+            kSentryLaunchProfileConfigKeyTracesSampleRate: 0.5,
+            kSentryLaunchProfileConfigKeyTracesSampleRand: 0.3,
+            kSentryLaunchProfileConfigKeyProfilesSampleRate: 0.25,
+            kSentryLaunchProfileConfigKeyProfilesSampleRand: 0.4
+        ]
+        writeAppLaunchProfilingConfigFile(config)
+
+        // -- Assert --
+        XCTAssertTrue(fm.fileExists(atPath: directoryURL.path))
+        XCTAssertTrue(fm.fileExists(atPath: url.path))
+        let written = NSDictionary(contentsOf: url)
+        XCTAssertEqual(written?[kSentryLaunchProfileConfigKeyTracesSampleRate] as? Double, 0.5)
+    }
+
     func testSentryGetScopedCachesDirectory_targetIsNotMacOS_shouldReturnSamePath() throws {
 #if os(macOS)
         throw XCTSkip("Test is disabled for macOS")
@@ -1392,8 +1451,9 @@ extension SentryFileManagerTests {
 private extension SentryFileManagerTests {
     func ensureAppLaunchProfileConfig(exists: Bool = true, tracesSampleRate: Double = 1, tracesSampleRand: Double = 1.0, profilesSampleRate: Double = 1, profilesSampleRand: Double = 1.0) throws {
         let url = try XCTUnwrap(launchProfileConfigFileURL())
-        
+
         if exists {
+            XCTAssertTrue(ensureLaunchProfileConfigDirectoryExists(), "Directory for launch profile config must exist before writing")
             let dict = [
                 kSentryLaunchProfileConfigKeyTracesSampleRate: tracesSampleRate,
                 kSentryLaunchProfileConfigKeyTracesSampleRand: tracesSampleRand,
