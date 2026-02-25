@@ -41,7 +41,14 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
         super.init()
 
         SentrySwizzleWrapperHelper.swizzleURLSessionTask(networkTracker)
+
+        #if os(iOS) || os(tvOS)
+         if !options.sessionReplay.networkDetailAllowUrls.isEmpty {
+             SentrySwizzleWrapperHelper.swizzleURLSessionDataTasks(forResponseCapture: networkTracker)
+         }
+        #endif
     }
+    
 
     func uninstall() {
         networkTracker.disable()
