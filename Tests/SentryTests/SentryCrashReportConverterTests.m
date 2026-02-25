@@ -857,15 +857,12 @@
             } ],
             @"error" : @ {
                 @"type" : @"nsexception",
-                @"nsexception" : @ {
-                    @"name" : @"NSInvalidArgumentException",
-                    @"reason" : nsexceptionReason
-                }
+                @"nsexception" :
+                    @ { @"name" : @"NSInvalidArgumentException", @"reason" : nsexceptionReason }
             }
         },
         @"binary_images" : @[ @{
-            @"name" :
-                @"/usr/lib/swift/libswiftCore.dylib",
+            @"name" : @"/usr/lib/swift/libswiftCore.dylib",
             @"image_addr" : @0x1000,
             @"image_size" : @0x1000,
             @"crash_info_message" : unrelatedCrashInfo
@@ -973,7 +970,8 @@
 - (void)testMachException_whenCrashInfoMessagePresent_shouldOverrideValue
 {
     // -- Arrange --
-    NSString *crashInfoMessage = @"MyApp/ViewController.swift:42: Fatal error: Index out of range\n";
+    NSString *crashInfoMessage
+        = @"MyApp/ViewController.swift:42: Fatal error: Index out of range\n";
 
     NSDictionary *mockReport = @{
         @"crash" : @ {
