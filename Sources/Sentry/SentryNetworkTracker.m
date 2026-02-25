@@ -562,4 +562,15 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     return breadcrumbLevel;
 }
 
+- (void)captureResponseDetails:(NSData *)data
+                      response:(NSURLResponse *)response
+                       request:(NSURLRequest *)request
+                          task:(NSURLSessionTask *)task
+{
+    // TODO: Implementation
+    // 2. Parse response body data
+    // 3. Store in appropriate location for session replay
+    // 4. Handle size limits and truncation if needed
+}
+
 @end
