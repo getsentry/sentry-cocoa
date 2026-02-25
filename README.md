@@ -25,7 +25,7 @@ _Bad software is everywhere, and we're tired of it. Sentry is on a mission to he
 SPM is the recommended way to include Sentry into your project. We also provide pre-built XCFrameworks on [our GitHub Releases page](https://github.com/getsentry/sentry-cocoa/releases).
 
 > [!WARNING]
-> CocoaPods support has been deprecated and will no longer receive updates after July 2026. Please migrate to SPM or XCFrameworks.
+> CocoaPods support has been deprecated and will no longer receive updates after July 2026. Please migrate to SPM or XCFrameworks. See [CocoaPods read-only change](https://blog.cocoapods.org/CocoaPods-Support-Plans/).
 
 # Initialization
 
