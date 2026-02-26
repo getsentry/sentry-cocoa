@@ -114,7 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Adding tags from Trace to serializedData dictionary
     if (serializedData[@"tags"] != nil &&
         [serializedData[@"tags"] isKindOfClass:NSDictionary.class]) {
-        NSMutableDictionary *tags = [NSMutableDictionary new];
+        NSMutableDictionary *tags = [[NSMutableDictionary alloc] init];
         [tags
             addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE(NSDictionary, serializedData[@"tags"])];
         [tags addEntriesFromDictionary:traceTags];
@@ -128,7 +128,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Adding data from Trace to serializedData dictionary
     if (serializedData[@"extra"] != nil &&
         [serializedData[@"extra"] isKindOfClass:NSDictionary.class]) {
-        NSMutableDictionary *extra = [NSMutableDictionary new];
+        NSMutableDictionary *extra = [[NSMutableDictionary alloc] init];
         [extra addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE(
                                             NSDictionary, serializedData[@"extra"])];
         [extra addEntriesFromDictionary:traceData];
