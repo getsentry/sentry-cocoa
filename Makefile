@@ -486,7 +486,7 @@ lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
-	@if [ -f compile_commands.json ]; then ./scripts/run-clang-tidy.sh; else echo "Skipping clang-tidy (run 'make format-clang-tidy' to generate and fix)"; fi
+	python3 ./scripts/check-objc-new-usage.py -r Sources Tests SentryTestUtils SentryTestUtilsDynamic
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
 
@@ -498,7 +498,7 @@ lint-staged:
 	@echo "--> Running Swiftlint and Clang-Format on staged files"
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
-	@if [ -f compile_commands.json ]; then ./scripts/run-clang-tidy.sh; else echo "Skipping clang-tidy (run 'make format-clang-tidy' to generate and fix)"; fi
+	python3 ./scripts/check-objc-new-usage.py -r Sources Tests SentryTestUtils SentryTestUtilsDynamic
 	swiftlint --strict --quiet $(STAGED_SWIFT_FILES)
 	dprint check "**/*.{md,json,yaml,yml}"
 
@@ -506,7 +506,7 @@ lint-staged:
 #
 # Runs all formatting tasks for Swift, Objective-C, Markdown, JSON, and YAML files.
 .PHONY: format
-format: format-clang format-clang-tidy format-swift-all format-markdown format-json format-yaml
+format: format-clang format-objc-new format-swift-all format-markdown format-json format-yaml
 
 ## Format Objective-C, C, and C++ files
 #
@@ -524,9 +524,15 @@ format-clang:
 generate-compile-commands:
 	./scripts/generate-compile-commands.sh
 
-## Fix Objective-C [new] usage via clang-tidy
+## Fix Objective-C [new] usage
 #
-# Always regenerates compile_commands.json first to ensure clang-tidy uses current code.
+# Uses Python script for CI/local. For clang-tidy (requires compile_commands.json),
+# run 'make generate-compile-commands' then './scripts/run-clang-tidy.sh --fix'.
+.PHONY: format-objc-new
+format-objc-new:
+	python3 ./scripts/check-objc-new-usage.py --fix -r Sources Tests SentryTestUtils SentryTestUtilsDynamic
+
+## Fix Objective-C [new] usage via clang-tidy (optional, requires compile_commands.json)
 .PHONY: format-clang-tidy
 format-clang-tidy: generate-compile-commands
 	./scripts/run-clang-tidy.sh --fix

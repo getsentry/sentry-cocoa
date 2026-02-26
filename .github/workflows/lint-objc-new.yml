@@ -41,21 +41,13 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
-        with:
-          bundler-cache: true
-
-      - name: Install tooling
-        run: make init-ci-format
-
-      - name: Fix ObjC [new] usage with clang-tidy
-        run: make format-clang-tidy
+      - name: Fix ObjC [new] usage
+        run: python3 scripts/check-objc-new-usage.py --fix -r Sources Tests SentryTestUtils SentryTestUtilsDynamic
 
       - name: Check for ObjC [new] Usage
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
-            echo "❌ Some code uses [ClassName new]. Please run 'make format-clang-tidy' and commit the changes to replace with [[ClassName alloc] init]."
+            echo "❌ Some code uses [ClassName new]. Please run 'python3 scripts/check-objc-new-usage.py --fix -r Sources Tests SentryTestUtils SentryTestUtilsDynamic' and commit the changes to replace with [[ClassName alloc] init]."
             git status
             git diff
             exit 1
