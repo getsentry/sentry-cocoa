@@ -42,7 +42,7 @@
 
         NSDictionary *userContextUnMerged = report[@"user"];
         if (userContextUnMerged == nil) {
-            userContextUnMerged = [NSDictionary new];
+            userContextUnMerged = [[NSDictionary alloc] init];
         }
 
         // The SentryCrashIntegration used userInfo to put in scope data. This had a few downsides.
@@ -129,7 +129,7 @@
         if (mutableContext[@"app"] != nil) {
             appContext = [mutableContext[@"app"] mutableCopy];
         } else {
-            appContext = [NSMutableDictionary new];
+            appContext = [[NSMutableDictionary alloc] init];
         }
         appContext[@"in_foreground"] = self.applicationStats[@"application_in_foreground"];
         appContext[@"is_active"] = self.applicationStats[@"application_active"];
@@ -184,7 +184,7 @@
 
 - (NSMutableArray<SentryBreadcrumb *> *)convertBreadcrumbs
 {
-    NSMutableArray *breadcrumbs = [NSMutableArray new];
+    NSMutableArray *breadcrumbs = [[NSMutableArray alloc] init];
     if (nil != self.userContext[@"breadcrumbs"]) {
         NSArray *storedBreadcrumbs = self.userContext[@"breadcrumbs"];
         for (NSDictionary *storedCrumb in storedBreadcrumbs) {
@@ -232,7 +232,7 @@
 - (NSDictionary *)registersForThreadIndex:(NSInteger)threadIndex
 {
     NSDictionary *thread = self.threads[threadIndex];
-    NSMutableDictionary *registers = [NSMutableDictionary new];
+    NSMutableDictionary *registers = [[NSMutableDictionary alloc] init];
     for (NSString *key in [thread[@"registers"][@"basic"] allKeys]) {
         [registers setValue:sentry_formatHexAddress(thread[@"registers"][@"basic"][key])
                      forKey:key];
@@ -321,7 +321,7 @@
 {
     NSUInteger frameCount = [self rawStackTraceForThreadIndex:threadIndex].count;
     if (frameCount <= 0) {
-        return [NSArray new];
+        return [[NSArray alloc] init];
     }
 
     NSMutableArray *frames = [NSMutableArray arrayWithCapacity:frameCount];
@@ -389,7 +389,7 @@
         }
     }
 
-    NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
+    NSMutableArray<SentryDebugMeta *> *result = [[NSMutableArray alloc] init];
 
     for (NSDictionary *sourceImage in self.binaryImages) {
         if ([imageNames containsObject:sentry_formatHexAddress(sourceImage[@"image_addr"])]) {
@@ -520,7 +520,7 @@
 
 - (void)enhanceValueFromCrashInfoMessage:(SentryException *)exception
 {
-    NSMutableArray<NSString *> *crashInfoMessages = [NSMutableArray new];
+    NSMutableArray<NSString *> *crashInfoMessages = [[NSMutableArray alloc] init];
 
     NSPredicate *libSwiftCore =
         [NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
@@ -556,7 +556,7 @@
 
         SentryMechanismContext *meta = [[SentryMechanismContext alloc] init];
 
-        NSMutableDictionary *machException = [NSMutableDictionary new];
+        NSMutableDictionary *machException = [[NSMutableDictionary alloc] init];
         [machException setValue:self.exceptionContext[@"mach"][@"exception_name"] forKey:@"name"];
         [machException setValue:self.exceptionContext[@"mach"][@"exception"] forKey:@"exception"];
         [machException setValue:self.exceptionContext[@"mach"][@"subcode"] forKey:@"subcode"];
@@ -564,7 +564,7 @@
         meta.machException = machException;
 
         if (nil != self.exceptionContext[@"signal"]) {
-            NSMutableDictionary *signal = [NSMutableDictionary new];
+            NSMutableDictionary *signal = [[NSMutableDictionary alloc] init];
             [signal setValue:self.exceptionContext[@"signal"][@"signal"] forKey:@"number"];
             [signal setValue:self.exceptionContext[@"signal"][@"code"] forKey:@"code"];
             [signal setValue:self.exceptionContext[@"signal"][@"code_name"] forKey:@"code_name"];
@@ -586,7 +586,7 @@
 
 - (NSArray *)convertThreads
 {
-    NSMutableArray *result = [NSMutableArray new];
+    NSMutableArray *result = [[NSMutableArray alloc] init];
     for (NSInteger threadIndex = 0; threadIndex < (NSInteger)self.threads.count; threadIndex++) {
         SentryThread *thread = [self threadAtIndex:threadIndex];
         if (thread && nil != thread.stacktrace) {

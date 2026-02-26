@@ -441,7 +441,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, sessionTask.currentRequest.URL)];
 
     breadcrumb.type = @"http";
-    NSMutableDictionary<NSString *, id> *breadcrumbData = [NSMutableDictionary new];
+    NSMutableDictionary<NSString *, id> *breadcrumbData = [[NSMutableDictionary alloc] init];
     breadcrumbData[@"url"] = urlComponents.sanitizedUrl;
     breadcrumbData[@"method"] = sessionTask.currentRequest.HTTPMethod;
     breadcrumbData[@"request_start"] = requestStart;

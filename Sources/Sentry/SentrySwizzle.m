@@ -55,7 +55,7 @@ refsToOriginalImplementationsDictionary(void)
 {
     static NSMutableDictionary *refsToOriginalImplementations;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ refsToOriginalImplementations = [NSMutableDictionary new]; });
+    dispatch_once(&onceToken, ^{ refsToOriginalImplementations = [[NSMutableDictionary alloc] init]; });
     return refsToOriginalImplementations;
 }
 
@@ -168,7 +168,7 @@ swizzle(
         return imp;
     };
 
-    SentrySwizzleInfo *swizzleInfo = [SentrySwizzleInfo new];
+    SentrySwizzleInfo *swizzleInfo = [[SentrySwizzleInfo alloc] init];
     swizzleInfo.selector = selector;
     swizzleInfo.impProviderBlock = originalImpProvider;
 
@@ -245,7 +245,7 @@ swizzledClassesDictionary(void)
 {
     static NSMutableDictionary *swizzledClasses;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ swizzledClasses = [NSMutableDictionary new]; });
+    dispatch_once(&onceToken, ^{ swizzledClasses = [[NSMutableDictionary alloc] init]; });
     return swizzledClasses;
 }
 
@@ -257,7 +257,7 @@ swizzledClassesForKey(const void *key)
     NSValue *keyValue = [NSValue valueWithPointer:key];
     NSMutableSet *swizzledClasses = [classesDictionary objectForKey:keyValue];
     if (!swizzledClasses) {
-        swizzledClasses = [NSMutableSet new];
+        swizzledClasses = [[NSMutableSet alloc] init];
         [classesDictionary setObject:swizzledClasses forKey:keyValue];
     }
     return swizzledClasses;
