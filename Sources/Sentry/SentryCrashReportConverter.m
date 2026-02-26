@@ -51,7 +51,7 @@
         // here. For more details please check out SentryCrashScopeObserver.
         NSMutableDictionary *userContextMerged =
             [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
-        [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"] ?: @{}];
+        [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"] ?: @{ }];
         [userContextMerged removeObjectForKey:@"sentry_sdk_scope"];
         self.userContext = userContextMerged;
 
@@ -120,7 +120,7 @@
         event.environment = self.userContext[@"environment"];
 
         NSMutableDictionary *mutableContext =
-            [[NSMutableDictionary alloc] initWithDictionary:self.userContext[@"context"] ?: @{}];
+            [[NSMutableDictionary alloc] initWithDictionary:self.userContext[@"context"] ?: @{ }];
         if (self.userContext[@"traceContext"]) {
             mutableContext[@"trace"] = self.userContext[@"traceContext"];
         }
@@ -462,14 +462,17 @@
 
     [self enhanceValueFromNotableAddresses:exception];
 
+    NSArray<NSString *> *crashInfoMessages = [self crashInfoMessagesFromBinaryImages];
+
     // crash_info_message is a shared buffer that may hold unrelated Swift runtime warnings from
     // earlier in the process. Only use it to override for mach/signal, where it IS the crash cause.
     // For nsexception, cpp_exception, user the exception context is authoritative—overwriting
     // would replace the real reason with stale or unrelated text.
     NSSet<NSString *> *crashInfoMessageExceptionTypes =
         [NSSet setWithObjects:@"mach", @"signal", nil];
-    if ([crashInfoMessageExceptionTypes containsObject:exceptionType]) {
-        [self enhanceValueFromCrashInfoMessage:exception];
+    if ([crashInfoMessageExceptionTypes containsObject:exceptionType]
+        && crashInfoMessages.count > 0) {
+        exception.value = crashInfoMessages.firstObject;
     }
 
     exception.mechanism = [self extractMechanismOfType:exceptionType];
@@ -479,14 +482,12 @@
     // https://develop.sentry.dev/sdk/foundations/transport/event-payloads/exception/#data
     NSSet<NSString *> *authoritativeExceptionTypes =
         [NSSet setWithObjects:@"nsexception", @"cpp_exception", @"user", nil];
-    if ([authoritativeExceptionTypes containsObject:exceptionType] && exception.mechanism != nil) {
-        NSArray<NSString *> *crashInfoMessages = [self crashInfoMessagesFromBinaryImages];
-        if (crashInfoMessages.count > 0) {
-            NSMutableDictionary *data =
-                [exception.mechanism.data mutableCopy] ?: [[NSMutableDictionary alloc] init];
-            data[@"crash_info_messages"] = crashInfoMessages;
-            exception.mechanism.data = data;
-        }
+    if ([authoritativeExceptionTypes containsObject:exceptionType] && exception.mechanism != nil
+        && crashInfoMessages.count > 0) {
+        NSMutableDictionary *data =
+            [exception.mechanism.data mutableCopy] ?: [[NSMutableDictionary alloc] init];
+        data[@"crash_info_messages"] = crashInfoMessages;
+        exception.mechanism.data = data;
     }
 
     SentryThread *crashedThread = [self crashedThread];
@@ -538,8 +539,9 @@
         }
     }
     if (reasons.count > 0) {
-        exception.value = [[[reasons array] sortedArrayUsingSelector:@selector
-            (localizedCaseInsensitiveCompare:)] componentsJoinedByString:@" > "];
+        exception.value =
+            [[[reasons array] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]
+                componentsJoinedByString:@" > "];
     }
 }
 
@@ -568,14 +570,6 @@
     }
 
     return crashInfoMessages;
-}
-
-- (void)enhanceValueFromCrashInfoMessage:(SentryException *)exception
-{
-    NSArray<NSString *> *messages = [self crashInfoMessagesFromBinaryImages];
-    if (messages.count > 0) {
-        exception.value = messages.firstObject;
-    }
 }
 
 - (SentryMechanism *_Nullable)extractMechanismOfType:(nonnull NSString *)type

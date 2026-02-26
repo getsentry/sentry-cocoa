@@ -16,7 +16,6 @@
 - Don't finish network spans for suspended URL session tasks (#7471)
 - Use different fallback for when MetricKit does not have file path (#7473)
 - Remove launch profiling logs in sandboxed environments breaking CLI tools (#7294)
-- Use different fallback for when MetricKit does not have file path (#7473)
 
 ## 9.5.0
 

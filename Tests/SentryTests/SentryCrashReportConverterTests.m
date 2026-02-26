@@ -613,7 +613,7 @@
     NSString *jsonPath = [[NSBundle bundleForClass:self.class] pathForResource:path ofType:@"json"];
     if (jsonPath == nil) {
         XCTFail(@"Was unable to find crash report in resources for path: '%@'", path);
-        return @{};
+        return @{ };
     }
     NSData *jsonData = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:jsonPath]];
     return [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
@@ -1014,6 +1014,9 @@
     XCTAssertFalse([exception.value containsString:unrelatedCrashInfo],
         @"C++ exception value must not be replaced by an unrelated crash_info_message. Got: %@",
         exception.value);
+    NSArray<NSString *> *messages = exception.mechanism.data[@"crash_info_messages"];
+    XCTAssertEqual(messages.count, 1u);
+    XCTAssertEqualObjects(messages.firstObject, unrelatedCrashInfo);
 }
 
 - (void)testMachException_whenCrashInfoMessagePresent_shouldOverrideValue
@@ -1150,6 +1153,9 @@
         @"User-reported exception value must not be replaced by an unrelated crash_info_message. "
         @"Got: %@",
         exception.value);
+    NSArray<NSString *> *messages = exception.mechanism.data[@"crash_info_messages"];
+    XCTAssertEqual(messages.count, 1u);
+    XCTAssertEqualObjects(messages.firstObject, unrelatedCrashInfo);
 }
 
 @end
