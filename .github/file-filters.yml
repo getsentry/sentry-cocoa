@@ -175,7 +175,11 @@ run_lint_objc_new_for_prs: &run_lint_objc_new_for_prs
   - ".github/file-filters.yml"
 
   # Scripts
-  - "scripts/check-objc-new-usage.py"
+  - "scripts/run-clang-tidy.sh"
+  - "scripts/generate-compile-commands.sh"
+
+  # Clang-tidy configuration
+  - ".clang-tidy"
 
   # Build configuration
   - "Makefile"

@@ -1,2 +1,3 @@
 brew 'clang-format'
 brew 'swiftlint'
+brew 'llvm' # provides clang-tidy for ObjC static analysis
