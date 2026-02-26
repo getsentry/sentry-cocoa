@@ -33,6 +33,8 @@ Cirrus Labs provides Apple Silicon M4 machines, whereas GitHub-hosted macOS runn
 
 The `runner_group_id` label routes the job to a specific runner group within our Cirrus Labs organization. We use `runner_group_id:10`, which corresponds to the runner group configured for the `sentry-cocoa` repository. This ensures our jobs land on runners provisioned with the right resources and configuration for our workloads.
 
+The group id `10` has been assigned by our security team during the initial runner setup.
+
 ### Usage
 
 For workflows that hardcode the runner, use the array syntax:
