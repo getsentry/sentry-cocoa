@@ -462,10 +462,10 @@
 
     [self enhanceValueFromNotableAddresses:exception];
 
-    // Only enhance from crash_info_message for mach/signal exceptions, where it IS the crash
-    // cause (fatalError, assertionFailure, preconditionFailure, etc.). For nsexception,
-    // cpp_exception, and user-reported exceptions, the exception value already contains the
-    // authoritative reason.
+    // crash_info_message is a shared buffer that may hold unrelated Swift runtime warnings from
+    // earlier in the process. Only use it to override for mach/signal, where it IS the crash cause.
+    // For nsexception, cpp_exception, user the exception context is authoritative—overwriting
+    // would replace the real reason with stale or unrelated text.
     NSSet<NSString *> *crashInfoMessageExceptionTypes =
         [NSSet setWithObjects:@"mach", @"signal", nil];
     if ([crashInfoMessageExceptionTypes containsObject:exceptionType]) {
@@ -474,20 +474,19 @@
 
     exception.mechanism = [self extractMechanismOfType:exceptionType];
 
-    // When we don't override the exception value with crash_info_message (nsexception,
-    // cpp_exception, user), attach it to mechanism.data per the Exception Interface so it's
-    // available for debugging ("Arbitrary extra data that might help the user understand the
-    // error thrown by this mechanism").
+    // Attach crash_info to mechanism.data so it remains available for debugging even when we
+    // don't use it as the primary value. See
+    // https://develop.sentry.dev/sdk/foundations/transport/event-payloads/exception/#data
     NSSet<NSString *> *authoritativeExceptionTypes =
         [NSSet setWithObjects:@"nsexception", @"cpp_exception", @"user", nil];
     if ([authoritativeExceptionTypes containsObject:exceptionType] && exception.mechanism != nil) {
         NSArray<NSString *> *crashInfoMessages = [self crashInfoMessagesFromBinaryImages];
-        NSMutableDictionary *data =
-            [exception.mechanism.data mutableCopy] ?: [NSMutableDictionary new];
-        // crash_info_message is a shared buffer that may hold unrelated Swift runtime warnings from
-        // earlier in the process.
-        data[@"crash_info_messages"] = crashInfoMessages;
-        exception.mechanism.data = data;
+        if (crashInfoMessages.count > 0) {
+            NSMutableDictionary *data =
+                [exception.mechanism.data mutableCopy] ?: [[NSMutableDictionary alloc] init];
+            data[@"crash_info_messages"] = crashInfoMessages;
+            exception.mechanism.data = data;
+        }
     }
 
     SentryThread *crashedThread = [self crashedThread];
@@ -552,7 +551,7 @@
 
 - (NSArray<NSString *> *)crashInfoMessagesFromBinaryImages
 {
-    NSMutableArray<NSString *> *crashInfoMessages = [NSMutableArray new];
+    NSMutableArray<NSString *> *crashInfoMessages = [[NSMutableArray alloc] init];
 
     NSPredicate *libSwiftCore =
         [NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
