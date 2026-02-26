@@ -1,0 +1,75 @@
+name: Lint ObjC New
+
+on:
+  push:
+    branches:
+      - main
+      - v8.x
+
+  pull_request:
+
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple lint runs on the same code.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the
+#   latest linting matters for merge decisions.
+# - For main branch pushes, we never cancel formatting checks to ensure our code maintains
+#   consistent style standards across the entire project.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      run_lint_objc_new_for_prs: ${{ steps.changes.outputs.run_lint_objc_new_for_prs }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
+  lint:
+    name: Lint
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_lint_objc_new_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Fix ObjC [new] usage
+        run: make format-objc-new
+
+      - name: Check for ObjC [new] Usage
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "❌ Some code uses [ClassName new]. Please run 'make format-objc-new' and commit the changes to replace with [[ClassName alloc] init]."
+            git status
+            git diff
+            exit 1
+          else
+            echo "✅ No [ClassName new] usage found."
+          fi
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
+  lint_objc_new-required-check:
+    needs:
+      [
+        files-changed,
+        lint,
+      ]
+    name: Lint ObjC New
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the ObjC [new] usage check jobs has failed." && exit 1

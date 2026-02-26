@@ -47,6 +47,14 @@ repos:
         args:
           - "format-clang"
 
+      - id: format-objc-new
+        name: Fix ObjC [new] usage
+        entry: make
+        language: system
+        types_or: ["objective-c", "objective-c++"]
+        args:
+          - "format-objc-new"
+
       - id: format-swift
         name: Format Swift
         entry: make

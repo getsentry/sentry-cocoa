@@ -166,6 +166,20 @@ run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
   - ".github/workflows/lint-clang-formatting.yml"
   - ".github/file-filters.yml"
 
+run_lint_objc_new_for_prs: &run_lint_objc_new_for_prs
+  - "**/*.m"
+  - "**/*.mm"
+
+  # GH Actions
+  - ".github/workflows/lint-objc-new.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/check-objc-new-usage.py"
+
+  # Build configuration
+  - "Makefile"
+
   # Formatting configuration
   - ".clang-format"
   - "scripts/.clang-format-version"
