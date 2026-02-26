@@ -203,7 +203,7 @@ using namespace sentry::profiling;
     const auto profileData = [state copyProfilingData];
 
     const auto serialization = sentry_serializedTraceProfileData(profileData, 1, 2,
-        sentry_profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @{}, @[],
+        sentry_profilerTruncationReasonName(SentryProfilerTruncationReasonNormal), @{ }, @[],
         [[SentryHubInternal alloc] initWithClient:nil andScope:nil]
 #    if SENTRY_HAS_UIKIT
         ,
