@@ -58,7 +58,7 @@
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-    NSMutableDictionary *serializedData = [NSMutableDictionary new];
+    NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];
 
     [serializedData setValue:nameForSentryLevel(self.level) forKey:@"level"];
     if (self.timestamp != nil) {

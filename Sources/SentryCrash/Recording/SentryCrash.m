@@ -173,7 +173,7 @@
 {
     SentryCrash_MonitorContext fakeEvent = { 0 };
     sentrycrashcm_system_getAPI()->addContextualInfoToEvent(&fakeEvent);
-    NSMutableDictionary *dict = [NSMutableDictionary new];
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
 
 #define COPY_STRING(A)                                                                             \
     if (fakeEvent.System.A)                                                                        \
