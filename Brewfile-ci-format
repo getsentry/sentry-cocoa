@@ -1,4 +1,2 @@
 brew 'clang-format'
 brew 'swiftlint'
-brew 'llvm' # provides clang-tidy for ObjC static analysis
-brew 'jq' # used by generate-compile-commands.sh

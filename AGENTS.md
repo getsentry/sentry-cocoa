@@ -366,12 +366,12 @@ Many system call errors can be reliably tested:
     //
     // The error handling code path exists in SourceFile.c and correctly handles
     // the error condition. The code change itself is correct and verified through code review.
-    
+
     // Setup to trigger error (e.g., invalid path, closed fd, etc.)
-    
+
     // -- Act --
     bool result = functionName(/* parameters that will cause error */);
-    
+
     // -- Assert --
     // Verify the function fails gracefully (error handling path executes)
     // This verifies that the error handling code path executes correctly.
@@ -405,6 +405,30 @@ When an error path cannot be reliably tested:
 - **Reference function names and file names** instead of line numbers
 - **Document the error condition** being tested (e.g., "when open() fails")
 - **Explain verification approach** - verify that the error handling path executes correctly rather than capturing implementation details
+
+### Objective-C Coding Conventions
+
+#### Avoid `+new`, use `[[Class alloc] init]`
+
+Never use `[NSObject new]` or `[ClassName new]` in Objective-C code. Always use `[[ClassName alloc] init]` instead.
+
+**Prefer:**
+
+```objc
+NSMutableArray *items = [[NSMutableArray alloc] init];
+NSMutableDictionary *data = [[NSMutableDictionary alloc] init];
+SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] init];
+```
+
+**Avoid:**
+
+```objc
+NSMutableArray *items = [NSMutableArray new];
+NSMutableDictionary *data = [NSMutableDictionary new];
+SentryBreadcrumb *crumb = [SentryBreadcrumb new];
+```
+
+**Rationale:** `+new` conflates allocation and initialization into an opaque call that cannot be customized. Using `[[alloc] init]` is the idiomatic Objective-C pattern that makes the two-phase creation explicit and consistent with designated initializer usage.
 
 ### Commit Guidelines
 
@@ -1034,6 +1058,7 @@ run_build_for_prs: &run_build_for_prs
 #### PR Not Triggering Expected Workflows
 
 1. **Check the paths-filter configuration** in the workflow:
+
    ```yaml
    - uses: dorny/paths-filter@v3
      id: changes
@@ -1042,11 +1067,11 @@ run_build_for_prs: &run_build_for_prs
    ```
 
 2. **Verify the filter name** matches between `file-filters.yml` and workflow:
+
    ```yaml
    # In file-filters.yml
-   run_unit_tests_for_prs: &run_unit_tests_for_prs
+   run_unit_tests_for_prs: &run_unit_tests_for_prs # In workflow
 
-   # In workflow
    if: steps.changes.outputs.run_unit_tests_for_prs == 'true'
    ```
 
@@ -1096,11 +1121,13 @@ When updating file-filters.yml:
 When reviewing PRs that add/move/rename directories:
 
 1. **Identify all affected directories**
+
    ```bash
    gh pr view --json files --jq '.files[].path' | cut -d'/' -f1-2 | sort | uniq
    ```
 
 2. **Check each directory against file-filters.yml**
+
    ```bash
    grep -r "DirectoryName" .github/file-filters.yml
    ```

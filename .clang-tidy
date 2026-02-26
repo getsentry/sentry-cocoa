@@ -1,6 +1,0 @@
----
-# Clang-tidy configuration for Sentry Cocoa SDK
-# Runs in parallel with clang-format and SwiftLint
-
-Checks: 'google-objc-avoid-nsobject-new'
-WarningsAsErrors: 'google-objc-avoid-nsobject-new'
