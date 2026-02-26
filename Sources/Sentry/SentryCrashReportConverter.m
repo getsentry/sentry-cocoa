@@ -543,12 +543,6 @@
     }
 }
 
-- (NSString *_Nullable)crashInfoMessageFromBinaryImages
-{
-    NSArray<NSString *> *all = [self crashInfoMessagesFromBinaryImages];
-    return all.firstObject;
-}
-
 - (NSArray<NSString *> *)crashInfoMessagesFromBinaryImages
 {
     NSMutableArray<NSString *> *crashInfoMessages = [[NSMutableArray alloc] init];
@@ -578,9 +572,9 @@
 
 - (void)enhanceValueFromCrashInfoMessage:(SentryException *)exception
 {
-    NSString *swiftCoreCrashInfo = [self crashInfoMessageFromBinaryImages];
-    if (swiftCoreCrashInfo != nil) {
-        exception.value = swiftCoreCrashInfo;
+    NSArray<NSString *> *messages = [self crashInfoMessagesFromBinaryImages];
+    if (messages.count > 0) {
+        exception.value = messages.firstObject;
     }
 }
 
