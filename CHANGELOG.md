@@ -1,9 +1,5 @@
 # Changelog
 
-## 9.5.1
-
-### Fixes
-
 ## Unreleased
 
 ### Fixes
