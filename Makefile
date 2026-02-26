@@ -486,7 +486,7 @@ lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
-	@if [ -f compile_commands.json ]; then ./scripts/run-clang-tidy.sh; else echo "Skipping clang-tidy (run 'make generate-compile-commands' first)"; fi
+	@if [ -f compile_commands.json ]; then ./scripts/run-clang-tidy.sh; else echo "Skipping clang-tidy (run 'make format-clang-tidy' to generate and fix)"; fi
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
 
@@ -498,7 +498,7 @@ lint-staged:
 	@echo "--> Running Swiftlint and Clang-Format on staged files"
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
-	@if [ -f compile_commands.json ]; then ./scripts/run-clang-tidy.sh; else echo "Skipping clang-tidy (run 'make generate-compile-commands' first)"; fi
+	@if [ -f compile_commands.json ]; then ./scripts/run-clang-tidy.sh; else echo "Skipping clang-tidy (run 'make format-clang-tidy' to generate and fix)"; fi
 	swiftlint --strict --quiet $(STAGED_SWIFT_FILES)
 	dprint check "**/*.{md,json,yaml,yml}"
 
@@ -519,17 +519,17 @@ format-clang:
 
 ## Generate compile_commands.json for clang-tidy
 #
-# Runs an Xcode build and extracts compilation commands. Required before running clang-tidy.
+# Runs an Xcode build and extracts compilation commands.
 .PHONY: generate-compile-commands
 generate-compile-commands:
 	./scripts/generate-compile-commands.sh
 
 ## Fix Objective-C [new] usage via clang-tidy
 #
-# Requires compile_commands.json. Run 'make generate-compile-commands' first.
+# Always regenerates compile_commands.json first to ensure clang-tidy uses current code.
 .PHONY: format-clang-tidy
-format-clang-tidy:
-	@if [ -f compile_commands.json ]; then ./scripts/run-clang-tidy.sh --fix; else echo "Skipping clang-tidy (run 'make generate-compile-commands' first)"; fi
+format-clang-tidy: generate-compile-commands
+	./scripts/run-clang-tidy.sh --fix
 
 ## Format all Swift files
 #

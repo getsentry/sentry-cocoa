@@ -49,16 +49,13 @@ jobs:
       - name: Install tooling
         run: make init-ci-format
 
-      - name: Generate compile_commands.json
-        run: make generate-compile-commands
-
       - name: Fix ObjC [new] usage with clang-tidy
         run: make format-clang-tidy
 
       - name: Check for ObjC [new] Usage
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
-            echo "❌ Some code uses [ClassName new]. Please run 'make generate-compile-commands' then 'make format-clang-tidy' and commit the changes to replace with [[ClassName alloc] init]."
+            echo "❌ Some code uses [ClassName new]. Please run 'make format-clang-tidy' and commit the changes to replace with [[ClassName alloc] init]."
             git status
             git diff
             exit 1
