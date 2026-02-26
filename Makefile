@@ -480,7 +480,7 @@ STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | gr
 
 ## Run linting checks on all files
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, clang-tidy checks, and dprint checks without modifying files.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, ObjC [new] usage checks, and dprint checks without modifying files.
 .PHONY: lint
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
@@ -492,7 +492,7 @@ lint:
 
 ## Run linting checks on staged files only
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, clang-tidy checks, and dprint checks on staged files only.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, ObjC [new] usage checks, and dprint checks on staged files only.
 .PHONY: lint-staged
 lint-staged:
 	@echo "--> Running Swiftlint and Clang-Format on staged files"
@@ -506,16 +506,18 @@ lint-staged:
 #
 # Runs all formatting tasks for Swift, Objective-C, Markdown, JSON, and YAML files.
 .PHONY: format
-format: format-clang format-objc-new format-swift-all format-markdown format-json format-yaml
+format: format-clang format-swift-all format-markdown format-json format-yaml
 
 ## Format Objective-C, C, and C++ files
 #
-# Formats all Objective-C, Objective-C++, C, and C++ files using clang-format.
+# Formats all Objective-C, Objective-C++, C, and C++ files using clang-format,
+# and fixes ObjC [new] usage (replaces with [[ClassName alloc] init]).
 .PHONY: format-clang
 format-clang:
 	@find . -type f \( -name "*.h" -or -name "*.hpp" -or -name "*.c" -or -name "*.cpp" -or -name "*.m" -or -name "*.mm" \) -and \
 		! \( -path "**.build/*" -or -path "**Build/*"  -or -path "**/libs/**" -or -path "**/Pods/**" -or -path "**/*.xcarchive/*" \) \
 		| xargs clang-format -i -style=file
+	python3 ./scripts/check-objc-new-usage.py --fix -r Sources Tests SentryTestUtils SentryTestUtilsDynamic
 
 ## Generate compile_commands.json for clang-tidy
 #
@@ -523,14 +525,6 @@ format-clang:
 .PHONY: generate-compile-commands
 generate-compile-commands:
 	./scripts/generate-compile-commands.sh
-
-## Fix Objective-C [new] usage
-#
-# Uses Python script for CI/local. For clang-tidy (requires compile_commands.json),
-# run 'make generate-compile-commands' then './scripts/run-clang-tidy.sh --fix'.
-.PHONY: format-objc-new
-format-objc-new:
-	python3 ./scripts/check-objc-new-usage.py --fix -r Sources Tests SentryTestUtils SentryTestUtilsDynamic
 
 ## Fix Objective-C [new] usage via clang-tidy (optional, requires compile_commands.json)
 .PHONY: format-clang-tidy

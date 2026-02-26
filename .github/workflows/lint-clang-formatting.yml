@@ -53,7 +53,7 @@ jobs:
       - name: Check for Formatting Changes
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
-            echo "❌ Some code formatted with clang-format is not formatted correctly. Please run 'make format' and commit the changes."
+            echo "❌ Code needs formatting with clang-format and/or clang-tidy. Please run 'make format' and commit the changes."
             git status
             git diff
             exit 1
@@ -66,11 +66,7 @@ jobs:
         run: ./scripts/ci-diagnostics.sh
 
   lint_clang_formatting-required-check:
-    needs:
-      [
-        files-changed,
-        lint,
-      ]
+    needs: [files-changed, lint]
     name: Lint Clang
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()
