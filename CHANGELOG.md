@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Preserve NSException and C++ exception reason instead of overwriting with unrelated `crash_info_message` from `libswiftCore.dylib` (#7515)
+
 ## 9.5.1
 
 ### Fixes
@@ -9,19 +15,18 @@
 - Resolve data race crash in monitorCachedData (#7423)
 - Don't finish network spans for suspended URL session tasks (#7471)
 - Use different fallback for when MetricKit does not have file path (#7473)
-- Preserve NSException and C++ exception reason instead of overwriting with unrelated `crash_info_message` from `libswiftCore.dylib` (#7515)
 - Remove launch profiling logs in sandboxed environments breaking CLI tools (#7294)
-- Use different fallback for when MetricKit does not have file path ([#7473](https://github.com/getsentry/sentry-cocoa/pull/7473))
+- Use different fallback for when MetricKit does not have file path (#7473)
 
 ## 9.5.0
 
 ### Features
 
-- Enable MetricKit Integration for visionOS ([#7466](https://github.com/getsentry/sentry-cocoa/pull/7466))
+- Enable MetricKit Integration for visionOS (#7466)
 
 ### Fixes
 
-- SentryRedactViewHelper had been erroneously made public, it has been removed from the public interface ([#7474](https://github.com/getsentry/sentry-cocoa/pull/7474))
+- SentryRedactViewHelper had been erroneously made public, it has been removed from the public interface (#7474)
 - Write reports on concurrent crashes (#7340)
 
 ## 9.4.1

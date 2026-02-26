@@ -462,23 +462,33 @@
 
     [self enhanceValueFromNotableAddresses:exception];
 
-    // For nsexception, cpp_exception, and user-reported exceptions, the exception value already
-    // contains the authoritative crash reason from the exception context. The crash_info_message
-    // from libswiftCore.dylib's __crash_info section is a shared buffer that may contain unrelated
-    // Swift runtime warnings (e.g. SWIFT TASK CONTINUATION MISUSE) that happened before an
-    // unrelated crash. Only override for mach/signal exceptions where crash_info_message IS the
-    // crash cause (fatalError, assertionFailure, etc.).
-    //
-    // The "user" type covers programmatically reported exceptions (SentrySDK.capture). While
-    // unlikely to co-occur with a stale __crash_info buffer, excluding it is correct because the
-    // user-supplied reason is always authoritative.
-    if (![exceptionType isEqualToString:@"nsexception"]
-        && ![exceptionType isEqualToString:@"cpp_exception"]
-        && ![exceptionType isEqualToString:@"user"]) {
+    // Only enhance from crash_info_message for mach/signal exceptions, where it IS the crash
+    // cause (fatalError, assertionFailure, preconditionFailure, etc.). For nsexception,
+    // cpp_exception, and user-reported exceptions, the exception value already contains the
+    // authoritative reason.
+    NSSet<NSString *> *crashInfoMessageExceptionTypes =
+        [NSSet setWithObjects:@"mach", @"signal", nil];
+    if ([crashInfoMessageExceptionTypes containsObject:exceptionType]) {
         [self enhanceValueFromCrashInfoMessage:exception];
     }
 
     exception.mechanism = [self extractMechanismOfType:exceptionType];
+
+    // When we don't override the exception value with crash_info_message (nsexception,
+    // cpp_exception, user), attach it to mechanism.data per the Exception Interface so it's
+    // available for debugging ("Arbitrary extra data that might help the user understand the
+    // error thrown by this mechanism").
+    NSSet<NSString *> *authoritativeExceptionTypes =
+        [NSSet setWithObjects:@"nsexception", @"cpp_exception", @"user", nil];
+    if ([authoritativeExceptionTypes containsObject:exceptionType] && exception.mechanism != nil) {
+        NSArray<NSString *> *crashInfoMessages = [self crashInfoMessagesFromBinaryImages];
+        NSMutableDictionary *data =
+            [exception.mechanism.data mutableCopy] ?: [NSMutableDictionary new];
+        // crash_info_message is a shared buffer that may hold unrelated Swift runtime warnings from
+        // earlier in the process.
+        data[@"crash_info_messages"] = crashInfoMessages;
+        exception.mechanism.data = data;
+    }
 
     SentryThread *crashedThread = [self crashedThread];
     exception.threadId = crashedThread.threadId;
@@ -534,7 +544,13 @@
     }
 }
 
-- (void)enhanceValueFromCrashInfoMessage:(SentryException *)exception
+- (NSString *_Nullable)crashInfoMessageFromBinaryImages
+{
+    NSArray<NSString *> *all = [self crashInfoMessagesFromBinaryImages];
+    return all.firstObject;
+}
+
+- (NSArray<NSString *> *)crashInfoMessagesFromBinaryImages
 {
     NSMutableArray<NSString *> *crashInfoMessages = [NSMutableArray new];
 
@@ -558,7 +574,12 @@
         }
     }
 
-    NSString *swiftCoreCrashInfo = crashInfoMessages.firstObject;
+    return crashInfoMessages;
+}
+
+- (void)enhanceValueFromCrashInfoMessage:(SentryException *)exception
+{
+    NSString *swiftCoreCrashInfo = [self crashInfoMessageFromBinaryImages];
     if (swiftCoreCrashInfo != nil) {
         exception.value = swiftCoreCrashInfo;
     }
