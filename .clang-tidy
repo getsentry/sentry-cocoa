@@ -1,10 +1,6 @@
 ---
 # Clang-tidy configuration for Sentry Cocoa SDK
 # Runs in parallel with clang-format and SwiftLint
-#
-# Checks enabled:
-# - google-objc-avoid-nsobject-new: Avoid [ClassName new], use [[ClassName alloc] init] instead
-#   See: https://blog.cristik.com/2018/02/objective-c-new-is-dangerous-and-old-avoid-it-at-all-costs/
 
 Checks: 'google-objc-avoid-nsobject-new'
 WarningsAsErrors: 'google-objc-avoid-nsobject-new'

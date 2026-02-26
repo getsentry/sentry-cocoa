@@ -480,25 +480,25 @@ STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | gr
 
 ## Run linting checks on all files
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, ObjC [new] usage checks, and dprint checks without modifying files.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, clang-tidy, and dprint.
 .PHONY: lint
-lint:
+lint: generate-compile-commands
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
-	python3 ./scripts/check-objc-new-usage.py -r Sources Tests SentryTestUtils SentryTestUtilsDynamic
+	PATH="$$(brew --prefix llvm 2>/dev/null)/bin:$$PATH" run-clang-tidy -p . -config-file=.clang-tidy
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
 
 ## Run linting checks on staged files only
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, ObjC [new] usage checks, and dprint checks on staged files only.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, clang-tidy, and dprint on staged files only.
 .PHONY: lint-staged
-lint-staged:
+lint-staged: generate-compile-commands
 	@echo "--> Running Swiftlint and Clang-Format on staged files"
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
-	python3 ./scripts/check-objc-new-usage.py -r Sources Tests SentryTestUtils SentryTestUtilsDynamic
+	PATH="$$(brew --prefix llvm 2>/dev/null)/bin:$$PATH" run-clang-tidy -p . -config-file=.clang-tidy
 	swiftlint --strict --quiet $(STAGED_SWIFT_FILES)
 	dprint check "**/*.{md,json,yaml,yml}"
 
@@ -510,14 +510,13 @@ format: format-clang format-swift-all format-markdown format-json format-yaml
 
 ## Format Objective-C, C, and C++ files
 #
-# Formats all Objective-C, Objective-C++, C, and C++ files using clang-format,
-# and fixes ObjC [new] usage (replaces with [[ClassName alloc] init]).
+# Formats using clang-format and clang-tidy.
 .PHONY: format-clang
-format-clang:
+format-clang: generate-compile-commands
 	@find . -type f \( -name "*.h" -or -name "*.hpp" -or -name "*.c" -or -name "*.cpp" -or -name "*.m" -or -name "*.mm" \) -and \
 		! \( -path "**.build/*" -or -path "**Build/*"  -or -path "**/libs/**" -or -path "**/Pods/**" -or -path "**/*.xcarchive/*" \) \
 		| xargs clang-format -i -style=file
-	python3 ./scripts/check-objc-new-usage.py --fix -r Sources Tests SentryTestUtils SentryTestUtilsDynamic
+	PATH="$$(brew --prefix llvm 2>/dev/null)/bin:$$PATH" run-clang-tidy -p . -config-file=.clang-tidy -fix
 
 ## Generate compile_commands.json for clang-tidy
 #
@@ -525,11 +524,6 @@ format-clang:
 .PHONY: generate-compile-commands
 generate-compile-commands:
 	./scripts/generate-compile-commands.sh
-
-## Fix Objective-C [new] usage via clang-tidy (optional, requires compile_commands.json)
-.PHONY: format-clang-tidy
-format-clang-tidy: generate-compile-commands
-	./scripts/run-clang-tidy.sh --fix
 
 ## Format all Swift files
 #

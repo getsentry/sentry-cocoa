@@ -171,8 +171,9 @@ run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
   - "scripts/.clang-format-version"
   - "scripts/check-clang-format.py"
 
-  # ObjC [new] usage check (runs with format-clang)
-  - "scripts/check-objc-new-usage.py"
+  # Clang-tidy (runs with format-clang)
+  - "scripts/generate-compile-commands.sh"
+  - ".clang-tidy"
 
   # Scripts
   - "scripts/ci-diagnostics.sh"

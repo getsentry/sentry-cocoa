@@ -18,13 +18,14 @@ echo "Generating compile_commands.json (this runs a full build)..."
 
 # Build for iOS Simulator to capture all ObjC compilation commands
 # Use Sentry scheme which includes Sources and Tests
+# Destination matches CI runners (macos-15 has iOS 18.5)
 set -o pipefail
 xcodebuild \
     -workspace Sentry.xcworkspace \
     -scheme Sentry \
     -configuration Debug \
     -sdk iphonesimulator \
-    -destination 'platform=iOS Simulator,OS=18.4,name=iPhone 16 Pro' \
+    -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' \
     CODE_SIGN_IDENTITY="" \
     CODE_SIGNING_REQUIRED=NO \
     build 2>&1 | tee /tmp/xcodebuild-output.log | bundle exec xcpretty -r json-compilation-database -o "$OUTPUT_FILE"
