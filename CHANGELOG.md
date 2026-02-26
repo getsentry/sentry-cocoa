@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Fix unexpected null value when unwrapping view controller window  (#7508)
+- Fix unexpected null value when unwrapping view controller window (#7508)
 
 ## 9.5.1
 
