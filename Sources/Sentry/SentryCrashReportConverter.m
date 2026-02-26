@@ -42,7 +42,7 @@
 
         NSDictionary *userContextUnMerged = report[@"user"];
         if (userContextUnMerged == nil) {
-            userContextUnMerged = [[NSDictionary alloc] init];
+            userContextUnMerged = @{ };
         }
 
         // The SentryCrashIntegration used userInfo to put in scope data. This had a few downsides.
@@ -321,7 +321,7 @@
 {
     NSUInteger frameCount = [self rawStackTraceForThreadIndex:threadIndex].count;
     if (frameCount <= 0) {
-        return [[NSArray alloc] init];
+        return @[];
     }
 
     NSMutableArray *frames = [NSMutableArray arrayWithCapacity:frameCount];
