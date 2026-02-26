@@ -858,7 +858,7 @@ static BOOL appStartMeasurementRead;
                 ? [NSString stringWithFormat:@"%@.prewarmed", appContextType]
                 : appContextType;
             NSMutableDictionary *context =
-                [[NSMutableDictionary alloc] initWithDictionary:[transaction context] ?: @{}];
+                [[NSMutableDictionary alloc] initWithDictionary:[transaction context] ?: @{ }];
             NSDictionary *appContext = @{ @"app" : @ { @"start_type" : appStartType } };
             [SentryDictionary mergeEntriesFromDictionary:appContext intoDictionary:context];
             [transaction setContext:context];

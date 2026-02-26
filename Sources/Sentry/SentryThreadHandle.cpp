@@ -108,14 +108,14 @@ namespace profiling {
     {
         const auto handle = pthreadHandle();
         if (handle == nullptr) {
-            return {};
+            return { };
         }
         char name[MAXTHREADNAMESIZE];
         if (SENTRY_ASYNC_SAFE_LOG_ERRNO_RETURN(pthread_getname_np(handle, name, sizeof(name)))
             == 0) {
             return std::string(name);
         }
-        return {};
+        return { };
     }
 
     int
@@ -158,7 +158,7 @@ namespace profiling {
     ThreadHandle::cpuInfo() const noexcept
     {
         if (handle_ == THREAD_NULL) {
-            return {};
+            return { };
         }
         ThreadCPUInfo cpuInfo;
         mach_msg_type_number_t count = THREAD_BASIC_INFO_COUNT;
@@ -203,7 +203,7 @@ namespace profiling {
     {
         const auto handle = pthreadHandle();
         if (handle == nullptr) {
-            return {};
+            return { };
         }
         const auto start = reinterpret_cast<std::uintptr_t>(pthread_get_stackaddr_np(handle));
         const auto end = start - pthread_get_stacksize_np(handle);
