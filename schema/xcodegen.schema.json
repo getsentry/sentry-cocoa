@@ -47,6 +47,14 @@
       ],
       "description": "One or more paths to other specs"
     },
+    "createIntermediateGroups": {
+      "type": "boolean",
+      "description": "If true, intermediate groups will be created for every path component"
+    },
+    "generateEmptyDirectories": {
+      "type": "boolean",
+      "description": "Generate empty directories in the project"
+    },
     "options": {
       "type": "object",
       "properties": {

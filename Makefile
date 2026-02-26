@@ -230,7 +230,6 @@ build-xcframework-sample:
 build-samples: \
 	build-sample-DistributionSample \
 	build-sample-iOS-ObjectiveC \
-	build-sample-iOS-ObjectiveCpp-NoModules \
 	build-sample-iOS-Swift \
 	build-sample-iOS-Swift6 \
 	build-sample-iOS-SwiftUI \
@@ -919,11 +918,11 @@ xcode-ci-SentrySampleShared:
 	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 
 .PHONY: xcode-ci-SessionReplay-CameraTest
-xcode-ci-SessionReplay-CameraTest:
+xcode-ci-SessionReplay-CameraTest: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
 
 .PHONY: xcode-ci-iOS-ObjectiveC
-xcode-ci-iOS-ObjectiveC:
+xcode-ci-iOS-ObjectiveC: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
 
 .PHONY: xcode-ci-iOS-ObjectiveCpp-NoModules
@@ -931,15 +930,15 @@ xcode-ci-iOS-ObjectiveCpp-NoModules:
 	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
 
 .PHONY: xcode-ci-iOS-Swift
-xcode-ci-iOS-Swift:
+xcode-ci-iOS-Swift: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
 
 .PHONY: xcode-ci-iOS-Swift6
-xcode-ci-iOS-Swift6:
+xcode-ci-iOS-Swift6: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
 
 .PHONY: xcode-ci-iOS-SwiftUI
-xcode-ci-iOS-SwiftUI:
+xcode-ci-iOS-SwiftUI: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
 
 .PHONY: xcode-ci-iOS-SwiftUI-SPM
@@ -947,19 +946,19 @@ xcode-ci-iOS-SwiftUI-SPM:
 	xcodegen --spec Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml
 
 .PHONY: xcode-ci-iOS-SwiftUI-Widgets
-xcode-ci-iOS-SwiftUI-Widgets:
+xcode-ci-iOS-SwiftUI-Widgets: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.yml
 
 .PHONY: xcode-ci-iOS15-SwiftUI
-xcode-ci-iOS15-SwiftUI:
+xcode-ci-iOS15-SwiftUI: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
 
 .PHONY: xcode-ci-macOS-Swift
-xcode-ci-macOS-Swift:
+xcode-ci-macOS-Swift: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/macOS-Swift/macOS-Swift.yml
 
 .PHONY: xcode-ci-macOS-SwiftUI
-xcode-ci-macOS-SwiftUI:
+xcode-ci-macOS-SwiftUI: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
 
 .PHONY: xcode-ci-macOS-SwiftUI-SPM
@@ -967,7 +966,7 @@ xcode-ci-macOS-SwiftUI-SPM:
 	xcodegen --spec Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.yml
 
 .PHONY: xcode-ci-tvOS-Swift
-xcode-ci-tvOS-Swift:
+xcode-ci-tvOS-Swift: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/tvOS-Swift/tvOS-Swift.yml
 
 .PHONY: xcode-ci-tvOS-SwiftUI-SPM
@@ -975,7 +974,7 @@ xcode-ci-tvOS-SwiftUI-SPM:
 	xcodegen --spec Samples/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.yml
 
 .PHONY: xcode-ci-visionOS-Swift
-xcode-ci-visionOS-Swift:
+xcode-ci-visionOS-Swift: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
 
 .PHONY: xcode-ci-visionOS-SwiftUI-SPM
@@ -983,7 +982,7 @@ xcode-ci-visionOS-SwiftUI-SPM:
 	xcodegen --spec Samples/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.yml
 
 .PHONY: xcode-ci-watchOS-Swift
-xcode-ci-watchOS-Swift:
+xcode-ci-watchOS-Swift: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
 
 .PHONY: xcode-ci-DistributionSample
