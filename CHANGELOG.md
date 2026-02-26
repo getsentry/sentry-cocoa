@@ -1,11 +1,15 @@
 # Changelog
 
-## Unreleased
+## 9.5.1
 
 ### Fixes
 
+- Don't report NSException subclasses as C++ exceptions (#7420)
+- Write reports on concurrent crashes (#7340)
 - Resolve data race crash in monitorCachedData (#7423)
 - Don't finish network spans for suspended URL session tasks (#7471)
+- Remove launch profiling logs in sandboxed environments breaking CLI tools (#7294)
+- Use different fallback for when MetricKit does not have file path ([#7473](https://github.com/getsentry/sentry-cocoa/pull/7473))
 
 ## 9.5.0
 
@@ -477,6 +481,16 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Move `enableDataSwizzling` from experimental options to top-level options (#6592). This option remains enabled by default.
 - Add `sentry.replay_id` attribute to logs ([#6515](https://github.com/getsentry/sentry-cocoa/pull/6515))
 
+## 8.58.0
+
+### Features
+
+- Add options `options.sessionReplay.includedViewClasses` and `options.sessionReplay.excludedViewClasses` to ignore views from subtree traversal (#7063)
+
+### Fixes
+
+- Encode SwiftUI internal class names in session replay redaction to avoid false-positive App Store review rejections (#7123)
+
 ## 8.57.3
 
 ### Fixes
@@ -495,7 +509,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
   - Fix UISwitch internal images being incorrectly redacted
   - Fix UITextField placeholder text (UITextFieldLabel) not being detected for redaction
   - Use string-based class comparison to avoid triggering Objective-C +initialize on background threads
-  - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI._UIGraphicsView)
+  - Add layer class filtering for views used in multiple contexts (e.g., SwiftUI.\_UIGraphicsView)
   - Improve transform calculations for views with custom anchor points
   - Fix axis-aligned transform detection for optimized opaque view clipping
 - Fix conversion of frame rate to time interval for session replay (#6623)

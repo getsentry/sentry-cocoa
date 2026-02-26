@@ -156,7 +156,8 @@ jobs:
           # We are going to add these back in https://github.com/getsentry/sentry-cocoa/issues/6361
           - name: macOS 15
             runs-on:
-              ["ghcr.io/cirruslabs/macos-runner:sequoia", "runner_group_id:10"]
+              - "ghcr.io/cirruslabs/macos-runner:sequoia,runner_concurrency_group=${{ github.run_id }}"
+              - "runner_group_id:10"
             platform: "macOS"
             xcode: "16.4"
             test-destination-os: "15.0"

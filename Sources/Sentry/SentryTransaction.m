@@ -30,8 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     // Merge event tags and tracer tags (tracer tags take precedence)
-    NSDictionary<NSString *, NSString *> *eventTags = [super tags] ?: @{};
-    NSDictionary<NSString *, NSString *> *tracerTags = self.trace.tags ?: @{};
+    NSDictionary<NSString *, NSString *> *eventTags = [super tags] ?: @{ };
+    NSDictionary<NSString *, NSString *> *tracerTags = self.trace.tags ?: @{ };
 
     // Merge both, with tracer tags taking precedence
     // Note: We return a mutable dictionary copy (though declared as NSDictionary *).

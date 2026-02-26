@@ -24,8 +24,7 @@ class SentryFileIOTrackingIntegrationTests: XCTestCase {
         }
         
         init() throws {
-            let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-            fileDirectory = try XCTUnwrap(paths.first)
+            fileDirectory = FileManager.default.temporaryDirectory.appendingPathComponent("SentryFileIOTrackingIntegrationTests")
             fileURL = fileDirectory.appendingPathComponent("TestFile")
             filePath = fileURL?.path
         }

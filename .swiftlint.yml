@@ -1,6 +1,7 @@
 excluded:
   - Pods
   - Utils/**/.build
+  - Samples/**/.build
   - "**/build/**"
   - DependencyManagerTests
   - Sources/SentryCrash
