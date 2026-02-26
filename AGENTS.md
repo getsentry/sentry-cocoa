@@ -428,7 +428,7 @@ NSMutableDictionary *data = [NSMutableDictionary new];
 SentryBreadcrumb *crumb = [SentryBreadcrumb new];
 ```
 
-**Rationale:** `+new` conflates allocation and initialization into an opaque call that cannot be customized. Using `[[alloc] init]` is the idiomatic Objective-C pattern that makes the two-phase creation explicit and consistent with designated initializer usage.
+**Rationale:** While `+new` is effectively equivalent to `[[self alloc] init]` and still respects overrides of `+alloc` and `-init`, it hides the two-phase creation and the choice of designated initializer behind a single opaque call. Using `[[Class alloc] init…]` (or another explicit designated initializer) is the idiomatic Objective-C pattern that makes allocation and initialization clear to readers and consistent with designated initializer usage.
 
 ### Commit Guidelines
 
