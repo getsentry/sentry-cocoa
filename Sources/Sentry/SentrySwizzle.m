@@ -55,9 +55,8 @@ refsToOriginalImplementationsDictionary(void)
 {
     static NSMutableDictionary *refsToOriginalImplementations;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        refsToOriginalImplementations = [[NSMutableDictionary alloc] init];
-    });
+    dispatch_once(
+        &onceToken, ^{ refsToOriginalImplementations = [[NSMutableDictionary alloc] init]; });
     return refsToOriginalImplementations;
 }
 
