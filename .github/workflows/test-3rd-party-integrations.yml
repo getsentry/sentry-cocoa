@@ -64,7 +64,7 @@ jobs:
       - name: Build XCFramework (Static)
         run: ./scripts/build-xcframework-local.sh macOSOnly StaticOnly --not-signed
       - name: Upload XCFrameworks
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xcframeworks-for-3rd-party-integration-tests
           path: "XCFrameworkBuildPath/*.xcframework.zip"
@@ -105,7 +105,7 @@ jobs:
         working-directory: 3rd-party-integrations/${{matrix.integration_dir}}
         run: swift test
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-${{matrix.integration_dir}}-integration
