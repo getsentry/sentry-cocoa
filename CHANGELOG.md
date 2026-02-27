@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add watchdog termination tracker using RunLoop observer. Can be enabled by setting `options.experimental.enableWatchdogTerminationsV2 = true` (#7464)
+- Add watchdog termination hang tracker using RunLoop observer. Can be enabled by setting `options.experimental.enableWatchdogTerminationsV2 = true` (#7464)
 
 ### Fixes
 
