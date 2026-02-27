@@ -129,6 +129,16 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
         installation?.install(cacheDirectory)
 
+        // The crash reporter has loaded its state from disk. Set this flag so
+        // SentrySDK.lastRunStatus returns a definitive answer. We can't use
+        // isIntegrationInstalled because it's set after init returns.
+        SentrySDKInternal.crashReporterInstalled = true
+
+        if !crashReporter.crashedLastLaunch, let callback = options?.onLastRunStatusDetermined {
+            SentrySDKInternal.lastRunStatusCalled = true
+            callback(.didNotCrash, nil)
+        }
+
         #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         if enableReportingUncaughtExceptions {
             SentryUncaughtNSExceptions.configureCrashOnExceptions()

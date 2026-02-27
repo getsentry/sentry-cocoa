@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `SentrySDK.lastRunStatus` to distinguish unknown, no-crash and crash (#7469)
+
 ### Fixes
 
 - Preserve NSException and C++ exception reason instead of overwriting with unrelated `crash_info_message` from `libswiftCore.dylib` (#7515)

@@ -39,7 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDKInternal
 static SentryHubInternal *_Nullable currentHub;
 static NSObject *currentHubLock;
-static BOOL crashedLastRunCalled;
+static BOOL lastRunStatusCalled;
+static BOOL crashReporterInstalled;
 static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
 static BOOL _detectedStartUpCrash;
@@ -114,14 +115,24 @@ static NSDate *_Nullable startTimestamp = nil;
     return currentHub != nil && [currentHub getClient] != nil;
 }
 
-+ (BOOL)crashedLastRunCalled
++ (BOOL)lastRunStatusCalled
 {
-    return crashedLastRunCalled;
+    return lastRunStatusCalled;
 }
 
-+ (void)setCrashedLastRunCalled:(BOOL)value
++ (void)setLastRunStatusCalled:(BOOL)value
 {
-    crashedLastRunCalled = value;
+    lastRunStatusCalled = value;
+}
+
++ (BOOL)crashReporterInstalled
+{
+    return crashReporterInstalled;
+}
+
++ (void)setCrashReporterInstalled:(BOOL)value
+{
+    crashReporterInstalled = value;
 }
 
 /**
@@ -469,6 +480,17 @@ static NSDate *_Nullable startTimestamp = nil;
     return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
 }
 
++ (NSInteger)lastRunStatus
+{
+    if (!crashReporterInstalled) {
+        return SentryLastRunStatusUnknown;
+    }
+    if (SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch) {
+        return SentryLastRunStatusDidCrash;
+    }
+    return SentryLastRunStatusDidNotCrash;
+}
+
 + (BOOL)detectedStartUpCrash
 {
     return _detectedStartUpCrash;
@@ -561,6 +583,9 @@ static NSDate *_Nullable startTimestamp = nil;
         [hub bindClient:nil];
 
         [SentrySDKInternal setCurrentHub:nil];
+
+        crashReporterInstalled = NO;
+        lastRunStatusCalled = NO;
 
         [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache stop];

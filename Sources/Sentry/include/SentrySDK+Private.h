@@ -30,9 +30,17 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
 
 /**
- * SDK private field to store the state if onCrashedLastRun was called.
+ * SDK private field to store the state if onLastRunStatusDetermined (or the deprecated
+ * onCrashedLastRun) callback was already called for the current SDK lifecycle.
  */
-@property (nonatomic, class) BOOL crashedLastRunCalled;
+@property (nonatomic, class) BOOL lastRunStatusCalled;
+
+/**
+ * Set to @c YES after the crash reporter has been installed and has loaded its persisted state
+ * from disk. This allows @c lastRunStatus to return a definitive answer instead of
+ * @c SentryLastRunStatusUnknown.
+ */
+@property (nonatomic, class) BOOL crashReporterInstalled;
 
 + (void)setDetectedStartUpCrash:(BOOL)value;
 

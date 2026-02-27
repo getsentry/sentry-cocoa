@@ -268,8 +268,21 @@ SENTRY_NO_INIT
 
 /**
  * Checks if the last program execution terminated with a crash.
+ *
+ * @deprecated Use @c lastRunStatus instead, which distinguishes between "did not crash" and
+ * "unknown".
  */
-@property (nonatomic, class, readonly) BOOL crashedLastRun;
+@property (nonatomic, class, readonly) BOOL crashedLastRun
+    __attribute__((deprecated("Use lastRunStatus instead.")));
+
+/**
+ * Returns the crash status of the last program execution.
+ *
+ * Before the SDK finishes initializing the crash reporter, this property returns
+ * @c SentryLastRunStatusUnknown. After initialization it returns either
+ * @c SentryLastRunStatusDidCrash or @c SentryLastRunStatusDidNotCrash.
+ */
+@property (nonatomic, class, readonly) NSInteger lastRunStatus;
 
 /**
  * Checks if the SDK detected a start-up crash during SDK initialization.
