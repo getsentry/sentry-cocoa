@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add watchdog termination tracker using RunLoop observer. Can be enabled by setting `options.experimental.enableWatchdogTerminationsV2 = true` (#7464)
+
 ### Fixes
 
 - Preserve NSException and C++ exception reason instead of overwriting with unrelated `crash_info_message` from `libswiftCore.dylib` (#7515)
