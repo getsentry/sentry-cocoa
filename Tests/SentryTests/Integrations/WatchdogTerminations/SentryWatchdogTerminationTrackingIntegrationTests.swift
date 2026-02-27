@@ -73,8 +73,10 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             SentrySDKInternal.setCurrentHub(hub)
         }
 
-        func getSut() -> SentryWatchdogTerminationTrackingIntegration<SentryDependencyContainer>? {
+        func getSut(enableNewHangTracker: Bool = false) -> SentryWatchdogTerminationTrackingIntegration<SentryDependencyContainer>? {
             let container = SentryDependencyContainer.sharedInstance()
+            let options = options
+            options.experimental.enableWatchdogTerminationsV2 = enableNewHangTracker
             return SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: container)
         }
     }
@@ -270,6 +272,19 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let sut = try XCTUnwrap(fixture.getSut())
 
         // -- Act --
+        sut.anrDetected(type: .unknown)
+
+        // -- Assert --
+        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
+        XCTAssertTrue(appState.isANROngoing)
+    }
+    
+    func testANRDetected_NewHangTracker_UpdatesAppStateToTrue() throws {
+        // -- Arrange --
+        fixture.crashWrapper.internalIsBeingTraced = false
+        let sut = try XCTUnwrap(fixture.getSut(enableNewHangTracker: true))
+
+        // -- Act --
         sut.hangStarted()
 
         // -- Assert --
@@ -281,6 +296,19 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         // -- Arrange --
         fixture.crashWrapper.internalIsBeingTraced = false
         let sut = try XCTUnwrap(fixture.getSut())
+
+        // -- Act --
+        sut.anrStopped(result: nil)
+
+        // -- Assert --
+        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
+        XCTAssertFalse(appState.isANROngoing)
+    }
+    
+    func testANRStopped_NewHangTracker_UpdatesAppStateToFalse() throws {
+        // -- Arrange --
+        fixture.crashWrapper.internalIsBeingTraced = false
+        let sut = try XCTUnwrap(fixture.getSut(enableNewHangTracker: true))
         sut.hangStarted()
 
         // -- Act --
@@ -298,10 +326,12 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
         // Set a specific timeout interval
         let timeoutInterval: TimeInterval = 2.0
-        fixture.options.appHangTimeoutInterval = timeoutInterval
+        let options = fixture.options
+        options.appHangTimeoutInterval = timeoutInterval
+        options.experimental.enableWatchdogTerminationsV2 = true
 
         // -- Act --
-        let integration = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: dependencies)
+        let integration = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
 
         // Simulate a hang with duration exactly at the threshold (not greater than)
         mockHangTracker.simulateHang(duration: timeoutInterval, ongoing: true)
@@ -319,10 +349,12 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
         // Set a specific timeout interval
         let timeoutInterval: TimeInterval = 2.0
-        fixture.options.appHangTimeoutInterval = timeoutInterval
+        let options = fixture.options
+        options.appHangTimeoutInterval = timeoutInterval
+        options.experimental.enableWatchdogTerminationsV2 = true
 
         // -- Act --
-        let integration = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: dependencies)
+        let integration = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
 
         // Simulate a hang with duration greater than the threshold
         mockHangTracker.simulateHang(duration: timeoutInterval + 0.1, ongoing: true)
@@ -339,10 +371,12 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let dependencies = MockDependenciesWithControllableHangTracker(mockHangTracker: mockHangTracker)
 
         let timeoutInterval: TimeInterval = 2.0
-        fixture.options.appHangTimeoutInterval = timeoutInterval
+        let options = fixture.options
+        options.appHangTimeoutInterval = timeoutInterval
+        options.experimental.enableWatchdogTerminationsV2 = true
 
         // -- Act --
-        let integration = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: dependencies)
+        let integration = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
 
         // Simulate a hang stop with duration below threshold
         mockHangTracker.simulateHang(duration: timeoutInterval - 0.5, ongoing: false)
@@ -355,7 +389,11 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
 }
 
-private class MockDependencies: HangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder {
+private class MockDependencies: ANRTrackerBuilder & HangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder {
+    
+    func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
+        SentryDependencyContainer.sharedInstance().getANRTracker(interval)
+    }
     
     struct TestRunLoopObserver: RunLoopObserver { }
     
@@ -418,7 +456,11 @@ private class MockHangTracker: HangTracker {
 }
 
 /// Mock dependencies that use a controllable MockHangTracker for testing threshold behavior
-private class MockDependenciesWithControllableHangTracker: HangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder {
+private class MockDependenciesWithControllableHangTracker: HangTrackerProvider & ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder {
+    
+    func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
+        SentryDependencyContainer.sharedInstance().getANRTracker(interval)
+    }
 
     let hangTracker: HangTracker
 
