@@ -34,6 +34,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -267,6 +268,7 @@ sentrycrashjson_beginElement(SentryCrashJSONEncodeContext *const context, const 
             SENTRY_ASYNC_SAFE_LOG_DEBUG("Name was null inside an object");
             return SentryCrashJSON_ERROR_INVALID_DATA;
         }
+        // CWE-676: name from encode API; null-terminated.
         unlikely_if((result = addQuotedEscapedString(context, name, (int)strlen(name)))
             != SentryCrashJSON_OK)
         {
@@ -386,6 +388,7 @@ sentrycrashjson_addStringElement(SentryCrashJSONEncodeContext *const context,
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
     if (length == SentryCrashJSON_SIZE_AUTOMATIC) {
+        // CWE-676: value from encode API; null-terminated.
         length = (int)strlen(value);
     }
     return addQuotedEscapedString(context, value, length);
@@ -982,6 +985,7 @@ decodeString(SentryCrashJSONDecodeContext *context, char *dstBuffer, int dstBuff
     // If no escape characters were encountered, we can fast copy.
     likely_if(fastCopy)
     {
+        // CWE-676: length < dstBufferLength checked above.
         memcpy(dstBuffer, src, length);
         dstBuffer[length] = 0;
         return SentryCrashJSON_OK;
@@ -1271,8 +1275,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
         }
 
         // our buffer is not necessarily NULL-terminated, so
-        // it would be undefined to call sscanf/sttod etc. directly.
-        // instead we create a temporary string.
+        // we create a temporary null-terminated string and use strtod (CWE-676: avoid sscanf).
         double value;
         int len = (int)(context->bufferPtr - start);
         if (len >= context->stringBufferLength) {
@@ -1288,9 +1291,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
         strncpy(context->stringBuffer, start, len);
         context->stringBuffer[len] = '\0';
 
-        // Parses a floating point number from the string buffer into value using %lg format
-        // %lg uses shortest decimal representation and removes trailing zeros
-        sscanf(context->stringBuffer, "%lg", &value);
+        value = strtod(context->stringBuffer, NULL);
 
         value *= sign;
         return context->callbacks->onFloatingPointElement(name, value, context->userData);
@@ -1362,6 +1363,7 @@ updateDecoder_readFile(struct JSONFromFileContext *context)
         unlikely_if(remainingLength < bufferLength / 2)
         {
             int fillLength = bufferLength - remainingLength;
+            // CWE-676: remainingLength <= bufferLength; start has bufferLength bytes.
             memcpy(start, ptr, remainingLength);
             context->decodeContext->bufferPtr = start;
             int bytesRead = (int)read(context->fd, start + remainingLength, (unsigned)fillLength);
@@ -1438,6 +1440,7 @@ addJSONFromFile_onStringElement(
     const char *const name, const char *const value, void *const userData)
 {
     JSONFromFileContext *context = (JSONFromFileContext *)userData;
+    // CWE-676: value from JSON decode; decode produces null-terminated strings.
     int result
         = sentrycrashjson_addStringElement(context->encodeContext, name, value, (int)strlen(value));
     context->updateDecoderCallback(context);

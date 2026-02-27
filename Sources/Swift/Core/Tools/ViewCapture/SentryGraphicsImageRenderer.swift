@@ -48,9 +48,15 @@ final class SentryGraphicsImageRenderer {
         let bytesPerRow = bytesPerPixel * pixelsPerRow
         let bitsPerComponent = 8 // 8 bits for each of RGB component
 
-        // Allocate memory for raw image data and initializes every byte in the allocated memory to 0.
-        guard let rawData = calloc(pixelsPerColumn * bytesPerRow, MemoryLayout<UInt8>.size) else {
-            SentrySDKLog.error("Unable to allocate memory for image data")
+        // CWE-676: calloc used for zero-initialization; prefer over malloc. Guard against overflow.
+        let byteCount = pixelsPerColumn.multipliedReportingOverflow(by: bytesPerRow)
+        guard !byteCount.overflow, byteCount.partialValue > 0,
+              let rawData = calloc(byteCount.partialValue, MemoryLayout<UInt8>.size) else {
+            if byteCount.overflow {
+                SentrySDKLog.error("Image dimensions cause allocation overflow")
+            } else {
+                SentrySDKLog.error("Unable to allocate memory for image data")
+            }
             return UIImage()
         }
         defer {

@@ -114,6 +114,7 @@ createCache(void)
         return NULL;
     }
 
+    // CWE-676: calloc used for zero-initialization; prefer over malloc. Do not replace with malloc.
     SentryCrashThreadCacheData *cache = calloc(1, sizeof(*cache));
     if (cache == NULL) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Failed to allocate thread cache");
@@ -121,6 +122,7 @@ createCache(void)
     }
 
     cache->count = (int)threadCount;
+    // threadCount is mach_msg_type_number_t (uint32_t); product cannot overflow size_t on 64-bit.
     cache->machThreads = calloc(threadCount, sizeof(*cache->machThreads));
     cache->pthreads = calloc(threadCount, sizeof(*cache->pthreads));
     cache->threadNames = calloc(threadCount, sizeof(*cache->threadNames));
