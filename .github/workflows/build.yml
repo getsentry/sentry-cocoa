@@ -136,7 +136,7 @@ jobs:
             build 2>&1 | tee raw-build-output.log | xcbeautify --preserve-unbeautified
 
       - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-scheme-${{matrix.scheme}}
@@ -207,7 +207,7 @@ jobs:
             build | tee raw-build-output-spm.log | xcbeautify --preserve-unbeautified
         shell: sh
       - name: Upload SPM Build Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm
@@ -241,7 +241,7 @@ jobs:
         shell: sh
 
       - name: Upload SPM Build Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm

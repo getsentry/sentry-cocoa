@@ -106,7 +106,7 @@ jobs:
 
       - name: Upload Built Apps for SauceLabs
         if: needs.files-changed.outputs.is_dependabot != 'true'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: benchmark-apps
           path: |
