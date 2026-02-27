@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add watchdog termination hang tracker using RunLoop observer. Can be enabled by setting `options.experimental.enableWatchdogTerminationsV2 = true` (#7464)
+
 ### Fixes
 
 - Preserve NSException and C++ exception reason instead of overwriting with unrelated `crash_info_message` from `libswiftCore.dylib` (#7515)
@@ -23,6 +27,10 @@
 ### Features
 
 - Enable MetricKit Integration for visionOS (#7466)
+
+### Improvements
+
+- The watchdog termination integration uses a runloop observer instead of fixed interval main thread work to avoid creating a busy runloop ([#7464](https://github.com/getsentry/sentry-cocoa/pull/7464))
 
 ### Fixes
 
