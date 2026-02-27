@@ -82,6 +82,7 @@ static void
 writeToLog(const char *const str)
 {
     if (g_fd >= 0) {
+        // CWE-676: str is from format/va_args; always null-terminated.
         int bytesToWrite = (int)strlen(str);
         const char *pos = str;
         while (bytesToWrite > 0) {

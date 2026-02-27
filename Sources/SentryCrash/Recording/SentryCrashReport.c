@@ -234,6 +234,7 @@ static void
 addJSONElement(const SentryCrashReportWriter *const writer, const char *const key,
     const char *const jsonElement, bool closeLastContainer)
 {
+    // CWE-676: jsonElement is internal JSON fragment; null-terminated.
     int jsonResult = sentrycrashjson_addJSONElement(
         getJsonContext(writer), key, jsonElement, (int)strlen(jsonElement), closeLastContainer);
     if (jsonResult != SentryCrashJSON_OK) {
@@ -779,6 +780,7 @@ writeAddressReferencedByString(
     const SentryCrashReportWriter *const writer, const char *const key, const char *string)
 {
     uint64_t address = 0;
+    // CWE-676: string is report key value from our writer; null-terminated.
     if (string == NULL
         || !sentrycrashstring_extractHexValue(string, (int)strlen(string), &address)) {
         return;
@@ -1471,6 +1473,7 @@ sentrycrashreport_writeRecrashReport(
     SentryCrashBufferedWriter bufferedWriter;
     static char tempPath[SentryCrashFU_MAX_PATH_LENGTH];
     strlcpy(tempPath, path, sizeof(tempPath) - 10);
+    // CWE-676: tempPath just set by strlcpy; null-terminated. Overwrite ".json" with ".old".
     strlcpy(tempPath + strlen(tempPath) - 5, ".old", 5);
     SENTRY_ASYNC_SAFE_LOG_INFO("Writing recrash report to %s", path);
 

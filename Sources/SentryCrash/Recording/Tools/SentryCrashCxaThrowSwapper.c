@@ -127,6 +127,7 @@ addPair(SentryCrashImageToOriginalCxaThrowPair pair)
             return;
         }
     }
+    // CWE-676: Fixed-size struct copy; array space ensured by realloc above.
     memcpy(&g_cxa_originals[g_cxa_originals_count++], &pair,
         sizeof(SentryCrashImageToOriginalCxaThrowPair));
 }

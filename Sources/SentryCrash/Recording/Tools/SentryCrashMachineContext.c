@@ -139,6 +139,7 @@ sentrycrashmc_getContextForSignal(
     SENTRY_ASYNC_SAFE_LOG_DEBUG(
         "Get context from signal user context and put into %p.", destinationContext);
     _STRUCT_MCONTEXT *sourceContext = ((SignalUserContext *)signalUserContext)->UC_MCONTEXT;
+    // CWE-676: Fixed-size copy; source and destination are same struct type.
     memcpy(&destinationContext->machineContext, sourceContext,
         sizeof(destinationContext->machineContext));
     destinationContext->thisThread = (thread_t)sentrycrashthread_self();
