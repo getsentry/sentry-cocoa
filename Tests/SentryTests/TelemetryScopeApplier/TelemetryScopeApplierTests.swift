@@ -7,11 +7,13 @@ final class TelemetryScopeApplierTests: XCTestCase {
         var attributes: [String: SentryAttribute]
         var attributesDict: [String: SentryAttributeContent]
         var traceId: SentryId
+        var spanId: SpanId?
         var body: String
 
         enum CodingKeys: String, CodingKey {
             case body
             case traceId = "trace_id"
+            case spanId = "span_id"
             case attributes
         }
 
@@ -19,6 +21,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(body, forKey: .body)
             try container.encode(traceId.sentryIdString, forKey: .traceId)
+            try container.encodeIfPresent(spanId?.sentrySpanIdString, forKey: .spanId)
             try container.encode(attributesDict, forKey: .attributes)
         }
     }
@@ -114,7 +117,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
         XCTAssertNil(item.attributesDict["sentry.release"])
     }
 
-    func testApplyToItem_withSpan_shouldAddParentSpanId() {
+    func testApplyToItem_withSpan_shouldSetSpanId() {
         // -- Arrange --
         let spanId = SentryId()
         let span = TestSpan(spanId: spanId)
@@ -129,10 +132,10 @@ final class TelemetryScopeApplierTests: XCTestCase {
         scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributesDict["span_id"], .string(span.spanId.sentrySpanIdString))
+        XCTAssertEqual(item.spanId, span.spanId)
     }
 
-    func testApplyToItem_withoutSpan_shouldNotAddParentSpanId() {
+    func testApplyToItem_withoutSpan_shouldNotSetSpanId() {
         // -- Arrange --
         let scope = TestScope(propagationContextTraceId: SentryId())
         let metadata = createTestMetadata()
@@ -142,7 +145,27 @@ final class TelemetryScopeApplierTests: XCTestCase {
         scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
-        XCTAssertNil(item.attributesDict["sentry.trace.parent_span_id"])
+        XCTAssertNil(item.spanId)
+    }
+
+    func testApplyToItem_whenNoSpan_simulatingCOCOA1119_shouldUsePropagationContextForTraceIdAndOmitSpanId() {
+        // Reproduces COCOA-1119 scenario: when a log is captured in a context where the scope has no
+        // active span (e.g. DispatchQueue.main.async where scope might not have the transaction), the
+        // log gets trace_id from propagation context and no span_id. If propagation context differs
+        // from the transaction's trace, logs appear in a different trace and are not connected to spans.
+        //
+        // -- Arrange --
+        let propagationTraceId = SentryId()
+        let scope = TestScope(propagationContextTraceId: propagationTraceId)
+        let metadata = createTestMetadata()
+        var item = createTestItem()
+
+        // -- Act --
+        scope.addAttributesToItem(&item, metadata: metadata)
+
+        // -- Assert --
+        XCTAssertEqual(item.traceId, propagationTraceId)
+        XCTAssertNil(item.spanId)
     }
 
     // MARK: - OS Attributes Tests
@@ -397,7 +420,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
         XCTAssertNil(item.attributesDict["user.email"])
     }
 
-    func testApplyToItem_whenSendDefaultPiiFalse_shouldNotAddUserNameAndEmail() {
+    func testApplyToItem_whenSendDefaultPiiFalse_shouldStillAddUserAttributes() {
         // -- Arrange --
         let user = User(userId: "user-123")
         user.name = "John Doe"
@@ -416,9 +439,10 @@ final class TelemetryScopeApplierTests: XCTestCase {
         scope.addAttributesToItem(&item, metadata: metadata)
 
         // -- Assert --
-        XCTAssertEqual(item.attributesDict["user.id"], .string("installation-123"))
-        XCTAssertNil(item.attributesDict["user.name"])
-        XCTAssertNil(item.attributesDict["user.email"])
+        // User attributes are applied regardless of sendDefaultPII
+        XCTAssertEqual(item.attributesDict["user.id"], .string("user-123"))
+        XCTAssertEqual(item.attributesDict["user.name"], .string("John Doe"))
+        XCTAssertEqual(item.attributesDict["user.email"], .string("john@example.com"))
     }
 
     // MARK: - Replay Attributes Tests
@@ -645,7 +669,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
         // This ensures consistency with span_id which also comes from the span
         XCTAssertEqual(item.traceId, spanTraceId)
         XCTAssertNotEqual(item.traceId, propagationTraceId)
-        XCTAssertEqual(item.attributesDict["span_id"], .string(span.spanId.sentrySpanIdString))
+        XCTAssertEqual(item.spanId, span.spanId)
     }
 
     func testApplyToItem_whenSpanIsActive_shouldUseSpanTraceIdEvenIfDifferentFromPropagationContext() {
@@ -710,7 +734,7 @@ final class TelemetryScopeApplierTests: XCTestCase {
         XCTAssertEqual(item.attributesDict["sentry.sdk.version"], .string(SentryMeta.versionString))
         XCTAssertEqual(item.attributesDict["sentry.environment"], .string("production"))
         XCTAssertEqual(item.attributesDict["sentry.release"], .string("1.0.0"))
-        XCTAssertEqual(item.attributesDict["span_id"], .string(span.spanId.sentrySpanIdString))
+        XCTAssertEqual(item.spanId, span.spanId)
 
         // OS attributes
         XCTAssertEqual(item.attributesDict["os.name"], .string("iOS"))

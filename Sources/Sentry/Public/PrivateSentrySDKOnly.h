@@ -168,13 +168,6 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 /**
- * Return an instance of SentryRedactOptions with given option
- * To be used from SentrySwiftUI, which cannot access the private
- * `SentryRedactOptions` class.
- */
-+ (UIView *)sessionReplayMaskingOverlay:(id<SentryRedactOptions>)options;
-
-/**
  * Configure session replay with different breadcrumb converter
  * and screeshot provider. Used by the Hybrid SDKs.
  * Passing nil will keep the previous value.
@@ -199,6 +192,13 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 + (nullable SentryOptions *)optionsWithDictionary:(NSDictionary<NSString *, id> *)options
                                  didFailWithError:(NSError *_Nullable *_Nullable)error;
+
+/**
+ * Sets a custom log output handler. This allows hybrid SDKs (React Native, Flutter, etc.)
+ * to intercept SDK log messages and forward them to their respective consoles.
+ * @param output A block that receives the formatted log message string.
+ */
++ (void)setLogOutput:(void (^)(NSString *))output;
 
 @end
 

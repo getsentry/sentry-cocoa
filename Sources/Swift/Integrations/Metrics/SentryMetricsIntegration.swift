@@ -1,52 +1,17 @@
 @_implementationOnly import _SentryPrivate
 
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-import UIKit
-private typealias CrossPlatformApplication = UIApplication
-#elseif os(macOS) && !SENTRY_NO_UI_FRAMEWORK
-import AppKit
-private typealias CrossPlatformApplication = NSApplication
-#endif
-
 protocol SentryMetricsIntegrationProtocol {
     func addMetric(_ metric: SentryMetric, scope: Scope)
 }
 
-#if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
-typealias SentryMetricsIntegrationDependencies = DateProviderProvider & DispatchQueueWrapperProvider & NotificationCenterProvider
-#else
-typealias SentryMetricsIntegrationDependencies = DateProviderProvider & DispatchQueueWrapperProvider
-#endif
+/// Empty on purpose. Required by the SwiftIntegration protocol constraint.
+protocol SentryMetricsIntegrationDependencies {}
 
-final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol, FlushableIntegration {
-    private let metricsBuffer: SentryMetricsTelemetryBuffer
+final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDependencies>: NSObject, SwiftIntegration, SentryMetricsIntegrationProtocol {
     private let scopeMetaData: SentryDefaultScopeApplyingMetadata
     private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
-    #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
-    private let notificationCenter: SentryNSNotificationCenterWrapper
-    #endif
-
-    convenience init?(with options: Options, dependencies: Dependencies) {
-        let metricsBuffer = DefaultSentryMetricsTelemetryBuffer(
-            options: options,
-            dateProvider: dependencies.dateProvider,
-            dispatchQueue: dependencies.dispatchQueueWrapper,
-            capturedDataCallback: { data, count in
-                let hub = SentrySDKInternal.currentHub()
-                guard let client = hub.getClient() else {
-                    SentrySDKLog.debug("MetricsIntegration: No client available, dropping metrics")
-                    return
-                }
-                client.captureMetricsData(data, with: NSNumber(value: count))
-            }
-        )
-
-        self.init(with: options, dependencies: dependencies, metricsBuffer: metricsBuffer)
-    }
-
-    /// Initializer for testing that allows injecting a custom metrics buffer
-    init?(with options: Options, dependencies: Dependencies, metricsBuffer: SentryMetricsTelemetryBuffer) {
+    init?(with options: Options, dependencies _: Dependencies) {
         guard options.experimental.enableMetrics else { return nil }
 
         self.scopeMetaData = SentryDefaultScopeApplyingMetadata(
@@ -56,40 +21,13 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
             sendDefaultPii: options.sendDefaultPii
         )
 
-        self.metricsBuffer = metricsBuffer
-
-        #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
-        self.notificationCenter = dependencies.notificationCenterWrapper
-        #endif
-
         self.beforeSendMetric = options.experimental.beforeSendMetric
 
         super.init()
-
-        setupLifecycleObservers()
     }
 
     func uninstall() {
-        // Flush any pending metrics before uninstalling.
-        //
-        // Note: This calls captureMetrics() synchronously, which uses dispatchSync internally.
-        // This is safe because uninstall() is typically called from the main thread during
-        // app lifecycle events, and the buffer's dispatch queue is a separate serial queue.
-        metricsBuffer.captureMetrics()
-
-        removeLifecycleObservers()
-    }
-
-    /// Ensures cleanup happens even if the integration is deallocated without explicit `uninstall()`.
-    ///
-    /// This defensive pattern guarantees that notification observers are removed, preventing crashes from dangling references.
-    ///
-    /// Note: We do NOT flush metrics in deinit because:
-    /// - Flushing uses dispatchSync which can deadlock if deinit is called from the buffer's queue
-    /// - uninstall() should be called explicitly before deallocation to ensure metrics are flushed
-    /// - This prevents deadlocks during hub deallocation when integrations are released
-    deinit {
-        removeLifecycleObservers()
+        // Empty on purpose. Nothing to uninstall.
     }
 
     static var name: String {
@@ -102,90 +40,37 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
         var mutableMetric = metric
         scope.addAttributesToItem(&mutableMetric, metadata: self.scopeMetaData)
 
-        // The before send item closure can be used to drop metrics by returning nil
-        // In case it is nil, we can discard the metric here
         if let beforeSendMetric = beforeSendMetric {
-            // If the before send hook returns nil, the item should be dropped
             guard let processedItem = beforeSendMetric(mutableMetric) else {
                 return
             }
             mutableMetric = processedItem
         }
 
-        metricsBuffer.addMetric(mutableMetric)
+        // We go directly to the client instead of through the hub because metrics only have a
+        // static API today and the hub doesn't implement any metrics methods. Ideally, metrics should also go
+        // through the hub to align with other telemetry types.
+        guard let client = SentrySDKInternal.currentHub().getClient() else {
+            SentrySDKLog.debug("MetricsIntegration: No client available, dropping metric")
+            return
+        }
+        client.captureMetric(mutableMetric)
     }
+}
 
-    /// Captures batched metrics synchronously and returns the duration.
-    /// - Returns: The time taken to capture metrics in seconds
-    ///
-    /// - Note: This method calls captureMetrics() on the internal buffer synchronously.
-    ///         This is safe to call from any thread, but be aware that it uses dispatchSync internally.
-    @discardableResult func captureMetrics() -> TimeInterval {
-        return metricsBuffer.captureMetrics()
-    }
+// MARK: - SentryClientInternal Metrics Extension
 
-    // MARK: - FlushableIntegration
+extension SentryClientInternal {
 
-    /// Flushes any buffered metrics synchronously.
-    ///
-    /// - Returns: The time taken to flush in seconds
-    ///
-    /// This method is called by SentryHub.flush() via respondsToSelector: check.
-    /// We implement it directly in the class body (not in an extension) because
-    /// extensions of generic classes cannot contain @objc members.
-    /// The @objc attribute is required so Objective-C code can find this method
-    /// via respondsToSelector: at runtime.
-    @objc func flush() -> TimeInterval {
-        return captureMetrics()
+    /// Captures a metric by forwarding it to the telemetry processor's metrics buffer.
+    /// This method stays entirely in Swift, avoiding the ObjC boundary since SentryMetric is a Swift struct.
+    func captureMetric(_ metric: SentryMetric) {
+        guard self.isEnabled else { return }
+
+        guard let processor = self.getTelemetryProcessor() as? SentryTelemetryProcessor else {
+            SentrySDKLog.error("Cannot capture metric because the telemetry processor is not available. Discarding metric. This is unexpected and indicates a configuration issue.")
+            return
+        }
+        processor.add(metric: metric)
     }
-    
-    // MARK: - Lifecycle Handling
-    
-    private func setupLifecycleObservers() {
-        #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
-        notificationCenter.addObserver(
-            self,
-            selector: #selector(willResignActive),
-            name: CrossPlatformApplication.willResignActiveNotification,
-            object: nil
-        )
-        
-        notificationCenter.addObserver(
-            self,
-            selector: #selector(willTerminate),
-            name: CrossPlatformApplication.willTerminateNotification,
-            object: nil
-        )
-        #endif
-    }
-    
-    private func removeLifecycleObservers() {
-        #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
-        notificationCenter.removeObserver(
-            self,
-            name: CrossPlatformApplication.willResignActiveNotification,
-            object: nil
-        )
-        
-        notificationCenter.removeObserver(
-            self,
-            name: CrossPlatformApplication.willTerminateNotification,
-            object: nil
-        )
-        #endif
-    }
-    
-    // These methods are implemented in the main class body (not in an extension)
-    // because extensions of generic classes cannot contain @objc members.
-    #if (os(iOS) || os(tvOS) || os(visionOS) || os(macOS)) && !SENTRY_NO_UI_FRAMEWORK
-    @objc private func willResignActive() {
-        // Flush metrics directly via the integration's flush method
-        _ = flush() // Use discardable result
-    }
-    
-    @objc private func willTerminate() {
-        // Flush metrics directly via the integration's flush method
-        _ = flush() // Use discardable result
-    }
-    #endif
 }

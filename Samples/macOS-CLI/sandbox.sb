@@ -1,0 +1,3 @@
+(version 1)
+(allow default)
+(deny file* (subpath "/Users"))

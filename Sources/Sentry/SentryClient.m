@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
 @property (nonatomic, strong) id<SentryLogScopeApplier> logScopeApplier;
-@property (nonatomic, strong) id<SentryTelemetryProcessor> telemetryProcessor;
+@property (nonatomic, strong) id<SentryObjCTelemetryProcessor> telemetryProcessor;
 @property (nonatomic, strong) id<SentryEventContextEnricher> eventContextEnricher;
 
 @end
@@ -729,7 +729,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 #if SENTRY_HAS_UIKIT
     if (!isFatalEvent && eventIsNotReplay) {
-        NSDictionary *currentContext = event.context ?: @{};
+        NSDictionary *currentContext = event.context ?: @{ };
         event.context = [self.eventContextEnricher enrichWithAppState:currentContext];
     }
 #endif
@@ -975,19 +975,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                           [extraContext[SENTRY_CONTEXT_DEVICE_KEY]
                               isKindOfClass:NSDictionary.class]) {
                           [device addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_DEVICE_KEY]
-                                  ?: @ {}];
+                                  ?: @ { }];
                       }
                   }];
 
-    [self
-        modifyContext:event
-                  key:SENTRY_CONTEXT_APP_KEY
-                block:^(NSMutableDictionary *app) {
-                    if (extraContext[SENTRY_CONTEXT_APP_KEY] != nil &&
-                        [extraContext[SENTRY_CONTEXT_APP_KEY] isKindOfClass:NSDictionary.class]) {
-                        [app addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_APP_KEY] ?: @ {}];
-                    }
-                }];
+    [self modifyContext:event
+                    key:SENTRY_CONTEXT_APP_KEY
+                  block:^(NSMutableDictionary *app) {
+                      if (extraContext[SENTRY_CONTEXT_APP_KEY] != nil &&
+                          [extraContext[SENTRY_CONTEXT_APP_KEY] isKindOfClass:NSDictionary.class]) {
+                          [app addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_APP_KEY]
+                                  ?: @ { }];
+                      }
+                  }];
 }
 
 #if SENTRY_HAS_UIKIT
@@ -1128,26 +1128,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 }
 
-- (void)captureMetricsData:(NSData *)data with:(NSNumber *)itemCount
+- (id)getTelemetryProcessor
 {
-    [self captureData:data
-                 with:itemCount
-                 type:SentryEnvelopeItemTypes.traceMetric
-          contentType:@"application/vnd.sentry.items.trace-metric+json"];
-}
-
-- (void)captureData:(NSData *)data
-               with:(NSNumber *)itemCount
-               type:(NSString *)type
-        contentType:(NSString *)contentType
-{
-    SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithType:type
-                                                                           data:data
-                                                                    contentType:contentType
-                                                                      itemCount:itemCount];
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
-                                                           singleItem:envelopeItem];
-    [self captureEnvelope:envelope];
+    return self.telemetryProcessor;
 }
 
 @end

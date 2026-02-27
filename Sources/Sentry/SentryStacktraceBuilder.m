@@ -102,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
     // The frames must be ordered from caller to callee, or oldest to youngest
     NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
 
-    return [[SentryStacktrace alloc] initWithFrames:framesReversed registers:@{}];
+    return [[SentryStacktrace alloc] initWithFrames:framesReversed registers:@{ }];
 }
 
 @end

@@ -215,8 +215,103 @@ class SentryNetworkTrackerTests: XCTestCase {
         try assertStatus(status: .cancelled, state: .canceling, response: URLResponse())
     }
 
-    func testCaptureSuspendedRequest() throws {
-        try assertStatus(status: .aborted, state: .suspended, response: URLResponse())
+    func testSuspendedRequest_whenSuspended_shouldNotFinishSpan() throws {
+        // Suspended is a non-terminal state — the task can be resumed later.
+        // The span should remain open.
+
+        // -- Arrange --
+        let task = createDataTask()
+        let span = try XCTUnwrap(spanForTask(task: task))
+
+        // -- Act --
+        try setTaskState(task, state: .suspended)
+
+        // -- Assert --
+        XCTAssertFalse(span.isFinished)
+    }
+
+    func testSuspendedRequest_whenResumedAndCompleted_shouldFinishSpan() throws {
+        // A suspended task that is later resumed and completed should
+        // finish the span with the correct status.
+
+        // -- Arrange --
+        let task = createDataTask()
+        let span = try XCTUnwrap(spanForTask(task: task))
+        task.setResponse(try createResponse(code: 200))
+
+        // -- Act --
+        try setTaskState(task, state: .suspended)
+        try setTaskState(task, state: .running)
+        try setTaskState(task, state: .completed)
+
+        // -- Assert --
+        XCTAssertTrue(span.isFinished)
+        XCTAssertEqual(span.status, .ok)
+    }
+
+    func testSuspendedRequest_whenCancelledWhileSuspended_shouldRecordBreadcrumbAndFinishSpan() throws {
+        // A task cancelled while suspended should still record a breadcrumb
+        // and finish the span with cancelled status, consistent with the
+        // running → canceling path.
+
+        // -- Arrange --
+        let task = createDataTask()
+        let span = try XCTUnwrap(spanForTask(task: task))
+
+        // -- Act --
+        try setTaskState(task, state: .suspended)
+        try setTaskState(task, state: .canceling)
+
+        // -- Assert --
+        XCTAssertTrue(span.isFinished)
+        XCTAssertEqual(span.status, .cancelled)
+
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        XCTAssertEqual(breadcrumbs.count, 1)
+
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+        XCTAssertEqual(breadcrumb.category, "http")
+        XCTAssertEqual(breadcrumb.type, "http")
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["url"] as? String), SentryNetworkTrackerTests.testUrl)
+        XCTAssertEqual(try XCTUnwrap(breadcrumb.data?["method"] as? String), "GET")
+    }
+
+    func testSuspendedRequest_whenResumedAfterSuspend_shouldPreserveOriginalStartDate() throws {
+        // When a task is suspended and resumed, the breadcrumb request_start
+        // should reflect the original start time, not the time of the last resume.
+
+        // -- Arrange --
+        let sut = fixture.getSut()
+        let task = createDataTask()
+        _ = startTransaction()
+
+        let timeBeforeFirstResume = Date()
+        sut.urlSessionTaskResume(task)
+        let timeAfterFirstResume = Date()
+
+        // Suspend and wait to guarantee wall-clock time advances, since
+        // the production code uses [NSDate date] rather than an injected date provider.
+        try setTaskState(task, state: .suspended)
+        Thread.sleep(forTimeInterval: 0.1)
+        let timeBeforeSecondResume = Date()
+        sut.urlSessionTaskResume(task)
+
+        // -- Act --
+        task.setResponse(try createResponse(code: 200))
+        try setTaskState(task, state: .completed)
+
+        // -- Assert --
+        let breadcrumbs = try XCTUnwrap(Dynamic(fixture.scope).breadcrumbArray as [Breadcrumb]?)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+        let requestStart = try XCTUnwrap(breadcrumb.data?["request_start"] as? Date)
+
+        // The start date should be from the first resume window, not the second
+        XCTAssertGreaterThanOrEqual(requestStart, timeBeforeFirstResume,
+            "request_start should be no earlier than the first resume")
+        XCTAssertLessThanOrEqual(requestStart, timeAfterFirstResume,
+            "request_start should be no later than right after the first resume")
+        XCTAssertLessThan(requestStart, timeBeforeSecondResume,
+            "request_start should be before the second resume, proving the original date was preserved")
     }
 
     func testCaptureRequestWithError() throws {

@@ -48,6 +48,10 @@ public enum SentryAttributeContent: Equatable, Hashable {
             return SentryAttributeType.doubleArray.rawValue
         }
     }
+    
+    // This type is used to encode array types as "array" regardless of element type.
+    // This is what Relay expects for array types: https://develop.sentry.dev/sdk/telemetry/attributes/
+    static let genericArrayType: String = "array"
 }
 
 extension SentryAttributeContent: Encodable {
@@ -59,12 +63,14 @@ extension SentryAttributeContent: Encodable {
     /// Encodes the attribute value to the given encoder.
     ///
     /// The encoded format includes both the type identifier and the value itself.
+    /// Array types are encoded with type "array" regardless of element type.
     ///
     /// - Parameter encoder: The encoder to write data to.
     /// - Throws: An error if encoding fails.
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(type, forKey: .type)
+        
+        try container.encode(typeForEncoding, forKey: .type)
 
         switch self {
         case .string(let value):
@@ -83,6 +89,15 @@ extension SentryAttributeContent: Encodable {
             try container.encode(value, forKey: .value)
         case .doubleArray(let value):
             try container.encode(value, forKey: .value)
+        }
+    }
+    
+    private var typeForEncoding: String {
+        switch self {
+        case .string(_), .boolean(_), .integer(_), .double(_):
+            return type
+        case .stringArray(_), .booleanArray(_), .integerArray(_), .doubleArray(_):
+            return SentryAttributeContent.genericArrayType
         }
     }
 }

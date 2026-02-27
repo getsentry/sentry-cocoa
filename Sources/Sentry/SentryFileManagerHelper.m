@@ -790,13 +790,7 @@ NSURL *_Nullable launchProfileConfigFileURL(void)
     dispatch_once(&onceToken, ^{
         NSString *basePath = sentryStaticBasePath();
         if (basePath == nil) {
-            SENTRY_LOG_WARN(@"No location available to write a launch profiling config.");
-            return;
-        }
-        NSError *_Nullable error;
-        if (!createDirectoryIfNotExists(basePath, &error)) {
-            SENTRY_LOG_ERROR(
-                @"Can't create base path to store launch profile config file: %@", error);
+            SENTRY_LOG_DEBUG(@"No location available for launch profiling config.");
             return;
         }
         sentryLaunchConfigFileURL =
@@ -806,17 +800,33 @@ NSURL *_Nullable launchProfileConfigFileURL(void)
     return sentryLaunchConfigFileURL;
 }
 
+BOOL
+ensureLaunchProfileConfigDirectoryExists(void)
+{
+    NSString *basePath = sentryStaticBasePath();
+    if (basePath == nil) {
+        SENTRY_LOG_WARN(@"No location available to write a launch profiling config.");
+        return NO;
+    }
+    NSError *_Nullable error;
+    if (!createDirectoryIfNotExists(basePath, &error)) {
+        SENTRY_LOG_ERROR(@"Can't create base path to store launch profile config file: %@", error);
+        return NO;
+    }
+    return YES;
+}
+
 NSDictionary<NSString *, NSNumber *> *_Nullable sentry_persistedLaunchProfileConfigurationOptions(
     void)
 {
     NSURL *_Nullable url = launchProfileConfigFileURL();
     if (url == nil) {
-        SENTRY_LOG_ERROR(@"Failed to construct the URL to retrieve launch profile configs.")
+        SENTRY_LOG_DEBUG(@"No URL available to retrieve launch profile configs.");
         return nil;
     }
     NSString *_Nullable nullablePath = url.path;
     if (nullablePath == nil) {
-        SENTRY_LOG_ERROR(@"Failed to construct the path to retrieve launch profile configs.")
+        SENTRY_LOG_DEBUG(@"No path available to retrieve launch profile configs.");
         return nil;
     }
     if (![[NSFileManager defaultManager]
@@ -843,12 +853,12 @@ appLaunchProfileConfigFileExists(void)
 {
     NSURL *_Nullable url = launchProfileConfigFileURL();
     if (url == nil) {
-        SENTRY_LOG_ERROR(@"Failed to construct the URL to check for launch profile configs.")
+        SENTRY_LOG_DEBUG(@"No URL available to check for launch profile configs.");
         return NO;
     }
     NSString *_Nullable path = url.path;
     if (path == nil) {
-        SENTRY_LOG_ERROR(@"Failed to construct the path to check for launch profile configs.")
+        SENTRY_LOG_DEBUG(@"No path available to check for launch profile configs.");
         return NO;
     }
 
@@ -858,6 +868,10 @@ appLaunchProfileConfigFileExists(void)
 void
 writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *config)
 {
+    if (!ensureLaunchProfileConfigDirectoryExists()) {
+        SENTRY_LOG_DEBUG(@"Not writing launch profiling config: directory could not be created.");
+        return;
+    }
     NSURL *_Nullable url = launchProfileConfigFileURL();
     if (url == nil) {
         SENTRY_LOG_ERROR(@"Failed to construct the URL to write launch profile configs.");

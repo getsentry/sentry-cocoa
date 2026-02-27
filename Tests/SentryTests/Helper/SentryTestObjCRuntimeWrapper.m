@@ -37,7 +37,7 @@
                                                  amount:outCount];
 
     if (self.classesNames != nil) {
-        NSMutableArray *names = [NSMutableArray new];
+        NSMutableArray *names = [[NSMutableArray alloc] init];
         for (unsigned int i = 0; i < *outCount; i++) {
             [names addObject:[NSString stringWithCString:result[i] encoding:NSUTF8StringEncoding]];
         }

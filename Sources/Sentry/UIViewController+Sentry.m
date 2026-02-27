@@ -10,7 +10,7 @@
     // The implementation of UIViewController makes sure a parent can't be a child of his child.
     // Therefore, we can assume the parent child relationship is correct.
 
-    NSMutableArray<UIViewController *> *allViewControllers = [NSMutableArray new];
+    NSMutableArray<UIViewController *> *allViewControllers = [[NSMutableArray alloc] init];
     [allViewControllers addObject:viewController];
 
     NSMutableArray<UIViewController *> *toAdd =

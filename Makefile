@@ -35,8 +35,8 @@ VISIONOS_DEVICE_NAME ?= Apple Vision Pro
 # watchOS Simulator OS version (defaults to 'latest', can be overridden via WATCHOS_SIMULATOR_OS=11.0)
 WATCHOS_SIMULATOR_OS ?= latest
 
-# watchOS Simulator device name (defaults to 'Apple Watch Series 11 (46mm)', can be overridden via WATCHOS_DEVICE_NAME='Apple Watch SE 3 (44mm)')
-WATCHOS_DEVICE_NAME ?= Apple Watch Series 11 (46mm)
+# watchOS Simulator device name (defaults to 'Apple Watch SE 3 (44mm)', can be overridden via WATCHOS_DEVICE_NAME='Apple Watch Ultra 3 (49mm)')
+WATCHOS_DEVICE_NAME ?= Apple Watch SE 3 (44mm)
 
 # Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
@@ -58,7 +58,7 @@ init: init-local init-ci-build init-ci-format
 .PHONY: init-local
 init-local:
 	which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-	brew bundle
+	brew update && brew bundle
 	pre-commit install
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
@@ -72,14 +72,14 @@ init-local:
 # Installs tools needed for CI build tasks using Brewfile-ci-build.
 .PHONY: init-ci-build
 init-ci-build:
-	brew bundle --file Brewfile-ci-build
+	brew update && brew bundle --file Brewfile-ci-build
 
 ## Install CI format dependencies
 #
 # Installs tools needed to run CI format tasks locally using Brewfile-ci-format.
 .PHONY: init-ci-format
 init-ci-format:
-	brew bundle --file Brewfile-ci-format
+	brew update && brew bundle --file Brewfile-ci-format
 
 ## Update tooling versions
 #
@@ -218,6 +218,298 @@ build-signed-xcframework:
 .PHONY: build-xcframework-sample
 build-xcframework-sample:
 	xcodebuild -project "Samples/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
+
+# ============================================================================
+# SAMPLE APPS
+# ============================================================================
+
+## Build all sample apps
+#
+# Builds all sample apps for every supported platform.
+.PHONY: build-samples
+build-samples: \
+	build-sample-DistributionSample \
+	build-sample-iOS-ObjectiveC \
+	build-sample-iOS-Swift \
+	build-sample-iOS-Swift6 \
+	build-sample-iOS-SwiftUI \
+	build-sample-iOS-SwiftUI-SPM \
+	build-sample-iOS-SwiftUI-Widgets \
+	build-sample-iOS15-SwiftUI \
+	build-sample-macOS-Swift \
+	build-sample-macOS-SwiftUI \
+	build-sample-macOS-SwiftUI-SPM \
+	build-sample-SDK-Size \
+	build-sample-SessionReplay-CameraTest \
+	build-sample-SPM \
+	build-sample-tvOS-Swift \
+	build-sample-tvOS-SwiftUI-SPM \
+	build-sample-visionOS-Swift \
+	build-sample-visionOS-SwiftUI-SPM \
+	build-sample-watchOS-Swift \
+	build-sample-watchOS-SwiftUI-SPM
+
+## Build the iOS-SwiftUI-SPM sample app
+#
+# Builds the iOS SentrySPM sample app for the iOS Simulator.
+.PHONY: build-sample-iOS-SwiftUI-SPM
+build-sample-iOS-SwiftUI-SPM:
+	xcodegen --spec Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj" \
+		-scheme iOS-SwiftUI-SPM \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the watchOS-SwiftUI-SPM sample app
+#
+# Builds the watchOS SentrySPM sample app for the watchOS Simulator.
+.PHONY: build-sample-watchOS-SwiftUI-SPM
+build-sample-watchOS-SwiftUI-SPM:
+	xcodegen --spec Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.xcodeproj" \
+		-scheme watchOS-SwiftUI-SPM \
+		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the tvOS-SwiftUI-SPM sample app
+#
+# Builds the tvOS SentrySPM sample app for the tvOS Simulator.
+.PHONY: build-sample-tvOS-SwiftUI-SPM
+build-sample-tvOS-SwiftUI-SPM:
+	xcodegen --spec Samples/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.xcodeproj" \
+		-scheme tvOS-SwiftUI-SPM \
+		-destination 'platform=tvOS Simulator,OS=$(TVOS_SIMULATOR_OS),name=$(TVOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the macOS-SwiftUI-SPM sample app
+#
+# Builds the macOS SentrySPM sample app.
+.PHONY: build-sample-macOS-SwiftUI-SPM
+build-sample-macOS-SwiftUI-SPM:
+	xcodegen --spec Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.xcodeproj" \
+		-scheme macOS-SwiftUI-SPM \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the visionOS-SwiftUI-SPM sample app
+#
+# Builds the visionOS SentrySPM sample app for the visionOS Simulator.
+.PHONY: build-sample-visionOS-SwiftUI-SPM
+build-sample-visionOS-SwiftUI-SPM:
+	xcodegen --spec Samples/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.xcodeproj" \
+		-scheme visionOS-SwiftUI-SPM \
+		-destination 'platform=visionOS Simulator,OS=$(VISIONOS_SIMULATOR_OS),name=$(VISIONOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS-ObjectiveCpp-NoModules sample app
+#
+# Builds the ObjC++ without-modules sample that reproduces #4543.
+# This target is expected to FAIL until the pure ObjC SDK wrapper (#6342)
+# is implemented. Use it to verify the fix.
+.PHONY: build-sample-iOS-ObjectiveCpp-NoModules
+build-sample-iOS-ObjectiveCpp-NoModules:
+	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-ObjectiveCpp-NoModules \
+		-configuration Debug \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS-Swift sample app
+#
+# Builds the iOS-Swift sample app for the iOS Simulator.
+.PHONY: build-sample-iOS-Swift
+build-sample-iOS-Swift:
+	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
+	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-Swift \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS-Swift6 sample app
+#
+# Builds the iOS-Swift6 sample app for the iOS Simulator.
+.PHONY: build-sample-iOS-Swift6
+build-sample-iOS-Swift6:
+	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
+	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-Swift6 \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS-SwiftUI sample app
+#
+# Builds the iOS-SwiftUI sample app for the iOS Simulator.
+.PHONY: build-sample-iOS-SwiftUI
+build-sample-iOS-SwiftUI:
+	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
+	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-SwiftUI \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS-SwiftUI-Widgets sample app
+#
+# Builds the iOS-SwiftUI-Widgets sample app for the iOS Simulator.
+.PHONY: build-sample-iOS-SwiftUI-Widgets
+build-sample-iOS-SwiftUI-Widgets:
+	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
+	xcodegen --spec Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-SwiftUI-Widgets \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS-ObjectiveC sample app
+#
+# Builds the iOS-ObjectiveC sample app for the iOS Simulator.
+.PHONY: build-sample-iOS-ObjectiveC
+build-sample-iOS-ObjectiveC:
+	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
+	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-ObjectiveC \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS15-SwiftUI sample app
+#
+# Builds the iOS15-SwiftUI sample app for the iOS Simulator.
+.PHONY: build-sample-iOS15-SwiftUI
+build-sample-iOS15-SwiftUI:
+	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
+	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS15-SwiftUI \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the SessionReplay-CameraTest sample app
+#
+# Builds the SessionReplay-CameraTest sample app for the iOS Simulator.
+.PHONY: build-sample-SessionReplay-CameraTest
+build-sample-SessionReplay-CameraTest:
+	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
+	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme SessionReplay-CameraTest \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the macOS-Swift sample app
+#
+# Builds the macOS-Swift sample app.
+.PHONY: build-sample-macOS-Swift
+build-sample-macOS-Swift:
+	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
+	xcodegen --spec Samples/macOS-Swift/macOS-Swift.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme macOS-Swift \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the macOS-SwiftUI sample app
+#
+# Builds the macOS-SwiftUI sample app.
+.PHONY: build-sample-macOS-SwiftUI
+build-sample-macOS-SwiftUI:
+	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
+	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme macOS-SwiftUI \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the tvOS-Swift sample app
+#
+# Builds the tvOS-Swift sample app for the tvOS Simulator.
+.PHONY: build-sample-tvOS-Swift
+build-sample-tvOS-Swift:
+	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
+	xcodegen --spec Samples/tvOS-Swift/tvOS-Swift.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme tvOS-Swift \
+		-destination 'platform=tvOS Simulator,OS=$(TVOS_SIMULATOR_OS),name=$(TVOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the visionOS-Swift sample app
+#
+# Builds the visionOS-Swift sample app for the visionOS Simulator.
+.PHONY: build-sample-visionOS-Swift
+build-sample-visionOS-Swift:
+	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
+	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme visionOS-Swift \
+		-destination 'platform=visionOS Simulator,OS=$(VISIONOS_SIMULATOR_OS),name=$(VISIONOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the watchOS-Swift sample app
+#
+# Builds the watchOS-Swift sample app for the watchOS Simulator.
+.PHONY: build-sample-watchOS-Swift
+build-sample-watchOS-Swift:
+	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
+	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme 'watchOS-Swift WatchKit App' \
+		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the SPM sample app
+#
+# Builds the SPM sample app.
+.PHONY: build-sample-SPM
+build-sample-SPM:
+	xcodegen --spec Samples/SPM/SPM.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme SPM \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the DistributionSample app
+#
+# Builds the DistributionSample app.
+.PHONY: build-sample-DistributionSample
+build-sample-DistributionSample:
+	xcodegen --spec Samples/DistributionSample/DistributionSample.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme DistributionSample \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the SDK-Size sample app
+#
+# Builds the SDK-Size sample app for the iOS Simulator.
+.PHONY: build-sample-SDK-Size
+build-sample-SDK-Size:
+	xcodegen --spec Samples/SDK-Size/SDK-Size.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme SDK-Size \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 
 # ============================================================================
 # TESTING
@@ -408,7 +700,9 @@ lint-staged:
 	@echo "--> Running Swiftlint and Clang-Format on staged files"
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
-	swiftlint --strict --quiet $(STAGED_SWIFT_FILES)
+	@if [ -n "$(STAGED_SWIFT_FILES)" ]; then \
+		swiftlint --strict --quiet --config .swiftlint.yml $(STAGED_SWIFT_FILES); \
+	fi
 	dprint check "**/*.{md,json,yaml,yml}"
 
 ## Format all files
@@ -466,6 +760,16 @@ format-yaml:
 # ============================================================================
 # ANALYSIS
 # ============================================================================
+
+## Analyze repository language trends
+#
+# Uses github-linguist to compute the language breakdown at monthly intervals.
+# Produces an interactive HTML chart (language-trends.html) and opens it in the browser.
+# The linguist gem is managed via Bundler in scripts/analyze-languages/.
+# Optionally pass SINCE=YYYY-MM-DD to set the start date (default: 2019-01-01).
+.PHONY: analyze-languages
+analyze-languages:
+	./scripts/analyze-languages/analyze-languages.sh $(if $(SINCE),--since $(SINCE))
 
 ## Run static analysis
 #
@@ -581,26 +885,123 @@ xcode: xcode-ci
 ## Generate all sample Xcode projects
 #
 # Generates Xcode projects for all sample apps using xcodegen.
+# Run a specific sample with make xcode-ci-<name>, e.g. make xcode-ci-iOS-Swift.
 .PHONY: xcode-ci
-xcode-ci:
+xcode-ci: xcode-ci-SentrySampleShared \
+	xcode-ci-SPM \
+	xcode-ci-SessionReplay-CameraTest \
+	xcode-ci-iOS-ObjectiveC \
+	xcode-ci-iOS-ObjectiveCpp-NoModules \
+	xcode-ci-iOS-Swift \
+	xcode-ci-iOS-Swift6 \
+	xcode-ci-iOS-SwiftUI \
+	xcode-ci-iOS-SwiftUI-SPM \
+	xcode-ci-iOS-SwiftUI-Widgets \
+	xcode-ci-iOS15-SwiftUI \
+	xcode-ci-macOS-Swift \
+	xcode-ci-macOS-SwiftUI \
+	xcode-ci-macOS-SwiftUI-SPM \
+	xcode-ci-tvOS-Swift \
+	xcode-ci-tvOS-SwiftUI-SPM \
+	xcode-ci-visionOS-Swift \
+	xcode-ci-visionOS-SwiftUI-SPM \
+	xcode-ci-watchOS-Swift \
+	xcode-ci-DistributionSample \
+	xcode-ci-SDK-Size \
+	xcode-ci-SwiftUITestSample \
+	xcode-ci-SwiftUICrashTest
+
+.PHONY: xcode-ci-SPM
+xcode-ci-SPM:
 	xcodegen --spec Samples/SPM/SPM.yml
+
+.PHONY: xcode-ci-SentrySampleShared
+xcode-ci-SentrySampleShared:
 	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
+
+.PHONY: xcode-ci-SessionReplay-CameraTest
+xcode-ci-SessionReplay-CameraTest: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
+
+.PHONY: xcode-ci-iOS-ObjectiveC
+xcode-ci-iOS-ObjectiveC: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
+
+.PHONY: xcode-ci-iOS-ObjectiveCpp-NoModules
+xcode-ci-iOS-ObjectiveCpp-NoModules:
+	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
+
+.PHONY: xcode-ci-iOS-Swift
+xcode-ci-iOS-Swift: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
+
+.PHONY: xcode-ci-iOS-Swift6
+xcode-ci-iOS-Swift6: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
+
+.PHONY: xcode-ci-iOS-SwiftUI
+xcode-ci-iOS-SwiftUI: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
+
+.PHONY: xcode-ci-iOS-SwiftUI-SPM
+xcode-ci-iOS-SwiftUI-SPM:
+	xcodegen --spec Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml
+
+.PHONY: xcode-ci-iOS-SwiftUI-Widgets
+xcode-ci-iOS-SwiftUI-Widgets: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.yml
+
+.PHONY: xcode-ci-iOS15-SwiftUI
+xcode-ci-iOS15-SwiftUI: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
-	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
+
+.PHONY: xcode-ci-macOS-Swift
+xcode-ci-macOS-Swift: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/macOS-Swift/macOS-Swift.yml
+
+.PHONY: xcode-ci-macOS-SwiftUI
+xcode-ci-macOS-SwiftUI: xcode-ci-SentrySampleShared
+	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
+
+.PHONY: xcode-ci-macOS-SwiftUI-SPM
+xcode-ci-macOS-SwiftUI-SPM:
+	xcodegen --spec Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.yml
+
+.PHONY: xcode-ci-tvOS-Swift
+xcode-ci-tvOS-Swift: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/tvOS-Swift/tvOS-Swift.yml
+
+.PHONY: xcode-ci-tvOS-SwiftUI-SPM
+xcode-ci-tvOS-SwiftUI-SPM:
+	xcodegen --spec Samples/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.yml
+
+.PHONY: xcode-ci-visionOS-Swift
+xcode-ci-visionOS-Swift: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
+
+.PHONY: xcode-ci-visionOS-SwiftUI-SPM
+xcode-ci-visionOS-SwiftUI-SPM:
+	xcodegen --spec Samples/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.yml
+
+.PHONY: xcode-ci-watchOS-Swift
+xcode-ci-watchOS-Swift: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
-	xcodegen --spec TestSamples/SwiftUITestSample/SwiftUITestSample.yml
-	xcodegen --spec TestSamples/SwiftUICrashTest/SwiftUICrashTest.yml
+
+.PHONY: xcode-ci-DistributionSample
+xcode-ci-DistributionSample:
 	xcodegen --spec Samples/DistributionSample/DistributionSample.yml
+
+.PHONY: xcode-ci-SDK-Size
+xcode-ci-SDK-Size:
 	xcodegen --spec Samples/SDK-Size/SDK-Size.yml
+
+.PHONY: xcode-ci-SwiftUITestSample
+xcode-ci-SwiftUITestSample:
+	xcodegen --spec TestSamples/SwiftUITestSample/SwiftUITestSample.yml
+
+.PHONY: xcode-ci-SwiftUICrashTest
+xcode-ci-SwiftUICrashTest:
+	xcodegen --spec TestSamples/SwiftUICrashTest/SwiftUICrashTest.yml
 
 # ============================================================================
 # HELP & DOCUMENTATION

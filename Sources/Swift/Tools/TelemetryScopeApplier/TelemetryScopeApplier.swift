@@ -45,9 +45,18 @@ extension TelemetryScopeApplier {
 
         // Set the modified dictionary back once
         item.attributesDict = attributes
-        // When a span is active, use its traceId to ensure consistency with span_id.
-        // Otherwise, fall back to propagationContext traceId.
+        // trace_id originates from propagation context (https://develop.sentry.dev/sdk/telemetry/logs/#log-envelope-item-payload).
+        // In the common case, span.traceId and propagationContextTraceId match; prefer span.traceId
+        // so that trace_id stays consistent with the active span and span_id when a span is present.
+        //
+        // span_id is set as a top-level field per spec, only set when there is an active span (scope.span).
+        // A propagated span_id must not be used.
+        //
+        // See also:
+        // - https://develop.sentry.dev/sdk/telemetry/logs/#log-envelope-item-payload
+        // - https://develop.sentry.dev/sdk/telemetry/logs/#tracing
         item.traceId = span?.traceId ?? propagationContextTraceId
+        item.spanId = span?.spanId
     }
 
     private func addDefaultAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any TelemetryScopeMetadata) {
@@ -56,9 +65,6 @@ extension TelemetryScopeApplier {
         attributes["sentry.environment"] = .string(metadata.environment)
         if let releaseName = metadata.releaseName {
             attributes["sentry.release"] = .string(releaseName)
-        }
-        if let span = self.span {
-            attributes["span_id"] = .string(span.spanId.sentrySpanIdString)
         }
     }
 
@@ -89,10 +95,7 @@ extension TelemetryScopeApplier {
         }
     }
 
-    private func addUserAttributes(to attributes: inout [String: SentryAttributeContent], metadata: any TelemetryScopeMetadata) {
-        guard metadata.sendDefaultPii else {
-            return
-        }
+    private func addUserAttributes(to attributes: inout [String: SentryAttributeContent], metadata _: any TelemetryScopeMetadata) {
         if let userId = userObject?.userId {
             attributes["user.id"] = .string(userId)
         }

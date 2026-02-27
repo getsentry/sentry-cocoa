@@ -79,8 +79,8 @@
         self.reachability = reachability;
         _isSending = NO;
         _isFlushing = NO;
-        self.discardedEvents = [NSMutableDictionary new];
-        self.notStoredEnvelopes = [NSMutableArray new];
+        self.discardedEvents = [[NSMutableDictionary alloc] init];
+        self.notStoredEnvelopes = [[NSMutableArray alloc] init];
         [self.envelopeRateLimit setDelegate:self];
         typeof(self) __weak weakSelf = self;
         [self.fileManager

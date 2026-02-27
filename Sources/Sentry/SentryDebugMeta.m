@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-    NSMutableDictionary *serializedData = [NSMutableDictionary new];
+    NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];
 
     serializedData[@"debug_id"] = self.debugID;
     serializedData[@"type"] = self.type;

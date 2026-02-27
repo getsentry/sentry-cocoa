@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super init]) {
         _keepDelayedFramesDuration = keepDelayedFramesDuration;
         _dateProvider = dateProvider;
-        _delayedFrames = [NSMutableArray new];
+        _delayedFrames = [[NSMutableArray alloc] init];
         [self reset];
     }
     return self;

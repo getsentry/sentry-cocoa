@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-    NSMutableDictionary<NSString *, id> *data = [NSMutableDictionary new];
+    NSMutableDictionary<NSString *, id> *data = [[NSMutableDictionary alloc] init];
 
     data[@"signal"] = sentry_sanitize(self.signal);
     data[@"mach_exception"] = sentry_sanitize(self.machException);

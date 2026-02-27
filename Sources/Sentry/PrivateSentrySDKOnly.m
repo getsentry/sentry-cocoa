@@ -314,12 +314,12 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [SentryOptionsInternal initWithDict:options didFailWithError:error];
 }
 
-#if SENTRY_TARGET_REPLAY_SUPPORTED
-
-+ (UIView *)sessionReplayMaskingOverlay:(id<SentryRedactOptions>)options
++ (void)setLogOutput:(void (^)(NSString *))output
 {
-    return [[SentryMaskingPreviewView alloc] initWithRedactOptions:options];
+    [SentrySDKLog setOutput:output];
 }
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 + (nullable SentrySessionReplayIntegration *)getReplayIntegration
 {

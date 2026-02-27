@@ -1,0 +1,16 @@
+{
+  "callStacks": [
+    {
+      "threadAttributed": true,
+      "callStackRootFrames": [
+        {
+          "binaryUUID": "9E8D8DE6-EEC1-3199-8720-9ED68EE3F967",
+          "offsetIntoBinaryTextSegment": 0,
+          "sampleCount": 1,
+          "address": 0
+        }
+      ]
+    }
+  ],
+  "callStackPerThread": true
+}

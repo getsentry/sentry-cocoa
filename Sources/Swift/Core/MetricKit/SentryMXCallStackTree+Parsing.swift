@@ -1,4 +1,4 @@
-#if os(iOS) || os(macOS)
+#if os(iOS) || os(macOS) || os(visionOS)
 
 @_implementationOnly import _SentryPrivate
 
@@ -48,7 +48,19 @@ extension SentryMXCallStackTree {
                 samplesToCount[sample.frames] = sample.count + count
             }
             let frames = samplesToCount.mostSampled()?.map { $0.toSentryFrame() } ?? []
-            frames.forEach { $0.inApp = NSNumber(value: inAppLogic?.is(inApp: $0.package) ?? false) }
+            frames.forEach {
+                // Sometimes MetricKit provides only a binary UUID and no name
+                // In these cases we cannot determine the path because the app may
+                // have been updated and the UUID changed. The only way to determine
+                // the path is on the backend. From what we've seen MetricKit only
+                // does this for in-app code, not system code. So a reasonable fallback
+                // is inApp: true.
+                if let package = $0.package {
+                    $0.inApp = NSNumber(value: inAppLogic?.is(inApp: package) ?? false)
+                } else {
+                    $0.inApp = NSNumber(value: true)
+                }
+            }
             thread.stacktrace = SentryStacktrace(frames: frames, registers: [:])
             thread.crashed = NSNumber(value: (callStack.threadAttributed ?? false) && !handled)
             return thread
