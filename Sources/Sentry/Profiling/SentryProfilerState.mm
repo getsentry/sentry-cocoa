@@ -5,9 +5,10 @@
 #    import "SentryDependencyContainerSwiftHelper.h"
 #    import "SentryFormatter.h"
 #    import "SentryInternalDefines.h"
+#    import "SentryProfileDebugLoggerHelper.h"
 #    import "SentryProfileTimeseries.h"
+#    import "SentryProfilerSampleCreation.h"
 #    import "SentryProfilingSwiftHelpers.h"
-#    import "SentrySample.h"
 #    import <mach/mach_types.h>
 #    import <mach/port.h>
 #    import <mutex>
@@ -158,26 +159,14 @@ parseBacktraceSymbolsFunctionName(const char *symbol)
         free(symbols);
 #    endif // defined(DEBUG)
 
-        const auto sample = [[SentrySample alloc] init];
-        sample.absoluteTimestamp = backtrace.absoluteTimestamp;
-        sample.absoluteNSDateInterval = sentry_getDate().timeIntervalSince1970;
-        sample.threadID = backtrace.threadMetadata.threadID;
-
-        const auto stackKey = [stack componentsJoinedByString:@"|"];
-        NSNumber *_Nullable stackIndex = state.stackIndexLookup[stackKey];
-        if (stackIndex) {
-            sample.stackIndex = SENTRY_UNWRAP_NULLABLE(NSNumber, stackIndex);
-        } else {
-            const auto nextStackIndex = @(state.stacks.count);
-            sample.stackIndex = nextStackIndex;
-            state.stackIndexLookup[stackKey] = nextStackIndex;
-            [state.stacks addObject:stack];
-        }
+        const auto sample = sentry_profilerSampleWithStack(stack, backtrace.absoluteTimestamp,
+            sentry_getDate().timeIntervalSince1970, backtrace.threadMetadata.threadID, state);
 
 #    if defined(DEBUG)
         if (backtraceFunctionNames.count > 0) {
             SENTRY_ASYNC_SAFE_LOG_DEBUG("Recorded backtrace for thread %s at %llu: %s",
-                threadID.UTF8String, sample.absoluteTimestamp,
+                threadID.UTF8String,
+                [SentryProfileDebugLoggerHelper getAbsoluteTimeStampFromSample:sample],
                 backtraceFunctionNames.description.UTF8String);
         }
 #    endif // defined(DEBUG)

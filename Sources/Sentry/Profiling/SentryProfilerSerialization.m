@@ -21,7 +21,6 @@
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
-#    import "SentrySample.h"
 #    import "SentryScope+Private.h"
 #    import "SentryScope+PrivateSwift.h"
 #    import "SentrySerialization.h"
