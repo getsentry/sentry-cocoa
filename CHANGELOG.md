@@ -5,6 +5,7 @@
 ### Fixes
 
 - Preserve NSException and C++ exception reason instead of overwriting with unrelated `crash_info_message` from `libswiftCore.dylib` (#7515)
+- Fix unexpected null value when unwrapping view controller window (#7508)
 
 ## 9.5.1
 

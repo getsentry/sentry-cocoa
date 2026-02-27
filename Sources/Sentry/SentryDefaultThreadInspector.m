@@ -82,7 +82,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
 
 - (NSArray<SentryThread *> *)getCurrentThreads
 {
-    NSMutableArray<SentryThread *> *threads = [NSMutableArray new];
+    NSMutableArray<SentryThread *> *threads = [[NSMutableArray alloc] init];
 
     SentryCrashMC_NEW_CONTEXT(context);
     SentryCrashThread currentThread = sentrycrashthread_self();
@@ -126,7 +126,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
  */
 - (NSArray<SentryThread *> *)getCurrentThreadsWithStackTrace
 {
-    NSMutableArray<SentryThread *> *threads = [NSMutableArray new];
+    NSMutableArray<SentryThread *> *threads = [[NSMutableArray alloc] init];
 
     @synchronized(self) {
         SentryCrashMC_NEW_CONTEXT(context);
