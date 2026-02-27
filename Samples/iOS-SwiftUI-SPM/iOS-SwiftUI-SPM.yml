@@ -14,11 +14,13 @@ packages:
   Sentry:
     path: ../..
 fileGroups:
+  - Configuration
   - iOS-SwiftUI-SPM.yml
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  iOS-SwiftUI-SPM:
+  App:
     type: application
     platform: iOS
     deploymentTarget: "15.0"
@@ -30,10 +32,10 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.iOS-SwiftUI-SPM
-        INFOPLIST_FILE: Resources/Info.plist
-        CODE_SIGN_ENTITLEMENTS: Resources/Entitlements.entitlements
+        INFOPLIST_FILE: Configuration/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Configuration/Entitlements.entitlements
         SWIFT_VERSION: "5.0"
-  watchOS-SwiftUI-SPM:
+  WatchApp:
     type: application
     platform: watchOS
     deploymentTarget: "8.0"
@@ -47,7 +49,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.watchOS-SwiftUI-SPM
         SWIFT_VERSION: "5.0"
     info:
-      path: Resources/watchOS-Info.plist
+      path: Configuration/watchOS-Info.plist
       properties:
         CFBundleDisplayName: watchOS-SwiftUI-SPM
         WKApplication: true
@@ -55,7 +57,7 @@ schemes:
   iOS-SwiftUI-SPM:
     build:
       targets:
-        iOS-SwiftUI-SPM: all
+        App: all
     run:
       config: Debug
     archive:
@@ -63,7 +65,7 @@ schemes:
   watchOS-SwiftUI-SPM:
     build:
       targets:
-        watchOS-SwiftUI-SPM: all
+        WatchApp: all
     run:
       config: Debug
     archive:

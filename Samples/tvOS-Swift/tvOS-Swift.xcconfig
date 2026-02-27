@@ -1,8 +1,0 @@
-#include "../Shared/Config/_Common.xcconfig"
-
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.tvOS-Swift
-INFOPLIST_FILE = tvOS-Swift/Info.plist
-CODE_SIGN_ENTITLEMENTS = tvOS-Swift/tvOS-Swift.entitlements
-
-SUPPORTED_PLATFORMS = appletvos appletvsimulator
-TARGETED_DEVICE_FAMILY = 3

@@ -1,7 +1,0 @@
-#include "../Shared/Config/_Common.xcconfig"
-
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift6-UITests
-
-SUPPORTED_PLATFORMS = iphoneos iphonesimulator
-
-TEST_TARGET_NAME = iOS-Swift6

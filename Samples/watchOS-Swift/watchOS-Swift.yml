@@ -17,38 +17,42 @@ projectReferences:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 fileGroups:
   - ../Shared/Config
+  - WatchApp/Configuration
+  - Extension/Configuration
   - watchOS-Swift.yml
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  "watchOS-Swift WatchKit App":
+  App:
     type: "application.watchapp2"
     platform: auto
     sources:
-      - "watchOS-Swift WatchKit App"
+      - WatchApp/Resources
       - ../Shared/SampleAssets.xcassets
     dependencies:
-      - target: "watchOS-Swift WatchKit Extension"
+      - target: Extension
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: watchOS-Swift-App.xcconfig
-      Release: watchOS-Swift-App.xcconfig
-      Test: watchOS-Swift-App.xcconfig
-      TestCI: watchOS-Swift-App.xcconfig
-  "watchOS-Swift WatchKit Extension":
+      Debug: WatchApp/Configuration/watchOS-Swift-App.xcconfig
+      Release: WatchApp/Configuration/watchOS-Swift-App.xcconfig
+      Test: WatchApp/Configuration/watchOS-Swift-App.xcconfig
+      TestCI: WatchApp/Configuration/watchOS-Swift-App.xcconfig
+  Extension:
     type: "watchkit2-extension"
     platform: auto
     sources:
-      - "watchOS-Swift WatchKit Extension"
+      - Extension/Sources
+      - Extension/Resources
       - ../Shared/SampleAssets.xcassets
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: watchOS-Swift-Extension.xcconfig
-      Release: watchOS-Swift-Extension.xcconfig
-      Test: watchOS-Swift-Extension.xcconfig
-      TestCI: watchOS-Swift-Extension.xcconfig
+      Debug: Extension/Configuration/watchOS-Swift-Extension.xcconfig
+      Release: Extension/Configuration/watchOS-Swift-Extension.xcconfig
+      Test: Extension/Configuration/watchOS-Swift-Extension.xcconfig
+      TestCI: Extension/Configuration/watchOS-Swift-Extension.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -63,4 +67,4 @@ schemes:
       - SampleAppScheme
     build:
       targets:
-        "watchOS-Swift WatchKit App": all
+        App: all
