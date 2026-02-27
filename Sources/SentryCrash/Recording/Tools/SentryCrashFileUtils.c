@@ -32,6 +32,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -120,6 +121,11 @@ dirContents(const char *path, char ***entries, int *count)
         goto done;
     }
 
+    // CWE-676: calloc used for zero-initialization; prefer over malloc. Guard against overflow.
+    if (entryCount > SIZE_MAX / sizeof(char *)) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Directory entry count too large: %d", entryCount);
+        goto done;
+    }
     entryList = calloc((unsigned)entryCount, sizeof(char *));
     if (entryList != NULL) {
         struct dirent *ent;
@@ -184,6 +190,7 @@ deletePathContents(const char *path, bool deleteTopLevelPathAlso)
         int bufferLength = SentryCrashFU_MAX_PATH_LENGTH;
         char *pathBuffer = malloc((unsigned)bufferLength);
         snprintf(pathBuffer, bufferLength, "%s/", path);
+        // CWE-676: pathBuffer just written by snprintf; null-terminated.
         char *pathPtr = pathBuffer + strlen(pathBuffer);
         int pathRemainingLength = bufferLength - (int)(pathPtr - pathBuffer);
 
@@ -324,6 +331,7 @@ bool
 sentrycrashfu_writeStringToFD(const int fd, const char *const string)
 {
     if (*string != 0) {
+        // CWE-676: string is API input; caller must provide null-terminated string.
         int bytesToWrite = (int)strlen(string);
         const char *pos = string;
         while (bytesToWrite > 0) {
@@ -471,6 +479,7 @@ sentrycrashfu_writeBufferedWriter(
     if (length > writer->bufferLength) {
         return sentrycrashfu_writeBytesToFD(writer->fd, data, length);
     }
+    // CWE-676: length <= bufferLength - position ensured by flush/early return above.
     memcpy(writer->buffer + writer->position, data, length);
     writer->position += length;
     return true;
@@ -546,6 +555,7 @@ sentrycrashfu_readBufferedReader(SentryCrashBufferedReader *reader, char *dstBuf
         }
         int bytesToCopy = bytesInReader <= bytesRemaining ? bytesInReader : bytesRemaining;
         char *pSrc = reader->buffer + reader->dataStartPos;
+        // CWE-676: bytesToCopy = min(bytesInReader, bytesRemaining); both bounds valid.
         memcpy(pDst, pSrc, bytesToCopy);
         pDst += bytesToCopy;
         reader->dataStartPos += bytesToCopy;
@@ -575,6 +585,7 @@ sentrycrashfu_readBufferedReaderUntilChar(
                 bytesToCopy = bytesToChar;
             }
         }
+        // CWE-676: bytesToCopy bounded by bytesInReader and bytesRemaining.
         memcpy(pDst, pSrc, bytesToCopy);
         pDst += bytesToCopy;
         reader->dataStartPos += bytesToCopy;

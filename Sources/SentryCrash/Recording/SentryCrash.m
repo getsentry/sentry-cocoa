@@ -400,6 +400,7 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 {
     char *report = sentrycrash_readReport(reportID);
     if (report != NULL) {
+        // CWE-676: sentrycrash_readReport returns null-terminated buffer.
         return [NSData dataWithBytesNoCopy:report length:strlen(report) freeWhenDone:YES];
     }
     return nil;
