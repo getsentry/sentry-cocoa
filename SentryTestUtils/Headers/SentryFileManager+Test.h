@@ -10,6 +10,7 @@ NSString *_Nullable sentryBuildScopedCachesDirectoryPath(NSString *cachesDirecto
 
 SENTRY_EXTERN NSURL *_Nullable launchProfileConfigFileURL(void);
 SENTRY_EXTERN NSURL *_Nullable sentryLaunchConfigFileURL;
+SENTRY_EXTERN BOOL ensureLaunchProfileConfigDirectoryExists(void);
 
 @interface SentryFileManagerHelper ()
 

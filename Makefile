@@ -35,8 +35,8 @@ VISIONOS_DEVICE_NAME ?= Apple Vision Pro
 # watchOS Simulator OS version (defaults to 'latest', can be overridden via WATCHOS_SIMULATOR_OS=11.0)
 WATCHOS_SIMULATOR_OS ?= latest
 
-# watchOS Simulator device name (defaults to 'Apple Watch Series 11 (46mm)', can be overridden via WATCHOS_DEVICE_NAME='Apple Watch SE 3 (44mm)')
-WATCHOS_DEVICE_NAME ?= Apple Watch Series 11 (46mm)
+# watchOS Simulator device name (defaults to 'Apple Watch SE 3 (44mm)', can be overridden via WATCHOS_DEVICE_NAME='Apple Watch Ultra 3 (49mm)')
+WATCHOS_DEVICE_NAME ?= Apple Watch SE 3 (44mm)
 
 # Current git reference name
 GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
@@ -58,7 +58,7 @@ init: init-local init-ci-build init-ci-format
 .PHONY: init-local
 init-local:
 	which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-	brew bundle
+	brew update && brew bundle
 	pre-commit install
 	rbenv install --skip-existing
 	rbenv exec gem update bundler
@@ -72,14 +72,14 @@ init-local:
 # Installs tools needed for CI build tasks using Brewfile-ci-build.
 .PHONY: init-ci-build
 init-ci-build:
-	brew bundle --file Brewfile-ci-build
+	brew update && brew bundle --file Brewfile-ci-build
 
 ## Install CI format dependencies
 #
 # Installs tools needed to run CI format tasks locally using Brewfile-ci-format.
 .PHONY: init-ci-format
 init-ci-format:
-	brew bundle --file Brewfile-ci-format
+	brew update && brew bundle --file Brewfile-ci-format
 
 ## Update tooling versions
 #
@@ -293,6 +293,21 @@ build-sample-visionOS-SwiftUI-SPM:
 		-destination 'platform=visionOS Simulator,OS=$(VISIONOS_SIMULATOR_OS),name=$(VISIONOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 
+## Build the iOS-ObjectiveCpp-NoModules sample app
+#
+# Builds the ObjC++ without-modules sample that reproduces #4543.
+# This target is expected to FAIL until the pure ObjC SDK wrapper (#6342)
+# is implemented. Use it to verify the fix.
+.PHONY: build-sample-iOS-ObjectiveCpp-NoModules
+build-sample-iOS-ObjectiveCpp-NoModules:
+	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
+	set -o pipefail && xcodebuild \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-ObjectiveCpp-NoModules \
+		-configuration Debug \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
 # ============================================================================
 # TESTING
 # ============================================================================
@@ -482,7 +497,9 @@ lint-staged:
 	@echo "--> Running Swiftlint and Clang-Format on staged files"
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
-	swiftlint --strict --quiet $(STAGED_SWIFT_FILES)
+	@if [ -n "$(STAGED_SWIFT_FILES)" ]; then \
+		swiftlint --strict --quiet --config .swiftlint.yml $(STAGED_SWIFT_FILES); \
+	fi
 	dprint check "**/*.{md,json,yaml,yml}"
 
 ## Format all files
@@ -540,6 +557,16 @@ format-yaml:
 # ============================================================================
 # ANALYSIS
 # ============================================================================
+
+## Analyze repository language trends
+#
+# Uses github-linguist to compute the language breakdown at monthly intervals.
+# Produces an interactive HTML chart (language-trends.html) and opens it in the browser.
+# The linguist gem is managed via Bundler in scripts/analyze-languages/.
+# Optionally pass SINCE=YYYY-MM-DD to set the start date (default: 2019-01-01).
+.PHONY: analyze-languages
+analyze-languages:
+	./scripts/analyze-languages/analyze-languages.sh $(if $(SINCE),--since $(SINCE))
 
 ## Run static analysis
 #
@@ -661,6 +688,7 @@ xcode-ci:
 	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
+	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
 	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
 	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml

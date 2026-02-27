@@ -493,6 +493,7 @@ protocol DispatchQueueWrapperProvider {
     var dispatchQueueWrapper: SentryDispatchQueueWrapper { get }
 }
 extension SentryDependencyContainer: DispatchQueueWrapperProvider {}
+extension SentryDependencyContainer: SentryMetricsIntegrationDependencies {}
 
 protocol ApplicationProvider {
     func application() -> SentryApplication?

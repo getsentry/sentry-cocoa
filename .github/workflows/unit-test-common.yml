@@ -60,7 +60,7 @@ on:
 jobs:
   unit-tests:
     name: Unit ${{inputs.name}}
-    runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', inputs.runs-on)) || inputs.runs-on }}
+    runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.runs-on, github.run_id)) || inputs.runs-on }}
     timeout-minutes: ${{inputs.timeout}}
     if: ${{!inputs.should_skip}}
     steps:
@@ -121,6 +121,7 @@ jobs:
       # Use a separate result bundle name to avoid conflicts with the regular test run.
       # xcodebuild fails if a result bundle already exists at the target path.
       - name: Run Flaky Tests
+        id: run_flaky_tests
         # Only the Sentry Scheme has the Flaky TestPlan.
         if: ${{ inputs.scheme == 'Sentry' }}
         env:
@@ -142,6 +143,7 @@ jobs:
             --result-bundle flaky-results.xcresult
 
       - name: Run tests
+        id: run_tests
         # We call a script with the platform so the destination
         # passed to xcodebuild doesn't end up in the job name,
         # because GitHub Actions don't provide an easy way of
@@ -164,6 +166,7 @@ jobs:
             --result-bundle results.xcresult
 
       - name: Publish Test Report
+        id: publish_test_report
         uses: mikepenz/action-junit-report@74626db7353a25a20a72816467ebf035f674c5f8 # v6.2.0
         if: always()
         with:
@@ -171,6 +174,23 @@ jobs:
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
+
+      # When a test crashes, xcbeautify may not report the failure in the junit.xml,
+      # so the test step fails but Publish Test Report finds no failures. In that case,
+      # extract failure info from the raw xcodebuild log.
+      - name: Analyze raw test output for crashes
+        if: ${{ always() && steps.publish_test_report.outcome == 'success' && (steps.run_tests.outcome == 'failure' || steps.run_flaky_tests.outcome == 'failure') }}
+        run: |
+          echo "::warning::Tests failed but no failures were found in the test report. This usually indicates a test crashed without proper reporting to xcbeautify."
+          echo ""
+          if [ -f raw-test-output.log ]; then
+            if grep -q "Failing tests:" raw-test-output.log; then
+              echo "=== Failing tests from raw output ==="
+              sed -n '/Failing tests:/,/^$/p' raw-test-output.log
+            fi
+          else
+            echo "raw-test-output.log not found."
+          fi
 
       - name: Archiving DerivedData Logs
         uses: actions/upload-artifact@v6

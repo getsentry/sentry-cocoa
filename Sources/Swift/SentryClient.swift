@@ -131,5 +131,5 @@ import Foundation
     @objc public func close() {
         helper.close()
     }
-    
+
 }

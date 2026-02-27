@@ -46,14 +46,14 @@ NS_ASSUME_NONNULL_BEGIN
         _maxBreadcrumbs = MAX(0, maxBreadcrumbs);
         _currentBreadcrumbIndex = 0;
         _breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:_maxBreadcrumbs];
-        self.tagDictionary = [NSMutableDictionary new];
-        self.extraDictionary = [NSMutableDictionary new];
-        self.contextDictionary = [NSMutableDictionary new];
-        self.attachmentArray = [NSMutableArray new];
-        self.fingerprintArray = [NSMutableArray new];
-        self.attributesDictionary = [NSMutableDictionary new];
+        self.tagDictionary = [[NSMutableDictionary alloc] init];
+        self.extraDictionary = [[NSMutableDictionary alloc] init];
+        self.contextDictionary = [[NSMutableDictionary alloc] init];
+        self.attachmentArray = [[NSMutableArray alloc] init];
+        self.fingerprintArray = [[NSMutableArray alloc] init];
+        self.attributesDictionary = [[NSMutableDictionary alloc] init];
         _spanLock = [[NSObject alloc] init];
-        self.observers = [NSMutableArray new];
+        self.observers = [[NSMutableArray alloc] init];
         self.propagationContext = [[SentryPropagationContext alloc] init];
     }
     return self;
@@ -222,7 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<SentryBreadcrumb *> *)breadcrumbs
 {
-    NSMutableArray<SentryBreadcrumb *> *crumbs = [NSMutableArray new];
+    NSMutableArray<SentryBreadcrumb *> *crumbs = [[NSMutableArray alloc] init];
     @synchronized(_breadcrumbArray) {
         for (int i = 0; i < _maxBreadcrumbs; i++) {
             // Crumbs use a ring buffer. We need to start at the current crumb to get the
@@ -509,7 +509,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-    NSMutableDictionary *serializedData = [NSMutableDictionary new];
+    NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];
     if (self.tags.count > 0) {
         [serializedData setValue:[self tags] forKey:@"tags"];
     }
@@ -557,7 +557,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray *)serializeBreadcrumbs
 {
-    NSMutableArray *serializedCrumbs = [NSMutableArray new];
+    NSMutableArray *serializedCrumbs = [[NSMutableArray alloc] init];
 
     NSArray<SentryBreadcrumb *> *crumbs = [self breadcrumbs];
     for (SentryBreadcrumb *crumb in crumbs) {
@@ -596,7 +596,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (event.tags == nil) {
         event.tags = [self tags];
     } else {
-        NSMutableDictionary *newTags = [NSMutableDictionary new];
+        NSMutableDictionary *newTags = [[NSMutableDictionary alloc] init];
         [newTags addEntriesFromDictionary:[self tags]];
         [newTags addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(
                                               NSString *, NSString *, event.tags)];
@@ -606,7 +606,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (event.extra == nil) {
         event.extra = [self extras];
     } else {
-        NSMutableDictionary *newExtra = [NSMutableDictionary new];
+        NSMutableDictionary *newExtra = [[NSMutableDictionary alloc] init];
         [newExtra addEntriesFromDictionary:[self extras]];
         [newExtra
             addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, id, event.extra)];
