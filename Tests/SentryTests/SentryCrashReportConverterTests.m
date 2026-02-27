@@ -839,4 +839,323 @@
     // The null handling ensures only valid string values are processed
 }
 
+- (void)testNSException_whenCrashInfoMessagePresent_shouldPreserveOriginalReason
+{
+    // -- Arrange --
+    NSString *nsexceptionReason
+        = @"-[UITargetedPreview initWithView:]: unrecognized selector sent to instance 0x1234";
+    NSString *unrelatedCrashInfo
+        = @"SWIFT TASK CONTINUATION MISUSE: getImage(url:) leaked its continuation";
+
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ { @"contents" : @[] }
+            } ],
+            @"error" : @ {
+                @"type" : @"nsexception",
+                @"nsexception" :
+                    @ { @"name" : @"NSInvalidArgumentException", @"reason" : nsexceptionReason }
+            }
+        },
+        @"binary_images" : @[ @{
+            @"name" : @"/usr/lib/swift/libswiftCore.dylib",
+            @"image_addr" : @0x1000,
+            @"image_size" : @0x1000,
+            @"crash_info_message" : unrelatedCrashInfo
+        } ],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.type, @"NSInvalidArgumentException");
+    XCTAssertTrue([exception.value containsString:nsexceptionReason],
+        @"NSException value should contain the original reason, not the crash_info_message. "
+        @"Got: %@",
+        exception.value);
+    XCTAssertFalse([exception.value containsString:unrelatedCrashInfo],
+        @"NSException value must not be replaced by an unrelated crash_info_message. Got: %@",
+        exception.value);
+    // crash_info_message is preserved in mechanism.data per Exception Interface
+    NSArray<NSString *> *messages = exception.mechanism.data[@"crash_info_messages"];
+    XCTAssertEqual(messages.count, 1u);
+    XCTAssertEqualObjects(messages.firstObject, unrelatedCrashInfo);
+}
+
+- (void)testNSException_whenNoCrashInfoMessage_shouldKeepReason
+{
+    // -- Arrange --
+    NSString *nsexceptionReason = @"Object was deallocated unexpectedly";
+
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ { @"contents" : @[] }
+            } ],
+            @"error" : @ {
+                @"type" : @"nsexception",
+                @"nsexception" : @ {
+                    @"name" : @"NSInternalInconsistencyException",
+                    @"reason" : nsexceptionReason
+                }
+            }
+        },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.type, @"NSInternalInconsistencyException");
+    XCTAssertTrue([exception.value containsString:nsexceptionReason]);
+}
+
+- (void)testNSException_whenMultipleCrashInfoMessages_shouldPreserveAllInMechanismData
+{
+    // -- Arrange --
+    NSString *nsexceptionReason = @"Object deallocated";
+    NSString *crashInfo1 = @"SWIFT TASK CONTINUATION MISUSE: func1 leaked";
+    NSString *crashInfo2 = @"SWIFT TASK CONTINUATION MISUSE: func2 leaked";
+
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ { @"contents" : @[] }
+            } ],
+            @"error" : @ {
+                @"type" : @"nsexception",
+                @"nsexception" :
+                    @ { @"name" : @"NSInvalidArgumentException", @"reason" : nsexceptionReason }
+            }
+        },
+        @"binary_images" : @[ @{
+            @"name" : @"/usr/lib/swift/libswiftCore.dylib",
+            @"image_addr" : @0x1000,
+            @"image_size" : @0x1000,
+            @"crash_info_message" : crashInfo1,
+            @"crash_info_message2" : crashInfo2
+        } ],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    NSArray<NSString *> *messages = exception.mechanism.data[@"crash_info_messages"];
+    XCTAssertEqual(
+        messages.count, 2u, @"Should preserve both crash_info_message and crash_info_message2");
+    XCTAssertEqualObjects(messages[0], crashInfo1);
+    XCTAssertEqualObjects(messages[1], crashInfo2);
+}
+
+- (void)testCPPException_whenCrashInfoMessagePresent_shouldPreserveOriginalValue
+{
+    // -- Arrange --
+    NSString *unrelatedCrashInfo
+        = @"SWIFT TASK CONTINUATION MISUSE: someFunc() leaked its continuation";
+
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ { @"contents" : @[] }
+            } ],
+            @"error" : @ {
+                @"type" : @"cpp_exception",
+                @"cpp_exception" : @ { @"name" : @"std::runtime_error" },
+                @"reason" : @"Something bad happened"
+            }
+        },
+        @"binary_images" : @[ @{
+            @"name" : @"/usr/lib/swift/libswiftCore.dylib",
+            @"image_addr" : @0x1000,
+            @"image_size" : @0x1000,
+            @"crash_info_message" : unrelatedCrashInfo
+        } ],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.type, @"C++ Exception");
+    XCTAssertTrue([exception.value containsString:@"Something bad happened"],
+        @"C++ exception value should preserve the original reason. Got: %@", exception.value);
+    XCTAssertFalse([exception.value containsString:unrelatedCrashInfo],
+        @"C++ exception value must not be replaced by an unrelated crash_info_message. Got: %@",
+        exception.value);
+    NSArray<NSString *> *messages = exception.mechanism.data[@"crash_info_messages"];
+    XCTAssertEqual(messages.count, 1u);
+    XCTAssertEqualObjects(messages.firstObject, unrelatedCrashInfo);
+}
+
+- (void)testMachException_whenCrashInfoMessagePresent_shouldOverrideValue
+{
+    // -- Arrange --
+    NSString *crashInfoMessage
+        = @"MyApp/ViewController.swift:42: Fatal error: Index out of range\n";
+
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ { @"contents" : @[] }
+            } ],
+            @"error" : @ {
+                @"type" : @"mach",
+                @"mach" : @ {
+                    @"exception" : @10,
+                    @"exception_name" : @"EXC_CRASH",
+                    @"code" : @0,
+                    @"subcode" : @0
+                }
+            }
+        },
+        @"binary_images" : @[ @{
+            @"name" : @"/usr/lib/swift/libswiftCore.dylib",
+            @"image_addr" : @0x1000,
+            @"image_size" : @0x1000,
+            @"crash_info_message" : crashInfoMessage
+        } ],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.type, @"EXC_CRASH");
+    XCTAssertTrue([exception.value containsString:crashInfoMessage],
+        @"Mach exception value should be overridden by crash_info_message for fatalError crashes. "
+        @"Got: %@",
+        exception.value);
+}
+
+- (void)testSignalException_whenCrashInfoMessagePresent_shouldOverrideValue
+{
+    // -- Arrange --
+    NSString *crashInfoMessage = @"Assertion failed: precondition check\n";
+
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ { @"contents" : @[] }
+            } ],
+            @"error" : @ {
+                @"type" : @"signal",
+                @"signal" : @ { @"signal" : @6, @"code" : @0, @"name" : @"SIGABRT" }
+            }
+        },
+        @"binary_images" : @[ @{
+            @"name" : @"/usr/lib/swift/libswiftCore.dylib",
+            @"image_addr" : @0x1000,
+            @"image_size" : @0x1000,
+            @"crash_info_message" : crashInfoMessage
+        } ],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.type, @"SIGABRT");
+    XCTAssertTrue([exception.value containsString:crashInfoMessage],
+        @"Signal exception value should be overridden by crash_info_message. Got: %@",
+        exception.value);
+}
+
+- (void)testUserException_whenCrashInfoMessagePresent_shouldPreserveOriginalReason
+{
+    // -- Arrange --
+    // User-reported exceptions come from SentrySDK.capture(error:) / capture(exception:).
+    // Their reason is always authoritative and must not be overwritten by a stale
+    // crash_info_message that may have been left in libswiftCore's shared __crash_info buffer.
+    NSString *userReason = @"CustomError: User triggered this error";
+    NSString *unrelatedCrashInfo
+        = @"SWIFT TASK CONTINUATION MISUSE: fetchData() leaked its continuation";
+
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ { @"contents" : @[] }
+            } ],
+            @"error" : @ {
+                @"type" : @"user",
+                @"reason" : userReason,
+                @"user_reported" : @ { @"name" : @"CustomError" }
+            }
+        },
+        @"binary_images" : @[ @{
+            @"name" : @"/usr/lib/swift/libswiftCore.dylib",
+            @"image_addr" : @0x1000,
+            @"image_size" : @0x1000,
+            @"crash_info_message" : unrelatedCrashInfo
+        } ],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertTrue([exception.value containsString:@"User triggered this error"],
+        @"User-reported exception value should preserve the original reason. Got: %@",
+        exception.value);
+    XCTAssertFalse([exception.value containsString:unrelatedCrashInfo],
+        @"User-reported exception value must not be replaced by an unrelated crash_info_message. "
+        @"Got: %@",
+        exception.value);
+    NSArray<NSString *> *messages = exception.mechanism.data[@"crash_info_messages"];
+    XCTAssertEqual(messages.count, 1u);
+    XCTAssertEqualObjects(messages.firstObject, unrelatedCrashInfo);
+}
+
 @end

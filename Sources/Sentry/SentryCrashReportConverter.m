@@ -461,8 +461,34 @@
     }
 
     [self enhanceValueFromNotableAddresses:exception];
-    [self enhanceValueFromCrashInfoMessage:exception];
+
+    NSArray<NSString *> *crashInfoMessages = [self crashInfoMessagesFromBinaryImages];
+
+    // crash_info_message is a shared buffer that may hold unrelated Swift runtime warnings from
+    // earlier in the process. Only use it to override for mach/signal, where it IS the crash cause.
+    // For nsexception, cpp_exception, user the exception context is authoritative—overwriting
+    // would replace the real reason with stale or unrelated text.
+    NSSet<NSString *> *crashInfoMessageExceptionTypes =
+        [NSSet setWithObjects:@"mach", @"signal", nil];
+    if ([crashInfoMessageExceptionTypes containsObject:exceptionType]
+        && crashInfoMessages.count > 0) {
+        exception.value = crashInfoMessages.firstObject;
+    }
+
     exception.mechanism = [self extractMechanismOfType:exceptionType];
+
+    // Attach crash_info to mechanism.data so it remains available for debugging even when we
+    // don't use it as the primary value. See
+    // https://develop.sentry.dev/sdk/foundations/transport/event-payloads/exception/#data
+    NSSet<NSString *> *authoritativeExceptionTypes =
+        [NSSet setWithObjects:@"nsexception", @"cpp_exception", @"user", nil];
+    if ([authoritativeExceptionTypes containsObject:exceptionType] && exception.mechanism != nil
+        && crashInfoMessages.count > 0) {
+        NSMutableDictionary *data =
+            [exception.mechanism.data mutableCopy] ?: [[NSMutableDictionary alloc] init];
+        data[@"crash_info_messages"] = crashInfoMessages;
+        exception.mechanism.data = data;
+    }
 
     SentryThread *crashedThread = [self crashedThread];
     exception.threadId = crashedThread.threadId;
@@ -519,7 +545,7 @@
     }
 }
 
-- (void)enhanceValueFromCrashInfoMessage:(SentryException *)exception
+- (NSArray<NSString *> *)crashInfoMessagesFromBinaryImages
 {
     NSMutableArray<NSString *> *crashInfoMessages = [[NSMutableArray alloc] init];
 
@@ -543,10 +569,7 @@
         }
     }
 
-    NSString *swiftCoreCrashInfo = crashInfoMessages.firstObject;
-    if (swiftCoreCrashInfo != nil) {
-        exception.value = swiftCoreCrashInfo;
-    }
+    return crashInfoMessages;
 }
 
 - (SentryMechanism *_Nullable)extractMechanismOfType:(nonnull NSString *)type
