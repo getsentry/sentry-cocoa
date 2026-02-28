@@ -78,7 +78,15 @@ class SentryCrashInstallationTests: XCTestCase {
     private func getSut() -> SentryCrashTestInstallation {
         let installation = SentryCrashTestInstallation()
         notificationCenter = TestNSNotificationCenterWrapper()
-        SentryDependencyContainer.sharedInstance().notificationCenterWrapper = notificationCenter
+        let container = SentryDependencyContainer.sharedInstance()
+        container.notificationCenterWrapper = notificationCenter
+        let bridge = SentryCrashBridge(
+            notificationCenterWrapper: notificationCenter,
+            dateProvider: container.dateProvider,
+            crashReporter: container.crashReporter
+        )
+        container.crashReporter.setBridge(bridge)
+        installation.bridge = bridge
         return installation
     }
 

@@ -3,10 +3,19 @@
 import XCTest
 
 final class SentryCrashWrapperTests: XCTestCase {
-    
+
     private var crashWrapper: SentryCrashWrapper!
     private var scope: Scope!
-    
+
+    private func makeTestBridge() -> SentryCrashBridge {
+        let container = SentryDependencyContainer.sharedInstance()
+        return SentryCrashBridge(
+            notificationCenterWrapper: container.notificationCenterWrapper,
+            dateProvider: container.dateProvider,
+            crashReporter: container.crashReporter
+        )
+    }
+
     override func setUp() {
         super.setUp()
         crashWrapper = SentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo,
@@ -29,7 +38,7 @@ final class SentryCrashWrapperTests: XCTestCase {
             "CFBundleName": "CrashSentry",
             "CFBundleVersion": "201702072010",
             "CFBundleShortVersionString": "1.4.1"
-        ])
+        ], bridge: makeTestBridge())
         scope = Scope()
         
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !targetEnvironment(macCatalyst)
@@ -156,7 +165,7 @@ final class SentryCrashWrapperTests: XCTestCase {
             "deviceAppHash": "abc123",
             "appID": "12345",
             "buildType": "debug"
-        ])
+        ], bridge: makeTestBridge())
         
         crashWrapper.enrichScope(testScope)
         
@@ -188,7 +197,7 @@ final class SentryCrashWrapperTests: XCTestCase {
             "deviceAppHash": "abc123",
             "appID": "12345",
             "buildType": "debug"
-        ])
+        ], bridge: makeTestBridge())
         
         crashWrapper.enrichScope(testScope)
         
@@ -218,7 +227,7 @@ final class SentryCrashWrapperTests: XCTestCase {
             "deviceAppHash": "abc123",
             "appID": "12345",
             "buildType": "debug"
-        ])
+        ], bridge: makeTestBridge())
         
         crashWrapper.enrichScope(testScope)
         
@@ -250,7 +259,7 @@ final class SentryCrashWrapperTests: XCTestCase {
             "deviceAppHash": "abc123",
             "appID": "12345",
             "buildType": "debug"
-        ])
+        ], bridge: makeTestBridge())
         
         crashWrapper.enrichScope(testScope)
         

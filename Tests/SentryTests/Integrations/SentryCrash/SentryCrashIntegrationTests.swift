@@ -785,7 +785,7 @@ class MockCrashDependencies: CrashIntegrationProvider {
         mockedFileManager ?? SentryDependencyContainer.sharedInstance().fileManager
     }
     
-    func getCrashIntegrationSessionBuilder(_ options: Sentry.Options) -> Sentry.SentryCrashIntegrationSessionHandler? {
+    func getCrashIntegrationSessionBuilder(_ options: Sentry.Options, bridge: SentryCrashBridge) -> Sentry.SentryCrashIntegrationSessionHandler? {
         guard let fileManager else {
             return nil
         }
@@ -796,17 +796,26 @@ class MockCrashDependencies: CrashIntegrationProvider {
         return SentryCrashIntegrationSessionHandler(
             crashWrapper: mockedCrashWrapper,
             watchdogTerminationLogic: watchdogLogic,
-            fileManager: fileManager
+            fileManager: fileManager,
+            bridge: bridge
         )
 #else
-        return SentryCrashIntegrationSessionHandler(crashWrapper: mockedCrashWrapper, fileManager: fileManager)
+        return SentryCrashIntegrationSessionHandler(crashWrapper: mockedCrashWrapper, fileManager: fileManager, bridge: bridge)
 #endif
     }
     
     var crashReporter: Sentry.SentryCrashSwift {
         SentryDependencyContainer.sharedInstance().crashReporter
     }
-    
+
+    var dateProvider: SentryCurrentDateProvider {
+        SentryDependencyContainer.sharedInstance().dateProvider
+    }
+
+    var notificationCenterWrapper: SentryNSNotificationCenterWrapper {
+        SentryDependencyContainer.sharedInstance().notificationCenterWrapper
+    }
+
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
         let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
 

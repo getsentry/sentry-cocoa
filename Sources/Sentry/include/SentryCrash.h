@@ -30,6 +30,8 @@
 #import "SentryCrashReportWriter.h"
 #import "SentryDefines.h"
 
+@class SentryCrashBridge;
+
 typedef enum {
     SentryCrashDemangleLanguageNone = 0,
     SentryCrashDemangleLanguageCPlusPlus = 1,
@@ -43,7 +45,9 @@ typedef enum {
     SentryCrashCDeleteAlways
 } SentryCrashCDeleteBehavior;
 
-static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
+static NSString *_Nonnull const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Reports any crashes that occur in the application.
@@ -57,10 +61,13 @@ static NSString *const SENTRYCRASH_REPORT_ATTACHMENTS_ITEM = @"attachments";
 SENTRY_NO_INIT
 
 /** Init SentryCrash instance with custom base path. */
-- (instancetype)initWithBasePath:(NSString *)basePath NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithBasePath:(nullable NSString *)basePath NS_DESIGNATED_INITIALIZER;
 
 /** Cache directory base path. */
 @property (nonatomic, readwrite, retain) NSString *basePath;
+
+/** Bridge to SDK services (notification center, date provider, crash reporter). */
+@property (nonatomic, strong, nullable) SentryCrashBridge *bridge;
 
 /** A dictionary containing any info you'd like to appear in crash reports. Must
  * contain only JSON-safe data: NSString for keys, and NSDictionary, NSArray,
@@ -68,7 +75,7 @@ SENTRY_NO_INIT
  *
  * Default: nil
  */
-@property (atomic, readwrite, retain) NSDictionary *userInfo;
+@property (atomic, readwrite, retain, nullable) NSDictionary *userInfo;
 
 /** What to do after sending reports via sendAllReportsWithCompletion:
  *
@@ -110,7 +117,7 @@ SENTRY_NO_INIT
  *
  * Default: nil
  */
-@property (nonatomic, readwrite, retain) NSArray *doNotIntrospectClasses;
+@property (nonatomic, readwrite, retain, nullable) NSArray *doNotIntrospectClasses;
 
 /** The maximum number of reports allowed on disk before old ones get deleted.
  *
@@ -125,7 +132,7 @@ SENTRY_NO_INIT
  * Note: If you use an installation, it will automatically set this property.
  *       Do not modify it in such a case.
  */
-@property (nonatomic, readwrite, retain) id<SentryCrashReportFilter> sink;
+@property (nonatomic, readwrite, retain, nullable) id<SentryCrashReportFilter> sink;
 
 /** C Function to call during a crash report to give the callee an opportunity
  * to add to the report. NULL = ignore.
@@ -136,7 +143,7 @@ SENTRY_NO_INIT
  * Note: If you use an installation, it will automatically set this property.
  *       Do not modify it in such a case.
  */
-@property (nonatomic, readwrite, assign) SentryCrashReportWriteCallback onCrash;
+@property (nonatomic, readwrite, assign, nullable) SentryCrashReportWriteCallback onCrash;
 
 /** Print the previous app run log to the console when installing SentryCrash.
  *  This is primarily for debugging purposes.
@@ -149,7 +156,7 @@ SENTRY_NO_INIT
 
 /** Exposes the uncaughtExceptionHandler if set from SentryCrash. Is nil if
  * debugger is running. **/
-@property (nonatomic, assign) NSUncaughtExceptionHandler *uncaughtExceptionHandler;
+@property (nonatomic, assign, nullable) NSUncaughtExceptionHandler *uncaughtExceptionHandler;
 
 #pragma mark - Information -
 
@@ -240,6 +247,8 @@ SENTRY_NO_INIT
 - (void)deleteReportWithID:(NSNumber *)reportID;
 
 @end
+
+NS_ASSUME_NONNULL_END
 
 //! Project version number for SentryCrashFramework.
 FOUNDATION_EXPORT const double SentryCrashFrameworkVersionNumber;

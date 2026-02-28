@@ -31,15 +31,24 @@
 #ifndef HDR_SentryCrashMonitor_NSException_h
 #define HDR_SentryCrashMonitor_NSException_h
 
+#ifdef __OBJC__
+@class SentryCrashBridge;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "SentryCrashMonitor.h"
 
+#ifdef __OBJC__
+/** Set the bridge for accessing SDK services. Must be called before enabling the monitor. */
+void sentrycrashcm_nsexception_setBridge(SentryCrashBridge *_Nullable bridge);
+#endif
+
 /** Access the Monitor API.
  */
-SentryCrashMonitorAPI *sentrycrashcm_nsexception_getAPI(void);
+SentryCrashMonitorAPI *_Nonnull sentrycrashcm_nsexception_getAPI(void);
 
 #ifdef __cplusplus
 }

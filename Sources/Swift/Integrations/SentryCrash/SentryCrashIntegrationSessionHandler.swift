@@ -9,6 +9,7 @@ final class SentryCrashIntegrationSessionHandler: NSObject {
 
     private let crashWrapper: SentryCrashWrapper
     private let fileManager: SentryFileManager
+    private let bridge: SentryCrashBridge
 
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let watchdogTerminationLogic: SentryWatchdogTerminationLogic
@@ -18,17 +19,20 @@ final class SentryCrashIntegrationSessionHandler: NSObject {
     init(
         crashWrapper: SentryCrashWrapper,
         watchdogTerminationLogic: SentryWatchdogTerminationLogic,
-        fileManager: SentryFileManager
+        fileManager: SentryFileManager,
+        bridge: SentryCrashBridge
     ) {
         self.crashWrapper = crashWrapper
         self.watchdogTerminationLogic = watchdogTerminationLogic
         self.fileManager = fileManager
+        self.bridge = bridge
         super.init()
     }
     #else
-    init(crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager) {
+    init(crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager, bridge: SentryCrashBridge) {
         self.crashWrapper = crashWrapper
         self.fileManager = fileManager
+        self.bridge = bridge
         super.init()
     }
     #endif
@@ -55,7 +59,7 @@ final class SentryCrashIntegrationSessionHandler: NSObject {
         #endif
 
         if shouldEndAsCrashed {
-            let timeSinceLastCrash = SentryDependencyContainer.sharedInstance().dateProvider.date()
+            let timeSinceLastCrash = bridge.dateProvider.date()
                 .addingTimeInterval(-crashWrapper.activeDurationSinceLastCrash)
 
             session.endCrashed(withTimestamp: timeSinceLastCrash)

@@ -14,27 +14,27 @@ import UIKit
 @objc @_spi(Private)
 public class SentryCrashWrapper: NSObject {
     let processInfoWrapper: SentryProcessInfoSource
-    
-    // Using lazy so we wait until SentryDependencyContainer is initialized
+    private let bridge: SentryCrashBridge
+
     @objc
-    public private(set) lazy var systemInfo = SentryDependencyContainer.sharedInstance().crashReporter.systemInfo as? [String: Any] ?? [:]
-    
+    public let systemInfo: [String: Any]
+
     @objc
-    public init(processInfoWrapper: SentryProcessInfoSource) {
+    public init(processInfoWrapper: SentryProcessInfoSource, bridge: SentryCrashBridge) {
         self.processInfoWrapper = processInfoWrapper
+        self.bridge = bridge
+        self.systemInfo = bridge.crashReporter.systemInfo as? [String: Any] ?? [:]
         super.init()
         sentrycrashcm_system_getAPI()?.pointee.setEnabled(true)
     }
 
 #if SENTRY_TEST || SENTRY_TEST_CI
     // This var and initializer are used to inject system info during tests
-    public init(processInfoWrapper: SentryProcessInfoSource, systemInfo: [String: Any]) {
+    public init(processInfoWrapper: SentryProcessInfoSource, systemInfo: [String: Any], bridge: SentryCrashBridge) {
         self.processInfoWrapper = processInfoWrapper
-        // Call super.init before overriding `self.systemInfo` (cannot access self before initialization)
-        super.init()
-        
+        self.bridge = bridge
         self.systemInfo = systemInfo
-        
+        super.init()
     }
 #endif // SENTRY_TEST && SENTRY_TEST_CI
 }
@@ -42,14 +42,16 @@ public class SentryCrashWrapper: NSObject {
 @objc @_spi(Private)
 public final class SentryCrashWrapper: NSObject {
     let processInfoWrapper: SentryProcessInfoSource
-    
-    // Using lazy so we wait until SentryDependencyContainer is initialized
+    private let bridge: SentryCrashBridge
+
     @objc
-    public private(set) lazy var systemInfo = SentryDependencyContainer.sharedInstance().crashReporter.systemInfo as? [String: Any] ?? [:]
-    
+    public let systemInfo: [String: Any]
+
     @objc
-    public init(processInfoWrapper: SentryProcessInfoSource) {
+    public init(processInfoWrapper: SentryProcessInfoSource, bridge: SentryCrashBridge) {
         self.processInfoWrapper = processInfoWrapper
+        self.bridge = bridge
+        self.systemInfo = bridge.crashReporter.systemInfo as? [String: Any] ?? [:]
         super.init()
         // Always enable crash monitoring on release builds
         sentrycrashcm_system_getAPI()?.pointee.setEnabled(true)
@@ -70,7 +72,7 @@ public final class SentryCrashWrapper: NSObject {
     
     @objc
     public var crashedLastLaunch: Bool {
-        return SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch
+        return bridge.crashReporter.crashedLastLaunch
     }
     
     @objc
@@ -80,7 +82,7 @@ public final class SentryCrashWrapper: NSObject {
     
     @objc
     public var activeDurationSinceLastCrash: TimeInterval {
-        return SentryDependencyContainer.sharedInstance().crashReporter.activeDurationSinceLastCrash
+        return bridge.crashReporter.activeDurationSinceLastCrash
     }
     
     @objc
@@ -281,7 +283,7 @@ public final class SentryCrashWrapper: NSObject {
     private func setScreenDimensions(_ deviceData: inout [String: Any]) {
         // The UIWindowScene is unavailable on visionOS
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-        let screenSize = SentryDependencyContainerSwiftHelper.activeScreenSize()
+        let screenSize = bridge.activeScreenSize()
         if screenSize != CGSize.zero {
             deviceData["screen_height_pixels"] = screenSize.height
             deviceData["screen_width_pixels"] = screenSize.width
