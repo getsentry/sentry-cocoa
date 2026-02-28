@@ -42,8 +42,7 @@ import Foundation
                     return
                 }
                 let image = imagePtr.pointee
-                SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(
-                    imageName: image.name, vmAddress: image.vmAddress, address: image.address, size: image.size, uuid: image.uuid)
+                SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(image: image)
             }
             sentrycrashbic_registerRemovedCallback { imagePtr in
                 guard let imagePtr else {
@@ -64,14 +63,8 @@ import Foundation
         }
     }
     
-    // We have to expand `SentryCrashBinaryImage` since the model is defined in SentryPrivate
-    @objc(binaryImageAdded:vmAddress:address:size:uuid:)
-    public func binaryImageAdded(imageName: UnsafePointer<CChar>?,
-                                 vmAddress: UInt64,
-                                 address: UInt64,
-                                 size: UInt64,
-                                 uuid: UnsafePointer<UInt8>?) {
-        guard let imageName else {
+    func binaryImageAdded(image: SentryCrashBinaryImage) {
+        guard let imageName = image.name else {
             SentrySDKLog.warning("The image name was NULL. Can't add image to cache.")
             return
         }
@@ -82,10 +75,10 @@ import Foundation
         
         let newImage = SentryBinaryImageInfo(
             name: nameString,
-            uuid: Self.convertUUID(uuid),
-            vmAddress: vmAddress,
-            address: address,
-            size: size
+            uuid: Self.convertUUID(image.uuid),
+            vmAddress: image.vmAddress,
+            address: image.address,
+            size: image.size
         )
         
         lock.synchronized {
@@ -118,18 +111,16 @@ import Foundation
                                                 dispatchQueueWrapper: Dependencies.dispatchQueueWrapper)
         }
     }
-    
-    @objc
-    public static func convertUUID(_ value: UnsafePointer<UInt8>?) -> String? {
+
+    private static func convertUUID(_ value: UnsafePointer<UInt8>?) -> String? {
         guard let value = value else { return nil }
         
         var uuidBuffer = [CChar](repeating: 0, count: 37)
         sentrycrashdl_convertBinaryImageUUID(value, &uuidBuffer)
         return String(cString: uuidBuffer, encoding: .ascii)
     }
-    
-    @objc
-    public func binaryImageRemoved(_ imageAddress: UInt64) {
+
+    func binaryImageRemoved(_ imageAddress: UInt64) {
         lock.synchronized {
             guard let index = indexOfImage(address: imageAddress) else { return }
             self.cache?.remove(at: index)
@@ -166,24 +157,7 @@ import Foundation
         return nil
     }
     
-    @objc(imagePathsForInAppInclude:)
-    public func imagePathsFor(inAppInclude: String) -> Set<String> {
-        lock.synchronized {
-            var imagePaths = Set<String>()
-            
-            guard let cache = self.cache else { return imagePaths }
-            
-            for info in cache {
-                if SentryInAppLogic.isImageNameInApp(info.name, inAppInclude: inAppInclude) {
-                    imagePaths.insert(info.name)
-                }
-            }
-            return imagePaths
-        }
-    }
-    
-    @objc
-    public func getAllBinaryImages() -> [SentryBinaryImageInfo] {
+    func getAllBinaryImages() -> [SentryBinaryImageInfo] {
         lock.synchronized {
             return cache ?? []
         }

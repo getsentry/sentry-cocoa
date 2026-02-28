@@ -18,11 +18,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
     }
     
     private func addBinaryImageToSut(_ binaryImage: SentryCrashBinaryImage) {
-        sut.binaryImageAdded(imageName: binaryImage.name,
-                             vmAddress: binaryImage.vmAddress,
-                             address: binaryImage.address,
-                             size: binaryImage.size,
-                             uuid: binaryImage.uuid)
+        sut.binaryImageAdded(image: binaryImage)
     }
 
     func testBinaryImageAdded() {
@@ -56,11 +52,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
     }
     
     func testBinaryImageAdded_WithNilName() {
-        sut.binaryImageAdded(imageName: nil,
-                             vmAddress: 100,
-                             address: 1_000,
-                             size: 100,
-                             uuid: nil)
+        sut.binaryImageAdded(image: .init(address: 1_000, vmAddress: 100, size: 100, name: nil, uuid: nil, cpuType: 0, cpuSubType: 0, crashInfoMessage: nil, crashInfoMessage2: nil))
         
         XCTAssertEqual(self.sut.cache?.count, 0)
     }
@@ -127,25 +119,6 @@ class SentryBinaryImageCacheTests: XCTestCase {
         XCTAssertEqual(sut.imageByAddress(400)?.name, "Expected Name at 400")
         XCTAssertNil(sut.imageByAddress(300))
         XCTAssertNil(sut.imageByAddress(399))
-    }
-    
-    func testImagePathByName() {
-        let binaryImage = createCrashBinaryImage(0)
-        let binaryImage2 = createCrashBinaryImage(1)
-        addBinaryImageToSut(binaryImage)
-        addBinaryImageToSut(binaryImage2)
-        
-        let paths = sut.imagePathsFor(inAppInclude: "Expected Name at 0")
-        XCTAssertEqual(paths.first, "Expected Name at 0")
-        
-        let paths2 = sut.imagePathsFor(inAppInclude: "Expected Name at 1")
-        XCTAssertEqual(paths2.first, "Expected Name at 1")
-        
-        let bothPaths = sut.imagePathsFor(inAppInclude: "Expected")
-        XCTAssertEqual(bothPaths, ["Expected Name at 0", "Expected Name at 1"])
-        
-        let didNotFind = sut.imagePathsFor(inAppInclude: "Name at 0")
-        XCTAssertTrue(didNotFind.isEmpty)
     }
     
     func testBinaryImageWithNULLName_DoesNotAddImage() {
