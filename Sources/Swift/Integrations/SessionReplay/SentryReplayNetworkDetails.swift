@@ -195,13 +195,14 @@ enum NetworkBodyWarning: String {
     /// - Parameters:
     ///   - size: Request body size in bytes, or nil if unknown.
     ///   - body: Pre-parsed body content (dictionary, array, or string), or nil if not captured.
-    ///   - headers: Filtered HTTP request headers.
+    ///   - allHeaders: All headers from the request (e.g. from `NSURLRequest.allHTTPHeaderFields`).
+    ///   - configuredHeaders: Header names to extract, matched case-insensitively.
     @objc
-    public func setRequest(size: NSNumber?, body: Any?, headers: [String: String]) {
+    public func setRequest(size: NSNumber?, body: Any?, allHeaders: [String: Any]?, configuredHeaders: [String]?) {
         self.request = Detail(
             size: size,
             body: body.map { Body(content: $0) },
-            headers: headers
+            headers: SentryReplayNetworkDetails.extractHeaders(from: allHeaders, matching: configuredHeaders)
         )
     }
 
@@ -211,15 +212,41 @@ enum NetworkBodyWarning: String {
     ///   - statusCode: HTTP status code.
     ///   - size: Response body size in bytes, or nil if unknown.
     ///   - body: Pre-parsed body content (dictionary, array, or string), or nil if not captured.
-    ///   - headers: Filtered HTTP response headers.
+    ///   - allHeaders: All headers from the response (e.g. from `NSHTTPURLResponse.allHeaderFields`).
+    ///   - configuredHeaders: Header names to extract, matched case-insensitively.
     @objc
-    public func setResponse(statusCode: Int, size: NSNumber?, body: Any?, headers: [String: String]) {
+    public func setResponse(statusCode: Int, size: NSNumber?, body: Any?, allHeaders: [String: Any]?, configuredHeaders: [String]?) {
         self.statusCode = NSNumber(value: statusCode)
         self.response = Detail(
             size: size,
             body: body.map { Body(content: $0) },
-            headers: headers
+            headers: SentryReplayNetworkDetails.extractHeaders(from: allHeaders, matching: configuredHeaders)
         )
+    }
+
+    // MARK: - Header Extraction
+
+    /// Extracts headers from a source dictionary using case-insensitive matching.
+    /// Preserves the original casing of the header key as seen in the source.
+    ///
+    /// - Parameters:
+    ///   - sourceHeaders: All available headers (e.g. from `NSURLRequest` or `NSHTTPURLResponse`).
+    ///   - configuredHeaders: Header names to extract, matched case-insensitively.
+    /// - Returns: Dictionary containing matched headers with original key casing preserved.
+    static func extractHeaders(from sourceHeaders: [String: Any]?, matching configuredHeaders: [String]?) -> [String: String] {
+        guard let sourceHeaders, let configuredHeaders else { return [:] }
+
+        var extracted = [String: String]()
+        for configured in configuredHeaders {
+            let lowered = configured.lowercased()
+            for (key, value) in sourceHeaders {
+                if key.lowercased() == lowered {
+                    extracted[key] = (value as? String) ?? "\(value)"
+                    break
+                }
+            }
+        }
+        return extracted
     }
 
     // MARK: - Serialization
