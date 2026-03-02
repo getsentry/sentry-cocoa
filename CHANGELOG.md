@@ -10,6 +10,7 @@
 
 - Preserve NSException and C++ exception reason instead of overwriting with unrelated `crash_info_message` from `libswiftCore.dylib` (#7515)
 - Fix unexpected null value when unwrapping view controller window (#7508)
+- Capture instance and class method `[NSApplication _crashOnException]` exceptions (#7510)
 
 ## 9.5.1
 
@@ -19,7 +20,6 @@
 - Write reports on concurrent crashes (#7340)
 - Resolve data race crash in monitorCachedData (#7423)
 - Don't finish network spans for suspended URL session tasks (#7471)
-- Capture instance and class method `[NSApplication _crashOnException]` exceptions (#7510)
 - Use different fallback for when MetricKit does not have file path (#7473)
 - Remove launch profiling logs in sandboxed environments breaking CLI tools (#7294)
 
