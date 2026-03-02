@@ -5,6 +5,8 @@ on:
       - main
       - v8.x
 
+  pull_request:
+
 # Concurrency configuration:
 # - We use workflow-specific concurrency groups to prevent multiple benchmark runs on the same code,
 #   as benchmarks are extremely resource-intensive and require dedicated device time on SauceLabs.
