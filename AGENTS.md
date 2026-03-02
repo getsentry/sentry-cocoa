@@ -10,11 +10,22 @@ Sentry Cocoa SDK — multi-platform Apple SDK (iOS, macOS, tvOS, watchOS, vision
 | [`Sources/AGENTS.md`](Sources/AGENTS.md) | ObjC/Swift coding conventions              |
 | [`.github/AGENTS.md`](.github/AGENTS.md) | Workflow naming, concurrency, file filters |
 | [`Samples/AGENTS.md`](Samples/AGENTS.md) | Sample app structure and build             |
+| [`scripts/AGENTS.md`](scripts/AGENTS.md) | Shell script conventions and template      |
 | [`REVIEWS.md`](REVIEWS.md)               | Code review priorities and SDK concerns    |
 
-## MCP Servers
+## Skills & MCP (dotagents)
 
-Pre-configured in `.mcp.json`:
+Agent skills and MCP servers are managed by [dotagents](https://github.com/getsentry/dotagents) via `agents.toml`.
+
+```bash
+npx @sentry/dotagents install   # install skills after cloning
+npx @sentry/dotagents update    # update to latest versions
+npx @sentry/dotagents list      # show installed skills
+```
+
+### MCP Servers
+
+Declared in `agents.toml`, generated into `.mcp.json` and `.cursor/mcp.json`:
 
 - **XcodeBuildMCP** — build, run, test in simulator (requires Node.js)
 - **sentry** — query production errors, search issues, read docs (OAuth on first use)
@@ -87,8 +98,7 @@ Non-changelog types require `#skip-changelog` in PR description. Breaking change
 
 ## Shell Scripts
 
-- Named parameters (`--since`, `--output`) over positional (`$1`, `$2`)
-- Extract complex logic into separate scripts rather than heredocs
+See [`scripts/AGENTS.md`](scripts/AGENTS.md) for the named-parameter template and conventions.
 
 ## Documentation
 
