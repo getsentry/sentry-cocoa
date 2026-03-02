@@ -105,6 +105,10 @@ run_integration_test_for_prs: &run_integration_test_for_prs
   - "fastlane/**"
   - "Gemfile.lock"
 
+# Benchmarks always run on main, but on PRs they only run when benchmarking-related files change.
+# We intentionally exclude Sources/**, Tests/**, and other broad patterns here because benchmarks
+# are expensive (SauceLabs devices) and slow down PR CI. SDK source changes are covered by the
+# benchmarks running on every push to main.
 run_benchmarking_for_prs: &run_benchmarking_for_prs # GH Actions
   - ".github/workflows/benchmarking.yml"
   - ".github/file-filters.yml"
