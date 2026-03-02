@@ -1,18 +1,37 @@
 # SentryCrash: Analysis & Improvement Plan
 
+## About this document
+
+This document serves two purposes:
+
+1. **Reference** for architecture, data flow, async-signal-safety rules, data structures, and developer workflow for anyone changing SentryCrash.
+2. **Improvement plan** of known issues, upstream KSCrash tracking, and phased recommendations to make SentryCrash better.
+   Use it to look up "how does X work?" (e.g. [Async-Signal-Safety Reference](#async-signal-safety-reference), [Monitor System In Depth](#monitor-system-in-depth)) or "what needs fixing?" (e.g. [Phase 5: Fix the Bugs](#phase-5-fix-the-bugs), [Open GitHub Issues](#open-github-issues)). For build and test conventions, see [develop-docs/BUILD.md](BUILD.md) and [develop-docs/TEST.md](TEST.md); for testing SentryCrash specifically, see [Developer Workflow](#developer-workflow) below.
+
 ## Table of Contents
 
 - [Problem Statement](#problem-statement)
 - [Phase 0: Knowledge Building](#phase-0-knowledge-building)
   - [Component Overview](#component-overview)
   - [Architecture Deep Dive](#architecture-deep-dive)
+  - [Async-Signal-Safety Reference](#async-signal-safety-reference)
+  - [Crash Report Format and Data Structures](#crash-report-format-and-data-structures)
+  - [Monitor System In Depth](#monitor-system-in-depth)
+  - [Thread Model](#thread-model)
   - [KSCrash Divergence Analysis](#kscrash-divergence-analysis)
   - [Known Issues & Risks](#known-issues--risks)
+- [Developer Workflow](#developer-workflow)
 - [Phase 1: Isolation (Public API)](#phase-1-isolation-public-api)
 - [Phase 2: Confidence (Test Coverage)](#phase-2-confidence-test-coverage)
 - [Phase 3: Architecture (Internal Structure)](#phase-3-architecture-internal-structure)
 - [Phase 4: Documentation & Knowledge Sharing](#phase-4-documentation--knowledge-sharing)
 - [Phase 5: Fix the Bugs](#phase-5-fix-the-bugs)
+- [Appendix: Key File Reference](#appendix-key-file-reference)
+  - [Most Critical Files](#most-critical-files-must-understand-these)
+  - [Platform Availability Guards](#platform-availability-guards)
+  - [Platform and Feature Matrix](#platform-and-feature-matrix)
+  - [Glossary](#glossary)
+  - [Complete File List](#complete-file-list-by-directory)
 
 ---
 
@@ -151,6 +170,144 @@ SentrySDK.start(options:)
           ├── sentrycrash_setSaveTransaction(callback)
           ├── sentrycrashcm_setEnableSigtermReporting()
           └── installation.sendAllReports() ← sends pending crash reports
+```
+
+### Async-Signal-Safety Reference
+
+Code that runs during crash handling must respect **async-signal-safety** when the crash was detected by the **Signal** monitor, because the signal handler runs in signal context. The Mach exception handler runs on a **dedicated thread** (not in signal context), so the strictest rules apply when the crash is delivered via signal.
+
+**When code runs in signal context**
+
+- **Signal monitor** — `handleSignal()` in [SentryCrashMonitor_Signal.c](Sources/SentryCrash/Recording/Monitors/SentryCrashMonitor_Signal.c) runs in signal context (on the crashing thread). The entire `onCrash()` callback can therefore run in signal context when the crash was detected by signal.
+- **Mach exception monitor** — Runs on a dedicated Mach exception server thread; not in signal context. The same `onCrash()` callback is used, but it is not invoked from a signal handler in that case.
+
+**What is allowed in signal context**
+
+- Only [async-signal-safe](https://man7.org/linux/man-pages/man7/signal-safety.7.html) functions: no `malloc`, no Objective-C runtime, no locks, no `printf`/`NSLog`. Commonly safe: `write`, `_exit`, `sig_atomic_t`, C11 atomics, and a small set of other APIs. When in doubt, assume only the minimal set is safe.
+
+**What SentryCrash uses**
+
+- **Logging** — `SENTRY_ASYNC_SAFE_LOG_*` macros only (no NSLog). See [SentryAsyncSafeLog](Sources/Sentry/SentryAsyncSafeLog.h).
+- **Report writing** — `sentrycrashreport_writeStandardReport()` and the code path it uses in [SentryCrashReport.c](Sources/SentryCrash/Recording/SentryCrashReport.c) are designed to be signal-safe (no heap allocation in the critical path; JSON written via async-safe primitives).
+- **Best-effort callbacks** — Screenshots, view hierarchy, and transaction save run **after** the report is written to disk. They are explicitly non–signal-safe and may crash; that is acceptable because the process is already terminating. See comment in [SentryCrashC.c](Sources/SentryCrash/Recording/SentryCrashC.c) around the `g_saveScreenShot` / `g_saveViewHierarchy` / `g_saveTransaction` calls.
+
+**Call order in onCrash()**
+
+1. Update app state (`sentrycrashstate_notifyAppCrash()`).
+2. Write crash report to disk (`sentrycrashreport_writeStandardReport()` or recrash path) and session replay — **signal-safe path**.
+3. Then: screenshots, view hierarchy, transaction callback — **best-effort, non–signal-safe**.
+
+Adding new code in the `onCrash()` callback (in [SentryCrashC.c](Sources/SentryCrash/Recording/SentryCrashC.c)) or in the report writer (in [SentryCrashReport.c](Sources/SentryCrash/Recording/SentryCrashReport.c)) must respect these rules: anything before the best-effort callbacks must be async-signal-safe when the crash was detected by the Signal monitor.
+
+### Crash Report Format and Data Structures
+
+**Report format**
+
+The report written by `sentrycrashreport_writeStandardReport()` is JSON. The structure is built in [SentryCrashReport.c](Sources/SentryCrash/Recording/SentryCrashReport.c) using the `SentryCrashReportWriter` callbacks. Main top-level sections (see [SentryCrashReportFields.h](Sources/SentryCrash/Recording/SentryCrashReportFields.h)) include:
+
+- **report** — Report metadata: `id`, `timestamp`, `version`, `process_name`, `type` (e.g. standard).
+- **crash** — Crash-specific: `error` (exception type, name, reason, mach/signal/NSException/CPPException details), `threads` (thread list with backtraces, registers, crashed flag), `debug` (diagnosis if available).
+- **system** — System info: OS, machine, CPU arch, process/bundle info, app start time, etc.
+- **binary_images** — Loaded images (base address, size, UUID, name).
+- **application_stats** — App state stats (active/background time since crash/launch, launches since crash).
+- **memory** — Memory stats (free, usable).
+- **user** — User payload (scope sync: user, tags, context, breadcrumbs, etc.).
+
+The exact keys are defined in `SentryCrashReportFields.h`; the writer fills them in `SentryCrashReport.c`.
+
+**SentryCrash_MonitorContext**
+
+The unified context passed from the detecting monitor to the report writer is defined in [SentryCrashMonitorContext.h](Sources/SentryCrash/Recording/Monitors/SentryCrashMonitorContext.h). Key fields:
+
+- **requiresAsyncSafety** — If true, only async-signal-safe code may run (e.g. when crash was detected by Signal monitor).
+- **handlingCrash** — True while the crash handler is active; when false, context fields below are invalid.
+- **crashedDuringCrashHandling** — True if a second crash occurred while handling the first (recrash).
+- **crashType** — Which monitor detected the crash (Mach, Signal, NSException, C++, etc.); determines which union is valid.
+- **offendingMachineContext** — Machine context (registers, etc.) for the crashing thread.
+- **stackCursor** — Stack cursor for the crashing thread’s backtrace.
+- **faultAddress**, **exceptionName**, **crashReason** — Common crash details.
+- **mach** — Mach exception type/code/subcode (when crashType is Mach).
+- **signal** — signum, sigcode, userContext (when crashType is Signal).
+- **NSException** — name, userInfo (when crashType is NSException).
+- **CPPException** — name (when crashType is C++).
+- **userException** — Custom/user exception fields.
+- **appState** — Active/background duration, launches since last crash, etc.
+
+**Cached data**
+
+Thread list and system snapshot are provided by [SentryCrashCachedData.c](Sources/SentryCrash/Recording/SentryCrashCachedData.c). At crash time the cache is **frozen** so the report writer sees a consistent snapshot; it is unfrozen after the report is written. The report writer reads thread and system data from this frozen snapshot.
+
+### Monitor System In Depth
+
+**Registration**
+
+Monitors are enabled via `SentryCrashMonitorType` (bitmask). The central dispatcher in [SentryCrashMonitor.c](Sources/SentryCrash/Recording/Monitors/SentryCrashMonitor.c) registers each monitor type and invokes the appropriate handler when that monitor is enabled. When a crash is detected, the **detecting** monitor fills `SentryCrash_MonitorContext` and the shared **onCrash()** callback (registered in [SentryCrashC.c](Sources/SentryCrash/Recording/SentryCrashC.c)) is invoked once.
+
+**Per-monitor context**
+
+Which monitor fills which parts of the context:
+
+- **Mach** — `mach.type`, `mach.code`, `mach.subcode`; sets `offendingMachineContext`, `stackCursor`, `crashType`, `exceptionName`, `crashReason`, etc.
+- **Signal** — `signal.signum`, `signal.sigcode`, `signal.userContext`; same common fields.
+- **NSException** — `NSException.name`, `NSException.userInfo`; plus stack cursor and machine context from the ObjC exception path.
+- **C++** — `CPPException.name`; stack cursor from the `__cxa_throw` hook path.
+
+**Execution context**
+
+- **Signal monitor** — Runs in the signal handler (on the crashing thread). **Strictly async-signal-safe** code only.
+- **Mach monitor** — Runs on the dedicated Mach exception server thread. Not in signal context; still avoid heavy work before the report is written.
+- **NSException / C++** — Run in ObjC/C++ exception flow (not in signal context). Same `onCrash()` path is used; if the process was not delivered via signal, the report-writing path does not have to be async-signal-safe, but the implementation keeps it signal-safe for uniformity.
+
+Only the code path triggered by the **Signal** monitor must be strictly async-signal-safe; the report writer is written to be safe in all cases.
+
+```mermaid
+flowchart LR
+  subgraph detect [Crash detection]
+    Monitor[Monitor detects crash]
+    Context[Fills SentryCrash_MonitorContext]
+  end
+  subgraph onCrash [onCrash callback]
+    Report[Write report to disk]
+    BestEffort[Screenshots, view hierarchy, transaction]
+  end
+  Monitor --> Context --> Report --> BestEffort
+```
+
+### Thread Model
+
+**Normal operation**
+
+- **Main thread** — App and SDK run; SentryCrash is installed at startup (e.g. from `SentryCrashIntegration.startCrashHandler()`).
+- **Other threads** — Scope observer and other SDK work may run on background threads. Cached data ([SentryCrashCachedData.c](Sources/SentryCrash/Recording/SentryCrashCachedData.c)) is updated from various threads; at crash time the cache is **frozen** so the report writer sees a consistent snapshot.
+
+**At crash time**
+
+- **Signal path** — The signal handler runs **on the crashing thread**. `onCrash()` runs in that same (signal) context. Report is written there; then best-effort callbacks (screenshots, view hierarchy, transaction) run in the same context.
+- **Mach path** — The Mach exception handler runs on the **dedicated Mach exception server thread**. `onCrash()` runs on that thread. Same order: report write, then best-effort callbacks.
+- After that, the process typically terminates (fatal crash).
+
+**Next launch**
+
+- On the next app launch, `SentryCrashIntegration` starts the crash handler and calls `sendAllReportsWithCompletion:`. Pending reports are read from disk (main thread or SDK’s queue), then processed by `SentryCrashReportSink` and `SentryCrashReportConverter`, and sent to the Sentry backend.
+
+```mermaid
+flowchart TB
+  subgraph normal [Normal operation]
+    Main[Main thread: app, SDK, SentryCrash install]
+    Cache[Cached data updated from various threads]
+  end
+  subgraph crash [Crash time]
+    Either[Signal handler on crashing thread OR Mach thread]
+    OnCrash[onCrash: write report then best-effort]
+    Exit[Process exits]
+  end
+  subgraph next [Next launch]
+    Read[Read reports from disk]
+    Convert[Convert and send to Sentry]
+  end
+  Main --> Either
+  Either --> OnCrash --> Exit
+  Exit -.-> Read --> Convert
 ```
 
 ### KSCrash Divergence Analysis
@@ -313,6 +470,38 @@ The crash handlers generally follow signal-safety rules:
 
 - Screenshot/view hierarchy capture after report is saved (documented as "non async-signal safe code, but since the app is already in a crash state we don't mind if this approach crashes")
 - Transaction save callback similarly best-effort
+
+---
+
+## Developer Workflow
+
+**Build**
+
+SentryCrash is part of the main SDK targets. Use the same build commands as the rest of the repo: e.g. `make build-ios`, `make build-macos`. See [develop-docs/BUILD.md](BUILD.md) for full build and deliverable options.
+
+**Test**
+
+Run SentryCrash-related tests with the same pattern as other SDK tests. Examples:
+
+- `make test-ios ONLY_TESTING=SentryCrashInstallationTests,SentryCrashWrapperTests`
+- `make test-ios ONLY_TESTING=SentryCrashMonitor_NSException_Tests,SentryCrashMonitor_Signal_Tests`
+
+See AGENTS.md (Testing Instructions) for the convention: test class names follow `<SourceFile>Tests`. The test server is **not** required for most SentryCrash tests; it is only needed for the small set of network integration tests that use the `Sentry_TestServer` xctestplan. See [develop-docs/TEST.md](TEST.md) for general testing practices.
+
+**Debugging**
+
+- **Crash-time code** — Use `SENTRY_ASYNC_SAFE_LOG_*` macros in the crash path; ensure async-safe logging is enabled so output is visible (e.g. to stderr or the configured async-safe log destination). Do not use `NSLog` or `printf` in code that can run in signal context.
+- **Written reports** — Reports are stored under the installation path (cache directory passed to `sentrycrash_install()`). Inspect the JSON files written by `sentrycrashreport_writeStandardReport()` to verify report structure and field values; the format is described in [Crash Report Format and Data Structures](#crash-report-format-and-data-structures).
+- **Simulating a crash** — Use a sample app (e.g. in `Samples/`) and trigger a crash (e.g. `abort()`, uncaught NSException, or a null dereference) to exercise the full pipeline from detection to report write to next-launch send.
+
+**Adopting upstream KSCrash changes**
+
+We cherry-pick selectively; we do not merge KSCrash wholesale. When bringing in upstream changes:
+
+1. Map **KS\*** symbols to **SentryCrash\*** (files, functions, types); see [Naming Convention](#naming-convention).
+2. Run the full test suite after applying changes (`make test-ios` or broader).
+3. Preserve **Sentry-specific** behavior: scope sync, session replay sync, transaction callback, binary image hooks, async-safe logging. Upstream code may not have these; do not remove or bypass them when porting fixes.
+4. Use the lists in this doc: [Upstream Fixes Not Yet Adopted](#upstream-fixes-not-yet-adopted) and [Merge Candidates](#merge-candidates) (tracking issue [#5619](https://github.com/getsentry/sentry-cocoa/issues/5619)) to decide what to consider next.
 
 ---
 
@@ -638,5 +827,99 @@ User-reported and team-tracked bugs from the [sentry-cocoa issue tracker](https:
 | `SENTRY_HAS_SIGNAL`       | All Apple platforms                             |
 | `SENTRY_HAS_SIGNAL_STACK` | All Apple platforms                             |
 | `SENTRY_HAS_THREADS_API`  | All Apple platforms                             |
+| `SENTRY_HAS_UIKIT`        | iOS, tvOS, visionOS (not macOS, watchOS)        |
 | `__arm64__`               | iOS devices, Apple Silicon Macs                 |
 | `__x86_64__`              | Intel Macs, iOS Simulator (Intel)               |
+
+Some features are disabled or limited on certain OS versions (e.g. test disabled on iOS 26+ [#6116](https://github.com/getsentry/sentry-cocoa/issues/6116)); see Open GitHub Issues.
+
+### Platform and Feature Matrix
+
+| Platform | Mach exception | Signal | NSException | C++ exception | App state | System info |
+| -------- | -------------- | ------ | ----------- | ------------- | --------- | ----------- |
+| iOS      | Yes            | Yes    | Yes         | Yes           | Yes       | Yes         |
+| macOS    | Yes            | Yes    | Yes         | Yes           | Yes       | Yes         |
+| tvOS     | Yes            | Yes    | Yes         | Yes           | Yes       | Yes         |
+| watchOS  | Yes            | Yes    | Limited     | Yes           | Yes       | Yes         |
+| visionOS | Yes            | Yes    | Yes         | Yes           | Yes       | Yes         |
+
+**Notes:** watchOS has limited support for unhandled NSException reporting ([#2747](https://github.com/getsentry/sentry-cocoa/issues/2747)). Mach exception handling has known issues on macOS in some configurations ([#1589](https://github.com/getsentry/sentry-cocoa/issues/1589)). Use the guards above and the source (e.g. `SENTRY_HAS_UIKIT`, `TARGET_OS_*`) when adding platform-specific code.
+
+### Glossary
+
+| Term                                            | Definition                                                                                                                                                                                                                                                                     |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **ASI**                                         | Application Specific Information; a section in the crash report (e.g. crash_info_message) that can contain exception or app-specific text. See [#7298](https://github.com/getsentry/sentry-cocoa/issues/7298), [#7136](https://github.com/getsentry/sentry-cocoa/issues/7136). |
+| **Monitor**                                     | A component that detects one kind of crash: Mach exception, Signal, NSException, or C++ exception. Each monitor fills its part of `SentryCrash_MonitorContext` and triggers the shared `onCrash()` callback.                                                                   |
+| **MonitorContext (SentryCrash_MonitorContext)** | The unified structure holding crash details, passed from the detecting monitor to the report writer. Defined in [SentryCrashMonitorContext.h](Sources/SentryCrash/Recording/Monitors/SentryCrashMonitorContext.h).                                                             |
+| **onCrash()**                                   | The global callback invoked when any monitor detects a crash. Implemented in [SentryCrashC.c](Sources/SentryCrash/Recording/SentryCrashC.c); it writes the report, then runs best-effort callbacks (screenshots, view hierarchy, transaction).                                 |
+| **Freeze / unfreeze**                           | Cached data (thread list, system snapshot) is "frozen" at crash time so the report writer sees a consistent snapshot; it is "unfrozen" after the report is written. See [SentryCrashCachedData.c](Sources/SentryCrash/Recording/SentryCrashCachedData.c).                      |
+| **Recrash**                                     | A second crash while handling the first (e.g. in the report writer). The context field `crashedDuringCrashHandling` is true; a minimal recrash report is written.                                                                                                              |
+| **Installation**                                | SentryCrash installation: the install path, configuration, and the hook that sends pending reports on next launch. The SDK uses [SentryCrashInstallationReporter](Sources/Swift/Integrations/SentryCrash/SentryCrashInstallationReporter.swift).                               |
+| **Report filter**                               | Protocol for processing reports (e.g. before send). The SDK implements it in [SentryCrashReportSink.m](Sources/Sentry/SentryCrashReportSink.m) to convert and upload to Sentry.                                                                                                |
+| **Stack cursor**                                | Abstraction for walking the stack (e.g. `SentryCrashStackCursor`). Used to fill thread backtraces in the report; can be backtrace-based or machine-context-based.                                                                                                              |
+
+### Complete File List (by directory)
+
+All files under `Sources/SentryCrash/` with a one-line purpose. Paths are relative to `Sources/SentryCrash/`.
+
+**Installations**
+
+| File                                      | Purpose                                                            |
+| ----------------------------------------- | ------------------------------------------------------------------ |
+| `Installations/SentryCrashInstallation.m` | Base installation class; lifecycle, config, report path, send-all. |
+
+**Recording (base)**
+
+| File                                      | Purpose                                                          |
+| ----------------------------------------- | ---------------------------------------------------------------- |
+| `Recording/SentryCrashC.c`                | C API entry point; install, onCrash callback, report path.       |
+| `Recording/SentryCrash.m`                 | ObjC wrapper; config, report IDs, sendAllReports.                |
+| `Recording/SentryCrashReport.c`           | Writes JSON crash report to disk (signal-safe path).             |
+| `Recording/SentryCrashReportStore.c`      | Report storage/retrieval by ID.                                  |
+| `Recording/SentryCrashReportFixer.c`      | Post-processes reports (fixup).                                  |
+| `Recording/SentryCrashCachedData.c`       | Thread/system cache; freeze at crash, consumed by report writer. |
+| `Recording/SentryCrashBinaryImageCache.c` | Binary image tracking; dyld hooks.                               |
+| `Recording/SentryCrashDoctor.m`           | Report analysis/diagnosis.                                       |
+
+**Recording/Monitors**
+
+| File                                                              | Purpose                                            |
+| ----------------------------------------------------------------- | -------------------------------------------------- |
+| `Recording/Monitors/SentryCrashMonitor.c`                         | Central monitor dispatcher; registration, context. |
+| `Recording/Monitors/SentryCrashMonitorContext.h`                  | Unified crash context struct.                      |
+| `Recording/Monitors/SentryCrashMonitorType.c`                     | Monitor type enum/bitmask.                         |
+| `Recording/Monitors/SentryCrashMonitor_MachException.c`           | Mach kernel exception handler.                     |
+| `Recording/Monitors/SentryCrashMonitor_Signal.c`                  | POSIX signal handler.                              |
+| `Recording/Monitors/SentryCrashMonitor_NSException.m`             | Objective-C exception monitor.                     |
+| `Recording/Monitors/SentryCrashMonitor_NSException_StackCursor.m` | NSException stack cursor for backtrace.            |
+| `Recording/Monitors/SentryCrashMonitor_CPPException.cpp`          | C++ exception via \_\_cxa_throw hook.              |
+| `Recording/Monitors/SentryCrashMonitor_System.m`                  | System info collection.                            |
+| `Recording/Monitors/SentryCrashMonitor_AppState.c`                | App state (active/background) tracking.            |
+
+**Recording/Tools**
+
+| File                                                                                                         | Purpose                                                            |
+| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| `Recording/Tools/SentryCrashCPU.c`, `SentryCrashCPU_arm64.c`, `SentryCrashCPU_x86_64.c`, etc.                | CPU/arch context (registers, arch).                                |
+| `Recording/Tools/SentryCrashStackCursor.c`, `_Backtrace.c`, `_MachineContext.c`, `_SelfThread.m`             | Stack unwinding (cursor, backtrace, machine context, self-thread). |
+| `Recording/Tools/SentryCrashMach.c`, `SentryCrashMach-O.c`, `SentryCrashThread.c`                            | Mach kernel, Mach-O, thread APIs.                                  |
+| `Recording/Tools/SentryCrashMachineContext.c`                                                                | Machine context wrapper.                                           |
+| `Recording/Tools/SentryCrashObjC.c`                                                                          | ObjC runtime introspection.                                        |
+| `Recording/Tools/SentryCrashJSONCodec.c`, `SentryCrashJSONCodecObjC.m`                                       | JSON encode (C and ObjC).                                          |
+| `Recording/Tools/SentryCrashFileUtils.c`                                                                     | File I/O utilities.                                                |
+| `Recording/Tools/SentryCrashMemory.c`                                                                        | Memory read utilities.                                             |
+| `Recording/Tools/SentryCrashDynamicLinker.c`                                                                 | Dynamic linker / image list.                                       |
+| `Recording/Tools/SentryCrashCxaThrowSwapper.c`                                                               | \_\_cxa_throw hook (C++ exceptions).                               |
+| `Recording/Tools/SentryCrashString.c`, `SentryCrashDate.c`, `SentryCrashID.c`, `SentryCrashUUIDConversion.c` | String, date, ID, UUID helpers.                                    |
+| `Recording/Tools/SentryCrashSysCtl.c`, `SentryCrashSignalInfo.c`, `SentryCrashNSErrorUtil.m`                 | Sysctl, signal info, NSError.                                      |
+| `Recording/Tools/SentryCrashDebug.c`                                                                         | Debug helpers.                                                     |
+
+**Reporting**
+
+| File                                                   | Purpose                             |
+| ------------------------------------------------------ | ----------------------------------- |
+| `Reporting/Filters/SentryCrashReportFilterBasic.m`     | Basic report filter implementation. |
+| `Reporting/Filters/Tools/SentryDictionaryDeepSearch.m` | Deep search in report dictionaries. |
+
+Headers (`.h`) accompany the above; see repo for full list. Key report/context headers: `SentryCrashReport.h`, `SentryCrashReportFields.h`, `SentryCrashMonitorContext.h`.
