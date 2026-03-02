@@ -10,6 +10,7 @@ Sentry Cocoa SDK — multi-platform Apple SDK (iOS, macOS, tvOS, watchOS, vision
 | [`Sources/AGENTS.md`](Sources/AGENTS.md) | ObjC/Swift coding conventions              |
 | [`.github/AGENTS.md`](.github/AGENTS.md) | Workflow naming, concurrency, file filters |
 | [`Samples/AGENTS.md`](Samples/AGENTS.md) | Sample app structure and build             |
+| [`REVIEWS.md`](REVIEWS.md)               | Code review priorities and SDK concerns    |
 
 ## MCP Servers
 
