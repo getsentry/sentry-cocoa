@@ -1,33 +1,22 @@
-# Samples — Agent Instructions
+# Samples
 
-## Project Structure
-
-Each sample app follows a consistent directory layout:
+## Directory Layout
 
 ```
 TargetName/
 ├── Sources/         # Swift/ObjC source files
-├── Resources/       # Assets, storyboards, etc.
-└── Configuration/   # Info.plist, entitlements, xcconfig files
+├── Resources/       # Assets, storyboards
+└── Configuration/   # Info.plist, entitlements, xcconfig
 ```
 
-Example: `App/Sources`, `App/Resources`, `App/Configuration`
+- Info.plist and entitlements go in `Configuration/`, not `Resources/`
+- Add `.gitkeep` to empty directories
 
-- **Info.plist and entitlements** live in `Configuration/`, not `Resources/`
-- **Empty directories**: Add `.gitkeep` to empty Sources, Resources, Configuration dirs so git tracks the layout
+## Commands
 
-## Build & Regenerate
-
-```bash
-# Build all sample apps
-make build-samples
-
-# Build a specific sample
-make build-sample-<name>    # e.g., make build-sample-iOS-Swift
-
-# Regenerate all sample Xcode projects (via XcodeGen)
-make xcode-ci
-
-# Regenerate a specific sample project
-make xcode-ci-<name>        # e.g., make xcode-ci-SPM
-```
+| Command                    | Description                               |
+| -------------------------- | ----------------------------------------- |
+| `make build-samples`       | Build all sample apps                     |
+| `make build-sample-<name>` | Build specific sample (e.g., `iOS-Swift`) |
+| `make xcode-ci`            | Regenerate all Xcode projects             |
+| `make xcode-ci-<name>`     | Regenerate specific project (e.g., `SPM`) |

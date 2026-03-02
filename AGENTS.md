@@ -1,151 +1,103 @@
 # AGENTS.md
 
-Comprehensive guidance for AI coding agents working with the Sentry Cocoa SDK repository. Detailed, directory-scoped instructions live in nested `AGENTS.md` files:
+Sentry Cocoa SDK — multi-platform Apple SDK (iOS, macOS, tvOS, watchOS, visionOS).
 
-| Path                                     | Scope                                                   |
-| ---------------------------------------- | ------------------------------------------------------- |
-| [`Tests/AGENTS.md`](Tests/AGENTS.md)     | Testing conventions, naming, code style, error handling |
-| [`Sources/AGENTS.md`](Sources/AGENTS.md) | Objective-C and Swift coding conventions                |
-| [`.github/AGENTS.md`](.github/AGENTS.md) | Workflow naming, concurrency strategy, file filters     |
-| [`Samples/AGENTS.md`](Samples/AGENTS.md) | Sample app structure, build, and regeneration           |
+## Nested Instructions
 
-## Agent Responsibilities
-
-- **Continuous Learning**: Whenever you discover new patterns, conventions, or best practices that aren't documented here, add them to the appropriate `AGENTS.md` file (root or nested).
-- **Context Management**: When using compaction, re-read the relevant `AGENTS.md` files afterwards to ensure guidelines remain in context.
+| Path                                     | Scope                                      |
+| ---------------------------------------- | ------------------------------------------ |
+| [`Tests/AGENTS.md`](Tests/AGENTS.md)     | Testing conventions, naming, code style    |
+| [`Sources/AGENTS.md`](Sources/AGENTS.md) | ObjC/Swift coding conventions              |
+| [`.github/AGENTS.md`](.github/AGENTS.md) | Workflow naming, concurrency, file filters |
+| [`Samples/AGENTS.md`](Samples/AGENTS.md) | Sample app structure and build             |
 
 ## MCP Servers
 
-This repository includes pre-configured [MCP servers](https://modelcontextprotocol.io/) in `.mcp.json`:
+Pre-configured in `.mcp.json`:
 
-- **XcodeBuildMCP** — build, run, and test in the iOS simulator. Requires [Node.js](https://nodejs.org/).
-- **sentry** — query production errors, search issues, and read Sentry docs. Authenticates via OAuth on first use.
+- **XcodeBuildMCP** — build, run, test in simulator (requires Node.js)
+- **sentry** — query production errors, search issues, read docs (OAuth on first use)
 
-You can use the `sentry` MCP server to validate that events still arrive in Sentry after your changes. Use `search_events` to find specific telemetry data, then inspect the event JSON to verify payloads match expectations.
+Read-only tools pre-approved in `.claude/settings.json`. Mutating tools require per-developer approval in `.claude/settings.local.json`.
 
-Read-only MCP tools are pre-approved in `.claude/settings.json`. Mutating tools (build, boot, tap, launch, stop, etc.) require per-developer approval in `.claude/settings.local.json`, except for XcodeBuildMCP's `session_set_defaults` and `session_clear_defaults` tools, which are globally approved as a limited exception for managing per-session defaults.
+## Verification Loop
 
-## Compilation & Cross-Platform
-
-Before forming a commit, ensure compilation succeeds for all platforms: iOS, macOS, tvOS, watchOS and visionOS. This should hold for:
-
-- the SDK framework targets
-- the sample apps
-- the test targets for the SDK framework and sample apps
-
-Before submitting a branch for a PR, ensure there are no new issues being introduced for:
-
-- static analysis
-- runtime analysis, using thread, address and undefined behavior sanitizers
-- cross platform dependencies: React Native, Flutter, .NET, Unity
-
-While preparing changes, ensure that relevant documentation is added/updated in:
-
-- headerdocs and inline comments
-- readmes and maintainer markdown docs
-- our docs repo and web app onboarding
-- our cli and integration wizard
-
-## Commit Guidelines
-
-### Pre-commit Hooks
-
-This repository uses pre-commit hooks. If a commit fails because files were changed during the commit process (e.g., by formatting hooks), automatically retry the commit with the updated files.
-
-### File Renaming and Git History Preservation
-
-**Always preserve git history when renaming files.** Use `git mv` for renaming — never use file system operations followed by `git add`.
+Run before every commit. Stop at the first failure and fix before proceeding.
 
 ```bash
-# Correct — preserves history
-git mv old-name.swift new-name.swift
+# 1. Format
+make format
 
-# Wrong — breaks history tracking
-mv old-name.swift new-name.swift
-git add new-name.swift
+# 2. Lint & static analysis
+make analyze
+
+# 3. Build (at minimum iOS; ideally all platforms)
+make build-ios
+
+# 4. Test (targeted — see Tests/AGENTS.md for ONLY_TESTING usage)
+make test-ios ONLY_TESTING=<AffectedTestClass>
+
+# 5. If samples changed
+make build-sample-iOS-Swift
 ```
 
-After renaming, verify that git recognizes the rename:
+Ensure no new issues from: static analysis, thread/address/UB sanitizers, or cross-platform dependants (React Native, Flutter, .NET, Unity).
 
-```bash
-git status                        # Should show "renamed: old -> new"
-git log --follow new-name.swift   # Should show full history including old name
-```
+## Commits
 
-### Conventional Commits
+- **Pre-commit hooks** auto-format files; retry the commit if it fails due to hook modifications
+- **Conventional Commits 1.0.0** — subject max 50 chars, body max 72 chars/line
+- **No AI references** in commits or PRs — no Co-Authored-By tags, no Generated-with footers
+- **File renames** — always use `git mv`, never `mv` + `git add`
 
-This project uses [Conventional Commits 1.0.0](https://www.conventionalcommits.org/).
+| Type    | Changelog? | Purpose                               |
+| ------- | ---------- | ------------------------------------- |
+| `feat`  | yes        | New feature (MINOR)                   |
+| `fix`   | yes        | Bug fix (PATCH)                       |
+| `impr`  | yes        | Improvement to existing functionality |
+| `ref`   | no         | Refactoring (no behavior change)      |
+| `test`  | no         | Test additions/corrections            |
+| `docs`  | no         | Documentation only                    |
+| `build` | no         | Build system/dependencies             |
+| `ci`    | no         | CI configuration                      |
+| `chore` | no         | Maintenance                           |
+| `perf`  | no         | Performance improvement               |
+| `style` | no         | Formatting (no logic change)          |
 
-```
-<type>[optional scope]: <description>
+Non-changelog types require `#skip-changelog` in PR description. Breaking changes: `feat!:` or `BREAKING CHANGE:` footer.
 
-[optional body]
+## CLI
 
-[optional footer(s)]
-```
+| Command                  | Description                       |
+| ------------------------ | --------------------------------- |
+| `make help`              | List all targets                  |
+| `make format`            | Format all code                   |
+| `make analyze`           | Static analysis                   |
+| `make test`              | All platform tests                |
+| `make test-ios`          | iOS tests (fastest)               |
+| `make test-ui-critical`  | Important UI tests                |
+| `make build-ios`         | Build for iOS                     |
+| `make build-xcframework` | Build XCFramework deliverables    |
+| `make build-samples`     | Build all sample apps             |
+| `make xcode-ci`          | Regenerate sample Xcode projects  |
+| `make pod-lint`          | Lint pod deliverable              |
+| `make run-test-server`   | Start test server (rarely needed) |
+| `make stop-test-server`  | Stop test server                  |
 
-**Line Length Limits:**
+## Shell Scripts
 
-- **Subject line:** Maximum 50 characters (including type prefix)
-- **Body lines:** Maximum 72 characters per line
+- Named parameters (`--since`, `--output`) over positional (`$1`, `$2`)
+- Extract complex logic into separate scripts rather than heredocs
 
-**Types that appear in CHANGELOG:**
+## Documentation
 
-- `feat:` — A new feature (MINOR in SemVer)
-- `fix:` — A bug fix (PATCH in SemVer)
-- `impr:` — An improvement to existing functionality
-
-**Other Allowed Types** (require `#skip-changelog` in PR description):
-
-- `build:`, `chore:`, `ci:`, `docs:`, `style:`, `refactor:` (or `ref:`), `perf:`, `test:`
-
-**Breaking Changes:** Add `!` after type/scope (`feat!:`) or use footer `BREAKING CHANGE: description`.
-
-### No AI References
-
-**NEVER mention AI assistant names (Claude, ChatGPT, Cursor, etc.) in commit messages or PR descriptions.** No Co-Authored-By tags, no Generated-with footers. Keep messages focused on the technical changes.
-
-## Makefile
-
-Prefer Makefile commands over custom shell commands. Run `make help` to see all available targets.
-
-**Helpful Commands:**
-
-- format code: `make format`
-- run static analysis: `make analyze`
-- run unit tests: `make test`
-- run important UI tests: `make test-ui-critical`
-- start test server (rarely needed): `make run-test-server`
-- stop test server: `make stop-test-server`
-- build the XCFramework deliverables: `make build-xcframework`
-- build all sample apps: `make build-samples`
-- regenerate sample Xcode projects: `make xcode-ci`
-- lint pod deliverable: `make pod-lint`
-
-## Shell Script Conventions
-
-- **Use named parameters** (`--since`, `--output`) over positional parameters (`$1`, `$2`) to prevent wrong parameters being passed as scripts evolve
-- **Extract complex logic** into separate scripts (e.g., Python for data processing) rather than inlining via heredocs, to enable IDE support and testing
-
-## Resources & Documentation
-
-- **Main Documentation**: [docs.sentry.io/platforms/apple](https://docs.sentry.io/platforms/apple/)
-  - **Docs Repo**: [sentry-docs](https://github.com/getsentry/sentry-docs)
-- **SDK Developer Documentation**: [develop.sentry.dev/sdk/](https://develop.sentry.dev/sdk/)
-
-### `sentry-cocoa` Maintainer Documentation
-
-- **README**: @README.md
-- **Contributing**: @CONTRIBUTING.md
-- **Developer README**: @develop-docs/README.md
-- **Sample App collection README**: @Samples/README.md
+- Update headerdocs, inline comments, readmes, and maintainer docs with your changes
+- **Docs**: [docs.sentry.io/platforms/apple](https://docs.sentry.io/platforms/apple/) — repo: [sentry-docs](https://github.com/getsentry/sentry-docs)
+- **SDK dev docs**: [develop.sentry.dev/sdk/](https://develop.sentry.dev/sdk/)
+- Maintainer docs: [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`develop-docs/`](develop-docs/), [`Samples/README.md`](Samples/README.md)
 
 ## Related Repositories
 
-- [sentry-cli](https://github.com/getsentry/sentry-cli): uploading dSYMs for symbolicating stack traces
-- [sentry-wizard](https://github.com/getsentry/sentry-wizard): automatically injecting SDK initialization code
-- [sentry-cocoa onboarding](https://github.com/getsentry/sentry/blob/master/static/app/utils/gettingStartedDocs/apple.tsx): web app onboarding instructions
-- [sentry-unity](https://github.com/getsentry/sentry-unity): depends on sentry-cocoa
-- [sentry-dart](https://github.com/getsentry/sentry-dart): depends on sentry-cocoa
-- [sentry-react-native](https://github.com/getsentry/sentry-react-native): depends on sentry-cocoa
-- [sentry-dotnet](https://github.com/getsentry/sentry-dotnet): depends on sentry-cocoa
+- [sentry-cli](https://github.com/getsentry/sentry-cli) — dSYM uploads
+- [sentry-wizard](https://github.com/getsentry/sentry-wizard) — SDK initialization injection
+- [sentry-react-native](https://github.com/getsentry/sentry-react-native), [sentry-dart](https://github.com/getsentry/sentry-dart), [sentry-unity](https://github.com/getsentry/sentry-unity), [sentry-dotnet](https://github.com/getsentry/sentry-dotnet) — depend on sentry-cocoa

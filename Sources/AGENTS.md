@@ -1,21 +1,17 @@
-# Sources — Agent Instructions
+# Sources
 
-## Objective-C Conventions
+## Objective-C
 
-### Avoid `+new`, Use `[[Class alloc] init]`
+### No `+new`
 
-Never use `[NSObject new]` or `[ClassName new]` in Objective-C code. Always use `[[ClassName alloc] init]` instead.
+Use `[[Class alloc] init]`, not `[Class new]`:
 
 ```objc
-// Prefer
+// Correct
 NSMutableArray *items = [[NSMutableArray alloc] init];
-NSMutableDictionary *data = [[NSMutableDictionary alloc] init];
 SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] init];
 
-// Avoid
+// Wrong
 NSMutableArray *items = [NSMutableArray new];
-NSMutableDictionary *data = [NSMutableDictionary new];
 SentryBreadcrumb *crumb = [SentryBreadcrumb new];
 ```
-
-**Rationale:** While `+new` is effectively equivalent to `[[self alloc] init]`, it hides the two-phase creation and the choice of designated initializer behind a single opaque call. Using `[[Class alloc] init…]` is the idiomatic Objective-C pattern that makes allocation and initialization clear to readers and consistent with designated initializer usage.
