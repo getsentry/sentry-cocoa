@@ -53,28 +53,34 @@ NS_ASSUME_NONNULL_BEGIN
         // the exception is only captured once.
         SEL selector = NSSelectorFromString(@"_crashOnException:");
 
-        SentrySwizzleClassMethod(NSApplication, selector, SentrySWReturnType(void),
-            SentrySWArguments(NSException * exception), SentrySWReplacement({
-                [SentryNSExceptionCaptureHelper crashOnException:exception];
+        // _crashOnException: is a private AppKit method that may not exist on all macOS versions.
+        // Only swizzle if the method is actually present on the class/instance.
+        if (class_getClassMethod([NSApplication class], selector)) {
+            SentrySwizzleClassMethod(NSApplication, selector, SentrySWReturnType(void),
+                SentrySWArguments(NSException * exception), SentrySWReplacement({
+                    [SentryNSExceptionCaptureHelper crashOnException:exception];
 #    if SENTRY_TEST || SENTRY_TEST_CI
-                // Don't call the original in tests as it would abort() the process.
-                swizzleInfo.originalCalled = YES;
+                    // Don't call the original in tests as it would abort() the process.
+                    swizzleInfo.originalCalled = YES;
 #    else
-                return SentrySWCallOriginal(exception);
+                    return SentrySWCallOriginal(exception);
 #    endif
-            }));
+                }));
+        }
 
-        SentrySwizzleInstanceMethod(NSApplication, selector, SentrySWReturnType(void),
-            SentrySWArguments(NSException * exception), SentrySWReplacement({
-                [SentryNSExceptionCaptureHelper crashOnException:exception];
+        if (class_getInstanceMethod([NSApplication class], selector)) {
+            SentrySwizzleInstanceMethod(NSApplication, selector, SentrySWReturnType(void),
+                SentrySWArguments(NSException * exception), SentrySWReplacement({
+                    [SentryNSExceptionCaptureHelper crashOnException:exception];
 #    if SENTRY_TEST || SENTRY_TEST_CI
-                // Don't call the original in tests as it would abort() the process.
-                swizzleInfo.originalCalled = YES;
+                    // Don't call the original in tests as it would abort() the process.
+                    swizzleInfo.originalCalled = YES;
 #    else
-                return SentrySWCallOriginal(exception);
+                    return SentrySWCallOriginal(exception);
 #    endif
-            }),
-            SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+                }),
+                SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
+        }
 #    pragma clang diagnostic pop
     });
 }

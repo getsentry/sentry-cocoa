@@ -34,6 +34,12 @@ final class SentryUncaughtNSExceptionsTests: XCTestCase {
     }
     
     func testSwizzleNSApplicationCrashOnException_classMethod() throws {
+        let selector = NSSelectorFromString("_crashOnException:")
+        try XCTSkipUnless(
+            NSApplication.responds(to: selector),
+            "_crashOnException: class method not available on this macOS version"
+        )
+
         let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
 
         defer {
@@ -47,12 +53,18 @@ final class SentryUncaughtNSExceptionsTests: XCTestCase {
 
         // Call the class method +[NSApplication _crashOnException:].
         // In tests, SentrySWCallOriginal is skipped so this won't abort().
-        NSApplication.perform(NSSelectorFromString("_crashOnException:"), with: uncaughtInternalInconsistencyException)
+        NSApplication.perform(selector, with: uncaughtInternalInconsistencyException)
 
         XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
     }
 
     func testSwizzleNSApplicationCrashOnException_calledMultipleTimes_classMethodCapturesOnce() throws {
+        let selector = NSSelectorFromString("_crashOnException:")
+        try XCTSkipUnless(
+            NSApplication.responds(to: selector),
+            "_crashOnException: class method not available on this macOS version"
+        )
+
         let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
 
         defer {
@@ -68,13 +80,19 @@ final class SentryUncaughtNSExceptionsTests: XCTestCase {
         SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException()
         SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException()
 
-        NSApplication.perform(NSSelectorFromString("_crashOnException:"), with: uncaughtInternalInconsistencyException)
+        NSApplication.perform(selector, with: uncaughtInternalInconsistencyException)
 
         XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
         XCTAssertEqual(uncaughtExceptionHandlerCallCount, 1, "Handler should fire exactly once, not stack on repeated SDK starts")
     }
 
     func testSwizzleNSApplicationCrashOnException_instanceMethod() throws {
+        let selector = NSSelectorFromString("_crashOnException:")
+        try XCTSkipUnless(
+            NSApplication.shared.responds(to: selector),
+            "_crashOnException: instance method not available on this macOS version"
+        )
+
         let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
 
         defer {
@@ -88,7 +106,7 @@ final class SentryUncaughtNSExceptionsTests: XCTestCase {
 
         // Call the instance method -[NSApp _crashOnException:].
         // In tests, SentrySWCallOriginal is skipped so this won't abort().
-        NSApplication.shared.perform(NSSelectorFromString("_crashOnException:"), with: uncaughtInternalInconsistencyException)
+        NSApplication.shared.perform(selector, with: uncaughtInternalInconsistencyException)
 
         XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
     }
