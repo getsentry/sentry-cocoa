@@ -105,32 +105,24 @@ run_integration_test_for_prs: &run_integration_test_for_prs
   - "fastlane/**"
   - "Gemfile.lock"
 
-run_benchmarking_for_prs: &run_benchmarking_for_prs
-  - "Sources/**"
-
-  # GH Actions
+# Benchmarks always run on main, but on PRs they only run when benchmarking-related files change.
+# We intentionally exclude Sources/**, Tests/**, and other broad patterns here because benchmarks
+# are expensive (SauceLabs devices) and slow down PR CI. SDK source changes are covered by the
+# benchmarks running on every push to main.
+run_benchmarking_for_prs: &run_benchmarking_for_prs # GH Actions
   - ".github/workflows/benchmarking.yml"
   - ".github/file-filters.yml"
 
-  # Benchmarking implementation
-  - "Samples/iOS-Swift/**"
+  # Benchmarking test target and implementation
+  - "Samples/iOS-Swift/iOS-Benchmarking/**"
+  - "Samples/iOS-Swift/iOS-Benchmarking.xcconfig"
+  - "Samples/iOS-Swift/iOS-Swift/Profiling/BenchmarkingViewController.swift"
+  - "Samples/iOS-Swift/iOS-Swift/Tools/SentryBenchmarking.h"
+  - "Samples/iOS-Swift/iOS-Swift/Tools/SentryBenchmarking.mm"
+  - "Samples/iOS-Swift/iOS-Swift.yml"
+  - "Samples/SentrySampleShared/SentrySampleUITestShared/**"
   - ".sauce/benchmarking-config.yml"
   - "Plans/iOS-Benchmarking_Base.xctestplan"
-
-  # Scripts
-  - "scripts/ci-select-xcode.sh"
-  - "scripts/ci-diagnostics.sh"
-  - "scripts/ci-utils.sh"
-
-  # Project files
-  - "Samples/iOS-Swift/iOS-Swift.yml"
-  - "Samples/iOS-Swift/iOS-Swift.xcconfig"
-  - "Samples/iOS-Swift/iOS-SwiftClip.xcconfig"
-  - "Samples/iOS-Swift/iOS-Benchmarking.xcconfig"
-  - "Package*.swift"
-
-  # Build configuration
-  - "fastlane/**"
 
 run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
   - "Sources/**"
