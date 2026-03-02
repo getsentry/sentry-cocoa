@@ -218,6 +218,61 @@ Sentry maintains a watching approach, selectively adopting KSCrash improvements:
 - `9c801d311` (Feb 2026): Adopted lock-free atomic exchange from KSCrash PR #733
 - `5bd268cae` (Feb 2026): "suspend env after notifying, align naming with KSCrash"
 
+#### Upstream Fixes Not Yet Adopted
+
+Fixes from upstream [KSCrash releases](https://github.com/kstenerud/KSCrash/releases) (2.0.0 through 2.5.1) that SentryCrash has **not** yet cherry-picked. These are candidates for selective adoption.
+
+**KSCrash 2.5.1** (Jan 2026):
+
+| KSCrash PR                                            | Description                                                                                                      |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| [#723](https://github.com/kstenerud/KSCrash/pull/723) | Memory safety: `memmove` bug in file utils, `sprintf` → `snprintf` throughout, buffer handling (ASan-discovered) |
+| [#725](https://github.com/kstenerud/KSCrash/pull/725) | Memory monitor safety improvements                                                                               |
+| [#742](https://github.com/kstenerud/KSCrash/pull/742) | Thread safety in memory tracking                                                                                 |
+| [#749](https://github.com/kstenerud/KSCrash/pull/749) | Static analyzer warnings fixed                                                                                   |
+| [#751](https://github.com/kstenerud/KSCrash/pull/751) | Undefined behavior issues (UBSan)                                                                                |
+| [#763](https://github.com/kstenerud/KSCrash/pull/763) | Unsigned integer underflow in `imageContainingAddress`                                                           |
+
+**KSCrash 2.4.0** (Sep 2025):
+
+| KSCrash PR                                            | Description                                                                                                                                                         |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#651](https://github.com/kstenerud/KSCrash/pull/651) | Forward Mach exceptions to next handler (13-year-old handler chaining bug; relevant to sentry-cocoa [#4725](https://github.com/getsentry/sentry-cocoa/issues/4725)) |
+| [#662](https://github.com/kstenerud/KSCrash/pull/662) | Lockless algorithm for KSCrashMonitor                                                                                                                               |
+| [#659](https://github.com/kstenerud/KSCrash/pull/659) | Inverted dependency from monitors to KSCrashMonitor.c using DI                                                                                                      |
+| [#696](https://github.com/kstenerud/KSCrash/pull/696) | Always record offending thread at least                                                                                                                             |
+| [#693](https://github.com/kstenerud/KSCrash/pull/693) | Still attempt to record threads even if suspend fails                                                                                                               |
+| [#705](https://github.com/kstenerud/KSCrash/pull/705) | Remove direct dependency between signal and memory monitors                                                                                                         |
+
+**KSCrash 2.3.0** (Aug 2025):
+
+| KSCrash PR                                            | Description                                                                    |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------ |
+| [#660](https://github.com/kstenerud/KSCrash/pull/660) | Off-by-one error in `arm64.c` (already applied in SentryCrash via earlier fix) |
+| [#664](https://github.com/kstenerud/KSCrash/pull/664) | Raise max captured thread count to 1000                                        |
+
+**KSCrash 2.0.0-alpha.2**:
+
+| KSCrash PR                                            | Description                                         |
+| ----------------------------------------------------- | --------------------------------------------------- |
+| [#479](https://github.com/kstenerud/KSCrash/pull/479) | Stack overflow caused by insufficient disk space    |
+| [#468](https://github.com/kstenerud/KSCrash/pull/468) | Fix tail call optimization in C++ backtrace capture |
+| [#478](https://github.com/kstenerud/KSCrash/pull/478) | Fix `NSArray` description                           |
+
+#### Merge Candidates
+
+The tracking issue [sentry-cocoa #5619](https://github.com/getsentry/sentry-cocoa/issues/5619) lists KSCrash PRs to consider merging into SentryCrash. Summary with context:
+
+| Candidate                                    | KSCrash PR                                            | Context                                                                                                                                          |
+| -------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Forward Mach exceptions to next handler      | [#651](https://github.com/kstenerud/KSCrash/pull/651) | Fixes handler chaining so other crash reporters get a chance; directly addresses [#4725](https://github.com/getsentry/sentry-cocoa/issues/4725). |
+| Add thread run state string to report        | [#645](https://github.com/kstenerud/KSCrash/pull/645) | Enriches crash reports with thread run state.                                                                                                    |
+| Add improved jailbreak detection logic       | [#666](https://github.com/kstenerud/KSCrash/pull/666) | Improves system info / device context.                                                                                                           |
+| Convert KSCrashMonitor to lockless algorithm | [#662](https://github.com/kstenerud/KSCrash/pull/662) | Aligns with Sentry’s existing atomic exchange adoption; reduces lock contention.                                                                 |
+| Add clang_version field to system info       | [#668](https://github.com/kstenerud/KSCrash/pull/668) | Adds compiler version to system info.                                                                                                            |
+| Add binary architecture field to system info | [#669](https://github.com/kstenerud/KSCrash/pull/669) | Helps with [#6180](https://github.com/getsentry/sentry-cocoa/issues/6180) (cpu_type/cpu_subtype) and architecture reporting.                     |
+| Add Rosetta detection field                  | [#671](https://github.com/kstenerud/KSCrash/pull/671) | Indicates when app is running under Rosetta.                                                                                                     |
+
 ### Known Issues & Risks
 
 #### HIGH Priority
@@ -452,6 +507,7 @@ The same directory mixes:
 ### Recommendations for Architecture Improvement
 
 1. **Reorganize Tools/ into sub-modules**:
+
    ```
    Tools/
    ├── CPU/          (SentryCrashCPU*.c)
@@ -517,6 +573,45 @@ The same directory mixes:
 | LOW      | Thread-local storage for C++ exceptions | `SentryCrashMonitor_CPPException.cpp:68`          | Global cursor, potential concurrent issue            |
 | LOW      | SentryDevice API consolidation          | `SentryCrashMonitor_System.m:406,531`             | Duplicate device info collection                     |
 | LOW      | Deprecated 32-bit platform code         | `SentryCrashCPU_arm.c`, `SentryCrashCPU_x86_32.c` | Dead code, maintenance burden                        |
+
+### Open GitHub Issues
+
+User-reported and team-tracked bugs from the [sentry-cocoa issue tracker](https://github.com/getsentry/sentry-cocoa/issues), organized by severity.
+
+**HIGH priority (active user-facing bugs):**
+
+| Issue                                                          | Description                                                                                                                                  |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#7298](https://github.com/getsentry/sentry-cocoa/issues/7298) | "Application Specific Information" contains random memory contents (PII risk, bad pointer arithmetic in report writing)                      |
+| [#7136](https://github.com/getsentry/sentry-cocoa/issues/7136) | ASI truncated for crashes in `_crashOnException:` (macOS 26 changed from instance to class method, `SentryCrashExceptionApplication` broken) |
+| [#6620](https://github.com/getsentry/sentry-cocoa/issues/6620) | Stacktrace shows `SentryCrashExceptionApplicationHelper` instead of actual crash location                                                    |
+| [#4904](https://github.com/getsentry/sentry-cocoa/issues/4904) | Different main thread ID for errors vs traces (crash reports hardcode thread ID 0 in `SentryCrashReportConverter.m:268`)                     |
+| [#6405](https://github.com/getsentry/sentry-cocoa/issues/6405) | Empty view hierarchy file sent during fatal crashes (best-effort capture produces empty JSON)                                                |
+
+**MEDIUM priority (correctness and architecture):**
+
+| Issue                                                          | Description                                                                                                |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| [#4725](https://github.com/getsentry/sentry-cocoa/issues/4725) | Mach exception handling interferes with other SDKs' signal handlers (handler chaining issue)               |
+| [#1589](https://github.com/getsentry/sentry-cocoa/issues/1589) | `SentryCrashMonitor_MachException` crashes on macOS in `handleExceptions()` at `mach_msg`                  |
+| [#1562](https://github.com/getsentry/sentry-cocoa/issues/1562) | C++ exception stack traces show only `CPPExceptionTerminate`, not structured frames                        |
+| [#6180](https://github.com/getsentry/sentry-cocoa/issues/6180) | `cpu_type` and `cpu_subtype` missing from reports (removed to fix hang, needs background-thread retrieval) |
+| [#6116](https://github.com/getsentry/sentry-cocoa/issues/6116) | `testWriteCrashReport_ContainsCrashInfoMessage` disabled on iOS 26+, needs revisiting                      |
+
+**LOW priority (features and tech debt):**
+
+| Issue                                                          | Description                                                                              |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [#7501](https://github.com/getsentry/sentry-cocoa/issues/7501) | Expose public option to disable memory introspection (privacy, related to #7298)         |
+| [#900](https://github.com/getsentry/sentry-cocoa/issues/900)   | Revisit `NXGetLocalArchInfo` for device architecture (Firebase never had issues with it) |
+| [#2747](https://github.com/getsentry/sentry-cocoa/issues/2747) | Support unhandled exceptions on watchOS                                                  |
+| [#1923](https://github.com/getsentry/sentry-cocoa/issues/1923) | Increase max stacktrace frame length beyond 100                                          |
+| [#6699](https://github.com/getsentry/sentry-cocoa/issues/6699) | Evaluate `-fstack-protector-all` compiler flag                                           |
+
+**Cross-cutting themes:**
+
+- **NSException handling broken on macOS 26** — [#7136](https://github.com/getsentry/sentry-cocoa/issues/7136) and [#6620](https://github.com/getsentry/sentry-cocoa/issues/6620) both stem from Apple changing `_crashOnException:` behavior; treat as a cluster when planning fixes.
+- **Memory safety in crash reports** — [#7298](https://github.com/getsentry/sentry-cocoa/issues/7298), [#7501](https://github.com/getsentry/sentry-cocoa/issues/7501), and [#6699](https://github.com/getsentry/sentry-cocoa/issues/6699) form a privacy/safety cluster around memory introspection during crash writing.
 
 ---
 
