@@ -375,6 +375,16 @@
 		92E5F3D62CDBB3BF00B7AD98 /* SentrySampling.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E8C57A525EEFC42001CEEFA /* SentrySampling.h */; };
 		92ECD7202E05A7DF0063EC10 /* SentryLogC.h in Headers */ = {isa = PBXBuildFile; fileRef = D8AE48B12C5786AA0092A2A6 /* SentryLogC.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		92F6726B29C8B7B100BFD34D /* SentryUser+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 92F6726A29C8B7B000BFD34D /* SentryUser+Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		A581ACDD2F560A89009C6F6D /* SentryNSURLSessionSwizzleTargetDiscovery.h in Headers */ = {isa = PBXBuildFile; fileRef = A581ACDC2F560A89009C6F6D /* SentryNSURLSessionSwizzleTargetDiscovery.h */; };
+		A581ACE42F560AC2009C6F6D /* SentryNSURLSessionSwizzleTargetDiscovery.m in Sources */ = {isa = PBXBuildFile; fileRef = A581ACE32F560AC2009C6F6D /* SentryNSURLSessionSwizzleTargetDiscovery.m */; };
+		A581B2EA2F560CA1009C6F6D /* SentryNetworkBodyWarning.h in Headers */ = {isa = PBXBuildFile; fileRef = A581B2E72F560CA1009C6F6D /* SentryNetworkBodyWarning.h */; };
+		A581B2EB2F560CA1009C6F6D /* SentryNetworkBody.h in Headers */ = {isa = PBXBuildFile; fileRef = A581B2E62F560CA1009C6F6D /* SentryNetworkBody.h */; };
+		A581B2EC2F560CA1009C6F6D /* SentryNetworkRequestData.h in Headers */ = {isa = PBXBuildFile; fileRef = A581B2E82F560CA1009C6F6D /* SentryNetworkRequestData.h */; };
+		A581B2ED2F560CA1009C6F6D /* SentryReplayNetworkRequestOrResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = A581B2E92F560CA1009C6F6D /* SentryReplayNetworkRequestOrResponse.h */; };
+		A581B2F22F560CC4009C6F6D /* SentryNetworkBodyWarning.m in Sources */ = {isa = PBXBuildFile; fileRef = A581B2EF2F560CC4009C6F6D /* SentryNetworkBodyWarning.m */; };
+		A581B2F32F560CC4009C6F6D /* SentryNetworkBody.m in Sources */ = {isa = PBXBuildFile; fileRef = A581B2EE2F560CC4009C6F6D /* SentryNetworkBody.m */; };
+		A581B2F42F560CC4009C6F6D /* SentryReplayNetworkRequestOrResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = A581B2F12F560CC4009C6F6D /* SentryReplayNetworkRequestOrResponse.m */; };
+		A581B2F52F560CC4009C6F6D /* SentryNetworkRequestData.m in Sources */ = {isa = PBXBuildFile; fileRef = A581B2F02F560CC4009C6F6D /* SentryNetworkRequestData.m */; };
 		A8AFFCCD29069C3E00967CD7 /* SentryHttpStatusCodeRange.h in Headers */ = {isa = PBXBuildFile; fileRef = A8AFFCCC29069C3E00967CD7 /* SentryHttpStatusCodeRange.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A8AFFCCF2906C03700967CD7 /* SentryRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = A8AFFCCE2906C03700967CD7 /* SentryRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A8F17B2E2901765900990B25 /* SentryRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8F17B2D2901765900990B25 /* SentryRequest.m */; };
@@ -409,8 +419,6 @@
 		D81A346C291AECC7005A27A9 /* PrivateSentrySDKOnly.h in Headers */ = {isa = PBXBuildFile; fileRef = D81A346B291AECC7005A27A9 /* PrivateSentrySDKOnly.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D82859432C3E753C009A28AA /* SentrySessionReplaySyncC.c in Sources */ = {isa = PBXBuildFile; fileRef = D82859422C3E753C009A28AA /* SentrySessionReplaySyncC.c */; };
 		D82859442C3E753C009A28AA /* SentrySessionReplaySyncC.h in Headers */ = {isa = PBXBuildFile; fileRef = D82859412C3E753C009A28AA /* SentrySessionReplaySyncC.h */; };
-		D8370B6A273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = D8370B68273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m */; };
-		D8370B6C273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = D8370B6B273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h */; };
 		D83D079B2B7F9D1C00CC9674 /* SentryMsgPackSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = D83D07992B7F9D1C00CC9674 /* SentryMsgPackSerializer.h */; };
 		D83D079C2B7F9D1C00CC9674 /* SentryMsgPackSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = D83D079A2B7F9D1C00CC9674 /* SentryMsgPackSerializer.m */; };
 		D84DAD502B17428D003CF120 /* SentryTestUtilsDynamic.h in Headers */ = {isa = PBXBuildFile; fileRef = D84DAD4F2B17428D003CF120 /* SentryTestUtilsDynamic.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1029,6 +1037,16 @@
 		92D957722E05A44600E20E66 /* SentryAsyncLog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryAsyncLog.m; sourceTree = "<group>"; };
 		92D957762E05A4F300E20E66 /* SentryAsyncLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryAsyncLog.h; path = include/SentryAsyncLog.h; sourceTree = "<group>"; };
 		92F6726A29C8B7B000BFD34D /* SentryUser+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "SentryUser+Private.h"; path = "include/SentryUser+Private.h"; sourceTree = "<group>"; };
+		A581ACDC2F560A89009C6F6D /* SentryNSURLSessionSwizzleTargetDiscovery.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryNSURLSessionSwizzleTargetDiscovery.h; path = include/SentryNSURLSessionSwizzleTargetDiscovery.h; sourceTree = "<group>"; };
+		A581ACE32F560AC2009C6F6D /* SentryNSURLSessionSwizzleTargetDiscovery.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNSURLSessionSwizzleTargetDiscovery.m; sourceTree = "<group>"; };
+		A581B2E62F560CA1009C6F6D /* SentryNetworkBody.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryNetworkBody.h; path = include/SentryNetworkBody.h; sourceTree = "<group>"; };
+		A581B2E72F560CA1009C6F6D /* SentryNetworkBodyWarning.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryNetworkBodyWarning.h; path = include/SentryNetworkBodyWarning.h; sourceTree = "<group>"; };
+		A581B2E82F560CA1009C6F6D /* SentryNetworkRequestData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryNetworkRequestData.h; path = include/SentryNetworkRequestData.h; sourceTree = "<group>"; };
+		A581B2E92F560CA1009C6F6D /* SentryReplayNetworkRequestOrResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryReplayNetworkRequestOrResponse.h; path = include/SentryReplayNetworkRequestOrResponse.h; sourceTree = "<group>"; };
+		A581B2EE2F560CC4009C6F6D /* SentryNetworkBody.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNetworkBody.m; sourceTree = "<group>"; };
+		A581B2EF2F560CC4009C6F6D /* SentryNetworkBodyWarning.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNetworkBodyWarning.m; sourceTree = "<group>"; };
+		A581B2F02F560CC4009C6F6D /* SentryNetworkRequestData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNetworkRequestData.m; sourceTree = "<group>"; };
+		A581B2F12F560CC4009C6F6D /* SentryReplayNetworkRequestOrResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryReplayNetworkRequestOrResponse.m; sourceTree = "<group>"; };
 		A5C5018284FB49D69B453DFE /* SentryDefaultTelemetryProcessorTransport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryDefaultTelemetryProcessorTransport.h; path = include/SentryDefaultTelemetryProcessorTransport.h; sourceTree = "<group>"; };
 		A8AFFCCC29069C3E00967CD7 /* SentryHttpStatusCodeRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryHttpStatusCodeRange.h; path = Public/SentryHttpStatusCodeRange.h; sourceTree = "<group>"; };
 		A8AFFCCE2906C03700967CD7 /* SentryRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryRequest.h; path = Public/SentryRequest.h; sourceTree = "<group>"; };
@@ -1069,8 +1087,6 @@
 		D81A346B291AECC7005A27A9 /* PrivateSentrySDKOnly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PrivateSentrySDKOnly.h; path = Public/PrivateSentrySDKOnly.h; sourceTree = "<group>"; };
 		D82859412C3E753C009A28AA /* SentrySessionReplaySyncC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySessionReplaySyncC.h; path = include/SentrySessionReplaySyncC.h; sourceTree = "<group>"; };
 		D82859422C3E753C009A28AA /* SentrySessionReplaySyncC.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SentrySessionReplaySyncC.c; sourceTree = "<group>"; };
-		D8370B68273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNSURLSessionTaskSearch.m; sourceTree = "<group>"; };
-		D8370B6B273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryNSURLSessionTaskSearch.h; path = include/SentryNSURLSessionTaskSearch.h; sourceTree = "<group>"; };
 		D83D07992B7F9D1C00CC9674 /* SentryMsgPackSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryMsgPackSerializer.h; path = include/SentryMsgPackSerializer.h; sourceTree = "<group>"; };
 		D83D079A2B7F9D1C00CC9674 /* SentryMsgPackSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryMsgPackSerializer.m; sourceTree = "<group>"; };
 		D84DAD4D2B17428D003CF120 /* SentryTestUtilsDynamic.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentryTestUtilsDynamic.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1888,12 +1904,20 @@
 		7BE0DC3B272AE8EB004FA8B7 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				A581B2EE2F560CC4009C6F6D /* SentryNetworkBody.m */,
+				A581B2EF2F560CC4009C6F6D /* SentryNetworkBodyWarning.m */,
+				A581B2F02F560CC4009C6F6D /* SentryNetworkRequestData.m */,
+				A581B2F12F560CC4009C6F6D /* SentryReplayNetworkRequestOrResponse.m */,
+				A581B2E62F560CA1009C6F6D /* SentryNetworkBody.h */,
+				A581B2E72F560CA1009C6F6D /* SentryNetworkBodyWarning.h */,
+				A581B2E82F560CA1009C6F6D /* SentryNetworkRequestData.h */,
+				A581B2E92F560CA1009C6F6D /* SentryReplayNetworkRequestOrResponse.h */,
+				A581ACE32F560AC2009C6F6D /* SentryNSURLSessionSwizzleTargetDiscovery.m */,
+				A581ACDC2F560A89009C6F6D /* SentryNSURLSessionSwizzleTargetDiscovery.h */,
 				8E564AEC267AF24400FE117D /* SentryNetworkTracker.h */,
 				8E564AE7267AF22600FE117D /* SentryNetworkTracker.m */,
 				62E59A522E8FB70000DB7A7B /* SentryTracePropagation.h */,
 				62E59A592E8FB85300DB7A7B /* SentryTracePropagation.m */,
-				D8370B6B273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h */,
-				D8370B68273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m */,
 				A8F17B332902870300990B25 /* SentryHttpStatusCodeRange.m */,
 				A8AFFCCC29069C3E00967CD7 /* SentryHttpStatusCodeRange.h */,
 				7BC5B6F8290BCDE500D99477 /* SentryHttpStatusCodeRange+Private.h */,
@@ -2377,6 +2401,7 @@
 				7B3B473025D6CBFC00D01640 /* SentryNSError.h in Headers */,
 				630436101EC0600A00C4D3FA /* SentrySerializable.h in Headers */,
 				63FE70DD20DA4C1000CDBAE8 /* SentryCrashMonitor_Signal.h in Headers */,
+				A581ACDD2F560A89009C6F6D /* SentryNSURLSessionSwizzleTargetDiscovery.h in Headers */,
 				FA27EC0E2EB922F200F2ECF7 /* SentryOptionsInternal.h in Headers */,
 				63FE710320DA4C1000CDBAE8 /* SentryCrashMachineContext_Apple.h in Headers */,
 				928207C42E251B8F009285A4 /* SentryScope+PrivateSwift.h in Headers */,
@@ -2443,6 +2468,10 @@
 				7B85DC1E24EFAFCD007D01D2 /* SentryClient+Private.h in Headers */,
 				A8AFFCCF2906C03700967CD7 /* SentryRequest.h in Headers */,
 				D82859442C3E753C009A28AA /* SentrySessionReplaySyncC.h in Headers */,
+				A581B2EA2F560CA1009C6F6D /* SentryNetworkBodyWarning.h in Headers */,
+				A581B2EB2F560CA1009C6F6D /* SentryNetworkBody.h in Headers */,
+				A581B2EC2F560CA1009C6F6D /* SentryNetworkRequestData.h in Headers */,
+				A581B2ED2F560CA1009C6F6D /* SentryReplayNetworkRequestOrResponse.h in Headers */,
 				8459FCBE2BD73E820038E9C9 /* SentryProfilerSerialization.h in Headers */,
 				7BC852332458802C005A70F0 /* SentryDataCategoryMapper.h in Headers */,
 				7BDB03B7251364F800BAE198 /* _SentryDispatchQueueWrapperInternal.h in Headers */,
@@ -2452,7 +2481,6 @@
 				03F84D2127DD414C008FE43F /* SentrySamplingProfiler.hpp in Headers */,
 				63FE712B20DA4C1100CDBAE8 /* SentryCrashStackCursor.h in Headers */,
 				7BA61CBF247CEA8100C130A8 /* SentryFormatter.h in Headers */,
-				D8370B6C273DF20F00F66E2D /* SentryNSURLSessionTaskSearch.h in Headers */,
 				7B96572026830C9100C66E25 /* SentryScopeSyncC.h in Headers */,
 				63FE70EB20DA4C1000CDBAE8 /* SentryCrashMonitor_MachException.h in Headers */,
 				D456B4362D706BF2007068CB /* SentryTraceOrigin.h in Headers */,
@@ -2911,6 +2939,11 @@
 				03F84D3727DD4191008FE43F /* SentrySamplingProfiler.cpp in Sources */,
 				8453421628BE8A9500C22EEC /* SentrySpanStatus.m in Sources */,
 				6292585B2DAFA5F70049388F /* SentryCrashCxaThrowSwapper.c in Sources */,
+				A581B2F22F560CC4009C6F6D /* SentryNetworkBodyWarning.m in Sources */,
+				A581B2F32F560CC4009C6F6D /* SentryNetworkBody.m in Sources */,
+				A581B2F42F560CC4009C6F6D /* SentryReplayNetworkRequestOrResponse.m in Sources */,
+				A581B2F52F560CC4009C6F6D /* SentryNetworkRequestData.m in Sources */,
+				A581ACE42F560AC2009C6F6D /* SentryNSURLSessionSwizzleTargetDiscovery.m in Sources */,
 				92D957732E05A44600E20E66 /* SentryAsyncLog.m in Sources */,
 				15E0A8ED240F2CB000F044E3 /* SentrySerialization.m in Sources */,
 				7BC85235245880AE005A70F0 /* SentryDataCategoryMapper.m in Sources */,
@@ -2940,7 +2973,6 @@
 				8ECC674725C23A20000E2BF6 /* SentrySpanContext.m in Sources */,
 				639FCFA91EBC80CC00778193 /* SentryFrame.m in Sources */,
 				8E564AEA267AF22600FE117D /* SentryNetworkTracker.m in Sources */,
-				D8370B6A273DF1E900F66E2D /* SentryNSURLSessionTaskSearch.m in Sources */,
 				63FE711D20DA4C1000CDBAE8 /* SentryCrashCPU_arm64.c in Sources */,
 				844EDC77294144DB00C86F34 /* SentrySystemWrapper.mm in Sources */,
 				62C1AFAB2B7E10EA0038C5F7 /* SentrySpotlightTransport.m in Sources */,
