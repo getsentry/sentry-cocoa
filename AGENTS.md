@@ -2,6 +2,8 @@
 
 Sentry Cocoa SDK — multi-platform Apple SDK (iOS, macOS, tvOS, watchOS, visionOS).
 
+These instructions are written for **LLM agents**, not humans. Keep content minimal (headers + bullets, no prose). When editing any `AGENTS.md` file, use the `agents-md` skill (see `.agents/skills/agents-md/SKILL.md`).
+
 ## Nested Instructions
 
 | Path                                     | Scope                                      |
@@ -31,6 +33,13 @@ Declared in `agents.toml`, generated into `.mcp.json` and `.cursor/mcp.json`:
 - **sentry** — query production errors, search issues, read docs (OAuth on first use)
 
 Read-only tools pre-approved in `.claude/settings.json`. Mutating tools require per-developer approval in `.claude/settings.local.json`.
+
+## Command Execution
+
+- **Set the working directory once** with `cd`, then run commands directly — do not prefix every command with `cd <path> &&`
+- **Wildcard permissions** — many commands are pre-approved with wildcards (e.g., `git add:*`). Flags like `-C` change the command prefix (`git -C path add` ≠ `git add`), triggering a confirmation prompt. Avoid `-C` when you can `cd` instead
+- **Prefer small, focused commands** over one massive pipeline. Break complex operations into multiple steps
+- **JSON processing** — always use `jq`; do not shell out to `node` or `python` for JSON parsing
 
 ## Verification Loop
 
@@ -102,7 +111,7 @@ See [`scripts/AGENTS.md`](scripts/AGENTS.md) for the named-parameter template an
 
 ## Documentation
 
-- Update headerdocs, inline comments, readmes, and maintainer docs with your changes
+- **When changing logic, keep docs in sync** — update any affected headerdocs, inline comments, readmes, `AGENTS.md` files, and maintainer docs in the same change
 - **Docs**: [docs.sentry.io/platforms/apple](https://docs.sentry.io/platforms/apple/) — repo: [sentry-docs](https://github.com/getsentry/sentry-docs)
 - **SDK dev docs**: [develop.sentry.dev/sdk/](https://develop.sentry.dev/sdk/)
 - Maintainer docs: [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`develop-docs/`](develop-docs/), [`Samples/README.md`](Samples/README.md)
