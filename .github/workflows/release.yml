@@ -365,7 +365,7 @@ jobs:
           path: XCFrameworkBuildPath/
 
       - name: Archive XCFrameworks for Craft
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xcframeworks.zip
           if-no-files-found: error

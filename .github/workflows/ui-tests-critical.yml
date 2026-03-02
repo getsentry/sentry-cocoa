@@ -119,7 +119,7 @@ jobs:
           ./TestSamples/SwiftUICrashTest/test-crash-and-relaunch.sh --screenshots-dir "swiftui-crash-test-screenshots"
 
       - name: Upload SwiftUI Crash Test Screenshots
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: swiftui-crash-test-screenshots
@@ -130,7 +130,7 @@ jobs:
         run: xcrun simctl spawn booted log collect --output $(pwd)/swiftui-crash-test-log.logarchive
 
       - name: Upload Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: swiftui-crash-test-log.logarchive

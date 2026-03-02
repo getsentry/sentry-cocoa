@@ -169,7 +169,7 @@ jobs:
         shell: bash
 
       - name: Upload XCFramework
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         env:
           XCFRAMEWORK_NAME: ${{ env.XCFRAMEWORK_NAME }}
         with:
