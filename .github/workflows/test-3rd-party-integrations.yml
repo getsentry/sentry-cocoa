@@ -92,7 +92,7 @@ jobs:
       - name: Select Xcode
         run: ./scripts/ci-select-xcode.sh 16.4
       - name: Download XCFrameworks
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: xcframeworks-for-3rd-party-integration-tests
       - name: Modify Package.swift to use local xcframeworks

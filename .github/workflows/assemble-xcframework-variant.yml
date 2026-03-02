@@ -111,7 +111,7 @@ jobs:
           fi
 
       - name: Download ${{inputs.variant-id}} Slices
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: xcframework-${{inputs.variant-id}}-slice-*
           path: xcframework-slices
