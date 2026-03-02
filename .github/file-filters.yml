@@ -119,7 +119,7 @@ run_benchmarking_for_prs: &run_benchmarking_for_prs # GH Actions
   - "Samples/iOS-Swift/iOS-Swift/Profiling/BenchmarkingViewController.swift"
   - "Samples/iOS-Swift/iOS-Swift/Tools/SentryBenchmarking.h"
   - "Samples/iOS-Swift/iOS-Swift/Tools/SentryBenchmarking.mm"
-  - "Samples/iOS-Swift/iOS-Swift.xcodeproj/xcshareddata/xcschemes/iOS-Benchmarking.xcscheme"
+  - "Samples/iOS-Swift/iOS-Swift.yml"
   - "Samples/SentrySampleShared/SentrySampleUITestShared/**"
   - ".sauce/benchmarking-config.yml"
   - "Plans/iOS-Benchmarking_Base.xctestplan"
