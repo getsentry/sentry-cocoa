@@ -60,7 +60,7 @@ on:
 jobs:
   unit-tests:
     name: Unit ${{inputs.name}}
-    runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0}", "runner_group_id:10"]', inputs.runs-on)) || inputs.runs-on }}
+    runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.runs-on, github.run_id)) || inputs.runs-on }}
     timeout-minutes: ${{inputs.timeout}}
     if: ${{!inputs.should_skip}}
     steps:
@@ -167,7 +167,7 @@ jobs:
 
       - name: Publish Test Report
         id: publish_test_report
-        uses: mikepenz/action-junit-report@74626db7353a25a20a72816467ebf035f674c5f8 # v6.2.0
+        uses: mikepenz/action-junit-report@5e05ac00ad0604dfb7e313ae412aa3284f4906d6 # v6.3.0
         if: always()
         with:
           report_paths: "build/reports/junit.xml"
@@ -193,7 +193,7 @@ jobs:
           fi
 
       - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: steps.build_tests.outcome == 'failure'
         with:
           name: derived-data-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
@@ -201,7 +201,7 @@ jobs:
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
@@ -211,7 +211,7 @@ jobs:
             raw-test-output.log
 
       - name: Archiving Crash Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: crash-logs-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
@@ -219,7 +219,7 @@ jobs:
             ~/Library/Logs/DiagnosticReports/**
 
       - name: Archiving Test Results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: result-bundle-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}

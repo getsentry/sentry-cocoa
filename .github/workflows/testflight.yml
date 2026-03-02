@@ -124,7 +124,7 @@ jobs:
           echo "::warning::TestFlight upload was SKIPPED ON PURPOSE for dependabot PR. Code signing secrets are not available for dependabot PRs."
 
       - name: Archiving
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: dSYMs
           path: |

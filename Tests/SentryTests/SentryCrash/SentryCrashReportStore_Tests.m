@@ -86,7 +86,7 @@
     int reportCount = sentrycrashcrs_getReportCount();
     int64_t rawReportIDs[reportCount];
     reportCount = sentrycrashcrs_getReportIDs(rawReportIDs, reportCount);
-    NSMutableArray *reportIDs = [NSMutableArray new];
+    NSMutableArray *reportIDs = [[NSMutableArray alloc] init];
     for (int i = 0; i < reportCount; i++) {
         [reportIDs addObject:@(rawReportIDs[i])];
     }
@@ -190,7 +190,7 @@
 - (void)testStoresLoadsMultipleReports
 {
     [self prepareReportStoreWithPathEnd:@"testStoresLoadsMultipleReports"];
-    NSMutableArray *reportIDs = [NSMutableArray new];
+    NSMutableArray *reportIDs = [[NSMutableArray alloc] init];
     NSArray *reportContents = @[ @"report1", @"report2", @"report3", @"report4" ];
     [reportIDs addObject:@([self writeCrashReportWithStringContents:reportContents[0]])];
     [reportIDs addObject:@([self writeUserReportWithStringContents:reportContents[1]])];

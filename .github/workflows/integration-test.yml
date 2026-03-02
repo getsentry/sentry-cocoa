@@ -54,7 +54,7 @@ jobs:
         working-directory: Samples/iOS-Cocoapods-Swift6
 
       - name: Upload Result Bundle
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() }}
         with:
           name: integration-test-iOS-Cocoapods-Swift6.xcresult

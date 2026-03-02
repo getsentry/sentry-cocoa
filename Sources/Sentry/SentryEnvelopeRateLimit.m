@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<SentryEnvelopeItem *> *)getEnvelopeItemsToDrop:(NSArray<SentryEnvelopeItem *> *)items
 {
-    NSMutableArray<SentryEnvelopeItem *> *itemsToDrop = [NSMutableArray new];
+    NSMutableArray<SentryEnvelopeItem *> *itemsToDrop = [[NSMutableArray alloc] init];
 
     for (SentryEnvelopeItem *item in items) {
         SentryDataCategory rateLimitCategory = sentryDataCategoryForEnvelopItemType(item.type);
@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
                                   withItemsToDrop:
                                       (NSArray<SentryEnvelopeItem *> *_Nonnull)itemsToDrop
 {
-    NSMutableArray<SentryEnvelopeItem *> *itemsToSend = [NSMutableArray new];
+    NSMutableArray<SentryEnvelopeItem *> *itemsToSend = [[NSMutableArray alloc] init];
 
     for (SentryEnvelopeItem *item in allItems) {
         if (![itemsToDrop containsObject:item]) {

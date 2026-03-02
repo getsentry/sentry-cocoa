@@ -111,7 +111,7 @@ jobs:
           fi
 
       - name: Download ${{inputs.variant-id}} Slices
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: xcframework-${{inputs.variant-id}}-slice-*
           path: xcframework-slices
@@ -169,7 +169,7 @@ jobs:
         shell: bash
 
       - name: Upload XCFramework
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         env:
           XCFRAMEWORK_NAME: ${{ env.XCFRAMEWORK_NAME }}
         with:

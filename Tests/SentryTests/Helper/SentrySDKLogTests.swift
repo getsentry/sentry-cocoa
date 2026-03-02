@@ -112,6 +112,26 @@ class SentrySDKLogTests: XCTestCase {
         XCTAssertEqual(["[Sentry] [debug] [\(timeIntervalSince1970)] [SentrySDKLogTests:\(line)] Debug Log"], logOutput.loggedMessages)
     }
 
+    /// Verifies that passing nil to setOutput (which can happen from Objective-C callers
+    /// despite NS_ASSUME_NONNULL) falls back to the default print handler instead of crashing.
+    func testSetOutput_whenNilFromObjC_shouldFallbackToDefaultPrint() {
+        // -- Arrange --
+        // Simulate what happens when an Objective-C caller passes nil despite nullability annotations.
+        // In Swift, we can't directly pass nil to a non-optional parameter, but the Swift method
+        // now accepts an optional to handle this case defensively.
+
+        // -- Act --
+        // Call setOutput with nil - this should not crash and should reset to default print handler
+        SentrySDKLog.setOutput(nil)
+
+        // -- Assert --
+        // Logging should work without crashing (uses default print handler)
+        // This would crash before the fix if logOutput was actually nil
+        SentrySDKLog.log(message: "test message after nil output", andLevel: SentryLevel.error)
+
+        // If we reach here without crashing, the test passes
+    }
+
     /// This test only ensures we're not crashing when calling configure and log from multiple threads.
     func testAccessFromMultipleThreads_DoesNotCrash() {
         let dispatchQueue = DispatchQueue(label: "com.sentry.log.configuration.test", attributes: [.concurrent, .initiallyInactive])

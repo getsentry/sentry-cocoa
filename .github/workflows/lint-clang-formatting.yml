@@ -45,7 +45,9 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Install tooling
-        run: make init-ci-format
+        run: |
+          make init-ci-format
+          clang-format --version
 
       - name: Format with Clang
         run: make format-clang
@@ -66,11 +68,7 @@ jobs:
         run: ./scripts/ci-diagnostics.sh
 
   lint_clang_formatting-required-check:
-    needs:
-      [
-        files-changed,
-        lint,
-      ]
+    needs: [files-changed, lint]
     name: Lint Clang
     # This is necessary since a failed/skipped dependent job would cause this job to be skipped
     if: always()

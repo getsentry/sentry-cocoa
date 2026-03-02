@@ -68,7 +68,6 @@ DependencyManagerTests/*/*/Podfile.lock
 DependencyManagerTests/*/*/Pods
 
 compile_commands.json
-oclint_report.html
 xcodebuild.log
 Package.resolved
 
@@ -130,6 +129,9 @@ XCFrameworkBuildPath/
 
 # Local Claude Code settings that should not be committed
 .claude/settings.local.json
+
+# Credentials
+.netrc
 
 # Output of `make analyze-languages`
 language-trends.html
