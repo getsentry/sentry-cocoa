@@ -27,10 +27,7 @@
 - (void)_crashOnException:(NSException *)exception
 {
     [SentryNSExceptionCaptureHelper crashOnException:exception];
-    // Check NSApplication directly (not our subclass) since we define the method ourselves.
-    if (class_getInstanceMethod([NSApplication class], @selector(_crashOnException:))) {
-        [super _crashOnException:exception];
-    }
+    [super _crashOnException:exception];
 }
 
 @end
