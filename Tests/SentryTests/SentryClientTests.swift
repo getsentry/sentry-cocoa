@@ -24,9 +24,10 @@ extension SentryClientInternal {
 }
 
 // swiftlint:disable file_length
+// swiftlint:disable type_body_length
 // We are aware that the client has a lot of logic and we should maybe
 // move some of it to other classes.
-class SentryClientTests: XCTestCase {
+final class SentryClientTests: XCTestCase {
     
     private static let dsn = TestConstants.dsnAsString(username: "SentryClientTest")
 
@@ -57,7 +58,7 @@ class SentryClientTests: XCTestCase {
         let processWrapper = MockSentryProcessInfo()
         let extraContentProvider: SentryExtraContextProvider
         let locale = Locale(identifier: "en_US")
-        let timezone = TimeZone(identifier: "Europe/Vienna")!
+        let timezone = TimeZone(identifier: "Europe/Vienna") ?? TimeZone(secondsFromGMT: 3_600) ?? .current
         let queue = DispatchQueue(label: "SentryHubTests", qos: .utility, attributes: [.concurrent])
         let dispatchQueue = TestSentryDispatchQueueWrapper()
 
@@ -757,14 +758,16 @@ class SentryClientTests: XCTestCase {
     }
 
     func testCaptureErrorWithComplexUserInfo() throws {
-        let url = URL(string: "https://github.com/getsentry")!
+        let url = try XCTUnwrap(URL(string: "https://github.com/getsentry"))
         let error = NSError(domain: "domain", code: 0, userInfo: ["url": url])
         let eventId = fixture.getSut().capture(error: error, scope: fixture.scope)
 
         eventId.assertIsNotEmpty()
 
         let actual = try lastSentEventWithAttachment()
-        XCTAssertEqual(url.absoluteString, actual.context!["user info"]!["url"] as? String)
+        let context = try XCTUnwrap(actual.context)
+        let userInfo = try XCTUnwrap(context["user info"])
+        XCTAssertEqual(url.absoluteString, userInfo["url"] as? String)
     }
     
     func testCaptureErrorWithNestedUnderlyingErrors() throws {
@@ -1162,10 +1165,10 @@ class SentryClientTests: XCTestCase {
         
         eventId.assertIsNotEmpty()
         let actual = try lastSentEventWithAttachment()
-        assertValidExceptionEvent(actual)
+        try assertValidExceptionEvent(actual)
     }
-    
-    func testCaptureException_IncreasesSessionErrors() {
+
+    func testCaptureException_IncreasesSessionErrors() throws {
         let sut = fixture.getSut()
         let sessionDelegate = SentryTestSessionDelegate { self.fixture.session }
         sut.sessionDelegate = sessionDelegate
@@ -1174,7 +1177,7 @@ class SentryClientTests: XCTestCase {
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
         if let eventWithSessionArguments = fixture.transportAdapter.sentEventsWithSessionTraceState.last {
-            assertValidExceptionEvent(eventWithSessionArguments.event)
+            try assertValidExceptionEvent(eventWithSessionArguments.event)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
             XCTAssertEqual([TestData.dataAttachment], eventWithSessionArguments.attachments)
         }
@@ -1206,7 +1209,9 @@ class SentryClientTests: XCTestCase {
 
         eventId.assertIsNotEmpty()
         let actual = try lastSentEventWithAttachment()
-        XCTAssertEqual(expectedValue, actual.context!["user info"]!["key"] as? String)
+        let context = try XCTUnwrap(actual.context)
+        let userInfo = try XCTUnwrap(context["user info"])
+        XCTAssertEqual(expectedValue, userInfo["key"] as? String)
     }
 
     func testScopeIsNotNil() throws {
@@ -2111,7 +2116,7 @@ class SentryClientTests: XCTestCase {
             options.onCrashedLastRun = { crashEvent in
                 callbackExpectation.fulfill()
                 XCTAssertEqual(event.eventId, crashEvent.eventId)
-                captureCrash!()
+                captureCrash?()
             }
         })
         captureCrash = { client.captureFatalEvent(event, with: self.fixture.scope) }
@@ -2185,12 +2190,12 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(scope.attachments.first?.attachmentType, .viewHierarchy)
     }
     
-    func testCaptureEvent_withAdditionalEnvelopeItem() {
+    func testCaptureEvent_withAdditionalEnvelopeItem() throws {
         let event = Event(level: SentryLevel.warning)
         event.message = fixture.message
-        
+
         let attachment = "{}"
-        let data = attachment.data(using: .utf8)!
+        let data = try XCTUnwrap(attachment.data(using: .utf8))
         let itemHeader = SentryEnvelopeItemHeader(type: "attachment", length: UInt(data.count))
         let item = SentryEnvelopeItem(header: itemHeader, data: data)
         
@@ -2233,79 +2238,79 @@ class SentryClientTests: XCTestCase {
         }
     }
     
-    func testCaptureReplayEvent() {
+    func testCaptureReplayEvent() throws {
         let sut = fixture.getSut()
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 2)
         let replayRecording = SentryReplayRecording(segmentId: 2, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
-        
+
         //Not a video url, but its ok for test the envelope
-        let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
-        
-        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
+        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
         let envelope = fixture.transport.sentEnvelopes.first
         XCTAssertEqual(try XCTUnwrap(envelope?.items.first).header.type, SentryEnvelopeItemTypes.replayVideo)
     }
     
-    func testCaptureReplayEvent_WrongEventFromEventProcessor() {
+    func testCaptureReplayEvent_WrongEventFromEventProcessor() throws {
         let sut = fixture.getSut()
         sut.options.beforeSend = { _ in
             return Event()
         }
-        
+
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 2)
         let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
-        
-        let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
-        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
-        
+
+        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
+
         //Nothing should be captured because beforeSend returned a non ReplayEvent
         XCTAssertEqual(self.fixture.transport.sentEnvelopes.count, 0)
     }
     
-    func testCaptureReplayEvent_DontCaptureNilEvent() {
+    func testCaptureReplayEvent_DontCaptureNilEvent() throws {
         let sut = fixture.getSut()
         sut.options.beforeSend = { _ in
             return nil
         }
-        
+
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 2)
         let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
-        
-        let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
-        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: Scope())
-        
+
+        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
+
         //Nothing should be captured because beforeSend returned nil
         XCTAssertEqual(self.fixture.transport.sentEnvelopes.count, 0)
     }
     
-    func testCaptureReplayEvent_InvalidFile() {
+    func testCaptureReplayEvent_InvalidFile() throws {
         let sut = fixture.getSut()
         sut.options.beforeSend = { _ in
             return nil
         }
-        
+
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 2)
         let replayRecording = SentryReplayRecording(segmentId: 3, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
-        
-        let movieUrl = URL(string: "NoFile")!
+
+        let movieUrl = try XCTUnwrap(URL(string: "NoFile"))
         sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: Scope())
         
         //Nothing should be captured because beforeSend returned nil
         XCTAssertEqual(self.fixture.transport.sentEnvelopes.count, 0)
     }
     
-    func testCaptureReplayEvent_noBradcrumbsThreadsDebugMeta() {
+    func testCaptureReplayEvent_noBradcrumbsThreadsDebugMeta() throws {
         let sut = fixture.getSut()
         let replayEvent = SentryReplayEvent(eventId: SentryId(), replayStartTimestamp: Date(), replayType: .session, segmentId: 2)
         let replayRecording = SentryReplayRecording(segmentId: 2, size: 200, start: Date(timeIntervalSince1970: 2), duration: 5_000, frameCount: 5, frameRate: 1, height: 930, width: 390, extraEvents: [])
-        
+
         //Not a video url, but its ok for test the envelope
-        let movieUrl = Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json")
-        
+        let movieUrl = try XCTUnwrap(Bundle(for: self.classForCoder).url(forResource: "Resources/raw", withExtension: "json"))
+
         let scope = Scope()
         scope.addBreadcrumb(Breadcrumb(level: .debug, category: "Test Breadcrumb"))
-        
-        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl!, with: scope)
+
+        sut.capture(replayEvent, replayRecording: replayRecording, video: movieUrl, with: scope)
         
         XCTAssertNil(replayEvent.breadcrumbs)
         XCTAssertNil(replayEvent.threads)
@@ -2579,32 +2584,6 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(testProcessor.addLogInvocations.count, 0, "Log should be dropped when enableLogs is false")
     }
 
-    func testCaptureSentryWrappedException() throws {
-#if os(macOS)
-        let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: nil)
-        // If we don't raise the exception, it won't have the callStack data
-        let raisedException = ExceptionCatcher.try {
-            exception.raise()
-        }
-        let raisedExceptionUnwrapped = raisedException!
-        let sentryException = SentryUseNSExceptionCallstackWrapper(name: raisedExceptionUnwrapped.name, reason: raisedExceptionUnwrapped.reason, userInfo: raisedExceptionUnwrapped.userInfo, callStackReturnAddresses: raisedExceptionUnwrapped.callStackReturnAddresses)
-        let eventId = fixture.getSut().capture(exception: sentryException, scope: fixture.scope)
-
-        eventId.assertIsNotEmpty()
-        let actual = try lastSentEventWithAttachment()
-        XCTAssertEqual(actual.threads?.count, 1)
-        XCTAssertEqual(actual.threads?[0].name, "NSException Thread")
-        XCTAssertEqual(actual.threads?[0].threadId, 0)
-        XCTAssertEqual(actual.threads?[0].crashed, true)
-        XCTAssertEqual(actual.threads?[0].current, true)
-        XCTAssertEqual(actual.threads?[0].isMain, true)
-        // Make sure the stacktrace is not empty
-        XCTAssertGreaterThan(actual.threads?[0].stacktrace?.frames.count ?? 0, 1)
-        
-        #else
-        throw XCTSkip("Test is disabled for this OS version")
-        #endif // os(macOS)
-    }
 }
 
 private extension SentryClientTests {
@@ -2706,10 +2685,11 @@ private extension SentryClientTests {
         assertValidThreads(actual: event.threads)
     }
     
-    private func assertValidExceptionEvent(_ event: Event) {
+    private func assertValidExceptionEvent(_ event: Event) throws {
         XCTAssertEqual(SentryLevel.error, event.level)
-        XCTAssertEqual(exception.reason, event.exceptions!.first!.value)
-        XCTAssertEqual(exception.name.rawValue, event.exceptions!.first!.type)
+        let firstException = try XCTUnwrap(event.exceptions?.first)
+        XCTAssertEqual(exception.reason, firstException.value)
+        XCTAssertEqual(exception.name.rawValue, firstException.type)
         assertValidDebugMeta(actual: event.debugMeta, forThreads: event.threads)
         assertValidThreads(actual: event.threads)
     }

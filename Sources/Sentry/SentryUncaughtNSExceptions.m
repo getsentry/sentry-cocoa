@@ -49,7 +49,10 @@ NS_ASSUME_NONNULL_BEGIN
     SentrySwizzleClassMethod(NSApplication, selector, SentrySWReturnType(void),
         SentrySWArguments(NSException * exception), SentrySWReplacement({
             [SentryUncaughtNSExceptions capture:exception];
-#    if !(SENTRY_TEST || SENTRY_TEST_CI)
+#    if SENTRY_TEST || SENTRY_TEST_CI
+            // Don't call the original in tests as it would abort() the process.
+            swizzleInfo.originalCalled = YES;
+#    else
             return SentrySWCallOriginal(exception);
 #    endif
         }));
@@ -57,7 +60,10 @@ NS_ASSUME_NONNULL_BEGIN
     SentrySwizzleInstanceMethod(NSApplication, selector, SentrySWReturnType(void),
         SentrySWArguments(NSException * exception), SentrySWReplacement({
             [SentryUncaughtNSExceptions capture:exception];
-#    if !(SENTRY_TEST || SENTRY_TEST_CI)
+#    if SENTRY_TEST || SENTRY_TEST_CI
+            // Don't call the original in tests as it would abort() the process.
+            swizzleInfo.originalCalled = YES;
+#    else
             return SentrySWCallOriginal(exception);
 #    endif
         }),
