@@ -1,5 +1,7 @@
 # Code Review — Agent Instructions
 
+> Instructions for LLM agents. Keep edits minimal (headers + bullets). Use `/agents-md` skill when editing.
+
 Applies to all review agents (human-assisted, Bugbot, code-review skill).
 
 ## Review Priorities

@@ -1,5 +1,7 @@
 # Samples
 
+> Instructions for LLM agents. Keep edits minimal (headers + bullets). Use `/agents-md` skill when editing.
+
 ## Directory Layout
 
 ```

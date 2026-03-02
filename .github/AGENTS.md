@@ -1,5 +1,7 @@
 # .github
 
+> Instructions for LLM agents. Keep edits minimal (headers + bullets). Use `/agents-md` skill when editing.
+
 ## Workflow Naming
 
 **Workflow names** — concise, action-oriented: `[Action] [Subject]`

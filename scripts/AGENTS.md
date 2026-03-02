@@ -1,5 +1,7 @@
 # scripts
 
+> Instructions for LLM agents. Keep edits minimal (headers + bullets). Use `/agents-md` skill when editing.
+
 ## New Scripts
 
 All new scripts **must** use named parameters. Positional parameters (`$1`, `$2`) are not allowed.

@@ -1,5 +1,7 @@
 # Tests
 
+> Instructions for LLM agents. Keep edits minimal (headers + bullets). Use `/agents-md` skill when editing.
+
 ## Running Tests
 
 Test classes follow naming pattern `<SourceFile>Tests`. Default to iOS (fastest).
