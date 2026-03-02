@@ -1,13 +1,13 @@
 import Foundation
+import UniformTypeIdentifiers
 
 /// Warning codes for network body capture issues.
 ///
 /// Raw values must match the frontend constants so the Sentry UI renders the correct warnings.
 /// - SeeAlso: https://github.com/getsentry/sentry/blob/8b79857b2eff86f4df2f3abaf1e46c74893e3781/static/app/utils/replays/replay.tsx#L5
 enum NetworkBodyWarning: String {
-    case jsonTruncated = "JSON_TRUNCATED"
+    case jsonTruncated = "MAYBE_JSON_TRUNCATED"
     case textTruncated = "TEXT_TRUNCATED"
-    case invalidJson = "INVALID_JSON"
     case bodyParseError = "BODY_PARSE_ERROR"
 }
 
@@ -54,6 +54,68 @@ enum NetworkBodyWarning: String {
             self.warnings = warnings
         }
 
+        /// Parses raw body data based on content type.
+        ///
+        /// Returns nil if data is empty. Truncates to `maxBodySize` and adds
+        /// appropriate warnings. Supports JSON, form-urlencoded, and text.
+        init?(data: Data, contentType: String?) {
+            guard !data.isEmpty else { return nil }
+
+            let limit = SentryReplayNetworkDetails.maxBodySize
+            let isTruncated = data.count > limit
+            let slice = data.prefix(limit)
+
+            var warnings = [NetworkBodyWarning]()
+            let lower = contentType?.lowercased() ?? ""
+            let utType = contentType.flatMap { UTType(mimeType: $0.lowercased()) }
+
+            if lower.contains("application/x-www-form-urlencoded") {
+                if isTruncated { warnings.append(.textTruncated) }
+                self = Body.parseFormEncoded(slice, warnings: &warnings)
+            } else if let utType, utType.conforms(to: .json) {
+                if isTruncated { warnings.append(.jsonTruncated) }
+                self = Body.parseJSON(slice, warnings: &warnings)
+            } else {
+                if isTruncated { warnings.append(.textTruncated) }
+                self = Body.parseText(slice, warnings: &warnings)
+            }
+        }
+
+        // MARK: - Private Parsing
+
+        private static func parseJSON(_ data: Data, warnings: inout [NetworkBodyWarning]) -> Body {
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+                return Body(content: json, warnings: warnings)
+            } catch {
+                warnings.append(.bodyParseError)
+                return parseText(data, warnings: &warnings)
+            }
+        }
+
+        private static func parseFormEncoded(_ data: Data, warnings: inout [NetworkBodyWarning]) -> Body {
+            guard let string = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .isoLatin1),
+                  let components = URLComponents(string: "http://x?" + string),
+                  let items = components.queryItems else {
+                warnings.append(.bodyParseError)
+                return parseText(data, warnings: &warnings)
+            }
+
+            var formData = [String: String]()
+            for item in items where item.name.isEmpty == false {
+                formData[item.name] = item.value ?? ""
+            }
+            return Body(content: formData, warnings: warnings)
+        }
+
+        private static func parseText(_ data: Data, warnings: inout [NetworkBodyWarning]) -> Body {
+            if let string = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .isoLatin1) {
+                return Body(content: string, warnings: warnings)
+            }
+            warnings.append(.bodyParseError)
+            return Body(content: "", warnings: warnings)
+        }
+
         func serialize() -> [String: Any] {
             var result = [String: Any]()
             result["body"] = content.serializedValue
@@ -79,10 +141,15 @@ enum NetworkBodyWarning: String {
         }
     }
 
-    // MARK: - Properties
+    // MARK: - Constants
+
+    /// Maximum body size in bytes before truncation (150KB).
+    static let maxBodySize = 150 * 1024
 
     /// Key used to store network details in breadcrumb data dictionary.
     @objc public static let replayNetworkDetailsKey = "_networkDetails"
+
+    // MARK: - Properties
 
     private(set) var method: String?
     private(set) var statusCode: NSNumber?
