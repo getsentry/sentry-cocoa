@@ -52,6 +52,28 @@ final class SentryUncaughtNSExceptionsTests: XCTestCase {
         XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
     }
 
+    func testSwizzleNSApplicationCrashOnException_calledMultipleTimes_classMethodCapturesOnce() throws {
+        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+
+        defer {
+            crashReporter.uncaughtExceptionHandler = nil
+            wasUncaughtExceptionHandlerCalled = false
+            uncaughtExceptionHandlerCallCount = 0
+        }
+
+        uncaughtExceptionHandlerCallCount = 0
+        crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
+
+        // Simulate multiple SDK starts — the class method swizzle should not stack.
+        SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException()
+        SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException()
+
+        NSApplication.perform(NSSelectorFromString("_crashOnException:"), with: uncaughtInternalInconsistencyException)
+
+        XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
+        XCTAssertEqual(uncaughtExceptionHandlerCallCount, 1, "Handler should fire exactly once, not stack on repeated SDK starts")
+    }
+
     func testSwizzleNSApplicationCrashOnException_instanceMethod() throws {
         let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
 
@@ -78,10 +100,12 @@ final class SentryUncaughtNSExceptionsTests: XCTestCase {
 // We need to declare this on the file level because otherwise we get the error:
 // A C function pointer cannot be formed from a closure that captures context.
 var wasUncaughtExceptionHandlerCalled = false
+var uncaughtExceptionHandlerCallCount = 0
 func uncaughtExceptionHandler(exception: NSException) {
     XCTAssertEqual(uncaughtInternalInconsistencyException.name, exception.name)
     XCTAssertEqual(uncaughtInternalInconsistencyException.reason, exception.reason)
     wasUncaughtExceptionHandlerCalled = true
+    uncaughtExceptionHandlerCallCount += 1
 }
 
 let uncaughtInternalInconsistencyException = NSException(name: .internalInconsistencyException, reason: "reason", userInfo: nil)
