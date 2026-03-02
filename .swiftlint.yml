@@ -1,5 +1,7 @@
 excluded:
   - Pods
+  - DerivedData
+  - "**/SourcePackages/**"
   - Utils/**/.build
   - Samples/**/.build
   - "**/build/**"

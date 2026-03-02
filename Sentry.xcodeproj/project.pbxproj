@@ -898,8 +898,6 @@
 		7D0FCFB02379B915004DD83A /* SentryHub.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryHub.h; path = include/SentryHub.h; sourceTree = "<group>"; };
 		7D5C4419237C2E1F00DAB0A3 /* SentryHub.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryHub.m; sourceTree = "<group>"; };
 		7D65260B237F649E00113EA2 /* SentryScope.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryScope.m; sourceTree = "<group>"; };
-		7D826E3E2390840E00EED93D /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
-		7D826E3F2390840E00EED93D /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		7D9B079F23D1E89800C5FC8E /* SentryMeta.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryMeta.h; path = include/SentryMeta.h; sourceTree = "<group>"; };
 		7DB3A684238EA75E00A2D442 /* SentryHttpTransport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryHttpTransport.m; sourceTree = "<group>"; };
 		7DC27E9823995F97006998B5 /* Sentry.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; name = Sentry.modulemap; path = ../Resources/Sentry.modulemap; sourceTree = "<group>"; };
@@ -1379,7 +1377,6 @@
 				D4CBA2522DE06D1600581618 /* SentryTestUtilsTests */,
 				6304360C1EC05CEF00C4D3FA /* Frameworks */,
 				6327C5D41EB8A783004E799B /* Products */,
-				7D826E3C2390840E00EED93D /* Utils */,
 			);
 			indentWidth = 4;
 			sourceTree = "<group>";
@@ -1902,23 +1899,6 @@
 				7BC5B6F8290BCDE500D99477 /* SentryHttpStatusCodeRange+Private.h */,
 			);
 			name = Network;
-			sourceTree = "<group>";
-		};
-		7D826E3C2390840E00EED93D /* Utils */ = {
-			isa = PBXGroup;
-			children = (
-				7D826E3D2390840E00EED93D /* VersionBump */,
-			);
-			path = Utils;
-			sourceTree = "<group>";
-		};
-		7D826E3D2390840E00EED93D /* VersionBump */ = {
-			isa = PBXGroup;
-			children = (
-				7D826E3E2390840E00EED93D /* Package.swift */,
-				7D826E3F2390840E00EED93D /* main.swift */,
-			);
-			path = VersionBump;
 			sourceTree = "<group>";
 		};
 		8405A517279906EF001B38A1 /* Profiling */ = {
