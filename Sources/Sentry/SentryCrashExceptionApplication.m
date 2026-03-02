@@ -3,7 +3,7 @@
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
 
 #    import "SentryCrashExceptionApplication.h"
-#    import "SentryCrashExceptionApplicationHelper.h"
+#    import "SentryNSExceptionCaptureHelper.h"
 #    import "SentryUncaughtNSExceptions.h"
 #    import <AppKit/NSApplication.h>
 
@@ -19,17 +19,14 @@
     [SentryUncaughtNSExceptions configureCrashOnExceptions];
     // We cannot test an NSApplication because you create more than one at a time, so we use a
     // helper to hold the logic.
-    [SentryCrashExceptionApplicationHelper reportException:exception];
+    [SentryNSExceptionCaptureHelper reportException:exception];
     [super reportException:exception];
+    [SentryNSExceptionCaptureHelper reportExceptionDidFinish];
 }
 
 - (void)_crashOnException:(NSException *)exception
 {
-    // AppKit calls -[NSApp _crashOnException:] on the application instance in some code paths
-    // (e.g., CATransaction flush). We capture the exception via the crash reporter's uncaught
-    // exception handler, which synchronously writes the crash report with the exception's original
-    // call stack before the process terminates.
-    [SentryCrashExceptionApplicationHelper reportException:exception];
+    [SentryNSExceptionCaptureHelper crashOnException:exception];
     [super _crashOnException:exception];
 }
 

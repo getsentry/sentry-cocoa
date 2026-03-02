@@ -2,9 +2,8 @@
 
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
 
-#    import "SentryCrash.h"
 #    import "SentryInternalDefines.h"
-#    import "SentrySwift.h"
+#    import "SentryNSExceptionCaptureHelper.h"
 #    import "SentrySwizzle.h"
 #    import "SentryUncaughtNSExceptions.h"
 #    import <AppKit/NSApplication.h>
@@ -26,8 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
     SEL selector = NSSelectorFromString(@"reportException:");
     SentrySwizzleInstanceMethod(NSApplication, selector, SentrySWReturnType(void),
         SentrySWArguments(NSException * exception), SentrySWReplacement({
-            [SentryUncaughtNSExceptions capture:exception];
-            return SentrySWCallOriginal(exception);
+            [SentryNSExceptionCaptureHelper reportException:exception];
+            SentrySWCallOriginal(exception);
+            [SentryNSExceptionCaptureHelper reportExceptionDidFinish];
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 #    pragma clang diagnostic pop
@@ -44,11 +44,15 @@ NS_ASSUME_NONNULL_BEGIN
     // or view layout, bypassing reportException: entirely. Depending on macOS version, AppKit
     // may call the class method +[NSApplication _crashOnException:] or the instance method
     // -[NSApp _crashOnException:], so we swizzle both.
+    //
+    // SentryNSExceptionCaptureHelper handles deduplication: when _crashOnException: is
+    // called from within reportException: (e.g., when NSApplicationCrashOnExceptions is YES),
+    // the exception is only captured once.
     SEL selector = NSSelectorFromString(@"_crashOnException:");
 
     SentrySwizzleClassMethod(NSApplication, selector, SentrySWReturnType(void),
         SentrySWArguments(NSException * exception), SentrySWReplacement({
-            [SentryUncaughtNSExceptions capture:exception];
+            [SentryNSExceptionCaptureHelper crashOnException:exception];
 #    if SENTRY_TEST || SENTRY_TEST_CI
             // Don't call the original in tests as it would abort() the process.
             swizzleInfo.originalCalled = YES;
@@ -59,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     SentrySwizzleInstanceMethod(NSApplication, selector, SentrySWReturnType(void),
         SentrySWArguments(NSException * exception), SentrySWReplacement({
-            [SentryUncaughtNSExceptions capture:exception];
+            [SentryNSExceptionCaptureHelper crashOnException:exception];
 #    if SENTRY_TEST || SENTRY_TEST_CI
             // Don't call the original in tests as it would abort() the process.
             swizzleInfo.originalCalled = YES;
@@ -69,21 +73,6 @@ NS_ASSUME_NONNULL_BEGIN
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 #    pragma clang diagnostic pop
-}
-
-+ (void)capture:(nullable NSException *)exception
-{
-    SentryCrashSwift *crash = SentryDependencyContainer.sharedInstance.crashReporter;
-
-    if (crash.uncaughtExceptionHandler == nil) {
-        return;
-    }
-
-    if (exception == nil) {
-        return;
-    }
-
-    crash.uncaughtExceptionHandler(SENTRY_UNWRAP_NULLABLE(NSException, exception));
 }
 
 @end

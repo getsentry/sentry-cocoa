@@ -71,36 +71,6 @@ final class SentryUncaughtNSExceptionsTests: XCTestCase {
         XCTAssertTrue(wasUncaughtExceptionHandlerCalled)
     }
 
-    func testCapture_ForwardsException() throws {
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
-        
-        defer {
-            crashReporter.uncaughtExceptionHandler = nil
-            wasUncaughtExceptionHandlerCalled = false
-        }
-        crashReporter.uncaughtExceptionHandler = uncaughtExceptionHandler
-      
-        SentryUncaughtNSExceptions.capture(uncaughtInternalInconsistencyException)
-    }
-    
-    func testCapture_NoUncaughtExceptionHandler() throws {
-        defer { wasUncaughtExceptionHandlerCalled = false }
-        
-        SentryUncaughtNSExceptions.capture(uncaughtInternalInconsistencyException)
-        
-        XCTAssertFalse(wasUncaughtExceptionHandlerCalled)
-    }
-    
-    func testCapture_ExceptionIsNil() throws {
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
-        
-        defer {
-            crashReporter.uncaughtExceptionHandler = nil
-            wasUncaughtExceptionHandlerCalled = false
-        }
-        SentryUncaughtNSExceptions.capture(nil)
-        XCTAssertFalse(wasUncaughtExceptionHandlerCalled)
-    }
 #endif // os(macOS)
 
 }
