@@ -2,6 +2,8 @@
 
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
 
+#    import <objc/runtime.h>
+
 #    import "SentryInternalDefines.h"
 #    import "SentryNSExceptionCaptureHelper.h"
 #    import "SentrySwizzle.h"
