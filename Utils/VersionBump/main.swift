@@ -39,6 +39,7 @@ let fromVersionFile = "./Sentry.podspec"
 let files = [
     "./Sentry.podspec",
     "./Package.swift",
+    "./Package@swift-6.1.swift",
     "./SentrySwiftUI.podspec",
     "./Sources/Sentry/SentryMeta.m",
     "./3rd-party-integrations/SentrySwiftLog/Package.swift",
@@ -96,7 +97,7 @@ func updateVersion(_ file: String, _ fromVersion: String, _ toVersion: String) t
     let readFile = try open(file)
     let contents: String = readFile.read()
     let newContents = contents.replacingOccurrences(of: fromVersion, with: toVersion)
-    let overwriteFile = try! open(forWriting: file, overwrite: true)
+    let overwriteFile = try open(forWriting: file, overwrite: true)
     overwriteFile.write(newContents)
     overwriteFile.close()
 }
