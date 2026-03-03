@@ -120,6 +120,9 @@ uikit-check-build
 # Output of `make analyze`
 analyzer
 
+# Draft for external issue (Samples/macOS-CLI-Xcode)
+Samples/macOS-CLI-Xcode/XCODEGEN_TRAITS_ISSUE_DRAFT.md
+
 # Output of snapshot testing
 **/__Snapshots__
 
