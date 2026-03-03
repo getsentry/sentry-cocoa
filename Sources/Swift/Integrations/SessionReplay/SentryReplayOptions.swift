@@ -601,8 +601,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             maximumDuration: (dictionary["maximumDuration"] as? NSNumber)?.doubleValue,
             excludedViewClasses: (dictionary["excludedViewClasses"] as? [String]).map { Set($0) },
             includedViewClasses: (dictionary["includedViewClasses"] as? [String]).map { Set($0) },
-            networkDetailAllowUrls: Self.validateNetworkDetailUrlPatterns(from: dictionary["networkDetailAllowUrls"]),
-            networkDetailDenyUrls: Self.validateNetworkDetailUrlPatterns(from: dictionary["networkDetailDenyUrls"]),
+            networkDetailAllowUrls: dictionary["networkDetailAllowUrls"],
+            networkDetailDenyUrls: dictionary["networkDetailDenyUrls"],
             networkCaptureBodies: (dictionary["networkCaptureBodies"] as? NSNumber)?.boolValue,
             networkRequestHeaders: Self.parseStringArray(from: dictionary["networkRequestHeaders"]),
             networkResponseHeaders: Self.parseStringArray(from: dictionary["networkResponseHeaders"])
@@ -745,8 +745,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         maximumDuration: TimeInterval?,
         excludedViewClasses: Set<String>? = nil,
         includedViewClasses: Set<String>? = nil,
-        networkDetailAllowUrls: [Any]? = nil,
-        networkDetailDenyUrls: [Any]? = nil,
+        networkDetailAllowUrls: Any? = nil,
+        networkDetailDenyUrls: Any? = nil,
         networkCaptureBodies: Bool? = nil,
         networkRequestHeaders: [String]? = nil,
         networkResponseHeaders: [String]? = nil
