@@ -11,8 +11,6 @@ configs:
 packages:
   Sentry:
     path: ../..
-fileGroups:
-  - visionOS-SwiftUI-SPM.yml
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -22,7 +20,21 @@ targets:
     platform: visionOS
     deploymentTarget: "1.0"
     sources:
-      - App
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: visionOS-SwiftUI-SPM.yml
+        group: App
     dependencies:
       - package: Sentry
         product: SentrySPM

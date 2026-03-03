@@ -6,8 +6,6 @@ generateEmptyDirectories: true
 configs:
   Debug: debug
   Release: release
-fileGroups:
-  - SPM.yml
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -19,14 +17,34 @@ targets:
     type: application
     platform: auto
     sources:
-      - App
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: SPM.yml
+        group: App/Configurations
     dependencies:
       - package: Sentry
         products:
           - SentrySPM
     configFiles:
-      Debug: App/Configuration/SPM.xcconfig
-      Release: App/Configuration/SPM.xcconfig
+      Debug: App/Configurations/SPM.xcconfig
+      Release: App/Configurations/SPM.xcconfig
 schemes:
   SPM:
     templates:

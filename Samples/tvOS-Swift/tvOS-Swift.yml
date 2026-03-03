@@ -15,11 +15,6 @@ projectReferences:
     path: ../../Sentry.xcodeproj
   SentrySampleShared:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
-fileGroups:
-  - ../Shared/Config
-  - tvOS-Swift.yml
-  - ../../Plans/tvOS-Swift_Base.xctestplan
-  - ../../Plans/tvOS-SBSwift_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -28,11 +23,35 @@ targets:
     type: application
     platform: auto
     sources:
-      - path: App
+      # Sources
+      - path: App/Sources
         type: group
+        group: App
         excludes:
-          - "**/Info.plist"
-      - ../Shared/SampleAssets.xcassets
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: tvOS-Swift.yml
+        group: App/Configurations
+      - path: ../../Plans/tvOS-Swift_Base.xctestplan
+        group: App/Configurations
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
@@ -54,11 +73,33 @@ targets:
     type: application
     platform: auto
     sources:
-      - path: AppSBSwift
+      # Sources
+      - path: AppSBSwift/Sources
         type: group
+        group: AppSBSwift
         excludes:
-          - "**/Info.plist"
-      - ../Shared/SampleAssets.xcassets
+          - "**/.gitkeep"
+      # Resources
+      - path: AppSBSwift/Resources
+        type: group
+        group: AppSBSwift
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: AppSBSwift/Resources
+      # Configurations
+      - path: AppSBSwift/Configurations
+        type: group
+        group: AppSBSwift
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: AppSBSwift/Configurations
+        buildPhase: none
+      - path: ../../Plans/tvOS-SBSwift_Base.xctestplan
+        group: AppSBSwift/Configurations
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
@@ -79,11 +120,27 @@ targets:
   tvOS-Swift-UITests:
     type: bundle.ui-testing
     platform: auto
+    dependencies:
+      - target: SentrySampleShared/SentrySampleUITestShared
+      - target: SentrySampleShared/SentrySampleShared
     sources:
-      - path: UITests
+      # Sources
+      - path: UITests/Sources
         type: group
+        group: UITests
         excludes:
-          - "**/Info.plist"
+          - "**/.gitkeep"
+      # Configurations
+      - path: UITests/Configurations
+        type: group
+        group: UITests
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: UITests/Configurations
+        buildPhase: none
     configFiles:
       Debug: UITests/Configurations/tvOS-Swift-UITests.xcconfig
       Release: UITests/Configurations/tvOS-Swift-UITests.xcconfig
@@ -92,11 +149,27 @@ targets:
   tvOS-SBSwift-UITests:
     type: bundle.ui-testing
     platform: auto
+    dependencies:
+      - target: SentrySampleShared/SentrySampleUITestShared
+      - target: SentrySampleShared/SentrySampleShared
     sources:
-      - path: AppSBSwift-UITests
+      # Sources
+      - path: AppSBSwift-UITests/Sources
         type: group
+        group: AppSBSwift-UITests
         excludes:
-          - "**/Info.plist"
+          - "**/.gitkeep"
+      # Configurations
+      - path: AppSBSwift-UITests/Configurations
+        type: group
+        group: AppSBSwift-UITests
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: AppSBSwift-UITests/Configurations
+        buildPhase: none
     configFiles:
       Debug: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig
       Release: AppSBSwift-UITests/Configurations/tvOS-SBSwift-UITests.xcconfig

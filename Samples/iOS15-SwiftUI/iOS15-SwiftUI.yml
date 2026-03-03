@@ -15,10 +15,6 @@ projectReferences:
     path: ../../Sentry.xcodeproj
   SentrySampleShared:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
-fileGroups:
-  - ../Shared/Config
-  - Configuration
-  - iOS15-SwiftUI.yml
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -27,17 +23,41 @@ targets:
     type: application
     platform: auto
     sources:
-      - Sources
-      - Resources
-      - ../Shared/SampleAssets.xcassets
+      # Sources
+      - path: Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: iOS15-SwiftUI.yml
+        group: App/Configurations
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: Configuration/iOS15-SwiftUI.xcconfig
-      Release: Configuration/iOS15-SwiftUI.xcconfig
-      Test: Configuration/iOS15-SwiftUI.xcconfig
-      TestCI: Configuration/iOS15-SwiftUI.xcconfig
+      Debug: Configurations/iOS15-SwiftUI.xcconfig
+      Release: Configurations/iOS15-SwiftUI.xcconfig
+      Test: Configurations/iOS15-SwiftUI.xcconfig
+      TestCI: Configurations/iOS15-SwiftUI.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist

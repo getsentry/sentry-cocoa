@@ -11,8 +11,6 @@ configs:
 packages:
   Sentry:
     path: ../..
-fileGroups:
-  - macOS-SwiftUI-SPM.yml
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -22,7 +20,21 @@ targets:
     platform: macOS
     deploymentTarget: "11.0"
     sources:
-      - App
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Configurations (plist/entitlements in Resources for this sample)
+      - path: macOS-SwiftUI-SPM.yml
+        group: App
     dependencies:
       - package: Sentry
         product: SentrySPM

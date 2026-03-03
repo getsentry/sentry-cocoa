@@ -10,10 +10,6 @@ projectReferences:
     path: ../../Sentry.xcodeproj
   SentrySampleShared:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
-fileGroups:
-  - ../Shared/Config
-  - Configuration
-  - SessionReplay-CameraTest.yml
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -22,15 +18,39 @@ targets:
     type: application
     platform: iOS
     sources:
-      - Sources
-      - Resources
-      - ../Shared/SampleAssets.xcassets
+      # Sources
+      - path: Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: SessionReplay-CameraTest.yml
+        group: App/Configurations
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: Configuration/SessionReplay-CameraTest.xcconfig
-      Release: Configuration/SessionReplay-CameraTest.xcconfig
+      Debug: Configurations/SessionReplay-CameraTest.xcconfig
+      Release: Configurations/SessionReplay-CameraTest.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist

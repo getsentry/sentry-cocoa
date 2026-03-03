@@ -17,14 +17,32 @@ targets:
     type: application
     platform: auto
     sources:
-      - App
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
     dependencies:
       - package: Sentry
         products:
           - SentryDistribution
     configFiles:
-      Debug: App/Configuration/DistributionSample.xcconfig
-      Release: App/Configuration/DistributionSample.xcconfig
+      Debug: App/Configurations/DistributionSample.xcconfig
+      Release: App/Configurations/DistributionSample.xcconfig
 schemes:
   DistributionSample:
     templates:

@@ -15,12 +15,6 @@ projectReferences:
     path: ../../Sentry.xcodeproj
   SentrySampleShared:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
-fileGroups:
-  - ../Shared/Config
-  - App/Configuration
-  - UITests/Configuration
-  - iOS-ObjectiveC.yml
-  - ../../Plans/iOS-ObjectiveC_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -29,24 +23,47 @@ targets:
     type: application
     platform: auto
     sources:
-      - ../Shared/SampleAssets.xcassets
+      # Sources
       - path: App/Sources
         type: group
+        group: App
         excludes:
+          - "**/.gitkeep"
           - NoARCCrash.m
       - path: App/Sources/NoARCCrash.m
+        group: App/Sources
         compilerFlags:
           - "-fno-objc-arc"
-      - App/Resources
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: iOS-ObjectiveC.yml
+        group: App/Configurations
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: App/Configuration/iOS-ObjectiveC.xcconfig
-      Release: App/Configuration/iOS-ObjectiveC.xcconfig
-      Test: App/Configuration/iOS-ObjectiveC.xcconfig
-      TestCI: App/Configuration/iOS-ObjectiveC.xcconfig
+      Debug: App/Configurations/iOS-ObjectiveC.xcconfig
+      Release: App/Configurations/iOS-ObjectiveC.xcconfig
+      Test: App/Configurations/iOS-ObjectiveC.xcconfig
+      TestCI: App/Configurations/iOS-ObjectiveC.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -58,13 +75,30 @@ targets:
   UITests:
     type: bundle.ui-testing
     platform: auto
+    dependencies:
+      - target: SentrySampleShared/SentrySampleUITestShared
+      - target: SentrySampleShared/SentrySampleShared
     sources:
-      - UITests/Sources
+      # Sources
+      - path: UITests/Sources
+        type: group
+        group: UITests
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: UITests/Resources
+        type: group
+        group: UITests
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: ../../Plans/iOS-ObjectiveC_Base.xctestplan
+        group: UITests/Configurations
     configFiles:
-      Debug: UITests/Configuration/iOS-ObjectiveC-UITests.xcconfig
-      Release: UITests/Configuration/iOS-ObjectiveC-UITests.xcconfig
-      Test: UITests/Configuration/iOS-ObjectiveC-UITests.xcconfig
-      TestCI: UITests/Configuration/iOS-ObjectiveC-UITests.xcconfig
+      Debug: UITests/Configurations/iOS-ObjectiveC-UITests.xcconfig
+      Release: UITests/Configurations/iOS-ObjectiveC-UITests.xcconfig
+      Test: UITests/Configurations/iOS-ObjectiveC-UITests.xcconfig
+      TestCI: UITests/Configurations/iOS-ObjectiveC-UITests.xcconfig
 schemes:
   iOS-ObjectiveC:
     templates:

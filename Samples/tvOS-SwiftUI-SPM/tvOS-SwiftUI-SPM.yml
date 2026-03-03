@@ -11,8 +11,6 @@ configs:
 packages:
   Sentry:
     path: ../..
-fileGroups:
-  - tvOS-SwiftUI-SPM.yml
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -22,7 +20,21 @@ targets:
     platform: tvOS
     deploymentTarget: "15.0"
     sources:
-      - Sources
+      # Sources
+      - path: Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: tvOS-SwiftUI-SPM.yml
+        group: App
     dependencies:
       - package: Sentry
         product: SentrySPM

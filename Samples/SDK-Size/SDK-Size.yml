@@ -9,9 +9,6 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
-fileGroups:
-  - ../Shared/Config
-  - SDK-Size.yml
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -20,12 +17,30 @@ targets:
     type: application
     platform: auto
     sources:
-      - App
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: SDK-Size.yml
+        group: App/Configurations
     dependencies:
       - target: Sentry/Sentry
     configFiles:
-      Debug: App/Configuration/SDK-Size.xcconfig
-      Release: App/Configuration/SDK-Size.xcconfig
+      Debug: App/Configurations/SDK-Size.xcconfig
+      Release: App/Configurations/SDK-Size.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist

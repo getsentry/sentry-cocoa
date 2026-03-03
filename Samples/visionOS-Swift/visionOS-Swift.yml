@@ -15,9 +15,6 @@ projectReferences:
     path: ../../Sentry.xcodeproj
   SentrySampleShared:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
-fileGroups:
-  - ../Shared/Config
-  - visionOS-Swift.yml
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -26,20 +23,42 @@ targets:
     type: application
     platform: auto
     sources:
-      - path: App
+      # Sources
+      - path: App/Sources
         type: group
+        group: App
         excludes:
-          - "**/Info.plist"
-      - ../Shared/SampleAssets.xcassets
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: visionOS-Swift.yml
+        group: App/Configurations
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: App/Configuration/visionOS-Swift.xcconfig
-      Release: App/Configuration/visionOS-Swift.xcconfig
-      Test: App/Configuration/visionOS-Swift.xcconfig
-      TestCI: App/Configuration/visionOS-Swift.xcconfig
+      Debug: App/Configurations/visionOS-Swift.xcconfig
+      Release: App/Configurations/visionOS-Swift.xcconfig
+      Test: App/Configurations/visionOS-Swift.xcconfig
+      TestCI: App/Configurations/visionOS-Swift.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
