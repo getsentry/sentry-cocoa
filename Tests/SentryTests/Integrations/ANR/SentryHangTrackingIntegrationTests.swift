@@ -139,14 +139,14 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
                 ($0.stacktrace?.frames.count ?? 0) >= 1
             }.count
             
-            XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
+            XCTAssertGreaterThan(threadsWithFrames, 1, "Not enough threads with frames")
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
             XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
         }
     }
-    
+
     func testV1_ANRDetected_FullyBlocking_EventCaptured() throws {
         setUpThreadInspector()
         givenInitializedTracker()
@@ -179,7 +179,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
                 ($0.stacktrace?.frames.count ?? 0) >= 1
             }.count
 
-            XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
+            XCTAssertGreaterThan(threadsWithFrames, 1, "Not enough threads with frames")
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
@@ -220,14 +220,14 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
                 ($0.stacktrace?.frames.count ?? 0) >= 1
             }.count
 
-            XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
+            XCTAssertGreaterThan(threadsWithFrames, 1, "Not enough threads with frames")
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
             XCTAssertEqual(eventDebugImage.debugID, TestData.debugImage.debugID)
         }
     }
-    
+
     func testV1_ANRDetected_Unknown_EventCaptured() throws {
         setUpThreadInspector()
         givenInitializedTracker()
@@ -261,7 +261,7 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
                 ($0.stacktrace?.frames.count ?? 0) >= 1
             }.count
 
-            XCTAssertTrue(threadsWithFrames > 1, "Not enough threads with frames")
+            XCTAssertGreaterThan(threadsWithFrames, 1, "Not enough threads with frames")
 
             XCTAssertEqual(event?.debugMeta?.count, 1)
             let eventDebugImage = try XCTUnwrap(event?.debugMeta?.first)
