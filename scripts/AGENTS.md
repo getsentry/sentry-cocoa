@@ -12,14 +12,19 @@ All new scripts **must** use named parameters. Positional parameters (`$1`, `$2`
 #!/bin/bash
 set -euo pipefail
 
+# Source CI utilities for proper logging
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./ci-utils.sh
+source "$SCRIPT_DIR/ci-utils.sh"
+
 # Parse named arguments
 PARAM_ONE=""
 PARAM_TWO="default-value"
 
 usage() {
-    echo "Usage: $0"
-    echo "  --param-one <value>    Description of param one (required)"
-    echo "  --param-two <value>    Description of param two (default: default-value)"
+    log_notice "Usage: $0"
+    log_notice "  --param-one <value>    Description of param one (required)"
+    log_notice "  --param-two <value>    Description of param two (default: default-value)"
     exit 1
 }
 
@@ -32,7 +37,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ -z "$PARAM_ONE" ]; then
-    echo "Error: --param-one is required"
+    log_error "Error: --param-one is required"
     usage
 fi
 ```
