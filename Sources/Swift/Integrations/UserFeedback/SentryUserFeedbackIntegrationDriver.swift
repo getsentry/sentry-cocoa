@@ -53,10 +53,15 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         }
 
         observeScreenshots()
+        observeShakeGesture()
     }
 
     deinit {
         customButton?.removeTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
+        if configuration.useShakeGesture {
+            SentryShakeDetector.disable()
+            NotificationCenter.default.removeObserver(self, name: NSNotification.Name("SentryShakeDetected"), object: nil)
+        }
     }
 
     func showWidget() {
@@ -147,6 +152,18 @@ private extension SentryUserFeedbackIntegrationDriver {
         if configuration.showFormForScreenshots {
             NotificationCenter.default.addObserver(self, selector: #selector(userCapturedScreenshot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
         }
+    }
+
+    func observeShakeGesture() {
+        if configuration.useShakeGesture {
+            SentryShakeDetector.enable()
+            NotificationCenter.default.addObserver(self, selector: #selector(handleShakeGesture), name: NSNotification.Name("SentryShakeDetected"), object: nil)
+        }
+    }
+
+    @objc func handleShakeGesture() {
+        guard !displayingForm else { return }
+        showForm(screenshot: nil)
     }
 
     @objc func userCapturedScreenshot() {
