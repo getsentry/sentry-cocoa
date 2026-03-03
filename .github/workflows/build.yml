@@ -61,7 +61,7 @@ jobs:
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
-      - run: ./scripts/ci-select-xcode.sh 26.2
+      - run: ./scripts/ci-select-xcode.sh 26.4
       - name: Setup Ruby
         uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
         with:
@@ -167,12 +167,14 @@ jobs:
             make-target: build-sample-macOS-SwiftUI-SPM
           - name: visionOS
             make-target: build-sample-visionOS-SwiftUI-SPM
+          - name: macOS-CLI-Xcode
+            make-target: build-sample-macOS-CLI-Xcode
     steps:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Select Xcode
-        run: ./scripts/ci-select-xcode.sh 26.2
+        run: ./scripts/ci-select-xcode.sh 26.4
 
       - name: Install xcodegen
         run: brew install xcodegen

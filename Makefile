@@ -300,17 +300,9 @@ build-sample-macOS-SwiftUI-SPM:
 ## Build the macOS-CLI-Xcode sample (command-line tool, SentrySPM with NoUIFramework)
 #
 # Builds the macOS CLI sample that uses SentrySPM without UIKit/AppKit linkage.
-# xcodegen does not support package traits; we inject traits on the package reference
-# and enabledTraits on the product dependency after generation.
+# Uses the pre-generated .xcodeproj (traits set in version control; xcodegen has no trait support).
 .PHONY: build-sample-macOS-CLI-Xcode
 build-sample-macOS-CLI-Xcode:
-	xcodegen --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
-	@# Inject NoUIFramework trait on XCLocalSwiftPackageReference (xcodegen has no trait support)
-	@perl -i -0pe 's/(relativePath = \.\.\/\.\.;)\n(\t\t\};)/$$1\n\t\ttraits = (\n\t\t\tNoUIFramework,\n\t\t);\n$$2/s' \
-		Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj/project.pbxproj
-	@# Inject enabledTraits on XCSwiftPackageProductDependency
-	@perl -i -pe 's/(isa = XCSwiftPackageProductDependency;)/$$1\n\t\tenabledTraits = (NoUIFramework);/' \
-		Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj/project.pbxproj
 	set -o pipefail && xcodebuild \
 		-project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
 		-scheme macOS-CLI-Xcode \
@@ -981,12 +973,6 @@ xcode-ci-iOS15-SwiftUI: xcode-ci-SentrySampleShared
 .PHONY: xcode-ci-macOS-CLI-Xcode
 xcode-ci-macOS-CLI-Xcode:
 	xcodegen --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
-	@# Inject NoUIFramework trait on XCLocalSwiftPackageReference (xcodegen has no trait support)
-	@perl -i -0pe 's/(relativePath = \.\.\/\.\.;)\n(\t\t\};)/$$1\n\t\ttraits = (\n\t\t\tNoUIFramework,\n\t\t);\n$$2/s' \
-		Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj/project.pbxproj
-	@# Inject enabledTraits on XCSwiftPackageProductDependency
-	@perl -i -pe 's/(isa = XCSwiftPackageProductDependency;)/$$1\n\t\tenabledTraits = (NoUIFramework);/' \
-		Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj/project.pbxproj
 
 .PHONY: xcode-ci-macOS-Swift
 xcode-ci-macOS-Swift: xcode-ci-SentrySampleShared
