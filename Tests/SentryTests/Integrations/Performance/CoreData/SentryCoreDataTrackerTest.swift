@@ -376,7 +376,7 @@ private extension SentryCoreDataTrackerTests {
         XCTAssertEqual(dbSpan.spanDescription, expectedDescription, file: file, line: line)
         XCTAssertEqual(dbSpan.data["blocked_main_thread"] as? Bool ?? false, mainThread, file: file, line: line)
         XCTAssertEqual(try XCTUnwrap(dbSpan.data["db.system"] as? String), "SQLite", file: file, line: line)
-        XCTAssert(try XCTUnwrap(dbSpan.data["db.name"] as? NSString).contains(databaseFilename), file: file, line: line)
+        XCTAssertTrue(try XCTUnwrap(dbSpan.data["db.name"] as? NSString).contains(databaseFilename), file: file, line: line)
 
         if mainThread {
             guard let frames = (dbSpan as? SentrySpanInternal)?.frames else {

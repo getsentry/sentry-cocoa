@@ -14,6 +14,10 @@ TargetName/
 - Info.plist and entitlements go in `Configuration/`, not `Resources/`
 - Add `.gitkeep` to empty directories
 
+## UI Tests
+
+Follow assertion conventions in [`Tests/AGENTS.md`](../Tests/AGENTS.md) — see "Prefer Specific Assertions Over `XCTAssert`".
+
 ## Commands
 
 | Command                    | Description                               |

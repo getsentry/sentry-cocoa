@@ -227,12 +227,12 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         
         let initialDisplaySpan = try XCTUnwrap(sut.initialDisplaySpan)
         let fullDisplaySpan = try XCTUnwrap(sut.fullDisplaySpan)
-        XCTAssert(initialDisplaySpan.isFinished)
+        XCTAssertTrue(initialDisplaySpan.isFinished)
         XCTAssertEqual(initialDisplaySpan.timestamp, Date(timeIntervalSince1970: 12))
         XCTAssertEqual(initialDisplaySpan.status, .ok)
         assertMeasurement(tracer: tracer, name: "time_to_initial_display", duration: 3_000)
         
-        XCTAssert(fullDisplaySpan.isFinished)
+        XCTAssertTrue(fullDisplaySpan.isFinished)
         XCTAssertEqual(fullDisplaySpan.timestamp, Date(timeIntervalSince1970: 12))
         XCTAssertEqual(fullDisplaySpan.status, .ok)
         assertMeasurement(tracer: tracer, name: "time_to_full_display", duration: 3_000)

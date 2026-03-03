@@ -28,9 +28,9 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-        XCTAssert(features.contains("captureFailedRequests"))
-        XCTAssert(features.contains("timeToFullDisplayTracing"))
-        XCTAssert(features.contains("swiftAsyncStacktraces"))
+        XCTAssertTrue(features.contains("captureFailedRequests"))
+        XCTAssertTrue(features.contains("timeToFullDisplayTracing"))
+        XCTAssertTrue(features.contains("swiftAsyncStacktraces"))
     }
 
     func testEnablePersistingTracesWhenCrashing() {
@@ -43,7 +43,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-        XCTAssert(features.contains("persistingTracesWhenCrashing"))
+        XCTAssertTrue(features.contains("persistingTracesWhenCrashing"))
     }
 
     func testGetEnabledFeatures_optionsAreNil_shouldReturnEmptyArray() {
@@ -99,7 +99,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-        XCTAssert(features.contains("fastViewRendering"))
+        XCTAssertTrue(features.contains("fastViewRendering"))
 #else
         throw XCTSkip("Test not supported on this platform")
 #endif
@@ -115,7 +115,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-        XCTAssert(features.contains("dataSwizzling"))
+        XCTAssertTrue(features.contains("dataSwizzling"))
     }
 
     func testEnableDataSwizzling_isDisabled_shouldNotAddFeature() throws {
@@ -141,7 +141,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-        XCTAssert(features.contains("fileManagerSwizzling"))
+        XCTAssertTrue(features.contains("fileManagerSwizzling"))
     }
 
     func testEnableFileManagerSwizzling_isDisabled_shouldNotAddFeature() throws {
@@ -167,7 +167,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-        XCTAssert(features.contains("unhandledCPPExceptionsV2"))
+        XCTAssertTrue(features.contains("unhandledCPPExceptionsV2"))
     }
 
     func testEnableMetrics_isEnabled_shouldAddFeature() throws {
@@ -180,7 +180,7 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
 
         // -- Assert --
-        XCTAssert(features.contains("metrics"))
+        XCTAssertTrue(features.contains("metrics"))
     }
 
     func testEnableMetrics_isDisabled_shouldNotAddFeature() throws {

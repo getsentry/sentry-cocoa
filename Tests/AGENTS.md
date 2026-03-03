@@ -55,6 +55,21 @@ func testExample() {
 }
 ```
 
+### Prefer Specific Assertions Over `XCTAssert`
+
+Never use bare `XCTAssert()` — it produces poor failure messages. Use the most specific assertion available:
+
+| Instead of                | Use                           |
+| ------------------------- | ----------------------------- |
+| `XCTAssert(a == b)`       | `XCTAssertEqual(a, b)`        |
+| `XCTAssert(a != b)`       | `XCTAssertNotEqual(a, b)`     |
+| `XCTAssert(a === b)`      | `XCTAssertIdentical(a, b)`    |
+| `XCTAssert(a !== b)`      | `XCTAssertNotIdentical(a, b)` |
+| `XCTAssert(x)` (any Bool) | `XCTAssertTrue(x)`            |
+| `XCTAssert(!x)`           | `XCTAssertFalse(x)`           |
+| `XCTAssert(x == nil)`     | `XCTAssertNil(x)`             |
+| `XCTAssert(x != nil)`     | `XCTAssertNotNil(x)`          |
+
 ### DAMP Over DRY
 
 Prefer self-contained, readable tests. Duplicate test code if it improves clarity. Use helpers only for complex setup, shared fixtures, or genuinely reusable assertion logic.
