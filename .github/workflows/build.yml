@@ -61,7 +61,7 @@ jobs:
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
-      - run: ./scripts/ci-select-xcode.sh 26.4
+      - run: ./scripts/ci-select-xcode.sh 26.2
       - name: Setup Ruby
         uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
         with:
@@ -167,14 +167,12 @@ jobs:
             make-target: build-sample-macOS-SwiftUI-SPM
           - name: visionOS
             make-target: build-sample-visionOS-SwiftUI-SPM
-          - name: macOS-CLI-Xcode
-            make-target: build-sample-macOS-CLI-Xcode
     steps:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Select Xcode
-        run: ./scripts/ci-select-xcode.sh 26.4
+        run: ./scripts/ci-select-xcode.sh 26.2
 
       - name: Install xcodegen
         run: brew install xcodegen
@@ -184,6 +182,37 @@ jobs:
         env:
           IOS_SIMULATOR_OS: latest
           IOS_DEVICE_NAME: iPhone 17 Pro
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
+  check-macOS-CLI-Xcode-no-UI-framework:
+    name: macOS CLI (NoUIFramework) builds and has no AppKit/UIKit
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Select Xcode
+        run: ./scripts/ci-select-xcode.sh 26.4
+
+      - name: Build macOS-CLI-Xcode sample
+        run: |
+          set -o pipefail && xcodebuild \
+            -project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
+            -scheme macOS-CLI-Xcode \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            -derivedDataPath "$GITHUB_WORKSPACE/cli-xcode-build" \
+            CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+      - name: Ensure CLI binary does not link AppKit
+        run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data "$GITHUB_WORKSPACE/cli-xcode-build" --linkage unlinked --module macOS-CLI-Xcode --framework AppKit
+
+      - name: Ensure CLI binary does not link UIKit
+        run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data "$GITHUB_WORKSPACE/cli-xcode-build" --linkage unlinked --module macOS-CLI-Xcode --framework UIKit
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
@@ -458,6 +487,7 @@ jobs:
         ios-swift-release,
         build-sample,
         build-sample-spm,
+        check-macOS-CLI-Xcode-no-UI-framework,
         build-distribution,
         build-spm,
         check-debug-without-UIKit,
