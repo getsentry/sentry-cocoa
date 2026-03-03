@@ -5,4 +5,4 @@ INFOPLIST_FILE = UITests/Configuration/Info.plist
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 
-TEST_TARGET_NAME = iOS-Swift6
+TEST_TARGET_NAME = App
