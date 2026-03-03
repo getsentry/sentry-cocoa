@@ -67,7 +67,8 @@ npx @sentry/dotagents list      # show installed skills
 
 ### MCP Servers
 
-Declared in `agents.toml`, generated into `.mcp.json` and `.cursor/mcp.json`:
+Declared in `agents.toml`; [dotagents](https://github.com/getsentry/dotagents) generates `.mcp.json` (root, for Claude/CLI) and `.cursor/mcp.json` (Cursor IDE reads from `.cursor/` by default).
+Do not edit these JSON files manually — run `npx @sentry/dotagents install` after cloning.
 
 - **XcodeBuildMCP** — build, run, test in simulator (requires Node.js)
 - **sentry** — query production errors, search issues, read docs (OAuth on first use)
@@ -94,6 +95,7 @@ search_issues  → check for new/regressed issues
 - **Wildcard permissions** — many commands are pre-approved with wildcards (e.g., `git add:*`). Flags like `-C` change the command prefix (`git -C path add` ≠ `git add`), triggering a confirmation prompt. Avoid `-C` when you can `cd` instead
 - **Prefer small, focused commands** over one massive pipeline. Break complex operations into multiple steps
 - **JSON processing** — always use `jq`; do not shell out to `node` or `python` for JSON parsing
+- **GitHub** — prefer `gh` CLI over web scraping when interacting with GitHub.com
 
 ## Verification Loop
 
@@ -166,21 +168,7 @@ Non-changelog types require `#skip-changelog` in PR description. Breaking change
 
 ## CLI
 
-| Command                  | Description                       |
-| ------------------------ | --------------------------------- |
-| `make help`              | List all targets                  |
-| `make format`            | Format all code                   |
-| `make analyze`           | Static analysis                   |
-| `make test`              | All platform tests                |
-| `make test-ios`          | iOS tests (fastest)               |
-| `make test-ui-critical`  | Important UI tests                |
-| `make build-ios`         | Build for iOS                     |
-| `make build-xcframework` | Build XCFramework deliverables    |
-| `make build-samples`     | Build all sample apps             |
-| `make xcode-ci`          | Regenerate sample Xcode projects  |
-| `make pod-lint`          | Lint pod deliverable              |
-| `make run-test-server`   | Start test server (rarely needed) |
-| `make stop-test-server`  | Stop test server                  |
+See `make help` and the Makefile for commands and documentation. Key targets: `make format`, `make analyze`, `make build-ios`, `make test-ios`, `make build-xcframework`, `make pod-lint`.
 
 ## Shell Scripts
 

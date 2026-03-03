@@ -4,6 +4,8 @@
 
 ## Objective-C
 
+Use Objective-C sparingly; prefer Swift when possible.
+
 ### No `+new`
 
 Use `[[Class alloc] init]`, not `[Class new]`:
@@ -24,6 +26,29 @@ SentryBreadcrumb *crumb = [SentryBreadcrumb new];
 - Mark nullable parameters/properties explicitly with `nullable`
 
 ## Swift
+
+Prefer protocol-oriented design where it improves testability and composition. See [Protocol-Oriented Programming in Swift (WWDC15)](https://developer.apple.com/videos/play/wwdc2015/408/) and [PR #7017](https://github.com/getsentry/sentry-cocoa/pull/7017).
+
+**Pattern** — Define multiple protocols with default implementations via extensions. Implementing types adopt several protocols and inherit defaults for free. Protocol constraints on generics reduce required init/method signatures:
+
+```swift
+protocol ItemProtocol { var id: String { get } }
+protocol StorageProtocol<Item> { associatedtype Item; func append(_ item: Item) }
+protocol Enricher {
+    func enrich<Item: ItemProtocol>(_ item: inout Item)
+}
+extension Enricher {
+    func enrich<Item: ItemProtocol>(_ item: inout Item) { /* default implementation modifying item */ }
+}
+
+// Scope adopts Enricher and gets enrich() for free
+extension Scope: Enricher {}
+
+// Generic Buffer: protocols constrain Storage and Item, reducing init surface
+final class Buffer<Storage: StorageProtocol, Item: ItemProtocol> {
+    init(storage: Storage) { /* only needs what protocols require */ }
+}
+```
 
 ### Naming
 
@@ -77,6 +102,8 @@ SentryBreadcrumb *crumb = [SentryBreadcrumb new];
 | `dispatch_group`   | `SentryHttpTransport` (flush coordination)                                                                  |
 | C11 atomics        | SentryCrash monitors (signal-safe context)                                                                  |
 
+For Swift, use the `synchronized` extensions in `Locks.swift` (`NSLock`, `NSRecursiveLock`) rather than raw lock calls.
+
 ### Rules
 
 - SDK runs on arbitrary queues — assume any public method can be called from any thread
@@ -87,7 +114,7 @@ SentryBreadcrumb *crumb = [SentryBreadcrumb new];
 
 ## SentryCrash (C/C++)
 
-Located in `Sources/SentryCrash/`.
+Located in `Sources/SentryCrash/`. Fork of [KSCrash](https://github.com/kstenerud/KSCrash) — when fixing bugs or investigating, check upstream KSCrash for relevant fixes.
 
 ### Signal Safety
 
@@ -98,6 +125,7 @@ Code inside crash/signal handlers **must** be async-signal-safe:
 - **No ObjC messaging** — runtime may be in an inconsistent state
 - **Allowed**: `write()`, `vsnprintf`, `strerror_r`, C11 atomics, `SENTRY_ASYNC_SAFE_LOG_*` macros
 - `pthread_self()` is technically not async-signal-safe but accepted as a known trade-off
+- See [signal-safety(7)](https://man7.org/linux/man-pages/man7/signal-safety.7.html) and [develop docs](https://develop.sentry.dev/sdk/platform-specifics/native-sdks/signal-handlers/#general-risks) for context
 
 ### Buffer Safety
 

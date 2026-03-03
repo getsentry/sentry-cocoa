@@ -48,7 +48,7 @@ fi
 
 ### Reference
 
-See `sentry-xcodebuild.sh` for a complete example of named parameter parsing.
+See `sentry-xcodebuild.sh` for a complete example of named parameter parsing. For CI logging (grouping, notices, warnings), source `ci-utils.sh` so output works properly in GitHub Actions.
 
 ### Legacy
 

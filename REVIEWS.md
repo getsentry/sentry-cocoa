@@ -2,7 +2,7 @@
 
 > Instructions for LLM agents. Keep edits minimal (headers + bullets). Use `/agents-md` skill when editing.
 
-Applies to all review agents (human-assisted, Bugbot, code-review skill).
+Applies to all review agents (human-assisted, Bugbot, code-review skill). Review bots should verify changes align with the nested AGENTS.md files: [Sources/AGENTS.md](Sources/AGENTS.md), [Tests/AGENTS.md](Tests/AGENTS.md), [scripts/AGENTS.md](scripts/AGENTS.md), [.github/AGENTS.md](.github/AGENTS.md), [Samples/AGENTS.md](Samples/AGENTS.md), [develop-docs/AGENTS.md](develop-docs/AGENTS.md).
 
 ## Review Priorities
 
