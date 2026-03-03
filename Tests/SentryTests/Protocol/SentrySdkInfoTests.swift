@@ -345,8 +345,8 @@ class SentrySdkInfoTests: XCTestCase {
         let actual = SentrySdkInfo.global()
         XCTAssertEqual(actual.name, SentryMeta.sdkName)
         XCTAssertEqual(actual.version, SentryMeta.versionString)
-        XCTAssertTrue(actual.integrations.count > 0)
-        XCTAssertTrue(actual.features.count > 0)
+        XCTAssertGreaterThan(actual.integrations.count, 0)
+        XCTAssertGreaterThan(actual.features.count, 0)
     }
     
     func testFromGlobalsWithExtraPackage() throws {
