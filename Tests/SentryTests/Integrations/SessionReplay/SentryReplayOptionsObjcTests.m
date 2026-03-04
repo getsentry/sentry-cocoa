@@ -76,8 +76,10 @@
     XCTAssertNotNil(options.networkDetailDenyUrls);
     XCTAssertEqual(options.networkDetailDenyUrls.count, 0);
     XCTAssertTrue(options.networkCaptureBodies);
-    XCTAssertEqualObjects(options.networkRequestHeaders, (@[@"Content-Type", @"Content-Length", @"Accept"]));
-    XCTAssertEqualObjects(options.networkResponseHeaders, (@[@"Content-Type", @"Content-Length", @"Accept"]));
+    XCTAssertEqualObjects(
+        options.networkRequestHeaders, (@[ @"Content-Type", @"Content-Length", @"Accept" ]));
+    XCTAssertEqualObjects(
+        options.networkResponseHeaders, (@[ @"Content-Type", @"Content-Length", @"Accept" ]));
 }
 
 // MARK: - Network Details Tests (Objective-C Regex Interoperability)
@@ -86,15 +88,14 @@
 {
     // -- Arrange --
     SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
-    options.networkDetailAllowUrls =
-        @[ @"api.example.com", @"/analytics/", @"track" ];
-    options.networkDetailDenyUrls = @[];
+    options.networkDetailAllowUrls = @[ @"api.example.com", @"/analytics/", @"track" ];
 
     // -- Act & Assert --
     // Should match - substring found anywhere in URL
     XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://api.example.com/users"]);
     XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://sub.api.example.com/data"]);
-    XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://myapp.com/v1/analytics/events"]);
+    XCTAssertTrue(
+        [options isNetworkDetailCaptureEnabledFor:@"https://myapp.com/v1/analytics/events"]);
     XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://site.com/track/user"]);
     XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://tracking.service.com/api"]);
 
@@ -107,7 +108,6 @@
 - (void)testIsNetworkDetailCaptureEnabled_withNSRegularExpression_shouldUseProvidedRegexMatching
 {
     // -- Arrange --
-    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
     NSError *error = nil;
     NSRegularExpression *regularRegex =
         [NSRegularExpression regularExpressionWithPattern:@"^https://api\\.example\\.com/.*"
@@ -121,28 +121,33 @@
                                                     error:&error];
     XCTAssertNil(error);
 
+    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
     options.networkDetailAllowUrls = @[ regularRegex, caseInsensitiveRegex ];
-    options.networkDetailDenyUrls = @[];
 
     // -- Act & Assert --
     // Should match case-sensitive 'api' subdomain
     XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://api.example.com/users"]);
     XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://api.example.com/api/data"]);
-    
+
     // Should match case-insensitive 'analytics' subdomain
     XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://analytics.myapp.com"]);
-    XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://ANALYTICS.example.com"]); // respects options:NSRegularExpressionCaseInsensitive
+    XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:
+            @"https://ANALYTICS.example.com"]); // respects
+                                                // options:NSRegularExpressionCaseInsensitive
 
     // Should NOT match - wrong subdomain or case
-    XCTAssertFalse([options isNetworkDetailCaptureEnabledFor:@"https://v2.example.com/api/users"]); // Wrong subdomain
-    XCTAssertFalse([options isNetworkDetailCaptureEnabledFor:@"https://other.com/api/users"]); // Wrong domain
-    XCTAssertFalse([options isNetworkDetailCaptureEnabledFor:@"https://API.example.com/users"]); // Case mismatch in subdomain
+    XCTAssertFalse([options
+        isNetworkDetailCaptureEnabledFor:@"https://v2.example.com/api/users"]); // Wrong subdomain
+    XCTAssertFalse(
+        [options isNetworkDetailCaptureEnabledFor:@"https://other.com/api/users"]); // Wrong domain
+    XCTAssertFalse([options
+        isNetworkDetailCaptureEnabledFor:@"https://API.example.com/users"]); // Case mismatch in
+                                                                             // subdomain
 }
 
 - (void)testIsNetworkDetailCaptureEnabled_withMixedPatterns_shouldSupportBoth
 {
     // -- Arrange --
-    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
     NSError *error = nil;
     // Regex that requires version in path - won't match without /v[0-9]+/
     NSRegularExpression *regex =
@@ -152,13 +157,14 @@
     XCTAssertNil(error);
 
     // Mix substring pattern and regex pattern with distinct matching behavior
+    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
     options.networkDetailAllowUrls = @[ @"/graphql", regex ];
-    options.networkDetailDenyUrls = @[];
 
     // -- Act & Assert --
     // Substring matches
     XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://api.example.com/graphql"]);
-    XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://myapp.com/api/graphql/query"]);
+    XCTAssertTrue(
+        [options isNetworkDetailCaptureEnabledFor:@"https://myapp.com/api/graphql/query"]);
 
     // Regex matches
     XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://secure.api.com/v1/users"]);
@@ -172,22 +178,21 @@
 - (void)testIsNetworkDetailCaptureEnabled_withDenyPatterns_shouldRespectDenyOverAllow
 {
     // -- Arrange --
-    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
     NSError *error = nil;
-    
+
     // Allow everything regex
-    NSRegularExpression *allowAllRegex =
-        [NSRegularExpression regularExpressionWithPattern:@".*"
-                                                  options:0
-                                                    error:&error];
+    NSRegularExpression *allowAllRegex = [NSRegularExpression regularExpressionWithPattern:@".*"
+                                                                                   options:0
+                                                                                     error:&error];
     XCTAssertNil(error);
-    
+
     NSRegularExpression *denyRegex =
         [NSRegularExpression regularExpressionWithPattern:@".*/(auth|login|password).*"
                                                   options:NSRegularExpressionCaseInsensitive
                                                     error:&error];
     XCTAssertNil(error);
 
+    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
     options.networkDetailAllowUrls = @[ allowAllRegex ];
     options.networkDetailDenyUrls = @[ @"https://api.example.com/sensitive", denyRegex ];
 
@@ -203,6 +208,42 @@
         [options isNetworkDetailCaptureEnabledFor:@"https://api.example.com/user/login"]);
     XCTAssertFalse(
         [options isNetworkDetailCaptureEnabledFor:@"https://api.example.com/PASSWORD/reset"]);
+}
+
+// MARK: - ObjC Property Setter Tests
+
+- (void)testNetworkDetailAllowUrls_setViaProperty_shouldDropUnsupportedTypes
+{
+    // -- Arrange --
+    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
+
+    // -- Act -- NSNumber is not a supported type and should be silently dropped
+    options.networkDetailAllowUrls = @[ @"api.example.com", @(42) ];
+
+    // -- Assert --
+    XCTAssertEqual(options.networkDetailAllowUrls.count, 1);
+    XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://api.example.com/data"]);
+}
+
+- (void)testNetworkDetailAllowUrls_roundTrip_shouldPreserveTypes
+{
+    // -- Arrange --
+    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
+    NSRegularExpression *regex =
+        [NSRegularExpression regularExpressionWithPattern:@".*\\.sentry\\.io.*"
+                                                  options:0
+                                                    error:nil];
+
+    // -- Act --
+    options.networkDetailAllowUrls = @[ @"api.example.com", regex ];
+    NSArray *result = options.networkDetailAllowUrls;
+
+    // -- Assert --
+    XCTAssertEqual(result.count, 2);
+    XCTAssertTrue([result[0] isKindOfClass:[NSString class]]);
+    XCTAssertTrue([result[1] isKindOfClass:[NSRegularExpression class]]);
+    XCTAssertEqualObjects(result[0], @"api.example.com");
+    XCTAssertEqualObjects([(NSRegularExpression *)result[1] pattern], @".*\\.sentry\\.io.*");
 }
 
 @end
