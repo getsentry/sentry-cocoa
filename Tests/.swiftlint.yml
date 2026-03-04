@@ -10,6 +10,12 @@ custom_rules:
     message: "Avoid background QoS for dispatch queues in tests, as in CI, work on dispatch queues with background QoS can take a long time to run and lead to flaky tests."
     severity: error
 
+  no_bare_xctassert:
+    name: "No bare XCTAssert"
+    regex: 'XCTAssert\('
+    message: "Use XCTAssertTrue, XCTAssertEqual, XCTAssertIdentical, etc. instead of bare XCTAssert(). Specific assertions provide better failure messages."
+    severity: error
+
   avoid_dispatch_groups_in_tests:
     name: "Avoid DispatchGroups in tests"
     regex: 'DispatchGroup\(\)'

@@ -201,7 +201,7 @@ class SentryFeedbackTests: XCTestCase {
 
             switch viewModel.validate() {
             case .success(let hint):
-                XCTAssert(input.shouldValidate)
+                XCTAssertTrue(input.shouldValidate)
                 XCTAssertEqual(hint, input.expectedSubmitButtonAccessibilityHint, testCaseDescription())
             case .failure(let error):
                 let errorDescription = try XCTUnwrap(error.errorDescription)

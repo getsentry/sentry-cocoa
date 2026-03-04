@@ -163,7 +163,7 @@ private extension MacOSSwiftUITests {
         let sample = try XCTUnwrap(samples.first { nextSample in
             try XCTUnwrap(nextSample["stack_id"] as? NSNumber).intValue == stackID
         })
-        XCTAssert(try XCTUnwrap(sample["thread_id"] as? String) == "259") // the main thread is always ID 259
+        XCTAssertEqual(try XCTUnwrap(sample["thread_id"] as? String), "259") // the main thread is always ID 259
     }
 
     func retrieveFirstProfileChunkData(app: XCUIApplication) {
