@@ -15,6 +15,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
     fileprivate let callback: (SentryFeedback) -> Void
     let screenshotSource: SentryScreenshotSource
     weak var customButton: UIButton?
+    private var didEnableShakeDetection = false
 
     init(configuration: SentryUserFeedbackConfiguration, screenshotSource: SentryScreenshotSource, callback: @escaping (SentryFeedback) -> Void) {
         self.configuration = configuration
@@ -58,7 +59,9 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
 
     deinit {
         customButton?.removeTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
-        SentryShakeDetector.disable()
+        if didEnableShakeDetection {
+            SentryShakeDetector.disable()
+        }
         NotificationCenter.default.removeObserver(self)
     }
 
@@ -155,6 +158,7 @@ private extension SentryUserFeedbackIntegrationDriver {
     func observeShakeGesture() {
         if configuration.useShakeGesture {
             SentryShakeDetector.enable()
+            didEnableShakeDetection = true
             NotificationCenter.default.addObserver(self, selector: #selector(handleShakeGesture), name: .SentryShakeDetected, object: nil)
         }
     }
