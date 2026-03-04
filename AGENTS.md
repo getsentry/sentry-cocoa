@@ -165,7 +165,7 @@ Non-changelog types require `#skip-changelog` in PR description. Breaking change
 - **Changelog** — `feat`, `fix`, `impr` PRs need a changelog entry; all others need `#skip-changelog` in the description
 - **Draft PRs** — use for work-in-progress; convert to ready when seeking review
 - **CI automation** — Danger runs on PR open/sync/edit (shared Dangerfile from `getsentry/github-workflows`)
-- **Agent transcript** — after committing, check the branch's commit messages for a `Agent transcript:` line (added by claudescope hooks). If found, include the link at the bottom of the PR description. If not found, omit — not all contributors have claudescope installed
+- **Agent transcript** — when creating a PR, run `git log main..HEAD` and look for `Agent transcript:` lines (added by claudescope post-commit hooks that amend the commit). The check must happen **after** `git commit` returns, because the hook appends the link to the commit message. If found, include the link at the bottom of the PR description body. If not found, omit silently — not all contributors have claudescope installed
 
 ## CLI
 
