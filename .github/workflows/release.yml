@@ -164,6 +164,10 @@ jobs:
             --package-file Package.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.1.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
@@ -188,6 +192,10 @@ jobs:
         run: |
           ./scripts/prepare-package.sh \
             --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
@@ -216,6 +224,10 @@ jobs:
             --package-file Package.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.1.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build --target SentrySwiftUI
       - name: Run CI Diagnostics
@@ -239,6 +251,10 @@ jobs:
         run: |
           ./scripts/prepare-package.sh \
             --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
