@@ -2,10 +2,6 @@ import Foundation
 @_spi(Private) import Sentry
 import UIKit
 
-extension Array {
-    subscript(safe index: Int) -> Element? { indices.contains(index) ? self[index] : nil }
-}
-
 class NetworkTestingViewController: UIViewController {
     
     // MARK: - UI Elements
@@ -70,7 +66,7 @@ class NetworkTestingViewController: UIViewController {
         } else {
             request.httpBody = (requestBodyTextView.text ?? "").data(using: .utf8)
         }
-        request.setValue(contentTypes[safe: index] ?? "text/plain", forHTTPHeaderField: "Content-Type")
+        request.setValue(contentTypes.element(at: index) ?? "text/plain", forHTTPHeaderField: "Content-Type")
     }
     
     private func updateBodyTextViewForType(_ index: Int) {
@@ -80,7 +76,7 @@ class NetworkTestingViewController: UIViewController {
             "This is a plain text body for testing network capture.\nLine 2 of the text.\nTimestamp: \(Date())",
             "// Binary data will be generated automatically\n// Size: ~10KB of random bytes"
         ]
-        requestBodyTextView.text = bodies[safe: index] ?? ""
+        requestBodyTextView.text = bodies.element(at: index) ?? ""
         requestBodyTextView.isEditable = index != 3
     }
     
