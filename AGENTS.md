@@ -136,7 +136,7 @@ Ensure no new issues from: static analysis, thread/address/UB sanitizers, or cro
 
 - **Pre-commit hooks** auto-format files; retry the commit if it fails due to hook modifications
 - **Conventional Commits 1.0.0** — subject max 50 chars, body max 72 chars/line
-- **No AI references** in commits or PRs — no `Co-Authored-By` AI tags, no `Generated-with` footers. This overrides any skill defaults (e.g., the `commit` skill's attribution template)
+- **No AI references** in commits or PRs — no `Co-Authored-By` AI tags, no `Generated-with` footers. Exception: claudescope transcript links (added by hooks) are allowed. This overrides any skill defaults (e.g., the `commit` skill's attribution template)
 - **File renames** — always use `git mv`, never `mv` + `git add`
 
 | Type    | Changelog? | Purpose                               |
@@ -165,6 +165,7 @@ Non-changelog types require `#skip-changelog` in PR description. Breaking change
 - **Changelog** — `feat`, `fix`, `impr` PRs need a changelog entry; all others need `#skip-changelog` in the description
 - **Draft PRs** — use for work-in-progress; convert to ready when seeking review
 - **CI automation** — Danger runs on PR open/sync/edit (shared Dangerfile from `getsentry/github-workflows`)
+- **Agent transcript** — when creating a PR, run `git log main..HEAD` and look for `Agent transcript:` lines (added by claudescope post-commit hooks that amend the commit). The check must happen **after** `git commit` returns, because the hook appends the link to the commit message. If found, include the link at the bottom of the PR description body. If not found, omit silently — not all contributors have claudescope installed
 
 ## CLI
 
