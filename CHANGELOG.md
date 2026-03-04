@@ -4,6 +4,9 @@
 
 ### Features
 
+- Show feedback form on device shake (#7579)
+  - Enable via `config.useShakeGesture = true` in `SentryUserFeedbackConfiguration`
+  - Uses UIKit's built-in shake detection — no special permissions required
 - Add watchdog termination hang tracker using RunLoop observer. Can be enabled by setting `options.experimental.enableWatchdogTerminationsV2 = true` (#7464)
 
 ### Fixes

@@ -1,22 +1,25 @@
 #import "SentryShakeDetector.h"
 #import <objc/runtime.h>
+#import <stdatomic.h>
 
 #if TARGET_OS_IOS
+#    import <QuartzCore/CABase.h>
 #    import <UIKit/UIKit.h>
 
 NSNotificationName const SentryShakeDetectedNotification = @"SentryShakeDetected";
 
-static BOOL _shakeDetectionEnabled = NO;
+static atomic_bool _shakeDetectionEnabled = NO;
 static BOOL _swizzled = NO;
 static IMP _originalMotionEndedIMP = NULL;
-static NSTimeInterval _lastShakeTimestamp = 0;
-static const NSTimeInterval SHAKE_COOLDOWN_SECONDS = 1.0;
+static CFTimeInterval _lastShakeTimestamp = 0;
+static const CFTimeInterval SHAKE_COOLDOWN_SECONDS = 1.0;
 
 static void
 sentry_motionEnded(UIWindow *self, SEL _cmd, UIEventSubtype motion, UIEvent *event)
 {
-    if (_shakeDetectionEnabled && motion == UIEventSubtypeMotionShake) {
-        NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    if (atomic_load_explicit(&_shakeDetectionEnabled, memory_order_acquire)
+        && motion == UIEventSubtypeMotionShake) {
+        CFTimeInterval now = CACurrentMediaTime();
         if (now - _lastShakeTimestamp > SHAKE_COOLDOWN_SECONDS) {
             _lastShakeTimestamp = now;
             [[NSNotificationCenter defaultCenter]
@@ -49,15 +52,13 @@ sentry_motionEnded(UIWindow *self, SEL _cmd, UIEventSubtype motion, UIEvent *eve
             _originalMotionEndedIMP = method_setImplementation(ownMethod, (IMP)sentry_motionEnded);
             _swizzled = YES;
         }
-        _shakeDetectionEnabled = YES;
+        atomic_store_explicit(&_shakeDetectionEnabled, YES, memory_order_release);
     }
 }
 
 + (void)disable
 {
-    @synchronized(self) {
-        _shakeDetectionEnabled = NO;
-    }
+    atomic_store_explicit(&_shakeDetectionEnabled, NO, memory_order_release);
 }
 
 @end
