@@ -54,7 +54,7 @@ public struct SentrySDKWrapper {
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
         if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disable.boolValue {
             options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionSampleRate.floatValue ?? 1,
+                sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionSampleRate.floatValue ?? 0,
                 onErrorSampleRate: SentrySDKOverrides.SessionReplay.onErrorSampleRate.floatValue ?? 1,
                 maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.boolValue,
                 maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue,
