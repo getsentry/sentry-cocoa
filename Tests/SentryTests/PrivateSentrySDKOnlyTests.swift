@@ -36,7 +36,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         PrivateSentrySDKOnly.store(envelope)
         
         let storedEnvelope = client?.storedEnvelopeInvocations.first
-        let attachedSessionData = try XCTUnwrap(storedEnvelope!.items.last!.data)
+        let attachedSessionData = try XCTUnwrap(XCTUnwrap(storedEnvelope).items.last?.data)
         let attachedSession = try XCTUnwrap(try JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
         
         XCTAssertEqual(0, hub.startSessionInvocations)
@@ -67,7 +67,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         PrivateSentrySDKOnly.capture(envelope)
 
         let capturedEnvelope = client?.captureEnvelopeInvocations.first
-        let attachedSessionData = try XCTUnwrap(capturedEnvelope!.items.last!.data)
+        let attachedSessionData = try XCTUnwrap(XCTUnwrap(capturedEnvelope).items.last?.data)
         let attachedSession = try XCTUnwrap(try JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
         
         // Assert new session was started

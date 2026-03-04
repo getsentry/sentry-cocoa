@@ -1162,10 +1162,10 @@ class SentryClientTests: XCTestCase {
         
         eventId.assertIsNotEmpty()
         let actual = try lastSentEventWithAttachment()
-        assertValidExceptionEvent(actual)
+        try assertValidExceptionEvent(actual)
     }
-    
-    func testCaptureException_IncreasesSessionErrors() {
+
+    func testCaptureException_IncreasesSessionErrors() throws {
         let sut = fixture.getSut()
         let sessionDelegate = SentryTestSessionDelegate { self.fixture.session }
         sut.sessionDelegate = sessionDelegate
@@ -1174,7 +1174,7 @@ class SentryClientTests: XCTestCase {
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
         if let eventWithSessionArguments = fixture.transportAdapter.sentEventsWithSessionTraceState.last {
-            assertValidExceptionEvent(eventWithSessionArguments.event)
+            try assertValidExceptionEvent(eventWithSessionArguments.event)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
             XCTAssertEqual([TestData.dataAttachment], eventWithSessionArguments.attachments)
         }
@@ -2706,10 +2706,11 @@ private extension SentryClientTests {
         assertValidThreads(actual: event.threads)
     }
     
-    private func assertValidExceptionEvent(_ event: Event) {
+    private func assertValidExceptionEvent(_ event: Event) throws {
         XCTAssertEqual(SentryLevel.error, event.level)
-        XCTAssertEqual(exception.reason, event.exceptions!.first!.value)
-        XCTAssertEqual(exception.name.rawValue, event.exceptions!.first!.type)
+        let firstException = try XCTUnwrap(XCTUnwrap(event.exceptions).first)
+        XCTAssertEqual(exception.reason, firstException.value)
+        XCTAssertEqual(exception.name.rawValue, firstException.type)
         assertValidDebugMeta(actual: event.debugMeta, forThreads: event.threads)
         assertValidThreads(actual: event.threads)
     }
