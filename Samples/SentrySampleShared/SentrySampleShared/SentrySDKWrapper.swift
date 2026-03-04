@@ -64,9 +64,13 @@ public struct SentrySDKWrapper {
             options.sessionReplay.networkDetailAllowUrls = [
                 "httpbin.org"
             ]
-            options.sessionReplay.networkDetailDenyUrls = [
-                try! NSRegularExpression(pattern: ".*\\.sentry\\.io.*", options: [])
-            ]
+            
+            do {
+                let sentryDomainRegex = try NSRegularExpression(pattern: ".*\\.sentry\\.io.*", options: [])
+                options.sessionReplay.networkDetailDenyUrls = [sentryDomainRegex]
+            } catch {
+                preconditionFailure("Invalid regex pattern: \(error)")
+            }
 
             options.sessionReplay.networkRequestHeaders = [
                 "User-Agent",
