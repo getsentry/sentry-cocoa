@@ -85,10 +85,11 @@
 - (void)testIsNetworkDetailCaptureEnabled_withStringPatterns_shouldUseSubstringMatching
 {
     // -- Arrange --
-    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
-    options.networkDetailAllowUrls =
-        @[ @"api.example.com", @"/analytics/", @"track" ];
-    options.networkDetailDenyUrls = @[];
+    NSDictionary *config = @{
+        @"networkDetailAllowUrls": @[ @"api.example.com", @"/analytics/", @"track" ],
+        @"networkDetailDenyUrls": @[]
+    };
+    SentryReplayOptions *options = [[SentryReplayOptions alloc] initWithDictionary:config];
 
     // -- Act & Assert --
     // Should match - substring found anywhere in URL
@@ -107,7 +108,6 @@
 - (void)testIsNetworkDetailCaptureEnabled_withNSRegularExpression_shouldUseProvidedRegexMatching
 {
     // -- Arrange --
-    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
     NSError *error = nil;
     NSRegularExpression *regularRegex =
         [NSRegularExpression regularExpressionWithPattern:@"^https://api\\.example\\.com/.*"
@@ -121,8 +121,11 @@
                                                     error:&error];
     XCTAssertNil(error);
 
-    options.networkDetailAllowUrls = @[ regularRegex, caseInsensitiveRegex ];
-    options.networkDetailDenyUrls = @[];
+    NSDictionary *config = @{
+        @"networkDetailAllowUrls": @[ regularRegex, caseInsensitiveRegex ],
+        @"networkDetailDenyUrls": @[]
+    };
+    SentryReplayOptions *options = [[SentryReplayOptions alloc] initWithDictionary:config];
 
     // -- Act & Assert --
     // Should match case-sensitive 'api' subdomain
@@ -142,7 +145,6 @@
 - (void)testIsNetworkDetailCaptureEnabled_withMixedPatterns_shouldSupportBoth
 {
     // -- Arrange --
-    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
     NSError *error = nil;
     // Regex that requires version in path - won't match without /v[0-9]+/
     NSRegularExpression *regex =
@@ -152,8 +154,11 @@
     XCTAssertNil(error);
 
     // Mix substring pattern and regex pattern with distinct matching behavior
-    options.networkDetailAllowUrls = @[ @"/graphql", regex ];
-    options.networkDetailDenyUrls = @[];
+    NSDictionary *config = @{
+        @"networkDetailAllowUrls": @[ @"/graphql", regex ],
+        @"networkDetailDenyUrls": @[]
+    };
+    SentryReplayOptions *options = [[SentryReplayOptions alloc] initWithDictionary:config];
 
     // -- Act & Assert --
     // Substring matches
@@ -172,7 +177,6 @@
 - (void)testIsNetworkDetailCaptureEnabled_withDenyPatterns_shouldRespectDenyOverAllow
 {
     // -- Arrange --
-    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
     NSError *error = nil;
     
     // Allow everything regex
@@ -188,8 +192,11 @@
                                                     error:&error];
     XCTAssertNil(error);
 
-    options.networkDetailAllowUrls = @[ allowAllRegex ];
-    options.networkDetailDenyUrls = @[ @"https://api.example.com/sensitive", denyRegex ];
+    NSDictionary *config = @{
+        @"networkDetailAllowUrls": @[ allowAllRegex ],
+        @"networkDetailDenyUrls": @[ @"https://api.example.com/sensitive", denyRegex ]
+    };
+    SentryReplayOptions *options = [[SentryReplayOptions alloc] initWithDictionary:config];
 
     // -- Act & Assert --
     // Should deny these (substring match)
