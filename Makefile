@@ -230,6 +230,7 @@ build-xcframework-sample:
 build-samples: \
 	build-sample-DistributionSample \
 	build-sample-iOS-ObjectiveC \
+	build-sample-iOS-ObjectiveCpp-NoModules \
 	build-sample-iOS-Swift \
 	build-sample-iOS-Swift6 \
 	build-sample-iOS-SwiftUI \
@@ -308,11 +309,20 @@ build-sample-visionOS-SwiftUI-SPM:
 		-destination 'platform=visionOS Simulator,OS=$(VISIONOS_SIMULATOR_OS),name=$(VISIONOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 
+## Build SentryObjC product via Swift Package Manager
+#
+# Builds the pure ObjC wrapper SDK (SentryObjC) for the host platform.
+# Use this to quickly verify the SentryObjC target compiles.
+# For iOS, use build-sample-iOS-ObjectiveCpp-NoModules.
+.PHONY: build-spm-objc
+build-spm-objc:
+	@echo "--> Building SentryObjC via Swift PM"
+	swift build --product SentryObjC
+
 ## Build the iOS-ObjectiveCpp-NoModules sample app
 #
-# Builds the ObjC++ without-modules sample that reproduces #4543.
-# This target is expected to FAIL until the pure ObjC SDK wrapper (#6342)
-# is implemented. Use it to verify the fix.
+# Builds the ObjC++ without-modules sample that uses SentryObjC (#6342).
+# Uses #import <SentryObjC/SentryObjC.h> for ObjC++ without -fmodules.
 .PHONY: build-sample-iOS-ObjectiveCpp-NoModules
 build-sample-iOS-ObjectiveCpp-NoModules:
 	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
@@ -510,6 +520,13 @@ build-sample-SDK-Size:
 		-scheme SDK-Size \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Verify SentryObjC changes (format, analyze, build, sample)
+#
+# Runs the verification loop for SentryObjC wrapper changes.
+# Stops at the first failure. Use before committing.
+.PHONY: verify-objc
+verify-objc: format analyze build-ios build-sample-iOS-ObjectiveCpp-NoModules
 
 # ============================================================================
 # TESTING
@@ -801,6 +818,15 @@ analyze:
 .PHONY: generate-public-api
 generate-public-api:
 	./scripts/update-api.sh
+
+## Generate SentryObjC public API snapshot
+#
+# Extracts SentryObjC public API from headers to sdk_objc_api.json.
+# Use for quick iteration; full API generation runs via generate-public-api.
+.PHONY: generate-objc-api
+generate-objc-api:
+	python3 scripts/extract-objc-api.py > sdk_objc_api.json
+	@echo "--> sdk_objc_api.json updated"
 
 # ============================================================================
 # VERSION MANAGEMENT

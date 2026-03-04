@@ -48,6 +48,7 @@ jobs:
         run: |
           mv sdk_api.json sdk_api_base.json
           mv sdk_api_sentryswiftui.json sdk_api_sentryswiftui_base.json
+          [ -f sdk_objc_api.json ] && mv sdk_objc_api.json sdk_objc_api_base.json || true
           ./scripts/update-api.sh
 
       - name: Diagnose breaking changes for Sentry
@@ -87,6 +88,20 @@ jobs:
             cat sentryswiftui_result.json
             exit 1
           fi
+
+      - name: Diagnose breaking changes for SentryObjC
+        if: always()
+        run: |
+          if [ ! -f sdk_objc_api_base.json ]; then
+            echo "No baseline sdk_objc_api.json; first run, skipping SentryObjC check."
+          elif diff -q "sdk_objc_api_base.json" "sdk_objc_api.json" > /dev/null; then
+            echo "No SentryObjC API changes detected."
+          else
+            echo "❌ SentryObjC public API changes are detected. If they're intended run "make generate-public-api" and commit the changes."
+            diff "sdk_objc_api_base.json" "sdk_objc_api.json" || true
+            exit 1
+          fi
+
       - name: Run CI Diagnostics
         if: failure()
         run: ./scripts/ci-diagnostics.sh

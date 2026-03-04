@@ -73,11 +73,13 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   - "scripts/build-xcframework-slice.sh"
   - "scripts/assemble-xcframework.sh"
   - "scripts/update-api.sh"
+  - "scripts/extract-objc-api.py"
   - "scripts/ci-diagnostics.sh"
 
   # API files
   - "sdk_api.json"
   - "sdk_api_sentryswiftui.json"
+  - "sdk_objc_api.json"
 
   # Build configuration
   - "Makefile"

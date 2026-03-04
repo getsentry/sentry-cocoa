@@ -68,6 +68,7 @@ var targets: [Target] = [
 
 // Targets required to support compile-from-source builds via SPM.
 products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
+products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjC", "SentryCppHelper"]))
 targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
@@ -96,7 +97,7 @@ targets += [
         name: "SentryObjCInternal",
         dependencies: ["SentrySwift"],
         path: "Sources",
-        exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
+        exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests", "SentryObjC"],
         cSettings: [
             .headerSearchPath("Sentry"),
             .headerSearchPath("SentryCrash/Recording"),
@@ -104,7 +105,16 @@ targets += [
             .headerSearchPath("SentryCrash/Recording/Tools"),
             .headerSearchPath("SentryCrash/Installations"),
             .headerSearchPath("SentryCrash/Reporting/Filters"),
-            .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
+            .headerSearchPath("SentryCrash/Reporting/Filters/Tools")]),
+    .target(
+        name: "SentryObjC",
+        dependencies: ["SentryObjCInternal"],
+        path: "Sources/SentryObjC",
+        publicHeadersPath: "Public",
+        cSettings: [
+            .headerSearchPath("Public")
+        ]
+    )
 ]
 
 let package = Package(
