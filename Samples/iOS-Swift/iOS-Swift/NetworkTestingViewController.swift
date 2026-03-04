@@ -66,12 +66,7 @@ class NetworkTestingViewController: UIViewController {
         let index = bodyTypeSegmentControl.selectedSegmentIndex
         
         if index == 3 { // Binary
-            var randomData = Data(count: 10_240)
-            _ = randomData.withUnsafeMutableBytes { bytes in
-                guard let baseAddress = bytes.bindMemory(to: UInt8.self).baseAddress else { return }
-                SecRandomCopyBytes(kSecRandomDefault, 10_240, baseAddress)
-            }
-            request.httpBody = randomData
+            request.httpBody = Data(randomByteCount: 10_240)
         } else {
             request.httpBody = (requestBodyTextView.text ?? "").data(using: .utf8)
         }
