@@ -1,8 +1,8 @@
 #import "SentryShakeDetector.h"
-#import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 
 #if TARGET_OS_IOS
+#    import <UIKit/UIKit.h>
 
 NSNotificationName const SentryShakeDetectedNotification = @"SentryShakeDetected";
 
