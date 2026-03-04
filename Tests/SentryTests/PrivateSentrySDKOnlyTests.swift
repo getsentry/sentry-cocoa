@@ -149,8 +149,8 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(spans.count, 1)
         let firstSpan = try XCTUnwrap(spans.firstObject as? NSDictionary)
         XCTAssertEqual(try XCTUnwrap(firstSpan["description"] as? String), "UIKit init")
-        XCTAssert(firstSpan["start_timestamp_ms"] is NSNumber)
-        XCTAssert(firstSpan["end_timestamp_ms"] is NSNumber)
+        XCTAssertTrue(firstSpan["start_timestamp_ms"] is NSNumber)
+        XCTAssertTrue(firstSpan["end_timestamp_ms"] is NSNumber)
     }
 
     func testGetAppStartMeasurementWithSpansPreWarmed() throws {
