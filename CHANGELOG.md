@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.6.0
 
 ### Features
 
