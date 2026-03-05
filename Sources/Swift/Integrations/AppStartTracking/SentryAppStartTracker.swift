@@ -30,10 +30,10 @@ struct SendStandaloneAppStartTransaction: AppStartMeasurementHandler {
         switch measurement.type {
         case .cold:
             operation = SentrySpanOperationAppStartCold
-            name = "app_start_cold"
+            name = "App Start Cold"
         case .warm:
             operation = SentrySpanOperationAppStartWarm
-            name = "app_start_warm"
+            name = "App Start Warm"
         default:
             return
         }
@@ -44,10 +44,10 @@ struct SendStandaloneAppStartTransaction: AppStartMeasurementHandler {
         let context = TransactionContext(name: name, operation: operation)
 
         let hub = SentrySDKInternal.currentHub()
-        let tracer = hub.startTransaction(transactionContext: context)
-        tracer.origin = SentryTraceOriginAutoAppStart
+        let transaction = hub.startTransaction(transactionContext: context)
+        transaction.origin = SentryTraceOriginAutoAppStart
 
-        tracer.finish()
+        transaction.finish()
     }
 }
 

@@ -26,9 +26,10 @@ sentryBuildAppStartSpan(
     return [[SentrySpanInternal alloc] initWithTracer:tracer context:context framesTracker:nil];
 }
 
-NSArray<id<SentrySpan>> *
-sentryBuildAppStartSpans(
-    SentryTracer *tracer, SentryAppStartMeasurement *_Nullable appStartMeasurement)
+NSArray<SentrySpanInternal *> *
+sentryBuildAppStartSpans(SentryTracer *tracer,
+    SentryAppStartMeasurement *_Nullable appStartMeasurement,
+    BOOL isStandaloneAppStartTransaction)
 {
 
     if (appStartMeasurement == nil) {
@@ -40,11 +41,11 @@ sentryBuildAppStartSpans(
 
     switch (appStartMeasurement.type) {
     case SentryAppStartTypeCold:
-        operation = @"app.start.cold";
+        operation = SentrySpanOperationAppStartCold;
         type = @"Cold Start";
         break;
     case SentryAppStartTypeWarm:
-        operation = @"app.start.warm";
+        operation = SentrySpanOperationAppStartWarm;
         type = @"Warm Start";
         break;
     default:
@@ -56,13 +57,9 @@ sentryBuildAppStartSpans(
     NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
         dateByAddingTimeInterval:appStartMeasurement.duration];
 
+    SentrySpanId *childParentId;
     // For standalone app start transactions the transaction itself is the root span,
     // so we skip creating the intermediate "Cold Start" / "Warm Start" span.
-    BOOL isStandaloneAppStartTransaction =
-        [tracer.operation isEqualToString:SentrySpanOperationAppStartCold]
-        || [tracer.operation isEqualToString:SentrySpanOperationAppStartWarm];
-
-    SentrySpanId *childParentId;
     if (isStandaloneAppStartTransaction) {
         childParentId = tracer.spanId;
     } else {
