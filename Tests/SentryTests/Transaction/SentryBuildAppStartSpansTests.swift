@@ -11,7 +11,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         let appStartMeasurement: SentryAppStartMeasurement? = nil
 
         // Act
-        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement)
+        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement, false)
 
         // Assert
         XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
@@ -34,7 +34,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         )
 
         // Act
-        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement)
+        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement, false)
 
         // Assert
         XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
@@ -57,7 +57,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         )
 
         // Act
-        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement)
+        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement, false)
 
         // Assert
         XCTAssertEqual(result.count, 6, "Number of spans do not match")
@@ -140,7 +140,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         )
 
         // Act
-        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement)
+        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement, false)
 
         // Assert
         XCTAssertEqual(result.count, 6, "Number of spans do not match")
@@ -223,7 +223,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         )
 
         // Act
-        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement)
+        let result = sentryBuildAppStartSpans(tracer, appStartMeasurement, false)
 
         // Assert
         XCTAssertEqual(result.count, 4, "Number of spans do not match")
