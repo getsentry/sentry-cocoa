@@ -1,12 +1,17 @@
 # Changelog
 
-## 9.6.0
+## Unreleased
 
 ### Features
 
 - Add package traits for UI framework opt-out and macOS CLI sample (#7578).
   When building from source with Swift 6.1+ (using `Package@swift-6.1.swift`), you can enable the `NoUIFramework` trait to avoid linking UIKit or AppKit. Use this for command-line tools, headless server contexts, or other environments where UI frameworks are unavailable.
   In Xcode 26.4 and later, add the Sentry package as a dependency and the `SentrySPM` product, then enable the `NoUIFramework` trait on the package reference (Package Dependencies → select Sentry → Traits).
+
+## 9.6.0
+
+### Features
+
 - Add watchdog termination hang tracker using RunLoop observer. Can be enabled by setting `options.experimental.enableWatchdogTerminationsV2 = true` (#7464)
 
 ### Fixes
