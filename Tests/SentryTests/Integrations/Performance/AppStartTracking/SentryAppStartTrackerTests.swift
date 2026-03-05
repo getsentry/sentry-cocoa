@@ -347,11 +347,13 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         assertValidHybridStart(type: .warm)
     }
 
-    func testStandaloneAppStartTracing_DoesNotSetAppStartMeasurement() {
+    func testStandaloneAppStartTracing_SetsAppStartMeasurement() {
         fixture.enableStandaloneAppStartTracing = true
         startApp(callDisplayLink: true)
 
-        assertNoAppStartUp()
+        // The standalone handler stores the measurement on SentrySDKInternal so the
+        // tracer's existing getAppStartMeasurement flow can consume it.
+        assertValidStart(type: .cold, expectedDuration: 0.45)
     }
 
     func testStandaloneAppStartTracingDisabled_SetsAppStartMeasurement() {

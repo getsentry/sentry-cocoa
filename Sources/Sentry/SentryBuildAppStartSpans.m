@@ -2,6 +2,7 @@
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanId.h"
 #import "SentrySpanInternal.h"
+#import "SentrySpanOperation.h"
 #import "SentrySwift.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTracer.h"
@@ -55,40 +56,52 @@ sentryBuildAppStartSpans(
     NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
         dateByAddingTimeInterval:appStartMeasurement.duration];
 
-    id<SentrySpan> appStartSpan = sentryBuildAppStartSpan(tracer, tracer.spanId, operation, type);
-    [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
-    [appStartSpan setTimestamp:appStartEndTimestamp];
+    // For standalone app start transactions the transaction itself is the root span,
+    // so we skip creating the intermediate "Cold Start" / "Warm Start" span.
+    BOOL isStandaloneAppStartTransaction =
+        [tracer.operation isEqualToString:SentrySpanOperationAppStartCold]
+        || [tracer.operation isEqualToString:SentrySpanOperationAppStartWarm];
 
-    [appStartSpans addObject:appStartSpan];
+    SentrySpanId *childParentId;
+    if (isStandaloneAppStartTransaction) {
+        childParentId = tracer.spanId;
+    } else {
+        SentrySpanInternal *appStartSpan
+            = sentryBuildAppStartSpan(tracer, tracer.spanId, operation, type);
+        [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
+        [appStartSpan setTimestamp:appStartEndTimestamp];
+        [appStartSpans addObject:appStartSpan];
+        childParentId = appStartSpan.spanId;
+    }
 
     if (!appStartMeasurement.isPreWarmed) {
-        id<SentrySpan> premainSpan
-            = sentryBuildAppStartSpan(tracer, appStartSpan.spanId, operation, @"Pre Runtime Init");
+        SentrySpanInternal *premainSpan
+            = sentryBuildAppStartSpan(tracer, childParentId, operation, @"Pre Runtime Init");
         [premainSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
         [premainSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
         [appStartSpans addObject:premainSpan];
 
-        id<SentrySpan> runtimeInitSpan = sentryBuildAppStartSpan(
-            tracer, appStartSpan.spanId, operation, @"Runtime Init to Pre Main Initializers");
+        SentrySpanInternal *runtimeInitSpan = sentryBuildAppStartSpan(
+            tracer, childParentId, operation, @"Runtime Init to Pre Main Initializers");
         [runtimeInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
         [runtimeInitSpan setTimestamp:appStartMeasurement.moduleInitializationTimestamp];
         [appStartSpans addObject:runtimeInitSpan];
     }
 
-    id<SentrySpan> appInitSpan
-        = sentryBuildAppStartSpan(tracer, appStartSpan.spanId, operation, @"UIKit Init");
+    SentrySpanInternal *appInitSpan
+        = sentryBuildAppStartSpan(tracer, childParentId, operation, @"UIKit Init");
     [appInitSpan setStartTimestamp:appStartMeasurement.moduleInitializationTimestamp];
     [appInitSpan setTimestamp:appStartMeasurement.sdkStartTimestamp];
     [appStartSpans addObject:appInitSpan];
 
-    id<SentrySpan> didFinishLaunching
-        = sentryBuildAppStartSpan(tracer, appStartSpan.spanId, operation, @"Application Init");
+    SentrySpanInternal *didFinishLaunching
+        = sentryBuildAppStartSpan(tracer, childParentId, operation, @"Application Init");
     [didFinishLaunching setStartTimestamp:appStartMeasurement.sdkStartTimestamp];
     [didFinishLaunching setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
     [appStartSpans addObject:didFinishLaunching];
 
-    id<SentrySpan> frameRenderSpan
-        = sentryBuildAppStartSpan(tracer, appStartSpan.spanId, operation, @"Initial Frame Render");
+    SentrySpanInternal *frameRenderSpan
+        = sentryBuildAppStartSpan(tracer, childParentId, operation, @"Initial Frame Render");
     [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
     [frameRenderSpan setTimestamp:appStartEndTimestamp];
     [appStartSpans addObject:frameRenderSpan];

@@ -181,6 +181,7 @@ public struct SentrySDKWrapper {
         // Experimental features
         options.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
         options.experimental.enableUnhandledCPPExceptionsV2 = true
+        options.experimental.enableStandaloneAppStartTracing = true
     }
 
     func configureInitialScope(scope: Scope, options: Options) -> Scope {

@@ -15,6 +15,9 @@ NSString *const SentrySpanOperationNetworkRequestOperation = @"http.client";
 
 NSString *const SentrySpanOperationUiAction = @"ui.action";
 NSString *const SentrySpanOperationUiActionClick = @"ui.action.click";
+NSString *const SentrySpanOperationAppStartCold = @"app.start.cold";
+NSString *const SentrySpanOperationAppStartWarm = @"app.start.warm";
+
 NSString *const SentrySpanOperationUiLoad = @"ui.load";
 NSString *const SentrySpanOperationUiLoadInitialDisplay = @"ui.load.initial_display";
 NSString *const SentrySpanOperationUiLoadFullDisplay = @"ui.load.full_display";
