@@ -699,6 +699,12 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     _startTimeChanged = YES;
 }
 
+- (BOOL)isStandaloneAppStartTransaction
+{
+    return [self.operation isEqualToString:SentrySpanOperationAppStartCold]
+        || [self.operation isEqualToString:SentrySpanOperationAppStartWarm];
+}
+
 - (SentryTransaction *)toTransaction
 {
 
@@ -706,11 +712,8 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #if SENTRY_HAS_UIKIT
     [self addFrameStatistics];
 
-    BOOL isStandaloneAppStart =
-        [self.operation isEqualToString:SentrySpanOperationAppStartCold]
-        || [self.operation isEqualToString:SentrySpanOperationAppStartWarm];
-    NSArray<SentrySpanInternal *> *appStartSpans
-        = sentryBuildAppStartSpans(self, appStartMeasurement, isStandaloneAppStart);
+    NSArray<SentrySpanInternal *> *appStartSpans = sentryBuildAppStartSpans(
+        self, appStartMeasurement, [self isStandaloneAppStartTransaction]);
     capacity = _children.count + appStartSpans.count;
 #else
     capacity = _children.count;
