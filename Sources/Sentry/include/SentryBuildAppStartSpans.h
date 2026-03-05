@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_HAS_UIKIT
 
-NSArray<SentrySpanInternal *> *sentryBuildAppStartSpans(
+NSArray<id<SentrySpan>> *sentryBuildAppStartSpans(
     SentryTracer *tracer, SentryAppStartMeasurement *_Nullable appStartMeasurement,
     BOOL isStandaloneAppStartTransaction);
 
