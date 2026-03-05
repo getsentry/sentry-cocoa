@@ -1,4 +1,4 @@
-// swiftlint:disable function_body_length
+// swiftlint:disable function_body_length type_body_length
 import Sentry
 import SwiftUI
 
@@ -286,4 +286,4 @@ struct MetricsView: View {
         )
     }
 }
-// swiftlint:enable function_body_length
+// swiftlint:enable function_body_length type_body_length
