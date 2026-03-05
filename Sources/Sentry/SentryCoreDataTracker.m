@@ -36,9 +36,8 @@
                             error:(NSError **)error
                       originalImp:(NSArray *(NS_NOESCAPE ^)(NSFetchRequest *, NSError **))original
 {
-    SentrySpanInternal *_Nullable currentSpan
-        = (SentrySpanInternal *_Nullable)[SentrySDKInternal.currentHub.scope span];
-    SentrySpanInternal *_Nullable fetchSpan;
+    id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
+    id<SentrySpan> _Nullable fetchSpan;
     if (currentSpan) {
         NSString *spanDescription = [self descriptionFromRequest:request];
         fetchSpan = [currentSpan startChildWithOperation:SentrySpanOperationCoredataFetchOperation
@@ -113,7 +112,7 @@
     return result;
 }
 
-- (void)addExtraInfoToSpan:(SentrySpanInternal *)span withContext:(NSManagedObjectContext *)context
+- (void)addExtraInfoToSpan:(id<SentrySpan>)span withContext:(NSManagedObjectContext *)context
 {
     BOOL isMainThread = [NSThread isMainThread];
 
@@ -137,7 +136,7 @@
     }
 
     SentryStacktrace *stackTrace = [_threadInspector stacktraceForCurrentThreadAsyncUnsafe];
-    [span setFrames:stackTrace.frames];
+    [((SentrySpanInternal *)span) setFrames:stackTrace.frames];
 }
 
 - (NSString *)descriptionForOperations:
