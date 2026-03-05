@@ -79,6 +79,10 @@ func updateVersionInFiles() throws {
         var fromVersion = match.matchedString
         var toVersion = args[2]
 
+        print("Source version from \(fromVersionFile): \(fromVersion)")
+        print("Target version: \(toVersion)")
+        print("")
+
         for file in files {
             try updateVersion(file, fromVersion, toVersion)
         }
@@ -86,20 +90,31 @@ func updateVersionInFiles() throws {
         fromVersion = extractVersionOnly(fromVersion)
         toVersion = extractVersionOnly(toVersion)
         
+        print("")
+        print("Restricted files (x.x.x only): \(fromVersion) -> \(toVersion)")
+
         for file in restrictFiles {
             try updateVersion(file, fromVersion, toVersion)
         }
     }
-    print("Successfuly updated version numbers")
+    print("")
+    print("Successfully updated version numbers")
 }
 
 func updateVersion(_ file: String, _ fromVersion: String, _ toVersion: String) throws {
     let readFile = try open(file)
     let contents: String = readFile.read()
     let newContents = contents.replacingOccurrences(of: fromVersion, with: toVersion)
+    let changed = contents != newContents
     let overwriteFile = try open(forWriting: file, overwrite: true)
     overwriteFile.write(newContents)
     overwriteFile.close()
+    if changed {
+        let occurrences = contents.components(separatedBy: fromVersion).count - 1
+        print("  \(file): replaced \(occurrences) occurrence(s) of \(fromVersion) with \(toVersion)")
+    } else {
+        print("  \(file): WARNING — '\(fromVersion)' not found, file unchanged")
+    }
 }
 
 func extractVersionOnly(_ version: String) -> String {
@@ -145,10 +160,12 @@ func verifyFile(_ file: String, _ expectedVersion: String) throws {
     let match = try? Regex(string: regexString, options: [.dotMatchesLineSeparators]).firstMatch(in: fileContent)
     
     guard let version = match?.captures[0] else {
+        print("\(file) FAILED — no version matched by regex: \(regexString)")
         throw VersionError.versionNotFound(file)
     }
     
     guard version == expectedVersion else {
+        print("\(file) FAILED — expected \(expectedVersion) but found \(version) (regex: \(regexString))")
         throw VersionError.versionMismatch(file, version)
     }
     
