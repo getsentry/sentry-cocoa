@@ -8,26 +8,45 @@ configs:
   Release: release
 options:
   bundleIdPrefix: io.sentry.sample.
+  defaultSourceDirectoryType: syncedFolder
 packages:
   Sentry:
     path: ../../
 targets:
-  DistributionSample:
+  App:
     type: application
     platform: auto
     sources:
-      - DistributionSample
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
     dependencies:
       - package: Sentry
         products:
           - SentryDistribution
     configFiles:
-      Debug: DistributionSample.xcconfig
-      Release: DistributionSample.xcconfig
+      Debug: App/Configurations/DistributionSample.xcconfig
+      Release: App/Configurations/DistributionSample.xcconfig
 schemes:
   DistributionSample:
     templates:
       - SampleAppScheme
     build:
       targets:
-        DistributionSample: all
+        App: all
