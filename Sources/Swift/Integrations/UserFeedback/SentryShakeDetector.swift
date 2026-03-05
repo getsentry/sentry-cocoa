@@ -20,7 +20,7 @@ public extension NSNotification.Name {
 /// On non-iOS platforms (macOS, tvOS, watchOS), these methods are no-ops.
 @objc(SentryShakeDetector)
 @objcMembers
-public class SentryShakeDetector: NSObject {
+open class SentryShakeDetector: NSObject {
 
     /// The notification name posted on shake, exposed for ObjC consumers.
     /// In Swift, prefer using `.SentryShakeDetected` on `NSNotification.Name` directly.

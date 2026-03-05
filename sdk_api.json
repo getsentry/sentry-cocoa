@@ -357,6 +357,13 @@
         "printedName": "PDFKit"
       },
       {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "QuartzCore",
+        "printedName": "QuartzCore"
+      },
+      {
         "declAttributes": [
           "Exported"
         ],
@@ -655,16 +662,6 @@
         "moduleName": "Sentry",
         "name": "Sentry.SentrySessionReplayHybridSDK",
         "printedName": "Sentry.SentrySessionReplayHybridSDK"
-      },
-      {
-        "declAttributes": [
-          "Exported"
-        ],
-        "declKind": "Import",
-        "kind": "Import",
-        "moduleName": "Sentry",
-        "name": "Sentry.SentryShakeDetector",
-        "printedName": "Sentry.SentryShakeDetector"
       },
       {
         "declAttributes": [
@@ -19115,18 +19112,19 @@
               }
             ],
             "declAttributes": [
-              "Nonisolated"
+              "HasStorage"
             ],
             "declKind": "Var",
             "hasStorage": true,
             "isFromExtension": true,
             "isLet": true,
             "kind": "Var",
+            "mangledName": "$sSo18NSNotificationNamea6SentryE0C13ShakeDetectedABvpZ",
             "moduleName": "Sentry",
             "name": "SentryShakeDetected",
             "printedName": "SentryShakeDetected",
             "static": true,
-            "usr": "c:@SentryShakeDetectedNotification"
+            "usr": "s:So18NSNotificationNamea6SentryE0C13ShakeDetectedABvpZ"
           }
         ],
         "conformances": [
@@ -52676,7 +52674,7 @@
                 "kind": "TypeNominal",
                 "name": "SentryShakeDetector",
                 "printedName": "Sentry.SentryShakeDetector",
-                "usr": "c:objc(cs)SentryShakeDetector"
+                "usr": "c:@M@Sentry@objc(cs)SentryShakeDetector"
               }
             ],
             "declAttributes": [
@@ -52685,75 +52683,110 @@
               "Override"
             ],
             "declKind": "Constructor",
-            "implicit": true,
             "init_kind": "Designated",
             "kind": "Constructor",
+            "mangledName": "$s6Sentry0A13ShakeDetectorCACycfc",
             "moduleName": "Sentry",
             "name": "init",
             "objc_name": "init",
             "overriding": true,
             "printedName": "init()",
-            "usr": "c:objc(cs)NSObject(im)init"
+            "usr": "c:@M@Sentry@objc(cs)SentryShakeDetector(im)init"
           },
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
+                "kind": "TypeNominal",
                 "name": "Void",
-                "printedName": "Swift.Void"
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "Final",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
-            "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry0A13ShakeDetectorC7disableyyFZ",
             "moduleName": "Sentry",
             "name": "disable",
-            "objc_name": "disable",
             "printedName": "disable()",
             "static": true,
-            "usr": "c:objc(cs)SentryShakeDetector(cm)disable"
+            "usr": "c:@M@Sentry@objc(cs)SentryShakeDetector(cm)disable"
           },
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "kind": "TypeNameAlias",
+                "kind": "TypeNominal",
                 "name": "Void",
-                "printedName": "Swift.Void"
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "Dynamic",
+              "Final",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
-            "isOpen": true,
             "kind": "Function",
+            "mangledName": "$s6Sentry0A13ShakeDetectorC6enableyyFZ",
             "moduleName": "Sentry",
             "name": "enable",
-            "objc_name": "enable",
             "printedName": "enable()",
             "static": true,
-            "usr": "c:objc(cs)SentryShakeDetector(cm)enable"
+            "usr": "c:@M@Sentry@objc(cs)SentryShakeDetector(cm)enable"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Name",
+                    "printedName": "Foundation.NSNotification.Name",
+                    "usr": "c:@T@NSNotificationName"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A13ShakeDetectorC25shakeDetectedNotificationSo18NSNotificationNameavgZ",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "c:@M@Sentry@objc(cs)SentryShakeDetector(cm)shakeDetectedNotification"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Name",
+                "printedName": "Foundation.NSNotification.Name",
+                "usr": "c:@T@NSNotificationName"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A13ShakeDetectorC25shakeDetectedNotificationSo18NSNotificationNameavpZ",
+            "moduleName": "Sentry",
+            "name": "shakeDetectedNotification",
+            "printedName": "shakeDetectedNotification",
+            "static": true,
+            "usr": "c:@M@Sentry@objc(cs)SentryShakeDetector(cpy)shakeDetectedNotification"
           }
         ],
         "conformances": [
@@ -52814,13 +52847,14 @@
           }
         ],
         "declAttributes": [
-          "Dynamic",
-          "ObjC"
+          "ObjC",
+          "ObjCMembers"
         ],
         "declKind": "Class",
         "inheritsConvenienceInitializers": true,
         "isOpen": true,
         "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A13ShakeDetectorC",
         "moduleName": "Sentry",
         "name": "SentryShakeDetector",
         "objc_name": "SentryShakeDetector",
@@ -52829,7 +52863,7 @@
           "ObjectiveC.NSObject"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
-        "usr": "c:objc(cs)SentryShakeDetector"
+        "usr": "c:@M@Sentry@objc(cs)SentryShakeDetector"
       },
       {
         "children": [
