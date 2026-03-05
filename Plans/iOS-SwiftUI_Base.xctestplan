@@ -12,8 +12,8 @@
     "codeCoverage" : true,
     "targetForVariableExpansion" : {
       "containerPath" : "container:iOS-SwiftUI.xcodeproj",
-      "identifier" : "7BB6224826A56C4E00D0E75E",
-      "name" : "iOS-SwiftUI"
+      "identifier" : "FB95644029830B90C1A178C7",
+      "name" : "App"
     },
     "uiTestingScreenshotsLifetime" : "keepAlways"
   },
@@ -21,8 +21,8 @@
     {
       "target" : {
         "containerPath" : "container:iOS-SwiftUI.xcodeproj",
-        "identifier" : "4EE8FE57D6CE25066F588D60",
-        "name" : "iOS-SwiftUI-UITests"
+        "identifier" : "3838200E5DA5CA71C22D95E8",
+        "name" : "UITests"
       }
     }
   ],
