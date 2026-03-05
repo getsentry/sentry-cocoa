@@ -52847,12 +52847,12 @@
           }
         ],
         "declAttributes": [
+          "Final",
           "ObjC",
           "ObjCMembers"
         ],
         "declKind": "Class",
         "inheritsConvenienceInitializers": true,
-        "isOpen": true,
         "kind": "TypeDecl",
         "mangledName": "$s6Sentry0A13ShakeDetectorC",
         "moduleName": "Sentry",
