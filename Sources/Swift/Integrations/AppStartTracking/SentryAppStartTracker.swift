@@ -19,11 +19,35 @@ struct AttachAppStartMeasurementHandler: AppStartMeasurementHandler {
     }
 }
 
-/// Placeholder for sending a standalone app start transaction. Currently a no-op;
-/// the actual implementation will be added in a follow-up.
+/// Sends a standalone app start transaction by storing the measurement on SentrySDKInternal
+/// and creating a tracer that satisfies getAppStartMeasurement's requirements. The existing
+/// tracer pipeline then handles span building, measurements, context, debug images, and profiling.
 struct SendStandaloneAppStartTransaction: AppStartMeasurementHandler {
     func handle(_ measurement: SentryAppStartMeasurement) {
-        // no-op: standalone app start transaction logic will be implemented here
+        let operation: String
+        let name: String
+
+        switch measurement.type {
+        case .cold:
+            operation = SentrySpanOperationAppStartCold
+            name = "app_start_cold"
+        case .warm:
+            operation = SentrySpanOperationAppStartWarm
+            name = "app_start_warm"
+        default:
+            return
+        }
+
+        // Store the measurement where the tracer's getAppStartMeasurement reads it from.
+        SentrySDKInternal.setAppStartMeasurement(measurement)
+
+        let context = TransactionContext(name: name, operation: operation)
+
+        let hub = SentrySDKInternal.currentHub()
+        let tracer = hub.startTransaction(transactionContext: context)
+        tracer.origin = SentryTraceOriginAutoAppStart
+
+        tracer.finish()
     }
 }
 
