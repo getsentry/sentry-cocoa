@@ -139,7 +139,7 @@ extension SentryProfilingPublicAPITests {
         SentrySDK.startProfiler()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
 
         // Act
         try stopProfilerV2()
@@ -232,13 +232,13 @@ extension SentryProfilingPublicAPITests {
         givenSdkWithHub()
         fixture.currentDate.advance(by: 1)
         let span = SentrySDK.startTransaction(name: "test", operation: "test")
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
 
         // Act - using manual stop method is a no-op in trace profile lifecycle mode
         try stopProfilerV2()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
 
         // Arrange
         fixture.currentDate.advance(by: 1)
@@ -247,7 +247,7 @@ extension SentryProfilingPublicAPITests {
         span.finish()
 
         // Assert - profile chunk must complete
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
 
         // Arrange - simulate chunk completion
         fixture.currentDate.advance(by: 60)
@@ -311,7 +311,7 @@ extension SentryProfilingPublicAPITests {
         SentrySDK.startProfiler()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testContinuousProfilerV2ManualLifecycleStartWithSampleSessionDecisionNo() throws {
@@ -401,7 +401,7 @@ extension SentryProfilingPublicAPITests {
         span = SentrySDK.startTransaction(name: "test", operation: "test")
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testContinuousProfileV2TraceLifecycleTracesSampleDecisionNoSessionSampleDecisionYes() throws {
@@ -451,7 +451,7 @@ extension SentryProfilingPublicAPITests {
         SentrySDK.startProfiler()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
 
         // Act
         nc.post(Notification(name: UIApplication.willResignActiveNotification))

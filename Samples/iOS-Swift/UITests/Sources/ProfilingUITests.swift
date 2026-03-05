@@ -138,7 +138,7 @@ extension ProfilingUITests {
         let configFileExists = try checkLaunchProfileMarkerFileExistence()
 
         if shouldProfileNextLaunch {
-            XCTAssert(configFileExists, "A launch profile config file should be present on disk if SentrySDK.startWithOptions configured launch profiling for the next launch.")
+            XCTAssertTrue(configFileExists, "A launch profile config file should be present on disk if SentrySDK.startWithOptions configured launch profiling for the next launch.")
         } else {
             XCTAssertFalse(configFileExists, "Launch profile config files should be removed upon starting launch profiles. If SentrySDK.startWithOptions doesn't reconfigure launch profiling, the config file should not be present.")
         }
@@ -195,7 +195,7 @@ extension ProfilingUITests {
         let sample = try XCTUnwrap(samples.first { nextSample in
             try XCTUnwrap(nextSample["stack_id"] as? NSNumber).intValue == stackID
         })
-        XCTAssert(try XCTUnwrap(sample["thread_id"] as? String) == "259") // the main thread is always ID 259
+        XCTAssertEqual(try XCTUnwrap(sample["thread_id"] as? String), "259") // the main thread is always ID 259
     }
 }
 

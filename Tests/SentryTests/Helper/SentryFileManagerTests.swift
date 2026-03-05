@@ -395,7 +395,7 @@ class SentryFileManagerTests: XCTestCase {
         }
         sut.store(fixture.sessionUpdateEnvelope)
         
-        try assertSessionInitMoved(sut.getAllEnvelopes().last!)
+        try assertSessionInitMoved(try XCTUnwrap(sut.getAllEnvelopes().last))
         assertSessionEnvelopesStored(count: 2)
     }
     
@@ -406,7 +406,7 @@ class SentryFileManagerTests: XCTestCase {
             sut.store(TestConstants.envelope)
         }
         
-        try assertSessionInitMoved(sut.getAllEnvelopes().first!)
+        try assertSessionInitMoved(try XCTUnwrap(sut.getAllEnvelopes().first))
         assertSessionEnvelopesStored(count: 1)
     }
     
@@ -467,7 +467,7 @@ class SentryFileManagerTests: XCTestCase {
         
         sut.store(fixture.sessionUpdateEnvelope)
         
-        try assertSessionInitMoved(sut.getAllEnvelopes().last!)
+        try assertSessionInitMoved(try XCTUnwrap(sut.getAllEnvelopes().last))
     }
     
     func testMigrateSessionInit_DoesNotCallEnvelopeItemDeleted() {

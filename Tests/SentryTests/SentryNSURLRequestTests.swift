@@ -12,7 +12,7 @@ class SentryNSURLRequestTests: XCTestCase {
     func testRequestWithEnvelopeEndpoint() throws {
         let request = try SentryURLRequestFactory.envelopeRequest(with: SentryNSURLRequestTests.dsn(), data: Data())
         let string = try XCTUnwrap(request.url?.absoluteString as? NSString)
-        XCTAssert(string.hasSuffix("/envelope/"))
+        XCTAssertTrue(string.hasSuffix("/envelope/"))
     }
     
     func testRequestWithEnvelopeEndpoint_hasUserAgentWithSdkNameAndVersion() throws {

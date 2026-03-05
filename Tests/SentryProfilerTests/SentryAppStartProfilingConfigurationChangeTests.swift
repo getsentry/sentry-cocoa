@@ -48,7 +48,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert correct type of profile started
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
@@ -88,7 +88,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert correct type of profile started
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
@@ -132,7 +132,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert correct type of profile started
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
@@ -173,7 +173,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert correct type of profile started
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
@@ -217,7 +217,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert correct type of profile started
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
@@ -257,7 +257,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert correct type of profile started
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
@@ -301,7 +301,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert correct type of profile started
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start
@@ -348,7 +348,7 @@ extension SentryAppStartProfilingConfigurationChangeTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert correct type of profile started
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertFalse(SentryTraceProfiler.isCurrentlyProfiling())
 
         // Act: simulate SDK start

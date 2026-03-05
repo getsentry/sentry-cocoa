@@ -1178,18 +1178,18 @@ class SentryHubTests: XCTestCase {
         try assertSessionWithIncrementedErrorCountedAdded()
     }
 
-    func testCaptureEnvelope_WithEventWithFatal_SessionNotStarted() {
+    func testCaptureEnvelope_WithEventWithFatal_SessionNotStarted() throws {
         captureEventEnvelope(level: SentryLevel.fatal)
-        
-        assertNoSessionAddedToCapturedEnvelope()
+
+        try assertNoSessionAddedToCapturedEnvelope()
     }
 
-    func testCaptureEnvelope_WithEventWithWarning() {
+    func testCaptureEnvelope_WithEventWithWarning() throws {
         sut.startSession()
-        
+
         captureEventEnvelope(level: SentryLevel.warning)
-        
-        assertNoSessionAddedToCapturedEnvelope()
+
+        try assertNoSessionAddedToCapturedEnvelope()
     }
 
     func testCaptureEnvelope_WithClientNil() {
@@ -1417,7 +1417,7 @@ class SentryHubTests: XCTestCase {
         
         let installedIntegration = sut.getInstalledIntegration(EmptyIntegration.self) as? NSObject
         
-        XCTAssert(integration === installedIntegration)
+        XCTAssertIdentical(integration, installedIntegration)
     }
     
     func testGetInstalledIntegration_ReturnsNilIfNotFound() {
@@ -1589,15 +1589,15 @@ class SentryHubTests: XCTestCase {
     
     private func assertSessionWithIncrementedErrorCountedAdded() throws {
         XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
-        let envelope = fixture.client.captureEnvelopeInvocations.first!
+        let envelope = try XCTUnwrap(fixture.client.captureEnvelopeInvocations.first)
         XCTAssertEqual(2, envelope.items.count)
         let session = SentrySerializationSwift.session(with: try XCTUnwrap(XCTUnwrap(envelope.items.element(at: 1)).data))
         XCTAssertEqual(1, session?.errors)
     }
     
-    private func assertNoSessionAddedToCapturedEnvelope() {
+    private func assertNoSessionAddedToCapturedEnvelope() throws {
         XCTAssertEqual(1, fixture.client.captureEnvelopeInvocations.count)
-        let envelope = fixture.client.captureEnvelopeInvocations.first!
+        let envelope = try XCTUnwrap(fixture.client.captureEnvelopeInvocations.first)
         XCTAssertEqual(1, envelope.items.count)
     }
     

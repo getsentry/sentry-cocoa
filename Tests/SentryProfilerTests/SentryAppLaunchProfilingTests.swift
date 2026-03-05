@@ -35,7 +35,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // Assert
-        XCTAssert(appLaunchProfileConfigFileExists())
+        XCTAssertTrue(appLaunchProfileConfigFileExists())
         let dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]), 1)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]), 0.5)
@@ -47,7 +47,7 @@ extension SentryAppLaunchProfilingTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testContinuousLaunchProfileV2ManualLifecycleConfiguration() throws {
@@ -66,7 +66,7 @@ extension SentryAppLaunchProfilingTests {
         sentry_sdkInitProfilerTasks(options, TestHub(client: nil, andScope: nil))
 
         // Assert
-        XCTAssert(appLaunchProfileConfigFileExists())
+        XCTAssertTrue(appLaunchProfileConfigFileExists())
         let dict = try XCTUnwrap(sentry_persistedLaunchProfileConfigurationOptions())
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRate]), 1)
         XCTAssertEqual(try XCTUnwrap(dict[kSentryLaunchProfileConfigKeyProfilesSampleRand]), 0.5)
@@ -78,7 +78,7 @@ extension SentryAppLaunchProfilingTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 }
 
@@ -100,7 +100,7 @@ extension SentryAppLaunchProfilingTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNotNil(sentry_launchTracer)
 
         // Act
@@ -114,7 +114,7 @@ extension SentryAppLaunchProfilingTests {
         fixture.displayLinkWrapper.call()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testLaunchContinuousProfileV2ManualLifecycleNotStoppedOnFullyDisplayed() throws {
@@ -131,7 +131,7 @@ extension SentryAppLaunchProfilingTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
 
         // Act
@@ -145,7 +145,7 @@ extension SentryAppLaunchProfilingTests {
         fixture.displayLinkWrapper.call()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testLaunchContinuousProfileV2TraceLifecycleNotStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
@@ -163,7 +163,7 @@ extension SentryAppLaunchProfilingTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNotNil(sentry_launchTracer)
 
         // Act
@@ -176,7 +176,7 @@ extension SentryAppLaunchProfilingTests {
         fixture.displayLinkWrapper.call()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 
     func testLaunchContinuousProfileV2ManualLifecycleNotStoppedOnInitialDisplayWithoutWaitingForFullDisplay() throws {
@@ -193,7 +193,7 @@ extension SentryAppLaunchProfilingTests {
         _sentry_nondeduplicated_startLaunchProfile()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
         XCTAssertNil(sentry_launchTracer)
 
         // Act
@@ -206,7 +206,7 @@ extension SentryAppLaunchProfilingTests {
         fixture.displayLinkWrapper.call()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 }
 #endif // !os(macOS)
