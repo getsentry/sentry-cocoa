@@ -17,7 +17,6 @@
 #import "SentrySwift.h"
 #import "SentryTime.h"
 #import "SentryTraceContext+Private.h"
-#import "SentryTraceOrigin.h"
 #import "SentryTraceContext.h"
 #import "SentryTracer+Private.h"
 #import "SentryTracerConfiguration.h"
@@ -700,12 +699,14 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     _startTimeChanged = YES;
 }
 
+#if SENTRY_HAS_UIKIT
 - (BOOL)isStandaloneAppStartTransaction
 {
-    return ([self.operation isEqualToString:SentrySpanOperationAppStartCold]
-               || [self.operation isEqualToString:SentrySpanOperationAppStartWarm])
-        && [self.origin isEqualToString:SentryTraceOriginAutoAppStart];
+    return [StandaloneAppStartTransactionHelper
+        isStandaloneAppStartTransactionWithOperation:self.operation
+                                              origin:self.origin];
 }
+#endif // SENTRY_HAS_UIKIT
 
 - (SentryTransaction *)toTransaction
 {
