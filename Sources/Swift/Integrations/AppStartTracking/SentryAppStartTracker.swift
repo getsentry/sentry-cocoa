@@ -51,6 +51,14 @@ struct SendStandaloneAppStartTransaction: AppStartMeasurementHandler {
     }
 }
 
+@_spi(Private) @objc public class StandaloneAppStartTransactionHelper: NSObject {
+    @objc public static func isStandaloneAppStartTransaction(operation: String, origin: String) -> Bool {
+        return (operation == SentrySpanOperationAppStartCold
+                || operation == SentrySpanOperationAppStartWarm)
+            && origin == SentryTraceOriginAutoAppStart
+    }
+}
+
 extension SentryAppStartTrackerHelper: AppStartInfoProvider {}
 
 /// Tracks cold and warm app start time for iOS, tvOS, and Mac Catalyst. The logic for the different
