@@ -9,7 +9,8 @@
 
 #if SENTRY_HAS_UIKIT
 
-id<SentrySpan> sentryBuildAppStartSpan(
+id<SentrySpan>
+sentryBuildAppStartSpan(
     SentryTracer *tracer, SentrySpanId *parentId, NSString *operation, NSString *description)
 {
     SentrySpanContext *context =
@@ -54,8 +55,7 @@ sentryBuildAppStartSpans(
     NSDate *appStartEndTimestamp = [appStartMeasurement.appStartTimestamp
         dateByAddingTimeInterval:appStartMeasurement.duration];
 
-    id<SentrySpan> appStartSpan
-        = sentryBuildAppStartSpan(tracer, tracer.spanId, operation, type);
+    id<SentrySpan> appStartSpan = sentryBuildAppStartSpan(tracer, tracer.spanId, operation, type);
     [appStartSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
     [appStartSpan setTimestamp:appStartEndTimestamp];
 
