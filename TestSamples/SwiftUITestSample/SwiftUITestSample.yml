@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
 name: SwiftUITestSample
 createIntermediateGroups: true
 generateEmptyDirectories: true
@@ -9,8 +11,6 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
-fileGroups:
-  - SwiftUITestSample.yml
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -20,34 +20,76 @@ targets:
     dependencies:
       - target: Sentry/Sentry
     sources:
-      - SwiftUITestSample
-    settings:
-      SWIFT_OBJC_BRIDGING_HEADER: SwiftUITestSample-Bridging-Header.h
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: SwiftUITestSample.yml
+        group: App/Configurations
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
     configFiles:
-      Debug: SwiftUITestSample.xcconfig
-      Release: SwiftUITestSample.xcconfig
-      Test: SwiftUITestSample.xcconfig
-      TestCI: SwiftUITestSample.xcconfig
+      Debug: App/Configurations/SwiftUITestSample.xcconfig
+      Release: App/Configurations/SwiftUITestSample.xcconfig
+      Test: App/Configurations/SwiftUITestSample.xcconfig
+      TestCI: App/Configurations/SwiftUITestSample.xcconfig
   SwiftUITestSampleUITests:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - SwiftUITestSampleUITestsEnvelopeOnly
+      # Configurations
+      - path: UITests/Configurations
+        type: group
+        group: UITests
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      # Sources
+      - path: UITests/Sources
+        type: group
+        group: UITests
+        excludes:
+          - "**/.gitkeep"
     configFiles:
-      Debug: SwiftUITestSampleUITests.xcconfig
-      Release: SwiftUITestSampleUITests.xcconfig
-      Test: SwiftUITestSampleUITests.xcconfig
-      TestCI: SwiftUITestSampleUITests.xcconfig
+      Debug: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
+      Release: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
+      Test: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
+      TestCI: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
   SwiftUITestSampleUITestsEnvelopeOnly:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - SwiftUITestSampleUITestsEnvelopeOnly
+      # Configurations
+      - path: UITests/Configurations
+        type: group
+        group: UITests
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      # Sources
+      - path: UITests/Sources
+        type: group
+        group: UITests
+        excludes:
+          - "**/.gitkeep"
     configFiles:
-      Debug: SwiftUITestSampleUITests.xcconfig
-      Release: SwiftUITestSampleUITests.xcconfig
-      Test: SwiftUITestSampleUITests.xcconfig
-      TestCI: SwiftUITestSampleUITests.xcconfig
+      Debug: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
+      Release: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
+      Test: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
+      TestCI: UITests/Configurations/SwiftUITestSampleUITests.xcconfig
 schemes:
   SwiftUITestSampleEnvelope:
     build:
