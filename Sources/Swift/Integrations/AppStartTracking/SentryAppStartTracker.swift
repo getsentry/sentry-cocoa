@@ -8,6 +8,25 @@ protocol AppStartInfoProvider {
     func isActivePrewarm() -> Bool
 }
 
+protocol AppStartMeasurementHandler {
+    func handle(_ measurement: SentryAppStartMeasurement)
+}
+
+/// Attaches app start data to the first UIViewController transaction (default behavior).
+struct AttachAppStartMeasurementHandler: AppStartMeasurementHandler {
+    func handle(_ measurement: SentryAppStartMeasurement) {
+        SentrySDKInternal.setAppStartMeasurement(measurement)
+    }
+}
+
+/// Placeholder for sending a standalone app start transaction. Currently a no-op;
+/// the actual implementation will be added in a follow-up.
+struct SendStandaloneAppStartTransaction: AppStartMeasurementHandler {
+    func handle(_ measurement: SentryAppStartMeasurement) {
+        // no-op: standalone app start transaction logic will be implemented here
+    }
+}
+
 extension SentryAppStartTrackerHelper: AppStartInfoProvider {}
 
 /// Tracks cold and warm app start time for iOS, tvOS, and Mac Catalyst. The logic for the different
@@ -33,6 +52,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     let appStateManager: SentryAppStateManager
     private let framesTracker: SentryFramesTracker
     private let enablePreWarmedAppStartTracing: Bool
+    private let measurementHandler: AppStartMeasurementHandler
 
     private var previousAppState: SentryAppState?
     private var wasInBackground = false
@@ -52,6 +72,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         appStateManager: SentryAppStateManager,
         framesTracker: SentryFramesTracker,
         enablePreWarmedAppStartTracing: Bool,
+        enableStandaloneAppStartTracing: Bool,
         dateProvider: SentryCurrentDateProvider,
         sysctlWrapper: SentrySysctl,
         appStartInfoProvider: AppStartInfoProvider
@@ -60,6 +81,9 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         self.appStateManager = appStateManager
         self.framesTracker = framesTracker
         self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
+        self.measurementHandler = enableStandaloneAppStartTracing
+            ? SendStandaloneAppStartTransaction()
+            : AttachAppStartMeasurementHandler()
         self.previousAppState = appStateManager.loadPreviousAppState()
         self.dateProvider = dateProvider
         self.didFinishLaunchingTimestamp = dateProvider.date()
@@ -230,7 +254,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
                 didFinishLaunchingTimestamp: finalDidFinishLaunchingTimestamp
             )
 
-            SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
+            self.measurementHandler.handle(appStartMeasurement)
         }
 
         // With only running this once we know that the process is a new one when the following

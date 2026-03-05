@@ -38,6 +38,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let framesTracker: SentryFramesTracker
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         var enablePreWarmedAppStartTracing = true
+        var enableStandaloneAppStartTracing = false
         var appStartInfoProvider: TestAppStartInfoProvider
 
         let appStartDuration: TimeInterval = 0.4
@@ -91,6 +92,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
                 appStateManager: appStateManager,
                 framesTracker: framesTracker,
                 enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing,
+                enableStandaloneAppStartTracing: enableStandaloneAppStartTracing,
                 dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
                 sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper,
                 appStartInfoProvider: appStartInfoProvider
@@ -341,10 +343,24 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         hybridAppStart()
-        
+
         assertValidHybridStart(type: .warm)
     }
-    
+
+    func testStandaloneAppStartTracing_DoesNotSetAppStartMeasurement() {
+        fixture.enableStandaloneAppStartTracing = true
+        startApp(callDisplayLink: true)
+
+        assertNoAppStartUp()
+    }
+
+    func testStandaloneAppStartTracingDisabled_SetsAppStartMeasurement() {
+        fixture.enableStandaloneAppStartTracing = false
+        startApp(callDisplayLink: true)
+
+        assertValidStart(type: .cold, expectedDuration: 0.45)
+    }
+
     private func store(appState: SentryAppState) {
         fixture.fileManager.store(appState)
     }
