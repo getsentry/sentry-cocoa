@@ -4,7 +4,7 @@
 ///
 /// - Parameter content: The MDX file content to parse.
 /// - Returns: A set of option names found in the content.
-@available(iOS 16.0, tvOS 16.0, macOS 13.0, macCatalyst 16.0, *)
+@available(iOS 16.0, tvOS 16.0, macOS 13.0, macCatalyst 16.0, watchOS 9.0, *)
 func extractMdxOptionNames(from content: String) -> Set<String> {
     // Pattern: <SdkOption name="optionName"> with single or double quotes
     let regex = /<SdkOption\s+name\s*=\s*["'](?<name>[^"']+)["']/

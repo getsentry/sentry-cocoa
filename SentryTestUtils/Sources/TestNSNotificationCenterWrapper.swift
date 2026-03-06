@@ -1,10 +1,10 @@
 import Foundation
 @_spi(Private) import Sentry
 
-#if canImport(UIKit)
+#if (os(iOS) || os(tvOS) || os(visionOS))
 import UIKit
 public typealias CrossPlatformApplication = UIApplication
-#else
+#elseif os(macOS)
 import AppKit
 public typealias CrossPlatformApplication = NSApplication
 #endif
