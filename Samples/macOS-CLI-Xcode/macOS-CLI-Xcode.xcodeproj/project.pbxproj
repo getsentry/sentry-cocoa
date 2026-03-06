@@ -1,0 +1,311 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 100;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		154C18D65B23F3DBBE97272A /* SentrySPM in Frameworks */ = {isa = PBXBuildFile; productRef = 51F42526F56EBC1483B3EC8B /* SentrySPM */; };
+		6D9E8CF17E00814DD5E4B45E /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2898CE81821BD7B6DA8322 /* main.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		5088E1B60AA90CD0AB551E20 /* macOS-CLI-Xcode.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "macOS-CLI-Xcode.yml"; sourceTree = "<group>"; };
+		68EC2BB07E7BA87E1C97EA81 /* sentry-cocoa-7369 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "sentry-cocoa-7369"; path = ../..; sourceTree = SOURCE_ROOT; };
+		7D2898CE81821BD7B6DA8322 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		F87FD66A07DBD0D1307621E1 /* macOS-CLI-Xcode */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = text; path = "macOS-CLI-Xcode"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A5CDD0F8864BF30EB903B8A8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+				154C18D65B23F3DBBE97272A /* SentrySPM in Frameworks */,
+			);
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		672DAE1567DE2FE304C48201 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F87FD66A07DBD0D1307621E1 /* macOS-CLI-Xcode */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7612FF2E0C69A93FB983F91C /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				7D2898CE81821BD7B6DA8322 /* main.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		D81D6AE9EBAFC192A25C1AA3 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				68EC2BB07E7BA87E1C97EA81 /* sentry-cocoa-7369 */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		E66FC2948E46C613E134C242 = {
+			isa = PBXGroup;
+			children = (
+				5088E1B60AA90CD0AB551E20 /* macOS-CLI-Xcode.yml */,
+				D81D6AE9EBAFC192A25C1AA3 /* Packages */,
+				7612FF2E0C69A93FB983F91C /* Sources */,
+				672DAE1567DE2FE304C48201 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2F56EEE6EF17666F8A02370B /* macOS-CLI-Xcode */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 201B47BC7E1D36E56E04F176 /* Build configuration list for PBXNativeTarget "macOS-CLI-Xcode" */;
+			buildPhases = (
+				4B812FF27B54682448DDE0DD /* Sources */,
+				A5CDD0F8864BF30EB903B8A8 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			name = "macOS-CLI-Xcode";
+			packageProductDependencies = (
+				51F42526F56EBC1483B3EC8B /* SentrySPM */,
+			);
+			productName = "macOS-CLI-Xcode";
+			productReference = F87FD66A07DBD0D1307621E1 /* macOS-CLI-Xcode */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		22B4B50C411444D6375139D7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = 6BD1F70254DAC02DF580B690 /* Build configuration list for PBXProject "macOS-CLI-Xcode" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = E66FC2948E46C613E134C242;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5E768911F94FAF5B7FB66121 /* XCLocalSwiftPackageReference "../.." */,
+			);
+			preferredProjectObjectVersion = 56;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2F56EEE6EF17666F8A02370B /* macOS-CLI-Xcode */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4B812FF27B54682448DDE0DD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+				6D9E8CF17E00814DD5E4B45E /* main.swift in Sources */,
+			);
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4D96F7DF1D1C1AF070849C51 /* Debug configuration for PBXNativeTarget "macOS-CLI-Xcode" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.macOS-CLI-Xcode";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C6CC8E152FE3759DBA2DB659 /* Release configuration for PBXNativeTarget "macOS-CLI-Xcode" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.sentry.macOS-CLI-Xcode";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		E1BEF8266D560499AC49079E /* Release configuration for PBXProject "macOS-CLI-Xcode" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		E21E2CCAAAFE6F0F3EE7B01B /* Debug configuration for PBXProject "macOS-CLI-Xcode" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		201B47BC7E1D36E56E04F176 /* Build configuration list for PBXNativeTarget "macOS-CLI-Xcode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4D96F7DF1D1C1AF070849C51 /* Debug configuration for PBXNativeTarget "macOS-CLI-Xcode" */,
+				C6CC8E152FE3759DBA2DB659 /* Release configuration for PBXNativeTarget "macOS-CLI-Xcode" */,
+			);
+			defaultConfigurationName = Debug;
+		};
+		6BD1F70254DAC02DF580B690 /* Build configuration list for PBXProject "macOS-CLI-Xcode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E21E2CCAAAFE6F0F3EE7B01B /* Debug configuration for PBXProject "macOS-CLI-Xcode" */,
+				E1BEF8266D560499AC49079E /* Release configuration for PBXProject "macOS-CLI-Xcode" */,
+			);
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		5E768911F94FAF5B7FB66121 /* XCLocalSwiftPackageReference "../.." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../..;
+			traits = (
+				NoUIFramework,
+			);
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		51F42526F56EBC1483B3EC8B /* SentrySPM */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SentrySPM;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 22B4B50C411444D6375139D7 /* Project object */;
+}
