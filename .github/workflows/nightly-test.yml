@@ -45,14 +45,6 @@ jobs:
             platform: "iOS"
             device: "iPad Pro 13-inch (M5)"
 
-          - name: watchOS 26 Sentry
-            runs-on: tahoe
-            xcode: "26.2"
-            test-destination-os: "26.4"
-            platform: "watchOS"
-            device: "Apple Watch Ultra 3 (49mm)"
-            timeout: 30
-
           - name: visionOS 2.5 Sentry
             runs-on: sequoia
             xcode: "26.0.1"
