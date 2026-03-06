@@ -66,18 +66,26 @@ enum NetworkBodyWarning: String {
             let slice = data.prefix(limit)
 
             var warnings = [NetworkBodyWarning]()
-            let lower = contentType?.lowercased() ?? ""
-            let utType = contentType.flatMap { UTType(mimeType: $0.lowercased()) }
+            // Strip MIME parameters (e.g. "; charset=utf-8") — UTType doesn't handle them.
+            let mimeType = contentType.flatMap {
+                $0.split(separator: ";").first.map { String($0).trimmingCharacters(in: .whitespaces).lowercased() }
+            }
+            let utType = mimeType.flatMap { UTType(mimeType: $0) }
 
-            if lower.contains("application/x-www-form-urlencoded") {
+            if mimeType == "application/x-www-form-urlencoded" {
                 if isTruncated { warnings.append(.textTruncated) }
                 self = Body.parseFormEncoded(slice, warnings: &warnings)
             } else if let utType, utType.conforms(to: .json) {
                 if isTruncated { warnings.append(.jsonTruncated) }
                 self = Body.parseJSON(slice, warnings: &warnings)
-            } else {
+            } else if utType?.conforms(to: .text) == true {
                 if isTruncated { warnings.append(.textTruncated) }
                 self = Body.parseText(slice, warnings: &warnings)
+            } else {
+                // UTType is nil (unknown MIME type) or not text —
+                // don't attempt to decode; use a placeholder description instead.
+                let description = "[Body not captured: contentType=\(contentType ?? "unknown") (\(data.count) bytes)]"
+                self = Body(content: description)
             }
         }
 
@@ -144,7 +152,7 @@ enum NetworkBodyWarning: String {
     // MARK: - Constants
 
     /// Maximum body size in bytes before truncation (150KB).
-    static let maxBodySize = 150 * 1024
+    static let maxBodySize = 150 * 1_024
 
     /// Key used to store network details in breadcrumb data dictionary.
     @objc public static let replayNetworkDetailsKey = "_networkDetails"
