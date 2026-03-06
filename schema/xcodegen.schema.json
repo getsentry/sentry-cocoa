@@ -138,7 +138,7 @@
         },
         "tabWidth": {
           "type": "integer",
-          "description": "Override user's setting for indent width in number of spaces"
+          "description": "Override user's setting for tab width in number of spaces"
         },
         "disabledValidations": {
           "type": "array",
