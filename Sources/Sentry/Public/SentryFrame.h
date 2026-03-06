@@ -75,6 +75,9 @@ NS_SWIFT_NAME(Frame)
  */
 @property (nonatomic, copy) NSNumber *_Nullable parentIndex;
 
+/**
+ * Number of samples recorded that contained this frame, used for flamegraphs.
+ */
 @property (nonatomic, copy) NSNumber *_Nullable sampleCount;
 
 /**

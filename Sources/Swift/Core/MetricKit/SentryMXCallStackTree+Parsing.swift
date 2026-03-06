@@ -20,8 +20,6 @@ extension SentryMXCallStackTree {
     // it represents data that is sampled across many threads and aggregated, we do not
     // know which samples came from which thread. Instead we create just one fake thread
     // that just contains the most common callstack.
-    //
-    // We hope to add flamegraph support at some point and that is tracked here: https://github.com/getsentry/sentry-cocoa/issues/7062
     func sentryMXBacktrace(inAppLogic: SentryInAppLogic?, handled: Bool) -> [SentryThread] {
         callStacks.enumerated().map { index, callStack in
             let thread = SentryThread(threadId: NSNumber(value: index))
@@ -53,7 +51,7 @@ extension SentryMXCallStackTree {
     }
 
     /// Flattens the call stack tree into a single thread with all frames.
-    /// Each frame includes metadata in its `vars` field to allow reconstructing the original tree:
+    /// Each frame includes metadata to allow reconstructing the original tree:
     /// - `parent_frame_index`: The index of the parent frame in the flat list (-1 for root frames)
     /// - `sample_count`: The number of samples at this frame
     ///
@@ -76,8 +74,12 @@ extension SentryMXCallStackTree {
 
     private func flattenFrame(_ mxFrame: SentryMXFrame, parentIndex: Int, frames: inout [Frame], inAppLogic: SentryInAppLogic?) {
         let currentIndex = frames.count
-        let frame = mxFrame.toSentryFrameWithTreeData(frameIndex: currentIndex, parentFrameIndex: parentIndex)
-        frame.inApp = NSNumber(value: inAppLogic?.is(inApp: frame.package) ?? false)
+        let frame = mxFrame.toSentryFrameWithTreeData(parentFrameIndex: parentIndex)
+        if let package = frame.package {
+            frame.inApp = NSNumber(value: inAppLogic?.is(inApp: package) ?? false)
+        } else {
+            frame.inApp = true
+        }
         frames.append(frame)
 
         // Recursively process child frames
@@ -120,9 +122,8 @@ extension SentryMXFrame {
         return result
     }
 
-    /// Converts this frame to a SentryFrame with tree metadata in the `vars` field.
-    /// The metadata allows reconstructing the original tree structure from a flat list.
-    func toSentryFrameWithTreeData(frameIndex: Int, parentFrameIndex: Int) -> Frame {
+    /// Converts this frame to a SentryFrame.
+    func toSentryFrameWithTreeData(parentFrameIndex: Int) -> Frame {
         let frame = Frame()
         frame.package = binaryName
         frame.instructionAddress = sentry_formatHexAddressUInt64Swift(address)
