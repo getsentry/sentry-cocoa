@@ -41,6 +41,8 @@ targets:
         group: App
         excludes:
           - "**/.gitkeep"
+    settings:
+      SWIFT_OBJC_BRIDGING_HEADER: App/Headers/SwiftUITestSample-Bridging-Header.h
     configFiles:
       Debug: App/Configurations/SwiftUITestSample.xcconfig
       Release: App/Configurations/SwiftUITestSample.xcconfig
