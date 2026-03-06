@@ -8,7 +8,6 @@
 #    import "SentrySDK+Private.h"
 #    import "SentrySpanContext.h"
 #    import "SentrySpanId.h"
-#    import "SentrySpanInternal.h"
 #    import "SentrySpanOperation.h"
 #    import "SentrySwift.h"
 #    import "SentryTraceOrigin.h"
@@ -59,16 +58,16 @@
     }
 
     SENTRY_LOG_DEBUG(@"Starting initial display span");
-    self.initialDisplaySpan = (SentrySpanInternal *)[tracer
-        startChildWithOperation:SentrySpanOperationUiLoadInitialDisplay
-                    description:[NSString stringWithFormat:@"%@ initial display", _name]];
+    self.initialDisplaySpan =
+        [tracer startChildWithOperation:SentrySpanOperationUiLoadInitialDisplay
+                            description:[NSString stringWithFormat:@"%@ initial display", _name]];
     self.initialDisplaySpan.origin = SentryTraceOriginAutoUITimeToDisplay;
 
     if (self.waitForFullDisplay) {
         SENTRY_LOG_DEBUG(@"Starting full display span");
-        self.fullDisplaySpan = (SentrySpanInternal *)[tracer
-            startChildWithOperation:SentrySpanOperationUiLoadFullDisplay
-                        description:[NSString stringWithFormat:@"%@ full display", _name]];
+        self.fullDisplaySpan =
+            [tracer startChildWithOperation:SentrySpanOperationUiLoadFullDisplay
+                                description:[NSString stringWithFormat:@"%@ full display", _name]];
         self.fullDisplaySpan.origin = SentryTraceOriginManualUITimeToDisplay;
 
         // By concept TTID and TTFD spans should have the same beginning,
