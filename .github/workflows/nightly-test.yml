@@ -45,13 +45,6 @@ jobs:
             platform: "iOS"
             device: "iPad Pro 13-inch (M5)"
 
-          - name: Catalyst 26 Sentry
-            runs-on: tahoe
-            xcode: "26.2"
-            test-destination-os: "latest"
-            platform: "Catalyst"
-            timeout: 30
-
           - name: watchOS 26 Sentry
             runs-on: tahoe
             xcode: "26.2"
