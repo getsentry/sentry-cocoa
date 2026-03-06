@@ -396,7 +396,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@ce288193e2ac7976b0ffd1d5733527605e6fd63b # v2
+        uses: getsentry/craft@d630201930c7fe5aee6366ebee19ebb681128512 # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:
