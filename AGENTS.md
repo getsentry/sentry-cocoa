@@ -91,8 +91,9 @@ search_issues  → check for new/regressed issues
 
 ## Command Execution
 
-- **Set the working directory once** with `cd`, then run commands directly — do not prefix every command with `cd <path> &&`
-- **Wildcard permissions** — many commands are pre-approved with wildcards (e.g., `git add:*`). Flags like `-C` change the command prefix (`git -C path add` ≠ `git add`), triggering a confirmation prompt. Avoid `-C` when you can `cd` instead
+- **Verify working directory** — use `pwd` to confirm you're in the correct path before running commands. The shell persists working directory across tool calls
+- **Avoid redundant `cd`** — do not prefix every command with `cd <path> &&`. Change directory once if needed, then verify with `pwd`
+- **Wildcard permissions** — many commands are pre-approved with wildcards (e.g., `git add:*`). Flags like `-C` change the command prefix (`git -C path add` ≠ `git add`), triggering a confirmation prompt. Avoid `-C` when you can change directory instead
 - **Prefer small, focused commands** over one massive pipeline. Break complex operations into multiple steps
 - **JSON processing** — always use `jq`; do not shell out to `node` or `python` for JSON parsing
 - **GitHub** — prefer `gh` CLI over web scraping when interacting with GitHub.com
