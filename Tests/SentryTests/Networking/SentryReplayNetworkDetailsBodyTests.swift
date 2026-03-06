@@ -155,6 +155,68 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         }
     }
 
+    func testInit_withBinaryContentType_shouldCreateArtificialString() {
+        // -- Arrange --
+        let binaryData = Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]) // PNG header
+        let contentType = "image/png"
+
+        // -- Act --
+        let body = Body(data: binaryData, contentType: contentType)
+
+        // -- Assert --
+        XCTAssertNotNil(body)
+        if case .text(let string) = body?.content {
+            XCTAssertTrue(string.hasPrefix("[Body not captured"))
+            XCTAssertTrue(string.contains("8 bytes"))
+            XCTAssertTrue(string.contains("image/png"))
+        } else {
+            XCTFail("Expected .text content with binary description")
+        }
+
+        let result = body?.serialize()
+        if let bodyString = result?["body"] as? String {
+            XCTAssertTrue(bodyString.hasPrefix("[Body not captured"))
+        } else {
+            XCTFail("Expected body to be a string with binary data prefix")
+        }
+    }
+
+    func testInit_withNilContentType_shouldCreatePlaceholder() {
+        // -- Arrange --
+        let data = Data([0x00, 0x01, 0x02, 0x03])
+
+        // -- Act --
+        let body = Body(data: data, contentType: nil)
+
+        // -- Assert --
+        XCTAssertNotNil(body)
+        if case .text(let string) = body?.content {
+            XCTAssertTrue(string.hasPrefix("[Body not captured"))
+            XCTAssertTrue(string.contains("4 bytes"))
+            XCTAssertTrue(string.contains("unknown"))
+        } else {
+            XCTFail("Expected .text content with placeholder description")
+        }
+    }
+
+    func testInit_withUnrecognizedContentType_shouldCreatePlaceholder() {
+        // -- Arrange --
+        let data = Data("some data".utf8)
+
+        // -- Act --
+        let body = Body(data: data, contentType: "application/x-custom-format")
+
+        // -- Assert --
+        XCTAssertNotNil(body)
+        if case .text(let string) = body?.content {
+            XCTAssertTrue(string.hasPrefix("[Body not captured"))
+            XCTAssertTrue(string.contains("application/x-custom-format"))
+            XCTAssertTrue(string.contains("9 bytes"))
+        } else {
+            XCTFail("Expected .text content with placeholder description")
+        }
+    }
+
     // MARK: - Serialization Tests
 
     func testSerialize_withStringBody_shouldReturnDictionary() {
@@ -219,7 +281,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         XCTAssertEqual(bodyArray[0] as? String, "item1")
     }
 
-    func testSerialize_withNoContentType_shouldDefaultToText() {
+    func testSerialize_withNoContentType_shouldCreatePlaceholder() {
         // -- Arrange --
         let bodyContent = "some content"
         guard let bodyData = bodyContent.data(using: .utf8) else {
@@ -232,6 +294,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNotNil(result)
-        XCTAssertEqual(result?["body"] as? String, bodyContent)
+        let bodyString = result?["body"] as? String
+        XCTAssertTrue(bodyString?.hasPrefix("[Body not captured") == true)
     }
 }
