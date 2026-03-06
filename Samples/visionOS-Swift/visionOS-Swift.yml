@@ -50,6 +50,7 @@ targets:
         buildPhase: none
       - path: visionOS-Swift.yml
         group: App/Configurations
+        buildPhase: none
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
