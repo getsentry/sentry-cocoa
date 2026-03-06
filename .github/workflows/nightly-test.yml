@@ -8,6 +8,10 @@ on:
 
   workflow_dispatch:
 
+  push:
+    branches:
+      - itay/cron_job
+
 # Concurrency configuration:
 # - Nightly tests should never be cancelled to ensure complete validation
 #   of additional platform/device coverage beyond our regular CI matrix.
