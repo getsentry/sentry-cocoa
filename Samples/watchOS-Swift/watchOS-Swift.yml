@@ -42,8 +42,11 @@ targets:
         type: group
         group: WatchApp/Configurations
         buildPhase: none
+        excludes:
+          - "**/.gitkeep"
       - path: watchOS-Swift.yml
         group: WatchApp/Configurations
+        buildPhase: none
     dependencies:
       - target: Extension
       - target: SentrySampleShared/SentrySampleShared
