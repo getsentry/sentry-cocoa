@@ -47,7 +47,7 @@ jobs:
             xcode: "26.2"
             test-destination-os: "26.2"
             platform: "iOS"
-            device: "iPad Pro 13-inch (M4)"
+            device: "iPad Pro 13-inch (M5)"
 
           - name: Catalyst 26 Sentry
             runs-on: tahoe
@@ -65,7 +65,7 @@ jobs:
             timeout: 30
 
           - name: visionOS 2.5 Sentry
-            runs-on: tahoe
+            runs-on: sequoia
             xcode: "26.2"
             test-destination-os: "2.5"
             platform: "visionOS"
