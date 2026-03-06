@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Capture transactions that finish during the launch profiling window instead of silently discarding them (#7602)
+
 ## 9.6.0
 
 ### Features
