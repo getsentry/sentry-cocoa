@@ -173,6 +173,8 @@ sentry_getOSName(void)
     return @"Catalyst";
 #elif SENTRY_HAS_UIKIT
     return [UIDevice currentDevice].systemName;
+#elif TARGET_OS_WATCH
+    return @"watchOS";
 #else
     return @"macOS";
 #endif // SENTRY_HAS_UIKIT

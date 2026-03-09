@@ -55,7 +55,7 @@ final class SentryCrashWrapperTests: XCTestCase {
         let version = ProcessInfo.processInfo.operatingSystemVersion
         let expectedVersion = "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
         XCTAssertEqual(osContext["version"] as? String, expectedVersion)
-#else
+#elseif !os(watchOS)
         let expectedVersion = try XCTUnwrap(Dependencies.uiDeviceWrapper.getSystemVersion())
         XCTAssertFalse(expectedVersion.isEmpty)
         XCTAssertEqual(osContext["version"] as? String, expectedVersion)
