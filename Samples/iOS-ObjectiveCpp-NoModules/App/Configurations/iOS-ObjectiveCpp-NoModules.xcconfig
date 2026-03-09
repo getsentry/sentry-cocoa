@@ -1,4 +1,4 @@
-#include "../../Shared/Config/_Common.xcconfig"
+#include "../../../Shared/Config/_Common.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-ObjectiveCpp-NoModules
 INFOPLIST_FILE = App/Configurations/Info.plist
