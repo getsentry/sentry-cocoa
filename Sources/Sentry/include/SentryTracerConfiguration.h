@@ -8,6 +8,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryAppStartMeasurement;
 @class SentryDispatchQueueWrapper;
 @class SentryProfileOptions;
 @class SentrySamplerDecision;
@@ -51,6 +52,16 @@ NS_ASSUME_NONNULL_BEGIN
  * Default is 0 seconds
  */
 @property (nonatomic) NSTimeInterval idleTimeout;
+
+#if SENTRY_HAS_UIKIT
+/**
+ * The app start measurement to attach to this tracer.
+ * When set, the tracer uses this instead of reading from the global static.
+ *
+ * Default is nil.
+ */
+@property (nonatomic, strong, nullable) SentryAppStartMeasurement *appStartMeasurement;
+#endif // SENTRY_HAS_UIKIT
 
 + (SentryTracerConfiguration *)configurationWithBlock:
     (void (^)(SentryTracerConfiguration *configuration))block;

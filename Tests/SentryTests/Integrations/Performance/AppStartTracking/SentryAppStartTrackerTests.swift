@@ -2,6 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+// swiftlint:disable file_length type_body_length
 #if os(iOS) || os(tvOS)
 
 class TestAppStartInfoProvider: AppStartInfoProvider {
@@ -347,13 +348,13 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         assertValidHybridStart(type: .warm)
     }
 
-    func testStandaloneAppStartTracing_SetsAppStartMeasurement() {
+    func testStandaloneAppStartTracing_SDKNotEnabled_DropsAppStart() {
         fixture.enableStandaloneAppStartTracing = true
         startApp(callDisplayLink: true)
 
-        // The standalone handler stores the measurement on SentrySDKInternal so the
-        // tracer's existing getAppStartMeasurement flow can consume it.
-        assertValidStart(type: .cold, expectedDuration: 0.45)
+        // The standalone handler guards on SentrySDK.isEnabled. Since the SDK is not
+        // fully started in this test, the measurement is dropped.
+        assertNoAppStartUp()
     }
 
     func testStandaloneAppStartTracingDisabled_SetsAppStartMeasurement() {
