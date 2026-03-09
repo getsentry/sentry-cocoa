@@ -93,6 +93,16 @@ targets:
         excludes:
           - "**/.gitkeep"
       # Configurations
+      - path: UITests/Configurations
+        type: group
+        group: UITests
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: UITests/Configurations
+        buildPhase: none
       - path: ../../Plans/iOS-ObjectiveC_Base.xctestplan
         group: UITests/Configurations
         buildPhase: none
