@@ -22,6 +22,13 @@ NS_ASSUME_NONNULL_BEGIN
                                                              (nullable NSDate *)startTimestamp;
 
 /**
+ * Marks the app start measurement as read so subsequent calls to
+ * @c appStartMeasurementForOperation:startTimestamp: return @c nil.
+ * Used by standalone app start transactions that carry their own measurement.
+ */
++ (void)markAsRead;
+
+/**
  * Internal. Only needed for testing.
  */
 + (void)reset;

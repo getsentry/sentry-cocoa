@@ -19,9 +19,9 @@ struct AttachAppStartMeasurementHandler: AppStartMeasurementHandler {
     }
 }
 
-/// Sends a standalone app start transaction by storing the measurement on SentrySDKInternal
-/// and creating a tracer that satisfies getAppStartMeasurement's requirements. The existing
-/// tracer pipeline then handles span building, measurements, context, debug images, and profiling.
+/// Sends a standalone app start transaction by passing the measurement directly via the tracer
+/// configuration. The existing tracer pipeline then handles span building, measurements, context,
+/// debug images, and profiling.
 struct SendStandaloneAppStartTransaction: AppStartMeasurementHandler {
     func handle(_ measurement: SentryAppStartMeasurement) {
         let operation: String
@@ -43,16 +43,25 @@ struct SendStandaloneAppStartTransaction: AppStartMeasurementHandler {
             return
         }
 
-        // Store the measurement where the tracer's getAppStartMeasurement reads it from.
-        SentrySDKInternal.setAppStartMeasurement(measurement)
-
         let context = TransactionContext(name: name, operation: operation)
 
-        let hub = SentrySDKInternal.currentHub()
-        let transaction = hub.startTransaction(transactionContext: context)
-        transaction.origin = SentryTraceOriginAutoAppStart
+        // Pass the measurement directly to the tracer via configuration instead of storing
+        // it on the global static. This avoids race conditions where a UIViewController
+        // transaction could consume the measurement first.
+        let configuration = SentryTracerConfiguration(block: { config in
+            config.appStartMeasurement = measurement
+        })
 
-        transaction.finish()
+        let hub = SentrySDKInternal.currentHub()
+        let tracer = hub.startTransaction(
+            with: context,
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: configuration
+        )
+        tracer.origin = SentryTraceOriginAutoAppStart
+
+        tracer.finish()
     }
 }
 

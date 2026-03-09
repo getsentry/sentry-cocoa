@@ -3,7 +3,7 @@ import _SentryPrivate
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-// swiftlint:disable file_length
+// swiftlint:disable file_length type_body_length force_unwrapping
 // We are aware that the tracer has a lot of logic and we should maybe
 // move some of it to other classes.
 class SentryTracerTests: XCTestCase {
@@ -957,11 +957,62 @@ class SentryTracerTests: XCTestCase {
     
     func testNoAppStartTransaction_AddsNoDebugMeta() {
         whenFinishingAutoUITransaction(startTimestamp: 5)
-        
+
         XCTAssertEqual(self.fixture.hub.capturedEventsWithScopes.count, 1)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
-        
+
         XCTAssertNil(serializedTransaction?["debug_meta"])
+    }
+
+    func testStandaloneAppStart_UsesConfigurationMeasurement() throws {
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
+
+        let context = TransactionContext(name: "App Start Cold", operation: fixture.appStartColdOperation)
+        let sut = fixture.hub.startTransaction(
+            with: context,
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: SentryTracerConfiguration(block: {
+                $0.appStartMeasurement = appStartMeasurement
+            })
+        )
+        sut.origin = SentryTraceOriginAutoAppStart
+        sut.finish()
+
+        // The global static must remain untouched.
+        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
+
+        let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
+
+        // Verify cold app start measurement is attached
+        try assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
+
+        // Standalone transactions have no intermediate grouping span, so 5 child spans
+        // (not 6) for a non-prewarmed cold start.
+        let spans = try XCTUnwrap(serializedTransaction["spans"] as? [[String: Any]])
+        XCTAssertEqual(5, spans.count)
+    }
+
+    func testStandaloneAppStart_DoesNotConsumeGlobalMeasurement() throws {
+        let globalMeasurement = fixture.getAppStartMeasurement(type: .warm)
+        SentrySDKInternal.setAppStartMeasurement(globalMeasurement)
+
+        // A standalone tracer with its own measurement should not touch the global static.
+        let ownMeasurement = fixture.getAppStartMeasurement(type: .cold)
+        let context = TransactionContext(name: "App Start Cold", operation: fixture.appStartColdOperation)
+        let sut = fixture.hub.startTransaction(
+            with: context,
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: SentryTracerConfiguration(block: {
+                $0.appStartMeasurement = ownMeasurement
+            })
+        )
+        sut.origin = SentryTraceOriginAutoAppStart
+        sut.finish()
+
+        // The global measurement must still be available for a UIViewController transaction.
+        XCTAssertNotNil(SentrySDKInternal.getAppStartMeasurement())
     }
 
 #endif // os(iOS) || os(tvOS)

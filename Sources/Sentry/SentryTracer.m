@@ -596,9 +596,17 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
         [super finishWithStatus:_finishStatus];
     }
 #if SENTRY_HAS_UIKIT
-    appStartMeasurement =
-        [SentryAppStartMeasurementProvider appStartMeasurementForOperation:self.operation
-                                                            startTimestamp:self.startTimestamp];
+    // Standalone app start transactions carry their measurement directly in the configuration,
+    // bypassing the global static and its associated locking/timing checks.
+    if ([self isStandaloneAppStartTransaction] && _configuration.appStartMeasurement != nil) {
+        appStartMeasurement = _configuration.appStartMeasurement;
+        // Mark as read so no UIViewController transaction picks up the global static too.
+        [SentryAppStartMeasurementProvider markAsRead];
+    } else {
+        appStartMeasurement =
+            [SentryAppStartMeasurementProvider appStartMeasurementForOperation:self.operation
+                                                                startTimestamp:self.startTimestamp];
+    }
 
     if (appStartMeasurement != nil) {
         [self updateStartTime:appStartMeasurement.appStartTimestamp];
