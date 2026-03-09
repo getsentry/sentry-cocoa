@@ -624,13 +624,7 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
     NSData *bodyData
         = networkCaptureBodies ? (request.HTTPBody ?: sessionTask.originalRequest.HTTPBody) : nil;
 
-    NSNumber *requestSize = nil;
-    // Set request size - prefer actual bytes sent, fallback to local body data length
-    if (sessionTask.countOfBytesSent > 0) {
-        requestSize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
-    } else if (bodyData) {
-        requestSize = [NSNumber numberWithUnsignedInteger:bodyData.length];
-    }
+    NSNumber *requestSize = bodyData ? [NSNumber numberWithUnsignedInteger:bodyData.length] : nil;
 
     [details setRequestWithSize:requestSize
                        bodyData:bodyData
