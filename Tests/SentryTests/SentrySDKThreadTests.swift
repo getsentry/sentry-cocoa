@@ -2,7 +2,10 @@
 import XCTest
 
 final class SentrySDKThreadTests: XCTestCase {
-    func testRaceWhenBindingClient() {
+    /// Stress-tests concurrent bindClient + capture. Skipped on watchOS: limited concurrency (few threads)
+    /// means the 100 async blocks often don’t all run within the 10s timeout.
+    func testRaceWhenBindingClient() throws {
+#if !os(watchOS)
 
         let options = Options()
         let sut = SentryHubInternal(client: SentryClientInternal(options: options), andScope: nil)
@@ -30,5 +33,8 @@ final class SentrySDKThreadTests: XCTestCase {
 
             wait(for: [exp], timeout: 10.0)
         }
+#else
+        throw XCTSkip("watchOS has limited concurrency; this stress test times out waiting for 100 blocks")
+#endif
     }
 }

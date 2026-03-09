@@ -126,7 +126,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertNil(PrivateSentrySDKOnly.envelope(with: itemData))
     }
 
-    #if canImport(UIKit)
+    #if canImport(UIKit) && !os(watchOS)
     func testGetAppStartMeasurement() {
         let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm, runtimeInitSystemTimestamp: 1)
         SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)

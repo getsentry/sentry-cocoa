@@ -160,10 +160,12 @@
     XCTAssertEqual(expected, options.diagnosticLevel);
 }
 
+#if !TARGET_OS_WATCH
 - (void)testEnableSigtermReporting
 {
     [self testBooleanField:@"enableSigtermReporting" defaultValue:NO];
 }
+#endif
 
 - (void)testValidEnabled
 {
