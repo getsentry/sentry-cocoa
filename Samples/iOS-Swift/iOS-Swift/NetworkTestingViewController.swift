@@ -163,12 +163,12 @@ class NetworkTestingViewController: UIViewController {
     
     @objc private func testBinaryBody() {
         performTest(bodyType: 3, customBody: "// Sending 10KB of random binary data")
-        requestBodyTextView.isEditable = false
     }
     
     private func performTest(bodyType: Int, customBody: String? = nil) {
         requestUrlField.text = "https://httpbin.org/post"
         bodyTypeSegmentControl.selectedSegmentIndex = bodyType
+        updateBodyTextViewForType(bodyType)
         if let body = customBody {
             requestBodyTextView.text = body
         }
