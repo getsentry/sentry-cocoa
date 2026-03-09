@@ -1,5 +1,6 @@
 import AppKit
 
+// swiftlint:disable private_outlet
 class MetadataViewController: NSViewController {
 
     @IBOutlet weak var isAppSandboxActive: NSButton!
