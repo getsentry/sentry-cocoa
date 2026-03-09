@@ -46,7 +46,9 @@ class TestCleanup: NSObject {
         SentryDependencyContainer.reset()
         SentryPerformanceTracker.shared.clear()
 
+#if os(iOS) || os(tvOS)
         SentryTracer.resetAppStartMeasurementRead()
+#endif // os(iOS) || os(tvOS)
 
 #if os(iOS) || os(macOS)
         _sentry_threadUnsafe_traceProfileTimeoutTimer = nil
