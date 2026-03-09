@@ -70,26 +70,35 @@ enum NetworkBodyWarning: String {
             let mimeType = contentType.flatMap {
                 $0.split(separator: ";").first.map { String($0).trimmingCharacters(in: .whitespaces).lowercased() }
             }
-            let utType = mimeType.flatMap { UTType(mimeType: $0) }
 
             if mimeType == "application/x-www-form-urlencoded" {
                 if isTruncated { warnings.append(.textTruncated) }
                 self = Body.parseFormEncoded(slice, warnings: &warnings)
-            } else if let utType, utType.conforms(to: .json) {
-                if isTruncated { warnings.append(.jsonTruncated) }
-                self = Body.parseJSON(slice, warnings: &warnings)
-            } else if utType?.conforms(to: .text) == true {
-                if isTruncated { warnings.append(.textTruncated) }
-                self = Body.parseText(slice, warnings: &warnings)
+            } else if #available(macOS 11, *), let parsed = Body.parseByMimeType(mimeType, data: slice, isTruncated: isTruncated, warnings: &warnings) {
+                self = parsed
             } else {
-                // UTType is nil (unknown MIME type) or not text —
-                // don't attempt to decode; use a placeholder description instead.
                 let description = "[Body not captured: contentType=\(contentType ?? "unknown") (\(data.count) bytes)]"
                 self = Body(content: description)
             }
         }
 
         // MARK: - Private Parsing
+
+        /// Uses UTType to detect JSON/text content types. Returns nil for
+        /// unrecognized types so the caller can fall through to a placeholder.
+        /// UTType requires macOS 11+;  so this will not compile there.
+        @available(macOS 11, *)
+        private static func parseByMimeType(_ mimeType: String?, data: Data, isTruncated: Bool, warnings: inout [NetworkBodyWarning]) -> Body? {
+            let utType = mimeType.flatMap { UTType(mimeType: $0) }
+            if let utType, utType.conforms(to: .json) {
+                if isTruncated { warnings.append(.jsonTruncated) }
+                return parseJSON(data, warnings: &warnings)
+            } else if utType?.conforms(to: .text) == true {
+                if isTruncated { warnings.append(.textTruncated) }
+                return parseText(data, warnings: &warnings)
+            }
+            return nil
+        }
 
         private static func parseJSON(_ data: Data, warnings: inout [NetworkBodyWarning]) -> Body {
             do {
