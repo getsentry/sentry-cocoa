@@ -59,7 +59,7 @@ public final class SentryShakeDetector: NSObject {
             class_addMethod(windowClass, selector, inheritedIMP, types)
 
             guard let ownMethod = class_getInstanceMethod(windowClass, selector) else {
-                SentrySDKLog.debug("Shake detector: could not add motionEnded(_:with:) to UIWindow")
+                SentrySDKLog.warning("Shake detector: could not add motionEnded(_:with:) to UIWindow")
                 return
             }
 
