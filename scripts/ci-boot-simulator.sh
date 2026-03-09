@@ -123,7 +123,10 @@ begin_group "Device Discovery"
 log_notice "Searching for simulator: $SIMULATOR running $PLATFORM_NAME $PLATFORM_VERSION"
 
 UDID=$(xcrun simctl list devices available | \
-grep -A 5 "^-- $PLATFORM_NAME $PLATFORM_VERSION --" | \
+awk -v platform="$PLATFORM_NAME" -v version="$PLATFORM_VERSION" '
+  $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
+  in_section { if (/^-- /) exit; print }
+' | \
 grep "$SIMULATOR (" | \
 sed -n 's/.*(\([0-9A-F-]\{36\}\)).*/\1/p' | \
 head -n1)

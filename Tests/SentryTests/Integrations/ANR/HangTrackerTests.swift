@@ -208,6 +208,14 @@ final class HangTrackerTests: XCTestCase {
         
         sut = nil
         
+        // Allow the hang tracker's background thread to finish since it holds
+        // a strong reference while it is running
+        let expectation = XCTestExpectation()
+        queue.async {
+            expectation.fulfill()
+        }
+        wait(for: [expectation])
+        
         XCTAssertNil(weakSut, "Expected observer to be deallocated")
     }
     
