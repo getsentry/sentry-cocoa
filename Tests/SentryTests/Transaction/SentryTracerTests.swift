@@ -1005,26 +1005,32 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(Set(spanOperations), ["app.start.cold"])
     }
 
-    func testStandaloneAppStart_DoesNotConsumeGlobalMeasurement() throws {
+    func testStandaloneAppStart_BothConfigAndGlobalSet_ConfigWins_GlobalUntouched() throws {
+        // In practice only one of config or global should be set, never both. This test
+        // verifies that if both happen to be set, the config measurement wins and the
+        // global static remains untouched for a potential UIViewController transaction.
         let globalMeasurement = fixture.getAppStartMeasurement(type: .warm)
         SentrySDKInternal.setAppStartMeasurement(globalMeasurement)
 
-        // A standalone tracer with its own measurement should not touch the global static.
-        let ownMeasurement = fixture.getAppStartMeasurement(type: .cold)
+        let configMeasurement = fixture.getAppStartMeasurement(type: .cold)
         let context = TransactionContext(name: "App Start Cold", operation: fixture.appStartColdOperation)
         let sut = fixture.hub.startTransaction(
             with: context,
             bindToScope: false,
             customSamplingContext: [:],
             configuration: SentryTracerConfiguration(block: {
-                $0.appStartMeasurement = ownMeasurement
+                $0.appStartMeasurement = configMeasurement
             })
         )
         sut.origin = SentryTraceOriginAutoAppStart
         sut.finish()
 
-        // The global measurement must still be available for a UIViewController transaction.
-        XCTAssertNotNil(SentrySDKInternal.getAppStartMeasurement())
+        // The config measurement must be used (cold), verified via the transaction measurement key.
+        try assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
+
+        // The global measurement must still be the original warm one.
+        let remainingMeasurement = SentrySDKInternal.getAppStartMeasurement()
+        XCTAssertEqual(remainingMeasurement?.type, .warm)
     }
 
 #endif // os(iOS) || os(tvOS)
