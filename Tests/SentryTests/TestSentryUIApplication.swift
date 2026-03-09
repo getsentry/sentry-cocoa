@@ -1,4 +1,4 @@
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 @_spi(Private) @testable import Sentry
 
 final class TestSentryUIApplication: SentryApplication {

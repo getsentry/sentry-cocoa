@@ -99,15 +99,19 @@
 - (void)testOSVersion
 {
     NSString *osVersion = sentry_getOSVersion();
+#if TARGET_OS_WATCH
+    XCTAssertEqual(osVersion.length, 0U);
+#else
     XCTAssertNotEqual(osVersion.length, 0U);
+#endif
+
 #if TARGET_OS_OSX
     SENTRY_ASSERT_PREFIX(osVersion, @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"26.");
 #elif TARGET_OS_IOS || TARGET_OS_MACCATALYST || TARGET_OS_TV
     SENTRY_ASSERT_PREFIX(osVersion, @"9.", @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.",
         @"17.", @"18.", @"26.");
 #elif TARGET_OS_WATCH
-    // TODO: create a watch UI test target to test this branch
-    SENTRY_ASSERT_PREFIX(osVersion, @"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.", @"26.");
+    XCTAssertEqualObjects(osVersion, @"");
 #elif TARGET_OS_VISION
     SENTRY_ASSERT_PREFIX(osVersion, @"1.", @"2.", @"26.");
 #else
@@ -137,7 +141,6 @@
     // cannot.
     SENTRY_ASSERT_EQUAL(osName, @"tvOS");
 #elif TARGET_OS_WATCH
-    // TODO: create a watch UI test target to test this branch
     SENTRY_ASSERT_EQUAL(osName, @"watchOS");
 #elif TARGET_OS_VISION
     SENTRY_ASSERT_EQUAL(osName, @"visionOS");
