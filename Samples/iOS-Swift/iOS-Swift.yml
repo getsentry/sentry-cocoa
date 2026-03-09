@@ -15,32 +15,55 @@ projectReferences:
     path: ../../Sentry.xcodeproj
   SentrySampleShared:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
-fileGroups:
-  - ../Shared/Config
-  - iOS-Swift.yml
-  - ../../Plans/iOS-Swift_Base.xctestplan
-  - ../../Plans/iOS-Benchmarking_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  iOS-Swift:
+  App:
     type: application
     platform: auto
     sources:
-      - iOS-Swift
-      - ../Shared/SampleAssets.xcassets
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+          - "**/Info.plist"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: iOS-Swift.yml
+        group: App/Configurations
+        buildPhase: none
     dependencies:
       - target: Sentry/Sentry
-      - target: iOS-SwiftClip
+      - target: AppClip
       - target: SentrySampleShared/SentrySampleShared
-      - target: iOS-Swift-ShareExtension
-      - target: iOS-Swift-ActionExtension
-      - target: iOS-Swift-IntentExtension
+      - target: ShareExtension
+      - target: ActionExtension
+      - target: IntentExtension
     configFiles:
-      Debug: iOS-Swift.xcconfig
-      Release: iOS-Swift.xcconfig
-      Test: iOS-Swift.xcconfig
-      TestCI: iOS-Swift.xcconfig
+      Debug: App/Configurations/iOS-Swift.xcconfig
+      Release: App/Configurations/iOS-Swift.xcconfig
+      Test: App/Configurations/iOS-Swift.xcconfig
+      TestCI: App/Configurations/iOS-Swift.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -49,20 +72,44 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
-  iOS-SwiftClip:
+  AppClip:
     type: application.on-demand-install-capable
     platform: auto
     sources:
-      - iOS-SwiftClip
-      - ../Shared/SampleAssets.xcassets
+      # Sources
+      - path: AppClip/Sources
+        type: group
+        group: AppClip
+        excludes:
+          - "**/.gitkeep"
+          - "**/Info.plist"
+      # Resources
+      - path: AppClip/Resources
+        type: group
+        group: AppClip
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: AppClip/Resources
+      # Configurations
+      - path: AppClip/Configurations
+        type: group
+        group: AppClip
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: AppClip/Configurations
+        buildPhase: none
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: iOS-SwiftClip.xcconfig
-      Release: iOS-SwiftClip.xcconfig
-      Test: iOS-SwiftClip.xcconfig
-      TestCI: iOS-SwiftClip.xcconfig
+      Debug: AppClip/Configurations/iOS-SwiftClip.xcconfig
+      Release: AppClip/Configurations/iOS-SwiftClip.xcconfig
+      Test: AppClip/Configurations/iOS-SwiftClip.xcconfig
+      TestCI: AppClip/Configurations/iOS-SwiftClip.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -71,78 +118,196 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
-  iOS-Swift-UITests:
+  UITests:
     type: bundle.ui-testing
     platform: auto
-    sources:
-      - iOS-Swift-UITests
     dependencies:
       - target: SentrySampleShared/SentrySampleUITestShared
       - target: SentrySampleShared/SentrySampleShared
+    sources:
+      # Sources
+      - path: UITests/Sources
+        type: group
+        group: UITests
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: UITests/Resources
+        type: group
+        group: UITests
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: ../../Plans/iOS-Swift_Base.xctestplan
+        group: UITests/Configurations
+        buildPhase: none
+      - path: UITests/Configurations
+        type: group
+        group: UITests
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: UITests/Configurations
+        buildPhase: none
     configFiles:
-      Debug: iOS-Swift-UITests.xcconfig
-      Release: iOS-Swift-UITests.xcconfig
-      Test: iOS-Swift-UITests.xcconfig
-      TestCI: iOS-Swift-UITests.xcconfig
-  iOS-Benchmarking:
+      Debug: UITests/Configurations/iOS-Swift-UITests.xcconfig
+      Release: UITests/Configurations/iOS-Swift-UITests.xcconfig
+      Test: UITests/Configurations/iOS-Swift-UITests.xcconfig
+      TestCI: UITests/Configurations/iOS-Swift-UITests.xcconfig
+  Benchmarking:
     type: bundle.ui-testing
     platform: auto
     sources:
-      - iOS-Benchmarking
-      - ../Shared/SampleAssets.xcassets
+      # Sources
+      - path: Benchmarking/Sources
+        type: group
+        group: Benchmarking
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: Benchmarking/Resources
+        type: group
+        group: Benchmarking
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: Benchmarking/Resources
+      # Configurations
+      - path: ../../Plans/iOS-Benchmarking_Base.xctestplan
+        group: Benchmarking/Configurations
+        buildPhase: none
+      - path: Benchmarking/Configurations
+        type: group
+        group: Benchmarking
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: Benchmarking/Configurations
+        buildPhase: none
     dependencies:
       - target: SentrySampleShared/SentrySampleUITestShared
     configFiles:
-      Debug: iOS-Benchmarking.xcconfig
-      Release: iOS-Benchmarking.xcconfig
-      Test: iOS-Benchmarking.xcconfig
-      TestCI: iOS-Benchmarking.xcconfig
-  iOS-Swift-ShareExtension:
+      Debug: Benchmarking/Configurations/iOS-Benchmarking.xcconfig
+      Release: Benchmarking/Configurations/iOS-Benchmarking.xcconfig
+      Test: Benchmarking/Configurations/iOS-Benchmarking.xcconfig
+      TestCI: Benchmarking/Configurations/iOS-Benchmarking.xcconfig
+  ShareExtension:
     type: app-extension
     platform: auto
     sources:
-      - iOS-Swift-ShareExtension
+      # Sources
+      - path: ShareExtension/Sources
+        type: group
+        group: ShareExtension
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: ShareExtension/Resources
+        type: group
+        group: ShareExtension
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: ShareExtension/Configurations
+        type: group
+        group: ShareExtension
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: ShareExtension/Configurations
+        buildPhase: none
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: iOS-Swift-ShareExtension.xcconfig
-      Release: iOS-Swift-ShareExtension.xcconfig
-      Test: iOS-Swift-ShareExtension.xcconfig
-      TestCI: iOS-Swift-ShareExtension.xcconfig
-  iOS-Swift-ActionExtension:
+      Debug: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
+      Release: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
+      Test: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
+      TestCI: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
+  ActionExtension:
     type: app-extension
     platform: auto
     sources:
-      - iOS-Swift-ActionExtension
+      # Sources
+      - path: ActionExtension/Sources
+        type: group
+        group: ActionExtension
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: ActionExtension/Resources
+        type: group
+        group: ActionExtension
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: ActionExtension/Configurations
+        type: group
+        group: ActionExtension
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: ActionExtension/Configurations
+        buildPhase: none
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: iOS-Swift-ActionExtension.xcconfig
-      Release: iOS-Swift-ActionExtension.xcconfig
-      Test: iOS-Swift-ActionExtension.xcconfig
-      TestCI: iOS-Swift-ActionExtension.xcconfig
-  iOS-Swift-IntentExtension:
+      Debug: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
+      Release: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
+      Test: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
+      TestCI: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
+  IntentExtension:
     type: app-extension
     platform: auto
     sources:
-      - iOS-Swift-IntentExtension
+      # Sources
+      - path: IntentExtension/Sources
+        type: group
+        group: IntentExtension
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: IntentExtension/Resources
+        type: group
+        group: IntentExtension
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: IntentExtension/Configurations
+        type: group
+        group: IntentExtension
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: IntentExtension/Configurations
+        buildPhase: none
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: iOS-Swift-IntentExtension.xcconfig
-      Release: iOS-Swift-IntentExtension.xcconfig
-      Test: iOS-Swift-IntentExtension.xcconfig
-      TestCI: iOS-Swift-IntentExtension.xcconfig
+      Debug: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
+      Release: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
+      Test: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
+      TestCI: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
 schemes:
   iOS-Swift:
     templates:
       - SampleAppScheme
     build:
       targets:
-        iOS-Swift: all
+        App: all
+        UITests: test
     test:
       config: Test
       testPlans:
@@ -150,8 +315,8 @@ schemes:
   iOS-Benchmarking:
     build:
       targets:
-        iOS-Swift: test
-        iOS-Benchmarking: test
+        App: test
+        Benchmarking: test
     test:
       config: Debug
       testPlans:
@@ -159,21 +324,21 @@ schemes:
   iOS-Swift-IntentExtension:
     build:
       targets:
-        iOS-Swift: all
-        iOS-Swift-IntentExtension: all
+        App: all
+        IntentExtension: all
     run:
       config: Debug
   iOS-Swift-ActionExtension:
     build:
       targets:
-        iOS-Swift: all
-        iOS-Swift-ActionExtension: all
+        App: all
+        ActionExtension: all
     run:
       config: Debug
   iOS-Swift-ShareExtension:
     build:
       targets:
-        iOS-Swift: all
-        iOS-Swift-ShareExtension: all
+        App: all
+        ShareExtension: all
     run:
       config: Debug
