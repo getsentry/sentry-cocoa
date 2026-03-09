@@ -1,5 +1,4 @@
 @_spi(Private) @testable import Sentry
-@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -8,7 +7,9 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        clearTestState()
+        SentryAppStartMeasurementProvider.reset()
+        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
+        SentrySDKInternal.setAppStartMeasurement(nil)
     }
 
     // MARK: - Happy Path
