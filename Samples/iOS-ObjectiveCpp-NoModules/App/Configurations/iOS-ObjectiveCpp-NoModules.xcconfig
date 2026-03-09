@@ -1,8 +1,8 @@
-#include "../Shared/Config/_Common.xcconfig"
+#include "../../../Shared/Config/_Common.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-ObjectiveCpp-NoModules
-INFOPLIST_FILE = iOS-ObjectiveCpp-NoModules/Info.plist
-CODE_SIGN_ENTITLEMENTS = iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.entitlements
+INFOPLIST_FILE = App/Configurations/Info.plist
+CODE_SIGN_ENTITLEMENTS = App/Configurations/iOS-ObjectiveCpp-NoModules.entitlements
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 

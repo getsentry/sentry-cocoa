@@ -2,6 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+#if !os(watchOS)
 class SentrySessionTrackerTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySessionTrackerTests")
@@ -891,3 +892,4 @@ class SentrySessionTrackerTests: XCTestCase {
             )
     }
 }
+#endif

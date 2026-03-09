@@ -5,6 +5,8 @@
 #import "TestThread.h"
 #import <mach/mach.h>
 
+#if !TARGET_OS_WATCH
+
 @interface SentryCrashMachineContextTests : XCTestCase
 @end
 
@@ -149,3 +151,5 @@
 }
 
 @end
+
+#endif
