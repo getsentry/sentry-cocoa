@@ -40,6 +40,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "scripts/tests-with-thread-sanitizer.sh"
   - "scripts/ci-boot-simulator.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
+  - "scripts/prepare-package.sh"
 
   # Test infrastructure
   - "test-server/**"
@@ -249,6 +250,7 @@ run_release_for_prs: &run_release_for_prs
   - "scripts/assemble-xcframework.sh"
   - "scripts/generate_release_matrix.sh"
   - "scripts/xcframework-generated-run.sh"
+  - "scripts/prepare-package.sh"
 
   # Project files
   - "Sentry.xcworkspace/**"
@@ -346,6 +348,7 @@ run_build_for_prs: &run_build_for_prs
   - "scripts/sentry-xcodebuild.sh"
   - "scripts/check-ui-framework-linkage.sh"
   - "scripts/ci-utils.sh"
+  - "scripts/prepare-package.sh"
 
   # Build configuration
   - "fastlane/**"
