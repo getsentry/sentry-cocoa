@@ -13512,6 +13512,114 @@
                     "children": [
                       {
                         "kind": "TypeNominal",
+                        "name": "NSNumber",
+                        "printedName": "Foundation.NSNumber",
+                        "usr": "c:objc(cs)NSNumber"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.NSNumber?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "Dynamic",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "objc_name": "parentIndex",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)SentryFrame(im)parentIndex"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "NSNumber",
+                        "printedName": "Foundation.NSNumber",
+                        "usr": "c:objc(cs)NSNumber"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.NSNumber?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Dynamic",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setParentIndex:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)SentryFrame(im)setParentIndex:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "NSNumber",
+                    "printedName": "Foundation.NSNumber",
+                    "usr": "c:objc(cs)NSNumber"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.NSNumber?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Dynamic",
+              "NSCopying",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "parentIndex",
+            "objc_name": "parentIndex",
+            "printedName": "parentIndex",
+            "usr": "c:objc(cs)SentryFrame(py)parentIndex"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
                         "name": "String",
                         "printedName": "Swift.String",
                         "usr": "s:SS"
@@ -13871,6 +13979,114 @@
             "objc_name": "preContext",
             "printedName": "preContext",
             "usr": "c:objc(cs)SentryFrame(py)preContext"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "NSNumber",
+                        "printedName": "Foundation.NSNumber",
+                        "usr": "c:objc(cs)NSNumber"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.NSNumber?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "Dynamic",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "objc_name": "sampleCount",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)SentryFrame(im)sampleCount"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "NSNumber",
+                        "printedName": "Foundation.NSNumber",
+                        "usr": "c:objc(cs)NSNumber"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.NSNumber?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Dynamic",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setSampleCount:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)SentryFrame(im)setSampleCount:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "NSNumber",
+                    "printedName": "Foundation.NSNumber",
+                    "usr": "c:objc(cs)NSNumber"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.NSNumber?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Dynamic",
+              "NSCopying",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "sampleCount",
+            "objc_name": "sampleCount",
+            "printedName": "sampleCount",
+            "usr": "c:objc(cs)SentryFrame(py)sampleCount"
           },
           {
             "accessors": [

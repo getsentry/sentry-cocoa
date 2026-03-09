@@ -28,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.platform forKey:@"platform"];
     [serializedData setValue:self.contextLine forKey:@"context_line"];
     [serializedData setValue:self.preContext forKey:@"pre_context"];
+    [serializedData setValue:self.parentIndex forKey:@"parent_index"];
+    [serializedData setValue:self.sampleCount forKey:@"sample_count"];
     [serializedData setValue:self.postContext forKey:@"post_context"];
     [serializedData setValue:sentry_sanitize(self.vars) forKey:@"vars"];
     [SentryDictionary setBoolValue:self.inApp forKey:@"in_app" intoDictionary:serializedData];
