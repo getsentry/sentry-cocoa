@@ -29,7 +29,6 @@ targets:
           - "**/.gitkeep"
       - path: visionOS-SwiftUI-SPM.yml
         group: App/Configurations
-        buildPhase: none
       # Resources
       - path: App/Resources
         type: group
