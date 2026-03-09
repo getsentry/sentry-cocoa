@@ -2,6 +2,7 @@ import ActivityKit
 import os.log
 import SwiftUI
 
+// swiftlint:disable force_unwrapping
 @MainActor
 final class LiveActivityViewModel: ObservableObject {
     struct ActivityViewState: Sendable {
