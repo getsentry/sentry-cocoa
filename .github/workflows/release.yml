@@ -164,6 +164,10 @@ jobs:
             --package-file Package.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.1.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
@@ -188,6 +192,10 @@ jobs:
         run: |
           ./scripts/prepare-package.sh \
             --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
@@ -216,6 +224,10 @@ jobs:
             --package-file Package.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.1.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build --target SentrySwiftUI
       - name: Run CI Diagnostics
@@ -239,6 +251,10 @@ jobs:
         run: |
           ./scripts/prepare-package.sh \
             --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
@@ -282,7 +298,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       - name: Setup Ruby
-        uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
+        uses: ruby/setup-ruby@6ca151fd1bfcfd6fe0c4eb6837eb0584d0134a0c # v1.290.0
         with:
           bundler-cache: true
       - uses: actions/cache@v5
@@ -380,7 +396,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@ce288193e2ac7976b0ffd1d5733527605e6fd63b # v2
+        uses: getsentry/craft@d630201930c7fe5aee6366ebee19ebb681128512 # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

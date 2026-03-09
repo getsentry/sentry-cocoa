@@ -118,13 +118,18 @@ log_notice " - Framework Type:    $FRAMEWORK_TYPE"
 # Find the framework in the Build/Products directory (supports different platform suffixes like -iphonesimulator, -macosx, etc.)
 SENTRY_BUILD_PRODUCT_PATH=$(find "$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION"* -name "$MODULE_NAME.framework" -type d 2>/dev/null | head -1)
 
-if [ -z "$SENTRY_BUILD_PRODUCT_PATH" ]; then
-    log_error "Sentry framework not found in $DERIVED_DATA_PATH/Build/Products/$CONFIGURATION*"
-    exit 1
+if [ -n "$SENTRY_BUILD_PRODUCT_PATH" ]; then
+    # Framework product: binary is inside the framework
+    SENTRY_BUILD_PRODUCT_PATH="$SENTRY_BUILD_PRODUCT_PATH/$MODULE_NAME"
+else
+    # Bare executable (e.g. command-line tool)
+    SENTRY_BUILD_PRODUCT_PATH=$(find "$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION"* -type f -name "$MODULE_NAME" 2>/dev/null | head -1)
 fi
 
-# Append the module name to get the binary path
-SENTRY_BUILD_PRODUCT_PATH="$SENTRY_BUILD_PRODUCT_PATH/$MODULE_NAME"
+if [ -z "$SENTRY_BUILD_PRODUCT_PATH" ]; then
+    log_error "Build product not found in $DERIVED_DATA_PATH/Build/Products/$CONFIGURATION* (looked for $MODULE_NAME.framework or $MODULE_NAME)"
+    exit 1
+fi
 log_notice "Checking build product path: $SENTRY_BUILD_PRODUCT_PATH"
 
 if [ ! -f "$SENTRY_BUILD_PRODUCT_PATH" ]; then
