@@ -71,7 +71,7 @@ enum NetworkBodyWarning: String {
             var result = [String: Any]()
             if let size { result["size"] = size }
             if let body { result["body"] = body.serialize() }
-            result["headers"] = headers
+            if !headers.isEmpty { result["headers"] = headers }
             return result
         }
     }
