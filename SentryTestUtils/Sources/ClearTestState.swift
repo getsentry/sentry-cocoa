@@ -47,7 +47,7 @@ class TestCleanup: NSObject {
         SentryPerformanceTracker.shared.clear()
 
 #if os(iOS) || os(tvOS)
-        SentryTracer.resetAppStartMeasurementRead()
+        SentryAppStartMeasurementProvider.reset()
 #endif // os(iOS) || os(tvOS)
 
 #if os(iOS) || os(macOS)

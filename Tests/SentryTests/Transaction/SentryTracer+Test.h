@@ -4,10 +4,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryTracer (Test)
 
-#if SENTRY_HAS_UIKIT
-+ (void)resetAppStartMeasurementRead;
-#endif // SENTRY_HAS_UIKIT
-
 - (void)updateStartTime:(NSDate *)startTime;
 
 @end
