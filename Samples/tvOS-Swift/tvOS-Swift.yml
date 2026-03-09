@@ -50,8 +50,10 @@ targets:
         buildPhase: none
       - path: tvOS-Swift.yml
         group: App/Configurations
+        buildPhase: none
       - path: ../../Plans/tvOS-Swift_Base.xctestplan
         group: App/Configurations
+        buildPhase: none
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
@@ -100,6 +102,7 @@ targets:
         buildPhase: none
       - path: ../../Plans/tvOS-SBSwift_Base.xctestplan
         group: AppSBSwift/Configurations
+        buildPhase: none
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI

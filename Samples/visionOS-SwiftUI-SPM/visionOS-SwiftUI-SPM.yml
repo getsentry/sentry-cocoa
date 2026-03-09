@@ -20,21 +20,28 @@ targets:
     platform: visionOS
     deploymentTarget: "1.0"
     sources:
-      # Sources
-      - path: App/Sources
+      # Configurations
+      - path: App/Configurations
         type: group
         group: App
+        buildPhase: none
         excludes:
           - "**/.gitkeep"
+      - path: visionOS-SwiftUI-SPM.yml
+        group: App/Configurations
+        buildPhase: none
       # Resources
       - path: App/Resources
         type: group
         group: App
         excludes:
           - "**/.gitkeep"
-      # Configurations
-      - path: visionOS-SwiftUI-SPM.yml
+      # Sources
+      - path: App/Sources
+        type: group
         group: App
+        excludes:
+          - "**/.gitkeep"
     dependencies:
       - package: Sentry
         product: SentrySPM
@@ -43,7 +50,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: io.sentry.visionOS-SwiftUI-SPM
         SWIFT_VERSION: "5.0"
     info:
-      path: App/Resources/Info.plist
+      path: App/Configurations/Info.plist
       properties:
         CFBundleDisplayName: visionOS-SwiftUI-SPM
         UILaunchScreen: {}

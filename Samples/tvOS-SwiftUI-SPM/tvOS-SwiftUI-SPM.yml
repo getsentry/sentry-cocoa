@@ -35,6 +35,7 @@ targets:
       # Configurations
       - path: tvOS-SwiftUI-SPM.yml
         group: App
+        buildPhase: none
     dependencies:
       - package: Sentry
         product: SentrySPM

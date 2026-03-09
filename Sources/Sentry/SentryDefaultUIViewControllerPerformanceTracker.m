@@ -204,8 +204,8 @@
     }
 
     spanId = [self getSpanIdForViewController:controller];
-    SentrySpanInternal *_Nullable vcSpan
-        = (SentrySpanInternal *)[self.tracker getSpan:SENTRY_UNWRAP_NULLABLE(SentrySpanId, spanId)];
+    id<SentrySpan> _Nullable vcSpan =
+        [self.tracker getSpan:SENTRY_UNWRAP_NULLABLE(SentrySpanId, spanId)];
 
     if (![vcSpan isKindOfClass:[SentryTracer self]]) {
         // Since TTID and TTFD are meant to the whole screen

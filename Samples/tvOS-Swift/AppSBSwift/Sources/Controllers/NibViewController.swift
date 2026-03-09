@@ -1,3 +1,4 @@
+// swiftlint:disable private_outlet
 import Foundation
 import UIKit
 

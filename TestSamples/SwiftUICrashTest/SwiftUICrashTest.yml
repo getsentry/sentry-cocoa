@@ -9,8 +9,6 @@ configs:
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
-fileGroups:
-  - SwiftUICrashTest.yml
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -21,10 +19,30 @@ targets:
     dependencies:
       - target: Sentry/Sentry
     sources:
-      - SwiftUICrashTest
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: SwiftUICrashTest.yml
+        group: App/Configurations
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
     configFiles:
-      Debug: SwiftUICrashTest.xcconfig
-      Release: SwiftUICrashTest.xcconfig
+      Debug: App/Configurations/SwiftUICrashTest.xcconfig
+      Release: App/Configurations/SwiftUICrashTest.xcconfig
 
 schemes:
   SwiftUICrashTest:
