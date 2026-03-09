@@ -120,11 +120,15 @@ extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerD
 @available(iOSApplicationExtension, unavailable)
 private extension SentryUserFeedbackIntegrationDriver {
     func showForm(screenshot: UIImage?) {
+        guard let presenter = presenter else {
+            SentrySDKLog.debug("Cannot show feedback form — no presenter available")
+            return
+        }
         let form = SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: screenshot)
         form.presentationController?.delegate = self
         widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
         displayingForm = true
-        presenter?.present(form, animated: configuration.animations) {
+        presenter.present(form, animated: configuration.animations) {
             self.configuration.onFormOpen?()
         }
     }
