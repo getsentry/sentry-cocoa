@@ -50,6 +50,7 @@ public final class SentryShakeDetector: NSObject {
             let selector = #selector(UIResponder.motionEnded(_:with:))
 
             guard let inheritedMethod = class_getInstanceMethod(windowClass, selector) else {
+                SentrySDKLog.debug("Shake detector: could not find motionEnded(_:with:) on UIWindow")
                 return
             }
 
@@ -58,6 +59,7 @@ public final class SentryShakeDetector: NSObject {
             class_addMethod(windowClass, selector, inheritedIMP, types)
 
             guard let ownMethod = class_getInstanceMethod(windowClass, selector) else {
+                SentrySDKLog.debug("Shake detector: could not add motionEnded(_:with:) to UIWindow")
                 return
             }
 
@@ -79,15 +81,18 @@ public final class SentryShakeDetector: NSObject {
 
             originalIMP = method_setImplementation(ownMethod, replacementIMP)
             swizzled = true
+            SentrySDKLog.debug("Shake detector: swizzled UIWindow.motionEnded(_:with:)")
         }
 
         enabled = true
+        SentrySDKLog.debug("Shake detector: enabled")
     }
 
     /// Disables shake gesture detection. Does not un-swizzle `UIWindow`; it only suppresses
     /// the notification so the overhead is negligible. No-op on non-iOS platforms.
     public static func disable() {
         enabled = false
+        SentrySDKLog.debug("Shake detector: disabled")
     }
 #else
     /// No-op on non-iOS platforms.

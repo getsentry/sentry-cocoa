@@ -155,14 +155,19 @@ private extension SentryUserFeedbackIntegrationDriver {
     }
 
     func observeShakeGesture() {
-        if configuration.useShakeGesture {
-            SentryShakeDetector.enable()
-            NotificationCenter.default.addObserver(self, selector: #selector(handleShakeGesture), name: .SentryShakeDetected, object: nil)
+        guard configuration.useShakeGesture else {
+            SentrySDKLog.debug("Shake gesture detection is disabled in configuration")
+            return
         }
+        SentryShakeDetector.enable()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleShakeGesture), name: .SentryShakeDetected, object: nil)
     }
 
     @objc func handleShakeGesture() {
-        guard !displayingForm else { return }
+        guard !displayingForm else {
+            SentrySDKLog.debug("Shake gesture ignored — feedback form is already displayed")
+            return
+        }
         showForm(screenshot: nil)
     }
 
