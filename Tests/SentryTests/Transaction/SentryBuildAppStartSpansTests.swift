@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 class SentryBuildAppStartSpansTests: XCTestCase {
 
     func testSentryBuildAppStartSpans_appStartMeasurementIsNil_shouldNotReturnAnySpans() {
