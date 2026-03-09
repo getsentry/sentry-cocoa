@@ -38,6 +38,11 @@ struct SendStandaloneAppStartTransaction: AppStartMeasurementHandler {
             return
         }
 
+        guard SentrySDK.isEnabled else {
+            SentrySDKLog.warning("SDK is not enabled, dropping standalone app start transaction")
+            return
+        }
+
         // Store the measurement where the tracer's getAppStartMeasurement reads it from.
         SentrySDKInternal.setAppStartMeasurement(measurement)
 
@@ -51,7 +56,9 @@ struct SendStandaloneAppStartTransaction: AppStartMeasurementHandler {
     }
 }
 
+/// Helper to identify standalone app start transactions from ObjC code.
 @_spi(Private) @objc public class StandaloneAppStartTransactionHelper: NSObject {
+    /// Returns `true` when the operation and origin match a standalone app start transaction.
     @objc public static func isStandaloneAppStartTransaction(operation: String, origin: String) -> Bool {
         return (operation == SentrySpanOperationAppStartCold
                 || operation == SentrySpanOperationAppStartWarm)
