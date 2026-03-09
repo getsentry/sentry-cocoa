@@ -3,6 +3,7 @@ import Sentry
 import SentrySampleShared
 import SwiftUI
 
+// swiftlint:disable force_try force_unwrapping private_outlet
 class ViewController: NSViewController {
 
     private let diskWriteException = DiskWriteException()
