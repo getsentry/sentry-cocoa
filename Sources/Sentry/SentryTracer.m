@@ -596,9 +596,10 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
         [super finishWithStatus:_finishStatus];
     }
 #if SENTRY_HAS_UIKIT
-    appStartMeasurement =
-        [SentryAppStartMeasurementProvider appStartMeasurementForOperation:self.operation
-                                                            startTimestamp:self.startTimestamp];
+    appStartMeasurement = [SentryAppStartMeasurementProvider
+        appStartMeasurementForOperation:self.operation
+                         startTimestamp:self.startTimestamp
+                    profilerReferenceID:self.profilerReferenceID];
 
     if (appStartMeasurement != nil) {
         [self updateStartTime:appStartMeasurement.appStartTimestamp];
@@ -825,6 +826,16 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     }
 }
 
+#endif // SENTRY_HAS_UIKIT
+
+#if SENTRY_HAS_UIKIT
+/**
+ * Internal. Only needed for testing.
+ */
++ (void)resetAppStartMeasurementRead
+{
+    [SentryAppStartMeasurementProvider reset];
+}
 #endif // SENTRY_HAS_UIKIT
 
 + (nullable SentryTracer *)getTracer:(id<SentrySpan> _Nullable)span

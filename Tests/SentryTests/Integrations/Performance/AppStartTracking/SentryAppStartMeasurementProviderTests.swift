@@ -1,15 +1,14 @@
 @_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
-#if os(iOS) || os(tvOS) || os(visionOS)
+#if os(iOS) || os(tvOS)
 
 class SentryAppStartMeasurementProviderTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        SentryAppStartMeasurementProvider.reset()
-        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = false
-        SentrySDKInternal.setAppStartMeasurement(nil)
+        clearTestState()
     }
 
     // MARK: - Happy Path
@@ -25,7 +24,8 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart
+            startTimestamp: transactionStart,
+            profilerReferenceID: SentryId()
         )
 
         // -- Assert --
@@ -46,7 +46,8 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: "custom",
-            startTimestamp: transactionStart
+            startTimestamp: transactionStart,
+            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -68,7 +69,8 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart
+            startTimestamp: transactionStart,
+            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -81,7 +83,8 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: Date()
+            startTimestamp: Date(),
+            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -101,14 +104,16 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
 
         let first = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart
+            startTimestamp: transactionStart,
+            profilerReferenceID: nil
         )
         XCTAssertNotNil(first)
 
         // -- Act --
         let second = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart
+            startTimestamp: transactionStart,
+            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -128,7 +133,8 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
 
         let first = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart
+            startTimestamp: transactionStart,
+            profilerReferenceID: nil
         )
         XCTAssertNotNil(first)
 
@@ -138,7 +144,8 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Assert --
         let second = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart
+            startTimestamp: transactionStart,
+            profilerReferenceID: nil
         )
         XCTAssertNotNil(second)
     }
@@ -159,7 +166,8 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart
+            startTimestamp: transactionStart,
+            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -180,7 +188,8 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart
+            startTimestamp: transactionStart,
+            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -200,7 +209,8 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart
+            startTimestamp: transactionStart,
+            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -220,7 +230,8 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart
+            startTimestamp: transactionStart,
+            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -240,7 +251,8 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart
+            startTimestamp: transactionStart,
+            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -268,16 +280,17 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
 
         // -- Act --
         for _ in 0..<count {
-            queue.async(execute: DispatchWorkItem {
+            queue.async {
                 let result = SentryAppStartMeasurementProvider.appStartMeasurement(
                     forOperation: SentrySpanOperationUiLoad,
-                    startTimestamp: transactionStart
+                    startTimestamp: transactionStart,
+                    profilerReferenceID: nil
                 )
                 resultsLock.lock()
                 results.append(result)
                 resultsLock.unlock()
                 expectation.fulfill()
-            })
+            }
         }
         queue.activate()
         wait(for: [expectation], timeout: 10.0)
@@ -304,4 +317,4 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
     }
 }
 
-#endif // os(iOS) || os(tvOS) || os(visionOS)
+#endif // os(iOS) || os(tvOS)
