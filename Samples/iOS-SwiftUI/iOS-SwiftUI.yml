@@ -37,6 +37,13 @@ targets:
           - "**/.gitkeep"
       - path: ../Shared/SampleAssets.xcassets
         group: App/Resources
+      # Headers
+      - path: App/Headers
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
       # Configurations
       - path: App/Configurations
         type: group
@@ -97,6 +104,16 @@ targets:
         excludes:
           - "**/.gitkeep"
       # Configurations
+      - path: UITests/Configurations
+        type: group
+        group: UITests
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: UITests/Configurations
+        buildPhase: none
       - path: ../../Plans/iOS-SwiftUI_Base.xctestplan
         group: UITests/Configurations
         buildPhase: none

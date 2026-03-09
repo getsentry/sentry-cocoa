@@ -13,7 +13,7 @@
     "targetForVariableExpansion" : {
       "containerPath" : "container:iOS-SwiftUI.xcodeproj",
       "identifier" : "7BB6224826A56C4E00D0E75E",
-      "name" : "iOS-SwiftUI"
+      "name" : "App"
     },
     "uiTestingScreenshotsLifetime" : "keepAlways"
   },
@@ -22,7 +22,7 @@
       "target" : {
         "containerPath" : "container:iOS-SwiftUI.xcodeproj",
         "identifier" : "4EE8FE57D6CE25066F588D60",
-        "name" : "iOS-SwiftUI-UITests"
+        "name" : "UITests"
       }
     }
   ],
