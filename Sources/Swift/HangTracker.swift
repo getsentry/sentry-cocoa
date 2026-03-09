@@ -76,6 +76,9 @@ final class DefaultHangTracker<T: RunLoopObserver> {
         mainQueueState = .init()
     }
     
+    // It's safe to access mainQueueState here regardless of the thread
+    // because this is the only reference to `self` while
+    // it is being deallocated.
     deinit {
         guard let observer = mainQueueState.observer else {
             return
