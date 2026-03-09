@@ -1,5 +1,4 @@
 import Foundation
-@_spi(Private) import Sentry
 import UIKit
 
 class NetworkTestingViewController: UIViewController {
