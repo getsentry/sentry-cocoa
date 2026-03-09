@@ -58,8 +58,6 @@ targets:
       - target: SentrySampleShared/SentrySampleShared
       - target: WidgetExtension
       - target: LiveActivity
-    settings:
-      CODE_SIGN_ENTITLEMENTS: App/Configurations/Entitlements.entitlements
     configFiles:
       Debug: App/Configurations/iOS-SwiftUI-Widgets.xcconfig
       Release: App/Configurations/iOS-SwiftUI-Widgets.xcconfig
