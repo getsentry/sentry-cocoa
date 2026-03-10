@@ -12,9 +12,14 @@ NSDictionary *_Nullable sentry_sanitize(NSDictionary *_Nullable dictionary)
         return nil;
     }
 
+    // Defensive copy: if the caller passed an NSMutableDictionary, iterating it while
+    // another thread mutates it causes a crash. [NSDictionary copy] returns self (no-op),
+    // while [NSMutableDictionary copy] creates an immutable snapshot.
+    NSDictionary *safeDictionary = [dictionary copy];
+
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    for (id rawKey in dictionary.allKeys) {
-        id rawValue = [dictionary objectForKey:rawKey];
+    for (id rawKey in safeDictionary.allKeys) {
+        id rawValue = [safeDictionary objectForKey:rawKey];
 
         NSString *stringKey;
         if ([rawKey isKindOfClass:NSString.class]) {

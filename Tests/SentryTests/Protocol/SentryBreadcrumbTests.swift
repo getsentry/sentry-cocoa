@@ -1,4 +1,5 @@
 @_spi(Private) @testable import Sentry
+import SentryTestUtils
 import XCTest
 
 class SentryBreadcrumbTests: XCTestCase {
@@ -168,5 +169,127 @@ class SentryBreadcrumbTests: XCTestCase {
         
         // Assert
         XCTAssertEqual(crumb, decoded)
+    }
+
+    // MARK: - Thread Safety (Issue #2601)
+
+    func testSerialize_whenPropertiesMutatedConcurrently_shouldNotCrash() {
+        // https://github.com/getsentry/sentry-cocoa/issues/2601
+        let breadcrumb = Breadcrumb(level: .info, category: "test")
+        breadcrumb.message = "initial"
+        breadcrumb.data = ["key": "value"]
+
+        testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000) { i in
+            breadcrumb.message = "message \(i)"
+            breadcrumb.data = ["key\(i % 10)": "value\(i)"]
+            breadcrumb.category = "cat\(i % 10)"
+            breadcrumb.type = "type\(i % 10)"
+            _ = breadcrumb.serialize()
+        }
+    }
+
+    func testDataProperty_whenAssignedMutableDictionary_shouldDeepCopy() {
+        // https://github.com/getsentry/sentry-cocoa/issues/2601
+        let innerMutable = NSMutableDictionary(dictionary: ["inner": "original"])
+        let mutableData = NSMutableDictionary(dictionary: [
+            "key": "value",
+            "nested": innerMutable
+        ])
+
+        let breadcrumb = Breadcrumb(level: .info, category: "test")
+        // Use KVC to bypass Swift bridging and exercise the ObjC setter directly.
+        breadcrumb.setValue(mutableData, forKey: "data")
+
+        mutableData["key"] = "modified"
+        mutableData["newKey"] = "newValue"
+        innerMutable["inner"] = "modified"
+
+        XCTAssertEqual(breadcrumb.data?["key"] as? String, "value")
+        XCTAssertNil(breadcrumb.data?["newKey"])
+        let nested = breadcrumb.data?["nested"] as? NSDictionary
+        XCTAssertEqual(nested?["inner"] as? String, "original")
+    }
+
+    func testSerialize_whenDataContainsConcurrentlyMutatedNestedDict_shouldNotCrash() {
+        // https://github.com/getsentry/sentry-cocoa/issues/2601
+        let nestedMutable = NSMutableDictionary()
+        for i in 0..<50 {
+            nestedMutable["key\(i)"] = "value\(i)"
+        }
+
+        let breadcrumb = Breadcrumb(level: .info, category: "test")
+        breadcrumb.data = ["nested": nestedMutable]
+
+        let queue = DispatchQueue(label: "test", attributes: .concurrent)
+        let expectation = expectation(description: "concurrent")
+        expectation.expectedFulfillmentCount = 6
+
+        // Multiple threads serialize concurrently — reads only the deep-copied data.
+        for _ in 0..<5 {
+            queue.async {
+                for _ in 0..<1_000 { _ = breadcrumb.serialize() }
+                expectation.fulfill()
+            }
+        }
+
+        // One thread mutates the original dictionary.
+        queue.async {
+            for i in 0..<1_000 {
+                nestedMutable["dynamic\(i % 50)"] = "value\(i)"
+                if i % 2 == 0 {
+                    nestedMutable.removeObject(forKey: "dynamic\(i % 50)")
+                }
+            }
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 10)
+    }
+
+    func testSerialize_whenDataContainsConcurrentlyMutatedArray_shouldNotCrash() {
+        // https://github.com/getsentry/sentry-cocoa/issues/2601
+        let mutableArray = NSMutableArray()
+        for i in 0..<50 {
+            mutableArray.add("item\(i)")
+        }
+
+        let breadcrumb = Breadcrumb(level: .info, category: "test")
+        breadcrumb.data = ["items": mutableArray]
+
+        let queue = DispatchQueue(label: "test", attributes: .concurrent)
+        let expectation = expectation(description: "concurrent")
+        expectation.expectedFulfillmentCount = 6
+
+        // Multiple threads serialize concurrently — reads only the deep-copied data.
+        for _ in 0..<5 {
+            queue.async {
+                for _ in 0..<1_000 { _ = breadcrumb.serialize() }
+                expectation.fulfill()
+            }
+        }
+
+        // One thread mutates the original array.
+        queue.async {
+            for i in 0..<1_000 {
+                mutableArray.add("new\(i)")
+                if mutableArray.count > 100 {
+                    mutableArray.removeObject(at: 0)
+                }
+            }
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 10)
+    }
+
+    func testSerialize_whenDataReassignedConcurrently_shouldNotCrash() {
+        // https://github.com/getsentry/sentry-cocoa/issues/2601
+        let breadcrumb = Breadcrumb(level: .info, category: "test")
+        breadcrumb.data = ["initial": "value"]
+
+        testConcurrentModifications(asyncWorkItems: 10, writeLoopCount: 1_000) { i in
+            breadcrumb.data = ["key\(i % 20)": "value\(i)", "extra": ["nested": "dict\(i)"]]
+            _ = breadcrumb.serialize()
+        }
     }
 }

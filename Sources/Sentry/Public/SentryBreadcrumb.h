@@ -49,7 +49,7 @@ NS_SWIFT_NAME(Breadcrumb)
 /**
  * Arbitrary additional data that will be sent with the breadcrumb
  */
-@property (nonatomic, strong, nullable) NSDictionary<NSString *, id> *data;
+@property (nonatomic, copy, nullable) NSDictionary<NSString *, id> *data;
 
 /**
  * Initializer for @c SentryBreadcrumb
