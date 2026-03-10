@@ -724,8 +724,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_HAS_UIKIT
     [self addFrameStatistics];
 
-    NSArray<SentrySpanInternal *> *appStartSpans
-        = sentryBuildAppStartSpans(self, appStartMeasurement);
+    NSArray<id<SentrySpan>> *appStartSpans = sentryBuildAppStartSpans(self, appStartMeasurement);
     capacity = _children.count + appStartSpans.count;
 #else
     capacity = _children.count;

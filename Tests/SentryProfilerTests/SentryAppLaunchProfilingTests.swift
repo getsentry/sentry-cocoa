@@ -208,6 +208,53 @@ extension SentryAppLaunchProfilingTests {
         // Assert
         XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
+
+    func testNonLaunchTracerTransactionCapturedDuringLaunchProfiling() throws {
+        // Arrange: set up launch profiling with trace lifecycle
+        fixture.options.tracesSampleRate = 1
+        fixture.options.configureProfiling = {
+            $0.profileAppStarts = true
+            $0.sessionSampleRate = 1
+            $0.lifecycle = .trace
+        }
+        sentry_configureContinuousProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
+
+        _sentry_nondeduplicated_startLaunchProfile()
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertNotNil(sentry_launchTracer)
+
+        // Act: start and finish a separate transaction during the launch profiling window
+        let tracer = try fixture.newTransaction()
+        tracer.finish()
+
+        // Assert: the transaction must be captured, not swallowed
+        let client = try XCTUnwrap(fixture.client)
+        XCTAssertEqual(client.captureEventWithScopeInvocations.count, 1)
+    }
+
+    func testLaunchTracerTransactionNotCapturedWhenDiscarded() throws {
+        // Arrange: set up launch profiling with trace lifecycle
+        fixture.options.tracesSampleRate = 1
+        fixture.options.configureProfiling = {
+            $0.profileAppStarts = true
+            $0.sessionSampleRate = 1
+            $0.lifecycle = .trace
+        }
+        sentry_configureContinuousProfiling(fixture.options)
+        sentry_configureLaunchProfilingForNextLaunch(fixture.options)
+
+        _sentry_nondeduplicated_startLaunchProfile()
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertNotNil(sentry_launchTracer)
+
+        // Act: discard the launch tracer (this is the normal flow)
+        sentry_stopAndDiscardLaunchProfileTracer(fixture.hub)
+
+        // Assert: the launch tracer's transaction must NOT be captured
+        let client = try XCTUnwrap(fixture.client)
+        XCTAssertEqual(client.captureEventWithScopeInvocations.count, 0)
+    }
 }
 #endif // !os(macOS)
 #endif // os(iOS) || os(macOS)

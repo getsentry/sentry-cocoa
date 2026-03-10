@@ -12,12 +12,9 @@ generateEmptyDirectories: true
 configs:
   Debug: debug
   Release: release
-packages:
+projectReferences:
   Sentry:
-    path: ../..
-fileGroups:
-  - ../Shared/Config
-  - iOS-ObjectiveCpp-NoModules.yml
+    path: ../../Sentry.xcodeproj
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -26,14 +23,39 @@ targets:
     platform: auto
     deploymentTarget: "15.0"
     sources:
-      - ../Shared/SampleAssets.xcassets
-      - iOS-ObjectiveCpp-NoModules
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: iOS-ObjectiveCpp-NoModules.yml
+        group: App/Configurations
+        buildPhase: none
     dependencies:
-      - package: Sentry
-        product: SentryObjC
+      - target: Sentry/SentryObjC
     configFiles:
-      Debug: iOS-ObjectiveCpp-NoModules.xcconfig
-      Release: iOS-ObjectiveCpp-NoModules.xcconfig
+      Debug: App/Configurations/iOS-ObjectiveCpp-NoModules.xcconfig
+      Release: App/Configurations/iOS-ObjectiveCpp-NoModules.xcconfig
 schemes:
   iOS-ObjectiveCpp-NoModules:
     build:

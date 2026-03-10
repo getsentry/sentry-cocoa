@@ -1,4 +1,3 @@
-import MetricKit
 @_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest

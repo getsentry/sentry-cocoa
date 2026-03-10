@@ -6,6 +6,14 @@
 
 - Add SentryObjC wrapper SDK to provide pure Objective-C compatibility layer that wraps the main Sentry SDK with stable, documented Objective-C interfaces. (#7598)
   This SDK is designed for projects that require strict Objective-C compatibility without Swift dependencies.
+- Add package traits for UI framework opt-out (#7578).
+  When building from source with Swift 6.1+ (using `Package@swift-6.1.swift`), you can enable the `NoUIFramework` trait to avoid linking UIKit or AppKit. Use this for command-line tools, headless server contexts, or other environments where UI frameworks are unavailable.
+  In Xcode 26.4 and later, add the Sentry package as a dependency and the `SentrySPM` product, then enable the `NoUIFramework` trait on the package reference (Package Dependencies → select Sentry → Traits).
+  - Metric kit app hangs now report a full flamegraph rather than just one stacktrace during the hang. (#7185)
+
+### Fixes
+
+- Capture transactions that finish during the launch profiling window instead of silently discarding them (#7602)
 
 ## 9.6.0
 
