@@ -68,7 +68,6 @@ var targets: [Target] = [
 
 // Targets required to support compile-from-source builds via SPM.
 products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
-products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjCBridge", "SentryObjC", "SentryCppHelper"]))
 targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
@@ -109,6 +108,7 @@ targets += [
 ]
 
 // Swift bridge that exposes SDK functionality to pure ObjC code (no modules)
+products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjCBridge", "SentryObjC", "SentryCppHelper"]))
 targets += [
     .target(
         name: "SentryObjCBridge",

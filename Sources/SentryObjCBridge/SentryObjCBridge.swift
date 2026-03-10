@@ -131,7 +131,7 @@ import Sentry
                 continue
             }
 
-            swiftAttributes[key] = swiftValue
+            swiftAttributes[key] = swiftValue as? any SentryAttributeValue
         }
 
         return swiftAttributes

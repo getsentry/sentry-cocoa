@@ -18,6 +18,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)countWithKey:(nonnull NSString *)key value:(NSUInteger)value attributes:(nullable NSDictionary<NSString *,SentryObjCAttributeContent *> *)attributes {
+    if ([self conformsToProtocol:@protocol(SentryObjCMetricsApi)]) {
+        [(id<SentryObjCMetricsApi>)self countWithKey:key value:value attributes:attributes];
+    }
+}
+
 - (void)distributionWithKey:(NSString *)key value:(double)value
 {
     if ([self conformsToProtocol:@protocol(SentryObjCMetricsApi)]) {
@@ -38,6 +44,15 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)distributionWithKey:(nonnull NSString *)key value:(double)value unit:(nullable NSString *)unit attributes:(nullable NSDictionary<NSString *,SentryObjCAttributeContent *> *)attributes {
+    if ([self conformsToProtocol:@protocol(SentryObjCMetricsApi)]) {
+        [(id<SentryObjCMetricsApi>)self distributionWithKey:key
+                                                      value:value
+                                                       unit:unit
+                                                 attributes:attributes];
+    }
+}
+
 - (void)gaugeWithKey:(NSString *)key value:(double)value
 {
     if ([self conformsToProtocol:@protocol(SentryObjCMetricsApi)]) {
@@ -49,6 +64,13 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if ([self conformsToProtocol:@protocol(SentryObjCMetricsApi)]) {
         [(id<SentryObjCMetricsApi>)self gaugeWithKey:key value:value unit:unit attributes:nil];
+    }
+}
+
+
+- (void)gaugeWithKey:(nonnull NSString *)key value:(double)value unit:(nullable NSString *)unit attributes:(nullable NSDictionary<NSString *,SentryObjCAttributeContent *> *)attributes { 
+    if ([self conformsToProtocol:@protocol(SentryObjCMetricsApi)]) {
+        [(id<SentryObjCMetricsApi>)self gaugeWithKey:key value:value unit:unit attributes:attributes];
     }
 }
 
