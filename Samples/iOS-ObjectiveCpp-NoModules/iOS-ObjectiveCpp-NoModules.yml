@@ -2,7 +2,7 @@
 #
 # This sample uses Sentry from Objective-C++ without modules (-fmodules /
 # -fcxx-modules). It depends on SentryObjC, the pure ObjC wrapper that exposes
-# the full SDK API via #import <SentryObjC/SentryObjC.h>.
+# the full SDK API via #import <SentryObjC.h>.
 #
 # See README.md in this directory for details.
 

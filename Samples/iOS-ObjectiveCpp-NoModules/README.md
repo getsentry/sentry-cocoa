@@ -25,7 +25,7 @@ With modules disabled:
 The **SentryObjC** product (introduced in [#6342](https://github.com/getsentry/sentry-cocoa/issues/6342)) provides a pure Objective-C wrapper around the main SDK:
 
 ```objc
-#import <SentryObjC/SentryObjC.h>  // Pure ObjC - no Swift modules required
+#import <SentryObjC.h>  // Pure ObjC - no Swift modules required
 
 [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
     options.dsn = @"...";
@@ -45,7 +45,7 @@ The **SentryObjC** product (introduced in [#6342](https://github.com/getsentry/s
 
 - Uses **Objective-C++** (`.mm` files) for AppDelegate and ViewController
 - Sets **`CLANG_ENABLE_MODULES = NO`** in the build configuration
-- Depends on **SentryObjC** (SPM product) and imports `#import <SentryObjC/SentryObjC.h>`
+- Depends on **SentryObjC** (SPM product) and imports `#import <SentryObjC.h>`
 - Builds successfully with full access to SentrySDK, SentryOptions, sessionReplay, etc.
 
 ## Generating the Project

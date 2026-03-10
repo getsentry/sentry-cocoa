@@ -3,7 +3,7 @@
 // SentryOptions, sessionReplay, etc. without requiring Swift modules.
 
 #import "AppDelegate.h"
-#import <SentryObjC/SentryObjC.h>
+#import <SentryObjC.h>
 #import <UIKit/UIKit.h>
 
 @implementation AppDelegate

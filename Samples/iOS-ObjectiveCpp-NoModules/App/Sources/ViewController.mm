@@ -1,7 +1,7 @@
 // Objective-C++ file - uses SentryObjC for full SDK access without modules.
 
 #import "ViewController.h"
-#import <SentryObjC/SentryObjC.h>
+#import <SentryObjC.h>
 #import <UIKit/UIKit.h>
 
 @implementation ViewController
