@@ -268,7 +268,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
 
         // -- Act --
         for _ in 0..<count {
-            queue.async {
+            queue.async(execute: DispatchWorkItem {
                 let result = SentryAppStartMeasurementProvider.appStartMeasurement(
                     forOperation: SentrySpanOperationUiLoad,
                     startTimestamp: transactionStart
@@ -277,7 +277,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
                 results.append(result)
                 resultsLock.unlock()
                 expectation.fulfill()
-            }
+            })
         }
         queue.activate()
         wait(for: [expectation], timeout: 10.0)
