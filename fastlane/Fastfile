@@ -12,11 +12,11 @@ platform :ios do
   ios_swift_action_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-ActionExtension/Resources/Info.plist"
 
   # Helper method to run tests with common configuration
-  def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false)
+  def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false, app_identifier: nil)
     configuration = if is_ci then 'TestCI' else 'Test' end
     result_bundle_path = "test_results/#{result_bundle_name}.xcresult"
     FileUtils.rm_r(result_bundle_path) if File.exist?(result_bundle_path)
-    
+
     run_tests(
       workspace: "Sentry.xcworkspace",
       scheme: scheme,
@@ -26,6 +26,7 @@ platform :ios do
       result_bundle_path: "fastlane/#{result_bundle_path}",
       device: device,
       address_sanitizer: address_sanitizer,
+      app_identifier: app_identifier,
       ensure_devices_found: true
     )
   end
@@ -323,7 +324,8 @@ platform :ios do
     run_ui_tests(
       scheme: "iOS-ObjectiveC",
       device: options[:device],
-      result_bundle_name: "ui_tests_ios_objc"
+      result_bundle_name: "ui_tests_ios_objc",
+      app_identifier: "io.sentry.iOS-ObjectiveC"
     )
   end
 
