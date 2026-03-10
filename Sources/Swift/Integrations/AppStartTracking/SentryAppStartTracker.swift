@@ -24,6 +24,11 @@ struct AttachAppStartMeasurementHandler: AppStartMeasurementHandler {
 /// debug images, and profiling.
 struct SendStandaloneAppStartTransaction: AppStartMeasurementHandler {
     func handle(_ measurement: SentryAppStartMeasurement) {
+        guard SentrySDK.isEnabled else {
+            SentrySDKLog.warning("SDK is not enabled, dropping standalone app start transaction")
+            return
+        }
+
         let operation: String
         let name: String
 
@@ -35,11 +40,6 @@ struct SendStandaloneAppStartTransaction: AppStartMeasurementHandler {
             operation = SentrySpanOperationAppStartWarm
             name = "App Start Warm"
         default:
-            return
-        }
-
-        guard SentrySDK.isEnabled else {
-            SentrySDKLog.warning("SDK is not enabled, dropping standalone app start transaction")
             return
         }
 
