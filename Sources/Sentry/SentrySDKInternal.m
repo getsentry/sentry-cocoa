@@ -485,7 +485,7 @@ static NSDate *_Nullable startTimestamp = nil;
     if (!crashReporterInstalled) {
         return SentryLastRunStatusUnknown;
     }
-    if (SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch) {
+    if (SentryDependencyContainer.sharedInstance.crashWrapper.crashedLastLaunch) {
         return SentryLastRunStatusDidCrash;
     }
     return SentryLastRunStatusDidNotCrash;

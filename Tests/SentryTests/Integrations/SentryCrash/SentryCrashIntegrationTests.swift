@@ -686,6 +686,29 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertTrue(SentrySDKInternal.lastRunStatusCalled)
     }
 
+    func testInit_whenCrash_shouldNotCallOnLastRunStatusCallback() throws {
+        // -- Arrange --
+        var callbackCalled = false
+
+        fixture.options.onLastRunStatusDetermined = { _, _ in
+            callbackCalled = true
+        }
+
+        let crash = fixture.sentryCrash
+        crash.internalCrashedLastLaunch = true
+        SentryDependencyContainer.sharedInstance().crashWrapper = crash
+
+        // -- Act --
+        _ = try fixture.getSut(crashWrapper: crash)
+
+        // -- Assert --
+        // The callback should NOT be called during integration init when there
+        // was a crash. It will be called later from SentryClient when processing
+        // the crash event.
+        XCTAssertFalse(callbackCalled)
+        XCTAssertFalse(SentrySDKInternal.lastRunStatusCalled)
+    }
+
     func testInit_whenNoCrashAndNoCallback_shouldNotCrash() throws {
         // -- Arrange --
         fixture.options.onLastRunStatusDetermined = nil

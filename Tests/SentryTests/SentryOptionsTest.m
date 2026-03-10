@@ -547,7 +547,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testDefaultOnLastRunStatus
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
 
     XCTAssertNil(options.onLastRunStatusDetermined);
 }

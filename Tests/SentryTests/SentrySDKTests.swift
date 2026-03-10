@@ -256,6 +256,20 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(status, .didNotCrash)
     }
 
+    func testLastRunStatus_whenCrashStateLoadedAndCrashed_shouldReturnDidCrash() {
+        // -- Arrange --
+        SentrySDKInternal.crashReporterInstalled = true
+        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        crashWrapper.internalCrashedLastLaunch = true
+        SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+
+        // -- Act --
+        let status = SentrySDK.lastRunStatus
+
+        // -- Assert --
+        XCTAssertEqual(status, .didCrash)
+    }
+
     func testLastRunStatus_afterClose_shouldReturnUnknown() {
         // -- Arrange --
         SentrySDK.start { options in
