@@ -769,13 +769,11 @@ User-reported and team-tracked bugs from the [sentry-cocoa issue tracker](https:
 
 **HIGH priority (active user-facing bugs):**
 
-| Issue                                                          | Description                                                                                                                                  |
-| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| [#7298](https://github.com/getsentry/sentry-cocoa/issues/7298) | "Application Specific Information" contains random memory contents (PII risk, bad pointer arithmetic in report writing)                      |
-| [#7136](https://github.com/getsentry/sentry-cocoa/issues/7136) | ASI truncated for crashes in `_crashOnException:` (macOS 26 changed from instance to class method, `SentryCrashExceptionApplication` broken) |
-| [#6620](https://github.com/getsentry/sentry-cocoa/issues/6620) | Stacktrace shows `SentryCrashExceptionApplicationHelper` instead of actual crash location                                                    |
-| [#4904](https://github.com/getsentry/sentry-cocoa/issues/4904) | Different main thread ID for errors vs traces (crash reports hardcode thread ID 0 in `SentryCrashReportConverter.m:268`)                     |
-| [#6405](https://github.com/getsentry/sentry-cocoa/issues/6405) | Empty view hierarchy file sent during fatal crashes (best-effort capture produces empty JSON)                                                |
+| Issue                                                          | Description                                                                                                              |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| [#7298](https://github.com/getsentry/sentry-cocoa/issues/7298) | "Application Specific Information" contains random memory contents (PII risk, bad pointer arithmetic in report writing)  |
+| [#4904](https://github.com/getsentry/sentry-cocoa/issues/4904) | Different main thread ID for errors vs traces (crash reports hardcode thread ID 0 in `SentryCrashReportConverter.m:268`) |
+| [#6405](https://github.com/getsentry/sentry-cocoa/issues/6405) | Empty view hierarchy file sent during fatal crashes (best-effort capture produces empty JSON)                            |
 
 **MEDIUM priority (correctness and architecture):**
 
@@ -799,7 +797,6 @@ User-reported and team-tracked bugs from the [sentry-cocoa issue tracker](https:
 
 **Cross-cutting themes:**
 
-- **NSException handling broken on macOS 26** — [#7136](https://github.com/getsentry/sentry-cocoa/issues/7136) and [#6620](https://github.com/getsentry/sentry-cocoa/issues/6620) both stem from Apple changing `_crashOnException:` behavior; treat as a cluster when planning fixes.
 - **Memory safety in crash reports** — [#7298](https://github.com/getsentry/sentry-cocoa/issues/7298), [#7501](https://github.com/getsentry/sentry-cocoa/issues/7501), and [#6699](https://github.com/getsentry/sentry-cocoa/issues/6699) form a privacy/safety cluster around memory introspection during crash writing.
 
 ---
@@ -847,17 +844,17 @@ Some features are disabled or limited on certain OS versions (e.g. test disabled
 
 ### Glossary
 
-| Term                                            | Definition                                                                                                                                                                                                                                                                     |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **ASI**                                         | Application Specific Information; a section in the crash report (e.g. crash_info_message) that can contain exception or app-specific text. See [#7298](https://github.com/getsentry/sentry-cocoa/issues/7298), [#7136](https://github.com/getsentry/sentry-cocoa/issues/7136). |
-| **Monitor**                                     | A component that detects one kind of crash: Mach exception, Signal, NSException, or C++ exception. Each monitor fills its part of `SentryCrash_MonitorContext` and triggers the shared `onCrash()` callback.                                                                   |
-| **MonitorContext (SentryCrash_MonitorContext)** | The unified structure holding crash details, passed from the detecting monitor to the report writer. Defined in [SentryCrashMonitorContext.h](Sources/SentryCrash/Recording/Monitors/SentryCrashMonitorContext.h).                                                             |
-| **onCrash()**                                   | The global callback invoked when any monitor detects a crash. Implemented in [SentryCrashC.c](Sources/SentryCrash/Recording/SentryCrashC.c); it writes the report, then runs best-effort callbacks (screenshots, view hierarchy, transaction).                                 |
-| **Freeze / unfreeze**                           | Cached data (thread list, system snapshot) is "frozen" at crash time so the report writer sees a consistent snapshot; it is "unfrozen" after the report is written. See [SentryCrashCachedData.c](Sources/SentryCrash/Recording/SentryCrashCachedData.c).                      |
-| **Recrash**                                     | A second crash while handling the first (e.g. in the report writer). The context field `crashedDuringCrashHandling` is true; a minimal recrash report is written.                                                                                                              |
-| **Installation**                                | SentryCrash installation: the install path, configuration, and the hook that sends pending reports on next launch. The SDK uses [SentryCrashInstallationReporter](Sources/Swift/Integrations/SentryCrash/SentryCrashInstallationReporter.swift).                               |
-| **Report filter**                               | Protocol for processing reports (e.g. before send). The SDK implements it in [SentryCrashReportSink.m](Sources/Sentry/SentryCrashReportSink.m) to convert and upload to Sentry.                                                                                                |
-| **Stack cursor**                                | Abstraction for walking the stack (e.g. `SentryCrashStackCursor`). Used to fill thread backtraces in the report; can be backtrace-based or machine-context-based.                                                                                                              |
+| Term                                            | Definition                                                                                                                                                                                                                                                |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ASI**                                         | Application Specific Information; a section in the crash report (e.g. crash_info_message) that can contain exception or app-specific text. See [#7298](https://github.com/getsentry/sentry-cocoa/issues/7298).                                            |
+| **Monitor**                                     | A component that detects one kind of crash: Mach exception, Signal, NSException, or C++ exception. Each monitor fills its part of `SentryCrash_MonitorContext` and triggers the shared `onCrash()` callback.                                              |
+| **MonitorContext (SentryCrash_MonitorContext)** | The unified structure holding crash details, passed from the detecting monitor to the report writer. Defined in [SentryCrashMonitorContext.h](Sources/SentryCrash/Recording/Monitors/SentryCrashMonitorContext.h).                                        |
+| **onCrash()**                                   | The global callback invoked when any monitor detects a crash. Implemented in [SentryCrashC.c](Sources/SentryCrash/Recording/SentryCrashC.c); it writes the report, then runs best-effort callbacks (screenshots, view hierarchy, transaction).            |
+| **Freeze / unfreeze**                           | Cached data (thread list, system snapshot) is "frozen" at crash time so the report writer sees a consistent snapshot; it is "unfrozen" after the report is written. See [SentryCrashCachedData.c](Sources/SentryCrash/Recording/SentryCrashCachedData.c). |
+| **Recrash**                                     | A second crash while handling the first (e.g. in the report writer). The context field `crashedDuringCrashHandling` is true; a minimal recrash report is written.                                                                                         |
+| **Installation**                                | SentryCrash installation: the install path, configuration, and the hook that sends pending reports on next launch. The SDK uses [SentryCrashInstallationReporter](Sources/Swift/Integrations/SentryCrash/SentryCrashInstallationReporter.swift).          |
+| **Report filter**                               | Protocol for processing reports (e.g. before send). The SDK implements it in [SentryCrashReportSink.m](Sources/Sentry/SentryCrashReportSink.m) to convert and upload to Sentry.                                                                           |
+| **Stack cursor**                                | Abstraction for walking the stack (e.g. `SentryCrashStackCursor`). Used to fill thread backtraces in the report; can be backtrace-based or machine-context-based.                                                                                         |
 
 ### Complete File List (by directory)
 
