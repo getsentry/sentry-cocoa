@@ -231,13 +231,13 @@
     NSString *pathEnd = [@"SentryCrash" stringByAppendingPathComponent:[self getBundleName]];
     NSString *installPath = [self.basePath stringByAppendingPathComponent:pathEnd];
 
+    // Set bridge for NSException monitor before enabling monitors
+    sentrycrashcm_nsexception_setBridge(self.bridge);
+
     _monitoring = sentrycrash_install(self.bundleName.UTF8String, installPath.UTF8String);
     if (self.monitoring == 0) {
         return false;
     }
-
-    // Set bridge for NSException monitor before enabling monitors
-    sentrycrashcm_nsexception_setBridge(self.bridge);
 
 #if SENTRY_HAS_UIKIT
     id<SentryNSNotificationCenterWrapper> notificationCenter

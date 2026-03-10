@@ -94,10 +94,12 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 - (void)dealloc
 {
     SentryCrashSwift *handler = self.bridge.crashReporter;
-    @synchronized(handler) {
-        if (g_crashHandlerData == self.crashHandlerData) {
-            g_crashHandlerData = NULL;
-            [handler removeOnCrash];
+    if (handler != nil) {
+        @synchronized(handler) {
+            if (g_crashHandlerData == self.crashHandlerData) {
+                g_crashHandlerData = NULL;
+                [handler removeOnCrash];
+            }
         }
     }
 }
@@ -163,23 +165,27 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
 - (void)install:(NSString *)customCacheDirectory
 {
     SentryCrashSwift *handler = self.bridge.crashReporter;
-    @synchronized(handler) {
-        handler.basePath = customCacheDirectory;
-        g_crashHandlerData = self.crashHandlerData;
-        [handler setupOnCrash];
-        [handler install];
+    if (handler != nil) {
+        @synchronized(handler) {
+            handler.basePath = customCacheDirectory;
+            g_crashHandlerData = self.crashHandlerData;
+            [handler setupOnCrash];
+            [handler install];
+        }
     }
 }
 
 - (void)uninstall
 {
     SentryCrashSwift *handler = self.bridge.crashReporter;
-    @synchronized(handler) {
-        if (g_crashHandlerData == self.crashHandlerData) {
-            g_crashHandlerData = NULL;
-            [handler removeOnCrash];
+    if (handler != nil) {
+        @synchronized(handler) {
+            if (g_crashHandlerData == self.crashHandlerData) {
+                g_crashHandlerData = NULL;
+                [handler removeOnCrash];
+            }
+            [handler uninstall];
         }
-        [handler uninstall];
     }
 }
 
