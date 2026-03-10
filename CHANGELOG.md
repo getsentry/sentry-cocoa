@@ -12,6 +12,7 @@
 ### Fixes
 
 - Capture transactions that finish during the launch profiling window instead of silently discarding them (#7602)
+- Capture instance and class method `[NSApplication _crashOnException]` exceptions (#7510)
 
 ## 9.6.0
 
