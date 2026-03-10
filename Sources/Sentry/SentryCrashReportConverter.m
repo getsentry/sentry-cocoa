@@ -51,7 +51,7 @@
         // here. For more details please check out SentryCrashScopeObserver.
         NSMutableDictionary *userContextMerged =
             [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
-        [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"] ?: @{}];
+        [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"] ?: @{ }];
         [userContextMerged removeObjectForKey:@"sentry_sdk_scope"];
         self.userContext = userContextMerged;
 
@@ -120,7 +120,7 @@
         event.environment = self.userContext[@"environment"];
 
         NSMutableDictionary *mutableContext =
-            [[NSMutableDictionary alloc] initWithDictionary:self.userContext[@"context"] ?: @{}];
+            [[NSMutableDictionary alloc] initWithDictionary:self.userContext[@"context"] ?: @{ }];
         if (self.userContext[@"traceContext"]) {
             mutableContext[@"trace"] = self.userContext[@"traceContext"];
         }
@@ -513,8 +513,9 @@
         }
     }
     if (reasons.count > 0) {
-        exception.value = [[[reasons array] sortedArrayUsingSelector:@selector
-            (localizedCaseInsensitiveCompare:)] componentsJoinedByString:@" > "];
+        exception.value =
+            [[[reasons array] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]
+                componentsJoinedByString:@" > "];
     }
 }
 

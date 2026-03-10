@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
         newSpan = [SentrySDKInternal.currentHub
             startTransactionWithContext:context
                             bindToScope:bindToScope
-                  customSamplingContext:@{}
+                  customSamplingContext:@{ }
                           configuration:[SentryTracerConfiguration configurationWithBlock:^(
                                             SentryTracerConfiguration *configuration) {
                               configuration.waitForChildren = YES;

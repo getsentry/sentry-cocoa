@@ -96,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
     __block SentryTracer *transaction = [SentrySDKInternal.currentHub
         startTransactionWithContext:context
                         bindToScope:YES
-              customSamplingContext:@{}
+              customSamplingContext:@{ }
                       configuration:[SentryTracerConfiguration configurationWithBlock:^(
                                         SentryTracerConfiguration *config) {
                           config.idleTimeout = self.idleTimeout;

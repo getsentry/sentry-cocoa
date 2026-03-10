@@ -729,7 +729,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 #if SENTRY_HAS_UIKIT
     if (!isFatalEvent && eventIsNotReplay) {
-        NSDictionary *currentContext = event.context ?: @{};
+        NSDictionary *currentContext = event.context ?: @{ };
         event.context = [self.eventContextEnricher enrichWithAppState:currentContext];
     }
 #endif
@@ -975,19 +975,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                           [extraContext[SENTRY_CONTEXT_DEVICE_KEY]
                               isKindOfClass:NSDictionary.class]) {
                           [device addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_DEVICE_KEY]
-                                  ?: @ {}];
+                                  ?: @ { }];
                       }
                   }];
 
-    [self
-        modifyContext:event
-                  key:SENTRY_CONTEXT_APP_KEY
-                block:^(NSMutableDictionary *app) {
-                    if (extraContext[SENTRY_CONTEXT_APP_KEY] != nil &&
-                        [extraContext[SENTRY_CONTEXT_APP_KEY] isKindOfClass:NSDictionary.class]) {
-                        [app addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_APP_KEY] ?: @ {}];
-                    }
-                }];
+    [self modifyContext:event
+                    key:SENTRY_CONTEXT_APP_KEY
+                  block:^(NSMutableDictionary *app) {
+                      if (extraContext[SENTRY_CONTEXT_APP_KEY] != nil &&
+                          [extraContext[SENTRY_CONTEXT_APP_KEY] isKindOfClass:NSDictionary.class]) {
+                          [app addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_APP_KEY]
+                                  ?: @ { }];
+                      }
+                  }];
 }
 
 #if SENTRY_HAS_UIKIT
