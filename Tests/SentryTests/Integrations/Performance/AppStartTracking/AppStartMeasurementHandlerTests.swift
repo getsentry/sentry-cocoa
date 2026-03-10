@@ -9,7 +9,9 @@ class AppStartMeasurementHandlerTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        clearTestState()
+        SentrySDKInternal.setCurrentHub(nil)
+        SentrySDKInternal.setAppStartMeasurement(nil)
+        SentryAppStartMeasurementProvider.reset()
     }
 
     private func createMeasurement(type: SentryAppStartType, duration: TimeInterval = 0.5) -> SentryAppStartMeasurement {
