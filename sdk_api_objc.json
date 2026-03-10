@@ -1143,6 +1143,13 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCAttributeContent",
+    "file": "SentryObjCMetricsApi.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryNSError",
     "file": "SentryObjCNSError.h",
     "super": "NSObject",
