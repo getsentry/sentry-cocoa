@@ -17,7 +17,6 @@
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
-#import "SentryUseNSExceptionCallstackWrapper.h"
 
 #if TARGET_OS_OSX
 #    import "SentryCrashExceptionApplication.h"
@@ -357,22 +356,6 @@ static NSDate *_Nullable startTimestamp = nil;
 {
     return [SentrySDKInternal.currentHub captureException:exception withScope:scope];
 }
-
-#if TARGET_OS_OSX
-
-+ (SentryId *)captureCrashOnException:(NSException *)exception
-{
-    SentryUseNSExceptionCallstackWrapper *wrappedException =
-        [[SentryUseNSExceptionCallstackWrapper alloc]
-                        initWithName:exception.name
-                              reason:exception.reason
-                            userInfo:exception.userInfo
-            callStackReturnAddresses:exception.callStackReturnAddresses];
-    return [SentrySDKInternal captureException:wrappedException
-                                     withScope:SentrySDKInternal.currentHub.scope];
-}
-
-#endif // TARGET_OS_OSX
 
 + (SentryId *)captureMessage:(NSString *)message
 {

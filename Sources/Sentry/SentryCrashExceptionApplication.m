@@ -3,8 +3,14 @@
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
 
 #    import "SentryCrashExceptionApplication.h"
-#    import "SentryCrashExceptionApplicationHelper.h"
+#    import "SentryNSExceptionCaptureHelper.h"
 #    import "SentryUncaughtNSExceptions.h"
+#    import <AppKit/NSApplication.h>
+
+// Private AppKit method called on the application instance during CATransaction flush.
+@interface NSApplication (SentryCrashOnException)
+- (void)_crashOnException:(NSException *)exception;
+@end
 
 @implementation SentryCrashExceptionApplication
 
@@ -13,13 +19,15 @@
     [SentryUncaughtNSExceptions configureCrashOnExceptions];
     // We cannot test an NSApplication because you create more than one at a time, so we use a
     // helper to hold the logic.
-    [SentryCrashExceptionApplicationHelper reportException:exception];
+    [SentryNSExceptionCaptureHelper reportException:exception];
     [super reportException:exception];
+    [SentryNSExceptionCaptureHelper reportExceptionDidFinish];
 }
 
 - (void)_crashOnException:(NSException *)exception
 {
-    [SentryCrashExceptionApplicationHelper _crashOnException:exception];
+    [SentryNSExceptionCaptureHelper crashOnException:exception];
+    [super _crashOnException:exception];
 }
 
 @end
