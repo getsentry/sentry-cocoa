@@ -23,9 +23,11 @@ public class SentryCrashWrapper: NSObject {
     public init(processInfoWrapper: SentryProcessInfoSource, bridge: SentryCrashBridge) {
         self.processInfoWrapper = processInfoWrapper
         self.bridge = bridge
+        // Enable the system monitor before reading systemInfo, otherwise
+        // addContextualInfoToEvent guards on g_isEnabled and returns empty data.
+        sentrycrashcm_system_getAPI()?.pointee.setEnabled(true)
         self.systemInfo = bridge.crashReporter.systemInfo as? [String: Any] ?? [:]
         super.init()
-        sentrycrashcm_system_getAPI()?.pointee.setEnabled(true)
     }
 
 #if SENTRY_TEST || SENTRY_TEST_CI
@@ -51,10 +53,11 @@ public final class SentryCrashWrapper: NSObject {
     public init(processInfoWrapper: SentryProcessInfoSource, bridge: SentryCrashBridge) {
         self.processInfoWrapper = processInfoWrapper
         self.bridge = bridge
+        // Enable the system monitor before reading systemInfo, otherwise
+        // addContextualInfoToEvent guards on g_isEnabled and returns empty data.
+        sentrycrashcm_system_getAPI()?.pointee.setEnabled(true)
         self.systemInfo = bridge.crashReporter.systemInfo as? [String: Any] ?? [:]
         super.init()
-        // Always enable crash monitoring on release builds
-        sentrycrashcm_system_getAPI()?.pointee.setEnabled(true)
     }
 }
 #endif
