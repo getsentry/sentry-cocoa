@@ -15,7 +15,7 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:Samples/iOS-Swift6/iOS-Swift6.xcodeproj",
+        "containerPath" : "container:iOS-Swift6.xcodeproj",
         "identifier" : "70F6260DD64A9D7AC4C7A53F",
         "name" : "UITests"
       }
