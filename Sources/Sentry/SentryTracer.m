@@ -600,7 +600,8 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     // bypassing the global static and its associated locking/timing checks.
     if ([self isStandaloneAppStartTransaction] && _configuration.appStartMeasurement != nil) {
         appStartMeasurement = _configuration.appStartMeasurement;
-        // Mark as read so no UIViewController transaction picks up the global static too.
+        // Safeguard: this shouldn't normally happen, but mark as read so no UIViewController
+        // transaction picks up the global static too.
         [SentryAppStartMeasurementProvider markAsRead];
     } else {
         appStartMeasurement =
