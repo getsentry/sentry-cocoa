@@ -97,6 +97,71 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic pop
 }
 
+/**
+ * Wraps a completion handler to capture response details for session replay.
+ * Returns nil if the original handler is nil (no wrapping needed).
+ */
+static void (^SentryWrapCompletionHandler(SentryNetworkTracker *tracker, NSURLRequest *request,
+    NSMutableArray<NSURLSessionDataTask *> *taskHolder,
+    void (^original)(NSData *, NSURLResponse *, NSError *)))(NSData *, NSURLResponse *, NSError *)
+{
+    if (!original)
+        return nil;
+    return ^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSURLSessionDataTask *task = taskHolder.firstObject;
+        if (!error && data && task) {
+            [tracker captureResponseDetails:data response:response request:request task:task];
+        }
+        original(data, response, error);
+    };
+}
+
+/**
+ * Swizzles NSURLSession data task creation methods that use completion handlers
+ * to enable response body capture for session replay.
+ *
+ * Both dataTaskWithRequest: and dataTaskWithURL: are independent implementations
+ * (neither calls through to the other), so both need swizzling.
+ *
+ * See SentryNSURLSessionTaskSearchTests that verifies these assumptions still hold.
+ */
++ (void)swizzleURLSessionDataTasksForResponseCapture:(SentryNetworkTracker *)networkTracker
+{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+    SEL dataTaskWithRequestSelector = @selector(dataTaskWithRequest:completionHandler:);
+    SentrySwizzleInstanceMethod([NSURLSession class], dataTaskWithRequestSelector,
+        SentrySWReturnType(NSURLSessionDataTask *),
+        SentrySWArguments(NSURLRequest * request,
+            void (^completionHandler)(NSData *, NSURLResponse *, NSError *)),
+        SentrySWReplacement({
+            NSMutableArray<NSURLSessionDataTask *> *taskHolder =
+                [NSMutableArray arrayWithCapacity:1];
+            NSURLSessionDataTask *task = SentrySWCallOriginal(request,
+                SentryWrapCompletionHandler(networkTracker, request, taskHolder, completionHandler));
+            [taskHolder addObject:task];
+            return task;
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)dataTaskWithRequestSelector);
+
+    SEL dataTaskWithURLSelector = @selector(dataTaskWithURL:completionHandler:);
+    SentrySwizzleInstanceMethod([NSURLSession class], dataTaskWithURLSelector,
+        SentrySWReturnType(NSURLSessionDataTask *),
+        SentrySWArguments(
+            NSURL * url, void (^completionHandler)(NSData *, NSURLResponse *, NSError *)),
+        SentrySWReplacement({
+            NSURLRequest *request = [NSURLRequest requestWithURL:url];
+            NSMutableArray<NSURLSessionDataTask *> *taskHolder =
+                [NSMutableArray arrayWithCapacity:1];
+            NSURLSessionDataTask *task = SentrySWCallOriginal(url,
+                SentryWrapCompletionHandler(networkTracker, request, taskHolder, completionHandler));
+            [taskHolder addObject:task];
+            return task;
+        }),
+        SentrySwizzleModeOncePerClassAndSuperclasses, (void *)dataTaskWithURLSelector);
+#pragma clang diagnostic pop
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
