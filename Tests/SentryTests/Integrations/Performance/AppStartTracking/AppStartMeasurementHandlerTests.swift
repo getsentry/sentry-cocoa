@@ -187,6 +187,68 @@ class AppStartMeasurementHandlerTests: XCTestCase {
         )
     }
 
+    /// Verifies the full span tree for a warm non-prewarmed standalone app start transaction.
+    /// More span edge cases (cold, prewarmed, grouping span) are covered in SentryBuildAppStartSpansTests.
+    func testSendStandalone_WarmNotPrewarmed_ContainsCorrectSpans() throws {
+        let hub = setUpIntegrationHub()
+        let dateProvider = TestCurrentDateProvider()
+        let appStart = dateProvider.date()
+        let measurement = SentryAppStartMeasurement(
+            type: .warm,
+            isPreWarmed: false,
+            appStartTimestamp: appStart,
+            runtimeInitSystemTimestamp: dateProvider.systemTime(),
+            duration: 0.5,
+            runtimeInitTimestamp: appStart.addingTimeInterval(0.05),
+            moduleInitializationTimestamp: appStart.addingTimeInterval(0.1),
+            sdkStartTimestamp: appStart.addingTimeInterval(0.15),
+            didFinishLaunchingTimestamp: appStart.addingTimeInterval(0.3)
+        )
+
+        SendStandaloneAppStartTransaction().handle(measurement)
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+
+        // Warm non-prewarmed standalone: no grouping span, includes pre-runtime spans → 5 child spans
+        XCTAssertEqual(spans.count, 5)
+
+        let descriptions = spans.compactMap { $0["description"] as? String }
+        XCTAssertEqual(descriptions, [
+            "Pre Runtime Init",
+            "Runtime Init to Pre Main Initializers",
+            "UIKit Init",
+            "Application Init",
+            "Initial Frame Render"
+        ])
+
+        let operations = Set(spans.compactMap { $0["op"] as? String })
+        XCTAssertEqual(operations, [SentrySpanOperationAppStartWarm])
+
+        let appStartInterval = appStart.timeIntervalSince1970
+
+        // Pre Runtime Init: appStart → runtimeInit
+        assertSpanTimestamps(spans[0],
+                             expectedStart: appStartInterval,
+                             expectedEnd: appStartInterval + 0.05)
+        // Runtime Init to Pre Main Initializers: runtimeInit → moduleInit
+        assertSpanTimestamps(spans[1],
+                             expectedStart: appStartInterval + 0.05,
+                             expectedEnd: appStartInterval + 0.1)
+        // UIKit Init: moduleInit → sdkStart
+        assertSpanTimestamps(spans[2],
+                             expectedStart: appStartInterval + 0.1,
+                             expectedEnd: appStartInterval + 0.15)
+        // Application Init: sdkStart → didFinishLaunching
+        assertSpanTimestamps(spans[3],
+                             expectedStart: appStartInterval + 0.15,
+                             expectedEnd: appStartInterval + 0.3)
+        // Initial Frame Render: didFinishLaunching → appStart + duration
+        assertSpanTimestamps(spans[4],
+                             expectedStart: appStartInterval + 0.3,
+                             expectedEnd: appStartInterval + 0.5)
+    }
+
     // MARK: - StandaloneAppStartTransactionHelper
 
     func testHelper_ColdStartWithAutoOrigin_ReturnsTrue() {
@@ -215,6 +277,21 @@ class AppStartMeasurementHandlerTests: XCTestCase {
             operation: SentrySpanOperationAppStartCold,
             origin: "manual"
         ))
+    }
+
+    // MARK: - Helpers
+
+    private func assertSpanTimestamps(
+        _ span: [String: Any],
+        expectedStart: TimeInterval,
+        expectedEnd: TimeInterval,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        let start = span["start_timestamp"] as? TimeInterval ?? 0
+        let end = span["timestamp"] as? TimeInterval ?? 0
+        XCTAssertEqual(start, expectedStart, accuracy: 0.001, file: file, line: line)
+        XCTAssertEqual(end, expectedEnd, accuracy: 0.001, file: file, line: line)
     }
 }
 
