@@ -9,7 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString const *SENTRY_TRACE_TYPE = @"trace";
+static NSString *const SENTRY_TRACE_TYPE = @"trace";
 
 /**
  * Context identifying a span within a trace.

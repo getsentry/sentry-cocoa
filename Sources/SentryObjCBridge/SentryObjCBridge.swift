@@ -58,6 +58,15 @@ public final class SentryObjCBridge: NSObject {
         return SentrySDK.logger
     }
 
+    // MARK: - Replay API
+
+    #if SENTRY_TARGET_REPLAY_SUPPORTED
+    /// Bridge for replay API access from ObjC to Swift
+    @objc public static var replay: AnyObject {
+        return SentrySDK.replay
+    }
+    #endif
+
     // MARK: - Private Helpers
 
     /// Convert ObjC attributes dictionary to Swift [String: SentryAttributeValue]
@@ -67,13 +76,18 @@ public final class SentryObjCBridge: NSObject {
     ///
     /// Uses KVC to extract values from ObjC objects since we can't directly import
     /// SentryObjC types here (would create circular dependency).
+    ///
+    /// Invalid attributes are silently skipped to maintain robustness.
     private static func convertObjCAttributesToSwift(_ objcAttributes: [String: Any]) -> [String: SentryAttributeValue] {
         objcAttributes.compactMapValues { value in
             guard let attributeContent = value as? NSObject,
                   let typeValue = attributeContent.value(forKey: "type") as? Int,
-                  let swiftValue = convertAttributeContent(attributeContent, typeValue: typeValue)
-            else { return nil }
-            return swiftValue as? any SentryAttributeValue
+                  let swiftValue = convertAttributeContent(attributeContent, typeValue: typeValue),
+                  let attributeValue = swiftValue as? any SentryAttributeValue
+            else {
+                return nil
+            }
+            return attributeValue
         }
     }
 

@@ -111,7 +111,7 @@ targets += [
 ]
 
 // Swift bridge that exposes SDK functionality to pure ObjC code (no modules)
-products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjC", "SentryCppHelper"]))
+products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjCBridge", "SentryObjC", "SentryCppHelper"]))
 targets += [
     .target(
         name: "SentryObjCBridge",

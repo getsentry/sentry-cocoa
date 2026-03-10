@@ -50,9 +50,10 @@
 #endif
 @end
 
-// Forward declare SentryObjCBridge for metrics and logger access.
+// Forward declare SentryObjCBridge for metrics, logger, and replay access.
 @interface SentryObjCBridge : NSObject
 + (id)logger;
++ (id)replay;
 @end
 
 // Import the public header which declares SentrySDK
@@ -62,15 +63,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryObjCSDK
-
-static SentryObjCMetricsApiImpl *_metricsApi = nil;
-
-+ (void)initialize
-{
-    if (self == [SentryObjCSDK class]) {
-        _metricsApi = [[SentryObjCMetricsApiImpl alloc] init];
-    }
-}
 
 + (nullable id<SentrySpan>)span
 {
@@ -85,9 +77,7 @@ static SentryObjCMetricsApiImpl *_metricsApi = nil;
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 + (SentryReplayApi *)replay
 {
-    // ReplayApi is not available from SentrySDKInternal in no-modules context
-    // Return nil for now - this would need additional wrapper implementation
-    return nil;
+    return [SentryObjCBridge replay];
 }
 #endif
 
@@ -98,6 +88,9 @@ static SentryObjCMetricsApiImpl *_metricsApi = nil;
 
 + (id<SentryObjCMetricsApi>)metrics
 {
+    static SentryObjCMetricsApiImpl *_metricsApi = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ _metricsApi = [[SentryObjCMetricsApiImpl alloc] init]; });
     return _metricsApi;
 }
 

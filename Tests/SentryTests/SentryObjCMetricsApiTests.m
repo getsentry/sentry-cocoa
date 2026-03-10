@@ -6,6 +6,24 @@
 
 @implementation SentryObjCMetricsApiTests
 
+- (void)setUp
+{
+    [super setUp];
+    // SDK needs to be started for metrics to work
+    if (![SentryObjCSDK isEnabled]) {
+        [SentryObjCSDK startWithConfigureOptions:^(SentryOptions *options) {
+            options.dsn = @"https://username@sentry.io/1";
+            options.enableMetrics = YES;
+        }];
+    }
+}
+
+- (void)tearDown
+{
+    [super tearDown];
+    [SentryObjCSDK close];
+}
+
 - (void)testMetricsApiReturnsNonNil
 {
     id<SentryObjCMetricsApi> metrics = [SentryObjCSDK metrics];
@@ -124,5 +142,33 @@
     SentryLogger *logger = [SentryObjCSDK logger];
     XCTAssertNotNil(logger);
 }
+
+- (void)testInvalidAttributeType_shouldSkipAttribute
+{
+    // Test that invalid attribute types are skipped gracefully
+    NSDictionary *attributes = @{
+        @"valid" : [SentryObjCAttributeContent stringWithValue:@"test"],
+        @"invalid" : @"not an attribute content object"
+    };
+
+    // Should not crash - invalid attributes are logged and skipped
+    [[SentryObjCSDK metrics] countWithKey:@"test.invalid" value:1 attributes:attributes];
+}
+
+- (void)testMetricsApiLazySingleton
+{
+    // Verify that metrics returns the same instance each time (singleton)
+    id<SentryObjCMetricsApi> metrics1 = [SentryObjCSDK metrics];
+    id<SentryObjCMetricsApi> metrics2 = [SentryObjCSDK metrics];
+    XCTAssertEqual(metrics1, metrics2);
+}
+
+#if SENTRY_OBJC_REPLAY_SUPPORTED
+- (void)testReplayApiReturnsNonNil
+{
+    SentryReplayApi *replay = [SentryObjCSDK replay];
+    XCTAssertNotNil(replay, @"Replay API should not return nil on supported platforms");
+}
+#endif
 
 @end
