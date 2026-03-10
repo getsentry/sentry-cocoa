@@ -42,7 +42,7 @@
 
         NSDictionary *userContextUnMerged = report[@"user"];
         if (userContextUnMerged == nil) {
-            userContextUnMerged = [NSDictionary new];
+            userContextUnMerged = @{ };
         }
 
         // The SentryCrashIntegration used userInfo to put in scope data. This had a few downsides.
@@ -51,7 +51,7 @@
         // here. For more details please check out SentryCrashScopeObserver.
         NSMutableDictionary *userContextMerged =
             [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
-        [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"] ?: @{}];
+        [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"] ?: @{ }];
         [userContextMerged removeObjectForKey:@"sentry_sdk_scope"];
         self.userContext = userContextMerged;
 
@@ -120,7 +120,7 @@
         event.environment = self.userContext[@"environment"];
 
         NSMutableDictionary *mutableContext =
-            [[NSMutableDictionary alloc] initWithDictionary:self.userContext[@"context"] ?: @{}];
+            [[NSMutableDictionary alloc] initWithDictionary:self.userContext[@"context"] ?: @{ }];
         if (self.userContext[@"traceContext"]) {
             mutableContext[@"trace"] = self.userContext[@"traceContext"];
         }
@@ -129,7 +129,7 @@
         if (mutableContext[@"app"] != nil) {
             appContext = [mutableContext[@"app"] mutableCopy];
         } else {
-            appContext = [NSMutableDictionary new];
+            appContext = [[NSMutableDictionary alloc] init];
         }
         appContext[@"in_foreground"] = self.applicationStats[@"application_in_foreground"];
         appContext[@"is_active"] = self.applicationStats[@"application_active"];
@@ -184,7 +184,7 @@
 
 - (NSMutableArray<SentryBreadcrumb *> *)convertBreadcrumbs
 {
-    NSMutableArray *breadcrumbs = [NSMutableArray new];
+    NSMutableArray *breadcrumbs = [[NSMutableArray alloc] init];
     if (nil != self.userContext[@"breadcrumbs"]) {
         NSArray *storedBreadcrumbs = self.userContext[@"breadcrumbs"];
         for (NSDictionary *storedCrumb in storedBreadcrumbs) {
@@ -232,7 +232,7 @@
 - (NSDictionary *)registersForThreadIndex:(NSInteger)threadIndex
 {
     NSDictionary *thread = self.threads[threadIndex];
-    NSMutableDictionary *registers = [NSMutableDictionary new];
+    NSMutableDictionary *registers = [[NSMutableDictionary alloc] init];
     for (NSString *key in [thread[@"registers"][@"basic"] allKeys]) {
         [registers setValue:sentry_formatHexAddress(thread[@"registers"][@"basic"][key])
                      forKey:key];
@@ -321,7 +321,7 @@
 {
     NSUInteger frameCount = [self rawStackTraceForThreadIndex:threadIndex].count;
     if (frameCount <= 0) {
-        return [NSArray new];
+        return @[];
     }
 
     NSMutableArray *frames = [NSMutableArray arrayWithCapacity:frameCount];
@@ -389,7 +389,7 @@
         }
     }
 
-    NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
+    NSMutableArray<SentryDebugMeta *> *result = [[NSMutableArray alloc] init];
 
     for (NSDictionary *sourceImage in self.binaryImages) {
         if ([imageNames containsObject:sentry_formatHexAddress(sourceImage[@"image_addr"])]) {
@@ -461,8 +461,34 @@
     }
 
     [self enhanceValueFromNotableAddresses:exception];
-    [self enhanceValueFromCrashInfoMessage:exception];
+
+    NSArray<NSString *> *crashInfoMessages = [self crashInfoMessagesFromBinaryImages];
+
+    // crash_info_message is a shared buffer that may hold unrelated Swift runtime warnings from
+    // earlier in the process. Only use it to override for mach/signal, where it IS the crash cause.
+    // For nsexception, cpp_exception, user the exception context is authoritative—overwriting
+    // would replace the real reason with stale or unrelated text.
+    NSSet<NSString *> *crashInfoMessageExceptionTypes =
+        [NSSet setWithObjects:@"mach", @"signal", nil];
+    if ([crashInfoMessageExceptionTypes containsObject:exceptionType]
+        && crashInfoMessages.count > 0) {
+        exception.value = crashInfoMessages.firstObject;
+    }
+
     exception.mechanism = [self extractMechanismOfType:exceptionType];
+
+    // Attach crash_info to mechanism.data so it remains available for debugging even when we
+    // don't use it as the primary value. See
+    // https://develop.sentry.dev/sdk/foundations/transport/event-payloads/exception/#data
+    NSSet<NSString *> *authoritativeExceptionTypes =
+        [NSSet setWithObjects:@"nsexception", @"cpp_exception", @"user", nil];
+    if ([authoritativeExceptionTypes containsObject:exceptionType] && exception.mechanism != nil
+        && crashInfoMessages.count > 0) {
+        NSMutableDictionary *data =
+            [exception.mechanism.data mutableCopy] ?: [[NSMutableDictionary alloc] init];
+        data[@"crash_info_messages"] = crashInfoMessages;
+        exception.mechanism.data = data;
+    }
 
     SentryThread *crashedThread = [self crashedThread];
     exception.threadId = crashedThread.threadId;
@@ -513,14 +539,15 @@
         }
     }
     if (reasons.count > 0) {
-        exception.value = [[[reasons array] sortedArrayUsingSelector:@selector
-            (localizedCaseInsensitiveCompare:)] componentsJoinedByString:@" > "];
+        exception.value =
+            [[[reasons array] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]
+                componentsJoinedByString:@" > "];
     }
 }
 
-- (void)enhanceValueFromCrashInfoMessage:(SentryException *)exception
+- (NSArray<NSString *> *)crashInfoMessagesFromBinaryImages
 {
-    NSMutableArray<NSString *> *crashInfoMessages = [NSMutableArray new];
+    NSMutableArray<NSString *> *crashInfoMessages = [[NSMutableArray alloc] init];
 
     NSPredicate *libSwiftCore =
         [NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
@@ -542,10 +569,7 @@
         }
     }
 
-    NSString *swiftCoreCrashInfo = crashInfoMessages.firstObject;
-    if (swiftCoreCrashInfo != nil) {
-        exception.value = swiftCoreCrashInfo;
-    }
+    return crashInfoMessages;
 }
 
 - (SentryMechanism *_Nullable)extractMechanismOfType:(nonnull NSString *)type
@@ -556,7 +580,7 @@
 
         SentryMechanismContext *meta = [[SentryMechanismContext alloc] init];
 
-        NSMutableDictionary *machException = [NSMutableDictionary new];
+        NSMutableDictionary *machException = [[NSMutableDictionary alloc] init];
         [machException setValue:self.exceptionContext[@"mach"][@"exception_name"] forKey:@"name"];
         [machException setValue:self.exceptionContext[@"mach"][@"exception"] forKey:@"exception"];
         [machException setValue:self.exceptionContext[@"mach"][@"subcode"] forKey:@"subcode"];
@@ -564,7 +588,7 @@
         meta.machException = machException;
 
         if (nil != self.exceptionContext[@"signal"]) {
-            NSMutableDictionary *signal = [NSMutableDictionary new];
+            NSMutableDictionary *signal = [[NSMutableDictionary alloc] init];
             [signal setValue:self.exceptionContext[@"signal"][@"signal"] forKey:@"number"];
             [signal setValue:self.exceptionContext[@"signal"][@"code"] forKey:@"code"];
             [signal setValue:self.exceptionContext[@"signal"][@"code_name"] forKey:@"code_name"];
@@ -586,7 +610,7 @@
 
 - (NSArray *)convertThreads
 {
-    NSMutableArray *result = [NSMutableArray new];
+    NSMutableArray *result = [[NSMutableArray alloc] init];
     for (NSInteger threadIndex = 0; threadIndex < (NSInteger)self.threads.count; threadIndex++) {
         SentryThread *thread = [self threadAtIndex:threadIndex];
         if (thread && nil != thread.stacktrace) {

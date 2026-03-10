@@ -150,7 +150,7 @@ class SentryFileIOTrackerTests: XCTestCase {
         let transactionEvent = Dynamic(transaction).toTransaction().asObject as? Transaction
 
         XCTAssertNotNil(transactionEvent?.debugMeta)
-        XCTAssertTrue(transactionEvent?.debugMeta?.count ?? 0 > 0)
+        XCTAssertGreaterThan(transactionEvent?.debugMeta?.count ?? 0, 0)
         XCTAssertEqual(transactionEvent?.debugMeta?.first, TestData.debugImage)
     }
 

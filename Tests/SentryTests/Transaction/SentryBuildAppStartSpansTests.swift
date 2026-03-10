@@ -1,7 +1,7 @@
 @testable import Sentry
 import XCTest
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 class SentryBuildAppStartSpansTests: XCTestCase {
 
     func testSentryBuildAppStartSpans_appStartMeasurementIsNil_shouldNotReturnAnySpans() {
@@ -14,7 +14,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         let result = sentryBuildAppStartSpans(tracer, appStartMeasurement)
 
         // Assert
-        XCTAssertEqual(result, [])
+        XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
     }
 
     func testSentryBuildAppStartSpans_appStartMeasurementIsNotColdOrWarm_shouldNotReturnAnySpans() {
@@ -37,7 +37,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         let result = sentryBuildAppStartSpans(tracer, appStartMeasurement)
 
         // Assert
-        XCTAssertEqual(result, [])
+        XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
     }
 
     func testSentryBuildAppStartSpans_appStartMeasurementIsColdAndNotPrewarmed_shouldNotIncludePreRuntimeSpans() {

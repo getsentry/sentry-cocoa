@@ -33,6 +33,8 @@
 
 #import <mach/mach.h>
 
+#if !TARGET_OS_WATCH
+
 @interface SentryCrashCPU_Tests : XCTestCase
 @end
 
@@ -112,3 +114,4 @@
 }
 
 @end
+#endif

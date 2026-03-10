@@ -81,14 +81,14 @@ jobs:
           lipo -create -output test-server-exec $(swift build --show-bin-path -c release --triple arm64-apple-macosx)/Run $(swift build --show-bin-path -c release --triple x86_64-apple-macosx)/Run
 
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: test-server
           path: |
             ./test-server/test-server-exec
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: test-server-build-log
@@ -112,6 +112,12 @@ jobs:
       - name: Prepare Package.swift
         shell: bash
         run: |
+          # Swift 6.1+ uses Package@swift-6.1.swift; hide it so prepare-package's
+          # modified Package.swift is used (avoids "Multiple commands produce" from
+          # unmodified binary targets in the 6.1 manifest).
+          if [[ -f Package@swift-6.1.swift ]]; then
+            mv Package@swift-6.1.swift Package@swift-6.1.swift.bak
+          fi
           ./scripts/prepare-package.sh \
             --package-file Package.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
@@ -129,7 +135,7 @@ jobs:
       - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
         shell: sh
       - name: Upload Distribution Test Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-test-output-distribution
@@ -164,7 +170,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: test-server
 
@@ -202,7 +208,7 @@ jobs:
             --test-plan Sentry_TestServer
 
       - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: steps.build_tests.outcome == 'failure'
         with:
           name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
@@ -210,7 +216,7 @@ jobs:
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
@@ -220,7 +226,7 @@ jobs:
             raw-test-output.log
 
       - name: Archiving Crash Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}

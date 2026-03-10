@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     // Spotlight can only handle the following envelope items.
     // Not removing them leads to an error and events won't get displayed.
-    NSMutableArray<SentryEnvelopeItem *> *allowedEnvelopeItems = [NSMutableArray new];
+    NSMutableArray<SentryEnvelopeItem *> *allowedEnvelopeItems = [[NSMutableArray alloc] init];
     for (SentryEnvelopeItem *item in envelope.items) {
         if ([item.type isEqualToString:SentryEnvelopeItemTypes.event]) {
             [allowedEnvelopeItems addObject:item];

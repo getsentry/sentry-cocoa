@@ -122,11 +122,11 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: xcframework-${{github.sha}}-sentry-static
           path: XCFrameworkBuildPath/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: XCFrameworkBuildPath/
@@ -153,7 +153,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -162,6 +162,10 @@ jobs:
         run: |
           ./scripts/prepare-package.sh \
             --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
@@ -179,7 +183,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -188,6 +192,10 @@ jobs:
         run: |
           ./scripts/prepare-package.sh \
             --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
@@ -205,7 +213,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -214,6 +222,10 @@ jobs:
         run: |
           ./scripts/prepare-package.sh \
             --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
@@ -230,7 +242,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -239,6 +251,10 @@ jobs:
         run: |
           ./scripts/prepare-package.sh \
             --package-file Package.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
@@ -282,7 +298,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       - name: Setup Ruby
-        uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
+        uses: ruby/setup-ruby@6ca151fd1bfcfd6fe0c4eb6837eb0584d0134a0c # v1.290.0
         with:
           bundler-cache: true
       - uses: actions/cache@v5
@@ -302,7 +318,7 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: xcframework-${{github.sha}}-sentry-dynamic
           path: XCFrameworkBuildPath/
@@ -358,14 +374,14 @@ jobs:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
           path: XCFrameworkBuildPath/
 
       - name: Archive XCFrameworks for Craft
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: xcframeworks.zip
           if-no-files-found: error
@@ -380,7 +396,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@41defb379de52e5f0e3943944fa5575b22fb9f92 # v2
+        uses: getsentry/craft@d630201930c7fe5aee6366ebee19ebb681128512 # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

@@ -30,7 +30,6 @@
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
-#import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUser.h"
 
 #if SENTRY_HAS_UIKIT
@@ -183,14 +182,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                                          type:exception.name];
 
     event.exceptions = @[ sentryException ];
-
-#if TARGET_OS_OSX
-    // When a exception class is SentryUseNSExceptionCallstackWrapper, we should use the thread from
-    // it
-    if ([exception isKindOfClass:[SentryUseNSExceptionCallstackWrapper class]]) {
-        event.threads = [(SentryUseNSExceptionCallstackWrapper *)exception buildThreads];
-    }
-#endif
 
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;
@@ -729,7 +720,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 #if SENTRY_HAS_UIKIT
     if (!isFatalEvent && eventIsNotReplay) {
-        NSDictionary *currentContext = event.context ?: @{};
+        NSDictionary *currentContext = event.context ?: @{ };
         event.context = [self.eventContextEnricher enrichWithAppState:currentContext];
     }
 #endif
@@ -975,19 +966,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                           [extraContext[SENTRY_CONTEXT_DEVICE_KEY]
                               isKindOfClass:NSDictionary.class]) {
                           [device addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_DEVICE_KEY]
-                                  ?: @ {}];
+                                  ?: @ { }];
                       }
                   }];
 
-    [self
-        modifyContext:event
-                  key:SENTRY_CONTEXT_APP_KEY
-                block:^(NSMutableDictionary *app) {
-                    if (extraContext[SENTRY_CONTEXT_APP_KEY] != nil &&
-                        [extraContext[SENTRY_CONTEXT_APP_KEY] isKindOfClass:NSDictionary.class]) {
-                        [app addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_APP_KEY] ?: @ {}];
-                    }
-                }];
+    [self modifyContext:event
+                    key:SENTRY_CONTEXT_APP_KEY
+                  block:^(NSMutableDictionary *app) {
+                      if (extraContext[SENTRY_CONTEXT_APP_KEY] != nil &&
+                          [extraContext[SENTRY_CONTEXT_APP_KEY] isKindOfClass:NSDictionary.class]) {
+                          [app addEntriesFromDictionary:extraContext[SENTRY_CONTEXT_APP_KEY]
+                                  ?: @ { }];
+                      }
+                  }];
 }
 
 #if SENTRY_HAS_UIKIT

@@ -123,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                  attachments:
                                                      (NSArray<SentryAttachment *> *)attachments
 {
-    NSMutableArray<SentryEnvelopeItem *> *items = [NSMutableArray new];
+    NSMutableArray<SentryEnvelopeItem *> *items = [[NSMutableArray alloc] init];
     [items addObject:[[SentryEnvelopeItem alloc] initWithEvent:event]];
 
     for (SentryAttachment *attachment in attachments) {

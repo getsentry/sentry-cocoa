@@ -3,6 +3,7 @@
 import XCTest
 
 // swiftlint:disable file_length
+// swiftlint:disable type_body_length
 class SentrySDKInternalTests: XCTestCase {
 
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentrySDKTests")
@@ -56,7 +57,7 @@ class SentrySDKInternalTests: XCTestCase {
             scope = Scope()
             scope.setTag(value: "value", key: "key")
 
-            client = TestClient(options: options)!
+            client = try XCTUnwrap(TestClient(options: options))
             hub = SentryHubInternal(client: client, andScope: scope, andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), andDispatchQueue: SentryDispatchQueueWrapper())
 
             feedback = SentryFeedback(message: "Again really?", name: "Tim Apple", email: "tim@apple.com")
@@ -340,7 +341,7 @@ class SentrySDKInternalTests: XCTestCase {
 
         let newSpan = SentrySDK.span
 
-        XCTAssert(transaction === newSpan)
+        XCTAssertIdentical(transaction, newSpan)
     }
 
 #if SENTRY_HAS_UIKIT
@@ -449,7 +450,7 @@ class SentrySDKInternalTests: XCTestCase {
     }
 
 #if SENTRY_HAS_UIKIT
-    func testClose_StopsAppStateManager() {
+    func testClose_StopsAppStateManager() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKTests.dsnAsString
             options.tracesSampleRate = 1
@@ -472,7 +473,8 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(appStateManager.startCount, 0)
 
         let stateAfterStop = fixture.fileManager.readAppState()
-        XCTAssertFalse(stateAfterStop!.isSDKRunning)
+        let state = try XCTUnwrap(stateAfterStop)
+        XCTAssertFalse(state.isSDKRunning)
     }
 #endif
 
@@ -943,21 +945,6 @@ class SentrySDKInternalTests: XCTestCase {
         XCTAssertEqual(result["tag2"], "value2")
     }
 #endif // os(iOS) || os(tvOS)
-
-#if os(macOS)
-    func testCaptureCrashOnException() {
-        givenSdkWithHub()
-
-        SentrySDKInternal.captureCrashOn(exception: fixture.exception)
-
-        let client = fixture.client
-        XCTAssertEqual(1, client.captureExceptionWithScopeInvocations.count)
-        XCTAssertNotEqual(fixture.exception, client.captureExceptionWithScopeInvocations.first?.exception)
-        XCTAssertEqual(fixture.exception.name, client.captureExceptionWithScopeInvocations.first?.exception.name)
-        XCTAssertEqual(fixture.exception.reason, client.captureExceptionWithScopeInvocations.first?.exception.reason)
-        XCTAssertEqual(fixture.scope, client.captureExceptionWithScopeInvocations.first?.scope)
-    }
-#endif // os(macOS)
 }
 
 private extension SentrySDKInternalTests {

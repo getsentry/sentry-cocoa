@@ -35,26 +35,26 @@ extension UserFeedbackUITests {
     func testUIElementsWithDefaults() {
         launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue])
         // widget button text
-        XCTAssert(app.otherElements["Report a Bug"].exists)
+        XCTAssertTrue(app.otherElements["Report a Bug"].exists)
         
         widgetButton.tap()
         
         // Form title
-        XCTAssert(app.staticTexts["Report a Bug"].exists)
+        XCTAssertTrue(app.staticTexts["Report a Bug"].exists)
         
         // form buttons
-        XCTAssert(app.staticTexts["Cancel"].exists)
-        XCTAssert(app.staticTexts["Send Bug Report"].exists)
+        XCTAssertTrue(app.staticTexts["Cancel"].exists)
+        XCTAssertTrue(app.staticTexts["Send Bug Report"].exists)
                 
         // Input field placeholders
         XCTAssertEqual(try XCTUnwrap(nameField.placeholderValue), "Your Name")
         XCTAssertEqual(try XCTUnwrap(emailField.placeholderValue), "your.email@example.org")
-        XCTAssert(app.staticTexts["What's the bug? What did you expect?"].exists)
+        XCTAssertTrue(app.staticTexts["What's the bug? What did you expect?"].exists)
         
         // Input field labels
-        XCTAssert(app.staticTexts["Email"].exists)
-        XCTAssert(app.staticTexts["Name"].exists)
-        XCTAssert(app.staticTexts["Description (Required)"].exists)
+        XCTAssertTrue(app.staticTexts["Email"].exists)
+        XCTAssertTrue(app.staticTexts["Name"].exists)
+        XCTAssertTrue(app.staticTexts["Description (Required)"].exists)
         XCTAssertFalse(app.staticTexts["Email (Required)"].exists)
         XCTAssertFalse(app.staticTexts["Name (Required)"].exists)
     }
@@ -63,26 +63,26 @@ extension UserFeedbackUITests {
         launchApp()
         
         // widget button text
-        XCTAssert(app.otherElements["Report Jank"].exists)
+        XCTAssertTrue(app.otherElements["Report Jank"].exists)
         
         widgetButton.tap()
         
         // Form title
-        XCTAssert(app.staticTexts["Jank Report"].exists)
+        XCTAssertTrue(app.staticTexts["Jank Report"].exists)
         
         // form buttons
-        XCTAssert(app.staticTexts["Report that jank"].exists)
-        XCTAssert(app.staticTexts["What, me worry?"].exists)
+        XCTAssertTrue(app.staticTexts["Report that jank"].exists)
+        XCTAssertTrue(app.staticTexts["What, me worry?"].exists)
                 
         // Input field placeholders
         XCTAssertEqual(try XCTUnwrap(nameField.placeholderValue), "Yo name")
         XCTAssertEqual(try XCTUnwrap(emailField.placeholderValue), "Yo email")
-        XCTAssert(app.staticTexts["Describe the nature of the jank. Its essence, if you will."].exists)
+        XCTAssertTrue(app.staticTexts["Describe the nature of the jank. Its essence, if you will."].exists)
         
         // Input field labels
-        XCTAssert(app.staticTexts["Thine email"].exists)
-        XCTAssert(app.staticTexts["Thy name"].exists)
-        XCTAssert(app.staticTexts["Thy complaint (Required)"].exists)
+        XCTAssertTrue(app.staticTexts["Thine email"].exists)
+        XCTAssertTrue(app.staticTexts["Thy name"].exists)
+        XCTAssertTrue(app.staticTexts["Thy complaint (Required)"].exists)
         XCTAssertFalse(app.staticTexts["Thine email (Required)"].exists)
         XCTAssertFalse(app.staticTexts["Thy name (Required)"].exists)
     }
@@ -126,7 +126,7 @@ extension UserFeedbackUITests {
         try assertHookMarkersNotExist()
         
         widgetButton.tap()
-        XCTAssert(nameField.waitForExistence(timeout: 1))
+        XCTAssertTrue(nameField.waitForExistence(timeout: 1))
         try assertOnlyHookMarkersExist(names: [.onFormOpen])
         
         let testName = "Andrew"
@@ -167,7 +167,7 @@ extension UserFeedbackUITests {
         try assertHookMarkersNotExist()
         
         widgetButton.tap()
-        XCTAssert(nameField.waitForExistence(timeout: 1))
+        XCTAssertTrue(nameField.waitForExistence(timeout: 1))
         try assertOnlyHookMarkersExist(names: [.onFormOpen])
         
         let testMessage = "UITest user feedback"
@@ -214,7 +214,7 @@ extension UserFeedbackUITests {
         errorsAreaTabBarButton.tap()
 
         customButton.tap()
-        XCTAssert(nameField.waitForExistence(timeout: 1))
+        XCTAssertTrue(nameField.waitForExistence(timeout: 1))
         try assertOnlyHookMarkersExist(names: [.onFormOpen])
 
         let testName = "Andrew"
@@ -255,7 +255,7 @@ extension UserFeedbackUITests {
         try assertHookMarkersNotExist()
         
         widgetButton.tap()
-        XCTAssert(sendButton.waitForExistence(timeout: 1))
+        XCTAssertTrue(sendButton.waitForExistence(timeout: 1))
         try assertOnlyHookMarkersExist(names: [.onFormOpen])
         
         messageTextView.tap()
@@ -266,7 +266,7 @@ extension UserFeedbackUITests {
         try assertOnlyHookMarkersExist(names: [.onFormClose, .onSubmitSuccess])
         XCTAssertEqual(try dictionaryFromSuccessHookFile(), ["name": testName, "message": "UITest user feedback", "email": testContactEmail])
         
-        XCTAssert(widgetButton.waitForExistence(timeout: 1))
+        XCTAssertTrue(widgetButton.waitForExistence(timeout: 1))
     }
     
     // MARK: Tests validating cancellation functions correctly
@@ -284,7 +284,7 @@ extension UserFeedbackUITests {
         try assertHookMarkersNotExist()
         
         widgetButton.tap()
-        XCTAssert(sendButton.waitForExistence(timeout: 1))
+        XCTAssertTrue(sendButton.waitForExistence(timeout: 1))
         try assertOnlyHookMarkersExist(names: [.onFormOpen])
         
         messageTextView.tap()
@@ -321,14 +321,14 @@ extension UserFeedbackUITests {
         try assertHookMarkersNotExist()
         
         widgetButton.tap()
-        XCTAssert(sendButton.waitForExistence(timeout: 1))
+        XCTAssertTrue(sendButton.waitForExistence(timeout: 1))
         try assertOnlyHookMarkersExist(names: [.onFormOpen])
 
         // the modal cancel gesture
         app.swipeDown(velocity: .fast)
         
         // the swipe dismiss animation takes an extra moment, so we need to wait for the widget to be visible again
-        XCTAssert(widgetButton.waitForExistence(timeout: 1))
+        XCTAssertTrue(widgetButton.waitForExistence(timeout: 1))
         
         try assertOnlyHookMarkersExist(names: [.onFormClose])
         
@@ -347,7 +347,7 @@ extension UserFeedbackUITests {
         launchApp(args: [
             SentrySDKOverrides.Feedback.injectScreenshot.rawValue
         ])
-        XCTAssert(removeScreenshotButton.isHittable)
+        XCTAssertTrue(removeScreenshotButton.isHittable)
         
         let testMessage = "UITest user feedback"
         fillInFields(testMessage)
@@ -361,7 +361,7 @@ extension UserFeedbackUITests {
         launchApp(args: [
             SentrySDKOverrides.Feedback.injectScreenshot.rawValue
         ])
-        XCTAssert(removeScreenshotButton.isHittable)
+        XCTAssertTrue(removeScreenshotButton.isHittable)
         removeScreenshotButton.tap()
         XCTAssertFalse(removeScreenshotButton.isHittable)
         
@@ -385,8 +385,8 @@ extension UserFeedbackUITests {
         
         submit(expectingError: true)
         
-        XCTAssert(app.staticTexts["Error"].exists)
-        XCTAssert(app.staticTexts["You must provide all required information before submitting. Please check the following field: description."].exists)
+        XCTAssertTrue(app.staticTexts["Error"].exists)
+        XCTAssertTrue(app.staticTexts["You must provide all required information before submitting. Please check the following field: description."].exists)
         
         app.buttons["OK"].tap()
         
@@ -406,15 +406,15 @@ extension UserFeedbackUITests {
         
         widgetButton.tap()
         
-        XCTAssert(app.staticTexts["Thine email (Required)"].exists)
-        XCTAssert(app.staticTexts["Thy name"].exists)
+        XCTAssertTrue(app.staticTexts["Thine email (Required)"].exists)
+        XCTAssertTrue(app.staticTexts["Thy name"].exists)
         XCTAssertFalse(app.staticTexts["Thy name (Required)"].exists)
-        XCTAssert(app.staticTexts["Thy complaint (Required)"].exists)
+        XCTAssertTrue(app.staticTexts["Thy complaint (Required)"].exists)
         
         submit(expectingError: true)
         
-        XCTAssert(app.staticTexts["Error"].exists)
-        XCTAssert(app.staticTexts["You got many errors in this form: thine email and thy complaint."].exists)
+        XCTAssertTrue(app.staticTexts["Error"].exists)
+        XCTAssertTrue(app.staticTexts["You got many errors in this form: thine email and thy complaint."].exists)
         
         app.buttons["OK"].tap()
         
@@ -434,14 +434,14 @@ extension UserFeedbackUITests {
         
         widgetButton.tap()
         
-        XCTAssert(app.staticTexts["Thine email (Required)"].exists)
-        XCTAssert(app.staticTexts["Thy name (Required)"].exists)
-        XCTAssert(app.staticTexts["Thy complaint (Required)"].exists)
+        XCTAssertTrue(app.staticTexts["Thine email (Required)"].exists)
+        XCTAssertTrue(app.staticTexts["Thy name (Required)"].exists)
+        XCTAssertTrue(app.staticTexts["Thy complaint (Required)"].exists)
         
         submit(expectingError: true)
         
-        XCTAssert(app.staticTexts["Error"].exists)
-        XCTAssert(app.staticTexts.element(matching: NSPredicate(format: "label LIKE 'You got many errors in this form: thy name, thine email and thy complaint.'")).exists)
+        XCTAssertTrue(app.staticTexts["Error"].exists)
+        XCTAssertTrue(app.staticTexts.element(matching: NSPredicate(format: "label LIKE 'You got many errors in this form: thy name, thine email and thy complaint.'")).exists)
         
         app.buttons["OK"].tap()
         
@@ -459,8 +459,8 @@ extension UserFeedbackUITests {
         
         submit(expectingError: true)
         
-        XCTAssert(app.staticTexts["Error"].exists)
-        XCTAssert(app.staticTexts["You must provide all required information before submitting. Please check the following field: description."].exists)
+        XCTAssertTrue(app.staticTexts["Error"].exists)
+        XCTAssertTrue(app.staticTexts["You must provide all required information before submitting. Please check the following field: description."].exists)
         
         app.buttons["OK"].tap()
         
@@ -484,7 +484,7 @@ extension UserFeedbackUITests {
         
         submit(expectingError: true)
         
-        XCTAssert(app.staticTexts["Error"].exists)
+        XCTAssertTrue(app.staticTexts["Error"].exists)
         app.buttons["OK"].tap()
         
         try assertOnlyHookMarkersExist(names: [.onFormOpen, .onSubmitError])
@@ -510,7 +510,7 @@ extension UserFeedbackUITests {
         cancelButton.tap()
 
         customButton.waitForExistence("Form should have been dismissed and custom button should be visible again.")
-        XCTAssert(customButton.isHittable)
+        XCTAssertTrue(customButton.isHittable)
     }
 
     func testNoAutomaticallyInjectedWidgetWithCustomButton() {
@@ -519,13 +519,13 @@ extension UserFeedbackUITests {
         ])
 
         XCTAssertFalse(widgetButton.isHittable)
-        XCTAssert(customButton.isHittable)
+        XCTAssertTrue(customButton.isHittable)
 
         customButton.tap()
         cancelButton.tap()
 
         customButton.waitForExistence("Form should have been dismissed and custom button should be visible again.")
-        XCTAssert(customButton.isHittable)
+        XCTAssertTrue(customButton.isHittable)
         XCTAssertFalse(widgetButton.isHittable)
     }
 
@@ -536,7 +536,7 @@ extension UserFeedbackUITests {
         XCTAssertFalse(widgetButton.isHittable)
         extrasAreaTabBarButton.tap()
         app.buttons["io.sentry.ui-test.button.show-widget"].tap()
-        XCTAssert(widgetButton.isHittable)
+        XCTAssertTrue(widgetButton.isHittable)
         app.buttons["io.sentry.ui-test.button.hide-widget"].tap()
         XCTAssertFalse(widgetButton.isHittable)
     }
@@ -610,7 +610,7 @@ extension UserFeedbackUITests {
     func assertFormHookFile(type: HookMarkerFile, exists: Bool) throws {
         let path = try path(for: type)
         if exists {
-            XCTAssert(fm.fileExists(atPath: path), "Expected file to exist at \(path)")
+            XCTAssertTrue(fm.fileExists(atPath: path), "Expected file to exist at \(path)")
         } else {
             XCTAssertFalse(fm.fileExists(atPath: path), "Expected file to not exist at \(path)")
         }

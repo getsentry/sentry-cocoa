@@ -724,8 +724,7 @@ static BOOL appStartMeasurementRead;
 #if SENTRY_HAS_UIKIT
     [self addFrameStatistics];
 
-    NSArray<SentrySpanInternal *> *appStartSpans
-        = sentryBuildAppStartSpans(self, appStartMeasurement);
+    NSArray<id<SentrySpan>> *appStartSpans = sentryBuildAppStartSpans(self, appStartMeasurement);
     capacity = _children.count + appStartSpans.count;
 #else
     capacity = _children.count;
@@ -858,7 +857,7 @@ static BOOL appStartMeasurementRead;
                 ? [NSString stringWithFormat:@"%@.prewarmed", appContextType]
                 : appContextType;
             NSMutableDictionary *context =
-                [[NSMutableDictionary alloc] initWithDictionary:[transaction context] ?: @{}];
+                [[NSMutableDictionary alloc] initWithDictionary:[transaction context] ?: @{ }];
             NSDictionary *appContext = @{ @"app" : @ { @"start_type" : appStartType } };
             [SentryDictionary mergeEntriesFromDictionary:appContext intoDictionary:context];
             [transaction setContext:context];

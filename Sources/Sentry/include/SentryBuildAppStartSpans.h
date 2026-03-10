@@ -1,14 +1,14 @@
 #import "SentryDefines.h"
 
+@protocol SentrySpan;
 @class SentryTracer;
-@class SentrySpanInternal;
 @class SentryAppStartMeasurement;
 
 NS_ASSUME_NONNULL_BEGIN
 
 #if SENTRY_HAS_UIKIT
 
-NSArray<SentrySpanInternal *> *sentryBuildAppStartSpans(
+NSArray<id<SentrySpan>> *sentryBuildAppStartSpans(
     SentryTracer *tracer, SentryAppStartMeasurement *_Nullable appStartMeasurement);
 
 #endif // SENTRY_HAS_UIKIT

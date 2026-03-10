@@ -48,7 +48,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
         
         let scopeSpan = fixture.scope.span
         
-        XCTAssert(scopeSpan === transaction)
+        XCTAssertIdentical(scopeSpan, transaction)
         XCTAssertTrue(Dynamic(transaction).configuration.waitForChildren.asBool ?? false)
         XCTAssertEqual(transaction.transactionContext.name, fixture.someTransaction)
         XCTAssertEqual(transaction.transactionContext.nameSource, SentryTransactionNameSource.custom)
@@ -64,8 +64,8 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let transaction = sut.getSpan(spanId)
         let scopeSpan = SentrySDKInternal.currentHub().scope.span
         
-        XCTAssert(scopeSpan !== transaction)
-        XCTAssert(scopeSpan === firstTransaction)
+        XCTAssertNotIdentical(scopeSpan, transaction)
+        XCTAssertIdentical(scopeSpan, firstTransaction)
     }
 
 #if os(iOS) || os(tvOS)
@@ -77,8 +77,8 @@ class SentryPerformanceTrackerTests: XCTestCase {
         let transaction = sut.getSpan(spanId)
         let scopeSpan = SentrySDKInternal.currentHub().scope.span
         
-        XCTAssert(scopeSpan === transaction)
-        XCTAssert(scopeSpan !== firstTransaction)
+        XCTAssertIdentical(scopeSpan, transaction)
+        XCTAssertNotIdentical(scopeSpan, firstTransaction)
         XCTAssertTrue(firstTransaction.isFinished)
         XCTAssertEqual(.cancelled, firstTransaction.status)
     }
@@ -100,7 +100,7 @@ class SentryPerformanceTrackerTests: XCTestCase {
             let children = Dynamic(transaction).children as [Span]?
             
             XCTAssertEqual(1, children?.count)
-            XCTAssert(children!.first === childSpan)
+            XCTAssertIdentical(children!.first, childSpan)
             XCTAssertEqual(spanId, childSpan?.parentSpanId)
         }
         XCTAssertTrue(blockCalled)
