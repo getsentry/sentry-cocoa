@@ -81,7 +81,10 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
     func testUILifeCycle_ViewDidAppear() throws {
         try assertUILifeCycle(finishStatus: SentrySpanStatus.ok) { sut, viewController, tracker, callbackExpectation, transactionSpan in
             sut.viewControllerViewDidAppear(viewController) {
-                let blockSpan = self.getStack(tracker).last!
+                guard let blockSpan = self.getStack(tracker).last else {
+                    XCTFail("Expected a span on the stack")
+                    return
+                }
                 XCTAssertEqual(blockSpan.parentSpanId, transactionSpan.spanId)
                 XCTAssertEqual(blockSpan.spanDescription, self.viewDidAppear)
                 XCTAssertEqual(blockSpan.origin, self.origin)
@@ -101,7 +104,10 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
 
         try assertUILifeCycle(finishStatus: SentrySpanStatus.cancelled) { sut, viewController, tracker, callbackExpectation, transactionSpan in
             sut.viewControllerViewWillDisappear(viewController) {
-                let blockSpan = self.getStack(tracker).last!
+                guard let blockSpan = self.getStack(tracker).last else {
+                    XCTFail("Expected a span on the stack")
+                    return
+                }
                 XCTAssertEqual(blockSpan.parentSpanId, transactionSpan.spanId)
                 XCTAssertEqual(blockSpan.spanDescription, self.viewWillDisappear)
                 XCTAssertEqual(blockSpan.origin, self.origin)
@@ -569,11 +575,17 @@ class SentryUIViewControllerPerformanceTrackerTests: XCTestCase {
         XCTAssertFalse(unwrappedTransactionSpan.isFinished)
         
         sut.viewControllerViewDidLoad(viewController) {
-            let blockSpan = self.getStack(tracker).last!
-            
+            guard let blockSpan = self.getStack(tracker).last else {
+                XCTFail("Expected a span on the stack")
+                return
+            }
+
             //this is the same as calling super.viewDidLoad in a custom class sub class
             sut.viewControllerViewDidLoad(viewController) {
-                let innerblockSpan = self.getStack(tracker).last!
+                guard let innerblockSpan = self.getStack(tracker).last else {
+                    XCTFail("Expected a span on the stack")
+                    return
+                }
                 XCTAssertTrue(innerblockSpan === blockSpan)
                 
                 callbackExpectation.fulfill()

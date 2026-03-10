@@ -236,6 +236,7 @@ build-samples: \
 	build-sample-iOS-SwiftUI-SPM \
 	build-sample-iOS-SwiftUI-Widgets \
 	build-sample-iOS15-SwiftUI \
+	build-sample-macOS-CLI-Xcode \
 	build-sample-macOS-Swift \
 	build-sample-macOS-SwiftUI \
 	build-sample-macOS-SwiftUI-SPM \
@@ -294,6 +295,19 @@ build-sample-macOS-SwiftUI-SPM:
 	set -o pipefail && xcodebuild \
 		-project "Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.xcodeproj" \
 		-scheme macOS-SwiftUI-SPM \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the macOS-CLI-Xcode sample (command-line tool, SentrySPM with NoUIFramework)
+#
+# Builds the macOS CLI sample that uses SentrySPM without UIKit/AppKit linkage.
+# Uses the pre-generated .xcodeproj (traits set in version control; xcodegen has no trait support).
+.PHONY: build-sample-macOS-CLI-Xcode
+build-sample-macOS-CLI-Xcode:
+	set -o pipefail && xcodebuild \
+		-project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
+		-scheme macOS-CLI-Xcode \
+		-configuration Debug \
+		-destination 'platform=macOS' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 
 ## Build the visionOS-SwiftUI-SPM sample app
@@ -701,7 +715,7 @@ lint-staged:
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
 	@if [ -n "$(STAGED_SWIFT_FILES)" ]; then \
-		swiftlint --strict --quiet --config .swiftlint.yml $(STAGED_SWIFT_FILES); \
+		swiftlint --strict --quiet $(STAGED_SWIFT_FILES); \
 	fi
 	dprint check "**/*.{md,json,yaml,yml}"
 
@@ -898,6 +912,7 @@ xcode-ci: xcode-ci-SentrySampleShared \
 	xcode-ci-iOS-SwiftUI-SPM \
 	xcode-ci-iOS-SwiftUI-Widgets \
 	xcode-ci-iOS15-SwiftUI \
+	xcode-ci-macOS-CLI-Xcode \
 	xcode-ci-macOS-Swift \
 	xcode-ci-macOS-SwiftUI \
 	xcode-ci-macOS-SwiftUI-SPM \
@@ -954,6 +969,10 @@ xcode-ci-iOS-SwiftUI-Widgets: xcode-ci-SentrySampleShared
 .PHONY: xcode-ci-iOS15-SwiftUI
 xcode-ci-iOS15-SwiftUI: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
+
+.PHONY: xcode-ci-macOS-CLI-Xcode
+xcode-ci-macOS-CLI-Xcode:
+	xcodegen --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 
 .PHONY: xcode-ci-macOS-Swift
 xcode-ci-macOS-Swift: xcode-ci-SentrySampleShared

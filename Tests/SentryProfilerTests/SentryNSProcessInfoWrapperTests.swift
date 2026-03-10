@@ -8,6 +8,6 @@ class SentryNSProcessInfoWrapperTests: XCTestCase {
     lazy private var fixture = Fixture()
 
     func testProcessorCount() {
-        XCTAssert((0...Int.max).contains(fixture.processInfoWrapper.processorCount))
+        XCTAssertTrue((0...Int.max).contains(fixture.processInfoWrapper.processorCount))
     }
 }

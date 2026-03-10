@@ -251,6 +251,12 @@ sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
             SentryProfileOptions, sentry_profileConfiguration.profileOptions))) {
         SENTRY_LOG_DEBUG(@"Stopping launch UI trace profile.");
         sentry_stopTrackingRootSpanForContinuousProfilerV2();
+        // The launch tracer is intentionally discarded by sentry_stopAndDiscardLaunchProfileTracer.
+        // Other transactions finishing during the launch profiling window (e.g., manual
+        // transactions or app start transactions) must still be captured.
+        if (transaction.trace != sentry_launchTracer) {
+            [hub captureTransaction:transaction withScope:hub.scope];
+        }
         return;
     }
 

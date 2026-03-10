@@ -1535,7 +1535,7 @@ final class SentryClientTests: XCTestCase {
             options.beforeSendSpan = { span in
                 let childSpan = span.startChild(operation: "op")
                 
-                XCTAssert(childSpan.isKind(of: SentryNoOpSpan.self))
+                XCTAssertTrue(childSpan.isKind(of: SentryNoOpSpan.self))
                 
                 return span
             }
@@ -1965,7 +1965,7 @@ final class SentryClientTests: XCTestCase {
         
         let actual = try lastSentEvent()
         let features = try XCTUnwrap(actual.sdk?["features"] as? [String])
-        XCTAssert(features.contains("captureFailedRequests"))
+        XCTAssertTrue(features.contains("captureFailedRequests"))
     }
     
     func testFileManagerCantBeInit() throws {
@@ -2687,7 +2687,7 @@ private extension SentryClientTests {
     
     private func assertValidExceptionEvent(_ event: Event) throws {
         XCTAssertEqual(SentryLevel.error, event.level)
-        let firstException = try XCTUnwrap(event.exceptions?.first)
+        let firstException = try XCTUnwrap(XCTUnwrap(event.exceptions).first)
         XCTAssertEqual(exception.reason, firstException.value)
         XCTAssertEqual(exception.name.rawValue, firstException.type)
         assertValidDebugMeta(actual: event.debugMeta, forThreads: event.threads)
