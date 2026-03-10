@@ -1,4 +1,5 @@
 #import "SentryAppStartMeasurement.h"
+#import "SentryLogC.h"
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanId.h"
 #import "SentrySpanInternal.h"
@@ -50,6 +51,8 @@ sentryBuildAppStartSpans(SentryTracer *tracer,
         type = @"Warm Start";
         break;
     default:
+        SENTRY_LOG_ERROR(@"Unknown app start type %lu, can't build app start spans",
+            (unsigned long)appStartMeasurement.type);
         return @[];
     }
 
