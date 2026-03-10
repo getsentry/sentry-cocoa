@@ -26,7 +26,6 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
             startTimestamp: transactionStart,
-            profilerReferenceID: SentryId()
         )
 
         // -- Assert --
@@ -48,7 +47,6 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: "custom",
             startTimestamp: transactionStart,
-            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -71,7 +69,6 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
             startTimestamp: transactionStart,
-            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -85,7 +82,6 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
             startTimestamp: Date(),
-            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -106,7 +102,6 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         let first = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
             startTimestamp: transactionStart,
-            profilerReferenceID: nil
         )
         XCTAssertNotNil(first)
 
@@ -114,7 +109,6 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         let second = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
             startTimestamp: transactionStart,
-            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -135,7 +129,6 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         let first = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
             startTimestamp: transactionStart,
-            profilerReferenceID: nil
         )
         XCTAssertNotNil(first)
 
@@ -146,7 +139,6 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         let second = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
             startTimestamp: transactionStart,
-            profilerReferenceID: nil
         )
         XCTAssertNotNil(second)
     }
@@ -168,7 +160,6 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
             startTimestamp: transactionStart,
-            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -190,7 +181,6 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
             startTimestamp: transactionStart,
-            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -211,7 +201,6 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
             startTimestamp: transactionStart,
-            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -232,7 +221,6 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
             startTimestamp: transactionStart,
-            profilerReferenceID: nil
         )
 
         // -- Assert --
@@ -253,7 +241,6 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
             startTimestamp: transactionStart,
-            profilerReferenceID: nil
         )
 
         // -- Assert --
