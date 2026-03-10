@@ -12,9 +12,9 @@ generateEmptyDirectories: true
 configs:
   Debug: debug
   Release: release
-projectReferences:
+packages:
   Sentry:
-    path: ../../Sentry.xcodeproj
+    path: ../..
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -52,7 +52,8 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/SentryObjC
+      - package: Sentry
+        product: SentryObjC
     configFiles:
       Debug: App/Configurations/iOS-ObjectiveCpp-NoModules.xcconfig
       Release: App/Configurations/iOS-ObjectiveCpp-NoModules.xcconfig
