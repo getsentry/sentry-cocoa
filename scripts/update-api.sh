@@ -108,6 +108,6 @@ end_group
 
 begin_group "Extract SentryObjC Public API"
 log_notice "Extracting SentryObjC public API from headers"
-python3 "$(dirname "$0")/extract-objc-api.py" > sdk_objc_api.json
-log_notice "SentryObjC API written to sdk_objc_api.json"
+"$(dirname "$0")/extract-objc-api.sh" > sdk_api_objc.json
+log_notice "SentryObjC API written to sdk_api_objc.json"
 end_group
