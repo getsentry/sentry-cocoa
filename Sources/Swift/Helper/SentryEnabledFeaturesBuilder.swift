@@ -49,6 +49,9 @@ import Foundation
         if options.experimental.enableMetrics {
             features.append("metrics")
         }
+        if options.experimental.enableStandaloneAppStartTracing {
+            features.append("standaloneAppStartTracing")
+        }
 
         return features
     }
