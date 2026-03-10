@@ -56,7 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
 #if SENTRY_HAS_UIKIT
 /**
  * The app start measurement to attach to this tracer.
- * When set, the tracer uses this instead of reading from the global static.
+ * When set, the tracer uses this instead of reading from the global static in
+ * @c SentryAppStartMeasurementProvider.
  *
  * Default is nil.
  */
