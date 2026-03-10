@@ -30,8 +30,7 @@ sentryBuildAppStartSpan(
 
 NSArray<id<SentrySpan>> *
 sentryBuildAppStartSpans(SentryTracer *tracer,
-    SentryAppStartMeasurement *_Nullable appStartMeasurement,
-    BOOL isStandaloneAppStartTransaction)
+    SentryAppStartMeasurement *_Nullable appStartMeasurement, BOOL isStandaloneAppStartTransaction)
 {
 
     if (appStartMeasurement == nil) {
