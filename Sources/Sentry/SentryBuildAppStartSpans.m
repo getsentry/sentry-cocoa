@@ -11,6 +11,28 @@
 
 #if SENTRY_HAS_UIKIT
 
+// Forward declarations of static helpers.
+static id<SentrySpan> sentryBuildAppStartSpan(
+    SentryTracer *, SentrySpanId *, NSString *, NSString *);
+static NSArray<id<SentrySpan>> *sentryBuildAppStartSpansInternal(
+    SentryTracer *, SentryAppStartMeasurement *_Nullable, BOOL);
+
+NSArray<id<SentrySpan>> *
+sentryBuildAppStartSpans(
+    SentryTracer *tracer, SentryAppStartMeasurement *_Nullable appStartMeasurement)
+{
+    return sentryBuildAppStartSpansInternal(tracer, appStartMeasurement, NO);
+}
+
+NSArray<id<SentrySpan>> *
+sentryBuildStandaloneAppStartSpans(
+    SentryTracer *tracer, SentryAppStartMeasurement *_Nullable appStartMeasurement)
+{
+    return sentryBuildAppStartSpansInternal(tracer, appStartMeasurement, YES);
+}
+
+#    pragma mark - Private
+
 static id<SentrySpan>
 sentryBuildAppStartSpan(
     SentryTracer *tracer, SentrySpanId *parentId, NSString *operation, NSString *description)
@@ -109,20 +131,6 @@ sentryBuildAppStartSpansInternal(SentryTracer *tracer,
     [appStartSpans addObject:frameRenderSpan];
 
     return appStartSpans;
-}
-
-NSArray<id<SentrySpan>> *
-sentryBuildAppStartSpans(
-    SentryTracer *tracer, SentryAppStartMeasurement *_Nullable appStartMeasurement)
-{
-    return sentryBuildAppStartSpansInternal(tracer, appStartMeasurement, NO);
-}
-
-NSArray<id<SentrySpan>> *
-sentryBuildStandaloneAppStartSpans(
-    SentryTracer *tracer, SentryAppStartMeasurement *_Nullable appStartMeasurement)
-{
-    return sentryBuildAppStartSpansInternal(tracer, appStartMeasurement, YES);
 }
 
 #endif // SENTRY_HAS_UIKIT

@@ -1,4 +1,3 @@
-import _SentryPrivate
 @_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
@@ -83,8 +82,8 @@ class AppStartMeasurementHandlerTests: XCTestCase {
 
         let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
         let traceContext = try XCTUnwrap(contexts["trace"] as? [String: Any])
-        XCTAssertEqual(traceContext["op"] as? String, SentrySpanOperationAppStartCold)
-        XCTAssertEqual(traceContext["origin"] as? String, SentryTraceOriginAutoAppStart)
+        XCTAssertEqual(traceContext["op"] as? String, "app.start.cold")
+        XCTAssertEqual(traceContext["origin"] as? String, "auto.app.start")
     }
 
     func testSendStandalone_WarmStart_CapturesTransaction() throws {
@@ -99,7 +98,7 @@ class AppStartMeasurementHandlerTests: XCTestCase {
 
         let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
         let traceContext = try XCTUnwrap(contexts["trace"] as? [String: Any])
-        XCTAssertEqual(traceContext["op"] as? String, SentrySpanOperationAppStartWarm)
+        XCTAssertEqual(traceContext["op"] as? String, "app.start.warm")
     }
 
     func testSendStandalone_DoesNotSetGlobalStatic() {
@@ -169,7 +168,11 @@ class AppStartMeasurementHandlerTests: XCTestCase {
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let debugMeta = try XCTUnwrap(serialized["debug_meta"] as? [String: Any])
         let images = try XCTUnwrap(debugMeta["images"] as? [[String: Any]])
-        XCTAssertFalse(images.isEmpty)
+        let image = try XCTUnwrap(images.first)
+        let expectedImage = TestData.debugImage
+        XCTAssertEqual(image["code_file"] as? String, expectedImage.codeFile)
+        XCTAssertEqual(image["image_addr"] as? String, expectedImage.imageAddress)
+        XCTAssertEqual(image["image_vmaddr"] as? String, expectedImage.imageVmAddress)
     }
 
     func testSendStandalone_SetsStartTimeToAppStartTimestamp() throws {
@@ -223,7 +226,7 @@ class AppStartMeasurementHandlerTests: XCTestCase {
         ])
 
         let operations = Set(spans.compactMap { $0["op"] as? String })
-        XCTAssertEqual(operations, [SentrySpanOperationAppStartWarm])
+        XCTAssertEqual(operations, ["app.start.warm"])
 
         let appStartInterval = appStart.timeIntervalSince1970
 
@@ -253,28 +256,28 @@ class AppStartMeasurementHandlerTests: XCTestCase {
 
     func testHelper_ColdStartWithAutoOrigin_ReturnsTrue() {
         XCTAssertTrue(StandaloneAppStartTransactionHelper.isStandaloneAppStartTransaction(
-            operation: SentrySpanOperationAppStartCold,
-            origin: SentryTraceOriginAutoAppStart
+            operation: "app.start.cold",
+            origin: "auto.app.start"
         ))
     }
 
     func testHelper_WarmStartWithAutoOrigin_ReturnsTrue() {
         XCTAssertTrue(StandaloneAppStartTransactionHelper.isStandaloneAppStartTransaction(
-            operation: SentrySpanOperationAppStartWarm,
-            origin: SentryTraceOriginAutoAppStart
+            operation: "app.start.warm",
+            origin: "auto.app.start"
         ))
     }
 
     func testHelper_UILoadWithAutoOrigin_ReturnsFalse() {
         XCTAssertFalse(StandaloneAppStartTransactionHelper.isStandaloneAppStartTransaction(
             operation: "ui.load",
-            origin: SentryTraceOriginAutoAppStart
+            origin: "auto.app.start"
         ))
     }
 
     func testHelper_ColdStartWithManualOrigin_ReturnsFalse() {
         XCTAssertFalse(StandaloneAppStartTransactionHelper.isStandaloneAppStartTransaction(
-            operation: SentrySpanOperationAppStartCold,
+            operation: "app.start.cold",
             origin: "manual"
         ))
     }
