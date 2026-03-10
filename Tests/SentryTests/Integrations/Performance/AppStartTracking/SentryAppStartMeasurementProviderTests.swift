@@ -271,8 +271,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
             queue.async {
                 let result = SentryAppStartMeasurementProvider.appStartMeasurement(
                     forOperation: SentrySpanOperationUiLoad,
-                    startTimestamp: transactionStart,
-                    profilerReferenceID: nil
+                    startTimestamp: transactionStart
                 )
                 resultsLock.lock()
                 results.append(result)
