@@ -597,7 +597,11 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     }
 #if SENTRY_HAS_UIKIT
     // Standalone app start transactions carry their measurement directly in the configuration,
-    // bypassing the global static and its associated locking/timing checks.
+    // bypassing the global static in SentryAppStartMeasurementProvider. The main advantage is
+    // avoiding a race condition between the app start tracker producing the measurement and
+    // the first UIViewController transaction consuming it. We don't change the existing
+    // UIViewController/AppStart path below because it's bulletproof and we'll likely remove
+    // it once standalone app start tracing is stable.
     if ([self isStandaloneAppStartTransaction] && _configuration.appStartMeasurement != nil) {
         appStartMeasurement = _configuration.appStartMeasurement;
         // Safeguard: this shouldn't normally happen, but mark as read so no UIViewController
