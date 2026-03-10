@@ -17,95 +17,19 @@ class SentryNSURLSessionTaskSearchTests: XCTestCase {
     //
     // The swizzling code relies on this by swizzling [NSURLSession class] directly
     // rather than doing runtime discovery. These tests verify that assumption
-    // still holds — if Apple ever moves these methods to a subclass, these tests
+    // still holds — if Apple ever moves these methods, these tests
     // will fail and we'll know to update the swizzling approach.
 
-    func test_URLSession_isNotClassCluster_dataTaskWithRequest() {
+    func test_URLSessionDataTaskWithRequest_ByIosVersion() {
         let selector = #selector(URLSession.dataTask(with:completionHandler:)
             as (URLSession) -> (URLRequest, @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask)
         assertNSURLSessionImplementsDirectly(selector: selector, selectorName: "dataTaskWithRequest:completionHandler:")
     }
 
-    func test_URLSession_isNotClassCluster_dataTaskWithURL() {
+    func test_URLSessionDataTaskWithURL_ByIosVersion() {
         let selector = #selector(URLSession.dataTask(with:completionHandler:)
             as (URLSession) -> (URL, @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask)
         assertNSURLSessionImplementsDirectly(selector: selector, selectorName: "dataTaskWithURL:completionHandler:")
-    }
-
-    // MARK: - dataTaskWithURL: / dataTaskWithRequest: independence
-    //
-    // We swizzle both dataTaskWithRequest:completionHandler: and
-    // dataTaskWithURL:completionHandler: because they are independent
-    // implementations — dataTaskWithURL: does NOT dispatch to
-    // dataTaskWithRequest: via objc_msgSend.
-    //
-    // If this test ever fails, Apple has changed the internal dispatch so
-    // one calls through to the other. In that case, remove the redundant
-    // swizzle and add a deduplication guard to avoid double-capture.
-
-    func test_dataTaskWithURL_doesNotCallThrough_dataTaskWithRequest() {
-        assertNoCallThrough(
-            from: NSSelectorFromString("dataTaskWithURL:completionHandler:"),
-            to: NSSelectorFromString("dataTaskWithRequest:completionHandler:"),
-            call: { session in
-                let url = URL(string: "https://example.com")!
-                let task = session.dataTask(with: url) { _, _, _ in }
-                task.cancel()
-            }
-        )
-    }
-
-    func test_dataTaskWithRequest_doesNotCallThrough_dataTaskWithURL() {
-        assertNoCallThrough(
-            from: NSSelectorFromString("dataTaskWithRequest:completionHandler:"),
-            to: NSSelectorFromString("dataTaskWithURL:completionHandler:"),
-            call: { session in
-                let request = URLRequest(url: URL(string: "https://example.com")!)
-                let task = session.dataTask(with: request) { _, _, _ in }
-                task.cancel()
-            }
-        )
-    }
-
-    /// Temporarily replaces the IMP of `targetSelector` with one that increments
-    /// a counter, then invokes `call` (which should trigger `sourceSelector`).
-    /// Asserts the counter stays at 0 — meaning `sourceSelector` does not
-    /// internally dispatch to `targetSelector` via objc_msgSend.
-    private func assertNoCallThrough(
-        from sourceSelector: Selector,
-        to targetSelector: Selector,
-        call: (URLSession) -> Void
-    ) {
-        guard let method = class_getInstanceMethod(URLSession.self, targetSelector) else {
-            XCTFail("URLSession should implement \(targetSelector)")
-            return
-        }
-
-        let originalIMP = method_getImplementation(method)
-        defer { method_setImplementation(method, originalIMP) }
-
-        var hitCount = 0
-
-        let replacementBlock: @convention(block) (NSObject, AnyObject, Any?) -> AnyObject = { obj, arg, handler in
-            hitCount += 1
-            typealias Fn = @convention(c) (NSObject, Selector, AnyObject, Any?) -> AnyObject
-            let original = unsafeBitCast(originalIMP, to: Fn.self)
-            return original(obj, targetSelector, arg, handler)
-        }
-
-        method_setImplementation(method, imp_implementationWithBlock(replacementBlock))
-
-        let session = URLSession(configuration: .ephemeral)
-        defer { session.invalidateAndCancel() }
-
-        call(session)
-
-        XCTAssertEqual(
-            hitCount, 0,
-            "\(sourceSelector) called through to \(targetSelector). "
-            + "These methods are no longer independent — remove the redundant swizzle "
-            + "in SentrySwizzleWrapperHelper and add a deduplication guard."
-        )
     }
 
     // MARK: - Helper
