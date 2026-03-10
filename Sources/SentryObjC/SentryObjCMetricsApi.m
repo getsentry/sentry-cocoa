@@ -18,7 +18,10 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)countWithKey:(nonnull NSString *)key value:(NSUInteger)value attributes:(nullable NSDictionary<NSString *,SentryObjCAttributeContent *> *)attributes {
+- (void)countWithKey:(nonnull NSString *)key
+               value:(NSUInteger)value
+          attributes:(nullable NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes
+{
     if ([self conformsToProtocol:@protocol(SentryObjCMetricsApi)]) {
         [(id<SentryObjCMetricsApi>)self countWithKey:key value:value attributes:attributes];
     }
@@ -44,7 +47,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)distributionWithKey:(nonnull NSString *)key value:(double)value unit:(nullable NSString *)unit attributes:(nullable NSDictionary<NSString *,SentryObjCAttributeContent *> *)attributes {
+- (void)distributionWithKey:(nonnull NSString *)key
+                      value:(double)value
+                       unit:(nullable NSString *)unit
+                 attributes:
+                     (nullable NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes
+{
     if ([self conformsToProtocol:@protocol(SentryObjCMetricsApi)]) {
         [(id<SentryObjCMetricsApi>)self distributionWithKey:key
                                                       value:value
@@ -67,10 +75,16 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-
-- (void)gaugeWithKey:(nonnull NSString *)key value:(double)value unit:(nullable NSString *)unit attributes:(nullable NSDictionary<NSString *,SentryObjCAttributeContent *> *)attributes { 
+- (void)gaugeWithKey:(nonnull NSString *)key
+               value:(double)value
+                unit:(nullable NSString *)unit
+          attributes:(nullable NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes
+{
     if ([self conformsToProtocol:@protocol(SentryObjCMetricsApi)]) {
-        [(id<SentryObjCMetricsApi>)self gaugeWithKey:key value:value unit:unit attributes:attributes];
+        [(id<SentryObjCMetricsApi>)self gaugeWithKey:key
+                                               value:value
+                                                unit:unit
+                                          attributes:attributes];
     }
 }
 

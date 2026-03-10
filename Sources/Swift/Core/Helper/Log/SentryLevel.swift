@@ -3,12 +3,7 @@ import Foundation
 
 private let levelNames = ["none", "debug", "info", "warning", "error", "fatal"]
 
-#if compiler(>=6.0)
-extension SentryLevel: @retroactive CustomStringConvertible {}
-#else
-extension SentryLevel: @retroactive CustomStringConvertible {}
-#endif
-extension SentryLevel {
+extension SentryLevel: CustomStringConvertible {
     public var description: String {
         return levelNames[Int(self.rawValue)]
     }
