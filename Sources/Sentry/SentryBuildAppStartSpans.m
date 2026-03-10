@@ -51,8 +51,7 @@ sentryBuildAppStartSpans(SentryTracer *tracer,
         type = @"Warm Start";
         break;
     default:
-        SENTRY_LOG_ERROR(@"Unknown app start type %lu, can't build app start spans",
-            (unsigned long)appStartMeasurement.type);
+        SENTRY_LOG_ERROR(@"Unknown app start type, can't build app start spans");
         return @[];
     }
 
