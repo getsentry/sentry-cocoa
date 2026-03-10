@@ -1,56 +1,1528 @@
 [
-  "SentryObjCAppStartMeasurement.h: @interface SentryAppStartMeasurement : NSObject SENTRY_NO_INIT @property (readonly, nonatomic, assign) SentryAppStartType type; @property (readonly, nonatomic, assign) BOOL isPreWarmed; @property (readonly, nonatomic, assign) NSTimeInterval duration; @property (readonly, nonatomic, strong) NSDate *appStartTimestamp; @property (readonly, nonatomic, assign) uint64_t runtimeInitSystemTimestamp; @property (readonly, nonatomic, strong) NSDate *runtimeInitTimestamp; @property (readonly, nonatomic, strong) NSDate *moduleInitializationTimestamp; @property (readonly, nonatomic, strong) NSDate *sdkStartTimestamp; @property (readonly, nonatomic, strong) NSDate *didFinishLaunchingTimestamp;",
-  "SentryObjCAppStartMeasurement.h: typedef NS_ENUM(NSUInteger, SentryAppStartType) { SentryAppStartTypeWarm, SentryAppStartTypeCold, SentryAppStartTypeUnknown, };",
-  "SentryObjCAttachment.h: @interface SentryAttachment : NSObject SENTRY_NO_INIT /** * Creates an attachment from in-memory data. * * @param data The file data. * @param filename The filename to use for this attachment. * @return A new attachment instance. */ - (instancetype)initWithData:(NSData *)data filename:(NSString *)filename; /** * Creates an attachment from in-memory data with a content type. * * @param data The file data. * @param filename The filename to use for this attachment. * @param contentType MIME type of the attachment (e.g., \"text/plain\", \"image/png\"). * @return A new attachment instance. */ - (instancetype)initWithData:(NSData *)data filename:(NSString *)filename contentType:(nullable NSString *)contentType; /** * Creates an attachment from a file path. * * The filename is derived from the path. * * @param path Path to the file to attach. * @return A new attachment instance. */ - (instancetype)initWithPath:(NSString *)path; /** * Creates an attachment from a file path with a custom filename. * * @param path Path to the file to attach. * @param filename The filename to use for this attachment. * @return A new attachment instance. */ - (instancetype)initWithPath:(NSString *)path filename:(NSString *)filename; /** * Creates an attachment from a file path with filename and content type. * * @param path Path to the file to attach. * @param filename The filename to use for this attachment. * @param contentType MIME type of the attachment. * @return A new attachment instance. */ - (instancetype)initWithPath:(NSString *)path filename:(NSString *)filename contentType:(nullable NSString *)contentType; /** * Creates an attachment from in-memory data with full options. * * @param data The file data. * @param filename The filename to use for this attachment. * @param contentType MIME type of the attachment. * @param attachmentType The type of attachment. * @return A new attachment instance. */ - (instancetype)initWithData:(NSData *)data filename:(NSString *)filename contentType:(nullable NSString *)contentType attachmentType:(SentryAttachmentType)attachmentType; /** * Creates an attachment from a file path with full options. * * @param path Path to the file to attach. * @param filename The filename to use for this attachment. * @param contentType MIME type of the attachment. * @param attachmentType The type of attachment. * @return A new attachment instance. */ - (instancetype)initWithPath:(NSString *)path filename:(NSString *)filename contentType:(nullable NSString *)contentType attachmentType:(SentryAttachmentType)attachmentType; /** * The attachment data, if created from data. * * @c nil for path-based attachments. */ @property (readonly, nonatomic, strong, nullable) NSData *data; /** * The file path, if created from a path. * * @c nil for data-based attachments. */ @property (readonly, nonatomic, copy, nullable) NSString *path; /** * The filename for this attachment. */ @property (readonly, nonatomic, copy) NSString *filename; /** * MIME type of the attachment. */ @property (readonly, nonatomic, copy, nullable) NSString *contentType; /** * The type of this attachment. */ @property (readonly, nonatomic) SentryAttachmentType attachmentType;",
-  "SentryObjCAttachment.h: typedef NS_ENUM(NSInteger, SentryAttachmentType) { /** General event attachment */ kSentryAttachmentTypeEventAttachment, /** View hierarchy attachment */ kSentryAttachmentTypeViewHierarchy };",
-  "SentryObjCAttributeContent.h: @interface SentryObjCAttributeContent : NSObject @property (nonatomic, readonly) SentryObjCAttributeContentType type; @property (nonatomic, readonly, nullable) NSString *stringValue; @property (nonatomic, readonly) BOOL booleanValue; @property (nonatomic, readonly) NSInteger integerValue; @property (nonatomic, readonly) double doubleValue; @property (nonatomic, readonly, nullable) NSArray<NSString *> *stringArrayValue; @property (nonatomic, readonly, nullable) NSArray<NSNumber *> *booleanArrayValue; @property (nonatomic, readonly, nullable) NSArray<NSNumber *> *integerArrayValue; @property (nonatomic, readonly, nullable) NSArray<NSNumber *> *doubleArrayValue; + (instancetype)stringWithValue:(NSString *)value; + (instancetype)booleanWithValue:(BOOL)value; + (instancetype)integerWithValue:(NSInteger)value; + (instancetype)doubleWithValue:(double)value; + (instancetype)stringArrayWithValue:(NSArray<NSString *> *)value; + (instancetype)booleanArrayWithValue:(NSArray<NSNumber *> *)value; + (instancetype)integerArrayWithValue:(NSArray<NSNumber *> *)value; + (instancetype)doubleArrayWithValue:(NSArray<NSNumber *> *)value;",
-  "SentryObjCAttributeContent.h: typedef NS_ENUM(NSInteger, SentryObjCAttributeContentType) { SentryObjCAttributeContentTypeString, SentryObjCAttributeContentTypeBoolean, SentryObjCAttributeContentTypeInteger, SentryObjCAttributeContentTypeDouble, SentryObjCAttributeContentTypeStringArray, SentryObjCAttributeContentTypeBooleanArray, SentryObjCAttributeContentTypeIntegerArray, SentryObjCAttributeContentTypeDoubleArray };",
-  "SentryObjCBaggage.h: @interface SentryBaggage : NSObject @property (nonatomic, readonly) SentryId *traceId; @property (nonatomic, readonly) NSString *publicKey; @property (nullable, nonatomic, readonly) NSString *releaseName; @property (nullable, nonatomic, readonly) NSString *environment; @property (nullable, nonatomic, readonly) NSString *transaction; @property (nullable, nonatomic, readonly) NSString *userId; @property (nullable, nonatomic, readonly) NSString *sampleRand; @property (nullable, nonatomic, readonly) NSString *sampleRate; @property (nullable, nonatomic, strong) NSString *sampled; @property (nullable, nonatomic, strong) NSString *replayId; - (instancetype)initWithTraceId:(SentryId *)traceId publicKey:(NSString *)publicKey releaseName:(nullable NSString *)releaseName environment:(nullable NSString *)environment transaction:(nullable NSString *)transaction sampleRate:(nullable NSString *)sampleRate sampled:(nullable NSString *)sampled replayId:(nullable NSString *)replayId; - (instancetype)initWithTraceId:(SentryId *)traceId publicKey:(NSString *)publicKey releaseName:(nullable NSString *)releaseName environment:(nullable NSString *)environment transaction:(nullable NSString *)transaction sampleRate:(nullable NSString *)sampleRate sampleRand:(nullable NSString *)sampleRand sampled:(nullable NSString *)sampled replayId:(nullable NSString *)replayId; - (NSString *)toHTTPHeaderWithOriginalBaggage:(NSDictionary *)originalBaggage;",
-  "SentryObjCBreadcrumb.h: @interface SentryBreadcrumb : NSObject <SentrySerializable> /** * Severity level of this breadcrumb. */ @property (nonatomic) SentryLevel level; /** * Category of this breadcrumb. * * Common categories include \"navigation\", \"http\", \"user\", \"console\", etc. */ @property (nonatomic, copy) NSString *category; /** * Timestamp when this breadcrumb was created. */ @property (nonatomic, strong, nullable) NSDate *timestamp; /** * Type of breadcrumb. * * Examples: \"default\", \"http\", \"navigation\", \"error\". The type is used * to determine the breadcrumb icon in the Sentry UI. */ @property (nonatomic, copy, nullable) NSString *type; /** * Human-readable message describing this breadcrumb. */ @property (nonatomic, copy, nullable) NSString *message; /** * Origin identifying the source of this breadcrumb. * * Hybrid SDKs use this to distinguish native breadcrumbs from those * created by JavaScript, Flutter, or other layers. */ @property (nonatomic, copy, nullable) NSString *origin; /** * Arbitrary additional data associated with this breadcrumb. * * This data is displayed in the Sentry UI alongside the breadcrumb. */ @property (nonatomic, strong, nullable) NSDictionary<NSString *, id> *data; /** * Creates a breadcrumb with the specified level and category. * * @param level Severity level for this breadcrumb. * @param category Category string for this breadcrumb. * @return A new breadcrumb instance. */ - (instancetype)initWithLevel:(SentryLevel)level category:(NSString *)category; /** * Creates a breadcrumb with default values. * * @return A new breadcrumb instance. */ - (instancetype)init; /** * Serializes the breadcrumb to a dictionary. * * @return Dictionary representation of the breadcrumb. */ - (NSDictionary<NSString *, id> *)serialize; /** * Compares this breadcrumb with another object for equality. * * @param other The object to compare with. * @return @c YES if the objects are equal, @c NO otherwise. */ - (BOOL)isEqual:(id)other; /** * Compares this breadcrumb with another breadcrumb for equality. * * @param breadcrumb The breadcrumb to compare with. * @return @c YES if the breadcrumbs are equal, @c NO otherwise. */ - (BOOL)isEqualToBreadcrumb:(SentryBreadcrumb *)breadcrumb; /** * Returns a hash value for this breadcrumb. * * @return The hash value. */ - (NSUInteger)hash;",
-  "SentryObjCDebugMeta.h: @interface SentryDebugMeta : NSObject <SentrySerializable> /** * Unique identifier for the debug information (dSYM UUID). * * Used to locate the correct debug symbols for symbolication. */ @property (nonatomic, copy, nullable) NSString *debugID; /** * Type of debug information. * * Typically \"macho\" for iOS/macOS binaries. */ @property (nonatomic, copy, nullable) NSString *type; /** * Size of the binary image in bytes. */ @property (nonatomic, copy, nullable) NSNumber *imageSize; /** * Base memory address where the image was loaded. */ @property (nonatomic, copy, nullable) NSString *imageAddress; /** * Virtual memory address of the image. */ @property (nonatomic, copy, nullable) NSString *imageVmAddress; /** * Path to the binary file. */ @property (nonatomic, copy, nullable) NSString *codeFile; /** * Creates a new debug metadata instance. * * @return A new debug metadata instance. */ - (instancetype)init;",
-  "SentryObjCDefines.h: @protocol SentrySpan; NS_ASSUME_NONNULL_BEGIN typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)( SentryBreadcrumb *_Nonnull breadcrumb); typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event); typedef id<SentrySpan> _Nullable (^SentryBeforeSendSpanCallback)(id<SentrySpan> _Nonnull span); typedef BOOL (^SentryBeforeCaptureScreenshotCallback)(SentryEvent *_Nonnull event); typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event); typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)( SentrySamplingContext *_Nonnull samplingContext); #ifdef __cplusplus # define SENTRY_OBJC_EXTERN extern \"C\" __attribute__((visibility(\"default\"))) #else # define SENTRY_OBJC_EXTERN extern __attribute__((visibility(\"default\"))) #endif #define SENTRY_NO_INIT \\ -(instancetype)init NS_UNAVAILABLE; \\ +(instancetype) new NS_UNAVAILABLE; /** * SentryObjC \u2014 Pure Objective-C wrapper for the Sentry SDK. * * This module provides a self-contained public interface usable from Objective-C * and Objective-C++ without requiring Clang modules (-fmodules). Use this when * integrating Sentry into projects that cannot enable modules (e.g. React Native, * Haxe, custom build systems). * * @discussion Import the umbrella header: * @code * #import \"SentryObjC.h\" * @endcode * * @see SentrySDK For the main SDK entry point. * @see SentryOptions For configuration options. */ NS_ASSUME_NONNULL_END",
-  "SentryObjCError.h: typedef NS_ENUM(NSInteger, SentryError) { kSentryErrorUnknownError = -1, kSentryErrorInvalidDsnError = 100, kSentryErrorSentryCrashNotInstalledError = 101, kSentryErrorInvalidCrashReportError = 102, kSentryErrorCompressionError = 103, kSentryErrorJsonConversionError = 104, kSentryErrorCouldNotFindDirectory = 105, kSentryErrorRequestError = 106, kSentryErrorEventNotSent = 107, kSentryErrorFileIO = 108, kSentryErrorKernel = 109, };",
-  "SentryObjCError.h: typedef int kern_return_t;",
-  "SentryObjCEvent.h: @interface SentryEvent : NSObject <SentrySerializable> /** * Unique identifier for this event. * * Automatically generated when the event is created. */ @property (nonatomic, strong) SentryId *eventId; /** * Message associated with this event. * * Used for message events to provide a formatted message. */ @property (nonatomic, strong, nullable) SentryMessage *message; /** * The @c NSError associated with this event. * * This property provides convenience access to the error in @c beforeSend. * It is not directly serialized; errors are converted to exceptions. */ @property (nonatomic, copy, nullable) NSError *error; /** * Timestamp when the event occurred. * * If not set, defaults to the current time when the event is captured. */ @property (nonatomic, strong, nullable) NSDate *timestamp; /** * Timestamp when the event started. * * Primarily used for transaction events to indicate when the transaction began. */ @property (nonatomic, strong, nullable) NSDate *startTimestamp; /** * Severity level of the event. * * Defaults to @c kSentryLevelError. */ @property (nonatomic) SentryLevel level; /** * Platform identifier for symbolication. * * Always set to \"cocoa\" for iOS/macOS events. */ @property (nonatomic, copy) NSString *platform; /** * Name of the logger that captured this event. */ @property (nonatomic, copy, nullable) NSString *logger; /** * Server or device name where the event occurred. */ @property (nonatomic, copy, nullable) NSString *serverName; /** * Release version identifier. * * @note Filled automatically before the event is sent. * @warning Usually managed automatically; manual changes not recommended. */ @property (nonatomic, copy, nullable) NSString *releaseName; /** * Distribution identifier for this release. * * @note Filled automatically before the event is sent. * @warning Usually managed automatically; manual changes not recommended. */ @property (nonatomic, copy, nullable) NSString *dist; /** * Environment name where the event occurred. */ @property (nonatomic, copy, nullable) NSString *environment; /** * Name of the transaction associated with this event. */ @property (nonatomic, copy, nullable) NSString *transaction; /** * Type of event. * * Can be \"default\", \"transaction\", or @c nil. */ @property (nonatomic, copy, nullable) NSString *type; /** * Key-value tags for categorizing and filtering events. * * Tags are searchable in the Sentry UI. */ @property (nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> *tags; /** * Arbitrary extra data associated with the event. * * This data is displayed in the Sentry UI but is not indexed for search. */ @property (nonatomic, strong, nullable) NSDictionary<NSString *, id> *extra; /** * SDK metadata. * * @warning Usually managed automatically; manual changes not recommended. */ @property (nonatomic, strong, nullable) NSDictionary<NSString *, id> *sdk; /** * List of loaded modules (frameworks/libraries) and their versions. */ @property (nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> *modules; /** * Fingerprint for grouping events. * * Events with the same fingerprint are grouped into the same issue. * If not set, Sentry uses default grouping algorithms. */ @property (nonatomic, strong, nullable) NSArray<NSString *> *fingerprint; /** * User information associated with this event. */ @property (nonatomic, strong, nullable) SentryUser *user; /** * Additional context data organized by category. * * Common categories include \"device\", \"os\", \"app\", \"browser\", etc. */ @property (nonatomic, strong, nullable) NSDictionary<NSString *, NSDictionary<NSString *, id> *> *context; /** * List of threads running when the event occurred. * * Typically populated for crash events. */ @property (nonatomic, strong, nullable) NSArray<SentryThread *> *threads; /** * List of exceptions associated with this event. * * Can contain multiple exceptions for chained or nested errors. */ @property (nonatomic, strong, nullable) NSArray<SentryException *> *exceptions; /** * Stack trace for this event. * * Used when the event represents a single error or exception. */ @property (nonatomic, strong, nullable) SentryStacktrace *stacktrace; /** * Debug metadata for symbolication. * * Contains information about debug images (binaries) loaded at crash time. */ @property (nonatomic, strong, nullable) NSArray<SentryDebugMeta *> *debugMeta; /** * Breadcrumbs that provide context leading up to the event. * * Breadcrumbs are a trail of events that occurred before this event. */ @property (nonatomic, strong, nullable) NSArray<SentryBreadcrumb *> *breadcrumbs; /** * HTTP request information associated with this event. */ @property (nonatomic, strong, nullable) SentryRequest *request; /** * Creates a new event with default values. * * @return A new event instance. */ - (instancetype)init; /** * Creates a new event with the specified severity level. * * @param level The severity level for this event. * @return A new event instance. */ - (instancetype)initWithLevel:(SentryLevel)level; /** * Creates a new event from an @c NSError. * * @param error The error to create an event from. * @return A new event instance. */ - (instancetype)initWithError:(NSError *)error;",
-  "SentryObjCException.h: @interface SentryException : NSObject <SentrySerializable> SENTRY_NO_INIT /** * The exception value (e.g., error message or description). */ @property (nonatomic, copy) NSString *value; /** * The exception type (e.g., \"NSInvalidArgumentException\", \"NullPointerException\"). */ @property (nonatomic, copy) NSString *type; /** * Mechanism describing how the exception was captured. */ @property (nonatomic, strong) SentryMechanism *mechanism; /** * Module or package where the exception originated. */ @property (nonatomic, copy) NSString *module; /** * ID of the thread where the exception occurred. */ @property (nonatomic, copy) NSNumber *threadId; /** * Stack trace associated with this exception. */ @property (nonatomic, strong) SentryStacktrace *stacktrace; /** * Creates an exception with the specified value and type. * * @param value The exception message or description. * @param type The exception type name. * @return A new exception instance. */ - (instancetype)initWithValue:(NSString *)value type:(NSString *)type;",
-  "SentryObjCFrame.h: @interface SentryFrame : NSObject <SentrySerializable> /** * Address of the symbol for this frame. */ @property (nonatomic, copy) NSString *symbolAddress; /** * Source file name where this frame's code is located. */ @property (nonatomic, copy) NSString *fileName; /** * Function or method name for this frame. */ @property (nonatomic, copy) NSString *function; /** * Module (framework or library) containing this frame's code. */ @property (nonatomic, copy) NSString *module; /** * Package or bundle identifier. */ @property (nonatomic, copy) NSString *package; /** * Base address of the image (binary) containing this frame. */ @property (nonatomic, copy) NSString *imageAddress; /** * Platform identifier for this frame. */ @property (nonatomic, copy) NSString *platform; /** * Memory address of the instruction for this frame. */ @property (nonatomic, copy) NSString *instructionAddress; /** * Line number in the source file. */ @property (nonatomic, copy) NSNumber *lineNumber; /** * Column number in the source line. */ @property (nonatomic, copy) NSNumber *columnNumber; /** * Source code line at this frame's location. */ @property (nonatomic, copy) NSString *contextLine; /** * Source code lines before the current line (for context). */ @property (nonatomic, copy) NSArray<NSString *> *preContext; /** * Source code lines after the current line (for context). */ @property (nonatomic, copy) NSArray<NSString *> *postContext; /** * Whether this frame is from application code. * * @c @YES for app code, @c @NO for framework/system code. */ @property (nonatomic, copy) NSNumber *inApp; /** * Whether this frame marks the start of the stack. */ @property (nonatomic, copy) NSNumber *stackStart; /** * Local variables visible at this frame. */ @property (nonatomic, copy) NSDictionary<NSString *, id> *vars; /** * Creates a new frame with default values. * * @return A new frame instance. */ - (instancetype)init;",
-  "SentryObjCGeo.h: @interface SentryGeo : NSObject <SentrySerializable, NSCopying> /** * Human-readable city name. */ @property (nullable, atomic, copy) NSString *city; /** * Two-letter country code (ISO 3166-1 alpha-2). * * Examples: \"US\", \"GB\", \"DE\". */ @property (nullable, atomic, copy) NSString *countryCode; /** * Human-readable region name or code. * * May be a state, province, or administrative region. */ @property (nullable, atomic, copy) NSString *region; /** * Compares this geographical location with another object for equality. * * @param other The object to compare with. * @return @c YES if the objects are equal, @c NO otherwise. */ - (BOOL)isEqual:(id)other; /** * Compares this geographical location with another location for equality. * * @param geo The geographical location to compare with. * @return @c YES if the locations are equal, @c NO otherwise. */ - (BOOL)isEqualToGeo:(SentryGeo *)geo; /** * Returns a hash value for this geographical location. * * @return The hash value. */ - (NSUInteger)hash;",
-  "SentryObjCHttpStatusCodeRange.h: @interface SentryHttpStatusCodeRange : NSObject SENTRY_NO_INIT @property (nonatomic, readonly) NSInteger min; @property (nonatomic, readonly) NSInteger max; /** Creates a range with min and max (inclusive). */ - (instancetype)initWithMin:(NSInteger)min max:(NSInteger)max; /** Creates a range for a single status code. */ - (instancetype)initWithStatusCode:(NSInteger)statusCode;",
-  "SentryObjCId.h: @interface SentryId : NSObject /** A SentryId with an empty UUID \"00000000000000000000000000000000\". */ @property (nonatomic, class, readonly, strong) SentryId *empty; /** Returns a 32 lowercase character hexadecimal string, e.g. \"12c2d058d58442709aa2eca08bf20986\". */ @property (nonatomic, readonly, copy) NSString *sentryIdString; /** Creates a SentryId with a random UUID. */ - (instancetype)init; /** Creates a SentryId with the given UUID. */ - (instancetype)initWithUuid:(NSUUID *)uuid; /** * Creates a SentryId from a 32- or 36-character hexadecimal string. * * @param uuidString A string like \"12c2d058d58442709aa2eca08bf20986\" or * \"12c2d058-d584-4270-9aa2-eca08bf20986\". * @return SentryId.empty for invalid strings. */ - (instancetype)initWithUUIDString:(NSString *)uuidString; - (BOOL)isEqual:(id)object;",
-  "SentryObjCLevel.h: typedef NS_ENUM(NSUInteger, SentryLevel) { kSentryLevelNone = 0, kSentryLevelDebug = 1, kSentryLevelInfo = 2, kSentryLevelWarning = 3, kSentryLevelError = 4, kSentryLevelFatal = 5 };",
-  "SentryObjCLogger.h: @interface SentryLogger : NSObject - (void)trace:(NSString *)body; - (void)trace:(NSString *)body attributes:(NSDictionary<NSString *, id> *)attributes; - (void)debug:(NSString *)body; - (void)debug:(NSString *)body attributes:(NSDictionary<NSString *, id> *)attributes; - (void)info:(NSString *)body; - (void)info:(NSString *)body attributes:(NSDictionary<NSString *, id> *)attributes; - (void)warn:(NSString *)body; - (void)warn:(NSString *)body attributes:(NSDictionary<NSString *, id> *)attributes; - (void)error:(NSString *)body; - (void)error:(NSString *)body attributes:(NSDictionary<NSString *, id> *)attributes; - (void)fatal:(NSString *)body; - (void)fatal:(NSString *)body attributes:(NSDictionary<NSString *, id> *)attributes;",
-  "SentryObjCMeasurementUnit.h: @interface SentryMeasurementUnit : NSObject <NSCopying> SENTRY_NO_INIT /** Returns a custom measurement unit. */ - (instancetype)initWithUnit:(NSString *)unit; /** The string representation of the measurement unit. */ @property (readonly, copy) NSString *unit; /** Untyped value without a unit. */ @property (class, readonly, copy) SentryMeasurementUnit *none;",
-  "SentryObjCMeasurementUnit.h: @interface SentryMeasurementUnitDuration : SentryMeasurementUnit SENTRY_NO_INIT @property (class, readonly, copy) SentryMeasurementUnitDuration *nanosecond; @property (class, readonly, copy) SentryMeasurementUnitDuration *microsecond; @property (class, readonly, copy) SentryMeasurementUnitDuration *millisecond; @property (class, readonly, copy) SentryMeasurementUnitDuration *second; @property (class, readonly, copy) SentryMeasurementUnitDuration *minute; @property (class, readonly, copy) SentryMeasurementUnitDuration *hour; @property (class, readonly, copy) SentryMeasurementUnitDuration *day; @property (class, readonly, copy) SentryMeasurementUnitDuration *week;",
-  "SentryObjCMeasurementUnit.h: @interface SentryMeasurementUnitFraction : SentryMeasurementUnit SENTRY_NO_INIT @property (class, readonly, copy) SentryMeasurementUnitFraction *ratio; @property (class, readonly, copy) SentryMeasurementUnitFraction *percent;",
-  "SentryObjCMeasurementUnit.h: @interface SentryMeasurementUnitInformation : SentryMeasurementUnit SENTRY_NO_INIT @property (class, readonly, copy) SentryMeasurementUnitInformation *bit; @property (class, readonly, copy) SentryMeasurementUnitInformation *byte; @property (class, readonly, copy) SentryMeasurementUnitInformation *kilobyte; @property (class, readonly, copy) SentryMeasurementUnitInformation *kibibyte; @property (class, readonly, copy) SentryMeasurementUnitInformation *megabyte; @property (class, readonly, copy) SentryMeasurementUnitInformation *mebibyte; @property (class, readonly, copy) SentryMeasurementUnitInformation *gigabyte; @property (class, readonly, copy) SentryMeasurementUnitInformation *gibibyte; @property (class, readonly, copy) SentryMeasurementUnitInformation *terabyte; @property (class, readonly, copy) SentryMeasurementUnitInformation *tebibyte; @property (class, readonly, copy) SentryMeasurementUnitInformation *petabyte; @property (class, readonly, copy) SentryMeasurementUnitInformation *pebibyte; @property (class, readonly, copy) SentryMeasurementUnitInformation *exabyte; @property (class, readonly, copy) SentryMeasurementUnitInformation *exbibyte;",
-  "SentryObjCMechanism.h: @interface SentryMechanism : NSObject <SentrySerializable> SENTRY_NO_INIT /** * Mechanism type identifier. * * Examples: \"generic\", \"onerror\", \"promise\", \"signal\". */ @property (nonatomic, copy) NSString *type; /** * Human-readable description of the mechanism. */ @property (nonatomic, copy, nullable) NSString *desc; /** * Arbitrary data attached to the mechanism. * * May contain signal numbers, error codes, or other mechanism-specific data. */ @property (nonatomic, strong, nullable) NSDictionary<NSString *, id> *data; /** * Whether the exception was handled by application code. * * @c @YES if caught and handled, @c @NO if unhandled/fatal. */ @property (nonatomic, copy, nullable) NSNumber *handled; /** * Whether the exception was generated synthetically. * * @c @YES for exceptions created by instrumentation rather than thrown naturally. */ @property (nonatomic, copy, nullable) NSNumber *synthetic; /** * URL to documentation about this mechanism. */ @property (nonatomic, copy, nullable) NSString *helpLink; /** * Additional metadata about the mechanism. */ @property (nullable, nonatomic, strong) SentryMechanismContext *meta; /** * Creates a mechanism with the specified type. * * @param type The mechanism type identifier. * @return A new mechanism instance. */ - (instancetype)initWithType:(NSString *)type;",
-  "SentryObjCMechanismContext.h: @interface SentryMechanismContext : NSObject <SentrySerializable> - (instancetype)init; @property (nullable, nonatomic, strong) NSDictionary<NSString *, id> *signal; @property (nullable, nonatomic, strong) NSDictionary<NSString *, id> *machException; @property (nullable, nonatomic, strong) SentryNSError *error;",
-  "SentryObjCMessage.h: @interface SentryMessage : NSObject <SentrySerializable> SENTRY_NO_INIT /** * Creates a message with a formatted string. * * @param formatted The formatted message string to display. * @return A new message instance. */ - (instancetype)initWithFormatted:(NSString *)formatted; /** * The fully formatted message string. * * This is what appears in the Sentry UI. */ @property (nonatomic, readonly, copy) NSString *formatted; /** * The unformatted message template. * * Used for grouping similar messages with different parameter values. * Example: \"User {user} performed action {action}\". */ @property (nonatomic, copy) NSString *message; /** * Parameters to substitute into the message template. * * Corresponds to placeholders in the @c message template. */ @property (nonatomic, strong) NSArray<NSString *> *params;",
-  "SentryObjCMetric.h: @interface SentryObjCMetric : NSObject @property (nonatomic, readonly) NSDate *timestamp; @property (nonatomic, readonly) NSString *name; @property (nonatomic, readonly) SentryId *traceId; @property (nonatomic, readonly, nullable) SentrySpanId *spanId; @property (nonatomic, readonly) SentryObjCMetricValue *value; @property (nonatomic, readonly, nullable) NSString *unit; @property (nonatomic, readonly) NSDictionary<NSString *, SentryObjCAttributeContent *> *attributes;",
-  "SentryObjCMetricValue.h: @interface SentryObjCMetricValue : NSObject @property (nonatomic, readonly) SentryObjCMetricValueType type; @property (nonatomic, readonly) unsigned long long counterValue; @property (nonatomic, readonly) double gaugeValue; @property (nonatomic, readonly) double distributionValue; + (instancetype)counterWithValue:(unsigned long long)value; + (instancetype)gaugeWithValue:(double)value; + (instancetype)distributionWithValue:(double)value;",
-  "SentryObjCMetricValue.h: typedef NS_ENUM(NSInteger, SentryObjCMetricValueType) { SentryObjCMetricValueTypeCounter, SentryObjCMetricValueTypeGauge, SentryObjCMetricValueTypeDistribution };",
-  "SentryObjCNSError.h: @interface SentryNSError : NSObject <SentrySerializable> SENTRY_NO_INIT @property (nonatomic, copy) NSString *domain; @property (nonatomic, assign) NSInteger code; - (instancetype)initWithDomain:(NSString *)domain code:(NSInteger)code;",
-  "SentryObjCOptions.h: @interface SentryOptions : NSObject /** * The DSN (Data Source Name) for your Sentry project. * * This uniquely identifies your project and directs events to the correct endpoint. */ @property (nonatomic, copy, nullable) NSString *dsn; /** * Parsed representation of the DSN. * * @warning This is maintained automatically and should not be set directly. */ @property (nonatomic, strong, nullable) id parsedDsn; /** * Whether to enable debug mode. * * When @c YES, the SDK will output detailed logs. Defaults to @c NO. */ @property (nonatomic, assign) BOOL debug; /** * The minimum level for diagnostic messages to be logged. * * Only messages at or above this level will be logged. */ @property (nonatomic, assign) SentryLevel diagnosticLevel; /** * The release version of your application. * * Format: @c \\<package-name\\>@\\<version\\>+\\<build\\> (e.g., \"my.app@1.0.0+123\"). * If not set, the SDK will attempt to detect it automatically. */ @property (nonatomic, copy, nullable) NSString *releaseName; /** * The distribution identifier for this release. * * Used to distinguish different distributions of the same release (e.g., \"enterprise\", \"appstore\"). */ @property (nonatomic, copy, nullable) NSString *dist; /** * The environment name (e.g., \"production\", \"staging\", \"development\"). * * Defaults to \"production\". */ @property (nonatomic, copy) NSString *environment; /** * Whether the SDK is enabled. * * When @c NO, the SDK will not send any events. Defaults to @c YES. */ @property (nonatomic, assign) BOOL enabled; /** * Maximum time to wait for pending events to be sent during shutdown. * * Specified in seconds. Defaults to 2 seconds. */ @property (nonatomic, assign) NSTimeInterval shutdownTimeInterval; /** * Whether to install the crash handler. * * When @c YES, the SDK will capture crashes. Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableCrashHandler; /** * Maximum number of breadcrumbs to keep. * * When the limit is exceeded, older breadcrumbs are removed. Defaults to 100. */ @property (nonatomic, assign) NSUInteger maxBreadcrumbs; /** * Whether to automatically capture network request breadcrumbs. * * Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableNetworkBreadcrumbs; /** * Maximum number of events to cache on disk. * * When the limit is exceeded, the oldest events are removed. Defaults to 30. */ @property (nonatomic, assign) NSUInteger maxCacheItems; /** * Callback invoked before an event is sent. * * Use this to modify or filter events. Return @c nil to prevent sending. */ @property (nonatomic, copy, nullable) SentryBeforeSendEventCallback beforeSend; /** * Callback invoked before a span is sent. * * Use this to modify or filter spans. Return @c nil to prevent sending. */ @property (nonatomic, copy, nullable) SentryBeforeSendSpanCallback beforeSendSpan; /** * Whether to enable automatic log capture. * * When @c YES, logs will be captured and sent to Sentry. Defaults to @c NO. */ @property (nonatomic, assign) BOOL enableLogs; /** * Callback invoked before a breadcrumb is added. * * Use this to modify or filter breadcrumbs. Return @c nil to prevent adding. */ @property (nonatomic, copy, nullable) SentryBeforeBreadcrumbCallback beforeBreadcrumb; /** * Callback invoked before a screenshot is captured. * * Return @c nil to prevent capturing the screenshot. */ @property (nonatomic, copy, nullable) SentryBeforeCaptureScreenshotCallback beforeCaptureScreenshot; /** * Callback invoked before the view hierarchy is captured. * * Return @c nil to prevent capturing the view hierarchy. */ @property (nonatomic, copy, nullable) SentryBeforeCaptureScreenshotCallback beforeCaptureViewHierarchy; /** * Callback invoked when the SDK determines the app crashed on the previous run. * * Use this to perform custom logic when a crash is detected. */ @property (nonatomic, copy, nullable) SentryOnCrashedLastRunCallback onCrashedLastRun; /** * The sample rate for error events. * * A value between 0.0 (0%) and 1.0 (100%). Defaults to 1.0 (all events sent). */ @property (nonatomic, strong, nullable) NSNumber *sampleRate; /** * Whether to enable automatic session tracking. * * When @c YES, sessions are automatically started and stopped. Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableAutoSessionTracking; /** * Whether to enable automatic GraphQL operation tracking. * * Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableGraphQLOperationTracking; /** * Whether to track watchdog terminations. * * Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableWatchdogTerminationTracking; /** * Interval for session tracking in milliseconds. * * Sessions are sent to Sentry at this interval. Defaults to 30000 (30 seconds). */ @property (nonatomic, assign) NSUInteger sessionTrackingIntervalMillis; /** * Whether to attach stack traces to captured messages. * * Defaults to @c YES. */ @property (nonatomic, assign) BOOL attachStacktrace; /** * Maximum size for attachments in bytes. * * Attachments larger than this will not be sent. Defaults to 20 MB. */ @property (nonatomic, assign) NSUInteger maxAttachmentSize; /** * Whether to send default personally identifiable information (PII). * * When @c YES, user IP addresses and usernames are sent. Defaults to @c NO. */ @property (nonatomic, assign) BOOL sendDefaultPii; /** * Whether to enable automatic performance tracing. * * Defaults to @c YES when @c tracesSampleRate or @c tracesSampler is set. */ @property (nonatomic, assign) BOOL enableAutoPerformanceTracing; /** * Whether to persist traces when the application crashes. * * This allows traces to be sent with crash reports. Defaults to @c YES. */ @property (nonatomic, assign) BOOL enablePersistingTracesWhenCrashing; /** * Initial scope data to apply when the SDK starts. * * Set this to pre-populate the scope with tags, extras, or other data. */ @property (nonatomic, copy, nullable) id initialScope; #if SENTRY_OBJC_UIKIT_AVAILABLE /** * Whether to enable automatic view controller tracing. * * When @c YES, navigation between view controllers is automatically traced. Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableUIViewControllerTracing; /** * Whether to attach screenshots to error events. * * Defaults to @c YES. */ @property (nonatomic, assign) BOOL attachScreenshot; /** * Configuration for screenshot attachment. * * @warning This is maintained automatically. */ @property (nonatomic, strong) id screenshot; /** * Whether to attach the view hierarchy to error events. * * Defaults to @c YES. */ @property (nonatomic, assign) BOOL attachViewHierarchy; /** * Whether to include accessibility identifiers in the view hierarchy. * * Defaults to @c YES. */ @property (nonatomic, assign) BOOL reportAccessibilityIdentifier; /** * Whether to enable automatic user interaction tracing. * * When @c YES, user taps and swipes are automatically traced. Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableUserInteractionTracing; /** * The idle timeout for automatically finishing transactions. * * If no child spans are running for this duration, the transaction is automatically finished. * Specified in seconds. Defaults to 3 seconds. */ @property (nonatomic, assign) NSTimeInterval idleTimeout; /** * Whether to trace app start for pre-warmed launches. * * Defaults to @c NO. */ @property (nonatomic, assign) BOOL enablePreWarmedAppStartTracing; /** * Whether to report app hangs that don't fully block the main thread. * * Defaults to @c NO. */ @property (nonatomic, assign) BOOL enableReportNonFullyBlockingAppHangs; /** * Configuration options for Session Replay. */ @property (nonatomic, strong) SentryReplayOptions *sessionReplay; #endif /** * Whether to enable automatic network request tracing. * * When @c YES, network requests are automatically traced. Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableNetworkTracking; /** * Whether to enable file I/O tracing. * * Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableFileIOTracing; /** * Whether to enable method swizzling for automatic instrumentation. * * Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableDataSwizzling; /** * Whether to swizzle @c NSFileManager methods for file I/O tracing. * * Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableFileManagerSwizzling; /** * The sample rate for performance traces. * * A value between 0.0 (0%) and 1.0 (100%). Defaults to @c nil (no tracing). */ @property (nonatomic, strong, nullable) NSNumber *tracesSampleRate; /** * Callback for dynamic trace sampling decisions. * * If set, this callback is invoked for each transaction to determine * whether it should be sampled. */ @property (nonatomic, copy, nullable) SentryTracesSamplerCallback tracesSampler; /** * Whether performance tracing is enabled. * * @c YES if @c tracesSampleRate or @c tracesSampler is set. */ @property (nonatomic, readonly) BOOL isTracingEnabled; /** * List of module/package prefixes to consider as in-app code. * * Stack frames from these modules are marked as in-app. */ @property (nonatomic, copy) NSArray<NSString *> *inAppIncludes; /** * Custom delegate for the SDK's @c NSURLSession. */ @property (nonatomic, weak, nullable) id urlSessionDelegate; /** * Custom @c NSURLSession for network communication. * * If not set, the SDK creates its own session. */ @property (nonatomic, strong, nullable) NSURLSession *urlSession; /** * Whether to enable method swizzling globally. * * When @c NO, automatic instrumentation is disabled. Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableSwizzling; /** * Set of class name prefixes to exclude from swizzling. * * Classes whose names start with these prefixes will not be swizzled. */ @property (nonatomic, copy) NSSet<NSString *> *swizzleClassNameExcludes; /** * Whether to enable Core Data tracing. * * Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableCoreDataTracing; /** * Whether to send client reports about dropped events. * * Defaults to @c YES. */ @property (nonatomic, assign) BOOL sendClientReports; /** * Whether to enable app hang tracking. * * When @c YES, the SDK detects when the main thread is blocked. Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableAppHangTracking; /** * Threshold for detecting app hangs. * * If the main thread is blocked for longer than this duration, it's reported * as an app hang. Specified in seconds. Defaults to 2 seconds. */ @property (nonatomic, assign) NSTimeInterval appHangTimeoutInterval; /** * Whether to enable automatic breadcrumb tracking. * * When @c YES, various system events are automatically captured as breadcrumbs. Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableAutoBreadcrumbTracking; /** * Whether to propagate trace context in HTTP headers. * * When @c YES, @c sentry-trace and @c baggage headers are added to outgoing requests. Defaults to * @c YES. */ @property (nonatomic, assign) BOOL enablePropagateTraceparent; /** * List of URL patterns for trace propagation. * * Only requests to URLs matching these patterns will have trace headers added. * If empty, all requests receive headers. */ @property (nonatomic, copy) NSArray *tracePropagationTargets; /** * Whether to capture HTTP requests that result in error status codes. * * Defaults to @c YES when tracing is enabled. */ @property (nonatomic, assign) BOOL enableCaptureFailedRequests; /** * List of HTTP status code ranges to consider as failed requests. * * Requests with these status codes are captured as error events. */ @property (nonatomic, copy) NSArray *failedRequestStatusCodes; /** * List of URL patterns to capture when they result in failed requests. * * Only requests to URLs matching these patterns are captured. */ @property (nonatomic, copy) NSArray *failedRequestTargets; /** * Whether to enable Time To Full Display tracking. * * Defaults to @c YES. */ @property (nonatomic, assign) BOOL enableTimeToFullDisplayTracing; /** * Whether to capture stack traces from Swift async functions. * * Defaults to @c YES on iOS 15+. */ @property (nonatomic, assign) BOOL swiftAsyncStacktraces; /** * Custom directory path for caching events. * * If not set, the SDK uses the default cache directory. */ @property (nonatomic, copy) NSString *cacheDirectoryPath; /** * Whether to enable Spotlight integration for local debugging. * * Defaults to @c NO. */ @property (nonatomic, assign) BOOL enableSpotlight; /** * URL for the Spotlight server. * * Defaults to @c \"http://localhost:8969/stream\". */ @property (nonatomic, copy) NSString *spotlightUrl; /** * Experimental features configuration. * * Access experimental SDK features through this property. */ @property (nonatomic, strong) id experimental; /** * Adds a module/package prefix to the in-app includes list. * * @param inAppInclude The module prefix to add. */ - (void)addInAppInclude:(NSString *)inAppInclude;",
-  "SentryObjCRedactRegionType.h: typedef NSString *SentryRedactRegionType NS_STRING_ENUM;",
-  "SentryObjCReplayApi.h: @interface SentryReplayApi : NSObject /** * Masks a specific view in the replay. * * The view's content will be hidden in replay recordings. * * @param view The view to mask. */ - (void)maskView:(UIView *)view; /** * Unmasks a specific view in the replay. * * The view's content will be visible in replay recordings. * * @param view The view to unmask. */ - (void)unmaskView:(UIView *)view; /** * Pauses replay recording. * * Recording can be resumed with @c -resume. */ - (void)pause; /** * Resumes replay recording after it was paused. */ - (void)resume; /** * Starts replay recording. * * @note Replay is usually started automatically when sampled. */ - (void)start; /** * Stops replay recording. * * The recorded replay will be uploaded if errors occurred. */ - (void)stop; /** * Shows a visual preview of which views are masked. * * Useful for debugging privacy settings. Uses default opacity. */ - (void)showMaskPreview; /** * Shows a visual preview of which views are masked with custom opacity. * * @param opacity Opacity for the mask overlay (0.0 to 1.0). */ - (void)showMaskPreview:(CGFloat)opacity; /** * Hides the mask preview overlay. */ - (void)hideMaskPreview;",
-  "SentryObjCReplayOptions.h: @interface SentryReplayOptions : NSObject /** * Sample rate for replaying sessions. * * Value between 0.0 and 1.0. Defaults to 0.0 (disabled). * Only sampled sessions will record replays. */ @property (nonatomic, assign) float sessionSampleRate; /** * Sample rate for replaying sessions with errors. * * Value between 0.0 and 1.0. Defaults to 0.0 (disabled). * Sessions with errors are more likely to need replay for debugging. */ @property (nonatomic, assign) float onErrorSampleRate; /** * Whether to mask all text in the replay. * * When @c YES, all text is replaced with placeholder blocks. Defaults to @c YES. */ @property (nonatomic, assign) BOOL maskAllText; /** * Whether to mask all images in the replay. * * When @c YES, all images are replaced with placeholder blocks. Defaults to @c YES. */ @property (nonatomic, assign) BOOL maskAllImages; /** * Video quality for replay recordings. * * Higher quality produces clearer recordings but larger files. Defaults to medium. */ @property (nonatomic, assign) SentryReplayQuality quality; /** * View classes to mask in the replay. * * Views of these classes will have their content hidden. */ @property (nonatomic, copy) NSArray<Class> *maskedViewClasses; /** * View classes to explicitly not mask in the replay. * * Overrides @c maskAllText and @c maskAllImages for these view classes. */ @property (nonatomic, copy) NSArray<Class> *unmaskedViewClasses; /** * View class names to exclude from subtree traversal. * * Views with these class names and their children will not be rendered. */ @property (nonatomic, copy) NSSet<NSString *> *excludedViewClasses; /** * View class names to include in subtree traversal. * * Overrides exclusions for these view classes. */ @property (nonatomic, copy) NSSet<NSString *> *includedViewClasses; /** * Whether to enable the V2 view renderer. * * @warning Experimental. May change in future versions. */ @property (nonatomic, assign) BOOL enableViewRendererV2; /** * Whether to enable fast view rendering optimizations. * * @warning Experimental. May change in future versions. */ @property (nonatomic, assign) BOOL enableFastViewRendering; /** * Excludes a view type from being rendered in replays. * * The view and its entire subtree will not appear in the replay. * * @param viewType Fully qualified class name (e.g., \"UITextField\"). */ - (void)excludeViewTypeFromSubtreeTraversal:(NSString *)viewType; /** * Includes a view type in replay rendering. * * Overrides previous exclusions for this view type. * * @param viewType Fully qualified class name (e.g., \"UITextField\"). */ - (void)includeViewTypeInSubtreeTraversal:(NSString *)viewType;",
-  "SentryObjCReplayOptions.h: typedef NS_ENUM(NSInteger, SentryReplayQuality) { /** Low quality (lower file size, faster upload) */ SentryReplayQualityLow = 0, /** Medium quality (balanced size and clarity) */ SentryReplayQualityMedium = 1, /** High quality (larger file size, better clarity) */ SentryReplayQualityHigh = 2 };",
-  "SentryObjCRequest.h: @interface SentryRequest : NSObject <SentrySerializable> /** * Size of the request body in bytes. */ @property (nonatomic, copy, nullable) NSNumber *bodySize; /** * Cookies sent with the request. * * @note Only included when @c sendDefaultPii is @c YES. */ @property (nonatomic, copy, nullable) NSString *cookies; /** * HTTP headers from the request. * * @note Sensitive headers are automatically filtered. */ @property (nonatomic, strong, nullable) NSDictionary<NSString *, NSString *> *headers; /** * URL fragment (the part after #). */ @property (nonatomic, copy, nullable) NSString *fragment; /** * HTTP method (GET, POST, etc.). */ @property (nonatomic, copy, nullable) NSString *method; /** * Query string (the part after ?). */ @property (nonatomic, copy, nullable) NSString *queryString; /** * Full request URL. */ @property (nonatomic, copy, nullable) NSString *url; /** * Creates a new request instance. * * @return A new request instance. */ - (instancetype)init;",
-  "SentryObjCSDK.h: @protocol SentrySpan; #if SENTRY_OBJC_REPLAY_SUPPORTED @class SentryReplayApi; #endif @class SentryLogger; NS_ASSUME_NONNULL_BEGIN /** * Main entry point for the Sentry SDK. * * Use this class to initialize the SDK, capture events, and manage SDK state. * * @see SentryOptions * @see SentryScope */ @interface SentrySDK : NSObject SENTRY_NO_INIT /** * Returns the currently active span or transaction. * * @return The active span, or @c nil if no span is active. */ + (nullable id<SentrySpan>)span; /** * Indicates whether the SDK has been properly initialized and is enabled. * * @return @c YES if the SDK is enabled, @c NO otherwise. */ + (BOOL)isEnabled; #if SENTRY_OBJC_REPLAY_SUPPORTED /** * Returns the Session Replay API for controlling replay recording. * * @return The replay API instance. */ + (SentryReplayApi *)replay; #endif /** * Returns the SDK logger instance. * * @return The logger instance. */ + (SentryLogger *)logger; /** * Initializes the SDK with the provided options. * * Call this method once during application startup. * * @param options The configuration options for the SDK. */ + (void)startWithOptions:(SentryOptions *)options; /** * Initializes the SDK with a configuration block. * * This is a convenience method that creates default options and passes them * to the configuration block for customization. * * @param configureOptions A block that receives the options object for configuration. */ + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions; /** * Captures an event and sends it to Sentry. * * @param event The event to capture. * @return The event ID of the captured event. */ + (SentryId *)captureEvent:(SentryEvent *)event; /** * Captures an event with a specific scope and sends it to Sentry. * * @param event The event to capture. * @param scope The scope to use for this event. * @return The event ID of the captured event. */ + (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope; /** * Captures an event with a scope modification block. * * The block allows you to modify the scope for this specific event capture. * * @param event The event to capture. * @param block A block that receives the scope for modification. * @return The event ID of the captured event. */ + (SentryId *)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *scope))block; /** * Starts a new transaction for performance monitoring. * * @param name The name of the transaction. * @param operation The operation type (e.g., \"http.server\", \"db.query\"). * @return The started transaction span. */ + (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation; /** * Starts a new transaction with scope binding control. * * @param name The name of the transaction. * @param operation The operation type. * @param bindToScope If @c YES, binds the transaction to the current scope. * @return The started transaction span. */ + (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation bindToScope:(BOOL)bindToScope; /** * Starts a new transaction from a transaction context. * * @param transactionContext The transaction context containing name, operation, and trace * information. * @return The started transaction span. */ + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext; /** * Starts a new transaction from a transaction context with scope binding control. * * @param transactionContext The transaction context. * @param bindToScope If @c YES, binds the transaction to the current scope. * @return The started transaction span. */ + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext bindToScope:(BOOL)bindToScope; /** * Starts a new transaction with custom sampling context. * * @param transactionContext The transaction context. * @param customSamplingContext Additional data to pass to the traces sampler callback. * @return The started transaction span. */ + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext; /** * Starts a new transaction with full control over binding and sampling. * * @param transactionContext The transaction context. * @param bindToScope If @c YES, binds the transaction to the current scope. * @param customSamplingContext Additional data to pass to the traces sampler callback. * @return The started transaction span. */ + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext bindToScope:(BOOL)bindToScope customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext; /** * Captures an @c NSError and sends it to Sentry. * * @param error The error to capture. * @return The event ID of the captured error. */ + (SentryId *)captureError:(NSError *)error; /** * Captures an @c NSError with a specific scope. * * @param error The error to capture. * @param scope The scope to use for this error. * @return The event ID of the captured error. */ + (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope; /** * Captures an @c NSError with a scope modification block. * * @param error The error to capture. * @param block A block that receives the scope for modification. * @return The event ID of the captured error. */ + (SentryId *)captureError:(NSError *)error withScopeBlock:(void (^)(SentryScope *scope))block; /** * Captures an @c NSException and sends it to Sentry. * * @param exception The exception to capture. * @return The event ID of the captured exception. */ + (SentryId *)captureException:(NSException *)exception; /** * Captures an @c NSException with a specific scope. * * @param exception The exception to capture. * @param scope The scope to use for this exception. * @return The event ID of the captured exception. */ + (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope; /** * Captures an @c NSException with a scope modification block. * * @param exception The exception to capture. * @param block A block that receives the scope for modification. * @return The event ID of the captured exception. */ + (SentryId *)captureException:(NSException *)exception withScopeBlock:(void (^)(SentryScope *scope))block; /** * Captures a message string and sends it to Sentry. * * @param message The message to capture. * @return The event ID of the captured message. */ + (SentryId *)captureMessage:(NSString *)message; /** * Captures a message with a specific scope. * * @param message The message to capture. * @param scope The scope to use for this message. * @return The event ID of the captured message. */ + (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope; /** * Captures a message with a scope modification block. * * @param message The message to capture. * @param block A block that receives the scope for modification. * @return The event ID of the captured message. */ + (SentryId *)captureMessage:(NSString *)message withScopeBlock:(void (^)(SentryScope *scope))block; /** * Captures user feedback and sends it to Sentry. * * @param feedback The user feedback to capture. */ + (void)captureFeedback:(SentryFeedback *)feedback; /** * Adds a breadcrumb to the current scope. * * Breadcrumbs are sent with subsequent error events to provide context. * * @param crumb The breadcrumb to add. */ + (void)addBreadcrumb:(SentryBreadcrumb *)crumb; /** * Modifies the current scope using a callback block. * * Use this to add tags, extra data, or other contextual information. * * @param callback A block that receives the current scope for modification. */ + (void)configureScope:(void (^)(SentryScope *scope))callback; /** * Indicates whether the application crashed during the last run. * * @return @c YES if the app crashed on the previous run, @c NO otherwise. */ + (BOOL)crashedLastRun; /** * Indicates whether a startup crash was detected. * * A startup crash is one that occurred shortly after app launch. * * @return @c YES if a startup crash was detected, @c NO otherwise. */ + (BOOL)detectedStartUpCrash; /** * Sets the user information for the current scope. * * @param user The user information, or @c nil to clear the current user. */ + (void)setUser:(nullable SentryUser *)user; /** * Manually starts a new session. * * Sessions are typically started automatically, but this method allows manual control. */ + (void)startSession; /** * Manually ends the current session. */ + (void)endSession; /** * Triggers a crash for testing purposes. * * @warning This method will terminate the application. Use only for testing. */ + (void)crash; /** * Reports that the application is now fully displayed to the user. * * Used for Time To Full Display tracking. */ + (void)reportFullyDisplayed; /** * Pauses app hang tracking. * * Use this when performing known long-running operations on the main thread * that should not be reported as app hangs. */ + (void)pauseAppHangTracking; /** * Resumes app hang tracking after it was paused. */ + (void)resumeAppHangTracking; /** * Waits for all pending events to be sent to Sentry. * * @param timeout Maximum time to wait in seconds. */ + (void)flush:(NSTimeInterval)timeout; /** * Shuts down the SDK and releases resources. * * After calling this method, the SDK will no longer capture events. */ + (void)close; #if !(TARGET_OS_WATCH || TARGET_OS_TV || TARGET_OS_VISION) /** * Manually starts the profiler. * * Profiling is typically controlled automatically by sampling, but this * method allows manual control for testing or specific use cases. */ + (void)startProfiler; /** * Manually stops the profiler. */ + (void)stopProfiler; #endif",
-  "SentryObjCSampleDecision.h: typedef NS_ENUM(NSUInteger, SentrySampleDecision) { /** Used when the decision to sample a trace should be postponed. */ kSentrySampleDecisionUndecided, /** The trace should be sampled. */ kSentrySampleDecisionYes, /** The trace should not be sampled. */ kSentrySampleDecisionNo };",
-  "SentryObjCSamplingContext.h: @interface SentrySamplingContext : NSObject /** * Transaction context being sampled. * * Contains the transaction name, operation, and trace information. */ @property (nonatomic, readonly) SentryTransactionContext *transactionContext; /** * Custom data provided for this sampling decision. * * Application-specific data that can influence the sampling decision. * For example, you might include user tier, request path, or feature flags. */ @property (nullable, nonatomic, readonly) NSDictionary<NSString *, id> *customSamplingContext; /** * Creates a sampling context with a transaction context. * * @param transactionContext The transaction being sampled. * @return A new sampling context instance. */ - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext; /** * Creates a sampling context with custom data. * * @param transactionContext The transaction being sampled. * @param customSamplingContext Application-specific sampling data. * @return A new sampling context instance. */ - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext;",
-  "SentryObjCScope.h: @interface SentryScope : NSObject <SentrySerializable> /** * The currently active span or transaction. */ @property (nullable, nonatomic, strong) id<SentrySpan> span; /** * ID of the current session replay. * * Set when a session replay is active. */ @property (nullable, nonatomic, strong) NSString *replayId; /** * Currently set tags. * * Tags are key-value pairs that are indexed for search in Sentry. */ @property (nonatomic, readonly, copy) NSDictionary<NSString *, NSString *> *tags; /** * Currently set attributes. * * Attributes provide additional metadata for spans and transactions. */ @property (nonatomic, readonly, copy) NSDictionary<NSString *, id> *attributes; /** * Creates a new scope with a maximum breadcrumb limit. * * @param maxBreadcrumbs Maximum number of breadcrumbs to retain. * @return A new scope instance. */ - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs; /** * Creates a new scope with default settings. * * @return A new scope instance. */ - (instancetype)init; /** * Creates a new scope by copying another scope. * * @param scope The scope to copy from. * @return A new scope instance with copied data. */ - (instancetype)initWithScope:(SentryScope *)scope; /** * Sets user information for this scope. * * @param user The user information to set. */ - (void)setUser:(SentryUser *)user; /** * Sets a tag value for a specific key. * * @param value The tag value. * @param key The tag key. */ - (void)setTagValue:(NSString *)value forKey:(NSString *)key; /** * Removes a tag for the specified key. * * @param key The tag key to remove. */ - (void)removeTagForKey:(NSString *)key; /** * Replaces all tags with the provided dictionary. * * @param tags Dictionary of tags to set. */ - (void)setTags:(NSDictionary<NSString *, NSString *> *)tags; /** * Replaces all extras with the provided dictionary. * * @param extras Dictionary of extra data to set. */ - (void)setExtras:(NSDictionary<NSString *, id> *)extras; /** * Sets an extra value for a specific key. * * @param value The extra value. * @param key The extra key. */ - (void)setExtraValue:(id)value forKey:(NSString *)key; /** * Removes an extra value for the specified key. * * @param key The extra key to remove. */ - (void)removeExtraForKey:(NSString *)key; /** * Sets the distribution identifier for this scope. * * @param dist The distribution identifier. */ - (void)setDist:(NSString *)dist; /** * Sets the environment name for this scope. * * @param environment The environment name. */ - (void)setEnvironment:(NSString *)environment; /** * Sets the fingerprint for grouping events. * * @param fingerprint Array of fingerprint strings. */ - (void)setFingerprint:(NSArray<NSString *> *)fingerprint; /** * Sets the severity level for events from this scope. * * @param level The severity level. */ - (void)setLevel:(SentryLevel)level; /** * Adds a breadcrumb to this scope. * * @param crumb The breadcrumb to add. */ - (void)addBreadcrumb:(SentryBreadcrumb *)crumb; /** * Removes all breadcrumbs from this scope. */ - (void)clearBreadcrumbs; /** * Serializes the scope to a dictionary. * * @return Dictionary representation of the scope. */ - (NSDictionary<NSString *, id> *)serialize; /** * Sets a context value for a specific category. * * Common categories include \"device\", \"os\", \"app\", etc. * * @param value Dictionary of context data. * @param key The context category key. */ - (void)setContextValue:(NSDictionary<NSString *, id> *)value forKey:(NSString *)key; /** * Removes context for the specified category. * * @param key The context category key to remove. */ - (void)removeContextForKey:(NSString *)key; /** * Adds an attachment to this scope. * * Attachments are sent with all subsequent events from this scope. * * @param attachment The attachment to add. */ - (void)addAttachment:(SentryAttachment *)attachment; /** * Sets an attribute value for a specific key. * * @param value The attribute value. * @param key The attribute key. */ - (void)setAttributeValue:(id)value forKey:(NSString *)key; /** * Removes an attribute for the specified key. * * @param key The attribute key to remove. */ - (void)removeAttributeForKey:(NSString *)key; /** * Removes all attachments from this scope. */ - (void)clearAttachments; /** * Clears all data from this scope. * * Resets user, tags, extras, context, breadcrumbs, and attachments. */ - (void)clear;",
-  "SentryObjCSerializable.h: @protocol SentrySerializable <NSObject> SENTRY_NO_INIT /** * Serialize the contents of the object into an NSDictionary. * * @return A dictionary representation. Modifications to the original object do not affect the * returned dictionary. */ - (NSDictionary<NSString *, id> *)serialize;",
-  "SentryObjCSpanContext.h: @interface SentrySpanContext : NSObject <SentrySerializable> SENTRY_NO_INIT /** Determines which trace the Span belongs to. */ @property (nonatomic, readonly) SentryId *traceId; /** Span id. */ @property (nonatomic, readonly) SentrySpanId *spanId; /** Id of a parent span. */ @property (nullable, nonatomic, readonly) SentrySpanId *parentSpanId; /** Whether the trace is sampled. */ @property (nonatomic, readonly) SentrySampleDecision sampled; /** Short code identifying the type of operation the span is measuring. */ @property (nonatomic, copy, readonly) NSString *operation; /** Longer description of the span's operation. */ @property (nullable, nonatomic, copy, readonly) NSString *spanDescription; /** * The origin of the span indicates what created the span. * * @note Set by the SDK. Not expected to be set manually. * @see https://develop.sentry.dev/sdk/performance/trace-origin */ @property (nonatomic, copy) NSString *origin; /** * Creates a span context with an operation. * * Trace ID and span ID are randomly generated. * * @param operation The operation type. * @return A new span context instance. */ - (instancetype)initWithOperation:(NSString *)operation; /** * Creates a span context with operation and sampling decision. * * @param operation The operation type. * @param sampled Whether this span is sampled. * @return A new span context instance. */ - (instancetype)initWithOperation:(NSString *)operation sampled:(SentrySampleDecision)sampled; /** * Creates a span context with full trace information. * * @param traceId The trace ID. * @param spanId The span ID. * @param parentId The parent span ID, or @c nil for root spans. * @param operation The operation type. * @param sampled Whether this span is sampled. * @return A new span context instance. */ - (instancetype)initWithTraceId:(SentryId *)traceId spanId:(SentrySpanId *)spanId parentId:(nullable SentrySpanId *)parentId operation:(NSString *)operation sampled:(SentrySampleDecision)sampled; /** * Creates a span context with full trace information and description. * * @param traceId The trace ID. * @param spanId The span ID. * @param parentId The parent span ID, or @c nil for root spans. * @param operation The operation type. * @param description Human-readable description of the span. * @param sampled Whether this span is sampled. * @return A new span context instance. */ - (instancetype)initWithTraceId:(SentryId *)traceId spanId:(SentrySpanId *)spanId parentId:(nullable SentrySpanId *)parentId operation:(NSString *)operation spanDescription:(nullable NSString *)description sampled:(SentrySampleDecision)sampled;",
-  "SentryObjCSpanId.h: @interface SentrySpanId : NSObject <NSCopying> /** Creates a SentrySpanId with a random 16 character Id. */ - (instancetype)init; /** Creates a SentrySpanId with the first 16 characters of the given UUID. */ - (instancetype)initWithUUID:(NSUUID *)uuid; /** * Creates a SentrySpanId from a 16 character string. * * @param value A 16-character string. * @return Empty SentrySpanId if the input is invalid. */ - (instancetype)initWithValue:(NSString *)value; /** Returns the span Id value. */ @property (readonly, copy) NSString *sentrySpanIdString; /** A SentrySpanId with an empty Id \"0000000000000000\". */ @property (class, nonatomic, readonly, strong) SentrySpanId *empty;",
-  "SentryObjCSpanProtocol.h: @protocol SentrySpan <SentrySerializable> /** * Unique identifier for the trace this span belongs to. * * All spans in the same trace share this ID. */ @property (nonatomic, strong) SentryId *traceId; /** * Unique identifier for this span. */ @property (nonatomic, strong) SentrySpanId *spanId; /** * Identifier of the parent span. * * @c nil for root spans (transactions). */ @property (nullable, nonatomic, strong) SentrySpanId *parentSpanId; /** * Whether this span is sampled. * * Only sampled spans are sent to Sentry. */ @property (nonatomic) SentrySampleDecision sampled; /** * Operation type for this span. * * Examples: \"db.query\", \"http.client\", \"ui.load\". */ @property (nonatomic, copy) NSString *operation; /** * Origin of this span, indicating which instrumentation created it. * * Examples: \"manual\", \"auto.http\", \"auto.db\". */ @property (nonatomic, copy) NSString *origin; /** * Human-readable description of this span. * * Example: \"SELECT * FROM users WHERE id = ?\". */ @property (nullable, nonatomic, copy) NSString *spanDescription; /** * Status of this span. * * Indicates whether the operation succeeded, failed, or was cancelled. */ @property (nonatomic) SentrySpanStatus status; /** * Timestamp when this span finished. * * Set automatically when @c -finish is called. */ @property (nullable, nonatomic, strong) NSDate *timestamp; /** * Timestamp when this span started. * * Set automatically when the span is created. */ @property (nullable, nonatomic, strong) NSDate *startTimestamp; /** * Additional structured data attached to this span. * * Read-only. Use @c -setDataValue:forKey: to modify. */ @property (readonly) NSDictionary<NSString *, id> *data; /** * Tags attached to this span. * * Read-only. Use @c -setTagValue:forKey: to modify. */ @property (readonly) NSDictionary<NSString *, NSString *> *tags; /** * Whether this span has been finished. */ @property (readonly) BOOL isFinished; /** * Trace context for distributed tracing. * * Contains information needed to continue the trace across service boundaries. */ @property (nullable, nonatomic, readonly) SentryTraceContext *traceContext; /** * Starts a new child span with the specified operation. * * @param operation The operation type for the child span. * @return A new child span. */ - (id<SentrySpan>)startChildWithOperation:(NSString *)operation; /** * Starts a new child span with operation and description. * * @param operation The operation type for the child span. * @param description Human-readable description of the operation. * @return A new child span. */ - (id<SentrySpan>)startChildWithOperation:(NSString *)operation description:(nullable NSString *)description; /** * Sets a data value for the specified key. * * @param value The value to set, or @c nil to remove the key. * @param key The key to set. */ - (void)setDataValue:(nullable id)value forKey:(NSString *)key; /** * Removes data for the specified key. * * @param key The key to remove. */ - (void)removeDataForKey:(NSString *)key; /** * Sets a tag value for the specified key. * * @param value The tag value. * @param key The tag key. */ - (void)setTagValue:(NSString *)value forKey:(NSString *)key; /** * Removes a tag for the specified key. * * @param key The tag key to remove. */ - (void)removeTagForKey:(NSString *)key; /** * Adds a measurement to this span. * * @param name The measurement name. * @param value The measurement value. */ - (void)setMeasurement:(NSString *)name value:(NSNumber *)value; /** * Adds a measurement with a unit to this span. * * @param name The measurement name. * @param value The measurement value. * @param unit The measurement unit. */ - (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryMeasurementUnit *)unit; /** * Finishes this span with a successful status. * * Records the finish timestamp and marks the span as complete. */ - (void)finish; /** * Finishes this span with the specified status. * * @param status The status to set for this span. */ - (void)finishWithStatus:(SentrySpanStatus)status; /** * Creates a trace header for distributed tracing. * * @return A trace header containing this span's trace information. */ - (SentryTraceHeader *)toTraceHeader; /** * Creates a baggage HTTP header value for distributed tracing. * * @return The baggage header value, or @c nil if no baggage is set. */ - (nullable NSString *)baggageHttpHeader; /** * Serializes the span to a dictionary. * * @return Dictionary representation of the span. */ - (NSDictionary<NSString *, id> *)serialize;",
-  "SentryObjCSpanStatus.h: typedef NS_ENUM(NSUInteger, SentrySpanStatus) { kSentrySpanStatusUndefined, kSentrySpanStatusOk, kSentrySpanStatusDeadlineExceeded, kSentrySpanStatusUnauthenticated, kSentrySpanStatusPermissionDenied, kSentrySpanStatusNotFound, kSentrySpanStatusResourceExhausted, kSentrySpanStatusInvalidArgument, kSentrySpanStatusUnimplemented, kSentrySpanStatusUnavailable, kSentrySpanStatusInternalError, kSentrySpanStatusUnknownError, kSentrySpanStatusCancelled, kSentrySpanStatusAlreadyExists, kSentrySpanStatusFailedPrecondition, kSentrySpanStatusAborted, kSentrySpanStatusOutOfRange, kSentrySpanStatusDataLoss, };",
-  "SentryObjCStacktrace.h: @interface SentryStacktrace : NSObject <SentrySerializable> SENTRY_NO_INIT /** * Array of stack frames, ordered from outermost (top of stack) to innermost (call site). */ @property (nonatomic, strong) NSArray<SentryFrame *> *frames; /** * CPU register values at the time the stack trace was captured. * * Keys are register names (e.g., \"pc\", \"sp\", \"lr\"), values are hex addresses. */ @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *registers; /** * Whether this is a snapshot of the stack at a specific point in time. * * Used to distinguish between crash stacks and periodic snapshots. */ @property (nonatomic, copy, nullable) NSNumber *snapshot; /** * Creates a stack trace with frames and register values. * * @param frames Array of stack frames. * @param registers CPU register values. * @return A new stack trace instance. */ - (instancetype)initWithFrames:(NSArray<SentryFrame *> *)frames registers:(NSDictionary<NSString *, NSString *> *)registers; /** * Removes duplicate frames that may occur from inlining or recursion. * * @warning Internal method. Called automatically by the SDK. */ - (void)fixDuplicateFrames;",
-  "SentryObjCThread.h: @interface SentryThread : NSObject <SentrySerializable> SENTRY_NO_INIT /** * Unique identifier for this thread. */ @property (nullable, nonatomic, copy) NSNumber *threadId; /** * Name of the thread, if available. * * Named threads (e.g., from @c pthread_setname_np) display better in Sentry. */ @property (nullable, nonatomic, copy) NSString *name; /** * Stack trace for this thread. * * Contains the call stack at the time the event occurred. */ @property (nullable, nonatomic, strong) SentryStacktrace *stacktrace; /** * Whether this thread crashed. * * @c @YES for the crashing thread, @c @NO for other threads. */ @property (nullable, nonatomic, copy) NSNumber *crashed; /** * Whether this was the currently executing thread. * * @c @YES for the thread that was running when the event occurred. */ @property (nullable, nonatomic, copy) NSNumber *current; /** * Whether this is the main thread. * * @c @YES for the main/UI thread. */ @property (nullable, nonatomic, copy) NSNumber *isMain; /** * Creates thread information with a thread ID. * * @param threadId The thread identifier, or @c nil if unknown. * @return A new thread instance. */ - (instancetype)initWithThreadId:(nullable NSNumber *)threadId;",
-  "SentryObjCTraceContext.h: @interface SentryTraceContext : NSObject <SentrySerializable> /** UUID V4 encoded as 32 hexadecimal digits. */ @property (nonatomic, readonly) SentryId *traceId; /** Public key from the DSN. */ @property (nonatomic, readonly) NSString *publicKey; /** Release name, e.g. package@x.y.z+build. */ @property (nullable, nonatomic, readonly) NSString *releaseName; /** Environment name, e.g. staging. */ @property (nullable, nonatomic, readonly) NSString *environment; /** Transaction name from the scope. */ @property (nullable, nonatomic, readonly) NSString *transaction; /** Serialized sample rate. */ @property (nullable, nonatomic, readonly) NSString *sampleRate; /** Serialized random value for sampling. */ @property (nullable, nonatomic, readonly) NSString *sampleRand; /** Whether the trace was sampled. */ @property (nullable, nonatomic, readonly) NSString *sampled; /** Id of the current session replay. */ @property (nullable, nonatomic, readonly) NSString *replayId; /** Creates a SentryBaggage from this trace context. */ - (SentryBaggage *)toBaggage;",
-  "SentryObjCTraceHeader.h: @interface SentryTraceHeader : NSObject SENTRY_NO_INIT /** Trace ID. */ @property (nonatomic, readonly) SentryId *traceId; /** Span ID. */ @property (nonatomic, readonly) SentrySpanId *spanId; /** The trace sample decision. */ @property (nonatomic, readonly) SentrySampleDecision sampled; /** Creates a trace header with the given values. */ - (instancetype)initWithTraceId:(SentryId *)traceId spanId:(SentrySpanId *)spanId sampled:(SentrySampleDecision)sampled; /** Returns the value to use in a request header. */ - (NSString *)value;",
-  "SentryObjCTransactionContext.h: @interface SentryTransactionContext : SentrySpanContext SENTRY_NO_INIT /** * Human-readable name of the transaction. * * Examples: \"/api/users\", \"MainActivity.onCreate\", \"button.click\". */ @property (nonatomic, readonly) NSString *name; /** * Source indicating how the transaction name was determined. * * Used for grouping and quality scoring in Sentry. */ @property (nonatomic, readonly) SentryTransactionNameSource nameSource; /** * Sample rate applied to this transaction. * * A value between 0.0 and 1.0 indicating the probability this transaction is sampled. */ @property (nonatomic, strong, nullable) NSNumber *sampleRate; /** * Random value used to determine if this transaction is sampled. * * Compared against @c sampleRate to make the sampling decision. */ @property (nonatomic, strong, nullable) NSNumber *sampleRand; /** * Whether the parent transaction/span is sampled. * * Used in distributed tracing to propagate sampling decisions. */ @property (nonatomic) SentrySampleDecision parentSampled; /** * Sample rate of the parent transaction. * * Propagated from the parent in distributed tracing. */ @property (nonatomic, strong, nullable) NSNumber *parentSampleRate; /** * Random sampling value from the parent transaction. * * Propagated from the parent in distributed tracing. */ @property (nonatomic, strong, nullable) NSNumber *parentSampleRand; /** * Whether this transaction context is for app launch profiling. * * @warning Internal use. Set by the SDK for sampling app launch profiles. */ @property (nonatomic, assign) BOOL forNextAppLaunch; /** * Creates a transaction context with name and operation. * * @param name The transaction name. * @param operation The operation type. * @return A new transaction context instance. */ - (instancetype)initWithName:(NSString *)name operation:(NSString *)operation; /** * Creates a transaction context with sampling parameters. * * @param name The transaction name. * @param operation The operation type. * @param sampled Whether this transaction is sampled. * @param sampleRate The sample rate applied. * @param sampleRand Random value used for sampling. * @return A new transaction context instance. */ - (instancetype)initWithName:(NSString *)name operation:(NSString *)operation sampled:(SentrySampleDecision)sampled sampleRate:(nullable NSNumber *)sampleRate sampleRand:(nullable NSNumber *)sampleRand; /** * Creates a transaction context with full trace and sampling information. * * Used for distributed tracing to continue a trace from another service. * * @param name The transaction name. * @param operation The operation type. * @param traceId The trace ID. * @param spanId The span ID for this transaction. * @param parentSpanId The parent span ID, or @c nil if this is the root. * @param parentSampled Whether the parent is sampled. * @param parentSampleRate Sample rate of the parent. * @param parentSampleRand Random sampling value from the parent. * @return A new transaction context instance. */ - (instancetype)initWithName:(NSString *)name operation:(NSString *)operation traceId:(SentryId *)traceId spanId:(SentrySpanId *)spanId parentSpanId:(nullable SentrySpanId *)parentSpanId parentSampled:(SentrySampleDecision)parentSampled parentSampleRate:(nullable NSNumber *)parentSampleRate parentSampleRand:(nullable NSNumber *)parentSampleRand;",
-  "SentryObjCTransactionNameSource.h: typedef NS_ENUM(NSInteger, SentryTransactionNameSource) { /** The name was set manually by the user. */ kSentryTransactionNameSourceCustom = 0, /** The name was derived from the request URL. */ kSentryTransactionNameSourceUrl, /** The name was derived from a routing framework. */ kSentryTransactionNameSourceRoute, /** The name was derived from a UI view or screen. */ kSentryTransactionNameSourceView, /** The name was derived from a UI component. */ kSentryTransactionNameSourceComponent, /** The name was derived from a background task. */ kSentryTransactionNameSourceTask, };",
-  "SentryObjCUnit.h: typedef NSString *SentryUnitName NS_STRING_ENUM;",
-  "SentryObjCUser.h: @interface SentryUser : NSObject <SentrySerializable, NSCopying> /** * Unique identifier for the user. */ @property (atomic, copy) NSString *userId; /** * Email address of the user. * * @note Only sent when @c sendDefaultPii is @c YES. */ @property (atomic, copy) NSString *email; /** * Username of the user. * * @note Only sent when @c sendDefaultPii is @c YES. */ @property (atomic, copy) NSString *username; /** * IP address of the user. * * @note Only sent when @c sendDefaultPii is @c YES. If not set, Sentry * will use the IP address from the HTTP request. */ @property (atomic, copy) NSString *ipAddress; /** * Display name of the user. */ @property (atomic, copy) NSString *name; /** * Geographic location information for the user. */ @property (nullable, nonatomic, strong) SentryGeo *geo; /** * Additional arbitrary data associated with the user. */ @property (atomic, strong) NSDictionary<NSString *, id> *data; /** * Creates a user with the specified user ID. * * @param userId The unique identifier for the user. * @return A new user instance. */ - (instancetype)initWithUserId:(NSString *)userId; /** * Creates a user with default values. * * @return A new user instance. */ - (instancetype)init; /** * Compares this user with another object for equality. * * @param other The object to compare with. * @return @c YES if the objects are equal, @c NO otherwise. */ - (BOOL)isEqual:(id)other; /** * Compares this user with another user for equality. * * @param user The user to compare with. * @return @c YES if the users are equal, @c NO otherwise. */ - (BOOL)isEqualToUser:(SentryUser *)user; /** * Returns a hash value for this user. * * @return The hash value. */ - (NSUInteger)hash;"
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryId",
+    "file": "SentryObjCBaggage.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryBreadcrumb",
+    "file": "SentryObjCBreadcrumb.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "category",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "data",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "NSDictionary<NSString *,id> * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "hash",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "NSUInteger",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithLevel:category:",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "isEqual:",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "isEqualToBreadcrumb:",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "level",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "SentryLevel",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "message",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "origin",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "serialize",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setCategory:",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setData:",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setLevel:",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setMessage:",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setOrigin:",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setTimestamp:",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setType:",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "timestamp",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "NSDate * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "type",
+    "file": "SentryObjCBreadcrumb.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "category",
+    "file": "SentryObjCBreadcrumb.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "data",
+    "file": "SentryObjCBreadcrumb.h",
+    "type": "NSDictionary<NSString *,id> * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "level",
+    "file": "SentryObjCBreadcrumb.h",
+    "type": "SentryLevel"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "message",
+    "file": "SentryObjCBreadcrumb.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "origin",
+    "file": "SentryObjCBreadcrumb.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "timestamp",
+    "file": "SentryObjCBreadcrumb.h",
+    "type": "NSDate * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "type",
+    "file": "SentryObjCBreadcrumb.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryDebugMeta",
+    "file": "SentryObjCDebugMeta.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "codeFile",
+    "file": "SentryObjCDebugMeta.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "debugID",
+    "file": "SentryObjCDebugMeta.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "imageAddress",
+    "file": "SentryObjCDebugMeta.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "imageSize",
+    "file": "SentryObjCDebugMeta.h",
+    "returnType": "NSNumber * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "imageVmAddress",
+    "file": "SentryObjCDebugMeta.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "file": "SentryObjCDebugMeta.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setCodeFile:",
+    "file": "SentryObjCDebugMeta.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setDebugID:",
+    "file": "SentryObjCDebugMeta.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setImageAddress:",
+    "file": "SentryObjCDebugMeta.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setImageSize:",
+    "file": "SentryObjCDebugMeta.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setImageVmAddress:",
+    "file": "SentryObjCDebugMeta.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setType:",
+    "file": "SentryObjCDebugMeta.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "type",
+    "file": "SentryObjCDebugMeta.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "codeFile",
+    "file": "SentryObjCDebugMeta.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "debugID",
+    "file": "SentryObjCDebugMeta.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "imageAddress",
+    "file": "SentryObjCDebugMeta.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "imageSize",
+    "file": "SentryObjCDebugMeta.h",
+    "type": "NSNumber * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "imageVmAddress",
+    "file": "SentryObjCDebugMeta.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "type",
+    "file": "SentryObjCDebugMeta.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryBreadcrumb",
+    "file": "SentryObjCDefines.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryBreadcrumb",
+    "file": "SentryObjCEvent.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryMechanism",
+    "file": "SentryObjCException.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryFrame",
+    "file": "SentryObjCFrame.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "columnNumber",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSNumber * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "contextLine",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "fileName",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "function",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "imageAddress",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "inApp",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSNumber * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "file": "SentryObjCFrame.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "instructionAddress",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "lineNumber",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSNumber * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "module",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "package",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "platform",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "postContext",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSArray<NSString *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "preContext",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSArray<NSString *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setColumnNumber:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setContextLine:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setFileName:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setFunction:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setImageAddress:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setInApp:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setInstructionAddress:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setLineNumber:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setModule:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setPackage:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setPlatform:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setPostContext:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setPreContext:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setStackStart:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setSymbolAddress:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setVars:",
+    "file": "SentryObjCFrame.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "stackStart",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSNumber * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "symbolAddress",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "vars",
+    "file": "SentryObjCFrame.h",
+    "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "columnNumber",
+    "file": "SentryObjCFrame.h",
+    "type": "NSNumber * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "contextLine",
+    "file": "SentryObjCFrame.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "fileName",
+    "file": "SentryObjCFrame.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "function",
+    "file": "SentryObjCFrame.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "imageAddress",
+    "file": "SentryObjCFrame.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "inApp",
+    "file": "SentryObjCFrame.h",
+    "type": "NSNumber * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "instructionAddress",
+    "file": "SentryObjCFrame.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "lineNumber",
+    "file": "SentryObjCFrame.h",
+    "type": "NSNumber * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "module",
+    "file": "SentryObjCFrame.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "package",
+    "file": "SentryObjCFrame.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "platform",
+    "file": "SentryObjCFrame.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "postContext",
+    "file": "SentryObjCFrame.h",
+    "type": "NSArray<NSString *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "preContext",
+    "file": "SentryObjCFrame.h",
+    "type": "NSArray<NSString *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "stackStart",
+    "file": "SentryObjCFrame.h",
+    "type": "NSNumber * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "symbolAddress",
+    "file": "SentryObjCFrame.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "vars",
+    "file": "SentryObjCFrame.h",
+    "type": "NSDictionary<NSString *,id> * _Nonnull"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryGeo",
+    "file": "SentryObjCGeo.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "city",
+    "file": "SentryObjCGeo.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "countryCode",
+    "file": "SentryObjCGeo.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "hash",
+    "file": "SentryObjCGeo.h",
+    "returnType": "NSUInteger",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "isEqual:",
+    "file": "SentryObjCGeo.h",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "isEqualToGeo:",
+    "file": "SentryObjCGeo.h",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "region",
+    "file": "SentryObjCGeo.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setCity:",
+    "file": "SentryObjCGeo.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setCountryCode:",
+    "file": "SentryObjCGeo.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setRegion:",
+    "file": "SentryObjCGeo.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "city",
+    "file": "SentryObjCGeo.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "countryCode",
+    "file": "SentryObjCGeo.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "region",
+    "file": "SentryObjCGeo.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryHttpStatusCodeRange",
+    "file": "SentryObjCHttpStatusCodeRange.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "file": "SentryObjCHttpStatusCodeRange.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithMin:max:",
+    "file": "SentryObjCHttpStatusCodeRange.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithStatusCode:",
+    "file": "SentryObjCHttpStatusCodeRange.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "max",
+    "file": "SentryObjCHttpStatusCodeRange.h",
+    "returnType": "NSInteger",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "min",
+    "file": "SentryObjCHttpStatusCodeRange.h",
+    "returnType": "NSInteger",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "file": "SentryObjCHttpStatusCodeRange.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "max",
+    "file": "SentryObjCHttpStatusCodeRange.h",
+    "type": "NSInteger"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "min",
+    "file": "SentryObjCHttpStatusCodeRange.h",
+    "type": "NSInteger"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryId",
+    "file": "SentryObjCId.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "empty",
+    "file": "SentryObjCId.h",
+    "returnType": "SentryId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "file": "SentryObjCId.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithUUIDString:",
+    "file": "SentryObjCId.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithUuid:",
+    "file": "SentryObjCId.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "isEqual:",
+    "file": "SentryObjCId.h",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "sentryIdString",
+    "file": "SentryObjCId.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "empty",
+    "file": "SentryObjCId.h",
+    "type": "SentryId * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "sentryIdString",
+    "file": "SentryObjCId.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryLogger",
+    "file": "SentryObjCLogger.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "debug:",
+    "file": "SentryObjCLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "debug:attributes:",
+    "file": "SentryObjCLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "error:",
+    "file": "SentryObjCLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "error:attributes:",
+    "file": "SentryObjCLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "fatal:",
+    "file": "SentryObjCLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "fatal:attributes:",
+    "file": "SentryObjCLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "info:",
+    "file": "SentryObjCLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "info:attributes:",
+    "file": "SentryObjCLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "trace:",
+    "file": "SentryObjCLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "trace:attributes:",
+    "file": "SentryObjCLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "warn:",
+    "file": "SentryObjCLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "warn:attributes:",
+    "file": "SentryObjCLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryMeasurementUnit",
+    "file": "SentryObjCMeasurementUnit.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "file": "SentryObjCMeasurementUnit.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithUnit:",
+    "file": "SentryObjCMeasurementUnit.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "file": "SentryObjCMeasurementUnit.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "none",
+    "file": "SentryObjCMeasurementUnit.h",
+    "returnType": "SentryMeasurementUnit * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "unit",
+    "file": "SentryObjCMeasurementUnit.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "none",
+    "file": "SentryObjCMeasurementUnit.h",
+    "type": "SentryMeasurementUnit * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "unit",
+    "file": "SentryObjCMeasurementUnit.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryMechanismContext",
+    "file": "SentryObjCMechanism.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryNSError",
+    "file": "SentryObjCMechanismContext.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryMessage",
+    "file": "SentryObjCMessage.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "formatted",
+    "file": "SentryObjCMessage.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "file": "SentryObjCMessage.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithFormatted:",
+    "file": "SentryObjCMessage.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "message",
+    "file": "SentryObjCMessage.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "file": "SentryObjCMessage.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "params",
+    "file": "SentryObjCMessage.h",
+    "returnType": "NSArray<NSString *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setMessage:",
+    "file": "SentryObjCMessage.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setParams:",
+    "file": "SentryObjCMessage.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "formatted",
+    "file": "SentryObjCMessage.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "message",
+    "file": "SentryObjCMessage.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "params",
+    "file": "SentryObjCMessage.h",
+    "type": "NSArray<NSString *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryId",
+    "file": "SentryObjCMetric.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryNSError",
+    "file": "SentryObjCNSError.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "code",
+    "file": "SentryObjCNSError.h",
+    "returnType": "NSInteger",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "domain",
+    "file": "SentryObjCNSError.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "file": "SentryObjCNSError.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithDomain:code:",
+    "file": "SentryObjCNSError.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "file": "SentryObjCNSError.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setCode:",
+    "file": "SentryObjCNSError.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setDomain:",
+    "file": "SentryObjCNSError.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "code",
+    "file": "SentryObjCNSError.h",
+    "type": "NSInteger"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "domain",
+    "file": "SentryObjCNSError.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryReplayOptions",
+    "file": "SentryObjCOptions.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryRedactRegionType",
+    "file": "SentryObjCRedactRegionType.h",
+    "type": "NSString *"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "UIView",
+    "file": "SentryObjCReplayApi.h",
+    "super": null,
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryRequest",
+    "file": "SentryObjCRequest.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "bodySize",
+    "file": "SentryObjCRequest.h",
+    "returnType": "NSNumber * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "cookies",
+    "file": "SentryObjCRequest.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "fragment",
+    "file": "SentryObjCRequest.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "headers",
+    "file": "SentryObjCRequest.h",
+    "returnType": "NSDictionary<NSString *,NSString *> * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "file": "SentryObjCRequest.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "method",
+    "file": "SentryObjCRequest.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "queryString",
+    "file": "SentryObjCRequest.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setBodySize:",
+    "file": "SentryObjCRequest.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setCookies:",
+    "file": "SentryObjCRequest.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setFragment:",
+    "file": "SentryObjCRequest.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setHeaders:",
+    "file": "SentryObjCRequest.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setMethod:",
+    "file": "SentryObjCRequest.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setQueryString:",
+    "file": "SentryObjCRequest.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setUrl:",
+    "file": "SentryObjCRequest.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "url",
+    "file": "SentryObjCRequest.h",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "bodySize",
+    "file": "SentryObjCRequest.h",
+    "type": "NSNumber * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "cookies",
+    "file": "SentryObjCRequest.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "fragment",
+    "file": "SentryObjCRequest.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "headers",
+    "file": "SentryObjCRequest.h",
+    "type": "NSDictionary<NSString *,NSString *> * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "method",
+    "file": "SentryObjCRequest.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "queryString",
+    "file": "SentryObjCRequest.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "url",
+    "file": "SentryObjCRequest.h",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryBreadcrumb",
+    "file": "SentryObjCSDK.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryTransactionContext",
+    "file": "SentryObjCSamplingContext.h",
+    "super": "SentrySpanContext",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryAttachment",
+    "file": "SentryObjCScope.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCProtocolDecl",
+    "name": "SentrySerializable",
+    "file": "SentryObjCSerializable.h"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryId",
+    "file": "SentryObjCSpanContext.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentrySpanId",
+    "file": "SentryObjCSpanId.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "empty",
+    "file": "SentryObjCSpanId.h",
+    "returnType": "SentrySpanId * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "file": "SentryObjCSpanId.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithUUID:",
+    "file": "SentryObjCSpanId.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithValue:",
+    "file": "SentryObjCSpanId.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "sentrySpanIdString",
+    "file": "SentryObjCSpanId.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "empty",
+    "file": "SentryObjCSpanId.h",
+    "type": "SentrySpanId * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "sentrySpanIdString",
+    "file": "SentryObjCSpanId.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryId",
+    "file": "SentryObjCSpanProtocol.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryFrame",
+    "file": "SentryObjCStacktrace.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryStacktrace",
+    "file": "SentryObjCThread.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryBaggage",
+    "file": "SentryObjCTraceContext.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryId",
+    "file": "SentryObjCTraceHeader.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryId",
+    "file": "SentryObjCTransactionContext.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryUnitName",
+    "file": "SentryObjCUnit.h",
+    "type": "NSString *"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryGeo",
+    "file": "SentryObjCUser.h",
+    "super": "NSObject",
+    "has_inner": false
+  }
 ]
