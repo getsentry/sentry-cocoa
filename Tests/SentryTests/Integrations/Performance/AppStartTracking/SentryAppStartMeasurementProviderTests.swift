@@ -25,7 +25,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart,
+            startTimestamp: transactionStart
         )
 
         // -- Assert --
@@ -46,7 +46,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: "custom",
-            startTimestamp: transactionStart,
+            startTimestamp: transactionStart
         )
 
         // -- Assert --
@@ -68,7 +68,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart,
+            startTimestamp: transactionStart
         )
 
         // -- Assert --
@@ -81,7 +81,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: Date(),
+            startTimestamp: Date()
         )
 
         // -- Assert --
@@ -101,14 +101,14 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
 
         let first = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart,
+            startTimestamp: transactionStart
         )
         XCTAssertNotNil(first)
 
         // -- Act --
         let second = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart,
+            startTimestamp: transactionStart
         )
 
         // -- Assert --
@@ -128,7 +128,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
 
         let first = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart,
+            startTimestamp: transactionStart
         )
         XCTAssertNotNil(first)
 
@@ -138,7 +138,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Assert --
         let second = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart,
+            startTimestamp: transactionStart
         )
         XCTAssertNotNil(second)
     }
@@ -159,7 +159,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart,
+            startTimestamp: transactionStart
         )
 
         // -- Assert --
@@ -180,7 +180,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart,
+            startTimestamp: transactionStart
         )
 
         // -- Assert --
@@ -200,7 +200,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart,
+            startTimestamp: transactionStart
         )
 
         // -- Assert --
@@ -220,7 +220,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart,
+            startTimestamp: transactionStart
         )
 
         // -- Assert --
@@ -240,7 +240,7 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
         // -- Act --
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
-            startTimestamp: transactionStart,
+            startTimestamp: transactionStart
         )
 
         // -- Assert --
