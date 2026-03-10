@@ -596,10 +596,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
         [super finishWithStatus:_finishStatus];
     }
 #if SENTRY_HAS_UIKIT
-    appStartMeasurement = [SentryAppStartMeasurementProvider
-        appStartMeasurementForOperation:self.operation
-                         startTimestamp:self.startTimestamp
-                    profilerReferenceID:self.profilerReferenceID];
+    appStartMeasurement =
+        [SentryAppStartMeasurementProvider appStartMeasurementForOperation:self.operation
+                                                            startTimestamp:self.startTimestamp];
 
     if (appStartMeasurement != nil) {
         [self updateStartTime:appStartMeasurement.appStartTimestamp];
