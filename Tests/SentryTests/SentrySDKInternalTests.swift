@@ -340,7 +340,7 @@ class SentrySDKInternalTests: XCTestCase {
 
         let newSpan = SentrySDK.span
 
-        XCTAssert(transaction === newSpan)
+        XCTAssertIdentical(transaction, newSpan)
     }
 
 #if SENTRY_HAS_UIKIT

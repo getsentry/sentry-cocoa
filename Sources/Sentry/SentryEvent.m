@@ -93,7 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addDebugImages:(NSMutableDictionary *)serializedData
 {
-    NSMutableArray *debugImages = [NSMutableArray new];
+    NSMutableArray *debugImages = [[NSMutableArray alloc] init];
     for (SentryDebugMeta *debugImage in self.debugMeta) {
         [debugImages addObject:[debugImage serialize]];
     }
@@ -104,7 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addExceptions:(NSMutableDictionary *)serializedData
 {
-    NSMutableArray *exceptions = [NSMutableArray new];
+    NSMutableArray *exceptions = [[NSMutableArray alloc] init];
     for (SentryException *exception in self.exceptions) {
         [exceptions addObject:[exception serialize]];
     }
@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addThreads:(NSMutableDictionary *)serializedData
 {
-    NSMutableArray *threads = [NSMutableArray new];
+    NSMutableArray *threads = [[NSMutableArray alloc] init];
     for (SentryThread *thread in self.threads) {
         [threads addObject:[thread serialize]];
     }
@@ -176,7 +176,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSMutableArray *)serializeBreadcrumbs
 {
-    NSMutableArray *crumbs = [NSMutableArray new];
+    NSMutableArray *crumbs = [[NSMutableArray alloc] init];
     for (SentryBreadcrumb *crumb in self.breadcrumbs) {
         [crumbs addObject:[crumb serialize]];
     }

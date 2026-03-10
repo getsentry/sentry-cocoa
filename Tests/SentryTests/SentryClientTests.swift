@@ -1162,10 +1162,10 @@ class SentryClientTests: XCTestCase {
         
         eventId.assertIsNotEmpty()
         let actual = try lastSentEventWithAttachment()
-        assertValidExceptionEvent(actual)
+        try assertValidExceptionEvent(actual)
     }
-    
-    func testCaptureException_IncreasesSessionErrors() {
+
+    func testCaptureException_IncreasesSessionErrors() throws {
         let sut = fixture.getSut()
         let sessionDelegate = SentryTestSessionDelegate { self.fixture.session }
         sut.sessionDelegate = sessionDelegate
@@ -1174,7 +1174,7 @@ class SentryClientTests: XCTestCase {
         eventId.assertIsNotEmpty()
         XCTAssertNotNil(fixture.transportAdapter.sentEventsWithSessionTraceState.last)
         if let eventWithSessionArguments = fixture.transportAdapter.sentEventsWithSessionTraceState.last {
-            assertValidExceptionEvent(eventWithSessionArguments.event)
+            try assertValidExceptionEvent(eventWithSessionArguments.event)
             XCTAssertEqual(fixture.session, eventWithSessionArguments.session)
             XCTAssertEqual([TestData.dataAttachment], eventWithSessionArguments.attachments)
         }
@@ -1530,7 +1530,7 @@ class SentryClientTests: XCTestCase {
             options.beforeSendSpan = { span in
                 let childSpan = span.startChild(operation: "op")
                 
-                XCTAssert(childSpan.isKind(of: SentryNoOpSpan.self))
+                XCTAssertTrue(childSpan.isKind(of: SentryNoOpSpan.self))
                 
                 return span
             }
@@ -1960,7 +1960,7 @@ class SentryClientTests: XCTestCase {
         
         let actual = try lastSentEvent()
         let features = try XCTUnwrap(actual.sdk?["features"] as? [String])
-        XCTAssert(features.contains("captureFailedRequests"))
+        XCTAssertTrue(features.contains("captureFailedRequests"))
     }
     
     func testFileManagerCantBeInit() throws {
@@ -2675,78 +2675,6 @@ class SentryClientTests: XCTestCase {
         XCTAssertEqual(testProcessor.addLogInvocations.count, 0, "Log should be dropped when enableLogs is false")
     }
 
-    func testCaptureMetricsData_whenCalled_shouldCreateEnvelopeWithCorrectItem() throws {
-        // -- Arrange --
-        let testData = Data("test metrics data".utf8)
-        let itemCount = NSNumber(value: 5)
-        let sut = fixture.getSut()
-        
-        // -- Act --
-        sut.captureMetricsData(testData, with: itemCount)
-        
-        // -- Assert --
-        XCTAssertEqual(fixture.transport.sentEnvelopes.count, 1, "Should send exactly one envelope")
-        
-        let envelope = try XCTUnwrap(fixture.transport.sentEnvelopes.first)
-        XCTAssertEqual(envelope.items.count, 1, "Envelope should contain exactly one item")
-        
-        let envelopeItem = try XCTUnwrap(envelope.items.first)
-        XCTAssertEqual(envelopeItem.header.type, SentryEnvelopeItemTypes.traceMetric, "Envelope item type should be trace_metric")
-        XCTAssertEqual(envelopeItem.header.contentType, "application/vnd.sentry.items.trace-metric+json", "Content type should match expected value")
-        XCTAssertEqual(envelopeItem.header.itemCount, itemCount, "Item count should match provided value")
-        XCTAssertEqual(envelopeItem.data, testData, "Envelope item data should match provided data")
-        
-        // Verify envelope header is empty (as per implementation)
-        XCTAssertNil(envelope.header.eventId, "Envelope header eventId should be nil")
-    }
-    
-    func testFlush_whenMetricsIntegrationInstalled_shouldFlushMetrics() throws {
-        // -- Arrange --
-        let options = Options()
-        options.dsn = TestConstants.dsnForTestCase(type: Self.self)
-        options.experimental.enableMetrics = true
-        
-        let client = TestClient(options: options)!
-        let hub = SentryHubInternal(
-            client: client,
-            andScope: Scope(),
-            andCrashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo),
-            andDispatchQueue: SentryDispatchQueueWrapper()
-        )
-        SentrySDKInternal.setCurrentHub(hub)
-        defer {
-            SentrySDKInternal.setCurrentHub(nil)
-        }
-        
-        // Install metrics integration
-        let dependencies = SentryDependencyContainer.sharedInstance()
-        let integration = try XCTUnwrap(SentryMetricsIntegration<SentryDependencyContainer>(with: options, dependencies: dependencies) as Any as? SentryIntegrationProtocol)
-        hub.addInstalledIntegration(integration, name: SentryMetricsIntegration<SentryDependencyContainer>.name)
-        
-        // Add a metric to flush
-        let metricsIntegration = try XCTUnwrap(integration as Any as? SentryMetricsIntegration<SentryDependencyContainer>)
-        let scope = Scope()
-        let metric = SentryMetric(
-            timestamp: Date(),
-            traceId: SentryId(),
-            name: "test.metric",
-            value: .counter(1),
-            unit: nil,
-            attributes: [:]
-        )
-        metricsIntegration.addMetric(metric, scope: scope)
-        
-        // Clear any previous invocations
-        client.captureMetricsDataInvocations.removeAll()
-        
-        // -- Act --
-        hub.flush(timeout: 1.0)
-        
-        // -- Assert --
-        // Verify metrics are flushed via Hub.flush()
-        XCTAssertEqual(client.captureMetricsDataInvocations.count, 1, "Hub.flush() should flush metrics integration")
-    }
-    
     func testCaptureSentryWrappedException() throws {
 #if os(macOS)
         let exception = NSException(name: NSExceptionName("exception"), reason: "reason", userInfo: nil)
@@ -2874,10 +2802,11 @@ private extension SentryClientTests {
         assertValidThreads(actual: event.threads)
     }
     
-    private func assertValidExceptionEvent(_ event: Event) {
+    private func assertValidExceptionEvent(_ event: Event) throws {
         XCTAssertEqual(SentryLevel.error, event.level)
-        XCTAssertEqual(exception.reason, event.exceptions!.first!.value)
-        XCTAssertEqual(exception.name.rawValue, event.exceptions!.first!.type)
+        let firstException = try XCTUnwrap(XCTUnwrap(event.exceptions).first)
+        XCTAssertEqual(exception.reason, firstException.value)
+        XCTAssertEqual(exception.name.rawValue, firstException.type)
         assertValidDebugMeta(actual: event.debugMeta, forThreads: event.threads)
         assertValidThreads(actual: event.threads)
     }
@@ -2958,7 +2887,7 @@ private extension SentryClientTests {
     
 }
 
-final class TestTelemetryProcessorForClient: SentryTelemetryProcessor {
+final class TestTelemetryProcessorForClient: SentryObjCTelemetryProcessor {
     var addLogInvocations = Invocations<SentryLog>()
     var forwardTelemetryDataInvocations = Invocations<Void>()
 

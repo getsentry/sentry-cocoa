@@ -64,7 +64,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
 
 - (void)sendReports:(NSArray *)reports onCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
-    NSMutableArray *sentReports = [NSMutableArray new];
+    NSMutableArray *sentReports = [[NSMutableArray alloc] init];
     for (NSDictionary *report in reports) {
         SentryCrashReportConverter *reportConverter =
             [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];

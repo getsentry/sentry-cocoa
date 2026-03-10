@@ -5,6 +5,7 @@
 
 + (void)initialize
 {
+    NSAssert(false, @"This class should never be initialized");
     if (self == [SentryInitializeForGettingSubclassesNotCalled self]) {
         _SentryInitializeForGettingSubclassesCalled = YES;
     }

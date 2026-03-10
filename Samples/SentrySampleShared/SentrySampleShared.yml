@@ -16,12 +16,16 @@ fileGroups:
   - SentrySampleShared.yml
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
   SentrySampleShared:
     type: framework
     platform: auto
     sources:
-      - SentrySampleShared
+      - path: SentrySampleShared
+        type: group
+        excludes:
+          - "**/Info.plist"
     dependencies:
       - target: Sentry/Sentry
     configFiles:
@@ -33,7 +37,10 @@ targets:
     type: framework
     platform: auto
     sources:
-      - SentrySampleUITestShared
+      - path: SentrySampleUITestShared
+        type: group
+        excludes:
+          - "**/Info.plist"
     configFiles:
       Debug: SentrySampleUITestShared.xcconfig
       Release: SentrySampleUITestShared.xcconfig

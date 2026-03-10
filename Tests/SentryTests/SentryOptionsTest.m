@@ -13,7 +13,7 @@
 - (void)testEmptyDsn
 {
     NSError *error = nil;
-    SentryOptions *options = [SentryOptionsInternal initWithDict:@{} didFailWithError:&error];
+    SentryOptions *options = [SentryOptionsInternal initWithDict:@{ } didFailWithError:&error];
 
     XCTAssertNil(options.parsedDsn);
     XCTAssertEqual(NO, options.debug);
@@ -74,7 +74,7 @@
 
 - (void)testNoReleaseSetUsesDefault
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
     XCTAssertEqualObjects(options.releaseName, [self buildDefaultReleaseName]);
 }
 
@@ -94,7 +94,7 @@
 
 - (void)testEnvironment
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
     XCTAssertEqualObjects(options.environment, [SentryOptions defaultEnvironment]);
 
     options = [self getValidOptions:@{ @"environment" : @"xxx" }];
@@ -103,7 +103,7 @@
 
 - (void)testDist
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
     XCTAssertNil(options.dist);
 
     options = [self getValidOptions:@{ @"dist" : @"hhh" }];
@@ -160,10 +160,12 @@
     XCTAssertEqual(expected, options.diagnosticLevel);
 }
 
+#if !TARGET_OS_WATCH
 - (void)testEnableSigtermReporting
 {
     [self testBooleanField:@"enableSigtermReporting" defaultValue:NO];
 }
+#endif
 
 - (void)testValidEnabled
 {
@@ -232,7 +234,7 @@
 
 - (void)testDefaultMaxBreadcrumbs
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
 
     XCTAssertEqual([@100 unsignedIntValue], options.maxBreadcrumbs);
 }
@@ -262,7 +264,7 @@
 
 - (void)testDefaultMaxCacheItems
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
 
     XCTAssertEqual([@30 unsignedIntValue], options.maxCacheItems);
 }
@@ -300,7 +302,7 @@
 
 - (void)testDefaultBeforeSend
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
 
     XCTAssertNil(options.beforeSend);
 }
@@ -337,7 +339,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testDefaultBeforeSendLog
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
 
     XCTAssertNil(options.beforeSendLog);
 }
@@ -369,7 +371,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testDefaultBeforeSendSpan
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
 
     XCTAssertNil(options.beforeSendSpan);
 }
@@ -389,7 +391,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testDefaultBeforeBreadcrumb
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
 
     XCTAssertNil(options.beforeBreadcrumb);
 }
@@ -412,7 +414,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testDefaultBeforeCaptureScreenshot
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
 
     XCTAssertNil(options.beforeCaptureScreenshot);
 }
@@ -435,7 +437,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testDefaultBeforeCaptureViewHierarchy
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
 
     XCTAssertNil(options.beforeCaptureViewHierarchy);
 }
@@ -521,7 +523,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testDefaultOnCrashedLastRun
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
 
     XCTAssertNil(options.onCrashedLastRun);
 }
@@ -605,7 +607,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testSampleRateNotSet
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
 
     XCTAssertEqual((@1).floatValue, options.sampleRate.floatValue);
 }
@@ -631,7 +633,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testDefaultSessionTrackingIntervalMillis
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
 
     XCTAssertEqual([@30000 unsignedIntValue], options.sessionTrackingIntervalMillis);
 }
@@ -765,7 +767,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertNil(options.urlSession);
     XCTAssertEqual(YES, options.enableSwizzling);
-    XCTAssertEqualObjects([NSSet new], options.swizzleClassNameExcludes);
+    XCTAssertEqualObjects([[NSSet alloc] init], options.swizzleClassNameExcludes);
     XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
     XCTAssertFalse(options.swiftAsyncStacktraces);
@@ -857,7 +859,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testDefaultMaxAttachmentSize
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
 
     XCTAssertEqual(200 * 1024 * 1024, options.maxAttachmentSize);
 }
@@ -940,7 +942,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 - (void)testSessionReplaySettingsDefaults
 {
     if (@available(iOS 16.0, tvOS 16.0, *)) {
-        SentryOptions *options = [self getValidOptions:@{ @"sessionReplayOptions" : @ {} }];
+        SentryOptions *options = [self getValidOptions:@{ @"sessionReplayOptions" : @ { } }];
         XCTAssertEqual(options.sessionReplay.sessionSampleRate, 0);
         XCTAssertEqual(options.sessionReplay.onErrorSampleRate, 0);
     }
@@ -977,7 +979,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testDefaultAppHangsTimeout
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
     XCTAssertEqual(2, options.appHangTimeoutInterval);
 }
 
@@ -1011,7 +1013,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testDefaultTracesSampleRate
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
     XCTAssertEqual(options.tracesSampleRate.doubleValue, 0);
 }
 
@@ -1075,7 +1077,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testDefaultTracesSampler
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
     XCTAssertNil(options.tracesSampler);
 }
 
@@ -1131,7 +1133,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testAddInAppIncludes
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
     [options addInAppInclude:@"App"];
 
     NSArray<NSString *> *expected = @[ @"App" ];
@@ -1151,13 +1153,13 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testDefaultInAppIncludes
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
     XCTAssertEqualObjects([self getDefaultInAppIncludes], options.inAppIncludes);
 }
 
 - (void)testDefaultInitialScope
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
     SentryScope *scope = [[SentryScope alloc] init];
     XCTAssertIdentical(scope, options.initialScope(scope));
 }
@@ -1216,7 +1218,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testInitialSwiftAsyncStacktraces
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
     XCTAssertFalse(options.swiftAsyncStacktraces);
 }
 
@@ -1278,7 +1280,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(!defaultValue, [self getProperty:property of:options]);
 
     // Default
-    options = [self getValidOptions:@{}];
+    options = [self getValidOptions:@{ }];
     XCTAssertEqual(defaultValue, [self getProperty:property of:options]);
 
     // Garbage

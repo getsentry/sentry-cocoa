@@ -21,7 +21,6 @@
 #    import "SentryProfilerState.h"
 #    import "SentryProfilerTestHelpers.h"
 #    import "SentrySDK+Private.h"
-#    import "SentrySample.h"
 #    import "SentryScope+Private.h"
 #    import "SentryScope+PrivateSwift.h"
 #    import "SentrySerialization.h"
@@ -146,7 +145,7 @@ sentry_serializedTraceProfileData(
 
     payload[@"version"] = @"1";
     NSMutableArray<NSDictionary<NSString *, id> *> *debugImages =
-        [NSMutableArray<NSDictionary<NSString *, id> *> new];
+        [[NSMutableArray<NSDictionary<NSString *, id> *> alloc] init];
     for (SentryDebugMeta *debugImage in debugMeta) {
         [debugImages addObject:[debugImage serialize]];
     }
@@ -246,7 +245,7 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
 
     payload[@"version"] = @"2";
     NSMutableArray<NSDictionary<NSString *, id> *> *debugImages =
-        [NSMutableArray<NSDictionary<NSString *, id> *> new];
+        [[NSMutableArray<NSDictionary<NSString *, id> *> alloc] init];
     for (SentryDebugMeta *debugImage in debugMeta) {
         [debugImages addObject:[debugImage serialize]];
     }

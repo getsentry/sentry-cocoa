@@ -8,7 +8,7 @@ sentryGetIso8601Formatter(void)
     static NSDateFormatter *isoFormatter = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        isoFormatter = [NSDateFormatter new];
+        isoFormatter = [[NSDateFormatter alloc] init];
         [isoFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
         isoFormatter.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
         [isoFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'Z'"];
@@ -33,7 +33,7 @@ sentryGetIso8601FormatterWithMillisecondPrecision(void)
     static NSDateFormatter *isoFormatter = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        isoFormatter = [NSDateFormatter new];
+        isoFormatter = [[NSDateFormatter alloc] init];
         [isoFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
         isoFormatter.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
         [isoFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];

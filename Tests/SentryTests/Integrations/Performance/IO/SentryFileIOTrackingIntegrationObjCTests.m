@@ -24,9 +24,8 @@
 
 - (void)inititialize
 {
-    NSArray *directories = [NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory
-                                                                inDomains:NSUserDomainMask];
-    fileDirectory = directories.firstObject;
+    fileDirectory = [[NSURL fileURLWithPath:NSTemporaryDirectory()]
+        URLByAppendingPathComponent:@"SentryFileIOTrackingIntegrationObjCTests"];
 
     if (![NSFileManager.defaultManager fileExistsAtPath:fileDirectory.path]) {
         deleteFileDirectory = true;
