@@ -40,7 +40,7 @@ struct SendStandaloneAppStartTransaction: AppStartMeasurementHandler {
             operation = SentrySpanOperationAppStartWarm
             name = "App Start Warm"
         default:
-            SentrySDKLog.error("Unknown app start type \(measurement.type.rawValue), can't report standalone app start transaction")
+            SentrySDKLog.error("Unknown app start type, can't report standalone app start transaction")
             return
         }
 
