@@ -1,7 +1,7 @@
 @_spi(Private) @testable import Sentry
 import XCTest
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 class SentryAppStartMeasurementProviderTests: XCTestCase {
 
@@ -304,4 +304,4 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
     }
 }
 
-#endif // os(iOS) || os(tvOS)
+#endif // os(iOS) || os(tvOS) || os(visionOS)
