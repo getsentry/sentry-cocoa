@@ -357,7 +357,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     ///            `networkDetailAllowUrls` directly.
     @objc(networkDetailAllowUrls) public var networkDetailAllowUrlsForObjC: NSArray {
         get { return networkDetailAllowUrls as NSArray }
-        set { networkDetailAllowUrls = Self.convertToUrlMatchables(newValue) }
+        set { networkDetailAllowUrls = SentryUrlMatcher.convertFromAny(newValue as? [Any]) ?? [] }
     }
 
     /**
@@ -393,7 +393,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     ///            `networkDetailDenyUrls` directly.
     @objc(networkDetailDenyUrls) public var networkDetailDenyUrlsForObjC: NSArray {
         get { return networkDetailDenyUrls as NSArray }
-        set { networkDetailDenyUrls = Self.convertToUrlMatchables(newValue) }
+        set { networkDetailDenyUrls = SentryUrlMatcher.convertFromAny(newValue as? [Any]) ?? [] }
     }
 
     /**
@@ -775,19 +775,5 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         return result
     }
 
-    // MARK: - ObjC Bridge Helpers
-
-    /// Converts an NSArray from ObjC into [SentryUrlMatchable].
-    /// Accepts NSString and NSRegularExpression elements; unsupported types are silently dropped.
-    private static func convertToUrlMatchables(_ array: NSArray) -> [SentryUrlMatchable] {
-        return array.compactMap { element -> SentryUrlMatchable? in
-            if let string = element as? String {
-                return string
-            } else if let regex = element as? NSRegularExpression {
-                return regex
-            }
-            return nil
-        }
-    }
 }
 // swiftlint:enable file_length missing_docs type_body_length
