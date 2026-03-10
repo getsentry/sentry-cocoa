@@ -50,12 +50,27 @@
 #endif
 @end
 
+// Forward declare SentryObjCBridge for metrics and logger access.
+@interface SentryObjCBridge : NSObject
++ (id)logger;
+@end
+
 // Import the public header which declares SentrySDK
+#import "SentryObjCMetricsApiImpl.h"
 #import "SentryObjCSDK.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryObjCSDK
+
+static SentryObjCMetricsApiImpl *_metricsApi = nil;
+
++ (void)initialize
+{
+    if (self == [SentryObjCSDK class]) {
+        _metricsApi = [[SentryObjCMetricsApiImpl alloc] init];
+    }
+}
 
 + (nullable id<SentrySpan>)span
 {
@@ -78,9 +93,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (SentryLogger *)logger
 {
-    // Logger is not directly accessible from SentrySDKInternal
-    // Return nil for now - this would need additional wrapper implementation
-    return nil;
+    return [SentryObjCBridge logger];
+}
+
++ (id<SentryObjCMetricsApi>)metrics
+{
+    return _metricsApi;
 }
 
 + (void)startWithOptions:(SentryOptions *)options

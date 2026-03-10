@@ -49,5 +49,6 @@
 #import "SentryObjCAttributeContent.h"
 #import "SentryObjCMetric.h"
 #import "SentryObjCMetricValue.h"
+#import "SentryObjCMetricsApi.h"
 #import "SentryObjCRedactRegionType.h"
 #import "SentryObjCUnit.h"

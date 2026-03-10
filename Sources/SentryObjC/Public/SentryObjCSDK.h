@@ -17,6 +17,7 @@
 #endif
 
 @class SentryLogger;
+@protocol SentryObjCMetricsApi;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -63,6 +64,32 @@ SENTRY_NO_INIT
  * @return The logger instance.
  */
 + (SentryLogger *)logger;
+
+/**
+ * Returns the Metrics API for recording custom metrics.
+ *
+ * Sentry Metrics allows you to send counters, gauges, and distributions from your applications
+ * to Sentry. Once in Sentry, these metrics can be viewed alongside related errors, traces, and
+ * logs.
+ *
+ * @return The metrics API instance.
+ *
+ * @code
+ * // Simple counter
+ * [[SentryObjCSDK metrics] countWithKey:@"button.click"];
+ *
+ * // Distribution with unit and attributes
+ * [[SentryObjCSDK metrics] distributionWithKey:@"response.time"
+ *                                         value:125.5
+ *                                          unit:SentryUnitNameMillisecond
+ *                                    attributes:@{
+ *     @"endpoint": [SentryObjCAttributeContent stringWithValue:@"/api/data"]
+ * }];
+ * @endcode
+ *
+ * @see SentryObjCMetricsApi
+ */
++ (id<SentryObjCMetricsApi>)metrics;
 
 /**
  * Initializes the SDK with the provided options.
