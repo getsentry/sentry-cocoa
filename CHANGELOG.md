@@ -12,6 +12,7 @@
 ### Fixes
 
 - Capture transactions that finish during the launch profiling window instead of silently discarding them (#7602)
+- Capture instance and class method `[NSApplication _crashOnException]` exceptions (#7510)
 
 ## 9.6.0
 
@@ -23,7 +24,6 @@
 
 - Preserve NSException and C++ exception reason instead of overwriting with unrelated `crash_info_message` from `libswiftCore.dylib` (#7515)
 - Fix unexpected null value when unwrapping view controller window (#7508)
-- Capture instance and class method `[NSApplication _crashOnException]` exceptions (#7510)
 
 ## 9.5.1
 

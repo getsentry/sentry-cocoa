@@ -3,7 +3,6 @@
 #if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
 
 #    import "SentryCrash.h"
-#    import "SentryCrashExceptionApplication.h"
 #    import "SentryNSExceptionCaptureHelper.h"
 #    import "SentrySwift.h"
 
@@ -13,8 +12,8 @@ static BOOL _insideReportException = NO;
 
 + (void)reportException:(NSException *)exception
 {
-    [self captureException:exception];
     _insideReportException = YES;
+    [self captureException:exception];
 }
 
 + (void)reportExceptionDidFinish
