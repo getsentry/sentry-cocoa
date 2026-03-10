@@ -55,13 +55,6 @@ var targets: [Target] = [
             .linkedFramework("Sentry")
         ]
     ),
-    .target(
-        name: "SentryCppHelper",
-        path: "Sources/SentryCppHelper",
-        linkerSettings: [
-            .linkedLibrary("c++")
-        ]
-    ),
     .target(name: "SentryDistribution", path: "Sources/SentryDistribution"),
     .testTarget(name: "SentryDistributionTests", dependencies: ["SentryDistribution"], path: "Sources/SentryDistributionTests")
 ]
@@ -116,6 +109,13 @@ targets += [
         publicHeadersPath: "Public",
         cSettings: [
             .headerSearchPath("Public")
+        ]
+    ),
+    .target(
+        name: "SentryCppHelper",
+        path: "Sources/SentryCppHelper",
+        linkerSettings: [
+            .linkedLibrary("c++")
         ]
     )
 ]
