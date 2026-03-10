@@ -225,6 +225,40 @@
     XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://api.example.com/data"]);
 }
 
+- (void)testNetworkDetailAllowUrls_setViaProperty_shouldDropEmptyStrings
+{
+    // -- Arrange --
+    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
+
+    // -- Act -- Empty strings should be filtered out because url.contains("") always returns YES
+    options.networkDetailAllowUrls = @[ @"api.example.com", @"" ];
+
+    // -- Assert --
+    XCTAssertEqual(options.networkDetailAllowUrls.count, 1,
+        @"Empty strings must be dropped");
+    XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://api.example.com/data"]);
+    XCTAssertFalse([options isNetworkDetailCaptureEnabledFor:@"https://unrelated.com/data"],
+        @"Empty string in allow list must not cause all URLs to match");
+}
+
+- (void)testNetworkDetailDenyUrls_setViaProperty_shouldDropEmptyStrings
+{
+    // -- Arrange --
+    SentryReplayOptions *options = [[SentryReplayOptions alloc] init];
+    options.networkDetailAllowUrls = @[ @"api.example.com" ];
+
+    // -- Act -- Empty string in deny list would deny everything
+    options.networkDetailDenyUrls = @[ @"/sensitive/", @"" ];
+
+    // -- Assert --
+    XCTAssertEqual(options.networkDetailDenyUrls.count, 1,
+        @"Empty strings must be dropped");
+    XCTAssertTrue([options isNetworkDetailCaptureEnabledFor:@"https://api.example.com/data"],
+        @"Empty string in deny list must not cause all URLs to be denied");
+    XCTAssertFalse(
+        [options isNetworkDetailCaptureEnabledFor:@"https://api.example.com/sensitive/data"]);
+}
+
 - (void)testNetworkDetailAllowUrls_roundTrip_shouldPreserveTypes
 {
     // -- Arrange --
