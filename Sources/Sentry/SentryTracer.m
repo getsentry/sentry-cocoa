@@ -724,8 +724,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #if SENTRY_HAS_UIKIT
     [self addFrameStatistics];
 
-    NSArray<id<SentrySpan>> *appStartSpans = sentryBuildAppStartSpans(
-        self, appStartMeasurement, [self isStandaloneAppStartTransaction]);
+    NSArray<id<SentrySpan>> *appStartSpans = [self isStandaloneAppStartTransaction]
+        ? sentryBuildStandaloneAppStartSpans(self, appStartMeasurement)
+        : sentryBuildAppStartSpans(self, appStartMeasurement);
     capacity = _children.count + appStartSpans.count;
 #else
     capacity = _children.count;

@@ -11,7 +11,7 @@
 
 #if SENTRY_HAS_UIKIT
 
-id<SentrySpan>
+static id<SentrySpan>
 sentryBuildAppStartSpan(
     SentryTracer *tracer, SentrySpanId *parentId, NSString *operation, NSString *description)
 {
@@ -29,9 +29,13 @@ sentryBuildAppStartSpan(
     return [[SentrySpanInternal alloc] initWithTracer:tracer context:context framesTracker:nil];
 }
 
-NSArray<id<SentrySpan>> *
-sentryBuildAppStartSpans(SentryTracer *tracer,
-    SentryAppStartMeasurement *_Nullable appStartMeasurement, BOOL isStandaloneAppStartTransaction)
+/**
+ * Internal helper that builds the app start child spans. When @c isStandalone is @c YES the
+ * intermediate grouping span is omitted and children are parented directly to the tracer.
+ */
+static NSArray<id<SentrySpan>> *
+sentryBuildAppStartSpansInternal(SentryTracer *tracer,
+    SentryAppStartMeasurement *_Nullable appStartMeasurement, BOOL isStandalone)
 {
 
     if (appStartMeasurement == nil) {
@@ -61,9 +65,7 @@ sentryBuildAppStartSpans(SentryTracer *tracer,
         dateByAddingTimeInterval:appStartMeasurement.duration];
 
     SentrySpanId *appStartSpanParentId;
-    // For standalone app start transactions the transaction itself is the root span,
-    // so we skip creating the intermediate "Cold Start" / "Warm Start" span.
-    if (isStandaloneAppStartTransaction) {
+    if (isStandalone) {
         appStartSpanParentId = tracer.spanId;
     } else {
         id<SentrySpan> appStartSpan
@@ -107,6 +109,20 @@ sentryBuildAppStartSpans(SentryTracer *tracer,
     [appStartSpans addObject:frameRenderSpan];
 
     return appStartSpans;
+}
+
+NSArray<id<SentrySpan>> *
+sentryBuildAppStartSpans(
+    SentryTracer *tracer, SentryAppStartMeasurement *_Nullable appStartMeasurement)
+{
+    return sentryBuildAppStartSpansInternal(tracer, appStartMeasurement, NO);
+}
+
+NSArray<id<SentrySpan>> *
+sentryBuildStandaloneAppStartSpans(
+    SentryTracer *tracer, SentryAppStartMeasurement *_Nullable appStartMeasurement)
+{
+    return sentryBuildAppStartSpansInternal(tracer, appStartMeasurement, YES);
 }
 
 #endif // SENTRY_HAS_UIKIT
