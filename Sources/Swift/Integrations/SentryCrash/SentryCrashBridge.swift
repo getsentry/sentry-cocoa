@@ -1,4 +1,3 @@
-// swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 import Foundation
 
@@ -6,33 +5,72 @@ import Foundation
 import UIKit
 #endif
 
-/**
- * Concrete facade bridging SDK services to SentryCrash without requiring direct
- * SentryDependencyContainer access.
- *
- * This class provides a single point of access for SentryCrash to SDK services,
- * decoupling the crash reporting subsystem from the SDK's dependency container.
- * It exposes only the five services SentryCrash needs: notification center wrapper,
- * date provider, crash reporter, uncaught exception handler, and active screen size.
- *
- * The bridge follows the facade pattern established in the codebase, similar to
- * SentryDependencyContainerSwiftHelper, providing a clean architectural boundary
- * between layers.
- */
+/// Facade that bridges the Sentry SDK layer to the SentryCrash subsystem.
+///
+/// `SentryCrashBridge` is the single entry point through which SentryCrash
+/// accesses SDK services. It replaces direct `SentryDependencyContainer`
+/// look-ups inside the crash reporter, keeping the dependency direction
+/// one-way: **Sentry → SentryCrash**, never the reverse.
+///
+/// ## Isolation boundary
+///
+/// This bridge is the first step toward fully isolating SentryCrash from the
+/// SDK. Today the two layers still share a handful of model types (e.g.
+/// `SentryCrashSwift`, notification-center wrappers). Future work will replace
+/// those shared types with protocol abstractions so that SentryCrash can be
+/// built and tested independently.
+///
+/// ## Exposed services
+///
+/// | Service                        | Used by SentryCrash for                                 |
+/// |--------------------------------|---------------------------------------------------------|
+/// | `notificationCenterWrapper`    | Observing app-lifecycle events (foreground, background)  |
+/// | `dateProvider`                 | Timestamping crash reports and session boundaries        |
+/// | `crashReporter`                | Reading system info, crash state, and launch metadata    |
+/// | `uncaughtExceptionHandler`     | Installing / reading the NSException handler             |
+/// | `activeScreenSize()` (UIKit)   | Recording screen dimensions in device context            |
+///
+/// ## Threading
+///
+/// The bridge is created once during `SentryCrashIntegration.install(with:)` and
+/// is safe to read from any thread after initialization. The
+/// `uncaughtExceptionHandler` property may be written from the SentryCrash
+/// installation path and read from the crash-time exception handler.
+///
+/// ## Usage
+///
+/// The bridge is created by the integration layer and passed down:
+///
+/// ```swift
+/// let bridge = SentryCrashBridge(
+///     notificationCenterWrapper: notificationCenter,
+///     dateProvider: dateProvider,
+///     crashReporter: crashReporter
+/// )
+/// // Passed to SentryCrashWrapper, SentryCrashIntegrationSessionHandler,
+/// // and the underlying SentryCrash / SentryCrashInstallation instances.
+/// ```
 @objc @_spi(Private) public final class SentryCrashBridge: NSObject {
 
     // MARK: - Service Properties
 
-    /// Notification center wrapper for app lifecycle events
+    /// Wrapper around `NSNotificationCenter` used by SentryCrash to observe
+    /// app-lifecycle transitions (e.g. `UIApplicationDidBecomeActiveNotification`).
     @objc public let notificationCenterWrapper: SentryNSNotificationCenterWrapper
 
-    /// Date provider for timestamps and system time
+    /// Provides the current date/time. Used for timestamping crash reports and
+    /// computing session durations.
     @objc public let dateProvider: SentryCurrentDateProvider
 
-    /// Crash reporter for system info and crash state
+    /// The crash reporter instance that owns system info, crash state, and the
+    /// on-disk report store. This is the main object SentryCrash interacts with.
     @objc public let crashReporter: SentryCrashSwift
 
-    /// Uncaught exception handler (bridges to crashReporter's property)
+    /// The C-convention uncaught-exception handler installed by SentryCrash.
+    ///
+    /// This is a convenience proxy for `crashReporter.uncaughtExceptionHandler`.
+    /// The NSException monitor (`SentryCrashMonitor_NSException`) writes this
+    /// during installation so it can be restored if monitoring is later disabled.
     @objc public var uncaughtExceptionHandler: (@convention(c) (NSException) -> Void)? {
         get { crashReporter.uncaughtExceptionHandler }
         set { crashReporter.uncaughtExceptionHandler = newValue }
@@ -41,7 +79,10 @@ import UIKit
     // MARK: - Platform-Specific Services
 
     #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-    /// Returns the active screen dimensions (iOS/tvOS only)
+    /// Returns the size of the active screen in points (iOS/tvOS only).
+    ///
+    /// Delegates to `SentryDependencyContainerSwiftHelper` which reads the key
+    /// window's scene. Returns `CGSize.zero` when no active scene is available.
     @objc public func activeScreenSize() -> CGSize {
         return SentryDependencyContainerSwiftHelper.activeScreenSize()
     }
@@ -49,11 +90,14 @@ import UIKit
 
     // MARK: - Initialization
 
-    /// Initializes the bridge with required SDK services
+    /// Creates a bridge with the SDK services that SentryCrash requires.
+    ///
     /// - Parameters:
-    ///   - notificationCenterWrapper: Wrapper for notification center operations
-    ///   - dateProvider: Provider for current date and time operations
-    ///   - crashReporter: Crash reporting service
+    ///   - notificationCenterWrapper: Wrapper for subscribing to app-lifecycle
+    ///     notifications.
+    ///   - dateProvider: Provider for current timestamps.
+    ///   - crashReporter: The crash reporter that manages on-disk reports and
+    ///     system info.
     @objc public init(
         notificationCenterWrapper: SentryNSNotificationCenterWrapper,
         dateProvider: SentryCurrentDateProvider,
@@ -65,4 +109,3 @@ import UIKit
         super.init()
     }
 }
-// swiftlint:enable missing_docs
