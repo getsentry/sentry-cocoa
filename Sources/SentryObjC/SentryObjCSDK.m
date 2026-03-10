@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 
-// Import the internal ObjC SDK that's available without Swift/modules
+// Forward declare SentrySDKInternal to avoid importing headers that require modules.
+// At link time, the actual implementation from SentryObjCInternal will be used.
 @interface SentrySDKInternal : NSObject
 + (nullable id)span;
 + (BOOL)isEnabled;
@@ -54,7 +55,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentrySDK
+@implementation SentryObjCSDK
 
 + (nullable id<SentrySpan>)span
 {

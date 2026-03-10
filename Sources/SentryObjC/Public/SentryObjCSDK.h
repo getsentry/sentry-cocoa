@@ -21,14 +21,16 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Main entry point for the Sentry SDK.
+ * Main entry point for the Sentry SDK (Objective-C wrapper).
  *
- * Use this class to initialize the SDK, capture events, and manage SDK state.
+ * This is a pure Objective-C wrapper around the Sentry SDK that works in
+ * projects with CLANG_ENABLE_MODULES=NO. Use this class to initialize the
+ * SDK, capture events, and manage SDK state.
  *
  * @see SentryOptions
  * @see SentryScope
  */
-@interface SentrySDK : NSObject
+@interface SentryObjCSDK : NSObject
 
 SENTRY_NO_INIT
 

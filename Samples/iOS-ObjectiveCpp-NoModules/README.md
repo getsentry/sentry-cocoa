@@ -27,7 +27,7 @@ The **SentryObjC** product (introduced in [#6342](https://github.com/getsentry/s
 ```objc
 #import <SentryObjC.h>  // Pure ObjC - no Swift modules required
 
-[SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
+[SentryObjCSDK startWithConfigureOptions:^(SentryOptions *options) {
     options.dsn = @"...";
     options.tracesSampleRate = @1.0;
     options.sessionReplay.sessionSampleRate = 0;  // All Swift APIs now available!
