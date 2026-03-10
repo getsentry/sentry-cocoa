@@ -9,9 +9,9 @@ class AppStartMeasurementHandlerTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
-        SentrySDKInternal.setCurrentHub(nil)
-        SentrySDKInternal.setAppStartMeasurement(nil)
-        SentryAppStartMeasurementProvider.reset()
+        // The integration tests modify SentryDependencyContainer global state
+        // (debugImageProvider, framesTracker, hub), so we need the full cleanup.
+        clearTestState()
     }
 
     private func createMeasurement(type: SentryAppStartType, duration: TimeInterval = 0.5) -> SentryAppStartMeasurement {
@@ -178,11 +178,11 @@ class AppStartMeasurementHandlerTests: XCTestCase {
 
         SendStandaloneAppStartTransaction().handle(measurement)
 
-        let event = try XCTUnwrap(hub.capturedEventsWithScopes.invocations.first?.event)
-        let eventStartTimestamp = try XCTUnwrap(event.startTimestamp)
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let startTimestamp = try XCTUnwrap(serialized["start_timestamp"] as? TimeInterval)
         XCTAssertEqual(
-            eventStartTimestamp.timeIntervalSinceReferenceDate,
-            measurement.appStartTimestamp.timeIntervalSinceReferenceDate,
+            startTimestamp,
+            measurement.appStartTimestamp.timeIntervalSince1970,
             accuracy: 0.001
         )
     }
