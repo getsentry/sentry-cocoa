@@ -1,4 +1,4 @@
-// swiftlint:disable file_length missing_docs
+// swiftlint:disable file_length missing_docs type_body_length
 import Foundation
 
 @objcMembers
@@ -24,6 +24,13 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
 
         public static let excludedViewClasses: Set<String> = []
         public static let includedViewClasses: Set<String> = []
+
+        // Network capture configuration defaults
+        public static let networkDetailAllowUrls: [SentryUrlMatchable] = []
+        public static let networkDetailDenyUrls: [SentryUrlMatchable] = []
+        public static let networkCaptureBodies: Bool = true
+        public static let networkRequestHeaders: [String] = ["Content-Type", "Content-Length", "Accept"]
+        public static let networkResponseHeaders: [String] = ["Content-Type", "Content-Length", "Accept"]
 
         // The following properties are defaults which are not configurable by the user.
 
@@ -293,6 +300,170 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var enableFastViewRendering: Bool
 
     /**
+     * A list of URL patterns to capture request and response details for during session replay.
+     *
+     * When non-empty, network requests with URLs matching any of these patterns will have their
+     * headers and bodies captured for session replay.
+     *
+     * Supports both String and NSRegularExpression patterns:
+     * - String: Uses substring contains
+     * - NSRegularExpression: Uses full regex matching
+     *
+     * Default: empty array (network detail capture disabled)
+     *
+     * Example:
+     * ```swift
+     * // String patterns (substring matching)
+     * options.sessionReplay.networkDetailAllowUrls = [
+     *     "api.example.com",              // Matches any URL containing this string
+     *     "/api/v1/",                      // Matches any URL containing this path
+     *     "https://analytics.myapp.com"   // Matches any URL containing this prefix
+     * ]
+     * 
+     * // NSRegularExpression patterns (full regex matching)
+     * let apiRegex = try? NSRegularExpression(pattern: "^https://api\\.example\\.com/v[0-9]+/.*")
+     * let imageRegex = try? NSRegularExpression(pattern: ".*\\.(jpg|jpeg|png|gif)$")
+     * 
+     * // Mixed array of both types
+     * options.sessionReplay.networkDetailAllowUrls = [
+     *     "api.example.com",               // String: substring match
+     *     apiRegex!,                       // Regex: versioned API endpoints
+     *     imageRegex!                      // Regex: image files
+     * ]
+     * ```
+     *
+     * ```objc
+     * // Objective-C usage
+     * NSRegularExpression *apiRegex =
+     *     [NSRegularExpression regularExpressionWithPattern:@"^https://api\\.example\\.com/v[0-9]+/.*"
+     *                                              options:0
+     *                                                error:nil];
+     *
+     * // Mixed array of NSString and NSRegularExpression
+     * options.sessionReplay.networkDetailAllowUrls = @[
+     *     @"api.example.com",              // NSString: substring match
+     *     @"/api/v1/",                     // NSString: path match
+     *     apiRegex                         // NSRegularExpression: regex match
+     * ];
+     * ```
+     *
+     * - Note: Request and response bodies are truncated to 150KB maximum.
+     * - Note: See ``SentryReplayOptions.DefaultValues.networkDetailAllowUrls`` for the default value.
+     */
+    public var networkDetailAllowUrls: [SentryUrlMatchable]
+    
+    /// Objective-C bridge for networkDetailAllowUrls.
+    /// - Warning: This property exists for Objective-C compatibility only. Swift code should use
+    ///            `networkDetailAllowUrls` directly.
+    @objc(networkDetailAllowUrls) public var networkDetailAllowUrlsForObjC: NSArray {
+        get { return networkDetailAllowUrls as NSArray }
+        set { networkDetailAllowUrls = SentryUrlMatcher.convertFromAny(newValue as? [Any]) ?? [] }
+    }
+
+    /**
+     * A list of URL patterns to exclude from network detail capture during session replay.
+     *
+     * URLs matching any pattern in this array will NOT have their headers and bodies captured,
+     * even if they match patterns in `networkDetailAllowUrls`. This provides fine-grained
+     * control for excluding sensitive endpoints from capture.
+     *
+     * Supports both String and NSRegularExpression patterns:
+     * - String: Uses substring match
+     * - NSRegularExpression: Uses full regex matching
+     *
+     * Default: empty array (no URLs explicitly denied)
+     *
+     * Examples:
+     * - String patterns: "/auth/", "/payment/", "password", ".internal."
+     * - NSRegularExpression patterns: Use try NSRegularExpression(pattern:) to create regex objects
+     * - Mixed arrays are supported with both types
+     *
+     * ```objc
+     * // Objective-C usage
+     * options.sessionReplay.networkDetailDenyUrls = @[
+     *     @"/auth/",                       // NSString: substring match
+     *     @"/payment/"                     // NSString: substring match
+     * ];
+     * ```
+     */
+    public var networkDetailDenyUrls: [SentryUrlMatchable]
+    
+    /// Objective-C bridge for networkDetailDenyUrls.
+    /// - Warning: This property exists for Objective-C compatibility only. Swift code should use
+    ///            `networkDetailDenyUrls` directly.
+    @objc(networkDetailDenyUrls) public var networkDetailDenyUrlsForObjC: NSArray {
+        get { return networkDetailDenyUrls as NSArray }
+        set { networkDetailDenyUrls = SentryUrlMatcher.convertFromAny(newValue as? [Any]) ?? [] }
+    }
+
+    /**
+     * Whether to capture request and response bodies for allowed URLs.
+     *
+     * When `true` (default), bodies will be captured and parsed (JSON bodies are
+     * parsed for structured display in the Sentry UI).
+     *
+     * When `false`, only headers and metadata will be captured for allowed URLs.
+     *
+     * Default: `true`
+     *
+     * - Note: This setting only applies when ``networkDetailAllowUrls`` is non-empty.
+     * - Note: Bodies are automatically truncated to 150KB to prevent excessive memory usage.
+     */
+    public var networkCaptureBodies: Bool
+
+    /**
+     * Request headers to capture for allowed URLs during session replay.
+     * 
+     * Specifies which HTTP request headers should be captured and included in session replay
+     * network details. Header matching is case-insensitive (e.g., "content-type", "Content-Type", 
+     * and "CoNtEnT-tYpE" are all equivalent).
+     * 
+     * Default (always included): `["Content-Type", "Content-Length", "Accept"]`
+     *
+     * Example:
+     * ```
+     * options.sessionReplay.networkRequestHeaders = [
+     *     "Authorization",
+     *     "User-Agent"
+     * ]
+     * ```
+     *
+     * - Note: This setting only applies when ``networkDetailAllowUrls`` is non-empty.
+     * - Note: Header names preserve the case seen on the request, not the case specified here.
+     */
+    public var networkRequestHeaders: [String] {
+        get { _networkRequestHeaders }
+        set { _networkRequestHeaders = Self.mergeWithDefaultHeaders(newValue, defaults: DefaultValues.networkRequestHeaders) }
+    }
+    private var _networkRequestHeaders: [String]
+
+    /**
+     * Response headers to capture for allowed URLs during session replay.
+     * 
+     * Specifies which HTTP response headers should be captured and included in session replay
+     * network details. Header matching is case-insensitive (e.g., "content-type", "Content-Type", 
+     * and "CoNtEnT-tYpE" are all equivalent).
+     * 
+     * Default (always included): `["Content-Type", "Content-Length", "Accept"]`
+     *
+     * Example:
+     * ```
+     * options.sessionReplay.networkResponseHeaders = [
+     *     "Cache-Control",    // Custom header
+     *     "Set-Cookie"        // Custom header
+     * ]
+     * ```
+     *
+     * - Note: This setting only applies when ``networkDetailAllowUrls`` is non-empty.
+     * - Note: Header names preserve the case seen on the response, not the case specified here.
+     */
+    public var networkResponseHeaders: [String] {
+        get { _networkResponseHeaders }
+        set { _networkResponseHeaders = Self.mergeWithDefaultHeaders(newValue, defaults: DefaultValues.networkResponseHeaders) }
+    }
+    private var _networkResponseHeaders: [String]
+
+    /**
      * Defines the quality of the session replay.
      *
      * Higher bit rates better quality, but also bigger files to transfer.
@@ -352,6 +523,50 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     var sdkInfo: [String: Any]?
 
     /**
+     * Determines if network detail capture is enabled for a given URL.
+     *
+     * - Parameter urlString: The URL string to check
+     * - Returns: `true` if network details should be captured for this URL, `false` otherwise
+     */
+    @objc
+    public func isNetworkDetailCaptureEnabled(for urlString: String) -> Bool {
+        // If allow list is empty, network detail capture is disabled
+        guard !networkDetailAllowUrls.isEmpty else {
+            return false
+        }
+        
+        if matches(url: urlString, against: networkDetailDenyUrls) {
+            return false
+        }
+        
+        return matches(url: urlString, against: networkDetailAllowUrls)
+    }
+    
+    /**
+     * Helper method to check if a URL string matches any pattern in a list.
+     *
+     * Supports both String and NSRegularExpression patterns:
+     * - String: Uses substring match
+     * - NSRegularExpression: Uses full regex matching
+     *
+     * - Parameters:
+     *   - url: The URL string to test
+     *   - matchers: Array of SentryUrlMatchable patterns
+     * - Returns: `true` if the URL matches any pattern, `false` otherwise
+     */
+    private func matches(url: String, against matchers: [SentryUrlMatchable]) -> Bool {
+        matchers.contains { matcher in
+            switch matcher.asSentryUrlMatcher {
+            case .string(let pattern):
+                return url.contains(pattern)
+            case .regex(let regex):
+                let range = NSRange(url.startIndex..., in: url)
+                return regex.firstMatch(in: url, range: range) != nil
+            }
+        }
+    }
+    
+    /**
      * Initialize session replay options disabled
      *
      * - Note: This initializer is added for Objective-C compatibility, as constructors with default values
@@ -374,7 +589,12 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             frameRate: nil,
             errorReplayDuration: nil,
             sessionSegmentDuration: nil,
-            maximumDuration: nil
+            maximumDuration: nil,
+            networkDetailAllowUrls: nil,
+            networkDetailDenyUrls: nil,
+            networkCaptureBodies: nil,
+            networkRequestHeaders: nil,
+            networkResponseHeaders: nil
         )
     }
 
@@ -409,7 +629,12 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             sessionSegmentDuration: (dictionary["sessionSegmentDuration"] as? NSNumber)?.doubleValue,
             maximumDuration: (dictionary["maximumDuration"] as? NSNumber)?.doubleValue,
             excludedViewClasses: (dictionary["excludedViewClasses"] as? [String]).map { Set($0) },
-            includedViewClasses: (dictionary["includedViewClasses"] as? [String]).map { Set($0) }
+            includedViewClasses: (dictionary["includedViewClasses"] as? [String]).map { Set($0) },
+            networkDetailAllowUrls: SentryUrlMatcher.convertFromAny(dictionary["networkDetailAllowUrls"]),
+            networkDetailDenyUrls: SentryUrlMatcher.convertFromAny(dictionary["networkDetailDenyUrls"]),
+            networkCaptureBodies: (dictionary["networkCaptureBodies"] as? NSNumber)?.boolValue,
+            networkRequestHeaders: (dictionary["networkRequestHeaders"] as? [Any])?.compactMap { $0 as? String },
+            networkResponseHeaders: (dictionary["networkResponseHeaders"] as? [Any])?.compactMap { $0 as? String }
         )
     }
 
@@ -456,7 +681,12 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             sessionSegmentDuration: nil,
             maximumDuration: nil,
             excludedViewClasses: nil,
-            includedViewClasses: nil
+            includedViewClasses: nil,
+            networkDetailAllowUrls: nil,
+            networkDetailDenyUrls: nil,
+            networkCaptureBodies: nil,
+            networkRequestHeaders: nil,
+            networkResponseHeaders: nil
         )
     }
 
@@ -477,7 +707,12 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         sessionSegmentDuration: TimeInterval?,
         maximumDuration: TimeInterval?,
         excludedViewClasses: Set<String>? = nil,
-        includedViewClasses: Set<String>? = nil
+        includedViewClasses: Set<String>? = nil,
+        networkDetailAllowUrls: [SentryUrlMatchable]? = nil,
+        networkDetailDenyUrls: [SentryUrlMatchable]? = nil,
+        networkCaptureBodies: Bool? = nil,
+        networkRequestHeaders: [String]? = nil,
+        networkResponseHeaders: [String]? = nil
     ) {
         self.sessionSampleRate = sessionSampleRate ?? DefaultValues.sessionSampleRate
         self.onErrorSampleRate = onErrorSampleRate ?? DefaultValues.onErrorSampleRate
@@ -495,8 +730,50 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         self.maximumDuration = maximumDuration ?? DefaultValues.maximumDuration
         self.excludedViewClasses = excludedViewClasses ?? DefaultValues.excludedViewClasses
         self.includedViewClasses = includedViewClasses ?? DefaultValues.includedViewClasses
+        self.networkDetailAllowUrls = networkDetailAllowUrls ?? DefaultValues.networkDetailAllowUrls
+        self.networkDetailDenyUrls = networkDetailDenyUrls ?? DefaultValues.networkDetailDenyUrls
+        self.networkCaptureBodies = networkCaptureBodies ?? DefaultValues.networkCaptureBodies
+        self._networkRequestHeaders = Self.mergeWithDefaultHeaders(networkRequestHeaders, defaults: DefaultValues.networkRequestHeaders)
+        self._networkResponseHeaders = Self.mergeWithDefaultHeaders(networkResponseHeaders, defaults: DefaultValues.networkResponseHeaders)
 
         super.init()
     }
+    
+    /**
+     * Merges user-provided headers with default headers, ensuring defaults are always included.
+     *
+     * - Parameter userHeaders: Headers specified by the user (can be nil)
+     * - Parameter defaults: Default headers that must always be included
+     * - Returns: Array containing both user headers and default headers (with duplicates removed)
+     */
+    private static func mergeWithDefaultHeaders(_ userHeaders: [String]?, defaults: [String]) -> [String] {
+        let providedHeaders = userHeaders ?? []
+        
+        // Use Set to remove duplicates, then convert back to Array
+        // Case-insensitive comparison to avoid duplicate headers with different casing
+        var seenHeaders = Set<String>()
+        var result: [String] = []
+        
+        // Add default headers first
+        for header in defaults {
+            let lowercased = header.lowercased()
+            if !seenHeaders.contains(lowercased) {
+                seenHeaders.insert(lowercased)
+                result.append(header)
+            }
+        }
+        
+        // Add user-provided headers
+        for header in providedHeaders {
+            let lowercased = header.lowercased()
+            if !seenHeaders.contains(lowercased) {
+                seenHeaders.insert(lowercased)
+                result.append(header)
+            }
+        }
+        
+        return result
+    }
+
 }
-// swiftlint:enable file_length missing_docs
+// swiftlint:enable file_length missing_docs type_body_length
