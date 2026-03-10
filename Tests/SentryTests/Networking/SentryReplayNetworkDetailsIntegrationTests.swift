@@ -20,20 +20,25 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
 
     // MARK: - Serialization Tests
 
-    func testSerialize_withFullData_shouldReturnCompleteDictionary() {
+    func testSerialize_withFullData_shouldReturnCompleteDictionary() throws {
         // -- Arrange --
         let details = SentryReplayNetworkDetails(method: "PUT")
 
+        let requestBodyData = try JSONSerialization.data(withJSONObject: ["name": "test"])
         details.setRequest(
             size: 100,
-            body: ["name": "test"],
+            bodyData: requestBodyData,
+            contentType: "application/json",
             allHeaders: ["Content-Type": "application/json", "Authorization": "Bearer token", "Accept": "*/*"],
             configuredHeaders: ["Content-Type", "Authorization"]
         )
+
+        let responseBodyData = try JSONSerialization.data(withJSONObject: ["id": 123, "name": "test"])
         details.setResponse(
             statusCode: 201,
             size: 150,
-            body: ["id": 123, "name": "test"],
+            bodyData: responseBodyData,
+            contentType: "application/json",
             allHeaders: ["Content-Type": "application/json", "Cache-Control": "no-cache", "Set-Cookie": "session=123"],
             configuredHeaders: ["Content-Type", "Cache-Control"]
         )
@@ -85,7 +90,8 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
         details.setResponse(
             statusCode: 404,
             size: nil,
-            body: nil,
+            bodyData: nil,
+            contentType: nil,
             allHeaders: ["Cache-Control": "no-cache", "Content-Type": "text/plain", "X-Custom": "value"],
             configuredHeaders: ["Cache-Control", "Content-Type"]
         )
@@ -115,7 +121,8 @@ class SentryReplayNetworkDetailsIntegrationTests: XCTestCase {
         let details = SentryReplayNetworkDetails(method: "GET")
         details.setRequest(
             size: nil,
-            body: nil,
+            bodyData: nil,
+            contentType: nil,
             allHeaders: [
                 "Content-Type": "application/json",
                 "Authorization": "Bearer secret",
