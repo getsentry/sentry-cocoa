@@ -1,6 +1,9 @@
 import Foundation
 
 /// Warning codes for network body capture issues.
+///
+/// Raw values must match the frontend constants so the Sentry UI renders the correct warnings.
+/// - SeeAlso: https://github.com/getsentry/sentry/blob/8b79857b2eff86f4df2f3abaf1e46c74893e3781/static/app/utils/replays/replay.tsx#L5
 enum NetworkBodyWarning: String {
     case jsonTruncated = "JSON_TRUNCATED"
     case textTruncated = "TEXT_TRUNCATED"
