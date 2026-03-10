@@ -47,20 +47,52 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, copy) NSString *origin;
 
-/** Initializes with an operation code. traceId and spanId are randomly created. */
+/**
+ * Creates a span context with an operation.
+ *
+ * Trace ID and span ID are randomly generated.
+ *
+ * @param operation The operation type.
+ * @return A new span context instance.
+ */
 - (instancetype)initWithOperation:(NSString *)operation;
 
-/** Initializes with operation and sampled flag. */
+/**
+ * Creates a span context with operation and sampling decision.
+ *
+ * @param operation The operation type.
+ * @param sampled Whether this span is sampled.
+ * @return A new span context instance.
+ */
 - (instancetype)initWithOperation:(NSString *)operation sampled:(SentrySampleDecision)sampled;
 
-/** Full initializer. */
+/**
+ * Creates a span context with full trace information.
+ *
+ * @param traceId The trace ID.
+ * @param spanId The span ID.
+ * @param parentId The parent span ID, or @c nil for root spans.
+ * @param operation The operation type.
+ * @param sampled Whether this span is sampled.
+ * @return A new span context instance.
+ */
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
                        parentId:(nullable SentrySpanId *)parentId
                       operation:(NSString *)operation
                         sampled:(SentrySampleDecision)sampled;
 
-/** Full initializer with span description. */
+/**
+ * Creates a span context with full trace information and description.
+ *
+ * @param traceId The trace ID.
+ * @param spanId The span ID.
+ * @param parentId The parent span ID, or @c nil for root spans.
+ * @param operation The operation type.
+ * @param description Human-readable description of the span.
+ * @param sampled Whether this span is sampled.
+ * @return A new span context instance.
+ */
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId
                        parentId:(nullable SentrySpanId *)parentId
