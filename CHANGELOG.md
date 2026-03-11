@@ -11,6 +11,7 @@
 
 ### Fixes
 
+- Fix thread safety in macOS NSException capture to prevent duplicate exception reports (#7672)
 - Capture transactions that finish during the launch profiling window instead of silently discarding them (#7602)
 
 ## 9.6.0
