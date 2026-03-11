@@ -109,43 +109,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-/**
- * Convenience methods providing default parameter values for metrics recording.
- *
- * These category methods allow omitting optional parameters when recording metrics.
- */
-@interface NSObject (SentryObjCMetricsApiDefaults) <SentryObjCMetricsApi>
-
-/**
- * Records a count metric with default value of 1 and no attributes.
- */
-- (void)countWithKey:(NSString *)key;
-
-/**
- * Records a count metric with specified value and no attributes.
- */
-- (void)countWithKey:(NSString *)key value:(NSUInteger)value;
-
-/**
- * Records a distribution metric with no unit and no attributes.
- */
-- (void)distributionWithKey:(NSString *)key value:(double)value;
-
-/**
- * Records a distribution metric with specified unit and no attributes.
- */
-- (void)distributionWithKey:(NSString *)key value:(double)value unit:(nullable NSString *)unit;
-
-/**
- * Records a gauge metric with no unit and no attributes.
- */
-- (void)gaugeWithKey:(NSString *)key value:(double)value;
-
-/**
- * Records a gauge metric with specified unit and no attributes.
- */
-- (void)gaugeWithKey:(NSString *)key value:(double)value unit:(nullable NSString *)unit;
-
-@end
-
 NS_ASSUME_NONNULL_END
