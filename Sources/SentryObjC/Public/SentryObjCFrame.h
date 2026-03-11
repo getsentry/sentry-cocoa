@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Whether this frame is from application code.
  *
- * @c @YES for app code, @c @NO for framework/system code.
+ * @c YES for app code, @c NO for framework/system code.
  */
 @property (nonatomic, copy) NSNumber *inApp;
 

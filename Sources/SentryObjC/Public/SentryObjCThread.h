@@ -41,21 +41,21 @@ SENTRY_NO_INIT
 /**
  * Whether this thread crashed.
  *
- * @c @YES for the crashing thread, @c @NO for other threads.
+ * @c YES for the crashing thread, @c NO for other threads.
  */
 @property (nullable, nonatomic, copy) NSNumber *crashed;
 
 /**
  * Whether this was the currently executing thread.
  *
- * @c @YES for the thread that was running when the event occurred.
+ * @c YES for the thread that was running when the event occurred.
  */
 @property (nullable, nonatomic, copy) NSNumber *current;
 
 /**
  * Whether this is the main thread.
  *
- * @c @YES for the main/UI thread.
+ * @c YES for the main/UI thread.
  */
 @property (nullable, nonatomic, copy) NSNumber *isMain;
 

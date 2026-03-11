@@ -41,14 +41,14 @@ SENTRY_NO_INIT
 /**
  * Whether the exception was handled by application code.
  *
- * @c @YES if caught and handled, @c @NO if unhandled/fatal.
+ * @c YES if caught and handled, @c NO if unhandled/fatal.
  */
 @property (nonatomic, copy, nullable) NSNumber *handled;
 
 /**
  * Whether the exception was generated synthetically.
  *
- * @c @YES for exceptions created by instrumentation rather than thrown naturally.
+ * @c YES for exceptions created by instrumentation rather than thrown naturally.
  */
 @property (nonatomic, copy, nullable) NSNumber *synthetic;
 

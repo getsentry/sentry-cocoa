@@ -1,4 +1,4 @@
-#import <SentryObjC/SentryObjC.h>
+#import "../../Sources/SentryObjC/Public/SentryObjC.h"
 #import <XCTest/XCTest.h>
 
 @interface SentryObjCMetricsApiTests : XCTestCase
