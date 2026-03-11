@@ -14,7 +14,7 @@ race:uninstallExceptionHandler
 # ThreadSanitizers produces false alarms for double-checked
 # locks.
 
-race:getAppStartMeasurement
+race:appStartMeasurementForOperation
 
 # SentryDependencyContainer
 race:application
