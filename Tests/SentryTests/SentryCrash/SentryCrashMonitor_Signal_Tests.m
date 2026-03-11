@@ -30,6 +30,8 @@
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashMonitor_Signal.h"
 
+#if SENTRY_HAS_SIGNAL
+
 @interface SentryCrashMonitor_Signal_Tests : XCTestCase
 @end
 
@@ -61,3 +63,4 @@
 }
 
 @end
+#endif

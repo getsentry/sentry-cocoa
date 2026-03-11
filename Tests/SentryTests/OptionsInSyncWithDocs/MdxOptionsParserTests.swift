@@ -1,6 +1,6 @@
 import XCTest
 
-@available(iOS 16.0, tvOS 16.0, macOS 13.0, macCatalyst 16.0, *)
+@available(iOS 16.0, tvOS 16.0, macOS 13.0, macCatalyst 16.0, watchOS 9.0, *)
 final class MdxOptionsParserTests: XCTestCase {
     
     func testExtractMdxOptionNames_whenDoubleQuotes_shouldExtract() {

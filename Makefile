@@ -715,7 +715,7 @@ lint-staged:
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
 	@if [ -n "$(STAGED_SWIFT_FILES)" ]; then \
-		swiftlint --strict --quiet --config .swiftlint.yml $(STAGED_SWIFT_FILES); \
+		swiftlint --strict --quiet $(STAGED_SWIFT_FILES); \
 	fi
 	dprint check "**/*.{md,json,yaml,yml}"
 

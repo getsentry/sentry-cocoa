@@ -1,0 +1,11 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.macOS-Swift-Sandboxed
+INFOPLIST_FILE = App/Configurations/Info.plist
+CODE_SIGN_ENTITLEMENTS = App/Configurations/macOS-Swift-Sandboxed.entitlements
+
+SWIFT_OBJC_BRIDGING_HEADER = App/Sources/macOS-Swift-Bridging-Header.h
+
+SUPPORTED_PLATFORMS = macosx
+
+MACOSX_DEPLOYMENT_TARGET = 10.14
