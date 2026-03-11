@@ -816,15 +816,6 @@ analyze:
 generate-public-api:
 	./scripts/update-api.sh
 
-## Generate SentryObjC public API snapshot
-#
-# Extracts SentryObjC public API from headers to sdk_api_objc.json.
-# Use for quick iteration; full API generation runs via generate-public-api.
-.PHONY: generate-objc-api
-generate-objc-api:
-	scripts/extract-objc-api.sh > sdk_api_objc.json
-	@echo "--> sdk_api_objc.json updated"
-
 # ============================================================================
 # VERSION MANAGEMENT
 # ============================================================================
