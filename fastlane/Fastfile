@@ -308,7 +308,8 @@ platform :ios do
     run_ui_tests(
       scheme: "iOS-SwiftUI",
       result_bundle_name: "ui_tests_ios_swiftui",
-      device: options[:device]
+      device: options[:device],
+      app_identifier: "io.sentry.iOS-SwiftUI"
     )
   end
   
@@ -316,7 +317,8 @@ platform :ios do
     run_ui_tests(
       scheme: "iOS-Swift6",
       result_bundle_name: "ui_tests_ios_swift6",
-      device: options[:device]
+      device: options[:device],
+      app_identifier: "io.sentry.iOS-Swift6"
     )
   end
 
