@@ -712,15 +712,6 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
     _startTimeChanged = YES;
 }
 
-#if SENTRY_HAS_UIKIT
-- (BOOL)isStandaloneAppStartTransaction
-{
-    return [StandaloneAppStartTransactionHelper
-        isStandaloneAppStartTransactionWithOperation:self.operation
-                                              origin:self.origin];
-}
-#endif // SENTRY_HAS_UIKIT
-
 - (SentryTransaction *)toTransaction
 {
 
@@ -781,6 +772,13 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 }
 
 #if SENTRY_HAS_UIKIT
+
+- (BOOL)isStandaloneAppStartTransaction
+{
+    return [StandaloneAppStartTransactionHelper
+        isStandaloneAppStartTransactionWithOperation:self.operation
+                                              origin:self.origin];
+}
 
 - (void)addAppStartMeasurements:(SentryTransaction *)transaction
 {
