@@ -1036,6 +1036,26 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(measurements?["app_start_warm"])
     }
 
+    func testFinish_whenStandaloneAppStartWithNilConfigMeasurement_shouldNotAddAppStartSpans() throws {
+        let context = TransactionContext(name: "App Start Cold", operation: fixture.appStartColdOperation)
+        // No appStartMeasurement set on the configuration.
+        let sut = fixture.hub.startTransaction(
+            with: context,
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: SentryTracerConfiguration.`default`
+        )
+        sut.origin = SentryTraceOriginAutoAppStart
+        sut.finish()
+
+        let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
+        let spans = try XCTUnwrap(serializedTransaction["spans"] as? [[String: Any]])
+        XCTAssertTrue(spans.isEmpty, "Standalone transaction with nil config measurement should have no app start spans")
+
+        let measurements = serializedTransaction["measurements"] as? [String: Any]
+        XCTAssertNil(measurements?["app_start_cold"], "Should not have app start measurement")
+    }
+
 #endif // os(iOS) || os(tvOS)
     
     func testMeasurementOnChildSpan_SetTwice_OverwritesMeasurement() throws {

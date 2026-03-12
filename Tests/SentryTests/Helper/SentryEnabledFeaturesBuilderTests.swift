@@ -221,4 +221,15 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(features.contains("standaloneAppStartTracing"))
     }
+
+    func testEnableStandaloneAppStartTracing_whenDefault_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("standaloneAppStartTracing"))
+    }
 }

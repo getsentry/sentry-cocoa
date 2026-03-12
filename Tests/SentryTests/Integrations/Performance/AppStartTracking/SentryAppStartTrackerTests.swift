@@ -382,6 +382,18 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 
         // The global static must not be set — standalone bypasses it.
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
+
+        // Verify the transaction contains app start child spans (standalone = no grouping span).
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        XCTAssertEqual(spans.count, 5)
+
+        let descriptions = spans.compactMap { $0["description"] as? String }
+        XCTAssertTrue(descriptions.contains("Pre Runtime Init"))
+        XCTAssertTrue(descriptions.contains("Initial Frame Render"))
+
+        // Verify the app start measurement is attached.
+        let measurements = try XCTUnwrap(serialized["measurements"] as? [String: Any])
+        XCTAssertNotNil(measurements["app_start_cold"])
     }
 
     private func store(appState: SentryAppState) {

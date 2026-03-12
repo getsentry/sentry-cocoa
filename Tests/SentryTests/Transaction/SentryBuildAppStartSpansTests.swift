@@ -18,6 +18,35 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
     }
 
+    func testBuildStandaloneAppStartSpans_whenMeasurementIsNil_shouldNotReturnAnySpans() {
+        let context = SpanContext(operation: "operation")
+        let tracer = SentryTracer(context: context, framesTracker: nil)
+
+        let result = sentryBuildStandaloneAppStartSpans(tracer, nil)
+
+        XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
+    }
+
+    func testBuildStandaloneAppStartSpans_whenUnknownType_shouldNotReturnAnySpans() {
+        let context = SpanContext(operation: "operation")
+        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let appStartMeasurement = SentryAppStartMeasurement(
+            type: SentryAppStartType.unknown,
+            isPreWarmed: false,
+            appStartTimestamp: Date(timeIntervalSince1970: 1_000),
+            runtimeInitSystemTimestamp: 1_100,
+            duration: 1_200,
+            runtimeInitTimestamp: Date(timeIntervalSince1970: 1_300),
+            moduleInitializationTimestamp: Date(timeIntervalSince1970: 1_400),
+            sdkStartTimestamp: Date(timeIntervalSince1970: 1_500),
+            didFinishLaunchingTimestamp: Date(timeIntervalSince1970: 1_600)
+        )
+
+        let result = sentryBuildStandaloneAppStartSpans(tracer, appStartMeasurement)
+
+        XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
+    }
+
     func testSentryBuildAppStartSpans_appStartMeasurementIsNotColdOrWarm_shouldNotReturnAnySpans() {
         // Arrange
         let context = SpanContext(operation: "operation")
