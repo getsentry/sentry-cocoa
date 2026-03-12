@@ -4,7 +4,7 @@ import XCTest
 
 #if os(iOS) || os(tvOS)
 
-class AppStartMeasurementHandlerTests: XCTestCase {
+class AppStartReportingStrategyTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
@@ -31,18 +31,18 @@ class AppStartMeasurementHandlerTests: XCTestCase {
 
     private func createHub() -> TestHub {
         let options = Options()
-        options.dsn = TestConstants.dsnAsString(username: "AppStartMeasurementHandlerTests")
+        options.dsn = TestConstants.dsnAsString(username: "AppStartReportingStrategyTests")
         options.tracesSampleRate = 1
         let client = TestClient(options: options)
         return TestHub(client: client, andScope: Scope())
     }
 
-    // MARK: - AttachAppStartMeasurementHandler
+    // MARK: - AttachToTransactionStrategy
 
     func testAttach_SetsMeasurementOnGlobalStatic() throws {
         let measurement = createMeasurement(type: .cold)
 
-        AttachAppStartMeasurementHandler().handle(measurement)
+        AttachToTransactionStrategy().report(measurement)
 
         let stored = try XCTUnwrap(SentrySDKInternal.getAppStartMeasurement())
         XCTAssertEqual(stored.type, .cold)
@@ -52,20 +52,20 @@ class AppStartMeasurementHandlerTests: XCTestCase {
     func testAttach_WarmStart_SetsMeasurementOnGlobalStatic() throws {
         let measurement = createMeasurement(type: .warm)
 
-        AttachAppStartMeasurementHandler().handle(measurement)
+        AttachToTransactionStrategy().report(measurement)
 
         let stored = try XCTUnwrap(SentrySDKInternal.getAppStartMeasurement())
         XCTAssertEqual(stored.type, .warm)
     }
 
-    // MARK: - SendStandaloneAppStartTransaction
+    // MARK: - StandaloneTransactionStrategy
 
     func testSendStandalone_SDKNotEnabled_DoesNotCaptureTransaction() {
         let hub = createHub()
         // Don't set hub on SDK — isEnabled returns false
         let measurement = createMeasurement(type: .cold)
 
-        SendStandaloneAppStartTransaction().handle(measurement)
+        StandaloneTransactionStrategy().report(measurement)
 
         XCTAssertTrue(hub.capturedEventsWithScopes.invocations.isEmpty)
     }
@@ -75,7 +75,7 @@ class AppStartMeasurementHandlerTests: XCTestCase {
         SentrySDKInternal.setCurrentHub(hub)
         let measurement = createMeasurement(type: .cold)
 
-        SendStandaloneAppStartTransaction().handle(measurement)
+        StandaloneTransactionStrategy().report(measurement)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         XCTAssertEqual(serialized["transaction"] as? String, "App Start Cold")
@@ -91,7 +91,7 @@ class AppStartMeasurementHandlerTests: XCTestCase {
         SentrySDKInternal.setCurrentHub(hub)
         let measurement = createMeasurement(type: .warm)
 
-        SendStandaloneAppStartTransaction().handle(measurement)
+        StandaloneTransactionStrategy().report(measurement)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         XCTAssertEqual(serialized["transaction"] as? String, "App Start Warm")
@@ -106,12 +106,12 @@ class AppStartMeasurementHandlerTests: XCTestCase {
         SentrySDKInternal.setCurrentHub(hub)
         let measurement = createMeasurement(type: .cold)
 
-        SendStandaloneAppStartTransaction().handle(measurement)
+        StandaloneTransactionStrategy().report(measurement)
 
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
     }
 
-    // MARK: - SendStandaloneAppStartTransaction Integration Tests
+    // MARK: - StandaloneTransactionStrategy Integration Tests
 
     private func setUpIntegrationHub() -> TestHub {
         let dateProvider = TestCurrentDateProvider()
@@ -127,7 +127,7 @@ class AppStartMeasurementHandlerTests: XCTestCase {
         displayLinkWrapper.call()
 
         let options = Options()
-        options.dsn = TestConstants.dsnAsString(username: "AppStartMeasurementHandlerTests")
+        options.dsn = TestConstants.dsnAsString(username: "AppStartReportingStrategyTests")
         options.tracesSampleRate = 1
         let client = TestClient(options: options)
         let hub = TestHub(client: client, andScope: Scope())
@@ -139,7 +139,7 @@ class AppStartMeasurementHandlerTests: XCTestCase {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold, duration: 0.5)
 
-        SendStandaloneAppStartTransaction().handle(measurement)
+        StandaloneTransactionStrategy().report(measurement)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let measurements = try XCTUnwrap(serialized["measurements"] as? [String: Any])
@@ -151,7 +151,7 @@ class AppStartMeasurementHandlerTests: XCTestCase {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .warm, duration: 0.3)
 
-        SendStandaloneAppStartTransaction().handle(measurement)
+        StandaloneTransactionStrategy().report(measurement)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let measurements = try XCTUnwrap(serialized["measurements"] as? [String: Any])
@@ -163,7 +163,7 @@ class AppStartMeasurementHandlerTests: XCTestCase {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold)
 
-        SendStandaloneAppStartTransaction().handle(measurement)
+        StandaloneTransactionStrategy().report(measurement)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let debugMeta = try XCTUnwrap(serialized["debug_meta"] as? [String: Any])
@@ -179,7 +179,7 @@ class AppStartMeasurementHandlerTests: XCTestCase {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold)
 
-        SendStandaloneAppStartTransaction().handle(measurement)
+        StandaloneTransactionStrategy().report(measurement)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let startTimestamp = try XCTUnwrap(serialized["start_timestamp"] as? TimeInterval)
@@ -208,7 +208,7 @@ class AppStartMeasurementHandlerTests: XCTestCase {
             didFinishLaunchingTimestamp: appStart.addingTimeInterval(0.3)
         )
 
-        SendStandaloneAppStartTransaction().handle(measurement)
+        StandaloneTransactionStrategy().report(measurement)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])

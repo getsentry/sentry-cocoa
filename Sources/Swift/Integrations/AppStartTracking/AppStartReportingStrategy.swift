@@ -2,13 +2,13 @@
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-protocol AppStartMeasurementHandler {
-    func handle(_ measurement: SentryAppStartMeasurement)
+protocol AppStartReportingStrategy {
+    func report(_ measurement: SentryAppStartMeasurement)
 }
 
 /// Attaches app start data to the first UIViewController transaction (default behavior).
-struct AttachAppStartMeasurementHandler: AppStartMeasurementHandler {
-    func handle(_ measurement: SentryAppStartMeasurement) {
+struct AttachToTransactionStrategy: AppStartReportingStrategy {
+    func report(_ measurement: SentryAppStartMeasurement) {
         SentrySDKInternal.setAppStartMeasurement(measurement)
     }
 }
@@ -16,8 +16,8 @@ struct AttachAppStartMeasurementHandler: AppStartMeasurementHandler {
 /// Sends a standalone app start transaction by passing the measurement directly via the tracer
 /// configuration. The existing tracer pipeline then handles span building, measurements, context,
 /// debug images, and profiling.
-struct SendStandaloneAppStartTransaction: AppStartMeasurementHandler {
-    func handle(_ measurement: SentryAppStartMeasurement) {
+struct StandaloneTransactionStrategy: AppStartReportingStrategy {
+    func report(_ measurement: SentryAppStartMeasurement) {
         guard SentrySDK.isEnabled else {
             SentrySDKLog.warning("SDK is not enabled, dropping standalone app start transaction")
             return
