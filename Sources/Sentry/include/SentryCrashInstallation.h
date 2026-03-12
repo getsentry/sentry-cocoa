@@ -30,6 +30,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryCrashBridge;
+
 /**
  * Crash system installation which handles backend-specific details.
  *
@@ -59,6 +61,10 @@ NS_ASSUME_NONNULL_BEGIN
  * @param onCompletion Called when sending is complete (nil = ignore).
  */
 - (void)sendAllReportsWithCompletion:(nullable SentryCrashReportFilterCompletion)onCompletion;
+
+/** Bridge for accessing SDK services without dependency container.
+ * Must be set by SentryCrashIntegration before calling install. */
+@property (nonatomic, strong) SentryCrashBridge *bridge;
 
 @end
 

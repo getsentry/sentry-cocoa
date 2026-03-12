@@ -60,7 +60,11 @@ private final class CrashReportFilterBridge: NSObject, SentryCrashReportFilter {
         get { sentryCrash.uncaughtExceptionHandler }
         set { sentryCrash.uncaughtExceptionHandler = newValue }
     }
-    
+
+    @objc public func setBridge(_ bridge: SentryCrashBridge) {
+        sentryCrash.setValue(bridge, forKey: "bridge")
+    }
+
     @objc public var basePath: String {
         get { sentryCrash.basePath }
         set { sentryCrash.basePath = newValue }
@@ -79,7 +83,7 @@ private final class CrashReportFilterBridge: NSObject, SentryCrashReportFilter {
     }
     
     @objc public var userInfo: [AnyHashable: Any] {
-        get { sentryCrash.userInfo }
+        get { sentryCrash.userInfo ?? [:] }
         set { sentryCrash.userInfo = newValue }
     }
     

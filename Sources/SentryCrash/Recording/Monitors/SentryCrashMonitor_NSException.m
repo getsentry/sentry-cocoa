@@ -47,6 +47,9 @@ static SentryCrash_MonitorContext g_monitorContext;
 /** The exception handler that was in place before we installed ours. */
 static NSUncaughtExceptionHandler *g_previousUncaughtExceptionHandler;
 
+/** Bridge for accessing SDK services. */
+static SentryCrashBridge *g_bridge = nil;
+
 // ============================================================================
 #pragma mark - Callbacks -
 // ============================================================================
@@ -114,6 +117,12 @@ handleUncaughtException(NSException *exception)
 #pragma mark - API -
 // ============================================================================
 
+void
+sentrycrashcm_nsexception_setBridge(SentryCrashBridge *bridge)
+{
+    g_bridge = bridge;
+}
+
 static void
 setEnabled(bool isEnabled)
 {
@@ -125,8 +134,7 @@ setEnabled(bool isEnabled)
 
             SENTRY_LOG_DEBUG(@"Setting new handler.");
             NSSetUncaughtExceptionHandler(&handleUncaughtException);
-            SentryDependencyContainer.sharedInstance.crashReporter.uncaughtExceptionHandler
-                = &handleUncaughtException;
+            g_bridge.crashReporter.uncaughtExceptionHandler = &handleUncaughtException;
         } else {
             SENTRY_LOG_DEBUG(@"Restoring original handler.");
             NSSetUncaughtExceptionHandler(g_previousUncaughtExceptionHandler);

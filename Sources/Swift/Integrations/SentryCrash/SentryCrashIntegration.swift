@@ -22,7 +22,7 @@ public func sentry_finishAndSaveTransaction() {
 // MARK: - Dependency Provider
 
 /// Provides dependencies for `SentryCrashIntegration`.
-typealias CrashIntegrationProvider = SentryCrashReporterProvider & CrashIntegrationSessionHandlerBuilder & CrashInstallationReporterBuilder
+typealias CrashIntegrationProvider = SentryCrashReporterProvider & CrashIntegrationSessionHandlerBuilder & CrashInstallationReporterBuilder & DateProviderProvider & NotificationCenterProvider
 
 // MARK: - SentryCrashIntegration
 
@@ -33,6 +33,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     private var scopeObserver: SentryCrashScopeObserver?
     private var crashReporter: SentryCrashSwift
     private var installation: SentryCrashInstallationReporter?
+    private var bridge: SentryCrashBridge?
 
     // MARK: - Initialization
 
@@ -48,7 +49,18 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
         super.init()
 
-        self.sessionHandler = dependencies.getCrashIntegrationSessionBuilder(options)
+        // Create facade before installing crash handler to ensure services are available
+        let bridge = SentryCrashBridge(
+            notificationCenterWrapper: dependencies.notificationCenterWrapper,
+            dateProvider: dependencies.dateProvider,
+            crashReporter: dependencies.crashReporter
+        )
+        self.bridge = bridge
+
+        // Inject bridge into crash reporter so ObjC SentryCrash can access it
+        crashReporter.setBridge(bridge)
+
+        self.sessionHandler = dependencies.getCrashIntegrationSessionBuilder(options, bridge: bridge)
         self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
 
         guard self.sessionHandler != nil, self.scopeObserver != nil else {
@@ -122,6 +134,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             }
 
             self.installation = dependencies.getCrashInstallationReporter(options)
+            // Inject bridge into installation so it can access crashReporter
+            installation?.setValue(bridge, forKey: "bridge")
             canSendReports = true
         }
 
