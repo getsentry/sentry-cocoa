@@ -6,13 +6,6 @@ import XCTest
 
 class AppStartReportingStrategyTests: XCTestCase {
 
-    override func tearDown() {
-        super.tearDown()
-        // The integration tests modify SentryDependencyContainer global state
-        // (debugImageProvider, framesTracker, hub), so we need the full cleanup.
-        clearTestState()
-    }
-
     private func createMeasurement(type: SentryAppStartType, duration: TimeInterval = 0.5) -> SentryAppStartMeasurement {
         let dateProvider = TestCurrentDateProvider()
         let appStart = dateProvider.date()
@@ -37,9 +30,17 @@ class AppStartReportingStrategyTests: XCTestCase {
         return TestHub(client: client, andScope: Scope())
     }
 
+    private func setCurrentHub() -> TestHub {
+        let hub = createHub()
+        SentrySDKInternal.setCurrentHub(hub)
+        addTeardownBlock { SentrySDKInternal.setCurrentHub(nil) }
+        return hub
+    }
+
     // MARK: - AttachToTransactionStrategy
 
     func testReport_whenColdStart_shouldSetMeasurementOnGlobalStatic() throws {
+        addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
         let measurement = createMeasurement(type: .cold)
 
         AttachToTransactionStrategy().report(measurement)
@@ -50,6 +51,7 @@ class AppStartReportingStrategyTests: XCTestCase {
     }
 
     func testReport_whenWarmStart_shouldSetMeasurementOnGlobalStatic() throws {
+        addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
         let measurement = createMeasurement(type: .warm)
 
         AttachToTransactionStrategy().report(measurement)
@@ -71,8 +73,7 @@ class AppStartReportingStrategyTests: XCTestCase {
     }
 
     func testReport_whenColdStart_shouldCaptureTransaction() throws {
-        let hub = createHub()
-        SentrySDKInternal.setCurrentHub(hub)
+        let hub = setCurrentHub()
         let measurement = createMeasurement(type: .cold)
 
         StandaloneTransactionStrategy().report(measurement)
@@ -87,8 +88,7 @@ class AppStartReportingStrategyTests: XCTestCase {
     }
 
     func testReport_whenWarmStart_shouldCaptureTransaction() throws {
-        let hub = createHub()
-        SentrySDKInternal.setCurrentHub(hub)
+        let hub = setCurrentHub()
         let measurement = createMeasurement(type: .warm)
 
         StandaloneTransactionStrategy().report(measurement)
@@ -102,8 +102,7 @@ class AppStartReportingStrategyTests: XCTestCase {
     }
 
     func testReport_whenUnknownStartType_shouldNotCaptureTransaction() {
-        let hub = createHub()
-        SentrySDKInternal.setCurrentHub(hub)
+        let hub = setCurrentHub()
         let measurement = createMeasurement(type: .unknown)
 
         StandaloneTransactionStrategy().report(measurement)
@@ -112,8 +111,7 @@ class AppStartReportingStrategyTests: XCTestCase {
     }
 
     func testReport_whenColdStart_shouldNotSetGlobalStatic() {
-        let hub = createHub()
-        SentrySDKInternal.setCurrentHub(hub)
+        _ = setCurrentHub()
         let measurement = createMeasurement(type: .cold)
 
         StandaloneTransactionStrategy().report(measurement)
@@ -124,6 +122,8 @@ class AppStartReportingStrategyTests: XCTestCase {
     // MARK: - StandaloneTransactionStrategy Integration Tests
 
     private func setUpIntegrationHub() -> TestHub {
+        addTeardownBlock { clearTestState() }
+
         let dateProvider = TestCurrentDateProvider()
         SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
 
