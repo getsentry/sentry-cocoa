@@ -10,7 +10,6 @@ public final class Updater: Sendable {
 
   /// Checks if there is an update available for the app, based on the provided `params`.
   ///
-  ///
   /// - Parameters:
   ///   - params: A `CheckForUpdateParams` object.
   ///   - completion: A closure that is called with the result of the update check.
@@ -39,8 +38,14 @@ public final class Updater: Sendable {
   }
 
   #if canImport(UIKit)
-  /// Install an update from the provided URL
-  /// - Parameter url: The itms-services URL
+  /// Installs an app update from the provided `itms-services://` URL.
+  ///
+  /// This opens the URL using `UIApplication.shared.open(_:)`, posts a
+  /// `willTerminate` notification, and exits the process after a short delay
+  /// so iOS can begin the installation. **The app will terminate** as a result
+  /// of calling this method.
+  ///
+  /// - Parameter url: An `itms-services://` URL pointing to a distribution manifest.
   @MainActor public static func install(url: URL) {
     UIApplication.shared.open(url) { _ in
       // Post notification event before closing the app
@@ -55,9 +60,13 @@ public final class Updater: Sendable {
   }
   #endif
 
-  /// Obtain a URL to install an IPA
-  /// - Parameter plistUrl: The URL to the plist containing the IPA information
-  /// - Returns: a URL ready to install the IPA using itms-services
+  /// Builds an `itms-services://` URL suitable for triggering an over-the-air IPA installation.
+  ///
+  /// Pass the resulting URL to ``install(url:)`` to start the install flow.
+  ///
+  /// - Parameter plistUrl: The HTTPS URL to the `.plist` manifest describing the IPA.
+  /// - Returns: An `itms-services://` URL that iOS can use to install the IPA,
+  ///   or `nil` if the URL could not be constructed from the given string.
   public static func buildUrlForInstall(_ plistUrl: String) -> URL? {
     var components = URLComponents()
     components.scheme = "itms-services"
