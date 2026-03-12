@@ -207,7 +207,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         )
     }
 
-    func testStandalone_coldNotPrewarmed_noGroupingSpan() {
+    func testBuildStandaloneAppStartSpans_whenColdNotPrewarmed_shouldNotIncludeGroupingSpan() {
         // Arrange
         let context = SpanContext(operation: "operation")
         let tracer = SentryTracer(context: context, framesTracker: nil)
@@ -280,7 +280,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         )
     }
 
-    func testStandalone_prewarmed_noGroupingSpan() {
+    func testBuildStandaloneAppStartSpans_whenPrewarmed_shouldNotIncludeGroupingSpan() {
         // Arrange
         let context = SpanContext(operation: "operation")
         let tracer = SentryTracer(context: context, framesTracker: nil)

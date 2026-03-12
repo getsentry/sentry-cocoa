@@ -3,7 +3,7 @@ import _SentryPrivate
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-// swiftlint:disable file_length type_body_length force_unwrapping
+// swiftlint:disable file_length type_body_length
 // We are aware that the tracer has a lot of logic and we should maybe
 // move some of it to other classes.
 class SentryTracerTests: XCTestCase {
@@ -964,7 +964,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(serializedTransaction?["debug_meta"])
     }
 
-    func testStandaloneAppStart_UsesConfigurationMeasurement() throws {
+    func testFinish_whenStandaloneAppStart_shouldUseConfigurationMeasurement() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
 
         let context = TransactionContext(name: "App Start Cold", operation: fixture.appStartColdOperation)
@@ -990,7 +990,7 @@ class SentryTracerTests: XCTestCase {
         // Standalone transactions have no intermediate grouping span, so 5 child spans
         // (not 6) for a non-prewarmed cold start.
         let spans = try XCTUnwrap(serializedTransaction["spans"] as? [[String: Any]])
-        XCTAssertEqual(5, spans.count)
+        XCTAssertEqual(spans.count, 5)
 
         let spanDescriptions = spans.compactMap { $0["description"] as? String }
         let spanOperations = spans.compactMap { $0["op"] as? String }
@@ -1005,7 +1005,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(Set(spanOperations), ["app.start.cold"])
     }
 
-    func testStandaloneAppStart_BothConfigAndGlobalSet_ConfigWins_GlobalMarkedAsRead() throws {
+    func testFinish_whenBothConfigAndGlobalAppStartSet_shouldUseConfigAndMarkGlobalAsRead() throws {
         // In practice only one of config or global should be set, never both. This test
         // verifies that if both happen to be set, the config measurement wins and the
         // global static is marked as read so no UIViewController transaction consumes it.

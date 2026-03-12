@@ -348,7 +348,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         assertValidHybridStart(type: .warm)
     }
 
-    func testStandaloneAppStartTracing_SDKNotEnabled_DropsAppStart() {
+    func testStart_whenStandaloneAppStartTracingAndSDKNotEnabled_shouldDropAppStart() {
         fixture.enableStandaloneAppStartTracing = true
         startApp(callDisplayLink: true)
 
@@ -357,7 +357,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         assertNoAppStartUp()
     }
 
-    func testStandaloneAppStartTracingDisabled_SetsAppStartMeasurement() {
+    func testStart_whenStandaloneAppStartTracingDisabled_shouldSetAppStartMeasurement() {
         fixture.enableStandaloneAppStartTracing = false
         startApp(callDisplayLink: true)
 
