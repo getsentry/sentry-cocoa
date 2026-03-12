@@ -39,7 +39,6 @@ static NSArray<id<SentrySpan>> *
 sentryBuildAppStartSpansInternal(SentryTracer *tracer,
     SentryAppStartMeasurement *_Nullable appStartMeasurement, BOOL isStandalone)
 {
-
     if (appStartMeasurement == nil) {
         return @[];
     }

@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add standalone app start tracing as an experimental option (#7660), enable it via `options.experimental.enableStandaloneAppStartTracing = true`/
+- Add standalone app start tracing as an experimental option (#7660), enable it via `options.experimental.enableStandaloneAppStartTracing = true`
 
 ## 9.7.0
 

@@ -39,7 +39,7 @@ class AppStartReportingStrategyTests: XCTestCase {
 
     // MARK: - AttachToTransactionStrategy
 
-    func testAttach_SetsMeasurementOnGlobalStatic() throws {
+    func testReport_whenColdStart_shouldSetMeasurementOnGlobalStatic() throws {
         let measurement = createMeasurement(type: .cold)
 
         AttachToTransactionStrategy().report(measurement)
@@ -49,7 +49,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         XCTAssertEqual(stored.duration, measurement.duration)
     }
 
-    func testAttach_WarmStart_SetsMeasurementOnGlobalStatic() throws {
+    func testReport_whenWarmStart_shouldSetMeasurementOnGlobalStatic() throws {
         let measurement = createMeasurement(type: .warm)
 
         AttachToTransactionStrategy().report(measurement)
@@ -60,7 +60,7 @@ class AppStartReportingStrategyTests: XCTestCase {
 
     // MARK: - StandaloneTransactionStrategy
 
-    func testSendStandalone_SDKNotEnabled_DoesNotCaptureTransaction() {
+    func testReport_whenSDKNotEnabled_shouldNotCaptureTransaction() {
         let hub = createHub()
         // Don't set hub on SDK — isEnabled returns false
         let measurement = createMeasurement(type: .cold)
@@ -70,7 +70,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         XCTAssertTrue(hub.capturedEventsWithScopes.invocations.isEmpty)
     }
 
-    func testSendStandalone_ColdStart_CapturesTransaction() throws {
+    func testReport_whenColdStart_shouldCaptureTransaction() throws {
         let hub = createHub()
         SentrySDKInternal.setCurrentHub(hub)
         let measurement = createMeasurement(type: .cold)
@@ -86,7 +86,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         XCTAssertEqual(traceContext["origin"] as? String, "auto.app.start")
     }
 
-    func testSendStandalone_WarmStart_CapturesTransaction() throws {
+    func testReport_whenWarmStart_shouldCaptureTransaction() throws {
         let hub = createHub()
         SentrySDKInternal.setCurrentHub(hub)
         let measurement = createMeasurement(type: .warm)
@@ -101,7 +101,17 @@ class AppStartReportingStrategyTests: XCTestCase {
         XCTAssertEqual(traceContext["op"] as? String, "app.start.warm")
     }
 
-    func testSendStandalone_DoesNotSetGlobalStatic() {
+    func testReport_whenUnknownStartType_shouldNotCaptureTransaction() {
+        let hub = createHub()
+        SentrySDKInternal.setCurrentHub(hub)
+        let measurement = createMeasurement(type: .unknown)
+
+        StandaloneTransactionStrategy().report(measurement)
+
+        XCTAssertTrue(hub.capturedTransactionsWithScope.invocations.isEmpty)
+    }
+
+    func testReport_whenColdStart_shouldNotSetGlobalStatic() {
         let hub = createHub()
         SentrySDKInternal.setCurrentHub(hub)
         let measurement = createMeasurement(type: .cold)
@@ -135,7 +145,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         return hub
     }
 
-    func testSendStandalone_ColdStart_AddsAppStartMeasurement() throws {
+    func testReport_whenColdStart_shouldAddAppStartMeasurement() throws {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold, duration: 0.5)
 
@@ -147,7 +157,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         XCTAssertEqual(appStartCold["value"] as? Double, 500)
     }
 
-    func testSendStandalone_WarmStart_AddsAppStartMeasurement() throws {
+    func testReport_whenWarmStart_shouldAddAppStartMeasurement() throws {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .warm, duration: 0.3)
 
@@ -159,7 +169,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         XCTAssertEqual(appStartWarm["value"] as? Double, 300)
     }
 
-    func testSendStandalone_AddsDebugMeta() throws {
+    func testReport_whenColdStart_shouldAddDebugMeta() throws {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold)
 
@@ -175,7 +185,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         XCTAssertEqual(image["image_vmaddr"] as? String, expectedImage.imageVmAddress)
     }
 
-    func testSendStandalone_SetsStartTimeToAppStartTimestamp() throws {
+    func testReport_whenColdStart_shouldSetStartTimeToAppStartTimestamp() throws {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold)
 
@@ -192,7 +202,7 @@ class AppStartReportingStrategyTests: XCTestCase {
 
     /// Verifies the full span tree for a warm non-prewarmed standalone app start transaction.
     /// More span edge cases (cold, prewarmed, grouping span) are covered in SentryBuildAppStartSpansTests.
-    func testSendStandalone_WarmNotPrewarmed_ContainsCorrectSpans() throws {
+    func testReport_whenWarmNotPrewarmed_shouldContainCorrectSpans() throws {
         let hub = setUpIntegrationHub()
         let dateProvider = TestCurrentDateProvider()
         let appStart = dateProvider.date()
@@ -254,28 +264,28 @@ class AppStartReportingStrategyTests: XCTestCase {
 
     // MARK: - StandaloneAppStartTransactionHelper
 
-    func testHelper_ColdStartWithAutoOrigin_ReturnsTrue() {
+    func testIsStandaloneAppStartTransaction_whenColdStartWithAutoOrigin_shouldReturnTrue() {
         XCTAssertTrue(StandaloneAppStartTransactionHelper.isStandaloneAppStartTransaction(
             operation: "app.start.cold",
             origin: "auto.app.start"
         ))
     }
 
-    func testHelper_WarmStartWithAutoOrigin_ReturnsTrue() {
+    func testIsStandaloneAppStartTransaction_whenWarmStartWithAutoOrigin_shouldReturnTrue() {
         XCTAssertTrue(StandaloneAppStartTransactionHelper.isStandaloneAppStartTransaction(
             operation: "app.start.warm",
             origin: "auto.app.start"
         ))
     }
 
-    func testHelper_UILoadWithAutoOrigin_ReturnsFalse() {
+    func testIsStandaloneAppStartTransaction_whenUILoadWithAutoOrigin_shouldReturnFalse() {
         XCTAssertFalse(StandaloneAppStartTransactionHelper.isStandaloneAppStartTransaction(
             operation: "ui.load",
             origin: "auto.app.start"
         ))
     }
 
-    func testHelper_ColdStartWithManualOrigin_ReturnsFalse() {
+    func testIsStandaloneAppStartTransaction_whenColdStartWithManualOrigin_shouldReturnFalse() {
         XCTAssertFalse(StandaloneAppStartTransactionHelper.isStandaloneAppStartTransaction(
             operation: "app.start.cold",
             origin: "manual"

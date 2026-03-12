@@ -2,6 +2,7 @@
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
+/// Determines how a completed app start measurement is reported to Sentry.
 protocol AppStartReportingStrategy {
     func report(_ measurement: SentryAppStartMeasurement)
 }
@@ -61,7 +62,7 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
 }
 
 /// Helper to identify standalone app start transactions from ObjC code.
-@_spi(Private) @objc public class StandaloneAppStartTransactionHelper: NSObject {
+@_spi(Private) @objc public final class StandaloneAppStartTransactionHelper: NSObject {
     /// Returns `true` when the operation and origin match a standalone app start transaction.
     @objc public static func isStandaloneAppStartTransaction(operation: String, origin: String) -> Bool {
         return (operation == SentrySpanOperationAppStartCold
