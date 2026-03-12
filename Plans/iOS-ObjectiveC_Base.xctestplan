@@ -17,7 +17,7 @@
       "target" : {
         "containerPath" : "container:iOS-ObjectiveC.xcodeproj",
         "identifier" : "BFA60B1095A1E96F17C564C6",
-        "name" : "UITests"
+        "name" : "iOS-ObjectiveC-UITests"
       }
     }
   ],

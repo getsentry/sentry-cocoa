@@ -17,7 +17,7 @@
       "target" : {
         "containerPath" : "container:iOS-Swift6.xcodeproj",
         "identifier" : "88211D631DDF2780CBECD898",
-        "name" : "UITests"
+        "name" : "iOS-Swift6-UITests"
       }
     }
   ],

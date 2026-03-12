@@ -19,7 +19,7 @@ options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
 targets:
-  App:
+  iOS-Swift6:
     type: application
     platform: auto
     sources:
@@ -67,7 +67,7 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
-  UITests:
+  iOS-Swift6-UITests:
     type: bundle.ui-testing
     platform: auto
     dependencies:
@@ -105,8 +105,8 @@ schemes:
       - SampleAppScheme
     build:
       targets:
-        App: all
-        UITests: test
+        iOS-Swift6: all
+        iOS-Swift6-UITests: test
     test:
       config: Test
       testPlans:
