@@ -304,4 +304,4 @@ class SentryAppStartMeasurementProviderTests: XCTestCase {
     }
 }
 
-#endif // os(iOS) || os(tvOS)
+#endif // os(iOS) || os(tvOS) || os(visionOS)
