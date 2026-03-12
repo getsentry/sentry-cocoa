@@ -1,6 +1,6 @@
 #include "../../../Shared/Config/_Common.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-Swift-UITests
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-SwiftUI-UITests
 INFOPLIST_FILE = UITests/Configurations/Info.plist
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator

@@ -8,6 +8,6 @@ SWIFT_OBJC_BRIDGING_HEADER = App/Headers/iOS-SwiftUI-Bridging-Header.h
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 
-IPHONEOS_DEPLOYMENT_TARGET = 15.0
+IPHONEOS_DEPLOYMENT_TARGET = 16.0
 
 DEVELOPMENT_ASSET_PATHS = "App/Resources/Preview Content"
