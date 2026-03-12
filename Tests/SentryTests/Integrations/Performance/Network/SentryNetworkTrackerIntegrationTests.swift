@@ -109,6 +109,7 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
      * Reproduces https://github.com/getsentry/sentry-cocoa/issues/1288
      */
     func testCustomURLProtocol_BlocksAllRequests() throws {
+#if !os(watchOS)
         startSDK()
         
         let expect = expectation(description: "Callback Expectation")
@@ -130,6 +131,9 @@ class SentryNetworkTrackerIntegrationTests: XCTestCase {
         
         dataTask.resume()
         wait(for: [expect], timeout: 5)
+#else
+        throw XCTSkip("Test is disabled for watchOS")
+#endif
     }
     
     private func flaky_testWhenTaskCancelledOrSuspended_OnlyOneBreadcrumb() {

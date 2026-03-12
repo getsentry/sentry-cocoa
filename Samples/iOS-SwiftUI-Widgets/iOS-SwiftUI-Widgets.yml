@@ -8,9 +8,6 @@ generateEmptyDirectories: true
 configs:
   Debug: debug
   Release: release
-fileGroups:
-  - ../Shared/Config
-  - iOS-SwiftUI-Widgets.yml
 projectReferences:
   Sentry:
     path: ../../Sentry.xcodeproj
@@ -18,61 +15,122 @@ projectReferences:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
 options:
   bundleIdPrefix: io.sentry.sentry-cocoa.samples
+  defaultSourceDirectoryType: syncedFolder
 targets:
   iOS-SwiftUI-Widgets:
     type: application
     platform: iOS
     deploymentTarget: "18.0"
     sources:
-      - iOS-SwiftUI-Widgets
-      - Shared
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+          - "**/Info.plist"
+          - "**/*.entitlements"
+      - path: Shared
+        type: group
+        group: App
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: iOS-SwiftUI-Widgets.yml
+        group: App/Configurations
+        buildPhase: none
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
-      - target: iOS-SwiftUI-Widgets-WidgetExtension
-      - target: iOS-SwiftUI-Widgets-LiveActivity
-    settings:
-      CODE_SIGN_ENTITLEMENTS: iOS-SwiftUI-Widgets/Resources/Entitlements.entitlements
+      - target: WidgetExtension
+      - target: LiveActivity
     configFiles:
-      Debug: iOS-SwiftUI-Widgets.xcconfig
-      Release: iOS-SwiftUI-Widgets.xcconfig
-  iOS-SwiftUI-Widgets-WidgetExtension:
+      Debug: App/Configurations/iOS-SwiftUI-Widgets.xcconfig
+      Release: App/Configurations/iOS-SwiftUI-Widgets.xcconfig
+  WidgetExtension:
     type: app-extension
     platform: iOS
     deploymentTarget: "18.0"
     sources:
-      - iOS-SwiftUI-Widgets-WidgetExtension
-      - Shared
+      # Sources
+      - path: WidgetExtension/Sources
+        type: group
+        group: WidgetExtension
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: WidgetExtension/Resources
+        type: group
+        group: WidgetExtension
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: WidgetExtension/Configurations
+        type: group
+        group: WidgetExtension
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
-    settings:
-      CODE_SIGN_ENTITLEMENTS: iOS-SwiftUI-Widgets-WidgetExtension/Resources/Entitlements.entitlements
     configFiles:
-      Debug: iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
-      Release: iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
-  iOS-SwiftUI-Widgets-LiveActivity:
+      Debug: WidgetExtension/Configurations/iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
+      Release: WidgetExtension/Configurations/iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
+  LiveActivity:
     type: app-extension
     platform: iOS
     deploymentTarget: "18.0"
     sources:
-      - iOS-SwiftUI-Widgets-LiveActivity
-      - Shared
+      # Sources
+      - path: LiveActivity/Sources
+        type: group
+        group: LiveActivity
+        excludes:
+          - "**/.gitkeep"
+      - path: Shared/Data
+        type: group
+        group: LiveActivity
+      # Resources
+      - path: LiveActivity/Resources
+        type: group
+        group: LiveActivity
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: LiveActivity/Configurations
+        type: group
+        group: LiveActivity
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
-    settings:
-      CODE_SIGN_ENTITLEMENTS: iOS-SwiftUI-Widgets-LiveActivity/Resources/Entitlements.entitlements
     configFiles:
-      Debug: iOS-SwiftUI-Widgets-LiveActivity.xcconfig
-      Release: iOS-SwiftUI-Widgets-LiveActivity.xcconfig
+      Debug: LiveActivity/Configurations/iOS-SwiftUI-Widgets-LiveActivity.xcconfig
+      Release: LiveActivity/Configurations/iOS-SwiftUI-Widgets-LiveActivity.xcconfig
 schemes:
   iOS-SwiftUI-Widgets:
     build:
       targets:
         iOS-SwiftUI-Widgets: all
-        iOS-SwiftUI-Widgets-WidgetExtension: all
-        iOS-SwiftUI-Widgets-LiveActivity: all
+        WidgetExtension: all
+        LiveActivity: all
     run:
       config: Debug
     profile:
@@ -83,7 +141,7 @@ schemes:
     build:
       targets:
         iOS-SwiftUI-Widgets: all
-        iOS-SwiftUI-Widgets-WidgetExtension: all
+        WidgetExtension: all
     run:
       config: Debug
       askForAppToLaunch: true
@@ -93,7 +151,7 @@ schemes:
     build:
       targets:
         iOS-SwiftUI-Widgets: all
-        iOS-SwiftUI-Widgets-WidgetExtension: all
+        WidgetExtension: all
     run:
       config: Debug
       askForAppToLaunch: true
@@ -103,8 +161,8 @@ schemes:
     build:
       targets:
         iOS-SwiftUI-Widgets: all
-        iOS-SwiftUI-Widgets-WidgetExtension: all
-        iOS-SwiftUI-Widgets-LiveActivity: all
+        WidgetExtension: all
+        LiveActivity: all
     run:
       config: Debug
     profile:

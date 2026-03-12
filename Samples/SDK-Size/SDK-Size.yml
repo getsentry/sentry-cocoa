@@ -13,7 +13,7 @@ options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
 targets:
-  App:
+  SDK-Size:
     type: application
     platform: auto
     sources:
@@ -56,4 +56,4 @@ schemes:
       - SampleAppScheme
     build:
       targets:
-        App: all
+        SDK-Size: all
