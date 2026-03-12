@@ -108,6 +108,20 @@ You can find the available devices on [their website](https://saucelabs.com/plat
 
 We recommend using `XCTAssertEqual(<VALUE>, <EXPECTED VALUE>)` over `XCTAssertEqual(<EXPECTED VALUE>, <VALUE>)` for no strong reason, but to align so tests are consistent and therefore easier to read.
 
+### Teardown
+
+Ideally, tests shouldn't need teardown at all — prefer designing tests so they don't leave behind shared state. When teardown is necessary (e.g., resetting globals), prefer [`addTeardownBlock`](https://developer.apple.com/documentation/xctest/xctestcase/addteardownblock(_:)-5gief) over a global [`tearDown()`](https://developer.apple.com/documentation/xctest/xctestcase/teardown()-8jkux) method. `addTeardownBlock` lets you scope cleanup to the specific test that introduced the state, keeping unrelated tests free of unnecessary teardown logic. This makes tests easier to understand and maintain, because the setup and cleanup live together in one place.
+
+For example, if only two tests in a class set a global measurement, only those two tests should clean it up:
+
+```swift
+func testColdStart_shouldSetMeasurement() {
+    SentrySDK.setAppStartMeasurement(coldStartMeasurement)
+    addTeardownBlock { SentrySDK.setAppStartMeasurement(nil) }
+    // ...
+}
+```
+
 ## Performance benchmarking
 
 Once daily and for every PR via [Github action](../.github/workflows/benchmarking.yml), the benchmark runs in Sauce Labs, on a [high-end device](https://github.com/getsentry/sentry/blob/8986f81e19f63ee370b1649e08630c9b946c87ed/src/sentry/profiles/device.py#L43-L49) we categorize. Benchmarks run from an XCUITest (`iOS-Benchmarking` target) using the iOS-Swift sample app, under the `iOS-Benchmarking` scheme. [`PerformanceViewController`](../Samples/iOS-Swift/ViewControllers/PerformanceViewController.swift) provides a start and stop button for controlling when the benchmarking runs, and a text field to marshal observations from within the test harness app into the test runner app. There, we assert that the P90 of all trials remains under 5%. We also print the raw results to the test runner's console logs for postprocessing into reports with `//scripts/process-benchmark-raw-results.py`.
