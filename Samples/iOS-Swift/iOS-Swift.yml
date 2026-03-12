@@ -19,7 +19,7 @@ options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
 targets:
-  App:
+  iOS-Swift:
     type: application
     platform: auto
     sources:
@@ -54,11 +54,11 @@ targets:
         buildPhase: none
     dependencies:
       - target: Sentry/Sentry
-      - target: AppClip
+      - target: iOS-SwiftClip
       - target: SentrySampleShared/SentrySampleShared
-      - target: ShareExtension
-      - target: ActionExtension
-      - target: IntentExtension
+      - target: iOS-Swift-ShareExtension
+      - target: iOS-Swift-ActionExtension
+      - target: iOS-Swift-IntentExtension
     configFiles:
       Debug: App/Configurations/iOS-Swift.xcconfig
       Release: App/Configurations/iOS-Swift.xcconfig
@@ -72,7 +72,7 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
-  AppClip:
+  iOS-SwiftClip:
     type: application.on-demand-install-capable
     platform: auto
     sources:
@@ -118,7 +118,7 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
-  UITests:
+  iOS-Swift-UITests:
     type: bundle.ui-testing
     platform: auto
     dependencies:
@@ -156,7 +156,7 @@ targets:
       Release: UITests/Configurations/iOS-Swift-UITests.xcconfig
       Test: UITests/Configurations/iOS-Swift-UITests.xcconfig
       TestCI: UITests/Configurations/iOS-Swift-UITests.xcconfig
-  Benchmarking:
+  iOS-Benchmarking:
     type: bundle.ui-testing
     platform: auto
     sources:
@@ -195,7 +195,7 @@ targets:
       Release: Benchmarking/Configurations/iOS-Benchmarking.xcconfig
       Test: Benchmarking/Configurations/iOS-Benchmarking.xcconfig
       TestCI: Benchmarking/Configurations/iOS-Benchmarking.xcconfig
-  ShareExtension:
+  iOS-Swift-ShareExtension:
     type: app-extension
     platform: auto
     sources:
@@ -230,7 +230,7 @@ targets:
       Release: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
       Test: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
       TestCI: ShareExtension/Configurations/iOS-Swift-ShareExtension.xcconfig
-  ActionExtension:
+  iOS-Swift-ActionExtension:
     type: app-extension
     platform: auto
     sources:
@@ -265,7 +265,7 @@ targets:
       Release: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
       Test: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
       TestCI: ActionExtension/Configurations/iOS-Swift-ActionExtension.xcconfig
-  IntentExtension:
+  iOS-Swift-IntentExtension:
     type: app-extension
     platform: auto
     sources:
@@ -306,8 +306,8 @@ schemes:
       - SampleAppScheme
     build:
       targets:
-        App: all
-        UITests: test
+        iOS-Swift: all
+        iOS-Swift-UITests: test
     test:
       config: Test
       testPlans:
@@ -315,8 +315,8 @@ schemes:
   iOS-Benchmarking:
     build:
       targets:
-        App: test
-        Benchmarking: test
+        iOS-Swift: test
+        iOS-Benchmarking: test
     test:
       config: Debug
       testPlans:
@@ -324,21 +324,21 @@ schemes:
   iOS-Swift-IntentExtension:
     build:
       targets:
-        App: all
-        IntentExtension: all
+        iOS-Swift: all
+        iOS-Swift-IntentExtension: all
     run:
       config: Debug
   iOS-Swift-ActionExtension:
     build:
       targets:
-        App: all
-        ActionExtension: all
+        iOS-Swift: all
+        iOS-Swift-ActionExtension: all
     run:
       config: Debug
   iOS-Swift-ShareExtension:
     build:
       targets:
-        App: all
-        ShareExtension: all
+        iOS-Swift: all
+        iOS-Swift-ShareExtension: all
     run:
       config: Debug

@@ -14,4 +14,4 @@ CODE_SIGN_STYLE = Manual
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
 
-TEST_TARGET_NAME = App
+TEST_TARGET_NAME = iOS-Swift
