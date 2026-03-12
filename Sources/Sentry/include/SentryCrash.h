@@ -66,8 +66,9 @@ SENTRY_NO_INIT
 /** Cache directory base path. */
 @property (nonatomic, readwrite, retain) NSString *basePath;
 
-/** Bridge to SDK services (notification center, date provider, crash reporter). */
-@property (nonatomic, strong, nullable) SentryCrashBridge *bridge;
+/** Bridge to SDK services (notification center, date provider, crash reporter).
+ * Must be set before calling install. */
+@property (nonatomic, strong) SentryCrashBridge *bridge;
 
 /** A dictionary containing any info you'd like to appear in crash reports. Must
  * contain only JSON-safe data: NSString for keys, and NSDictionary, NSArray,

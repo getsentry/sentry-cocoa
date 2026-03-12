@@ -63,8 +63,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)sendAllReportsWithCompletion:(nullable SentryCrashReportFilterCompletion)onCompletion;
 
 /** Bridge for accessing SDK services without dependency container.
- * Set by SentryCrashIntegration before installation. */
-@property (nonatomic, strong, nullable) SentryCrashBridge *bridge;
+ * Must be set by SentryCrashIntegration before calling install. */
+@property (nonatomic, strong) SentryCrashBridge *bridge;
 
 @end
 
