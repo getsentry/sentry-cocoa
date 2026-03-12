@@ -364,6 +364,26 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         assertValidStart(type: .cold, expectedDuration: 0.45)
     }
 
+    func testStart_whenStandaloneAppStartTracingEnabled_shouldCaptureTransaction() throws {
+        fixture.options.tracesSampleRate = 1
+        let client = TestClient(options: fixture.options)
+        let hub = TestHub(client: client, andScope: Scope())
+        SentrySDKInternal.setCurrentHub(hub)
+
+        fixture.enableStandaloneAppStartTracing = true
+        startApp(callDisplayLink: true)
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        XCTAssertEqual(serialized["transaction"] as? String, "App Start Cold")
+
+        let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
+        let traceContext = try XCTUnwrap(contexts["trace"] as? [String: Any])
+        XCTAssertEqual(traceContext["op"] as? String, "app.start.cold")
+
+        // The global static must not be set — standalone bypasses it.
+        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
+    }
+
     private func store(appState: SentryAppState) {
         fixture.fileManager.store(appState)
     }
