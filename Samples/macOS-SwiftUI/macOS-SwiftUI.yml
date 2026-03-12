@@ -19,7 +19,7 @@ options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
 targets:
-  App:
+  macOS-SwiftUI:
     type: application
     platform: auto
     sources:
@@ -75,4 +75,4 @@ schemes:
       - SampleAppScheme
     build:
       targets:
-        App: all
+        macOS-SwiftUI: all
