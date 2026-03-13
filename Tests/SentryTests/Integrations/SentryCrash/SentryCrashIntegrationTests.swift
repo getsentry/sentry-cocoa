@@ -649,14 +649,15 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertTrue(SentrySDKInternal.crashReporterInstalled)
     }
 
-    func testInit_whenNoCrash_shouldCallOnLastRunStatusWithDidNotCrash() throws {
+    func testInit_whenNoCrash_shouldNotCallOnLastRunStatusCallback() throws {
         // -- Arrange --
-        var receivedStatus: SentryLastRunStatus?
-        var receivedEvent: Event?
+        // The .didNotCrash callback is now deferred to after all integrations
+        // install (in SentrySwiftIntegrationInstaller), so the crash integration
+        // itself should never call it.
+        var callbackCalled = false
 
-        fixture.options.onLastRunStatusDetermined = { status, event in
-            receivedStatus = status
-            receivedEvent = event
+        fixture.options.onLastRunStatusDetermined = { _, _ in
+            callbackCalled = true
         }
 
         let crash = fixture.sentryCrash
@@ -666,24 +667,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         _ = try fixture.getSut(crashWrapper: crash)
 
         // -- Assert --
-        XCTAssertEqual(receivedStatus, .didNotCrash)
-        XCTAssertNil(receivedEvent)
-    }
-
-    func testInit_whenNoCrash_shouldSetLastRunStatusCalled() throws {
-        // -- Arrange --
-        fixture.options.onLastRunStatusDetermined = { _, _ in }
-
-        let crash = fixture.sentryCrash
-        crash.internalCrashedLastLaunch = false
-
-        // -- Act --
-        _ = try fixture.getSut(crashWrapper: crash)
-
-        // -- Assert --
-        // Ensures a later fatal event (e.g. watchdog termination) won't call
-        // the callback a second time with a contradictory .didCrash status.
-        XCTAssertTrue(SentrySDKInternal.lastRunStatusCalled)
+        XCTAssertFalse(callbackCalled)
+        XCTAssertFalse(SentrySDKInternal.lastRunStatusCalled)
     }
 
     func testInit_whenCrash_shouldNotCallOnLastRunStatusCallback() throws {

@@ -42,6 +42,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, class) BOOL crashReporterInstalled;
 
+/**
+ * Set to @c YES by any integration that detects a fatal event from the previous run
+ * (crash reporter, watchdog termination). The integration installer checks this flag
+ * to decide whether to fire @c onLastRunStatusDetermined with @c didNotCrash.
+ */
+@property (nonatomic, class) BOOL fatalDetected;
+
 + (void)setDetectedStartUpCrash:(BOOL)value;
 
 + (void)setAppStartMeasurement:(nullable SentryAppStartMeasurement *)appStartMeasurement;

@@ -284,6 +284,46 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(status, .unknown)
     }
 
+    // MARK: - onLastRunStatusDetermined
+
+    func testOnLastRunStatusDetermined_whenNoCrash_shouldCallWithDidNotCrash() {
+        // -- Arrange --
+        var receivedStatus: SentryLastRunStatus?
+        var receivedEvent: Event?
+
+        // -- Act --
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
+            options.onLastRunStatusDetermined = { status, event in
+                receivedStatus = status
+                receivedEvent = event
+            }
+        }
+
+        // -- Assert --
+        XCTAssertEqual(receivedStatus, .didNotCrash)
+        XCTAssertNil(receivedEvent)
+    }
+
+    func testOnLastRunStatusDetermined_whenNoCrash_shouldSetLastRunStatusCalled() {
+        // -- Act --
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
+            options.onLastRunStatusDetermined = { _, _ in }
+        }
+
+        // -- Assert --
+        XCTAssertTrue(SentrySDKInternal.lastRunStatusCalled)
+    }
+
+    func testOnLastRunStatusDetermined_whenNoCallback_shouldNotCrash() {
+        // -- Act & Assert -- (should not crash)
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
+            options.onLastRunStatusDetermined = nil
+        }
+    }
+
     func testDetectedStartUpCrash_DefaultValue() {
         XCTAssertFalse(SentrySDK.detectedStartUpCrash)
     }
