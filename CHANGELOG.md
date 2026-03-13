@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `SentrySDK.lastRunStatus` to distinguish unknown, no-crash and crash (#7469)
+
 ## 9.7.0
 
 ### Features

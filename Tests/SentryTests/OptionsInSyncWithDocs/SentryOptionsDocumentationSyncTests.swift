@@ -16,7 +16,8 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     private var undocumentedOptions: Set<String> {
         var options: Set<String> = [
             "parsedDsn",
-            "experimental"
+            "experimental",
+            "onLastRunStatusDetermined"
         ]
         
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK

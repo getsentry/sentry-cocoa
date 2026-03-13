@@ -332,8 +332,22 @@ import Foundation
     // MARK: - Crash Detection
     
     /// Checks if the last program execution terminated with a crash.
+    ///
+    /// - warning: This property returns `false` both when the app did not crash **and** when
+    ///   the crash status is not yet known (before the SDK finishes initialization). Use
+    ///   ``lastRunStatus`` instead, which distinguishes between these cases.
+    @available(*, deprecated, message: "Use lastRunStatus instead, which distinguishes between 'did not crash' and 'unknown'.")
     @objc public static var crashedLastRun: Bool {
         return SentrySDKInternal.crashedLastRun
+    }
+    
+    /// Returns the crash status of the last program execution.
+    ///
+    /// Before ``SentrySDK/start(configureOptions:)`` finishes initializing the crash reporter,
+    /// this property returns ``SentryLastRunStatus/unknown``. After initialization it returns
+    /// either ``SentryLastRunStatus/didCrash`` or ``SentryLastRunStatus/didNotCrash``.
+    @objc public static var lastRunStatus: SentryLastRunStatus {
+        return SentryLastRunStatus(rawValue: Int(SentrySDKInternal.lastRunStatus)) ?? .unknown
     }
     
     /// Checks if the SDK detected a start-up crash during SDK initialization.

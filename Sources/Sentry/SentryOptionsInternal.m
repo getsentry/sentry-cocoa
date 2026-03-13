@@ -133,7 +133,14 @@
     }
 
     if ([self isBlock:options[@"onCrashedLastRun"]]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         sentryOptions.onCrashedLastRun = options[@"onCrashedLastRun"];
+#pragma clang diagnostic pop
+    }
+
+    if ([self isBlock:options[@"onLastRunStatusDetermined"]]) {
+        sentryOptions.onLastRunStatusDetermined = options[@"onLastRunStatusDetermined"];
     }
 
     if ([options[@"sampleRate"] isKindOfClass:[NSNumber class]]) {
