@@ -2,7 +2,7 @@
 
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift.Clip
 INFOPLIST_FILE = AppClip/Configurations/Info.plist
-CODE_SIGN_ENTITLEMENTS = AppClip/Configurations/iOS_SwiftClip.entitlements
+CODE_SIGN_ENTITLEMENTS = AppClip/Configurations/Entitlements.entitlements
 
 PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.iOS-Swift.Clip
 PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.sample.iOS-Swift.Clip

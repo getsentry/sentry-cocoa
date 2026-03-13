@@ -21,8 +21,8 @@
     {
       "target" : {
         "containerPath" : "container:iOS-Swift.xcodeproj",
-        "identifier" : "8BB9FE7BD4F23958F9D4C213",
-        "name" : "Benchmarking"
+        "identifier" : "E7C8F9BC5364F0980E0B827C",
+        "name" : "iOS-Benchmarking"
       }
     }
   ],

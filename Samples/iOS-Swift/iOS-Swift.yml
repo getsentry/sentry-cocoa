@@ -54,7 +54,7 @@ targets:
         buildPhase: none
     dependencies:
       - target: Sentry/Sentry
-      - target: iOS-SwiftClip
+      - target: iOS-Swift-AppClip
       - target: SentrySampleShared/SentrySampleShared
       - target: iOS-Swift-ShareExtension
       - target: iOS-Swift-ActionExtension
@@ -72,7 +72,7 @@ targets:
       - script: ../Shared/reset-git-info.sh
         name: Reset Git Fields in Info.plist
         basedOnDependencyAnalysis: false
-  iOS-SwiftClip:
+  iOS-Swift-AppClip:
     type: application.on-demand-install-capable
     platform: auto
     sources:
@@ -106,10 +106,10 @@ targets:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: AppClip/Configurations/iOS-SwiftClip.xcconfig
-      Release: AppClip/Configurations/iOS-SwiftClip.xcconfig
-      Test: AppClip/Configurations/iOS-SwiftClip.xcconfig
-      TestCI: AppClip/Configurations/iOS-SwiftClip.xcconfig
+      Debug: AppClip/Configurations/iOS-Swift-AppClip.xcconfig
+      Release: AppClip/Configurations/iOS-Swift-AppClip.xcconfig
+      Test: AppClip/Configurations/iOS-Swift-AppClip.xcconfig
+      TestCI: AppClip/Configurations/iOS-Swift-AppClip.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
