@@ -133,6 +133,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         if enableReportingUncaughtExceptions {
             SentryUncaughtNSExceptions.configureCrashOnExceptions()
             SentryUncaughtNSExceptions.swizzleNSApplicationReportException()
+            SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException()
         }
         #endif
 

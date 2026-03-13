@@ -44,6 +44,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
              * At the time this integration is being installed, if there is no UIApplicationDelegate and no connected UIScene, it is very likely we are in a SwiftUI app, but it's possible we could instead be in a UIKit app that has some nonstandard launch procedure or doesn't call SentrySDK.start in a place we expect/recommend, in which case they will need to manually display the widget when they're ready by calling SentrySDK.feedback.showWidget.
              */
             if UIApplication.shared.connectedScenes.isEmpty && UIApplication.shared.delegate == nil {
+                observeShakeGesture()
                 return
             }
 
@@ -53,10 +54,13 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         }
 
         observeScreenshots()
+        observeShakeGesture()
     }
 
     deinit {
         customButton?.removeTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
+        SentryShakeDetector.disable()
+        NotificationCenter.default.removeObserver(self)
     }
 
     func showWidget() {
@@ -115,11 +119,15 @@ extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerD
 @available(iOSApplicationExtension, unavailable)
 private extension SentryUserFeedbackIntegrationDriver {
     func showForm(screenshot: UIImage?) {
+        guard let presenter = presenter else {
+            SentrySDKLog.debug("Cannot show feedback form — no presenter available")
+            return
+        }
         let form = SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: screenshot)
         form.presentationController?.delegate = self
         widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
         displayingForm = true
-        presenter?.present(form, animated: configuration.animations) {
+        presenter.present(form, animated: configuration.animations) {
             self.configuration.onFormOpen?()
         }
     }
@@ -147,6 +155,23 @@ private extension SentryUserFeedbackIntegrationDriver {
         if configuration.showFormForScreenshots {
             NotificationCenter.default.addObserver(self, selector: #selector(userCapturedScreenshot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
         }
+    }
+
+    func observeShakeGesture() {
+        guard configuration.useShakeGesture else {
+            SentrySDKLog.debug("Shake gesture detection is disabled in configuration")
+            return
+        }
+        SentryShakeDetector.enable()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleShakeGesture), name: .SentryShakeDetected, object: nil)
+    }
+
+    @objc func handleShakeGesture() {
+        guard !displayingForm else {
+            SentrySDKLog.debug("Shake gesture ignored — feedback form is already displayed")
+            return
+        }
+        showForm(screenshot: nil)
     }
 
     @objc func userCapturedScreenshot() {

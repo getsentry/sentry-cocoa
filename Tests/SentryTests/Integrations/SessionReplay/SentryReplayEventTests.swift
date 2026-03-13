@@ -5,12 +5,15 @@ import XCTest
 class SentryReplayEventTests: XCTestCase {
  
     func test_Serialize() {
+        // -- Arrange --
         let replayId = SentryId()
         let sut = SentryReplayEvent(eventId: replayId, replayStartTimestamp: Date(timeIntervalSince1970: 1), replayType: .buffer, segmentId: 3)
         sut.urls = ["Screen 1", "Screen 2"]
-        
+
+        // -- Act --
         let result = sut.serialize()
-        
+
+        // -- Assert --
         XCTAssertEqual(result["urls"] as? [String], ["Screen 1", "Screen 2"])
         XCTAssertEqual(result["replay_start_timestamp"] as? Double, 1)
         XCTAssertEqual(result["replay_id"] as? String, replayId.sentryIdString)

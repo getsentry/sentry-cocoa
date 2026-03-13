@@ -70,7 +70,7 @@ jobs:
           XCODE_VERSION: ${{inputs.xcode}}
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
+        uses: ruby/setup-ruby@6ca151fd1bfcfd6fe0c4eb6837eb0584d0134a0c # v1.290.0
         with:
           bundler-cache: true
 
@@ -167,7 +167,7 @@ jobs:
 
       - name: Publish Test Report
         id: publish_test_report
-        uses: mikepenz/action-junit-report@74626db7353a25a20a72816467ebf035f674c5f8 # v6.2.0
+        uses: mikepenz/action-junit-report@49b2ca06f62aa7ef83ae6769a2179271e160d8e4 # v6.3.1
         if: always()
         with:
           report_paths: "build/reports/junit.xml"
@@ -193,7 +193,7 @@ jobs:
           fi
 
       - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: steps.build_tests.outcome == 'failure'
         with:
           name: derived-data-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
@@ -201,7 +201,7 @@ jobs:
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
@@ -211,7 +211,7 @@ jobs:
             raw-test-output.log
 
       - name: Archiving Crash Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: crash-logs-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}
@@ -219,7 +219,7 @@ jobs:
             ~/Library/Logs/DiagnosticReports/**
 
       - name: Archiving Test Results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: result-bundle-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{inputs.test-destination-os}}

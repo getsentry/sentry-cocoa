@@ -36,7 +36,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         PrivateSentrySDKOnly.store(envelope)
         
         let storedEnvelope = client?.storedEnvelopeInvocations.first
-        let attachedSessionData = try XCTUnwrap(storedEnvelope!.items.last!.data)
+        let attachedSessionData = try XCTUnwrap(XCTUnwrap(storedEnvelope).items.last?.data)
         let attachedSession = try XCTUnwrap(try JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
         
         XCTAssertEqual(0, hub.startSessionInvocations)
@@ -67,7 +67,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         PrivateSentrySDKOnly.capture(envelope)
 
         let capturedEnvelope = client?.captureEnvelopeInvocations.first
-        let attachedSessionData = try XCTUnwrap(capturedEnvelope!.items.last!.data)
+        let attachedSessionData = try XCTUnwrap(XCTUnwrap(capturedEnvelope).items.last?.data)
         let attachedSession = try XCTUnwrap(try JSONSerialization.jsonObject(with: attachedSessionData) as? [String: Any])
         
         // Assert new session was started
@@ -126,7 +126,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertNil(PrivateSentrySDKOnly.envelope(with: itemData))
     }
 
-    #if canImport(UIKit)
+    #if canImport(UIKit) && !os(watchOS)
     func testGetAppStartMeasurement() {
         let appStartMeasurement = TestData.getAppStartMeasurement(type: .warm, runtimeInitSystemTimestamp: 1)
         SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
@@ -149,8 +149,8 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         XCTAssertEqual(spans.count, 1)
         let firstSpan = try XCTUnwrap(spans.firstObject as? NSDictionary)
         XCTAssertEqual(try XCTUnwrap(firstSpan["description"] as? String), "UIKit init")
-        XCTAssert(firstSpan["start_timestamp_ms"] is NSNumber)
-        XCTAssert(firstSpan["end_timestamp_ms"] is NSNumber)
+        XCTAssertTrue(firstSpan["start_timestamp_ms"] is NSNumber)
+        XCTAssertTrue(firstSpan["end_timestamp_ms"] is NSNumber)
     }
 
     func testGetAppStartMeasurementWithSpansPreWarmed() throws {

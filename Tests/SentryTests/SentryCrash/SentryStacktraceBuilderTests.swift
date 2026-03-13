@@ -35,7 +35,7 @@ class SentryStacktraceBuilderTests: XCTestCase {
         let actual = fixture.sut.buildStacktraceForCurrentThread()
         
         // The stacktrace has usually more than 40 frames. Feel free to change the number if the tests are failing
-        XCTAssertTrue(30 < actual.frames.count, "Not enough stacktrace frames. It should be more than 30, but was \(actual.frames.count)")
+        XCTAssertGreaterThan(actual.frames.count, 30, "Not enough stacktrace frames. It should be more than 30, but was \(actual.frames.count)")
     }
     
     func testFramesAreFilled() {

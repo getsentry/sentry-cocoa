@@ -15,40 +15,79 @@ projectReferences:
     path: ../../Sentry.xcodeproj
   SentrySampleShared:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
-fileGroups:
-  - ../Shared/Config
-  - watchOS-Swift.yml
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
-  "watchOS-Swift WatchKit App":
+  watchOS-Swift:
     type: "application.watchapp2"
     platform: auto
     sources:
-      - "watchOS-Swift WatchKit App"
-      - ../Shared/SampleAssets.xcassets
+      # Resources
+      - path: WatchApp/Resources
+        type: group
+        group: WatchApp
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: WatchApp/Resources
+      # Configurations
+      - path: WatchApp/Configurations
+        type: group
+        group: WatchApp
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: WatchApp/Configurations
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: watchOS-Swift.yml
+        group: WatchApp/Configurations
+        buildPhase: none
     dependencies:
-      - target: "watchOS-Swift WatchKit Extension"
+      - target: Extension
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: watchOS-Swift-App.xcconfig
-      Release: watchOS-Swift-App.xcconfig
-      Test: watchOS-Swift-App.xcconfig
-      TestCI: watchOS-Swift-App.xcconfig
-  "watchOS-Swift WatchKit Extension":
+      Debug: WatchApp/Configurations/watchOS-Swift-App.xcconfig
+      Release: WatchApp/Configurations/watchOS-Swift-App.xcconfig
+      Test: WatchApp/Configurations/watchOS-Swift-App.xcconfig
+      TestCI: WatchApp/Configurations/watchOS-Swift-App.xcconfig
+  Extension:
     type: "watchkit2-extension"
     platform: auto
     sources:
-      - "watchOS-Swift WatchKit Extension"
-      - ../Shared/SampleAssets.xcassets
+      # Sources
+      - path: Extension/Sources
+        type: group
+        group: Extension
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: Extension/Resources
+        type: group
+        group: Extension
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: Extension/Resources
+      # Configurations
+      - path: Extension/Configurations
+        type: group
+        group: Extension
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: watchOS-Swift-Extension.xcconfig
-      Release: watchOS-Swift-Extension.xcconfig
-      Test: watchOS-Swift-Extension.xcconfig
-      TestCI: watchOS-Swift-Extension.xcconfig
+      Debug: Extension/Configurations/watchOS-Swift-Extension.xcconfig
+      Release: Extension/Configurations/watchOS-Swift-Extension.xcconfig
+      Test: Extension/Configurations/watchOS-Swift-Extension.xcconfig
+      TestCI: Extension/Configurations/watchOS-Swift-Extension.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -63,4 +102,4 @@ schemes:
       - SampleAppScheme
     build:
       targets:
-        "watchOS-Swift WatchKit App": all
+        watchOS-Swift: all

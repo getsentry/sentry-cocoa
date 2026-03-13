@@ -63,7 +63,7 @@ jobs:
 
       - run: ./scripts/ci-select-xcode.sh 26.2
       - name: Setup Ruby
-        uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
+        uses: ruby/setup-ruby@6ca151fd1bfcfd6fe0c4eb6837eb0584d0134a0c # v1.290.0
         with:
           bundler-cache: true
       - run: make init-ci-build
@@ -136,7 +136,7 @@ jobs:
             build 2>&1 | tee raw-build-output.log | xcbeautify --preserve-unbeautified
 
       - name: Archiving Raw Build Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-scheme-${{matrix.scheme}}
@@ -187,6 +187,38 @@ jobs:
         if: ${{ failure() || cancelled() }}
         run: ./scripts/ci-diagnostics.sh
 
+  check-macOS-CLI-Xcode-no-UI-framework:
+    name: macOS CLI (NoUIFramework) builds and has no AppKit/UIKit
+    # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
+    needs: files-changed
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Select Xcode
+        run: ./scripts/ci-select-xcode.sh 26.4
+
+      - name: Build macOS-CLI-Xcode sample
+        run: |
+          set -o pipefail && xcodebuild \
+            -project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
+            -scheme macOS-CLI-Xcode \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            -derivedDataPath "$GITHUB_WORKSPACE/cli-xcode-build" \
+            CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+      - name: Ensure CLI binary does not link AppKit
+        run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data "$GITHUB_WORKSPACE/cli-xcode-build" --linkage unlinked --module macOS-CLI-Xcode --framework AppKit
+
+      - name: Ensure CLI binary does not link UIKit
+        run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data "$GITHUB_WORKSPACE/cli-xcode-build" --linkage unlinked --module macOS-CLI-Xcode --framework UIKit
+
+      - name: Debug Xcode environment
+        if: ${{ failure() || cancelled() }}
+        run: ./scripts/ci-diagnostics.sh
+
   build-distribution:
     name: Build the distribution framework
     runs-on: macos-15
@@ -207,7 +239,7 @@ jobs:
             build | tee raw-build-output-spm.log | xcbeautify --preserve-unbeautified
         shell: sh
       - name: Upload SPM Build Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm
@@ -241,7 +273,7 @@ jobs:
         shell: sh
 
       - name: Upload SPM Build Logs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm
@@ -456,6 +488,7 @@ jobs:
         ios-swift-release,
         build-sample,
         build-sample-spm,
+        check-macOS-CLI-Xcode-no-UI-framework,
         build-distribution,
         build-spm,
         check-debug-without-UIKit,
