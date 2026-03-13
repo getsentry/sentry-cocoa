@@ -19,7 +19,7 @@ options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
 targets:
-  App:
+  visionOS-Swift:
     type: application
     platform: auto
     sources:
@@ -74,4 +74,4 @@ schemes:
       - SampleAppScheme
     build:
       targets:
-        App: all
+        visionOS-Swift: all

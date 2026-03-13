@@ -13,7 +13,7 @@ packages:
   Sentry:
     path: ../../
 targets:
-  App:
+  SPM:
     type: application
     platform: auto
     sources:
@@ -52,4 +52,4 @@ schemes:
       - SampleAppScheme
     build:
       targets:
-        App: all
+        SPM: all
