@@ -5,6 +5,7 @@
 ### Fixes
 
 - Make SentryBreadcrumb thread-safe to prevent crashes in addBreadcrumb ([#7665](https://github.com/getsentry/sentry-cocoa/pull/7665))
+
 ### Features
 
 - Add `SentrySDK.lastRunStatus` to distinguish unknown, no-crash and crash (#7469)

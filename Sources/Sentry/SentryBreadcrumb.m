@@ -37,7 +37,7 @@ sentry_deepCopyValue(id value)
         for (id item in arrayCopy) {
             [result addObject:sentry_deepCopyValue(item)];
         }
-        return [copy copy]; // immutable
+        return [result copy]; // immutable
     }
     return value;
 }
