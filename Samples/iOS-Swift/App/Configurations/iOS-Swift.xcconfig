@@ -1,6 +1,5 @@
 #include "../../../Shared/Config/_Common.xcconfig"
 
-PRODUCT_NAME = App
 PRODUCT_BUNDLE_IDENTIFIER = io.sentry.sample.iOS-Swift
 INFOPLIST_FILE = App/Configurations/Info.plist
 CODE_SIGN_ENTITLEMENTS = App/Configurations/iOS-Swift.entitlements
