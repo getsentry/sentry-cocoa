@@ -307,7 +307,6 @@ schemes:
     build:
       targets:
         iOS-Swift: all
-        iOS-Swift-UITests: test
     test:
       config: Test
       testPlans:
