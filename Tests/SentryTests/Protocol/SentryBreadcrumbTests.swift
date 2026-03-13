@@ -171,10 +171,9 @@ class SentryBreadcrumbTests: XCTestCase {
         XCTAssertEqual(crumb, decoded)
     }
 
-    // MARK: - Thread Safety (Issue #2601)
+    // MARK: - Thread Safety
 
     func testSerialize_whenPropertiesMutatedConcurrently_shouldNotCrash() {
-        // https://github.com/getsentry/sentry-cocoa/issues/2601
         let breadcrumb = Breadcrumb(level: .info, category: "test")
         breadcrumb.message = "initial"
         breadcrumb.data = ["key": "value"]
@@ -189,7 +188,6 @@ class SentryBreadcrumbTests: XCTestCase {
     }
 
     func testDataProperty_whenAssignedMutableDictionary_shouldDeepCopy() {
-        // https://github.com/getsentry/sentry-cocoa/issues/2601
         let innerMutable = NSMutableDictionary(dictionary: ["inner": "original"])
         let mutableData = NSMutableDictionary(dictionary: [
             "key": "value",
@@ -211,7 +209,6 @@ class SentryBreadcrumbTests: XCTestCase {
     }
 
     func testSerialize_whenDataContainsConcurrentlyMutatedNestedDict_shouldNotCrash() {
-        // https://github.com/getsentry/sentry-cocoa/issues/2601
         let nestedMutable = NSMutableDictionary()
         for i in 0..<50 {
             nestedMutable["key\(i)"] = "value\(i)"
@@ -247,7 +244,6 @@ class SentryBreadcrumbTests: XCTestCase {
     }
 
     func testSerialize_whenDataContainsConcurrentlyMutatedArray_shouldNotCrash() {
-        // https://github.com/getsentry/sentry-cocoa/issues/2601
         let mutableArray = NSMutableArray()
         for i in 0..<50 {
             mutableArray.add("item\(i)")
@@ -283,7 +279,6 @@ class SentryBreadcrumbTests: XCTestCase {
     }
 
     func testSerialize_whenDataReassignedConcurrently_shouldNotCrash() {
-        // https://github.com/getsentry/sentry-cocoa/issues/2601
         let breadcrumb = Breadcrumb(level: .info, category: "test")
         breadcrumb.data = ["initial": "value"]
 
