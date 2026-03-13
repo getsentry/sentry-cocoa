@@ -10,8 +10,8 @@ class SentryCrashInstallationReporterTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         sentrycrash_deleteAllReports()
-        clearTestState()
         sut.uninstall()
+        clearTestState()
     }
     
     func testReportIsSentAndDeleted() throws {
@@ -90,6 +90,9 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         SentrySDKInternal.setCurrentHub(hub)
         
         sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: []), crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), dispatchQueue: TestSentryDispatchQueueWrapper())
+        // Reset global SentryCrash state so install() fully reinitializes the report store path,
+        // even if a previous test class left g_installed = 1.
+        sentrycrash_uninstall()
         sut.install(options.cacheDirectoryPath)
         // Works only if SentryCrash is installed
         sentrycrash_deleteAllReports()
