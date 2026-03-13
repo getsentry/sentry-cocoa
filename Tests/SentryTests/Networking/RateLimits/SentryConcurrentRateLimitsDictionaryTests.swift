@@ -1,15 +1,16 @@
+@testable import Sentry
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-class SentryConcurrentRateLimitsDictionaryTests: XCTestCase {
+class ConcurrentRateLimitsDictionaryTests: XCTestCase {
     
     private var currentDateProvider: TestCurrentDateProvider!
-    private var sut: SentryConcurrentRateLimitsDictionary!
+    private var sut: ConcurrentRateLimitsDictionary!
     
     override func setUp() {
         super.setUp()
         currentDateProvider = TestCurrentDateProvider()
-        sut = SentryConcurrentRateLimitsDictionary()
+        sut = ConcurrentRateLimitsDictionary()
     }
     
     func testTwoRateLimit() {

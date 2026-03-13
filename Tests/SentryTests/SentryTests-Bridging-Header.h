@@ -44,7 +44,6 @@
 #import "SentryClient+Private.h"
 #import "SentryClient+TestInit.h"
 #import "SentryClient.h"
-#import "SentryConcurrentRateLimitsDictionary.h"
 #import "SentryCoreDataTracker+Test.h"
 #import "SentryCrash+Test.h"
 #import "SentryCrashBinaryImageCache.h"
