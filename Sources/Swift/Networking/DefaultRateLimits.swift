@@ -9,7 +9,7 @@ import Foundation
 @objc(SentryDefaultRateLimits) @_spi(Private)
 public final class DefaultRateLimits: NSObject, RateLimits {
 
-    private let rateLimits: SentryConcurrentRateLimitsDictionary
+    private let rateLimits: ConcurrentRateLimitsDictionary
     private let retryAfterHeaderParser: RetryAfterHeaderParser
     private let rateLimitParser: RateLimitParser
     private let currentDateProvider: SentryCurrentDateProvider
@@ -21,7 +21,7 @@ public final class DefaultRateLimits: NSObject, RateLimits {
         andRateLimitParser rateLimitParser: RateLimitParser,
         currentDateProvider: SentryCurrentDateProvider
     ) {
-        self.rateLimits = SentryConcurrentRateLimitsDictionary()
+        self.rateLimits = ConcurrentRateLimitsDictionary()
         self.retryAfterHeaderParser = retryAfterHeaderParser
         self.rateLimitParser = rateLimitParser
         self.currentDateProvider = currentDateProvider
