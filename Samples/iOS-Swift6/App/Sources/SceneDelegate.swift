@@ -1,6 +1,7 @@
 import SentrySampleShared
 import UIKit
 
+// swiftlint:disable unused_optional_binding
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     

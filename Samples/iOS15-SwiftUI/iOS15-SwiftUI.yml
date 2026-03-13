@@ -19,7 +19,7 @@ options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
 targets:
-  App:
+  iOS15-SwiftUI:
     type: application
     platform: auto
     sources:
@@ -73,4 +73,4 @@ schemes:
       - SampleAppScheme
     build:
       targets:
-        App: all
+        iOS15-SwiftUI: all

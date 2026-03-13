@@ -15,7 +15,7 @@ options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
 targets:
-  App:
+  visionOS-SwiftUI-SPM:
     type: application
     platform: visionOS
     deploymentTarget: "1.0"
@@ -57,7 +57,7 @@ schemes:
   visionOS-SwiftUI-SPM:
     build:
       targets:
-        App: all
+        visionOS-SwiftUI-SPM: all
     run:
       config: Debug
     archive:

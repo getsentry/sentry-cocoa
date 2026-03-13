@@ -19,7 +19,7 @@ options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
 targets:
-  App:
+  watchOS-Swift:
     type: "application.watchapp2"
     platform: auto
     sources:
@@ -102,4 +102,4 @@ schemes:
       - SampleAppScheme
     build:
       targets:
-        App: all
+        watchOS-Swift: all

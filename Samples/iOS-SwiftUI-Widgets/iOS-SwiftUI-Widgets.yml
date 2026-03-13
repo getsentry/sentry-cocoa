@@ -17,7 +17,7 @@ options:
   bundleIdPrefix: io.sentry.sentry-cocoa.samples
   defaultSourceDirectoryType: syncedFolder
 targets:
-  App:
+  iOS-SwiftUI-Widgets:
     type: application
     platform: iOS
     deploymentTarget: "18.0"
@@ -128,7 +128,7 @@ schemes:
   iOS-SwiftUI-Widgets:
     build:
       targets:
-        App: all
+        iOS-SwiftUI-Widgets: all
         WidgetExtension: all
         LiveActivity: all
     run:
@@ -140,7 +140,7 @@ schemes:
   iOS-SwiftUI-Widgets-WidgetExtension:
     build:
       targets:
-        App: all
+        iOS-SwiftUI-Widgets: all
         WidgetExtension: all
     run:
       config: Debug
@@ -150,7 +150,7 @@ schemes:
   iOS-SwiftUI-Widgets-WidgetControl:
     build:
       targets:
-        App: all
+        iOS-SwiftUI-Widgets: all
         WidgetExtension: all
     run:
       config: Debug
@@ -160,7 +160,7 @@ schemes:
   iOS-SwiftUI-Widgets-LiveActivity:
     build:
       targets:
-        App: all
+        iOS-SwiftUI-Widgets: all
         WidgetExtension: all
         LiveActivity: all
     run:
