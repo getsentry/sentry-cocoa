@@ -19,20 +19,23 @@ static id
 sentry_deepCopyValue(id value)
 {
     if ([value isKindOfClass:[NSDictionary class]]) {
-        NSDictionary *dict = [(NSDictionary *)value copy];
-        NSMutableDictionary *copy = [NSMutableDictionary dictionaryWithCapacity:dict.count];
-        for (id key in dict) {
-            id v = dict[key];
+        // Defensive copy to prevent mutation during enumeration.
+        NSDictionary *dictionaryCopy = [(NSDictionary *)value copy];
+        NSMutableDictionary *result =
+            [NSMutableDictionary dictionaryWithCapacity:dictionaryCopy.count];
+        for (id key in dictionaryCopy) {
+            id v = dictionaryCopy[key];
             if (v != nil) {
-                copy[key] = sentry_deepCopyValue(v);
+                result[key] = sentry_deepCopyValue(v);
             }
         }
-        return [copy copy]; // immutable
+        return [result copy]; // immutable
     } else if ([value isKindOfClass:[NSArray class]]) {
-        NSArray *arr = [(NSArray *)value copy];
-        NSMutableArray *copy = [NSMutableArray arrayWithCapacity:arr.count];
-        for (id item in arr) {
-            [copy addObject:sentry_deepCopyValue(item)];
+        // Defensive copy to prevent mutation during enumeration.
+        NSArray *arrayCopy = [(NSArray *)value copy];
+        NSMutableArray *result = [NSMutableArray arrayWithCapacity:arrayCopy.count];
+        for (id item in arrayCopy) {
+            [result addObject:sentry_deepCopyValue(item)];
         }
         return [copy copy]; // immutable
     }

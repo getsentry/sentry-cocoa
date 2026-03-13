@@ -7,13 +7,11 @@
 
 + (NSArray *)sanitizeArray:(NSArray *)array;
 {
-    // Defensive copy: if the caller passed an NSMutableArray, iterating it while
-    // another thread mutates it causes a crash. [NSArray copy] returns self (no-op),
-    // while [NSMutableArray copy] creates an immutable snapshot.
-    NSArray *safeArray = [array copy];
+    // Defensive copy to prevent mutation during enumeration.
+    NSArray *arrayCopy = [array copy];
 
     NSMutableArray *result = [NSMutableArray array];
-    for (id rawValue in safeArray) {
+    for (id rawValue in arrayCopy) {
         if ([rawValue isKindOfClass:NSString.class]) {
             [result addObject:rawValue];
         } else if ([rawValue isKindOfClass:NSNumber.class]) {
