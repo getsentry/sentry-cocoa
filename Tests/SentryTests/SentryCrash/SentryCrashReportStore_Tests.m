@@ -31,6 +31,8 @@
 #import "SentryCrashReportStore.h"
 
 #include <inttypes.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define REPORT_PREFIX @"CrashReport-SentryCrashTest"
 
@@ -50,16 +52,22 @@
 
 - (int64_t)getReportIDFromPath:(NSString *)path
 {
-
     const char *filename = path.lastPathComponent.UTF8String;
-    char scanFormat[100];
-    snprintf(
-        scanFormat, sizeof(scanFormat), "%s-report-%%" PRIx64 ".json", self.appName.UTF8String);
-
-    int64_t reportID = 0;
-    sscanf(filename, scanFormat, &reportID);
-
-    return reportID;
+    const char *appName = self.appName.UTF8String;
+    const size_t appNameLen = strlen(appName);
+    if (strncmp(filename, appName, appNameLen) != 0) {
+        return 0;
+    }
+    if (strncmp(filename + appNameLen, "-report-", 8) != 0) {
+        return 0;
+    }
+    const char *hexStart = filename + appNameLen + 8;
+    char *endPtr = NULL;
+    const uint64_t id = strtoull(hexStart, &endPtr, 16);
+    if (endPtr == hexStart || strcmp(endPtr, ".json") != 0) {
+        return 0;
+    }
+    return (int64_t)id;
 }
 
 - (void)setUp
@@ -135,6 +143,74 @@
         [self loadReportID:reportID reportString:&loadedReportString];
         XCTAssertEqualObjects(loadedReportString, reportString);
     }
+}
+
+- (void)testGetReportIDFromPath_whenValidFilename_shouldReturnReportID
+{
+    // -- Arrange --
+    self.appName = @"myapp";
+    NSString *path =
+        [self.tempPath stringByAppendingPathComponent:@"myapp-report-0000000000000001.json"];
+
+    // -- Act --
+    int64_t reportID = [self getReportIDFromPath:path];
+
+    // -- Assert --
+    XCTAssertEqual(reportID, 1);
+}
+
+- (void)testGetReportIDFromPath_whenValidHexID_shouldReturnReportID
+{
+    // -- Arrange --
+    self.appName = @"myapp";
+    NSString *path = [self.tempPath stringByAppendingPathComponent:@"myapp-report-abc123def.json"];
+
+    // -- Act --
+    int64_t reportID = [self getReportIDFromPath:path];
+
+    // -- Assert --
+    XCTAssertEqual(reportID, (int64_t)0xabc123def);
+}
+
+- (void)testGetReportIDFromPath_whenWrongPrefix_shouldReturnZero
+{
+    // -- Arrange --
+    self.appName = @"myapp";
+    NSString *path =
+        [self.tempPath stringByAppendingPathComponent:@"other-report-0000000000000001.json"];
+
+    // -- Act --
+    int64_t reportID = [self getReportIDFromPath:path];
+
+    // -- Assert --
+    XCTAssertEqual(reportID, 0);
+}
+
+- (void)testGetReportIDFromPath_whenInvalidSuffix_shouldReturnZero
+{
+    // -- Arrange --
+    self.appName = @"myapp";
+    NSString *path =
+        [self.tempPath stringByAppendingPathComponent:@"myapp-report-0000000000000001.txt"];
+
+    // -- Act --
+    int64_t reportID = [self getReportIDFromPath:path];
+
+    // -- Assert --
+    XCTAssertEqual(reportID, 0);
+}
+
+- (void)testGetReportIDFromPath_whenNoReportSegment_shouldReturnZero
+{
+    // -- Arrange --
+    self.appName = @"myapp";
+    NSString *path = [self.tempPath stringByAppendingPathComponent:@"myapp-0000000000000001.json"];
+
+    // -- Act --
+    int64_t reportID = [self getReportIDFromPath:path];
+
+    // -- Assert --
+    XCTAssertEqual(reportID, 0);
 }
 
 - (void)testReportStorePathExists

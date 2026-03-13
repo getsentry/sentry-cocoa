@@ -135,6 +135,7 @@ onIntegerElement(const char *const name, const int64_t value, void *const userDa
         char buffer[21];
         sentrycrashdate_utcStringFromTimestamp((time_t)value, buffer);
 
+        // CWE-676: sentrycrashdate_utcStringFromTimestamp null-terminates buffer.
         result = sentrycrashjson_addStringElement(
             context->encodeContext, name, buffer, (int)strlen(buffer));
     } else {
@@ -163,6 +164,7 @@ onStringElement(const char *const name, const char *const value, void *const use
     FixupContext *context = (FixupContext *)userData;
     const char *stringValue = value;
 
+    // CWE-676: stringValue from JSON decode callback; decode produces null-terminated strings.
     int result = sentrycrashjson_addStringElement(
         context->encodeContext, name, stringValue, (int)strlen(stringValue));
 
@@ -216,6 +218,7 @@ addJSONData(const char *data, int length, void *userData)
     if (length > context->outputBytesLeft) {
         return SentryCrashJSON_ERROR_DATA_TOO_LONG;
     }
+    // CWE-676: Bounds checked above (length <= outputBytesLeft).
     memcpy(context->outputPtr, data, length);
     context->outputPtr += length;
     context->outputBytesLeft -= length;
@@ -249,6 +252,7 @@ sentrycrashcrf_fixupCrashReport(const char *crashReport)
             "Failed to allocate string buffer of size %ul", stringBufferLength);
         return NULL;
     }
+    // CWE-676: crashReport is API input; caller must provide null-terminated string.
     int crashReportLength = (int)strlen(crashReport);
     int fixedReportLength = (int)(crashReportLength * 1.5);
     char *fixedReport = malloc((unsigned)fixedReportLength);
@@ -269,7 +273,7 @@ sentrycrashcrf_fixupCrashReport(const char *crashReport)
     sentrycrashjson_beginEncode(&encodeContext, true, addJSONData, &fixupContext);
 
     int errorOffset = 0;
-    int result = sentrycrashjson_decode(crashReport, (int)strlen(crashReport), stringBuffer,
+    int result = sentrycrashjson_decode(crashReport, crashReportLength, stringBuffer,
         stringBufferLength, &callbacks, &fixupContext, &errorOffset);
     *fixupContext.outputPtr = '\0';
     free(stringBuffer);

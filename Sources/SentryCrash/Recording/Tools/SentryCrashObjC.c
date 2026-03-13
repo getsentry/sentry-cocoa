@@ -1104,6 +1104,7 @@ sentrycrashobjc_ivarValue(const void *const objectPtr, int ivarIndex, void *dst)
         // Naively assume they want "value".
         if (isTaggedPointerNSDate(objectPtr)) {
             CFTimeInterval value = extractTaggedNSDate(objectPtr);
+            // CWE-676: Fixed-size copy; caller provides at least sizeof(value) bytes.
             memcpy(dst, &value, sizeof(value));
             return true;
         }
@@ -1111,6 +1112,7 @@ sentrycrashobjc_ivarValue(const void *const objectPtr, int ivarIndex, void *dst)
             // TODO: Correct to assume 64-bit signed int? What does the actual
             // ivar say?
             int64_t value = extractTaggedNSNumber(objectPtr);
+            // CWE-676: Fixed-size copy; caller provides at least sizeof(value) bytes.
             memcpy(dst, &value, sizeof(value));
             return true;
         }
@@ -1550,6 +1552,7 @@ taggedDateDescription(const void *object, char *buffer, int bufferLength)
 #define NSNUMBER_CASE(CFTYPE, RETURN_TYPE, CAST_TYPE, DATA)                                        \
     case CFTYPE: {                                                                                 \
         RETURN_TYPE result;                                                                        \
+        /* CWE-676: DATA is __CFNumber _pad; fixed-size copy matching RETURN_TYPE. */              \
         memcpy(&result, DATA, sizeof(result));                                                     \
         return (CAST_TYPE)result;                                                                  \
     }
