@@ -18,6 +18,20 @@ TargetName/
 
 Follow assertion conventions in [`Tests/AGENTS.md`](../Tests/AGENTS.md) — see "Prefer Specific Assertions Over `XCTAssert`".
 
+## Generating Sample Projects
+
+**CRITICAL**: ALWAYS use the Makefile to regenerate sample projects. Never run `xcodegen` directly.
+
+```bash
+# Regenerate and build a specific sample
+make build-sample-iOS-Swift
+
+# Regenerate all Xcode projects
+make xcode-ci
+```
+
+Rationale: The Makefile ensures correct build order and dependencies (e.g., SentrySampleShared must be generated before iOS-Swift).
+
 ## Commands
 
 | Command                    | Description                               |

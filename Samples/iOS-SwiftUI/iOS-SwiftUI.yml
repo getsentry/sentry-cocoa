@@ -15,32 +15,67 @@ projectReferences:
     path: ../../Sentry.xcodeproj
   SentrySampleShared:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
-fileGroups:
-  - ../Shared/Config
-  - iOS-SwiftUI.yml
-  - ../../Plans/iOS-SwiftUI_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
   iOS-SwiftUI:
     type: application
     platform: auto
     sources:
-      - iOS-SwiftUI
-      - ../Shared/SampleAssets.xcassets
-      - ../../Sources/Sentry/Public/SentrySerializable.h
-      - ../../Sources/Sentry/include/SentryTracer.h
-      - ../../Sources/Sentry/include/SentryPerformanceTracker.h
-      - ../../Sources/Sentry/Public/SentryProfilingConditionals.h
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      # Headers
+      - path: App/Headers
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: iOS-SwiftUI.yml
+        group: App/Configurations
+        buildPhase: none
+      # Sentry SDK
+      - path: ../../Sources/Sentry/Public/SentrySerializable.h
+        group: SentrySDK/Headers
+      - path: ../../Sources/Sentry/include/SentryTracer.h
+        group: SentrySDK/Headers
+      - path: ../../Sources/Sentry/include/SentryPerformanceTracker.h
+        group: SentrySDK/Headers
+      - path: ../../Sources/Sentry/Public/SentryProfilingConditionals.h
+        group: SentrySDK/Headers
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: iOS-SwiftUI.xcconfig
-      Release: iOS-SwiftUI.xcconfig
-      Test: iOS-SwiftUI.xcconfig
-      TestCI: iOS-SwiftUI.xcconfig
+      Debug: App/Configurations/iOS-SwiftUI.xcconfig
+      Release: App/Configurations/iOS-SwiftUI.xcconfig
+      Test: App/Configurations/iOS-SwiftUI.xcconfig
+      TestCI: App/Configurations/iOS-SwiftUI.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -56,12 +91,37 @@ targets:
       - target: SentrySampleShared/SentrySampleUITestShared
       - target: SentrySampleShared/SentrySampleShared
     sources:
-      - iOS-SwiftUI-UITests
+      # Sources
+      - path: UITests/Sources
+        type: group
+        group: UITests
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: UITests/Resources
+        type: group
+        group: UITests
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: UITests/Configurations
+        type: group
+        group: UITests
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: UITests/Configurations
+        buildPhase: none
+      - path: ../../Plans/iOS-SwiftUI_Base.xctestplan
+        group: UITests/Configurations
+        buildPhase: none
     configFiles:
-      Debug: iOS-SwiftUI-UITests.xcconfig
-      Release: iOS-SwiftUI-UITests.xcconfig
-      Test: iOS-SwiftUI-UITests.xcconfig
-      TestCI: iOS-SwiftUI-UITests.xcconfig
+      Debug: UITests/Configurations/iOS-SwiftUI-UITests.xcconfig
+      Release: UITests/Configurations/iOS-SwiftUI-UITests.xcconfig
+      Test: UITests/Configurations/iOS-SwiftUI-UITests.xcconfig
+      TestCI: UITests/Configurations/iOS-SwiftUI-UITests.xcconfig
 schemes:
   iOS-SwiftUI:
     templates:
