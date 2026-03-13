@@ -56,12 +56,12 @@ targets:
     dependencies:
       - target: Sentry/Sentry
       - target: SentrySampleShared/SentrySampleShared
-      - target: WidgetExtension
-      - target: LiveActivity
+      - target: iOS-SwiftUI-Widgets-WidgetExtension
+      - target: iOS-SwiftUI-Widgets-LiveActivity
     configFiles:
       Debug: App/Configurations/iOS-SwiftUI-Widgets.xcconfig
       Release: App/Configurations/iOS-SwiftUI-Widgets.xcconfig
-  WidgetExtension:
+  iOS-SwiftUI-Widgets-WidgetExtension:
     type: app-extension
     platform: iOS
     deploymentTarget: "18.0"
@@ -91,7 +91,7 @@ targets:
     configFiles:
       Debug: WidgetExtension/Configurations/iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
       Release: WidgetExtension/Configurations/iOS-SwiftUI-Widgets-WidgetExtension.xcconfig
-  LiveActivity:
+  iOS-SwiftUI-Widgets-LiveActivity:
     type: app-extension
     platform: iOS
     deploymentTarget: "18.0"
@@ -129,8 +129,8 @@ schemes:
     build:
       targets:
         iOS-SwiftUI-Widgets: all
-        WidgetExtension: all
-        LiveActivity: all
+        iOS-SwiftUI-Widgets-WidgetExtension: all
+        iOS-SwiftUI-Widgets-LiveActivity: all
     run:
       config: Debug
     profile:
@@ -141,7 +141,7 @@ schemes:
     build:
       targets:
         iOS-SwiftUI-Widgets: all
-        WidgetExtension: all
+        iOS-SwiftUI-Widgets-WidgetExtension: all
     run:
       config: Debug
       askForAppToLaunch: true
@@ -151,7 +151,7 @@ schemes:
     build:
       targets:
         iOS-SwiftUI-Widgets: all
-        WidgetExtension: all
+        iOS-SwiftUI-Widgets-WidgetExtension: all
     run:
       config: Debug
       askForAppToLaunch: true
@@ -161,8 +161,8 @@ schemes:
     build:
       targets:
         iOS-SwiftUI-Widgets: all
-        WidgetExtension: all
-        LiveActivity: all
+        iOS-SwiftUI-Widgets-WidgetExtension: all
+        iOS-SwiftUI-Widgets-LiveActivity: all
     run:
       config: Debug
     profile:
