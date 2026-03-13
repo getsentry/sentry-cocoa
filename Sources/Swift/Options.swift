@@ -168,7 +168,7 @@
     /// - If the last run did **not** end with a crash, `status` is
     ///   ``SentryLastRunStatus/didNotCrash`` and `crashEvent` is `nil`.
     ///
-    /// This callback is only executed once during the entire run of the program.
+    /// This callback is only executed once per ``SentrySDK/start(configureOptions:)`` lifecycle.
     ///
     /// - warning: It is not guaranteed that this is called on the main thread.
     /// - note: Crashes that occur while a debugger is attached are not recorded.
