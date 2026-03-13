@@ -8,7 +8,7 @@ CODE_SIGN_ENTITLEMENTS = App/Configurations/iOS-Swift.entitlements
 PROVISIONING_PROFILE_SPECIFIER_Debug = match Development io.sentry.sample.iOS-Swift
 PROVISIONING_PROFILE_SPECIFIER_Test = match Development io.sentry.sample.iOS-Swift
 PROVISIONING_PROFILE_SPECIFIER_TestCI = match Development io.sentry.sample.iOS-Swift
-PROVISIONING_PROFILE_SPECIFIER_Release = match AppStore io.sentry.iOS-Swift
+PROVISIONING_PROFILE_SPECIFIER_Release = match AppStore io.sentry.sample.iOS-Swift
 PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*] = $(PROVISIONING_PROFILE_SPECIFIER_$(CONFIGURATION))
 PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] =
 
