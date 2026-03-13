@@ -24723,6 +24723,229 @@
               }
             ],
             "declAttributes": [
+              "Available",
+              "Final",
+              "HasInitialValue",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "deprecated": true,
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry7OptionsC16onCrashedLastRunySo0A5EventCcSgvp",
+            "moduleName": "Sentry",
+            "name": "onCrashedLastRun",
+            "printedName": "onCrashedLastRun",
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)onCrashedLastRun"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "Void",
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "Event",
+                                    "printedName": "Sentry.Event",
+                                    "usr": "c:objc(cs)SentryEvent"
+                                  }
+                                ],
+                                "kind": "TypeNominal",
+                                "name": "Optional",
+                                "printedName": "Sentry.Event?",
+                                "usr": "s:Sq"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryLastRunStatus",
+                                "printedName": "Sentry.SentryLastRunStatus",
+                                "usr": "c:@M@Sentry@E@SentryLastRunStatus"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(Sentry.SentryLastRunStatus, Sentry.Event?)"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryLastRunStatus, Sentry.Event?) -> Swift.Void"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "((Sentry.SentryLastRunStatus, Sentry.Event?) -> Swift.Void)?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC25onLastRunStatusDeterminedyAA0adeF0O_So0A5EventCSgtcSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)onLastRunStatusDetermined"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "Void",
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "Event",
+                                    "printedName": "Sentry.Event",
+                                    "usr": "c:objc(cs)SentryEvent"
+                                  }
+                                ],
+                                "kind": "TypeNominal",
+                                "name": "Optional",
+                                "printedName": "Sentry.Event?",
+                                "usr": "s:Sq"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryLastRunStatus",
+                                "printedName": "Sentry.SentryLastRunStatus",
+                                "usr": "c:@M@Sentry@E@SentryLastRunStatus"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(Sentry.SentryLastRunStatus, Sentry.Event?)"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryLastRunStatus, Sentry.Event?) -> Swift.Void"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "((Sentry.SentryLastRunStatus, Sentry.Event?) -> Swift.Void)?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC25onLastRunStatusDeterminedyAA0adeF0O_So0A5EventCSgtcSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setOnLastRunStatusDetermined:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "Void",
+                        "printedName": "Swift.Void"
+                      },
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Event",
+                                "printedName": "Sentry.Event",
+                                "usr": "c:objc(cs)SentryEvent"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Sentry.Event?",
+                            "usr": "s:Sq"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryLastRunStatus",
+                            "printedName": "Sentry.SentryLastRunStatus",
+                            "usr": "c:@M@Sentry@E@SentryLastRunStatus"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Tuple",
+                        "printedName": "(Sentry.SentryLastRunStatus, Sentry.Event?)"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryLastRunStatus, Sentry.Event?) -> Swift.Void"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((Sentry.SentryLastRunStatus, Sentry.Event?) -> Swift.Void)?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
               "Final",
               "HasInitialValue",
               "HasStorage",
@@ -24731,11 +24954,11 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry7OptionsC16onCrashedLastRunySo0A5EventCcSgvp",
+            "mangledName": "$s6Sentry7OptionsC25onLastRunStatusDeterminedyAA0adeF0O_So0A5EventCSgtcSgvp",
             "moduleName": "Sentry",
-            "name": "onCrashedLastRun",
-            "printedName": "onCrashedLastRun",
-            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)onCrashedLastRun"
+            "name": "onLastRunStatusDetermined",
+            "printedName": "onLastRunStatusDetermined",
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)onLastRunStatusDetermined"
           },
           {
             "accessors": [
@@ -39285,6 +39508,332 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryLastRunStatus",
+                    "printedName": "Sentry.SentryLastRunStatus",
+                    "usr": "c:@M@Sentry@E@SentryLastRunStatus"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryLastRunStatus?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$s6Sentry0A13LastRunStatusO8rawValueACSgSi_tcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "usr": "s:6Sentry0A13LastRunStatusO8rawValueACSgSi_tcfc"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "kind": "TypeAlias",
+            "mangledName": "$s6Sentry0A13LastRunStatusO8RawValuea",
+            "moduleName": "Sentry",
+            "name": "RawValue",
+            "printedName": "RawValue",
+            "usr": "s:6Sentry0A13LastRunStatusO8RawValuea"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "isFromExtension": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A13LastRunStatusO11descriptionSSvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A13LastRunStatusO11descriptionSSvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "isFromExtension": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A13LastRunStatusO11descriptionSSvp",
+            "moduleName": "Sentry",
+            "name": "description",
+            "printedName": "description",
+            "usr": "s:6Sentry0A13LastRunStatusO11descriptionSSvp"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryLastRunStatus",
+                        "printedName": "Sentry.SentryLastRunStatus",
+                        "usr": "c:@M@Sentry@E@SentryLastRunStatus"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryLastRunStatus.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryLastRunStatus",
+                    "printedName": "Sentry.SentryLastRunStatus",
+                    "usr": "c:@M@Sentry@E@SentryLastRunStatus"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryLastRunStatus.Type) -> Sentry.SentryLastRunStatus"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A13LastRunStatusO8didCrashyA2CmF",
+            "moduleName": "Sentry",
+            "name": "didCrash",
+            "printedName": "didCrash",
+            "usr": "c:@M@Sentry@E@SentryLastRunStatus@SentryLastRunStatusDidCrash"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryLastRunStatus",
+                        "printedName": "Sentry.SentryLastRunStatus",
+                        "usr": "c:@M@Sentry@E@SentryLastRunStatus"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryLastRunStatus.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryLastRunStatus",
+                    "printedName": "Sentry.SentryLastRunStatus",
+                    "usr": "c:@M@Sentry@E@SentryLastRunStatus"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryLastRunStatus.Type) -> Sentry.SentryLastRunStatus"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A13LastRunStatusO11didNotCrashyA2CmF",
+            "moduleName": "Sentry",
+            "name": "didNotCrash",
+            "printedName": "didNotCrash",
+            "usr": "c:@M@Sentry@E@SentryLastRunStatus@SentryLastRunStatusDidNotCrash"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A13LastRunStatusO8rawValueSivg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A13LastRunStatusO8rawValueSivg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A13LastRunStatusO8rawValueSivp",
+            "moduleName": "Sentry",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "usr": "s:6Sentry0A13LastRunStatusO8rawValueSivp"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryLastRunStatus",
+                        "printedName": "Sentry.SentryLastRunStatus",
+                        "usr": "c:@M@Sentry@E@SentryLastRunStatus"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryLastRunStatus.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryLastRunStatus",
+                    "printedName": "Sentry.SentryLastRunStatus",
+                    "usr": "c:@M@Sentry@E@SentryLastRunStatus"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryLastRunStatus.Type) -> Sentry.SentryLastRunStatus"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A13LastRunStatusO7unknownyA2CmF",
+            "moduleName": "Sentry",
+            "name": "unknown",
+            "printedName": "unknown",
+            "usr": "c:@M@Sentry@E@SentryLastRunStatus@SentryLastRunStatusUnknown"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss23CustomStringConvertibleP",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "RawValue",
+                    "printedName": "Sentry.SentryLastRunStatus.RawValue"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$sSY",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "usr": "s:SY"
+          }
+        ],
+        "declAttributes": [
+          "ObjC"
+        ],
+        "declKind": "Enum",
+        "enumRawTypeName": "Int",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A13LastRunStatusO",
+        "moduleName": "Sentry",
+        "name": "SentryLastRunStatus",
+        "printedName": "SentryLastRunStatus",
+        "usr": "c:@M@Sentry@E@SentryLastRunStatus"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -51768,10 +52317,12 @@
               }
             ],
             "declAttributes": [
+              "Available",
               "Final",
               "ObjC"
             ],
             "declKind": "Var",
+            "deprecated": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A3SDKC14crashedLastRunSbvpZ",
             "moduleName": "Sentry",
@@ -51924,6 +52475,53 @@
             "printedName": "isEnabled",
             "static": true,
             "usr": "c:@M@Sentry@objc(cs)SentrySDK(cpy)isEnabled"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryLastRunStatus",
+                    "printedName": "Sentry.SentryLastRunStatus",
+                    "usr": "c:@M@Sentry@E@SentryLastRunStatus"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A3SDKC13lastRunStatusAA0a4LastdE0OvgZ",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)lastRunStatus"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryLastRunStatus",
+                "printedName": "Sentry.SentryLastRunStatus",
+                "usr": "c:@M@Sentry@E@SentryLastRunStatus"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A3SDKC13lastRunStatusAA0a4LastdE0OvpZ",
+            "moduleName": "Sentry",
+            "name": "lastRunStatus",
+            "printedName": "lastRunStatus",
+            "static": true,
+            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cpy)lastRunStatus"
           },
           {
             "accessors": [
