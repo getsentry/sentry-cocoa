@@ -140,7 +140,7 @@ static NSDate *_Nullable startTimestamp = nil;
     return fatalDetected;
 }
 
-+ (void)setFatalEventDetected:(BOOL)value
++ (void)setFatalDetected:(BOOL)value
 {
     fatalDetected = value;
 }

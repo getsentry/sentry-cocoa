@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `SentrySDK.lastRunStatus` to distinguish unknown, no-crash and crash (#7469)
+
 ## 9.7.0
 
 ### Features
@@ -10,8 +16,6 @@
 - Add package traits for UI framework opt-out (#7578).
   When building from source with Swift 6.1+ (using `Package@swift-6.1.swift`), you can enable the `NoUIFramework` trait to avoid linking UIKit or AppKit. Use this for command-line tools, headless server contexts, or other environments where UI frameworks are unavailable.
   In Xcode 26.4 and later, add the Sentry package as a dependency and the `SentrySPM` product, then enable the `NoUIFramework` trait on the package reference (Package Dependencies → select Sentry → Traits).
-  - Metric kit app hangs now report a full flamegraph rather than just one stacktrace during the hang. (#7185)
-- Add `SentrySDK.lastRunStatus` to distinguish unknown, no-crash and crash (#7469)
 - Metric kit app hangs now report a full flamegraph rather than just one stacktrace during the hang. (#7185)
 
 ### Fixes
