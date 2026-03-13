@@ -94,6 +94,13 @@ static BOOL appStartMeasurementRead;
     return measurement;
 }
 
++ (void)markAsRead
+{
+    @synchronized(appStartMeasurementLock) {
+        appStartMeasurementRead = YES;
+    }
+}
+
 + (void)reset
 {
     @synchronized(appStartMeasurementLock) {

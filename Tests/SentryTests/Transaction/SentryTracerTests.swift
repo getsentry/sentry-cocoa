@@ -3,7 +3,7 @@ import _SentryPrivate
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-// swiftlint:disable file_length
+// swiftlint:disable file_length type_body_length
 // We are aware that the tracer has a lot of logic and we should maybe
 // move some of it to other classes.
 class SentryTracerTests: XCTestCase {
@@ -957,11 +957,103 @@ class SentryTracerTests: XCTestCase {
     
     func testNoAppStartTransaction_AddsNoDebugMeta() {
         whenFinishingAutoUITransaction(startTimestamp: 5)
-        
+
         XCTAssertEqual(self.fixture.hub.capturedEventsWithScopes.count, 1)
         let serializedTransaction = fixture.hub.capturedEventsWithScopes.first?.event.serialize()
-        
+
         XCTAssertNil(serializedTransaction?["debug_meta"])
+    }
+
+    func testFinish_whenStandaloneAppStart_shouldUseConfigurationMeasurement() throws {
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
+
+        let context = TransactionContext(name: "App Start Cold", operation: fixture.appStartColdOperation)
+        let sut = fixture.hub.startTransaction(
+            with: context,
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: SentryTracerConfiguration(block: {
+                $0.appStartMeasurement = appStartMeasurement
+            })
+        )
+        sut.origin = SentryTraceOriginAutoAppStart
+        sut.finish()
+
+        // The global static must remain untouched.
+        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
+
+        let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
+
+        // Verify cold app start measurement is attached
+        try assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
+
+        // Standalone transactions have no intermediate grouping span, so 5 child spans
+        // (not 6) for a non-prewarmed cold start.
+        let spans = try XCTUnwrap(serializedTransaction["spans"] as? [[String: Any]])
+        XCTAssertEqual(spans.count, 5)
+
+        let spanDescriptions = spans.compactMap { $0["description"] as? String }
+        let spanOperations = spans.compactMap { $0["op"] as? String }
+
+        XCTAssertEqual(spanDescriptions, [
+            "Pre Runtime Init",
+            "Runtime Init to Pre Main Initializers",
+            "UIKit Init",
+            "Application Init",
+            "Initial Frame Render"
+        ])
+        XCTAssertEqual(Set(spanOperations), ["app.start.cold"])
+    }
+
+    func testFinish_whenBothConfigAndGlobalAppStartSet_shouldUseConfigAndMarkGlobalAsRead() throws {
+        // In practice only one of config or global should be set, never both. This test
+        // verifies that if both happen to be set, the config measurement wins and the
+        // global static is marked as read so no UIViewController transaction consumes it.
+        let globalMeasurement = fixture.getAppStartMeasurement(type: .warm)
+        SentrySDKInternal.setAppStartMeasurement(globalMeasurement)
+
+        let configMeasurement = fixture.getAppStartMeasurement(type: .cold)
+        let context = TransactionContext(name: "App Start Cold", operation: fixture.appStartColdOperation)
+        let sut = fixture.hub.startTransaction(
+            with: context,
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: SentryTracerConfiguration(block: {
+                $0.appStartMeasurement = configMeasurement
+            })
+        )
+        sut.origin = SentryTraceOriginAutoAppStart
+        sut.finish()
+
+        // The config measurement must be used (cold), verified via the transaction measurement key.
+        try assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
+
+        // A subsequent ui.load transaction must not get the app start measurement
+        // because the standalone transaction marked it as read.
+        whenFinishingAutoUITransaction(startTimestamp: 5)
+        let secondTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.last).event.serialize()
+        let measurements = secondTransaction["measurements"] as? [String: Any]
+        XCTAssertNil(measurements?["app_start_warm"])
+    }
+
+    func testFinish_whenStandaloneAppStartWithNilConfigMeasurement_shouldNotAddAppStartSpans() throws {
+        let context = TransactionContext(name: "App Start Cold", operation: fixture.appStartColdOperation)
+        // No appStartMeasurement set on the configuration.
+        let sut = fixture.hub.startTransaction(
+            with: context,
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: SentryTracerConfiguration.`default`
+        )
+        sut.origin = SentryTraceOriginAutoAppStart
+        sut.finish()
+
+        let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
+        let spans = try XCTUnwrap(serializedTransaction["spans"] as? [[String: Any]])
+        XCTAssertTrue(spans.isEmpty, "Standalone transaction with nil config measurement should have no app start spans")
+
+        let measurements = serializedTransaction["measurements"] as? [String: Any]
+        XCTAssertNil(measurements?["app_start_cold"], "Should not have app start measurement")
     }
 
 #endif // os(iOS) || os(tvOS)

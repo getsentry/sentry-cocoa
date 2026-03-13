@@ -596,9 +596,22 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
         [super finishWithStatus:_finishStatus];
     }
 #if SENTRY_HAS_UIKIT
-    appStartMeasurement =
-        [SentryAppStartMeasurementProvider appStartMeasurementForOperation:self.operation
-                                                            startTimestamp:self.startTimestamp];
+    // Standalone app start transactions carry their measurement directly in the configuration,
+    // bypassing the global static in SentryAppStartMeasurementProvider. The main advantage is
+    // avoiding a race condition between the app start tracker producing the measurement and
+    // the first UIViewController transaction consuming it. We don't change the existing
+    // UIViewController/AppStart path below because it's bulletproof and we'll likely remove
+    // it once standalone app start tracing is stable.
+    if ([self isStandaloneAppStartTransaction] && _configuration.appStartMeasurement != nil) {
+        appStartMeasurement = _configuration.appStartMeasurement;
+        // Safeguard: this shouldn't normally happen, but mark as read so no UIViewController
+        // transaction picks up the global static too.
+        [SentryAppStartMeasurementProvider markAsRead];
+    } else {
+        appStartMeasurement =
+            [SentryAppStartMeasurementProvider appStartMeasurementForOperation:self.operation
+                                                                startTimestamp:self.startTimestamp];
+    }
 
     if (appStartMeasurement != nil) {
         [self updateStartTime:appStartMeasurement.appStartTimestamp];
@@ -706,7 +719,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #if SENTRY_HAS_UIKIT
     [self addFrameStatistics];
 
-    NSArray<id<SentrySpan>> *appStartSpans = sentryBuildAppStartSpans(self, appStartMeasurement);
+    NSArray<id<SentrySpan>> *appStartSpans = [self isStandaloneAppStartTransaction]
+        ? sentryBuildStandaloneAppStartSpans(self, appStartMeasurement)
+        : sentryBuildAppStartSpans(self, appStartMeasurement);
     capacity = _children.count + appStartSpans.count;
 #else
     capacity = _children.count;
@@ -757,6 +772,13 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 }
 
 #if SENTRY_HAS_UIKIT
+
+- (BOOL)isStandaloneAppStartTransaction
+{
+    return [StandaloneAppStartTransactionHelper
+        isStandaloneAppStartTransactionWithOperation:self.operation
+                                              origin:self.origin];
+}
 
 - (void)addAppStartMeasurements:(SentryTransaction *)transaction
 {

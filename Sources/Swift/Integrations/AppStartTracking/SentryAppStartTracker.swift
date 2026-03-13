@@ -33,6 +33,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     let appStateManager: SentryAppStateManager
     private let framesTracker: SentryFramesTracker
     private let enablePreWarmedAppStartTracing: Bool
+    private let reportingStrategy: AppStartReportingStrategy
 
     private var previousAppState: SentryAppState?
     private var wasInBackground = false
@@ -52,6 +53,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         appStateManager: SentryAppStateManager,
         framesTracker: SentryFramesTracker,
         enablePreWarmedAppStartTracing: Bool,
+        enableStandaloneAppStartTracing: Bool,
         dateProvider: SentryCurrentDateProvider,
         sysctlWrapper: SentrySysctl,
         appStartInfoProvider: AppStartInfoProvider
@@ -60,6 +62,9 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         self.appStateManager = appStateManager
         self.framesTracker = framesTracker
         self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
+        self.reportingStrategy = enableStandaloneAppStartTracing
+            ? StandaloneTransactionStrategy()
+            : AttachToTransactionStrategy()
         self.previousAppState = appStateManager.loadPreviousAppState()
         self.dateProvider = dateProvider
         self.didFinishLaunchingTimestamp = dateProvider.date()
@@ -230,7 +235,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
                 didFinishLaunchingTimestamp: finalDidFinishLaunchingTimestamp
             )
 
-            SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
+            self.reportingStrategy.report(appStartMeasurement)
         }
 
         // With only running this once we know that the process is a new one when the following

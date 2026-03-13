@@ -2,6 +2,7 @@
 import XCTest
 
 #if canImport(UIKit) && !os(watchOS)
+// swiftlint:disable file_length type_body_length function_body_length
 class SentryBuildAppStartSpansTests: XCTestCase {
 
     func testSentryBuildAppStartSpans_appStartMeasurementIsNil_shouldNotReturnAnySpans() {
@@ -14,6 +15,35 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         let result = sentryBuildAppStartSpans(tracer, appStartMeasurement)
 
         // Assert
+        XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
+    }
+
+    func testBuildStandaloneAppStartSpans_whenMeasurementIsNil_shouldNotReturnAnySpans() {
+        let context = SpanContext(operation: "operation")
+        let tracer = SentryTracer(context: context, framesTracker: nil)
+
+        let result = sentryBuildStandaloneAppStartSpans(tracer, nil)
+
+        XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
+    }
+
+    func testBuildStandaloneAppStartSpans_whenUnknownType_shouldNotReturnAnySpans() {
+        let context = SpanContext(operation: "operation")
+        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let appStartMeasurement = SentryAppStartMeasurement(
+            type: SentryAppStartType.unknown,
+            isPreWarmed: false,
+            appStartTimestamp: Date(timeIntervalSince1970: 1_000),
+            runtimeInitSystemTimestamp: 1_100,
+            duration: 1_200,
+            runtimeInitTimestamp: Date(timeIntervalSince1970: 1_300),
+            moduleInitializationTimestamp: Date(timeIntervalSince1970: 1_400),
+            sdkStartTimestamp: Date(timeIntervalSince1970: 1_500),
+            didFinishLaunchingTimestamp: Date(timeIntervalSince1970: 1_600)
+        )
+
+        let result = sentryBuildStandaloneAppStartSpans(tracer, appStartMeasurement)
+
         XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
     }
 
@@ -198,6 +228,132 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             span: result[5],
             expectedTraceId: tracer.traceId.sentryIdString,
             expectedParentSpanId: result[0].spanId.sentrySpanIdString,
+            expectedOperation: "app.start.warm",
+            expectedDescription: "Initial Frame Render",
+            expectedStartTimestamp: Date(timeIntervalSince1970: 1_600),
+            expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
+            expectedSampled: tracer.sampled
+        )
+    }
+
+    func testBuildStandaloneAppStartSpans_whenColdNotPrewarmed_shouldNotIncludeGroupingSpan() {
+        // Arrange
+        let context = SpanContext(operation: "operation")
+        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let appStartMeasurement = SentryAppStartMeasurement(
+            type: SentryAppStartType.cold,
+            isPreWarmed: false,
+            appStartTimestamp: Date(timeIntervalSince1970: 1_000),
+            runtimeInitSystemTimestamp: 1_100,
+            duration: 935,
+            runtimeInitTimestamp: Date(timeIntervalSince1970: 1_300),
+            moduleInitializationTimestamp: Date(timeIntervalSince1970: 1_400),
+            sdkStartTimestamp: Date(timeIntervalSince1970: 1_500),
+            didFinishLaunchingTimestamp: Date(timeIntervalSince1970: 1_600)
+        )
+
+        // Act
+        let result = sentryBuildStandaloneAppStartSpans(tracer, appStartMeasurement)
+
+        // Assert — no intermediate "Cold Start" span, all 5 children parent to tracer
+        XCTAssertEqual(result.count, 5, "Number of spans do not match")
+        assertSpan(
+            span: result[0],
+            expectedTraceId: tracer.traceId.sentryIdString,
+            expectedParentSpanId: tracer.spanId.sentrySpanIdString,
+            expectedOperation: "app.start.cold",
+            expectedDescription: "Pre Runtime Init",
+            expectedStartTimestamp: Date(timeIntervalSince1970: 1_000),
+            expectedEndTimestamp: Date(timeIntervalSince1970: 1_300),
+            expectedSampled: tracer.sampled
+        )
+        assertSpan(
+            span: result[1],
+            expectedTraceId: tracer.traceId.sentryIdString,
+            expectedParentSpanId: tracer.spanId.sentrySpanIdString,
+            expectedOperation: "app.start.cold",
+            expectedDescription: "Runtime Init to Pre Main Initializers",
+            expectedStartTimestamp: Date(timeIntervalSince1970: 1_300),
+            expectedEndTimestamp: Date(timeIntervalSince1970: 1_400),
+            expectedSampled: tracer.sampled
+        )
+        assertSpan(
+            span: result[2],
+            expectedTraceId: tracer.traceId.sentryIdString,
+            expectedParentSpanId: tracer.spanId.sentrySpanIdString,
+            expectedOperation: "app.start.cold",
+            expectedDescription: "UIKit Init",
+            expectedStartTimestamp: Date(timeIntervalSince1970: 1_400),
+            expectedEndTimestamp: Date(timeIntervalSince1970: 1_500),
+            expectedSampled: tracer.sampled
+        )
+        assertSpan(
+            span: result[3],
+            expectedTraceId: tracer.traceId.sentryIdString,
+            expectedParentSpanId: tracer.spanId.sentrySpanIdString,
+            expectedOperation: "app.start.cold",
+            expectedDescription: "Application Init",
+            expectedStartTimestamp: Date(timeIntervalSince1970: 1_500),
+            expectedEndTimestamp: Date(timeIntervalSince1970: 1_600),
+            expectedSampled: tracer.sampled
+        )
+        assertSpan(
+            span: result[4],
+            expectedTraceId: tracer.traceId.sentryIdString,
+            expectedParentSpanId: tracer.spanId.sentrySpanIdString,
+            expectedOperation: "app.start.cold",
+            expectedDescription: "Initial Frame Render",
+            expectedStartTimestamp: Date(timeIntervalSince1970: 1_600),
+            expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
+            expectedSampled: tracer.sampled
+        )
+    }
+
+    func testBuildStandaloneAppStartSpans_whenPrewarmed_shouldNotIncludeGroupingSpan() {
+        // Arrange
+        let context = SpanContext(operation: "operation")
+        let tracer = SentryTracer(context: context, framesTracker: nil)
+        let appStartMeasurement = SentryAppStartMeasurement(
+            type: SentryAppStartType.warm,
+            isPreWarmed: true,
+            appStartTimestamp: Date(timeIntervalSince1970: 1_000),
+            runtimeInitSystemTimestamp: 1_100,
+            duration: 935,
+            runtimeInitTimestamp: Date(timeIntervalSince1970: 1_300),
+            moduleInitializationTimestamp: Date(timeIntervalSince1970: 1_400),
+            sdkStartTimestamp: Date(timeIntervalSince1970: 1_500),
+            didFinishLaunchingTimestamp: Date(timeIntervalSince1970: 1_600)
+        )
+
+        // Act
+        let result = sentryBuildStandaloneAppStartSpans(tracer, appStartMeasurement)
+
+        // Assert — no grouping span, no pre-runtime spans, all 3 children parent to tracer
+        XCTAssertEqual(result.count, 3, "Number of spans do not match")
+        assertSpan(
+            span: result[0],
+            expectedTraceId: tracer.traceId.sentryIdString,
+            expectedParentSpanId: tracer.spanId.sentrySpanIdString,
+            expectedOperation: "app.start.warm",
+            expectedDescription: "UIKit Init",
+            expectedStartTimestamp: Date(timeIntervalSince1970: 1_400),
+            expectedEndTimestamp: Date(timeIntervalSince1970: 1_500),
+            expectedSampled: tracer.sampled
+        )
+        assertSpan(
+            span: result[1],
+            expectedTraceId: tracer.traceId.sentryIdString,
+            expectedParentSpanId: tracer.spanId.sentrySpanIdString,
+            expectedOperation: "app.start.warm",
+            expectedDescription: "Application Init",
+            expectedStartTimestamp: Date(timeIntervalSince1970: 1_500),
+            expectedEndTimestamp: Date(timeIntervalSince1970: 1_600),
+            expectedSampled: tracer.sampled
+        )
+        assertSpan(
+            span: result[2],
+            expectedTraceId: tracer.traceId.sentryIdString,
+            expectedParentSpanId: tracer.spanId.sentrySpanIdString,
             expectedOperation: "app.start.warm",
             expectedDescription: "Initial Frame Render",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_600),
