@@ -1,0 +1,4 @@
+module SentryObjC {
+    umbrella header "SentryObjC.h"
+    export *
+}

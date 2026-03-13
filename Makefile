@@ -230,6 +230,7 @@ build-xcframework-sample:
 build-samples: \
 	build-sample-DistributionSample \
 	build-sample-iOS-ObjectiveC \
+	build-sample-iOS-ObjectiveCpp-NoModules \
 	build-sample-iOS-Swift \
 	build-sample-iOS-Swift6 \
 	build-sample-iOS-SwiftUI \
@@ -324,9 +325,8 @@ build-sample-visionOS-SwiftUI-SPM:
 
 ## Build the iOS-ObjectiveCpp-NoModules sample app
 #
-# Builds the ObjC++ without-modules sample that reproduces #4543.
-# This target is expected to FAIL until the pure ObjC SDK wrapper (#6342)
-# is implemented. Use it to verify the fix.
+# Builds the ObjC++ without-modules sample that uses SentryObjC (#6342).
+# Uses #import <SentryObjC/SentryObjC.h> for ObjC++ without -fmodules.
 .PHONY: build-sample-iOS-ObjectiveCpp-NoModules
 build-sample-iOS-ObjectiveCpp-NoModules:
 	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
