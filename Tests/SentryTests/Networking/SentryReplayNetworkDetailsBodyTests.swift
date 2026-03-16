@@ -297,4 +297,63 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         let bodyString = result?["body"] as? String
         XCTAssertTrue(bodyString?.hasPrefix("[Body not captured") == true)
     }
+
+    // MARK: - parseMimeAndEncoding
+
+    func testParseMimeAndEncoding_shouldHandleEdgeCases() {
+        // nil → nil mime, UTF-8 default
+        let (nilMime, nilEnc) = Body.parseMimeAndEncoding(from: nil)
+        XCTAssertNil(nilMime)
+        XCTAssertEqual(nilEnc, .utf8)
+
+        // No charset → mime only, UTF-8 default
+        let (jsonMime, jsonEnc) = Body.parseMimeAndEncoding(from: "application/json")
+        XCTAssertEqual(jsonMime, "application/json")
+        XCTAssertEqual(jsonEnc, .utf8)
+
+        // Standard format with spaces
+        let (stdMime, stdEnc) = Body.parseMimeAndEncoding(from: "text/html; charset=utf-8")
+        XCTAssertEqual(stdMime, "text/html")
+        XCTAssertEqual(stdEnc, .utf8)
+
+        // No spaces around semicolon
+        let (noSpMime, noSpEnc) = Body.parseMimeAndEncoding(from: "text/html;charset=UTF-8")
+        XCTAssertEqual(noSpMime, "text/html")
+        XCTAssertEqual(noSpEnc, .utf8)
+
+        // Quoted charset value
+        let (qMime, qEnc) = Body.parseMimeAndEncoding(from: "text/html; charset=\"utf-8\"")
+        XCTAssertEqual(qMime, "text/html")
+        XCTAssertEqual(qEnc, .utf8)
+
+        // ISO-8859-1 charset
+        let (isoMime, isoEnc) = Body.parseMimeAndEncoding(from: "text/html; charset=iso-8859-1")
+        XCTAssertEqual(isoMime, "text/html")
+        XCTAssertEqual(isoEnc, .isoLatin1)
+
+        // Non-charset parameter only → UTF-8 default
+        let (mpMime, mpEnc) = Body.parseMimeAndEncoding(from: "multipart/form-data; boundary=----WebKitFormBoundary")
+        XCTAssertEqual(mpMime, "multipart/form-data")
+        XCTAssertEqual(mpEnc, .utf8)
+
+        // Multiple params — charset extracted correctly
+        let (multiMime, multiEnc) = Body.parseMimeAndEncoding(from: "application/json; charset=utf-8; boundary=something")
+        XCTAssertEqual(multiMime, "application/json")
+        XCTAssertEqual(multiEnc, .utf8)
+
+        // Completely malformed → returned as-is, UTF-8 default
+        let (badMime, badEnc) = Body.parseMimeAndEncoding(from: "totally-not-a-content-type")
+        XCTAssertEqual(badMime, "totally-not-a-content-type")
+        XCTAssertEqual(badEnc, .utf8)
+
+        // Unrecognized charset name → UTF-8 fallback
+        let (unkMime, unkEnc) = Body.parseMimeAndEncoding(from: "text/html; charset=made-up-encoding")
+        XCTAssertEqual(unkMime, "text/html")
+        XCTAssertEqual(unkEnc, .utf8)
+
+        // Empty string → nil mime, UTF-8 default
+        let (emptyMime, emptyEnc) = Body.parseMimeAndEncoding(from: "")
+        XCTAssertNil(emptyMime)
+        XCTAssertEqual(emptyEnc, .utf8)
+    }
 }

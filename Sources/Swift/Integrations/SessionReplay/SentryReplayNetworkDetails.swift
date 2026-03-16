@@ -66,15 +66,12 @@ enum NetworkBodyWarning: String {
             let slice = data.prefix(limit)
 
             var warnings = [NetworkBodyWarning]()
-            // Strip MIME parameters (e.g. "; charset=utf-8") — UTType doesn't handle them.
-            let mimeType = contentType.flatMap {
-                $0.split(separator: ";").first.map { String($0).trimmingCharacters(in: .whitespaces).lowercased() }
-            }
+            let (mimeType, encoding) = Body.parseMimeAndEncoding(from: contentType)
 
             if mimeType == "application/x-www-form-urlencoded" {
                 if isTruncated { warnings.append(.textTruncated) }
-                self = Body.parseFormEncoded(slice, warnings: &warnings)
-            } else if #available(macOS 11, *), let parsed = Body.parseByMimeType(mimeType, data: slice, isTruncated: isTruncated, warnings: &warnings) {
+                self = Body.parseFormEncoded(slice, encoding: encoding, warnings: &warnings)
+            } else if #available(macOS 11, *), let parsed = Body.parseByMimeType(mimeType, data: slice, encoding: encoding, isTruncated: isTruncated, warnings: &warnings) {
                 self = parsed
             } else {
                 let description = "[Body not captured: contentType=\(contentType ?? "unknown") (\(data.count) bytes)]"
@@ -84,11 +81,48 @@ enum NetworkBodyWarning: String {
 
         // MARK: - Private Parsing
 
+        /// Extracts MIME type and string encoding from a Content-Type header value.
+        ///
+        /// Returns `.utf8` when the charset parameter is missing or unrecognized.
+        ///
+        /// Examples:
+        /// - `"application/json"` → `("application/json", .utf8)`
+        /// - `"text/html; charset=iso-8859-1"` → `("text/html", .isoLatin1)`
+        /// - `nil` → `(nil, .utf8)`
+        static func parseMimeAndEncoding(from contentType: String?) -> (mimeType: String?, encoding: String.Encoding) {
+            guard let contentType else { return (nil, .utf8) }
+
+            let parts = contentType.split(separator: ";")
+            let mimeType = parts.first.map { String($0).trimmingCharacters(in: .whitespaces).lowercased() }
+
+            var encoding: String.Encoding = .utf8
+            for part in parts.dropFirst() {
+                let trimmed = part.trimmingCharacters(in: .whitespaces)
+                guard trimmed.lowercased().hasPrefix("charset=") else { continue }
+                let charsetValue = String(trimmed.dropFirst("charset=".count))
+                    .trimmingCharacters(in: .whitespaces)
+                    .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                encoding = stringEncoding(fromCharset: charsetValue)
+                break
+            }
+            return (mimeType, encoding)
+        }
+
+        /// Converts an IANA charset name to a `String.Encoding`.
+        ///
+        /// Returns `.utf8` for unrecognized or empty charset names.
+        private static func stringEncoding(fromCharset charset: String) -> String.Encoding {
+            guard !charset.isEmpty else { return .utf8 }
+            let cfEncoding = CFStringConvertIANACharSetNameToEncoding(charset as CFString)
+            guard cfEncoding != kCFStringEncodingInvalidId else { return .utf8 }
+            return String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(cfEncoding))
+        }
+
         /// Uses UTType to detect JSON/text content types. Returns nil for
         /// unrecognized types so the caller can fall through to a placeholder.
         /// UTType requires macOS 11+;  so this will not compile there.
         @available(macOS 11, *)
-        private static func parseByMimeType(_ mimeType: String?, data: Data, isTruncated: Bool, warnings: inout [NetworkBodyWarning]) -> Body? {
+        private static func parseByMimeType(_ mimeType: String?, data: Data, encoding: String.Encoding, isTruncated: Bool, warnings: inout [NetworkBodyWarning]) -> Body? {
             guard let utType = mimeType.flatMap({ UTType(mimeType: $0) }) else {
                 return nil
             }
@@ -98,7 +132,7 @@ enum NetworkBodyWarning: String {
             }
             if utType.conforms(to: .text) {
                 if isTruncated { warnings.append(.textTruncated) }
-                return parseText(data, warnings: &warnings)
+                return parseText(data, encoding: encoding, warnings: &warnings)
             }
             return nil
         }
@@ -113,12 +147,12 @@ enum NetworkBodyWarning: String {
             }
         }
 
-        private static func parseFormEncoded(_ data: Data, warnings: inout [NetworkBodyWarning]) -> Body {
-            guard let string = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .isoLatin1),
+        private static func parseFormEncoded(_ data: Data, encoding: String.Encoding, warnings: inout [NetworkBodyWarning]) -> Body {
+            guard let string = String(data: data, encoding: encoding) ?? String(data: data, encoding: .utf8),
                   let components = URLComponents(string: "http://x?" + string),
                   let items = components.queryItems else {
                 warnings.append(.bodyParseError)
-                return parseText(data, warnings: &warnings)
+                return parseText(data, encoding: encoding, warnings: &warnings)
             }
 
             var formData = [String: String]()
@@ -128,8 +162,8 @@ enum NetworkBodyWarning: String {
             return Body(content: formData, warnings: warnings)
         }
 
-        private static func parseText(_ data: Data, warnings: inout [NetworkBodyWarning]) -> Body {
-            if let string = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .isoLatin1) {
+        private static func parseText(_ data: Data, encoding: String.Encoding = .utf8, warnings: inout [NetworkBodyWarning]) -> Body {
+            if let string = String(data: data, encoding: encoding) ?? String(data: data, encoding: .utf8) {
                 return Body(content: string, warnings: warnings)
             }
             warnings.append(.bodyParseError)
