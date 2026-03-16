@@ -197,8 +197,10 @@ enum NetworkBodyWarning: String {
 
     // MARK: - Constants
 
-    /// Maximum body size in bytes before truncation (150KB).
-    static let maxBodySize = 150 * 1_024
+    /// Maximum body size in bytes before truncation.
+    /// Mirrors `NETWORK_BODY_MAX_SIZE` from sentry-javascript's replay-internal:
+    /// https://github.com/getsentry/sentry-javascript/blob/399cc859ce250ba5db3656685bd05794f571bee5/packages/replay-internal/src/constants.ts#L33
+    static let maxBodySize = 150_000
 
     /// Key used to store network details in breadcrumb data dictionary.
     @objc public static let replayNetworkDetailsKey = "_networkDetails"
