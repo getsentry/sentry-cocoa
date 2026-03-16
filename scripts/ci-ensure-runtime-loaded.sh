@@ -49,8 +49,12 @@ fi
 
 echo "Ensuring runtime $PLATFORM ($OS_VERSION) is loaded"
 
+# Match the exact version in parentheses, e.g., "iOS 26.3 (26.3 -" or
+# "iOS 26.3 (26.3.1 -". The "- " after the version ensures an exact match.
+RUNTIME_PATTERN="$PLATFORM.*\($OS_VERSION -"
+
 # Check if the runtime is loaded
-if xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION" && ! xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION.*unavailable" ; then
+if xcrun simctl list runtimes -v | grep -qE "$RUNTIME_PATTERN" && ! xcrun simctl list runtimes -v | grep -qE "$RUNTIME_PATTERN.*unavailable" ; then
     echo "Runtime $OS_VERSION is loaded"
     exit 0
 fi
@@ -69,7 +73,7 @@ sudo pkill -9 com.apple.CoreSimulator.CoreSimulatorService || true
 count=0
 MAX_ATTEMPTS=60 # 300 seconds (5 minutes) timeout
 while [ $count -lt $MAX_ATTEMPTS ]; do
-    if xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION" && ! xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION.*unavailable"; then
+    if xcrun simctl list runtimes -v | grep -qE "$RUNTIME_PATTERN" && ! xcrun simctl list runtimes -v | grep -qE "$RUNTIME_PATTERN.*unavailable"; then
         echo "Runtime $OS_VERSION is loaded after $count attempts"
         exit 0
     fi
