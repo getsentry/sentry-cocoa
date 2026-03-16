@@ -6,6 +6,10 @@
 
 - Add `SentrySDK.lastRunStatus` to distinguish unknown, no-crash and crash (#7469)
 
+### Fixes
+
+- Detect development builds via provisioning profile entitlement #(7702)
+
 ## 9.7.0
 
 ### Features
