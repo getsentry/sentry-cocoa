@@ -311,8 +311,8 @@ jobs:
           # macOS 26
           - name: macOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.2"
-            test-destination-os: "26.2"
+            xcode: "26.3"
+            test-destination-os: "26.3"
             platform: "macOS"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
@@ -353,16 +353,16 @@ jobs:
           # tvOS 26
           - name: tvOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.2"
-            test-destination-os: "26.2"
+            xcode: "26.3"
+            test-destination-os: "26.3"
             platform: "tvOS"
             device: "Apple TV"
 
           # visionOS 26
           - name: visionOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.2"
-            test-destination-os: "26.2"
+            xcode: "26.3"
+            test-destination-os: "26.3"
             platform: "visionOS"
             device: "Apple Vision Pro"
             timeout: 30
