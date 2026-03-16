@@ -286,7 +286,7 @@ jobs:
           - name: iOS 26 Sentry
             runs-on: tahoe
             xcode: "26.3"
-            test-destination-os: "26.3"
+            test-destination-os: "26.3.1"
             platform: "iOS"
             device: "iPhone 17 Pro"
 
