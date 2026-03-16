@@ -573,7 +573,9 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 }
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-// Store extracted network details data for session replay.
+// Associated object key for attaching SentryReplayNetworkDetails to each NSURLSessionTask.
+// Safe: setAssociatedObject follows existing patterns in urlSessionTask:setState:
+// and getAssociatedObject is called from blocks that hold a strong reference to the task.
 static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
 
 - (BOOL)isNetworkDetailCaptureEnabledFor:(NSString *)urlString options:(SentryOptions *)options
