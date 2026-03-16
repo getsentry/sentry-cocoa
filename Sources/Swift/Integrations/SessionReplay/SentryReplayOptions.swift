@@ -332,33 +332,10 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * ]
      * ```
      *
-     * ```objc
-     * // Objective-C usage
-     * NSRegularExpression *apiRegex =
-     *     [NSRegularExpression regularExpressionWithPattern:@"^https://api\\.example\\.com/v[0-9]+/.*"
-     *                                              options:0
-     *                                                error:nil];
-     *
-     * // Mixed array of NSString and NSRegularExpression
-     * options.sessionReplay.networkDetailAllowUrls = @[
-     *     @"api.example.com",              // NSString: substring match
-     *     @"/api/v1/",                     // NSString: path match
-     *     apiRegex                         // NSRegularExpression: regex match
-     * ];
-     * ```
-     *
      * - Note: Request and response bodies are truncated to 150KB maximum.
      * - Note: See ``SentryReplayOptions.DefaultValues.networkDetailAllowUrls`` for the default value.
      */
     public var networkDetailAllowUrls: [SentryUrlMatchable]
-    
-    /// Objective-C bridge for networkDetailAllowUrls.
-    /// - Warning: This property exists for Objective-C compatibility only. Swift code should use
-    ///            `networkDetailAllowUrls` directly.
-    @objc(networkDetailAllowUrls) public var networkDetailAllowUrlsForObjC: NSArray {
-        get { return networkDetailAllowUrls as NSArray }
-        set { networkDetailAllowUrls = SentryUrlMatcher.convertFromAny(newValue as? [Any]) ?? [] }
-    }
 
     /**
      * A list of URL patterns to exclude from network detail capture during session replay.
@@ -377,24 +354,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - String patterns: "/auth/", "/payment/", "password", ".internal."
      * - NSRegularExpression patterns: Use try NSRegularExpression(pattern:) to create regex objects
      * - Mixed arrays are supported with both types
-     *
-     * ```objc
-     * // Objective-C usage
-     * options.sessionReplay.networkDetailDenyUrls = @[
-     *     @"/auth/",                       // NSString: substring match
-     *     @"/payment/"                     // NSString: substring match
-     * ];
-     * ```
      */
     public var networkDetailDenyUrls: [SentryUrlMatchable]
-    
-    /// Objective-C bridge for networkDetailDenyUrls.
-    /// - Warning: This property exists for Objective-C compatibility only. Swift code should use
-    ///            `networkDetailDenyUrls` directly.
-    @objc(networkDetailDenyUrls) public var networkDetailDenyUrlsForObjC: NSArray {
-        get { return networkDetailDenyUrls as NSArray }
-        set { networkDetailDenyUrls = SentryUrlMatcher.convertFromAny(newValue as? [Any]) ?? [] }
-    }
 
     /**
      * Whether to capture request and response bodies for allowed URLs.
@@ -521,6 +482,16 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - Note: See ``SentryReplayOptions.DefaultValues.sdkInfo`` for the default value.
      */
     var sdkInfo: [String: Any]?
+
+    /**
+     * Whether network detail capture has any allowed URL patterns configured.
+     *
+     * - Returns: `true` if `networkDetailAllowUrls` is non-empty, `false` otherwise.
+     */
+    @objc
+    public var networkDetailHasUrls: Bool {
+        !networkDetailAllowUrls.isEmpty
+    }
 
     /**
      * Determines if network detail capture is enabled for a given URL.
