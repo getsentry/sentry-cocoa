@@ -6,6 +6,16 @@
 
 - Add `SentrySDK.lastRunStatus` to distinguish unknown, no-crash and crash (#7469)
 
+### Improvements
+
+- Align app lifecycle breadcrumb `state` values with `in_foreground`/`is_active` app context (#7703)
+  - **Breaking**: Update any `beforeBreadcrumb` filters or dashboard queries matching on the old `state` values:
+    - iOS/tvOS/visionOS
+      - `didBecomeActive` state changed from `foreground` to `active`
+    - macOS
+      - `didBecomeActive` state changed from `foreground` to `active`
+      - `willResignActive` state changed from `background` to `inactive`
+
 ### Fixes
 
 - Make SentryBreadcrumb thread-safe to prevent crashes in addBreadcrumb ([#7665](https://github.com/getsentry/sentry-cocoa/pull/7665))
