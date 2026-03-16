@@ -117,6 +117,7 @@ make test-ios ONLY_TESTING=<AffectedTestClass>
 
 # 5. If samples changed
 make build-sample-iOS-Swift
+make test-sample-iOS-Swift-ui  # if UI behavior changed
 ```
 
 ### Platform Decision Tree
