@@ -129,11 +129,12 @@ NS_ASSUME_NONNULL_BEGIN
             void (^wrappedHandler)(NSData *, NSURLResponse *, NSError *) = nil;
             if (completionHandler) {
                 wrappedHandler = ^(NSData *data, NSURLResponse *response, NSError *error) {
-                    if (!error && data && task) {
+                    NSURLRequest *capturedRequest = task.currentRequest ?: task.originalRequest;
+                    if (!error && data && task && capturedRequest) {
                         [networkTracker captureResponseDetails:data
-                                                     response:response
-                                                      request:request
-                                                         task:task];
+                                                      response:response
+                                                       request:capturedRequest
+                                                          task:task];
                     }
                     completionHandler(data, response, error);
                 };
@@ -158,16 +159,16 @@ NS_ASSUME_NONNULL_BEGIN
         SentrySWArguments(
             NSURL * url, void (^completionHandler)(NSData *, NSURLResponse *, NSError *)),
         SentrySWReplacement({
-            NSURLRequest *request = [NSURLRequest requestWithURL:url];
             __block NSURLSessionDataTask *task = nil;
             void (^wrappedHandler)(NSData *, NSURLResponse *, NSError *) = nil;
             if (completionHandler) {
                 wrappedHandler = ^(NSData *data, NSURLResponse *response, NSError *error) {
-                    if (!error && data && task) {
+                    NSURLRequest *capturedRequest = task.currentRequest ?: task.originalRequest;
+                    if (!error && data && task && capturedRequest) {
                         [networkTracker captureResponseDetails:data
-                                                     response:response
-                                                      request:request
-                                                         task:task];
+                                                      response:response
+                                                       request:capturedRequest
+                                                          task:task];
                     }
                     completionHandler(data, response, error);
                 };
