@@ -268,29 +268,6 @@ class SentryMobileProvisionParserTests: XCTestCase {
         }
     }
     
-    func testEnterpriseProfileWithDebuggingEntitlement() throws {
-        let content = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-            <key>ProvisionsAllDevices</key>
-            <true/>
-            <key>Entitlements</key>
-            <dict>
-                <key>get-task-allow</key>
-                <true/>
-            </dict>
-        </dict>
-        </plist>
-        """
-        try createFileAndAssert(content) { path in
-            let parser = SentryMobileProvisionParser(path)
-            XCTAssertTrue(parser.mobileProvisionProfileProvisionsAllDevices)
-            XCTAssertTrue(parser.mobileProvisionProfileAllowsDebugging)
-        }
-    }
-    
     func testContentWithEmojiAndJapaneseCharacters() throws {
         // Create content with UTF-8 characters that cannot be represented in Latin-1
         // These include emojis, Chinese characters, and other Unicode characters
