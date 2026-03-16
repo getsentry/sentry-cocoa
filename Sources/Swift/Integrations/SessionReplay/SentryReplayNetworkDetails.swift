@@ -89,11 +89,14 @@ enum NetworkBodyWarning: String {
         /// UTType requires macOS 11+;  so this will not compile there.
         @available(macOS 11, *)
         private static func parseByMimeType(_ mimeType: String?, data: Data, isTruncated: Bool, warnings: inout [NetworkBodyWarning]) -> Body? {
-            let utType = mimeType.flatMap { UTType(mimeType: $0) }
-            if let utType, utType.conforms(to: .json) {
+            guard let utType = mimeType.flatMap({ UTType(mimeType: $0) }) else {
+                return nil
+            }
+            if utType.conforms(to: .json) {
                 if isTruncated { warnings.append(.jsonTruncated) }
                 return parseJSON(data, warnings: &warnings)
-            } else if utType?.conforms(to: .text) == true {
+            }
+            if utType.conforms(to: .text) {
                 if isTruncated { warnings.append(.textTruncated) }
                 return parseText(data, warnings: &warnings)
             }
