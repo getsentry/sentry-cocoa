@@ -104,7 +104,7 @@ resolve_runtime_version() {
     local os="$2"
     local resolved
     resolved=$(xcrun simctl list runtimes -v | \
-        awk -v p="$platform" -v v="$os" '$0 ~ p " " v " \\(" { match($0, /\(([0-9.]+) -/, a); print a[1]; exit }')
+        grep -E "$platform $os " | sed -n 's/.*(\([0-9.]*\) -.*/\1/p' | head -n1)
     if [ -n "$resolved" ]; then
         echo "$resolved"
     else
