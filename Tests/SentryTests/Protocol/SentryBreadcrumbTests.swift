@@ -209,7 +209,9 @@ class SentryBreadcrumbTests: XCTestCase {
     }
 
     func testSerialize_whenDataContainsConcurrentlyMutatedNestedDict_shouldNotCrash() {
-        let nestedMutable = NSMutableDictionary()
+        // nonisolated(unsafe) silences the Sendable warning — this test intentionally
+        // mutates the dictionary from multiple threads to verify deep-copy safety.
+        nonisolated(unsafe) let nestedMutable = NSMutableDictionary()
         for i in 0..<50 {
             nestedMutable["key\(i)"] = "value\(i)"
         }
@@ -244,7 +246,9 @@ class SentryBreadcrumbTests: XCTestCase {
     }
 
     func testSerialize_whenDataContainsConcurrentlyMutatedArray_shouldNotCrash() {
-        let mutableArray = NSMutableArray()
+        // nonisolated(unsafe) silences the Sendable warning — this test intentionally
+        // mutates the array from multiple threads to verify deep-copy safety.
+        nonisolated(unsafe) let mutableArray = NSMutableArray()
         for i in 0..<50 {
             mutableArray.add("item\(i)")
         }
