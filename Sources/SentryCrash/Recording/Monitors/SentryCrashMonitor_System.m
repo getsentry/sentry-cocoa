@@ -470,6 +470,9 @@ getBuildType(void)
     }
     SentryMobileProvisionParser *parser = [[SentryMobileProvisionParser alloc] init];
     if ([parser hasEmbeddedMobileProvisionProfile]) {
+        if ([parser mobileProvisionProfileAllowsDebugging]) {
+            return "debug";
+        }
         return [parser mobileProvisionProfileProvisionsAllDevices] ? "enterprise" : "adhoc";
     }
     if (isTestBuild()) {
