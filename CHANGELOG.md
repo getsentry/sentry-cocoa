@@ -8,7 +8,8 @@
 
 ### Fixes
 
-- Detect development builds via provisioning profile entitlement #(7702)
+- Make SentryBreadcrumb thread-safe to prevent crashes in addBreadcrumb (#7665)
+- Detect development builds via provisioning profile entitlement (#7702])
 
 ## 9.7.0
 
