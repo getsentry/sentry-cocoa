@@ -58,6 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
                                               withScope:(SentryScope *)scope;
 
+- (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *)scope
+        captureAllThreads:(BOOL)captureAllThreads;
+
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
                      video:(NSURL *)videoURL

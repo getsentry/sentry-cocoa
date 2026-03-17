@@ -181,6 +181,45 @@ SENTRY_NO_INIT
             withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(error:block:));
 
 /**
+ * Captures an error event and sends it to Sentry.
+ * @param error The error to send to Sentry.
+ * @param captureAllThreads When @c YES, captures stacktraces for all threads. When @c NO, only
+ * captures the stacktrace for the current thread.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ */
++ (SentryId *)captureError:(NSError *)error
+        captureAllThreads:(BOOL)captureAllThreads
+    NS_SWIFT_NAME(capture(error:captureAllThreads:));
+
+/**
+ * Captures an error event and sends it to Sentry. Only the data in this scope object will be added
+ * to the event. The global scope will be ignored.
+ * @param error The error to send to Sentry.
+ * @param scope The scope containing event metadata.
+ * @param captureAllThreads When @c YES, captures stacktraces for all threads. When @c NO, only
+ * captures the stacktrace for the current thread.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ */
++ (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *)scope
+        captureAllThreads:(BOOL)captureAllThreads
+    NS_SWIFT_NAME(capture(error:scope:captureAllThreads:));
+
+/**
+ * Captures an error event and sends it to Sentry. Maintains the global scope but mutates scope data
+ * for only this call.
+ * @param error The error to send to Sentry.
+ * @param block The block mutating the scope only for this call.
+ * @param captureAllThreads When @c YES, captures stacktraces for all threads. When @c NO, only
+ * captures the stacktrace for the current thread.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
+ */
++ (SentryId *)captureError:(NSError *)error
+            withScopeBlock:(void (^)(SentryScope *scope))block
+        captureAllThreads:(BOOL)captureAllThreads
+    NS_SWIFT_NAME(capture(error:block:captureAllThreads:));
+
+/**
  * Captures an exception event and sends it to Sentry.
  * @param exception The exception to send to Sentry.
  * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.

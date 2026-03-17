@@ -370,6 +370,31 @@ static NSDate *_Nullable startTimestamp = nil;
     return [SentrySDKInternal.currentHub captureError:error withScope:scope];
 }
 
++ (SentryId *)captureError:(NSError *)error captureAllThreads:(BOOL)captureAllThreads
+{
+    return [SentrySDKInternal captureError:error
+                                 withScope:SentrySDKInternal.currentHub.scope
+                        captureAllThreads:captureAllThreads];
+}
+
++ (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *)scope
+        captureAllThreads:(BOOL)captureAllThreads
+{
+    return [SentrySDKInternal.currentHub captureError:error
+                                            withScope:scope
+                                   captureAllThreads:captureAllThreads];
+}
+
++ (SentryId *)captureError:(NSError *)error
+            withScopeBlock:(void (^)(SentryScope *_Nonnull))block
+        captureAllThreads:(BOOL)captureAllThreads
+{
+    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
+    block(scope);
+    return [SentrySDKInternal captureError:error withScope:scope captureAllThreads:captureAllThreads];
+}
+
 + (SentryId *)captureException:(NSException *)exception
 {
     return [SentrySDKInternal captureException:exception

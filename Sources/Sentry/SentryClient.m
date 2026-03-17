@@ -194,8 +194,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
+    return [self captureError:error withScope:scope captureAllThreads:NO];
+}
+
+- (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *)scope
+        captureAllThreads:(BOOL)captureAllThreads
+{
     SentryEvent *event = [self buildErrorEvent:error];
-    return [self captureEventIncrementingSessionErrorCount:event withScope:scope];
+    return [self captureEventIncrementingSessionErrorCount:event
+                                                withScope:scope
+                                       captureAllThreads:captureAllThreads];
 }
 
 - (SentryEvent *)buildErrorEvent:(NSError *)error
@@ -347,9 +356,20 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 - (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
                                               withScope:(SentryScope *)scope
 {
+    return [self captureEventIncrementingSessionErrorCount:event
+                                                withScope:scope
+                                       captureAllThreads:NO];
+}
+
+- (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
+                                              withScope:(SentryScope *)scope
+                                     captureAllThreads:(BOOL)captureAllThreads
+{
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
-                             alwaysAttachStacktrace:YES];
+                             alwaysAttachStacktrace:YES
+                                       isFatalEvent:NO
+                                 captureAllThreads:captureAllThreads];
 
     if (preparedEvent != nil) {
         SentrySession *session = nil;
@@ -625,7 +645,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     return [self prepareEvent:event
                      withScope:scope
         alwaysAttachStacktrace:alwaysAttachStacktrace
-                  isFatalEvent:NO];
+                  isFatalEvent:NO
+            captureAllThreads:NO];
 }
 
 - (void)flush:(NSTimeInterval)timeout
@@ -650,6 +671,19 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                              withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
                           isFatalEvent:(BOOL)isFatalEvent
+{
+    return [self prepareEvent:event
+                     withScope:scope
+        alwaysAttachStacktrace:alwaysAttachStacktrace
+                  isFatalEvent:isFatalEvent
+            captureAllThreads:NO];
+}
+
+- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *_Nullable)event
+                             withScope:(SentryScope *)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                          isFatalEvent:(BOOL)isFatalEvent
+                    captureAllThreads:(BOOL)captureAllThreads
 {
     NSParameterAssert(event);
     if (event == nil) {
@@ -706,7 +740,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
 
         if (!isFatalEvent && shouldAttachStacktrace && threadsNotAttached) {
-            event.threads = [self.threadInspector getCurrentThreads];
+            if (captureAllThreads) {
+                event.threads = [self.threadInspector getCurrentThreadsWithStackTrace];
+            } else {
+                event.threads = [self.threadInspector getCurrentThreads];
+            }
         }
 
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);

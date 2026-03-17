@@ -209,7 +209,7 @@ import Foundation
     @discardableResult public static func capture(error: Error) -> SentryId {
         return SentrySDKInternal.capture(error: error)
     }
-    
+
     /// Captures an error event and sends it to Sentry. Only the data in this scope object will be added
     /// to the event. The global scope will be ignored.
     /// - parameter error: The error to send to Sentry.
@@ -219,7 +219,7 @@ import Foundation
     @discardableResult public static func capture(error: Error, scope: Scope) -> SentryId {
         return SentrySDKInternal.capture(error: error, scope: scope)
     }
-    
+
     /// Captures an error event and sends it to Sentry. Maintains the global scope but mutates scope data
     /// for only this call.
     /// - parameter error: The error to send to Sentry.
@@ -228,6 +228,40 @@ import Foundation
     @objc(captureError:withScopeBlock:)
     @discardableResult public static func capture(error: Error, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.capture(error: error, block: block)
+    }
+
+    /// Captures an error event and sends it to Sentry.
+    /// - parameter error: The error to send to Sentry.
+    /// - parameter captureAllThreads: When `true`, captures stacktraces for all threads by suspending
+    ///   them. When `false` (the default), only the current thread's stacktrace is captured.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @objc(captureError:captureAllThreads:)
+    @discardableResult public static func capture(error: Error, captureAllThreads: Bool) -> SentryId {
+        return SentrySDKInternal.capture(error: error, captureAllThreads: captureAllThreads)
+    }
+
+    /// Captures an error event and sends it to Sentry. Only the data in this scope object will be added
+    /// to the event. The global scope will be ignored.
+    /// - parameter error: The error to send to Sentry.
+    /// - parameter scope: The scope containing event metadata.
+    /// - parameter captureAllThreads: When `true`, captures stacktraces for all threads by suspending
+    ///   them. When `false` (the default), only the current thread's stacktrace is captured.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @objc(captureError:withScope:captureAllThreads:)
+    @discardableResult public static func capture(error: Error, scope: Scope, captureAllThreads: Bool) -> SentryId {
+        return SentrySDKInternal.capture(error: error, scope: scope, captureAllThreads: captureAllThreads)
+    }
+
+    /// Captures an error event and sends it to Sentry. Maintains the global scope but mutates scope data
+    /// for only this call.
+    /// - parameter error: The error to send to Sentry.
+    /// - parameter block: The block mutating the scope only for this call.
+    /// - parameter captureAllThreads: When `true`, captures stacktraces for all threads by suspending
+    ///   them. When `false` (the default), only the current thread's stacktrace is captured.
+    /// - returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @objc(captureError:withScopeBlock:captureAllThreads:)
+    @discardableResult public static func capture(error: Error, block: @escaping (Scope) -> Void, captureAllThreads: Bool) -> SentryId {
+        return SentrySDKInternal.capture(error: error, block: block, captureAllThreads: captureAllThreads)
     }
     
     // MARK: - Exception Capture

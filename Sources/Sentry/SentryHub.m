@@ -495,10 +495,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
+    return [self captureError:error withScope:scope captureAllThreads:NO];
+}
+
+- (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *)scope
+        captureAllThreads:(BOOL)captureAllThreads
+{
     SentryClientInternal *client = self.client;
 
     if (client != nil) {
-        return [client captureError:error withScope:scope];
+        return [client captureError:error withScope:scope captureAllThreads:captureAllThreads];
     }
     return SentryId.empty;
 }
