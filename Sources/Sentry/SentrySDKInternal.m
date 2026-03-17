@@ -38,7 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDKInternal
 static SentryHubInternal *_Nullable currentHub;
 static NSObject *currentHubLock;
-static BOOL crashedLastRunCalled;
+static BOOL lastRunStatusCalled;
+static BOOL crashReporterInstalled;
+static BOOL fatalDetected;
 static SentryAppStartMeasurement *_Nullable sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;
 static BOOL _detectedStartUpCrash;
@@ -113,14 +115,34 @@ static NSDate *_Nullable startTimestamp = nil;
     return currentHub != nil && [currentHub getClient] != nil;
 }
 
-+ (BOOL)crashedLastRunCalled
++ (BOOL)lastRunStatusCalled
 {
-    return crashedLastRunCalled;
+    return lastRunStatusCalled;
 }
 
-+ (void)setCrashedLastRunCalled:(BOOL)value
++ (void)setLastRunStatusCalled:(BOOL)value
 {
-    crashedLastRunCalled = value;
+    lastRunStatusCalled = value;
+}
+
++ (BOOL)crashReporterInstalled
+{
+    return crashReporterInstalled;
+}
+
++ (void)setCrashReporterInstalled:(BOOL)value
+{
+    crashReporterInstalled = value;
+}
+
++ (BOOL)fatalDetected
+{
+    return fatalDetected;
+}
+
++ (void)setFatalDetected:(BOOL)value
+{
+    fatalDetected = value;
 }
 
 /**
@@ -234,6 +256,16 @@ static NSDate *_Nullable startTimestamp = nil;
             [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
 
             [SentrySDKInternal installIntegrations];
+
+            // The .didCrash case is handled by SentryClient.prepareEvent when
+            // a fatal event arrives. Here we report .didNotCrash if no
+            // integration set fatalDetected during init.
+            if (crashReporterInstalled && !fatalDetected) {
+                lastRunStatusCalled = YES;
+                if (nil != options.onLastRunStatusDetermined) {
+                    options.onLastRunStatusDetermined(SentryLastRunStatusDidNotCrash, nil);
+                }
+            }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
             sentry_sdkInitProfilerTasks(options, hub);
@@ -452,6 +484,17 @@ static NSDate *_Nullable startTimestamp = nil;
     return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
 }
 
++ (NSInteger)lastRunStatus
+{
+    if (!crashReporterInstalled) {
+        return SentryLastRunStatusUnknown;
+    }
+    if (SentryDependencyContainer.sharedInstance.crashWrapper.crashedLastLaunch) {
+        return SentryLastRunStatusDidCrash;
+    }
+    return SentryLastRunStatusDidNotCrash;
+}
+
 + (BOOL)detectedStartUpCrash
 {
     return _detectedStartUpCrash;
@@ -544,6 +587,10 @@ static NSDate *_Nullable startTimestamp = nil;
         [hub bindClient:nil];
 
         [SentrySDKInternal setCurrentHub:nil];
+
+        crashReporterInstalled = NO;
+        fatalDetected = NO;
+        lastRunStatusCalled = NO;
 
         [SentryDependencyContainer.sharedInstance.crashWrapper stopBinaryImageCache];
         [SentryDependencyContainer.sharedInstance.binaryImageCache stop];

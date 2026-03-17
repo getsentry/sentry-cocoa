@@ -226,8 +226,102 @@ class SentrySDKTests: XCTestCase {
         XCTAssertFalse(SentrySDK.isEnabled)
     }
 
+    @available(*, deprecated, message: "Testing deprecated crashedLastRun API")
     func testCrashedLastRun() {
         XCTAssertEqual(SentryDependencyContainer.sharedInstance().crashReporter.crashedLastLaunch, SentrySDK.crashedLastRun)
+    }
+
+    // MARK: - lastRunStatus
+
+    func testLastRunStatus_whenCrashStateNotLoaded_shouldReturnUnknown() {
+        // -- Arrange --
+        SentrySDKInternal.crashReporterInstalled = false
+
+        // -- Act --
+        let status = SentrySDK.lastRunStatus
+
+        // -- Assert --
+        XCTAssertEqual(status, .unknown)
+    }
+
+    func testLastRunStatus_whenCrashStateLoadedAndNoCrash_shouldReturnDidNotCrash() {
+        // -- Arrange --
+        SentrySDKInternal.crashReporterInstalled = true
+        // The default test crash reporter returns false for crashedLastLaunch
+
+        // -- Act --
+        let status = SentrySDK.lastRunStatus
+
+        // -- Assert --
+        XCTAssertEqual(status, .didNotCrash)
+    }
+
+    func testLastRunStatus_whenCrashStateLoadedAndCrashed_shouldReturnDidCrash() {
+        // -- Arrange --
+        SentrySDKInternal.crashReporterInstalled = true
+        let crashWrapper = TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo)
+        crashWrapper.internalCrashedLastLaunch = true
+        SentryDependencyContainer.sharedInstance().crashWrapper = crashWrapper
+
+        // -- Act --
+        let status = SentrySDK.lastRunStatus
+
+        // -- Assert --
+        XCTAssertEqual(status, .didCrash)
+    }
+
+    func testLastRunStatus_afterClose_shouldReturnUnknown() {
+        // -- Arrange --
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
+        }
+        SentrySDK.close()
+
+        // -- Act --
+        let status = SentrySDK.lastRunStatus
+
+        // -- Assert --
+        XCTAssertEqual(status, .unknown)
+    }
+
+    // MARK: - onLastRunStatusDetermined
+
+    func testOnLastRunStatusDetermined_whenNoCrash_shouldCallWithDidNotCrash() {
+        // -- Arrange --
+        var receivedStatus: SentryLastRunStatus?
+        var receivedEvent: Event?
+
+        // -- Act --
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
+            options.onLastRunStatusDetermined = { status, event in
+                receivedStatus = status
+                receivedEvent = event
+            }
+        }
+
+        // -- Assert --
+        XCTAssertEqual(receivedStatus, .didNotCrash)
+        XCTAssertNil(receivedEvent)
+    }
+
+    func testOnLastRunStatusDetermined_whenNoCrash_shouldSetLastRunStatusCalled() {
+        // -- Act --
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
+            options.onLastRunStatusDetermined = { _, _ in }
+        }
+
+        // -- Assert --
+        XCTAssertTrue(SentrySDKInternal.lastRunStatusCalled)
+    }
+
+    func testOnLastRunStatusDetermined_whenNoCallback_shouldNotCrash() {
+        // -- Act & Assert -- (should not crash)
+        SentrySDK.start { options in
+            options.dsn = TestConstants.dsnAsString(username: "SentrySDKTests")
+            options.onLastRunStatusDetermined = nil
+        }
     }
 
     func testDetectedStartUpCrash_DefaultValue() {

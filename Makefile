@@ -688,6 +688,95 @@ stop-test-server:
 test-ui-critical:
 	./scripts/test-ui-critical.sh
 
+## Run all sample UI tests
+#
+# Runs UI tests for all sample apps with UI test suites.
+.PHONY: test-samples-ui
+test-samples-ui: \
+	test-sample-iOS-Swift-ui \
+	test-sample-iOS-SwiftUI-ui \
+	test-sample-iOS-Swift6-ui \
+	test-sample-iOS-ObjectiveC-ui \
+	test-sample-macOS-Swift-ui \
+	test-sample-tvOS-Swift-ui
+
+## Run iOS-Swift sample UI tests
+#
+# Generates the iOS-Swift project and runs its UI tests.
+.PHONY: test-sample-iOS-Swift-ui
+test-sample-iOS-Swift-ui: xcode-ci-iOS-Swift
+	@echo "--> Running iOS-Swift UI tests"
+	set -o pipefail && xcodebuild test \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-Swift \
+		-testPlan iOS-Swift_Base \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+
+## Run iOS-SwiftUI sample UI tests
+#
+# Generates the iOS-SwiftUI project and runs its UI tests.
+.PHONY: test-sample-iOS-SwiftUI-ui
+test-sample-iOS-SwiftUI-ui: xcode-ci-iOS-SwiftUI
+	@echo "--> Running iOS-SwiftUI UI tests"
+	set -o pipefail && xcodebuild test \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-SwiftUI \
+		-testPlan iOS-SwiftUI_Base \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+
+## Run iOS-Swift6 sample UI tests
+#
+# Generates the iOS-Swift6 project and runs its UI tests.
+.PHONY: test-sample-iOS-Swift6-ui
+test-sample-iOS-Swift6-ui: xcode-ci-iOS-Swift6
+	@echo "--> Running iOS-Swift6 UI tests"
+	set -o pipefail && xcodebuild test \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-Swift6 \
+		-testPlan iOS-Swift6_Base \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+
+## Run iOS-ObjectiveC sample UI tests
+#
+# Generates the iOS-ObjectiveC project and runs its UI tests.
+.PHONY: test-sample-iOS-ObjectiveC-ui
+test-sample-iOS-ObjectiveC-ui: xcode-ci-iOS-ObjectiveC
+	@echo "--> Running iOS-ObjectiveC UI tests"
+	set -o pipefail && xcodebuild test \
+		-workspace Sentry.xcworkspace \
+		-scheme iOS-ObjectiveC \
+		-testPlan iOS-ObjectiveC_Base \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+
+## Run macOS-Swift sample UI tests
+#
+# Generates the macOS-Swift project and runs its UI tests.
+.PHONY: test-sample-macOS-Swift-ui
+test-sample-macOS-Swift-ui: xcode-ci-macOS-Swift
+	@echo "--> Running macOS-Swift UI tests"
+	set -o pipefail && xcodebuild test \
+		-workspace Sentry.xcworkspace \
+		-scheme macOS-Swift \
+		-testPlan macOS-Swift_Base \
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+
+## Run tvOS-Swift sample UI tests
+#
+# Generates the tvOS-Swift project and runs its UI tests.
+.PHONY: test-sample-tvOS-Swift-ui
+test-sample-tvOS-Swift-ui: xcode-ci-tvOS-Swift
+	@echo "--> Running tvOS-Swift UI tests"
+	set -o pipefail && xcodebuild test \
+		-workspace Sentry.xcworkspace \
+		-scheme tvOS-Swift \
+		-testPlan tvOS-Swift_Base \
+		-destination 'platform=tvOS Simulator,OS=$(TVOS_SIMULATOR_OS),name=$(TVOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+
 # ============================================================================
 # LINTING & FORMATTING
 # ============================================================================
@@ -912,7 +1001,6 @@ xcode-ci: xcode-ci-SentrySampleShared \
 	xcode-ci-iOS-SwiftUI-SPM \
 	xcode-ci-iOS-SwiftUI-Widgets \
 	xcode-ci-iOS15-SwiftUI \
-	xcode-ci-macOS-CLI-Xcode \
 	xcode-ci-macOS-Swift \
 	xcode-ci-macOS-SwiftUI \
 	xcode-ci-macOS-SwiftUI-SPM \

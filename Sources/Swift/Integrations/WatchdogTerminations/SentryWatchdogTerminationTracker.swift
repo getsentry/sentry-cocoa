@@ -40,15 +40,22 @@ final class SentryWatchdogTerminationTracker: NSObject {
     @objc public func start() {
         appStateManager.start()
 
+        // Check synchronously so the SDK can read fatalDetected after all
+        // integrations have initialized. The actual event capture still happens
+        // asynchronously below.
+        let isWatchdogTermination = watchdogTerminationLogic.isWatchdogTermination()
+        if isWatchdogTermination {
+            SentrySDKInternal.fatalDetected = true
+        }
+
         dispatchQueue.dispatchAsync {
-            self.captureStartEvent()
+            if isWatchdogTermination {
+                self.captureWatchdogTerminationEvent()
+            }
         }
     }
 
-    private func captureStartEvent() {
-        guard self.watchdogTerminationLogic.isWatchdogTermination() else {
-            return
-        }
+    private func captureWatchdogTerminationEvent() {
 
         let event = Event(level: .fatal)
 

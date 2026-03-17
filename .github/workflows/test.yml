@@ -285,8 +285,8 @@ jobs:
           # iOS 26
           - name: iOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.2"
-            test-destination-os: "26.2"
+            xcode: "26.3"
+            test-destination-os: "26.3"
             platform: "iOS"
             device: "iPhone 17 Pro"
 
@@ -311,7 +311,7 @@ jobs:
           # macOS 26
           - name: macOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.2"
+            xcode: "26.3"
             test-destination-os: "26.2"
             platform: "macOS"
 
@@ -353,7 +353,7 @@ jobs:
           # tvOS 26
           - name: tvOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.2"
+            xcode: "26.3"
             test-destination-os: "26.2"
             platform: "tvOS"
             device: "Apple TV"
@@ -361,7 +361,7 @@ jobs:
           # visionOS 26
           - name: visionOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.2"
+            xcode: "26.3"
             test-destination-os: "26.2"
             platform: "visionOS"
             device: "Apple Vision Pro"
