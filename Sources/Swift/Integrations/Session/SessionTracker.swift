@@ -157,6 +157,9 @@ final class SessionTracker {
 
         let options = self.options
         let now = dateProvider.date()
+        lastInForegroundLock.synchronized {
+            self.lastInForeground = nil
+        }
 
         dispatchQueue.dispatchAsync { [weak self] in
             guard let self else { return }
@@ -183,9 +186,6 @@ final class SessionTracker {
                 hub.startSession()
             }
             SentryDependencyContainerSwiftHelper.deleteTimestampLastInForeground()
-            self.lastInForegroundLock.synchronized {
-                self.lastInForeground = nil
-            }
 
         #if !(os(watchOS) || os(tvOS) || os(visionOS))
             if SentryDependencyContainerSwiftHelper.hasProfilingOptions() {
