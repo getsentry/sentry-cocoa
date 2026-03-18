@@ -16,6 +16,11 @@ enum NetworkBodyWarning: String {
 /// ObjC callers (SentryNetworkTracker) create this object and populate it
 /// via `setRequest`/`setResponse`. Swift callers (SentrySRDefaultBreadcrumbConverter)
 /// consume it via `serialize()`.
+///
+/// - Important: `setRequest` and `setResponse` can be called concurrently from
+///   `SentryNetworkTracker` because they write to independent properties.
+///   Adding shared mutable state between will require adding synchronization.
+
 @objc
 @_spi(Private) public class SentryReplayNetworkDetails: NSObject {
 
