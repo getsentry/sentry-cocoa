@@ -128,7 +128,7 @@ enum NetworkBodyWarning: String {
             }
             if utType.conforms(to: .json) {
                 if isTruncated { warnings.append(.jsonTruncated) }
-                return parseJSON(data, warnings: &warnings)
+                return parseJSON(data, encoding: encoding, warnings: &warnings)
             }
             if utType.conforms(to: .text) {
                 if isTruncated { warnings.append(.textTruncated) }
@@ -137,13 +137,13 @@ enum NetworkBodyWarning: String {
             return nil
         }
 
-        private static func parseJSON(_ data: Data, warnings: inout [NetworkBodyWarning]) -> Body {
+        private static func parseJSON(_ data: Data, encoding: String.Encoding = .utf8, warnings: inout [NetworkBodyWarning]) -> Body {
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
                 return Body(content: json, warnings: warnings)
             } catch {
                 warnings.append(.bodyParseError)
-                return parseText(data, warnings: &warnings)
+                return parseText(data, encoding: encoding, warnings: &warnings)
             }
         }
 
