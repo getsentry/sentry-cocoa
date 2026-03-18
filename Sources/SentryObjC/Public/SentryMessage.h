@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryObjCDefines.h"
-#import "SentryObjCSerializable.h"
+#import "SentryDefines.h"
+#import "SentrySerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

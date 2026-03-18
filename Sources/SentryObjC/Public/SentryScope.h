@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryObjCLevel.h"
-#import "SentryObjCSerializable.h"
-#import "SentryObjCSpanProtocol.h"
+#import "SentryLevel.h"
+#import "SentrySerializable.h"
+#import "SentrySpan.h"
 
 @class SentryAttachment;
 @class SentryBreadcrumb;

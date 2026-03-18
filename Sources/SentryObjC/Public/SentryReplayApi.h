@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryObjCDefines.h"
+#import "SentryDefines.h"
 
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 #    import <CoreGraphics/CoreGraphics.h>

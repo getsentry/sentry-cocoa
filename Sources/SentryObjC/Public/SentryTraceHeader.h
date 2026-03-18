@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryObjCDefines.h"
-#import "SentryObjCSampleDecision.h"
+#import "SentryDefines.h"
+#import "SentrySampleDecision.h"
 
 @class SentryId;
 @class SentrySpanId;

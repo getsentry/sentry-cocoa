@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryObjCDefines.h"
+#import "SentryDefines.h"
 
 @class SentryBreadcrumb;
 @class SentryEvent;

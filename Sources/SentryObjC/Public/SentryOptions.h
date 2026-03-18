@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryObjCDefines.h"
-#import "SentryObjCLevel.h"
+#import "SentryDefines.h"
+#import "SentryLevel.h"
 
 @class SentryReplayOptions;
 

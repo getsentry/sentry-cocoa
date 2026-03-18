@@ -6,7 +6,7 @@
 typedef int kern_return_t;
 #endif
 
-#import "SentryObjCDefines.h"
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryObjCDefines.h"
-#import "SentryObjCSerializable.h"
+#import "SentryDefines.h"
+#import "SentrySerializable.h"
 
 @class SentryMechanism;
 @class SentryStacktrace;
