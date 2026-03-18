@@ -134,6 +134,10 @@ setEnabled(bool isEnabled)
 
             SENTRY_LOG_DEBUG(@"Setting new handler.");
             NSSetUncaughtExceptionHandler(&handleUncaughtException);
+            if (g_bridge == nil) {
+                SENTRY_LOG_WARN(@"Bridge is nil; uncaughtExceptionHandler will not be set on the "
+                                @"crash reporter.");
+            }
             g_bridge.crashReporter.uncaughtExceptionHandler = &handleUncaughtException;
         } else {
             SENTRY_LOG_DEBUG(@"Restoring original handler.");
