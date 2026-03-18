@@ -73,7 +73,13 @@ class SentryCrashInstallationTests: XCTestCase {
         #endif // os(iOS) || os(tvOS)
     }
 
-    func testInstall_SetsUncaughtExceptionHandler() {
+    func testInstall_SetsUncaughtExceptionHandler() throws {
+        // NSException is part of SentryCrashMonitorTypeDebuggerUnsafe, so the
+        // monitor is masked out when running under a debugger (e.g. Xcode).
+        // setEnabled(true) is never called in that case, so uncaughtExceptionHandler
+        // is never assigned and the assertion would always fail.
+        try XCTSkipIf(sentrycrashdebug_isBeingTraced(), "NSException monitor is disabled under the debugger")
+
         // Verifies the bridge is set before sentrycrash_install so that when
         // the NSException monitor calls setEnabled(true), g_bridge is non-nil
         // and uncaughtExceptionHandler gets assigned on the crash reporter.
