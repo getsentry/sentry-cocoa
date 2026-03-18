@@ -14,7 +14,12 @@ OBJC_SOURCES = Dir.glob('Sources/SentryObjC/**/*.m')
 OBJC_HEADERS = Dir.glob('Sources/SentryObjC/**/*.h')
 
 # Swift bridge files
-SWIFT_SOURCES = Dir.glob('Sources/SentryObjCBridge/**/*.swift')
+# NOTE: Currently disabled because SentryObjCBridge imports the Sentry module,
+# which causes module conflicts when both define the same type names.
+# The xcframework build will need a different approach that compiles
+# everything together into a single module.
+# SWIFT_SOURCES = Dir.glob('Sources/SentryObjCBridge/**/*.swift')
+SWIFT_SOURCES = []
 
 puts "Opening project: #{PROJECT_PATH}"
 project = Xcodeproj::Project.open(PROJECT_PATH)

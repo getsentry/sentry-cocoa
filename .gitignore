@@ -111,6 +111,7 @@ Sentry-Dynamic-WithARM64e.xcframework*
 SentrySwiftUI.xcframework*
 Sentry-WithoutUIKitOrAppKit.xcframework*
 Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework*
+SentryObjC.xcframework*
 
 current_package_diff.patch
 

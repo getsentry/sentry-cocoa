@@ -1,14 +1,14 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-// Import the public Swift SDK module
-// Use typealias to avoid ambiguity with SentryObjC wrapper types
+// When compiled as part of Sentry.framework, types are already available.
+// When compiled via SPM, we need to import the SentrySwift module.
 #if SWIFT_PACKAGE
 import SentrySwift
 private typealias SDKAttributeContent = SentrySwift.SentryAttributeContent
 #else
-import Sentry
-private typealias SDKAttributeContent = Sentry.SentryAttributeContent
+// Already inside Sentry module - types available without import
+private typealias SDKAttributeContent = SentryAttributeContent
 #endif
 
 /// Bridge class that exposes Swift SDK functionality to pure Objective-C code.
@@ -85,12 +85,11 @@ public final class SentryObjCBridge: NSObject {
         objcAttributes.compactMapValues { value in
             guard let attributeContent = value as? NSObject,
                   let typeValue = attributeContent.value(forKey: "type") as? Int,
-                  let swiftValue = convertAttributeContent(attributeContent, typeValue: typeValue),
-                  let attributeValue = swiftValue as? any SentryAttributeValue
+                  let swiftValue = convertAttributeContent(attributeContent, typeValue: typeValue)
             else {
                 return nil
             }
-            return attributeValue
+            return swiftValue
         }
     }
 
