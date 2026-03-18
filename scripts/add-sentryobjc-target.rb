@@ -13,6 +13,9 @@ TARGET_NAME = 'SentryObjC'
 OBJC_SOURCES = Dir.glob('Sources/SentryObjC/**/*.m')
 OBJC_HEADERS = Dir.glob('Sources/SentryObjC/**/*.h')
 
+# Swift bridge files
+SWIFT_SOURCES = Dir.glob('Sources/SentryObjCBridge/**/*.swift')
+
 puts "Opening project: #{PROJECT_PATH}"
 project = Xcodeproj::Project.open(PROJECT_PATH)
 
@@ -99,6 +102,9 @@ sentryobjc_group.source_tree = 'SOURCE_ROOT'
 sentryobjc_public_group = main_group.new_group('SentryObjC/Public', 'Sources/SentryObjC/Public', :group)
 sentryobjc_public_group.source_tree = 'SOURCE_ROOT'
 
+sentryobjcbridge_group = main_group.new_group('SentryObjCBridge', 'Sources/SentryObjCBridge', :group)
+sentryobjcbridge_group.source_tree = 'SOURCE_ROOT'
+
 # Add ObjC source files
 OBJC_SOURCES.each do |file|
   filename = File.basename(file)
@@ -125,6 +131,14 @@ OBJC_HEADERS.each do |file|
   end
 end
 
+# Add Swift bridge files
+SWIFT_SOURCES.each do |file|
+  filename = File.basename(file)
+  file_ref = sentryobjcbridge_group.new_reference(filename)
+  target.source_build_phase.add_file_reference(file_ref)
+  puts "  Added Swift source: #{file}"
+end
+
 # Add system frameworks
 puts "Adding system frameworks..."
 frameworks_group = project.main_group.find_subpath('Frameworks', false) || project.main_group.new_group('Frameworks')
@@ -135,6 +149,17 @@ system_frameworks.each do |framework_name|
   framework_ref.source_tree = 'SDKROOT'
   target.frameworks_build_phase.add_file_reference(framework_ref)
   puts "  Added #{framework_name}.framework"
+end
+
+# Add dependency on Sentry target
+puts "Adding Sentry target dependency..."
+target.add_dependency(sentry_target)
+
+# Link Sentry.framework
+sentry_product = sentry_target.product_reference
+if sentry_product
+  target.frameworks_build_phase.add_file_reference(sentry_product)
+  puts "  Added Sentry.framework dependency"
 end
 
 # Save project
