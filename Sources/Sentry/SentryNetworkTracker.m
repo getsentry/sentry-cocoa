@@ -236,6 +236,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
+#if SENTRY_TARGET_REPLAY_SUPPORTED
     SentryOptions *options = SentrySDK.startOption;
     NSString *urlString = sessionTask.currentRequest.URL.absoluteString;
     if ([self isNetworkDetailCaptureEnabledFor:urlString options:options]) {
@@ -243,6 +244,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
                networkCaptureBodies:options.sessionReplay.networkCaptureBodies
               networkRequestHeaders:options.sessionReplay.networkRequestHeaders];
     }
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
     if (![self isTaskSupported:sessionTask]) {
         return;
@@ -570,6 +572,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     return breadcrumbLevel;
 }
 
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 // Store extracted network details data for session replay.
 static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
 
@@ -648,7 +651,7 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
     SentryReplayNetworkDetails *details =
         [[SentryReplayNetworkDetails alloc] initWithMethod:request.HTTPMethod ?: @"GET"];
 
-    // Prefer originalRequest.HTTPBody to capture what the caller sent; currentRequest may differ
+    // Prefer originalRequest.HTTPBody: currentRequest may reflect redirects, and its HTTPBody may be nil on in-flight tasks.
     NSData *bodyData
         = networkCaptureBodies ? (sessionTask.originalRequest.HTTPBody ?: request.HTTPBody) : nil;
 
@@ -663,5 +666,6 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
     objc_setAssociatedObject(
         sessionTask, &SentryNetworkDetailsKey, details, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
 @end
