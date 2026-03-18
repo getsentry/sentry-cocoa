@@ -2,35 +2,35 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryObjCMetricValue ()
-@property (nonatomic, readwrite) SentryObjCMetricValueType type;
+@interface SentryMetricValue ()
+@property (nonatomic, readwrite) SentryMetricValueType type;
 @property (nonatomic, readwrite) unsigned long long counterValue;
 @property (nonatomic, readwrite) double gaugeValue;
 @property (nonatomic, readwrite) double distributionValue;
 @end
 
-@implementation SentryObjCMetricValue
+@implementation SentryMetricValue
 
 + (instancetype)counterWithValue:(unsigned long long)value
 {
-    SentryObjCMetricValue *obj = [[SentryObjCMetricValue alloc] init];
-    obj->_type = SentryObjCMetricValueTypeCounter;
+    SentryMetricValue *obj = [[SentryMetricValue alloc] init];
+    obj->_type = SentryMetricValueTypeCounter;
     obj->_counterValue = value;
     return obj;
 }
 
 + (instancetype)gaugeWithValue:(double)value
 {
-    SentryObjCMetricValue *obj = [[SentryObjCMetricValue alloc] init];
-    obj->_type = SentryObjCMetricValueTypeGauge;
+    SentryMetricValue *obj = [[SentryMetricValue alloc] init];
+    obj->_type = SentryMetricValueTypeGauge;
     obj->_gaugeValue = value;
     return obj;
 }
 
 + (instancetype)distributionWithValue:(double)value
 {
-    SentryObjCMetricValue *obj = [[SentryObjCMetricValue alloc] init];
-    obj->_type = SentryObjCMetricValueTypeDistribution;
+    SentryMetricValue *obj = [[SentryMetricValue alloc] init];
+    obj->_type = SentryMetricValueTypeDistribution;
     obj->_distributionValue = value;
     return obj;
 }

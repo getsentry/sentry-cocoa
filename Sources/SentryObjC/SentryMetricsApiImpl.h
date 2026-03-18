@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
  * This class delegates all metrics recording to the Swift layer via SentrySDKInternal.
  * Not exposed in public headers.
  */
-@interface SentryObjCMetricsApiImpl : NSObject <SentryObjCMetricsApi>
+@interface SentryMetricsApiImpl : NSObject <SentryMetricsApi>
 
 @end
 

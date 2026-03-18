@@ -17,7 +17,7 @@
 #endif
 
 @class SentryLogger;
-@protocol SentryObjCMetricsApi;
+@protocol SentryMetricsApi;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -83,13 +83,13 @@ SENTRY_NO_INIT
  *                                         value:125.5
  *                                          unit:SentryUnitNameMillisecond
  *                                    attributes:@{
- *     @"endpoint": [SentryObjCAttributeContent stringWithValue:@"/api/data"]
+ *     @"endpoint": [SentryAttributeContent stringWithValue:@"/api/data"]
  * }];
  * @endcode
  *
- * @see SentryObjCMetricsApi
+ * @see SentryMetricsApi
  */
-+ (id<SentryObjCMetricsApi>)metrics;
++ (id<SentryMetricsApi>)metrics;
 
 /**
  * Initializes the SDK with the provided options.

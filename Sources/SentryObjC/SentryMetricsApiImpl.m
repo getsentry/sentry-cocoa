@@ -20,11 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
                  attributes:(NSDictionary<NSString *, id> *)attributes;
 @end
 
-@implementation SentryObjCMetricsApiImpl
+@implementation SentryMetricsApiImpl
 
 - (void)countWithKey:(NSString *)key
                value:(NSUInteger)value
-          attributes:(nullable NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes
+          attributes:(nullable NSDictionary<NSString *, SentryAttributeContent *> *)attributes
 {
     [SentryObjCBridge metricsCountWithKey:key value:value attributes:attributes ?: @{ }];
 }
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
                       value:(double)value
                        unit:(nullable NSString *)unit
                  attributes:
-                     (nullable NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes
+                     (nullable NSDictionary<NSString *, SentryAttributeContent *> *)attributes
 {
     [SentryObjCBridge metricsDistributionWithKey:key
                                            value:value
@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)gaugeWithKey:(NSString *)key
                value:(double)value
                 unit:(nullable NSString *)unit
-          attributes:(nullable NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes
+          attributes:(nullable NSDictionary<NSString *, SentryAttributeContent *> *)attributes
 {
     [SentryObjCBridge metricsGaugeWithKey:key value:value unit:unit attributes:attributes ?: @{ }];
 }

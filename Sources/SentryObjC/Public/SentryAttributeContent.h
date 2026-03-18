@@ -7,23 +7,23 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Type of attribute content value.
  */
-typedef NS_ENUM(NSInteger, SentryObjCAttributeContentType) {
+typedef NS_ENUM(NSInteger, SentryAttributeContentType) {
     /// String value.
-    SentryObjCAttributeContentTypeString,
+    SentryAttributeContentTypeString,
     /// Boolean value.
-    SentryObjCAttributeContentTypeBoolean,
+    SentryAttributeContentTypeBoolean,
     /// Integer value.
-    SentryObjCAttributeContentTypeInteger,
+    SentryAttributeContentTypeInteger,
     /// Double-precision floating point value.
-    SentryObjCAttributeContentTypeDouble,
+    SentryAttributeContentTypeDouble,
     /// Array of strings.
-    SentryObjCAttributeContentTypeStringArray,
+    SentryAttributeContentTypeStringArray,
     /// Array of booleans (as NSNumber).
-    SentryObjCAttributeContentTypeBooleanArray,
+    SentryAttributeContentTypeBooleanArray,
     /// Array of integers (as NSNumber).
-    SentryObjCAttributeContentTypeIntegerArray,
+    SentryAttributeContentTypeIntegerArray,
     /// Array of doubles (as NSNumber).
-    SentryObjCAttributeContentTypeDoubleArray
+    SentryAttributeContentTypeDoubleArray
 };
 
 /**
@@ -32,33 +32,33 @@ typedef NS_ENUM(NSInteger, SentryObjCAttributeContentType) {
  * Wraps various value types (string, number, boolean, arrays) with type information
  * for structured event data. Use the factory methods to create instances.
  */
-@interface SentryObjCAttributeContent : NSObject
+@interface SentryAttributeContent : NSObject
 
 /// The type of value stored in this attribute.
-@property (nonatomic, readonly) SentryObjCAttributeContentType type;
+@property (nonatomic, readonly) SentryAttributeContentType type;
 
-/// The string value, if @c type is @c SentryObjCAttributeContentTypeString.
+/// The string value, if @c type is @c SentryAttributeContentTypeString.
 @property (nonatomic, readonly, nullable) NSString *stringValue;
 
-/// The boolean value, if @c type is @c SentryObjCAttributeContentTypeBoolean.
+/// The boolean value, if @c type is @c SentryAttributeContentTypeBoolean.
 @property (nonatomic, readonly) BOOL booleanValue;
 
-/// The integer value, if @c type is @c SentryObjCAttributeContentTypeInteger.
+/// The integer value, if @c type is @c SentryAttributeContentTypeInteger.
 @property (nonatomic, readonly) NSInteger integerValue;
 
-/// The double value, if @c type is @c SentryObjCAttributeContentTypeDouble.
+/// The double value, if @c type is @c SentryAttributeContentTypeDouble.
 @property (nonatomic, readonly) double doubleValue;
 
-/// The string array value, if @c type is @c SentryObjCAttributeContentTypeStringArray.
+/// The string array value, if @c type is @c SentryAttributeContentTypeStringArray.
 @property (nonatomic, readonly, nullable) NSArray<NSString *> *stringArrayValue;
 
-/// The boolean array value, if @c type is @c SentryObjCAttributeContentTypeBooleanArray.
+/// The boolean array value, if @c type is @c SentryAttributeContentTypeBooleanArray.
 @property (nonatomic, readonly, nullable) NSArray<NSNumber *> *booleanArrayValue;
 
-/// The integer array value, if @c type is @c SentryObjCAttributeContentTypeIntegerArray.
+/// The integer array value, if @c type is @c SentryAttributeContentTypeIntegerArray.
 @property (nonatomic, readonly, nullable) NSArray<NSNumber *> *integerArrayValue;
 
-/// The double array value, if @c type is @c SentryObjCAttributeContentTypeDoubleArray.
+/// The double array value, if @c type is @c SentryAttributeContentTypeDoubleArray.
 @property (nonatomic, readonly, nullable) NSArray<NSNumber *> *doubleArrayValue;
 
 /**

@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentryObjCMetric
+@implementation SentryMetric
 
 - (instancetype)init
 {

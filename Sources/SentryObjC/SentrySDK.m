@@ -86,11 +86,11 @@ NS_ASSUME_NONNULL_BEGIN
     return [SentryObjCBridge logger];
 }
 
-+ (id<SentryObjCMetricsApi>)metrics
++ (id<SentryMetricsApi>)metrics
 {
-    static SentryObjCMetricsApiImpl *_metricsApi = nil;
+    static SentryMetricsApiImpl *_metricsApi = nil;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ _metricsApi = [[SentryObjCMetricsApiImpl alloc] init]; });
+    dispatch_once(&onceToken, ^{ _metricsApi = [[SentryMetricsApiImpl alloc] init]; });
     return _metricsApi;
 }
 
