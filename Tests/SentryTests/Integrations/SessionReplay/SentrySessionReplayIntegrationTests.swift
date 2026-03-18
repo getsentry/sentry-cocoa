@@ -186,6 +186,34 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         SentrySDKInternal.currentHub().startSession()
         XCTAssertFalse(oldSessionReplay?.isRunning ?? true)
     }
+
+    func testNewReplayStartsAfterBackgroundSessionExpiry() throws {
+        // -- Arrange --
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+
+        let oldReplay = try XCTUnwrap(sut.sessionReplay)
+        let oldReplayId = try XCTUnwrap(oldReplay.sessionReplayId)
+        XCTAssertTrue(oldReplay.isRunning)
+
+        // -- Act --
+        // Simulate background → session expiry → foreground, matching
+        // the sequence SessionTracker triggers when background time
+        // exceeds sessionTrackingIntervalMillis.
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        XCTAssertFalse(oldReplay.isRunning)
+
+        let hub = SentrySDKInternal.currentHub()
+        hub.endSession()
+        hub.startSession()
+
+        // -- Assert --
+        let newReplay = try XCTUnwrap(sut.sessionReplay)
+        let newReplayId = try XCTUnwrap(newReplay.sessionReplayId)
+        XCTAssertTrue(newReplay.isRunning)
+        XCTAssertNotEqual(oldReplayId, newReplayId)
+        XCTAssertFalse(oldReplay.isRunning)
+    }
     
     func testScreenNameFromSentryUIApplication() throws {
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
