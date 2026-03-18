@@ -606,32 +606,36 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
         return;
     }
 
-    SentryReplayNetworkDetails *details = objc_getAssociatedObject(task, &SentryNetworkDetailsKey);
-    if (!details) {
-        SENTRY_LOG_WARN(@"[NetworkCapture] No SentryReplayNetworkDetails found for %@ - "
-                         @"skipping response capture",
-                         urlString);
-        return;
+    @synchronized(task) {
+        SentryReplayNetworkDetails *details
+            = objc_getAssociatedObject(task, &SentryNetworkDetailsKey);
+        if (!details) {
+            SENTRY_LOG_WARN(@"[NetworkCapture] No SentryReplayNetworkDetails found for %@ - "
+                             @"skipping response capture",
+                             urlString);
+            return;
+        }
+
+        NSInteger statusCode = 0;
+        NSDictionary *allHeaders = nil;
+        NSString *contentType = nil;
+        if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            statusCode = httpResponse.statusCode;
+            allHeaders = httpResponse.allHeaderFields;
+            contentType = httpResponse.allHeaderFields[@"Content-Type"];
+        }
+
+        NSData *bodyData
+            = (options.sessionReplay.networkCaptureBodies && data.length > 0) ? data : nil;
+
+        [details setResponseWithStatusCode:statusCode
+                                      size:@(data ? data.length : 0)
+                                  bodyData:bodyData
+                               contentType:contentType
+                                allHeaders:allHeaders
+                         configuredHeaders:options.sessionReplay.networkResponseHeaders];
     }
-
-    NSInteger statusCode = 0;
-    NSDictionary *allHeaders = nil;
-    NSString *contentType = nil;
-    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-        statusCode = httpResponse.statusCode;
-        allHeaders = httpResponse.allHeaderFields;
-        contentType = httpResponse.allHeaderFields[@"Content-Type"];
-    }
-
-    NSData *bodyData = (options.sessionReplay.networkCaptureBodies && data.length > 0) ? data : nil;
-
-    [details setResponseWithStatusCode:statusCode
-                                  size:@(data ? data.length : 0)
-                              bodyData:bodyData
-                           contentType:contentType
-                            allHeaders:allHeaders
-                     configuredHeaders:options.sessionReplay.networkResponseHeaders];
 }
 
 - (void)captureRequestDetails:(NSURLSessionTask *)sessionTask
@@ -642,16 +646,18 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
         return;
     }
 
-    SentryReplayNetworkDetails *existingDetails
-        = objc_getAssociatedObject(sessionTask, &SentryNetworkDetailsKey);
-    if (existingDetails) {
-        return;
-    }
-
     NSURLRequest *request = sessionTask.currentRequest;
+    SentryReplayNetworkDetails *details;
 
-    SentryReplayNetworkDetails *details =
-        [[SentryReplayNetworkDetails alloc] initWithMethod:request.HTTPMethod ?: @"GET"];
+    @synchronized(sessionTask) {
+        if (objc_getAssociatedObject(sessionTask, &SentryNetworkDetailsKey)) {
+            return;
+        }
+        details =
+            [[SentryReplayNetworkDetails alloc] initWithMethod:request.HTTPMethod ?: @"GET"];
+        objc_setAssociatedObject(
+            sessionTask, &SentryNetworkDetailsKey, details, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
 
     // Prefer originalRequest.HTTPBody: currentRequest may reflect redirects, and its HTTPBody may be nil on in-flight tasks.
     NSData *bodyData
@@ -664,9 +670,6 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
                     contentType:request.allHTTPHeaderFields[@"Content-Type"]
                      allHeaders:request.allHTTPHeaderFields
               configuredHeaders:networkRequestHeaders];
-
-    objc_setAssociatedObject(
-        sessionTask, &SentryNetworkDetailsKey, details, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
