@@ -27,6 +27,7 @@
 
 #import "SentryCrashReportFilter.h"
 #import "SentryCrashReportWriter.h"
+#import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -65,6 +66,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** Bridge for accessing SDK services without dependency container.
  * Must be set by SentryCrashIntegration before calling install. */
 @property (nonatomic, strong) SentryCrashBridge *bridge;
+
+/** Sets the bridge. Use from Swift code where the SentryCrashBridge type cannot be
+ * resolved directly due to ObjC forward-declaration limits. */
+- (void)setBridgeObject:(SENTRY_SWIFT_MIGRATION_ID(SentryCrashBridge))bridge;
 
 @end
 

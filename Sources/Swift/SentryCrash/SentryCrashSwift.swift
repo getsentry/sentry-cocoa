@@ -62,7 +62,7 @@ private final class CrashReportFilterBridge: NSObject, SentryCrashReportFilter {
     }
 
     @objc public func setBridge(_ bridge: SentryCrashBridge) {
-        sentryCrash.setValue(bridge, forKey: "bridge")
+        sentryCrash.setBridgeObject(bridge)
     }
 
     @objc public var basePath: String {

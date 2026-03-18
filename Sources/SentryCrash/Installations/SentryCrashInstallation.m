@@ -160,6 +160,11 @@ sentry_crashCallback(const SentryCrashReportWriter *writer)
     return result;
 }
 
+- (void)setBridgeObject:(id)bridge
+{
+    self.bridge = (SentryCrashBridge *)bridge;
+}
+
 - (void)install:(NSString *)customCacheDirectory
 {
     SentryCrashSwift *handler = self.bridge.crashReporter;

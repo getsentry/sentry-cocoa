@@ -33,7 +33,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     private var scopeObserver: SentryCrashScopeObserver?
     private var crashReporter: SentryCrashSwift
     private var installation: SentryCrashInstallationReporter?
-    private var bridge: SentryCrashBridge?
+    private var bridge: SentryCrashBridge
 
     // MARK: - Initialization
 
@@ -47,15 +47,14 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         self.options = options
         self.crashReporter = dependencies.crashReporter
 
-        super.init()
-
         // Create facade before installing crash handler to ensure services are available
-        let bridge = SentryCrashBridge(
+        self.bridge = SentryCrashBridge(
             notificationCenterWrapper: dependencies.notificationCenterWrapper,
             dateProvider: dependencies.dateProvider,
             crashReporter: dependencies.crashReporter
         )
-        self.bridge = bridge
+        
+        super.init()
 
         // Inject bridge into crash reporter so ObjC SentryCrash can access it
         crashReporter.setBridge(bridge)
@@ -135,7 +134,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
             self.installation = dependencies.getCrashInstallationReporter(options)
             // Inject bridge into installation so it can access crashReporter
-            installation?.setValue(bridge, forKey: "bridge")
+            installation?.setBridgeObject(bridge)
             canSendReports = true
         }
 

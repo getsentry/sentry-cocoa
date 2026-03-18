@@ -137,6 +137,11 @@
     _monitoring = sentrycrash_setMonitoring(monitoring);
 }
 
+- (void)setBridgeObject:(id)bridge
+{
+    self.bridge = (SentryCrashBridge *)bridge;
+}
+
 - (void)setOnCrash:(SentryCrashReportWriteCallback)onCrash
 {
     _onCrash = onCrash;

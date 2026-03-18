@@ -70,6 +70,10 @@ SENTRY_NO_INIT
  * Must be set before calling install. */
 @property (nonatomic, strong) SentryCrashBridge *bridge;
 
+/** Sets the bridge. Use from Swift code where the SentryCrashBridge type cannot be
+ * resolved directly due to ObjC forward-declaration limits. */
+- (void)setBridgeObject:(SENTRY_SWIFT_MIGRATION_ID(SentryCrashBridge))bridge;
+
 /** A dictionary containing any info you'd like to appear in crash reports. Must
  * contain only JSON-safe data: NSString for keys, and NSDictionary, NSArray,
  * NSString, NSDate, and NSNumber for values.
