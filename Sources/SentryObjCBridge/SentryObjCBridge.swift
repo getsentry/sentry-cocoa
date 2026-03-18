@@ -2,10 +2,13 @@
 import Foundation
 
 // Import the public Swift SDK module
+// Use typealias to avoid ambiguity with SentryObjC wrapper types
 #if SWIFT_PACKAGE
 import SentrySwift
+private typealias SDKAttributeContent = SentrySwift.SentryAttributeContent
 #else
 import Sentry
+private typealias SDKAttributeContent = Sentry.SentryAttributeContent
 #endif
 
 /// Bridge class that exposes Swift SDK functionality to pure Objective-C code.
@@ -92,7 +95,8 @@ public final class SentryObjCBridge: NSObject {
     }
 
     /// Convert a single attribute content object to Swift SentryAttributeContent
-    private static func convertAttributeContent(_ content: NSObject, typeValue: Int) -> SentryAttributeContent? {
+    /// Note: Uses SDKAttributeContent typealias to avoid ambiguity with SentryObjC's wrapper type
+    private static func convertAttributeContent(_ content: NSObject, typeValue: Int) -> SDKAttributeContent? {
         switch typeValue {
         case 0: return (content.value(forKey: "stringValue") as? String).map { .string($0) }
         case 1: return (content.value(forKey: "booleanValue") as? Bool).map { .boolean($0) }
