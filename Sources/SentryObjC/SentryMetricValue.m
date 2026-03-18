@@ -1,4 +1,4 @@
-#import "SentryObjCMetricValue.h"
+#import "SentryMetricValue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

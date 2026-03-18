@@ -57,7 +57,7 @@
 @end
 
 // Import the public header which declares SentrySDK
-#import "SentryObjCMetricsApiImpl.h"
+#import "SentryMetricsApiImpl.h"
 #import "SentrySDK.h"
 
 NS_ASSUME_NONNULL_BEGIN

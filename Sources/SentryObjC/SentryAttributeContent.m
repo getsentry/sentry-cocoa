@@ -1,4 +1,4 @@
-#import "SentryObjCAttributeContent.h"
+#import "SentryAttributeContent.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
