@@ -58,11 +58,11 @@
 
 // Import the public header which declares SentrySDK
 #import "SentryObjCMetricsApiImpl.h"
-#import "SentryObjCSDK.h"
+#import "SentrySDK.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentryObjCSDK
+@implementation SentrySDK
 
 + (nullable id<SentrySpan>)span
 {

@@ -11,7 +11,7 @@
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [SentryObjCSDK startWithConfigureOptions:^(SentryOptions *options) {
+    [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
         options.dsn = @"https://6cc9bae94def43cab8444a99e0031c28@o447951.ingest.sentry.io/5428557";
         options.debug = YES;
         options.tracesSampleRate = @1.0;

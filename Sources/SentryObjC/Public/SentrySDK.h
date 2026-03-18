@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see SentryOptions
  * @see SentryScope
  */
-@interface SentryObjCSDK : NSObject
+@interface SentrySDK : NSObject
 
 SENTRY_NO_INIT
 
@@ -76,10 +76,10 @@ SENTRY_NO_INIT
  *
  * @code
  * // Simple counter
- * [[SentryObjCSDK metrics] countWithKey:@"button.click"];
+ * [[SentrySDK metrics] countWithKey:@"button.click"];
  *
  * // Distribution with unit and attributes
- * [[SentryObjCSDK metrics] distributionWithKey:@"response.time"
+ * [[SentrySDK metrics] distributionWithKey:@"response.time"
  *                                         value:125.5
  *                                          unit:SentryUnitNameMillisecond
  *                                    attributes:@{

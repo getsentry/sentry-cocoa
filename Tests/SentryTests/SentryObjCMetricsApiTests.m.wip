@@ -10,8 +10,8 @@
 {
     [super setUp];
     // SDK needs to be started for metrics to work
-    if (![SentryObjCSDK isEnabled]) {
-        [SentryObjCSDK startWithConfigureOptions:^(SentryOptions *options) {
+    if (![SentrySDK isEnabled]) {
+        [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
             options.dsn = @"https://username@sentry.io/1";
             options.enableMetrics = YES;
         }];
@@ -21,24 +21,24 @@
 - (void)tearDown
 {
     [super tearDown];
-    [SentryObjCSDK close];
+    [SentrySDK close];
 }
 
 - (void)testMetricsApiReturnsNonNil
 {
-    id<SentryObjCMetricsApi> metrics = [SentryObjCSDK metrics];
+    id<SentryObjCMetricsApi> metrics = [SentrySDK metrics];
     XCTAssertNotNil(metrics);
 }
 
 - (void)testCountWithKeyOnly
 {
     // This should not crash - just verify the API works
-    [[SentryObjCSDK metrics] countWithKey:@"test.counter"];
+    [[SentrySDK metrics] countWithKey:@"test.counter"];
 }
 
 - (void)testCountWithValueOnly
 {
-    [[SentryObjCSDK metrics] countWithKey:@"test.counter" value:5];
+    [[SentrySDK metrics] countWithKey:@"test.counter" value:5];
 }
 
 - (void)testCountWithAllParameters
@@ -48,17 +48,17 @@
         @"success" : [SentryObjCAttributeContent booleanWithValue:YES]
     };
 
-    [[SentryObjCSDK metrics] countWithKey:@"button.click" value:1 attributes:attributes];
+    [[SentrySDK metrics] countWithKey:@"button.click" value:1 attributes:attributes];
 }
 
 - (void)testDistributionWithValueOnly
 {
-    [[SentryObjCSDK metrics] distributionWithKey:@"response.time" value:125.5];
+    [[SentrySDK metrics] distributionWithKey:@"response.time" value:125.5];
 }
 
 - (void)testDistributionWithUnit
 {
-    [[SentryObjCSDK metrics] distributionWithKey:@"response.time"
+    [[SentrySDK metrics] distributionWithKey:@"response.time"
                                            value:125.5
                                             unit:SentryUnitNameMillisecond];
 }
@@ -71,7 +71,7 @@
         @"status" : [SentryObjCAttributeContent integerWithValue:200]
     };
 
-    [[SentryObjCSDK metrics] distributionWithKey:@"http.request.duration"
+    [[SentrySDK metrics] distributionWithKey:@"http.request.duration"
                                            value:187.5
                                             unit:SentryUnitNameMillisecond
                                       attributes:attributes];
@@ -79,12 +79,12 @@
 
 - (void)testGaugeWithValueOnly
 {
-    [[SentryObjCSDK metrics] gaugeWithKey:@"queue.depth" value:42];
+    [[SentrySDK metrics] gaugeWithKey:@"queue.depth" value:42];
 }
 
 - (void)testGaugeWithUnit
 {
-    [[SentryObjCSDK metrics] gaugeWithKey:@"memory.usage" value:1024.0 unit:SentryUnitNameByte];
+    [[SentrySDK metrics] gaugeWithKey:@"memory.usage" value:1024.0 unit:SentryUnitNameByte];
 }
 
 - (void)testGaugeWithAllParameters
@@ -94,7 +94,7 @@
         @"priority" : [SentryObjCAttributeContent integerWithValue:1]
     };
 
-    [[SentryObjCSDK metrics] gaugeWithKey:@"queue.depth"
+    [[SentrySDK metrics] gaugeWithKey:@"queue.depth"
                                     value:42
                                      unit:SentryUnitWithName(@"items")
                                attributes:attributes];
@@ -102,7 +102,7 @@
 
 - (void)testGaugeWithCustomUnit
 {
-    [[SentryObjCSDK metrics] gaugeWithKey:@"custom.metric"
+    [[SentrySDK metrics] gaugeWithKey:@"custom.metric"
                                     value:99.9
                                      unit:SentryUnitWithName(@"custom")];
 }
@@ -120,26 +120,26 @@
         @"doubleArray" : [SentryObjCAttributeContent doubleArrayWithValue:@[ @1.1, @2.2 ]]
     };
 
-    [[SentryObjCSDK metrics] countWithKey:@"test.all.types" value:1 attributes:attributes];
+    [[SentrySDK metrics] countWithKey:@"test.all.types" value:1 attributes:attributes];
 }
 
 - (void)testNilAttributesHandled
 {
-    [[SentryObjCSDK metrics] countWithKey:@"test" value:1 attributes:nil];
-    [[SentryObjCSDK metrics] distributionWithKey:@"test" value:1.0 unit:nil attributes:nil];
-    [[SentryObjCSDK metrics] gaugeWithKey:@"test" value:1.0 unit:nil attributes:nil];
+    [[SentrySDK metrics] countWithKey:@"test" value:1 attributes:nil];
+    [[SentrySDK metrics] distributionWithKey:@"test" value:1.0 unit:nil attributes:nil];
+    [[SentrySDK metrics] gaugeWithKey:@"test" value:1.0 unit:nil attributes:nil];
 }
 
 - (void)testEmptyAttributesHandled
 {
-    [[SentryObjCSDK metrics] countWithKey:@"test" value:1 attributes:@{ }];
-    [[SentryObjCSDK metrics] distributionWithKey:@"test" value:1.0 unit:nil attributes:@{ }];
-    [[SentryObjCSDK metrics] gaugeWithKey:@"test" value:1.0 unit:nil attributes:@{ }];
+    [[SentrySDK metrics] countWithKey:@"test" value:1 attributes:@{ }];
+    [[SentrySDK metrics] distributionWithKey:@"test" value:1.0 unit:nil attributes:@{ }];
+    [[SentrySDK metrics] gaugeWithKey:@"test" value:1.0 unit:nil attributes:@{ }];
 }
 
 - (void)testLoggerAccess
 {
-    SentryLogger *logger = [SentryObjCSDK logger];
+    SentryLogger *logger = [SentrySDK logger];
     XCTAssertNotNil(logger);
 }
 
@@ -152,21 +152,21 @@
     };
 
     // Should not crash - invalid attributes are logged and skipped
-    [[SentryObjCSDK metrics] countWithKey:@"test.invalid" value:1 attributes:attributes];
+    [[SentrySDK metrics] countWithKey:@"test.invalid" value:1 attributes:attributes];
 }
 
 - (void)testMetricsApiLazySingleton
 {
     // Verify that metrics returns the same instance each time (singleton)
-    id<SentryObjCMetricsApi> metrics1 = [SentryObjCSDK metrics];
-    id<SentryObjCMetricsApi> metrics2 = [SentryObjCSDK metrics];
+    id<SentryObjCMetricsApi> metrics1 = [SentrySDK metrics];
+    id<SentryObjCMetricsApi> metrics2 = [SentrySDK metrics];
     XCTAssertEqual(metrics1, metrics2);
 }
 
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 - (void)testReplayApiReturnsNonNil
 {
-    SentryReplayApi *replay = [SentryObjCSDK replay];
+    SentryReplayApi *replay = [SentrySDK replay];
     XCTAssertNotNil(replay, @"Replay API should not return nil on supported platforms");
 }
 #endif

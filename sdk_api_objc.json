@@ -1393,7 +1393,7 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryBreadcrumb",
-    "file": "SentryObjCSDK.h",
+    "file": "SentrySDK.h",
     "super": "NSObject",
     "has_inner": false
   },

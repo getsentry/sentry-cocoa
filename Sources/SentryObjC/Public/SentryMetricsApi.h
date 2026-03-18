@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
  * This protocol provides an API for recording telemetry metrics that can be used
  * for monitoring application performance, tracking business metrics, and analyzing system behavior.
  *
- * Access via @c [SentryObjCSDK metrics].
+ * Access via @c [SentrySDK metrics].
  *
  * @see SentryObjCAttributeContent
  * @see SentryObjCUnit.h for predefined unit constants
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
  *                   Pass @c nil or empty dictionary if no attributes are needed.
  *
  * @code
- * [[SentryObjCSDK metrics] countWithKey:@"button.click"
+ * [[SentrySDK metrics] countWithKey:@"button.click"
  *                                  value:1
  *                             attributes:@{
  *     @"screen": [SentryObjCAttributeContent stringWithValue:@"home"]
@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
  *                   Pass @c nil or empty dictionary if no attributes are needed.
  *
  * @code
- * [[SentryObjCSDK metrics] distributionWithKey:@"response.time"
+ * [[SentrySDK metrics] distributionWithKey:@"response.time"
  *                                         value:125.5
  *                                          unit:SentryUnitNameMillisecond
  *                                    attributes:@{
@@ -94,7 +94,7 @@ NS_ASSUME_NONNULL_BEGIN
  *                   Pass @c nil or empty dictionary if no attributes are needed.
  *
  * @code
- * [[SentryObjCSDK metrics] gaugeWithKey:@"queue.depth"
+ * [[SentrySDK metrics] gaugeWithKey:@"queue.depth"
  *                                  value:42
  *                                   unit:SentryUnitWithName(@"items")
  *                             attributes:@{
