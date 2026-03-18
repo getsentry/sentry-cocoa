@@ -50,3 +50,10 @@ if [ "$variants" = "WithoutUIKitWithARM64eOnly" ] || [ "$variants" = "AllVariant
     ./scripts/compress-xcframework.sh "$signed" Sentry-WithoutUIKitOrAppKit-WithARM64e
     mv Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip
 fi
+
+if [ "$variants" = "SentryObjCOnly" ] || [ "$variants" = "AllVariants" ]; then
+    ./scripts/build-xcframework-variant.sh "SentryObjC" "" "mh_dylib" "" "$sdks" ""
+    ./scripts/validate-xcframework-format.sh "SentryObjC.xcframework"
+    ./scripts/compress-xcframework.sh "$signed" SentryObjC
+    mv SentryObjC.xcframework.zip XCFrameworkBuildPath/SentryObjC.xcframework.zip
+fi
