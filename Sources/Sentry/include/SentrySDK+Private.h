@@ -30,9 +30,24 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
 
 /**
- * SDK private field to store the state if onCrashedLastRun was called.
+ * SDK private field to store the state if onLastRunStatusDetermined (or the deprecated
+ * onCrashedLastRun) callback was already called for the current SDK lifecycle.
  */
-@property (nonatomic, class) BOOL crashedLastRunCalled;
+@property (nonatomic, class) BOOL lastRunStatusCalled;
+
+/**
+ * Set to @c YES after the crash reporter has been installed and has loaded its persisted state
+ * from disk. This allows @c lastRunStatus to return a definitive answer instead of
+ * @c SentryLastRunStatusUnknown.
+ */
+@property (nonatomic, class) BOOL crashReporterInstalled;
+
+/**
+ * Set to @c YES by any integration that detects a fatal event from the previous run
+ * (crash reporter, watchdog termination). The integration installer checks this flag
+ * to decide whether to fire @c onLastRunStatusDetermined with @c didNotCrash.
+ */
+@property (nonatomic, class) BOOL fatalDetected;
 
 + (void)setDetectedStartUpCrash:(BOOL)value;
 
@@ -59,18 +74,6 @@ NS_ASSUME_NONNULL_BEGIN
  * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
  */
 + (void)captureEnvelope:(SentryEnvelope *)envelope;
-
-#if TARGET_OS_OSX
-/**
- * Captures an exception event and sends it to Sentry using the stacktrace from the exception.
- * @param exception The exception to send to Sentry.
- * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
- *
- */
-+ (SentryId *)captureCrashOnException:(NSException *)exception
-    NS_SWIFT_NAME(captureCrashOn(exception:));
-
-#endif // TARGET_OS_OSX
 
 #if SENTRY_HAS_UIKIT
 

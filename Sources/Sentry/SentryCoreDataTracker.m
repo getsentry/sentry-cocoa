@@ -5,7 +5,6 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySpanInternal.h"
@@ -145,7 +144,7 @@
                   (NSDictionary<NSString *, NSDictionary<NSString *, NSNumber *> *> *)operations
                              inContext:(NSManagedObjectContext *)context
 {
-    __block NSMutableArray *resultParts = [NSMutableArray new];
+    __block NSMutableArray *resultParts = [[NSMutableArray alloc] init];
 
     void (^operationInfo)(NSUInteger, NSString *) = ^void(NSUInteger total, NSString *op) {
         NSDictionary *items = operations[op];
@@ -185,7 +184,7 @@
 
 - (NSDictionary<NSString *, NSNumber *> *)countEntities:(NSSet *)entities
 {
-    NSMutableDictionary<NSString *, NSNumber *> *result = [NSMutableDictionary new];
+    NSMutableDictionary<NSString *, NSNumber *> *result = [[NSMutableDictionary alloc] init];
 
     for (id item in entities) {
         NSString *cl

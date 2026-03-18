@@ -18,7 +18,6 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
     }
     
 #if os(iOS) || os(tvOS)
-    
     func testStopRemovesSwizzleSendAction() {
         let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
 
@@ -319,6 +318,80 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(parentScreenName, lifeCycleCrumb.data?["parentViewController"] as? String)
     }
 
+    func testFetchInfo_whenViewControllerInWindow_shouldIncludeWindowInfo() throws {
+        let testReachability = TestSentryReachability()
+        SentryDependencyContainer.sharedInstance().reachability = testReachability
+
+        let scope = Scope()
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
+
+        let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        sut.start(with: delegate)
+        sut.startSwizzle()
+
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let viewController = UIViewController()
+        viewController.title = "Window Test"
+        window.rootViewController = viewController
+        window.makeKeyAndVisible() // Make window active so view hierarchy is established
+        _ = viewController.view // Load view so it is in the window hierarchy
+
+        viewController.viewDidAppear(false)
+
+        let crumbs = delegate.addCrumbInvocations.invocations
+        guard crumbs.count >= 2 else {
+            XCTFail("Expected at least 2 breadcrumbs, got: \(crumbs.count)")
+            return
+        }
+
+        let lifeCycleCrumb = try XCTUnwrap(crumbs.last)
+        XCTAssertEqual("navigation", lifeCycleCrumb.type)
+        XCTAssertEqual("ui.lifecycle", lifeCycleCrumb.category)
+
+        let data = try XCTUnwrap(lifeCycleCrumb.data)
+        XCTAssertNotNil(data["window"] as? String, "Breadcrumb should include window description when view controller is in a window")
+        XCTAssertNotNil(data["window_isKeyWindow"] as? String)
+        XCTAssertNotNil(data["window_windowLevel"] as? String)
+        XCTAssertEqual(data["is_window_rootViewController"] as? String, "true", "ViewController is root of the window")
+    }
+
+    func testFetchInfo_whenViewControllerNotInWindow_shouldNotIncludeWindowInfo() throws {
+        let testReachability = TestSentryReachability()
+        SentryDependencyContainer.sharedInstance().reachability = testReachability
+
+        let scope = Scope()
+        let client = TestClient(options: Options())
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
+
+        let sut = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        sut.start(with: delegate)
+        sut.startSwizzle()
+
+        let parentController = UIViewController()
+        let viewController = UIViewController()
+        viewController.title = "Orphan Test"
+        parentController.addChild(viewController)
+        _ = viewController.view // Load view but it is not in any window
+
+        viewController.viewDidAppear(false)
+
+        let crumbs = delegate.addCrumbInvocations.invocations
+        guard crumbs.count >= 2 else {
+            XCTFail("Expected at least 2 breadcrumbs, got: \(crumbs.count)")
+            return
+        }
+
+        let lifeCycleCrumb = try XCTUnwrap(crumbs.last)
+        let data = lifeCycleCrumb.data ?? [:]
+        XCTAssertNil(data["window"], "Breadcrumb should not include window when view controller's view is not in a window")
+        XCTAssertNil(data["window_isKeyWindow"])
+        XCTAssertNil(data["window_windowLevel"])
+        XCTAssertNil(data["is_window_rootViewController"])
+    }
+
     private class TestEvent: UIEvent {
         let touchedView: UIView?
         class TestEndTouch: UITouch {
@@ -352,7 +425,6 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             super.init(nibName: nil, bundle: nil)
         }
     }
-
 #endif
     
 }

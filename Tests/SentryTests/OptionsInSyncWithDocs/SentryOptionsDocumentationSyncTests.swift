@@ -4,7 +4,7 @@ import XCTest
 /// documentation entries in the sentry-docs repository.
 ///
 /// Docs source: https://github.com/getsentry/sentry-docs/blob/master/docs/platforms/apple/common/configuration/options.mdx
-@available(iOS 26.0, tvOS 26.0, macOS 26.0, macCatalyst 26.0, *)
+@available(iOS 26.0, tvOS 26.0, macOS 26.0, macCatalyst 26.0, watchOS 9.0, *)
 final class SentryOptionsDocumentationSyncTests: XCTestCase {
 
     /// Options not yet documented in the common options page.
@@ -16,7 +16,8 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     private var undocumentedOptions: Set<String> {
         var options: Set<String> = [
             "parsedDsn",
-            "experimental"
+            "experimental",
+            "onLastRunStatusDetermined"
         ]
         
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -33,7 +34,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         options.insert("configureUserFeedback")
         #endif
 
-        #if !(os(tvOS) || os(visionOS))
+        #if !(os(tvOS) || os(visionOS) || os(watchOS))
         options.insert("profiling") // @_spi(Private) - internal backing for configureProfiling
         options.insert("configureProfiling")
         #endif

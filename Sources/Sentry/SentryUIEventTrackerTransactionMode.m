@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if (self = [super init]) {
         self.idleTimeout = idleTimeout;
-        self.activeTransactions = [NSMutableArray new];
+        self.activeTransactions = [[NSMutableArray alloc] init];
     }
     return self;
 }

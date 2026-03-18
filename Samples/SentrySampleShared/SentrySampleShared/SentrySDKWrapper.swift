@@ -27,7 +27,9 @@ public struct SentrySDKWrapper {
         }
 
         if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
+            print("[Sentry] lastRunStatus before start: \(SentrySDK.lastRunStatus)")
             SentrySDK.start(configureOptions: configureSentryOptions(options:))
+            print("[Sentry] lastRunStatus after start: \(SentrySDK.lastRunStatus)")
         }
     }
 
@@ -67,13 +69,14 @@ public struct SentrySDKWrapper {
             options.experimental.enableSessionReplayInUnreliableEnvironment = SentrySDKOverrides.SessionReplay.enableInUnreliableEnvironment.boolValue
         }
 
-#if !os(tvOS)
-        if #available(iOS 15.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
+#endif // !os(macOS) && !os(watchOS) && !os(visionOS)
+
+#if !os(tvOS) && !os(watchOS)
+        if #available(iOS 15.0, macOS 12.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
             options.enableMetricKit = true
             options.enableMetricKitRawPayload = !SentrySDKOverrides.Other.disableMetricKitRawPayloads.boolValue
         }
-#endif // !os(tvOS)
-#endif // !os(macOS) && !os(watchOS) && !os(visionOS)
+#endif // !os(tvOS) && !os(watchOS)
 
         options.tracesSampleRate = 1
         if let sampleRate = SentrySDKOverrides.Tracing.sampleRate.floatValue {
@@ -132,6 +135,11 @@ public struct SentrySDKWrapper {
         options.enableSwizzling = !SentrySDKOverrides.Other.disableSwizzling.boolValue
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
+
+        options.onLastRunStatusDetermined = { status, crashEvent in
+            let eventId = crashEvent?.eventId.sentryIdString ?? "nil"
+            print("[Sentry] lastRunStatus: \(status) (event: \(eventId))")
+        }
         options.enableTimeToFullDisplayTracing = !SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.boolValue
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
 
@@ -180,6 +188,10 @@ public struct SentrySDKWrapper {
         // Experimental features
         options.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
         options.experimental.enableUnhandledCPPExceptionsV2 = true
+
+#if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        options.enableUncaughtNSExceptionReporting = true
+#endif
     }
 
     func configureInitialScope(scope: Scope, options: Options) -> Scope {

@@ -5,6 +5,7 @@ import XCTest
 private struct TestItem: TelemetryItem {
     var attributesDict: [String: SentryAttributeContent]
     var traceId: SentryId
+    var spanId: SpanId?
     var body: String
 
     init(body: String = "test", attributes: [String: SentryAttributeContent] = [:]) {
@@ -212,7 +213,7 @@ final class TelemetryBufferTests: XCTestCase {
         XCTAssertEqual(testTelemetryBuffer.flushCallCount, 1)
     }
     
-    func testCapture_whenMultipleItems_shouldPassCorrectItemCount() {
+    func testCapture_whenMultipleItems_shouldPassCorrectItemCount() throws {
         // -- Arrange --
         let sut = getSut()
         sut.add(TestItem(body: "Item 1"))
@@ -224,7 +225,7 @@ final class TelemetryBufferTests: XCTestCase {
         
         // -- Assert --
         XCTAssertEqual(capturedDataInvocations.count, 1)
-        let invocation = capturedDataInvocations.invocations.first!
+        let invocation = try XCTUnwrap(capturedDataInvocations.invocations.first)
         XCTAssertEqual(invocation.1, 3, "Callback should receive item count, not byte size")
     }
     

@@ -138,6 +138,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
     var coreDataSwizzling = SentryCoreDataSwizzling()
+    // This is a var so that it's initialized lazily on first access. It never should get set
+    // to a different value.
+    lazy var hangTracker: HangTracker = DefaultHangTracker(dateProvider: Dependencies.dateProvider)
     
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     private var _extraContextProvider: SentryExtraContextProvider?
@@ -505,6 +508,7 @@ protocol DispatchQueueWrapperProvider {
     var dispatchQueueWrapper: SentryDispatchQueueWrapper { get }
 }
 extension SentryDependencyContainer: DispatchQueueWrapperProvider {}
+extension SentryDependencyContainer: SentryMetricsIntegrationDependencies {}
 
 protocol ApplicationProvider {
     func application() -> SentryApplication?

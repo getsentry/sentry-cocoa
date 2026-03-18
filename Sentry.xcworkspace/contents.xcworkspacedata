@@ -41,6 +41,9 @@
          location = "group:Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Samples/iOS-Swift/iOS-Swift.xcodeproj">
       </FileRef>
       <FileRef
@@ -72,4 +75,8 @@
          location = "group:TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj">
       </FileRef>
    </Group>
+   <FileSystemSynchronizedGroup
+      location = "group:Utils"
+      name = "Utils">
+   </FileSystemSynchronizedGroup>
 </Workspace>

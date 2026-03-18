@@ -160,10 +160,12 @@
     XCTAssertEqual(expected, options.diagnosticLevel);
 }
 
+#if !TARGET_OS_WATCH
 - (void)testEnableSigtermReporting
 {
     [self testBooleanField:@"enableSigtermReporting" defaultValue:NO];
 }
+#endif
 
 - (void)testValidEnabled
 {
@@ -503,6 +505,8 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(nil, options.beforeBreadcrumb);
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testOnCrashedLastRun
 {
     __block BOOL onCrashedLastRunCalled = NO;
@@ -529,6 +533,30 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     SentryOptions *options = [self getValidOptions:@{ @"onCrashedLastRun" : @"fault" }];
 
     XCTAssertNil(options.onCrashedLastRun);
+}
+#pragma clang diagnostic pop
+
+- (void)testOnLastRunStatus
+{
+    void (^callback)(NSInteger, SentryEvent *_Nullable)
+        = ^(__unused NSInteger status, __unused SentryEvent *_Nullable event) { };
+    SentryOptions *options = [self getValidOptions:@{ @"onLastRunStatusDetermined" : callback }];
+
+    XCTAssertNotNil(options.onLastRunStatusDetermined);
+}
+
+- (void)testDefaultOnLastRunStatus
+{
+    SentryOptions *options = [self getValidOptions:@{ }];
+
+    XCTAssertNil(options.onLastRunStatusDetermined);
+}
+
+- (void)testGarbageOnLastRunStatus_ReturnsNil
+{
+    SentryOptions *options = [self getValidOptions:@{ @"onLastRunStatusDetermined" : @"fault" }];
+
+    XCTAssertNil(options.onLastRunStatusDetermined);
 }
 
 - (void)testSampleRateWithDict
@@ -704,7 +732,11 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertTrue([[self getDefaultCacheDirectoryPath] isEqualToString:options.cacheDirectoryPath]);
     XCTAssertNil(options.beforeSend);
     XCTAssertNil(options.beforeBreadcrumb);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertNil(options.onCrashedLastRun);
+#pragma clang diagnostic pop
+    XCTAssertNil(options.onLastRunStatusDetermined);
     XCTAssertEqual(1.0, options.sampleRate.floatValue);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
     XCTAssertEqual(YES, options.enableWatchdogTerminationTracking);
@@ -735,7 +767,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertNil(options.urlSessionDelegate);
     XCTAssertNil(options.urlSession);
     XCTAssertEqual(YES, options.enableSwizzling);
-    XCTAssertEqualObjects([NSSet new], options.swizzleClassNameExcludes);
+    XCTAssertEqualObjects([[NSSet alloc] init], options.swizzleClassNameExcludes);
     XCTAssertEqual(YES, options.enableFileIOTracing);
     XCTAssertEqual(YES, options.enableAutoBreadcrumbTracking);
     XCTAssertFalse(options.swiftAsyncStacktraces);

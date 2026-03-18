@@ -12,7 +12,7 @@
     "codeCoverage" : false,
     "targetForVariableExpansion" : {
       "containerPath" : "container:iOS-Swift.xcodeproj",
-      "identifier" : "637AFDA5243B02760034958B",
+      "identifier" : "6C5B85CBF6AE4AA020E28E5F",
       "name" : "iOS-Swift"
     },
     "uiTestingScreenshotsLifetime" : "keepAlways"

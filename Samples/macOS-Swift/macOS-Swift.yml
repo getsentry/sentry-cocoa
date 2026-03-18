@@ -15,28 +15,55 @@ projectReferences:
     path: ../../Sentry.xcodeproj
   SentrySampleShared:
     path: ../SentrySampleShared/SentrySampleShared.xcodeproj
-fileGroups:
-  - ../Shared/Config
-  - macOS-Swift.yml
-  - ../../Plans/macOS-Swift_Base.xctestplan
 options:
   bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
 targets:
   macOS-Swift:
     type: application
     platform: auto
     sources:
-      - Shared
-      - ../Shared/SampleAssets.xcassets
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+          - "**/Info.plist"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: macOS-Swift.yml
+        group: App/Configurations
+        buildPhase: none
+      - path: ../../Plans/macOS-Swift_Base.xctestplan
+        group: App/Configurations
+        buildPhase: none
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: macOS-Swift.xcconfig
-      Release: macOS-Swift.xcconfig
-      Test: macOS-Swift.xcconfig
-      TestCI: macOS-Swift.xcconfig
+      Debug: App/Configurations/macOS-Swift.xcconfig
+      Release: App/Configurations/macOS-Swift.xcconfig
+      Test: App/Configurations/macOS-Swift.xcconfig
+      TestCI: App/Configurations/macOS-Swift.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -48,37 +75,75 @@ targets:
   macOS-Swift-UITests:
     type: bundle.ui-testing
     platform: auto
-    sources:
-      - macOS-Swift-UITests
     dependencies:
       - target: macOS-Swift
       - target: macOS-Swift-Other
       - target: macOS-Swift-Sandboxed
       - target: macOS-Swift-Sandboxed-Other
       - target: SentrySampleShared/SentrySampleShared
+    sources:
+      # Sources
+      - path: UITests/Sources
+        type: group
+        group: UITests
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: UITests/Resources
+        type: group
+        group: UITests
+        excludes:
+          - "**/.gitkeep"
     configFiles:
-      Debug: macOS-Swift-UITests.xcconfig
-      Release: macOS-Swift-UITests.xcconfig
-      Test: macOS-Swift-UITests.xcconfig
-      TestCI: macOS-Swift-UITests.xcconfig
+      Debug: App/Configurations/macOS-Swift-UITests.xcconfig
+      Release: App/Configurations/macOS-Swift-UITests.xcconfig
+      Test: App/Configurations/macOS-Swift-UITests.xcconfig
+      TestCI: App/Configurations/macOS-Swift-UITests.xcconfig
 
-  # the remaining app targets in this spec, macOS-Swift-Other, macOS-Swift-Sandboxed, macOS-Swift-Sandboxed-Other were created primarily to help reproduce https://github.com/getsentry/sentry-cocoa/issues/5142 in macOS-Swift-UITests, where two unsandboxed mac apps would write a launch profile config file to a common caches location
+  # The remaining app targets (macOS-Swift-Other, macOS-Swift-Sandboxed, macOS-Swift-Sandboxed-Other)
+  # were created primarily to help reproduce https://github.com/getsentry/sentry-cocoa/issues/5142
+  # in macOS-Swift-UITests, where two unsandboxed mac apps would write a launch profile config
+  # file to a common caches location.
 
   macOS-Swift-Other:
     type: application
     platform: auto
     sources:
-      - Shared
-      - ../Shared/SampleAssets.xcassets
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+          - "**/Info.plist"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: macOS-Swift-Other.xcconfig
-      Release: macOS-Swift-Other.xcconfig
-      Test: macOS-Swift-Other.xcconfig
-      TestCI: macOS-Swift-Other.xcconfig
+      Debug: App/Configurations/macOS-Swift-Other.xcconfig
+      Release: App/Configurations/macOS-Swift-Other.xcconfig
+      Test: App/Configurations/macOS-Swift-Other.xcconfig
+      TestCI: App/Configurations/macOS-Swift-Other.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -91,17 +156,41 @@ targets:
     type: application
     platform: auto
     sources:
-      - Shared
-      - ../Shared/SampleAssets.xcassets
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+          - "**/Info.plist"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: macOS-Swift-Sandboxed.xcconfig
-      Release: macOS-Swift-Sandboxed.xcconfig
-      Test: macOS-Swift-Sandboxed.xcconfig
-      TestCI: macOS-Swift-Sandboxed.xcconfig
+      Debug: App/Configurations/macOS-Swift-Sandboxed.xcconfig
+      Release: App/Configurations/macOS-Swift-Sandboxed.xcconfig
+      Test: App/Configurations/macOS-Swift-Sandboxed.xcconfig
+      TestCI: App/Configurations/macOS-Swift-Sandboxed.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist
@@ -114,17 +203,41 @@ targets:
     type: application
     platform: auto
     sources:
-      - Shared
-      - ../Shared/SampleAssets.xcassets
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+          - "**/Info.plist"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
-      Debug: macOS-Swift-Sandboxed-Other.xcconfig
-      Release: macOS-Swift-Sandboxed-Other.xcconfig
-      Test: macOS-Swift-Sandboxed-Other.xcconfig
-      TestCI: macOS-Swift-Sandboxed-Other.xcconfig
+      Debug: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
+      Release: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
+      Test: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
+      TestCI: App/Configurations/macOS-Swift-Sandboxed-Other.xcconfig
     postCompileScripts:
       - script: ../Shared/inject-git-info.sh
         name: Inject Git Information into Info.plist

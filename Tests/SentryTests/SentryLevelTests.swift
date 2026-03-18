@@ -3,21 +3,38 @@ import Foundation
 import XCTest
 
 class SentryLevelTests: XCTestCase {
-    
-    func testNames() {
-        XCTAssertEqual(SentryLevel.none, SentryLevel.fromName("none"))
-        XCTAssertEqual(SentryLevel.debug, SentryLevel.fromName("debug"))
-        XCTAssertEqual(SentryLevel.error, SentryLevel.fromName("error"))
-        XCTAssertEqual(SentryLevel.info, SentryLevel.fromName("info"))
-        XCTAssertEqual(SentryLevel.fatal, SentryLevel.fromName("fatal"))
-        XCTAssertEqual(SentryLevel.warning, SentryLevel.fromName("warning"))
-        XCTAssertEqual(SentryLevel.error, SentryLevel.fromName("invalid"))
-        
+
+    func testNone_shouldReturnCorrectLevelAndDescription() {
+        XCTAssertEqual(SentryLevel.fromName("none"), SentryLevel.none)
         XCTAssertEqual(SentryLevel.none.description, "none")
+    }
+
+    func testDebug_shouldReturnCorrectLevelAndDescription() {
+        XCTAssertEqual(SentryLevel.fromName("debug"), SentryLevel.debug)
         XCTAssertEqual(SentryLevel.debug.description, "debug")
-        XCTAssertEqual(SentryLevel.error.description, "error")
+    }
+
+    func testInfo_shouldReturnCorrectLevelAndDescription() {
+        XCTAssertEqual(SentryLevel.fromName("info"), SentryLevel.info)
         XCTAssertEqual(SentryLevel.info.description, "info")
-        XCTAssertEqual(SentryLevel.fatal.description, "fatal")
+    }
+
+    func testWarning_shouldReturnCorrectLevelAndDescription() {
+        XCTAssertEqual(SentryLevel.fromName("warning"), SentryLevel.warning)
         XCTAssertEqual(SentryLevel.warning.description, "warning")
+    }
+
+    func testError_shouldReturnCorrectLevelAndDescription() {
+        XCTAssertEqual(SentryLevel.fromName("error"), SentryLevel.error)
+        XCTAssertEqual(SentryLevel.error.description, "error")
+    }
+
+    func testFatal_shouldReturnCorrectLevelAndDescription() {
+        XCTAssertEqual(SentryLevel.fromName("fatal"), SentryLevel.fatal)
+        XCTAssertEqual(SentryLevel.fatal.description, "fatal")
+    }
+
+    func testFromName_whenInvalid_shouldReturnError() {
+        XCTAssertEqual(SentryLevel.fromName("invalid"), SentryLevel.error)
     }
 }

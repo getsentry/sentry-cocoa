@@ -10,7 +10,7 @@ class SentrySystemWrapperTests: XCTestCase {
     func testCPUUsageReportsData() throws {
         XCTAssertNoThrow({
             let cpuUsage = try XCTUnwrap(self.fixture.systemWrapper.cpuUsage())
-            XCTAssert((0.0 ... 100.0).contains(cpuUsage.doubleValue))
+            XCTAssertTrue((0.0 ... 100.0).contains(cpuUsage.doubleValue))
         })
     }
 
@@ -18,7 +18,7 @@ class SentrySystemWrapperTests: XCTestCase {
         let error: NSErrorPointer = nil
         let memoryFootprint = fixture.systemWrapper.memoryFootprintBytes(error)
         XCTAssertNil(error?.pointee)
-        XCTAssert((0...UINT64_MAX).contains(memoryFootprint))
+        XCTAssertTrue((0...UINT64_MAX).contains(memoryFootprint))
     }
 }
 #endif // os(iOS) || os(macOS)

@@ -26,6 +26,11 @@ public struct SentryMetric {
     /// which applies scope-based attribute enrichment including trace context.
     public var traceId: SentryId
 
+    /// The span ID of the span that was active when the metric was collected.
+    ///
+    /// Only set when there is an active span; a propagated span_id must not be used.
+    public var spanId: SpanId?
+
     /// The numeric value of the metric.
     ///
     /// The setter performs automatic type conversion when needed:
@@ -81,6 +86,7 @@ extension SentryMetric: Encodable {
     private enum CodingKeys: String, CodingKey {
         case timestamp
         case traceId = "trace_id"
+        case spanId = "span_id"
         case name
         case value
         case type
@@ -94,6 +100,7 @@ extension SentryMetric: Encodable {
         
         try container.encode(timestamp, forKey: .timestamp)
         try container.encode(traceId.sentryIdString, forKey: .traceId)
+        try container.encodeIfPresent(spanId?.sentrySpanIdString, forKey: .spanId)
         try container.encode(name, forKey: .name)
         try container.encodeIfPresent(unit, forKey: .unit)
         try container.encode(attributes, forKey: .attributes)

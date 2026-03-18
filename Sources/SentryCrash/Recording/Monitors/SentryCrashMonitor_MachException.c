@@ -325,9 +325,12 @@ handleExceptions(void *const userData)
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
-        sentrycrashmc_suspendEnvironment(&threads, &numThreads);
         g_isHandlingCrash = true;
-        sentrycrashcm_notifyFatalExceptionCaptured(true);
+        // Mach exceptions are handled on a port listener thread, not the
+        // crashing thread, so g_crashingThread tracks the handler thread.
+        // Reentrancy would only occur from another thread if the handler
+        // dispatches to worker threads.
+        sentrycrashcm_notifyFatalException(true, &threads, &numThreads);
 
         SENTRY_ASYNC_SAFE_LOG_DEBUG(
             "Exception handler is installed. Continuing exception handling.");

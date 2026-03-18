@@ -48,10 +48,10 @@ jobs:
     outputs:
       run_auto_update_tools_for_prs: ${{ steps.changes.outputs.run_auto_update_tools_for_prs }}
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -61,8 +61,18 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
+      - name: Generate GitHub App Token
+        id: app_token
+        if: github.event_name != 'pull_request'
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        with:
+          app-id: ${{ vars.SENTRY_DEPENDENCY_UPDATER_GITHUB_APP_ID }}
+          private-key: ${{ secrets.SENTRY_DEPENDENCY_UPDATER_GITHUB_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
       - name: Checkout Repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          token: ${{ github.event_name != 'pull_request' && steps.app_token.outputs.token || github.token }}
       - name: Update Homebrew
         run: brew update
 
@@ -84,6 +94,7 @@ jobs:
         uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         with:
+          token: ${{ steps.app_token.outputs.token }}
           add-paths: scripts/.clang-format-version
           branch: github-actions/auto-update-tools-clang-format
           commit-message: "chore(deps): Update clang-format version"
@@ -96,6 +107,7 @@ jobs:
         uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8.1.0
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         with:
+          token: ${{ steps.app_token.outputs.token }}
           add-paths: scripts/.swiftlint-version
           branch: github-actions/auto-update-tools-swiftlint
           commit-message: "chore(deps): Update swiftlint version"

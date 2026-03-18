@@ -30,7 +30,6 @@
 #import "SentryTransport.h"
 #import "SentryTransportAdapter.h"
 #import "SentryTransportFactory.h"
-#import "SentryUseNSExceptionCallstackWrapper.h"
 #import "SentryUser.h"
 
 #if SENTRY_HAS_UIKIT
@@ -49,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSLocale *locale;
 @property (nonatomic, strong) NSTimeZone *timezone;
 @property (nonatomic, strong) id<SentryLogScopeApplier> logScopeApplier;
-@property (nonatomic, strong) id<SentryTelemetryProcessor> telemetryProcessor;
+@property (nonatomic, strong) id<SentryObjCTelemetryProcessor> telemetryProcessor;
 @property (nonatomic, strong) id<SentryEventContextEnricher> eventContextEnricher;
 
 @end
@@ -183,14 +182,6 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                                          type:exception.name];
 
     event.exceptions = @[ sentryException ];
-
-#if TARGET_OS_OSX
-    // When a exception class is SentryUseNSExceptionCallstackWrapper, we should use the thread from
-    // it
-    if ([exception isKindOfClass:[SentryUseNSExceptionCallstackWrapper class]]) {
-        event.threads = [(SentryUseNSExceptionCallstackWrapper *)exception buildThreads];
-    }
-#endif
 
     [self setUserInfo:exception.userInfo withEvent:event];
     return event;
@@ -843,12 +834,22 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
     }
 
-    if (event != nil && isFatalEvent && nil != self.options.onCrashedLastRun
-        && !SentrySDKInternal.crashedLastRunCalled) {
-        // We only want to call the callback once. It can occur that multiple crash events are
+    if (event != nil && isFatalEvent && !SentrySDKInternal.lastRunStatusCalled) {
+        // We only want to call the callbacks once. It can occur that multiple crash events are
         // about to be sent.
-        SentrySDKInternal.crashedLastRunCalled = YES;
-        self.options.onCrashedLastRun(SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
+        SentrySDKInternal.lastRunStatusCalled = YES;
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        if (nil != self.options.onCrashedLastRun) {
+            self.options.onCrashedLastRun(SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
+        }
+#pragma clang diagnostic pop
+
+        if (nil != self.options.onLastRunStatusDetermined) {
+            self.options.onLastRunStatusDetermined(
+                SentryLastRunStatusDidCrash, SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
+        }
     }
 
     return event;
@@ -1128,26 +1129,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     }
 }
 
-- (void)captureMetricsData:(NSData *)data with:(NSNumber *)itemCount
+- (id)getTelemetryProcessor
 {
-    [self captureData:data
-                 with:itemCount
-                 type:SentryEnvelopeItemTypes.traceMetric
-          contentType:@"application/vnd.sentry.items.trace-metric+json"];
-}
-
-- (void)captureData:(NSData *)data
-               with:(NSNumber *)itemCount
-               type:(NSString *)type
-        contentType:(NSString *)contentType
-{
-    SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithType:type
-                                                                           data:data
-                                                                    contentType:contentType
-                                                                      itemCount:itemCount];
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:[SentryEnvelopeHeader empty]
-                                                           singleItem:envelopeItem];
-    [self captureEnvelope:envelope];
+    return self.telemetryProcessor;
 }
 
 @end

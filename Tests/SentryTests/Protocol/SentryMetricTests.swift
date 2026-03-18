@@ -117,6 +117,26 @@ final class SentryMetricTests: XCTestCase {
         XCTAssertEqual(json["unit"] as? String, "connection")
     }
 
+    func testEncode_whenSpanIdIsSet_shouldEncodeSpanId() throws {
+        // -- Arrange --
+        var metric = SentryMetric(
+            timestamp: testTimestamp,
+            traceId: testTraceId,
+            name: "api.requests",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+        metric.spanId = testSpanId
+
+        // -- Act --
+        let data = try encodeToJSONData(data: metric)
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+
+        // -- Assert --
+        XCTAssertEqual(json["span_id"] as? String, "b0e6f15b45c36b12")
+    }
+
     // MARK: - Helper Methods
 
     /// Encodes a Metric to JSON Data

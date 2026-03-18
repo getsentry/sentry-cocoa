@@ -9,7 +9,7 @@ import WebKit
 #endif
 
 @objcMembers
-public final class SentryRedactViewHelper: NSObject {
+@_spi(Private) public final class SentryRedactViewHelper: NSObject {
     private static var associatedRedactObjectHandle: UInt8 = 0
     private static var associatedIgnoreObjectHandle: UInt8 = 0
     private static var associatedClipOutObjectHandle: UInt8 = 0

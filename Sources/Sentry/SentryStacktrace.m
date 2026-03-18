@@ -42,9 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-    NSMutableDictionary *serializedData = [NSMutableDictionary new];
+    NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];
 
-    NSMutableArray *frames = [NSMutableArray new];
+    NSMutableArray *frames = [[NSMutableArray alloc] init];
     for (SentryFrame *frame in self.frames) {
         NSDictionary *serialized = [frame serialize];
         if (serialized.allKeys.count > 0) {

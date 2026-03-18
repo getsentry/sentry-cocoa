@@ -193,6 +193,13 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 + (nullable SentryOptions *)optionsWithDictionary:(NSDictionary<NSString *, id> *)options
                                  didFailWithError:(NSError *_Nullable *_Nullable)error;
 
+/**
+ * Sets a custom log output handler. This allows hybrid SDKs (React Native, Flutter, etc.)
+ * to intercept SDK log messages and forward them to their respective consoles.
+ * @param output A block that receives the formatted log message string.
+ */
++ (void)setLogOutput:(void (^)(NSString *))output;
+
 @end
 
 NS_ASSUME_NONNULL_END

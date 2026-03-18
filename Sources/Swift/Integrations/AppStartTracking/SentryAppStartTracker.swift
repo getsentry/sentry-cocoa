@@ -20,7 +20,9 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     // MARK: - Static Properties
 
     /// The watchdog usually kicks in after an app hanging for 30 seconds. As the app could hang in
-    /// multiple stages during the launch we pick a higher threshold.
+    /// multiple stages during the launch we pick a higher threshold. This threshold also prevents
+    /// reporting way too long app starts, since we can't always reliably detect prewarming, for example.
+    /// It is a safety guard to discard suspiciously long app starts to avoid reporting false app starts.
     private static let maxAppStartDuration: TimeInterval = 180.0
 
     // MARK: - Instance Properties

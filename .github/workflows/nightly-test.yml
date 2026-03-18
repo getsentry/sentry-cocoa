@@ -1,0 +1,173 @@
+name: Nightly Test
+
+on:
+  schedule:
+    # Run nightly at 2:00 AM UTC, offset from other scheduled workflows
+    # (auto-update-tools runs at 0:00 UTC, CodeQL at 4:40 UTC Saturday)
+    - cron: "0 2 * * *"
+
+  workflow_dispatch:
+
+# Concurrency configuration:
+# - Nightly tests should never be cancelled to ensure complete validation
+#   of additional platform/device coverage beyond our regular CI matrix.
+# - For workflow_dispatch, each manual run gets its own group via run_id
+#   to allow concurrent manual triggers without cancellation.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  unit-tests:
+    name: Unit ${{matrix.name}}
+    uses: ./.github/workflows/unit-test-common.yml
+    secrets: inherit
+    with:
+      name: ${{matrix.name}}
+      runs-on: ${{ matrix.runs-on }}
+      should_skip: false
+      xcode: ${{matrix.xcode}}
+      platform: ${{matrix.platform}}
+      test-destination-os: ${{matrix.test-destination-os}}
+      timeout: ${{matrix.timeout || 20}}
+      device: ${{matrix.device || ''}}
+      scheme: "Sentry"
+      run_on_cirrus_labs: true
+    strategy:
+      fail-fast: false
+      matrix:
+        # Additional devices and platforms not covered by the regular CI matrix in test.yml.
+        include:
+          - name: iOS 26 iPad Sentry
+            runs-on: tahoe
+            xcode: "26.3"
+            test-destination-os: "26.3"
+            platform: "iOS"
+            device: "iPad Pro 13-inch (M5)"
+
+          - name: watchOS 26 Sentry
+            runs-on: tahoe
+            xcode: "26.3"
+            test-destination-os: "26.4"
+            platform: "watchOS"
+            device: "Apple Watch Ultra 3 (49mm)"
+            timeout: 30
+
+          - name: visionOS 2.5 Sentry
+            runs-on: sequoia
+            xcode: "26.0.1"
+            test-destination-os: "2.5"
+            platform: "visionOS"
+            device: "Apple Vision Pro"
+            timeout: 30
+
+  slack-notification:
+    name: Slack Notification
+    needs: [unit-tests]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine results
+        id: results
+        run: |
+          UNIT_RESULT="${{ needs.unit-tests.result }}"
+
+          if [ "$UNIT_RESULT" = "failure" ]; then
+            echo "status=failure" >> "$GITHUB_OUTPUT"
+            echo "emoji=:x:" >> "$GITHUB_OUTPUT"
+          elif [ "$UNIT_RESULT" = "cancelled" ]; then
+            echo "status=cancelled" >> "$GITHUB_OUTPUT"
+            echo "emoji=:warning:" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=success" >> "$GITHUB_OUTPUT"
+            echo "emoji=:white_check_mark:" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Get failed jobs
+        id: failed_jobs
+        if: steps.results.outputs.status != 'success'
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const jobs = await github.paginate(
+              github.rest.actions.listJobsForWorkflowRun,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: context.runId,
+              }
+            );
+
+            const failed = jobs
+              .filter(j => j.conclusion === 'failure' && j.name.startsWith('Unit '))
+              .map(j => j.name);
+
+            const cancelled = jobs
+              .filter(j => j.conclusion === 'cancelled' && j.name.startsWith('Unit '))
+              .map(j => j.name);
+
+            let details = '';
+            if (failed.length > 0) {
+              details += `*Failed:*\n- ${failed.join('\n- ')}\n`;
+            }
+            if (cancelled.length > 0) {
+              details += `*Cancelled:*\n- ${cancelled.join('\n- ')}\n`;
+            }
+
+            core.setOutput('details', details || 'No specific job details available.');
+
+      - name: Send Slack notification
+        if: steps.results.outputs.status != 'success'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_CRON_WEBHOOK_URL }}
+          STATUS: ${{ steps.results.outputs.status }}
+          EMOJI: ${{ steps.results.outputs.emoji }}
+          DETAILS: ${{ steps.failed_jobs.outputs.details }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          jq -n \
+            --arg emoji "$EMOJI" \
+            --arg status "$STATUS" \
+            --arg details "${DETAILS:-Check the workflow run for details.}" \
+            --arg run_url "$RUN_URL" \
+            '{
+              blocks: [
+                {
+                  type: "header",
+                  text: {
+                    type: "plain_text",
+                    text: "\($emoji) Nightly Test: \($status)",
+                    emoji: true
+                  }
+                },
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: $details
+                  }
+                },
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: "<\($run_url)|View workflow run>"
+                  }
+                }
+              ]
+            }' | curl -X POST "$SLACK_WEBHOOK_URL" \
+              -H 'Content-type: application/json' \
+              --fail-with-body \
+              -d @-
+
+  nightly-test-required-check:
+    needs: [unit-tests]
+    name: Nightly Tests
+    # This is necessary since a failed/skipped dependent job would cause this job to be skipped
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the nightly test jobs has failed." && exit 1

@@ -81,7 +81,7 @@ private struct AnyIntegration {
         integrations.append(.init(SentryViewHierarchyIntegration.self))
         #endif
         
-        #if os(iOS) || os(macOS)
+        #if os(iOS) || os(macOS) || os(visionOS)
         if #available(macOS 12.0, *) {
             integrations.append(.init(SentryMetricKitIntegration.self))
         }

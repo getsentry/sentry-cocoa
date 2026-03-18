@@ -111,10 +111,10 @@ class SentryTransportFactoryTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(transports.count, 2)
-        XCTAssert(transports.contains {
+        XCTAssertTrue(transports.contains {
             $0.isKind(of: SentrySpotlightTransport.self)
         })
-        XCTAssert(transports.contains {
+        XCTAssertTrue(transports.contains {
             $0.isKind(of: SentryHttpTransport.self)
         })
     }
@@ -167,7 +167,7 @@ class SentryTransportFactoryTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(transports.count, 1)
-        XCTAssert(transports.contains {
+        XCTAssertTrue(transports.contains {
             $0.isKind(of: SentrySpotlightTransport.self)
         })
     }

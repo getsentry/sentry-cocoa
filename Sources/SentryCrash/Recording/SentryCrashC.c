@@ -153,6 +153,7 @@ void
 sentrycrash_uninstall(void)
 {
     sentrycrashcm_setEventCallback(NULL);
+    sentrycrashcm_resetState();
     g_installed = 0;
     sentrycrashccd_close();
 }

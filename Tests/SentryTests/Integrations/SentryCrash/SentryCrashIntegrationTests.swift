@@ -635,7 +635,75 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         // Validate there is no attributes in the user info
         XCTAssertNil(userInfo["attributes"])
     }
-    
+
+    // MARK: - lastRunStatus
+
+    func testInit_setsCrashReporterInstalled() throws {
+        // -- Arrange --
+        XCTAssertFalse(SentrySDKInternal.crashReporterInstalled)
+
+        // -- Act --
+        _ = try fixture.getSut()
+
+        // -- Assert --
+        XCTAssertTrue(SentrySDKInternal.crashReporterInstalled)
+    }
+
+    func testInit_whenNoCrash_shouldNotCallOnLastRunStatusCallback() throws {
+        // -- Arrange --
+        // The .didNotCrash callback is now deferred to after all integrations
+        // install (in SentrySwiftIntegrationInstaller), so the crash integration
+        // itself should never call it.
+        var callbackCalled = false
+
+        fixture.options.onLastRunStatusDetermined = { _, _ in
+            callbackCalled = true
+        }
+
+        let crash = fixture.sentryCrash
+        crash.internalCrashedLastLaunch = false
+
+        // -- Act --
+        _ = try fixture.getSut(crashWrapper: crash)
+
+        // -- Assert --
+        XCTAssertFalse(callbackCalled)
+        XCTAssertFalse(SentrySDKInternal.lastRunStatusCalled)
+    }
+
+    func testInit_whenCrash_shouldNotCallOnLastRunStatusCallback() throws {
+        // -- Arrange --
+        var callbackCalled = false
+
+        fixture.options.onLastRunStatusDetermined = { _, _ in
+            callbackCalled = true
+        }
+
+        let crash = fixture.sentryCrash
+        crash.internalCrashedLastLaunch = true
+        SentryDependencyContainer.sharedInstance().crashWrapper = crash
+
+        // -- Act --
+        _ = try fixture.getSut(crashWrapper: crash)
+
+        // -- Assert --
+        // The callback should NOT be called during integration init when there
+        // was a crash. It will be called later from SentryClient when processing
+        // the crash event.
+        XCTAssertFalse(callbackCalled)
+        XCTAssertFalse(SentrySDKInternal.lastRunStatusCalled)
+    }
+
+    func testInit_whenNoCrashAndNoCallback_shouldNotCrash() throws {
+        // -- Arrange --
+        fixture.options.onLastRunStatusDetermined = nil
+        let crash = fixture.sentryCrash
+        crash.internalCrashedLastLaunch = false
+
+        // -- Act & Assert -- (should not crash)
+        _ = try fixture.getSut(crashWrapper: crash)
+    }
+
     private func givenCurrentSession() -> SentrySession {
         // serialize sets the timestamp
         let session = SentrySession(jsonObject: fixture.session.serialize())!

@@ -19,7 +19,19 @@ Please use `Sentry.xcworkspace` as the entry point when opening the project in X
 
 ## PR reviews
 
+### PR Status and Readiness
+
+- **Pull requests which are not ready for review should stay in draft mode.** Use GitHub's draft PR feature to indicate that your PR is still work in progress and not yet ready for maintainer review.
+- **Pull requests which are ready to review should be marked as such.** When your PR is ready for review, mark it as ready by converting it from draft to a regular PR.
+
+### Review Types and Meanings
+
 For feedback in PRs, we use the [LOGAF scale](https://develop.sentry.dev/engineering-practices/code-review/#logaf-scale) to specify how important a comment is. You only need one approval from a maintainer to be able to merge. For some PRs, asking specific or multiple people for review might be adequate.
+
+**Understanding review feedback:**
+
+- **PR comments are a request for change.** When a reviewer leaves comments on your PR, they are requesting changes or asking questions that need to be addressed.
+- **PR approvals are a confirmation it can be merged.** An approval indicates the reviewer has reviewed your PR and confirms it's ready to be merged.
 
 Our different types of reviews:
 
@@ -27,6 +39,22 @@ Our different types of reviews:
 2. **LGTM with low and medium comments.** The reviewer trusts you to resolve these comments yourself, and you don't need to wait for another approval.
 3. **Only comments.** You must address all the comments and need another review until you merge.
 4. **Request changes.** Only use if something critical is in the PR that absolutely must be addressed. We usually use `h` comments for that. When someone requests changes, the same person must approve the changes to allow merging. Use this sparingly.
+
+### After Addressing PR Feedback
+
+**After addressing PR feedback, request another PR review via GitHub.** This changes the pull request status back from commented/approved to waiting, ensuring maintainers are notified that you've addressed their feedback and the PR is ready for re-review.
+
+### PR Labels
+
+#### `ready-for-merge` Label
+
+The `ready-for-merge` label is used to enable CI of the pull request. **It should be set as soon as the PR is ready to be tested in CI, not before, to save CI resources.** Only add this label when your PR is actually ready for full CI testing.
+
+#### `Waiting for: Review :hourglass:` Label
+
+If a PR has been pending review for a while (typically several days), contributors can set the label `Waiting for: Review :hourglass:`, which will result in an internal reminder to maintainers.
+
+**Important:** Contributors should **not** put the "Waiting for: Review :hourglass:" label on every PR, as we still have normal review processes where maintainers regularly look at open PRs. This label should only be used if PRs have not been reviewed for days and need additional attention.
 
 ## Code Formatting
 

@@ -139,6 +139,12 @@ SENTRY_EXTERN NSString *_Nullable sentryStaticCachesPath(void);
 SENTRY_EXTERN BOOL appLaunchProfileConfigFileExists(void);
 
 /**
+ * Ensure the directory for storing launch profile config files exists.
+ * @return @c YES if the directory exists or was successfully created, @c NO otherwise.
+ */
+SENTRY_EXTERN BOOL ensureLaunchProfileConfigDirectoryExists(void);
+
+/**
  * Retrieve the contents of the launch profile config file, which stores the sample rates used to
  * decide whether or not to profile this launch.
  */

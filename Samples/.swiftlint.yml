@@ -1,5 +1,12 @@
 parent_config: ../.swiftlint.yml
 
+custom_rules:
+  no_bare_xctassert:
+    name: "No bare XCTAssert"
+    regex: 'XCTAssert\('
+    message: "Use XCTAssertTrue, XCTAssertEqual, XCTAssertIdentical, etc. instead of bare XCTAssert(). Specific assertions provide better failure messages."
+    severity: error
+
 disabled_rules:
   - force_cast
   - force_try

@@ -1,0 +1,29 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    cgi (0.5.1)
+    charlock_holmes (0.7.9)
+    github-linguist (9.4.0)
+      cgi
+      charlock_holmes (~> 0.7.7)
+      mini_mime (~> 1.0)
+      rugged (~> 1.0)
+    mini_mime (1.1.5)
+    rugged (1.9.0)
+
+PLATFORMS
+  ruby
+  x86_64-linux
+
+DEPENDENCIES
+  github-linguist (= 9.4.0)
+
+CHECKSUMS
+  cgi (0.5.1) sha256=e93fcafc69b8a934fe1e6146121fa35430efa8b4a4047c4893764067036f18e9
+  charlock_holmes (0.7.9) sha256=b49e8a11ce1921e2c5b65511bb864ae51720ce9bd1c336ccf0e89e6c8ae62db0
+  github-linguist (9.4.0) sha256=95ee9a911bd8cc5d0512e4f4e423201f35b20aa93f524c9006915aee25ac6f6c
+  mini_mime (1.1.5) sha256=8681b7e2e4215f2a159f9400b5816d85e9d8c6c6b491e96a12797e798f8bccef
+  rugged (1.9.0) sha256=7faaa912c5888d6e348d20fa31209b6409f1574346b1b80e309dbc7e8d63efac
+
+BUNDLED WITH
+  4.0.6

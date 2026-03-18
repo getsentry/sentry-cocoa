@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+#
+# Minimal visionOS sample app using the SentrySPM compile-from-source product.
+
+name: visionOS-SwiftUI-SPM
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+packages:
+  Sentry:
+    path: ../..
+options:
+  bundleIdPrefix: io.sentry
+  defaultSourceDirectoryType: syncedFolder
+targets:
+  visionOS-SwiftUI-SPM:
+    type: application
+    platform: visionOS
+    deploymentTarget: "1.0"
+    sources:
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: visionOS-SwiftUI-SPM.yml
+        group: App/Configurations
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+    dependencies:
+      - package: Sentry
+        product: SentrySPM
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.sentry.visionOS-SwiftUI-SPM
+        SWIFT_VERSION: "5.0"
+    info:
+      path: App/Configurations/Info.plist
+      properties:
+        CFBundleDisplayName: visionOS-SwiftUI-SPM
+        UILaunchScreen: {}
+schemes:
+  visionOS-SwiftUI-SPM:
+    build:
+      targets:
+        visionOS-SwiftUI-SPM: all
+    run:
+      config: Debug
+    archive:
+      config: Release

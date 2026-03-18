@@ -96,6 +96,22 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Resolve the actual simulator runtime version from simctl.
+# The display version (e.g., "26.3") may differ from the build version (e.g., "26.3.1")
+# and xcodebuild requires the build version in the destination.
+resolve_runtime_version() {
+    local platform="$1"
+    local os="$2"
+    local resolved
+    resolved=$(xcrun simctl list runtimes -v | \
+        grep -E "$platform $os " | sed -n 's/.*(\([0-9.]*\) -.*/\1/p' | head -n1)
+    if [ -n "$resolved" ]; then
+        echo "$resolved"
+    else
+        echo "$os"
+    fi
+}
+
 case $PLATFORM in
 
 "macOS")
@@ -107,15 +123,23 @@ case $PLATFORM in
     ;;
 
 "iOS")
-    DESTINATION="platform=iOS Simulator,OS=$OS,name=$DEVICE"
+    RESOLVED_OS=$(resolve_runtime_version "$PLATFORM" "$OS")
+    DESTINATION="platform=iOS Simulator,OS=$RESOLVED_OS,name=$DEVICE"
     ;;
 
 "tvOS")
-    DESTINATION="platform=tvOS Simulator,OS=$OS,name=Apple TV"
+    RESOLVED_OS=$(resolve_runtime_version "$PLATFORM" "$OS")
+    DESTINATION="platform=tvOS Simulator,OS=$RESOLVED_OS,name=Apple TV"
     ;;
 
 "visionOS")
-    DESTINATION="platform=visionOS Simulator,OS=$OS,name=Apple Vision Pro"
+    RESOLVED_OS=$(resolve_runtime_version "$PLATFORM" "$OS")
+    DESTINATION="platform=visionOS Simulator,OS=$RESOLVED_OS,name=Apple Vision Pro"
+    ;;
+
+"watchOS")
+    RESOLVED_OS=$(resolve_runtime_version "$PLATFORM" "$OS")
+    DESTINATION="platform=watchOS Simulator,OS=$RESOLVED_OS,name=$DEVICE"
     ;;
 
 *)

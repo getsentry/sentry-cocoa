@@ -79,7 +79,7 @@ class SentryWatchdogTerminationBreadcrumbProcessorTests: XCTestCase {
         sut.addSerializedBreadcrumb(breadcrumb)
 
         let fileOneContents = try String(contentsOfFile: fixture.fileManager.breadcrumbsFilePathOne)
-        let firstLine = String(fileOneContents.split(separator: "\n").first!)
+        let firstLine = String(try XCTUnwrap(fileOneContents.split(separator: "\n").first))
         let dict = try XCTUnwrap(try JSONSerialization.jsonObject(with: firstLine.data(using: .utf8)!) as? [String: String])
 
         XCTAssertEqual(dict, breadcrumb)
