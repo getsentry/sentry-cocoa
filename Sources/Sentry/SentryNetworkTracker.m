@@ -481,12 +481,14 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-    // Add network details if available
-    SentryReplayNetworkDetails *networkDetails
-        = objc_getAssociatedObject(sessionTask, &SentryNetworkDetailsKey);
-    if (networkDetails) {
-        // Store raw object; serialized at read time by SentrySRDefaultBreadcrumbConverter
-        breadcrumbData[SentryReplayNetworkDetails.replayNetworkDetailsKey] = networkDetails;
+    // Check if network details was enabled for this url.
+    @synchronized(sessionTask) {
+        SentryReplayNetworkDetails *networkDetails
+            = objc_getAssociatedObject(sessionTask, &SentryNetworkDetailsKey);
+        if (networkDetails) {
+            // Store raw object; serialized at read time by SentrySRDefaultBreadcrumbConverter
+            breadcrumbData[SentryReplayNetworkDetails.replayNetworkDetailsKey] = networkDetails;
+        }
     }
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
