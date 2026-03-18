@@ -63,6 +63,7 @@ jobs:
     steps:
       - name: Generate GitHub App Token
         id: app_token
+        if: github.event_name != 'pull_request'
         uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         with:
           app-id: ${{ vars.SENTRY_DEPENDENCY_UPDATER_GITHUB_APP_ID }}
@@ -71,7 +72,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          token: ${{ steps.app_token.outputs.token }}
+          token: ${{ github.event_name != 'pull_request' && steps.app_token.outputs.token || github.token }}
       - name: Update Homebrew
         run: brew update
 

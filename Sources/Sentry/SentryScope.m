@@ -102,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (self.maxBreadcrumbs < 1) {
         return;
     }
-    SENTRY_LOG_DEBUG(@"Add breadcrumb: %@", crumb);
+    SENTRY_LOG_DEBUG(@"Add breadcrumb: %@ - %@", crumb.category, crumb.message);
     @synchronized(_breadcrumbArray) {
         // Use a ring buffer making adding breadcrumbs O(1).
         // In a prior version, we added the new breadcrumb at the end of the array and used
