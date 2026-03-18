@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithUUIDString:(NSString *)uuidString;
 
-- (BOOL)isEqual:(id)object;
+- (BOOL)isEqual:(nullable id)object;
 
 @end
 

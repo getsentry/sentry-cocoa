@@ -219,6 +219,31 @@ build-signed-xcframework:
 build-xcframework-sample:
 	xcodebuild -project "Samples/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
+## Build SentryObjC framework for iOS Simulator
+#
+# Builds the SentryObjC framework target for iOS Simulator.
+# This is the Objective-C wrapper framework that provides a stable ABI for ObjC++ consumers.
+# The target must first be added to the Xcode project using: bundle exec ruby scripts/add-sentryobjc-target.rb
+.PHONY: build-sentryobjc
+build-sentryobjc:
+	@echo "--> Building SentryObjC for iOS Simulator"
+	set -o pipefail && xcodebuild build \
+		-project Sentry.xcodeproj \
+		-scheme SentryObjC \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		-configuration Release \
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+
+## Build SentryObjC XCFramework for distribution (iOS only)
+#
+# Creates SentryObjC XCFramework for iOS platforms (device + simulator).
+# Uses the existing xcframework build infrastructure.
+# Outputs to XCFrameworkBuildPath/SentryObjC.xcframework.
+.PHONY: build-sentryobjc-xcframework
+build-sentryobjc-xcframework:
+	@echo "--> Creating SentryObjC xcframework (iOS only)"
+	./scripts/build-xcframework-variant.sh SentryObjC '' mh_dylib '' iOSOnly ''
+
 # ============================================================================
 # SAMPLE APPS
 # ============================================================================

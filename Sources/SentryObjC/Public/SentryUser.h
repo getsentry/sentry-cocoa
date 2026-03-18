@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param other The object to compare with.
  * @return @c YES if the objects are equal, @c NO otherwise.
  */
-- (BOOL)isEqual:(id)other;
+- (BOOL)isEqual:(nullable id)other;
 
 /**
  * Compares this user with another user for equality.
