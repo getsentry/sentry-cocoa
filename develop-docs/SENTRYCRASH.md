@@ -53,10 +53,10 @@ SentryCrash is the **backbone of the Sentry Cocoa SDK** -- it handles all crash 
 | Metric                  | Value                                                                  |
 | ----------------------- | ---------------------------------------------------------------------- |
 | **Total files**         | 84 files (36 .h, 36 .c, 11 .m, 1 .cpp)                                 |
-| **Total lines of code** | ~21,000                                                                |
+| **Total lines of code** | ~21,400                                                                |
 | **Location**            | `Sources/SentryCrash/`                                                 |
 | **Languages**           | C (primary), Objective-C, C++, Swift (wrappers)                        |
-| **Test files**          | ~49 across `Tests/SentryTests/SentryCrash/`                            |
+| **Test files**          | ~55 across `Tests/SentryTests/SentryCrash/`                            |
 | **Original source**     | [KSCrash](https://github.com/kstenerud/KSCrash) by Karl Stenerud (MIT) |
 
 ### Architecture Deep Dive
@@ -67,16 +67,16 @@ SentryCrash is the **backbone of the Sentry Cocoa SDK** -- it handles all crash 
 Sources/SentryCrash/
 ├── Installations/                     # Lifecycle management (221 lines)
 │   └── SentryCrashInstallation.m
-├── Recording/                         # Core crash recording (4,774 lines)
-│   ├── SentryCrash.m                  # Main ObjC class (219 lines)
-│   ├── SentryCrashC.c                 # C API entry point (486 lines)
+├── Recording/                         # Core crash recording (4,976 lines)
+│   ├── SentryCrash.m                  # Main ObjC class (565 lines)
+│   ├── SentryCrashC.c                 # C API entry point (317 lines)
 │   ├── SentryCrashReport.c            # Report writing to disk
 │   ├── SentryCrashReportStore.c       # Report storage/retrieval
 │   ├── SentryCrashReportFixer.c       # Post-processing crash reports
 │   ├── SentryCrashCachedData.c        # Thread/system data caching
 │   ├── SentryCrashBinaryImageCache.c  # Binary image tracking
 │   ├── SentryCrashDoctor.m            # Report analysis
-│   ├── Monitors/                      # Crash detection (3,224 lines)
+│   ├── Monitors/                      # Crash detection (3,354 lines)
 │   │   ├── SentryCrashMonitor.c           # Central monitor dispatcher
 │   │   ├── SentryCrashMonitor_MachException.c  # Mach kernel exceptions
 │   │   ├── SentryCrashMonitor_Signal.c         # POSIX signals
@@ -102,11 +102,11 @@ Sources/SentryCrash/
 #### Lines of Code by Subsystem
 
 ```
-Recording/Tools:     11,872 lines (56.5%)  ← Most code lives here
-Recording/ (base):    4,774 lines (22.7%)
-Recording/Monitors:   3,224 lines (15.3%)
+Recording/Tools:     11,872 lines (55.6%)  ← Most code lives here
+Recording/ (base):    4,976 lines (23.3%)
+Recording/Monitors:   3,354 lines (15.7%)
 Reporting/:             934 lines  (4.4%)
-Installations/:         221 lines  (1.1%)
+Installations/:         221 lines  (1.0%)
 ```
 
 #### Crash Detection Flow
@@ -147,7 +147,7 @@ The SDK integrates with SentryCrash through these key files:
 | ------------------------------------------------------------------------------ | -------------------------------------------------------- |
 | `Sources/Swift/Integrations/SentryCrash/SentryCrashIntegration.swift`          | Main integration, implements `SwiftIntegration` protocol |
 | `Sources/Swift/Integrations/SentryCrash/SentryCrashInstallationReporter.swift` | Sentry-specific `SentryCrashInstallation` subclass       |
-| `Sources/Swift/Integrations/SentryCrash/SentryCrashWrapper.swift`              | Testability wrapper around C API                         |
+| `Sources/Swift/SentryCrash/SentryCrashWrapper.swift`                           | Testability wrapper around C API                         |
 | `Sources/Sentry/SentryCrashReportConverter.m`                                  | Transforms raw crash reports → `SentryEvent`             |
 | `Sources/Sentry/SentryCrashReportSink.m`                                       | Implements `SentryCrashReportFilter` for Sentry          |
 | `Sources/Sentry/SentryCrashScopeObserver.m`                                    | Syncs SDK scope → SentryCrash via C interface            |
@@ -162,14 +162,18 @@ SentrySDK.start(options:)
       ├── Create SentryCrashWrapper
       ├── Create SentryCrashScopeObserver
       ├── Create SentryCrashIntegrationSessionHandler
-      └── startCrashHandler():
-          ├── SentryCrashInstallationReporter.install(cacheDirectory)
-          │   └── C: sentrycrash_install(appName, installPath)
-          ├── Serialize scope → sentrycrash_setUserInfoJSON()
-          ├── Register scope observer for live updates
-          ├── sentrycrash_setSaveTransaction(callback)
-          ├── sentrycrashcm_setEnableSigtermReporting()
-          └── installation.sendAllReports() ← sends pending crash reports
+      ├── startCrashHandler():
+      │   ├── sentrycrashcm_setEnableSigtermReporting()
+      │   ├── SentryCrashInstallationReporter.install(cacheDirectory)
+      │   │   └── C: sentrycrash_install(appName, installPath)
+      │   ├── sentrycrashcm_cppexception_enable_swap_cxa_throw() (if enabled)
+      │   ├── sessionHandler.endCurrentSessionIfRequired()
+      │   └── installation.sendAllReports() ← sends pending crash reports
+      ├── configureScope():
+      │   ├── Serialize scope → crashReporter.userInfo → sentrycrash_setUserInfoJSON()
+      │   └── Register scope observer for live updates
+      └── configureTracingWhenCrashing() (if enabled):
+          └── sentrycrash_setSaveTransaction(callback)
 ```
 
 ### Async-Signal-Safety Reference
@@ -531,11 +535,11 @@ void sentrycrash_setSaveTransaction(void (*callback)(void));
 @property NSDictionary *userInfo;
 @property SentryCrashMonitorType monitoring;
 @property int maxReportCount;
-- (SentryCrashMonitorType)install:(NSString *)cacheDirPath;
+- (BOOL)install;
 - (void)uninstall;
 - (NSArray *)reportIDs;
-- (NSDictionary *)reportWithID:(int64_t)reportID;
-- (void)deleteReportWithID:(int64_t)reportID;
+- (NSDictionary *)reportWithID:(NSNumber *)reportID;
+- (void)deleteReportWithID:(NSNumber *)reportID;
 - (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion;
 @end
 ```
@@ -560,7 +564,7 @@ void sentrycrash_setSaveTransaction(void (*callback)(void));
 - `SentryCrashScopeObserver.m`, `SentryDefaultThreadInspector.m`, `SentryDefaultAppStateManager.m`
 - `SentrySpanInternal.m`, `SentrySessionReplaySyncC.c`, plus ~25 more
 
-**SentryCrash → SDK** (55+ SentryCrash files import SDK headers):
+**SentryCrash → SDK** (16 SentryCrash files import SDK headers):
 
 - All monitors import `SentryAsyncSafeLog.h`, `SentryInternalCDefines.h`
 - `SentryCrashC.c` imports `SentrySessionReplaySyncC.h`
@@ -579,11 +583,11 @@ void sentrycrash_setSaveTransaction(void (*callback)(void));
 
 ### Current Test Coverage
 
-**Test file location**: `Tests/SentryTests/SentryCrash/` (49 files)
+**Test file location**: `Tests/SentryTests/SentryCrash/` (55 files)
 
 | Category               | Count | Examples                                                              |
 | ---------------------- | ----- | --------------------------------------------------------------------- |
-| ObjC tests (.m)        | 29    | `SentryCrashJSONCodec_Tests.m`, `SentryCrashObjC_Tests.m`             |
+| ObjC tests (.m)        | 31    | `SentryCrashJSONCodec_Tests.m`, `SentryCrashObjC_Tests.m`             |
 | Swift tests (.swift)   | 18    | `SentryCrashInstallationTests.swift`, `SentryCrashWrapperTests.swift` |
 | C++/ObjC++ tests (.mm) | 2     | `SentryCrashMonitor_CppException_Tests.mm`                            |
 
@@ -608,16 +612,16 @@ void sentrycrash_setSaveTransaction(void (*callback)(void));
 
 **Critical -- no direct unit tests:**
 
-| File                                      | Lines  | Risk   | Notes                                                                 |
-| ----------------------------------------- | ------ | ------ | --------------------------------------------------------------------- |
-| `SentryCrashC.c`                          | 486    | HIGH   | Main C API entry point. Only tested indirectly via integration tests. |
-| `SentryCrashReport.c`                     | ~1,500 | HIGH   | Report writing logic. Only tested indirectly via report store tests.  |
-| `SentryCrashMonitor_MachException.c`      | ~650   | HIGH   | Mach exception handling. No direct tests (hard to test safely).       |
-| `SentryCrashCachedData.c`                 | ~250   | HIGH   | Thread caching with recent race fix. No direct tests.                 |
-| `SentryCrashMemory.c`                     | ~200   | MEDIUM | Memory reading utilities. No tests.                                   |
-| `SentryCrashStackCursor.c`                | ~150   | MEDIUM | Base stack walker. Only self-thread variant tested.                   |
-| `SentryCrashStackCursor_Backtrace.c`      | ~100   | MEDIUM | Backtrace-based walking. No tests.                                    |
-| `SentryCrashStackCursor_MachineContext.c` | ~100   | MEDIUM | Machine context walking. No tests.                                    |
+| File                                      | Lines | Risk   | Notes                                                                 |
+| ----------------------------------------- | ----- | ------ | --------------------------------------------------------------------- |
+| `SentryCrashC.c`                          | 317   | HIGH   | Main C API entry point. Only tested indirectly via integration tests. |
+| `SentryCrashReport.c`                     | 1795  | HIGH   | Report writing logic. Only tested indirectly via report store tests.  |
+| `SentryCrashMonitor_MachException.c`      | ~600  | HIGH   | Mach exception handling. No direct tests (hard to test safely).       |
+| `SentryCrashCachedData.c`                 | ~360  | HIGH   | Thread caching with recent race fix. No direct tests.                 |
+| `SentryCrashMemory.c`                     | ~140  | MEDIUM | Memory reading utilities. No tests.                                   |
+| `SentryCrashStackCursor.c`                | ~60   | MEDIUM | Base stack walker. Only self-thread variant tested.                   |
+| `SentryCrashStackCursor_Backtrace.c`      | ~60   | MEDIUM | Backtrace-based walking. No tests.                                    |
+| `SentryCrashStackCursor_MachineContext.c` | ~135  | MEDIUM | Machine context walking. No tests.                                    |
 
 **Architecture-specific code (no tests):**
 
@@ -804,16 +808,16 @@ User-reported and team-tracked bugs from the [sentry-cocoa issue tracker](https:
 
 ### Most Critical Files (must understand these)
 
-| File                                                    | Purpose                                           | Lines  |
-| ------------------------------------------------------- | ------------------------------------------------- | ------ |
-| `Recording/SentryCrashC.c`                              | C API, installation, crash callback orchestration | 486    |
-| `Recording/SentryCrash.m`                               | ObjC wrapper, configuration management            | 219    |
-| `Recording/SentryCrashReport.c`                         | Crash report writing to disk (signal-safe)        | ~1,500 |
-| `Recording/SentryCrashCachedData.c`                     | Thread/system data caching (lock-free)            | ~250   |
-| `Recording/Monitors/SentryCrashMonitor.c`               | Monitor registry and dispatch                     | ~350   |
-| `Recording/Monitors/SentryCrashMonitorContext.h`        | Unified crash context structure                   | ~200   |
-| `Recording/Monitors/SentryCrashMonitor_MachException.c` | Mach kernel exception handler                     | ~650   |
-| `Recording/Monitors/SentryCrashMonitor_Signal.c`        | POSIX signal handler                              | ~350   |
+| File                                                    | Purpose                                           | Lines |
+| ------------------------------------------------------- | ------------------------------------------------- | ----- |
+| `Recording/SentryCrashC.c`                              | C API, installation, crash callback orchestration | 317   |
+| `Recording/SentryCrash.m`                               | ObjC wrapper, configuration management            | 565   |
+| `Recording/SentryCrashReport.c`                         | Crash report writing to disk (signal-safe)        | 1,795 |
+| `Recording/SentryCrashCachedData.c`                     | Thread/system data caching (lock-free)            | ~360  |
+| `Recording/Monitors/SentryCrashMonitor.c`               | Monitor registry and dispatch                     | ~300  |
+| `Recording/Monitors/SentryCrashMonitorContext.h`        | Unified crash context structure                   | ~230  |
+| `Recording/Monitors/SentryCrashMonitor_MachException.c` | Mach kernel exception handler                     | ~600  |
+| `Recording/Monitors/SentryCrashMonitor_Signal.c`        | POSIX signal handler                              | ~300  |
 
 ### Platform Availability Guards
 
