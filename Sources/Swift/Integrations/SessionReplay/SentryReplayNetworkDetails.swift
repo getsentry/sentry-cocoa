@@ -184,8 +184,14 @@ enum NetworkBodyWarning: String {
         }
 
         private static func parseText(_ data: Data, encoding: String.Encoding = .utf8, warnings: inout [NetworkBodyWarning]) -> Body {
-            if let string = String(data: data, encoding: encoding) ?? String(data: data, encoding: .utf8) {
-                return Body(content: string, warnings: warnings)
+            // Truncation at a multi-byte boundary (e.g. UTF-8 CJK, emoji) makes
+            // String(data:encoding:) return nil. Try dropping up to 3 trailing bytes
+            // to find a valid boundary before giving up.
+            for drop in 0...min(3, data.count) {
+                let slice = drop == 0 ? data : data.dropLast(drop)
+                if let string = String(data: slice, encoding: encoding) ?? String(data: slice, encoding: .utf8) {
+                    return Body(content: string, warnings: warnings)
+                }
             }
             warnings.append(.bodyParseError)
             return Body(content: "", warnings: warnings)
