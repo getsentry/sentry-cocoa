@@ -451,10 +451,10 @@ The tracking issue [sentry-cocoa #5619](https://github.com/getsentry/sentry-coco
 
 | Issue                                       | File                                     | Details                                                                                                                   |
 | ------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| **NSDictionary introspection broken**       | `SentryCrashObjC.c:1810`                 | Marked "TODO: This is broken". `sentrycrashobjc_dictionaryCount()` returns 0. Falls back to generic object introspection. |
-| **CPU architecture detection unavailable**  | `SentryCrashCPU.c:40`                    | `sentrycrashcpu_currentArch()` returns NULL. `NXGetLocalArchInfo()` blocked by App Store.                                 |
-| **Thread-local storage for C++ exceptions** | `SentryCrashMonitor_CPPException.cpp:68` | Global stack cursor instead of thread-local. Could cause issues with concurrent C++ exceptions.                           |
-| **Mach exception freeze workaround**        | `SentryCrashMonitor_MachException.c:340` | "TODO: This was put here to avoid a freeze. Does secondary thread ever fire?"                                             |
+| **NSDictionary introspection broken**       | `SentryCrashObjC.c:1816`                 | Marked "TODO: This is broken". `sentrycrashobjc_dictionaryCount()` returns 0. Falls back to generic object introspection. |
+| **CPU architecture detection unavailable**  | `SentryCrashCPU.c:42`                    | `sentrycrashcpu_currentArch()` returns NULL. `NXGetLocalArchInfo()` blocked by App Store.                                 |
+| **Thread-local storage for C++ exceptions** | `SentryCrashMonitor_CPPException.cpp:71` | Global stack cursor instead of thread-local. Could cause issues with concurrent C++ exceptions.                           |
+| **Mach exception freeze workaround**        | `SentryCrashMonitor_MachException.c:338` | "TODO: This was put here to avoid a freeze. Does secondary thread ever fire?"                                             |
 | **Unimplemented report sections**           | `SentryCrashReport.c:653`                | "TODO: Implement these" for NSDictionary and NSException introspection cases.                                             |
 
 ### LOW Priority (TODOs & Technical Debt)
@@ -462,7 +462,7 @@ The tracking issue [sentry-cocoa #5619](https://github.com/getsentry/sentry-coco
 | File                          | Line     | TODO                                                                 |
 | ----------------------------- | -------- | -------------------------------------------------------------------- |
 | `SentryCrashMonitor_System.m` | 406, 531 | "use SentryDevice API here now?" / "combine this into SentryDevice?" |
-| `SentryCrashObjC.c`           | 1047     | Possible bad access in `sentrycrashobjc_ivarList`                    |
+| `SentryCrashObjC.c`           | 1045     | Possible bad access in `sentrycrashobjc_ivarList`                    |
 | `SentryCrashObjC.c`           | 1111     | Uncertainty about tagged pointer NSNumber handling                   |
 | `SentryCrashObjC.c`           | 1691     | Bit-field unpacking not implemented for mutable arrays               |
 

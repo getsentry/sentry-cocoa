@@ -136,7 +136,7 @@ This document was generated with Claude using the prompt below. To refresh it, r
 
 #### 1. Monolithic Tools Directory
 
-The `Recording/Tools/` directory contains **56% of all SentryCrash code** (11,872 lines across 20+ files) with no further organization. Files range from CPU-specific register handling to JSON encoding to ObjC runtime introspection.
+The `Recording/Tools/` directory contains **~56% of all SentryCrash code** (11,872 lines across 20+ files) with no further organization. Files range from CPU-specific register handling to JSON encoding to ObjC runtime introspection.
 
 #### 2. Implicit Dependencies via Global State
 
@@ -224,11 +224,11 @@ The same directory mixes:
 
 | Priority | Issue                                   | Location                                          | Description                                          |
 | -------- | --------------------------------------- | ------------------------------------------------- | ---------------------------------------------------- |
-| MEDIUM   | NSDictionary introspection broken       | `SentryCrashObjC.c:1810`                          | `sentrycrashobjc_dictionaryCount()` always returns 0 |
-| MEDIUM   | CPU arch detection returns NULL         | `SentryCrashCPU.c:40`                             | `NXGetLocalArchInfo()` blocked by App Store          |
-| MEDIUM   | Mach exception freeze workaround        | `SentryCrashMonitor_MachException.c:340`          | Unclear if secondary thread fires                    |
+| MEDIUM   | NSDictionary introspection broken       | `SentryCrashObjC.c:1816`                          | `sentrycrashobjc_dictionaryCount()` always returns 0 |
+| MEDIUM   | CPU arch detection returns NULL         | `SentryCrashCPU.c:42`                             | `NXGetLocalArchInfo()` blocked by App Store          |
+| MEDIUM   | Mach exception freeze workaround        | `SentryCrashMonitor_MachException.c:338`          | Unclear if secondary thread fires                    |
 | MEDIUM   | Unimplemented report introspection      | `SentryCrashReport.c:653`                         | NSDictionary/NSException cases not implemented       |
-| LOW      | Thread-local storage for C++ exceptions | `SentryCrashMonitor_CPPException.cpp:68`          | Global cursor, potential concurrent issue            |
+| LOW      | Thread-local storage for C++ exceptions | `SentryCrashMonitor_CPPException.cpp:71`          | Global cursor, potential concurrent issue            |
 | LOW      | SentryDevice API consolidation          | `SentryCrashMonitor_System.m:406,531`             | Duplicate device info collection                     |
 | LOW      | Deprecated 32-bit platform code         | `SentryCrashCPU_arm.c`, `SentryCrashCPU_x86_32.c` | Dead code, maintenance burden                        |
 
