@@ -295,6 +295,51 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         XCTAssertEqual(dict["name"] as? String, "Jane Doe")
     }
 
+    // MARK: - Multi-byte Truncation
+
+    func testInit_withTruncatedMultiByteUTF8_shouldRecoverValidPrefix() throws {
+        // UTF-8 byte widths:
+        //   3-byte chars: CJK (e.g. "你" = E4 BD A0)
+        //   4-byte chars: emoji (e.g. "😀" = F0 9F 98 80)
+        //   2-byte chars: accented Latin (e.g. "é" = C3 A9)
+
+        // -- dropLast(1): 3-byte char split after 2 bytes --
+        // "你好" = 6 bytes; prefix(5) cuts second char after 2 of 3 bytes
+        let cjk = "你好".data(using: .utf8)!
+        XCTAssertEqual(cjk.count, 6)
+        let body1 = try XCTUnwrap(Body(data: cjk.prefix(5), contentType: "text/plain; charset=utf-8"))
+        XCTAssertEqual(body1.serialize()["body"] as? String, "你")
+
+        // -- dropLast(2): 3-byte char split after 1 byte --
+        // prefix(4) cuts second char after 1 of 3 bytes
+        let body2 = try XCTUnwrap(Body(data: cjk.prefix(4), contentType: "text/plain; charset=utf-8"))
+        XCTAssertEqual(body2.serialize()["body"] as? String, "你")
+
+        // -- dropLast(3): 4-byte emoji split after 1 byte --
+        // "A😀" = 1 + 4 = 5 bytes; prefix(2) cuts emoji after 1 of 4 bytes
+        let emoji = "A😀".data(using: .utf8)!
+        XCTAssertEqual(emoji.count, 5)
+        let body3 = try XCTUnwrap(Body(data: emoji.prefix(2), contentType: "text/plain; charset=utf-8"))
+        XCTAssertEqual(body3.serialize()["body"] as? String, "A")
+
+        // -- no truncation needed: clean boundary --
+        // prefix(3) is exactly "你", no bytes to drop
+        let body4 = try XCTUnwrap(Body(data: cjk.prefix(3), contentType: "text/plain; charset=utf-8"))
+        XCTAssertEqual(body4.serialize()["body"] as? String, "你")
+
+        // -- pure ASCII: never affected --
+        let ascii = "hello".data(using: .utf8)!
+        let body5 = try XCTUnwrap(Body(data: ascii.prefix(3), contentType: "text/plain; charset=utf-8"))
+        XCTAssertEqual(body5.serialize()["body"] as? String, "hel")
+
+        // -- 2-byte char split after 1 byte --
+        // "Aé" = 1 + 2 = 3 bytes; prefix(2) cuts "é" after 1 of 2 bytes
+        let accented = "Aé".data(using: .utf8)!
+        XCTAssertEqual(accented.count, 3)
+        let body6 = try XCTUnwrap(Body(data: accented.prefix(2), contentType: "text/plain; charset=utf-8"))
+        XCTAssertEqual(body6.serialize()["body"] as? String, "A")
+    }
+
     // MARK: - Serialization Tests
 
     func testSerialize_withStringBody_shouldReturnDictionary() {
