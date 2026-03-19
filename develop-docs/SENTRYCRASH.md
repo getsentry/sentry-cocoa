@@ -371,9 +371,8 @@ These features were added by Sentry and do not exist in upstream KSCrash:
 
 Sentry maintains a watching approach, selectively adopting KSCrash improvements:
 
-- `0f752caf6` (Feb 2026): "align with upstream KSCrash"
-- `9c801d311` (Feb 2026): Adopted lock-free atomic exchange from KSCrash PR #733
-- `5bd268cae` (Feb 2026): "suspend env after notifying, align naming with KSCrash"
+- `bcabca0bb` (Feb 2026): Align naming with KSCrash, merge notify + suspend to prevent deadlock (#7340)
+- `80963bd21` (Feb 2026): Adopted lock-free atomic exchange from KSCrash PR #733 (#7423)
 
 #### Upstream Fixes Not Yet Adopted
 
@@ -743,9 +742,9 @@ The same directory mixes:
 
 | Date         | Issue                                                   | Commit      |
 | ------------ | ------------------------------------------------------- | ----------- |
-| Feb 10, 2026 | Data race in `SentryCrashCachedData.c` (EXC_BAD_ACCESS) | `9c801d311` |
-| Feb 2, 2026  | Concurrent crashes misidentified as recrash             | `ee1f08693` |
-| Jan 2026     | NSException stack cursor implementation                 | `a95a2c6eb` |
+| Feb 20, 2026 | Data race in `SentryCrashCachedData.c` (EXC_BAD_ACCESS) | `80963bd21` |
+| Feb 17, 2026 | Concurrent crashes misidentified as recrash             | `bcabca0bb` |
+| Feb 3, 2026  | NSException stack cursor implementation                 | `c9fc5beba` |
 | Oct 2025     | Crashed thread missing from thread list                 | `b115f8270` |
 | Oct 2025     | Thread deallocation issues                              | `f4f94f525` |
 | Sept 2025    | App launch hang caused by SDK                           | `ea12acf4a` |
