@@ -197,7 +197,13 @@ class SentryHubTests: XCTestCase {
         let processInfoWrapper = MockSentryProcessInfo()
         processInfoWrapper.overrides.isiOSAppOnMac = false
         processInfoWrapper.overrides.isMacCatalystApp = false
-        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper)
+        let container = SentryDependencyContainer.sharedInstance()
+        let bridge = SentryCrashBridge(
+            notificationCenterWrapper: container.notificationCenterWrapper,
+            dateProvider: container.dateProvider,
+            crashReporter: container.crashReporter
+        )
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper, bridge: bridge)
         
         // Act
         let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
@@ -212,7 +218,13 @@ class SentryHubTests: XCTestCase {
         processInfoWrapper.overrides.isiOSAppOnMac = true
         processInfoWrapper.overrides.isMacCatalystApp = false
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
-        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper)
+        let container = SentryDependencyContainer.sharedInstance()
+        let bridge = SentryCrashBridge(
+            notificationCenterWrapper: container.notificationCenterWrapper,
+            dateProvider: container.dateProvider,
+            crashReporter: container.crashReporter
+        )
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper, bridge: bridge)
         
         // Act
         let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
@@ -230,7 +242,13 @@ class SentryHubTests: XCTestCase {
         processInfoWrapper.overrides.isiOSAppOnMac = false
         processInfoWrapper.overrides.isMacCatalystApp = true
         SentryDependencyContainer.sharedInstance().processInfoWrapper = processInfoWrapper
-        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper)
+        let container = SentryDependencyContainer.sharedInstance()
+        let bridge = SentryCrashBridge(
+            notificationCenterWrapper: container.notificationCenterWrapper,
+            dateProvider: container.dateProvider,
+            crashReporter: container.crashReporter
+        )
+        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper, bridge: bridge)
         
         // Act
         let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
