@@ -498,6 +498,78 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(payloadData["fragment"] as? String, "fragment")
     }
 
+    /// Simple case - when network details are enabled, `addBreadcrumbForSessionTask` will include
+    /// serialized network details in the breadcrumb data.
+    func testAddBreadcrumb_withNetworkDetails_shouldIncludeSerializedDetailsInBreadcrumbData() throws {
+        // -- Arrange --
+        let testUrl = URL(string: "https://api.example.com/users")!
+        let options = Options()
+        options.dsn = "https://key@sentry.io/1234"
+        options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
+        options.sessionReplay.networkResponseHeaders = ["Cache-Control"]
+        options.sessionReplay.networkCaptureBodies = false
+
+        let scope = Scope()
+        let client = TestClient(options: options)
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
+        SentrySDK.setStart(with: options)
+
+        let tracker = SentryNetworkTracker.sharedInstance
+        tracker.enableNetworkTracking()
+        tracker.enableNetworkBreadcrumbs()
+
+        var request = URLRequest(url: testUrl)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let task = URLSessionDataTaskMock(request: request)
+
+        let httpResponse = try XCTUnwrap(HTTPURLResponse(
+            url: testUrl, statusCode: 200, httpVersion: "1.1",
+            headerFields: ["Content-Type": "application/json", "Cache-Control": "no-cache"]
+        ))
+        task.setResponse(httpResponse)
+
+        // -- Act --
+        // 1. setState(.running) triggers captureRequestDetails (associates details with task).
+        tracker.urlSessionTask(task, setState: .running)
+
+        // 2. completionHandler fires, capturing response details on the associated object.
+        tracker.captureResponseDetails(
+            Data(), response: httpResponse, request: testUrl, task: task
+        )
+
+        // 3. setState(.completed) triggers addBreadcrumbForSessionTask, which serializes
+        //    the now-complete details (request + response) into the breadcrumb.
+        tracker.urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        let breadcrumbs = try XCTUnwrap(Dynamic(scope).breadcrumbArray as [Breadcrumb]?)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+        let detailsObject = try XCTUnwrap(
+            breadcrumb.data?[SentryReplayNetworkDetails.replayNetworkDetailsKey] as? SentryReplayNetworkDetails
+        )
+        let networkDetails = detailsObject.serialize()
+
+        XCTAssertEqual(networkDetails["method"] as? String, "POST")
+        XCTAssertEqual(networkDetails["statusCode"] as? Int, 200)
+
+        // Verify request details show up
+        let requestDict = try XCTUnwrap(networkDetails["request"] as? [String: Any])
+        let requestHeaders = try XCTUnwrap(requestDict["headers"] as? [String: String])
+        // "Content-Type" is always extracted when present.
+        XCTAssertEqual(requestHeaders["Content-Type"], "application/json")
+
+        // Verify response details show up
+        let responseDict = try XCTUnwrap(networkDetails["response"] as? [String: Any])
+        let responseHeaders = try XCTUnwrap(responseDict["headers"] as? [String: String])
+        // "Content-Type" is always extracted when present.
+        XCTAssertEqual(responseHeaders["Content-Type"], "application/json")
+        XCTAssertEqual(responseHeaders["Cache-Control"], "no-cache")
+
+        clearTestState()
+    }
+
     func testBreadcrumb_GraphQLEnabled() throws {
         let body = """
         {
