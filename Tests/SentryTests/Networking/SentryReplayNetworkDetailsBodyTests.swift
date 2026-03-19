@@ -21,7 +21,6 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         let body = Body(data: bodyData, contentType: "application/json")
 
         // -- Assert --
-        XCTAssertNotNil(body)
         if case .json(let value) = body?.content {
             let dict = value as? [String: Any]
             XCTAssertEqual(dict?["key"] as? String, "value")
@@ -45,7 +44,6 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         let body = Body(data: bodyData, contentType: "application/json")
 
         // -- Assert --
-        XCTAssertNotNil(body)
         if case .json(let value) = body?.content {
             let array = value as? [String]
             XCTAssertEqual(array?.count, 3)
@@ -82,28 +80,6 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(body)
-    }
-
-    func testInit_withFormURLEncoded_shouldParseAsForm() {
-        // -- Arrange --
-        let formString = "key1=value1&key2=value2&key3=value%20with%20spaces"
-        guard let bodyData = formString.data(using: .utf8) else {
-            return XCTFail("Failed to create form data")
-        }
-
-        // -- Act --
-        let body = Body(data: bodyData, contentType: "application/x-www-form-urlencoded")
-
-        // -- Assert --
-        XCTAssertNotNil(body)
-        if case .json(let value) = body?.content {
-            let dict = value as? [String: String]
-            XCTAssertEqual(dict?["key1"], "value1")
-            XCTAssertEqual(dict?["key2"], "value2")
-            XCTAssertEqual(dict?["key3"], "value with spaces")
-        } else {
-            XCTFail("Expected .json content for form data")
-        }
     }
 
     func testInit_withInvalidJSON_shouldFallbackToString() {
@@ -215,6 +191,108 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         } else {
             XCTFail("Expected .text content with placeholder description")
         }
+    }
+    
+    // MARK: - Form URL-Encoded Parsing
+
+    func testInit_withFormURLEncoded_shouldParseAsForm() {
+        // -- Arrange --
+        let formString = "key1=value1&key2=value2&key3=value%20with%20spaces"
+        guard let bodyData = formString.data(using: .utf8) else {
+            return XCTFail("Failed to create form data")
+        }
+
+        // -- Act --
+        let body = Body(data: bodyData, contentType: "application/x-www-form-urlencoded")
+
+        // -- Assert --
+        if case .json(let value) = body?.content {
+            let dict = value as? [String: String]
+            XCTAssertEqual(dict?["key1"], "value1")
+            XCTAssertEqual(dict?["key2"], "value2")
+            XCTAssertEqual(dict?["key3"], "value with spaces")
+        } else {
+            XCTFail("Expected .json content for form data")
+        }
+    }
+
+    func testInit_withFormURLEncoded_duplicateKeys_shouldPromoteToArray() throws {
+        // -- Act --
+        let body = try XCTUnwrap(Body(
+            data: "color=red&color=blue&color=green".data(using: .utf8)!,
+            contentType: "application/x-www-form-urlencoded; charset=utf-8"
+        ))
+
+        // -- Assert --
+        let dict = try XCTUnwrap(body.serialize()["body"] as? [String: Any])
+        XCTAssertEqual(dict["color"] as? [String], ["red", "blue", "green"])
+    }
+
+    func testInit_withFormURLEncoded_emptyValue_shouldParseAsEmptyString() throws {
+        // -- Act --
+        let body = try XCTUnwrap(Body(
+            data: "key1=&key2=value2".data(using: .utf8)!,
+            contentType: "application/x-www-form-urlencoded; charset=utf-8"
+        ))
+
+        // -- Assert --
+        let dict = try XCTUnwrap(body.serialize()["body"] as? [String: Any])
+        XCTAssertEqual(dict["key1"] as? String, "")
+        XCTAssertEqual(dict["key2"] as? String, "value2")
+    }
+
+    func testInit_withFormURLEncoded_missingEquals_shouldFallbackToText() throws {
+        // -- Act --
+        let body = try XCTUnwrap(Body(
+            data: "key1=value1&malformed&key2=value2".data(using: .utf8)!,
+            contentType: "application/x-www-form-urlencoded; charset=utf-8"
+        ))
+
+        // -- Assert --
+        let serialized = body.serialize()
+        let text = try XCTUnwrap(serialized["body"] as? String)
+        XCTAssertEqual(text, "key1=value1&malformed&key2=value2")
+        let warnings = try XCTUnwrap(serialized["warnings"] as? [String])
+        XCTAssertTrue(warnings.contains("BODY_PARSE_ERROR"))
+    }
+
+    func testInit_withFormURLEncoded_emptyKeys_shouldBeSkipped() throws {
+        // -- Act --
+        let body = try XCTUnwrap(Body(
+            data: "=value1&key2=value2".data(using: .utf8)!,
+            contentType: "application/x-www-form-urlencoded; charset=utf-8"
+        ))
+
+        // -- Assert --
+        let dict = try XCTUnwrap(body.serialize()["body"] as? [String: Any])
+        XCTAssertNil(dict[""])
+        XCTAssertEqual(dict["key2"] as? String, "value2")
+    }
+
+    func testInit_withFormURLEncoded_equalsInValue_shouldPreserve() throws {
+        // -- Act --
+        let body = try XCTUnwrap(Body(
+            data: "query=a=1&token=abc".data(using: .utf8)!,
+            contentType: "application/x-www-form-urlencoded; charset=utf-8"
+        ))
+
+        // -- Assert --
+        let dict = try XCTUnwrap(body.serialize()["body"] as? [String: Any])
+        XCTAssertEqual(dict["query"] as? String, "a=1")
+        XCTAssertEqual(dict["token"] as? String, "abc")
+    }
+
+    func testInit_withFormURLEncoded_plusAsSpace_shouldDecode() throws {
+        // -- Act --
+        let body = try XCTUnwrap(Body(
+            data: "greeting=hello+world&name=Jane+Doe".data(using: .utf8)!,
+            contentType: "application/x-www-form-urlencoded; charset=utf-8"
+        ))
+
+        // -- Assert --
+        let dict = try XCTUnwrap(body.serialize()["body"] as? [String: Any])
+        XCTAssertEqual(dict["greeting"] as? String, "hello world")
+        XCTAssertEqual(dict["name"] as? String, "Jane Doe")
     }
 
     // MARK: - Serialization Tests

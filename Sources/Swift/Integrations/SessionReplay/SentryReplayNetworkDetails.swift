@@ -147,17 +147,38 @@ enum NetworkBodyWarning: String {
             }
         }
 
+        /// Parses `application/x-www-form-urlencoded` data into a dictionary.
         private static func parseFormEncoded(_ data: Data, encoding: String.Encoding, warnings: inout [NetworkBodyWarning]) -> Body {
-            guard let string = String(data: data, encoding: encoding) ?? String(data: data, encoding: .utf8),
-                  let components = URLComponents(string: "http://x?" + string),
-                  let items = components.queryItems else {
+            guard let urlEncodedFormData = String(data: data, encoding: encoding) ?? String(data: data, encoding: .utf8) else {
                 warnings.append(.bodyParseError)
                 return parseText(data, encoding: encoding, warnings: &warnings)
             }
 
-            var formData = [String: String]()
-            for item in items where item.name.isEmpty == false {
-                formData[item.name] = item.value ?? ""
+            var formData = [String: Any]()
+            for rawElement in urlEncodedFormData.components(separatedBy: "&") where !rawElement.isEmpty {
+                let comps = rawElement.components(separatedBy: "=")
+                if comps.count < 2 {
+                    warnings.append(.bodyParseError)
+                    return parseText(data, encoding: encoding, warnings: &warnings)
+                }
+                // In form-urlencoded, + means space (rdar://40751862).
+                let key = comps[0]
+                    .replacingOccurrences(of: "+", with: " ")
+                    .removingPercentEncoding ?? comps[0]
+                let value = comps.dropFirst().joined(separator: "=")
+                    .replacingOccurrences(of: "+", with: " ")
+                    .removingPercentEncoding ?? comps[1]
+                guard !key.isEmpty else { continue }
+                if let existing = formData[key] {
+                    if var list = existing as? [String] {
+                        list.append(value)
+                        formData[key] = list
+                    } else if let text = existing as? String {
+                        formData[key] = [text, value]
+                    }
+                } else {
+                    formData[key] = value
+                }
             }
             return Body(content: formData, warnings: warnings)
         }
