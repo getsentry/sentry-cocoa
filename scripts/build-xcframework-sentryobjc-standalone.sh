@@ -4,6 +4,12 @@
 # into a standalone dynamic SentryObjC.framework for each SDK slice, then
 # assembles them into an XCFramework.
 #
+# Strategy:
+#   1. Merge all three .a files with libtool
+#   2. Link into a dynamic library with swiftc (handles Swift runtime automatically)
+#   3. Copy SentryObjC public headers + module map
+#   4. Assemble into XCFramework
+#
 # Parameters:
 #   $1 - sdks_to_build (AllSDKs, iOSOnly, macOSOnly, etc.)
 
@@ -23,6 +29,13 @@ fi
 
 ARCHIVE_BASE="$(pwd)/XCFrameworkBuildPath/archive"
 OUTPUT_BASE="$(pwd)/XCFrameworkBuildPath/archive/SentryObjC"
+
+# System frameworks that Sentry SDK links against.
+# Required frameworks are always linked; weak frameworks are optional
+# and resolved at runtime if available.
+REQUIRED_FRAMEWORKS=( Foundation CoreData SystemConfiguration CoreGraphics QuartzCore )
+WEAK_FRAMEWORKS=( AVFoundation CoreMedia CoreVideo MetricKit PDFKit SwiftUI UIKit WebKit )
+SYSTEM_LIBS=( z c++ )
 
 for sdk in "${sdks[@]}"; do
     echo "=== Linking standalone SentryObjC for ${sdk} ==="
@@ -56,24 +69,23 @@ for sdk in "${sdks[@]}"; do
     libtool -static "$sentry_a" "$bridge_a" "$objc_a" -o "$combined_a"
     echo "  Combined: $(du -h "$combined_a" | cut -f1)"
 
-    # Determine target architecture(s) and deployment target
+    # Determine target triple(s) per architecture
     sysroot="$(xcrun --sdk "${sdk}" --show-sdk-path 2>/dev/null || xcrun --sdk iphoneos --show-sdk-path)"
     case "$sdk" in
-        iphoneos)          targets=("-target" "arm64-apple-ios15.0") ;;
-        iphonesimulator)   targets=("-target" "arm64-apple-ios15.0-simulator" "-target" "x86_64-apple-ios15.0-simulator") ;;
-        macosx)            targets=("-target" "arm64-apple-macos10.14" "-target" "x86_64-apple-macos10.14") ;;
-        maccatalyst)       targets=("-target" "arm64-apple-ios15.0-macabi" "-target" "x86_64-apple-ios15.0-macabi")
-                           sysroot="$(xcrun --sdk iphoneos --show-sdk-path)" ;;
-        appletvos)         targets=("-target" "arm64-apple-tvos15.0") ;;
-        appletvsimulator)  targets=("-target" "arm64-apple-tvos15.0-simulator" "-target" "x86_64-apple-tvos15.0-simulator") ;;
-        watchos)           targets=("-target" "arm64-apple-watchos8.0" "-target" "arm64_32-apple-watchos8.0" "-target" "armv7k-apple-watchos8.0") ;;
-        watchsimulator)    targets=("-target" "arm64-apple-watchos8.0-simulator" "-target" "x86_64-apple-watchos8.0-simulator") ;;
-        xros)              targets=("-target" "arm64-apple-xros1.0") ;;
-        xrsimulator)       targets=("-target" "arm64-apple-xros1.0-simulator") ;;
+        iphoneos)          arch_targets=( "arm64-apple-ios15.0" ) ;;
+        iphonesimulator)   arch_targets=( "arm64-apple-ios15.0-simulator" "x86_64-apple-ios15.0-simulator" ) ;;
+        macosx)            arch_targets=( "arm64-apple-macos10.14" "x86_64-apple-macos10.14" ) ;;
+        maccatalyst)       arch_targets=( "arm64-apple-ios15.0-macabi" "x86_64-apple-ios15.0-macabi" )
+                           sysroot="$(xcrun --sdk macosx --show-sdk-path)" ;;
+        appletvos)         arch_targets=( "arm64-apple-tvos15.0" ) ;;
+        appletvsimulator)  arch_targets=( "arm64-apple-tvos15.0-simulator" "x86_64-apple-tvos15.0-simulator" ) ;;
+        watchos)           arch_targets=( "arm64-apple-watchos8.0" "arm64_32-apple-watchos8.0" ) ;;
+        watchsimulator)    arch_targets=( "arm64-apple-watchos8.0-simulator" "x86_64-apple-watchos8.0-simulator" ) ;;
+        xros)              arch_targets=( "arm64-apple-xros1.0" ) ;;
+        xrsimulator)       arch_targets=( "arm64-apple-xros1.0-simulator" ) ;;
     esac
 
-    # We link each architecture separately using the combined static archive,
-    # then merge with lipo if needed.
+    # Prepare output framework directory
     output_xcarchive="${OUTPUT_BASE}/${sdk}.xcarchive"
     output_fw_dir="${output_xcarchive}/Products/Library/Frameworks/SentryObjC.framework"
 
@@ -85,41 +97,40 @@ for sdk in "${sdks[@]}"; do
         mkdir -p "${output_fw_dir}"
     fi
 
+    # Build linker flags (same for all archs)
+    linker_flags=()
+    linker_flags+=( -Xlinker -install_name -Xlinker "@rpath/SentryObjC.framework/SentryObjC" )
+    linker_flags+=( -Xlinker -rpath -Xlinker "@executable_path/Frameworks" )
+    linker_flags+=( -Xlinker -force_load -Xlinker "$combined_a" )
+    linker_flags+=( -Xlinker -compatibility_version -Xlinker 1.0.0 )
+    linker_flags+=( -Xlinker -current_version -Xlinker 1.0.0 )
+    for fw in "${REQUIRED_FRAMEWORKS[@]}"; do
+        linker_flags+=( -framework "$fw" )
+    done
+    for fw in "${WEAK_FRAMEWORKS[@]}"; do
+        linker_flags+=( -Xlinker -weak_framework -Xlinker "$fw" )
+    done
+    for lib in "${SYSTEM_LIBS[@]}"; do
+        linker_flags+=( -l"$lib" )
+    done
+
+    # Link each architecture separately, then merge with lipo
+    # swiftc needs a dummy .swift input but handles Swift runtime automatically
+    dummy_swift="/tmp/SentryObjC_dummy.swift"
+    echo "" > "$dummy_swift"
+
     arch_binaries=()
-    for target_flag in "${targets[@]}"; do
-        # Extract the arch from the target triple (e.g., arm64 from arm64-apple-ios15.0)
-        if [[ "$target_flag" = "-target" ]]; then
-            continue
-        fi
-        arch="${target_flag%%-*}"
-        echo "  Linking arch: $arch ($target_flag)"
+    for target in "${arch_targets[@]}"; do
+        arch="${target%%-*}"
+        echo "  Linking arch: $arch ($target)"
 
         arch_output="/tmp/SentryObjC_${sdk}_${arch}"
-        xcrun clang++ \
-            -dynamiclib \
-            -target "$target_flag" \
-            -isysroot "$sysroot" \
-            -install_name "@rpath/SentryObjC.framework/SentryObjC" \
-            -Xlinker -rpath -Xlinker @executable_path/Frameworks \
-            -force_load "$combined_a" \
-            -framework Foundation \
-            -framework CoreData \
-            -framework SystemConfiguration \
-            -framework CoreFoundation \
-            -framework CoreGraphics \
-            -framework QuartzCore \
-            -weak_framework AVFoundation \
-            -weak_framework CoreMedia \
-            -weak_framework CoreVideo \
-            -weak_framework MetricKit \
-            -weak_framework PDFKit \
-            -weak_framework SwiftUI \
-            -weak_framework UIKit \
-            -weak_framework WebKit \
-            -lz \
-            -lc++ \
-            -compatibility_version 1.0.0 \
-            -current_version 1.0.0 \
+        xcrun swiftc \
+            "$dummy_swift" \
+            -emit-library \
+            -target "$target" \
+            -sdk "$sysroot" \
+            "${linker_flags[@]}" \
             -o "$arch_output" 2>&1 || {
                 echo "ERROR: Failed to link arch $arch for $sdk"
                 exit 1
@@ -136,10 +147,11 @@ for sdk in "${sdks[@]}"; do
 
     echo "  Final binary: $(du -h "${output_fw_binary_dir}/SentryObjC" | cut -f1)"
 
-    # Copy headers from the SentryObjC static build
+    # Copy headers and module map from the SentryObjC static build
     if [ "$sdk" = "macosx" ] || [ "$sdk" = "maccatalyst" ]; then
         cp -R "${objc_archive}/Versions/A/Headers" "${output_fw_binary_dir}/Headers"
         cp -R "${objc_archive}/Versions/A/Modules" "${output_fw_binary_dir}/Modules"
+        mkdir -p "${output_fw_binary_dir}/Resources"
         cp "${objc_archive}/Versions/A/Resources/Info.plist" "${output_fw_binary_dir}/Resources/Info.plist" 2>/dev/null || \
             cp "${objc_archive}/Resources/Info.plist" "${output_fw_binary_dir}/Resources/Info.plist" 2>/dev/null || true
         # Create standard macOS framework symlinks
@@ -154,8 +166,8 @@ for sdk in "${sdks[@]}"; do
     fi
 
     # Clean up temp files
-    rm -f "$combined_a"
-    rm -f /tmp/SentryObjC_${sdk}_*
+    rm -f "$combined_a" "$dummy_swift"
+    rm -f /tmp/SentryObjC_"${sdk}"_*
 
     echo "=== Done: ${sdk} ==="
 done
