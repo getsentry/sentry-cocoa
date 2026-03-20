@@ -1,14 +1,14 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-// When compiled as part of Sentry.framework, types are already available.
-// When compiled via SPM, we need to import the SentrySwift module.
+// Import the Sentry SDK module.
+// SPM uses SentrySwift, Xcode uses Sentry.
 #if SWIFT_PACKAGE
 import SentrySwift
 private typealias SDKAttributeContent = SentrySwift.SentryAttributeContent
 #else
-// Already inside Sentry module - types available without import
-private typealias SDKAttributeContent = SentryAttributeContent
+import Sentry
+private typealias SDKAttributeContent = Sentry.SentryAttributeContent
 #endif
 
 /// Bridge class that exposes Swift SDK functionality to pure Objective-C code.
@@ -16,7 +16,7 @@ private typealias SDKAttributeContent = SentryAttributeContent
 /// This class provides @objc methods that can be called from SentryObjC (pure ObjC, no modules)
 /// and forwards them to the Swift SentrySDK implementation.
 @objc(SentryObjCBridge)
-public final class SentryObjCBridge: NSObject {
+public final class SentrySwiftBridge: NSObject {
 
     // MARK: - Metrics API
 

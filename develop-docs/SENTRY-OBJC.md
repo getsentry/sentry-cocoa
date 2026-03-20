@@ -20,31 +20,44 @@ With modules disabled:
 
 ## Solution
 
-SentryObjC provides a three-tier architecture:
+SentryObjC provides a three-tier architecture with two dependency paths:
 
+```mermaid
+graph TD
+    subgraph SentryObjC["SentryObjC (Pure Objective-C)"]
+        Headers["Public headers: SentrySDK.h, SentryOptions.h, etc."]
+        Impl[".m implementation files"]
+    end
+
+    subgraph Bridge["SentryObjCBridge (Swift)"]
+        BridgeMethods["@objc methods for:<br/>metrics, logger, replay,<br/>SentryAttributeContent"]
+    end
+
+    subgraph SDK["Sentry SDK"]
+        ObjCTypes["SentrySDKInternal, SentryUser,<br/>SentryOptions, SentryEvent,<br/>SentryCrash, etc."]
+    end
+
+    SentryObjC -->|"Swift-only APIs"| Bridge
+    SentryObjC -->|"ObjC-compatible APIs"| SDK
+    Bridge --> SDK
 ```
-┌─────────────────────────────────────────────────────────┐
-│ SentryObjC (Pure Objective-C)                           │
-│                                                         │
-│ Public headers: SentrySDK.h, SentryOptions.h, etc.      │
-│ Implementation: .m files that call the bridge           │
-└─────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│ SentryObjCBridge (Swift)                                │
-│                                                         │
-│ @objc methods callable from ObjC                        │
-│ Converts wrapper types ↔ real SDK types                 │
-└─────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│ Sentry SDK (Full implementation)                        │
-│                                                         │
-│ SentrySwift, SentryObjCInternal, SentryCrash, etc.      │
-└─────────────────────────────────────────────────────────┘
-```
+
+### Two Dependency Paths
+
+**Direct path (SentryObjC → Sentry):** For ObjC-compatible types already exposed in the SDK:
+
+- `SentrySDKInternal` (ObjC class wrapping the real `SentrySDK`)
+- `SentryOptions`, `SentryUser`, `SentryEvent`, `SentryBreadcrumb`, etc.
+- Any Swift class with `@objc` exposure
+
+**Bridge path (SentryObjC → SentryObjCBridge → Sentry):** For Swift-only APIs that need bridging:
+
+- `SentrySDK.metrics` (Swift protocol type)
+- `SentrySDK.logger` (Swift Logger API)
+- `SentrySDK.replay` (Swift Replay API)
+- `SentryAttributeContent` (Swift enum with associated values)
+
+The bridge converts Swift-only constructs (protocols, enums with payloads, generics) into `@objc`-callable methods that pure ObjC can invoke.
 
 ## Type Architecture
 
@@ -64,7 +77,8 @@ Each wrapper type:
 1. Is a complete `@interface` definition (pure ObjC, no Swift imports)
 2. Holds an internal reference to the real SDK type
 3. Exposes the same properties/methods
-4. Bridges through `SentryObjCBridge` for conversions
+4. Calls the real SDK directly for ObjC-compatible APIs
+5. Uses `SentryObjCBridge` only for Swift-only APIs (metrics, logger, replay)
 
 ## Source Layout
 
@@ -84,6 +98,18 @@ Sources/
 │   └── SentryObjCBridge.swift    # @objc bridge methods
 ```
 
+## Xcode Project Structure
+
+Three framework targets in `Sentry.xcodeproj`:
+
+| Target             | Type      | Sources                          | Dependencies                                 |
+| ------------------ | --------- | -------------------------------- | -------------------------------------------- |
+| `Sentry`           | Framework | `Sources/Sentry/`, `Swift/`, etc | System frameworks                            |
+| `SentryObjCBridge` | Framework | `Sources/SentryObjCBridge/`      | Sentry.framework                             |
+| `SentryObjC`       | Framework | `Sources/SentryObjC/`            | SentryObjCBridge.framework, Sentry.framework |
+
+This mirrors the SPM target structure exactly.
+
 ## Distribution
 
 ### SPM
@@ -101,6 +127,45 @@ The `SentryObjC` product in `Package.swift` includes all three tiers:
 - All platforms: iOS, macOS, Catalyst, tvOS, watchOS, visionOS
 - Pure ObjC public headers (no `Sentry-Swift.h`)
 - Single binary containing wrapper + bridge + full SDK
+
+#### XCFramework Structure
+
+```
+SentryObjC.xcframework/
+├── Info.plist
+├── ios-arm64/
+│   └── SentryObjC.framework/
+│       ├── SentryObjC (binary)
+│       ├── Info.plist
+│       ├── Headers/
+│       │   ├── SentryObjC.h (umbrella)
+│       │   ├── SentrySDK.h
+│       │   ├── SentryOptions.h
+│       │   └── ... (pure ObjC headers)
+│       └── Modules/
+│           └── module.modulemap
+├── ios-arm64_x86_64-simulator/
+├── ios-arm64_x86_64-maccatalyst/
+├── macos-arm64_x86_64/
+├── tvos-arm64/
+├── tvos-arm64_x86_64-simulator/
+├── watchos-arm64_arm64_32_armv7k/
+├── watchos-arm64_x86_64-simulator/
+├── xros-arm64/
+└── xros-arm64_x86_64-simulator/
+```
+
+#### Module Map
+
+```
+framework module SentryObjC {
+    umbrella header "SentryObjC.h"
+    export *
+    module * { export * }
+}
+```
+
+No Swift module exposed - pure ObjC only.
 
 ## Usage
 
@@ -127,6 +192,20 @@ make build-sentryobjc
 
 # Build full xcframework (all platforms)
 make build-sentryobjc-xcframework
+
+# Test SPM build
+make build-sample-iOS-ObjectiveCpp-NoModules
+```
+
+### Build Scripts
+
+XCFramework builds reuse existing infrastructure:
+
+```
+scripts/build-xcframework-local.sh
+    └── build-xcframework-variant.sh (SentryObjC variant)
+        └── build-xcframework-slice.sh
+            └── xcodebuild archive -scheme SentryObjC
 ```
 
 ## Design Decisions
@@ -146,6 +225,15 @@ Embedding the full SDK in `SentryObjC.xcframework` (vs. depending on `Sentry.xcf
 - Single framework to link
 - No transitive dependency management
 - No risk of version mismatches
+
+### Why three Xcode targets?
+
+Having `SentryObjCBridge` as a separate framework target (not compiled into `SentryObjC`) avoids module conflicts. When Swift code is in `SentryObjC` target, it can see both the `SentryObjC` module and `Sentry` module definitions of the same types, causing compilation errors.
+
+## Out of Scope
+
+- SentrySwiftUI support (requires Swift/SwiftUI)
+- Hybrid SDK bridges (React Native, Flutter use their own wrappers)
 
 ## Related
 

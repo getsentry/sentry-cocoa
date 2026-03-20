@@ -10,7 +10,6 @@
 #   $5 - sdks_to_build (AllSDKs, iOSOnly, macOSOnly, macCatalystOnly)
 #   $6 - excluded_archs (optional)
 #   $7 - use_workspace (optional, set to "workspace" to use Sentry.xcworkspace)
-
 set -eoux pipefail
 
 scheme="$1"

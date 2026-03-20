@@ -9,7 +9,6 @@
 #   $4 - MACH_O_TYPE (mh_dylib or staticlib)
 #   $5 - configuration_suffix (optional)
 #   $6 - use_workspace (optional, set to "workspace" to use Sentry.xcworkspace instead of Sentry.xcodeproj)
-
 set -eoux pipefail
 
 sdk="${1:-}"
@@ -42,10 +41,9 @@ fi
 rm -rf XCFrameworkBuildPath/DerivedData
 
 ## watchos and watchsimulator don't support make_mergeable: ld: unknown option: -make_mergeable
-if [[ "$sdk" == "watchos" || "$sdk" == "watchsimulator" ]]; then
-    OTHER_LDFLAGS=""
-elif [ "$MACH_O_TYPE" != "staticlib" ]; then
-    OTHER_LDFLAGS="-Wl,-make_mergeable"
+## For other dynamic frameworks, add -make_mergeable (append to existing flags)
+if [[ "$sdk" != "watchos" && "$sdk" != "watchsimulator" ]] && [ "$MACH_O_TYPE" != "staticlib" ]; then
+    OTHER_LDFLAGS="$OTHER_LDFLAGS -Wl,-make_mergeable"
 fi
 
 slice_id="${scheme}${suffix}-${sdk}"

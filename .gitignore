@@ -105,13 +105,7 @@ Samples/watchOS-Swift/watchOS-Swift.xcodeproj
 TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj
 TestSamples/SwiftUITestSample/SwiftUITestSample.xcodeproj
 
-Sentry.xcframework*
-Sentry-Dynamic.xcframework*
-Sentry-Dynamic-WithARM64e.xcframework*
-SentrySwiftUI.xcframework*
-Sentry-WithoutUIKitOrAppKit.xcframework*
-Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework*
-SentryObjC.xcframework*
+*.xcframework*
 
 current_package_diff.patch
 
