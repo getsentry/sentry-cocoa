@@ -10,11 +10,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"
 
-MAX_IMPORTS=59
+MAX_IMPORTS=84
 
-count=$(grep -rn '#import.*SentryCrash' Sources/Sentry Sources/Swift \
+count=$(grep -rEn '#[[:space:]]*(import|include).*SentryCrash' Sources/Sentry Sources/Swift \
     --include='*.m' --include='*.h' --include='*.c' --include='*.mm' \
-    | grep -vc 'Sources/SentryCrash/' \
+    | wc -l \
     | tr -d ' ')
 
 if [ "$count" -gt "$MAX_IMPORTS" ]; then
@@ -23,9 +23,8 @@ if [ "$count" -gt "$MAX_IMPORTS" ]; then
     log_error "Use the SentryCrashReporter protocol instead."
     echo ""
     log_notice "Offending imports:"
-    grep -rn '#import.*SentryCrash' Sources/Sentry Sources/Swift \
-        --include='*.m' --include='*.h' --include='*.c' --include='*.mm' \
-        | grep -v 'Sources/SentryCrash/'
+    grep -rEn '#[[:space:]]*(import|include).*SentryCrash' Sources/Sentry Sources/Swift \
+        --include='*.m' --include='*.h' --include='*.c' --include='*.mm'
     exit 1
 fi
 
