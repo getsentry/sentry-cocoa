@@ -11,23 +11,27 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private var globalEventProcessor: SentryGlobalEventProcessor!
     private var dateProvider: TestCurrentDateProvider!
 
-    private class TestCrashWrapper: SentryCrashWrapper {
+    private class TestCrashWrapper: NSObject, SentryCrashReporter {
         let traced: Bool
 
         init(traced: Bool = true) {
             self.traced = traced
-            let container = SentryDependencyContainer.sharedInstance()
-            let bridge = SentryCrashBridge(
-                notificationCenterWrapper: container.notificationCenterWrapper,
-                dateProvider: container.dateProvider,
-                crashReporter: container.crashReporter
-            )
-            super.init(processInfoWrapper: ProcessInfo.processInfo, systemInfo: [:], bridge: bridge)
+            super.init()
         }
-        
-        override public var isBeingTraced: Bool {
-            traced
-        }
+
+        var crashedLastLaunch: Bool { false }
+        var durationFromCrashStateInitToLastCrash: TimeInterval { 0 }
+        var activeDurationSinceLastCrash: TimeInterval { 0 }
+        var isBeingTraced: Bool { traced }
+        var isSimulatorBuild: Bool { false }
+        var isApplicationInForeground: Bool { true }
+        var freeMemorySize: UInt64 { 0 }
+        var appMemorySize: UInt64 { 0 }
+        var systemInfo: [String: Any] { [:] }
+        var processInfoWrapper: SentryProcessInfoSource { ProcessInfo.processInfo }
+        func startBinaryImageCache() {}
+        func stopBinaryImageCache() {}
+        func enrichScope(_ scope: Scope) {}
     }
     
     override func setUpWithError() throws {

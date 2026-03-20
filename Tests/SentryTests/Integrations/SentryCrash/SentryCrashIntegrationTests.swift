@@ -53,7 +53,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
             return try getSut(crashWrapper: sentryCrash)
         }
 
-        func getSut(crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager? = nil, options: Options? = nil) throws -> SentryCrashIntegration<MockCrashDependencies> {
+        func getSut(crashWrapper: SentryCrashReporter, fileManager: SentryFileManager? = nil, options: Options? = nil) throws -> SentryCrashIntegration<MockCrashDependencies> {
             let mockedDependencies = MockCrashDependencies(crashWrapper: crashWrapper, dispatchQueueWrapper: dispatchQueueWrapper, fileManager: fileManager)
             return try XCTUnwrap(SentryCrashIntegration(with: options ?? self.options, dependencies: mockedDependencies))
         }
@@ -835,11 +835,11 @@ private class DeleteAppHangWhenCheckingExistenceFileManager: SentryFileManager {
 
 class MockCrashDependencies: CrashIntegrationProvider {
 
-    let mockedCrashWrapper: SentryCrashWrapper
+    let mockedCrashWrapper: SentryCrashReporter
     let mockedDispatchQueueWrapper: SentryDispatchQueueWrapper
     let mockedFileManager: SentryFileManager?
 
-    init(crashWrapper: SentryCrashWrapper, dispatchQueueWrapper: SentryDispatchQueueWrapper, fileManager: SentryFileManager? = nil) {
+    init(crashWrapper: SentryCrashReporter, dispatchQueueWrapper: SentryDispatchQueueWrapper, fileManager: SentryFileManager? = nil) {
         self.mockedCrashWrapper = crashWrapper
         self.mockedDispatchQueueWrapper = dispatchQueueWrapper
         self.mockedFileManager = fileManager
