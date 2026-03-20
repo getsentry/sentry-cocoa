@@ -12,7 +12,7 @@ import UIKit
  */
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
 @objc @_spi(Private)
-public class SentryCrashWrapper: NSObject, SentryCrashReporter {
+public class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
     public let processInfoWrapper: SentryProcessInfoSource
     private let bridge: SentryCrashBridge
 
@@ -42,7 +42,7 @@ public class SentryCrashWrapper: NSObject, SentryCrashReporter {
 }
 #else
 @objc @_spi(Private)
-public final class SentryCrashWrapper: NSObject, SentryCrashReporter {
+public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
     public let processInfoWrapper: SentryProcessInfoSource
     private let bridge: SentryCrashBridge
 
@@ -62,7 +62,7 @@ public final class SentryCrashWrapper: NSObject, SentryCrashReporter {
 }
 #endif
 
-@_spi(Private) extension SentryCrashWrapper {
+@_spi(Private) extension SentryDefaultCrashReporter {
     @objc
     public func startBinaryImageCache() {
         sentrycrashbic_startCache()

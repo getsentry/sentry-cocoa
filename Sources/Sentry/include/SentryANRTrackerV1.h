@@ -1,7 +1,7 @@
 #import "SentryDefines.h"
 
 @class SentryOptions;
-@class SentryCrashWrapper;
+@protocol SentryCrashReporter;
 @class SentryDispatchQueueWrapper;
 @class SentryThreadWrapper;
 @protocol SentryANRTrackerInternalDelegate;
@@ -27,7 +27,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval;
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
-                           crashWrapper:(SentryCrashWrapper *)crashWrapper
+                           crashWrapper:(id<SentryCrashReporter>)crashWrapper
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper;
 

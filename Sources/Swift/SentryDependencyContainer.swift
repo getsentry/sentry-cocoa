@@ -117,7 +117,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             dateProvider: self.dateProvider,
             crashReporter: self.crashReporter
         )
-        return SentryCrashWrapper(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
+        return SentryDefaultCrashReporter(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
     }
     @objc public var dispatchFactory = SentryDispatchFactory()
     @objc public var timerFactory = SentryNSTimerFactory()
