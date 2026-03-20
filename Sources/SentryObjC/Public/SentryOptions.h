@@ -131,6 +131,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL enableLogs;
 
 /**
+ * Callback invoked before a log is sent.
+ *
+ * Use this to modify or filter logs. Return @c nil to prevent sending.
+ */
+@property (nonatomic, copy, nullable) SentryBeforeSendLogCallback beforeSendLog;
+
+/**
  * Callback invoked before a breadcrumb is added.
  *
  * Use this to modify or filter breadcrumbs. Return @c nil to prevent adding.

@@ -18,6 +18,7 @@
 
 @class SentryBreadcrumb;
 @class SentryEvent;
+@class SentryLog;
 @class SentrySamplingContext;
 @protocol SentrySpan;
 
@@ -27,6 +28,7 @@ typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
     SentryBreadcrumb *_Nonnull breadcrumb);
 typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
 typedef id<SentrySpan> _Nullable (^SentryBeforeSendSpanCallback)(id<SentrySpan> _Nonnull span);
+typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull log);
 typedef BOOL (^SentryBeforeCaptureScreenshotCallback)(SentryEvent *_Nonnull event);
 typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event);
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
