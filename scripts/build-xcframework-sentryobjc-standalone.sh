@@ -30,11 +30,8 @@ fi
 ARCHIVE_BASE="$(pwd)/XCFrameworkBuildPath/archive"
 OUTPUT_BASE="$(pwd)/XCFrameworkBuildPath/archive/SentryObjC"
 
-# System frameworks that Sentry SDK links against.
-# Required frameworks are always linked; weak frameworks are optional
-# and resolved at runtime if available.
-REQUIRED_FRAMEWORKS=( Foundation CoreData SystemConfiguration CoreGraphics QuartzCore )
-WEAK_FRAMEWORKS=( AVFoundation CoreMedia CoreVideo MetricKit PDFKit SwiftUI UIKit WebKit )
+# System frameworks and libraries.
+# Platform-specific lists are set inside the loop below.
 SYSTEM_LIBS=( z c++ )
 
 for sdk in "${sdks[@]}"; do
@@ -83,6 +80,17 @@ for sdk in "${sdks[@]}"; do
         watchsimulator)    arch_targets=( "arm64-apple-watchos8.0-simulator" "x86_64-apple-watchos8.0-simulator" ) ;;
         xros)              arch_targets=( "arm64-apple-xros1.0" ) ;;
         xrsimulator)       arch_targets=( "arm64-apple-xros1.0-simulator" ) ;;
+    esac
+
+    # Platform-specific framework lists
+    REQUIRED_FRAMEWORKS=( Foundation CoreData SystemConfiguration CoreGraphics QuartzCore )
+    case "$sdk" in
+        macosx)
+            WEAK_FRAMEWORKS=( AVFoundation CoreMedia CoreVideo MetricKit PDFKit SwiftUI WebKit AppKit ) ;;
+        watchos|watchsimulator)
+            WEAK_FRAMEWORKS=( ) ;;
+        *)
+            WEAK_FRAMEWORKS=( AVFoundation CoreMedia CoreVideo MetricKit PDFKit SwiftUI UIKit WebKit ) ;;
     esac
 
     # Prepare output framework directory
