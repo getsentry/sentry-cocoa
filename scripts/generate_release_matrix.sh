@@ -10,7 +10,9 @@ BASE_SLICES_JSON='[
   {"name": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic"},
   {"name": "Sentry", "macho-type": "staticlib", "id": "sentry-static"},
   {"name": "SentrySwiftUI", "macho-type": "mh_dylib", "id": "sentry-swiftui"},
-  {"name": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic"}
+  {"name": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic"},
+  {"name": "SentryObjCBridge", "macho-type": "staticlib", "id": "sentryobjc-bridge"},
+  {"name": "SentryObjC", "macho-type": "staticlib", "id": "sentryobjc-objc"}
 ]'
 BASE_VARIANTS_JSON='[
   {"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic", "excluded-archs": "arm64e"},

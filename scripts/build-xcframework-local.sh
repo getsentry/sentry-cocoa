@@ -54,21 +54,25 @@ fi
 if [ "$variants" = "SentryObjCOnly" ] || [ "$variants" = "AllVariants" ]; then
     # Build a standalone SentryObjC.xcframework that embeds the full SDK.
     #
-    # Strategy: build Sentry and SentryObjCBridge as static frameworks first,
-    # then build SentryObjC as a dynamic framework with FRAMEWORK_SEARCH_PATHS
-    # pointing at those static frameworks. Xcode's link phase resolves
-    # -framework Sentry and -framework SentryObjCBridge to the static binaries,
-    # embedding all symbols into the single SentryObjC binary. No force_load,
-    # no duplicate symbols, and Xcode handles all system framework flags.
+    # Strategy: build Sentry, SentryObjCBridge, and SentryObjC as static
+    # frameworks, merge them with libtool, then link into a dynamic library
+    # with swiftc. This produces a single binary containing wrapper + bridge
+    # + full SDK + Swift runtime.
+    #
+    # The Sentry static framework is already built by StaticOnly above
+    # (or will be built here if running SentryObjCOnly alone). We reuse
+    # those archives from XCFrameworkBuildPath/archive/Sentry/.
 
-    # 1. Build Sentry as a static framework (for embedding)
-    ./scripts/build-xcframework-variant.sh "Sentry" "-ForEmbedding" "staticlib" "" "$sdks" ""
+    # 1. Build Sentry as a static framework if not already built
+    if [ ! -d "XCFrameworkBuildPath/archive/Sentry" ]; then
+        ./scripts/build-xcframework-variant.sh "Sentry" "" "staticlib" "" "$sdks" ""
+    fi
 
-    # 2. Build SentryObjCBridge as a static framework (for embedding)
-    ./scripts/build-xcframework-variant.sh "SentryObjCBridge" "-ForEmbedding" "staticlib" "" "$sdks" ""
+    # 2. Build SentryObjCBridge as a static framework
+    ./scripts/build-xcframework-variant.sh "SentryObjCBridge" "" "staticlib" "" "$sdks" ""
 
-    # 3. Build SentryObjC as static (just its own .m files)
-    ./scripts/build-xcframework-variant.sh "SentryObjC" "-ForEmbedding" "staticlib" "" "$sdks" ""
+    # 3. Build SentryObjC as a static framework
+    ./scripts/build-xcframework-variant.sh "SentryObjC" "" "staticlib" "" "$sdks" ""
 
     # 4. Link all three static archives into a standalone dynamic SentryObjC framework
     ./scripts/build-xcframework-sentryobjc-standalone.sh "$sdks"
@@ -77,8 +81,7 @@ if [ "$variants" = "SentryObjCOnly" ] || [ "$variants" = "AllVariants" ]; then
     ./scripts/compress-xcframework.sh "$signed" SentryObjC
     mv SentryObjC.xcframework.zip XCFrameworkBuildPath/SentryObjC.xcframework.zip
 
-    # Clean up intermediate static builds
-    rm -rf "XCFrameworkBuildPath/archive/Sentry-ForEmbedding"
-    rm -rf "XCFrameworkBuildPath/archive/SentryObjCBridge-ForEmbedding"
-    rm -rf "XCFrameworkBuildPath/archive/SentryObjC-ForEmbedding"
+    # Clean up intermediate static builds (keep Sentry/ — shared with StaticOnly)
+    rm -rf "XCFrameworkBuildPath/archive/SentryObjCBridge"
+    rm -rf "XCFrameworkBuildPath/archive/SentryObjC"
 fi

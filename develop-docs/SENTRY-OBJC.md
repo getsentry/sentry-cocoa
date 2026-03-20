@@ -124,7 +124,7 @@ The `SentryObjC` product in `Package.swift` includes all three tiers:
 
 `SentryObjC.xcframework` bundles everything into a single standalone dynamic framework:
 
-1. Build `Sentry`, `SentryObjCBridge`, and `SentryObjC` as static libraries (`-ForEmbedding` scheme variants) using `xcodebuild`
+1. Build `Sentry`, `SentryObjCBridge`, and `SentryObjC` as static libraries using `xcodebuild`
 2. Merge all three `.a` archives into one with `libtool -static`
 3. Link with `swiftc -emit-library -force_load` into a dynamic library (swiftc embeds the Swift runtime automatically)
 4. Copy SentryObjC public headers and module map into the framework bundle
@@ -209,9 +209,9 @@ make build-sample-iOS-ObjectiveCpp-NoModules
 
 ```
 scripts/build-xcframework-local.sh (SentryObjCOnly variant)
-    ├── build-xcframework-variant.sh → Sentry -ForEmbedding (staticlib)
-    ├── build-xcframework-variant.sh → SentryObjCBridge -ForEmbedding (staticlib)
-    ├── build-xcframework-variant.sh → SentryObjC -ForEmbedding (staticlib)
+    ├── build-xcframework-variant.sh → Sentry (staticlib, reused from StaticOnly)
+    ├── build-xcframework-variant.sh → SentryObjCBridge (staticlib)
+    ├── build-xcframework-variant.sh → SentryObjC (staticlib)
     └── build-xcframework-sentryobjc-standalone.sh
         ├── libtool -static (merge all three)
         ├── swiftc -emit-library -force_load (link per arch)

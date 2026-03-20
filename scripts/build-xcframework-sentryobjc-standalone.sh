@@ -11,7 +11,7 @@
 #   4. Assemble into XCFramework
 #
 # Parameters:
-#   $1 - sdks_to_build (AllSDKs, iOSOnly, macOSOnly, etc.)
+#   $1 - sdks_to_build (comma-separated list or preset: AllSDKs, iOSOnly, etc.)
 
 set -eoux pipefail
 
@@ -23,24 +23,32 @@ elif [ "$sdks_to_build" = "macOSOnly" ]; then
     sdks=( macosx )
 elif [ "$sdks_to_build" = "macCatalystOnly" ]; then
     sdks=( maccatalyst )
-else
+elif [ "$sdks_to_build" = "AllSDKs" ]; then
     sdks=( iphoneos iphonesimulator macosx maccatalyst appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
+else
+    # Treat as comma-separated list (e.g. from CI)
+    IFS=',' read -r -a sdks <<< "$sdks_to_build"
 fi
 
 ARCHIVE_BASE="$(pwd)/XCFrameworkBuildPath/archive"
-OUTPUT_BASE="$(pwd)/XCFrameworkBuildPath/archive/SentryObjC"
+OUTPUT_BASE="$(pwd)/XCFrameworkBuildPath/archive/SentryObjC-Standalone"
 
-# System frameworks and libraries.
-# Platform-specific lists are set inside the loop below.
+# System libraries required for all platforms.
 SYSTEM_LIBS=( z c++ )
+
+# All candidate frameworks the Sentry SDK may link against.
+# The script checks which ones actually exist on each platform's SDK
+# and skips the rest, so this list is safe for all platforms.
+REQUIRED_FRAMEWORKS=( Foundation CoreData SystemConfiguration CoreGraphics QuartzCore )
+CANDIDATE_WEAK_FRAMEWORKS=( AVFoundation CoreMedia CoreVideo MetricKit PDFKit SwiftUI UIKit WebKit AppKit )
 
 for sdk in "${sdks[@]}"; do
     echo "=== Linking standalone SentryObjC for ${sdk} ==="
 
-    # Locate the three static archives
-    sentry_archive="${ARCHIVE_BASE}/Sentry-ForEmbedding/${sdk}.xcarchive/Products/Library/Frameworks/Sentry.framework"
-    bridge_archive="${ARCHIVE_BASE}/SentryObjCBridge-ForEmbedding/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjCBridge.framework"
-    objc_archive="${ARCHIVE_BASE}/SentryObjC-ForEmbedding/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjC.framework"
+    # Locate the three static archives (reuses the normal Sentry static build)
+    sentry_archive="${ARCHIVE_BASE}/Sentry/${sdk}.xcarchive/Products/Library/Frameworks/Sentry.framework"
+    bridge_archive="${ARCHIVE_BASE}/SentryObjCBridge/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjCBridge.framework"
+    objc_archive="${ARCHIVE_BASE}/SentryObjC/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjC.framework"
 
     # Get the actual binary paths (macOS uses Versions/A structure)
     if [ "$sdk" = "macosx" ] || [ "$sdk" = "maccatalyst" ]; then
@@ -82,16 +90,23 @@ for sdk in "${sdks[@]}"; do
         xrsimulator)       arch_targets=( "arm64-apple-xros1.0-simulator" ) ;;
     esac
 
-    # Platform-specific framework lists
-    REQUIRED_FRAMEWORKS=( Foundation CoreData SystemConfiguration CoreGraphics QuartzCore )
-    case "$sdk" in
-        macosx)
-            WEAK_FRAMEWORKS=( AVFoundation CoreMedia CoreVideo MetricKit PDFKit SwiftUI WebKit AppKit ) ;;
-        watchos|watchsimulator)
-            WEAK_FRAMEWORKS=( ) ;;
-        *)
-            WEAK_FRAMEWORKS=( AVFoundation CoreMedia CoreVideo MetricKit PDFKit SwiftUI UIKit WebKit ) ;;
-    esac
+    # Discover which weak frameworks are available on this SDK.
+    # This avoids hardcoding per-platform lists — frameworks that don't exist
+    # on a given platform (e.g., WebKit on watchOS) are simply skipped.
+    fw_search_path="${sysroot}/System/Library/Frameworks"
+    if [ "$sdk" = "maccatalyst" ]; then
+        catalyst_fw_path="${sysroot}/System/iOSSupport/System/Library/Frameworks"
+    fi
+
+    WEAK_FRAMEWORKS=()
+    for fw in "${CANDIDATE_WEAK_FRAMEWORKS[@]}"; do
+        if [ -d "${fw_search_path}/${fw}.framework" ]; then
+            WEAK_FRAMEWORKS+=( "$fw" )
+        elif [ "$sdk" = "maccatalyst" ] && [ -d "${catalyst_fw_path}/${fw}.framework" ]; then
+            WEAK_FRAMEWORKS+=( "$fw" )
+        fi
+    done
+    echo "  Weak frameworks for ${sdk}: ${WEAK_FRAMEWORKS[*]}"
 
     # Prepare output framework directory
     output_xcarchive="${OUTPUT_BASE}/${sdk}.xcarchive"
@@ -112,6 +127,10 @@ for sdk in "${sdks[@]}"; do
     linker_flags+=( -Xlinker -force_load -Xlinker "$combined_a" )
     linker_flags+=( -Xlinker -compatibility_version -Xlinker 1.0.0 )
     linker_flags+=( -Xlinker -current_version -Xlinker 1.0.0 )
+    # Mac Catalyst needs the iOSSupport framework path for UIKit
+    if [ "$sdk" = "maccatalyst" ]; then
+        linker_flags+=( -Xlinker -F -Xlinker "${catalyst_fw_path}" )
+    fi
     for fw in "${REQUIRED_FRAMEWORKS[@]}"; do
         linker_flags+=( -framework "$fw" )
     done
@@ -182,4 +201,4 @@ done
 
 # Assemble the XCFramework from all slices
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
-./scripts/assemble-xcframework.sh "SentryObjC" "" "" "$xcframework_sdks" "$(pwd)/XCFrameworkBuildPath/archive/SentryObjC/SDK_NAME.xcarchive"
+./scripts/assemble-xcframework.sh "SentryObjC" "" "" "$xcframework_sdks" "$(pwd)/XCFrameworkBuildPath/archive/SentryObjC-Standalone/SDK_NAME.xcarchive"
