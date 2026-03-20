@@ -41,7 +41,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     private let options: Options
     private let fileManager: SentryFileManager
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
-    private let crashWrapper: SentryCrashWrapper
+    private let crashWrapper: SentryCrashReporter
     private let debugImageProvider: SentryDebugImageProvider
     private let threadInspector: SentryThreadInspector
     private var reportAppHangs: Bool = true

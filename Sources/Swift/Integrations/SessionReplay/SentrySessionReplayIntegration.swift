@@ -31,7 +31,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private var currentBreadcrumbConverter: SentryReplayBreadcrumbConverter?
     private var previewView: SentryMaskingPreviewView?
     private let dateProvider: SentryCurrentDateProvider
-    private let crashWrapper: SentryCrashWrapper
+    private let crashWrapper: SentryCrashReporter
     private let replayFileManager: SessionReplayFileManager
     private var replayRecovery: SessionReplayRecovery?
     
