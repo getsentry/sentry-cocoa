@@ -34,6 +34,7 @@
 #import "SentryCrashSysCtl.h"
 #import "SentryInternalCDefines.h"
 
+#import "SentryCrashDebug.h"
 #import "SentryLogC.h"
 
 #import "SentryDefines.h"
@@ -466,6 +467,9 @@ getBuildType(void)
         return "simulator";
     }
     if (isDebugBuild()) {
+        return "debug";
+    }
+    if (sentrycrashdebug_isBeingTraced()) {
         return "debug";
     }
     SentryMobileProvisionParser *parser = [[SentryMobileProvisionParser alloc] init];
