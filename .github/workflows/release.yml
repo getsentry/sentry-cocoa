@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -298,7 +298,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       - name: Setup Ruby
-        uses: ruby/setup-ruby@4eb9f110bac952a8b68ecf92e3b5c7a987594ba6 # v1.292.0
+        uses: ruby/setup-ruby@319994f95fa847cf3fb3cd3dbe89f6dcde9f178f # v1.295.0
         with:
           bundler-cache: true
       - uses: actions/cache@v5
@@ -334,7 +334,7 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Collect app metrics
         if: needs.files-changed.outputs.is_dependabot != 'true'
-        uses: getsentry/action-app-sdk-overhead-metrics@5f2d99b8e5a7b833386524924d24320501099a44
+        uses: getsentry/action-app-sdk-overhead-metrics@ecce2e2718b6d97ad62220fca05627900b061ed5
         with:
           config: Tests/Perf/metrics-test.yml
           sauce-user: ${{ secrets.SAUCE_USERNAME }}
@@ -364,7 +364,7 @@ jobs:
     steps:
       - name: Get auth token
         id: token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
         with:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
@@ -396,7 +396,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@013a7b2113c2cac0ff32d5180cfeaefc7c9ce5b6 # v2
+        uses: getsentry/craft@f4889d04564e47311038ecb6b910fef6b6cf1363 # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:
