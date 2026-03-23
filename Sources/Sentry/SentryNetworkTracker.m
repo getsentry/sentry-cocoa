@@ -660,10 +660,9 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
     }
 
     // Prefer originalRequest.HTTPBody: currentRequest may reflect redirects, and its HTTPBody may be nil on in-flight tasks.
-    NSData *bodyData
-        = networkCaptureBodies ? (sessionTask.originalRequest.HTTPBody ?: request.HTTPBody) : nil;
-
-    NSNumber *requestSize = bodyData ? [NSNumber numberWithUnsignedInteger:bodyData.length] : nil;
+    NSData *rawBody = sessionTask.originalRequest.HTTPBody ?: request.HTTPBody;
+    NSNumber *requestSize = rawBody ? [NSNumber numberWithUnsignedInteger:rawBody.length] : nil;
+    NSData *bodyData = networkCaptureBodies ? rawBody : nil;
 
     [details setRequestWithSize:requestSize
                        bodyData:bodyData
