@@ -161,13 +161,8 @@ enum NetworkBodyWarning: String {
                     warnings.append(.bodyParseError)
                     return parseText(data, encoding: encoding, warnings: &warnings)
                 }
-                // In form-urlencoded, + means space (rdar://40751862).
-                let key = comps[0]
-                    .replacingOccurrences(of: "+", with: " ")
-                    .removingPercentEncoding ?? comps[0]
-                let value = comps.dropFirst().joined(separator: "=")
-                    .replacingOccurrences(of: "+", with: " ")
-                    .removingPercentEncoding ?? comps[1]
+                let key = decodeFormComponent(comps[0])
+                let value = decodeFormComponent(comps.dropFirst().joined(separator: "="))
                 guard !key.isEmpty else { continue }
                 if let existing = formData[key] {
                     if var list = existing as? [String] {
@@ -181,6 +176,13 @@ enum NetworkBodyWarning: String {
                 }
             }
             return Body(content: formData, warnings: warnings)
+        }
+
+        /// Decodes a form-urlencoded component: converts `+` to space and removes percent-encoding.
+        /// Falls back to the `+`-to-space result if percent-decoding fails (e.g. `%ZZ`).
+        private static func decodeFormComponent(_ component: String) -> String {
+            let plusDecoded = component.replacingOccurrences(of: "+", with: " ")
+            return plusDecoded.removingPercentEncoding ?? plusDecoded
         }
 
         private static func parseText(_ data: Data, encoding: String.Encoding = .utf8, warnings: inout [NetworkBodyWarning]) -> Body {

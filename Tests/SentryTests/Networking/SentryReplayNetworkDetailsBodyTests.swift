@@ -295,6 +295,20 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         XCTAssertEqual(dict["name"] as? String, "Jane Doe")
     }
 
+    func testFormEncoded_malformedPercentEncoding_shouldPreservePlusDecodingAndEquals() throws {
+        // %ZZ is invalid percent-encoding → removingPercentEncoding returns nil.
+        // The fallback should still preserve +-to-space and = in values.
+        let body = try XCTUnwrap(Body(
+            data: "key=a%ZZ=b&greeting=hello+world".data(using: .utf8)!,
+            contentType: "application/x-www-form-urlencoded; charset=utf-8"
+        ))
+
+        let dict = try XCTUnwrap(body.serialize()["body"] as? [String: Any])
+        // Value preserves the joined "=" and the +-to-space conversion on the valid pair
+        XCTAssertEqual(dict["key"] as? String, "a%ZZ=b")
+        XCTAssertEqual(dict["greeting"] as? String, "hello world")
+    }
+
     // MARK: - Multi-byte Truncation
 
     func testInit_withTruncatedMultiByteUTF8_shouldRecoverValidPrefix() throws {
