@@ -47,7 +47,7 @@ jobs:
 
           - name: watchOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.2"
+            xcode: "26.3"
             test-destination-os: "26.4"
             platform: "watchOS"
             device: "Apple Watch Ultra 3 (49mm)"
