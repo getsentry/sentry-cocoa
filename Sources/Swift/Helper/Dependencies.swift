@@ -11,7 +11,6 @@
     }()
     @objc public static let dispatchQueueWrapper = SentryDispatchQueueWrapper()
     @objc public static let notificationCenterWrapper: SentryNSNotificationCenterWrapper = NotificationCenter.default
-    @objc public static let crashWrapper = SentryCrashWrapper(processInfoWrapper: Dependencies.processInfoWrapper)
     @objc public static let binaryImageCache = SentryBinaryImageCache()
     @objc public static let debugImageProvider = SentryDebugImageProvider()
     @objc public static let sysctlWrapper = SentrySysctl()

@@ -90,6 +90,12 @@ class SentryCrashInstallationReporterTests: XCTestCase {
         SentrySDKInternal.setCurrentHub(hub)
         
         sut = SentryCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: []), crashWrapper: TestSentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo), dispatchQueue: TestSentryDispatchQueueWrapper())
+        let container = SentryDependencyContainer.sharedInstance()
+        sut.bridge = SentryCrashBridge(
+            notificationCenterWrapper: container.notificationCenterWrapper,
+            dateProvider: container.dateProvider,
+            crashReporter: container.crashReporter
+        )
         // Reset global SentryCrash state so install() fully reinitializes the report store path,
         // even if a previous test class left g_installed = 1.
         sentrycrash_uninstall()

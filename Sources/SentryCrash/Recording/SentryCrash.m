@@ -32,6 +32,7 @@
 #import "SentryCrashJSONCodecObjC.h"
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashMonitor_AppState.h"
+#import "SentryCrashMonitor_NSException.h"
 #import "SentryCrashMonitor_System.h"
 #import "SentryCrashNSErrorUtil.h"
 #import "SentryCrashReportFields.h"
@@ -76,6 +77,7 @@
 @synthesize onCrash = _onCrash;
 @synthesize bundleName = _bundleName;
 @synthesize basePath = _basePath;
+@synthesize bridge = _bridge;
 @synthesize introspectMemory = _introspectMemory;
 @synthesize doNotIntrospectClasses = _doNotIntrospectClasses;
 @synthesize demangleLanguages = _demangleLanguages;
@@ -133,6 +135,11 @@
 - (void)setMonitoring:(SentryCrashMonitorType)monitoring
 {
     _monitoring = sentrycrash_setMonitoring(monitoring);
+}
+
+- (void)setBridgeObject:(id)bridge
+{
+    self.bridge = (SentryCrashBridge *)bridge;
 }
 
 - (void)setOnCrash:(SentryCrashReportWriteCallback)onCrash
@@ -229,6 +236,10 @@
     NSString *pathEnd = [@"SentryCrash" stringByAppendingPathComponent:[self getBundleName]];
     NSString *installPath = [self.basePath stringByAppendingPathComponent:pathEnd];
 
+    // Set bridge before install so the NSException monitor can access
+    // crashReporter.uncaughtExceptionHandler when setEnabled(true) runs.
+    sentrycrashcm_nsexception_setBridge(self.bridge);
+
     _monitoring = sentrycrash_install(self.bundleName.UTF8String, installPath.UTF8String);
     if (self.monitoring == 0) {
         return false;
@@ -236,7 +247,7 @@
 
 #if SENTRY_HAS_UIKIT
     id<SentryNSNotificationCenterWrapper> notificationCenter
-        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+        = self.bridge.notificationCenterWrapper;
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidBecomeActive)
                                name:UIApplicationDidBecomeActiveNotification
@@ -260,7 +271,7 @@
 #endif // SENTRY_HAS_UIKIT
 #if SENTRY_HAS_NSEXTENSION
     id<SentryNSNotificationCenterWrapper> notificationCenter
-        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+        = self.bridge.notificationCenterWrapper;
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidBecomeActive)
                                name:NSExtensionHostDidBecomeActiveNotification
@@ -292,7 +303,7 @@
 
 #if SENTRY_HAS_UIKIT
     id<SentryNSNotificationCenterWrapper> notificationCenter
-        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+        = self.bridge.notificationCenterWrapper;
     [notificationCenter removeObserver:self
                                   name:UIApplicationDidBecomeActiveNotification
                                 object:nil];
@@ -309,7 +320,7 @@
 #endif // SENTRY_HAS_UIKIT
 #if SENTRY_HAS_NSEXTENSION
     id<SentryNSNotificationCenterWrapper> notificationCenter
-        = SentryDependencyContainer.sharedInstance.notificationCenterWrapper;
+        = self.bridge.notificationCenterWrapper;
     [notificationCenter removeObserver:self
                                   name:NSExtensionHostDidBecomeActiveNotification
                                 object:nil];
