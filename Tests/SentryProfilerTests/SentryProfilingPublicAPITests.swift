@@ -443,7 +443,7 @@ extension SentryProfilingPublicAPITests {
             applicationProvider: { application },
             dateProvider: fixture.currentDate,
             notificationCenter: nc,
-            dispatchQueue: SentryDispatchQueueWrapper(name: "io.sentry.session-tracker.test")
+            dispatchQueue: TestSentryDispatchQueueWrapper()
         )
         fixture.sessionTracker?.start()
         givenSdkWithHub()
