@@ -1,0 +1,59 @@
+name: Lint SentryCrash Imports
+
+on:
+  push:
+    branches:
+      - main
+      - v8.x
+
+  pull_request:
+
+# Concurrency configuration:
+# - We use workflow-specific concurrency groups to prevent multiple lint runs on the same code,
+#   as linting checks are deterministic and don't require parallel validation.
+# - For pull requests, we cancel in-progress runs when new commits are pushed since only the
+#   latest linting matters for merge decisions.
+# - For main branch pushes, we never cancel to ensure the ratchet runs for every push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    outputs:
+      run_sentrycrash_import_ratchet_for_prs: ${{ steps.changes.outputs.run_sentrycrash_import_ratchet_for_prs }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
+  check-imports:
+    name: Check SentryCrash Imports
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_sentrycrash_import_ratchet_for_prs == 'true'
+    needs: files-changed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Check SentryCrash import count
+        run: ./scripts/check-sentrycrash-imports.sh
+
+      - name: Run CI Diagnostics
+        if: failure()
+        run: ./scripts/ci-diagnostics.sh
+
+  lint_sentrycrash_imports-required-check:
+    needs: [files-changed, check-imports]
+    name: Lint SentryCrash Imports
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the SentryCrash import ratchet jobs has failed." && exit 1
