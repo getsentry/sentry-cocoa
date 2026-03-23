@@ -1,10 +1,6 @@
 # Changelog
 
-## 9.8.0
-
-### Features
-
-- Add `SentrySDK.lastRunStatus` to distinguish unknown, no-crash and crash (#7469)
+## Unreleased
 
 ### Improvements
 
@@ -15,6 +11,12 @@
     - macOS
       - `didBecomeActive` state changed from `foreground` to `active`
       - `willResignActive` state changed from `background` to `inactive`
+
+## 9.8.0
+
+### Features
+
+- Add `SentrySDK.lastRunStatus` to distinguish unknown, no-crash and crash (#7469)
 
 ### Fixes
 
