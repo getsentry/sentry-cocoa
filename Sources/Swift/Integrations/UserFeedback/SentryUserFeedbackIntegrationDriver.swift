@@ -75,6 +75,16 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
     }
 
+    func enableShakeGesture() {
+        SentryShakeDetector.enable()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleShakeGesture), name: .SentryShakeDetected, object: nil)
+    }
+
+    func disableShakeGesture() {
+        SentryShakeDetector.disable()
+        NotificationCenter.default.removeObserver(self, name: .SentryShakeDetected, object: nil)
+    }
+
     @objc func showForm(sender: UIButton) {
         presenter?.present(SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: nil), animated: configuration.animations) {
             self.configuration.onFormOpen?()

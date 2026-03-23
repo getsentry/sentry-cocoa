@@ -37246,6 +37246,50 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC19disableShakeGestureyyF",
+            "moduleName": "Sentry",
+            "name": "disableShakeGesture",
+            "printedName": "disableShakeGesture()",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)disableShakeGesture"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC18enableShakeGestureyyF",
+            "moduleName": "Sentry",
+            "name": "enableShakeGesture",
+            "printedName": "enableShakeGesture()",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)enableShakeGesture"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
             "mangledName": "$s6Sentry0A11FeedbackAPIC10hideWidgetyyF",
             "moduleName": "Sentry",
             "name": "hideWidget",

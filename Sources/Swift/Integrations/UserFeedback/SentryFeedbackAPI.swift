@@ -20,6 +20,22 @@
     @objc public func hideWidget() {
         getIntegration()?.driver.hideWidget()
     }
+
+    /// Enable shake gesture to show the feedback form.
+    /// Call this to dynamically enable shake-to-report at runtime.
+    /// - warning: This is an experimental feature and may still have bugs.
+    @available(iOSApplicationExtension, unavailable)
+    @objc public func enableShakeGesture() {
+        getIntegration()?.driver.enableShakeGesture()
+    }
+
+    /// Disable shake gesture for the feedback form.
+    /// Call this to dynamically disable shake-to-report at runtime.
+    /// - warning: This is an experimental feature and may still have bugs.
+    @available(iOSApplicationExtension, unavailable)
+    @objc public func disableShakeGesture() {
+        getIntegration()?.driver.disableShakeGesture()
+    }
     
     private func getIntegration() -> UserFeedbackIntegration<SentryDependencyContainer>? {
         SentrySDKInternal.currentHub().getInstalledIntegration(UserFeedbackIntegration<SentryDependencyContainer>.self) as? UserFeedbackIntegration<SentryDependencyContainer>
