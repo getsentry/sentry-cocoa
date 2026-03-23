@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Move SessionTracker file I/O off the main thread ([#7704](https://github.com/getsentry/sentry-cocoa/pull/7704))
+
 ## 9.8.0
 
 ### Features
@@ -9,7 +15,6 @@
 ### Fixes
 
 - Make SentryBreadcrumb thread-safe to prevent crashes in addBreadcrumb ([#7665](https://github.com/getsentry/sentry-cocoa/pull/7665))
-- Move SessionTracker file I/O off the main thread ([#7704](https://github.com/getsentry/sentry-cocoa/pull/7704))
 
 ## 9.7.0
 
