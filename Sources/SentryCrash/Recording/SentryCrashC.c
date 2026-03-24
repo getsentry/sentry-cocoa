@@ -31,6 +31,7 @@
 #include "SentryCrashFileUtils.h"
 #include "SentryCrashMonitorContext.h"
 #include "SentryCrashMonitor_AppState.h"
+#include "SentryCrashMonitor_Signal.h"
 #include "SentryCrashMonitor_System.h"
 #include "SentryCrashObjC.h"
 #include "SentryCrashReport.h"
@@ -54,6 +55,9 @@
 /** True if SentryCrash has been installed. */
 static volatile bool g_installed = 0;
 
+/** True if SentryCrash signal handlers have been preloaded. */
+static volatile bool g_preloaded = 0;
+
 static SentryCrashMonitorType g_monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
 static char g_lastCrashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
 static void (*g_saveScreenShot)(const char *) = 0;
@@ -62,6 +66,22 @@ static void (*g_saveTransaction)(void) = 0;
 // ============================================================================
 #pragma mark - Utility -
 // ============================================================================
+
+#ifdef SENTRY_CRASH_MANAGED_RUNTIME
+/** Preload signal handlers before the managed (.NET/Mono) runtime installs its
+ * own, to ensure the correct handler chain order:
+ * managed runtime -> SentryCrash -> system.
+ */
+__attribute__((constructor)) static void
+onPreload(void)
+{
+    if (g_installed) {
+        return;
+    }
+    g_preloaded = 1;
+    sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeSignal);
+}
+#endif
 
 // ============================================================================
 #pragma mark - Callbacks -
@@ -155,6 +175,7 @@ sentrycrash_uninstall(void)
     sentrycrashcm_setEventCallback(NULL);
     sentrycrashcm_resetState();
     g_installed = 0;
+    g_preloaded = 0;
     sentrycrashccd_close();
 }
 
@@ -169,6 +190,12 @@ sentrycrash_setMonitoring(SentryCrashMonitorType monitors)
     }
     // Return what we will be monitoring in future.
     return g_monitoring;
+}
+
+void
+sentrycrash_ignore_next_signal(int signum)
+{
+    sentrycrashcm_signal_ignore_next(signum);
 }
 
 void

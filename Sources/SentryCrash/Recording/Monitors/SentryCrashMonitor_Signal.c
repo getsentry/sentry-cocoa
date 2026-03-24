@@ -49,6 +49,7 @@
 
 static volatile bool g_isEnabled = false;
 static bool g_isSigtermReportingEnabled = false;
+static _Thread_local int tl_ignore_signum = 0;
 
 static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
@@ -82,6 +83,11 @@ static char g_eventID[37];
 static void
 handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
+    if (sigNum == tl_ignore_signum) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Ignored signal %d", sigNum);
+        tl_ignore_signum = 0;
+        return;
+    }
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped signal %d", sigNum);
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
@@ -281,6 +287,14 @@ sentrycrashcm_setEnableSigtermReporting(bool enabled)
 {
 #if SENTRY_HAS_SIGNAL
     g_isSigtermReportingEnabled = enabled;
+#endif
+}
+
+void
+sentrycrashcm_signal_ignore_next(int signum)
+{
+#if SENTRY_HAS_SIGNAL
+    tl_ignore_signum = signum;
 #endif
 }
 

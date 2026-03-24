@@ -463,6 +463,13 @@ installExceptionHandler(void)
     exception_mask_t mask = EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC
         | EXC_MASK_SOFTWARE | EXC_MASK_BREAKPOINT;
 
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+    // Exclude Mach exceptions that the managed (.NET/Mono) runtime handles via
+    // signal handlers (EXC_BAD_ACCESS for NullReferenceException, EXC_ARITHMETIC
+    // for DivideByZeroException).
+    mask &= ~(EXC_MASK_BAD_ACCESS | EXC_MASK_ARITHMETIC);
+#    endif
+
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Backing up original exception ports.");
     kr = task_get_exception_ports(thisTask, mask, g_previousExceptionPorts.masks,
         &g_previousExceptionPorts.count, g_previousExceptionPorts.ports,

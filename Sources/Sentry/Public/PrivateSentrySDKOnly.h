@@ -200,6 +200,14 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
  */
 + (void)setLogOutput:(void (^)(NSString *))output;
 
+/**
+ * Tell the crash reporter to ignore the next occurrence of the given signal on
+ * the calling thread. Used by hybrid SDKs to prevent duplicate crash reports
+ * when the host runtime is about to raise a signal (e.g. SIGABRT) that has
+ * already been captured as a managed exception.
+ */
++ (void)ignoreNextSignal:(int)signum;
+
 @end
 
 NS_ASSUME_NONNULL_END

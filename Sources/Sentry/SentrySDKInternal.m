@@ -608,7 +608,9 @@ static NSDate *_Nullable startTimestamp = nil;
 // Code not to be analyzed
 + (void)crash
 {
-    int *p = 0;
+    // volatile forces an actual null dereference (SIGSEGV) instead of letting
+    // the compiler optimize the undefined behavior into a trap (SIGTRAP).
+    volatile int *p = 0;
     *p = 0;
 }
 #endif
