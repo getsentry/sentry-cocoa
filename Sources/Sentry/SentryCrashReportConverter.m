@@ -460,7 +460,14 @@
         exception = [[SentryException alloc] initWithValue:@"Unknown Exception" type:exceptionType];
     }
 
-    [self enhanceValueFromNotableAddresses:exception];
+    // Skip notable-address enhancement when the mach/signal crash was actually caused by an
+    // unhandled NSException routed through AppKit's _crashOnException:. In that case the notable
+    // addresses contain garbage (format strings, hex addresses) rather than useful context, and
+    // overwriting the value loses the original mach/signal description.
+    // See https://github.com/getsentry/sentry-cocoa/issues/1562
+    if (![self isMachExceptionFromAppKitCrashOnException]) {
+        [self enhanceValueFromNotableAddresses:exception];
+    }
 
     NSArray<NSString *> *crashInfoMessages = [self crashInfoMessagesFromBinaryImages];
 
@@ -516,6 +523,34 @@
     NSString *type = self.exceptionContext[@"nsexception"][@"name"] ?: @"NSException";
 
     return [[SentryException alloc] initWithValue:reason type:type];
+}
+
+/**
+ * Checks whether the mach/signal crash was caused by an unhandled NSException routed through
+ * AppKit's @c _crashOnException:. Detected by an @c EXC_BREAKPOINT exception with a
+ * crashed-thread frame inside AppKit — the signature of @c _crashOnException: calling
+ * @c __builtin_trap().
+ */
+- (BOOL)isMachExceptionFromAppKitCrashOnException
+{
+    if ([self.threads count] == 0 || self.crashedThreadIndex >= [self.threads count]) {
+        return NO;
+    }
+
+    if (![self.exceptionContext[@"mach"][@"exception_name"] isEqualToString:@"EXC_BREAKPOINT"]) {
+        return NO;
+    }
+
+    NSArray *frames = [self rawStackTraceForThreadIndex:self.crashedThreadIndex];
+    for (NSDictionary *frame in frames) {
+        uintptr_t addr = (uintptr_t)[frame[@"instruction_addr"] unsignedLongLongValue];
+        NSDictionary *image = [self binaryImageForAddress:addr];
+        if (image != nil && [image[@"name"] rangeOfString:@"AppKit"].location != NSNotFound) {
+            return YES;
+        }
+    }
+
+    return NO;
 }
 
 - (void)enhanceValueFromNotableAddresses:(SentryException *)exception

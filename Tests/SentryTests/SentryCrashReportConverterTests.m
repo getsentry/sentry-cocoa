@@ -1158,4 +1158,174 @@
     XCTAssertEqualObjects(messages.firstObject, unrelatedCrashInfo);
 }
 
+#pragma mark - NSException falling through to mach monitor (issue #1562)
+
+- (void)testMachException_whenCrashedViaCrashOnException_shouldNotEnhanceWithNotableAddresses
+{
+    // -- Arrange --
+    // Simulates an NSException that fell through to the mach monitor via AppKit's
+    // _crashOnException:. The notable addresses contain garbage (stack addresses,
+    // format strings) that would overwrite the mach exception value.
+    // See https://github.com/getsentry/sentry-cocoa/issues/1562
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ {
+                    @"contents" : @[
+                        @{ @"instruction_addr" : @0x1A2C6DC7C },
+                        @{ @"instruction_addr" : @0x1020C9ED8 }
+                    ]
+                },
+                @"notable_addresses" : @ {
+                    @"r14" :
+                        @ { @"type" : @"string", @"value" : @"0x000000019de89d54 start + 7184" },
+                    @"stack1" : @ {
+                        @"type" : @"string",
+                        @"value" : @"terminating with %s exception of type %s"
+                    }
+                }
+            } ],
+            @"error" : @ {
+                @"type" : @"mach",
+                @"mach" : @ {
+                    @"exception" : @6,
+                    @"exception_name" : @"EXC_BREAKPOINT",
+                    @"code" : @1,
+                    @"subcode" : @0
+                }
+            }
+        },
+        @"binary_images" : @[ @{
+            @"name" : @"/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+            @"image_addr" : @0x1A26E3000,
+            @"image_size" : @0x1740000
+        } ],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.type, @"EXC_BREAKPOINT");
+    XCTAssertFalse([exception.value containsString:@"start + 7184"],
+        @"Mach exception caused by _crashOnException: must not have its value overwritten by "
+        @"notable addresses. Got: %@",
+        exception.value);
+    XCTAssertFalse([exception.value containsString:@"terminating with"],
+        @"Mach exception caused by _crashOnException: must not have its value overwritten by "
+        @"notable addresses. Got: %@",
+        exception.value);
+    XCTAssertTrue([exception.value containsString:@"Exception 6"],
+        @"Should keep original mach exception value. Got: %@", exception.value);
+}
+
+- (void)
+    testMachException_whenCrashedViaCrashOnExceptionWithoutSymbolNames_shouldNotEnhanceWithNotableAddresses
+{
+    // -- Arrange --
+    // Real mach crash reports have no symbol_name (resolved server-side). Detection falls back
+    // to checking for EXC_BREAKPOINT + AppKit frame by instruction address range.
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ {
+                    @"contents" : @[
+                        @{ @"instruction_addr" : @0x1A2C6DC7C },
+                        @{ @"instruction_addr" : @0x1020C9ED8 }
+                    ]
+                },
+                @"notable_addresses" : @ {
+                    @"r14" :
+                        @ { @"type" : @"string", @"value" : @"0x000000019de89d54 start + 7184" }
+                }
+            } ],
+            @"error" : @ {
+                @"type" : @"mach",
+                @"mach" : @ {
+                    @"exception" : @6,
+                    @"exception_name" : @"EXC_BREAKPOINT",
+                    @"code" : @1,
+                    @"subcode" : @0
+                }
+            }
+        },
+        @"binary_images" : @[ @{
+            @"name" : @"/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+            @"image_addr" : @0x1A26E3000,
+            @"image_size" : @0x1740000
+        } ],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertFalse([exception.value containsString:@"start + 7184"],
+        @"EXC_BREAKPOINT in AppKit should not be enhanced with notable addresses. Got: %@",
+        exception.value);
+    XCTAssertTrue([exception.value containsString:@"Exception 6"],
+        @"Should keep original mach exception value. Got: %@", exception.value);
+}
+
+- (void)testMachException_withoutCrashOnException_shouldStillEnhanceWithNotableAddresses
+{
+    // -- Arrange --
+    // A regular mach crash (e.g., EXC_BAD_ACCESS) — notable addresses provide useful context.
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ {
+                    @"contents" : @[ @{
+                        @"instruction_addr" : @0x1000,
+                        @"symbol_name" : @"doCrash",
+                        @"object_name" : @"MyApp"
+                    } ]
+                },
+                @"notable_addresses" :
+                    @ { @"r14" : @ { @"type" : @"string", @"value" : @"objectAtIndex:" } }
+            } ],
+            @"error" : @ {
+                @"type" : @"mach",
+                @"mach" : @ {
+                    @"exception" : @1,
+                    @"exception_name" : @"EXC_BAD_ACCESS",
+                    @"code" : @1,
+                    @"subcode" : @0
+                }
+            }
+        },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.type, @"EXC_BAD_ACCESS");
+    XCTAssertTrue([exception.value containsString:@"objectAtIndex:"],
+        @"Regular mach exception should still be enhanced with notable addresses. Got: %@",
+        exception.value);
+}
+
 @end
