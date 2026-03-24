@@ -55,9 +55,6 @@
 /** True if SentryCrash has been installed. */
 static volatile bool g_installed = 0;
 
-/** True if SentryCrash signal handlers have been preloaded. */
-static volatile bool g_preloaded = 0;
-
 static SentryCrashMonitorType g_monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
 static char g_lastCrashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
 static void (*g_saveScreenShot)(const char *) = 0;
@@ -78,7 +75,6 @@ onPreload(void)
     if (g_installed) {
         return;
     }
-    g_preloaded = 1;
     sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeSignal);
 }
 #endif
@@ -175,7 +171,6 @@ sentrycrash_uninstall(void)
     sentrycrashcm_setEventCallback(NULL);
     sentrycrashcm_resetState();
     g_installed = 0;
-    g_preloaded = 0;
     sentrycrashccd_close();
 }
 
