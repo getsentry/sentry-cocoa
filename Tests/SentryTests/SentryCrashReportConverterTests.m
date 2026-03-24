@@ -1280,6 +1280,70 @@
         @"Should keep original mach exception value. Got: %@", exception.value);
 }
 
+- (void)
+    testMachException_whenEXCBreakpointWithAppKitDeeperInStack_shouldStillEnhanceWithNotableAddresses
+{
+    // -- Arrange --
+    // Simulates a Swift runtime trap (e.g., force-unwrap nil) on the main thread of a macOS app.
+    // The crash frame (0) is in libswiftCore, but AppKit is present deeper in the stack because
+    // the code was invoked from an AppKit event handler. This must NOT be mistaken for
+    // _crashOnException: — notable addresses may contain the Swift assertion message.
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ {
+                    @"contents" : @[
+                        @{ @"instruction_addr" : @0x1900A0000 }, // frame 0: libswiftCore
+                        @{ @"instruction_addr" : @0x100004000 }, // frame 1: MyApp
+                        @{ @"instruction_addr" : @0x100004100 }, // frame 2: MyApp
+                        @{ @"instruction_addr" : @0x1A2C6DC7C } // frame 3+: AppKit (event dispatch)
+                    ]
+                },
+                @"notable_addresses" :
+                    @ { @"r14" : @ { @"type" : @"string", @"value" : @"unexpectedly found nil" } }
+            } ],
+            @"error" : @ {
+                @"type" : @"mach",
+                @"mach" : @ {
+                    @"exception" : @6,
+                    @"exception_name" : @"EXC_BREAKPOINT",
+                    @"code" : @1,
+                    @"subcode" : @0
+                }
+            }
+        },
+        @"binary_images" : @[
+            @{
+                @"name" : @"/usr/lib/swift/libswiftCore.dylib",
+                @"image_addr" : @0x190000000,
+                @"image_size" : @0x400000
+            },
+            @{
+                @"name" : @"/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+                @"image_addr" : @0x1A26E3000,
+                @"image_size" : @0x1740000
+            }
+        ],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.type, @"EXC_BREAKPOINT");
+    XCTAssertTrue([exception.value containsString:@"unexpectedly found nil"],
+        @"EXC_BREAKPOINT with AppKit only deeper in the stack should still enhance with notable "
+        @"addresses (Swift runtime trap, not _crashOnException:). Got: %@",
+        exception.value);
+}
+
 - (void)testMachException_withoutCrashOnException_shouldStillEnhanceWithNotableAddresses
 {
     // -- Arrange --

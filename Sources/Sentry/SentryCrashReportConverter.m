@@ -460,10 +460,7 @@
         exception = [[SentryException alloc] initWithValue:@"Unknown Exception" type:exceptionType];
     }
 
-    // Skip notable-address enhancement when the mach/signal crash was actually caused by an
-    // unhandled NSException routed through AppKit's _crashOnException:. In that case the notable
-    // addresses contain garbage (format strings, hex addresses) rather than useful context, and
-    // overwriting the value loses the original mach/signal description.
+    // AppKit's _crashOnException: produces garbage notable addresses; skip enhancement for those.
     if (![self isMachExceptionFromAppKitCrashOnException]) {
         [self enhanceValueFromNotableAddresses:exception];
     }
@@ -524,15 +521,15 @@
     return [[SentryException alloc] initWithValue:reason type:type];
 }
 
-/**
- * Checks whether the mach/signal crash was caused by an unhandled NSException routed through
- * AppKit's @c _crashOnException:. Detected by an @c EXC_BREAKPOINT exception with a
- * crashed-thread frame inside AppKit — the signature of @c _crashOnException: calling
- * @c __builtin_trap().
- */
+/// EXC_BREAKPOINT with a top frame in AppKit indicates @c _crashOnException:.
 - (BOOL)isMachExceptionFromAppKitCrashOnException
 {
     if ([self.threads count] == 0 || self.crashedThreadIndex >= [self.threads count]) {
+        return NO;
+    }
+
+    NSString *exceptionType = self.exceptionContext[@"type"];
+    if (![exceptionType isEqualToString:@"mach"] && ![exceptionType isEqualToString:@"signal"]) {
         return NO;
     }
 
@@ -540,9 +537,11 @@
         return NO;
     }
 
+    // Only check top frames; AppKit is always deeper in the stack on macOS main-thread crashes.
     NSArray *frames = [self rawStackTraceForThreadIndex:self.crashedThreadIndex];
-    for (NSDictionary *frame in frames) {
-        uintptr_t addr = (uintptr_t)[frame[@"instruction_addr"] unsignedLongLongValue];
+    NSUInteger limit = MIN(frames.count, 3u);
+    for (NSUInteger i = 0; i < limit; i++) {
+        uintptr_t addr = (uintptr_t)[frames[i][@"instruction_addr"] unsignedLongLongValue];
         NSDictionary *image = [self binaryImageForAddress:addr];
         if (image != nil && [image[@"name"] rangeOfString:@"AppKit"].location != NSNotFound) {
             return YES;
