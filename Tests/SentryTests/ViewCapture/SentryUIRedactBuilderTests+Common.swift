@@ -960,6 +960,42 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         XCTAssertEqual(result.count, 1)
     }
 
+    func testUnmaskView_withOpaqueUnmaskedView_shouldStillClipOut() throws {
+        // -- Arrange --
+        // A redacted label is added first (lower z-order), then an opaque
+        // container that is per-instance unmasked is placed on top.
+        // The opaque container must still produce a .clipOut so the label's
+        // redaction overlay behind it is removed.
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 60, height: 20))
+        label.text = "Behind opaque"
+        rootView.addSubview(label)
+
+        let opaqueContainer = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 50))
+        opaqueContainer.backgroundColor = .white
+        opaqueContainer.isOpaque = true
+        opaqueContainer.layer.isOpaque = true
+        opaqueContainer.layer.backgroundColor = UIColor.white.cgColor
+        rootView.addSubview(opaqueContainer)
+
+        // -- Act --
+        SentrySDK.replay.unmaskView(opaqueContainer)
+
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // We expect a .redact for the label AND a .clipOut for the opaque container.
+        XCTAssertEqual(result.count, 2)
+
+        let clipOut = try XCTUnwrap(result.first(where: { $0.type == .clipOut }))
+        XCTAssertEqual(clipOut.size, CGSize(width: 100, height: 50))
+
+        let redact = try XCTUnwrap(result.first(where: { $0.type == .redact }))
+        XCTAssertEqual(redact.size, CGSize(width: 60, height: 20))
+    }
+
     // MARK: - Other Masking
 
     func testRedact_withIgnoredViewsBeforeRootSizedView_shouldNotRedactView() {
