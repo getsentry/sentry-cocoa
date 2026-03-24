@@ -45,6 +45,7 @@ mockTerminationHandler(void)
     }
     sentrycrashcm_setEventCallback(NULL);
     capturedExceptionContextCrashReason = NULL;
+    capturedExceptionName = NULL;
     capturedCrashType = (SentryCrashMonitorType)0;
 }
 
@@ -124,6 +125,8 @@ mockTerminationHandler(void)
         stackCursor.stackEntry.address, (uintptr_t)0, "Stack trace should NOT be captured.");
 }
 
+NSString *capturedExceptionName;
+
 void
 mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
 {
@@ -134,6 +137,9 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
     capturedCrashType = context->crashType;
     if (context->crashReason) {
         capturedExceptionContextCrashReason = [NSString stringWithUTF8String:context->crashReason];
+    }
+    if (context->NSException.name) {
+        capturedExceptionName = [NSString stringWithUTF8String:context->NSException.name];
     }
 }
 
@@ -158,27 +164,43 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
         stackCursor.stackEntry.address, (uintptr_t)0, "Stack trace should NOT be captured.");
 }
 
-- (void)testTerminateWithNSExceptionSubclass_NotHandledByCppHandler
+- (void)testTerminateWithNSExceptionSubclass_HandledAsNSException
 {
-    // Arrange
-    std::set_terminate(&mockTerminationHandler);
     sentrycrashcm_setEventCallback(mockHandleExceptionHandler);
     api->setEnabled(true);
 
-    // Act
     @try {
         [[SentryTestNSExceptionSubclass exceptionWithName:@"TestException"
-                                                   reason:@"Test"
+                                                   reason:@"Test reason"
                                                  userInfo:nil] raise];
     } @catch (...) {
         std::get_terminate()();
     }
 
+    XCTAssertEqual(capturedCrashType, SentryCrashMonitorTypeNSException);
+    XCTAssertEqualObjects(capturedExceptionName, @"TestException");
+    XCTAssertEqualObjects(capturedExceptionContextCrashReason, @"Test reason");
+}
+
+- (void)testTerminateWithNSException_HandledAsNSException
+{
+    // Arrange
+    sentrycrashcm_setEventCallback(mockHandleExceptionHandler);
+    api->setEnabled(true);
+
+    // Act
+    @try {
+        [NSException raise:NSRangeException format:@"index 0 beyond bounds for empty NSArray"];
+    } @catch (...) {
+        std::get_terminate()();
+    }
+
     // Assert
-    XCTAssertTrue(
-        terminateCalled, "Original terminate handler should be called for ObjC exceptions.");
-    XCTAssertNotEqual(capturedCrashType, SentryCrashMonitorTypeCPPException,
-        "NSException subclass should NOT be handled by C++ exception handler.");
+    XCTAssertEqual(capturedCrashType, SentryCrashMonitorTypeNSException,
+        "NSException in terminate handler should be reported as NSException.");
+    XCTAssertEqualObjects(capturedExceptionName, @"NSRangeException");
+    XCTAssertTrue([capturedExceptionContextCrashReason containsString:@"index 0 beyond bounds"],
+        @"Should capture the NSException reason. Got: %@", capturedExceptionContextCrashReason);
 }
 
 - (void)testCallHandler_shouldCaptureExceptionDescription

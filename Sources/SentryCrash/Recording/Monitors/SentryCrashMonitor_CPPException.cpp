@@ -29,6 +29,7 @@
 #include "SentryCrashID.h"
 #include "SentryCrashMachineContext.h"
 #include "SentryCrashMonitorContext.h"
+#include "SentryCrashMonitor_CPPException_ObjCHelper.h"
 #include "SentryCrashStackCursor_SelfThread.h"
 #include "SentryCrashThread.h"
 
@@ -216,12 +217,42 @@ CPPExceptionTerminate(void)
         isObjCExc = isObjCException(tinfo);
     }
 
-    if (!isObjCExc) {
-        thread_act_array_t threads = NULL;
-        mach_msg_type_number_t numThreads = 0;
-        // The cxa_throw hook reenters only from other threads. Edge case:
-        // throwing from within cxa_throw itself, which is less defined
-        // than raising a signal from a signal handler.
+    thread_act_array_t threads = NULL;
+    mach_msg_type_number_t numThreads = 0;
+
+    if (isObjCExc) {
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Handling ObjC exception in C++ terminate handler.");
+
+        sentrycrashcm_notifyFatalException(false, &threads, &numThreads);
+
+        SentryCrash_MonitorContext *crashContext = &g_monitorContext;
+        memset(crashContext, 0, sizeof(*crashContext));
+
+        const char *excName = NULL;
+        const char *excReason = NULL;
+        SentryCrashStackCursor exceptionCursor;
+        uintptr_t *callstack
+            = sentrycrashcm_extractCurrentObjCException(&excName, &excReason, &exceptionCursor);
+
+        SentryCrashMC_NEW_CONTEXT(machineContext);
+        sentrycrashmc_getContextForThread(sentrycrashthread_self(), machineContext, true);
+
+        crashContext->crashType = SentryCrashMonitorTypeNSException;
+        crashContext->eventID = g_eventID;
+        crashContext->registersAreValid = false;
+        crashContext->stackCursor = &exceptionCursor;
+        crashContext->NSException.name = excName;
+        crashContext->exceptionName = excName;
+        crashContext->crashReason = excReason;
+        crashContext->offendingMachineContext = machineContext;
+
+        sentrycrashcm_handleException(crashContext);
+
+        if (callstack != NULL) {
+            free(callstack);
+        }
+        sentrycrashmc_resumeEnvironment(threads, numThreads);
+    } else {
         sentrycrashcm_notifyFatalException(false, &threads, &numThreads);
 
         SentryCrash_MonitorContext *crashContext = &g_monitorContext;
@@ -299,9 +330,6 @@ CPPExceptionTerminate(void)
 
         sentrycrashcm_handleException(crashContext);
         sentrycrashmc_resumeEnvironment(threads, numThreads);
-    } else {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Detected ObjC exception. Letting the current "
-                                    "NSException handler deal with it.");
     }
 
     sentrycrashcm_cppexception_callOriginalTerminationHandler();

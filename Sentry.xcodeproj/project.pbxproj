@@ -131,6 +131,8 @@
 		63FE70DF20DA4C1000CDBAE8 /* SentryCrashMonitorType.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE6FF520DA4C1000CDBAE8 /* SentryCrashMonitorType.c */; };
 		63FE70E120DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 63FE6FF620DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.cpp */; };
 		63FE70E520DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FF820DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.h */; };
+		D100000100000001000000D1 /* SentryCrashMonitor_CPPException_ObjCHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = D100000200000002000000D1 /* SentryCrashMonitor_CPPException_ObjCHelper.h */; };
+		D100000300000003000000D1 /* SentryCrashMonitor_CPPException_ObjCHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = D100000400000004000000D1 /* SentryCrashMonitor_CPPException_ObjCHelper.mm */; };
 		63FE70E720DA4C1000CDBAE8 /* SentryCrashMonitor.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE6FF920DA4C1000CDBAE8 /* SentryCrashMonitor.c */; };
 		63FE70EB20DA4C1000CDBAE8 /* SentryCrashMonitor_MachException.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FFB20DA4C1000CDBAE8 /* SentryCrashMonitor_MachException.h */; };
 		63FE70ED20DA4C1000CDBAE8 /* SentryCrashMonitor_NSException.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE6FFC20DA4C1000CDBAE8 /* SentryCrashMonitor_NSException.h */; };
@@ -741,6 +743,8 @@
 		63FE6FF520DA4C1000CDBAE8 /* SentryCrashMonitorType.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashMonitorType.c; sourceTree = "<group>"; };
 		63FE6FF620DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SentryCrashMonitor_CPPException.cpp; sourceTree = "<group>"; };
 		63FE6FF820DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryCrashMonitor_CPPException.h; path = ../../../Sentry/include/SentryCrashMonitor_CPPException.h; sourceTree = "<group>"; };
+		D100000200000002000000D1 /* SentryCrashMonitor_CPPException_ObjCHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentryCrashMonitor_CPPException_ObjCHelper.h; sourceTree = "<group>"; };
+		D100000400000004000000D1 /* SentryCrashMonitor_CPPException_ObjCHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SentryCrashMonitor_CPPException_ObjCHelper.mm; sourceTree = "<group>"; };
 		63FE6FF920DA4C1000CDBAE8 /* SentryCrashMonitor.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SentryCrashMonitor.c; sourceTree = "<group>"; };
 		63FE6FFB20DA4C1000CDBAE8 /* SentryCrashMonitor_MachException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashMonitor_MachException.h; sourceTree = "<group>"; };
 		63FE6FFC20DA4C1000CDBAE8 /* SentryCrashMonitor_NSException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentryCrashMonitor_NSException.h; sourceTree = "<group>"; };
@@ -1673,6 +1677,8 @@
 				63FE6FFD20DA4C1000CDBAE8 /* SentryCrashMonitor_AppState.h */,
 				63FE6FF620DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.cpp */,
 				63FE6FF820DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.h */,
+				D100000200000002000000D1 /* SentryCrashMonitor_CPPException_ObjCHelper.h */,
+				D100000400000004000000D1 /* SentryCrashMonitor_CPPException_ObjCHelper.mm */,
 				63FE6FF120DA4C1000CDBAE8 /* SentryCrashMonitor_MachException.c */,
 				63FE6FFB20DA4C1000CDBAE8 /* SentryCrashMonitor_MachException.h */,
 				63FE6FFC20DA4C1000CDBAE8 /* SentryCrashMonitor_NSException.h */,
@@ -2475,6 +2481,7 @@
 				D8853C842833EABC00700D64 /* SentryANRTrackerV1.h in Headers */,
 				63FE715B20DA4C1100CDBAE8 /* SentryCrashSignalInfo.h in Headers */,
 				63FE70E520DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.h in Headers */,
+				D100000100000001000000D1 /* SentryCrashMonitor_CPPException_ObjCHelper.h in Headers */,
 				7D9B07A023D1E89900C5FC8E /* SentryMeta.h in Headers */,
 				7B4E375525822C4500059C93 /* SentryAttachment.h in Headers */,
 				63FE716F20DA4C1100CDBAE8 /* SentryCrashCPU_Apple.h in Headers */,
@@ -2945,6 +2952,7 @@
 				7BE912AD272162D900E49E62 /* SentryNoOpSpan.m in Sources */,
 				63FE710D20DA4C1000CDBAE8 /* SentryCrashStackCursor_MachineContext.c in Sources */,
 				63FE70E120DA4C1000CDBAE8 /* SentryCrashMonitor_CPPException.cpp in Sources */,
+				D100000300000003000000D1 /* SentryCrashMonitor_CPPException_ObjCHelper.mm in Sources */,
 				84A305582BC9EF8C00D84283 /* SentryTraceProfiler.mm in Sources */,
 				7D082B8323C628790029866B /* SentryMeta.m in Sources */,
 				63FE710720DA4C1000CDBAE8 /* SentryCrashStackCursor_SelfThread.m in Sources */,

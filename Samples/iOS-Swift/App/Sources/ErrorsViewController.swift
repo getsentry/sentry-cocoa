@@ -88,11 +88,11 @@ class ErrorsViewController: UIViewController {
 
     @IBAction func captureNSException(_ sender: UIButton) {
         highlightButton(sender)
-        let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)
-        let scope = Scope()
-        scope.setLevel(.fatal)
-        // !!!: By explicity just passing the scope, only the data in this scope object will be added to the event; the global scope (calls to configureScope) will be ignored. If you do that, be careful–a lot of useful info is lost. If you just want to mutate what's in the scope use the callback, see: captureError.
-        SentrySDK.capture(exception: exception, scope: scope)
+        // Repro: NSException inside dispatch callout bypasses NSSetUncaughtExceptionHandler.
+        DispatchQueue.main.async {
+            let array = NSArray()
+            array.object(at: 42)
+        }
     }
 
     @IBAction func captureFatalError(_ sender: UIButton) {
