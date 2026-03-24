@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Per-instance unmaskView propagates to child views (#7733)
+
 ## 9.8.0
 
 ### Features
@@ -8,7 +14,7 @@
 
 ### Fixes
 
-- Make SentryBreadcrumb thread-safe to prevent crashes in addBreadcrumb ([#7665](https://github.com/getsentry/sentry-cocoa/pull/7665))
+- Make SentryBreadcrumb thread-safe to prevent crashes in addBreadcrumb (#7665)
 
 ## 9.7.0
 
