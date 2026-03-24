@@ -1158,7 +1158,7 @@
     XCTAssertEqualObjects(messages.firstObject, unrelatedCrashInfo);
 }
 
-#pragma mark - NSException falling through to mach monitor (issue #1562)
+#pragma mark - NSException falling through to mach monitor
 
 - (void)testMachException_whenCrashedViaCrashOnException_shouldNotEnhanceWithNotableAddresses
 {
