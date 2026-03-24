@@ -1166,7 +1166,6 @@
     // Simulates an NSException that fell through to the mach monitor via AppKit's
     // _crashOnException:. The notable addresses contain garbage (stack addresses,
     // format strings) that would overwrite the mach exception value.
-    // See https://github.com/getsentry/sentry-cocoa/issues/1562
     NSDictionary *mockReport = @{
         @"crash" : @ {
             @"threads" : @[ @{

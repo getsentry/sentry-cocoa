@@ -464,7 +464,6 @@
     // unhandled NSException routed through AppKit's _crashOnException:. In that case the notable
     // addresses contain garbage (format strings, hex addresses) rather than useful context, and
     // overwriting the value loses the original mach/signal description.
-    // See https://github.com/getsentry/sentry-cocoa/issues/1562
     if (![self isMachExceptionFromAppKitCrashOnException]) {
         [self enhanceValueFromNotableAddresses:exception];
     }
