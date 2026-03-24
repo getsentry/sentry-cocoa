@@ -850,6 +850,116 @@ class SentryUIRedactBuilderTests_Common: SentryUIRedactBuilderTests { // swiftli
         XCTAssertEqual(postUnmaskResult.count, 0)
     }
 
+    func testUnmaskView_withParentUnmasked_shouldNotRedactChildren() {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
+        let container = UIView(frame: CGRect(x: 10, y: 10, width: 80, height: 40))
+        rootView.addSubview(container)
+
+        let label = UILabel(frame: CGRect(x: 0, y: 0, width: 80, height: 40))
+        label.text = "Browse Products"
+        container.addSubview(label)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+
+        let preUnmaskResult = sut.redactRegionsFor(view: rootView)
+
+        SentrySDK.replay.unmaskView(container)
+
+        let postUnmaskResult = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Assert pre-condition: label is masked
+        XCTAssertEqual(preUnmaskResult.count, 1)
+
+        // Assert post-condition: entire subtree is unmasked
+        XCTAssertEqual(postUnmaskResult.count, 0)
+    }
+
+    func testUnmaskView_withDeeplyNestedChildren_shouldNotRedactAnyDescendant() {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        rootView.addSubview(container)
+
+        let innerView = UIView(frame: CGRect(x: 5, y: 5, width: 90, height: 90))
+        container.addSubview(innerView)
+
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 60, height: 20))
+        label.text = "Deeply nested"
+        innerView.addSubview(label)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+
+        let preUnmaskResult = sut.redactRegionsFor(view: rootView)
+
+        SentrySDK.replay.unmaskView(container)
+
+        let postUnmaskResult = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        XCTAssertEqual(preUnmaskResult.count, 1)
+        XCTAssertEqual(postUnmaskResult.count, 0)
+    }
+
+    func testUnmaskView_withMaskedChild_shouldStillRedactChild() throws {
+        // -- Arrange --
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        rootView.addSubview(container)
+
+        let publicLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 60, height: 20))
+        publicLabel.text = "Public info"
+        container.addSubview(publicLabel)
+
+        let sensitiveLabel = UILabel(frame: CGRect(x: 10, y: 40, width: 60, height: 20))
+        sensitiveLabel.text = "Secret"
+        container.addSubview(sensitiveLabel)
+
+        // -- Act --
+        SentrySDK.replay.unmaskView(container)
+        SentrySDK.replay.maskView(sensitiveLabel)
+
+        let sut = getSut(maskAllText: true, maskAllImages: true)
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // Only the explicitly masked child should be redacted
+        XCTAssertEqual(result.count, 1)
+        let region = try XCTUnwrap(result.element(at: 0))
+        XCTAssertEqual(region.size, CGSize(width: 60, height: 20))
+        XCTAssertEqual(region.type, .redact)
+        XCTAssertEqual(region.transform, CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 10, ty: 40))
+    }
+
+    func testUnmaskView_classBasedUnmask_shouldNotPropagateToChildren() {
+        // -- Arrange --
+        // unmaskedViewClasses should NOT propagate — only per-instance unmask does.
+        class MyContainer: UIView {}
+
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
+        let container = MyContainer(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        rootView.addSubview(container)
+
+        let label = UILabel(frame: CGRect(x: 10, y: 10, width: 60, height: 20))
+        label.text = "Still masked"
+        container.addSubview(label)
+
+        // -- Act --
+        let sut = getSut(maskAllText: true, maskAllImages: true, unmaskedViewClasses: [MyContainer.self])
+        let result = sut.redactRegionsFor(view: rootView)
+
+        // -- Assert --
+        // The container is unmasked but the label child should still be masked
+        XCTAssertEqual(result.count, 1)
+    }
+
     // MARK: - Other Masking
 
     func testRedact_withIgnoredViewsBeforeRootSizedView_shouldNotRedactView() {
