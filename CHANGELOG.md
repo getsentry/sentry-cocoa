@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `SentrySDK.feedback.enableShakeGesture()` and `SentrySDK.feedback.disableShakeGesture()` for runtime control of shake-to-report ([#7737](https://github.com/getsentry/sentry-cocoa/pull/7737))
+
 ## 9.8.0
 
 ### Features
