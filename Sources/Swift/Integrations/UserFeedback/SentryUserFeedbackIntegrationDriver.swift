@@ -76,6 +76,8 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
     }
 
     func enableShakeGesture() {
+        // Remove any existing observer first to prevent duplicate notifications
+        NotificationCenter.default.removeObserver(self, name: .SentryShakeDetected, object: nil)
         SentryShakeDetector.enable()
         NotificationCenter.default.addObserver(self, selector: #selector(handleShakeGesture), name: .SentryShakeDetected, object: nil)
     }

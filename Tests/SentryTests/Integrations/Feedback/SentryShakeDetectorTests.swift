@@ -9,6 +9,7 @@ final class SentryShakeDetectorTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         SentryShakeDetector.disable()
+        SentryShakeDetector.resetCooldownForTesting()
     }
 
     func testEnable_whenShakeOccurs_shouldPostNotification() {
@@ -86,11 +87,6 @@ final class SentryShakeDetectorTests: XCTestCase {
         SentryShakeDetector.enable()
         SentryShakeDetector.disable()
         SentryShakeDetector.enable()
-
-        // Wait for cooldown from any previous test's shake
-        let cooldownExpectation = expectation(description: "cooldown")
-        cooldownExpectation.isInverted = true
-        wait(for: [cooldownExpectation], timeout: 1.1)
 
         let expectation = expectation(forNotification: .SentryShakeDetected, object: nil)
 
