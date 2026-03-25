@@ -95,7 +95,7 @@ public final class SentryShakeDetector: NSObject {
         SentrySDKLog.debug("Shake detector: disabled")
     }
 
-    #if SENTRY_TEST
+    #if SENTRY_TEST || SENTRY_TEST_CI
     /// Resets cooldown state for testing. Not available in production builds.
     static func resetCooldownForTesting() {
         lastShakeTimestamp = 0
