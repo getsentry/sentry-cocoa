@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -122,11 +122,11 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-sentry-static
           path: XCFrameworkBuildPath/
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: XCFrameworkBuildPath/
@@ -153,7 +153,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -183,7 +183,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -213,7 +213,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -242,7 +242,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -298,10 +298,10 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       - name: Setup Ruby
-        uses: ruby/setup-ruby@6ca151fd1bfcfd6fe0c4eb6837eb0584d0134a0c # v1.290.0
+        uses: ruby/setup-ruby@319994f95fa847cf3fb3cd3dbe89f6dcde9f178f # v1.295.0
         with:
           bundler-cache: true
-      - uses: actions/cache@v5
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
         id: app-plain-cache
         with:
           path: Tests/Perf/test-app-plain.ipa
@@ -318,7 +318,7 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-sentry-dynamic
           path: XCFrameworkBuildPath/
@@ -334,7 +334,7 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Collect app metrics
         if: needs.files-changed.outputs.is_dependabot != 'true'
-        uses: getsentry/action-app-sdk-overhead-metrics@5f2d99b8e5a7b833386524924d24320501099a44
+        uses: getsentry/action-app-sdk-overhead-metrics@44fb5489ac4ac252c87d84811972dc93a1e490b8
         with:
           config: Tests/Perf/metrics-test.yml
           sauce-user: ${{ secrets.SAUCE_USERNAME }}
@@ -364,7 +364,7 @@ jobs:
     steps:
       - name: Get auth token
         id: token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
         with:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
@@ -374,14 +374,14 @@ jobs:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
           path: XCFrameworkBuildPath/
 
       - name: Archive XCFrameworks for Craft
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: xcframeworks.zip
           if-no-files-found: error
@@ -396,7 +396,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@d630201930c7fe5aee6366ebee19ebb681128512 # v2
+        uses: getsentry/craft@f4889d04564e47311038ecb6b910fef6b6cf1363 # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

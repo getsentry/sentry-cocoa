@@ -71,7 +71,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Setup Ruby
-        uses: ruby/setup-ruby@6ca151fd1bfcfd6fe0c4eb6837eb0584d0134a0c # v1.290.0
+        uses: ruby/setup-ruby@319994f95fa847cf3fb3cd3dbe89f6dcde9f178f # v1.295.0
         if: ${{ inputs.signed }}
         with:
           bundler-cache: true
@@ -111,7 +111,7 @@ jobs:
           fi
 
       - name: Download ${{inputs.variant-id}} Slices
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{inputs.variant-id}}-slice-*
           path: xcframework-slices
@@ -169,7 +169,7 @@ jobs:
         shell: bash
 
       - name: Upload XCFramework
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         env:
           XCFRAMEWORK_NAME: ${{ env.XCFRAMEWORK_NAME }}
         with:

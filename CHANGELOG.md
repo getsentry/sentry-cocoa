@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.8.0
 
 ### Features
 
@@ -9,6 +9,10 @@
   - New option `strictTraceContinuation` (default `false`): when enabled, both the SDK's org ID **and** the incoming baggage org ID must be present and match for a trace to be continued. Traces with a missing org ID on either side are rejected.
   - New option `orgId`: allows explicitly setting the organization ID for self-hosted and Relay setups where it cannot be extracted from the DSN.
 - Add `SentrySDK.lastRunStatus` to distinguish unknown, no-crash and crash (#7469)
+
+### Fixes
+
+- Make SentryBreadcrumb thread-safe to prevent crashes in addBreadcrumb ([#7665](https://github.com/getsentry/sentry-cocoa/pull/7665))
 
 ## 9.7.0
 

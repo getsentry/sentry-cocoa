@@ -41,7 +41,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Cache for Test Server
         id: cache_test_server
-        uses: actions/cache@v5
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
         with:
           path: ./test-server/.build
           key: test-server-${{ hashFiles('./test-server') }}-universal
@@ -81,14 +81,14 @@ jobs:
           lipo -create -output test-server-exec $(swift build --show-bin-path -c release --triple arm64-apple-macosx)/Run $(swift build --show-bin-path -c release --triple x86_64-apple-macosx)/Run
 
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: test-server
           path: |
             ./test-server/test-server-exec
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: test-server-build-log
@@ -135,7 +135,7 @@ jobs:
       - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
         shell: sh
       - name: Upload Distribution Test Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-test-output-distribution
@@ -170,7 +170,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: test-server
 
@@ -208,7 +208,7 @@ jobs:
             --test-plan Sentry_TestServer
 
       - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: steps.build_tests.outcome == 'failure'
         with:
           name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
@@ -216,7 +216,7 @@ jobs:
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
@@ -226,7 +226,7 @@ jobs:
             raw-test-output.log
 
       - name: Archiving Crash Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
@@ -285,8 +285,8 @@ jobs:
           # iOS 26
           - name: iOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.2"
-            test-destination-os: "26.2"
+            xcode: "26.3"
+            test-destination-os: "26.3"
             platform: "iOS"
             device: "iPhone 17 Pro"
 
@@ -311,7 +311,7 @@ jobs:
           # macOS 26
           - name: macOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.2"
+            xcode: "26.3"
             test-destination-os: "26.2"
             platform: "macOS"
 
@@ -353,7 +353,7 @@ jobs:
           # tvOS 26
           - name: tvOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.2"
+            xcode: "26.3"
             test-destination-os: "26.2"
             platform: "tvOS"
             device: "Apple TV"
@@ -361,7 +361,7 @@ jobs:
           # visionOS 26
           - name: visionOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.2"
+            xcode: "26.3"
             test-destination-os: "26.2"
             platform: "visionOS"
             device: "Apple Vision Pro"
