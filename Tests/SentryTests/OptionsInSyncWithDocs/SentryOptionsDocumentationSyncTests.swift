@@ -17,7 +17,10 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         var options: Set<String> = [
             "parsedDsn",
             "experimental",
-            "onLastRunStatusDetermined"
+            "onLastRunStatusDetermined",
+            "strictTraceContinuation", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
+            "orgId", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
+            "effectiveOrgId" // @_spi(Private) - internal computed property, not a user-facing option
         ]
         
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
