@@ -518,7 +518,7 @@ final class SentryUIRedactBuilder {
             // Check if the subtree should be ignored to avoid crashes with some special views.
             if isViewSubtreeIgnored(view) {
                 // If a subtree is ignored, it should be fully redacted and we return early to prevent duplicates, unless the view was marked explicitly to be ignored (e.g. UISwitch).
-                if !forceIgnore && !shouldIgnore(view: view) {
+                if !enforceIgnore && !shouldIgnore(view: view) {
                     redacting.append(SentryRedactRegion(
                         size: layer.bounds.size,
                         transform: newTransform,
@@ -534,7 +534,7 @@ final class SentryUIRedactBuilder {
             // children (e.g. the UILabel inside a UIButton) are also unmasked.
             // Class-based and container-based ignore do NOT propagate.
             let instanceUnmasked = SentryRedactViewHelper.shouldUnmask(view)
-            let ignore = !forceRedact && (shouldIgnore(view: view) || (forceIgnore && !SentryRedactViewHelper.shouldMaskView(view)))
+            let ignore = !forceRedact && (shouldIgnore(view: view) || (enforceIgnore && !SentryRedactViewHelper.shouldMaskView(view)))
             let swiftUI = SentryRedactViewHelper.shouldRedactSwiftUI(view)
             let redact = forceRedact || shouldRedact(view: view) || swiftUI
 
@@ -553,11 +553,12 @@ final class SentryUIRedactBuilder {
                 enforceRedact = true
             } else if instanceUnmasked {
                 enforceIgnore = true
-                // Fall through to opaque handling below — an unmasked opaque view
-                // still needs to clip out redact regions behind it.
+                // Propagates to children via the recursive call below.
             }
 
-            if !enforceRedact && isOpaque(view) {
+            // Only apply opaque handling when the view was not redacted.
+            // This preserves the original `else if` relationship with the redact branch above.
+            if (ignore || !redact) && isOpaque(view) {
                 let finalViewFrame = CGRect(origin: .zero, size: layer.bounds.size).applying(newTransform)
                 if isAxisAligned(newTransform) && finalViewFrame == rootFrame {
                     // Because the current view is covering everything we found so far we can clear `redacting` list
