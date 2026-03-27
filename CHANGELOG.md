@@ -5,6 +5,7 @@
 ### Fixes
 
 - Per-instance unmaskView propagates to child views (#7733)
+  - **Warning:** If you relied on children of an unmasked view still being individually redacted, verify your Session Replay redaction after updating. An explicit `maskView(_:)` on a descendant still takes precedence.
 
 ## 9.8.0
 
