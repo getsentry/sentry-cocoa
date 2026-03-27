@@ -49,6 +49,7 @@
 
 static volatile bool g_isEnabled = false;
 static bool g_isSigtermReportingEnabled = false;
+static volatile bool g_isHandlingCrash = false;
 static _Thread_local int tl_ignore_signum = 0;
 
 static SentryCrash_MonitorContext g_monitorContext;
@@ -92,6 +93,7 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
+        g_isHandlingCrash = true;
         // Signal handlers preempt the crashing thread, so reentrancy can
         // occur from the same thread (handler crashes) or other threads.
         sentrycrashcm_notifyFatalException(false, &threads, &numThreads);
@@ -114,6 +116,7 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
         crashContext->stackCursor = &g_stackCursor;
 
         sentrycrashcm_handleException(crashContext);
+        g_isHandlingCrash = false;
         sentrycrashmc_resumeEnvironment(threads, numThreads);
     }
 
@@ -129,6 +132,15 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 static bool
 installSignalHandler(void)
 {
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+    // Already installed by onPreload(). Reinstalling would overwrite
+    // g_previousSignalHandlers with the managed runtime's handler instead
+    // of the original system handler.
+    if (g_previousSignalHandlers != NULL) {
+        return true;
+    }
+#    endif
+
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Installing signal handler.");
 
 #    if SENTRY_HAS_SIGNAL_STACK
@@ -228,6 +240,14 @@ failed:
 static void
 uninstallSignalHandler(void)
 {
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+    if (!g_isHandlingCrash) {
+        // Keep the handlers installed to preserve the managed runtime's signal
+        // chain. The handler becomes a pass-through when g_isEnabled is false.
+        return;
+    }
+#    endif
+
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Uninstalling signal handlers.");
 
     const int *fatalSignals = sentrycrashsignal_fatalSignals();
