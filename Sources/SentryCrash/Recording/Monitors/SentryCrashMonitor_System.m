@@ -348,6 +348,24 @@ isDebugBuild(void)
 #endif
 }
 
+/** Check if the SDK was distributed as a prebuilt XCFramework.
+ *
+ * The SENTRY_PREBUILT_FRAMEWORK macro is set during the XCFramework build
+ * (see build-xcframework-slice.sh). Source builds (SPM, CocoaPods) do not
+ * define it.
+ *
+ * @return YES if the SDK is a prebuilt XCFramework.
+ */
+static bool
+isPrebuiltFramework(void)
+{
+#ifdef SENTRY_PREBUILT_FRAMEWORK
+    return YES;
+#else
+    return NO;
+#endif
+}
+
 /** Check if this code is built for the simulator.
  *
  * @return YES if this is a simulator build.
@@ -460,21 +478,32 @@ hasAppStoreReceipt(void)
     return isAppStoreReceipt && receiptExists;
 }
 
+/** Determine the build/distribution type.
+ *
+ * Source builds rely on the DEBUG macro only. Prebuilt XCFrameworks use runtime
+ * heuristics (debugger attachment, get-task-allow entitlement) since DEBUG is
+ * never set. See develop-docs/DECISIONS.md.
+ *
+ * @return "simulator", "debug", "enterprise", "adhoc", "test", "app store",
+ *         or "unknown".
+ */
 static const char *
 getBuildType(void)
 {
     if (isSimulatorBuild()) {
         return "simulator";
     }
+    // Source builds: compile-time DEBUG flag is the only signal.
     if (isDebugBuild()) {
         return "debug";
     }
-    if (sentrycrashdebug_isBeingTraced()) {
+    // Prebuilt XCFrameworks: DEBUG is never set, use runtime heuristics.
+    if (isPrebuiltFramework() && sentrycrashdebug_isBeingTraced()) {
         return "debug";
     }
     SentryMobileProvisionParser *parser = [[SentryMobileProvisionParser alloc] init];
     if ([parser hasEmbeddedMobileProvisionProfile]) {
-        if ([parser mobileProvisionProfileAllowsDebugging]) {
+        if (isPrebuiltFramework() && [parser mobileProvisionProfileAllowsDebugging]) {
             return "debug";
         }
         return [parser mobileProvisionProfileProvisionsAllDevices] ? "enterprise" : "adhoc";
