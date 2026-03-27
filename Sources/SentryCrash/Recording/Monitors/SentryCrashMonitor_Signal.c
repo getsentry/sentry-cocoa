@@ -49,7 +49,6 @@
 
 static volatile bool g_isEnabled = false;
 static bool g_isSigtermReportingEnabled = false;
-static volatile bool g_isHandlingCrash = false;
 static _Thread_local int tl_ignoreSignum = 0;
 
 static SentryCrash_MonitorContext g_monitorContext;
@@ -112,7 +111,6 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
-        g_isHandlingCrash = true;
         // Signal handlers preempt the crashing thread, so reentrancy can
         // occur from the same thread (handler crashes) or other threads.
         sentrycrashcm_notifyFatalException(false, &threads, &numThreads);
@@ -135,7 +133,6 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
         crashContext->stackCursor = &g_stackCursor;
 
         sentrycrashcm_handleException(crashContext);
-        g_isHandlingCrash = false;
         sentrycrashmc_resumeEnvironment(threads, numThreads);
     }
 
@@ -265,13 +262,9 @@ static void
 uninstallSignalHandler(void)
 {
 #    ifdef SENTRY_CRASH_MANAGED_RUNTIME
-    if (!g_isHandlingCrash) {
-        // Keep the handlers installed to preserve the managed runtime's signal
-        // chain. handleSignal() restores individual handlers before re-raising.
-        return;
-    }
-#    endif
-
+    // Keep the handlers installed to preserve the managed runtime's signal
+    // chain. handleSignal() restores individual handlers before re-raising.
+#    else
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Uninstalling signal handlers.");
 
     const int *fatalSignals = sentrycrashsignal_fatalSignals();
@@ -291,6 +284,7 @@ uninstallSignalHandler(void)
     g_signalStack = (stack_t) { 0 };
 #    endif
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Signal handlers uninstalled.");
+#    endif
 }
 
 static void
