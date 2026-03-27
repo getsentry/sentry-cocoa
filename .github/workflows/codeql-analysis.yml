@@ -55,7 +55,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@256d634097be96e792d6764f9edaefc4320557b1 # v4
         with:
           languages: ${{ matrix.language }}
 
@@ -70,7 +70,7 @@ jobs:
             xcbeautify
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@256d634097be96e792d6764f9edaefc4320557b1 # v4
 
       - name: Run CI Diagnostics
         if: failure()

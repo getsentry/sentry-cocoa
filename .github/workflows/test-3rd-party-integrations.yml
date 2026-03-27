@@ -64,7 +64,7 @@ jobs:
       - name: Build XCFramework (Static)
         run: ./scripts/build-xcframework-local.sh macOSOnly StaticOnly --not-signed
       - name: Upload XCFrameworks
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: xcframeworks-for-3rd-party-integration-tests
           path: "XCFrameworkBuildPath/*.xcframework.zip"
@@ -92,7 +92,7 @@ jobs:
       - name: Select Xcode
         run: ./scripts/ci-select-xcode.sh 16.4
       - name: Download XCFrameworks
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: xcframeworks-for-3rd-party-integration-tests
       - name: Modify Package.swift to use local xcframeworks
@@ -105,7 +105,7 @@ jobs:
         working-directory: 3rd-party-integrations/${{matrix.integration_dir}}
         run: swift test
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-${{matrix.integration_dir}}-integration
