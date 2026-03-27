@@ -66,6 +66,25 @@ static struct sigaction *g_previousSignalHandlers = NULL;
 static char g_eventID[37];
 
 // ============================================================================
+#    pragma mark - Utility -
+// ============================================================================
+
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+static void
+restorePreviousSignalHandler(int sigNum)
+{
+    const int *fatalSignals = sentrycrashsignal_fatalSignals();
+    int count = sentrycrashsignal_numFatalSignals();
+    for (int i = 0; i < count; i++) {
+        if (fatalSignals[i] == sigNum) {
+            sigaction(sigNum, &g_previousSignalHandlers[i], NULL);
+            return;
+        }
+    }
+}
+#    endif
+
+// ============================================================================
 #    pragma mark - Callbacks -
 // ============================================================================
 
@@ -121,6 +140,11 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
     }
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+    if (!g_isEnabled) {
+        restorePreviousSignalHandler(sigNum);
+    }
+#    endif
     // This is technically not allowed, but it works in OSX and iOS.
     raise(sigNum);
 }
@@ -243,7 +267,7 @@ uninstallSignalHandler(void)
 #    ifdef SENTRY_CRASH_MANAGED_RUNTIME
     if (!g_isHandlingCrash) {
         // Keep the handlers installed to preserve the managed runtime's signal
-        // chain. The handler becomes a pass-through when g_isEnabled is false.
+        // chain. handleSignal() restores individual handlers before re-raising.
         return;
     }
 #    endif
