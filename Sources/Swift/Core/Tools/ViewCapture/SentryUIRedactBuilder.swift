@@ -135,7 +135,7 @@ final class SentryUIRedactBuilder {
     /// - parameter options: A `SentryRedactOptions` object that specifies the configuration.
     /// - If `options.maskAllText` is `true`, common UIKit text views and SwiftUI text drawing views are redacted.
     /// - If `options.maskAllImages` is `true`, UIKit/SwiftUI/Hybrid image views are redacted.
-    /// - `options.unmaskViewTypes` contributes to the ignore list; `options.maskViewTypes` to the redact list.
+    /// - `options.unmaskedViewClasses` contributes to the ignore list; `options.maskedViewClasses` to the redact list.
     ///
     /// - note: On iOS, views such as `WKWebView` and `UIWebView` are always redacted, and controls like
     ///   `UISlider` and `UISwitch` are ignored by default.

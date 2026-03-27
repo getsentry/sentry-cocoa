@@ -113,7 +113,7 @@ jobs:
 
       - name: Download XCFramework
         if: ${{ inputs.needs_xcframework }}
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: xcframework-${{github.sha}}-sentry-static
           path: XCFrameworkBuildPath/
@@ -154,7 +154,7 @@ jobs:
           flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}, ui-tests
 
       - name: Upload Result Bundle
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: ${{ failure() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
@@ -162,7 +162,7 @@ jobs:
             fastlane/test_results/**/*.xcresult
 
       - name: Upload iOS Simulator Crash Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: ${{ failure() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_crash_logs
@@ -170,7 +170,7 @@ jobs:
             ~/Library/Logs/DiagnosticReports/**
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_raw_output
