@@ -280,9 +280,9 @@ uninstallSignalHandler(void)
         sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
     }
 
-#    if SENTRY_HAS_SIGNAL_STACK
+#        if SENTRY_HAS_SIGNAL_STACK
     g_signalStack = (stack_t) { 0 };
-#    endif
+#        endif
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Signal handlers uninstalled.");
 #    endif
 }
