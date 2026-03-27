@@ -4,6 +4,8 @@
 
 ### Fixes
 
+- Per-instance unmaskView propagates to child views (#7733)
+  - **Warning:** If you relied on children of an unmasked view still being individually redacted, verify your Session Replay redaction after updating. An explicit `maskView(_:)` on a descendant still takes precedence.
 - Move SessionTracker file I/O off the main thread ([#7704](https://github.com/getsentry/sentry-cocoa/pull/7704))
 
 ## 9.8.0
@@ -14,7 +16,7 @@
 
 ### Fixes
 
-- Make SentryBreadcrumb thread-safe to prevent crashes in addBreadcrumb ([#7665](https://github.com/getsentry/sentry-cocoa/pull/7665))
+- Make SentryBreadcrumb thread-safe to prevent crashes in addBreadcrumb (#7665)
 
 ## 9.7.0
 
