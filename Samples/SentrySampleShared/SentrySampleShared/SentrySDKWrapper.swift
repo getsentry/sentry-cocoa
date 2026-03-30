@@ -38,6 +38,7 @@ public struct SentrySDKWrapper {
         if let sampleRate = SentrySDKOverrides.Events.sampleRate.floatValue {
             options.sampleRate = NSNumber(value: sampleRate)
         }
+        options.attachAllThreads = SentrySDKOverrides.Events.attachAllThreads.boolValue
         options.beforeSend = {
             guard !SentrySDKOverrides.Events.rejectAll.boolValue else { return nil }
             return $0

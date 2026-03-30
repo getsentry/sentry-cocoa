@@ -77,8 +77,9 @@ public enum SentrySDKOverrides: String, CaseIterable {
     case feedback = "Feedback"
 
     public enum Events: String, SentrySDKOverride {
-        case sampleRate = "--io.sentry.events.sampleRate"
-        case rejectAll = "--io.sentry.events.reject-all"
+        case sampleRate        = "--io.sentry.events.sampleRate"
+        case rejectAll         = "--io.sentry.events.reject-all"
+        case attachAllThreads  = "--io.sentry.events.attach-all-threads"
     }
     case events = "Events"
 
@@ -294,7 +295,7 @@ extension SentrySDKOverrides.Networking {
 extension SentrySDKOverrides.Events {
     public var overrideType: OverrideType {
         switch self {
-        case .rejectAll: return .boolean
+        case .rejectAll, .attachAllThreads: return .boolean
         case .sampleRate: return .float
         }
     }
@@ -389,7 +390,12 @@ extension SentrySDKOverrides.Networking {
 }
 
 extension SentrySDKOverrides.Events {
-    public var ignoresDisableEverything: Bool { return false }
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .attachAllThreads: return true
+        case .sampleRate, .rejectAll: return false
+        }
+    }
 }
 
 extension SentrySDKOverrides.Other {
