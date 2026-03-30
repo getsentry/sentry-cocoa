@@ -39,6 +39,8 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         options.insert("configureProfiling")
         #endif
         
+        options.insert("attachAllThreads") // SDK not released yet
+        
         return options
     }
 

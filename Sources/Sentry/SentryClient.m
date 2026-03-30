@@ -706,7 +706,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
 
         if (!isFatalEvent && shouldAttachStacktrace && threadsNotAttached) {
-            event.threads = [self.threadInspector getCurrentThreads];
+            if (self.options.attachAllThreads) {
+                event.threads = [self.threadInspector getCurrentThreadsWithStackTrace];
+            } else {
+                event.threads = [self.threadInspector getCurrentThreads];
+            }
         }
 
         BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);

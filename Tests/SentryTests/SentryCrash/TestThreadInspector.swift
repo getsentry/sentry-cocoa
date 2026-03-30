@@ -2,9 +2,11 @@ import Foundation
 @_spi(Private) @testable import Sentry
 
 class TestDefaultThreadInspector: SentryDefaultThreadInspector {
-    
+
     var allThreads: [SentryThread]?
-    
+    var getCurrentThreadsInvocations = 0
+    var getCurrentThreadsWithStackTraceInvocations = 0
+
     static var instance: TestDefaultThreadInspector {
         // We need something to pass to the super initializer, because the empty initializer has been marked unavailable.
         let inAppLogic = SentryInAppLogic(inAppIncludes: [])
@@ -18,10 +20,12 @@ class TestDefaultThreadInspector: SentryDefaultThreadInspector {
     }
     
     override func getCurrentThreads() -> [SentryThread] {
+        getCurrentThreadsInvocations += 1
         return allThreads ?? [TestData.thread]
     }
 
     override func getCurrentThreadsWithStackTrace() -> [SentryThread] {
+        getCurrentThreadsWithStackTraceInvocations += 1
         return allThreads ?? [TestData.thread]
     }
 
