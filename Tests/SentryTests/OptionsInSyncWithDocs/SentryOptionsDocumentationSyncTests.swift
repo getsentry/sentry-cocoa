@@ -155,9 +155,6 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
                 let content = try XCTUnwrap(String(data: data, encoding: .utf8), "Could not decode docs content as UTF-8")
 
                 return extractMdxOptionNames(from: content)
-            } catch let error as NSError where error.domain == "FetchDocs" {
-                lastError = error
-                continue
             } catch is CancellationError {
                 throw CancellationError()
             } catch {
