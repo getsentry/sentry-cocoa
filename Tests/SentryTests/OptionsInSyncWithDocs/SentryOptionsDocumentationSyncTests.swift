@@ -136,7 +136,8 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
 
             do {
                 var request = URLRequest(url: url)
-                if let token = ProcessInfo.processInfo.environment["GITHUB_TOKEN"] ?? ProcessInfo.processInfo.environment["TEST_RUNNER_GITHUB_TOKEN"], !token.isEmpty {
+                if let token = ProcessInfo.processInfo.environment["GITHUB_TOKEN"], !token.isEmpty {
+                    print("Using GitHub token for docs fetch")
                     request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
                 }
                 let (data, response) = try await session.data(for: request)
