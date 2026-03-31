@@ -260,7 +260,7 @@ sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback callback
 
         if (snapshotTail != NULL) {
             SentryCrashBinaryImageNode *node = &rootNode;
-            while (node != NULL) {
+            while (node != NULL && atomic_load_explicit(&tailNode, memory_order_acquire) != NULL) {
                 if (node->available) {
                     callback(&node->image);
                 }
