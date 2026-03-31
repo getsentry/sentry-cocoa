@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `attachAllThreads` option to `SentryOptions` to attach full stack traces for all threads to captured events (#7764)
+
 ### Fixes
 
 - Per-instance unmaskView propagates to child views (#7733)
