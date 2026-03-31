@@ -159,9 +159,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-    event.message = [[SentryMessage alloc] initWithFormatted:message];
-    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
+    return [self captureMessage:message withScope:scope attachAllThreads:nil];
 }
 
 - (SentryId *)captureMessage:(NSString *)message
@@ -181,8 +179,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
 {
-    SentryEvent *event = [self buildExceptionEvent:exception];
-    return [self captureEventIncrementingSessionErrorCount:event withScope:scope];
+    return [self captureException:exception withScope:scope attachAllThreads:nil];
 }
 
 - (SentryId *)captureException:(NSException *)exception
@@ -213,8 +210,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
-    SentryEvent *event = [self buildErrorEvent:error];
-    return [self captureEventIncrementingSessionErrorCount:event withScope:scope];
+    return [self captureError:error withScope:scope attachAllThreads:nil];
 }
 
 - (SentryId *)captureError:(NSError *)error
