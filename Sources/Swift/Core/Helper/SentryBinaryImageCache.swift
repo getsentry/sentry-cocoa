@@ -27,14 +27,17 @@ import Foundation
  */
 @objc(SentryBinaryImageCache)
 @_spi(Private) public final class SentryBinaryImageCache: NSObject {
-    @objc public internal(set) var cache: [SentryBinaryImageInfo]?
+    private var cache: [SentryBinaryImageInfo]?
     private var isDebug: Bool = false
     private let lock = NSLock()
+    /// When true, `cache` has unsorted appends and must be sorted before binary search.
+    private var needsSort: Bool = false
     
     @objc public func start(_ isDebug: Bool) {
         lock.synchronized {
             self.isDebug = isDebug
             self.cache = []
+            self.needsSort = false
         }
         
         // Register callbacks outside the lock — they acquire it independently.
@@ -62,6 +65,7 @@ import Foundation
         sentrycrashbic_registerRemovedCallback(nil)
         lock.synchronized {
             self.cache = nil
+            self.needsSort = false
         }
     }
     
@@ -91,23 +95,11 @@ import Foundation
         
         var shouldValidate = false
         lock.synchronized {
-            guard let cache = self.cache else { return }
+            guard self.cache != nil else { return }
             
-            // Binary search insertion to maintain sorted order by address
-            var left = 0
-            var right = cache.count
-            
-            while left < right {
-                let mid = (left + right) / 2
-                let compareImage = cache[mid]
-                if newImage.address < compareImage.address {
-                    right = mid
-                } else {
-                    left = mid + 1
-                }
-            }
-            
-            self.cache?.insert(newImage, at: left)
+            // O(1) append — sorting is deferred until a lookup or removal needs it.
+            self.cache?.append(newImage)
+            self.needsSort = true
             shouldValidate = self.isDebug
         }
         
@@ -134,6 +126,7 @@ import Foundation
     @objc
     public func binaryImageRemoved(_ imageAddress: UInt64) {
         lock.synchronized {
+            sortIfNeeded()
             guard let index = indexOfImage(address: imageAddress) else { return }
             self.cache?.remove(at: index)
         }
@@ -142,9 +135,18 @@ import Foundation
     @objc
     public func imageByAddress(_ address: UInt64) -> SentryBinaryImageInfo? {
         lock.synchronized {
+            sortIfNeeded()
             guard let index = indexOfImage(address: address) else { return nil }
             return cache?[index]
         }
+    }
+    
+    /// Sorts the cache if new elements have been appended since the last sort.
+    /// Must be called while holding `lock`.
+    private func sortIfNeeded() {
+        guard needsSort else { return }
+        self.cache?.sort { $0.address < $1.address }
+        needsSort = false
     }
     
     private func indexOfImage(address: UInt64) -> Int? {
@@ -172,6 +174,7 @@ import Foundation
     @objc(imagePathsForInAppInclude:)
     public func imagePathsFor(inAppInclude: String) -> Set<String> {
         lock.synchronized {
+            // No sort needed — this iterates all entries regardless of order.
             var imagePaths = Set<String>()
             
             guard let cache = self.cache else { return imagePaths }
@@ -188,6 +191,7 @@ import Foundation
     @objc
     public func getAllBinaryImages() -> [SentryBinaryImageInfo] {
         lock.synchronized {
+            sortIfNeeded()
             return cache ?? []
         }
     }   

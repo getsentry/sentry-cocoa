@@ -32,27 +32,31 @@ class SentryBinaryImageCacheTests: XCTestCase {
         let binaryImage3 = createCrashBinaryImage(400, vmAddress: 400)
         addBinaryImageToSut(binaryImage1)
 
-        XCTAssertEqual(sut.cache?.count, 1)
-        XCTAssertEqual(sut.cache?.first?.name, "Expected Name at 100")
-        XCTAssertEqual(sut.cache?.first?.uuid, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
-        XCTAssertEqual(sut.cache?.first?.vmAddress, 100)
+        var allImages = sut.getAllBinaryImages()
+        XCTAssertEqual(allImages.count, 1)
+        XCTAssertEqual(allImages.first?.name, "Expected Name at 100")
+        XCTAssertEqual(allImages.first?.uuid, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
+        XCTAssertEqual(allImages.first?.vmAddress, 100)
 
         addBinaryImageToSut(binaryImage3)
-        XCTAssertEqual(sut.cache?.count, 2)
-        XCTAssertEqual(sut.cache?.last?.name, "Expected Name at 400")
-        XCTAssertEqual(sut.cache?.last?.uuid, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
-        XCTAssertEqual(sut.cache?.last?.vmAddress, 400)
+        allImages = sut.getAllBinaryImages()
+        XCTAssertEqual(allImages.count, 2)
+        XCTAssertEqual(allImages.last?.name, "Expected Name at 400")
+        XCTAssertEqual(allImages.last?.uuid, "84BAEBDA-AD1A-33F4-B35D-8A45F5DAF322")
+        XCTAssertEqual(allImages.last?.vmAddress, 400)
 
         addBinaryImageToSut(binaryImage2)
-        XCTAssertEqual(sut.cache?.count, 3)
-        XCTAssertEqual(sut.cache?.first?.name, "Expected Name at 100")
-        XCTAssertEqual(try XCTUnwrap(sut.cache?.element(at: 1)).name, "Expected Name at 200")
-        XCTAssertEqual(sut.cache?.last?.name, "Expected Name at 400")
+        allImages = sut.getAllBinaryImages()
+        XCTAssertEqual(allImages.count, 3)
+        XCTAssertEqual(allImages.first?.name, "Expected Name at 100")
+        XCTAssertEqual(allImages.element(at: 1)?.name, "Expected Name at 200")
+        XCTAssertEqual(allImages.last?.name, "Expected Name at 400")
 
         addBinaryImageToSut(binaryImage0)
-        XCTAssertEqual(sut.cache?.count, 4)
-        XCTAssertEqual(sut.cache?.first?.name, "Expected Name at 0")
-        XCTAssertEqual(try XCTUnwrap(sut.cache?.element(at: 1)).name, "Expected Name at 100")
+        allImages = sut.getAllBinaryImages()
+        XCTAssertEqual(allImages.count, 4)
+        XCTAssertEqual(allImages.first?.name, "Expected Name at 0")
+        XCTAssertEqual(allImages.element(at: 1)?.name, "Expected Name at 100")
     }
     
     func testBinaryImageAdded_WithNilName() {
@@ -62,7 +66,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
                              size: 100,
                              uuid: nil)
         
-        XCTAssertEqual(self.sut.cache?.count, 0)
+        XCTAssertEqual(sut.getAllBinaryImages().count, 0)
     }
 
     func testBinaryImageRemoved() {
@@ -75,26 +79,26 @@ class SentryBinaryImageCacheTests: XCTestCase {
         addBinaryImageToSut(binaryImage3)
         addBinaryImageToSut(binaryImage2)
         addBinaryImageToSut(binaryImage0)
-        XCTAssertEqual(sut.cache?.count, 4)
+        XCTAssertEqual(sut.getAllBinaryImages().count, 4)
 
         XCTAssertEqual(sut.imageByAddress(150)?.name, "Expected Name at 100")
         sut.binaryImageRemoved(binaryImage1.address)
-        XCTAssertEqual(sut.cache?.count, 3)
+        XCTAssertEqual(sut.getAllBinaryImages().count, 3)
         XCTAssertNil(sut.imageByAddress(100))
 
         XCTAssertEqual(sut.imageByAddress(450)?.name, "Expected Name at 400")
         sut.binaryImageRemoved(binaryImage3.address)
-        XCTAssertEqual(sut.cache?.count, 2)
+        XCTAssertEqual(sut.getAllBinaryImages().count, 2)
         XCTAssertNil(sut.imageByAddress(400))
 
         XCTAssertEqual(sut.imageByAddress(0)?.name, "Expected Name at 0")
         sut.binaryImageRemoved(binaryImage0.address)
-        XCTAssertEqual(sut.cache?.count, 1)
+        XCTAssertEqual(sut.getAllBinaryImages().count, 1)
         XCTAssertNil(sut.imageByAddress(0))
 
         XCTAssertEqual(sut.imageByAddress(200)?.name, "Expected Name at 200")
         sut.binaryImageRemoved(binaryImage2.address)
-        XCTAssertEqual(sut.cache?.count, 0)
+        XCTAssertEqual(sut.getAllBinaryImages().count, 0)
         XCTAssertNil(sut.imageByAddress(240))
     }
     
@@ -104,7 +108,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
         
         sut.binaryImageRemoved(1_000_000)
         
-        XCTAssertEqual(self.sut.cache?.count, 1)
+        XCTAssertEqual(sut.getAllBinaryImages().count, 1)
     }
 
     func testImageNameByAddress() {
@@ -165,7 +169,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
         
         addBinaryImageToSut(binaryImage)
         XCTAssertNil(self.sut.imageByAddress(address))
-        XCTAssertEqual(self.sut.cache?.count, 0)
+        XCTAssertEqual(sut.getAllBinaryImages().count, 0)
     }
     
     func testBinaryImageNameDifferentEncoding_DoesNotAddImage() {
@@ -189,7 +193,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
         
         addBinaryImageToSut(binaryImage)
         XCTAssertNil(self.sut.imageByAddress(address))
-        XCTAssertEqual(self.sut.cache?.count, 0)
+        XCTAssertEqual(sut.getAllBinaryImages().count, 0)
     }
     
     func testAddingImagesWhileStoppingAndStartingOnDifferentThread() {

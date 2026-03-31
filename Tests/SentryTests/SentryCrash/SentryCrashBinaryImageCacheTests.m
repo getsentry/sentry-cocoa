@@ -288,18 +288,18 @@ delayAddBinaryImage(void)
     [imageCache start:false];
     // by calling start, SentryBinaryImageCache will register a callback with
     // `SentryCrashBinaryImageCache` that should be called for every image already cached.
-    XCTAssertEqual(5, imageCache.cache.count);
+    XCTAssertEqual(5, [imageCache getAllBinaryImages].count);
 
     addBinaryImage([mach_headers_test_cache[5] pointerValue], 0);
-    XCTAssertEqual(6, imageCache.cache.count);
+    XCTAssertEqual(6, [imageCache getAllBinaryImages].count);
 
     removeBinaryImage([mach_headers_expect_array[1] pointerValue], 0);
     removeBinaryImage([mach_headers_expect_array[2] pointerValue], 0);
-    XCTAssertEqual(4, imageCache.cache.count);
+    XCTAssertEqual(4, [imageCache getAllBinaryImages].count);
     [imageCache stop];
 
     addBinaryImage([mach_headers_test_cache[6] pointerValue], 0);
-    XCTAssertNil(imageCache.cache);
+    XCTAssertEqual(0, [imageCache getAllBinaryImages].count);
 }
 
 - (void)assertBinaryImageCacheLength:(int)expected
