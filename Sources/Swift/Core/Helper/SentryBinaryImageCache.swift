@@ -29,37 +29,38 @@ import Foundation
 @_spi(Private) public final class SentryBinaryImageCache: NSObject {
     @objc public internal(set) var cache: [SentryBinaryImageInfo]?
     private var isDebug: Bool = false
-    // Use a recursive lock to allow the same thread to enter again
-    private let lock = NSRecursiveLock()
+    private let lock = NSLock()
     
     @objc public func start(_ isDebug: Bool) {
         lock.synchronized {
             self.isDebug = isDebug
             self.cache = []
-            sentrycrashbic_registerAddedCallback { imagePtr in
-                guard let imagePtr else {
-                    SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
-                    return
-                }
-                let image = imagePtr.pointee
-                SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(
-                    imageName: image.name, vmAddress: image.vmAddress, address: image.address, size: image.size, uuid: image.uuid)
+        }
+        
+        // Register callbacks outside the lock — they acquire it independently.
+        sentrycrashbic_registerAddedCallback { imagePtr in
+            guard let imagePtr else {
+                SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
+                return
             }
-            sentrycrashbic_registerRemovedCallback { imagePtr in
-                guard let imagePtr else {
-                    SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
-                    return
-                }
-                let image = imagePtr.pointee
-                SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageRemoved(image.address)
+            let image = imagePtr.pointee
+            SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(
+                imageName: image.name, vmAddress: image.vmAddress, address: image.address, size: image.size, uuid: image.uuid)
+        }
+        sentrycrashbic_registerRemovedCallback { imagePtr in
+            guard let imagePtr else {
+                SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
+                return
             }
+            let image = imagePtr.pointee
+            SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageRemoved(image.address)
         }
     }
     
     @objc public func stop() {
+        sentrycrashbic_registerAddedCallback(nil)
+        sentrycrashbic_registerRemovedCallback(nil)
         lock.synchronized {
-            sentrycrashbic_registerAddedCallback(nil)
-            sentrycrashbic_registerRemovedCallback(nil)
             self.cache = nil
         }
     }
@@ -88,6 +89,7 @@ import Foundation
             size: size
         )
         
+        var shouldValidate = false
         lock.synchronized {
             guard let cache = self.cache else { return }
             
@@ -106,9 +108,10 @@ import Foundation
             }
             
             self.cache?.insert(newImage, at: left)
+            shouldValidate = self.isDebug
         }
         
-        if isDebug {
+        if shouldValidate {
             // This validation adds some overhead with each class present in the image, so we only
             // run this when debug is enabled. A non main queue is used to avoid affecting the UI.
             LoadValidator.checkForDuplicatedSDK(imageName: nameString,
