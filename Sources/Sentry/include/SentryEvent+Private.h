@@ -3,8 +3,6 @@
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface SentryEvent ()
 
 /**
@@ -26,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
  * pre-serialized breadcrumbs. It saves a LOT of work - especially turning an NSDictionary into a
  * SentryBreadcrumb is silly when we're just going to do the opposite right after.
  */
-@property (nonatomic, strong) NSArray *serializedBreadcrumbs;
+@property (nonatomic, strong, nullable) NSArray *serializedBreadcrumbs;
 
 /**
  * Per-call override for attachAllThreads. When non-nil, overrides the value from SentryOptions.
@@ -39,5 +37,3 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
-
-NS_ASSUME_NONNULL_END
