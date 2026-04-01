@@ -462,6 +462,46 @@ class SentrySDKTests: XCTestCase {
 
         assertHubScopeNotChanged()
     }
+
+    func testCaptureEvent_withAttachAllThreads_setsOverrideOnEvent() {
+        givenSdkWithHub()
+
+        SentrySDK.capture(event: fixture.event, attachAllThreads: true)
+
+        let client = fixture.client
+        XCTAssertEqual(1, client.captureEventWithScopeInvocations.count)
+        XCTAssertEqual(NSNumber(value: true), client.captureEventWithScopeInvocations.first?.event.attachAllThreadsOverride)
+    }
+
+    func testCaptureError_withAttachAllThreads_forwardsToClient() {
+        givenSdkWithHub()
+
+        SentrySDK.capture(error: fixture.error, attachAllThreads: true)
+
+        let client = fixture.client
+        XCTAssertEqual(1, client.captureErrorWithScopeAttachAllThreadsInvocations.count)
+        XCTAssertEqual(NSNumber(value: true), client.captureErrorWithScopeAttachAllThreadsInvocations.first?.attachAllThreads)
+    }
+
+    func testCaptureException_withAttachAllThreads_forwardsToClient() {
+        givenSdkWithHub()
+
+        SentrySDK.capture(exception: fixture.exception, attachAllThreads: true)
+
+        let client = fixture.client
+        XCTAssertEqual(1, client.captureExceptionWithScopeAttachAllThreadsInvocations.count)
+        XCTAssertEqual(NSNumber(value: true), client.captureExceptionWithScopeAttachAllThreadsInvocations.first?.attachAllThreads)
+    }
+
+    func testCaptureMessage_withAttachAllThreads_forwardsToClient() {
+        givenSdkWithHub()
+
+        SentrySDK.capture(message: fixture.message, attachAllThreads: true)
+
+        let client = fixture.client
+        XCTAssertEqual(1, client.captureMessageWithScopeAttachAllThreadsInvocations.count)
+        XCTAssertEqual(NSNumber(value: true), client.captureMessageWithScopeAttachAllThreadsInvocations.first?.attachAllThreads)
+    }
     
     /// When events don't have debug meta the backend can't symbolicate the stack trace of events.
     /// This is a regression test for https://github.com/getsentry/sentry-cocoa/issues/5334

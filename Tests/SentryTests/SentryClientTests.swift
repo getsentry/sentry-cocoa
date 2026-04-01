@@ -716,6 +716,75 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsInvocations)
     }
 
+    func testCaptureEvent_whenAttachAllThreadsOverrideEnabled_andGlobalDisabled_shouldUseGetCurrentThreadsWithStackTrace() throws {
+        let event = Event(level: SentryLevel.fatal)
+        event.message = fixture.message
+        event.attachAllThreadsOverride = NSNumber(value: true)
+
+        fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = false
+        }).capture(event: event)
+
+        let actual = try lastSentEvent()
+        XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsInvocations)
+        assertValidThreads(actual: actual.threads)
+        assertValidDebugMeta(actual: actual.debugMeta, forThreads: actual.threads)
+    }
+
+    func testCaptureEvent_whenAttachAllThreadsOverrideDisabled_andGlobalEnabled_shouldUseGetCurrentThreads() throws {
+        let event = Event(level: SentryLevel.fatal)
+        event.message = fixture.message
+        event.attachAllThreadsOverride = NSNumber(value: false)
+
+        fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = true
+        }).capture(event: event)
+
+        let actual = try lastSentEvent()
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsInvocations)
+        assertValidThreads(actual: actual.threads)
+    }
+
+    func testCaptureMessage_whenAttachAllThreadsOverrideEnabled_shouldUseGetCurrentThreadsWithStackTrace() throws {
+        fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = false
+        }).capture(message: fixture.messageAsString, scope: fixture.scope, attachAllThreads: NSNumber(value: true))
+
+        let actual = try lastSentEvent()
+        XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsInvocations)
+        assertValidThreads(actual: actual.threads)
+    }
+
+    func testCaptureError_whenAttachAllThreadsOverrideEnabled_shouldUseGetCurrentThreadsWithStackTrace() throws {
+        fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = false
+        }).capture(error: error, scope: fixture.scope, attachAllThreads: NSNumber(value: true))
+
+        let actual = try lastSentEventWithAttachment()
+        XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsInvocations)
+        assertValidThreads(actual: actual.threads)
+    }
+
+    func testCaptureException_whenAttachAllThreadsOverrideEnabled_shouldUseGetCurrentThreadsWithStackTrace() throws {
+        fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = false
+        }).capture(exception: exception, scope: fixture.scope, attachAllThreads: NSNumber(value: true))
+
+        let actual = try lastSentEventWithAttachment()
+        XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsInvocations)
+        assertValidThreads(actual: actual.threads)
+    }
+
     func testCaptureEvent_RetrievesDebugMetaFromCache() throws {
         let event = Event(level: SentryLevel.warning)
         
