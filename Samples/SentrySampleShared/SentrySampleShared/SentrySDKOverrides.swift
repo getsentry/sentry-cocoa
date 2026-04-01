@@ -390,7 +390,12 @@ extension SentrySDKOverrides.Networking {
 }
 
 extension SentrySDKOverrides.Events {
-    public var ignoresDisableEverything: Bool { return false }
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .rejectAll, .sampleRate: return false
+        case .attachAllThreads: return true
+        }
+    }
 }
 
 extension SentrySDKOverrides.Other {
