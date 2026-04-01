@@ -345,9 +345,9 @@ NS_ASSUME_NONNULL_BEGIN
     if (tags == nil) {
         return;
     }
+    NSDictionary *tagsCopy = [tags copy];
     @synchronized(_tagDictionary) {
-        [_tagDictionary
-            addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, NSString *, tags)];
+        [_tagDictionary addEntriesFromDictionary:tagsCopy];
 
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer setTags:_tagDictionary];
