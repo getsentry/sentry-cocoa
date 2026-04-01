@@ -5,6 +5,7 @@
 ### Features
 
 - Add `attachAllThreads` option to `SentryOptions` to attach full stack traces for all threads to captured events (#7764)
+- Add per-call `attachAllThreads` parameter to `capture(event:)`, `capture(error:)`, `capture(exception:)`, and `capture(message:)` to override the global option for specific calls (#7767)
 
 ### Fixes
 
