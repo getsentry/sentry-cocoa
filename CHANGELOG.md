@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Add `attachAllThreads` option to `SentryOptions` to attach full stack traces for all threads to captured events (#7764)
+- Add per-call `attachAllThreads` parameter to `capture(event:)`, `capture(error:)`, `capture(exception:)`, and `capture(message:)` to override the global option for specific calls (#7767)
+
 ### Improvements
 
 - Align app lifecycle breadcrumb `state` values with `in_foreground`/`is_active` app context (#7703)
@@ -14,6 +19,7 @@
 
 ### Fixes
 
+- Copy incoming tags dict to prevent crash (#7763)
 - Per-instance unmaskView propagates to child views (#7733)
   - **Warning:** If you relied on children of an unmasked view still being individually redacted, verify your Session Replay redaction after updating. An explicit `maskView(_:)` on a descendant still takes precedence.
 
