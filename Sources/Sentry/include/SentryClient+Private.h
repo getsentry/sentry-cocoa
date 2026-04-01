@@ -58,6 +58,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryId *)captureEventIncrementingSessionErrorCount:(SentryEvent *)event
                                               withScope:(SentryScope *)scope;
 
+- (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *)scope
+          attachAllThreads:(nullable NSNumber *)attachAllThreads
+    NS_SWIFT_NAME(capture(error:scope:attachAllThreads:));
+
+- (SentryId *)captureException:(NSException *)exception
+                     withScope:(SentryScope *)scope
+              attachAllThreads:(nullable NSNumber *)attachAllThreads
+    NS_SWIFT_NAME(capture(exception:scope:attachAllThreads:));
+
+- (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SentryScope *)scope
+            attachAllThreads:(nullable NSNumber *)attachAllThreads
+    NS_SWIFT_NAME(capture(message:scope:attachAllThreads:));
+
 - (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
            replayRecording:(SentryReplayRecording *)replayRecording
                      video:(NSURL *)videoURL

@@ -143,8 +143,9 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:[self.stacktrace serialize] forKey:@"stacktrace"];
 
     NSMutableArray *breadcrumbs = [self serializeBreadcrumbs];
-    if (self.serializedBreadcrumbs.count > 0) {
-        [breadcrumbs addObjectsFromArray:self.serializedBreadcrumbs];
+    if (self.serializedBreadcrumbs != nil && self.serializedBreadcrumbs.count > 0) {
+        [breadcrumbs
+            addObjectsFromArray:SENTRY_UNWRAP_NULLABLE(NSArray, self.serializedBreadcrumbs)];
     }
     if (breadcrumbs.count > 0) {
         [serializedData setValue:breadcrumbs forKey:@"breadcrumbs"];
