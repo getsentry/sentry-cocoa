@@ -664,7 +664,7 @@ final class SentryClientTests: XCTestCase {
         let actual = try lastSentEvent()
         XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
         XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsInvocations)
-        // We assert getCurrentThreadsInvocations calls before `assertValidThreads` before it is called during the assert
+        // We assert getCurrentThreadsInvocations calls before `assertValidThreads` because it is called during the assert
         assertValidThreads(actual: actual.threads)
         assertValidDebugMeta(actual: actual.debugMeta, forThreads: actual.threads)
     }
@@ -682,7 +682,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
         XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsInvocations)
         
-        // We assert getCurrentThreadsInvocations calls before `assertValidThreads` before it is called during the assert
+        // We assert getCurrentThreadsInvocations calls before `assertValidThreads` because it is called during the assert
         assertValidThreads(actual: actual.threads)
     }
 
