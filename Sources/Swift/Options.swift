@@ -224,6 +224,13 @@
     /// @note This feature is enabled by default.
     @objc public var attachStacktrace: Bool = true
 
+    /// When enabled, all threads are attached with full stack traces to all captured events.
+    /// This requires suspending all threads briefly to collect their stack traces.
+    /// When disabled (the default), only the current thread gets a stack trace.
+    /// @note ``attachStacktrace`` must also be enabled for this to have any effect.
+    /// @note Default is `false`.
+    @objc public var attachAllThreads: Bool = false
+
     /// The maximum size for each attachment in bytes.
     /// @note Default is 200 MiB (200 ✕ 1024 ✕ 1024 bytes).
     /// @note Please also check the maximum attachment size of relay to make sure your attachments don't

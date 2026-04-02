@@ -442,7 +442,8 @@ extension SentryProfilingPublicAPITests {
             options: fixture.options,
             applicationProvider: { application },
             dateProvider: fixture.currentDate,
-            notificationCenter: nc
+            notificationCenter: nc,
+            dispatchQueue: TestSentryDispatchQueueWrapper()
         )
         fixture.sessionTracker?.start()
         givenSdkWithHub()
