@@ -68,7 +68,6 @@ static char g_eventID[37];
 #    pragma mark - Utility -
 // ============================================================================
 
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
 static void
 restorePreviousSignalHandler(int sigNum)
 {
@@ -81,7 +80,6 @@ restorePreviousSignalHandler(int sigNum)
         }
     }
 }
-#    endif
 
 // ============================================================================
 #    pragma mark - Callbacks -
@@ -135,11 +133,10 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
     }
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
-#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
     if (!g_isEnabled || sigNum == ignoreSignum) {
+        // Avoid re-entering this handler on raise().
         restorePreviousSignalHandler(sigNum);
     }
-#    endif
     // This is technically not allowed, but it works in OSX and iOS.
     raise(sigNum);
 }
