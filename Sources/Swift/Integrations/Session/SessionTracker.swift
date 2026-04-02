@@ -22,13 +22,16 @@ final class SessionTracker {
 
     private static let SentryHybridSdkDidBecomeActiveNotificationName = NSNotification.Name("SentryHybridSdkDidBecomeActive")
 
+    private let dispatchQueue: SentryDispatchQueueWrapper
+
     // MARK: Lifecycle
 
-    init(options: Options, applicationProvider: @escaping () -> SentryApplication?, dateProvider: SentryCurrentDateProvider, notificationCenter: SentryNSNotificationCenterWrapper) {
+    init(options: Options, applicationProvider: @escaping () -> SentryApplication?, dateProvider: SentryCurrentDateProvider, notificationCenter: SentryNSNotificationCenterWrapper, dispatchQueue: SentryDispatchQueueWrapper) {
         self.options = options
         self.applicationProvider = applicationProvider
         self.dateProvider = dateProvider
         self.notificationCenter = notificationCenter
+        self.dispatchQueue = dispatchQueue
     }
     
     deinit {
@@ -74,7 +77,11 @@ final class SessionTracker {
     }
     
     func stop() {
-        SentrySDKInternal.currentHub().endSession()
+        // Sync because SentrySDK.close() flushes and shuts down the transport after uninstalling
+        // integrations.
+        dispatchQueue.dispatchSync {
+            SentrySDKInternal.currentHub().endSession()
+        }
 
         removeObservers()
 
@@ -106,13 +113,15 @@ final class SessionTracker {
     /// called due to a crash or unexpected behavior. Still, we don't want to lose such sessions and end
     /// them.
     func endCachedSession() {
-        let lastInForeground = SentryDependencyContainerSwiftHelper.readTimestampLastInForeground()
-        if lastInForeground != nil {
-            SentryDependencyContainerSwiftHelper.deleteTimestampLastInForeground()
-        }
+        dispatchQueue.dispatchAsync {
+            let lastInForeground = SentryDependencyContainerSwiftHelper.readTimestampLastInForeground()
+            if lastInForeground != nil {
+                SentryDependencyContainerSwiftHelper.deleteTimestampLastInForeground()
+            }
 
-        let hub = SentrySDKInternal.currentHub()
-        hub.closeCachedSession(withTimestamp: lastInForeground)
+            let hub = SentrySDKInternal.currentHub()
+            hub.closeCachedSession(withTimestamp: lastInForeground)
+        }
     }
 
     /// It is called when an App. is receiving events / It is in the foreground and when we receive a
@@ -146,38 +155,46 @@ final class SessionTracker {
             return
         }
 
-        let hub = SentrySDKInternal.currentHub()
-        let lastInForeground = SentryDependencyContainerSwiftHelper.readTimestampLastInForeground()
+        let options = self.options
+        let now = dateProvider.date()
 
-        if let lastInForeground {
-            // When the app was already in the foreground we have to decide whether it was long enough
-            // in the background to start a new session or to keep the session open. We don't want a new
-            // session if the user switches to another app for just a few seconds.
-            let secondsInBackground = dateProvider.date().timeIntervalSince(lastInForeground)
-
-            if secondsInBackground * 1_000 >= Double(options.sessionTrackingIntervalMillis) {
-                SentrySDKLog.debug("App was in the background for \(secondsInBackground) seconds. Starting a new session.")
-                hub.endSession(withTimestamp: lastInForeground)
-                hub.startSession()
-            } else {
-                SentrySDKLog.debug("App was in the background for \(secondsInBackground) seconds. Not starting a new session.")
-            }
-        } else {
-            // Cause we don't want to track sessions if the app is in the background we need to wait
-            // until the app is in the foreground to start a session.
-            SentrySDKLog.debug("App was in the foreground for the first time. Starting a new session.")
-            hub.startSession()
-        }
-        SentryDependencyContainerSwiftHelper.deleteTimestampLastInForeground()
+        // Reset synchronously to avoid racing with willResignActive().
         lastInForegroundLock.synchronized {
             self.lastInForeground = nil
         }
 
-    #if !(os(watchOS) || os(tvOS) || os(visionOS))
-        if SentryDependencyContainerSwiftHelper.hasProfilingOptions() {
-            sentry_reevaluateSessionSampleRate()
+        dispatchQueue.dispatchAsync { [weak self] in
+            guard self != nil else { return }
+            let hub = SentrySDKInternal.currentHub()
+            let lastInForeground = SentryDependencyContainerSwiftHelper.readTimestampLastInForeground()
+
+            if let lastInForeground {
+                // When the app was already in the foreground we have to decide whether it was long
+                // enough in the background to start a new session or to keep the session open. We
+                // don't want a new session if the user switches to another app for just a few seconds.
+                let secondsInBackground = now.timeIntervalSince(lastInForeground)
+
+                if secondsInBackground * 1_000 >= Double(options.sessionTrackingIntervalMillis) {
+                    SentrySDKLog.debug("App was in the background for \(secondsInBackground) seconds. Starting a new session.")
+                    hub.endSession(withTimestamp: lastInForeground)
+                    hub.startSession()
+                } else {
+                    SentrySDKLog.debug("App was in the background for \(secondsInBackground) seconds. Not starting a new session.")
+                }
+            } else {
+                // Cause we don't want to track sessions if the app is in the background we need to
+                // wait until the app is in the foreground to start a session.
+                SentrySDKLog.debug("App was in the foreground for the first time. Starting a new session.")
+                hub.startSession()
+            }
+            SentryDependencyContainerSwiftHelper.deleteTimestampLastInForeground()
+
+        #if !(os(watchOS) || os(tvOS) || os(visionOS))
+            if SentryDependencyContainerSwiftHelper.hasProfilingOptions() {
+                sentry_reevaluateSessionSampleRate()
+            }
+        #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         }
-    #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
 
     /// The app is about to lose focus / going to the background. This is only called when an app was
@@ -186,10 +203,15 @@ final class SessionTracker {
     /// the session open.
     @objc func willResignActive() {
         let lastInForeground = dateProvider.date()
-        SentryDependencyContainerSwiftHelper.storeTimestampLast(inForeground: lastInForeground)
         wasStartSessionCalled = false
         lastInForegroundLock.synchronized {
             self.lastInForeground = lastInForeground
+        }
+
+        // If this write is lost due to a crash, the next launch will find a cached session
+        // without a lastInForeground timestamp and closeCachedSession will end it as abnormal.
+        dispatchQueue.dispatchAsync {
+            SentryDependencyContainerSwiftHelper.storeTimestampLast(inForeground: lastInForeground)
         }
     }
 
@@ -197,8 +219,10 @@ final class SessionTracker {
     @objc func willTerminate() {
         let lastInForeground = lastInForegroundLock.synchronized { return self.lastInForeground }
         let sessionEnded = lastInForeground ?? dateProvider.date()
-        SentrySDKInternal.currentHub().endSession(withTimestamp: sessionEnded)
-        SentryDependencyContainerSwiftHelper.deleteTimestampLastInForeground()
+        dispatchQueue.dispatchSync {
+            SentrySDKInternal.currentHub().endSession(withTimestamp: sessionEnded)
+            SentryDependencyContainerSwiftHelper.deleteTimestampLastInForeground()
+        }
         wasStartSessionCalled = false
     }
 }

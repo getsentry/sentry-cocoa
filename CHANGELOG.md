@@ -2,11 +2,28 @@
 
 ## Unreleased
 
+### Features
+
+- Add `attachAllThreads` option to `SentryOptions` to attach full stack traces for all threads to captured events (#7764)
+- Add per-call `attachAllThreads` parameter to `capture(event:)`, `capture(error:)`, `capture(exception:)`, and `capture(message:)` to override the global option for specific calls (#7767)
+
+### Improvements
+
+- Align app lifecycle breadcrumb `state` values with `in_foreground`/`is_active` app context (#7703)
+  - **Breaking**: Update any `beforeBreadcrumb` filters or dashboard queries matching on the old `state` values:
+    - iOS/tvOS/visionOS
+      - `didBecomeActive` state changed from `foreground` to `active`
+    - macOS
+      - `didBecomeActive` state changed from `foreground` to `active`
+      - `willResignActive` state changed from `background` to `inactive`
+
 ### Fixes
 
+- Copy incoming tags dict to prevent crash (#7763)
 - Per-instance unmaskView propagates to child views (#7733)
   - **Warning:** If you relied on children of an unmasked view still being individually redacted, verify your Session Replay redaction after updating. An explicit `maskView(_:)` on a descendant still takes precedence.
 - Fix AOT interop with managed .NET runtimes (#6193)
+- Move SessionTracker file I/O off the main thread ([#7704](https://github.com/getsentry/sentry-cocoa/pull/7704))
 
 ## 9.8.0
 
