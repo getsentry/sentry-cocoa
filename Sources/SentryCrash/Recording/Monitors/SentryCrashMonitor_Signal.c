@@ -104,13 +104,9 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
     int ignoreSignum = tl_ignoreSignum;
     tl_ignoreSignum = 0;
-    if (sigNum == ignoreSignum) {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Ignored signal %d", sigNum);
-        return;
-    }
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped signal %d", sigNum);
-    if (g_isEnabled) {
+    if (g_isEnabled && sigNum != ignoreSignum) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         // Signal handlers preempt the crashing thread, so reentrancy can
@@ -140,7 +136,7 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
 #    ifdef SENTRY_CRASH_MANAGED_RUNTIME
-    if (!g_isEnabled) {
+    if (!g_isEnabled || sigNum == ignoreSignum) {
         restorePreviousSignalHandler(sigNum);
     }
 #    endif
