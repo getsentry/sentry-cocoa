@@ -102,11 +102,13 @@ restorePreviousSignalHandler(int sigNum)
 static void
 handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
-    if (sigNum == tl_ignoreSignum) {
+    int ignoreSignum = tl_ignoreSignum;
+    tl_ignoreSignum = 0;
+    if (sigNum == ignoreSignum) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Ignored signal %d", sigNum);
-        tl_ignoreSignum = 0;
         return;
     }
+
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped signal %d", sigNum);
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
