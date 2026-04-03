@@ -72,6 +72,7 @@ static SentryCrashBinaryImageNode rootNode = { 0 };
 static _Atomic(SentryCrashBinaryImageNode *) tailNode = NULL;
 static _Atomic(sentrycrashbic_cacheChangeCallback) imageAddedCallback = NULL;
 static _Atomic(sentrycrashbic_cacheChangeCallback) imageRemovedCallback = NULL;
+static SentryCrashBinaryImageNode *pendingFreeList = NULL;
 
 static void
 binaryImageAdded(const struct mach_header *header, intptr_t slide)
@@ -110,10 +111,10 @@ binaryImageAdded(const struct mach_header *header, intptr_t slide)
     }
     pthread_mutex_unlock(&binaryImagesMutex);
     if (newNode) {
-        sentrycrashbic_cacheChangeCallback addCb
+        sentrycrashbic_cacheChangeCallback addedCallback
             = atomic_load_explicit(&imageAddedCallback, memory_order_acquire);
-        if (addCb) {
-            addCb(&newNode->image);
+        if (addedCallback) {
+            addedCallback(&newNode->image);
         }
     }
 }
@@ -126,10 +127,10 @@ binaryImageRemoved(const struct mach_header *header, intptr_t slide)
     while (nextNode != NULL) {
         if (nextNode->image.address == (uint64_t)header) {
             nextNode->available = false;
-            sentrycrashbic_cacheChangeCallback rmCb
+            sentrycrashbic_cacheChangeCallback removedCallback
                 = atomic_load_explicit(&imageRemovedCallback, memory_order_acquire);
-            if (rmCb) {
-                rmCb(&nextNode->image);
+            if (removedCallback) {
+                removedCallback(&nextNode->image);
             }
             break;
         }
@@ -204,6 +205,9 @@ sentrycrashbic_startCache(void)
         return;
     }
 
+    SentryCrashBinaryImageNode *pending = pendingFreeList;
+    pendingFreeList = NULL;
+
     if (sentrycrashbic_shouldAddDyld()) {
         sentrycrashdl_initialize();
         SentryCrashBinaryImageNode *dyldNode = sentrycrashbic_getDyldNode();
@@ -214,6 +218,12 @@ sentrycrashbic_startCache(void)
         rootNode.next = NULL;
     }
     pthread_mutex_unlock(&binaryImagesMutex);
+
+    while (pending != NULL) {
+        SentryCrashBinaryImageNode *next = pending->next;
+        free(pending);
+        pending = next;
+    }
 
     // During a call to _dyld_register_func_for_add_image() the callback func is called for every
     // existing image
@@ -230,15 +240,10 @@ sentrycrashbic_stopCache(void)
         return;
     }
 
-    SentryCrashBinaryImageNode *node = rootNode.next;
+    // Defer freeing — readers outside the mutex may still be traversing.
+    pendingFreeList = rootNode.next;
     rootNode.next = NULL;
     atomic_store_explicit(&tailNode, NULL, memory_order_release);
-
-    while (node != NULL) {
-        SentryCrashBinaryImageNode *nextNode = node->next;
-        free(node);
-        node = nextNode;
-    }
 
     pthread_mutex_unlock(&binaryImagesMutex);
 }
@@ -246,16 +251,13 @@ sentrycrashbic_stopCache(void)
 void
 sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback callback)
 {
-    atomic_store_explicit(&imageAddedCallback, callback, memory_order_release);
     if (callback) {
-        // Snapshot the current tail under the mutex, then iterate outside it.
-        // This avoids holding the mutex for the entire iteration, which would
-        // block any concurrent binaryImageAdded() calls (e.g. from dlopen on
-        // another thread during SDK startup). Nodes are never freed during
-        // normal operation, so the snapshot pointer remains valid.
+        // Snapshot tail before publishing callback so images added after the
+        // snapshot are only reported by the live callback, avoiding duplicates.
         pthread_mutex_lock(&binaryImagesMutex);
         SentryCrashBinaryImageNode *snapshotTail
             = atomic_load_explicit(&tailNode, memory_order_acquire);
+        atomic_store_explicit(&imageAddedCallback, callback, memory_order_release);
         pthread_mutex_unlock(&binaryImagesMutex);
 
         if (snapshotTail != NULL) {
@@ -270,6 +272,8 @@ sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback callback
                 node = node->next;
             }
         }
+    } else {
+        atomic_store_explicit(&imageAddedCallback, NULL, memory_order_release);
     }
 }
 
