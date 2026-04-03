@@ -27,10 +27,6 @@ make pod-lint              # Validate CocoaPods specs
 make bump-version TO=X.Y.Z # Bump version (requires TO parameter)
 ```
 
-## XCFramework Preprocessor Macros
-
-The XCFramework build script (`scripts/build-xcframework-slice.sh`) defines `SENTRY_PREBUILT_FRAMEWORK=1` via `GCC_PREPROCESSOR_DEFINITIONS`. This macro gates runtime heuristics (debugger attachment, `get-task-allow`) for build type detection, since prebuilt binaries can't rely on the `DEBUG` macro. See [DECISIONS.md](DECISIONS.md#build-type-detection-source-builds-vs-prebuilt-xcframeworks).
-
 ## Platform-Specific Build Notes
 
 ### visionOS Considerations

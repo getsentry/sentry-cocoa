@@ -595,12 +595,3 @@ Steps:
 1. Consolidate Headers into the main target and remove `HybridSDK` subspec
 2. Update downstream SDKs
 3. Align on an API naming convention (ask other maintainers for input regarding what they need)
-
-## Build type detection: source builds vs prebuilt XCFrameworks
-
-Date: March 27, 2026
-Contributors: @denrase, @itaybre
-
-Source builds use the `DEBUG` macro to determine `build_type`. Prebuilt XCFrameworks can't rely on `DEBUG` (always compiled in Release), so they use runtime heuristics (debugger attachment, `get-task-allow` entitlement). The XCFramework build script defines `SENTRY_PREBUILT_FRAMEWORK=1` to distinguish the two paths. See `getBuildType()` in `SentryCrashMonitor_System.m`.
-
-Related: https://github.com/getsentry/sentry-cocoa/pull/7702
