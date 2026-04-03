@@ -144,7 +144,19 @@ import Foundation
     @discardableResult public static func capture(event: Event, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.capture(event: event, block: block)
     }
-    
+
+    /// Captures a manually created event and sends it to Sentry, with a per-call override for
+    /// attaching all threads with stack traces.
+    /// - Parameters:
+    ///   - event: The event to send to Sentry.
+    ///   - attachAllThreads: Whether to attach all threads with full stack traces. Overrides `Options.attachAllThreads`.
+    /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @objc(captureEvent:attachAllThreads:)
+    @discardableResult public static func capture(event: Event, attachAllThreads: Bool) -> SentryId {
+        event.attachAllThreadsOverride = NSNumber(value: attachAllThreads)
+        return SentrySDKInternal.capture(event: event)
+    }
+
     // MARK: - Transaction Management
     
     /// Creates a transaction, binds it to the hub and returns the instance.
@@ -229,7 +241,19 @@ import Foundation
     @discardableResult public static func capture(error: Error, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.capture(error: error, block: block)
     }
-    
+
+    /// Captures an error event and sends it to Sentry, with a per-call override for attaching all
+    /// threads with stack traces.
+    /// - Parameters:
+    ///   - error: The error to send to Sentry.
+    ///   - attachAllThreads: Whether to attach all threads with full stack traces. Overrides `Options.attachAllThreads`.
+    /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @objc(captureError:attachAllThreads:)
+    @discardableResult public static func capture(error: Error, attachAllThreads: Bool) -> SentryId {
+        let hub = SentrySDKInternal.currentHub()
+        return hub.captureError(error as NSError, with: hub.scope, attachAllThreads: NSNumber(value: attachAllThreads))
+    }
+
     // MARK: - Exception Capture
     
     /// Captures an exception event and sends it to Sentry.
@@ -259,7 +283,19 @@ import Foundation
     @discardableResult public static func capture(exception: NSException, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.capture(exception: exception, block: block)
     }
-    
+
+    /// Captures an exception event and sends it to Sentry, with a per-call override for attaching
+    /// all threads with stack traces.
+    /// - Parameters:
+    ///   - exception: The exception to send to Sentry.
+    ///   - attachAllThreads: Whether to attach all threads with full stack traces. Overrides `Options.attachAllThreads`.
+    /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @objc(captureException:attachAllThreads:)
+    @discardableResult public static func capture(exception: NSException, attachAllThreads: Bool) -> SentryId {
+        let hub = SentrySDKInternal.currentHub()
+        return hub.capture(exception, with: hub.scope, attachAllThreads: NSNumber(value: attachAllThreads))
+    }
+
     // MARK: - Message Capture
     
     /// Captures a message event and sends it to Sentry.
@@ -289,7 +325,19 @@ import Foundation
     @discardableResult public static func capture(message: String, block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDKInternal.capture(message: message, block: block)
     }
-    
+
+    /// Captures a message event and sends it to Sentry, with a per-call override for attaching all
+    /// threads with stack traces.
+    /// - Parameters:
+    ///   - message: The message to send to Sentry.
+    ///   - attachAllThreads: Whether to attach all threads with full stack traces. Overrides `Options.attachAllThreads`.
+    /// - Returns: The `SentryId` of the event or `SentryId.empty` if the event is not sent.
+    @objc(captureMessage:attachAllThreads:)
+    @discardableResult public static func capture(message: String, attachAllThreads: Bool) -> SentryId {
+        let hub = SentrySDKInternal.currentHub()
+        return hub.captureMessage(message, with: hub.scope, attachAllThreads: NSNumber(value: attachAllThreads))
+    }
+
     /// Captures user feedback that was manually gathered and sends it to Sentry.
     /// - warning: This is an experimental feature and may still have bugs.
     /// - parameter feedback: The feedback to send to Sentry.
