@@ -27,8 +27,9 @@ void sentrycrashbic_stopCache(void);
 
 /**
  * Register a callback to be called every time a new binary image is added to the cache.
- * After register, this callback will be called for every image already in the cache,
- * this is a thread safe operation.
+ * After registration, the callback is invoked for every image already in the cache.
+ * The initial iteration runs without holding the cache mutex to avoid blocking
+ * concurrent image-add operations.
  */
 void sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback callback);
 
