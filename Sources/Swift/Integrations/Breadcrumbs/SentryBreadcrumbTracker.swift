@@ -97,7 +97,37 @@ import Cocoa
         }
         notificationObservers.append(memoryWarningObserver)
         
-        let backgroundObserver = notificationCenter.addObserver(
+        let willEnterForegroundObserver = notificationCenter.addObserver(
+            forName: UIApplication.willEnterForegroundNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "foreground")
+        }
+        notificationObservers.append(willEnterForegroundObserver)
+        
+        let didBecomeActiveObserver = notificationCenter.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "active")
+        }
+        notificationObservers.append(didBecomeActiveObserver)
+        
+        let willResignActiveObserver = notificationCenter.addObserver(
+            forName: UIApplication.willResignActiveNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "inactive")
+        }
+        notificationObservers.append(willResignActiveObserver)
+        
+        let didEnterBackgroundObserver = notificationCenter.addObserver(
             forName: UIApplication.didEnterBackgroundNotification,
             object: nil,
             queue: nil
@@ -105,17 +135,7 @@ import Cocoa
             guard let self = self else { return }
             self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "background")
         }
-        notificationObservers.append(backgroundObserver)
-        
-        let foregroundObserver = notificationCenter.addObserver(
-            forName: UIApplication.didBecomeActiveNotification,
-            object: nil,
-            queue: nil
-        ) { [weak self] _ in
-            guard let self = self else { return }
-            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "foreground")
-        }
-        notificationObservers.append(foregroundObserver)
+        notificationObservers.append(didEnterBackgroundObserver)
     }
 #endif // (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     
@@ -123,27 +143,25 @@ import Cocoa
     private func trackApplicationNotificationsMacOS() {
         let notificationCenter = NotificationCenter.default
         
-        // Will resign Active notification is the nearest one to
-        // UIApplicationDidEnterBackgroundNotification
-        let backgroundObserver = notificationCenter.addObserver(
-            forName: NSApplication.willResignActiveNotification,
-            object: nil,
-            queue: nil
-        ) { [weak self] _ in
-            guard let self = self else { return }
-            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "background")
-        }
-        notificationObservers.append(backgroundObserver)
-        
-        let foregroundObserver = notificationCenter.addObserver(
+        let didBecomeActiveObserver = notificationCenter.addObserver(
             forName: NSApplication.didBecomeActiveNotification,
             object: nil,
             queue: nil
         ) { [weak self] _ in
             guard let self = self else { return }
-            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "foreground")
+            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "active")
         }
-        notificationObservers.append(foregroundObserver)
+        notificationObservers.append(didBecomeActiveObserver)
+        
+        let willResignActiveObserver = notificationCenter.addObserver(
+            forName: NSApplication.willResignActiveNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.addBreadcrumb(type: "navigation", category: "app.lifecycle", level: .info, dataKey: "state", dataValue: "inactive")
+        }
+        notificationObservers.append(willResignActiveObserver)
     }
 #endif // os(macOS)
     
