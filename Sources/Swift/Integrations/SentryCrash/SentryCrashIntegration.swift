@@ -113,6 +113,14 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             name: NSLocale.currentLocaleDidChangeNotification,
             object: nil
         )
+
+        if #available(macOS 12.0, *) {
+            NotificationCenter.default.removeObserver(
+                self,
+                name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
+                object: nil
+            )
+        }
     }
 
     // MARK: - Crash Handler
@@ -241,6 +249,16 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             name: NSLocale.currentLocaleDidChangeNotification,
             object: nil
         )
+
+        if #available(macOS 12.0, *) {
+            updateLowPowerModeContext()
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(powerStateDidChange),
+                name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
+                object: nil
+            )
+        }
     }
 
     // Exposed to objc for the NotificationCenter in configureScope()
@@ -256,6 +274,29 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
             let locale = Locale.autoupdatingCurrent.identifier
             device["locale"] = locale
+
+            scope.setContext(value: device, key: SENTRY_CONTEXT_DEVICE_KEY)
+        }
+    }
+
+    @available(macOS 12.0, *)
+    @objc private func powerStateDidChange() {
+        updateLowPowerModeContext()
+    }
+
+    @available(macOS 12.0, *)
+    private func updateLowPowerModeContext() {
+        let isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
+        SentrySDKInternal.currentHub().configureScope { scope in
+            var device: [String: Any]
+            let contextDictionary = scope.contextDictionary
+            if let existingDevice = contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] as? [String: Any] {
+                device = existingDevice
+            } else {
+                device = [:]
+            }
+
+            device["low_power_mode"] = isLowPowerMode
 
             scope.setContext(value: device, key: SENTRY_CONTEXT_DEVICE_KEY)
         }
