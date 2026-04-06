@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Track low power mode in device context (#7777)
+
 ## 9.9.0
 
 ### Features
