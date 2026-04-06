@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Add `Package@swift-6.2.swift` to avoid issues with Xcode 26 and unsafe build flags
+
 ## 9.9.0
 
 ### Features

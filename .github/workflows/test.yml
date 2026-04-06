@@ -112,11 +112,14 @@ jobs:
       - name: Prepare Package.swift
         shell: bash
         run: |
-          # Swift 6.1+ uses Package@swift-6.1.swift; hide it so prepare-package's
+          # Swift 6.1+ and 6.2+ uses Package@swift-6.1.swift and Package@swift-6.2.swift; hide it so prepare-package's
           # modified Package.swift is used (avoids "Multiple commands produce" from
-          # unmodified binary targets in the 6.1 manifest).
+          # unmodified binary targets in the 6.1 and 6.2 manifests).
           if [[ -f Package@swift-6.1.swift ]]; then
             mv Package@swift-6.1.swift Package@swift-6.1.swift.bak
+          fi
+          if [[ -f Package@swift-6.2.swift ]]; then
+            mv Package@swift-6.2.swift Package@swift-6.2.swift.bak
           fi
           ./scripts/prepare-package.sh \
             --package-file Package.swift \
