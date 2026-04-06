@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Add `Package@swift-6.2.swift` to avoid issues with Xcode 26 and unsafe build flags
+- Added `Package@swift-6.2.swift` to avoid issues with unsafe build flags on SPM > 6.2 (#7778)
 
 ## 9.9.0
 
