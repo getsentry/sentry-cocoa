@@ -38,9 +38,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         options.insert("profiling") // @_spi(Private) - internal backing for configureProfiling
         options.insert("configureProfiling")
         #endif
-        
-        options.insert("attachAllThreads") // SDK not released yet
-        
+
         return options
     }
 
