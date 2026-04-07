@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Scope clipOut masking to active clip bounds (#7780)
+
 ## 9.9.0
 
 ### Features
