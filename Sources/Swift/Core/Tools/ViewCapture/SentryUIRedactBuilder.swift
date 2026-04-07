@@ -445,6 +445,10 @@ final class SentryUIRedactBuilder {
     func getRedactLayerClassIdsTestOnly() -> Set<String> {
         redactLayerClassIds
     }
+
+    func addRedactLayerClassIdTestOnly(_ classId: String) {
+        redactLayerClassIds.insert(classId)
+    }
 #endif
 
     /// Identifies and returns the regions within a given `UIView` that need to be redacted.
