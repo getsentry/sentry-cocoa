@@ -1269,7 +1269,7 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testOrgId_Default
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
     XCTAssertNil(options.orgId);
 }
 
@@ -1294,14 +1294,14 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
 - (void)testEffectiveOrgId_FallsBackToDsn
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
     options.dsn = @"https://key@o123.ingest.sentry.io/456";
     XCTAssertEqualObjects(options.effectiveOrgId, @"123");
 }
 
 - (void)testEffectiveOrgId_NilWhenNoDsnOrgId
 {
-    SentryOptions *options = [self getValidOptions:@{}];
+    SentryOptions *options = [self getValidOptions:@{ }];
     options.dsn = @"https://key@sentry.io/456";
     XCTAssertNil(options.effectiveOrgId);
 }
