@@ -33,7 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
                       sampleRate:sampleRate
                       sampleRand:nil
                          sampled:sampled
-                        replayId:replayId];
+                        replayId:replayId
+                           orgId:nil];
 }
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
@@ -46,6 +47,29 @@ NS_ASSUME_NONNULL_BEGIN
                         sampled:(nullable NSString *)sampled
                        replayId:(nullable NSString *)replayId
 {
+    return [self initWithTraceId:traceId
+                       publicKey:publicKey
+                     releaseName:releaseName
+                     environment:environment
+                     transaction:transaction
+                      sampleRate:sampleRate
+                      sampleRand:sampleRand
+                         sampled:sampled
+                        replayId:replayId
+                           orgId:nil];
+}
+
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                      publicKey:(NSString *)publicKey
+                    releaseName:(nullable NSString *)releaseName
+                    environment:(nullable NSString *)environment
+                    transaction:(nullable NSString *)transaction
+                     sampleRate:(nullable NSString *)sampleRate
+                     sampleRand:(nullable NSString *)sampleRand
+                        sampled:(nullable NSString *)sampled
+                       replayId:(nullable NSString *)replayId
+                          orgId:(nullable NSString *)orgId
+{
     if (self = [super init]) {
         _traceId = traceId;
         _publicKey = publicKey;
@@ -56,6 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
         _sampleRate = sampleRate;
         _sampled = sampled;
         _replayId = replayId;
+        _orgId = orgId;
     }
     return self;
 }
@@ -102,7 +127,8 @@ NS_ASSUME_NONNULL_BEGIN
                       sampleRate:serializedSampleRate
                       sampleRand:serializedSampleRand
                          sampled:sampled
-                        replayId:scope.replayId];
+                        replayId:scope.replayId
+                           orgId:options.effectiveOrgId];
 }
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
@@ -118,7 +144,8 @@ NS_ASSUME_NONNULL_BEGIN
              sampleRate:nil
              sampleRand:nil
                 sampled:nil
-               replayId:replayId];
+               replayId:replayId
+                  orgId:options.effectiveOrgId];
 }
 
 - (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary
@@ -143,7 +170,8 @@ NS_ASSUME_NONNULL_BEGIN
                       sampleRate:dictionary[@"sample_rate"]
                       sampleRand:dictionary[@"sample_rand"]
                          sampled:dictionary[@"sampled"]
-                        replayId:dictionary[@"replay_id"]];
+                        replayId:dictionary[@"replay_id"]
+                           orgId:dictionary[@"org_id"]];
 }
 
 - (SentryBaggage *)toBaggage
@@ -156,7 +184,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                         sampleRate:_sampleRate
                                                         sampleRand:_sampleRand
                                                            sampled:_sampled
-                                                          replayId:_replayId];
+                                                          replayId:_replayId
+                                                             orgId:_orgId];
     return result;
 }
 
@@ -191,6 +220,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (_replayId != nil) {
         [result setValue:_replayId forKey:@"replay_id"];
+    }
+
+    if (_orgId != nil) {
+        [result setValue:_orgId forKey:@"org_id"];
     }
 
     return result;
