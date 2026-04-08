@@ -28,6 +28,13 @@
     /// Determines whether a trace should be continued based on the incoming baggage org ID
     /// and the SDK options.
     ///
+    /// This method is intentionally not called from the Cocoa SDK's own production code because
+    /// the Cocoa SDK is a mobile client SDK that does not receive incoming HTTP requests with
+    /// trace headers. It is exposed as a public utility for:
+    /// - Hybrid SDKs (React Native, Flutter, Capacitor) that handle inbound trace validation
+    ///   in their JS/Dart layer and use the Cocoa SDK for options storage and outbound propagation
+    /// - Any consumer that needs to validate incoming traces against org ID
+    ///
     /// Decision matrix:
     /// | Baggage org | SDK org | strict=false | strict=true |
     /// |-------------|---------|-------------|-------------|
