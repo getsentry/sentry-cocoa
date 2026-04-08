@@ -9,6 +9,10 @@
   - New option `strictTraceContinuation` (default `false`): when enabled, both the SDK's org ID **and** the incoming baggage org ID must be present and match for a trace to be continued. Traces with a missing org ID on either side are rejected.
   - New option `orgId`: allows explicitly setting the organization ID for self-hosted and Relay setups where it cannot be extracted from the DSN.
 
+### Fixes
+
+- Scope clipOut masking to active clip bounds (#7780)
+
 ## 9.9.0
 
 ### Features
