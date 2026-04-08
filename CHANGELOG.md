@@ -1,15 +1,20 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Prevent cross-organization trace continuation (#7705)
+  - By default, the SDK now extracts the organization ID from the DSN (e.g. `o123.ingest.sentry.io`) and compares it with the `sentry-org_id` value in incoming baggage headers. When the two differ, the SDK starts a fresh trace instead of continuing the foreign one. This guards against accidentally linking traces across organizations.
+  - New option `strictTraceContinuation` (default `false`): when enabled, both the SDK's org ID **and** the incoming baggage org ID must be present and match for a trace to be continued. Traces with a missing org ID on either side are rejected.
+  - New option `orgId`: allows explicitly setting the organization ID for self-hosted and Relay setups where it cannot be extracted from the DSN.
+
 ## 9.9.0
 
 ### Features
 
 - Add `attachAllThreads` option to `SentryOptions` to attach full stack traces for all threads to captured events (#7764)
 - Add per-call `attachAllThreads` parameter to `capture(event:)`, `capture(error:)`, `capture(exception:)`, and `capture(message:)` to override the global option for specific calls (#7767)
-- Prevent cross-organization trace continuation (#7705)
-  - By default, the SDK now extracts the organization ID from the DSN (e.g. `o123.ingest.sentry.io`) and compares it with the `sentry-org_id` value in incoming baggage headers. When the two differ, the SDK starts a fresh trace instead of continuing the foreign one. This guards against accidentally linking traces across organizations.
-  - New option `strictTraceContinuation` (default `false`): when enabled, both the SDK's org ID **and** the incoming baggage org ID must be present and match for a trace to be continued. Traces with a missing org ID on either side are rejected.
-  - New option `orgId`: allows explicitly setting the organization ID for self-hosted and Relay setups where it cannot be extracted from the DSN.
 
 ### Improvements
 
