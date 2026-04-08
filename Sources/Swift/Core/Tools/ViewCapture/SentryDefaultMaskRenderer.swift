@@ -17,11 +17,11 @@ class SentryDefaultMaskRenderer: NSObject, SentryMaskRenderer {
         size: CGSize,
         masking: [SentryRedactRegion]
     ) {
-        let clipOutPath = CGMutablePath(rect: CGRect(origin: .zero, size: size), transform: nil)
-        var clipPaths = [CGPath]()
-
         let imageRect = CGRect(origin: .zero, size: size)
-        context.cgContext.addRect(CGRect(origin: CGPoint.zero, size: size))
+        var clipPaths = [CGPath]()
+        var clipOutPaths = [CGMutablePath(rect: imageRect, transform: nil)]
+        
+        context.cgContext.addRect(imageRect)
         context.cgContext.clip(using: .evenOdd)
 
         context.cgContext.interpolationQuality = .none
@@ -44,34 +44,49 @@ class SentryDefaultMaskRenderer: NSObject, SentryMaskRenderer {
                 context.cgContext.addPath(path)
                 context.cgContext.fillPath()
             case .clipOut:
-                clipOutPath.addPath(path)
+                if let currentClipOutPath = clipOutPaths.last {
+                    currentClipOutPath.addPath(path)
+                }
                 self.updateClipping(for: context.cgContext,
                                     clipPaths: clipPaths,
-                                    clipOutPath: clipOutPath)
+                                    clipOutPaths: clipOutPaths)
             case .clipBegin:
                 clipPaths.append(path)
+                clipOutPaths.append(CGMutablePath())
                 self.updateClipping(for: context.cgContext,
                                     clipPaths: clipPaths,
-                                    clipOutPath: clipOutPath)
+                                    clipOutPaths: clipOutPaths)
             case .clipEnd:
                 if !clipPaths.isEmpty {
                     clipPaths.removeLast()
                 }
+                if clipOutPaths.count > 1 {
+                    clipOutPaths.removeLast()
+                }
                 self.updateClipping(for: context.cgContext,
                                     clipPaths: clipPaths,
-                                    clipOutPath: clipOutPath)
+                                    clipOutPaths: clipOutPaths)
             }
         }
     }
 
-    private func updateClipping(for context: CGContext, clipPaths: [CGPath], clipOutPath: CGPath) {
+    private func updateClipping(
+        for context: CGContext,
+        clipPaths: [CGPath],
+        clipOutPaths: [CGMutablePath]
+    ) {
         context.resetClip()
         clipPaths.reversed().forEach {
             context.addPath($0)
             context.clip()
         }
 
-        context.addPath(clipOutPath)
+        // `addPath` appends each input as a subpath (it doesn't do a geometric union).
+        // The final even-odd clip is then evaluated across all subpaths together.
+        let combinedClipOutPath = CGMutablePath()
+        clipOutPaths.forEach { combinedClipOutPath.addPath($0) }
+
+        context.addPath(combinedClipOutPath)
         context.clip(using: .evenOdd)
     }
 }

@@ -255,6 +255,50 @@ class SentryViewPhotographerTests: XCTestCase {
         assertColor(pixel1, .green)
     }
     
+    func testHeaderLabelRedacted_whenOpaqueCardIsClippedInsideScrollView() throws {
+        let headerLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 20))
+        headerLabel.text = "Test"
+        headerLabel.backgroundColor = .blue
+
+        let card = UIView(frame: CGRect(x: 0, y: -20, width: 50, height: 40))
+        card.backgroundColor = .green
+        card.isOpaque = true
+        card.layer.isOpaque = true
+        card.layer.backgroundColor = UIColor.green.cgColor
+
+        let scrollView = UIScrollView(frame: CGRect(x: 0, y: 20, width: 50, height: 30))
+        scrollView.addSubview(card)
+
+        let image = try XCTUnwrap(prepare(views: [headerLabel, scrollView]))
+
+        assertColor(.black, in: image, at: [
+            CGPoint(x: 5, y: 10),
+            CGPoint(x: 25, y: 10),
+            CGPoint(x: 45, y: 10)
+        ])
+    }
+
+    func testOpaqueClipOutStillOccludesLowerRedaction_whenInsideClippedIntersection() throws {
+        let lowerLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 50, height: 30))
+        lowerLabel.text = "Test"
+
+        let card = UIView(frame: CGRect(x: 0, y: -20, width: 50, height: 40))
+        card.backgroundColor = .green
+        card.isOpaque = true
+        card.layer.isOpaque = true
+        card.layer.backgroundColor = UIColor.green.cgColor
+
+        let scrollView = UIScrollView(frame: CGRect(x: 0, y: 20, width: 50, height: 30))
+        scrollView.addSubview(lowerLabel)
+        scrollView.addSubview(card)
+
+        let image = try XCTUnwrap(prepare(views: [scrollView]))
+
+        assertColor(.green, in: image, at: [CGPoint(x: 10, y: 30), CGPoint(x: 40, y: 30)])
+        assertColor(.black, in: image, at: [CGPoint(x: 10, y: 45), CGPoint(x: 40, y: 45)])
+        assertColor(.white, in: image, at: [CGPoint(x: 10, y: 10), CGPoint(x: 40, y: 10)])
+    }
+    
     func testNotMaskingLabelInsideClippedViewHiddenByAnOpaqueExternalView() throws {
         let topView = UIView(frame: CGRect(x: 25, y: 0, width: 25, height: 25))
         topView.backgroundColor = .green
