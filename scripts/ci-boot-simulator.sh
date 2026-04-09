@@ -36,7 +36,7 @@ log_notice "Starting simulator boot process with Xcode version: $XCODE_VERSION"
 
 begin_group "Simulator Selection"
 SIMULATOR="iPhone 16 Pro"
-IOS_VERSION="18.4"
+IOS_VERSION="18.5"
 
 # Select simulator based on Xcode version
 case "$XCODE_VERSION" in
@@ -52,12 +52,12 @@ case "$XCODE_VERSION" in
         ;;
     "16.2")
         SIMULATOR="iPhone 16 Pro"
-        IOS_VERSION="18.4"
+        IOS_VERSION="18.5"
         log_notice "Selected: $SIMULATOR with iOS $IOS_VERSION for Xcode $XCODE_VERSION"
         ;;
     *)
         SIMULATOR="iPhone 16 Pro" # Default fallback
-        IOS_VERSION="18.4"
+        IOS_VERSION="18.5"
         log_warning "Unknown Xcode version '$XCODE_VERSION', using default: $SIMULATOR with iOS $IOS_VERSION"
         ;;
 esac
