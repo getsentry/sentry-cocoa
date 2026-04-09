@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Add `Package@swift-6.1.swift` for Xcode 26 SPM compatibility (#7768)
+- Update release scripts to handle `Package@swift-6.1.swift` alongside `Package.swift` (#7784)
+
 ## 8.58.0
 
 ### Features
