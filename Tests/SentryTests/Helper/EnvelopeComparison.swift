@@ -47,7 +47,7 @@ extension Data {
     // Used to support iOS < 16.0
     func backwardCompatibleSplit(separator: Data) -> [Data] {
         // When the `split` function is available all we need to do is call it.
-        if #available(iOS 16.0, tvOS 16.0, watchOS 16.0, macOS 13.0, *) {
+        if #available(iOS 16.0, tvOS 16.0, watchOS 9.0, macOS 13.0, *) {
             return split(separator: separator)
         }
 

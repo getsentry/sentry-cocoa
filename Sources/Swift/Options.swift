@@ -639,6 +639,35 @@
     /// https://spotlightjs.com/
     @objc public var spotlightUrl = "http://localhost:8969/stream"
 
+    /// If set to `true`, the SDK will only continue a trace if the organization ID of the incoming
+    /// trace found in the baggage header matches the organization ID of the current Sentry client.
+    ///
+    /// The client's organization ID is extracted from the DSN or can be set with the `orgId` option.
+    ///
+    /// If the organization IDs do not match, the SDK will start a new trace instead of continuing
+    /// the incoming one. This is useful to prevent traces of unknown third-party services from being
+    /// continued in your application.
+    ///
+    /// @note Default value is @c false.
+    @objc public var strictTraceContinuation: Bool = false
+
+    /// The organization ID for your Sentry project.
+    ///
+    /// The SDK will try to extract the organization ID from the DSN. If it cannot be found, or if
+    /// you need to override it, you can provide the ID with this option. The organization ID is used
+    /// for trace propagation and for features like `strictTraceContinuation`.
+    @objc public var orgId: String?
+
+    /// Returns the effective organization ID, preferring the explicit `orgId` option over the
+    /// DSN-extracted value.
+    @_spi(Private) @objc
+    public var effectiveOrgId: String? {
+        if let orgId = orgId, !orgId.isEmpty {
+            return orgId
+        }
+        return parsedDsn?.orgId
+    }
+
     /// Options for experimental features that are subject to change.
     @objc public var experimental = SentryExperimentalOptions()
     
