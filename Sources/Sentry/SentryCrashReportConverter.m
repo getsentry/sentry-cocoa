@@ -478,8 +478,9 @@
         }
     }
     if (reasons.count > 0) {
-        exception.value = [[[reasons array] sortedArrayUsingSelector:@selector
-            (localizedCaseInsensitiveCompare:)] componentsJoinedByString:@" > "];
+        exception.value =
+            [[[reasons array] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]
+                componentsJoinedByString:@" > "];
     }
 }
 

@@ -304,7 +304,7 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 
 + (NSDictionary *)fetchInfoAboutViewController:(UIViewController *)controller
 {
-    NSMutableDictionary *info = @{}.mutableCopy;
+    NSMutableDictionary *info = @{ }.mutableCopy;
 
     info[@"screen"] = [SwiftDescriptor getViewControllerClassName:controller];
 

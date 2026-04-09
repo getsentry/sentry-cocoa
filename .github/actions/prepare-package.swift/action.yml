@@ -1,14 +1,10 @@
 name: "Prepare Package.swift"
-description: "Prepares Package.swift"
+description: "Prepares all Package*.swift files"
 inputs:
   is-pr:
     description: "Whether the build is a PR"
     required: true
     default: "false"
-  package-file:
-    description: "The package file to prepare"
-    required: true
-    default: "Package.swift"
 runs:
   using: "composite"
   steps:
@@ -16,20 +12,20 @@ runs:
       # We don't build it on PRs, so we need to remove it from the package.swift file.
       if: ${{ inputs.is-pr == 'true' }}
       shell: bash
-      env:
-        PACKAGE_FILE: ${{ inputs.package-file }}
       run: |
-        sed -i '' '/Sentry-Dynamic-WithARM64e/d' $PACKAGE_FILE
-        sed -i '' '/Sentry-WithoutUIKitOrAppKit-WithARM64e/d' $PACKAGE_FILE
-        sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;/\n[[:space:]]*),\{0,1\}$/d;}' $PACKAGE_FILE
+        for PACKAGE_FILE in $(find . -maxdepth 1 -name "Package.swift" -o -name "Package@swift-*.swift" | sort); do
+          sed -i '' '/Sentry-Dynamic-WithARM64e/d' $PACKAGE_FILE
+          sed -i '' '/Sentry-WithoutUIKitOrAppKit-WithARM64e/d' $PACKAGE_FILE
+          sed -i '' '/^[[:space:]]*\.binaryTarget($/{N;/\n[[:space:]]*),\{0,1\}$/d;}' $PACKAGE_FILE
+        done
     - name: Change path of the framework
       shell: bash
-      env:
-        PACKAGE_FILE: ${{ inputs.package-file }}
       run: |
-        sed -i '' 's/url.*//g' $PACKAGE_FILE
-        sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' $PACKAGE_FILE
-        sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' $PACKAGE_FILE
-        sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' $PACKAGE_FILE
-        sed -i '' 's/checksum: ".*" \/\/Sentry-WithoutUIKitOrAppKit-WithARM64e/path: "Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip"/g' $PACKAGE_FILE
-        sed -i '' 's/checksum: ".*" \/\/Sentry-WithoutUIKitOrAppKit/path: "Sentry-WithoutUIKitOrAppKit.xcframework.zip"/g' $PACKAGE_FILE
+        for PACKAGE_FILE in $(find . -maxdepth 1 -name "Package.swift" -o -name "Package@swift-*.swift" | sort); do
+          sed -i '' 's/url.*//g' $PACKAGE_FILE
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Static/path: "Sentry.xcframework.zip"/g' $PACKAGE_FILE
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic-WithARM64e/path: "Sentry-Dynamic-WithARM64e.xcframework.zip"/g' $PACKAGE_FILE
+          sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' $PACKAGE_FILE
+          sed -i '' 's/checksum: ".*" \/\/Sentry-WithoutUIKitOrAppKit-WithARM64e/path: "Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip"/g' $PACKAGE_FILE
+          sed -i '' 's/checksum: ".*" \/\/Sentry-WithoutUIKitOrAppKit/path: "Sentry-WithoutUIKitOrAppKit.xcframework.zip"/g' $PACKAGE_FILE
+        done
