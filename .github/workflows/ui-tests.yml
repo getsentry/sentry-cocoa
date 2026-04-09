@@ -67,7 +67,7 @@ jobs:
       macos_version: macos-15
       codecov_test_analytics: true
       device: iPhone 16 Pro
-      test-destination-os: "18.4"
+      test-destination-os: "18.5"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -89,7 +89,7 @@ jobs:
             runs-on: macos-15
             xcode: "16.4"
             device: iPhone 16 Pro
-            test-destination-os: "18.4"
+            test-destination-os: "18.5"
           - name: iOS 26
             runs-on: macos-15
             platform: "iOS"
@@ -121,7 +121,7 @@ jobs:
       macos_version: macos-15
       codecov_test_analytics: true
       device: iPhone 16 Pro
-      test-destination-os: "18.4"
+      test-destination-os: "18.5"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 

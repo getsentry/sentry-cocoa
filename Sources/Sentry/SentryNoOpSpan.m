@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)tags
 {
-    return @{};
+    return @{ };
 }
 
 - (BOOL)isFinished
@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary *)serialize
 {
-    return @{};
+    return @{ };
 }
 
 @end

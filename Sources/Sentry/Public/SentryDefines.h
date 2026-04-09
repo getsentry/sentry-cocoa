@@ -181,15 +181,14 @@ typedef NS_ENUM(NSUInteger,
  * Static internal helper to convert enum to string.
  */
 static DEPRECATED_MSG_ATTRIBUTE(
-    "Use nameForSentryLevel() instead.") NSString *_Nonnull const SentryLevelNames[]
-    = {
-          @"none",
-          @"debug",
-          @"info",
-          @"warning",
-          @"error",
-          @"fatal",
-      };
+    "Use nameForSentryLevel() instead.") NSString *_Nonnull const SentryLevelNames[] = {
+    @"none",
+    @"debug",
+    @"info",
+    @"warning",
+    @"error",
+    @"fatal",
+};
 
 static NSUInteger const defaultMaxBreadcrumbs = 100;
 

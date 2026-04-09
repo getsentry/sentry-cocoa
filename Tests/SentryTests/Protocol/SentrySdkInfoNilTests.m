@@ -22,7 +22,7 @@
                                integrations:@[]
                                    features:@[]
                                    packages:@[]
-                                   settings:[[SentrySDKSettings alloc] initWithDict:@{}]];
+                                   settings:[[SentrySDKSettings alloc] initWithDict:@{ }]];
 #pragma clang diagnostic pop
 
     [self assertSdkInfoIsEmtpy:actual];
@@ -38,7 +38,7 @@
                                integrations:@[]
                                    features:@[]
                                    packages:@[]
-                                   settings:[[SentrySDKSettings alloc] initWithDict:@{}]];
+                                   settings:[[SentrySDKSettings alloc] initWithDict:@{ }]];
 #pragma clang diagnostic pop
 
     [self assertSdkInfoIsEmtpy:actual];
@@ -54,7 +54,7 @@
                                integrations:nil
                                    features:@[]
                                    packages:@[]
-                                   settings:[[SentrySDKSettings alloc] initWithDict:@{}]];
+                                   settings:[[SentrySDKSettings alloc] initWithDict:@{ }]];
 #pragma clang diagnostic pop
 
     [self assertSdkInfoIsEmtpy:actual];
@@ -70,7 +70,7 @@
                                integrations:@[]
                                    features:nil
                                    packages:@[]
-                                   settings:[[SentrySDKSettings alloc] initWithDict:@{}]];
+                                   settings:[[SentrySDKSettings alloc] initWithDict:@{ }]];
 #pragma clang diagnostic pop
 
     [self assertSdkInfoIsEmtpy:actual];
@@ -86,7 +86,7 @@
                                integrations:@[]
                                    features:@[]
                                    packages:nil
-                                   settings:[[SentrySDKSettings alloc] initWithDict:@{}]];
+                                   settings:[[SentrySDKSettings alloc] initWithDict:@{ }]];
 #pragma clang diagnostic pop
 
     [self assertSdkInfoIsEmtpy:actual];

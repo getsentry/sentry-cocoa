@@ -82,14 +82,14 @@ std::string
 symbolicate(std::uintptr_t address) noexcept
 {
     if (address == 0) {
-        return {};
+        return { };
     }
     struct dl_info info;
     if (dladdr(reinterpret_cast<void *>(address), &info) == 0) {
-        return {};
+        return { };
     }
     if (info.dli_sname == nullptr) {
-        return {};
+        return { };
     }
     return std::string(info.dli_sname);
 }

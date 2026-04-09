@@ -461,7 +461,7 @@ NS_ASSUME_NONNULL_BEGIN
         [frames addObject:frame];
     }
 
-    SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:frames registers:@{}];
+    SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:frames registers:@{ }];
 
     return stacktrace;
 }
