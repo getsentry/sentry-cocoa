@@ -1,5 +1,5 @@
 // swift-tools-version:6.1
-#if canImport(Darwin)
+#if canImport(Darwin)   
 import Darwin.C
 #elseif canImport(Glibc)
 import Glibc
@@ -9,7 +9,7 @@ import MSVCRT
 
 import PackageDescription
 
-let products: [Product] = [
+var products: [Product] = [
     .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
     .library(name: "Sentry-Dynamic", targets: ["Sentry-Dynamic"]),
     .library(name: "Sentry-Dynamic-WithARM64e", targets: ["Sentry-Dynamic-WithARM64e"]),
@@ -18,7 +18,7 @@ let products: [Product] = [
     .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"])
 ]
 
-let targets: [Target] = [
+var targets: [Target] = [
     .binaryTarget(
         name: "Sentry",
         url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.58.0/Sentry.xcframework.zip",
@@ -44,7 +44,7 @@ let targets: [Target] = [
         url: "https://github.com/getsentry/sentry-cocoa/releases/download/8.58.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
         checksum: "93377c7cb7a020c5bab375ca32bd26f954e54dcb1b21860b9c6dff0f3476413e" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
-    .target(
+    .target (
         name: "SentrySwiftUI",
         dependencies: ["Sentry", "SentryInternal"],
         path: "Sources/SentrySwiftUI",
@@ -63,19 +63,64 @@ let targets: [Target] = [
         name: "SentryCppHelper",
         path: "Sources/SentryCppHelper",
         linkerSettings: [
-            .linkedLibrary("c++")
+         .linkedLibrary("c++")
         ]
     )
 ]
 
+let env = getenv("EXPERIMENTAL_SPM_BUILDS")
+if let env = env, String(cString: env, encoding: .utf8) == "1" {
+    products.append(.library(name: "SentrySPM", type: .dynamic, targets: ["SentryObjc"]))
+    targets.append(contentsOf: [
+        // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
+        .target(
+            name: "SentryHeaders",
+            path: "Sources/Sentry", 
+            sources: ["SentryDummyPublicEmptyClass.m"],
+            publicHeadersPath: "Public"
+        ),
+        .target(
+            name: "_SentryPrivate",
+            dependencies: ["SentryHeaders"],
+            path: "Sources/Sentry",
+            sources: ["SentryDummyPrivateEmptyClass.m"],
+            publicHeadersPath: "include",
+            cSettings: [.headerSearchPath("include/HybridPublic")]),
+        .target(
+            name: "SentrySwift",
+            dependencies: ["_SentryPrivate", "SentryHeaders"],
+            path: "Sources/Swift",
+            swiftSettings: [
+                .unsafeFlags(["-enable-library-evolution"]),
+                // Some API breaking changes are necessary for the framework to compile with SPM, we’ll ship
+                // those in V9.
+                .define("SDK_V9")
+            ]),
+        .target(
+            name: "SentryObjc",
+            dependencies: ["SentrySwift"],
+            path: "Sources",
+            exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper"],
+            cSettings: [
+                .headerSearchPath("Sentry/include/HybridPublic"),
+                .headerSearchPath("Sentry"),
+                .headerSearchPath("SentryCrash/Recording"),
+                .headerSearchPath("SentryCrash/Recording/Monitors"),
+                .headerSearchPath("SentryCrash/Recording/Tools"),
+                .headerSearchPath("SentryCrash/Installations"),
+                .headerSearchPath("SentryCrash/Reporting/Filters"),
+                .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
+                .define("SDK_V9")])
+    ])
+}
+
 let package = Package(
     name: "Sentry",
-    platforms: [.iOS(.v12), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v4)],
+    platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],
     products: products,
     traits: [
         .default(enabledTraits: [])
     ],
     targets: targets,
-    swiftLanguageModes: [.v5],
     cxxLanguageStandard: .cxx14
 )
