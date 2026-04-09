@@ -25,7 +25,8 @@
                       sampleRate:sampleRate
                       sampleRand:nil
                          sampled:sampled
-                        replayId:replayId];
+                        replayId:replayId
+                           orgId:nil];
 }
 
 - (instancetype)initWithTraceId:(SentryId *)traceId
@@ -38,6 +39,29 @@
                         sampled:(nullable NSString *)sampled
                        replayId:(nullable NSString *)replayId
 {
+    return [self initWithTraceId:traceId
+                       publicKey:publicKey
+                     releaseName:releaseName
+                     environment:environment
+                     transaction:transaction
+                      sampleRate:sampleRate
+                      sampleRand:sampleRand
+                         sampled:sampled
+                        replayId:replayId
+                           orgId:nil];
+}
+
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                      publicKey:(NSString *)publicKey
+                    releaseName:(nullable NSString *)releaseName
+                    environment:(nullable NSString *)environment
+                    transaction:(nullable NSString *)transaction
+                     sampleRate:(nullable NSString *)sampleRate
+                     sampleRand:(nullable NSString *)sampleRand
+                        sampled:(nullable NSString *)sampled
+                       replayId:(nullable NSString *)replayId
+                          orgId:(nullable NSString *)orgId
+{
 
     if (self = [super init]) {
         _traceId = traceId;
@@ -49,6 +73,7 @@
         _sampleRand = sampleRand;
         _sampled = sampled;
         _replayId = replayId;
+        _orgId = orgId;
     }
 
     return self;
@@ -88,6 +113,10 @@
 
     if (_replayId != nil) {
         [information setValue:_replayId forKey:@"sentry-replay_id"];
+    }
+
+    if (_orgId != nil) {
+        [information setValue:_orgId forKey:@"sentry-org_id"];
     }
 
     return [SentryBaggageSerialization encodeDictionary:information];

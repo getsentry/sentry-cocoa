@@ -155,4 +155,52 @@ class SentryBaggageTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(header, "sentry-public_key=publicKey,sentry-replay_id=replay-id,sentry-trace_id=00000000000000000000000000000000")
     }
+
+    // MARK: - orgId tests
+
+    func testToHTTPHeader_withOrgId_shouldIncludeOrgId() {
+        // -- Arrange --
+        let baggage = Baggage(
+            trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: nil,
+            transaction: nil,
+            sampleRate: nil, sampleRand: nil, sampled: nil, replayId: nil, orgId: "123"
+        )
+
+        // -- Act --
+        let header = baggage.toHTTPHeader(withOriginalBaggage: nil)
+
+        // -- Assert --
+        XCTAssertTrue(header.contains("sentry-org_id=123"))
+    }
+
+    func testToHTTPHeader_withNilOrgId_shouldNotIncludeOrgId() {
+        // -- Arrange --
+        let baggage = Baggage(
+            trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: nil,
+            transaction: nil,
+            sampleRate: nil, sampleRand: nil, sampled: nil, replayId: nil, orgId: nil
+        )
+
+        // -- Act --
+        let header = baggage.toHTTPHeader(withOriginalBaggage: nil)
+
+        // -- Assert --
+        XCTAssertFalse(header.contains("sentry-org_id"))
+    }
+
+    func testToHTTPHeader_orgIdInOriginalBaggage_shouldBeOverwritten() {
+        // -- Arrange --
+        let baggage = Baggage(
+            trace: SentryId.empty, publicKey: "publicKey", releaseName: nil, environment: nil,
+            transaction: nil,
+            sampleRate: nil, sampleRand: nil, sampled: nil, replayId: nil, orgId: "456"
+        )
+
+        // -- Act --
+        let header = baggage.toHTTPHeader(withOriginalBaggage: ["sentry-org_id": "123"])
+
+        // -- Assert --
+        XCTAssertTrue(header.contains("sentry-org_id=456"))
+        XCTAssertFalse(header.contains("sentry-org_id=123"))
+    }
 }

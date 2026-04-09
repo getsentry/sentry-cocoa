@@ -304,6 +304,13 @@
             block:^(BOOL value) { sentryOptions.enableMetricKitRawPayload = value; }];
 #endif // SENTRY_HAS_METRIC_KIT
 
+    [self setBool:options[@"strictTraceContinuation"]
+            block:^(BOOL value) { sentryOptions.strictTraceContinuation = value; }];
+
+    if ([options[@"orgId"] isKindOfClass:[NSString class]]) {
+        sentryOptions.orgId = SENTRY_UNWRAP_NULLABLE(NSString, options[@"orgId"]);
+    }
+
     [self setBool:options[@"enableSpotlight"]
             block:^(BOOL value) { sentryOptions.enableSpotlight = value; }];
 
