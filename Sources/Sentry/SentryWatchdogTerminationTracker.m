@@ -113,13 +113,13 @@
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *previousContext =
         [self.scopePersistentStore readPreviousContextFromDisk];
     NSMutableDictionary *context =
-        [[NSMutableDictionary alloc] initWithDictionary:previousContext ?: @{}];
+        [[NSMutableDictionary alloc] initWithDictionary:previousContext ?: @{ }];
 
     // We only report watchdog terminations if the app was in the foreground. So, we can
     // already set it. We can't set it in the client because the client uses the current
     // application state, and the app could be in the background when executing this code.
     NSMutableDictionary *appContext =
-        [[NSMutableDictionary alloc] initWithDictionary:event.context[@"app"] ?: @{}];
+        [[NSMutableDictionary alloc] initWithDictionary:event.context[@"app"] ?: @{ }];
     appContext[@"in_foreground"] = @(YES);
     context[@"app"] = appContext;
 

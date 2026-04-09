@@ -125,7 +125,7 @@ xcodebuild -workspace Sentry.xcworkspace \
     CODE_SIGNING_REQUIRED=NO \
     build 2>&1 | tee raw-build.log | xcbeautify
 
-xcrun simctl runtime dyld_shared_cache update iOS18.4
+xcrun simctl runtime dyld_shared_cache update iOS18.5
 
 log "Installing app on simulator."
 xcrun simctl install $DEVICE_ID DerivedData/Build/Products/Debug-iphonesimulator/SwiftUICrashTest.app

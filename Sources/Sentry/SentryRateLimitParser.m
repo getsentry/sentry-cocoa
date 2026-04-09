@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary<NSNumber *, NSDate *> *)parse:(NSString *)header
 {
     if ([header length] == 0) {
-        return @{};
+        return @{ };
     }
 
     NSMutableDictionary<NSNumber *, NSDate *> *rateLimits = [NSMutableDictionary new];

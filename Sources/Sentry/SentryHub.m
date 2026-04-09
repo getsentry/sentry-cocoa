@@ -395,7 +395,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
 {
-    return [self startTransactionWithContext:transactionContext customSamplingContext:@{}];
+    return [self startTransactionWithContext:transactionContext customSamplingContext:@{ }];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -403,7 +403,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     return [self startTransactionWithContext:transactionContext
                                  bindToScope:bindToScope
-                       customSamplingContext:@{}];
+                       customSamplingContext:@{ }];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
