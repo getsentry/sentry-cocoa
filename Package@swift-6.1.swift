@@ -101,6 +101,7 @@ if let env = env, String(cString: env, encoding: .utf8) == "1" {
             dependencies: ["SentrySwift"],
             path: "Sources",
             exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper"],
+            publicHeadersPath: "Sentry/include",
             cSettings: [
                 .headerSearchPath("Sentry/include/HybridPublic"),
                 .headerSearchPath("Sentry"),
