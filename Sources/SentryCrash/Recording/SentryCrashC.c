@@ -31,6 +31,7 @@
 #include "SentryCrashFileUtils.h"
 #include "SentryCrashMonitorContext.h"
 #include "SentryCrashMonitor_AppState.h"
+#include "SentryCrashMonitor_Signal.h"
 #include "SentryCrashMonitor_System.h"
 #include "SentryCrashObjC.h"
 #include "SentryCrashReport.h"
@@ -62,6 +63,21 @@ static void (*g_saveTransaction)(void) = 0;
 // ============================================================================
 #pragma mark - Utility -
 // ============================================================================
+
+#ifdef SENTRY_CRASH_MANAGED_RUNTIME
+/** Preload signal handlers before the managed (.NET/Mono) runtime installs its
+ * own, to ensure the correct handler chain order:
+ * managed runtime -> SentryCrash -> system.
+ */
+__attribute__((constructor)) static void
+onPreload(void)
+{
+    if (g_installed) {
+        return;
+    }
+    sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeSignal);
+}
+#endif
 
 // ============================================================================
 #pragma mark - Callbacks -
@@ -169,6 +185,12 @@ sentrycrash_setMonitoring(SentryCrashMonitorType monitors)
     }
     // Return what we will be monitoring in future.
     return g_monitoring;
+}
+
+void
+sentrycrash_ignore_next_signal(int signum)
+{
+    sentrycrashcm_signal_ignore_next(signum);
 }
 
 void

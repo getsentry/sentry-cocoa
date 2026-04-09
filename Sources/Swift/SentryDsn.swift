@@ -106,6 +106,23 @@ public final class SentryDsn: NSObject {
         return endpoint
     }
     
+    private static let orgIdRegex = try? NSRegularExpression(pattern: "^o(\\d+)\\.")
+
+    /// Extracts the organization ID from the DSN host.
+    ///
+    /// For example, given a DSN with host `o123.ingest.sentry.io`, this returns `"123"`.
+    /// Returns `nil` if the host does not match the expected pattern.
+    @_spi(Private) @objc
+    public var orgId: String? {
+        guard let host = url.host,
+              let regex = SentryDsn.orgIdRegex,
+              let match = regex.firstMatch(in: host, range: NSRange(host.startIndex..., in: host)),
+              let range = Range(match.range(at: 1), in: host) else {
+            return nil
+        }
+        return String(host[range])
+    }
+
     /// Returns the base API endpoint URL for this DSN.
     /// - Returns: The base endpoint URL.
     private func getBaseEndpoint() -> URL {

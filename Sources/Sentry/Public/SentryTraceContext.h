@@ -66,6 +66,11 @@ NS_SWIFT_NAME(TraceContext)
 @property (nullable, nonatomic, readonly) NSString *replayId;
 
 /**
+ * The organization ID extracted from the DSN or configured explicitly.
+ */
+@property (nullable, nonatomic, readonly) NSString *orgId;
+
+/**
  * Create a SentryBaggage with the information of this SentryTraceContext.
  */
 - (SentryBaggage *)toBaggage;

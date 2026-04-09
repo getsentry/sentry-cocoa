@@ -49,6 +49,7 @@
 
 static volatile bool g_isEnabled = false;
 static bool g_isSigtermReportingEnabled = false;
+static _Thread_local int tl_ignoreSignum = 0;
 
 static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
@@ -62,6 +63,23 @@ static stack_t g_signalStack = { 0 };
 static struct sigaction *g_previousSignalHandlers = NULL;
 
 static char g_eventID[37];
+
+// ============================================================================
+#    pragma mark - Utility -
+// ============================================================================
+
+static void
+restorePreviousSignalHandler(int sigNum)
+{
+    const int *fatalSignals = sentrycrashsignal_fatalSignals();
+    int count = sentrycrashsignal_numFatalSignals();
+    for (int i = 0; i < count; i++) {
+        if (fatalSignals[i] == sigNum) {
+            sigaction(sigNum, &g_previousSignalHandlers[i], NULL);
+            return;
+        }
+    }
+}
 
 // ============================================================================
 #    pragma mark - Callbacks -
@@ -82,8 +100,11 @@ static char g_eventID[37];
 static void
 handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
+    int ignoreSignum = tl_ignoreSignum;
+    tl_ignoreSignum = 0;
+
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped signal %d", sigNum);
-    if (g_isEnabled) {
+    if (g_isEnabled && sigNum != ignoreSignum) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         // Signal handlers preempt the crashing thread, so reentrancy can
@@ -112,6 +133,10 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
     }
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
+    if (!g_isEnabled || sigNum == ignoreSignum) {
+        // Avoid re-entering this handler on raise().
+        restorePreviousSignalHandler(sigNum);
+    }
     // This is technically not allowed, but it works in OSX and iOS.
     raise(sigNum);
 }
@@ -123,6 +148,15 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 static bool
 installSignalHandler(void)
 {
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+    // Already installed by onPreload(). Reinstalling would overwrite
+    // g_previousSignalHandlers with the managed runtime's handler instead
+    // of the original system handler.
+    if (g_previousSignalHandlers != NULL) {
+        return true;
+    }
+#    endif
+
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Installing signal handler.");
 
 #    if SENTRY_HAS_SIGNAL_STACK
@@ -222,6 +256,10 @@ failed:
 static void
 uninstallSignalHandler(void)
 {
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+    // Keep the handlers installed to preserve the managed runtime's signal
+    // chain. handleSignal() restores individual handlers before re-raising.
+#    else
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Uninstalling signal handlers.");
 
     const int *fatalSignals = sentrycrashsignal_fatalSignals();
@@ -237,10 +275,11 @@ uninstallSignalHandler(void)
         sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
     }
 
-#    if SENTRY_HAS_SIGNAL_STACK
+#        if SENTRY_HAS_SIGNAL_STACK
     g_signalStack = (stack_t) { 0 };
-#    endif
+#        endif
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Signal handlers uninstalled.");
+#    endif
 }
 
 static void
@@ -281,6 +320,14 @@ sentrycrashcm_setEnableSigtermReporting(bool enabled)
 {
 #if SENTRY_HAS_SIGNAL
     g_isSigtermReportingEnabled = enabled;
+#endif
+}
+
+void
+sentrycrashcm_signal_ignore_next(int signum)
+{
+#if SENTRY_HAS_SIGNAL
+    tl_ignoreSignum = signum;
 #endif
 }
 

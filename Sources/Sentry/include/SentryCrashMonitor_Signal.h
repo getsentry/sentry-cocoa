@@ -41,6 +41,12 @@ extern "C" {
  */
 void sentrycrashcm_setEnableSigtermReporting(bool enabled);
 
+/** Tell the signal monitor to ignore the next occurrence of the given signal
+ * on the calling thread. Consumed by the next signal delivery, even if it
+ * doesn't match.
+ */
+void sentrycrashcm_signal_ignore_next(int signum);
+
 /** Access the Monitor API.
  */
 SentryCrashMonitorAPI *sentrycrashcm_signal_getAPI(void);
