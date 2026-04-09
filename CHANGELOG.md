@@ -12,6 +12,7 @@
 ### Fixes
 
 - Scope clipOut masking to active clip bounds (#7780)
+- Fix AOT interop with managed .NET runtimes (#6193)
 
 ## 9.9.0
 

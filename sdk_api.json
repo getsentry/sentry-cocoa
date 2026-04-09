@@ -28620,6 +28620,42 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int32",
+                "printedName": "Swift.Int32",
+                "usr": "s:s5Int32V"
+              }
+            ],
+            "declAttributes": [
+              "Dynamic",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "Sentry",
+            "name": "ignoreNextSignal",
+            "objc_name": "ignoreNextSignal:",
+            "printedName": "ignoreNextSignal(_:)",
+            "static": true,
+            "usr": "c:objc(cs)PrivateSentrySDKOnly(cm)ignoreNextSignal:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "ProtocolComposition",
                     "printedName": "Any"
                   },
