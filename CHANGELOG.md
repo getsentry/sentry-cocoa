@@ -5,6 +5,7 @@
 ### Fixes
 
 - Added `Package@swift-6.2.swift` to avoid issues with unsafe build flags on SPM > 6.2 (#7778)
+
 ## 9.10.0
 
 ### Features
