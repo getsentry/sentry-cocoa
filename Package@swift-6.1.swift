@@ -123,5 +123,6 @@ let package = Package(
         .default(enabledTraits: [])
     ],
     targets: targets,
+    swiftLanguageModes: [.v5],
     cxxLanguageStandard: .cxx14
 )
