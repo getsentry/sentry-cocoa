@@ -10,9 +10,11 @@ MACH_O_TYPE = mh_dylib
 OTHER_LDFLAGS_DebugWithoutUIKit = -framework SentryWithoutUIKit
 OTHER_LDFLAGS_ReleaseWithoutUIKit = -framework SentryWithoutUIKit
 OTHER_LDFLAGS_Debug = -framework Sentry
+OTHER_LDFLAGS_DebugManaged = -framework Sentry
 OTHER_LDFLAGS_Test = -framework Sentry
 OTHER_LDFLAGS_TestCI = -framework Sentry
 OTHER_LDFLAGS_Release = -framework Sentry
+OTHER_LDFLAGS_ReleaseManaged = -framework Sentry
 OTHER_LDFLAGS = $(OTHER_LDFLAGS_$(CONFIGURATION))
 ARCHS = $(ARCHS_STANDARD) arm64e
 ARCHS[sdk=*simulator] = $(ARCHS_STANDARD)

@@ -11,6 +11,7 @@ EXPECTED_DYNAMIC_CHECKSUM=""
 EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM=""
 EXPECTED_WITHOUT_UIKIT_OR_APPKIT_CHECKSUM=""
 EXPECTED_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E_CHECKSUM=""
+EXPECTED_MANAGED_CHECKSUM=""
 EXPECTED_LAST_RELEASE_RUNID=""
 
 while [[ $# -gt 0 ]]; do
@@ -33,6 +34,10 @@ while [[ $# -gt 0 ]]; do
         ;;
     --without-uikit-or-appkit-with-arm64e-checksum)
         EXPECTED_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E_CHECKSUM="$2"
+        shift 2
+        ;;
+    --managed-checksum)
+        EXPECTED_MANAGED_CHECKSUM="$2"
         shift 2
         ;;
     --last-release-runid)
@@ -69,6 +74,11 @@ fi
 
 if [ -z "$EXPECTED_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E_CHECKSUM" ]; then
     echo "Error: --without-uikit-or-appkit-with-arm64e-checksum is required"
+    exit 1
+fi
+
+if [ -z "$EXPECTED_MANAGED_CHECKSUM" ]; then
+    echo "Error: --managed-checksum is required"
     exit 1
 fi
 
@@ -123,7 +133,14 @@ for package_file in $PACKAGE_FILES; do
         echo "::error::Expected checksum to be $EXPECTED_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E_CHECKSUM but got $UPDATED_PACKAGE_SHA in $package_file"
         exit 1
     fi
-    
+
+    # Verify managed checksum
+    UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Managed" "$package_file" | cut -d '"' -f 2)
+    if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_MANAGED_CHECKSUM" ]; then
+        echo "::error::Expected checksum to be $EXPECTED_MANAGED_CHECKSUM but got $UPDATED_PACKAGE_SHA in $package_file"
+        exit 1
+    fi
+
     echo "✓ All checksums verified in $package_file"
 done
 

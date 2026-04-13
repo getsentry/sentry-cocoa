@@ -10,13 +10,15 @@ BASE_SLICES_JSON='[
   {"name": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic"},
   {"name": "Sentry", "macho-type": "staticlib", "id": "sentry-static"},
   {"name": "SentrySwiftUI", "macho-type": "mh_dylib", "id": "sentry-swiftui"},
-  {"name": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic"}
+  {"name": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic"},
+  {"name": "Sentry", "macho-type": "mh_dylib", "suffix": "-Managed", "configuration-suffix": "Managed", "id": "sentry-managed"}
 ]'
 BASE_VARIANTS_JSON='[
   {"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-Dynamic", "id": "sentry-dynamic", "excluded-archs": "arm64e"},
   {"scheme": "Sentry", "macho-type": "staticlib", "id": "sentry-static"},
   {"scheme": "SentrySwiftUI", "macho-type": "mh_dylib", "id": "sentry-swiftui"},
-  {"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic", "excluded-archs": "arm64e"}
+  {"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic", "excluded-archs": "arm64e"},
+  {"scheme": "Sentry", "macho-type": "mh_dylib", "suffix": "-Managed", "configuration-suffix": "Managed", "id": "sentry-managed", "excluded-archs": "arm64e"}
 ]'
 BASE_SDKS_JSON='[
   "iphoneos",

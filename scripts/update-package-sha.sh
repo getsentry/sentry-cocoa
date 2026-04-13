@@ -18,6 +18,7 @@ NEW_CHECKSUM_DYNAMIC=$(shasum -a 256 XCFrameworkBuildPath/Sentry-Dynamic.xcframe
 NEW_CHECKSUM_DYNAMIC_WITH_ARM64E=$(shasum -a 256 XCFrameworkBuildPath/Sentry-Dynamic-WithARM64e.xcframework.zip | awk '{print $1}')
 NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT=$(shasum -a 256 XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit.xcframework.zip | awk '{print $1}')
 NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E=$(shasum -a 256 XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip | awk '{print $1}')
+NEW_CHECKSUM_MANAGED=$(shasum -a 256 XCFrameworkBuildPath/Sentry-Managed.xcframework.zip | awk '{print $1}')
 
 os=$(uname)
 
@@ -30,12 +31,14 @@ for package_file in $PACKAGE_FILES; do
       sed -i "s/checksum: \".*\" \/\/Sentry-Dynamic-WithARM64e/checksum: \"$NEW_CHECKSUM_DYNAMIC_WITH_ARM64E\" \/\/Sentry-Dynamic-WithARM64e/" "$package_file"
       sed -i "s/checksum: \".*\" \/\/Sentry-WithoutUIKitOrAppKit/checksum: \"$NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT\" \/\/Sentry-WithoutUIKitOrAppKit/" "$package_file"
       sed -i "s/checksum: \".*\" \/\/Sentry-WithoutUIKitOrAppKit-WithARM64e/checksum: \"$NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E\" \/\/Sentry-WithoutUIKitOrAppKit-WithARM64e/" "$package_file"
+      sed -i "s/checksum: \".*\" \/\/Sentry-Managed/checksum: \"$NEW_CHECKSUM_MANAGED\" \/\/Sentry-Managed/" "$package_file"
   else
       sed -i "" "s/checksum: \".*\" \/\/Sentry-Static/checksum: \"$NEW_CHECKSUM_STATIC\" \/\/Sentry-Static/" "$package_file"
       sed -i "" "s/checksum: \".*\" \/\/Sentry-Dynamic/checksum: \"$NEW_CHECKSUM_DYNAMIC\" \/\/Sentry-Dynamic/" "$package_file"
       sed -i "" "s/checksum: \".*\" \/\/Sentry-Dynamic-WithARM64e/checksum: \"$NEW_CHECKSUM_DYNAMIC_WITH_ARM64E\" \/\/Sentry-Dynamic-WithARM64e/" "$package_file"
       sed -i "" "s/checksum: \".*\" \/\/Sentry-WithoutUIKitOrAppKit/checksum: \"$NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT\" \/\/Sentry-WithoutUIKitOrAppKit/" "$package_file"
       sed -i "" "s/checksum: \".*\" \/\/Sentry-WithoutUIKitOrAppKit-WithARM64e/checksum: \"$NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E\" \/\/Sentry-WithoutUIKitOrAppKit-WithARM64e/" "$package_file"
+      sed -i "" "s/checksum: \".*\" \/\/Sentry-Managed/checksum: \"$NEW_CHECKSUM_MANAGED\" \/\/Sentry-Managed/" "$package_file"
   fi
 done
 

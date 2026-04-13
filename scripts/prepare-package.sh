@@ -121,6 +121,7 @@ for PACKAGE_FILE in "${PACKAGE_FILES[@]}"; do
     sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' "$PACKAGE_FILE"
     sed -i '' 's/checksum: ".*" \/\/Sentry-WithoutUIKitOrAppKit-WithARM64e/path: "Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip"/g' "$PACKAGE_FILE"
     sed -i '' 's/checksum: ".*" \/\/Sentry-WithoutUIKitOrAppKit/path: "Sentry-WithoutUIKitOrAppKit.xcframework.zip"/g' "$PACKAGE_FILE"
+    sed -i '' 's/checksum: ".*" \/\/Sentry-Managed/path: "Sentry-Managed.xcframework.zip"/g' "$PACKAGE_FILE"
 
     # Clean up orphaned commas and fix syntax.
     sed -i '' '/^[[:space:]]*,$/d' "$PACKAGE_FILE"

@@ -16,6 +16,7 @@ var products: [Product] = [
     .library(name: "Sentry-Dynamic-WithARM64e", targets: ["Sentry-Dynamic-WithARM64e"]),
     .library(name: "Sentry-WithoutUIKitOrAppKit", targets: ["Sentry-WithoutUIKitOrAppKit", "SentryCppHelper"]),
     .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
+    .library(name: "Sentry-Managed", targets: ["Sentry-Managed"]),
     .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
 ]
@@ -45,6 +46,11 @@ var targets: [Target] = [
         name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
         url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.10.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
         checksum: "abd3b0836ce6637cbc274e7d979b345ec3c2f46857d5412e78c1d2f0fe3397b0" //Sentry-WithoutUIKitOrAppKit-WithARM64e
+    ),
+    .binaryTarget(
+        name: "Sentry-Managed",
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.10.0/Sentry-Managed.xcframework.zip",
+        checksum: "0000000000000000000000000000000000000000000000000000000000000000" //Sentry-Managed
     ),
     .target(
         name: "SentrySwiftUI",
