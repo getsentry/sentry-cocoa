@@ -22,6 +22,7 @@ This document was generated with Claude using the prompt below. To refresh it, r
 - [Monitor System In Depth](#monitor-system-in-depth)
 - [Thread Model](#thread-model)
 - [KSCrash Divergence Analysis](#kscrash-divergence-analysis)
+- [Managed Runtime Interop](#managed-runtime-interop)
 - [Known Issues & Risks](#known-issues--risks)
 - [Developer Workflow](#developer-workflow)
 - [Appendix: Key File Reference](#appendix-key-file-reference)
@@ -374,6 +375,9 @@ These features were added by Sentry and do not exist in upstream KSCrash:
 8. **C++ Exception Swapper** (`SentryCrashCxaThrowSwapper.c/.h`)
    - Runtime `__cxa_throw` hooking (inspired by fishhook + Yandex approach)
 
+9. **Managed Runtime Interop** (`SENTRY_CRASH_MANAGED_RUNTIME`)
+   - Signal handler preloading and lifecycle changes for .NET/Mono embedding. See [Managed Runtime Interop](#managed-runtime-interop).
+
 ### Recent Upstream Alignment (2026)
 
 Sentry maintains a watching approach, selectively adopting KSCrash improvements:
@@ -435,6 +439,28 @@ The tracking issue [sentry-cocoa #5619](https://github.com/getsentry/sentry-coco
 | Add clang_version field to system info       | [#668](https://github.com/kstenerud/KSCrash/pull/668) | Adds compiler version to system info.                                                                                                            |
 | Add binary architecture field to system info | [#669](https://github.com/kstenerud/KSCrash/pull/669) | Helps with [#6180](https://github.com/getsentry/sentry-cocoa/issues/6180) (cpu_type/cpu_subtype) and architecture reporting.                     |
 | Add Rosetta detection field                  | [#671](https://github.com/kstenerud/KSCrash/pull/671) | Indicates when app is running under Rosetta.                                                                                                     |
+
+---
+
+## Managed Runtime Interop
+
+When sentry-cocoa is embedded in a managed runtime (e.g. .NET/Mono via sentry-dotnet), SentryCrash must install signal handlers **before** the managed runtime to ensure the correct chain order:
+
+```mermaid
+flowchart LR
+  Signal --> Runtime["Managed runtime"] --> SentryCrash --> System["System default"]
+```
+
+This order allows the managed runtime to convert certain signals (e.g. `SIGSEGV` for null reference) into managed exceptions, while real native crashes are chained to SentryCrash.
+
+The `SENTRY_CRASH_MANAGED_RUNTIME` compile flag, set by downstream SDKs, enables this behavior. The `onPreload()` constructor (`__attribute__((constructor))`) in `SentryCrashC.c` runs before `main()`, ensuring signal handlers are in place before the managed runtime initializes. Normal SDK initialization from managed code would be too late, as the runtime's handlers are already installed by that point. With this flag, the signal handler lifecycle changes:
+
+- `installSignalHandler()` is a no-op if already installed, preventing `start()` from overwriting `g_previousSignalHandlers` with the managed runtime's handler.
+- `uninstallSignalHandler()` is a no-op, preserving the chain across `close()`/`start()` cycles. `g_isEnabled` controls whether crashes are processed or passed through.
+- When disabled, `handleSignal()` restores the previous handler for that signal before re-raising to avoid looping.
+- The constructor does not set `g_isEnabled`, so `enableCrashHandler = false` is respected.
+
+Related: [#6193](https://github.com/getsentry/sentry-cocoa/pull/6193), [sentry-dotnet#3954](https://github.com/getsentry/sentry-dotnet/issues/3954)
 
 ---
 

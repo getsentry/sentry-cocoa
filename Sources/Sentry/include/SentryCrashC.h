@@ -51,6 +51,15 @@ SentryCrashMonitorType sentrycrash_install(const char *appName, const char *cons
 
 void sentrycrash_uninstall(void);
 
+/** Tell SentryCrash to ignore the next occurrence of the given signal on the
+ * calling thread. Used to prevent duplicate crash reports when the host runtime
+ * is about to raise a signal (e.g. SIGABRT) that has already been captured as
+ * a managed exception.
+ *
+ * @param signum The signal number to ignore (e.g. SIGABRT).
+ */
+void sentrycrash_ignore_next_signal(int signum);
+
 /** Set the crash types that will be handled.
  * Some crash types may not be enabled depending on circumstances (e.g. running
  * in a debugger).

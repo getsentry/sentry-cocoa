@@ -59,6 +59,11 @@ NS_SWIFT_NAME(Baggage)
 
 @property (nullable, nonatomic, strong) NSString *replayId;
 
+/**
+ * The organization ID extracted from the DSN or configured explicitly.
+ */
+@property (nullable, nonatomic, readonly) NSString *orgId;
+
 - (instancetype)initWithTraceId:(SentryId *)traceId
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
@@ -77,6 +82,17 @@ NS_SWIFT_NAME(Baggage)
                      sampleRand:(nullable NSString *)sampleRand
                         sampled:(nullable NSString *)sampled
                        replayId:(nullable NSString *)replayId;
+
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                      publicKey:(NSString *)publicKey
+                    releaseName:(nullable NSString *)releaseName
+                    environment:(nullable NSString *)environment
+                    transaction:(nullable NSString *)transaction
+                     sampleRate:(nullable NSString *)sampleRate
+                     sampleRand:(nullable NSString *)sampleRand
+                        sampled:(nullable NSString *)sampled
+                       replayId:(nullable NSString *)replayId
+                          orgId:(nullable NSString *)orgId;
 
 - (NSString *)toHTTPHeaderWithOriginalBaggage:(NSDictionary *_Nullable)originalBaggage;
 
