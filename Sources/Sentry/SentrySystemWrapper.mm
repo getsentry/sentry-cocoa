@@ -6,6 +6,10 @@
 #    import <mach/mach.h>
 #    include <thread>
 
+@interface SentrySystemWrapper ()
++ (float)normalizeCPUUsage:(integer_t)threadCPUUsage processorCount:(long)processorCount;
+@end
+
 @implementation SentrySystemWrapper {
     float processorCount;
 }
@@ -42,6 +46,11 @@
     return footprintBytes;
 }
 
++ (float)normalizeCPUUsage:(integer_t)threadCPUUsage processorCount:(long)processorCount
+{
+    return (static_cast<float>(threadCPUUsage) / TH_USAGE_SCALE) * 100.f / processorCount;
+}
+
 - (NSNumber *)cpuUsageWithError:(NSError **)error
 {
     mach_msg_type_number_t count;
@@ -76,7 +85,8 @@
             return nil;
         }
 
-        usage += data.cpu_usage / processorCount;
+        usage += [SentrySystemWrapper normalizeCPUUsage:data.cpu_usage
+                                         processorCount:static_cast<long>(processorCount)];
     }
 
     vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count);

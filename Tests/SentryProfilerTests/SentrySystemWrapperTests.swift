@@ -1,3 +1,4 @@
+import Foundation
 import XCTest
 
 #if os(iOS) || os(macOS)
@@ -7,11 +8,16 @@ class SentrySystemWrapperTests: XCTestCase {
     }
     lazy private var fixture = Fixture()
 
-    func testCPUUsageReportsData() throws {
-        XCTAssertNoThrow({
-            let cpuUsage = try XCTUnwrap(self.fixture.systemWrapper.cpuUsage())
-            XCTAssertTrue((0.0 ... 100.0).contains(cpuUsage.doubleValue))
-        })
+    func testCPUUsage_whenIdle_shouldReportNormalizedPercent() throws {
+        let cpuUsage = try XCTUnwrap(fixture.systemWrapper.cpuUsage())
+
+        XCTAssertTrue((0.0 ... 100.0).contains(cpuUsage.doubleValue))
+    }
+
+    func testNormalizeCPUUsage_shouldConvertMachScaleToPercentOfTotalCapacity() {
+        XCTAssertEqual(SentrySystemWrapper.normalizeCPUUsage(1_000, processorCount: 4), 25.0, accuracy: 0.001)
+        XCTAssertEqual(SentrySystemWrapper.normalizeCPUUsage(500, processorCount: 8), 6.25, accuracy: 0.001)
+        XCTAssertEqual(SentrySystemWrapper.normalizeCPUUsage(1_000, processorCount: 10), 10.0, accuracy: 0.001)
     }
 
     func testMemoryFootprint() {
