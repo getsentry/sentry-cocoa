@@ -196,6 +196,92 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(payloadData["SomeInfo"] as? String, "Info")
     }
 
+    // MARK: - Network Details (partial data)
+
+    /// All network detail fields are optional. The backend accepts partial data
+    /// and the replay UI simply omits missing fields. These tests lock down that
+    /// behavior so partial details are never accidentally rejected.
+
+    func testHttpBreadcrumb_withNetworkDetails_onlyStatusCode() throws {
+        let details = SentryReplayNetworkDetails(method: nil)
+        let payloadData = try convertHttpBreadcrumbWithNetworkDetails(details: details) { details in
+            details.setResponse(statusCode: 200, size: nil, bodyData: nil, contentType: nil, allHeaders: nil, configuredHeaders: nil)
+        }
+
+        XCTAssertEqual(payloadData["statusCode"] as? Int, 200)
+        XCTAssertNil(payloadData["method"], "method should be absent when not set")
+        XCTAssertNil(payloadData["requestBodySize"])
+        XCTAssertNil(payloadData["responseBodySize"])
+    }
+
+    func testHttpBreadcrumb_withNetworkDetails_onlyMethod() throws {
+        let payloadData = try convertHttpBreadcrumbWithNetworkDetails { _ in
+            // method is set via the initializer; no response/request set
+        }
+
+        XCTAssertEqual(payloadData["method"] as? String, "POST")
+        XCTAssertNil(payloadData["statusCode"], "statusCode should be absent when no response is set")
+        XCTAssertNil(payloadData["requestBodySize"])
+        XCTAssertNil(payloadData["responseBodySize"])
+    }
+
+    func testHttpBreadcrumb_withNetworkDetails_onlyResponseBodySize() throws {
+        let payloadData = try convertHttpBreadcrumbWithNetworkDetails { details in
+            details.setResponse(statusCode: 0, size: NSNumber(value: 512), bodyData: nil, contentType: nil, allHeaders: nil, configuredHeaders: nil)
+        }
+
+        XCTAssertEqual(payloadData["responseBodySize"] as? Int, 512)
+        XCTAssertNil(payloadData["requestBodySize"])
+    }
+
+    func testHttpBreadcrumb_withNetworkDetails_onlyRequestBodySize() throws {
+        let payloadData = try convertHttpBreadcrumbWithNetworkDetails { details in
+            details.setRequest(size: NSNumber(value: 256), bodyData: nil, contentType: nil, allHeaders: nil, configuredHeaders: nil)
+        }
+
+        XCTAssertEqual(payloadData["requestBodySize"] as? Int, 256)
+        XCTAssertNil(payloadData["responseBodySize"])
+    }
+
+    func testHttpBreadcrumb_withNetworkDetails_emptyDetails_producesNoExtraKeys() throws {
+        let details = SentryReplayNetworkDetails(method: nil)
+        let payloadData = try convertHttpBreadcrumbWithNetworkDetails(details: details) { _ in }
+
+        XCTAssertNil(payloadData["method"])
+        XCTAssertNil(payloadData["statusCode"])
+        XCTAssertNil(payloadData["requestBodySize"])
+        XCTAssertNil(payloadData["responseBodySize"])
+        XCTAssertNil(payloadData["request"])
+        XCTAssertNil(payloadData["response"])
+    }
+
+    // MARK: - Helpers
+
+    /// Creates an HTTP breadcrumb with a `SentryReplayNetworkDetails` attached,
+    /// runs it through the converter, and returns the payload data dictionary.
+    private func convertHttpBreadcrumbWithNetworkDetails(
+        details: SentryReplayNetworkDetails? = nil,
+        configure: (SentryReplayNetworkDetails) -> Void
+    ) throws -> [String: Any] {
+        let sut = SentrySRDefaultBreadcrumbConverter()
+        let breadcrumb = Breadcrumb(level: .info, category: "http")
+        let start = Date(timeIntervalSince1970: 5)
+
+        let networkDetails = details ?? SentryReplayNetworkDetails(method: "POST")
+        configure(networkDetails)
+
+        breadcrumb.data = [
+            "url": "https://test.com",
+            "request_start": start,
+            SentryReplayNetworkDetails.replayNetworkDetailsKey: networkDetails
+        ]
+
+        let result = try XCTUnwrap(sut.convert(from: breadcrumb) as? SentryRRWebSpanEvent)
+        let crumbData = try XCTUnwrap(result.data)
+        let payload = try XCTUnwrap(crumbData["payload"] as? [String: Any])
+        return try XCTUnwrap(payload["data"] as? [String: Any])
+    }
+
     func testSerializedSRBreadcrumbLevelIsString() throws {
         let sut = SentrySRDefaultBreadcrumbConverter()
         let breadcrumb = Breadcrumb()
