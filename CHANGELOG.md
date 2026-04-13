@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- fix: Normalize profiling cpu usage to percent (#7798)
+
 ## 9.10.0
 
 ### Features
