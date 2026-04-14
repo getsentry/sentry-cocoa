@@ -5,6 +5,7 @@
 ### Fixes
 
 - Detect development builds via provisioning profile and debugger attachment (#7702)
+- Unsubscribe system event breadcrumbs during background (#7702)
 
 ## 9.10.0
 
