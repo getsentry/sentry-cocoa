@@ -884,6 +884,84 @@ toString(NSData *data)
     XCTAssertTrue([[result objectAtIndex:0] isKindOfClass:[NSNull class]]);
 }
 
+- (void)testSerializeDeserializePositiveInfinityFloat
+{
+    NSError *error = (NSError *)self;
+    NSString *expected = @"[1e999]";
+    float infValue = INFINITY;
+    id original = [NSArray arrayWithObjects:[NSNumber numberWithFloat:infValue], nil];
+
+    NSString *jsonString = toString([SentryCrashJSONCodec encode:original
+                                                         options:SentryCrashJSONEncodeOptionSorted
+                                                           error:&error]);
+    XCTAssertNotNil(jsonString, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertEqualObjects(jsonString, expected, @"");
+    id result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
+    XCTAssertNotNil(result, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertTrue(isinf([[result objectAtIndex:0] doubleValue]), @"Should decode back to infinity");
+}
+
+- (void)testSerializeDeserializeNegativeInfinityFloat
+{
+    NSError *error = (NSError *)self;
+    NSString *expected = @"[-1e999]";
+    float infValue = -INFINITY;
+    id original = [NSArray arrayWithObjects:[NSNumber numberWithFloat:infValue], nil];
+
+    NSString *jsonString = toString([SentryCrashJSONCodec encode:original
+                                                         options:SentryCrashJSONEncodeOptionSorted
+                                                           error:&error]);
+    XCTAssertNotNil(jsonString, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertEqualObjects(jsonString, expected, @"");
+    id result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
+    XCTAssertNotNil(result, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertTrue(isinf([[result objectAtIndex:0] doubleValue]), @"Should decode back to infinity");
+    XCTAssertTrue([[result objectAtIndex:0] doubleValue] < 0, @"Should be negative infinity");
+}
+
+- (void)testSerializeDeserializePositiveInfinityDouble
+{
+    NSError *error = (NSError *)self;
+    NSString *expected = @"[1e999]";
+    double infValue = (double)INFINITY;
+    id original = [NSArray arrayWithObjects:[NSNumber numberWithDouble:infValue], nil];
+
+    NSString *jsonString = toString([SentryCrashJSONCodec encode:original
+                                                         options:SentryCrashJSONEncodeOptionSorted
+                                                           error:&error]);
+    XCTAssertNotNil(jsonString, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertEqualObjects(jsonString, expected, @"");
+    id result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
+    XCTAssertNotNil(result, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertTrue(isinf([[result objectAtIndex:0] doubleValue]), @"Should decode back to infinity");
+}
+
+- (void)testSerializeDeserializeNegativeInfinityDouble
+{
+    NSError *error = (NSError *)self;
+    NSString *expected = @"[-1e999]";
+    double infValue = -(double)INFINITY;
+    id original = [NSArray arrayWithObjects:[NSNumber numberWithDouble:infValue], nil];
+
+    NSString *jsonString = toString([SentryCrashJSONCodec encode:original
+                                                         options:SentryCrashJSONEncodeOptionSorted
+                                                           error:&error]);
+    XCTAssertNotNil(jsonString, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertEqualObjects(jsonString, expected, @"");
+    id result = [SentryCrashJSONCodec decode:toData(jsonString) options:0 error:&error];
+    XCTAssertNotNil(result, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertTrue(isinf([[result objectAtIndex:0] doubleValue]), @"Should decode back to infinity");
+    XCTAssertTrue([[result objectAtIndex:0] doubleValue] < 0, @"Should be negative infinity");
+}
+
 - (void)testSerializeDeserializeChar
 {
     NSError *error = (NSError *)self;

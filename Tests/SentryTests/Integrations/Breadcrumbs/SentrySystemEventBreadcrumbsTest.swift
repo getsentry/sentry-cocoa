@@ -144,6 +144,59 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
         assertBatteryBreadcrumb(charging: false, level: 100)
     }
     
+    func testBatteryInfinityLevelOmitsLevel() {
+        let currentDevice = MyUIDevice(batteryLevel: .infinity, batteryState: .charging)
+        
+        sut = fixture.getSut(currentDevice: currentDevice)
+        
+        postBatteryLevelNotification(uiDevice: currentDevice)
+        
+        XCTAssertEqual(1, fixture.delegate.addCrumbInvocations.count)
+        if let data = fixture.delegate.addCrumbInvocations.first?.data {
+            XCTAssertNil(data["level"], "Infinity battery level should be omitted")
+            XCTAssertEqual("BATTERY_STATE_CHANGE", data["action"] as? String)
+        }
+    }
+    
+    func testBatteryNegativeInfinityLevelOmitsLevel() {
+        let currentDevice = MyUIDevice(batteryLevel: -.infinity, batteryState: .charging)
+        
+        sut = fixture.getSut(currentDevice: currentDevice)
+        
+        postBatteryLevelNotification(uiDevice: currentDevice)
+        
+        XCTAssertEqual(1, fixture.delegate.addCrumbInvocations.count)
+        if let data = fixture.delegate.addCrumbInvocations.first?.data {
+            XCTAssertNil(data["level"], "Negative infinity battery level should be omitted")
+        }
+    }
+    
+    func testBatteryNaNLevelOmitsLevel() {
+        let currentDevice = MyUIDevice(batteryLevel: .nan, batteryState: .charging)
+        
+        sut = fixture.getSut(currentDevice: currentDevice)
+        
+        postBatteryLevelNotification(uiDevice: currentDevice)
+        
+        XCTAssertEqual(1, fixture.delegate.addCrumbInvocations.count)
+        if let data = fixture.delegate.addCrumbInvocations.first?.data {
+            XCTAssertNil(data["level"], "NaN battery level should be omitted")
+        }
+    }
+    
+    func testBatteryOutOfRangeLevelOmitsLevel() {
+        let currentDevice = MyUIDevice(batteryLevel: 1.5, batteryState: .charging)
+        
+        sut = fixture.getSut(currentDevice: currentDevice)
+        
+        postBatteryLevelNotification(uiDevice: currentDevice)
+        
+        XCTAssertEqual(1, fixture.delegate.addCrumbInvocations.count)
+        if let data = fixture.delegate.addCrumbInvocations.first?.data {
+            XCTAssertNil(data["level"], "Out-of-range battery level should be omitted")
+        }
+    }
+    
     func testBatteryUIDeviceNilNotification() {
         let currentDevice = MyUIDevice()
         
