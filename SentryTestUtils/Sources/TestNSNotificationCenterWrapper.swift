@@ -82,10 +82,14 @@ public typealias CrossPlatformApplication = NSApplication
             observers.removeAll { item in
                 switch item {
                 case .observerWithObject(let weakObserver, _, let name, let object):
-                    return (weakObserver.value === observer as? NSObject) || 
-                           (name == aName && ((object == nil && anObject == nil) || (object as AnyObject === anObject as AnyObject)))
+                    guard weakObserver.value === observer as AnyObject else { return false }
+                    if let aName = aName, name != aName { return false }
+                    if anObject != nil && object as AnyObject? !== anObject as AnyObject? { return false }
+                    return true
                 case .observerWithBlock(let weakObserver, let name, _):
-                    return (weakObserver.value === observer as? NSObject) || name == aName
+                    guard weakObserver.value === observer as AnyObject else { return false }
+                    if let aName = aName, name != aName { return false }
+                    return true
                 default:
                     return false
                 }
