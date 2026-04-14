@@ -2,12 +2,23 @@
 @objc @_spi(Private)
 public final class SentryMobileProvisionParser: NSObject {
     private var provisionsAllDevices: Bool = false
+    private var getTaskAllow: Bool = false
     private var embeddedProfilePath: String?
     
     // If the profile provisions all devices, it indicates Enterprise distribution
     @objc 
     public var mobileProvisionProfileProvisionsAllDevices: Bool {
         return provisionsAllDevices
+    }
+    
+    /// Whether the provisioning profile allows debugging (`get-task-allow` entitlement).
+    /// Its boolean value determines whether a debugger can attach to the app.
+    /// Development profiles set this to `true`; distribution profiles set it to `false`.
+    /// See: https://developer.apple.com/library/archive/technotes/tn2415/_index.html
+    /// See: https://developer.apple.com/documentation/technotes/tn3125-inside-code-signing-provisioning-profiles
+    @objc
+    public var mobileProvisionProfileAllowsDebugging: Bool {
+        return getTaskAllow
     }
     
     // This convenience initializer exists so we can use it from ObjC.
@@ -60,6 +71,10 @@ public final class SentryMobileProvisionParser: NSObject {
             return
         }
         provisionsAllDevices = dict["ProvisionsAllDevices"] as? Bool ?? false
+        
+        if let entitlements = dict["Entitlements"] as? [String: Any] {
+            getTaskAllow = entitlements["get-task-allow"] as? Bool ?? false
+        }
     }
 }
 // swiftlint:enable missing_docs
