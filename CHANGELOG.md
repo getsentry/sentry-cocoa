@@ -5,6 +5,7 @@
 ### Fixes
 
 - Detect development builds via provisioning profile and debugger attachment (#7702)
+- Ensure app hangs have foreground app context (#7801)
 
 ## 9.10.0
 
