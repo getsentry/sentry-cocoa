@@ -5,6 +5,7 @@
 ### Fixes
 
 - Detect development builds via provisioning profile and debugger attachment (#7702)
+- Keep replayType as `buffer` for Session Replay triggered by an error
 
 ## 9.10.0
 
