@@ -474,6 +474,34 @@ class SentryScopeSwiftTests: XCTestCase {
         // If the test completes without a crash or TSan error, the fix works.
     }
 
+    func testScopeObserver_passesDistinctCopyToObservers() {
+        // Verify that observers receive a different object (copy) than the internal
+        // mutable collection, preventing race conditions when observers dispatch async work.
+        let sut = Scope()
+        let observer = IdentityCapturingObserver()
+        sut.add(observer)
+
+        sut.setContext(value: ["k": "v"], key: "key")
+        XCTAssertNotNil(observer.lastContext)
+        XCTAssertFalse(observer.lastContext === sut.contextDictionary,
+            "Observer should receive a copy, not the internal mutable contextDictionary")
+
+        sut.setTag(value: "v", key: "key")
+        XCTAssertNotNil(observer.lastTags)
+        XCTAssertFalse(observer.lastTags === sut.tagDictionary,
+            "Observer should receive a copy, not the internal mutable tagDictionary")
+
+        sut.setExtra(value: 1, key: "key")
+        XCTAssertNotNil(observer.lastExtras)
+        XCTAssertFalse(observer.lastExtras === sut.extraDictionary,
+            "Observer should receive a copy, not the internal mutable extraDictionary")
+
+        sut.setFingerprint(["fp"])
+        XCTAssertNotNil(observer.lastFingerprint)
+        XCTAssertFalse(observer.lastFingerprint === sut.fingerprintArray,
+            "Observer should receive a copy, not the internal mutable fingerprintArray")
+    }
+
     func testScopeObserver_setUser() {
         let sut = Scope()
         let observer = fixture.observer
@@ -1082,6 +1110,40 @@ class SentryScopeSwiftTests: XCTestCase {
         func setEnvironment(_ environment: String?) {}
         func setLevel(_ level: SentryLevel) {}
         func setTraceContext(_ traceContext: [String: Any]?) {}
+        func addSerializedBreadcrumb(_ crumb: [String: Any]) {}
+        func clearBreadcrumbs() {}
+        func clear() {}
+    }
+
+    /// Captures the raw NSDictionary/NSArray references passed to observer methods
+    /// so tests can verify identity (pointer) differs from the internal mutable collection.
+    private class IdentityCapturingObserver: NSObject, SentryScopeObserver {
+        var lastContext: NSDictionary?
+        func setContext(_ context: [String: [String: Any]]?) {
+            lastContext = context as NSDictionary?
+        }
+
+        var lastTags: NSDictionary?
+        func setTags(_ tags: [String: String]?) {
+            lastTags = tags as NSDictionary?
+        }
+
+        var lastExtras: NSDictionary?
+        func setExtras(_ extras: [String: Any]?) {
+            lastExtras = extras as NSDictionary?
+        }
+
+        var lastFingerprint: NSArray?
+        func setFingerprint(_ fingerprint: [String]?) {
+            lastFingerprint = fingerprint as NSArray?
+        }
+
+        func setUser(_ user: User?) {}
+        func setDist(_ dist: String?) {}
+        func setEnvironment(_ environment: String?) {}
+        func setLevel(_ level: SentryLevel) {}
+        func setTraceContext(_ traceContext: [String: Any]?) {}
+        func setAttributes(_ attributes: [String: Any]?) {}
         func addSerializedBreadcrumb(_ crumb: [String: Any]) {}
         func clearBreadcrumbs() {}
         func clear() {}
