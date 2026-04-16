@@ -243,9 +243,8 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_contextDictionary) {
         [_contextDictionary setValue:value forKey:key];
 
-        NSDictionary *contextCopy = _contextDictionary.copy;
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setContext:contextCopy];
+            [observer setContext:_contextDictionary.copy];
         }
     }
 }
@@ -262,9 +261,8 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_contextDictionary) {
         [_contextDictionary removeObjectForKey:key];
 
-        NSDictionary *contextCopy = _contextDictionary.copy;
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setContext:contextCopy];
+            [observer setContext:_contextDictionary.copy];
         }
     }
 }
@@ -281,9 +279,8 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_extraDictionary) {
         [_extraDictionary setValue:value forKey:key];
 
-        NSDictionary *extrasCopy = _extraDictionary.copy;
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setExtras:extrasCopy];
+            [observer setExtras:_extraDictionary.copy];
         }
     }
 }
@@ -293,9 +290,8 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_extraDictionary) {
         [_extraDictionary removeObjectForKey:key];
 
-        NSDictionary *extrasCopy = _extraDictionary.copy;
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setExtras:extrasCopy];
+            [observer setExtras:_extraDictionary.copy];
         }
     }
 }
@@ -309,9 +305,8 @@ NS_ASSUME_NONNULL_BEGIN
         [_extraDictionary
             addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, id, extras)];
 
-        NSDictionary *extrasCopy = _extraDictionary.copy;
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setExtras:extrasCopy];
+            [observer setExtras:_extraDictionary.copy];
         }
     }
 }
@@ -328,9 +323,8 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_tagDictionary) {
         _tagDictionary[key] = value;
 
-        NSDictionary *tagsCopy = _tagDictionary.copy;
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setTags:tagsCopy];
+            [observer setTags:_tagDictionary.copy];
         }
     }
 }
@@ -340,9 +334,8 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_tagDictionary) {
         [_tagDictionary removeObjectForKey:key];
 
-        NSDictionary *tagsCopy = _tagDictionary.copy;
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setTags:tagsCopy];
+            [observer setTags:_tagDictionary.copy];
         }
     }
 }
@@ -356,9 +349,8 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_tagDictionary) {
         [_tagDictionary addEntriesFromDictionary:tagsCopy];
 
-        NSDictionary *internalTagsCopy = _tagDictionary.copy;
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setTags:internalTagsCopy];
+            [observer setTags:_tagDictionary.copy];
         }
     }
 }
@@ -408,9 +400,8 @@ NS_ASSUME_NONNULL_BEGIN
                 addObjectsFromArray:SENTRY_UNWRAP_NULLABLE(NSArray<NSString *>, fingerprint)];
         }
 
-        NSArray *fingerprintCopy = _fingerprintArray.copy;
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setFingerprint:fingerprintCopy];
+            [observer setFingerprint:_fingerprintArray.copy];
         }
     }
 }
@@ -499,9 +490,8 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_attributesDictionary) {
         _attributesDictionary[key] = value;
 
-        NSDictionary *attributesCopy = _attributesDictionary.copy;
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setAttributes:attributesCopy];
+            [observer setAttributes:_attributesDictionary.copy];
         }
     }
 }
@@ -511,9 +501,8 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_attributesDictionary) {
         [_attributesDictionary removeObjectForKey:key];
 
-        NSDictionary *attributesCopy = _attributesDictionary.copy;
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setAttributes:attributesCopy];
+            [observer setAttributes:_attributesDictionary.copy];
         }
     }
 }
