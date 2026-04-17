@@ -317,34 +317,54 @@ sentrycrashjson_addFloatingPointElement(
     if (isnan(value)) {
         return sentrycrashjson_addNullElement(context, name);
     }
+    if (isinf(value)) {
+        int result = sentrycrashjson_beginElement(context, name);
+        unlikely_if(result != SentryCrashJSON_OK) { return result; }
+        return value > 0 ? addJSONData(context, "1e999", 5) : addJSONData(context, "-1e999", 6);
+    }
 
+    char buff[50];
+    int written = snprintf(buff, sizeof(buff), "%lg", value);
+    if (written < 0) {
+        return SentryCrashJSON_ERROR_INVALID_CHARACTER;
+    } else if (written >= (int)sizeof(buff)) {
+        return SentryCrashJSON_ERROR_DATA_TOO_LONG;
+    }
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
-    char buff[50];
-    snprintf(buff, sizeof(buff), "%lg", value);
-    return addJSONData(context, buff, (int)strlen(buff));
+    return addJSONData(context, buff, written);
 }
 
 int
 sentrycrashjson_addIntegerElement(
     SentryCrashJSONEncodeContext *const context, const char *const name, int64_t value)
 {
+    char buff[30];
+    int written = snprintf(buff, sizeof(buff), "%" PRId64, value);
+    if (written < 0) {
+        return SentryCrashJSON_ERROR_INVALID_CHARACTER;
+    } else if (written >= (int)sizeof(buff)) {
+        return SentryCrashJSON_ERROR_DATA_TOO_LONG;
+    }
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
-    char buff[30];
-    snprintf(buff, sizeof(buff), "%" PRId64, value);
-    return addJSONData(context, buff, (int)strlen(buff));
+    return addJSONData(context, buff, written);
 }
 
 int
 sentrycrashjson_addUIntegerElement(
     SentryCrashJSONEncodeContext *const context, const char *const name, uint64_t value)
 {
+    char buff[30];
+    int written = snprintf(buff, sizeof(buff), "%" PRIu64, value);
+    if (written < 0) {
+        return SentryCrashJSON_ERROR_INVALID_CHARACTER;
+    } else if (written >= (int)sizeof(buff)) {
+        return SentryCrashJSON_ERROR_DATA_TOO_LONG;
+    }
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
-    char buff[30];
-    snprintf(buff, sizeof(buff), "%" PRIu64, value);
-    return addJSONData(context, buff, (int)strlen(buff));
+    return addJSONData(context, buff, written);
 }
 
 int
