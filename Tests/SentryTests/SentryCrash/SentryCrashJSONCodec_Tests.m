@@ -884,6 +884,33 @@ toString(NSData *data)
     XCTAssertTrue([[result objectAtIndex:0] isKindOfClass:[NSNull class]]);
 }
 
+- (void)testDecodeFloatingPoint_whenVariousFormats_shouldParseLikeStrtod
+{
+    // CWE-676: Verifies floating-point decode path uses strtod (replacing sscanf "%lg") correctly.
+    NSError *error = nil;
+
+    // -- Arrange & Act & Assert: decimal
+    id result1 = [SentryCrashJSONCodec decode:toData(@"[1.5]") options:0 error:&error];
+    XCTAssertNotNil(result1, @"");
+    XCTAssertNil(error, @"");
+    XCTAssertEqualWithAccuracy([[result1 objectAtIndex:0] doubleValue], 1.5, 0.0001, @"");
+
+    // -- Zero
+    id result2 = [SentryCrashJSONCodec decode:toData(@"[0]") options:0 error:&error];
+    XCTAssertNotNil(result2, @"");
+    XCTAssertEqual([[result2 objectAtIndex:0] doubleValue], 0.0, @"");
+
+    // -- Scientific notation
+    id result3 = [SentryCrashJSONCodec decode:toData(@"[1e10]") options:0 error:&error];
+    XCTAssertNotNil(result3, @"");
+    XCTAssertEqualWithAccuracy([[result3 objectAtIndex:0] doubleValue], 1e10, 1e3, @"");
+
+    // -- Negative zero
+    id result4 = [SentryCrashJSONCodec decode:toData(@"[-0.0]") options:0 error:&error];
+    XCTAssertNotNil(result4, @"");
+    XCTAssertEqual([[result4 objectAtIndex:0] doubleValue], -0.0, @"");
+}
+
 - (void)testSerializeDeserializeChar
 {
     NSError *error = (NSError *)self;
