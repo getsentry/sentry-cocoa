@@ -137,7 +137,7 @@ final class SentrySystemEventBreadcrumbs: NSObject {
             let w3cLevel = currentLevel * 100
             batteryData["level"] = NSNumber(value: w3cLevel)
         } else {
-            SentrySDKLog.debug("batteryLevel is unknown or has unexpected value: \(currentLevel)")
+            SentrySDKLog.debug("batteryLevel is unknown.")
         }
 
         batteryData["plugged"] = isPlugged
