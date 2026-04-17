@@ -132,10 +132,8 @@ final class SentrySystemEventBreadcrumbs: NSObject {
         let currentLevel = currentDevice.batteryLevel
         var batteryData: [String: Any] = [:]
 
-        // W3C spec says level must be null if it is unknown.
-        // Also guard against non-finite or out-of-range values so they never
-        // reach the crash-scope JSON encoder as invalid floats.
-        if currentState != .unknown && currentLevel.isFinite && (0...1).contains(currentLevel) {
+        // W3C spec says level must be null if it is unknown
+        if currentState != .unknown && currentLevel != -1.0 {
             let w3cLevel = currentLevel * 100
             batteryData["level"] = NSNumber(value: w3cLevel)
         } else {
