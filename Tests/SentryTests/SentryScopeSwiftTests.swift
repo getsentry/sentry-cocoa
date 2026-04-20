@@ -443,7 +443,65 @@ class SentryScopeSwiftTests: XCTestCase {
             scope.serialize()
         })
     }
-    
+
+    func testModifyingFromMultipleThreads_withObserverAsyncDispatch() {
+        // Regression test for https://github.com/getsentry/sentry-react-native/issues/5995
+        // Before the fix, the scope passed mutable collections directly to observers.
+        // Observers like SentryWatchdogTerminationScopeObserver dispatch async work that
+        // iterates the collection after the @synchronized lock is released, causing a
+        // concurrent read+write race (EXC_BAD_ACCESS).
+        let scope = Scope(maxBreadcrumbs: 10)
+        let observer = AsyncIteratingObserver()
+        scope.add(observer)
+
+        testConcurrentModifications(asyncWorkItems: 3, writeLoopCount: 100, writeWork: { i in
+            let key = "key-\(i % 5)"
+
+            scope.setContext(value: ["k": "v-\(i)"], key: key)
+            scope.removeContext(key: "key-\(i % 3)")
+
+            scope.setTag(value: "v-\(i)", key: key)
+            scope.removeTag(key: "key-\(i % 3)")
+            scope.setTags(["a": "1", "b": "2"])
+
+            scope.setExtra(value: i, key: key)
+            scope.removeExtra(key: "key-\(i % 3)")
+            scope.setExtras(["x": 1, "y": 2])
+
+            scope.setFingerprint(["fp-\(i)"])
+        })
+
+        // If the test completes without a crash or TSan error, the fix works.
+    }
+
+    func testScopeObserver_passesDistinctCopyToObservers() {
+        // Verify that observers receive a different object (copy) than the internal
+        // mutable collection, preventing race conditions when observers dispatch async work.
+        let sut = Scope()
+        let observer = IdentityCapturingObserver()
+        sut.add(observer)
+
+        sut.setContext(value: ["k": "v"], key: "key")
+        XCTAssertNotNil(observer.lastContext)
+        XCTAssertFalse(observer.lastContext === sut.contextDictionary,
+            "Observer should receive a copy, not the internal mutable contextDictionary")
+
+        sut.setTag(value: "v", key: "key")
+        XCTAssertNotNil(observer.lastTags)
+        XCTAssertFalse(observer.lastTags === sut.tagDictionary,
+            "Observer should receive a copy, not the internal mutable tagDictionary")
+
+        sut.setExtra(value: 1, key: "key")
+        XCTAssertNotNil(observer.lastExtras)
+        XCTAssertFalse(observer.lastExtras === sut.extraDictionary,
+            "Observer should receive a copy, not the internal mutable extraDictionary")
+
+        sut.setFingerprint(["fp"])
+        XCTAssertNotNil(observer.lastFingerprint)
+        XCTAssertFalse(observer.lastFingerprint === sut.fingerprintArray,
+            "Observer should receive a copy, not the internal mutable fingerprintArray")
+    }
+
     func testScopeObserver_setUser() {
         let sut = Scope()
         let observer = fixture.observer
@@ -1013,6 +1071,82 @@ class SentryScopeSwiftTests: XCTestCase {
         func setAttributes(_ attributes: [String: Any]?) {
             self.attributes = attributes
         }
+    }
+
+    /// A scope observer that simulates the behavior of SentryWatchdogTerminationScopeObserver:
+    /// it captures the received collection and iterates it asynchronously on a background queue.
+    /// Before the fix, the scope passed mutable collections directly, so this async iteration
+    /// would race with concurrent mutations — triggering EXC_BAD_ACCESS.
+    private class AsyncIteratingObserver: NSObject, SentryScopeObserver {
+        private let queue = DispatchQueue(label: "AsyncIteratingObserver", attributes: .concurrent)
+
+        func setTags(_ tags: [String: String]?) {
+            guard let tags = tags else { return }
+            queue.async { _ = tags.map { "\($0.key)=\($0.value)" } }
+        }
+
+        func setExtras(_ extras: [String: Any]?) {
+            guard let extras = extras else { return }
+            queue.async { _ = extras.map { "\($0.key)=\($0.value)" } }
+        }
+
+        func setContext(_ context: [String: [String: Any]]?) {
+            guard let context = context else { return }
+            queue.async { _ = context.map { "\($0.key)=\($0.value)" } }
+        }
+
+        func setFingerprint(_ fingerprint: [String]?) {
+            guard let fingerprint = fingerprint else { return }
+            queue.async { _ = fingerprint.joined(separator: ",") }
+        }
+
+        func setAttributes(_ attributes: [String: Any]?) {
+            guard let attributes = attributes else { return }
+            queue.async { _ = attributes.map { "\($0.key)=\($0.value)" } }
+        }
+
+        func setUser(_ user: User?) {}
+        func setDist(_ dist: String?) {}
+        func setEnvironment(_ environment: String?) {}
+        func setLevel(_ level: SentryLevel) {}
+        func setTraceContext(_ traceContext: [String: Any]?) {}
+        func addSerializedBreadcrumb(_ crumb: [String: Any]) {}
+        func clearBreadcrumbs() {}
+        func clear() {}
+    }
+
+    /// Captures the raw NSDictionary/NSArray references passed to observer methods
+    /// so tests can verify identity (pointer) differs from the internal mutable collection.
+    private class IdentityCapturingObserver: NSObject, SentryScopeObserver {
+        var lastContext: NSDictionary?
+        func setContext(_ context: [String: [String: Any]]?) {
+            lastContext = context as NSDictionary?
+        }
+
+        var lastTags: NSDictionary?
+        func setTags(_ tags: [String: String]?) {
+            lastTags = tags as NSDictionary?
+        }
+
+        var lastExtras: NSDictionary?
+        func setExtras(_ extras: [String: Any]?) {
+            lastExtras = extras as NSDictionary?
+        }
+
+        var lastFingerprint: NSArray?
+        func setFingerprint(_ fingerprint: [String]?) {
+            lastFingerprint = fingerprint as NSArray?
+        }
+
+        func setUser(_ user: User?) {}
+        func setDist(_ dist: String?) {}
+        func setEnvironment(_ environment: String?) {}
+        func setLevel(_ level: SentryLevel) {}
+        func setTraceContext(_ traceContext: [String: Any]?) {}
+        func setAttributes(_ attributes: [String: Any]?) {}
+        func addSerializedBreadcrumb(_ crumb: [String: Any]) {}
+        func clearBreadcrumbs() {}
+        func clear() {}
     }
 }
 
