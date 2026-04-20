@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Track low power mode in device context (#7777)
+
 ### Fixes
 
 - Detect development builds via provisioning profile and debugger attachment (#7702)
