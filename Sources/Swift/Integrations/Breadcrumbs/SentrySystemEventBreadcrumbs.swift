@@ -17,6 +17,9 @@ final class SentrySystemEventBreadcrumbs: NSObject {
     private var didBeginGeneratingOrientationNotifications = false
     #endif
 
+    /// Whether system event observers are currently registered.
+    private var isSubscribedToSystemEvents = false
+
     init(
         currentDeviceProvider: SentryUIDeviceWrapperProvider,
         fileManager: SentryFileManager,
@@ -38,6 +41,48 @@ final class SentrySystemEventBreadcrumbs: NSObject {
 
     func start(with delegate: SentryBreadcrumbDelegate) {
         self.delegate = delegate
+
+        notificationCenterWrapper.addObserver(
+            self,
+            selector: #selector(didEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+        notificationCenterWrapper.addObserver(
+            self,
+            selector: #selector(willEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+
+        subscribeToSystemEvents()
+    }
+
+    func timezoneEventTriggered() {
+        timezoneEventTriggered(storedTimezoneOffset: nil)
+    }
+
+    func stop() {
+        notificationCenterWrapper.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
+        notificationCenterWrapper.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
+
+        unsubscribeFromSystemEvents()
+    }
+
+    // MARK: - Lifecycle
+
+    @objc private func didEnterBackground() {
+        unsubscribeFromSystemEvents()
+    }
+
+    @objc private func willEnterForeground() {
+        subscribeToSystemEvents()
+    }
+
+    private func subscribeToSystemEvents() {
+        guard !isSubscribedToSystemEvents else { return }
+        isSubscribedToSystemEvents = true
+
         #if os(iOS)
         initBatteryObserver(currentDeviceProvider.uiDeviceWrapper.currentDevice)
         initOrientationObserver(currentDeviceProvider.uiDeviceWrapper.currentDevice)
@@ -48,14 +93,12 @@ final class SentrySystemEventBreadcrumbs: NSObject {
         initSignificantTimeChangeObserver()
     }
 
-    func timezoneEventTriggered() {
-        timezoneEventTriggered(storedTimezoneOffset: nil)
-    }
+    private func unsubscribeFromSystemEvents() {
+        guard isSubscribedToSystemEvents else { return }
+        isSubscribedToSystemEvents = false
 
-    func stop() {
         // Remove the observers with the most specific detail possible, see
         // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-
         notificationCenterWrapper.removeObserver(self, name: UIApplication.userDidTakeScreenshotNotification, object: nil)
         notificationCenterWrapper.removeObserver(self, name: UIApplication.significantTimeChangeNotification, object: nil)
         notificationCenterWrapper.removeObserver(self, name: NSNotification.Name.NSSystemTimeZoneDidChange, object: nil)
