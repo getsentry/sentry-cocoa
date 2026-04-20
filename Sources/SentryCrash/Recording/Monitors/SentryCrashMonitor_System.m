@@ -459,6 +459,14 @@ hasAppStoreReceipt(void)
     return isAppStoreReceipt && receiptExists;
 }
 
+/** Determine the build/distribution type.
+ *
+ * Uses the DEBUG macro and the get-task-allow entitlement from the embedded
+ * provisioning profile to classify the build.
+ *
+ * @return "simulator", "debug", "enterprise", "adhoc", "test", "app store",
+ *         or "unknown".
+ */
 static const char *
 getBuildType(void)
 {
@@ -470,6 +478,9 @@ getBuildType(void)
     }
     SentryMobileProvisionParser *parser = [[SentryMobileProvisionParser alloc] init];
     if ([parser hasEmbeddedMobileProvisionProfile]) {
+        if ([parser mobileProvisionProfileAllowsDebugging]) {
+            return "debug";
+        }
         return [parser mobileProvisionProfileProvisionsAllDevices] ? "enterprise" : "adhoc";
     }
     if (isTestBuild()) {

@@ -11,8 +11,11 @@
 
     @available(macOS 12.0, *)
     var isMacCatalystApp: Bool { get }
-    
+
     var isiOSAppOnVisionOS: Bool { get }
+
+    @available(macOS 12.0, *)
+    var isLowPowerModeEnabled: Bool { get }
 }
 
 // This is needed because a file that only contains an @objc extension will get automatically stripped out
