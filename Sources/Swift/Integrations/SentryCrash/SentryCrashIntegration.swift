@@ -251,10 +251,10 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         )
 
         if #available(macOS 12.0, *) {
-            updateLowPowerModeContext()
+            updateLowPowerModeContext(ProcessInfo.processInfo)
             NotificationCenter.default.addObserver(
                 self,
-                selector: #selector(powerStateDidChange),
+                selector: #selector(powerStateDidChange(notification:)),
                 name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
                 object: nil
             )
@@ -279,14 +279,20 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         }
     }
 
-    @available(macOS 12.0, *)
-    @objc private func powerStateDidChange() {
-        updateLowPowerModeContext()
+    @objc @available(macOS 12.0, *)
+    private func powerStateDidChange(notification: Notification) {
+        let processInfo = if let notificationProcessInfo = notification.object as? ProcessInfo {
+            notificationProcessInfo
+        } else {
+            ProcessInfo.processInfo
+        }
+         
+        updateLowPowerModeContext(processInfo)
     }
 
     @available(macOS 12.0, *)
-    private func updateLowPowerModeContext() {
-        let isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
+    private func updateLowPowerModeContext(_ processInfo: ProcessInfo) {
+        let isLowPowerMode = processInfo.isLowPowerModeEnabled
         SentrySDKInternal.currentHub().configureScope { scope in
             var device: [String: Any]
             let contextDictionary = scope.contextDictionary
