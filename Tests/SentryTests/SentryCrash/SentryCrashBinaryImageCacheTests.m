@@ -5,18 +5,56 @@
 
 #include <mach-o/dyld.h>
 #include <mach-o/dyld_images.h>
+#include <os/lock.h>
+#include <unistd.h>
 
 // Exposing test only functions from `SentryCrashBinaryImageCache.c`
 void sentry_setRegisterFuncForAddImage(void *addFunction);
 void sentry_setRegisterFuncForRemoveImage(void *removeFunction);
 void sentry_resetFuncForAddRemoveImage(void);
 void sentry_setFuncForBeforeAdd(void (*callback)(void));
-void sentry_resetBinaryImageCache(void);
+void sentrycrashbic_resetForTests(void);
+void sentrycrashbic_setMaxImagesForTests(uint32_t maxImages);
 
 static void (*addBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slide);
 static void (*removeBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slide);
-static NSMutableArray *mach_headers_test_cache;
-static NSMutableArray *mach_headers_expect_array;
+static NSMutableArray<NSValue *> *mach_headers_test_cache;
+static NSMutableArray<NSValue *> *mach_headers_expect_array;
+static os_unfair_lock mach_headers_expect_lock = OS_UNFAIR_LOCK_INIT;
+static dispatch_semaphore_t initial_replay_mutation_requested;
+static dispatch_semaphore_t initial_replay_mutation_completed;
+static bool initial_replay_wait_for_mutation_before_replay = false;
+static bool initial_replay_did_wait_for_mutation = false;
+static bool initial_replay_mutation_wait_timed_out = false;
+
+static void
+reset_initial_replay_mutation_state(void)
+{
+    os_unfair_lock_lock(&mach_headers_expect_lock);
+    initial_replay_mutation_requested = nil;
+    initial_replay_mutation_completed = nil;
+    initial_replay_wait_for_mutation_before_replay = false;
+    initial_replay_did_wait_for_mutation = false;
+    initial_replay_mutation_wait_timed_out = false;
+    os_unfair_lock_unlock(&mach_headers_expect_lock);
+}
+
+static NSArray<NSValue *> *
+copy_expected_mach_headers(void)
+{
+    os_unfair_lock_lock(&mach_headers_expect_lock);
+    NSArray<NSValue *> *headers = [mach_headers_expect_array copy];
+    os_unfair_lock_unlock(&mach_headers_expect_lock);
+    return headers;
+}
+
+static void
+replace_expected_mach_headers(NSArray<NSValue *> *headers)
+{
+    os_unfair_lock_lock(&mach_headers_expect_lock);
+    mach_headers_expect_array = headers.mutableCopy;
+    os_unfair_lock_unlock(&mach_headers_expect_lock);
+}
 
 static void
 sentry_register_func_for_add_image(
@@ -24,12 +62,39 @@ sentry_register_func_for_add_image(
 {
     addBinaryImage = func;
 
-    if (mach_headers_expect_array) {
-        // Skipping first item which is dyld and already included when starting the cache
-        for (NSUInteger i = 1; i < mach_headers_expect_array.count; i++) {
-            NSValue *header = mach_headers_expect_array[i];
-            func(header.pointerValue, 0);
+    NSArray<NSValue *> *headersToReplay = copy_expected_mach_headers();
+    if (headersToReplay == nil) {
+        return;
+    }
+
+    dispatch_semaphore_t mutationRequested = nil;
+    dispatch_semaphore_t mutationCompleted = nil;
+
+    os_unfair_lock_lock(&mach_headers_expect_lock);
+    if (initial_replay_wait_for_mutation_before_replay && headersToReplay.count > 1
+        && initial_replay_mutation_requested != nil && initial_replay_mutation_completed != nil) {
+        initial_replay_did_wait_for_mutation = true;
+        mutationRequested = initial_replay_mutation_requested;
+        mutationCompleted = initial_replay_mutation_completed;
+    }
+    os_unfair_lock_unlock(&mach_headers_expect_lock);
+
+    if (mutationRequested != nil) {
+        dispatch_semaphore_signal(mutationRequested);
+
+        long waitResult = dispatch_semaphore_wait(
+            mutationCompleted, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+        if (waitResult != 0) {
+            os_unfair_lock_lock(&mach_headers_expect_lock);
+            initial_replay_mutation_wait_timed_out = true;
+            os_unfair_lock_unlock(&mach_headers_expect_lock);
         }
+    }
+
+    // Skipping first item which is dyld and already included when starting the cache
+    for (NSUInteger i = 1; i < headersToReplay.count; i++) {
+        NSValue *header = headersToReplay[i];
+        func(header.pointerValue, 0);
     }
 }
 
@@ -58,6 +123,13 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
 {
     NSMutableArray *array = (__bridge NSMutableArray *)context;
     [array addObject:[NSValue valueWithPointer:image]];
+}
+
+static void
+addBinaryImageAddressToArray(SentryCrashBinaryImage *image, void *context)
+{
+    NSMutableArray<NSNumber *> *array = (__bridge NSMutableArray<NSNumber *> *)context;
+    [array addObject:@(image->address)];
 }
 
 static void
@@ -105,25 +177,51 @@ delayAddBinaryImage(void)
 {
     sentry_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
     sentry_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
+    reset_initial_replay_mutation_state();
 
     // Copying the first 5 images from the temporary list.
     // 5 is a magic number.
-    mach_headers_expect_array =
-        [mach_headers_test_cache subarrayWithRange:NSMakeRange(0, 5)].mutableCopy;
+    replace_expected_mach_headers([mach_headers_test_cache subarrayWithRange:NSMakeRange(0, 5)]);
 }
 
 - (void)tearDown
 {
     sentrycrashdl_clearDyld();
-    sentry_resetBinaryImageCache();
+    sentrycrashbic_resetForTests();
+    sentry_resetFuncForAddRemoveImage();
     sentry_setFuncForBeforeAdd(NULL);
+    reset_initial_replay_mutation_state();
     [SentryDependencyContainer reset];
 }
 
 - (void)testStartCache
 {
+    // -- Arrange --
+
+    // -- Act --
     [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
+
+    // -- Assert --
     [self assertBinaryImageCacheLength:5];
+
+    SentryCrashBinaryImageCacheDebugInfo debugInfo = [self debugInfo];
+    XCTAssertEqual(debugInfo.populatedImageCount, 5);
+    XCTAssertFalse(debugInfo.overflowed);
+    XCTAssertGreaterThan(debugInfo.bootstrapDurationNanos, 0ULL);
+}
+
+- (void)testGetDebugInfo_whenCacheNotStarted_shouldReportEmptyState
+{
+    // -- Arrange --
+    SentryCrashBinaryImageCacheDebugInfo debugInfo = { 0 };
+
+    // -- Act --
+    sentrycrashbic_getDebugInfo(&debugInfo);
+
+    // -- Assert --
+    XCTAssertEqual(debugInfo.populatedImageCount, 0);
+    XCTAssertFalse(debugInfo.overflowed);
+    XCTAssertEqual(debugInfo.bootstrapDurationNanos, 0ULL);
 }
 
 - (void)testStartCacheTwice
@@ -159,14 +257,12 @@ delayAddBinaryImage(void)
     [self assertBinaryImageCacheLength:5];
 
     addBinaryImage([mach_headers_test_cache[5] pointerValue], 0);
-    mach_headers_expect_array =
-        [mach_headers_test_cache subarrayWithRange:NSMakeRange(0, 6)].mutableCopy;
+    replace_expected_mach_headers([mach_headers_test_cache subarrayWithRange:NSMakeRange(0, 6)]);
     [self assertBinaryImageCacheLength:6];
     [self assertCachedBinaryImages];
 
     addBinaryImage([mach_headers_test_cache[6] pointerValue], 0);
-    mach_headers_expect_array =
-        [mach_headers_test_cache subarrayWithRange:NSMakeRange(0, 7)].mutableCopy;
+    replace_expected_mach_headers([mach_headers_test_cache subarrayWithRange:NSMakeRange(0, 7)]);
     [self assertBinaryImageCacheLength:7];
     [self assertCachedBinaryImages];
 }
@@ -178,6 +274,200 @@ delayAddBinaryImage(void)
 
     addBinaryImage(0, 0);
     [self assertBinaryImageCacheLength:5];
+}
+
+- (void)testStartCache_whenBootstrapExceedsCapacity_shouldSetOverflowFlag
+{
+    // -- Arrange --
+    NSArray<NSValue *> *expectedHeadersAfterOverflow =
+        [mach_headers_test_cache subarrayWithRange:NSMakeRange(0, 2)];
+    sentrycrashbic_setMaxImagesForTests(2);
+
+    // -- Act --
+    sentrycrashbic_startCache();
+
+    // -- Assert --
+    replace_expected_mach_headers(expectedHeadersAfterOverflow);
+    [self assertBinaryImageCacheLength:2];
+    [self assertCachedBinaryImages];
+
+    SentryCrashBinaryImageCacheDebugInfo debugInfo = [self debugInfo];
+    XCTAssertEqual(debugInfo.populatedImageCount, 2);
+    XCTAssertTrue(debugInfo.overflowed);
+    XCTAssertGreaterThan(debugInfo.bootstrapDurationNanos, 0ULL);
+}
+
+- (void)testAddNewImage_whenCacheExceedsCapacity_shouldSetOverflowFlag
+{
+    // -- Arrange --
+    sentrycrashbic_setMaxImagesForTests(5);
+    sentrycrashbic_startCache();
+
+    // -- Act --
+    addBinaryImage([mach_headers_test_cache[5] pointerValue], 0);
+
+    // -- Assert --
+    [self assertBinaryImageCacheLength:5];
+    [self assertCachedBinaryImages];
+
+    SentryCrashBinaryImageCacheDebugInfo debugInfo = [self debugInfo];
+    XCTAssertEqual(debugInfo.populatedImageCount, 5);
+    XCTAssertTrue(debugInfo.overflowed);
+    XCTAssertGreaterThan(debugInfo.bootstrapDurationNanos, 0ULL);
+}
+
+- (void)testIterateOverImages_whenProducerAppendsConcurrently_shouldRemainConsistent
+{
+    // -- Arrange --
+    sentrycrashbic_startCache();
+
+    XCTAssertGreaterThan(mach_headers_test_cache.count, 13UL);
+
+    NSArray<NSValue *> *additionalHeaders =
+        [mach_headers_test_cache subarrayWithRange:NSMakeRange(5, 8)];
+    NSMutableSet<NSNumber *> *expectedAddresses = [NSMutableSet set];
+    for (NSValue *value in copy_expected_mach_headers()) {
+        [expectedAddresses addObject:@((uint64_t)value.pointerValue)];
+    }
+    for (NSValue *value in additionalHeaders) {
+        [expectedAddresses addObject:@((uint64_t)value.pointerValue)];
+    }
+
+    const int readerCount = 4;
+    const int readerIterations = 2000;
+    NSMutableArray<NSString *> *errors = [NSMutableArray array];
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_queue_t queue
+        = dispatch_queue_create("io.sentry.binary-image-cache.stress", DISPATCH_QUEUE_CONCURRENT);
+
+    // -- Act --
+    for (int readerIndex = 0; readerIndex < readerCount; readerIndex++) {
+        dispatch_group_async(group, queue, ^{
+            for (int iteration = 0; iteration < readerIterations; iteration++) {
+                NSMutableArray<NSNumber *> *snapshot = [NSMutableArray array];
+                sentrycrashbic_iterateOverImages(
+                    addBinaryImageAddressToArray, (__bridge void *)(snapshot));
+
+                NSSet<NSNumber *> *snapshotSet = [NSSet setWithArray:snapshot];
+                if (snapshot.count != snapshotSet.count) {
+                    @synchronized(errors) {
+                        [errors addObject:@"Reader observed duplicate binary-image addresses."];
+                    }
+                    return;
+                }
+
+                if (![snapshotSet isSubsetOfSet:expectedAddresses]) {
+                    @synchronized(errors) {
+                        [errors addObject:@"Reader observed an unknown binary-image address."];
+                    }
+                    return;
+                }
+            }
+        });
+    }
+
+    dispatch_group_async(group, queue, ^{
+        for (NSValue *value in additionalHeaders) {
+            addBinaryImage(value.pointerValue, 0);
+            usleep(100);
+        }
+    });
+
+    long waitResult
+        = dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC));
+
+    // -- Assert --
+    XCTAssertEqual(waitResult, 0L);
+    XCTAssertEqual(errors.count, 0UL, @"%@", [errors componentsJoinedByString:@"\n"]);
+
+    NSArray<NSValue *> *expectedHeadersAfterAppend =
+        [copy_expected_mach_headers() arrayByAddingObjectsFromArray:additionalHeaders];
+    replace_expected_mach_headers(expectedHeadersAfterAppend);
+    [self assertBinaryImageCacheLength:(int)expectedHeadersAfterAppend.count];
+    [self assertCachedBinaryImages];
+}
+
+- (void)testStartCache_whenReplayAppendsDuringBootstrap_shouldRemainConsistent
+{
+    // -- Arrange --
+    XCTAssertGreaterThan(mach_headers_test_cache.count, 9UL);
+
+    NSArray<NSValue *> *headersVisibleAtStart = copy_expected_mach_headers();
+    NSArray<NSValue *> *headersAppendedDuringStart =
+        [mach_headers_test_cache subarrayWithRange:NSMakeRange(5, 4)];
+
+    os_unfair_lock_lock(&mach_headers_expect_lock);
+    initial_replay_mutation_requested = dispatch_semaphore_create(0);
+    initial_replay_mutation_completed = dispatch_semaphore_create(0);
+    initial_replay_wait_for_mutation_before_replay = true;
+    os_unfair_lock_unlock(&mach_headers_expect_lock);
+
+    NSMutableArray<NSString *> *errors = [NSMutableArray array];
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_queue_t queue = dispatch_queue_create(
+        "io.sentry.binary-image-cache.start-replay", DISPATCH_QUEUE_CONCURRENT);
+
+    // -- Act --
+    dispatch_group_async(group, queue, ^{
+        long requestWait = dispatch_semaphore_wait(
+            initial_replay_mutation_requested, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+        if (requestWait != 0) {
+            @synchronized(errors) {
+                [errors addObject:@"Mutator did not observe the initial replay start."];
+            }
+            dispatch_semaphore_signal(initial_replay_mutation_completed);
+            return;
+        }
+
+        for (NSValue *value in headersAppendedDuringStart) {
+            addBinaryImage(value.pointerValue, 0);
+        }
+
+        dispatch_semaphore_signal(initial_replay_mutation_completed);
+    });
+
+    dispatch_group_async(group, queue, ^{ sentrycrashbic_startCache(); });
+
+    long waitResult
+        = dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC));
+
+    // -- Assert --
+    XCTAssertEqual(waitResult, 0L);
+    XCTAssertEqual(errors.count, 0UL, @"%@", [errors componentsJoinedByString:@"\n"]);
+
+    bool didWaitForMutation = false;
+    bool mutationWaitTimedOut = false;
+    os_unfair_lock_lock(&mach_headers_expect_lock);
+    didWaitForMutation = initial_replay_did_wait_for_mutation;
+    mutationWaitTimedOut = initial_replay_mutation_wait_timed_out;
+    os_unfair_lock_unlock(&mach_headers_expect_lock);
+
+    XCTAssertTrue(didWaitForMutation);
+    XCTAssertFalse(mutationWaitTimedOut);
+
+    NSMutableSet<NSNumber *> *startAddresses = [NSMutableSet set];
+    for (NSValue *value in headersVisibleAtStart) {
+        [startAddresses addObject:@((uint64_t)value.pointerValue)];
+    }
+
+    NSMutableArray<NSNumber *> *cachedAddresses = [NSMutableArray array];
+    sentrycrashbic_iterateOverImages(
+        addBinaryImageAddressToArray, (__bridge void *)(cachedAddresses));
+
+    NSSet<NSNumber *> *cachedAddressSet = [NSSet setWithArray:cachedAddresses];
+    XCTAssertEqual(cachedAddresses.count, cachedAddressSet.count);
+    XCTAssertTrue([startAddresses isSubsetOfSet:cachedAddressSet]);
+
+    NSMutableArray<NSValue *> *finalExpectedHeaders = [NSMutableArray array];
+    [finalExpectedHeaders addObject:headersVisibleAtStart[0]];
+    [finalExpectedHeaders addObjectsFromArray:headersAppendedDuringStart];
+    [finalExpectedHeaders
+        addObjectsFromArray:[headersVisibleAtStart
+                                subarrayWithRange:NSMakeRange(1, headersVisibleAtStart.count - 1)]];
+    replace_expected_mach_headers(finalExpectedHeaders);
+
+    [self assertBinaryImageCacheLength:(int)finalExpectedHeaders.count];
+    [self assertCachedBinaryImages];
 }
 
 - (void)testAddNewImageAfterStopping
@@ -195,11 +485,17 @@ delayAddBinaryImage(void)
     sentrycrashbic_startCache();
     [self assertBinaryImageCacheLength:5];
 
-    removeBinaryImage([mach_headers_expect_array[4] pointerValue], 0);
+    NSMutableArray<NSValue *> *expectedMachHeaders = copy_expected_mach_headers().mutableCopy;
+
+    removeBinaryImage([expectedMachHeaders[4] pointerValue], 0);
+    [expectedMachHeaders removeObjectAtIndex:4];
+    replace_expected_mach_headers(expectedMachHeaders);
     [self assertBinaryImageCacheLength:4];
     [self assertCachedBinaryImages];
 
-    removeBinaryImage([mach_headers_expect_array[3] pointerValue], 0);
+    removeBinaryImage([expectedMachHeaders[3] pointerValue], 0);
+    [expectedMachHeaders removeObjectAtIndex:3];
+    replace_expected_mach_headers(expectedMachHeaders);
     [self assertBinaryImageCacheLength:3];
     [self assertCachedBinaryImages];
 }
@@ -209,14 +505,18 @@ delayAddBinaryImage(void)
     sentrycrashbic_startCache();
     [self assertBinaryImageCacheLength:5];
 
-    removeBinaryImage([mach_headers_expect_array[0] pointerValue], 0);
+    NSMutableArray<NSValue *> *expectedMachHeaders = copy_expected_mach_headers().mutableCopy;
+
+    removeBinaryImage([expectedMachHeaders[0] pointerValue], 0);
     [self assertBinaryImageCacheLength:4];
-    [mach_headers_expect_array removeObjectAtIndex:0];
+    [expectedMachHeaders removeObjectAtIndex:0];
+    replace_expected_mach_headers(expectedMachHeaders);
     [self assertCachedBinaryImages];
 
-    removeBinaryImage([mach_headers_expect_array[0] pointerValue], 0);
+    removeBinaryImage([expectedMachHeaders[0] pointerValue], 0);
     [self assertBinaryImageCacheLength:3];
-    [mach_headers_expect_array removeObjectAtIndex:0];
+    [expectedMachHeaders removeObjectAtIndex:0];
+    replace_expected_mach_headers(expectedMachHeaders);
     [self assertCachedBinaryImages];
 }
 
@@ -228,16 +528,20 @@ delayAddBinaryImage(void)
     sentrycrashbic_startCache();
     [self assertBinaryImageCacheLength:5];
 
-    removeBinaryImage([mach_headers_expect_array[indexToRemove] pointerValue], 0);
+    NSMutableArray<NSValue *> *expectedMachHeaders = copy_expected_mach_headers().mutableCopy;
+
+    removeBinaryImage([expectedMachHeaders[indexToRemove] pointerValue], 0);
     [self assertBinaryImageCacheLength:4];
 
-    NSValue *removeItem = mach_headers_expect_array[indexToRemove];
-    [mach_headers_expect_array removeObjectAtIndex:indexToRemove];
+    NSValue *removeItem = expectedMachHeaders[indexToRemove];
+    [expectedMachHeaders removeObjectAtIndex:indexToRemove];
+    replace_expected_mach_headers(expectedMachHeaders);
     [self assertCachedBinaryImages];
 
     addBinaryImage(removeItem.pointerValue, 0);
     [self assertBinaryImageCacheLength:5];
-    [mach_headers_expect_array insertObject:removeItem atIndex:4];
+    [expectedMachHeaders insertObject:removeItem atIndex:4];
+    replace_expected_mach_headers(expectedMachHeaders);
     [self assertCachedBinaryImages];
 }
 
@@ -308,13 +612,21 @@ delayAddBinaryImage(void)
     addBinaryImage([mach_headers_test_cache[5] pointerValue], 0);
     XCTAssertEqual(6, imageCache.cache.count);
 
-    removeBinaryImage([mach_headers_expect_array[1] pointerValue], 0);
-    removeBinaryImage([mach_headers_expect_array[2] pointerValue], 0);
+    NSArray<NSValue *> *expectedMachHeaders = copy_expected_mach_headers();
+    removeBinaryImage([expectedMachHeaders[1] pointerValue], 0);
+    removeBinaryImage([expectedMachHeaders[2] pointerValue], 0);
     XCTAssertEqual(4, imageCache.cache.count);
     [imageCache stop];
 
     addBinaryImage([mach_headers_test_cache[6] pointerValue], 0);
     XCTAssertNil(imageCache.cache);
+}
+
+- (SentryCrashBinaryImageCacheDebugInfo)debugInfo
+{
+    SentryCrashBinaryImageCacheDebugInfo debugInfo = { 0 };
+    sentrycrashbic_getDebugInfo(&debugInfo);
+    return debugInfo;
 }
 
 - (void)assertBinaryImageCacheLength:(int)expected
@@ -329,10 +641,13 @@ delayAddBinaryImage(void)
 
 - (void)assertCachedBinaryImages
 {
-    NSArray *cached = [self binaryImageCacheToArray];
+    NSArray<NSValue *> *cached = [self binaryImageCacheToArray];
+    NSArray<NSValue *> *expectedMachHeaders = copy_expected_mach_headers();
+
+    XCTAssertEqual(cached.count, expectedMachHeaders.count);
     for (NSUInteger i = 0; i < cached.count; i++) {
         SentryCrashBinaryImage *binaryImage = [cached[i] pointerValue];
-        struct mach_header *header = [mach_headers_expect_array[i] pointerValue];
+        struct mach_header *header = [expectedMachHeaders[i] pointerValue];
         XCTAssertEqual(binaryImage->address, (uint64_t)header);
     }
 }

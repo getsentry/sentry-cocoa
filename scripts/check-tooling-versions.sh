@@ -10,7 +10,7 @@ cd "${0%/*}"
 # -- Begin Script --
 
 REMOTE_CLANG_FORMAT_VERSION=$(cat .clang-format-version)
-LOCAL_CLANG_FORMAT_VERSION=$(clang-format --version | awk '{print $3}')
+LOCAL_CLANG_FORMAT_VERSION=$(clang-format --version | grep -Eo '[0-9]+(\.[0-9]+)+' | head -n1)
 
 REMOTE_SWIFTLINT_VERSION=$(cat .swiftlint-version)
 LOCAL_SWIFTLINT_VERSION=$(swiftlint version)
@@ -29,7 +29,7 @@ if [ "${LOCAL_SWIFTLINT_VERSION}" != "${REMOTE_SWIFTLINT_VERSION}" ]; then
     SENTRY_TOOLING_UP_TO_DATE=false
 fi
 
-if ! rbenv version 2>/dev/null; then
+if ! rbenv version > /dev/null 2>&1; then
     rbenv versions
     SENTRY_TOOLING_UP_TO_DATE=false
 fi

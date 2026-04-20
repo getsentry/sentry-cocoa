@@ -1,8 +1,10 @@
 #include "SentryCrashBinaryImageCache.h"
 #include "SentryCrashDynamicLinker.h"
 #include <dispatch/dispatch.h>
+#include <dlfcn.h>
 #include <mach-o/dyld.h>
 #include <mach-o/dyld_images.h>
+#include <mach/mach_time.h>
 #include <pthread.h>
 #include <stdatomic.h>
 #include <stdio.h>
@@ -65,8 +67,8 @@ sentry_resetFuncForAddRemoveImage(void)
 #define MAX_DYLD_IMAGES 4096
 
 // Entry lifecycle states
-#define IMAGE_EMPTY 0   // Slot reserved but data not written, or write failed
-#define IMAGE_READY 1   // Published, visible to readers
+#define IMAGE_EMPTY 0 // Slot reserved but data not written, or write failed
+#define IMAGE_READY 1 // Published, visible to readers
 #define IMAGE_REMOVED 3 // Image was unloaded
 
 typedef struct {
@@ -78,13 +80,94 @@ typedef struct {
 // Each slot is used at most once, so there are no stale state flags from prior runs.
 static PublishedBinaryImage g_images[MAX_DYLD_IMAGES];
 static _Atomic(uint32_t) g_next_index = 0;
+static _Atomic(bool) g_started = false;
+static _Atomic(bool) g_overflowed = false;
+static _Atomic(uint64_t) g_bootstrapDurationNanos = 0;
+static _Atomic(uint32_t) g_maxImages = MAX_DYLD_IMAGES;
 
 static _Atomic(sentrycrashbic_cacheChangeCallback) g_addedCallback = NULL;
 static _Atomic(sentrycrashbic_cacheChangeCallback) g_removedCallback = NULL;
 
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+void
+sentrycrashbic_setMaxImagesForTests(uint32_t maxImages)
+{
+    uint32_t clampedMaxImages = maxImages == 0 ? 1 : maxImages;
+    if (clampedMaxImages > MAX_DYLD_IMAGES) {
+        clampedMaxImages = MAX_DYLD_IMAGES;
+    }
+
+    atomic_store_explicit(&g_maxImages, clampedMaxImages, memory_order_relaxed);
+}
+#endif
+
+static uint64_t
+sentrycrashbic_currentTimeNanos(void)
+{
+    mach_timebase_info_data_t timebase = { 0 };
+    if (mach_timebase_info(&timebase) != KERN_SUCCESS || timebase.denom == 0) {
+        return 0;
+    }
+
+    const uint64_t time = mach_absolute_time();
+    const __uint128_t scaled = ((__uint128_t)time * timebase.numer) / timebase.denom;
+    return (uint64_t)scaled;
+}
+
+static void
+sentrycrashbic_markOverflowed(void)
+{
+    atomic_store_explicit(&g_overflowed, true, memory_order_relaxed);
+}
+
+static uint32_t
+sentrycrashbic_readyImageCount(void)
+{
+    uint32_t count = atomic_load_explicit(&g_next_index, memory_order_acquire);
+    if (count > MAX_DYLD_IMAGES) {
+        count = MAX_DYLD_IMAGES;
+    }
+
+    uint32_t readyImageCount = 0;
+    for (uint32_t i = 0; i < count; i++) {
+        if (atomic_load_explicit(&g_images[i].state, memory_order_acquire) == IMAGE_READY) {
+            readyImageCount++;
+        }
+    }
+
+    return readyImageCount;
+}
+
+static bool
+sentrycrashbic_dyldImageNamed(const char *imageName)
+{
+    if (imageName == NULL) {
+        return false;
+    }
+
+    const uint32_t imageCount = _dyld_image_count();
+    for (uint32_t i = 0; i < imageCount; i++) {
+        const struct mach_header *header = _dyld_get_image_header(i);
+        const char *name = _dyld_get_image_name(i);
+        if (header == NULL || name == NULL) {
+            continue;
+        }
+
+        if (strstr(name, imageName) != NULL) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 static void
 add_dyld_image(const struct mach_header *mh)
 {
+    if (!atomic_load_explicit(&g_started, memory_order_acquire)) {
+        return;
+    }
+
     // Check dladdr first, before reserving a slot in the array.
     Dl_info info;
     if (!dladdr(mh, &info) || info.dli_fname == NULL) {
@@ -94,9 +177,15 @@ add_dyld_image(const struct mach_header *mh)
     // Test hook: called just before adding the image
     _will_add_image();
 
-    uint32_t idx = atomic_fetch_add_explicit(&g_next_index, 1, memory_order_relaxed);
+    if (!atomic_load_explicit(&g_started, memory_order_acquire)) {
+        return;
+    }
 
-    if (idx >= MAX_DYLD_IMAGES) {
+    uint32_t idx = atomic_fetch_add_explicit(&g_next_index, 1, memory_order_relaxed);
+    uint32_t maxImages = atomic_load_explicit(&g_maxImages, memory_order_relaxed);
+
+    if (idx >= maxImages || idx >= MAX_DYLD_IMAGES) {
+        sentrycrashbic_markOverflowed();
         return;
     }
 
@@ -126,6 +215,10 @@ dyld_add_image_cb(const struct mach_header *mh, intptr_t slide)
 static void
 dyld_remove_image_cb(const struct mach_header *mh, intptr_t slide)
 {
+    if (!atomic_load_explicit(&g_started, memory_order_acquire)) {
+        return;
+    }
+
     sentrycrashbic_cacheChangeCallback callback
         = atomic_load_explicit(&g_removedCallback, memory_order_acquire);
 
@@ -183,7 +276,7 @@ sentrycrashbic_shouldAddDyld(void)
     // dyld is different from libdyld.dylib; the latter contains the public API
     // (like dlopen, dlsym, dlclose) while the former is the actual dynamic
     // linker executable that handles runtime library loading and symbol resolution
-    return sentrycrashdl_imageNamed("/usr/lib/dyld", false) == UINT32_MAX;
+    return !sentrycrashbic_dyldImageNamed("/usr/lib/dyld");
 }
 
 // Since Apple no longer includes dyld in the images listed `_dyld_image_count` and related
@@ -196,7 +289,9 @@ sentrycrashbic_addDyldNode(void)
     const struct mach_header *header = sentryDyldHeader;
 
     uint32_t idx = atomic_fetch_add_explicit(&g_next_index, 1, memory_order_relaxed);
-    if (idx >= MAX_DYLD_IMAGES) {
+    uint32_t maxImages = atomic_load_explicit(&g_maxImages, memory_order_relaxed);
+    if (idx >= maxImages || idx >= MAX_DYLD_IMAGES) {
+        sentrycrashbic_markOverflowed();
         return;
     }
 
@@ -212,12 +307,49 @@ sentrycrashbic_addDyldNode(void)
 static void
 sentrycrashbic_startCacheImpl(void)
 {
+    if (atomic_exchange_explicit(&g_started, true, memory_order_acq_rel)) {
+        return;
+    }
+
+    const uint64_t startTime = sentrycrashbic_currentTimeNanos();
+
     if (sentrycrashbic_shouldAddDyld()) {
         sentrycrashdl_initialize();
         sentrycrashbic_addDyldNode();
     }
     // During this call the callback is invoked synchronously for every existing image.
     dyld_tracker_start();
+
+    const uint64_t endTime = sentrycrashbic_currentTimeNanos();
+    if (endTime >= startTime) {
+        uint64_t duration = endTime - startTime;
+        if (duration == 0) {
+            duration = 1;
+        }
+        atomic_store_explicit(&g_bootstrapDurationNanos, duration, memory_order_relaxed);
+    }
+}
+
+static void
+sentrycrashbic_clearState(void)
+{
+    atomic_store_explicit(&g_started, false, memory_order_relaxed);
+
+    uint32_t count = atomic_load_explicit(&g_next_index, memory_order_relaxed);
+    if (count > MAX_DYLD_IMAGES) {
+        count = MAX_DYLD_IMAGES;
+    }
+
+    for (uint32_t i = 0; i < count; i++) {
+        atomic_store_explicit(&g_images[i].state, IMAGE_EMPTY, memory_order_relaxed);
+    }
+
+    atomic_store_explicit(&g_next_index, 0, memory_order_relaxed);
+    atomic_store_explicit(&g_addedCallback, NULL, memory_order_relaxed);
+    atomic_store_explicit(&g_removedCallback, NULL, memory_order_relaxed);
+    atomic_store_explicit(&g_overflowed, false, memory_order_relaxed);
+    atomic_store_explicit(&g_bootstrapDurationNanos, 0, memory_order_relaxed);
+    atomic_store_explicit(&g_maxImages, MAX_DYLD_IMAGES, memory_order_relaxed);
 }
 
 void
@@ -237,30 +369,40 @@ sentrycrashbic_startCache(void)
     static dispatch_once_t once_token = 0;
     dispatch_once(&once_token, ^{
         dispatch_async(
-                       dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{ sentrycrashbic_startCacheImpl(); });
+            dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{ sentrycrashbic_startCacheImpl(); });
     });
 #endif
 }
 
 void
 sentrycrashbic_stopCache(void)
-{ }
+{
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+    sentrycrashbic_clearState();
+#endif
+}
+
+void
+sentrycrashbic_getDebugInfo(SentryCrashBinaryImageCacheDebugInfo *debugInfo)
+{
+    if (debugInfo == NULL) {
+        return;
+    }
+
+    debugInfo->populatedImageCount = sentrycrashbic_readyImageCount();
+    debugInfo->overflowed = atomic_load_explicit(&g_overflowed, memory_order_relaxed);
+    debugInfo->bootstrapDurationNanos
+        = atomic_load_explicit(&g_bootstrapDurationNanos, memory_order_relaxed);
+}
 
 // Resetting can create race conditions so should only be done in controlled test environments.
 #if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 void
-sentry_resetBinaryImageCache(void)
+sentrycrashbic_resetForTests(void)
 {
-    uint32_t count = atomic_load_explicit(&g_next_index, memory_order_relaxed);
-    if (count > MAX_DYLD_IMAGES)
-        count = MAX_DYLD_IMAGES;
-    for (uint32_t i = 0; i < count; i++) {
-        atomic_store_explicit(&g_images[i].state, IMAGE_EMPTY, memory_order_relaxed);
-    }
-    atomic_store_explicit(&g_next_index, 0, memory_order_relaxed);
-    atomic_store_explicit(&g_addedCallback, NULL, memory_order_relaxed);
-    atomic_store_explicit(&g_removedCallback, NULL, memory_order_relaxed);
+    sentrycrashbic_clearState();
 }
+
 #endif
 
 void

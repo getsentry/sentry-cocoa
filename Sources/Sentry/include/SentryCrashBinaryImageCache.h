@@ -12,6 +12,12 @@ typedef void (*sentrycrashbic_imageIteratorCallback)(SentryCrashBinaryImage *, v
 
 typedef void (*sentrycrashbic_cacheChangeCallback)(const SentryCrashBinaryImage *binaryImage);
 
+typedef struct {
+    uint32_t populatedImageCount;
+    bool overflowed;
+    uint64_t bootstrapDurationNanos;
+} SentryCrashBinaryImageCacheDebugInfo;
+
 void sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback index, void *context);
 
 /**
@@ -25,10 +31,16 @@ void sentrycrashbic_startCache(void);
 void sentrycrashbic_stopCache(void);
 
 /**
+ * Returns cache health information for diagnostics.
+ */
+void sentrycrashbic_getDebugInfo(SentryCrashBinaryImageCacheDebugInfo *debugInfo);
+
+/**
  * Register a callback to be called every time a new binary image is added to the cache.
  * After register, this callback will be called for every image already in the cache,
  * this is a thread safe operation. The callback can be called multiple times for the same image
- * If the image was being registered on a different thread at the same time the callback is registered.
+ * If the image was being registered on a different thread at the same time the callback is
+ * registered.
  */
 void sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback callback);
 

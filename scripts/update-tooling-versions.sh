@@ -9,7 +9,7 @@ cd "${0%/*}"
 
 # -- Begin Script --
 
-clang-format --version | awk '{print $3}' > .clang-format-version
+clang-format --version | grep -Eo '[0-9]+(\.[0-9]+)+' | head -n1 > .clang-format-version
 swiftlint version > .swiftlint-version
 
 # -- End Script --
