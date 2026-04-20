@@ -12,6 +12,7 @@
 - Keep replayType as `buffer` for Session Replay triggered by an error (#7804)
 - Fix race condition in scope observer notifications causing EXC_BAD_ACCESS during cold launch (#7807)
 - Unsubscribe to system event during background to avoid reporting breadcrumbs with wrong timestamps on return to foreground (#7702)
+- Fix SwiftUI's images and text redaction in iOS 26 (#7781)
 
 ## 9.10.0
 
