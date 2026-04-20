@@ -49,6 +49,7 @@ class SentryLayerRedactionTests: SentryUIRedactBuilderTests {
 
     func testBase64EncodedLayerClassesAreCorrectlyDecoded() throws {
         guard #available(iOS 26.0, tvOS 26.0, *) else { throw XCTSkip("Layer-only redaction requires iOS 26+") }
+        
         let sut = getSut(maskAllText: true, maskAllImages: true)
         let layerIds = sut.getRedactLayerClassIdsTestOnly()
 
@@ -68,6 +69,7 @@ class SentryLayerRedactionTests: SentryUIRedactBuilderTests {
 
     func testLayerClassesNotRegistered_whenMaskAllTextDisabled() throws {
         guard #available(iOS 26.0, tvOS 26.0, *) else { throw XCTSkip("Layer-only redaction requires iOS 26+") }
+        
         let sut = getSut(maskAllText: false, maskAllImages: true)
         let layerIds = sut.getRedactLayerClassIdsTestOnly()
 
@@ -80,6 +82,7 @@ class SentryLayerRedactionTests: SentryUIRedactBuilderTests {
 
     func testLayerClassesNotRegistered_whenMaskAllImagesDisabled() throws {
         guard #available(iOS 26.0, tvOS 26.0, *) else { throw XCTSkip("Layer-only redaction requires iOS 26+") }
+        
         let sut = getSut(maskAllText: true, maskAllImages: false)
         let layerIds = sut.getRedactLayerClassIdsTestOnly()
 
@@ -96,6 +99,7 @@ class SentryLayerRedactionTests: SentryUIRedactBuilderTests {
 
     func testNoLayerClassesRegistered_whenBothMaskingDisabled() throws {
         guard #available(iOS 26.0, tvOS 26.0, *) else { throw XCTSkip("Layer-only redaction requires iOS 26+") }
+        
         let sut = getSut(maskAllText: false, maskAllImages: false)
         let layerIds = sut.getRedactLayerClassIdsTestOnly()
 
@@ -105,6 +109,8 @@ class SentryLayerRedactionTests: SentryUIRedactBuilderTests {
     // MARK: - Layer-only redaction via mapRedactRegion
 
     func testRedact_layerOnlySublayer_shouldRedact() throws {
+        guard #available(iOS 26.0, tvOS 26.0, *) else { throw XCTSkip("Layer-only redaction requires iOS 26+") }
+        
         let (sut, rootView) = makeSutAndRootView(sublayerFrame: CGRect(x: 10, y: 10, width: 80, height: 20))
         let result = sut.redactRegionsFor(view: rootView)
 
@@ -113,7 +119,9 @@ class SentryLayerRedactionTests: SentryUIRedactBuilderTests {
         XCTAssertEqual(redactRegions.first?.size, CGSize(width: 80, height: 20))
     }
 
-    func testRedact_layerOnlySublayer_notRedacted_whenClassNotRegistered() {
+    func testRedact_layerOnlySublayer_notRedacted_whenClassNotRegistered() throws {
+        guard #available(iOS 26.0, tvOS 26.0, *) else { throw XCTSkip("Layer-only redaction requires iOS 26+") }
+        
         let sut = getSut()
         // Don't call addRedactLayerClassIdTestOnly — DummyRedactableLayer is not registered
         let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
@@ -129,7 +137,9 @@ class SentryLayerRedactionTests: SentryUIRedactBuilderTests {
 
     // MARK: - Hidden / transparent layer-only sublayers
 
-    func testRedact_hiddenLayerOnlySublayer_shouldNotRedact() {
+    func testRedact_hiddenLayerOnlySublayer_shouldNotRedact() throws {
+        guard #available(iOS 26.0, tvOS 26.0, *) else { throw XCTSkip("Layer-only redaction requires iOS 26+") }
+        
         let (sut, rootView) = makeSutAndRootView()
         rootView.layer.sublayers?.last?.isHidden = true
 
@@ -139,7 +149,9 @@ class SentryLayerRedactionTests: SentryUIRedactBuilderTests {
         XCTAssertEqual(redactRegions.count, 0, "Hidden layer-only sublayer should not be redacted")
     }
 
-    func testRedact_zeroOpacityLayerOnlySublayer_shouldNotRedact() {
+    func testRedact_zeroOpacityLayerOnlySublayer_shouldNotRedact() throws {
+        guard #available(iOS 26.0, tvOS 26.0, *) else { throw XCTSkip("Layer-only redaction requires iOS 26+") }
+        
         let (sut, rootView) = makeSutAndRootView()
         rootView.layer.sublayers?.last?.opacity = 0
 
@@ -151,7 +163,9 @@ class SentryLayerRedactionTests: SentryUIRedactBuilderTests {
 
     // MARK: - Unknown layer types should not be redacted
 
-    func testRedact_unknownLayerOnlySublayer_shouldNotRedact() {
+    func testRedact_unknownLayerOnlySublayer_shouldNotRedact() throws {
+        guard #available(iOS 26.0, tvOS 26.0, *) else { throw XCTSkip("Layer-only redaction requires iOS 26+") }
+        
         let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let sublayer = CALayer()
         sublayer.frame = CGRect(x: 10, y: 10, width: 60, height: 20)
@@ -166,7 +180,9 @@ class SentryLayerRedactionTests: SentryUIRedactBuilderTests {
 
     // MARK: - Region type is .redact (not .redactSwiftUI)
 
-    func testRedact_layerOnlySublayer_producesRedactType_notRedactSwiftUI() {
+    func testRedact_layerOnlySublayer_producesRedactType_notRedactSwiftUI() throws {
+        guard #available(iOS 26.0, tvOS 26.0, *) else { throw XCTSkip("Layer-only redaction requires iOS 26+") }
+        
         let (sut, rootView) = makeSutAndRootView()
         let result = sut.redactRegionsFor(view: rootView)
 
@@ -179,7 +195,9 @@ class SentryLayerRedactionTests: SentryUIRedactBuilderTests {
 
     // MARK: - enforceIgnore respected
 
-    func testRedact_layerOnlySublayer_notRedacted_whenParentUnmasked() {
+    func testRedact_layerOnlySublayer_notRedacted_whenParentUnmasked() throws {
+        guard #available(iOS 26.0, tvOS 26.0, *) else { throw XCTSkip("Layer-only redaction requires iOS 26+") }
+        
         let sut = getSut()
         sut.addRedactLayerClassIdTestOnly(DummyRedactableLayer.description())
 
