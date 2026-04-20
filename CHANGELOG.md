@@ -6,6 +6,13 @@
 
 - Track low power mode in device context (#7777)
 
+### Fixes
+
+- Detect development builds via provisioning profile and debugger attachment (#7702)
+- Keep replayType as `buffer` for Session Replay triggered by an error (#7804)
+- Fix race condition in scope observer notifications causing EXC_BAD_ACCESS during cold launch (#7807)
+- Unsubscribe to system event during background to avoid reporting breadcrumbs with wrong timestamps on return to foreground (#7702)
+
 ## 9.10.0
 
 ### Features
@@ -42,7 +49,7 @@
 - Copy incoming tags dict to prevent crash (#7763)
 - Per-instance unmaskView propagates to child views (#7733)
   - **Warning:** If you relied on children of an unmasked view still being individually redacted, verify your Session Replay redaction after updating. An explicit `maskView(_:)` on a descendant still takes precedence.
-- Move SessionTracker file I/O off the main thread ([#7704](https://github.com/getsentry/sentry-cocoa/pull/7704))
+- Move SessionTracker file I/O off the main thread (#7704)
 
 ## 9.8.0
 
@@ -225,6 +232,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
 - Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes local symbolication when `debug=True` which fixes various deadlocks (#6562)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
@@ -307,6 +315,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
 - Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes local symbolication when `debug=True` which fixes various deadlocks (#6562)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
@@ -383,6 +392,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
 - Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes local symbolication when `debug=True` which fixes various deadlocks (#6562)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
@@ -458,6 +468,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
 - Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes local symbolication when `debug=True` which fixes various deadlocks (#6562)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
