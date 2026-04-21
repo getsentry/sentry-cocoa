@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Fix `Package@swift-6.1.swift` SPM manifest compilation on Swift 6.1 / Xcode 26 (#7800, #7819)
+- Fix `Package@swift-6.1.swift` SPM manifest compilation on Swift 6.1 / Xcode 26 (#7800)
 
 ## 8.58.1
 
