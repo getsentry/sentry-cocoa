@@ -63,15 +63,6 @@ public final class SentryCrashWrapper: NSObject {
 #endif
 
 @_spi(Private) extension SentryCrashWrapper {
-    @objc
-    public func startBinaryImageCache() {
-        sentrycrashbic_startCache()
-    }
-    
-    @objc
-    public func stopBinaryImageCache() {
-        sentrycrashbic_stopCache()
-    }
     
     @objc
     public var crashedLastLaunch: Bool {
