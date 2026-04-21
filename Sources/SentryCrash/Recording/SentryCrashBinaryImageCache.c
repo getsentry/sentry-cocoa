@@ -330,6 +330,7 @@ sentrycrashbic_startCacheImpl(void)
     }
 }
 
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 static void
 sentrycrashbic_clearState(void)
 {
@@ -351,6 +352,7 @@ sentrycrashbic_clearState(void)
     atomic_store_explicit(&g_bootstrapDurationNanos, 0, memory_order_relaxed);
     atomic_store_explicit(&g_maxImages, MAX_DYLD_IMAGES, memory_order_relaxed);
 }
+#endif
 
 void
 sentrycrashbic_startCache(void)
