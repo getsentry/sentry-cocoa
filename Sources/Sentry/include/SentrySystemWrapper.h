@@ -23,11 +23,18 @@ typedef mach_vm_size_t SentryRAMBytes;
 - (SentryRAMBytes)memoryFootprintBytes:(NSError **)error;
 
 /**
- * @return The CPU usage per core, where the order of results corresponds to the core number as
- * returned by the underlying system call, e.g. @c @[ @c <core-0-CPU-usage>, @c <core-1-CPU-usage>,
- * @c ...] .
+ * @return The CPU usage of this process as a percentage of the device's total CPU capacity,
+ * normalized to a range from @c 0.0 to @c 100.0.
  */
 - (nullable NSNumber *)cpuUsageWithError:(NSError **)error;
+
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+/**
+ * Test-only helper that normalizes a thread CPU usage value returned by Mach to the
+ * process's percentage of the device's total CPU capacity.
+ */
++ (float)normalizeCPUUsage:(integer_t)threadCPUUsage processorCount:(long)processorCount;
+#    endif
 
 // Only some architectures support reading energy.
 #    if defined(__arm__) || defined(__arm64__)

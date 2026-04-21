@@ -8,6 +8,7 @@
 
 ### Fixes
 
+- Normalize profiling cpu usage to percent (#7798)
 - Detect development builds via provisioning profile and debugger attachment (#7702)
 - Keep replayType as `buffer` for Session Replay triggered by an error (#7804)
 - Fix race condition in scope observer notifications causing EXC_BAD_ACCESS during cold launch (#7807)
