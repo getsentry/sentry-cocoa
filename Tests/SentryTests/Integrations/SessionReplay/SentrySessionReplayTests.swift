@@ -236,6 +236,28 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(event.context?["replay"]?["replay_id"] as? String, sut.sessionReplayId?.sentryIdString)
         assertFullSession(sut, expected: true)
     }
+
+    func testChangeReplayMode_forErrorEvent_shouldKeepBufferReplayTypeForFollowingSegments() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+
+        // -- Act --
+        let event = Event(error: NSError(domain: "Some error", code: 1))
+        sut.captureReplayFor(event: event)
+        let firstSegment = try XCTUnwrap(fixture.lastReplayEvent)
+
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+        let secondSegment = try XCTUnwrap(fixture.lastReplayEvent)
+
+        // -- Assert --
+        XCTAssertEqual(firstSegment.replayType, .buffer)
+        XCTAssertEqual(firstSegment.segmentId, 0)
+        XCTAssertEqual(secondSegment.replayType, .buffer)
+        XCTAssertEqual(secondSegment.segmentId, 1)
+    }
     
     func testDontChangeReplayMode_forNonErrorEvent() {
         let fixture = Fixture()
@@ -258,6 +280,27 @@ class SentrySessionReplayTests: XCTestCase {
 
         XCTAssertEqual(fixture.lastReplayId, sut.sessionReplayId)
         assertFullSession(sut, expected: true)
+    }
+
+    func testCaptureReplay_whenRequestedAsSession_shouldKeepSessionReplayTypeForFollowingSegments() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+
+        // -- Act --
+        _ = sut.captureReplay(replayType: .session)
+        let firstSegment = try XCTUnwrap(fixture.lastReplayEvent)
+
+        fixture.dateProvider.advance(by: 5)
+        Dynamic(sut).newFrame(nil)
+        let secondSegment = try XCTUnwrap(fixture.lastReplayEvent)
+
+        // -- Assert --
+        XCTAssertEqual(firstSegment.replayType, .session)
+        XCTAssertEqual(firstSegment.segmentId, 0)
+        XCTAssertEqual(secondSegment.replayType, .session)
+        XCTAssertEqual(secondSegment.segmentId, 1)
     }
 
     func testSessionReplayMaximumDuration() {

@@ -373,7 +373,63 @@ class SentrySystemEventBreadcrumbsTest: XCTestCase {
     func testStopCallsSpecificRemoveObserverMethods() {
         sut = fixture.getSut(currentDevice: nil)
         sut.stop()
+        // 8 system event observers + 2 lifecycle observers (didEnterBackground, willEnterForeground)
+        XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 10)
+    }
+
+    // MARK: - Lifecycle Tests
+
+    func testBackgroundUnsubscribesFromSystemEvents() {
+        sut = fixture.getSut(currentDevice: nil)
+        fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.removeAll()
+
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.didEnterBackgroundNotification))
+
+        // Should have removed all 8 system event observers
         XCTAssertEqual(fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count, 8)
+    }
+
+    func testForegroundResubscribesToSystemEvents() {
+        sut = fixture.getSut(currentDevice: nil)
+
+        // Go to background first
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.didEnterBackgroundNotification))
+        fixture.notificationCenterWrapper.addObserverWithObjectInvocations.removeAll()
+
+        // Then come back to foreground
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.willEnterForegroundNotification))
+
+        // Should have re-registered system event observers (8 on iOS: battery x2, orientation, keyboard x2, screenshot, timezone, significant time)
+        XCTAssertEqual(fixture.notificationCenterWrapper.addObserverWithObjectInvocations.count, 8)
+    }
+
+    func testRepeatedBackgroundDoesNotDoubleUnsubscribe() {
+        sut = fixture.getSut(currentDevice: nil)
+        fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.removeAll()
+
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.didEnterBackgroundNotification))
+        let firstCount = fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count
+
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.didEnterBackgroundNotification))
+        let secondCount = fixture.notificationCenterWrapper.removeObserverWithNameAndObjectInvocations.count
+
+        XCTAssertEqual(firstCount, secondCount, "Second background notification should be a no-op")
+    }
+
+    func testRepeatedForegroundDoesNotDoubleSubscribe() {
+        sut = fixture.getSut(currentDevice: nil)
+
+        // Go to background and back
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.didEnterBackgroundNotification))
+        fixture.notificationCenterWrapper.addObserverWithObjectInvocations.removeAll()
+
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.willEnterForegroundNotification))
+        let firstCount = fixture.notificationCenterWrapper.addObserverWithObjectInvocations.count
+
+        fixture.notificationCenterWrapper.post(Notification(name: UIApplication.willEnterForegroundNotification))
+        let secondCount = fixture.notificationCenterWrapper.addObserverWithObjectInvocations.count
+
+        XCTAssertEqual(firstCount, secondCount, "Second foreground notification should be a no-op")
     }
     
     private func postBatteryLevelNotification(uiDevice: UIDevice?) {
