@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- fix: Normalize profiling cpu usage to percent (#7798)
+- Normalize profiling cpu usage to percent (#7798)
 - Detect development builds via provisioning profile and debugger attachment (#7702)
 
 ## 9.10.0
