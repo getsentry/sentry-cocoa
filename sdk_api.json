@@ -37005,6 +37005,45 @@
             "usr": "c:@M@Sentry@E@SentryExtensionType@SentryExtensionTypeIntent"
           },
           {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryExtensionType",
+                        "printedName": "Sentry.SentryExtensionType",
+                        "usr": "c:@M@Sentry@E@SentryExtensionType"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryExtensionType.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryExtensionType",
+                    "printedName": "Sentry.SentryExtensionType",
+                    "usr": "c:@M@Sentry@E@SentryExtensionType"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryExtensionType.Type) -> Sentry.SentryExtensionType"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "notificationService",
+            "printedName": "notificationService",
+            "usr": "c:@M@Sentry@E@SentryExtensionType@SentryExtensionTypeNotificationService"
+          },
+          {
             "accessors": [
               {
                 "accessorKind": "get",
