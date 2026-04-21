@@ -161,6 +161,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
         mechanism.data = [sentryANRMechanismDataAppHangDuration: appHangDurationInfo]
         let scope = SentrySDKInternal.currentHub().scope
         scope.applyTo(event: event, maxBreadcrumbs: options.maxBreadcrumbs)
+        addAppState(to: event)
         apply(options: SentrySDK.startOption, toEvent: event)
         fileManager.storeAppHang(event)
         #else
@@ -204,6 +205,15 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     }
 
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    private func addAppState(to event: Event) {
+        var context = event.context ?? [:]
+        var appContext = context["app"] ?? [:]
+        appContext["in_foreground"] = true
+        appContext["is_active"] = true
+        context["app"] = appContext
+        event.context = context
+    }
+
     private func captureStoredAppHangEvent() {
         dispatchQueueWrapper.dispatchAsync { [weak self] in
             guard let self else { return }
