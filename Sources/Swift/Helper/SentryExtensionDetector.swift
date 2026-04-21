@@ -14,7 +14,8 @@ final class SentryExtensionDetector: NSObject {
             .widget,
             .intent,
             .action,
-            .share
+            .share,
+            .notificationService
         ]
     }
 
