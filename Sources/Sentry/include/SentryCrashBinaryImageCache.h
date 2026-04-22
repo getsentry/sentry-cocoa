@@ -15,13 +15,15 @@ typedef void (*sentrycrashbic_cacheChangeCallback)(const SentryCrashBinaryImage 
 void sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback index, void *context);
 
 /**
- * Starts the cache that will monitor binary image being loaded or removed.
+ * Starts the cache that monitors binary images being loaded or removed.
+ * The expensive dyld bootstrap is scheduled only once for the lifetime of the process.
  */
 void sentrycrashbic_startCache(void);
 
 /**
- * Stops the cache from monitoring binary image being loaded or removed.
- * This will also clean the cache.
+ * Disconnects higher-level consumers from the binary image cache.
+ * Once the canonical C cache has been bootstrapped it keeps tracking loaded images so
+ * crashes can still be symbolicated across stop/start cycles.
  */
 void sentrycrashbic_stopCache(void);
 

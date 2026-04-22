@@ -1,3 +1,4 @@
+#import "SentryCrashBinaryImageCache+Test.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashDynamicLinker+Test.h"
 #import "SentrySwift.h"
@@ -6,11 +7,7 @@
 #include <mach-o/dyld.h>
 #include <mach-o/dyld_images.h>
 
-// Exposing test only functions from `SentryCrashBinaryImageCache.m`
-void sentry_setRegisterFuncForAddImage(void *addFunction);
-void sentry_setRegisterFuncForRemoveImage(void *removeFunction);
-void sentry_resetFuncForAddRemoveImage(void);
-void sentry_setFuncForBeforeAdd(void (*callback)(void));
+// Test-only functions are declared in `SentryCrashBinaryImageCache+Test.h`
 
 static void (*addBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slide);
 static void (*removeBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slide);
@@ -59,6 +56,39 @@ addBinaryImageToArray(SentryCrashBinaryImage *image, void *context)
     [array addObject:[NSValue valueWithPointer:image]];
 }
 
+static void
+addBinaryImageNameToArray(SentryCrashBinaryImage *image, void *context)
+{
+    NSMutableArray *array = (__bridge NSMutableArray *)context;
+    if (image->name) {
+        [array addObject:[NSString stringWithUTF8String:image->name]];
+    } else {
+        [array addObject:@"<null>"];
+    }
+}
+
+static NSMutableArray<NSString *> *added_image_names;
+
+static void
+captureAddedImageName(const SentryCrashBinaryImage *image)
+{
+    @synchronized(added_image_names) {
+        if (image->name) {
+            [added_image_names addObject:[NSString stringWithUTF8String:image->name]];
+        } else {
+            [added_image_names addObject:@"<null>"];
+        }
+    }
+}
+
+static NSArray<NSString *> *
+copyAddedImageNames(void)
+{
+    @synchronized(added_image_names) {
+        return [added_image_names copy] ?: @[];
+    }
+}
+
 dispatch_semaphore_t delaySemaphore = NULL;
 dispatch_semaphore_t delayCalled = NULL;
 static void
@@ -91,8 +121,13 @@ delayAddBinaryImage(void)
 
 - (void)setUp
 {
-    sentry_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
-    sentry_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
+    sentrycrashbic_useFreshTestCacheState();
+    sentrycrashbic_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
+    sentrycrashbic_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
+
+    added_image_names = [NSMutableArray array];
+    delaySemaphore = NULL;
+    delayCalled = NULL;
 
     // Copying the first 5 images from the temporary list.
     // 5 is a magic number.
@@ -102,10 +137,12 @@ delayAddBinaryImage(void)
 
 - (void)tearDown
 {
+    added_image_names = nil;
+    delaySemaphore = NULL;
+    delayCalled = NULL;
+
     sentrycrashdl_clearDyld();
-    sentry_resetFuncForAddRemoveImage();
-    sentrycrashbic_stopCache();
-    sentry_setFuncForBeforeAdd(NULL);
+    sentrycrashbic_useDefaultCacheState();
     [SentryDependencyContainer reset];
 }
 
@@ -129,7 +166,7 @@ delayAddBinaryImage(void)
     sentrycrashbic_startCache();
     [self assertBinaryImageCacheLength:5];
     sentrycrashbic_stopCache();
-    [self assertBinaryImageCacheLength:0];
+    [self assertBinaryImageCacheLength:5];
 }
 
 - (void)testStopCacheTwice
@@ -137,9 +174,50 @@ delayAddBinaryImage(void)
     sentrycrashbic_startCache();
     [self assertBinaryImageCacheLength:5];
     sentrycrashbic_stopCache();
-    [self assertBinaryImageCacheLength:0];
+    [self assertBinaryImageCacheLength:5];
     sentrycrashbic_stopCache();
-    [self assertBinaryImageCacheLength:0];
+    [self assertBinaryImageCacheLength:5];
+}
+
+- (void)testRegisterAddedCallbackBeforeStartingCache
+{
+    // Deterministically simulates the async production path where the callback is installed before
+    // `addDyldImage()` runs.
+    sentrycrashbic_registerAddedCallback(&captureAddedImageName);
+
+    sentrycrashbic_startCache();
+
+    NSArray<NSString *> *names = copyAddedImageNames();
+    XCTAssertEqual(5, names.count);
+    XCTAssertTrue([names containsObject:@"dyld"]);
+}
+
+- (void)testUseFreshTestCacheState_whenSwitchingStates_shouldResetAndIsolateTheActiveCache
+{
+    sentrycrashbic_useDefaultCacheState();
+    sentrycrashbic_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
+    sentrycrashbic_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
+
+    sentrycrashbic_startCache();
+    addBinaryImage([mach_headers_test_cache[5] pointerValue], 0);
+    [self assertBinaryImageCacheLength:6];
+
+    sentrycrashbic_useFreshTestCacheState();
+    sentrycrashbic_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
+    sentrycrashbic_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
+
+    sentrycrashbic_startCache();
+    [self assertBinaryImageCacheLength:5];
+
+    addBinaryImage([mach_headers_test_cache[6] pointerValue], 0);
+    [self assertBinaryImageCacheLength:6];
+
+    sentrycrashbic_useDefaultCacheState();
+    sentrycrashbic_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
+    sentrycrashbic_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
+
+    sentrycrashbic_startCache();
+    [self assertBinaryImageCacheLength:5];
 }
 
 - (void)testAddNewImage
@@ -176,7 +254,7 @@ delayAddBinaryImage(void)
 
     sentrycrashbic_stopCache();
     addBinaryImage([mach_headers_test_cache[6] pointerValue], 0);
-    [self assertBinaryImageCacheLength:0];
+    [self assertBinaryImageCacheLength:6];
 }
 
 - (void)testRemoveImageFromTail
@@ -262,19 +340,25 @@ delayAddBinaryImage(void)
 - (void)testCloseCacheWhileAdding
 {
     sentrycrashbic_startCache();
-    sentry_setFuncForBeforeAdd(&delayAddBinaryImage);
+    sentrycrashbic_setBeforeAddImageCallback(&delayAddBinaryImage);
     delaySemaphore = dispatch_semaphore_create(0);
     delayCalled = dispatch_semaphore_create(0);
+    dispatch_semaphore_t addFinished = dispatch_semaphore_create(0);
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-        ^{ addBinaryImage([mach_headers_test_cache[6] pointerValue], 0); });
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        addBinaryImage([mach_headers_test_cache[6] pointerValue], 0);
+        dispatch_semaphore_signal(addFinished);
+    });
 
     intptr_t result
         = dispatch_semaphore_wait(delayCalled, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
     sentrycrashbic_stopCache();
     dispatch_semaphore_signal(delaySemaphore);
-    [self assertBinaryImageCacheLength:0];
+    intptr_t addResult
+        = dispatch_semaphore_wait(addFinished, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+    [self assertBinaryImageCacheLength:6];
     XCTAssertEqual(result, 0);
+    XCTAssertEqual(addResult, 0);
 }
 
 // Adding a SentryBinaryImageCache test inside
@@ -288,7 +372,11 @@ delayAddBinaryImage(void)
     [imageCache start:false];
     // by calling start, SentryBinaryImageCache will register a callback with
     // `SentryCrashBinaryImageCache` that should be called for every image already cached.
-    XCTAssertEqual(5, imageCache.cache.count);
+    NSMutableArray<NSString *> *paths = [NSMutableArray new];
+    [imageCache.cache enumerateObjectsUsingBlock:^(SentryBinaryImageInfo *_Nonnull obj,
+        NSUInteger __unused idx, BOOL *_Nonnull __unused stop) { [paths addObject:obj.name]; }];
+    XCTAssertEqual(
+        5, imageCache.cache.count, @"Cache should start with 5 images but contained %@", paths);
 
     addBinaryImage([mach_headers_test_cache[5] pointerValue], 0);
     XCTAssertEqual(6, imageCache.cache.count);
@@ -302,11 +390,30 @@ delayAddBinaryImage(void)
     XCTAssertNil(imageCache.cache);
 }
 
+- (void)testImagesAddedWhileSwiftCacheStopped_AreReplayedOnRestart
+{
+    sentrycrashbic_startCache();
+
+    SentryBinaryImageCache *imageCache = SentryDependencyContainer.sharedInstance.binaryImageCache;
+    [imageCache start:false];
+    XCTAssertEqual(5, imageCache.cache.count);
+
+    [imageCache stop];
+    addBinaryImage([mach_headers_test_cache[5] pointerValue], 0);
+    XCTAssertNil(imageCache.cache);
+
+    [imageCache start:false];
+    XCTAssertEqual(6, imageCache.cache.count);
+}
+
 - (void)assertBinaryImageCacheLength:(int)expected
 {
     int counter = 0;
     sentrycrashbic_iterateOverImages(countNumberOfImagesInCache, &counter);
-    XCTAssertEqual(counter, expected);
+    NSMutableArray<NSString *> *names = [NSMutableArray new];
+    sentrycrashbic_iterateOverImages(addBinaryImageNameToArray, (__bridge void *)(names));
+    XCTAssertEqual(
+        counter, expected, @"Cache should have %d images but contained %@", expected, names);
 }
 
 - (void)assertCachedBinaryImages
