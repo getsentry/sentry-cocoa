@@ -1,1393 +1,1496 @@
 [
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryEnvelope",
+    "file": "PrivateSentrySDKOnly.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryAttribute",
+    "file": "SentryAttribute.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithBoolean:",
+    "file": "SentryAttribute.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithDouble:",
+    "file": "SentryAttribute.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithInteger:",
+    "file": "SentryAttribute.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithString:",
+    "file": "SentryAttribute.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "type",
+    "file": "SentryAttribute.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "value",
+    "file": "SentryAttribute.h",
+    "returnType": "id _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "type",
+    "file": "SentryAttribute.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "value",
+    "file": "SentryAttribute.h",
+    "type": "id _Nonnull"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryId",
-    "file": "SentryObjCBaggage.h",
+    "file": "SentryBaggage.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryBreadcrumb",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "super": "NSObject",
     "has_inner": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "category",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "data",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "NSDictionary<NSString *,id> * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "hash",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "NSUInteger",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "initWithLevel:category:",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "isEqual:",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "BOOL",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "isEqualToBreadcrumb:",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "BOOL",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "level",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "SentryLevel",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "message",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "origin",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "serialize",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "NSDictionary<NSString *,id> * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setCategory:",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setData:",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setLevel:",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setMessage:",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setOrigin:",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setTimestamp:",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setType:",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "timestamp",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "NSDate * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "type",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "category",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "data",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "type": "NSDictionary<NSString *,id> * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "level",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "type": "SentryLevel"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "message",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "origin",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "timestamp",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "type": "NSDate * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "type",
-    "file": "SentryObjCBreadcrumb.h",
+    "file": "SentryBreadcrumb.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryDebugMeta",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "super": "NSObject",
     "has_inner": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "codeFile",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "debugID",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "imageAddress",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "imageSize",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "returnType": "NSNumber * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "imageVmAddress",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setCodeFile:",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setDebugID:",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setImageAddress:",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setImageSize:",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setImageVmAddress:",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setType:",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "type",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "codeFile",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "debugID",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "imageAddress",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "imageSize",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "type": "NSNumber * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "imageVmAddress",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "type",
-    "file": "SentryObjCDebugMeta.h",
+    "file": "SentryDebugMeta.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryBreadcrumb",
-    "file": "SentryObjCDefines.h",
+    "file": "SentryDefines.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryEnvelopeHeader",
+    "file": "SentryEnvelope.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryId",
+    "file": "SentryEnvelopeHeader.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryAttachment",
+    "file": "SentryEnvelopeItem.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryBreadcrumb",
-    "file": "SentryObjCEvent.h",
+    "file": "SentryEvent.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryMechanism",
-    "file": "SentryObjCException.h",
+    "file": "SentryException.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryAttachment",
+    "file": "SentryFeedback.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryFrame",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "super": "NSObject",
     "has_inner": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "columnNumber",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSNumber * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "contextLine",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "fileName",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "function",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "imageAddress",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "inApp",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSNumber * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "instructionAddress",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "lineNumber",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSNumber * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "module",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "package",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "platform",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "postContext",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSArray<NSString *> * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "preContext",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSArray<NSString *> * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setColumnNumber:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setContextLine:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setFileName:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setFunction:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setImageAddress:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setInApp:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setInstructionAddress:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setLineNumber:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setModule:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setPackage:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setPlatform:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setPostContext:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setPreContext:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setStackStart:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setSymbolAddress:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setVars:",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "stackStart",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSNumber * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "symbolAddress",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "vars",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "returnType": "NSDictionary<NSString *,id> * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "columnNumber",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSNumber * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "contextLine",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "fileName",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "function",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "imageAddress",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "inApp",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSNumber * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "instructionAddress",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "lineNumber",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSNumber * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "module",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "package",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "platform",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "postContext",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSArray<NSString *> * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "preContext",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSArray<NSString *> * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "stackStart",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSNumber * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "symbolAddress",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "vars",
-    "file": "SentryObjCFrame.h",
+    "file": "SentryFrame.h",
     "type": "NSDictionary<NSString *,id> * _Nonnull"
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryGeo",
-    "file": "SentryObjCGeo.h",
+    "file": "SentryGeo.h",
     "super": "NSObject",
     "has_inner": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "city",
-    "file": "SentryObjCGeo.h",
+    "file": "SentryGeo.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "countryCode",
-    "file": "SentryObjCGeo.h",
+    "file": "SentryGeo.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "hash",
-    "file": "SentryObjCGeo.h",
+    "file": "SentryGeo.h",
     "returnType": "NSUInteger",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "isEqual:",
-    "file": "SentryObjCGeo.h",
+    "file": "SentryGeo.h",
     "returnType": "BOOL",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "isEqualToGeo:",
-    "file": "SentryObjCGeo.h",
+    "file": "SentryGeo.h",
     "returnType": "BOOL",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "region",
-    "file": "SentryObjCGeo.h",
+    "file": "SentryGeo.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setCity:",
-    "file": "SentryObjCGeo.h",
+    "file": "SentryGeo.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setCountryCode:",
-    "file": "SentryObjCGeo.h",
+    "file": "SentryGeo.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setRegion:",
-    "file": "SentryObjCGeo.h",
+    "file": "SentryGeo.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "city",
-    "file": "SentryObjCGeo.h",
+    "file": "SentryGeo.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "countryCode",
-    "file": "SentryObjCGeo.h",
+    "file": "SentryGeo.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "region",
-    "file": "SentryObjCGeo.h",
+    "file": "SentryGeo.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryHttpStatusCodeRange",
-    "file": "SentryObjCHttpStatusCodeRange.h",
+    "file": "SentryHttpStatusCodeRange.h",
     "super": "NSObject",
     "has_inner": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
-    "file": "SentryObjCHttpStatusCodeRange.h",
+    "file": "SentryHttpStatusCodeRange.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "initWithMin:max:",
-    "file": "SentryObjCHttpStatusCodeRange.h",
+    "file": "SentryHttpStatusCodeRange.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "initWithStatusCode:",
-    "file": "SentryObjCHttpStatusCodeRange.h",
+    "file": "SentryHttpStatusCodeRange.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "max",
-    "file": "SentryObjCHttpStatusCodeRange.h",
+    "file": "SentryHttpStatusCodeRange.h",
     "returnType": "NSInteger",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "min",
-    "file": "SentryObjCHttpStatusCodeRange.h",
+    "file": "SentryHttpStatusCodeRange.h",
     "returnType": "NSInteger",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
-    "file": "SentryObjCHttpStatusCodeRange.h",
+    "file": "SentryHttpStatusCodeRange.h",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "max",
-    "file": "SentryObjCHttpStatusCodeRange.h",
+    "file": "SentryHttpStatusCodeRange.h",
     "type": "NSInteger"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "min",
-    "file": "SentryObjCHttpStatusCodeRange.h",
+    "file": "SentryHttpStatusCodeRange.h",
     "type": "NSInteger"
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryId",
-    "file": "SentryObjCId.h",
+    "file": "SentryId.h",
     "super": "NSObject",
     "has_inner": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "empty",
-    "file": "SentryObjCId.h",
+    "file": "SentryId.h",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
-    "file": "SentryObjCId.h",
+    "file": "SentryId.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "initWithUUIDString:",
-    "file": "SentryObjCId.h",
+    "file": "SentryId.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "initWithUuid:",
-    "file": "SentryObjCId.h",
+    "file": "SentryId.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "isEqual:",
-    "file": "SentryObjCId.h",
+    "file": "SentryId.h",
     "returnType": "BOOL",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "sentryIdString",
-    "file": "SentryObjCId.h",
+    "file": "SentryId.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "empty",
-    "file": "SentryObjCId.h",
+    "file": "SentryId.h",
     "type": "SentryId * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "sentryIdString",
-    "file": "SentryObjCId.h",
+    "file": "SentryId.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryAttribute",
+    "file": "SentryLog.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryLogger",
-    "file": "SentryObjCLogger.h",
+    "file": "SentryLogger.h",
     "super": "NSObject",
     "has_inner": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "debug:",
-    "file": "SentryObjCLogger.h",
+    "file": "SentryLogger.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "debug:attributes:",
-    "file": "SentryObjCLogger.h",
+    "file": "SentryLogger.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "error:",
-    "file": "SentryObjCLogger.h",
+    "file": "SentryLogger.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "error:attributes:",
-    "file": "SentryObjCLogger.h",
+    "file": "SentryLogger.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "fatal:",
-    "file": "SentryObjCLogger.h",
+    "file": "SentryLogger.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "fatal:attributes:",
-    "file": "SentryObjCLogger.h",
+    "file": "SentryLogger.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "info:",
-    "file": "SentryObjCLogger.h",
+    "file": "SentryLogger.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "info:attributes:",
-    "file": "SentryObjCLogger.h",
+    "file": "SentryLogger.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "trace:",
-    "file": "SentryObjCLogger.h",
+    "file": "SentryLogger.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "trace:attributes:",
-    "file": "SentryObjCLogger.h",
+    "file": "SentryLogger.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "warn:",
-    "file": "SentryObjCLogger.h",
+    "file": "SentryLogger.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "warn:attributes:",
-    "file": "SentryObjCLogger.h",
+    "file": "SentryLogger.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryMeasurementUnit",
-    "file": "SentryObjCMeasurementUnit.h",
+    "file": "SentryMeasurementUnit.h",
     "super": "NSObject",
     "has_inner": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
-    "file": "SentryObjCMeasurementUnit.h",
+    "file": "SentryMeasurementUnit.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "initWithUnit:",
-    "file": "SentryObjCMeasurementUnit.h",
+    "file": "SentryMeasurementUnit.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
-    "file": "SentryObjCMeasurementUnit.h",
+    "file": "SentryMeasurementUnit.h",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "none",
-    "file": "SentryObjCMeasurementUnit.h",
+    "file": "SentryMeasurementUnit.h",
     "returnType": "SentryMeasurementUnit * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "unit",
-    "file": "SentryObjCMeasurementUnit.h",
+    "file": "SentryMeasurementUnit.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "none",
-    "file": "SentryObjCMeasurementUnit.h",
+    "file": "SentryMeasurementUnit.h",
     "type": "SentryMeasurementUnit * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "unit",
-    "file": "SentryObjCMeasurementUnit.h",
+    "file": "SentryMeasurementUnit.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryMechanismContext",
-    "file": "SentryObjCMechanism.h",
+    "file": "SentryMechanism.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryNSError",
-    "file": "SentryObjCMechanismContext.h",
+    "file": "SentryMechanismContext.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryMessage",
-    "file": "SentryObjCMessage.h",
+    "file": "SentryMessage.h",
     "super": "NSObject",
     "has_inner": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "formatted",
-    "file": "SentryObjCMessage.h",
+    "file": "SentryMessage.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
-    "file": "SentryObjCMessage.h",
+    "file": "SentryMessage.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "initWithFormatted:",
-    "file": "SentryObjCMessage.h",
+    "file": "SentryMessage.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "message",
-    "file": "SentryObjCMessage.h",
+    "file": "SentryMessage.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
-    "file": "SentryObjCMessage.h",
+    "file": "SentryMessage.h",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "params",
-    "file": "SentryObjCMessage.h",
+    "file": "SentryMessage.h",
     "returnType": "NSArray<NSString *> * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setMessage:",
-    "file": "SentryObjCMessage.h",
+    "file": "SentryMessage.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setParams:",
-    "file": "SentryObjCMessage.h",
+    "file": "SentryMessage.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "formatted",
-    "file": "SentryObjCMessage.h",
+    "file": "SentryMessage.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "message",
-    "file": "SentryObjCMessage.h",
+    "file": "SentryMessage.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "params",
-    "file": "SentryObjCMessage.h",
+    "file": "SentryMessage.h",
     "type": "NSArray<NSString *> * _Nonnull"
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryId",
-    "file": "SentryObjCMetric.h",
+    "file": "SentryMetric.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
-    "name": "SentryObjCAttributeContent",
-    "file": "SentryObjCMetricsApi.h",
+    "name": "SentryAttributeContent",
+    "file": "SentryMetricsApi.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryNSError",
-    "file": "SentryObjCNSError.h",
+    "file": "SentryNSError.h",
     "super": "NSObject",
     "has_inner": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "code",
-    "file": "SentryObjCNSError.h",
+    "file": "SentryNSError.h",
     "returnType": "NSInteger",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "domain",
-    "file": "SentryObjCNSError.h",
+    "file": "SentryNSError.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
-    "file": "SentryObjCNSError.h",
+    "file": "SentryNSError.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "initWithDomain:code:",
-    "file": "SentryObjCNSError.h",
+    "file": "SentryNSError.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
-    "file": "SentryObjCNSError.h",
+    "file": "SentryNSError.h",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setCode:",
-    "file": "SentryObjCNSError.h",
+    "file": "SentryNSError.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setDomain:",
-    "file": "SentryObjCNSError.h",
+    "file": "SentryNSError.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "code",
-    "file": "SentryObjCNSError.h",
+    "file": "SentryNSError.h",
     "type": "NSInteger"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "domain",
-    "file": "SentryObjCNSError.h",
+    "file": "SentryNSError.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryReplayOptions",
-    "file": "SentryObjCOptions.h",
+    "file": "SentryOptions.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "TypedefDecl",
     "name": "SentryRedactRegionType",
-    "file": "SentryObjCRedactRegionType.h",
+    "file": "SentryRedactRegionType.h",
     "type": "NSString *"
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "UIView",
-    "file": "SentryObjCReplayApi.h",
+    "file": "SentryReplayApi.h",
     "super": null,
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryRequest",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "super": "NSObject",
     "has_inner": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "bodySize",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "NSNumber * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "cookies",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "fragment",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "headers",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "NSDictionary<NSString *,NSString *> * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "method",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "queryString",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setBodySize:",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setCookies:",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setFragment:",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setHeaders:",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setMethod:",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setQueryString:",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "setUrl:",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "url",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "returnType": "NSString * _Nullable",
     "instance": true
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "bodySize",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "type": "NSNumber * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "cookies",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "fragment",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "headers",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "type": "NSDictionary<NSString *,NSString *> * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "method",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "queryString",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "url",
-    "file": "SentryObjCRequest.h",
+    "file": "SentryRequest.h",
     "type": "NSString * _Nullable"
   },
   {
@@ -1400,135 +1503,135 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryTransactionContext",
-    "file": "SentryObjCSamplingContext.h",
+    "file": "SentrySamplingContext.h",
     "super": "SentrySpanContext",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryAttachment",
-    "file": "SentryObjCScope.h",
+    "file": "SentryScope.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCProtocolDecl",
     "name": "SentrySerializable",
-    "file": "SentryObjCSerializable.h"
+    "file": "SentrySerializable.h"
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryId",
-    "file": "SentryObjCSpanContext.h",
+    "file": "SentrySpan.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryId",
+    "file": "SentrySpanContext.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentrySpanId",
-    "file": "SentryObjCSpanId.h",
+    "file": "SentrySpanId.h",
     "super": "NSObject",
     "has_inner": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "empty",
-    "file": "SentryObjCSpanId.h",
+    "file": "SentrySpanId.h",
     "returnType": "SentrySpanId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
-    "file": "SentryObjCSpanId.h",
+    "file": "SentrySpanId.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "initWithUUID:",
-    "file": "SentryObjCSpanId.h",
+    "file": "SentrySpanId.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "initWithValue:",
-    "file": "SentryObjCSpanId.h",
+    "file": "SentrySpanId.h",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "sentrySpanIdString",
-    "file": "SentryObjCSpanId.h",
+    "file": "SentrySpanId.h",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "empty",
-    "file": "SentryObjCSpanId.h",
+    "file": "SentrySpanId.h",
     "type": "SentrySpanId * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
     "name": "sentrySpanIdString",
-    "file": "SentryObjCSpanId.h",
+    "file": "SentrySpanId.h",
     "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCInterfaceDecl",
-    "name": "SentryId",
-    "file": "SentryObjCSpanProtocol.h",
-    "super": "NSObject",
-    "has_inner": false
-  },
-  {
-    "kind": "ObjCInterfaceDecl",
     "name": "SentryFrame",
-    "file": "SentryObjCStacktrace.h",
+    "file": "SentryStacktrace.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryStacktrace",
-    "file": "SentryObjCThread.h",
+    "file": "SentryThread.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryBaggage",
-    "file": "SentryObjCTraceContext.h",
+    "file": "SentryTraceContext.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryId",
-    "file": "SentryObjCTraceHeader.h",
+    "file": "SentryTraceHeader.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryId",
-    "file": "SentryObjCTransactionContext.h",
+    "file": "SentryTransactionContext.h",
     "super": "NSObject",
     "has_inner": false
   },
   {
     "kind": "TypedefDecl",
     "name": "SentryUnitName",
-    "file": "SentryObjCUnit.h",
+    "file": "SentryUnit.h",
     "type": "NSString *"
   },
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryGeo",
-    "file": "SentryObjCUser.h",
+    "file": "SentryUser.h",
     "super": "NSObject",
     "has_inner": false
   }
