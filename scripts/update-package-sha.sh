@@ -13,30 +13,41 @@ if [ -z "$PACKAGE_FILES" ]; then
     exit 1
 fi
 
-NEW_CHECKSUM_STATIC=$(shasum -a 256 XCFrameworkBuildPath/Sentry.xcframework.zip | awk '{print $1}')
-NEW_CHECKSUM_DYNAMIC=$(shasum -a 256 XCFrameworkBuildPath/Sentry-Dynamic.xcframework.zip | awk '{print $1}')
-NEW_CHECKSUM_DYNAMIC_WITH_ARM64E=$(shasum -a 256 XCFrameworkBuildPath/Sentry-Dynamic-WithARM64e.xcframework.zip | awk '{print $1}')
-NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT=$(shasum -a 256 XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit.xcframework.zip | awk '{print $1}')
-NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E=$(shasum -a 256 XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip | awk '{print $1}')
+# Each entry pairs the xcframework zip filename with the comment marker used
+# in Package.swift (e.g. `checksum: "…" //Sentry-Static`). Specific markers
+# (e.g. `-WithARM64e`) must come after their prefix markers so the broader
+# substitution runs first and the specific one overrides it.
+ZIPS_AND_MARKERS=(
+    "Sentry.xcframework.zip|Sentry-Static"
+    "Sentry-Dynamic.xcframework.zip|Sentry-Dynamic"
+    "Sentry-Dynamic-WithARM64e.xcframework.zip|Sentry-Dynamic-WithARM64e"
+    "Sentry-WithoutUIKitOrAppKit.xcframework.zip|Sentry-WithoutUIKitOrAppKit"
+    "Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip|Sentry-WithoutUIKitOrAppKit-WithARM64e"
+    "SentryObjC-Static.xcframework.zip|SentryObjC-Static"
+    "SentryObjC-Dynamic.xcframework.zip|SentryObjC-Dynamic"
+)
 
 os=$(uname)
+# Craft pre-release command runs on an ubuntu machine
+# and `sed` needs an extra argument for macOS.
+if [ "$os" == "Linux" ]; then
+    sed_inplace=( -i )
+else
+    sed_inplace=( -i "" )
+fi
 
 for package_file in $PACKAGE_FILES; do
-  # Craft pre-release command runs on an ubuntu machine
-  # and `sed` needs an extra argument for macOS 
-  if [ "$os" == "Linux" ]; then
-      sed -i "s/checksum: \".*\" \/\/Sentry-Static/checksum: \"$NEW_CHECKSUM_STATIC\" \/\/Sentry-Static/" "$package_file"
-      sed -i "s/checksum: \".*\" \/\/Sentry-Dynamic/checksum: \"$NEW_CHECKSUM_DYNAMIC\" \/\/Sentry-Dynamic/" "$package_file"
-      sed -i "s/checksum: \".*\" \/\/Sentry-Dynamic-WithARM64e/checksum: \"$NEW_CHECKSUM_DYNAMIC_WITH_ARM64E\" \/\/Sentry-Dynamic-WithARM64e/" "$package_file"
-      sed -i "s/checksum: \".*\" \/\/Sentry-WithoutUIKitOrAppKit/checksum: \"$NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT\" \/\/Sentry-WithoutUIKitOrAppKit/" "$package_file"
-      sed -i "s/checksum: \".*\" \/\/Sentry-WithoutUIKitOrAppKit-WithARM64e/checksum: \"$NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E\" \/\/Sentry-WithoutUIKitOrAppKit-WithARM64e/" "$package_file"
-  else
-      sed -i "" "s/checksum: \".*\" \/\/Sentry-Static/checksum: \"$NEW_CHECKSUM_STATIC\" \/\/Sentry-Static/" "$package_file"
-      sed -i "" "s/checksum: \".*\" \/\/Sentry-Dynamic/checksum: \"$NEW_CHECKSUM_DYNAMIC\" \/\/Sentry-Dynamic/" "$package_file"
-      sed -i "" "s/checksum: \".*\" \/\/Sentry-Dynamic-WithARM64e/checksum: \"$NEW_CHECKSUM_DYNAMIC_WITH_ARM64E\" \/\/Sentry-Dynamic-WithARM64e/" "$package_file"
-      sed -i "" "s/checksum: \".*\" \/\/Sentry-WithoutUIKitOrAppKit/checksum: \"$NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT\" \/\/Sentry-WithoutUIKitOrAppKit/" "$package_file"
-      sed -i "" "s/checksum: \".*\" \/\/Sentry-WithoutUIKitOrAppKit-WithARM64e/checksum: \"$NEW_CHECKSUM_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E\" \/\/Sentry-WithoutUIKitOrAppKit-WithARM64e/" "$package_file"
-  fi
+    for entry in "${ZIPS_AND_MARKERS[@]}"; do
+        zip="${entry%%|*}"
+        marker="${entry##*|}"
+        zip_path="XCFrameworkBuildPath/${zip}"
+        if [ ! -f "$zip_path" ]; then
+            echo "::warning::Skipping ${marker}: ${zip_path} not found"
+            continue
+        fi
+        checksum=$(shasum -a 256 "$zip_path" | awk '{print $1}')
+        sed "${sed_inplace[@]}" "s/checksum: \".*\" \/\/${marker}/checksum: \"${checksum}\" \/\/${marker}/" "$package_file"
+    done
 done
 
 echo "$GITHUB_RUN_ID" > .github/last-release-runid

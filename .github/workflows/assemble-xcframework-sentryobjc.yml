@@ -112,34 +112,46 @@ jobs:
           echo "Archive layout:"
           find XCFrameworkBuildPath/archive -maxdepth 3 -type d | head -30
 
-      - name: Link and assemble SentryObjC XCFramework
+      - name: Link and assemble SentryObjC XCFrameworks
         env:
           SDKS: ${{ inputs.sdks }}
         run: ./scripts/build-xcframework-sentryobjc-standalone.sh "$SDKS"
         shell: bash
 
       - name: Validate XCFramework structure
-        run: ./scripts/validate-xcframework-format.sh "SentryObjC.xcframework"
+        run: |
+          ./scripts/validate-xcframework-format.sh "SentryObjC-Static.xcframework"
+          ./scripts/validate-xcframework-format.sh "SentryObjC-Dynamic.xcframework"
         shell: bash
 
-      - name: Zip XCFramework
+      - name: Zip XCFrameworks
         env:
           SIGNED: ${{ inputs.signed }}
         run: |
           if [ "$SIGNED" = "true" ]; then
-            ./scripts/compress-xcframework.sh --sign SentryObjC
+            ./scripts/compress-xcframework.sh --sign SentryObjC-Static
+            ./scripts/compress-xcframework.sh --sign SentryObjC-Dynamic
           else
-            ./scripts/compress-xcframework.sh --not-signed SentryObjC
+            ./scripts/compress-xcframework.sh --not-signed SentryObjC-Static
+            ./scripts/compress-xcframework.sh --not-signed SentryObjC-Dynamic
           fi
         shell: bash
 
-      - name: Upload XCFramework
+      - name: Upload SentryObjC-Static XCFramework
         uses: actions/upload-artifact@v7
         with:
           overwrite: true
-          name: xcframework-${{github.sha}}-sentryobjc
+          name: xcframework-${{github.sha}}-sentryobjc-static
           if-no-files-found: error
-          path: SentryObjC.xcframework.zip
+          path: SentryObjC-Static.xcframework.zip
+
+      - name: Upload SentryObjC-Dynamic XCFramework
+        uses: actions/upload-artifact@v7
+        with:
+          overwrite: true
+          name: xcframework-${{github.sha}}-sentryobjc-dynamic
+          if-no-files-found: error
+          path: SentryObjC-Dynamic.xcframework.zip
 
       - name: Run CI Diagnostics
         if: failure()

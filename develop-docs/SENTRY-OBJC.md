@@ -122,24 +122,30 @@ The `SentryObjC` product in `Package.swift` includes all three tiers:
 
 ### XCFramework
 
-`SentryObjC.xcframework` bundles everything into a single standalone dynamic framework:
+Two xcframework variants ship each release, both bundling wrapper + bridge + full SDK into a single framework:
 
-1. Build `Sentry`, `SentryObjCBridge`, and `SentryObjC` as static libraries using `xcodebuild`
-2. Merge all three `.a` archives into one with `libtool -static`
-3. Link with `swiftc -emit-library -force_load` into a dynamic library (swiftc embeds the Swift runtime automatically)
-4. Copy SentryObjC public headers and module map into the framework bundle
-5. Assemble per-platform slices into a single `.xcframework`
+- `SentryObjC-Static.xcframework` — the libtool-merged static archive packaged as the framework binary; consumer links the symbols directly.
+- `SentryObjC-Dynamic.xcframework` — the merged archive re-linked as a dylib via swiftc (which embeds the Swift runtime); consumer embeds the framework.
+
+Build steps (`scripts/build-xcframework-sentryobjc-standalone.sh`):
+
+1. Build `Sentry`, `SentryObjCBridge`, and `SentryObjC` as static libraries via `xcodebuild`.
+2. Merge all three `.a` archives into one with `libtool -static`.
+3. Static slice: copy the merged archive in as the framework binary.
+4. Dynamic slice: re-link with `swiftc -emit-library -force_load` per architecture, `lipo` into a fat binary.
+5. Copy SentryObjC public headers and the Xcode-generated module map into each framework bundle.
+6. Assemble both xcframeworks with `xcodebuild -create-xcframework`.
 
 Properties:
 
 - All platforms: iOS, macOS, Catalyst, tvOS, watchOS, visionOS
 - Pure ObjC public headers (no `Sentry-Swift.h`)
-- Single binary containing wrapper + bridge + full SDK + Swift runtime
+- One binary per slice containing wrapper + bridge + full SDK (+ Swift runtime in the dynamic variant)
 
 #### XCFramework Structure
 
 ```
-SentryObjC.xcframework/
+SentryObjC-Dynamic.xcframework/      (same layout for SentryObjC-Static.xcframework)
 ├── Info.plist
 ├── ios-arm64/
 │   └── SentryObjC.framework/
@@ -164,6 +170,8 @@ SentryObjC.xcframework/
 ```
 
 #### Module Map
+
+Xcode auto-generates the framework module map. No checked-in source modulemap overrides it.
 
 ```
 framework module SentryObjC {
@@ -223,7 +231,7 @@ scripts/build-xcframework-local.sh (SentryObjCOnly variant)
 
 ### Why same type names?
 
-Using `SentryOptions` instead of `SentryObjCOptions` provides a familiar API for developers. Since `SentryObjC.xcframework` is standalone (doesn't link against `Sentry.xcframework`), there's no symbol collision.
+Using `SentryOptions` instead of `SentryObjCOptions` provides a familiar API for developers. Since the shipped `SentryObjC-Static.xcframework` / `SentryObjC-Dynamic.xcframework` are standalone (don't link against `Sentry.xcframework`), there's no symbol collision.
 
 ### Why not just fix the Swift headers?
 
@@ -231,7 +239,7 @@ The `Sentry-Swift.h` generated header has inherent issues when included from Obj
 
 ### Why embed the full SDK?
 
-Embedding the full SDK in `SentryObjC.xcframework` (vs. depending on `Sentry.xcframework`) provides:
+Embedding the full SDK in the `SentryObjC` xcframeworks (vs. depending on `Sentry.xcframework`) provides:
 
 - Single framework to link
 - No transitive dependency management

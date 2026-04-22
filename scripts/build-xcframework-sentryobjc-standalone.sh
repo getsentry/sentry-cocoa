@@ -1,14 +1,20 @@
 #!/bin/bash
 #
-# Links three pre-built static archives (Sentry, SentryObjCBridge, SentryObjC)
-# into a standalone dynamic SentryObjC.framework for each SDK slice, then
-# assembles them into an XCFramework.
+# Builds standalone SentryObjC xcframeworks in two linkage variants:
 #
-# Strategy:
-#   1. Merge all three .a files with libtool
-#   2. Link into a dynamic library with swiftc (handles Swift runtime automatically)
-#   3. Copy SentryObjC public headers + module map
-#   4. Assemble into XCFramework
+#   SentryObjC-Static.xcframework   - static archive; consumer links the symbols directly.
+#   SentryObjC-Dynamic.xcframework  - dynamic library; consumer embeds the framework.
+#
+# Both variants bundle the three static archives (Sentry, SentryObjCBridge,
+# SentryObjC) into a single binary so downstream consumers only have to link one
+# framework, and neither requires Clang modules.
+#
+# Strategy per SDK slice:
+#   1. libtool-merge the three .a files into a single combined static archive.
+#   2. Static slice: package the combined archive as the framework binary.
+#   3. Dynamic slice: re-link the combined archive as a dylib via swiftc, which
+#      also handles the Swift runtime.
+# After all slices are built, xcodebuild -create-xcframework assembles each set.
 #
 # Parameters:
 #   $1 - sdks_to_build (comma-separated list or preset: AllSDKs, iOSOnly, etc.)
@@ -31,9 +37,10 @@ else
 fi
 
 ARCHIVE_BASE="$(pwd)/XCFrameworkBuildPath/archive"
-OUTPUT_BASE="$(pwd)/XCFrameworkBuildPath/archive/SentryObjC-Standalone"
+STATIC_OUTPUT_BASE="${ARCHIVE_BASE}/SentryObjC-Standalone-Static"
+DYNAMIC_OUTPUT_BASE="${ARCHIVE_BASE}/SentryObjC-Standalone-Dynamic"
 
-# System libraries required for all platforms.
+# System libraries required for all platforms (dynamic link only).
 SYSTEM_LIBS=( z c++ )
 
 # Frameworks present on every Apple platform the SDK supports.
@@ -43,15 +50,55 @@ REQUIRED_FRAMEWORKS=( Foundation CoreData CoreGraphics QuartzCore )
 # is unavailable on watchOS). Script checks existence per-SDK and skips missing ones.
 CANDIDATE_WEAK_FRAMEWORKS=( SystemConfiguration AVFoundation CoreMedia CoreVideo MetricKit PDFKit SwiftUI UIKit WebKit AppKit )
 
+copy_framework_resources() {
+    local sdk="$1"
+    local source_fw="$2"   # source .framework (from the staticlib xcarchive)
+    local dest_fw="$3"     # destination .framework to populate
+
+    if [ "$sdk" = "macosx" ] || [ "$sdk" = "maccatalyst" ]; then
+        local versioned="${dest_fw}/Versions/A"
+        mkdir -p "$versioned"
+        cp -R "${source_fw}/Versions/A/Headers" "${versioned}/Headers"
+        if [ -d "${source_fw}/Versions/A/Modules" ]; then
+            cp -R "${source_fw}/Versions/A/Modules" "${versioned}/Modules"
+        fi
+        mkdir -p "${versioned}/Resources"
+        cp "${source_fw}/Versions/A/Resources/Info.plist" "${versioned}/Resources/Info.plist" 2>/dev/null || \
+            cp "${source_fw}/Resources/Info.plist" "${versioned}/Resources/Info.plist" 2>/dev/null || true
+        ln -sfh A "${dest_fw}/Versions/Current"
+        ln -sfh Versions/Current/Headers "${dest_fw}/Headers"
+        if [ -d "${versioned}/Modules" ]; then
+            ln -sfh Versions/Current/Modules "${dest_fw}/Modules"
+        fi
+        ln -sfh Versions/Current/SentryObjC "${dest_fw}/SentryObjC"
+    else
+        mkdir -p "$dest_fw"
+        cp -R "${source_fw}/Headers" "${dest_fw}/Headers"
+        if [ -d "${source_fw}/Modules" ]; then
+            cp -R "${source_fw}/Modules" "${dest_fw}/Modules"
+        fi
+        cp "${source_fw}/Info.plist" "${dest_fw}/Info.plist" 2>/dev/null || true
+    fi
+}
+
+framework_binary_path() {
+    local sdk="$1"
+    local fw_dir="$2"
+    if [ "$sdk" = "macosx" ] || [ "$sdk" = "maccatalyst" ]; then
+        echo "${fw_dir}/Versions/A/SentryObjC"
+    else
+        echo "${fw_dir}/SentryObjC"
+    fi
+}
+
 for sdk in "${sdks[@]}"; do
-    echo "=== Linking standalone SentryObjC for ${sdk} ==="
+    echo "=== Building SentryObjC slices for ${sdk} ==="
 
     # Locate the three static archives (reuses the normal Sentry static build)
     sentry_archive="${ARCHIVE_BASE}/Sentry/${sdk}.xcarchive/Products/Library/Frameworks/Sentry.framework"
     bridge_archive="${ARCHIVE_BASE}/SentryObjCBridge/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjCBridge.framework"
     objc_archive="${ARCHIVE_BASE}/SentryObjC/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjC.framework"
 
-    # Get the actual binary paths (macOS uses Versions/A structure)
     if [ "$sdk" = "macosx" ] || [ "$sdk" = "maccatalyst" ]; then
         sentry_a="${sentry_archive}/Versions/A/Sentry"
         bridge_a="${bridge_archive}/Versions/A/SentryObjCBridge"
@@ -70,12 +117,18 @@ for sdk in "${sdks[@]}"; do
         echo "  Found: $lib ($(du -h "$lib" | cut -f1))"
     done
 
-    # Merge into one static archive
     combined_a="/tmp/SentryObjC_combined_${sdk}.a"
     libtool -static "$sentry_a" "$bridge_a" "$objc_a" -o "$combined_a"
     echo "  Combined: $(du -h "$combined_a" | cut -f1)"
 
-    # Determine target triple(s) per architecture
+    # --- Static slice: package the combined archive as the framework binary ---
+    static_fw_dir="${STATIC_OUTPUT_BASE}/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjC.framework"
+    rm -rf "$static_fw_dir"
+    copy_framework_resources "$sdk" "$objc_archive" "$static_fw_dir"
+    cp "$combined_a" "$(framework_binary_path "$sdk" "$static_fw_dir")"
+    echo "  Static binary: $(du -h "$(framework_binary_path "$sdk" "$static_fw_dir")" | cut -f1)"
+
+    # --- Dynamic slice: re-link the combined archive into a dylib via swiftc ---
     sysroot="$(xcrun --sdk "${sdk}" --show-sdk-path 2>/dev/null || xcrun --sdk iphoneos --show-sdk-path)"
     case "$sdk" in
         iphoneos)          arch_targets=( "arm64-apple-ios15.0" ) ;;
@@ -92,9 +145,8 @@ for sdk in "${sdks[@]}"; do
     esac
 
     # Discover which weak frameworks are available on this SDK.
-    # This avoids hardcoding per-platform lists — frameworks that don't exist
-    # on a given platform (e.g., WebKit on watchOS) are simply skipped.
     fw_search_path="${sysroot}/System/Library/Frameworks"
+    catalyst_fw_path=""
     if [ "$sdk" = "maccatalyst" ]; then
         catalyst_fw_path="${sysroot}/System/iOSSupport/System/Library/Frameworks"
     fi
@@ -109,26 +161,16 @@ for sdk in "${sdks[@]}"; do
     done
     echo "  Weak frameworks for ${sdk}: ${WEAK_FRAMEWORKS[*]}"
 
-    # Prepare output framework directory
-    output_xcarchive="${OUTPUT_BASE}/${sdk}.xcarchive"
-    output_fw_dir="${output_xcarchive}/Products/Library/Frameworks/SentryObjC.framework"
+    dynamic_fw_dir="${DYNAMIC_OUTPUT_BASE}/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjC.framework"
+    rm -rf "$dynamic_fw_dir"
+    copy_framework_resources "$sdk" "$objc_archive" "$dynamic_fw_dir"
 
-    if [ "$sdk" = "macosx" ] || [ "$sdk" = "maccatalyst" ]; then
-        output_fw_binary_dir="${output_fw_dir}/Versions/A"
-        mkdir -p "${output_fw_binary_dir}"
-    else
-        output_fw_binary_dir="${output_fw_dir}"
-        mkdir -p "${output_fw_dir}"
-    fi
-
-    # Build linker flags (same for all archs)
     linker_flags=()
     linker_flags+=( -Xlinker -install_name -Xlinker "@rpath/SentryObjC.framework/SentryObjC" )
     linker_flags+=( -Xlinker -rpath -Xlinker "@executable_path/Frameworks" )
     linker_flags+=( -Xlinker -force_load -Xlinker "$combined_a" )
     linker_flags+=( -Xlinker -compatibility_version -Xlinker 1.0.0 )
     linker_flags+=( -Xlinker -current_version -Xlinker 1.0.0 )
-    # Mac Catalyst needs the iOSSupport framework path for UIKit
     if [ "$sdk" = "maccatalyst" ]; then
         linker_flags+=( -Xlinker -F -Xlinker "${catalyst_fw_path}" )
     fi
@@ -142,8 +184,6 @@ for sdk in "${sdks[@]}"; do
         linker_flags+=( -l"$lib" )
     done
 
-    # Link each architecture separately, then merge with lipo
-    # swiftc needs a dummy .swift input but handles Swift runtime automatically
     dummy_swift="/tmp/SentryObjC_dummy.swift"
     echo "" > "$dummy_swift"
 
@@ -166,40 +206,21 @@ for sdk in "${sdks[@]}"; do
         arch_binaries+=("$arch_output")
     done
 
-    # Merge architectures with lipo if multiple
+    dynamic_binary="$(framework_binary_path "$sdk" "$dynamic_fw_dir")"
     if [ "${#arch_binaries[@]}" -gt 1 ]; then
-        xcrun lipo -create "${arch_binaries[@]}" -output "${output_fw_binary_dir}/SentryObjC"
+        xcrun lipo -create "${arch_binaries[@]}" -output "$dynamic_binary"
     else
-        cp "${arch_binaries[0]}" "${output_fw_binary_dir}/SentryObjC"
+        cp "${arch_binaries[0]}" "$dynamic_binary"
     fi
+    echo "  Dynamic binary: $(du -h "$dynamic_binary" | cut -f1)"
 
-    echo "  Final binary: $(du -h "${output_fw_binary_dir}/SentryObjC" | cut -f1)"
-
-    # Copy headers and module map from the SentryObjC static build
-    if [ "$sdk" = "macosx" ] || [ "$sdk" = "maccatalyst" ]; then
-        cp -R "${objc_archive}/Versions/A/Headers" "${output_fw_binary_dir}/Headers"
-        cp -R "${objc_archive}/Versions/A/Modules" "${output_fw_binary_dir}/Modules"
-        mkdir -p "${output_fw_binary_dir}/Resources"
-        cp "${objc_archive}/Versions/A/Resources/Info.plist" "${output_fw_binary_dir}/Resources/Info.plist" 2>/dev/null || \
-            cp "${objc_archive}/Resources/Info.plist" "${output_fw_binary_dir}/Resources/Info.plist" 2>/dev/null || true
-        # Create standard macOS framework symlinks
-        ln -sfh A "${output_fw_dir}/Versions/Current"
-        ln -sfh Versions/Current/Headers "${output_fw_dir}/Headers"
-        ln -sfh Versions/Current/Modules "${output_fw_dir}/Modules"
-        ln -sfh Versions/Current/SentryObjC "${output_fw_dir}/SentryObjC"
-    else
-        cp -R "${objc_archive}/Headers" "${output_fw_dir}/Headers"
-        cp -R "${objc_archive}/Modules" "${output_fw_dir}/Modules"
-        cp "${objc_archive}/Info.plist" "${output_fw_dir}/Info.plist" 2>/dev/null || true
-    fi
-
-    # Clean up temp files
     rm -f "$combined_a" "$dummy_swift"
     rm -f /tmp/SentryObjC_"${sdk}"_*
 
     echo "=== Done: ${sdk} ==="
 done
 
-# Assemble the XCFramework from all slices
+# Assemble both xcframeworks.
 xcframework_sdks="$(IFS=,; echo "${sdks[*]}")"
-./scripts/assemble-xcframework.sh "SentryObjC" "" "" "$xcframework_sdks" "$(pwd)/XCFrameworkBuildPath/archive/SentryObjC-Standalone/SDK_NAME.xcarchive"
+./scripts/assemble-xcframework.sh "SentryObjC" "-Static" "" "$xcframework_sdks" "${STATIC_OUTPUT_BASE}/SDK_NAME.xcarchive"
+./scripts/assemble-xcframework.sh "SentryObjC" "-Dynamic" "" "$xcframework_sdks" "${DYNAMIC_OUTPUT_BASE}/SDK_NAME.xcarchive"
