@@ -441,6 +441,93 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryExperimentalOptions",
+    "file": "SentryExperimentalOptions.h",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableMetrics",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableSessionReplayInUnreliableEnvironment",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableUnhandledCPPExceptionsV2",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableWatchdogTerminationsV2",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableMetrics:",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableSessionReplayInUnreliableEnvironment:",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableUnhandledCPPExceptionsV2:",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableWatchdogTerminationsV2:",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableMetrics",
+    "file": "SentryExperimentalOptions.h",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableSessionReplayInUnreliableEnvironment",
+    "file": "SentryExperimentalOptions.h",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableUnhandledCPPExceptionsV2",
+    "file": "SentryExperimentalOptions.h",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableWatchdogTerminationsV2",
+    "file": "SentryExperimentalOptions.h",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryAttachment",
     "file": "SentryFeedback.h",
     "super": "NSObject",

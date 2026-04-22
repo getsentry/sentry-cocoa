@@ -41,6 +41,7 @@
 
 // Swift @objc types
 #import "SentryAttribute.h"
+#import "SentryExperimentalOptions.h"
 #import "SentryFeedback.h"
 #import "SentryFeedbackSource.h"
 #import "SentryLog.h"

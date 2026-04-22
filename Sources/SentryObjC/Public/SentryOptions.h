@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryDefines.h"
+#import "SentryExperimentalOptions.h"
 #import "SentryLevel.h"
 
 @class SentryReplayOptions;
@@ -510,7 +511,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * Access experimental SDK features through this property.
  */
-@property (nonatomic, strong) id experimental;
+@property (nonatomic, strong) SentryExperimentalOptions *experimental;
 
 /**
  * Adds a module/package prefix to the in-app includes list.
