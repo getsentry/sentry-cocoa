@@ -36,11 +36,12 @@ OUTPUT_BASE="$(pwd)/XCFrameworkBuildPath/archive/SentryObjC-Standalone"
 # System libraries required for all platforms.
 SYSTEM_LIBS=( z c++ )
 
-# All candidate frameworks the Sentry SDK may link against.
-# The script checks which ones actually exist on each platform's SDK
-# and skips the rest, so this list is safe for all platforms.
-REQUIRED_FRAMEWORKS=( Foundation CoreData SystemConfiguration CoreGraphics QuartzCore )
-CANDIDATE_WEAK_FRAMEWORKS=( AVFoundation CoreMedia CoreVideo MetricKit PDFKit SwiftUI UIKit WebKit AppKit )
+# Frameworks present on every Apple platform the SDK supports.
+REQUIRED_FRAMEWORKS=( Foundation CoreData CoreGraphics QuartzCore )
+
+# Frameworks that are only present on some platforms (e.g., SystemConfiguration
+# is unavailable on watchOS). Script checks existence per-SDK and skips missing ones.
+CANDIDATE_WEAK_FRAMEWORKS=( SystemConfiguration AVFoundation CoreMedia CoreVideo MetricKit PDFKit SwiftUI UIKit WebKit AppKit )
 
 for sdk in "${sdks[@]}"; do
     echo "=== Linking standalone SentryObjC for ${sdk} ==="
