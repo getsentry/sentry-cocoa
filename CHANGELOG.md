@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.11.0
 
 ### Features
 
