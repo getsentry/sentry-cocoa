@@ -52,6 +52,10 @@
         default:
             SentrySDKLog.warning("Unexpected thermal state enum value: \(thermalState)")
         }
+
+        if #available(macOS 12.0, *) {
+            extraDeviceContext["low_power_mode"] = NSNumber(value: processInfoWrapper.isLowPowerModeEnabled)
+        }
         
         #if (os(iOS)) && !SENTRY_NO_UI_FRAMEWORK
         if deviceWrapper.orientation != .unknown {

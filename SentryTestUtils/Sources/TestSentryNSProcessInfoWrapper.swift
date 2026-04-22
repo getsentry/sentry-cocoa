@@ -13,6 +13,7 @@
         public var isiOSAppOnMac: Bool?
         public var isMacCatalystApp: Bool?
         public var isiOSAppOnVisionOS: Bool?
+        public var isLowPowerModeEnabled: Bool?
     }
 
     public var overrides = Override()
@@ -49,5 +50,10 @@
     
     public var isiOSAppOnVisionOS: Bool {
         return overrides.isiOSAppOnVisionOS ?? ProcessInfo.processInfo.isiOSAppOnVisionOS
+    }
+
+    @available(macOS 12.0, *)
+    public var isLowPowerModeEnabled: Bool {
+        return overrides.isLowPowerModeEnabled ?? ProcessInfo.processInfo.isLowPowerModeEnabled
     }
 }

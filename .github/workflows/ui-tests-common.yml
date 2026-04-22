@@ -74,7 +74,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Setup Ruby
-        uses: ruby/setup-ruby@4eb9f110bac952a8b68ecf92e3b5c7a987594ba6 # v1.292.0
+        uses: ruby/setup-ruby@7372622e62b60b3cb750dcd2b9e32c247ffec26a # v1.302.0
         with:
           bundler-cache: true
 
@@ -113,7 +113,7 @@ jobs:
 
       - name: Download XCFramework
         if: ${{ inputs.needs_xcframework }}
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: xcframework-${{github.sha}}-sentry-static
           path: XCFrameworkBuildPath/
@@ -136,7 +136,7 @@ jobs:
           fi
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@49b2ca06f62aa7ef83ae6769a2179271e160d8e4 # v6.3.1
+        uses: mikepenz/action-junit-report@bccf2e31636835cf0874589931c4116687171386 # v6.4.0
         if: always()
         with:
           report_paths: build/reports/*junit.xml
@@ -154,7 +154,7 @@ jobs:
           flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}, ui-tests
 
       - name: Upload Result Bundle
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
@@ -162,7 +162,7 @@ jobs:
             fastlane/test_results/**/*.xcresult
 
       - name: Upload iOS Simulator Crash Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_crash_logs
@@ -170,7 +170,7 @@ jobs:
             ~/Library/Logs/DiagnosticReports/**
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_raw_output

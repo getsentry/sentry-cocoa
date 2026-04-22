@@ -16,7 +16,13 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         init(traced: Bool = true) {
             self.traced = traced
-            super.init(processInfoWrapper: ProcessInfo.processInfo, systemInfo: [:]) // Call the test designated initializer
+            let container = SentryDependencyContainer.sharedInstance()
+            let bridge = SentryCrashBridge(
+                notificationCenterWrapper: container.notificationCenterWrapper,
+                dateProvider: container.dateProvider,
+                crashReporter: container.crashReporter
+            )
+            super.init(processInfoWrapper: ProcessInfo.processInfo, systemInfo: [:], bridge: bridge)
         }
         
         override public var isBeingTraced: Bool {

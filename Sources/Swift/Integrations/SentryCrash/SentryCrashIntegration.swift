@@ -22,7 +22,7 @@ public func sentry_finishAndSaveTransaction() {
 // MARK: - Dependency Provider
 
 /// Provides dependencies for `SentryCrashIntegration`.
-typealias CrashIntegrationProvider = SentryCrashReporterProvider & CrashIntegrationSessionHandlerBuilder & CrashInstallationReporterBuilder
+typealias CrashIntegrationProvider = SentryCrashReporterProvider & CrashIntegrationSessionHandlerBuilder & CrashInstallationReporterBuilder & DateProviderProvider & NotificationCenterProvider
 
 // MARK: - SentryCrashIntegration
 
@@ -33,6 +33,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     private var scopeObserver: SentryCrashScopeObserver?
     private var crashReporter: SentryCrashSwift
     private var installation: SentryCrashInstallationReporter?
+    private var bridge: SentryCrashBridge
 
     // MARK: - Initialization
 
@@ -46,9 +47,19 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         self.options = options
         self.crashReporter = dependencies.crashReporter
 
+        // Create facade before installing crash handler to ensure services are available
+        self.bridge = SentryCrashBridge(
+            notificationCenterWrapper: dependencies.notificationCenterWrapper,
+            dateProvider: dependencies.dateProvider,
+            crashReporter: dependencies.crashReporter
+        )
+        
         super.init()
 
-        self.sessionHandler = dependencies.getCrashIntegrationSessionBuilder(options)
+        // Inject bridge into crash reporter so ObjC SentryCrash can access it
+        crashReporter.setBridge(bridge)
+
+        self.sessionHandler = dependencies.getCrashIntegrationSessionBuilder(options, bridge: bridge)
         self.scopeObserver = SentryCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
 
         guard self.sessionHandler != nil, self.scopeObserver != nil else {
@@ -102,6 +113,14 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             name: NSLocale.currentLocaleDidChangeNotification,
             object: nil
         )
+
+        if #available(macOS 12.0, *) {
+            NotificationCenter.default.removeObserver(
+                self,
+                name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
+                object: nil
+            )
+        }
     }
 
     // MARK: - Crash Handler
@@ -122,6 +141,8 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             }
 
             self.installation = dependencies.getCrashInstallationReporter(options)
+            // Inject bridge into installation so it can access crashReporter
+            installation?.setBridgeObject(bridge)
             canSendReports = true
         }
 
@@ -228,6 +249,16 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             name: NSLocale.currentLocaleDidChangeNotification,
             object: nil
         )
+
+        if #available(macOS 12.0, *) {
+            updateLowPowerModeContext(ProcessInfo.processInfo)
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(powerStateDidChange(notification:)),
+                name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
+                object: nil
+            )
+        }
     }
 
     // Exposed to objc for the NotificationCenter in configureScope()
@@ -243,6 +274,35 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
             let locale = Locale.autoupdatingCurrent.identifier
             device["locale"] = locale
+
+            scope.setContext(value: device, key: SENTRY_CONTEXT_DEVICE_KEY)
+        }
+    }
+
+    @objc @available(macOS 12.0, *)
+    private func powerStateDidChange(notification: Notification) {
+        let processInfo = if let notificationProcessInfo = notification.object as? ProcessInfo {
+            notificationProcessInfo
+        } else {
+            ProcessInfo.processInfo
+        }
+         
+        updateLowPowerModeContext(processInfo)
+    }
+
+    @available(macOS 12.0, *)
+    private func updateLowPowerModeContext(_ processInfo: ProcessInfo) {
+        let isLowPowerMode = processInfo.isLowPowerModeEnabled
+        SentrySDKInternal.currentHub().configureScope { scope in
+            var device: [String: Any]
+            let contextDictionary = scope.contextDictionary
+            if let existingDevice = contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] as? [String: Any] {
+                device = existingDevice
+            } else {
+                device = [:]
+            }
+
+            device["low_power_mode"] = isLowPowerMode
 
             scope.setContext(value: device, key: SENTRY_CONTEXT_DEVICE_KEY)
         }
