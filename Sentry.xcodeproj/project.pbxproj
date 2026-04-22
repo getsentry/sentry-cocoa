@@ -1240,6 +1240,7 @@
 				Public/SentryError.h,
 				Public/SentryEvent.h,
 				Public/SentryException.h,
+				Public/SentryExperimentalOptions.h,
 				Public/SentryFeedback.h,
 				Public/SentryFeedbackSource.h,
 				Public/SentryFrame.h,
