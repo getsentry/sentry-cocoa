@@ -1,6 +1,10 @@
 #import <Foundation/Foundation.h>
 
-@class SentryEnvelope;
+// SentryEnvelope is Swift-backed and uses @compatibility_alias in its header; importing
+// the header in full avoids a "conflicting types for alias" error if SentryEnvelope.h is
+// later included in the same TU after a plain forward declaration here.
+#import "SentryEnvelope.h"
+
 @class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN

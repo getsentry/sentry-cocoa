@@ -18,6 +18,16 @@ typedef NS_ENUM(NSInteger, SentryReplayQuality) {
     SentryReplayQualityHigh = 2
 };
 
+// See SentryFeedback.h for an explanation of why SentryObjC's public headers alias
+// the plain class name to the Swift-mangled class exported by Sentry.framework.
+#    if SWIFT_PACKAGE
+@class _TtC11SentrySwift19SentryReplayOptions;
+@compatibility_alias SentryReplayOptions _TtC11SentrySwift19SentryReplayOptions;
+#    else
+@class _TtC6Sentry19SentryReplayOptions;
+@compatibility_alias SentryReplayOptions _TtC6Sentry19SentryReplayOptions;
+#    endif
+
 /**
  * Configuration options for Session Replay.
  *

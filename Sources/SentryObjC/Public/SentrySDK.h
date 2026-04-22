@@ -1,6 +1,12 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryDefines.h"
+// SentryFeedback and SentryLogger are Swift-backed and use @compatibility_alias in
+// their headers; importing the full headers avoids a "conflicting types for alias"
+// error if those headers are later included in the same TU after a plain forward
+// declaration here.
+#import "SentryFeedback.h"
+#import "SentryLogger.h"
 
 @class SentryBreadcrumb;
 @class SentryEvent;
@@ -8,7 +14,6 @@
 @class SentryOptions;
 @class SentryScope;
 @class SentryTransactionContext;
-@class SentryFeedback;
 @class SentryUser;
 @protocol SentrySpan;
 
@@ -16,7 +21,6 @@
 @class SentryReplayApi;
 #endif
 
-@class SentryLogger;
 @protocol SentryMetricsApi;
 
 NS_ASSUME_NONNULL_BEGIN

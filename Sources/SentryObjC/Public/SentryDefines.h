@@ -16,9 +16,13 @@
 #    define SENTRY_OBJC_REPLAY_SUPPORTED 0
 #endif
 
+// SentryLog is Swift-backed and uses @compatibility_alias in its header; importing the
+// full header avoids a "conflicting types for alias" error if SentryLog.h is later
+// included in the same TU after a plain forward declaration here.
+#import "SentryLog.h"
+
 @class SentryBreadcrumb;
 @class SentryEvent;
-@class SentryLog;
 @class SentrySamplingContext;
 @protocol SentrySpan;
 
