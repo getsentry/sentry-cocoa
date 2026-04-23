@@ -97,6 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic pop
 }
 
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 /**
  * Swizzles NSURLSession data task creation methods that use completion handlers
  * to enable response body capture for session replay.
@@ -177,6 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
 #pragma clang diagnostic pop
 }
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
 @end
 
