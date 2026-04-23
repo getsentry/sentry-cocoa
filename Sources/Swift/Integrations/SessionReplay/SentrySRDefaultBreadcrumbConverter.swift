@@ -90,6 +90,8 @@ import Foundation
         return SentryRRWebSpanEvent(timestamp: startTimestamp, endTimestamp: timestamp, operation: "resource.http", description: description, data: data)
     }
     
+    // Network details show up after selecting a request from the 'Network' tab of a session replay
+    // If any fields here are not populated, the UI will silently omit them but not report any error.
     private func addNetworkDetails(from networkData: [String: Any], to data: inout [String: Any]) {
         // Add top-level network metadata
         if let method = networkData["method"] as? String {
