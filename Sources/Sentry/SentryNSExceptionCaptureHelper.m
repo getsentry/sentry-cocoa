@@ -5,20 +5,23 @@
 #    import "SentryCrash.h"
 #    import "SentryNSExceptionCaptureHelper.h"
 #    import "SentrySwift.h"
+#    import <stdatomic.h>
 
 @implementation SentryNSExceptionCaptureHelper
 
-static BOOL _insideReportException = NO;
+// Thread-safe flag to prevent duplicate exception captures when
+// _crashOnException: is called from within reportException:
+static _Atomic BOOL _insideReportException = NO;
 
 + (void)reportException:(NSException *)exception
 {
-    _insideReportException = YES;
+    atomic_store(&_insideReportException, YES);
     [self captureException:exception];
 }
 
 + (void)reportExceptionDidFinish
 {
-    _insideReportException = NO;
+    atomic_store(&_insideReportException, NO);
 }
 
 + (void)crashOnException:(NSException *)exception
@@ -26,7 +29,7 @@ static BOOL _insideReportException = NO;
     // When called from within reportException: (i.e., [super reportException:] internally
     // dispatches to _crashOnException: when NSApplicationCrashOnExceptions is YES),
     // the exception was already captured, so skip to avoid duplicate reports.
-    if (!_insideReportException) {
+    if (!atomic_load(&_insideReportException)) {
         [self captureException:exception];
     }
 }
