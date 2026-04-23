@@ -55,7 +55,7 @@ class NotificationService: UNNotificationServiceExtension {
     }
 
     var isWatchdogInstalled: Bool {
-        isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("WatchdogTerminations")
+        isSentryEnabled && SentrySDKInternal.trimmedInstalledIntegrationNames().contains("WatchdogTerminationTracking")
     }
 
     var isSentryEnabled: Bool {
