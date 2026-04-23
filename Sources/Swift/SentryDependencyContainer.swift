@@ -98,6 +98,28 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #endif
         return defaultApplicationProvider()
     }
+
+    @objc(startBinaryImageCache:)
+    public func startBinaryImageCache(_ isDebug: Bool) {
+        paramLock.synchronized {
+            if !isBinaryImageCacheStarted {
+                sentrycrashbic_startCache()
+                isBinaryImageCacheStarted = true
+            }
+            binaryImageCache.start(isDebug)
+        }
+    }
+
+    @objc public func stopBinaryImageCache() {
+        paramLock.synchronized {
+            guard isBinaryImageCacheStarted else {
+                return
+            }
+            binaryImageCache.stop()
+            sentrycrashbic_stopCache()
+            isBinaryImageCacheStarted = false
+        }
+    }
     
     private lazy var sessionDispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.session-tracker")
 
@@ -109,6 +131,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var random = Dependencies.random
     @objc public var threadWrapper = Dependencies.threadWrapper
     @objc public var binaryImageCache = Dependencies.binaryImageCache
+    private var isBinaryImageCacheStarted = false
     @objc public var dateProvider: SentryCurrentDateProvider = Dependencies.dateProvider
     @objc public var notificationCenterWrapper = Dependencies.notificationCenterWrapper
     @objc public var processInfoWrapper = Dependencies.processInfoWrapper

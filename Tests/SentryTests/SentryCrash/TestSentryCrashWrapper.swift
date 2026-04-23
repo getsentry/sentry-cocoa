@@ -16,8 +16,6 @@ class TestSentryCrashWrapper: SentryCrashWrapper {
     var internalIsApplicationInForeground = true
     var internalFreeMemorySize: UInt64 = 0
     var internalAppMemorySize: UInt64 = 0
-    var binaryCacheStarted = false
-    var binaryCacheStopped = false
     var enrichScopeCalled = false
 
     // MARK: - Initialization
@@ -34,16 +32,6 @@ class TestSentryCrashWrapper: SentryCrashWrapper {
     }
     
     // MARK: - Overridden Methods
-    
-    override func startBinaryImageCache() {
-        binaryCacheStarted = true
-        super.startBinaryImageCache()
-    }
-    
-    override func stopBinaryImageCache() {
-        super.stopBinaryImageCache()
-        binaryCacheStopped = true
-    }
     
     override var crashedLastLaunch: Bool {
         return internalCrashedLastLaunch
