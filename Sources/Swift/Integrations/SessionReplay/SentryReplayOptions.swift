@@ -715,17 +715,14 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Parameter userHeaders: Headers specified by the user (can be nil)
      * - Parameter defaults: Default headers that must always be included
-     * - Returns: Array containing both user headers and default headers (with duplicates removed)
+     * - Returns: Array containing both user headers and default headers with duplicates removed.
      */
     private static func mergeWithDefaultHeaders(_ userHeaders: [String]?, defaults: [String]) -> [String] {
         let providedHeaders = userHeaders ?? []
         
-        // Use Set to remove duplicates, then convert back to Array
-        // Case-insensitive comparison to avoid duplicate headers with different casing
         var seenHeaders = Set<String>()
         var result: [String] = []
-        
-        // Add default headers first
+
         for header in defaults {
             let lowercased = header.lowercased()
             if !seenHeaders.contains(lowercased) {
@@ -733,8 +730,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
                 result.append(header)
             }
         }
-        
-        // Add user-provided headers
+
         for header in providedHeaders {
             let lowercased = header.lowercased()
             if !seenHeaders.contains(lowercased) {
