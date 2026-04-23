@@ -31,11 +31,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     func testImageFromCache() {
         let image = createCrashBinaryImage(2_488_998_912)
         SentryDependencyContainer.sharedInstance().binaryImageCache.start(false)
-        SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(imageName: image.name,
-                                                                                     vmAddress: image.vmAddress,
-                                                                                     address: image.address,
-                                                                                     size: image.size,
-                                                                                     uuid: image.uuid)
+        SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(image: image)
 
         var cursor = SentryCrashStackCursor()
         cursor.stackEntry.address = 2_488_998_950

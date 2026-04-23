@@ -12,13 +12,11 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let objcRuntimeWrapper = SentryTestObjCRuntimeWrapper()
         let subClassFinder: TestSubClassFinder
         let processInfoWrapper = MockSentryProcessInfo()
-        let binaryImageCache: SentryBinaryImageCache
         let performanceTracker = SentryUIViewControllerPerformanceTracker()
         var options: Options
 
         init() {
             subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, swizzleClassNameExcludes: [])
-            binaryImageCache = SentryDependencyContainer.sharedInstance().binaryImageCache
 
             options = Options.noIntegrations()
 
@@ -29,15 +27,15 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         }
 
         var sut: SentryUIViewControllerSwizzling {
-            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache, performanceTracker: performanceTracker)
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, performanceTracker: performanceTracker)
         }
 
         var sutWithDefaultObjCRuntimeWrapper: SentryUIViewControllerSwizzling {
-            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: SentryDependencyContainer.sharedInstance().objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache, performanceTracker: performanceTracker)
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: SentryDependencyContainer.sharedInstance().objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, performanceTracker: performanceTracker)
         }
 
         var testableSut: TestSentryUIViewControllerSwizzling {
-            return TestSentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache, performanceTracker: performanceTracker)
+            return TestSentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, performanceTracker: performanceTracker)
         }
         
         var delegate: MockApplication.MockApplicationDelegate {
@@ -185,34 +183,6 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let controller = ExternalUIViewController()
         controller.loadView()
         XCTAssertNotNil(SentrySDK.span)
-    }
-    
-    /// Xcode 16 introduces a new flag ENABLE_DEBUG_DYLIB (https://developer.apple.com/documentation/xcode/build-settings-reference#Enable-Debug-Dylib-Support)
-    /// If this flag is enabled, debug builds of app and app extension targets on supported platforms and SDKs
-    /// will be built with the main binary code in a separate “NAME.debug.dylib”.
-    /// This test adds this debug.dylib and checks if it gets swizzled.
-    func testSwizzle_DebugDylib_GetsSwizzled() {
-        let imageName = String(
-            cString: class_getImageName(SentryUIViewControllerSwizzlingTests.self)!,
-            encoding: .utf8)! as NSString
-        
-        let debugDylib = "\(imageName).debug.dylib"
-        
-        let image = createCrashBinaryImage(0, name: debugDylib)
-        SentryDependencyContainer.sharedInstance().binaryImageCache.start(false)
-        SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(imageName: image.name,
-                                                                                     vmAddress: image.vmAddress,
-                                                                                     address: image.address,
-                                                                                     size: image.size,
-                                                                                     uuid: image.uuid)
-        
-        let sut = fixture.sut
-        sut.start()
-        
-        let subClassFinderInvocations = fixture.subClassFinder.invocations
-        let result = subClassFinderInvocations.invocations.filter { $0.imageName == debugDylib }
-            
-        XCTAssertEqual(1, result.count)
     }
     
     func testSwizzle_fromScene_invalidNotification_NoObject() {
