@@ -13,6 +13,7 @@ static void (*addBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slid
 static void (*removeBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slide);
 static NSMutableArray *mach_headers_test_cache;
 static NSMutableArray *mach_headers_expect_array;
+static const uint32_t maxDyldImages = 4096;
 
 static void
 sentry_register_func_for_add_image(
@@ -431,6 +432,110 @@ delayAddBinaryImage(void)
     NSMutableArray *result = [NSMutableArray array];
     sentrycrashbic_iterateOverImages(addBinaryImageToArray, (__bridge void *)(result));
     return result;
+}
+
+- (const struct mach_header *)capacityTestHeader
+{
+    return [mach_headers_expect_array[1] pointerValue];
+}
+
+- (void)bootstrapDyldCallbacksAndResetCacheState
+{
+    sentrycrashbic_startCache();
+    sentrycrashbic_useFreshTestCacheState();
+    sentrycrashbic_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
+    sentrycrashbic_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
+}
+
+- (void)fillStartedCacheToImageLimitWithHeader:(const struct mach_header *)header
+{
+    for (uint32_t i = 5; i < maxDyldImages; i++) {
+        addBinaryImage(header, 0);
+    }
+}
+
+- (void)fillInactiveCacheToImageLimitWithHeader:(const struct mach_header *)header
+{
+    for (uint32_t i = 0; i < maxDyldImages; i++) {
+        addBinaryImage(header, 0);
+    }
+}
+
+- (void)testAddImage_whenCacheIsAtCapacity_shouldIgnoreOverflowImage
+{
+    const struct mach_header *header = [self capacityTestHeader];
+
+    sentrycrashbic_startCache();
+    [self fillStartedCacheToImageLimitWithHeader:header];
+    [self assertBinaryImageCacheLength:maxDyldImages];
+
+    sentrycrashbic_registerAddedCallback(&captureAddedImageName);
+    XCTAssertEqual((NSUInteger)maxDyldImages, copyAddedImageNames().count);
+
+    addBinaryImage(header, 0);
+
+    XCTAssertEqual((NSUInteger)maxDyldImages, copyAddedImageNames().count);
+    [self assertBinaryImageCacheLength:maxDyldImages];
+}
+
+- (void)testStartCache_whenCacheIsAtCapacity_shouldSkipAddingDyld
+{
+    const struct mach_header *header = [self capacityTestHeader];
+
+    [self bootstrapDyldCallbacksAndResetCacheState];
+    [self fillInactiveCacheToImageLimitWithHeader:header];
+
+    NSMutableArray<NSString *> *namesBeforeStart = [NSMutableArray array];
+    sentrycrashbic_iterateOverImages(
+        addBinaryImageNameToArray, (__bridge void *)(namesBeforeStart));
+    XCTAssertEqual((NSUInteger)maxDyldImages, namesBeforeStart.count);
+    XCTAssertFalse([namesBeforeStart containsObject:@"dyld"]);
+
+    sentrycrashbic_startCache();
+
+    NSMutableArray<NSString *> *namesAfterStart = [NSMutableArray array];
+    sentrycrashbic_iterateOverImages(addBinaryImageNameToArray, (__bridge void *)(namesAfterStart));
+    XCTAssertEqual((NSUInteger)maxDyldImages, namesAfterStart.count);
+    XCTAssertFalse([namesAfterStart containsObject:@"dyld"]);
+}
+
+- (void)testIterateOverImages_whenNextIndexExceedsMax_shouldIgnoreOverflowSlot
+{
+    const struct mach_header *header = [self capacityTestHeader];
+
+    [self bootstrapDyldCallbacksAndResetCacheState];
+    [self fillInactiveCacheToImageLimitWithHeader:header];
+    addBinaryImage(header, 0);
+
+    XCTAssertEqual((NSUInteger)maxDyldImages, [self binaryImageCacheToArray].count);
+}
+
+- (void)testRegisterAddedCallback_whenNextIndexExceedsMax_shouldReplayOnlyTrackedImages
+{
+    const struct mach_header *header = [self capacityTestHeader];
+
+    [self bootstrapDyldCallbacksAndResetCacheState];
+    [self fillInactiveCacheToImageLimitWithHeader:header];
+    addBinaryImage(header, 0);
+
+    sentrycrashbic_registerAddedCallback(&captureAddedImageName);
+
+    NSArray<NSString *> *replayedNames = copyAddedImageNames();
+    XCTAssertEqual((NSUInteger)maxDyldImages, replayedNames.count);
+    XCTAssertFalse([replayedNames containsObject:@"dyld"]);
+}
+
+- (void)testRemoveImage_whenNextIndexExceedsMax_shouldRemoveTrackedImage
+{
+    const struct mach_header *header = [self capacityTestHeader];
+
+    [self bootstrapDyldCallbacksAndResetCacheState];
+    [self fillInactiveCacheToImageLimitWithHeader:header];
+    addBinaryImage(header, 0);
+
+    removeBinaryImage(header, 0);
+
+    [self assertBinaryImageCacheLength:maxDyldImages - 1];
 }
 
 @end
