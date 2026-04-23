@@ -559,6 +559,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         let requestHeaders = try XCTUnwrap(requestDict["headers"] as? [String: String])
         // "Content-Type" is always extracted when present.
         XCTAssertEqual(requestHeaders["Content-Type"], "application/json")
+        XCTAssertEqual(requestHeaders.count, 1, "Only Content-Type should be captured (no networkRequestHeaders configured)")
 
         // Verify response details show up
         let responseDict = try XCTUnwrap(networkDetails["response"] as? [String: Any])
@@ -566,6 +567,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         // "Content-Type" is always extracted when present.
         XCTAssertEqual(responseHeaders["Content-Type"], "application/json")
         XCTAssertEqual(responseHeaders["Cache-Control"], "no-cache")
+        XCTAssertEqual(responseHeaders.count, 2, "Only Content-Type and the configured Cache-Control should be captured")
 
         clearTestState()
     }
