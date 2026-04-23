@@ -198,13 +198,13 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
 
     // MARK: - Network Details (partial data)
 
-    /// All network detail fields are optional. The backend accepts partial data
-    /// and the replay UI simply omits missing fields. These tests lock down that
-    /// behavior so partial details are never accidentally rejected.
+    /// All network detail fields are optional. These tests document the SDK's
+    /// current serialization behavior — when fields on `SentryReplayNetworkDetails`
+    /// are unset, they are simply omitted from the RRWebEvent payload rather than
+    /// replaced with defaults or causing the details to be dropped entirely.
 
     func testHttpBreadcrumb_withNetworkDetails_onlyStatusCode() throws {
-        let details = SentryReplayNetworkDetails(method: nil)
-        let payloadData = try convertHttpBreadcrumbWithNetworkDetails(details: details) { details in
+        let payloadData = try convertHttpBreadcrumbWithNetworkDetails { details in
             details.setResponse(statusCode: 200, size: nil, bodyData: nil, contentType: nil, allHeaders: nil, configuredHeaders: nil)
         }
 
@@ -212,10 +212,12 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertNil(payloadData["method"], "method should be absent when not set")
         XCTAssertNil(payloadData["requestBodySize"])
         XCTAssertNil(payloadData["responseBodySize"])
+        // Only statusCode should be present — nothing else leaks through.
+        XCTAssertEqual(payloadData.count, 1)
     }
 
     func testHttpBreadcrumb_withNetworkDetails_onlyMethod() throws {
-        let payloadData = try convertHttpBreadcrumbWithNetworkDetails { _ in
+        let payloadData = try convertHttpBreadcrumbWithNetworkDetails(method: "POST") { _ in
             // method is set via the initializer; no response/request set
         }
 
@@ -223,6 +225,8 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertNil(payloadData["statusCode"], "statusCode should be absent when no response is set")
         XCTAssertNil(payloadData["requestBodySize"])
         XCTAssertNil(payloadData["responseBodySize"])
+        // Only method should be present.
+        XCTAssertEqual(payloadData.count, 1)
     }
 
     func testHttpBreadcrumb_withNetworkDetails_onlyResponseBodySize() throws {
@@ -232,6 +236,9 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
 
         XCTAssertEqual(payloadData["responseBodySize"] as? Int, 512)
         XCTAssertNil(payloadData["requestBodySize"])
+        // Expected keys: statusCode (set to 0 by setResponse),
+        // responseBodySize, and response (containing size).
+        XCTAssertEqual(payloadData.count, 3)
     }
 
     func testHttpBreadcrumb_withNetworkDetails_onlyRequestBodySize() throws {
@@ -241,11 +248,12 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
 
         XCTAssertEqual(payloadData["requestBodySize"] as? Int, 256)
         XCTAssertNil(payloadData["responseBodySize"])
+        // Expected keys: requestBodySize and request (containing size).
+        XCTAssertEqual(payloadData.count, 2)
     }
 
     func testHttpBreadcrumb_withNetworkDetails_emptyDetails_producesNoExtraKeys() throws {
-        let details = SentryReplayNetworkDetails(method: nil)
-        let payloadData = try convertHttpBreadcrumbWithNetworkDetails(details: details) { _ in }
+        let payloadData = try convertHttpBreadcrumbWithNetworkDetails { _ in }
 
         XCTAssertNil(payloadData["method"])
         XCTAssertNil(payloadData["statusCode"])
@@ -253,21 +261,24 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertNil(payloadData["responseBodySize"])
         XCTAssertNil(payloadData["request"])
         XCTAssertNil(payloadData["response"])
+        XCTAssertEqual(payloadData.count, 0, "No keys should be present when details is empty")
     }
 
     // MARK: - Helpers
 
     /// Creates an HTTP breadcrumb with a `SentryReplayNetworkDetails` attached,
     /// runs it through the converter, and returns the payload data dictionary.
+    ///
+    /// - Parameter method: Optional HTTP method to set on the network details.
     private func convertHttpBreadcrumbWithNetworkDetails(
-        details: SentryReplayNetworkDetails? = nil,
+        method: String? = nil,
         configure: (SentryReplayNetworkDetails) -> Void
     ) throws -> [String: Any] {
         let sut = SentrySRDefaultBreadcrumbConverter()
         let breadcrumb = Breadcrumb(level: .info, category: "http")
         let start = Date(timeIntervalSince1970: 5)
 
-        let networkDetails = details ?? SentryReplayNetworkDetails(method: "POST")
+        let networkDetails = SentryReplayNetworkDetails(method: method)
         configure(networkDetails)
 
         breadcrumb.data = [
