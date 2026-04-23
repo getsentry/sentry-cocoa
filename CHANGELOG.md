@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.11.0
 
 ### Features
 
@@ -8,10 +8,12 @@
 
 ### Fixes
 
+- Added `Package@swift-6.2.swift` to avoid issues with unsafe build flags on SPM > 6.2 (#7778)
 - Detect development builds via provisioning profile and debugger attachment (#7702)
 - Keep replayType as `buffer` for Session Replay triggered by an error (#7804)
 - Fix race condition in scope observer notifications causing EXC_BAD_ACCESS during cold launch (#7807)
 - Unsubscribe to system event during background to avoid reporting breadcrumbs with wrong timestamps on return to foreground (#7702)
+- Fix SwiftUI's images and text redaction in iOS 26 (#7781)
 - Add foreground state to app context in app hang events (#7801)
 
 ## 9.10.0
