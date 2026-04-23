@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- initialize BinaryImageCache async to main thread (#7823)
+
 ## 9.11.0
 
 ### Features
