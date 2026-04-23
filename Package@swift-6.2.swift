@@ -97,7 +97,7 @@ targets += [
         name: "SentryObjCInternal",
         dependencies: ["SentrySwift"],
         path: "Sources",
-        exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
+        exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests", "SentryObjC", "SentryObjCBridge"],
         cSettings: [
             .headerSearchPath("Sentry"),
             .headerSearchPath("SentryCrash/Recording"),
@@ -108,6 +108,28 @@ targets += [
             .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
         ])
+]
+
+// Swift bridge that exposes SDK functionality to pure ObjC code (no modules)
+products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjCBridge", "SentryObjC"]))
+targets += [
+    .target(
+        name: "SentryObjCBridge",
+        dependencies: ["SentryObjCInternal"],
+        path: "Sources/SentryObjCBridge",
+        swiftSettings: [
+            .unsafeFlags(["-enable-library-evolution"])
+        ]),
+
+    .target(
+        name: "SentryObjC",
+        dependencies: ["SentryObjCBridge"],
+        path: "Sources/SentryObjC",
+        publicHeadersPath: "Public",
+        cSettings: [
+            .headerSearchPath("Public")
+        ]
+    )
 ]
 
 let package = Package(
