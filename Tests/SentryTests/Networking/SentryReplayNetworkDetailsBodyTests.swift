@@ -7,15 +7,10 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
 
     // MARK: - Initialization Tests
 
-    func testInit_withJSONDictionary_shouldParseCorrectly() {
+    func testInit_withJSONDictionary_shouldParseCorrectly() throws {
         // -- Arrange --
         let bodyContent: [String: Any] = ["key": "value", "number": 42]
-        let bodyData: Data
-        do {
-            bodyData = try JSONSerialization.data(withJSONObject: bodyContent)
-        } catch {
-            return XCTFail("Failed to create JSON data: \(error)")
-        }
+        let bodyData = try JSONSerialization.data(withJSONObject: bodyContent)
 
         // -- Act --
         let body = Body(data: bodyData, contentType: "application/json")
@@ -30,15 +25,10 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         }
     }
 
-    func testInit_withJSONArray_shouldParseCorrectly() {
+    func testInit_withJSONArray_shouldParseCorrectly() throws {
         // -- Arrange --
         let bodyContent = ["item1", "item2", "item3"]
-        let bodyData: Data
-        do {
-            bodyData = try JSONSerialization.data(withJSONObject: bodyContent)
-        } catch {
-            return XCTFail("Failed to create JSON data: \(error)")
-        }
+        let bodyData = try JSONSerialization.data(withJSONObject: bodyContent)
 
         // -- Act --
         let body = Body(data: bodyData, contentType: "application/json")
@@ -58,9 +48,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     func testInit_withTextData_shouldStoreAsString() {
         // -- Arrange --
         let bodyContent = "This is plain text content"
-        guard let bodyData = bodyContent.data(using: .utf8) else {
-            return XCTFail("Failed to create text data")
-        }
+        let bodyData = Data(bodyContent.utf8)
 
         // -- Act --
         let body = Body(data: bodyData, contentType: "text/plain")
@@ -85,9 +73,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     func testInit_withInvalidJSON_shouldFallbackToString() {
         // -- Arrange --
         let invalidJSON = "{ invalid json }"
-        guard let bodyData = invalidJSON.data(using: .utf8) else {
-            return XCTFail("Failed to create data")
-        }
+        let bodyData = Data(invalidJSON.utf8)
 
         // -- Act --
         let body = Body(data: bodyData, contentType: "application/json")
@@ -102,12 +88,10 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         XCTAssertTrue(body?.warnings.contains(.bodyParseError) == true)
     }
 
-    func testInit_withLargeData_shouldTruncate() {
+    func testInit_withLargeData_shouldTruncate() throws {
         // -- Arrange --
         let largeString = String(repeating: "a", count: 200_000)
-        guard let bodyData = largeString.data(using: .utf8) else {
-            return XCTFail("Failed to create large data")
-        }
+        let bodyData = Data(largeString.utf8)
 
         // -- Act --
         let body = Body(data: bodyData, contentType: "text/plain")
@@ -123,15 +107,12 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         XCTAssertTrue(body?.warnings.contains(.textTruncated) == true)
 
         // Check serialized warnings
-        let serialized = body?.serialize()
-        if let warningStrings = serialized?["warnings"] as? [String] {
-            XCTAssertEqual(warningStrings, ["TEXT_TRUNCATED"])
-        } else {
-            XCTFail("Expected warnings to be serialized as string array")
-        }
+        let serialized = try XCTUnwrap(body?.serialize())
+        let warningStrings = try XCTUnwrap(serialized["warnings"] as? [String], "Expected warnings to be serialized as string array")
+        XCTAssertEqual(warningStrings, ["TEXT_TRUNCATED"])
     }
 
-    func testInit_withBinaryContentType_shouldCreateArtificialString() {
+    func testInit_withBinaryContentType_shouldCreateArtificialString() throws {
         // -- Arrange --
         let binaryData = Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]) // PNG header
         let contentType = "image/png"
@@ -149,12 +130,9 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
             XCTFail("Expected .text content with binary description")
         }
 
-        let result = body?.serialize()
-        if let bodyString = result?["body"] as? String {
-            XCTAssertTrue(bodyString.hasPrefix("[Body not captured"))
-        } else {
-            XCTFail("Expected body to be a string with binary data prefix")
-        }
+        let result = try XCTUnwrap(body?.serialize())
+        let bodyString = try XCTUnwrap(result["body"] as? String, "Expected body to be a string with binary data prefix")
+        XCTAssertTrue(bodyString.hasPrefix("[Body not captured"))
     }
 
     func testInit_withNilContentType_shouldCreatePlaceholder() {
@@ -198,9 +176,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     func testInit_withFormURLEncoded_shouldParseAsForm() {
         // -- Arrange --
         let formString = "key1=value1&key2=value2&key3=value%20with%20spaces"
-        guard let bodyData = formString.data(using: .utf8) else {
-            return XCTFail("Failed to create form data")
-        }
+        let bodyData = Data(formString.utf8)
 
         // -- Act --
         let body = Body(data: bodyData, contentType: "application/x-www-form-urlencoded")
@@ -219,7 +195,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     func testInit_withFormURLEncoded_duplicateKeys_shouldPromoteToArray() throws {
         // -- Act --
         let body = try XCTUnwrap(Body(
-            data: "color=red&color=blue&color=green".data(using: .utf8)!,
+            data: Data("color=red&color=blue&color=green".utf8),
             contentType: "application/x-www-form-urlencoded; charset=utf-8"
         ))
 
@@ -231,7 +207,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     func testInit_withFormURLEncoded_emptyValue_shouldParseAsEmptyString() throws {
         // -- Act --
         let body = try XCTUnwrap(Body(
-            data: "key1=&key2=value2".data(using: .utf8)!,
+            data: Data("key1=&key2=value2".utf8),
             contentType: "application/x-www-form-urlencoded; charset=utf-8"
         ))
 
@@ -244,7 +220,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     func testInit_withFormURLEncoded_missingEquals_shouldFallbackToText() throws {
         // -- Act --
         let body = try XCTUnwrap(Body(
-            data: "key1=value1&malformed&key2=value2".data(using: .utf8)!,
+            data: Data("key1=value1&malformed&key2=value2".utf8),
             contentType: "application/x-www-form-urlencoded; charset=utf-8"
         ))
 
@@ -259,7 +235,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     func testInit_withFormURLEncoded_emptyKeys_shouldBeSkipped() throws {
         // -- Act --
         let body = try XCTUnwrap(Body(
-            data: "=value1&key2=value2".data(using: .utf8)!,
+            data: Data("=value1&key2=value2".utf8),
             contentType: "application/x-www-form-urlencoded; charset=utf-8"
         ))
 
@@ -272,7 +248,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     func testInit_withFormURLEncoded_equalsInValue_shouldPreserve() throws {
         // -- Act --
         let body = try XCTUnwrap(Body(
-            data: "query=a=1&token=abc".data(using: .utf8)!,
+            data: Data("query=a=1&token=abc".utf8),
             contentType: "application/x-www-form-urlencoded; charset=utf-8"
         ))
 
@@ -285,7 +261,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     func testInit_withFormURLEncoded_plusAsSpace_shouldDecode() throws {
         // -- Act --
         let body = try XCTUnwrap(Body(
-            data: "greeting=hello+world&name=Jane+Doe".data(using: .utf8)!,
+            data: Data("greeting=hello+world&name=Jane+Doe".utf8),
             contentType: "application/x-www-form-urlencoded; charset=utf-8"
         ))
 
@@ -299,7 +275,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         // %ZZ is invalid percent-encoding → removingPercentEncoding returns nil.
         // The fallback should still preserve +-to-space and = in values.
         let body = try XCTUnwrap(Body(
-            data: "key=a%ZZ=b&greeting=hello+world".data(using: .utf8)!,
+            data: Data("key=a%ZZ=b&greeting=hello+world".utf8),
             contentType: "application/x-www-form-urlencoded; charset=utf-8"
         ))
 
@@ -319,7 +295,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
 
         // -- dropLast(1): 3-byte char split after 2 bytes --
         // "你好" = 6 bytes; prefix(5) cuts second char after 2 of 3 bytes
-        let cjk = "你好".data(using: .utf8)!
+        let cjk = Data("你好".utf8)
         XCTAssertEqual(cjk.count, 6)
         let body1 = try XCTUnwrap(Body(data: cjk.prefix(5), contentType: "text/plain; charset=utf-8"))
         XCTAssertEqual(body1.serialize()["body"] as? String, "你")
@@ -331,7 +307,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
 
         // -- dropLast(3): 4-byte emoji split after 1 byte --
         // "A😀" = 1 + 4 = 5 bytes; prefix(2) cuts emoji after 1 of 4 bytes
-        let emoji = "A😀".data(using: .utf8)!
+        let emoji = Data("A😀".utf8)
         XCTAssertEqual(emoji.count, 5)
         let body3 = try XCTUnwrap(Body(data: emoji.prefix(2), contentType: "text/plain; charset=utf-8"))
         XCTAssertEqual(body3.serialize()["body"] as? String, "A")
@@ -342,13 +318,13 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         XCTAssertEqual(body4.serialize()["body"] as? String, "你")
 
         // -- pure ASCII: never affected --
-        let ascii = "hello".data(using: .utf8)!
+        let ascii = Data("hello".utf8)
         let body5 = try XCTUnwrap(Body(data: ascii.prefix(3), contentType: "text/plain; charset=utf-8"))
         XCTAssertEqual(body5.serialize()["body"] as? String, "hel")
 
         // -- 2-byte char split after 1 byte --
         // "Aé" = 1 + 2 = 3 bytes; prefix(2) cuts "é" after 1 of 2 bytes
-        let accented = "Aé".data(using: .utf8)!
+        let accented = Data("Aé".utf8)
         XCTAssertEqual(accented.count, 3)
         let body6 = try XCTUnwrap(Body(data: accented.prefix(2), contentType: "text/plain; charset=utf-8"))
         XCTAssertEqual(body6.serialize()["body"] as? String, "A")
@@ -359,9 +335,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     func testSerialize_withStringBody_shouldReturnDictionary() {
         // -- Arrange --
         let bodyContent = "test body"
-        guard let bodyData = bodyContent.data(using: .utf8) else {
-            return XCTFail("Failed to create data")
-        }
+        let bodyData = Data(bodyContent.utf8)
         let body = Body(data: bodyData, contentType: "text/plain")
 
         // -- Act --
@@ -372,48 +346,32 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
         XCTAssertEqual(result?["body"] as? String, bodyContent)
     }
 
-    func testSerialize_withJSONDictionary_shouldReturnDictionary() {
+    func testSerialize_withJSONDictionary_shouldReturnDictionary() throws {
         // -- Arrange --
         let bodyContent: [String: Any] = ["user": "test", "id": 123]
-        let bodyData: Data
-        do {
-            bodyData = try JSONSerialization.data(withJSONObject: bodyContent)
-        } catch {
-            return XCTFail("Failed to create JSON data: \(error)")
-        }
+        let bodyData = try JSONSerialization.data(withJSONObject: bodyContent)
         let body = Body(data: bodyData, contentType: "application/json")
 
         // -- Act --
-        let result = body?.serialize()
+        let result = try XCTUnwrap(body?.serialize())
 
         // -- Assert --
-        XCTAssertNotNil(result)
-        guard let bodyDict = result?["body"] as? NSDictionary else {
-            return XCTFail("Expected body to be NSDictionary")
-        }
+        let bodyDict = try XCTUnwrap(result["body"] as? NSDictionary, "Expected body to be NSDictionary")
         XCTAssertEqual(bodyDict["user"] as? String, "test")
         XCTAssertEqual(bodyDict["id"] as? Int, 123)
     }
 
-    func testSerialize_withJSONArray_shouldReturnArray() {
+    func testSerialize_withJSONArray_shouldReturnArray() throws {
         // -- Arrange --
         let bodyContent = ["item1", "item2", "item3"]
-        let bodyData: Data
-        do {
-            bodyData = try JSONSerialization.data(withJSONObject: bodyContent)
-        } catch {
-            return XCTFail("Failed to create JSON data: \(error)")
-        }
+        let bodyData = try JSONSerialization.data(withJSONObject: bodyContent)
         let body = Body(data: bodyData, contentType: "application/json")
 
         // -- Act --
-        let result = body?.serialize()
+        let result = try XCTUnwrap(body?.serialize())
 
         // -- Assert --
-        XCTAssertNotNil(result)
-        guard let bodyArray = result?["body"] as? NSArray else {
-            return XCTFail("Expected body to be NSArray")
-        }
+        let bodyArray = try XCTUnwrap(result["body"] as? NSArray, "Expected body to be NSArray")
         XCTAssertEqual(bodyArray.count, 3)
         XCTAssertEqual(bodyArray[0] as? String, "item1")
     }
@@ -421,9 +379,7 @@ class SentryReplayNetworkDetailsBodyTests: XCTestCase {
     func testSerialize_withNoContentType_shouldCreatePlaceholder() {
         // -- Arrange --
         let bodyContent = "some content"
-        guard let bodyData = bodyContent.data(using: .utf8) else {
-            return XCTFail("Failed to create data")
-        }
+        let bodyData = Data(bodyContent.utf8)
         let body = Body(data: bodyData, contentType: nil)
 
         // -- Act --
