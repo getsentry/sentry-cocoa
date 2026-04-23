@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Disable app hang and watchdog termination tracking in Notification Service Extensions (#7818)
+
 ## 9.11.0
 
 ### Features
@@ -8,7 +14,6 @@
 
 ### Fixes
 
-- Disable app hang and watchdog termination tracking in Notification Service Extensions (#7818)
 - Added `Package@swift-6.2.swift` to avoid issues with unsafe build flags on SPM > 6.2 (#7778)
 - Detect development builds via provisioning profile and debugger attachment (#7702)
 - Keep replayType as `buffer` for Session Replay triggered by an error (#7804)
