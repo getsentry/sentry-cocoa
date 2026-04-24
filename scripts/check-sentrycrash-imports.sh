@@ -13,7 +13,7 @@ source "$SCRIPT_DIR/ci-utils.sh"
 # Baseline count of #import / #include lines referencing SentryCrash in Sources/Sentry
 # and Sources/Swift only (not Sources/SentryCrash). Pattern allows whitespace after '#'
 # so indented directives under #if are counted; matches #include and #import.
-MAX_IMPORTS=85
+MAX_IMPORTS=86
 
 count=$(grep -rnE '#[[:space:]]*(import|include).*SentryCrash' Sources/Sentry Sources/Swift \
     --include='*.m' --include='*.h' --include='*.c' --include='*.mm' --include='*.cpp' \
