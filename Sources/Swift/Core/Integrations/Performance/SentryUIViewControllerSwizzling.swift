@@ -17,8 +17,8 @@ extension UIApplication: SentryUIApplication {}
 private typealias SentryLoadedImageNamesProvider = () -> [String]
 
 private func defaultLoadedImageNamesProvider() -> [String] {
-    (0..<_dyld_image_count()).compactMap { i in
-        _dyld_get_image_name(i).map { String(cString: $0) }
+    (0..<_dyld_image_count()).compactMap { index in
+        _dyld_get_image_name(index).map { String(cString: $0) }
     }
 }
 
