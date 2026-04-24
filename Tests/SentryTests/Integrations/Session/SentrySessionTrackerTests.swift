@@ -48,13 +48,16 @@ class SentrySessionTrackerTests: XCTestCase {
             #endif
         }
         
+        let sessionDispatchQueue = TestSentryDispatchQueueWrapper()
+
         func getSut() -> SessionTracker {
             let application = self.application
             return SessionTracker(
                 options: options,
                 applicationProvider: { application },
                 dateProvider: currentDateProvider,
-                notificationCenter: notificationCenter
+                notificationCenter: notificationCenter,
+                dispatchQueue: sessionDispatchQueue
             )
         }
         

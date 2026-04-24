@@ -2,7 +2,7 @@
 import SentryTestUtils
 import XCTest
 
-class SentryBreadcrumbTrackerTests: XCTestCase {
+final class SentryBreadcrumbTrackerTests: XCTestCase {
     
     private var delegate: SentryBreadcrumbTestDelegate!
     
@@ -155,6 +155,89 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
         XCTAssertEqual(payloadData?["to"] as? String, "UIViewController")
     }
     
+    func testWillEnterForeground_shouldAddForegroundBreadcrumb() throws {
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        tracker.start(with: delegate)
+
+        NotificationCenter.default.post(name: UIApplication.willEnterForegroundNotification, object: nil)
+
+        let crumb = try XCTUnwrap(delegate.addCrumbInvocations.invocations.first(where: { $0.category == "app.lifecycle" }))
+        XCTAssertEqual(crumb.type, "navigation")
+        XCTAssertEqual(crumb.level, .info)
+        XCTAssertEqual(crumb.data?["state"] as? String, "foreground")
+    }
+
+    func testDidBecomeActive_shouldAddActiveBreadcrumb() throws {
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        tracker.start(with: delegate)
+
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        let crumb = try XCTUnwrap(delegate.addCrumbInvocations.invocations.first(where: { $0.category == "app.lifecycle" }))
+        XCTAssertEqual(crumb.type, "navigation")
+        XCTAssertEqual(crumb.level, .info)
+        XCTAssertEqual(crumb.data?["state"] as? String, "active")
+    }
+
+    func testWillResignActive_shouldAddInactiveBreadcrumb() throws {
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        tracker.start(with: delegate)
+
+        NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
+
+        let crumb = try XCTUnwrap(delegate.addCrumbInvocations.invocations.first(where: { $0.category == "app.lifecycle" }))
+        XCTAssertEqual(crumb.type, "navigation")
+        XCTAssertEqual(crumb.level, .info)
+        XCTAssertEqual(crumb.data?["state"] as? String, "inactive")
+    }
+
+    func testDidEnterBackground_shouldAddBackgroundBreadcrumb() throws {
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        tracker.start(with: delegate)
+
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+
+        let crumb = try XCTUnwrap(delegate.addCrumbInvocations.invocations.first(where: { $0.category == "app.lifecycle" }))
+        XCTAssertEqual(crumb.type, "navigation")
+        XCTAssertEqual(crumb.level, .info)
+        XCTAssertEqual(crumb.data?["state"] as? String, "background")
+    }
+
+    func testFullLifecycleSequence_shouldProduceCorrectBreadcrumbStates() throws {
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        tracker.start(with: delegate)
+
+        // Simulate: launch → switch away → return
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.post(name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        let lifecycleCrumbs = delegate.addCrumbInvocations.invocations.filter { $0.category == "app.lifecycle" }
+        XCTAssertEqual(lifecycleCrumbs.count, 5)
+
+        let states = lifecycleCrumbs.compactMap { $0.data?["state"] as? String }
+        XCTAssertEqual(states, ["active", "inactive", "background", "foreground", "active"])
+    }
+
+    func testStop_shouldRemoveLifecycleObservers() throws {
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        tracker.start(with: delegate)
+        tracker.stop()
+
+        // Clear any breadcrumbs from start
+        delegate.addCrumbInvocations.removeAll()
+
+        NotificationCenter.default.post(name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+
+        let lifecycleCrumbs = delegate.addCrumbInvocations.invocations.filter { $0.category == "app.lifecycle" }
+        XCTAssertEqual(lifecycleCrumbs.count, 0)
+    }
+
     func testAppLifeCycleBreadcrumbForSessionReplay() throws {
         let scope = Scope()
         let client = TestClient(options: Options())
@@ -424,6 +507,61 @@ class SentryBreadcrumbTrackerTests: XCTestCase {
             self.sentryName = sentryName
             super.init(nibName: nil, bundle: nil)
         }
+    }
+#endif
+
+#if os(macOS)
+    func testMacOS_didBecomeActive_shouldAddActiveBreadcrumb() throws {
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        tracker.start(with: delegate)
+
+        NotificationCenter.default.post(name: NSApplication.didBecomeActiveNotification, object: nil)
+
+        let crumb = try XCTUnwrap(delegate.addCrumbInvocations.invocations.first(where: { $0.category == "app.lifecycle" }))
+        XCTAssertEqual(crumb.type, "navigation")
+        XCTAssertEqual(crumb.level, .info)
+        XCTAssertEqual(crumb.data?["state"] as? String, "active")
+    }
+
+    func testMacOS_willResignActive_shouldAddInactiveBreadcrumb() throws {
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        tracker.start(with: delegate)
+
+        NotificationCenter.default.post(name: NSApplication.willResignActiveNotification, object: nil)
+
+        let crumb = try XCTUnwrap(delegate.addCrumbInvocations.invocations.first(where: { $0.category == "app.lifecycle" }))
+        XCTAssertEqual(crumb.type, "navigation")
+        XCTAssertEqual(crumb.level, .info)
+        XCTAssertEqual(crumb.data?["state"] as? String, "inactive")
+    }
+
+    func testMacOS_fullLifecycleSequence_shouldProduceCorrectBreadcrumbStates() throws {
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        tracker.start(with: delegate)
+
+        NotificationCenter.default.post(name: NSApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.post(name: NSApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.post(name: NSApplication.didBecomeActiveNotification, object: nil)
+
+        let lifecycleCrumbs = delegate.addCrumbInvocations.invocations.filter { $0.category == "app.lifecycle" }
+        XCTAssertEqual(lifecycleCrumbs.count, 3)
+
+        let states = lifecycleCrumbs.compactMap { $0.data?["state"] as? String }
+        XCTAssertEqual(states, ["active", "inactive", "active"])
+    }
+
+    func testMacOS_stop_shouldRemoveLifecycleObservers() throws {
+        let tracker = SentryBreadcrumbTracker(reportAccessibilityIdentifier: true)
+        tracker.start(with: delegate)
+        tracker.stop()
+
+        delegate.addCrumbInvocations.removeAll()
+
+        NotificationCenter.default.post(name: NSApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.post(name: NSApplication.willResignActiveNotification, object: nil)
+
+        let lifecycleCrumbs = delegate.addCrumbInvocations.invocations.filter { $0.category == "app.lifecycle" }
+        XCTAssertEqual(lifecycleCrumbs.count, 0)
     }
 #endif
     

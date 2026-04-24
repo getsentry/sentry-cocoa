@@ -286,7 +286,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         }
         if let replay = sessionReplay {
             if !replay.isFullSession {
-                replay.captureReplay()
+                replay.captureReplay(replayType: .session)
             }
             return
         }

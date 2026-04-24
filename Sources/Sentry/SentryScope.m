@@ -244,7 +244,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_contextDictionary setValue:value forKey:key];
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setContext:_contextDictionary];
+            [observer setContext:_contextDictionary.copy];
         }
     }
 }
@@ -262,7 +262,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_contextDictionary removeObjectForKey:key];
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setContext:_contextDictionary];
+            [observer setContext:_contextDictionary.copy];
         }
     }
 }
@@ -280,7 +280,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_extraDictionary setValue:value forKey:key];
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setExtras:_extraDictionary];
+            [observer setExtras:_extraDictionary.copy];
         }
     }
 }
@@ -291,7 +291,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_extraDictionary removeObjectForKey:key];
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setExtras:_extraDictionary];
+            [observer setExtras:_extraDictionary.copy];
         }
     }
 }
@@ -306,7 +306,7 @@ NS_ASSUME_NONNULL_BEGIN
             addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, id, extras)];
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setExtras:_extraDictionary];
+            [observer setExtras:_extraDictionary.copy];
         }
     }
 }
@@ -324,7 +324,7 @@ NS_ASSUME_NONNULL_BEGIN
         _tagDictionary[key] = value;
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setTags:_tagDictionary];
+            [observer setTags:_tagDictionary.copy];
         }
     }
 }
@@ -335,7 +335,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_tagDictionary removeObjectForKey:key];
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setTags:_tagDictionary];
+            [observer setTags:_tagDictionary.copy];
         }
     }
 }
@@ -345,12 +345,12 @@ NS_ASSUME_NONNULL_BEGIN
     if (tags == nil) {
         return;
     }
+    NSDictionary *tagsCopy = [tags copy];
     @synchronized(_tagDictionary) {
-        [_tagDictionary
-            addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, NSString *, tags)];
+        [_tagDictionary addEntriesFromDictionary:tagsCopy];
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setTags:_tagDictionary];
+            [observer setTags:_tagDictionary.copy];
         }
     }
 }
@@ -401,7 +401,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setFingerprint:_fingerprintArray];
+            [observer setFingerprint:_fingerprintArray.copy];
         }
     }
 }
@@ -491,7 +491,7 @@ NS_ASSUME_NONNULL_BEGIN
         _attributesDictionary[key] = value;
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setAttributes:_attributesDictionary];
+            [observer setAttributes:_attributesDictionary.copy];
         }
     }
 }
@@ -502,7 +502,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_attributesDictionary removeObjectForKey:key];
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer setAttributes:_attributesDictionary];
+            [observer setAttributes:_attributesDictionary.copy];
         }
     }
 }

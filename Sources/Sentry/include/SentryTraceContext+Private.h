@@ -36,6 +36,20 @@ NS_ASSUME_NONNULL_BEGIN
                        replayId:(nullable NSString *)replayId;
 
 /**
+ * Initializes a SentryTraceContext with given properties including org ID.
+ */
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                      publicKey:(NSString *)publicKey
+                    releaseName:(nullable NSString *)releaseName
+                    environment:(nullable NSString *)environment
+                    transaction:(nullable NSString *)transaction
+                     sampleRate:(nullable NSString *)sampleRate
+                     sampleRand:(nullable NSString *)sampleRand
+                        sampled:(nullable NSString *)sampled
+                       replayId:(nullable NSString *)replayId
+                          orgId:(nullable NSString *)orgId;
+
+/**
  * Initializes a SentryTraceContext with data from scope and options.
  */
 - (nullable instancetype)initWithScope:(SentryScope *)scope options:(SentryOptions *)options;

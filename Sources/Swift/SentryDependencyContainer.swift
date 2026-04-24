@@ -99,8 +99,10 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return defaultApplicationProvider()
     }
     
+    private lazy var sessionDispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.session-tracker")
+
     func getSessionTracker(with options: Options) -> SessionTracker {
-        return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper)
+        return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper, dispatchQueue: sessionDispatchQueue)
     }
     
     @objc public var dispatchQueueWrapper = Dependencies.dispatchQueueWrapper

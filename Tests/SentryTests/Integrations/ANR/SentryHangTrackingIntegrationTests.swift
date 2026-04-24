@@ -379,6 +379,9 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertEqual(event.releaseName, "my-release-name-test")
         XCTAssertEqual(event.environment, "testing-environment")
         XCTAssertEqual(event.dist, "adhoc")
+        let appContext = try XCTUnwrap(event.context?["app"] as? [String: Any])
+        XCTAssertEqual(true, appContext["in_foreground"] as? Bool)
+        XCTAssertEqual(true, appContext["is_active"] as? Bool)
     }
     
     func testV2_ANRDetected_DoesNotCaptureEvent() throws {

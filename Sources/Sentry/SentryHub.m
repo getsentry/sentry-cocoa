@@ -488,6 +488,17 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
+- (SentryId *)captureMessage:(NSString *)message
+                   withScope:(SentryScope *)scope
+            attachAllThreads:(NSNumber *_Nullable)attachAllThreads
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureMessage:message withScope:scope attachAllThreads:attachAllThreads];
+    }
+    return SentryId.empty;
+}
+
 - (SentryId *)captureError:(NSError *)error
 {
     return [self captureError:error withScope:self.scope];
@@ -503,6 +514,17 @@ NS_ASSUME_NONNULL_BEGIN
     return SentryId.empty;
 }
 
+- (SentryId *)captureError:(NSError *)error
+                 withScope:(SentryScope *)scope
+          attachAllThreads:(NSNumber *_Nullable)attachAllThreads
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureError:error withScope:scope attachAllThreads:attachAllThreads];
+    }
+    return SentryId.empty;
+}
+
 - (SentryId *)captureException:(NSException *)exception
 {
     return [self captureException:exception withScope:self.scope];
@@ -514,6 +536,19 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (client != nil) {
         return [client captureException:exception withScope:scope];
+    }
+    return SentryId.empty;
+}
+
+- (SentryId *)captureException:(NSException *)exception
+                     withScope:(SentryScope *)scope
+              attachAllThreads:(NSNumber *_Nullable)attachAllThreads
+{
+    SentryClientInternal *client = self.client;
+    if (client != nil) {
+        return [client captureException:exception
+                              withScope:scope
+                       attachAllThreads:attachAllThreads];
     }
     return SentryId.empty;
 }

@@ -2,6 +2,7 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb+Private.h"
 #import "SentryClient.h"
+#import "SentryCrashC.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryMeta.h"
@@ -385,5 +386,10 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 }
 
 #endif
+
++ (void)ignoreNextSignal:(int)signum
+{
+    sentrycrash_ignore_next_signal(signum);
+}
 
 @end

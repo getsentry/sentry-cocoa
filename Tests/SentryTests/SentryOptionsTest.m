@@ -1260,6 +1260,59 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 }
 #endif // SENTRY_HAS_UIKIT
 
+#pragma mark - Strict Trace Continuation
+
+- (void)testStrictTraceContinuation
+{
+    [self testBooleanField:@"strictTraceContinuation" defaultValue:NO];
+}
+
+- (void)testOrgId_Default
+{
+    SentryOptions *options = [self getValidOptions:@{ }];
+    XCTAssertNil(options.orgId);
+}
+
+- (void)testOrgId_SetViaDict
+{
+    SentryOptions *options = [self getValidOptions:@{ @"orgId" : @"12345" }];
+    XCTAssertEqualObjects(options.orgId, @"12345");
+}
+
+- (void)testOrgId_InvalidType_Ignored
+{
+    SentryOptions *options = [self getValidOptions:@{ @"orgId" : @42 }];
+    XCTAssertNil(options.orgId);
+}
+
+- (void)testEffectiveOrgId_PrefersExplicitOverDsn
+{
+    SentryOptions *options = [self getValidOptions:@{ @"orgId" : @"999" }];
+    options.dsn = @"https://key@o123.ingest.sentry.io/456";
+    XCTAssertEqualObjects(options.effectiveOrgId, @"999");
+}
+
+- (void)testEffectiveOrgId_FallsBackToDsn
+{
+    SentryOptions *options = [self getValidOptions:@{ }];
+    options.dsn = @"https://key@o123.ingest.sentry.io/456";
+    XCTAssertEqualObjects(options.effectiveOrgId, @"123");
+}
+
+- (void)testEffectiveOrgId_NilWhenNoDsnOrgId
+{
+    SentryOptions *options = [self getValidOptions:@{ }];
+    options.dsn = @"https://key@sentry.io/456";
+    XCTAssertNil(options.effectiveOrgId);
+}
+
+- (void)testEffectiveOrgId_EmptyExplicitFallsBackToDsn
+{
+    SentryOptions *options = [self getValidOptions:@{ @"orgId" : @"" }];
+    options.dsn = @"https://key@o123.ingest.sentry.io/456";
+    XCTAssertEqualObjects(options.effectiveOrgId, @"123");
+}
+
 #pragma mark - Private
 
 - (void)assertArrayEquals:(NSArray<NSString *> *)expected actual:(NSArray<NSString *> *)actual
