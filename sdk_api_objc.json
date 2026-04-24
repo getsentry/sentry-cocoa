@@ -1108,14 +1108,7 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
-    "name": "SentryId",
-    "file": "SentryMetric.h",
-    "super": "NSObject",
-    "has_inner": false
-  },
-  {
-    "kind": "ObjCInterfaceDecl",
-    "name": "SentryAttributeContent",
+    "name": "SentryObjCAttributeContent",
     "file": "SentryMetricsApi.h",
     "super": "NSObject",
     "has_inner": false
@@ -1187,6 +1180,25 @@
     "name": "domain",
     "file": "SentryNSError.h",
     "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryId",
+    "file": "SentryObjCMetric.h",
+    "super": "NSObject",
+    "has_inner": false
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryObjCRedactRegionType",
+    "file": "SentryObjCRedactRegionType.h",
+    "type": "NSString *"
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryObjCUnitName",
+    "file": "SentryObjCUnit.h",
+    "type": "NSString *"
   },
   {
     "kind": "ObjCInterfaceDecl",
@@ -2596,12 +2608,6 @@
     "type": "id _Nullable"
   },
   {
-    "kind": "TypedefDecl",
-    "name": "SentryRedactRegionType",
-    "file": "SentryRedactRegionType.h",
-    "type": "NSString *"
-  },
-  {
     "kind": "ObjCInterfaceDecl",
     "name": "UIView",
     "file": "SentryReplayApi.h",
@@ -2890,12 +2896,6 @@
     "file": "SentryTransactionContext.h",
     "super": "NSObject",
     "has_inner": false
-  },
-  {
-    "kind": "TypedefDecl",
-    "name": "SentryUnitName",
-    "file": "SentryUnit.h",
-    "type": "NSString *"
   },
   {
     "kind": "ObjCInterfaceDecl",

@@ -1,6 +1,10 @@
 #import "SentryMetricsApiImpl.h"
 
-#import <SentryObjCTypes/SentryObjCAttributeContent.h>
+#if __has_include(<SentryObjCTypes/SentryObjCAttributeContent.h>)
+#    import <SentryObjCTypes/SentryObjCAttributeContent.h>
+#else
+#    import "SentryObjCAttributeContent.h"
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
