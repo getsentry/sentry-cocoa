@@ -120,7 +120,7 @@ import Foundation
     }
     
     @objc
-    public static func convertUUID(_ value: UnsafePointer<UInt8>?) -> String? {
+    private static func convertUUID(_ value: UnsafePointer<UInt8>?) -> String? {
         guard let value = value else { return nil }
         
         var uuidBuffer = [CChar](repeating: 0, count: 37)
@@ -129,7 +129,7 @@ import Foundation
     }
     
     @objc
-    public func binaryImageRemoved(_ imageAddress: UInt64) {
+    func binaryImageRemoved(_ imageAddress: UInt64) {
         lock.synchronized {
             guard let index = indexOfImage(address: imageAddress) else { return }
             self.cache?.remove(at: index)
@@ -166,24 +166,8 @@ import Foundation
         return nil
     }
     
-    @objc(imagePathsForInAppInclude:)
-    public func imagePathsFor(inAppInclude: String) -> Set<String> {
-        lock.synchronized {
-            var imagePaths = Set<String>()
-            
-            guard let cache = self.cache else { return imagePaths }
-            
-            for info in cache {
-                if SentryInAppLogic.isImageNameInApp(info.name, inAppInclude: inAppInclude) {
-                    imagePaths.insert(info.name)
-                }
-            }
-            return imagePaths
-        }
-    }
-    
     @objc
-    public func getAllBinaryImages() -> [SentryBinaryImageInfo] {
+    func getAllBinaryImages() -> [SentryBinaryImageInfo] {
         lock.synchronized {
             return cache ?? []
         }

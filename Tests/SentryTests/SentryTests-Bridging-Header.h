@@ -46,6 +46,7 @@
 #import "SentryClient.h"
 #import "SentryCoreDataTracker+Test.h"
 #import "SentryCrash+Test.h"
+#import "SentryCrashBinaryImageCache+Test.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashC.h"
 #import "SentryCrashCachedData.h"

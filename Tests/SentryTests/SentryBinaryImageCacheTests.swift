@@ -9,11 +9,14 @@ class SentryBinaryImageCacheTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+        sentrycrashbic_useFreshTestCacheState()
         sut.start(false)
     }
 
     override func tearDown() {
         sut.stop()
+        sentrycrashbic_useDefaultCacheState()
+        SentryDependencyContainer.reset()
         super.tearDown()
     }
     
@@ -129,25 +132,6 @@ class SentryBinaryImageCacheTests: XCTestCase {
         XCTAssertNil(sut.imageByAddress(399))
     }
     
-    func testImagePathByName() {
-        let binaryImage = createCrashBinaryImage(0)
-        let binaryImage2 = createCrashBinaryImage(1)
-        addBinaryImageToSut(binaryImage)
-        addBinaryImageToSut(binaryImage2)
-        
-        let paths = sut.imagePathsFor(inAppInclude: "Expected Name at 0")
-        XCTAssertEqual(paths.first, "Expected Name at 0")
-        
-        let paths2 = sut.imagePathsFor(inAppInclude: "Expected Name at 1")
-        XCTAssertEqual(paths2.first, "Expected Name at 1")
-        
-        let bothPaths = sut.imagePathsFor(inAppInclude: "Expected")
-        XCTAssertEqual(bothPaths, ["Expected Name at 0", "Expected Name at 1"])
-        
-        let didNotFind = sut.imagePathsFor(inAppInclude: "Name at 0")
-        XCTAssertTrue(didNotFind.isEmpty)
-    }
-    
     func testBinaryImageWithNULLName_DoesNotAddImage() {
         let address = UInt64(100)
     
@@ -218,8 +202,6 @@ class SentryBinaryImageCacheTests: XCTestCase {
         
         let expectation = expectation(description: "Add images on background thread")
         expectation.expectedFulfillmentCount = count
-        
-        self.sut.start(false)
         
         for i in 0..<count {
             DispatchQueue.global().async {
