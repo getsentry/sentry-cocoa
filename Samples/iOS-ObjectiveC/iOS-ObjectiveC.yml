@@ -57,8 +57,7 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
-      - target: Sentry/SentrySwiftUI
+      - target: Sentry/SentryObjC
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: App/Configurations/iOS-ObjectiveC.xcconfig
