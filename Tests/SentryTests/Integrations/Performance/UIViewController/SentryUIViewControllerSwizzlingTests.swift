@@ -12,13 +12,11 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let objcRuntimeWrapper = SentryTestObjCRuntimeWrapper()
         let subClassFinder: TestSubClassFinder
         let processInfoWrapper = MockSentryProcessInfo()
-        let binaryImageCache: SentryBinaryImageCache
         let performanceTracker = SentryUIViewControllerPerformanceTracker()
         var options: Options
 
         init() {
             subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, swizzleClassNameExcludes: [])
-            binaryImageCache = SentryDependencyContainer.sharedInstance().binaryImageCache
 
             options = Options.noIntegrations()
 
@@ -29,15 +27,15 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         }
 
         var sut: SentryUIViewControllerSwizzling {
-            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache, performanceTracker: performanceTracker)
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, performanceTracker: performanceTracker)
         }
 
         var sutWithDefaultObjCRuntimeWrapper: SentryUIViewControllerSwizzling {
-            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: SentryDependencyContainer.sharedInstance().objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache, performanceTracker: performanceTracker)
+            return SentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: SentryDependencyContainer.sharedInstance().objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, performanceTracker: performanceTracker)
         }
 
         var testableSut: TestSentryUIViewControllerSwizzling {
-            return TestSentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, binaryImageCache: binaryImageCache, performanceTracker: performanceTracker)
+            return TestSentryUIViewControllerSwizzling(options: options, dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, subClassFinder: subClassFinder, processInfoWrapper: processInfoWrapper, performanceTracker: performanceTracker)
         }
         
         var delegate: MockApplication.MockApplicationDelegate {
@@ -198,15 +196,15 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         
         let debugDylib = "\(imageName).debug.dylib"
         
-        let image = createCrashBinaryImage(0, name: debugDylib)
-        SentryDependencyContainer.sharedInstance().binaryImageCache.start(false)
-        SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(imageName: image.name,
-                                                                                     vmAddress: image.vmAddress,
-                                                                                     address: image.address,
-                                                                                     size: image.size,
-                                                                                     uuid: image.uuid)
-        
-        let sut = fixture.sut
+        let sut = SentryUIViewControllerSwizzling(
+            options: fixture.options,
+            dispatchQueue: fixture.dispatchQueue,
+            objcRuntimeWrapper: fixture.objcRuntimeWrapper,
+            subClassFinder: fixture.subClassFinder,
+            processInfoWrapper: fixture.processInfoWrapper,
+            performanceTracker: fixture.performanceTracker,
+            loadedImageNamesProvider: { [debugDylib] }
+        )
         sut.start()
         
         let subClassFinderInvocations = fixture.subClassFinder.invocations
