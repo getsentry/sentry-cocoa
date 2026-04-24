@@ -133,7 +133,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         currentDateProvider: Dependencies.dateProvider)
     @objc public var reachability = SentryReachability()
     @objc public var sysctlWrapper = Dependencies.sysctlWrapper
-    @objc public var sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentCheckerProvider = Dependencies.sessionReplayEnvironmentChecker
     @objc public var debugImageProvider = Dependencies.debugImageProvider
     @objc public var objcRuntimeWrapper: SentryObjCRuntimeWrapper = SentryDefaultObjCRuntimeWrapper()
     var extensionDetector: SentryExtensionDetector = {
@@ -460,11 +459,6 @@ protocol ViewHierarchyProviderProvider {
 
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
 #endif
-
-protocol SessionReplayEnvironmentCheckerProvider {
-    var sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentCheckerProvider { get }
-}
-extension SentryDependencyContainer: SessionReplayEnvironmentCheckerProvider {}
 
 protocol NotificationCenterProvider {
     var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }

@@ -59,7 +59,7 @@ jobs:
         with:
           repository: getsentry/sentry-react-native
           path: sentry-react-native
-          ref: main
+          ref: chore/remove_enableSessionReplayInUnreliableEnvironment
 
       - name: Enable Corepack
         working-directory: sentry-react-native
