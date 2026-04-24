@@ -106,6 +106,14 @@ final class SentryUIRedactBuilder {
     /// Optimized lookup: class IDs with layer constraints (includes both classId and layerId)
     private var constrainedRedactClasses: Set<ClassIdentifier> = []
 
+    /// Layer class names that should be redacted when they appear as sublayers without a backing UIView.
+    ///
+    /// Starting with iOS 26 (Liquid Glass), SwiftUI no longer wraps drawing content in UIView subclasses
+    /// like `SwiftUI.CGDrawingView` or `SwiftUI._UIGraphicsView`. Instead, it renders directly using
+    /// CALayer sublayers (e.g. `CGDrawingLayer`, `SwiftUI.ImageLayer`, `ColorShapeLayer`) without a
+    /// backing UIView. This set allows the redaction builder to detect and mask these view-less layers.
+    private var redactLayerClassIds: Set<String>
+
     /// A set of view type identifier strings that should be excluded from subtree traversal.
     ///
     /// Views matching these patterns will have their subtrees skipped during redaction to avoid crashes
@@ -135,12 +143,13 @@ final class SentryUIRedactBuilder {
     /// - parameter options: A `SentryRedactOptions` object that specifies the configuration.
     /// - If `options.maskAllText` is `true`, common UIKit text views and SwiftUI text drawing views are redacted.
     /// - If `options.maskAllImages` is `true`, UIKit/SwiftUI/Hybrid image views are redacted.
-    /// - `options.unmaskViewTypes` contributes to the ignore list; `options.maskViewTypes` to the redact list.
+    /// - `options.unmaskedViewClasses` contributes to the ignore list; `options.maskedViewClasses` to the redact list.
     ///
     /// - note: On iOS, views such as `WKWebView` and `UIWebView` are always redacted, and controls like
     ///   `UISlider` and `UISwitch` are ignored by default.
     init(options: SentryRedactOptions) { // swiftlint:disable:this function_body_length
         var redactClasses = Set<ClassIdentifier>()
+        var redactLayers = Set<String>()
 
         if options.maskAllText {
             redactClasses.insert(ClassIdentifier(objcType: UILabel.self))
@@ -194,6 +203,8 @@ final class SentryUIRedactBuilder {
             redactClasses.insert(ClassIdentifier(classId: "RCTImageView"))
         }
 
+        Self.registerLiquidGlassLayers(options: options, into: &redactLayers)
+
 #if os(iOS)
         redactClasses.insert(ClassIdentifier(objcType: PDFView.self))
         redactClasses.insert(ClassIdentifier(objcType: WKWebView.self))
@@ -238,7 +249,8 @@ final class SentryUIRedactBuilder {
         }
 
         redactClassesIdentifiers = redactClasses
-        
+        redactLayerClassIds = redactLayers
+
         // Compile excluded and included patterns into separate sets for efficient lookup.
         // The final decision is computed at runtime using the formula:
         //
@@ -262,6 +274,36 @@ final class SentryUIRedactBuilder {
         
         // didSet doesn't run during initialization, so we need to manually build the optimization structures
         rebuildOptimizedLookups()
+    }
+
+    /// Registers CALayer class names used by SwiftUI on iOS 26+ (Liquid Glass) for layer-only redaction.
+    ///
+    /// On iOS 26, SwiftUI no longer wraps drawing content in UIView subclasses. Text, images, and
+    /// SF Symbols are rendered as CALayer sublayers without a backing UIView. This method populates
+    /// the layer class set so `mapRedactRegion` can detect and mask them.
+    private static func registerLiquidGlassLayers(options: SentryRedactOptions, into redactLayers: inout Set<String>) {
+        guard #available(iOS 26.0, tvOS 26.0, *) else { return }
+
+        if options.maskAllText {
+            // Replaces `SwiftUI.CGDrawingView` for text rendering.
+            // Base64 of `_TtC7SwiftUIP33_863CCF9D49B535DAEB1C7D61BEE53B5914CGDrawingLayer`
+            let encodedDrawingLayer = "X1R0QzdTd2lmdFVJUDMzXzg2M0NDRjlENDlCNTM1REFFQjFDN0Q2MUJFRTUzQjU5MTRDR0RyYXdpbmdMYXllcg=="
+            if let decodedDrawingLayer = encodedDrawingLayer.base64Decoded() {
+                redactLayers.insert(decodedDrawingLayer)
+            }
+        }
+
+        if options.maskAllImages {
+            // Replaces `SwiftUI._UIGraphicsView` + `SwiftUI.ImageLayer` for image rendering.
+            redactLayers.insert("SwiftUI.ImageLayer")
+
+            // Replaces `_UIShapeHitTestingView` for SF Symbol rendering.
+            // Base64 of `_TtC7SwiftUIP33_E19F490D25D5E0EC8A24903AF958E34115ColorShapeLayer`
+            let encodedColorShapeLayer = "X1R0QzdTd2lmdFVJUDMzX0UxOUY0OTBEMjVENUUwRUM4QTI0OTAzQUY5NThFMzQxMTVDb2xvclNoYXBlTGF5ZXI="
+            if let decodedColorShapeLayer = encodedColorShapeLayer.base64Decoded() {
+                redactLayers.insert(decodedColorShapeLayer)
+            }
+        }
     }
 
     /// Rebuilds the optimized lookup structures from `redactClassesIdentifiers`.
@@ -399,6 +441,14 @@ final class SentryUIRedactBuilder {
     func getRedactClassesIdentifiersTestOnly() -> Set<ClassIdentifier> {
         redactClassesIdentifiers
     }
+
+    func getRedactLayerClassIdsTestOnly() -> Set<String> {
+        redactLayerClassIds
+    }
+
+    func addRedactLayerClassIdTestOnly(_ classId: String) {
+        redactLayerClassIds.insert(classId)
+    }
 #endif
 
     /// Identifies and returns the regions within a given `UIView` that need to be redacted.
@@ -493,6 +543,16 @@ final class SentryUIRedactBuilder {
         return true
     }
 
+    /// Determines whether a CALayer without a backing UIView should be redacted.
+    ///
+    /// On iOS 26+ (Liquid Glass), SwiftUI renders text, images, and SF Symbols as pure CALayer
+    /// sublayers without wrapping them in UIView subclasses. This method checks the layer's
+    /// class name against known SwiftUI drawing layer types.
+    private func shouldRedactLayer(_ layer: CALayer) -> Bool {
+        let layerClassId = type(of: layer).description()
+        return redactLayerClassIds.contains(layerClassId)
+    }
+
     /// Special handling for `UIImageView` to avoid masking tiny gradient strips and
     /// bundle‑provided assets (e.g. SF Symbols or app assets), which are unlikely to contain PII.
     private func shouldRedact(imageView: UIImageView) -> Bool {
@@ -506,18 +566,19 @@ final class SentryUIRedactBuilder {
     }
 
     // swiftlint:disable:next function_body_length cyclomatic_complexity
-    private func mapRedactRegion(fromLayer layer: CALayer, relativeTo parentLayer: CALayer?, redacting: inout [SentryRedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false) {
+    private func mapRedactRegion(fromLayer layer: CALayer, relativeTo parentLayer: CALayer?, redacting: inout [SentryRedactRegion], rootFrame: CGRect, transform: CGAffineTransform, forceRedact: Bool = false, forceIgnore: Bool = false) {
         guard !redactClassesIdentifiers.isEmpty && !layer.isHidden && layer.opacity != 0 else {
             return
         }
         let newTransform = concatenateTranform(transform, from: layer, withParent: parentLayer)
         var enforceRedact = forceRedact
+        var enforceIgnore = forceIgnore
 
         if let view = layer.delegate as? UIView {
             // Check if the subtree should be ignored to avoid crashes with some special views.
             if isViewSubtreeIgnored(view) {
                 // If a subtree is ignored, it should be fully redacted and we return early to prevent duplicates, unless the view was marked explicitly to be ignored (e.g. UISwitch).
-                if !shouldIgnore(view: view) {
+                if !enforceIgnore && !shouldIgnore(view: view) {
                     redacting.append(SentryRedactRegion(
                         size: layer.bounds.size,
                         transform: newTransform,
@@ -529,7 +590,11 @@ final class SentryUIRedactBuilder {
                 return
             }
 
-            let ignore = !forceRedact && shouldIgnore(view: view)
+            // Per-instance unmask propagates to the entire subtree so that
+            // children (e.g. the UILabel inside a UIButton) are also unmasked.
+            // Class-based and container-based ignore do NOT propagate.
+            let instanceUnmasked = SentryRedactViewHelper.shouldUnmask(view)
+            let ignore = !forceRedact && (shouldIgnore(view: view) || (enforceIgnore && !SentryRedactViewHelper.shouldMaskView(view)))
             let swiftUI = SentryRedactViewHelper.shouldRedactSwiftUI(view)
             let redact = forceRedact || shouldRedact(view: view) || swiftUI
 
@@ -546,7 +611,14 @@ final class SentryUIRedactBuilder {
                     return
                 }
                 enforceRedact = true
-            } else if isOpaque(view) {
+            } else if instanceUnmasked {
+                enforceIgnore = true
+                // Propagates to children via the recursive call below.
+            }
+
+            // Only apply opaque handling when the view was not redacted.
+            // This preserves the original `else if` relationship with the redact branch above.
+            if (ignore || !redact) && isOpaque(view) {
                 let finalViewFrame = CGRect(origin: .zero, size: layer.bounds.size).applying(newTransform)
                 if isAxisAligned(newTransform) && finalViewFrame == rootFrame {
                     // Because the current view is covering everything we found so far we can clear `redacting` list
@@ -560,6 +632,22 @@ final class SentryUIRedactBuilder {
                     ))
                 }
             }
+        } else if #available(iOS 26.0, tvOS 26.0, *), !enforceIgnore && shouldRedactLayer(layer) {
+            // iOS 26+ (Liquid Glass): SwiftUI no longer wraps drawing content in UIView subclasses.
+            // Text, images, and SF Symbols are rendered as CALayer sublayers without a backing UIView.
+            // We detect these by matching the layer's class name against known drawing layer types.
+            //
+            // We use `.redact` (not `.redactSwiftUI`) so that clip-out regions from
+            // `sentryReplayUnmask()` can suppress these regions through normal ordering.
+            // `.redactSwiftUI` is reserved for per-instance SwiftUI view modifier overrides
+            // which need priority over class-based rules.
+            redacting.append(SentryRedactRegion(
+                size: layer.bounds.size,
+                transform: newTransform,
+                type: .redact,
+                name: type(of: layer).description()
+            ))
+            return
         }
 
         // Traverse the sublayers to redact them if necessary
@@ -591,7 +679,8 @@ final class SentryUIRedactBuilder {
                 redacting: &redacting,
                 rootFrame: rootFrame,
                 transform: newTransform,
-                forceRedact: enforceRedact
+                forceRedact: enforceRedact,
+                forceIgnore: enforceIgnore
             )
         }
         if clipToBounds {

@@ -4,7 +4,7 @@ import XCTest
 
 class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
     
-    func testNavigationBreadcrumbAppLifecycle() {
+    func testNavigationBreadcrumbAppLifecycleForeground() {
         let sut = SentrySRDefaultBreadcrumbConverter()
         let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
         crumb.type = "navigation"
@@ -18,6 +18,54 @@ class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {
         XCTAssertEqual(event?["type"] as? Int, 5)
         XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
         XCTAssertEqual(eventPayload?["category"] as? String, "app.foreground")
+    }
+
+    func testNavigationBreadcrumbAppLifecycleActive() {
+        let sut = SentrySRDefaultBreadcrumbConverter()
+        let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
+        crumb.type = "navigation"
+        crumb.data = ["state": "active"]
+        let result = sut.convert(from: crumb)
+
+        let event = result?.serialize()
+        let eventData = event?["data"] as? [String: Any]
+        let eventPayload = eventData?["payload"] as? [String: Any]
+
+        XCTAssertEqual(event?["type"] as? Int, 5)
+        XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
+        XCTAssertEqual(eventPayload?["category"] as? String, "app.active")
+    }
+
+    func testNavigationBreadcrumbAppLifecycleInactive() {
+        let sut = SentrySRDefaultBreadcrumbConverter()
+        let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
+        crumb.type = "navigation"
+        crumb.data = ["state": "inactive"]
+        let result = sut.convert(from: crumb)
+
+        let event = result?.serialize()
+        let eventData = event?["data"] as? [String: Any]
+        let eventPayload = eventData?["payload"] as? [String: Any]
+
+        XCTAssertEqual(event?["type"] as? Int, 5)
+        XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
+        XCTAssertEqual(eventPayload?["category"] as? String, "app.inactive")
+    }
+
+    func testNavigationBreadcrumbAppLifecycleBackground() {
+        let sut = SentrySRDefaultBreadcrumbConverter()
+        let crumb = Breadcrumb(level: .info, category: "app.lifecycle")
+        crumb.type = "navigation"
+        crumb.data = ["state": "background"]
+        let result = sut.convert(from: crumb)
+
+        let event = result?.serialize()
+        let eventData = event?["data"] as? [String: Any]
+        let eventPayload = eventData?["payload"] as? [String: Any]
+
+        XCTAssertEqual(event?["type"] as? Int, 5)
+        XCTAssertEqual(eventData?["tag"] as? String, "breadcrumb")
+        XCTAssertEqual(eventPayload?["category"] as? String, "app.background")
     }
     
     func testNavigationBreadcrumbOrientation() {

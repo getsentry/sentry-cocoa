@@ -283,7 +283,9 @@ sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context)
         }
     }
 
-    g_onExceptionEvent(context);
+    if (g_onExceptionEvent != NULL) {
+        g_onExceptionEvent(context);
+    }
 
     if (g_isHandlingFatalException && !g_crashedDuringExceptionHandling) {
         SENTRY_ASYNC_SAFE_LOG_DEBUG("Exception is fatal. Restoring original handlers.");

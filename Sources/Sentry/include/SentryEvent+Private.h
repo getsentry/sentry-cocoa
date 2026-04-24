@@ -24,7 +24,12 @@
  * pre-serialized breadcrumbs. It saves a LOT of work - especially turning an NSDictionary into a
  * SentryBreadcrumb is silly when we're just going to do the opposite right after.
  */
-@property (nonatomic, strong) NSArray *serializedBreadcrumbs;
+@property (nonatomic, strong, nullable) NSArray *serializedBreadcrumbs;
+
+/**
+ * Per-call override for attachAllThreads. When non-nil, overrides the value from SentryOptions.
+ */
+@property (nonatomic, strong, nullable) NSNumber *attachAllThreadsOverride;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 @property (nonatomic) uint64_t startSystemTime;

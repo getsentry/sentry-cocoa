@@ -17,7 +17,10 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         var options: Set<String> = [
             "parsedDsn",
             "experimental",
-            "onLastRunStatusDetermined"
+            "onLastRunStatusDetermined",
+            "strictTraceContinuation", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
+            "orgId", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
+            "effectiveOrgId" // @_spi(Private) - internal computed property, not a user-facing option
         ]
         
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
@@ -38,7 +41,7 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
         options.insert("profiling") // @_spi(Private) - internal backing for configureProfiling
         options.insert("configureProfiling")
         #endif
-        
+
         return options
     }
 
@@ -119,14 +122,52 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
     private func fetchDocumentedOptions() async throws -> Set<String> {
         let docsURL = "https://raw.githubusercontent.com/getsentry/sentry-docs/master/docs/platforms/apple/common/configuration/options.mdx"
         let url = try XCTUnwrap(URL(string: docsURL), "Invalid docs URL")
-        
-        let (data, response) = try await URLSession.shared.data(from: url)
-        
-        let httpResponse = try XCTUnwrap(response as? HTTPURLResponse, "Response is not HTTPURLResponse")
-        XCTAssertEqual(httpResponse.statusCode, 200, "Failed to fetch docs: HTTP \(httpResponse.statusCode)")
-        
-        let content = try XCTUnwrap(String(data: data, encoding: .utf8), "Could not decode docs content as UTF-8")
-        
-        return extractMdxOptionNames(from: content)
+
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest = 10
+        config.timeoutIntervalForResource = 30
+        let session = URLSession(configuration: config)
+
+        let maxRetries = 3
+        var lastError: Error?
+
+        for attempt in 0..<maxRetries {
+            if attempt > 0 {
+                let delay = UInt64(pow(2.0, Double(attempt))) * 1_000_000_000
+                try await Task.sleep(nanoseconds: delay)
+            }
+
+            do {
+                var request = URLRequest(url: url)
+                if let token = ProcessInfo.processInfo.environment["GITHUB_TOKEN"], !token.isEmpty {
+                    print("Using GitHub token for docs fetch")
+                    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+                }
+                let (data, response) = try await session.data(for: request)
+
+                let httpResponse = try XCTUnwrap(response as? HTTPURLResponse, "Response is not HTTPURLResponse")
+
+                if httpResponse.statusCode == 403 || httpResponse.statusCode == 429 || httpResponse.statusCode >= 500 {
+                    print("⚠️ Fetch docs attempt \(attempt + 1)/\(maxRetries) failed: HTTP \(httpResponse.statusCode)")
+                    lastError = NSError(domain: "FetchDocs", code: httpResponse.statusCode,
+                                        userInfo: [NSLocalizedDescriptionKey: "HTTP \(httpResponse.statusCode)"])
+                    continue
+                }
+
+                XCTAssertEqual(httpResponse.statusCode, 200, "Failed to fetch docs: HTTP \(httpResponse.statusCode)")
+
+                let content = try XCTUnwrap(String(data: data, encoding: .utf8), "Could not decode docs content as UTF-8")
+
+                return extractMdxOptionNames(from: content)
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch {
+                print("⚠️ Fetch docs attempt \(attempt + 1)/\(maxRetries) failed: \(error.localizedDescription)")
+                lastError = error
+                continue
+            }
+        }
+
+        throw try XCTUnwrap(lastError, "Fetch failed after \(maxRetries) retries")
     }
 }

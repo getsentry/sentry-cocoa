@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Cache for Test Server
         id: cache_test_server
-        uses: actions/cache@v5
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
         with:
           path: ./test-server/.build
           key: test-server-${{ hashFiles('./test-server') }}-universal
@@ -81,14 +81,14 @@ jobs:
           lipo -create -output test-server-exec $(swift build --show-bin-path -c release --triple arm64-apple-macosx)/Run $(swift build --show-bin-path -c release --triple x86_64-apple-macosx)/Run
 
       - name: Archiving DerivedData
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: test-server
           path: |
             ./test-server/test-server-exec
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: test-server-build-log
@@ -112,11 +112,14 @@ jobs:
       - name: Prepare Package.swift
         shell: bash
         run: |
-          # Swift 6.1+ uses Package@swift-6.1.swift; hide it so prepare-package's
+          # Swift 6.1+ and 6.2+ uses Package@swift-6.1.swift and Package@swift-6.2.swift; hide it so prepare-package's
           # modified Package.swift is used (avoids "Multiple commands produce" from
-          # unmodified binary targets in the 6.1 manifest).
+          # unmodified binary targets in the 6.1 and 6.2 manifests).
           if [[ -f Package@swift-6.1.swift ]]; then
             mv Package@swift-6.1.swift Package@swift-6.1.swift.bak
+          fi
+          if [[ -f Package@swift-6.2.swift ]]; then
+            mv Package@swift-6.2.swift Package@swift-6.2.swift.bak
           fi
           ./scripts/prepare-package.sh \
             --package-file Package.swift \
@@ -135,7 +138,7 @@ jobs:
       - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
         shell: sh
       - name: Upload Distribution Test Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-test-output-distribution
@@ -170,7 +173,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: test-server
 
@@ -208,7 +211,7 @@ jobs:
             --test-plan Sentry_TestServer
 
       - name: Archiving DerivedData Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: steps.build_tests.outcome == 'failure'
         with:
           name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
@@ -216,7 +219,7 @@ jobs:
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
       - name: Archiving Raw Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
@@ -226,7 +229,7 @@ jobs:
             raw-test-output.log
 
       - name: Archiving Crash Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
