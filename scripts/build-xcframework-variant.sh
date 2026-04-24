@@ -26,8 +26,11 @@ elif [ "$sdks_to_build" = "macOSOnly" ]; then
     sdks=( macosx )
 elif [ "$sdks_to_build" = "macCatalystOnly" ]; then
     sdks=( maccatalyst )
-else
+elif [ -z "$sdks_to_build" ] || [ "$sdks_to_build" = "AllSDKs" ]; then
     sdks=( iphoneos iphonesimulator macosx maccatalyst appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
+else
+    # Treat as comma-separated list (e.g. "iphonesimulator" or "iphoneos,iphonesimulator").
+    IFS=',' read -r -a sdks <<< "$sdks_to_build"
 fi
 
 for sdk in "${sdks[@]}"; do

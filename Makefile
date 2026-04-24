@@ -234,15 +234,29 @@ build-sentryobjc:
 		-configuration Release \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
 
-## Build SentryObjC XCFramework for distribution (iOS only)
+## Build SentryObjC XCFrameworks locally for one or more SDKs
 #
-# Creates SentryObjC XCFramework for iOS platforms (device + simulator).
-# Uses the existing xcframework build infrastructure.
-# Outputs to XCFrameworkBuildPath/SentryObjC.xcframework.
-.PHONY: build-sentryobjc-xcframework
-build-sentryobjc-xcframework:
-	@echo "--> Creating SentryObjC xcframework (iOS only)"
-	./scripts/build-xcframework-variant.sh SentryObjC '' mh_dylib '' iOSOnly ''
+# Builds the four staticlib slices (Sentry, SentryObjCTypes, SentryObjCBridge,
+# SentryObjC) and runs the standalone merger to produce SentryObjC-Static and
+# SentryObjC-Dynamic xcframeworks. Output lands in XCFrameworkBuildPath/.
+#
+# SDKS accepts either an SDK preset (iOSOnly, macOSOnly, macCatalystOnly,
+# AllSDKs) or a comma-separated list of SDK names. Required — no default,
+# to keep local iteration fast.
+#
+# Examples:
+#   make build-sentryobjc-xcframework-local SDKS=iphonesimulator
+#   make build-sentryobjc-xcframework-local SDKS=iphoneos,iphonesimulator
+#   make build-sentryobjc-xcframework-local SDKS=iOSOnly
+.PHONY: build-sentryobjc-xcframework-local
+build-sentryobjc-xcframework-local:
+	@if [ -z "$(SDKS)" ]; then \
+		echo "error: SDKS is required."; \
+		echo "       example: make $@ SDKS=iphonesimulator"; \
+		exit 1; \
+	fi
+	@echo "--> Creating SentryObjC xcframeworks (SDKs: $(SDKS))"
+	./scripts/build-xcframework-local.sh "$(SDKS)" SentryObjCOnly
 
 # ============================================================================
 # SAMPLE APPS

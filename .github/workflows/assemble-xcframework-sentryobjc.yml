@@ -47,13 +47,19 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
 
-      # Download all three sets of static library slices.
+      # Download all four sets of static library slices.
       # Each artifact contains a {sdk}.xcarchive.zip for one platform.
       - name: Download Sentry static slices
         uses: actions/download-artifact@v8
         with:
           pattern: xcframework-sentry-static-slice-*
           path: xcframework-slices/sentry-static
+
+      - name: Download SentryObjCTypes slices
+        uses: actions/download-artifact@v8
+        with:
+          pattern: xcframework-sentryobjc-types-slice-*
+          path: xcframework-slices/sentryobjc-types
 
       - name: Download SentryObjCBridge slices
         uses: actions/download-artifact@v8
@@ -70,6 +76,7 @@ jobs:
       # Unzip slices into the directory layout expected by
       # build-xcframework-sentryobjc-standalone.sh:
       #   XCFrameworkBuildPath/archive/Sentry/{sdk}.xcarchive/...
+      #   XCFrameworkBuildPath/archive/SentryObjCTypes/{sdk}.xcarchive/...
       #   XCFrameworkBuildPath/archive/SentryObjCBridge/{sdk}.xcarchive/...
       #   XCFrameworkBuildPath/archive/SentryObjC/{sdk}.xcarchive/...
       - name: Arrange slice archives
@@ -106,6 +113,7 @@ jobs:
           }
 
           arrange_slices "sentry-static" "xcframework-slices/sentry-static" "Sentry"
+          arrange_slices "sentryobjc-types" "xcframework-slices/sentryobjc-types" "SentryObjCTypes"
           arrange_slices "sentryobjc-bridge" "xcframework-slices/sentryobjc-bridge" "SentryObjCBridge"
           arrange_slices "sentryobjc-objc" "xcframework-slices/sentryobjc-objc" "SentryObjC"
 
