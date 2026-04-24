@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- Remove `enableSessionReplayInUnreliableEnvironment` experimental option and the environment checker that temporarily disabled Session Replay on iOS 26 (#7831)
+
 ## 9.11.0
 
 ### Features
