@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix race condition in `SentryFramesTracker` listeners causing `EXC_BAD_ACCESS` in `NSConcreteHashTable removeItem:` when a listener is deallocated on a background thread (#7839)
+
 ## 9.11.0
 
 ### Features
