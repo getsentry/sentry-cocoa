@@ -7,7 +7,7 @@ import UIKit
 
 final class SentryCrashIntegrationSessionHandler: NSObject {
 
-    private let crashWrapper: SentryCrashWrapper
+    private let crashWrapper: SentryCrashReporter
     private let fileManager: SentryFileManager
     private let bridge: SentryCrashBridge
 
@@ -17,7 +17,7 @@ final class SentryCrashIntegrationSessionHandler: NSObject {
 
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     init(
-        crashWrapper: SentryCrashWrapper,
+        crashWrapper: SentryCrashReporter,
         watchdogTerminationLogic: SentryWatchdogTerminationLogic,
         fileManager: SentryFileManager,
         bridge: SentryCrashBridge
@@ -29,7 +29,7 @@ final class SentryCrashIntegrationSessionHandler: NSObject {
         super.init()
     }
     #else
-    init(crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager, bridge: SentryCrashBridge) {
+    init(crashWrapper: SentryCrashReporter, fileManager: SentryFileManager, bridge: SentryCrashBridge) {
         self.crashWrapper = crashWrapper
         self.fileManager = fileManager
         self.bridge = bridge
