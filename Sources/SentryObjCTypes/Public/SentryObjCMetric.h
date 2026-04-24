@@ -1,11 +1,9 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryDefines.h"
-
 @class SentryId;
 @class SentrySpanId;
-@class SentryMetricValue;
-@class SentryAttributeContent;
+@class SentryObjCMetricValue;
+@class SentryObjCAttributeContent;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,10 +13,10 @@ NS_ASSUME_NONNULL_BEGIN
  * Represents a single metric data point with optional trace correlation and attributes.
  * Used for tracking custom performance indicators beyond automatic instrumentation.
  *
- * @see SentryMetricValue
- * @see SentryAttributeContent
+ * @see SentryObjCMetricValue
+ * @see SentryObjCAttributeContent
  */
-@interface SentryMetric : NSObject
+@interface SentryObjCMetric : NSObject
 
 /// Timestamp when the metric was recorded.
 @property (nonatomic, readonly) NSDate *timestamp;
@@ -33,13 +31,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, nullable) SentrySpanId *spanId;
 
 /// The metric value (counter, gauge, distribution, or set).
-@property (nonatomic, readonly) SentryMetricValue *value;
+@property (nonatomic, readonly) SentryObjCMetricValue *value;
 
 /// Unit of measurement (e.g., "milliseconds", "bytes", "percent").
 @property (nonatomic, readonly, nullable) NSString *unit;
 
 /// Additional structured attributes for filtering and grouping.
-@property (nonatomic, readonly) NSDictionary<NSString *, SentryAttributeContent *> *attributes;
+@property (nonatomic, readonly) NSDictionary<NSString *, SentryObjCAttributeContent *> *attributes;
 
 @end
 

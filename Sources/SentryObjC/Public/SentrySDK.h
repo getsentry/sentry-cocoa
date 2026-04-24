@@ -85,9 +85,9 @@ SENTRY_NO_INIT
  * // Distribution with unit and attributes
  * [[SentrySDK metrics] distributionWithKey:@"response.time"
  *                                         value:125.5
- *                                          unit:SentryUnitNameMillisecond
+ *                                          unit:SentryObjCUnitNameMillisecond
  *                                    attributes:@{
- *     @"endpoint": [SentryAttributeContent stringWithValue:@"/api/data"]
+ *     @"endpoint": [SentryObjCAttributeContent stringWithValue:@"/api/data"]
  * }];
  * @endcode
  *

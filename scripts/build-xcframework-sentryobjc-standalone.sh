@@ -5,15 +5,18 @@
 #   SentryObjC-Static.xcframework   - static archive; consumer links the symbols directly.
 #   SentryObjC-Dynamic.xcframework  - dynamic library; consumer embeds the framework.
 #
-# Both variants bundle the three static archives (Sentry, SentryObjCBridge,
-# SentryObjC) into a single binary so downstream consumers only have to link one
-# framework, and neither requires Clang modules.
+# Both variants bundle the four static archives (Sentry, SentryObjCTypes,
+# SentryObjCBridge, SentryObjC) into a single binary so downstream consumers
+# only have to link one framework, and neither requires Clang modules.
 #
 # Strategy per SDK slice:
-#   1. libtool-merge the three .a files into a single combined static archive.
+#   1. libtool-merge the four .a files into a single combined static archive.
 #   2. Static slice: package the combined archive as the framework binary.
 #   3. Dynamic slice: re-link the combined archive as a dylib via swiftc, which
 #      also handles the Swift runtime.
+#   4. Flatten public headers from SentryObjCTypes into the merged framework's
+#      Headers/ dir, and rewrite `<SentryObjCTypes/...>` imports in the umbrella
+#      so they resolve within the single-framework layout (`<SentryObjC/...>`).
 # After all slices are built, xcodebuild -create-xcframework assembles each set.
 #
 # Parameters:
@@ -91,25 +94,62 @@ framework_binary_path() {
     fi
 }
 
+# Copy SentryObjCTypes public headers into the merged SentryObjC framework and
+# rewrite `<SentryObjCTypes/...>` imports in the umbrella to `<SentryObjC/...>`
+# so they resolve against the single merged framework at consumption time.
+merge_types_headers() {
+    local sdk="$1"
+    local types_fw="$2"    # source SentryObjCTypes.framework
+    local dest_fw="$3"     # destination merged framework
+
+    local types_headers_src
+    local dest_headers
+    if [ "$sdk" = "macosx" ] || [ "$sdk" = "maccatalyst" ]; then
+        types_headers_src="${types_fw}/Versions/A/Headers"
+        dest_headers="${dest_fw}/Versions/A/Headers"
+    else
+        types_headers_src="${types_fw}/Headers"
+        dest_headers="${dest_fw}/Headers"
+    fi
+
+    for h in "${types_headers_src}"/*.h; do
+        [ -f "$h" ] || continue
+        local name
+        name="$(basename "$h")"
+        # Skip the SentryObjCTypes umbrella — we merge into SentryObjC's umbrella.
+        [ "$name" = "SentryObjCTypes.h" ] && continue
+        cp "$h" "${dest_headers}/${name}"
+    done
+
+    local umbrella="${dest_headers}/SentryObjC.h"
+    if [ -f "$umbrella" ]; then
+        # BSD sed (macOS) requires the empty '' after -i.
+        sed -i '' 's|<SentryObjCTypes/|<SentryObjC/|g' "$umbrella"
+    fi
+}
+
 for sdk in "${sdks[@]}"; do
     echo "=== Building SentryObjC slices for ${sdk} ==="
 
-    # Locate the three static archives (reuses the normal Sentry static build)
+    # Locate the four static archives (reuses the normal Sentry static build)
     sentry_archive="${ARCHIVE_BASE}/Sentry/${sdk}.xcarchive/Products/Library/Frameworks/Sentry.framework"
+    types_archive="${ARCHIVE_BASE}/SentryObjCTypes/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjCTypes.framework"
     bridge_archive="${ARCHIVE_BASE}/SentryObjCBridge/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjCBridge.framework"
     objc_archive="${ARCHIVE_BASE}/SentryObjC/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjC.framework"
 
     if [ "$sdk" = "macosx" ] || [ "$sdk" = "maccatalyst" ]; then
         sentry_a="${sentry_archive}/Versions/A/Sentry"
+        types_a="${types_archive}/Versions/A/SentryObjCTypes"
         bridge_a="${bridge_archive}/Versions/A/SentryObjCBridge"
         objc_a="${objc_archive}/Versions/A/SentryObjC"
     else
         sentry_a="${sentry_archive}/Sentry"
+        types_a="${types_archive}/SentryObjCTypes"
         bridge_a="${bridge_archive}/SentryObjCBridge"
         objc_a="${objc_archive}/SentryObjC"
     fi
 
-    for lib in "$sentry_a" "$bridge_a" "$objc_a"; do
+    for lib in "$sentry_a" "$types_a" "$bridge_a" "$objc_a"; do
         if [ ! -f "$lib" ]; then
             echo "ERROR: Static library not found at: $lib"
             exit 1
@@ -118,13 +158,14 @@ for sdk in "${sdks[@]}"; do
     done
 
     combined_a="/tmp/SentryObjC_combined_${sdk}.a"
-    libtool -static "$sentry_a" "$bridge_a" "$objc_a" -o "$combined_a"
+    libtool -static "$sentry_a" "$types_a" "$bridge_a" "$objc_a" -o "$combined_a"
     echo "  Combined: $(du -h "$combined_a" | cut -f1)"
 
     # --- Static slice: package the combined archive as the framework binary ---
     static_fw_dir="${STATIC_OUTPUT_BASE}/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjC.framework"
     rm -rf "$static_fw_dir"
     copy_framework_resources "$sdk" "$objc_archive" "$static_fw_dir"
+    merge_types_headers "$sdk" "$types_archive" "$static_fw_dir"
     cp "$combined_a" "$(framework_binary_path "$sdk" "$static_fw_dir")"
     echo "  Static binary: $(du -h "$(framework_binary_path "$sdk" "$static_fw_dir")" | cut -f1)"
 
@@ -164,6 +205,7 @@ for sdk in "${sdks[@]}"; do
     dynamic_fw_dir="${DYNAMIC_OUTPUT_BASE}/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjC.framework"
     rm -rf "$dynamic_fw_dir"
     copy_framework_resources "$sdk" "$objc_archive" "$dynamic_fw_dir"
+    merge_types_headers "$sdk" "$types_archive" "$dynamic_fw_dir"
 
     linker_flags=()
     linker_flags+=( -Xlinker -install_name -Xlinker "@rpath/SentryObjC.framework/SentryObjC" )

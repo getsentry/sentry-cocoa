@@ -1,5 +1,7 @@
 #import "SentryMetricsApiImpl.h"
 
+#import <SentryObjCTypes/SentryObjCAttributeContent.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 // Forward declare SentryObjCBridge to avoid importing headers that require modules.
@@ -7,24 +9,25 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryObjCBridge : NSObject
 + (void)metricsCountWithKey:(NSString *)key
                       value:(NSUInteger)value
-                 attributes:(NSDictionary<NSString *, id> *)attributes;
+                 attributes:(NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes;
 
 + (void)metricsDistributionWithKey:(NSString *)key
                              value:(double)value
                               unit:(nullable NSString *)unit
-                        attributes:(NSDictionary<NSString *, id> *)attributes;
+                        attributes:
+                            (NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes;
 
 + (void)metricsGaugeWithKey:(NSString *)key
                       value:(double)value
                        unit:(nullable NSString *)unit
-                 attributes:(NSDictionary<NSString *, id> *)attributes;
+                 attributes:(NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes;
 @end
 
 @implementation SentryMetricsApiImpl
 
 - (void)countWithKey:(NSString *)key
                value:(NSUInteger)value
-          attributes:(nullable NSDictionary<NSString *, SentryAttributeContent *> *)attributes
+          attributes:(nullable NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes
 {
     [SentryObjCBridge metricsCountWithKey:key value:value attributes:attributes ?: @{ }];
 }
@@ -33,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
                       value:(double)value
                        unit:(nullable NSString *)unit
                  attributes:
-                     (nullable NSDictionary<NSString *, SentryAttributeContent *> *)attributes
+                     (nullable NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes
 {
     [SentryObjCBridge metricsDistributionWithKey:key
                                            value:value
@@ -44,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)gaugeWithKey:(NSString *)key
                value:(double)value
                 unit:(nullable NSString *)unit
-          attributes:(nullable NSDictionary<NSString *, SentryAttributeContent *> *)attributes
+          attributes:(nullable NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes
 {
     [SentryObjCBridge metricsGaugeWithKey:key value:value unit:unit attributes:attributes ?: @{ }];
 }

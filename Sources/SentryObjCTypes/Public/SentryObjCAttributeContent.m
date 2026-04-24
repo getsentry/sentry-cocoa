@@ -1,9 +1,9 @@
-#import "SentryAttributeContent.h"
+#import "SentryObjCAttributeContent.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryAttributeContent ()
-@property (nonatomic, readwrite) SentryAttributeContentType type;
+@interface SentryObjCAttributeContent ()
+@property (nonatomic, readwrite) SentryObjCAttributeContentType type;
 @property (nonatomic, readwrite, copy, nullable) NSString *stringValue;
 @property (nonatomic, readwrite) BOOL booleanValue;
 @property (nonatomic, readwrite) NSInteger integerValue;
@@ -14,68 +14,68 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readwrite, copy, nullable) NSArray<NSNumber *> *doubleArrayValue;
 @end
 
-@implementation SentryAttributeContent
+@implementation SentryObjCAttributeContent
 
 + (instancetype)stringWithValue:(NSString *)value
 {
-    SentryAttributeContent *obj = [[SentryAttributeContent alloc] init];
-    obj->_type = SentryAttributeContentTypeString;
+    SentryObjCAttributeContent *obj = [[SentryObjCAttributeContent alloc] init];
+    obj->_type = SentryObjCAttributeContentTypeString;
     obj->_stringValue = [value copy];
     return obj;
 }
 
 + (instancetype)booleanWithValue:(BOOL)value
 {
-    SentryAttributeContent *obj = [[SentryAttributeContent alloc] init];
-    obj->_type = SentryAttributeContentTypeBoolean;
+    SentryObjCAttributeContent *obj = [[SentryObjCAttributeContent alloc] init];
+    obj->_type = SentryObjCAttributeContentTypeBoolean;
     obj->_booleanValue = value;
     return obj;
 }
 
 + (instancetype)integerWithValue:(NSInteger)value
 {
-    SentryAttributeContent *obj = [[SentryAttributeContent alloc] init];
-    obj->_type = SentryAttributeContentTypeInteger;
+    SentryObjCAttributeContent *obj = [[SentryObjCAttributeContent alloc] init];
+    obj->_type = SentryObjCAttributeContentTypeInteger;
     obj->_integerValue = value;
     return obj;
 }
 
 + (instancetype)doubleWithValue:(double)value
 {
-    SentryAttributeContent *obj = [[SentryAttributeContent alloc] init];
-    obj->_type = SentryAttributeContentTypeDouble;
+    SentryObjCAttributeContent *obj = [[SentryObjCAttributeContent alloc] init];
+    obj->_type = SentryObjCAttributeContentTypeDouble;
     obj->_doubleValue = value;
     return obj;
 }
 
 + (instancetype)stringArrayWithValue:(NSArray<NSString *> *)value
 {
-    SentryAttributeContent *obj = [[SentryAttributeContent alloc] init];
-    obj->_type = SentryAttributeContentTypeStringArray;
+    SentryObjCAttributeContent *obj = [[SentryObjCAttributeContent alloc] init];
+    obj->_type = SentryObjCAttributeContentTypeStringArray;
     obj->_stringArrayValue = [value copy];
     return obj;
 }
 
 + (instancetype)booleanArrayWithValue:(NSArray<NSNumber *> *)value
 {
-    SentryAttributeContent *obj = [[SentryAttributeContent alloc] init];
-    obj->_type = SentryAttributeContentTypeBooleanArray;
+    SentryObjCAttributeContent *obj = [[SentryObjCAttributeContent alloc] init];
+    obj->_type = SentryObjCAttributeContentTypeBooleanArray;
     obj->_booleanArrayValue = [value copy];
     return obj;
 }
 
 + (instancetype)integerArrayWithValue:(NSArray<NSNumber *> *)value
 {
-    SentryAttributeContent *obj = [[SentryAttributeContent alloc] init];
-    obj->_type = SentryAttributeContentTypeIntegerArray;
+    SentryObjCAttributeContent *obj = [[SentryObjCAttributeContent alloc] init];
+    obj->_type = SentryObjCAttributeContentTypeIntegerArray;
     obj->_integerArrayValue = [value copy];
     return obj;
 }
 
 + (instancetype)doubleArrayWithValue:(NSArray<NSNumber *> *)value
 {
-    SentryAttributeContent *obj = [[SentryAttributeContent alloc] init];
-    obj->_type = SentryAttributeContentTypeDoubleArray;
+    SentryObjCAttributeContent *obj = [[SentryObjCAttributeContent alloc] init];
+    obj->_type = SentryObjCAttributeContentTypeDoubleArray;
     obj->_doubleArrayValue = [value copy];
     return obj;
 }

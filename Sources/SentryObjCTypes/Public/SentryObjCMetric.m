@@ -1,8 +1,8 @@
-#import "SentryMetric.h"
+#import "SentryObjCMetric.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentryMetric
+@implementation SentryObjCMetric
 
 - (instancetype)init
 {

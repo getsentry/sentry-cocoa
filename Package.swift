@@ -105,9 +105,10 @@ targets += [
             "Configuration", 
             "SentryCppHelper", 
             "SentryDistribution", 
-            "SentryDistributionTests", 
-            "SentryObjC", 
-            "SentryObjCBridge"
+            "SentryDistributionTests",
+            "SentryObjC",
+            "SentryObjCBridge",
+            "SentryObjCTypes"
         ],
         cSettings: [
             .headerSearchPath("Sentry"),
@@ -120,11 +121,22 @@ targets += [
 ]
 
 // Swift bridge that exposes SDK functionality to pure ObjC code (no modules)
-products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjCBridge", "SentryObjC"]))
+products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjCTypes", "SentryObjCBridge", "SentryObjC"]))
 targets += [
+    // Frozen public ObjC ABI — pure data carriers, depends only on Foundation.
+    // Both SentryObjCBridge and SentryObjC depend on this so they reference
+    // the same authoritative type declarations.
+    .target(
+        name: "SentryObjCTypes",
+        path: "Sources/SentryObjCTypes",
+        publicHeadersPath: "Public",
+        cSettings: [
+            .headerSearchPath("Public")
+        ]),
+
     .target(
         name: "SentryObjCBridge",
-        dependencies: ["SentryObjCInternal"],
+        dependencies: ["SentryObjCInternal", "SentryObjCTypes"],
         path: "Sources/SentryObjCBridge",
         swiftSettings: [
             .unsafeFlags(["-enable-library-evolution"])
@@ -132,7 +144,7 @@ targets += [
 
     .target(
         name: "SentryObjC",
-        dependencies: ["SentryObjCBridge"],
+        dependencies: ["SentryObjCBridge", "SentryObjCTypes"],
         path: "Sources/SentryObjC",
         publicHeadersPath: "Public",
         cSettings: [

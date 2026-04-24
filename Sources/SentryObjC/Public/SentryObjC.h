@@ -57,10 +57,12 @@
 #import "SentryEnvelopeHeader.h"
 #import "SentryEnvelopeItem.h"
 
-// Wrappers for Swift-only types
-#import "SentryAttributeContent.h"
-#import "SentryMetric.h"
-#import "SentryMetricValue.h"
+// Protocols / facades for Swift-only APIs (stay in SentryObjC — behavior layer)
 #import "SentryMetricsApi.h"
-#import "SentryRedactRegionType.h"
-#import "SentryUnit.h"
+
+// Frozen public ObjC data carriers (from SentryObjCTypes)
+#import <SentryObjCTypes/SentryObjCAttributeContent.h>
+#import <SentryObjCTypes/SentryObjCMetric.h>
+#import <SentryObjCTypes/SentryObjCMetricValue.h>
+#import <SentryObjCTypes/SentryObjCRedactRegionType.h>
+#import <SentryObjCTypes/SentryObjCUnit.h>

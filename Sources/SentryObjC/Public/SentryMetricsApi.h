@@ -2,7 +2,7 @@
 
 #import "SentryDefines.h"
 
-@class SentryAttributeContent;
+@class SentryObjCAttributeContent;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14,8 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * Access via @c [SentrySDK metrics].
  *
- * @see SentryAttributeContent
- * @see SentryUnit.h for predefined unit constants
+ * @see SentryObjCAttributeContent
+ * @see SentryObjCUnit.h for predefined unit constants
  */
 @protocol SentryMetricsApi <NSObject>
 
@@ -29,20 +29,20 @@ NS_ASSUME_NONNULL_BEGIN
  *            Prefer stable, lowercase, dot-delimited names to aid aggregation and filtering.
  * @param value The count value to record. A non-negative integer (e.g., 1 to increment by one).
  * @param attributes Optional dictionary of attributes to attach to the metric.
- *                   Keys are strings, values are @c SentryAttributeContent instances.
+ *                   Keys are strings, values are @c SentryObjCAttributeContent instances.
  *                   Pass @c nil or empty dictionary if no attributes are needed.
  *
  * @code
  * [[SentrySDK metrics] countWithKey:@"button.click"
  *                                  value:1
  *                             attributes:@{
- *     @"screen": [SentryAttributeContent stringWithValue:@"home"]
+ *     @"screen": [SentryObjCAttributeContent stringWithValue:@"home"]
  * }];
  * @endcode
  */
 - (void)countWithKey:(NSString *)key
                value:(NSUInteger)value
-          attributes:(nullable NSDictionary<NSString *, SentryAttributeContent *> *)attributes;
+          attributes:(nullable NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes;
 
 /**
  * Records a distribution metric for the specified key.
@@ -55,18 +55,18 @@ NS_ASSUME_NONNULL_BEGIN
  *            Prefer stable, lowercase, dot-delimited names to aid aggregation and filtering.
  * @param value The value to record in the distribution. This can be any numeric value
  *              representing the measurement (e.g., milliseconds for response time).
- * @param unit Optional unit of measurement (e.g., @c SentryUnitNameMillisecond).
- *             Use constants from @c SentryUnit.h or create custom units via @c
- * SentryUnitWithName(). Pass @c nil if no unit is needed.
+ * @param unit Optional unit of measurement (e.g., @c SentryObjCUnitNameMillisecond).
+ *             Use constants from @c SentryObjCUnit.h or create custom units via @c
+ * SentryObjCUnitWithName(). Pass @c nil if no unit is needed.
  * @param attributes Optional dictionary of attributes to attach to the metric.
  *                   Pass @c nil or empty dictionary if no attributes are needed.
  *
  * @code
  * [[SentrySDK metrics] distributionWithKey:@"response.time"
  *                                         value:125.5
- *                                          unit:SentryUnitNameMillisecond
+ *                                          unit:SentryObjCUnitNameMillisecond
  *                                    attributes:@{
- *     @"endpoint": [SentryAttributeContent stringWithValue:@"/api/data"]
+ *     @"endpoint": [SentryObjCAttributeContent stringWithValue:@"/api/data"]
  * }];
  * @endcode
  */
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
                       value:(double)value
                        unit:(nullable NSString *)unit
                  attributes:
-                     (nullable NSDictionary<NSString *, SentryAttributeContent *> *)attributes;
+                     (nullable NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes;
 
 /**
  * Records a gauge metric for the specified key.
@@ -87,25 +87,25 @@ NS_ASSUME_NONNULL_BEGIN
  *            Prefer stable, lowercase, dot-delimited names to aid aggregation and filtering.
  * @param value The current gauge value to record. This represents the state at the time of
  *              recording (e.g., current memory in bytes, current number of items in queue).
- * @param unit Optional unit of measurement (e.g., @c SentryUnitNameByte).
- *             Use constants from @c SentryUnit.h or create custom units via @c
- * SentryUnitWithName(). Pass @c nil if no unit is needed.
+ * @param unit Optional unit of measurement (e.g., @c SentryObjCUnitNameByte).
+ *             Use constants from @c SentryObjCUnit.h or create custom units via @c
+ * SentryObjCUnitWithName(). Pass @c nil if no unit is needed.
  * @param attributes Optional dictionary of attributes to attach to the metric.
  *                   Pass @c nil or empty dictionary if no attributes are needed.
  *
  * @code
  * [[SentrySDK metrics] gaugeWithKey:@"queue.depth"
  *                                  value:42
- *                                   unit:SentryUnitWithName(@"items")
+ *                                   unit:SentryObjCUnitWithName(@"items")
  *                             attributes:@{
- *     @"queue": [SentryAttributeContent stringWithValue:@"upload"]
+ *     @"queue": [SentryObjCAttributeContent stringWithValue:@"upload"]
  * }];
  * @endcode
  */
 - (void)gaugeWithKey:(NSString *)key
                value:(double)value
                 unit:(nullable NSString *)unit
-          attributes:(nullable NSDictionary<NSString *, SentryAttributeContent *> *)attributes;
+          attributes:(nullable NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes;
 
 @end
 

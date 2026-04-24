@@ -1,19 +1,17 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryDefines.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Type of metric value.
  */
-typedef NS_ENUM(NSInteger, SentryMetricValueType) {
+typedef NS_ENUM(NSInteger, SentryObjCMetricValueType) {
     /// Monotonically increasing counter (e.g., total requests).
-    SentryMetricValueTypeCounter,
+    SentryObjCMetricValueTypeCounter,
     /// Single value snapshot (e.g., current memory usage).
-    SentryMetricValueTypeGauge,
+    SentryObjCMetricValueTypeGauge,
     /// Statistical distribution of values (e.g., response time percentiles).
-    SentryMetricValueTypeDistribution
+    SentryObjCMetricValueTypeDistribution
 };
 
 /**
@@ -21,20 +19,20 @@ typedef NS_ENUM(NSInteger, SentryMetricValueType) {
  *
  * Use the factory methods to create instances of the appropriate type.
  *
- * @see SentryMetric
+ * @see SentryObjCMetric
  */
-@interface SentryMetricValue : NSObject
+@interface SentryObjCMetricValue : NSObject
 
 /// The type of metric value stored.
-@property (nonatomic, readonly) SentryMetricValueType type;
+@property (nonatomic, readonly) SentryObjCMetricValueType type;
 
-/// Counter value, if @c type is @c SentryMetricValueTypeCounter.
+/// Counter value, if @c type is @c SentryObjCMetricValueTypeCounter.
 @property (nonatomic, readonly) unsigned long long counterValue;
 
-/// Gauge value, if @c type is @c SentryMetricValueTypeGauge.
+/// Gauge value, if @c type is @c SentryObjCMetricValueTypeGauge.
 @property (nonatomic, readonly) double gaugeValue;
 
-/// Distribution value, if @c type is @c SentryMetricValueTypeDistribution.
+/// Distribution value, if @c type is @c SentryObjCMetricValueTypeDistribution.
 @property (nonatomic, readonly) double distributionValue;
 
 /**
