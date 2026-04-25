@@ -1,7 +1,14 @@
 #!/bin/bash
 #
 # Builds a single slice of the SDK to be packaged into an XCFramework
-
+#
+# Parameters:
+#   $1 - sdk (e.g., iphoneos, iphonesimulator, macosx)
+#   $2 - scheme (e.g., Sentry, SentryObjC)
+#   $3 - suffix (optional, e.g., -Dynamic)
+#   $4 - MACH_O_TYPE (mh_dylib or staticlib)
+#   $5 - configuration_suffix (optional)
+#   $6 - use_workspace (optional, set to "workspace" to use Sentry.xcworkspace instead of Sentry.xcodeproj)
 set -eoux pipefail
 
 sdk="${1:-}"
@@ -9,10 +16,21 @@ scheme="$2"
 suffix="${3:-}"
 MACH_O_TYPE="${4-mh_dylib}"
 configuration_suffix="${5-}"
+use_workspace="${6:-}"
 
 resolved_configuration="Release$configuration_suffix"
 resolved_product_name="$scheme$configuration_suffix.framework"
 OTHER_LDFLAGS=""
+
+# Determine project/workspace source
+if [ "$use_workspace" = "workspace" ]; then
+    BUILD_SOURCE="-workspace Sentry.xcworkspace"
+    # SPM targets need library evolution for distribution
+    EXTRA_BUILD_SETTINGS="BUILD_LIBRARY_FOR_DISTRIBUTION=YES"
+else
+    BUILD_SOURCE="-project Sentry.xcodeproj/"
+    EXTRA_BUILD_SETTINGS=""
+fi
 
 GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
 if [ "$MACH_O_TYPE" = "staticlib" ]; then
@@ -23,10 +41,9 @@ fi
 rm -rf XCFrameworkBuildPath/DerivedData
 
 ## watchos and watchsimulator don't support make_mergeable: ld: unknown option: -make_mergeable
-if [[ "$sdk" == "watchos" || "$sdk" == "watchsimulator" ]]; then
-    OTHER_LDFLAGS=""
-elif [ "$MACH_O_TYPE" != "staticlib" ]; then
-    OTHER_LDFLAGS="-Wl,-make_mergeable"
+## For other dynamic frameworks, add -make_mergeable (append to existing flags)
+if [[ "$sdk" != "watchos" && "$sdk" != "watchsimulator" ]] && [ "$MACH_O_TYPE" != "staticlib" ]; then
+    OTHER_LDFLAGS="$OTHER_LDFLAGS -Wl,-make_mergeable"
 fi
 
 slice_id="${scheme}${suffix}-${sdk}"
@@ -36,8 +53,9 @@ sentry_xcarchive_path="$output_xcarchive_path/${sdk}.xcarchive"
 
 if [ "$sdk" = "maccatalyst" ]; then
     # we can't use the "archive" action here because it doesn't support the -destination option, which we need to build the maccatalyst slice. so we'll have to build it manually and then copy the build product to an xcarchive directory we create.
+    # shellcheck disable=SC2086
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -project Sentry.xcodeproj/ \
+        $BUILD_SOURCE \
         -scheme "$scheme" \
         -configuration "$resolved_configuration" \
         -sdk iphoneos \
@@ -49,7 +67,8 @@ if [ "$sdk" = "maccatalyst" ]; then
         SUPPORTS_MACCATALYST=YES \
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify
+        OTHER_LDFLAGS="$OTHER_LDFLAGS" \
+        $EXTRA_BUILD_SETTINGS 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify
 
     maccatalyst_build_product_directory="XCFrameworkBuildPath/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
 
@@ -63,8 +82,9 @@ if [ "$sdk" = "maccatalyst" ]; then
         cp -R "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" "${maccatalyst_archive_dsym_destination}"
     fi
 else
+    # shellcheck disable=SC2086
     set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
-        -project Sentry.xcodeproj/ \
+        $BUILD_SOURCE \
         -scheme "$scheme" \
         -configuration "$resolved_configuration" \
         -sdk "$sdk" \
@@ -75,7 +95,8 @@ else
         MACH_O_TYPE="$MACH_O_TYPE" \
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.log" | xcbeautify
+        OTHER_LDFLAGS="$OTHER_LDFLAGS" \
+        $EXTRA_BUILD_SETTINGS 2>&1 | tee "${slice_id}.log" | xcbeautify
 fi
 
 if [ "$MACH_O_TYPE" = "staticlib" ]; then

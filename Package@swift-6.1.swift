@@ -97,7 +97,20 @@ targets += [
         name: "SentryObjCInternal",
         dependencies: ["SentrySwift"],
         path: "Sources",
-        exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
+        exclude: [
+            "Sentry/SentryDummyPublicEmptyClass.m",
+            "Sentry/SentryDummyPrivateEmptyClass.m",
+            "Swift",
+            "SentrySwiftUI",
+            "Resources",
+            "Configuration",
+            "SentryCppHelper",
+            "SentryDistribution",
+            "SentryDistributionTests",
+            "SentryObjC",
+            "SentryObjCBridge",
+            "SentryObjCTypes"
+        ],
         cSettings: [
             .headerSearchPath("Sentry"),
             .headerSearchPath("SentryCrash/Recording"),
@@ -108,6 +121,39 @@ targets += [
             .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
         ])
+]
+
+// Swift bridge that exposes SDK functionality to pure ObjC code (no modules)
+products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjCTypes", "SentryObjCBridge", "SentryObjC"]))
+targets += [
+    // Frozen public ObjC ABI — pure data carriers, depends only on Foundation.
+    // Both SentryObjCBridge and SentryObjC depend on this so they reference
+    // the same authoritative type declarations.
+    .target(
+        name: "SentryObjCTypes",
+        path: "Sources/SentryObjCTypes",
+        publicHeadersPath: "Public",
+        cSettings: [
+            .headerSearchPath("Public")
+        ]),
+
+    .target(
+        name: "SentryObjCBridge",
+        dependencies: ["SentryObjCInternal", "SentryObjCTypes"],
+        path: "Sources/SentryObjCBridge",
+        swiftSettings: [
+            .unsafeFlags(["-enable-library-evolution"])
+        ]),
+
+    .target(
+        name: "SentryObjC",
+        dependencies: ["SentryObjCBridge", "SentryObjCTypes"],
+        path: "Sources/SentryObjC",
+        publicHeadersPath: "Public",
+        cSettings: [
+            .headerSearchPath("Public")
+        ]
+    )
 ]
 
 let package = Package(

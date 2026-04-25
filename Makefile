@@ -219,6 +219,45 @@ build-signed-xcframework:
 build-xcframework-sample:
 	xcodebuild -project "Samples/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
+## Build SentryObjC framework for iOS Simulator
+#
+# Builds the SentryObjC framework target for iOS Simulator.
+# This is the Objective-C wrapper framework that provides a stable ABI for ObjC++ consumers.
+# The target must first be added to the Xcode project using: bundle exec ruby scripts/add-sentryobjc-target.rb
+.PHONY: build-sentryobjc
+build-sentryobjc:
+	@echo "--> Building SentryObjC for iOS Simulator"
+	set -o pipefail && xcodebuild build \
+		-project Sentry.xcodeproj \
+		-scheme SentryObjC \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		-configuration Release \
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+
+## Build SentryObjC XCFrameworks locally for one or more SDKs
+#
+# Builds the four staticlib slices (Sentry, SentryObjCTypes, SentryObjCBridge,
+# SentryObjC) and runs the standalone merger to produce SentryObjC-Static and
+# SentryObjC-Dynamic xcframeworks. Output lands in XCFrameworkBuildPath/.
+#
+# SDKS accepts either an SDK preset (iOSOnly, macOSOnly, macCatalystOnly,
+# AllSDKs) or a comma-separated list of SDK names. Required — no default,
+# to keep local iteration fast.
+#
+# Examples:
+#   make build-sentryobjc-xcframework-local SDKS=iphonesimulator
+#   make build-sentryobjc-xcframework-local SDKS=iphoneos,iphonesimulator
+#   make build-sentryobjc-xcframework-local SDKS=iOSOnly
+.PHONY: build-sentryobjc-xcframework-local
+build-sentryobjc-xcframework-local:
+	@if [ -z "$(SDKS)" ]; then \
+		echo "error: SDKS is required."; \
+		echo "       example: make $@ SDKS=iphonesimulator"; \
+		exit 1; \
+	fi
+	@echo "--> Creating SentryObjC xcframeworks (SDKs: $(SDKS))"
+	./scripts/build-xcframework-local.sh "$(SDKS)" SentryObjCOnly
+
 # ============================================================================
 # SAMPLE APPS
 # ============================================================================
@@ -230,6 +269,7 @@ build-xcframework-sample:
 build-samples: \
 	build-sample-DistributionSample \
 	build-sample-iOS-ObjectiveC \
+	build-sample-iOS-ObjectiveCpp-NoModules \
 	build-sample-iOS-Swift \
 	build-sample-iOS-Swift6 \
 	build-sample-iOS-SwiftUI \
@@ -324,9 +364,8 @@ build-sample-visionOS-SwiftUI-SPM:
 
 ## Build the iOS-ObjectiveCpp-NoModules sample app
 #
-# Builds the ObjC++ without-modules sample that reproduces #4543.
-# This target is expected to FAIL until the pure ObjC SDK wrapper (#6342)
-# is implemented. Use it to verify the fix.
+# Builds the ObjC++ without-modules sample that uses SentryObjC (#6342).
+# Uses #import <SentryObjC/SentryObjC.h> for ObjC++ without -fmodules.
 .PHONY: build-sample-iOS-ObjectiveCpp-NoModules
 build-sample-iOS-ObjectiveCpp-NoModules:
 	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml

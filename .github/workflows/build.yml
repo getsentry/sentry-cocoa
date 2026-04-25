@@ -104,6 +104,8 @@ jobs:
             config: Debug
           - scheme: iOS-ObjectiveC
             config: Debug
+          - scheme: iOS-ObjectiveCpp-NoModules
+            config: Debug
           - scheme: SPM
             config: Debug
           - scheme: DistributionSample
