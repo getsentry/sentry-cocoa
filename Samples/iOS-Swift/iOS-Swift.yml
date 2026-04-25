@@ -59,6 +59,7 @@ targets:
       - target: iOS-Swift-ShareExtension
       - target: iOS-Swift-ActionExtension
       - target: iOS-Swift-IntentExtension
+      - target: iOS-Swift-NotificationServiceExtension
     configFiles:
       Debug: App/Configurations/iOS-Swift.xcconfig
       Release: App/Configurations/iOS-Swift.xcconfig
@@ -300,6 +301,41 @@ targets:
       Release: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
       Test: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
       TestCI: IntentExtension/Configurations/iOS-Swift-IntentExtension.xcconfig
+  iOS-Swift-NotificationServiceExtension:
+    type: app-extension
+    platform: auto
+    sources:
+      # Sources
+      - path: NotificationServiceExtension/Sources
+        type: group
+        group: NotificationServiceExtension
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: NotificationServiceExtension/Resources
+        type: group
+        group: NotificationServiceExtension
+        excludes:
+          - "**/.gitkeep"
+      # Configurations
+      - path: NotificationServiceExtension/Configurations
+        type: group
+        group: NotificationServiceExtension
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: NotificationServiceExtension/Configurations
+        buildPhase: none
+    dependencies:
+      - target: Sentry/Sentry
+      - target: SentrySampleShared/SentrySampleShared
+    configFiles:
+      Debug: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
+      Release: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
+      Test: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
+      TestCI: NotificationServiceExtension/Configurations/iOS-Swift-NotificationServiceExtension.xcconfig
 schemes:
   iOS-Swift:
     templates:
@@ -339,5 +375,11 @@ schemes:
       targets:
         iOS-Swift: all
         iOS-Swift-ShareExtension: all
+    run:
+      config: Debug
+  iOS-Swift-NotificationServiceExtension:
+    build:
+      targets:
+        iOS-Swift-NotificationServiceExtension: all
     run:
       config: Debug

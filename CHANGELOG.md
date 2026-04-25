@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Disable app hang and watchdog termination tracking in Notification Service Extensions (#7818)
+
 ## 9.11.0
 
 ### Features
