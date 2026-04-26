@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Moved `BinaryImageCache` initialization to a background thread to reduce locks in the main thread (#7823)
+- Moved `BinaryImageCache` initialization to a background thread to reduce blocking on dyld reader locks on the main thread (#7823)
 
 ## 9.11.0
 
