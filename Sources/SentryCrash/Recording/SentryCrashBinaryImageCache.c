@@ -164,7 +164,7 @@ addImage(const struct mach_header *mh)
     // Test hook: called just before adding the image
     callWillAddImageCallback();
 
-    uint32_t idx = atomic_fetch_add_explicit(&cache->nextIndex, 1, memory_order_relaxed);
+    uint32_t nextIndex = atomic_fetch_add_explicit(&cache->nextIndex, 1, memory_order_relaxed);
 
     if (idx >= MAX_DYLD_IMAGES) {
         logImageLimitReached(cache);
