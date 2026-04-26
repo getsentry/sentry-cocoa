@@ -151,7 +151,7 @@ logImageLimitReached(SentryCrashBinaryImageCacheState *cache)
 }
 
 static void
-addImage(const struct mach_header *mh)
+addImage(const struct mach_header *header)
 {
     SentryCrashBinaryImageCacheState *cache = currentCache();
 
