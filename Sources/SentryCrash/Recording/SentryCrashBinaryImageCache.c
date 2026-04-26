@@ -157,7 +157,7 @@ addImage(const struct mach_header *header)
 
     // Check dladdr first, before reserving a slot in the array.
     Dl_info info;
-    if (!dladdr(mh, &info) || info.dli_fname == NULL) {
+    if (!dladdr(header, &info) || info.dli_fname == NULL) {
         return;
     }
 
@@ -166,14 +166,14 @@ addImage(const struct mach_header *header)
 
     uint32_t nextIndex = atomic_fetch_add_explicit(&cache->nextIndex, 1, memory_order_relaxed);
 
-    if (idx >= MAX_DYLD_IMAGES) {
+    if (nextIndex >= MAX_DYLD_IMAGES) {
         logImageLimitReached(cache);
         return;
     }
 
-    PublishedBinaryImage *entry = &cache->images[idx];
+    PublishedBinaryImage *entry = &cache->images[nextIndex];
 
-    if (!sentrycrashdl_getBinaryImageForHeader(mh, info.dli_fname, &entry->image, false)) {
+    if (!sentrycrashdl_getBinaryImageForHeader(header, info.dli_fname, &entry->image, false)) {
         // Leave state as IMAGE_EMPTY so the entry is never published.
         return;
     }
