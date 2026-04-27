@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- fix: Prevent memory strings in stack overflow crash reports (#7841)
+
 ## 9.11.0
 
 ### Features
