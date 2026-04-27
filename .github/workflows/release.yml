@@ -168,6 +168,10 @@ jobs:
             --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.2.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
@@ -196,6 +200,10 @@ jobs:
             --change-path true
           ./scripts/prepare-package.sh \
             --package-file Package@swift-6.1.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
@@ -228,6 +236,10 @@ jobs:
             --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.2.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build --target SentrySwiftUI
       - name: Run CI Diagnostics
@@ -255,6 +267,10 @@ jobs:
             --change-path true
           ./scripts/prepare-package.sh \
             --package-file Package@swift-6.1.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
@@ -298,10 +314,10 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       - name: Setup Ruby
-        uses: ruby/setup-ruby@3ff19f5e2baf30647122352b96108b1fbe250c64 # v1.299.0
+        uses: ruby/setup-ruby@0cb964fd540e0a24c900370abf38a33466142735 # v1.305.0
         with:
           bundler-cache: true
-      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         id: app-plain-cache
         with:
           path: Tests/Perf/test-app-plain.ipa
@@ -364,7 +380,7 @@ jobs:
     steps:
       - name: Get auth token
         id: token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
@@ -381,7 +397,7 @@ jobs:
           path: XCFrameworkBuildPath/
 
       - name: Archive XCFrameworks for Craft
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: xcframeworks.zip
           if-no-files-found: error
@@ -396,7 +412,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@ba01e596c4a4c07692f0de10b0d4fe05f3dd0292 # v2
+        uses: getsentry/craft@3dc647fee3586e57c7c31eb900fdec7cbb44f23f # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

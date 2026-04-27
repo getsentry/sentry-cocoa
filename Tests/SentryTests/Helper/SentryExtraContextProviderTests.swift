@@ -79,4 +79,24 @@ final class SentryExtraContextProviderTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(device["thermal_state"] as? String), "critical")
     }
 
+    func testLowPowerMode() throws {
+        let sut = fixture.getSut()
+        fixture.processWrapper.overrides.isLowPowerModeEnabled = true
+
+        let actualContext = sut.getExtraContext()
+        let device = try XCTUnwrap(actualContext["device"] as? [String: Any])
+
+        XCTAssertTrue(try XCTUnwrap(device["low_power_mode"] as? Bool))
+    }
+
+    func testLowPowerModeDisabled() throws {
+        let sut = fixture.getSut()
+        fixture.processWrapper.overrides.isLowPowerModeEnabled = false
+
+        let actualContext = sut.getExtraContext()
+        let device = try XCTUnwrap(actualContext["device"] as? [String: Any])
+
+        XCTAssertFalse(try XCTUnwrap(device["low_power_mode"] as? Bool))
+    }
+
 }
