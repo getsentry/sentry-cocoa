@@ -323,7 +323,8 @@ sentrycrashjson_addFloatingPointElement(
         return value > 0 ? addJSONData(context, "1e999", 5) : addJSONData(context, "-1e999", 6);
     }
 
-    char buff[50];
+    // Conservative buffer for double formatting.
+    char buff[64];
     int written = snprintf(buff, sizeof(buff), "%lg", value);
     if (written < 0) {
         return SentryCrashJSON_ERROR_INVALID_CHARACTER;
@@ -339,7 +340,8 @@ int
 sentrycrashjson_addIntegerElement(
     SentryCrashJSONEncodeContext *const context, const char *const name, int64_t value)
 {
-    char buff[30];
+    // Exact max for int64_t in decimal: 19 digits plus sign and NUL.
+    char buff[21];
     int written = snprintf(buff, sizeof(buff), "%" PRId64, value);
     if (written < 0) {
         return SentryCrashJSON_ERROR_INVALID_CHARACTER;
@@ -355,7 +357,8 @@ int
 sentrycrashjson_addUIntegerElement(
     SentryCrashJSONEncodeContext *const context, const char *const name, uint64_t value)
 {
-    char buff[30];
+    // Exact max for uint64_t in decimal: 20 digits plus NUL.
+    char buff[21];
     int written = snprintf(buff, sizeof(buff), "%" PRIu64, value);
     if (written < 0) {
         return SentryCrashJSON_ERROR_INVALID_CHARACTER;

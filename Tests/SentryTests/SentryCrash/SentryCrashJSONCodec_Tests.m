@@ -26,7 +26,9 @@
 //
 
 #import <XCTest/XCTest.h>
+#import <float.h>
 #import <math.h>
+#import <stdint.h>
 
 #import "FileBasedTestCase.h"
 #import "SentryCrashJSONCodec.h"
@@ -1640,10 +1642,9 @@ addJSONData(const char *data, int length, void *userData)
     XCTAssertEqualObjects(object, expectedObject);
 }
 
-- (id)decodeJSON:(const char *)jsonBytes
+- (id)decodeJSONData:(NSData *)jsonData
 {
     NSError *error = nil;
-    NSData *jsonData = [NSData dataWithBytes:jsonBytes length:strlen(jsonBytes)];
     id object = [SentryCrashJSONCodec decode:jsonData
                                      options:SentryCrashJSONDecodeOptionKeepPartialObject
                                        error:&error];
@@ -1652,9 +1653,15 @@ addJSONData(const char *data, int length, void *userData)
     return object;
 }
 
-- (void)expectEquivalentJSON:(const char *)jsonCompareBytes toJSON:(const char *)jsonExpectedBytes
+- (id)decodeJSON:(const char *)jsonBytes
 {
-    id objectCompare = [self decodeJSON:jsonCompareBytes];
+    NSData *jsonData = [NSData dataWithBytes:jsonBytes length:strlen(jsonBytes)];
+    return [self decodeJSONData:jsonData];
+}
+
+- (void)expectEquivalentJSONData:(NSData *)jsonCompareData toJSON:(const char *)jsonExpectedBytes
+{
+    id objectCompare = [self decodeJSONData:jsonCompareData];
     id objectExpect = [self decodeJSON:jsonExpectedBytes];
     XCTAssertEqualObjects(objectCompare, objectExpect);
 }
@@ -1762,9 +1769,8 @@ addJSONData(const char *data, int length, void *userData)
     sentrycrashjson_addStringElement(&context, "testing", "this", SentryCrashJSON_SIZE_AUTOMATIC);
     sentrycrashjson_endContainer(&context);
     sentrycrashjson_endEncode(&context);
-    [encodedData appendBytes:"\0" length:1];
 
-    [self expectEquivalentJSON:encodedData.bytes toJSON:expectedJson];
+    [self expectEquivalentJSONData:encodedData toJSON:expectedJson];
 }
 
 - (NSArray<NSNumber *> *)decode:(NSString *)jsonString
@@ -1789,9 +1795,60 @@ addJSONData(const char *data, int length, void *userData)
     sentrycrashjson_addUIntegerElement(&context, "uint", 1234567890);
     sentrycrashjson_endContainer(&context);
     sentrycrashjson_endEncode(&context);
-    [encodedData appendBytes:"\0" length:1];
 
-    [self expectEquivalentJSON:encodedData.bytes toJSON:expectedJson];
+    [self expectEquivalentJSONData:encodedData toJSON:expectedJson];
+}
+
+- (void)testFastDoubleEncode_DoubleLimits
+{
+    const char *expectedJson = "{\"min\":-1.79769e+308,\"max\":1.79769e+308}";
+
+    NSMutableData *encodedData = [NSMutableData data];
+    SentryCrashJSONEncodeContext context = { 0 };
+    sentrycrashjson_beginEncode(&context, false, addJSONData, (__bridge void *)(encodedData));
+    sentrycrashjson_beginObject(&context, NULL);
+    XCTAssertEqual(
+        sentrycrashjson_addFloatingPointElement(&context, "min", -DBL_MAX), SentryCrashJSON_OK);
+    XCTAssertEqual(
+        sentrycrashjson_addFloatingPointElement(&context, "max", DBL_MAX), SentryCrashJSON_OK);
+    sentrycrashjson_endContainer(&context);
+    sentrycrashjson_endEncode(&context);
+
+    [self expectEquivalentJSONData:encodedData toJSON:expectedJson];
+}
+
+- (void)testFastIntEncode_Int64Limits
+{
+    const char *expectedJson = "{\"min\":-9223372036854775808,\"max\":9223372036854775807}";
+
+    NSMutableData *encodedData = [NSMutableData data];
+    SentryCrashJSONEncodeContext context = { 0 };
+    sentrycrashjson_beginEncode(&context, false, addJSONData, (__bridge void *)(encodedData));
+    sentrycrashjson_beginObject(&context, NULL);
+    XCTAssertEqual(
+        sentrycrashjson_addIntegerElement(&context, "min", INT64_MIN), SentryCrashJSON_OK);
+    XCTAssertEqual(
+        sentrycrashjson_addIntegerElement(&context, "max", INT64_MAX), SentryCrashJSON_OK);
+    sentrycrashjson_endContainer(&context);
+    sentrycrashjson_endEncode(&context);
+
+    [self expectEquivalentJSONData:encodedData toJSON:expectedJson];
+}
+
+- (void)testFastUIntEncode_UInt64Max
+{
+    const char *expectedJson = "{\"uint\":18446744073709551615}";
+
+    NSMutableData *encodedData = [NSMutableData data];
+    SentryCrashJSONEncodeContext context = { 0 };
+    sentrycrashjson_beginEncode(&context, false, addJSONData, (__bridge void *)(encodedData));
+    sentrycrashjson_beginObject(&context, NULL);
+    XCTAssertEqual(
+        sentrycrashjson_addUIntegerElement(&context, "uint", UINT64_MAX), SentryCrashJSON_OK);
+    sentrycrashjson_endContainer(&context);
+    sentrycrashjson_endEncode(&context);
+
+    [self expectEquivalentJSONData:encodedData toJSON:expectedJson];
 }
 
 @end
