@@ -140,14 +140,11 @@ targets += [
     .target(
         name: "SentryObjCBridge",
         dependencies: ["SentryObjCInternal", "SentryObjCTypes"],
-        path: "Sources/SentryObjCBridge",
-        swiftSettings: [
-            .unsafeFlags(["-enable-library-evolution"])
-        ]),
+        path: "Sources/SentryObjCBridge"),
 
     .target(
         name: "SentryObjC",
-        dependencies: ["SentryObjCBridge", "SentryObjCTypes"],
+        dependencies: ["SentryObjCInternal", "SentryObjCBridge", "SentryObjCTypes"],
         path: "Sources/SentryObjC",
         publicHeadersPath: "Public",
         cSettings: [
