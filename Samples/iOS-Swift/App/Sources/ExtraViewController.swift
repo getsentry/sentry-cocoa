@@ -421,6 +421,12 @@ class ExtraViewController: UIViewController {
         picker.delegate = self
         self.present(picker, animated: true, completion: nil)
     }
+    
+    @IBAction func testNetworkCapture(_ sender: UIButton) {
+        highlightButton(sender)
+        let networkTestingVC = NetworkTestingViewController()
+        navigationController?.pushViewController(networkTestingVC, animated: true)
+    }
 }
 
 extension ExtraViewController: ASWebAuthenticationPresentationContextProviding {
