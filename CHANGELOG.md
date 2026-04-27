@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix JSON encoding of infinite numeric values in crash reports (#7802)
+
 ## 9.11.0
 
 ### Features
@@ -12,7 +18,6 @@
 - Detect development builds via provisioning profile and debugger attachment (#7702)
 - Keep replayType as `buffer` for Session Replay triggered by an error (#7804)
 - Fix race condition in scope observer notifications causing EXC_BAD_ACCESS during cold launch (#7807)
-- Harden SentryCrash JSON floating-point encoding (#7802)
 - Unsubscribe to system event during background to avoid reporting breadcrumbs with wrong timestamps on return to foreground (#7702)
 - Fix SwiftUI's images and text redaction in iOS 26 (#7781)
 - Add foreground state to app context in app hang events (#7801)
