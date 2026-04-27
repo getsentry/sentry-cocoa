@@ -5,6 +5,7 @@
 ### Fixes
 
 - Disable app hang and watchdog termination tracking in Notification Service Extensions (#7818)
+- Fix JSON encoding of infinite numeric values in crash reports (#7802)
 
 ## 9.11.0
 
