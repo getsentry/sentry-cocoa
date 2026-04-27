@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Fix JSON encoding of infinite numeric values in crash reports (#7802)
+- Fix JSON encoding of infinite numeric values in crash reportss (#7802)
 
 ## 9.11.0
 
