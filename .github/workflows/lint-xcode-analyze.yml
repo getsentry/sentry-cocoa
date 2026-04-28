@@ -44,9 +44,8 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: make analyze
-      - name: Run CI Diagnostics
+      - uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   lint_xcode_analyze-required-check:
     needs:

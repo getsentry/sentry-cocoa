@@ -136,9 +136,8 @@ jobs:
           name: swiftui-crash-test-log.logarchive
           path: swiftui-crash-test-log.logarchive
 
-      - name: Run CI Diagnostics
+      - uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   # This check validates that either all UI tests critical passed or were skipped, which allows us
   # to make UI tests critical a required check with only running the UI tests critical when required.

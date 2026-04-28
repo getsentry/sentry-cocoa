@@ -59,9 +59,8 @@ jobs:
       - name: Validate Podspec
         #  Use --allow-warnings because cocoapods gives warnings like "warning: using '@_implementationOnly' without enabling library evolution for 'Sentry' may lead to instability during execution"
         run: ./scripts/pod-lib-lint.sh ${{ matrix.platform }} ${{ matrix.podspec}} ${{ matrix.library_type}} --allow-warnings
-      - name: Run CI Diagnostics
+      - uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   lint_cocoapods_Specs-required-check:
     needs:
