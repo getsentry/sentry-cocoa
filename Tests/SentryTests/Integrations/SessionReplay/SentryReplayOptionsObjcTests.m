@@ -34,6 +34,10 @@
     XCTAssertEqual(options.errorReplayDuration, 30);
     XCTAssertEqual(options.sessionSegmentDuration, 5);
     XCTAssertEqual(options.maximumDuration, 60 * 60);
+
+    // Currently there is not Obj-C SDK support for network details
+    //  => assert it's turned off.
+    XCTAssertFalse(options.networkDetailHasUrls);
 }
 
 - (void)testInit_withAllArguments_shouldSetAllValues
@@ -65,6 +69,10 @@
     XCTAssertEqual(options.errorReplayDuration, 30);
     XCTAssertEqual(options.sessionSegmentDuration, 5);
     XCTAssertEqual(options.maximumDuration, 60 * 60);
+
+    // Currently there is not Obj-C SDK support for network details
+    //  => assert it's turned off.
+    XCTAssertFalse(options.networkDetailHasUrls);
 }
 
 @end

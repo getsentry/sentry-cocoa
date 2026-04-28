@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Cache for Test Server
         id: cache_test_server
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: ./test-server/.build
           key: test-server-${{ hashFiles('./test-server') }}-universal
@@ -189,22 +189,26 @@ jobs:
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
         id: build_tests
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
             --os ${{matrix.test-destination-os}} \
-            --ref ${{ github.ref_name }} \
+            --ref "${REF_NAME}" \
             --command build-for-testing \
             --configuration TestCI \
             --scheme Sentry \
             --test-plan Sentry_TestServer
 
       - name: Run tests
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
             --os ${{matrix.test-destination-os}} \
-            --ref ${{ github.ref_name }} \
+            --ref "${REF_NAME}" \
             --command test-without-building \
             --configuration TestCI \
             --scheme Sentry \
