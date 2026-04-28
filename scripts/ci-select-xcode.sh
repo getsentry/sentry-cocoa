@@ -37,7 +37,12 @@ XCODE_INPUT="$1"
 
 # `xcodes installed` prints one Xcode per line; the first whitespace-separated
 # token is the version (the `(Selected)` marker, build number, and path follow).
-INSTALLED=$(xcodes installed | awk '{print $1}' | sort -V)
+# Filter beta / RC / GM builds so CI never silently selects a prerelease Xcode
+# (e.g. `Xcode_26.5_beta_2.app`) when resolving 'latest' or a major.
+INSTALLED=$(xcodes installed \
+    | grep -viE '(beta|release[ _-]?candidate|[^a-z](rc|gm)[^a-z])' \
+    | awk '{print $1}' \
+    | sort -V)
 
 if [[ -z "$INSTALLED" ]]; then
     log_error "'xcodes installed' returned no Xcode versions."
