@@ -124,7 +124,7 @@ jobs:
         env:
           SCHEME: RNSentryCocoaTester
           CONFIGURATION: Release
-          DESTINATION: "platform=iOS Simulator,OS=${{ steps.setup-xcode.outputs.ios-device-name }},name=${{ steps.setup-xcode.outputs.ios-simulator-os }}"
+          DESTINATION: "platform=iOS Simulator,OS=${{ steps.setup-xcode.outputs.ios-simulator-os }},name=${{ steps.setup-xcode.outputs.ios-device-name }}"
         run: |
           set -o pipefail
           env NSUnbufferedIO=YES \
