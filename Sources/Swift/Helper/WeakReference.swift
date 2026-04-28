@@ -6,9 +6,11 @@ import Foundation
 /// deallocation of the referenced object.
 // swiftlint:disable:next missing_docs
 @_spi(Private) public class WeakReference<T: AnyObject> {
-    weak var value: T?
+    // swiftlint:disable:next missing_docs
+    public weak var value: T?
 
-    init(value: T) {
+    // swiftlint:disable:next missing_docs
+    public init(value: T) {
         self.value = value
     }
 }
