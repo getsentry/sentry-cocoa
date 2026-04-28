@@ -295,11 +295,13 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Debug
+        env:
+          REF: ${{ github.ref }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
             --os 18.5 \
-            --ref ${{ github.ref }} \
+            --ref "${REF}" \
             --command build \
             --device "iPhone 16 Pro" \
             --configuration DebugWithoutUIKit \
@@ -322,11 +324,13 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Release
+        env:
+          REF: ${{ github.ref }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
             --os 18.5 \
-            --ref ${{ github.ref }} \
+            --ref "${REF}" \
             --command build \
             --device "iPhone 16 Pro" \
             --configuration ReleaseWithoutUIKit \
@@ -349,11 +353,13 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Debug
+        env:
+          REF: ${{ github.ref }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
             --os 18.5 \
-            --ref ${{ github.ref }} \
+            --ref "${REF}" \
             --command build \
             --device "iPhone 16 Pro" \
             --configuration Debug \
@@ -376,11 +382,13 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Release
+        env:
+          REF: ${{ github.ref }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
             --os 18.5 \
-            --ref ${{ github.ref }} \
+            --ref "${REF}" \
             --command build \
             --device "iPhone 16 Pro" \
             --configuration Release \
@@ -403,11 +411,13 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Release
+        env:
+          REF: ${{ github.ref }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform macOS \
             --os 15.0 \
-            --ref ${{ github.ref }} \
+            --ref "${REF}" \
             --command build \
             --configuration Release \
             --derived-data appkit-check-build
@@ -429,11 +439,13 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Release
+        env:
+          REF: ${{ github.ref }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform macOS \
             --os 15.0 \
-            --ref ${{ github.ref }} \
+            --ref "${REF}" \
             --command build \
             --configuration ReleaseWithoutUIKit \
             --derived-data no-appkit-check-build
@@ -468,11 +480,13 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.4
 
       - name: Build for Debug
+        env:
+          REF: ${{ github.ref }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
             --os 18.5 \
-            --ref ${{ github.ref }} \
+            --ref "${REF}" \
             --command build \
             --device "iPhone 16 Pro" \
             --configuration Debug

@@ -5,6 +5,7 @@
 ### Fixes
 
 - fix: Prevent memory strings in stack overflow crash reports (#7841)
+- Fix JSON encoding of infinite numeric values in crash reports (#7802)
 
 ## 9.11.0
 
