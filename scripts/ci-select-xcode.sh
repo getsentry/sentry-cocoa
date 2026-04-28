@@ -78,7 +78,9 @@ xcodes select "$RESOLVED"
 # Diagnostic only. A freshly-selected Xcode that hasn't been "first-launched"
 # may make the first `swiftc` invocation slow and/or non-zero; don't let that
 # abort the rest of the script (env/outputs export still needs to happen).
-swiftc --version
+log_notice "Running swiftc --version (may take a while on first launch of a fresh Xcode)..."
+swiftc --version || log_warning "swiftc --version exited non-zero (continuing — diagnostic only)"
+log_notice "swiftc --version returned"
 
 # Discover the simulator OS version that ships with the SELECTED Xcode.
 # `xcrun --sdk <name> --show-sdk-version` reads from the active developer
@@ -93,17 +95,38 @@ swiftc --version
 # actually exists, we anchor on the SDK's major.minor and pick the newest
 # installed runtime in that line. If no matching runtime is installed, we
 # fall back to the SDK version so callers still get a useful default.
+log_notice "Querying simctl runtimes JSON..."
 RUNTIMES_JSON=$(xcrun simctl list runtimes -j 2>/dev/null || echo '{"runtimes":[]}')
+RUNTIMES_COUNT=$(echo "$RUNTIMES_JSON" | jq -r '.runtimes | length' 2>/dev/null || echo "?")
+log_notice "simctl returned $RUNTIMES_COUNT runtimes"
+
+# Print a compact platform/version table once for visibility into what we're
+# matching against. Helps diagnose "expected 26.4.1 but got 26.4" issues.
+begin_group "Available simulator runtimes"
+echo "$RUNTIMES_JSON" \
+    | jq -r '.runtimes[] | "\(.platform)\t\(.version // "<null>")\tavailable=\(.isAvailable // false)"' 2>/dev/null \
+    | sort \
+    || log_warning "could not pretty-print runtimes (jq error)"
+end_group
 
 resolve_simulator_os() {
     local sdk="$1"
     local platform_a="$2"
     local platform_b="${3:-$2}"
+    log_notice "resolve_simulator_os(sdk=$sdk platforms=[$platform_a,$platform_b])"
+
     local sdk_v
     sdk_v=$(xcrun --sdk "$sdk" --show-sdk-version 2>/dev/null || true)
-    [[ -z "$sdk_v" ]] && return 0
+    log_notice "  $sdk SDK version: ${sdk_v:-<empty>}"
+    if [[ -z "$sdk_v" ]]; then
+        log_notice "  (no SDK version — skipping platform)"
+        return 0
+    fi
+
     local mm
     mm=$(echo "$sdk_v" | awk -F. '{print $1"."$2}')
+    log_notice "  major.minor cap: $mm"
+
     # Defensive: simctl can list partially-loaded runtimes with `.version == null`,
     # which would crash jq's `startswith()`. The `select(.version != null)` skips
     # those, and the `|| matched=""` keeps an unexpected jq error from killing
@@ -121,13 +144,19 @@ resolve_simulator_os() {
           | .version]
          | sort_by(split(".") | map(tonumber))
          | last // empty' 2>/dev/null) || matched=""
-    echo "${matched:-$sdk_v}"
+    log_notice "  matched runtime: ${matched:-<none>}"
+
+    local result="${matched:-$sdk_v}"
+    log_notice "  -> resolved: $result"
+    echo "$result"
 }
 
+log_notice "Resolving simulator OS for each platform..."
 IOS_OS=$(resolve_simulator_os iphonesimulator iOS)
 TVOS_OS=$(resolve_simulator_os appletvsimulator tvOS)
 WATCHOS_OS=$(resolve_simulator_os watchsimulator watchOS)
 VISIONOS_OS=$(resolve_simulator_os xrsimulator visionOS xrOS)
+log_notice "Per-platform resolution complete"
 
 # Pick a sensible default iPhone for the iOS runtime that ships with this Xcode:
 # the highest-numbered "iPhone N Pro" available (excluding "Pro Max"/"Pro Plus").
@@ -136,17 +165,23 @@ VISIONOS_OS=$(resolve_simulator_os xrsimulator visionOS xrOS)
 ios_default_device() {
     local os_version="$1"
     [[ -z "$os_version" ]] && return 0
-    xcrun simctl list devices available 2>/dev/null \
+    # Wrap the pipeline with `|| true` per stage so a missing simctl section or
+    # a `set -o pipefail`-induced failure doesn't kill the whole script.
+    local result
+    result=$(xcrun simctl list devices available 2>/dev/null \
         | awk -v platform="iOS" -v version="$os_version" '
             $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
             in_section { if (/^-- /) exit; print }' \
         | grep -E "iPhone [0-9]+ Pro \(" \
         | sed -E 's/^[[:space:]]*(iPhone [0-9]+ Pro)[[:space:]]+\(.*$/\1/' \
         | sort -V \
-        | tail -n1
+        | tail -n1) || result=""
+    echo "$result"
 }
 
+log_notice "Resolving default iPhone for iOS $IOS_OS..."
 IOS_DEVICE=$(ios_default_device "$IOS_OS")
+log_notice "Default iPhone: ${IOS_DEVICE:-<none>}"
 
 log_notice "SDK versions for Xcode $RESOLVED -- iOS: ${IOS_OS:-none} (${IOS_DEVICE:-no Pro device}), tvOS: ${TVOS_OS:-none}, watchOS: ${WATCHOS_OS:-none}, visionOS: ${VISIONOS_OS:-none}"
 
@@ -160,6 +195,7 @@ emit_output() {
     fi
 }
 
+log_notice "Emitting step outputs..."
 emit_output xcode-version         "$RESOLVED"
 emit_output ios-simulator-os      "$IOS_OS"
 emit_output ios-device-name       "$IOS_DEVICE"
@@ -181,6 +217,7 @@ emit_env_if_unset() {
     fi
 }
 
+log_notice "Emitting GITHUB_ENV exports..."
 if [[ -n "${GITHUB_ENV:-}" ]]; then
     # XCODE_VERSION always reflects the resolved version, so workflows that
     # use it for artifact naming get the concrete version even when the input
@@ -193,6 +230,7 @@ emit_env_if_unset IOS_DEVICE_NAME       "$IOS_DEVICE"
 emit_env_if_unset TVOS_SIMULATOR_OS     "$TVOS_OS"
 emit_env_if_unset WATCHOS_SIMULATOR_OS  "$WATCHOS_OS"
 emit_env_if_unset VISIONOS_SIMULATOR_OS "$VISIONOS_OS"
+log_notice "Exports complete"
 
 # On GH Actions this command should cause the runner to recache and detect
 # missing runtimes, as pointed out in
