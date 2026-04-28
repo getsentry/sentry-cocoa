@@ -75,7 +75,10 @@ log_notice "Resolved Xcode '$XCODE_INPUT' -> $RESOLVED"
 # We prefer this over `sudo xcode-select` because it fails fast if the version
 # is not installed. `xcodes` is preinstalled on GH-hosted runners.
 xcodes select "$RESOLVED"
-swiftc --version
+# Diagnostic only. A freshly-selected Xcode that hasn't been "first-launched"
+# may make the first `swiftc` invocation slow and/or non-zero; don't let that
+# abort the rest of the script (env/outputs export still needs to happen).
+swiftc --version || true
 
 # Discover the simulator OS version that ships with the SELECTED Xcode.
 # `xcrun --sdk <name> --show-sdk-version` reads from the active developer
