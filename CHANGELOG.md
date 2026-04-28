@@ -8,8 +8,7 @@
 
 ### Features
 
-- Metrics: Move options out of experimental (#7843)
-  - **Breaking**: `options.experimental.enableMetrics` and `options.experimental.beforeSendMetric` are removed. Use `options.enableMetrics` and `options.beforeSendMetric` instead.
+- Make feature Metrics generally available, moving experimental options to top-level options (#7843)
 
 ### Fixes
 
