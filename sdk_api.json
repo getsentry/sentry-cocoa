@@ -791,6 +791,13 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
+        "name": "UniformTypeIdentifiers",
+        "printedName": "UniformTypeIdentifiers"
+      },
+      {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
         "name": "WebKit",
         "printedName": "WebKit"
       },
