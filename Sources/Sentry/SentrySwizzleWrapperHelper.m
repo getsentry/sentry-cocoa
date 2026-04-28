@@ -131,9 +131,9 @@ NS_ASSUME_NONNULL_BEGIN
                 wrappedHandler = ^(NSData *data, NSURLResponse *response, NSError *error) {
                     if (!error && data && task) {
                         [networkTracker captureResponseDetails:data
-                                                     response:response
-                                                   requestURL:request.URL
-                                                         task:task];
+                                                      response:response
+                                                    requestURL:request.URL
+                                                          task:task];
                     }
                     completionHandler(data, response, error);
                 };
@@ -164,9 +164,9 @@ NS_ASSUME_NONNULL_BEGIN
                 wrappedHandler = ^(NSData *data, NSURLResponse *response, NSError *error) {
                     if (!error && data && task) {
                         [networkTracker captureResponseDetails:data
-                                                     response:response
-                                                   requestURL:url
-                                                         task:task];
+                                                      response:response
+                                                    requestURL:url
+                                                          task:task];
                     }
                     completionHandler(data, response, error);
                 };
