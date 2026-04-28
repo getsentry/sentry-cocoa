@@ -316,10 +316,10 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os ${{ env.IOS_SIMULATOR_OS }} \
+            --os "$IOS_SIMULATOR_OS" \
             --ref "${REF}" \
             --command build \
-            --device ${{ env.IOS_DEVICE_NAME }} \
+            --device "$IOS_DEVICE_NAME" \
             --configuration DebugWithoutUIKit \
             --derived-data uikit-check-build
 
@@ -351,10 +351,10 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os ${{ env.IOS_SIMULATOR_OS }} \
+            --os "$IOS_SIMULATOR_OS" \
             --ref "${REF}" \
             --command build \
-            --device ${{ env.IOS_DEVICE_NAME }} \
+            --device "$IOS_DEVICE_NAME" \
             --configuration ReleaseWithoutUIKit \
             --derived-data uikit-check-build
 
@@ -386,10 +386,10 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os ${{ env.IOS_SIMULATOR_OS }} \
+            --os "$IOS_SIMULATOR_OS" \
             --ref "${REF}" \
             --command build \
-            --device ${{ env.IOS_DEVICE_NAME }} \
+            --device "$IOS_DEVICE_NAME" \
             --configuration Debug \
             --derived-data uikit-check-build
 
@@ -421,10 +421,10 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os ${{ env.IOS_SIMULATOR_OS }} \
+            --os "$IOS_SIMULATOR_OS" \
             --ref "${REF}" \
             --command build \
-            --device ${{ env.IOS_DEVICE_NAME }} \
+            --device "$IOS_DEVICE_NAME" \
             --configuration Release \
             --derived-data uikit-check-build
 
@@ -533,10 +533,10 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os ${{ env.IOS_SIMULATOR_OS }} \
+            --os "$IOS_SIMULATOR_OS" \
             --ref "${REF}" \
             --command build \
-            --device ${{ env.IOS_DEVICE_NAME }} \
+            --device "$IOS_DEVICE_NAME" \
             --configuration Debug
 
       - name: Debug Xcode environment
