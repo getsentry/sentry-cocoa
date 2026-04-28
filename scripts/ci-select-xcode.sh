@@ -113,19 +113,23 @@ resolve_simulator_os() {
     local sdk="$1"
     local platform_a="$2"
     local platform_b="${3:-$2}"
-    log_notice "resolve_simulator_os(sdk=$sdk platforms=[$platform_a,$platform_b])"
+    # CRITICAL: this function's stdout is captured by `$(resolve_simulator_os)`
+    # at the call site. Anything we want to log MUST go to stderr (`>&2`),
+    # otherwise it pollutes the captured value and ends up appended to
+    # $GITHUB_ENV / $GITHUB_OUTPUT, which GH Actions then refuses to parse.
+    log_notice "resolve_simulator_os(sdk=$sdk platforms=[$platform_a,$platform_b])" >&2
 
     local sdk_v
     sdk_v=$(xcrun --sdk "$sdk" --show-sdk-version 2>/dev/null || true)
-    log_notice "  $sdk SDK version: ${sdk_v:-<empty>}"
+    log_notice "  $sdk SDK version: ${sdk_v:-<empty>}" >&2
     if [[ -z "$sdk_v" ]]; then
-        log_notice "  (no SDK version — skipping platform)"
+        log_notice "  (no SDK version — skipping platform)" >&2
         return 0
     fi
 
     local mm
     mm=$(echo "$sdk_v" | awk -F. '{print $1"."$2}')
-    log_notice "  major.minor cap: $mm"
+    log_notice "  major.minor cap: $mm" >&2
 
     # Defensive: simctl can list partially-loaded runtimes with `.version == null`,
     # which would crash jq's `startswith()`. The `select(.version != null)` skips
@@ -144,10 +148,10 @@ resolve_simulator_os() {
           | .version]
          | sort_by(split(".") | map(tonumber))
          | last // empty' 2>/dev/null) || matched=""
-    log_notice "  matched runtime: ${matched:-<none>}"
+    log_notice "  matched runtime: ${matched:-<none>}" >&2
 
     local result="${matched:-$sdk_v}"
-    log_notice "  -> resolved: $result"
+    log_notice "  -> resolved: $result" >&2
     echo "$result"
 }
 
