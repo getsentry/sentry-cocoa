@@ -12,7 +12,11 @@
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFrame.h"
-#import "SentryGeo.h"
+#if __has_include(<Sentry/SentryGeo.h>)
+#    import <Sentry/SentryGeo.h>
+#else
+#    import "SentryGeo.h"
+#endif
 #import "SentryHttpStatusCodeRange.h"
 #import "SentryId.h"
 #import "SentryLevel.h"
