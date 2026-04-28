@@ -79,18 +79,47 @@ swiftc --version
 
 # Discover the simulator OS version that ships with the SELECTED Xcode.
 # `xcrun --sdk <name> --show-sdk-version` reads from the active developer
-# directory, so the value is always tied to the Xcode we just selected and is
-# the right runtime version to target by default. Using `simctl list runtimes`
-# would scan every runtime on the machine (including ones from other Xcodes),
-# which can cause an Xcode 16 build to be pointed at an iOS 26 runtime.
-sdk_version() {
-    xcrun --sdk "$1" --show-sdk-version 2>/dev/null || true
+# directory, so the value is always tied to the Xcode we just selected.
+# Using `simctl list runtimes` alone would scan every runtime on the machine
+# (including ones from other Xcodes), which would point an Xcode 16 build at
+# an iOS 26 runtime.
+#
+# The SDK version isn't always usable as-is for `-destination OS=...` though:
+# Apple sometimes ships a runtime patch update beyond the SDK's advertised
+# version (e.g. SDK 26.4 with runtime 26.4.1). To target a runtime that
+# actually exists, we anchor on the SDK's major.minor and pick the newest
+# installed runtime in that line. If no matching runtime is installed, we
+# fall back to the SDK version so callers still get a useful default.
+RUNTIMES_JSON=$(xcrun simctl list runtimes -j 2>/dev/null || echo '{"runtimes":[]}')
+
+resolve_simulator_os() {
+    local sdk="$1"
+    local platform_a="$2"
+    local platform_b="${3:-$2}"
+    local sdk_v
+    sdk_v=$(xcrun --sdk "$sdk" --show-sdk-version 2>/dev/null || true)
+    [[ -z "$sdk_v" ]] && return 0
+    local mm
+    mm=$(echo "$sdk_v" | awk -F. '{print $1"."$2}')
+    local matched
+    matched=$(echo "$RUNTIMES_JSON" | jq -r \
+        --arg pa "$platform_a" \
+        --arg pb "$platform_b" \
+        --arg mm "$mm" \
+        '[.runtimes[]
+          | select(.isAvailable == true)
+          | select(.platform == $pa or .platform == $pb)
+          | select(.version == $mm or (.version | startswith($mm + ".")))
+          | .version]
+         | sort_by(split(".") | map(tonumber))
+         | last // empty')
+    echo "${matched:-$sdk_v}"
 }
 
-IOS_OS=$(sdk_version iphonesimulator)
-TVOS_OS=$(sdk_version appletvsimulator)
-WATCHOS_OS=$(sdk_version watchsimulator)
-VISIONOS_OS=$(sdk_version xrsimulator)
+IOS_OS=$(resolve_simulator_os iphonesimulator iOS)
+TVOS_OS=$(resolve_simulator_os appletvsimulator tvOS)
+WATCHOS_OS=$(resolve_simulator_os watchsimulator watchOS)
+VISIONOS_OS=$(resolve_simulator_os xrsimulator visionOS xrOS)
 
 # Pick a sensible default iPhone for the iOS runtime that ships with this Xcode:
 # the highest-numbered "iPhone N Pro" available (excluding "Pro Max"/"Pro Plus").
