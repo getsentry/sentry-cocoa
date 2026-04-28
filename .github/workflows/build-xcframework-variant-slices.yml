@@ -66,9 +66,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      # We use Xcode 16.4 for building XCFrameworks as it's the standard version available on macos-15 runners.
-      - run: ./scripts/ci-select-xcode.sh 16.4
-        shell: bash
+      # We use Xcode 16 (latest installed minor) for building XCFrameworks. The setup-xcode action
+      # picks the newest 16.x available on the macos-15 runner image.
+      - uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
 
       - name: Get version
         id: get-version
@@ -83,12 +85,15 @@ jobs:
           fi
         shell: sh
 
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
+
       - name: Bump version
         env:
           VERSION: ${{ env.VERSION }}
-        run: |
-          ./scripts/ci-select-xcode.sh 16.4
-          make bump-version TO=$VERSION
+        run: make bump-version TO=$VERSION
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
         env:

@@ -65,9 +65,9 @@ jobs:
     if: ${{!inputs.should_skip}}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
-        env:
-          XCODE_VERSION: ${{inputs.xcode}}
+      - uses: ./.github/actions/setup-xcode
+        with:
+          version: ${{ inputs.xcode }}
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@0cb964fd540e0a24c900370abf38a33466142735 # v1.305.0

@@ -168,7 +168,7 @@ jobs:
               - "ghcr.io/cirruslabs/macos-runner:sequoia,runner_concurrency_group=${{ github.run_id }}"
               - "runner_group_id:10"
             platform: "macOS"
-            xcode: "16.4"
+            xcode: "16"
             test-destination-os: "15.0"
 
     steps:
@@ -179,7 +179,9 @@ jobs:
 
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - uses: ./.github/actions/setup-xcode
+        with:
+          version: ${{ matrix.xcode }}
 
       # Note: We don't install Slather or gather code coverage for this job because it only runs
       # the SentryTestServerTests target, which contains minimal tests that don't significantly
@@ -276,7 +278,7 @@ jobs:
           # iOS 17
           - name: iOS 17 Sentry
             runs-on: sequoia
-            xcode: "16.4"
+            xcode: "16"
             test-destination-os: "17.5"
             platform: "iOS"
             device: "iPhone 15 Pro"
@@ -284,7 +286,7 @@ jobs:
           # iOS 18
           - name: iOS 18 Sentry
             runs-on: sequoia
-            xcode: "16.4"
+            xcode: "16"
             test-destination-os: "18.5"
             platform: "iOS"
             device: "iPhone 16 Pro"
@@ -292,7 +294,7 @@ jobs:
           # iOS 26
           - name: iOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.3"
+            xcode: "26"
             test-destination-os: "26.3"
             platform: "iOS"
             device: "iPhone 17 Pro"
@@ -304,21 +306,21 @@ jobs:
           # macOS 14
           - name: macOS 14 Sentry
             runs-on: sonoma
-            xcode: "16.1"
+            xcode: "16"
             test-destination-os: "latest"
             platform: "macOS"
 
           # macOS 15
           - name: macOS 15 Sentry
             runs-on: sequoia
-            xcode: "16.4"
+            xcode: "16"
             test-destination-os: "latest"
             platform: "macOS"
 
           # macOS 26
           - name: macOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.3"
+            xcode: "26"
             test-destination-os: "26.2"
             platform: "macOS"
 
@@ -327,13 +329,13 @@ jobs:
           # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
           - name: Catalyst 14 Sentry
             runs-on: sonoma
-            xcode: "16.1"
+            xcode: "16"
             test-destination-os: "latest"
             platform: "Catalyst"
 
           - name: Catalyst 15 Sentry
             runs-on: sequoia
-            xcode: "16.4"
+            xcode: "16"
             test-destination-os: "latest"
             platform: "Catalyst"
 
@@ -346,21 +348,21 @@ jobs:
           # tvOS 17
           - name: tvOS 17 Sentry
             runs-on: sequoia
-            xcode: "16.4"
+            xcode: "16"
             test-destination-os: "17.5"
             platform: "tvOS"
 
           # tvOS 18
           - name: tvOS 18 Sentry
             runs-on: sequoia
-            xcode: "16.4"
+            xcode: "16"
             test-destination-os: "18.5"
             platform: "tvOS"
 
           # tvOS 26
           - name: tvOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.3"
+            xcode: "26"
             test-destination-os: "26.2"
             platform: "tvOS"
             device: "Apple TV"
@@ -368,7 +370,7 @@ jobs:
           # visionOS 26
           - name: visionOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.3"
+            xcode: "26"
             test-destination-os: "26.2"
             platform: "visionOS"
             device: "Apple Vision Pro"

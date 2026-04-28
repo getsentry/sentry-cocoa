@@ -1,0 +1,49 @@
+name: "Set up Xcode"
+description: >-
+  Selects an Xcode version (latest, major, major.minor, or exact) and exposes
+  the resolved Xcode version, the simulator OS that ships with that Xcode for
+  each platform (iOS/tvOS/watchOS/visionOS), and a default iPhone device for
+  the iOS runtime. The same values are exported to `$GITHUB_ENV`
+  (XCODE_VERSION, IOS_SIMULATOR_OS, IOS_DEVICE_NAME, TVOS_SIMULATOR_OS,
+  WATCHOS_SIMULATOR_OS, VISIONOS_SIMULATOR_OS) so the Makefile and downstream
+  scripts pick them up automatically.
+inputs:
+  version:
+    description: >-
+      Xcode version specifier. Accepts 'latest', a major like '16' or '26',
+      a major.minor like '16.4' or '26.0', or an exact installed version.
+    required: false
+    default: "latest"
+outputs:
+  xcode-version:
+    description: "The resolved (concrete) Xcode version, e.g. '16.4' or '26.0.1'."
+    value: ${{ steps.select.outputs.xcode-version }}
+  ios-simulator-os:
+    description: "iOS simulator OS version that ships with the selected Xcode."
+    value: ${{ steps.select.outputs.ios-simulator-os }}
+  ios-device-name:
+    description: >-
+      Default iPhone for the iOS simulator OS — newest available "iPhone N Pro"
+      (excluding Max/Plus). May be empty if the runtime exposes no Pro device.
+      This is a default; matrix entries that pin a specific iOS major should
+      keep their explicit `device:` value.
+    value: ${{ steps.select.outputs.ios-device-name }}
+  tvos-simulator-os:
+    description: "tvOS simulator OS version that ships with the selected Xcode."
+    value: ${{ steps.select.outputs.tvos-simulator-os }}
+  watchos-simulator-os:
+    description: "watchOS simulator OS version that ships with the selected Xcode."
+    value: ${{ steps.select.outputs.watchos-simulator-os }}
+  visionos-simulator-os:
+    description: "visionOS simulator OS version that ships with the selected Xcode."
+    value: ${{ steps.select.outputs.visionos-simulator-os }}
+runs:
+  using: "composite"
+  steps:
+    - name: Select Xcode and export simulator versions
+      id: select
+      shell: bash
+      env:
+        XCODE_INPUT: ${{ inputs.version }}
+      run: |
+        "${{ github.action_path }}/../../../scripts/ci-select-xcode.sh" "$XCODE_INPUT"

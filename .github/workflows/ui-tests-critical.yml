@@ -67,7 +67,7 @@ jobs:
           - name: iOS 18
             platform:
               runs-on: sequoia
-              xcode: "16.4"
+              xcode: "16"
               test-destination-os: "18.4"
               platform: "iOS"
               device: "iPhone 16 Pro"
@@ -76,7 +76,7 @@ jobs:
           - name: iOS 26
             platform:
               runs-on: tahoe
-              xcode: "26.1.1"
+              xcode: "26"
               test-destination-os: "26.1"
               platform: "iOS"
               device: "iPhone 17 Pro"
@@ -94,7 +94,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
 
       - run: make init-ci-build
       - run: make xcode-ci

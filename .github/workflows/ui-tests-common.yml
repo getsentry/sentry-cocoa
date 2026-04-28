@@ -78,10 +78,9 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Select Xcode version
-        env:
-          XCODE_VERSION: ${{ inputs.xcode_version }}
-        run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
+      - uses: ./.github/actions/setup-xcode
+        with:
+          version: ${{ inputs.xcode_version }}
 
       - name: Ensure required runtime is loaded
         if: ${{ inputs.platform == 'iOS' || inputs.platform == 'tvOS' }}

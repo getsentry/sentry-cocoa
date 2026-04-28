@@ -59,8 +59,9 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Select Xcode
-        run: ./scripts/ci-select-xcode.sh 16.4
+      - uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - name: Build XCFramework (Static)
         run: ./scripts/build-xcframework-local.sh macOSOnly StaticOnly --not-signed
       - name: Upload XCFrameworks
@@ -89,8 +90,9 @@ jobs:
           - integration_dir: SentryPulse
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Select Xcode
-        run: ./scripts/ci-select-xcode.sh 16.4
+      - uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - name: Download XCFrameworks
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:

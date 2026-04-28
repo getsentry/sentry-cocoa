@@ -40,14 +40,14 @@ jobs:
         include:
           - name: iOS 26 iPad Sentry
             runs-on: tahoe
-            xcode: "26.3"
+            xcode: "26"
             test-destination-os: "26.3"
             platform: "iOS"
             device: "iPad Pro 13-inch (M5)"
 
           - name: watchOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.3"
+            xcode: "26"
             test-destination-os: "26.4"
             platform: "watchOS"
             device: "Apple Watch Ultra 3 (49mm)"
@@ -55,7 +55,7 @@ jobs:
 
           - name: visionOS 2.5 Sentry
             runs-on: sequoia
-            xcode: "26.0.1"
+            xcode: "26"
             test-destination-os: "2.5"
             platform: "visionOS"
             device: "Apple Vision Pro"
