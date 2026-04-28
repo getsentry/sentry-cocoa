@@ -104,7 +104,11 @@ resolve_simulator_os() {
     [[ -z "$sdk_v" ]] && return 0
     local mm
     mm=$(echo "$sdk_v" | awk -F. '{print $1"."$2}')
-    local matched
+    # Defensive: simctl can list partially-loaded runtimes with `.version == null`,
+    # which would crash jq's `startswith()`. The `select(.version != null)` skips
+    # those, and the `|| matched=""` keeps an unexpected jq error from killing
+    # the whole script (we just fall back to the SDK version below).
+    local matched=""
     matched=$(echo "$RUNTIMES_JSON" | jq -r \
         --arg pa "$platform_a" \
         --arg pb "$platform_b" \
@@ -112,10 +116,11 @@ resolve_simulator_os() {
         '[.runtimes[]
           | select(.isAvailable == true)
           | select(.platform == $pa or .platform == $pb)
+          | select(.version != null)
           | select(.version == $mm or (.version | startswith($mm + ".")))
           | .version]
          | sort_by(split(".") | map(tonumber))
-         | last // empty')
+         | last // empty' 2>/dev/null) || matched=""
     echo "${matched:-$sdk_v}"
 }
 
