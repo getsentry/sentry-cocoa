@@ -5,6 +5,7 @@
 ### Fixes
 
 - Moved `BinaryImageCache` initialization to a background thread to reduce blocking on dyld reader locks on the main thread (#7823)
+- Fix JSON encoding of infinite numeric values in crash reports (#7802)
 
 ## 9.11.0
 
