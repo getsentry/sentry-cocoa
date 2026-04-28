@@ -169,11 +169,17 @@ log_notice "Per-platform resolution complete"
 ios_default_device() {
     local os_version="$1"
     [[ -z "$os_version" ]] && return 0
-    # Wrap the pipeline with `|| true` per stage so a missing simctl section or
-    # a `set -o pipefail`-induced failure doesn't kill the whole script.
+    # `simctl list devices available` groups devices under section headers like
+    # `-- iOS 26.4 --` using only major.minor, even when the runtime version
+    # (as reported by `simctl list runtimes -j`) is `26.4.1`. Strip the patch
+    # component so the awk pattern matches the section header simctl actually
+    # prints. Wrap the pipeline with `|| result=""` so a missing section or a
+    # `set -o pipefail`-induced failure doesn't kill the whole script.
+    local os_mm
+    os_mm=$(echo "$os_version" | awk -F. '{print $1"."$2}')
     local result
     result=$(xcrun simctl list devices available 2>/dev/null \
-        | awk -v platform="iOS" -v version="$os_version" '
+        | awk -v platform="iOS" -v version="$os_mm" '
             $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
             in_section { if (/^-- /) exit; print }' \
         | grep -E "iPhone [0-9]+ Pro \(" \
