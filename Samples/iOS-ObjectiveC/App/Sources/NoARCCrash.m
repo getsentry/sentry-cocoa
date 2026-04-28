@@ -1,4 +1,4 @@
-// #import "NoARCCrash.h"
+#import "NoARCCrash.h"
 #import <Foundation/Foundation.h>
 
 void

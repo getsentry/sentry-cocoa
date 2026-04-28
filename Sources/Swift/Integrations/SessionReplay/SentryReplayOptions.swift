@@ -1,6 +1,7 @@
 // swiftlint:disable file_length missing_docs
 import Foundation
 
+@objc(SentryReplayOptions)
 @objcMembers
 public class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**

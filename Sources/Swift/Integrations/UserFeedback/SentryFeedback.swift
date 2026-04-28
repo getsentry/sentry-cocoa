@@ -2,6 +2,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+@objc(SentryFeedback)
 @objcMembers
 public final class SentryFeedback: NSObject {
     @objc public enum SentryFeedbackSource: Int {

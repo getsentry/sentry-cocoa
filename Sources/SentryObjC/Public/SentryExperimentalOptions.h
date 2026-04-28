@@ -2,16 +2,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// See SentryFeedback.h for an explanation of why SentryObjC's public headers alias
-// the plain class name to the Swift-mangled class exported by Sentry.framework.
-#if SWIFT_PACKAGE
-@class _TtC11SentrySwift25SentryExperimentalOptions;
-@compatibility_alias SentryExperimentalOptions _TtC11SentrySwift25SentryExperimentalOptions;
-#else
-@class _TtC6Sentry25SentryExperimentalOptions;
-@compatibility_alias SentryExperimentalOptions _TtC6Sentry25SentryExperimentalOptions;
-#endif
-
 /**
  * Options for experimental features that are subject to change or may be removed in future
  * versions.

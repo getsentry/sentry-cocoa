@@ -1,10 +1,6 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryDefines.h"
-// SentryFeedback and SentryLogger are Swift-backed and use @compatibility_alias in
-// their headers; importing the full headers avoids a "conflicting types for alias"
-// error if those headers are later included in the same TU after a plain forward
-// declaration here.
 #import "SentryFeedback.h"
 #import "SentryLogger.h"
 

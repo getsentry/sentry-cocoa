@@ -8,10 +8,64 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
-    "name": "_TtC6Sentry15SentryAttribute",
+    "name": "SentryAttribute",
     "file": "SentryAttribute.h",
     "super": "NSObject",
-    "has_inner": false
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithBoolean:",
+    "file": "SentryAttribute.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithDouble:",
+    "file": "SentryAttribute.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithInteger:",
+    "file": "SentryAttribute.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithString:",
+    "file": "SentryAttribute.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "type",
+    "file": "SentryAttribute.h",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "value",
+    "file": "SentryAttribute.h",
+    "returnType": "id _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "type",
+    "file": "SentryAttribute.h",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "value",
+    "file": "SentryAttribute.h",
+    "type": "id _Nonnull"
   },
   {
     "kind": "ObjCInterfaceDecl",
@@ -352,10 +406,43 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
-    "name": "_TtC6Sentry14SentryEnvelope",
+    "name": "SentryEnvelope",
     "file": "SentryEnvelope.h",
     "super": "NSObject",
-    "has_inner": false
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "header",
+    "file": "SentryEnvelope.h",
+    "returnType": "SentryEnvelopeHeader * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithHeader:singleItem:",
+    "file": "SentryEnvelope.h",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "items",
+    "file": "SentryEnvelope.h",
+    "returnType": "NSArray<SentryEnvelopeItem *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "header",
+    "file": "SentryEnvelope.h",
+    "type": "SentryEnvelopeHeader * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "items",
+    "file": "SentryEnvelope.h",
+    "type": "NSArray<SentryEnvelopeItem *> * _Nonnull"
   },
   {
     "kind": "ObjCInterfaceDecl",
@@ -387,10 +474,90 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
-    "name": "_TtC6Sentry25SentryExperimentalOptions",
+    "name": "SentryExperimentalOptions",
     "file": "SentryExperimentalOptions.h",
     "super": "NSObject",
-    "has_inner": false
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableMetrics",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableSessionReplayInUnreliableEnvironment",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableUnhandledCPPExceptionsV2",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableWatchdogTerminationsV2",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableMetrics:",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableSessionReplayInUnreliableEnvironment:",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableUnhandledCPPExceptionsV2:",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableWatchdogTerminationsV2:",
+    "file": "SentryExperimentalOptions.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableMetrics",
+    "file": "SentryExperimentalOptions.h",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableSessionReplayInUnreliableEnvironment",
+    "file": "SentryExperimentalOptions.h",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableUnhandledCPPExceptionsV2",
+    "file": "SentryExperimentalOptions.h",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableWatchdogTerminationsV2",
+    "file": "SentryExperimentalOptions.h",
+    "type": "BOOL"
   },
   {
     "kind": "ObjCInterfaceDecl",
@@ -952,10 +1119,94 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
-    "name": "_TtC6Sentry12SentryLogger",
+    "name": "SentryLogger",
     "file": "SentryLogger.h",
     "super": "NSObject",
-    "has_inner": false
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "debug:",
+    "file": "SentryLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "debug:attributes:",
+    "file": "SentryLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "error:",
+    "file": "SentryLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "error:attributes:",
+    "file": "SentryLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "fatal:",
+    "file": "SentryLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "fatal:attributes:",
+    "file": "SentryLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "info:",
+    "file": "SentryLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "info:attributes:",
+    "file": "SentryLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "trace:",
+    "file": "SentryLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "trace:attributes:",
+    "file": "SentryLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "warn:",
+    "file": "SentryLogger.h",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "warn:attributes:",
+    "file": "SentryLogger.h",
+    "returnType": "void",
+    "instance": true
   },
   {
     "kind": "ObjCInterfaceDecl",
@@ -1505,7 +1756,7 @@
     "kind": "ObjCMethodDecl",
     "name": "experimental",
     "file": "SentryOptions.h",
-    "returnType": "_TtC6Sentry25SentryExperimentalOptions * _Nonnull",
+    "returnType": "SentryExperimentalOptions * _Nonnull",
     "instance": true
   },
   {
@@ -1631,7 +1882,7 @@
     "kind": "ObjCMethodDecl",
     "name": "sessionReplay",
     "file": "SentryOptions.h",
-    "returnType": "_TtC6Sentry19SentryReplayOptions * _Nonnull",
+    "returnType": "SentryReplayOptions * _Nonnull",
     "instance": true
   },
   {
@@ -2437,7 +2688,7 @@
     "kind": "ObjCPropertyDecl",
     "name": "experimental",
     "file": "SentryOptions.h",
-    "type": "_TtC6Sentry25SentryExperimentalOptions * _Nonnull"
+    "type": "SentryExperimentalOptions * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -2545,7 +2796,7 @@
     "kind": "ObjCPropertyDecl",
     "name": "sessionReplay",
     "file": "SentryOptions.h",
-    "type": "_TtC6Sentry19SentryReplayOptions * _Nonnull"
+    "type": "SentryReplayOptions * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",

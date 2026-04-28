@@ -3,10 +3,6 @@
 #import "SentryDefines.h"
 #import "SentryExperimentalOptions.h"
 #import "SentryLevel.h"
-// SentryReplayOptions is Swift-backed and uses @compatibility_alias in its header;
-// importing the full header avoids a "conflicting types for alias" error if
-// SentryReplayOptions.h is later included in the same TU after a plain forward
-// declaration here.
 #import "SentryReplayOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN

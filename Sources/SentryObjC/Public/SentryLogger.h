@@ -4,16 +4,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// See SentryFeedback.h for an explanation of why SentryObjC's public headers alias
-// the plain class name to the Swift-mangled class exported by Sentry.framework.
-#if SWIFT_PACKAGE
-@class _TtC11SentrySwift12SentryLogger;
-@compatibility_alias SentryLogger _TtC11SentrySwift12SentryLogger;
-#else
-@class _TtC6Sentry12SentryLogger;
-@compatibility_alias SentryLogger _TtC6Sentry12SentryLogger;
-#endif
-
 /**
  * Structured logging interface that captures log entries and sends them to Sentry.
  *
