@@ -236,7 +236,7 @@ public class SentryFramesTracker: NSObject {
     }
     
     var listenersCount: Int {
-        listeners.filter { $0 != nil }.count
+        listeners.filter { $0.value != nil }.count
     }
 #endif
 
