@@ -72,7 +72,7 @@ jobs:
           cache-dependency-path: sentry-react-native/yarn.lock
       - name: Setup Xcode
         id: setup-xcode
-        uses: ./.github/actions/setup-xcode
+        uses: ./sentry-cocoa/.github/actions/setup-xcode
         with:
           version: "16"
 
