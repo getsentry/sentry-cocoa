@@ -42,7 +42,7 @@ final class SentryNetworkTrackingIntegration<Dependencies: NetworkTrackerProvide
 
         SentrySwizzleWrapperHelper.swizzleURLSessionTask(networkTracker)
 
-        #if os(iOS) || os(tvOS)
+        #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
          if options.sessionReplay.networkDetailHasUrls {
              SentrySwizzleWrapperHelper.swizzleURLSessionDataTasks(forResponseCapture: networkTracker)
          }
