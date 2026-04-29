@@ -6,10 +6,18 @@
 
 - Add SentryObjC wrapper SDK to provide pure Objective-C compatibility layer that wraps the main Sentry SDK with stable, documented Objective-C interfaces. (#7598)
   This SDK is designed for projects that require strict Objective-C compatibility without Swift dependencies. It ships as two xcframework variants — `SentryObjC-Static.xcframework.zip` and `SentryObjC-Dynamic.xcframework.zip` — and as a compile-from-source SPM library under the `SentryObjC` product.
+> [!WARNING]
+> This release promotes Metrics out of experimental and **removes** `options.experimental.enableMetrics` and `options.experimental.beforeSendMetric`. If you set either of these, your app will fail to compile after upgrading.
+> Migrate to `options.enableMetrics` and `options.beforeSendMetric` (top-level on `Options`) — the defaults and behavior are unchanged.
+
+### Features
+
+- Make feature Metrics generally available, moving experimental options to top-level options (#7843)
 
 ### Fixes
 
 - Fix JSON encoding of infinite numeric values in crash reports (#7802)
+- Fix race condition in `SentryFramesTracker` listeners causing `EXC_BAD_ACCESS` in `NSConcreteHashTable removeItem:` when a listener is deallocated on a background thread (#7839)
 
 ## 9.11.0
 
