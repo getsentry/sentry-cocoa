@@ -20,6 +20,7 @@ import UIKit
     private var urlToCache: URL?
     private var rootView: UIView?
     private var lastScreenShot: Date?
+    private var nextScreenShot: Date?
     private var videoSegmentStart: Date?
     private var sessionStart: Date?
     private var imageCollection: [UIImage] = []
@@ -36,6 +37,10 @@ import UIKit
     private let dateProvider: SentryCurrentDateProvider
     private let touchTracker: SentryTouchTracker?
     private let lock = NSLock()
+    private let captureGuard = SentrySessionReplayCaptureGuard()
+    private var adaptiveScreenshotInterval: TimeInterval = 0
+    private var deferredScreenshotStart: Date?
+    private let screenshotIntervalTolerance: TimeInterval = 0.001
     public var replayTags: [String: Any]?
 
     var isRunning: Bool {
@@ -95,7 +100,11 @@ import UIKit
         
         displayLink.link(withTarget: self, selector: #selector(newFrame(_:)))
         self.rootView = rootView
-        lastScreenShot = dateProvider.date()
+        let now = dateProvider.date()
+        lastScreenShot = now
+        adaptiveScreenshotInterval = 0
+        deferredScreenshotStart = nil
+        scheduleNextScreenshot(after: screenshotInterval, from: now)
         videoSegmentStart = nil
         currentSegmentId = 0
         sessionReplayId = SentryId()
@@ -229,7 +238,7 @@ import UIKit
 
     @objc 
     private func newFrame(_ sender: CADisplayLink) {
-        guard let lastScreenShot = lastScreenShot, isRunning &&
+        guard isRunning &&
                 !(isFullSession && isSessionPaused) //If replay is in session mode but it is paused we dont take screenshots
         else { return }
 
@@ -244,16 +253,84 @@ import UIKit
             return
         }
 
-        if now.timeIntervalSince(lastScreenShot) >= 1.0 / Double(replayOptions.frameRate) {
-            takeScreenshot()
-            self.lastScreenShot = now
-            
-            if videoSegmentStart == nil {
-                videoSegmentStart = now
-            } else if let videoSegmentStart = videoSegmentStart, isFullSession &&
-                        now.timeIntervalSince(videoSegmentStart) >= replayOptions.sessionSegmentDuration {
-                prepareSegmentUntil(date: now)
+        guard shouldCaptureScreenshot(at: now) else {
+            return
+        }
+
+        if let rootView = rootView, shouldDeferScreenshot(rootView: rootView, at: now) {
+            lastScreenShot = now
+            scheduleNextScreenshot(after: SentrySessionReplayCaptureGuard.captureDeferralInterval, from: now)
+            return
+        }
+
+        guard let captureDuration = takeScreenshot(timestamp: now) else {
+            let finishedAt = dateProvider.date()
+            lastScreenShot = finishedAt
+            scheduleNextScreenshot(after: screenshotInterval, from: finishedAt)
+            return
+        }
+
+        updateAdaptiveScreenshotInterval(captureDuration)
+        let finishedAt = dateProvider.date()
+        lastScreenShot = finishedAt
+        scheduleNextScreenshot(after: screenshotInterval, from: finishedAt)
+        updateVideoSegment(at: now)
+    }
+
+    private var screenshotInterval: TimeInterval {
+        max(1.0 / Double(replayOptions.frameRate), adaptiveScreenshotInterval)
+    }
+
+    private func shouldCaptureScreenshot(at date: Date) -> Bool {
+        guard let nextScreenShot = nextScreenShot else { return true }
+        return date.timeIntervalSince(nextScreenShot) >= -screenshotIntervalTolerance
+    }
+
+    private func scheduleNextScreenshot(after interval: TimeInterval, from date: Date) {
+        nextScreenShot = date.addingTimeInterval(interval)
+    }
+
+    private func shouldDeferScreenshot(rootView: UIView, at date: Date) -> Bool {
+        guard captureGuard.shouldDeferCapture(rootView: rootView) else {
+            deferredScreenshotStart = nil
+            return false
+        }
+
+        if let deferredScreenshotStart = deferredScreenshotStart {
+            let deferralDuration = date.timeIntervalSince(deferredScreenshotStart)
+            if deferralDuration < SentrySessionReplayCaptureGuard.maximumCaptureDeferralInterval {
+                return true
             }
+
+            SentrySDKLog.debug("[Session Replay] Forcing screenshot after deferring for \(deferralDuration)s")
+            self.deferredScreenshotStart = nil
+            return false
+        }
+
+        deferredScreenshotStart = date
+        return true
+    }
+
+    private func updateAdaptiveScreenshotInterval(_ captureDuration: TimeInterval) {
+        guard captureDuration > 0 else { return }
+
+        let baseInterval = 1.0 / Double(replayOptions.frameRate)
+        if captureDuration >= SentrySessionReplayCaptureGuard.slowCaptureThreshold {
+            let nextInterval = adaptiveScreenshotInterval > 0 ? adaptiveScreenshotInterval * 2 : baseInterval * 2
+            adaptiveScreenshotInterval = min(nextInterval, SentrySessionReplayCaptureGuard.maximumAdaptiveCaptureInterval)
+            SentrySDKLog.debug("[Session Replay] Screenshot capture took \(captureDuration)s, backing off to \(adaptiveScreenshotInterval)s")
+        } else if adaptiveScreenshotInterval > 0 {
+            let nextInterval = adaptiveScreenshotInterval / 2
+            adaptiveScreenshotInterval = nextInterval <= baseInterval ? 0 : nextInterval
+        }
+    }
+
+    private func updateVideoSegment(at date: Date) {
+        if videoSegmentStart == nil {
+            videoSegmentStart = date
+        } else if let videoSegmentStart = videoSegmentStart, isFullSession &&
+                    date.timeIntervalSince(videoSegmentStart) >= replayOptions.sessionSegmentDuration {
+            prepareSegmentUntil(date: date)
         }
     }
 
@@ -367,10 +444,11 @@ import UIKit
         return filteredResult.compactMap(breadcrumbConverter.convert(from:))
     }
     
-    private func takeScreenshot() {
+    @discardableResult
+    private func takeScreenshot(timestamp: Date) -> TimeInterval? {
         guard let rootView = rootView, !processingScreenshot else { 
             SentrySDKLog.debug("[Session Replay] Not taking screenshot, reason: root view is nil or processing screenshot")
-            return 
+            return nil
         }
         SentrySDKLog.debug("[Session Replay] Taking screenshot of root view: \(rootView)")
         
@@ -378,17 +456,20 @@ import UIKit
         guard !processingScreenshot else {
             SentrySDKLog.debug("[Session Replay] Not taking screenshot, reason: processing screenshot")
             lock.unlock()
-            return
+            return nil
         }
         processingScreenshot = true
         lock.unlock()
         
         SentrySDKLog.debug("[Session Replay] Getting screenshot from screenshot provider")
-        let timestamp = dateProvider.date()
         let screenName = delegate?.currentScreenNameForSessionReplay()
+        let captureStart = dateProvider.systemTime()
         screenshotProvider.image(view: rootView) { [weak self] screenshot in
             self?.newImage(timestamp: timestamp, maskedViewImage: screenshot, forScreen: screenName)
         }
+        let captureEnd = dateProvider.systemTime()
+        guard captureEnd >= captureStart else { return 0 }
+        return TimeInterval(captureEnd - captureStart) / 1_000_000_000
     }
 
     private func newImage(timestamp: Date, maskedViewImage: UIImage, forScreen screen: String?) {
@@ -400,6 +481,55 @@ import UIKit
     }
 }
 // swiftlint:enable type_body_length
+
+private final class SentrySessionReplayCaptureGuard {
+    static let captureDeferralInterval: TimeInterval = 0.25
+    static let maximumCaptureDeferralInterval: TimeInterval = 1
+    static let slowCaptureThreshold: TimeInterval = 0.05
+    static let maximumAdaptiveCaptureInterval: TimeInterval = 5
+
+    private static let activeAnimationThreshold = 4
+
+    func shouldDeferCapture(rootView: UIView) -> Bool {
+        isTrackingRunLoopMode()
+            || containsActiveInteraction(in: rootView)
+            || activeAnimationCount(in: rootView.layer, upTo: Self.activeAnimationThreshold) >= Self.activeAnimationThreshold
+    }
+
+    private func isTrackingRunLoopMode() -> Bool {
+        RunLoop.current.currentMode == .tracking
+    }
+
+    private func containsActiveInteraction(in view: UIView) -> Bool {
+        if let scrollView = view as? UIScrollView, scrollView.isDragging || scrollView.isDecelerating || scrollView.isTracking {
+            return true
+        }
+
+        if let control = view as? UIControl, control.isTracking {
+            return true
+        }
+
+        if view.gestureRecognizers?.contains(where: { $0.state == .began || $0.state == .changed }) == true {
+            return true
+        }
+
+        return view.subviews.contains { containsActiveInteraction(in: $0) }
+    }
+
+    private func activeAnimationCount(in layer: CALayer, upTo limit: Int) -> Int {
+        var count = layer.animationKeys()?.count ?? 0
+        guard count < limit else { return count }
+
+        for sublayer in layer.sublayers ?? [] {
+            count += activeAnimationCount(in: sublayer, upTo: limit - count)
+            if count >= limit {
+                return count
+            }
+        }
+
+        return count
+    }
+}
 
 #endif
 // swiftlint:enable file_length missing_docs

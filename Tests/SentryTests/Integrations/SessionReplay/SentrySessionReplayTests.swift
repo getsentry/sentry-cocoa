@@ -1,6 +1,9 @@
 import Foundation
 @_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+#if canImport(UIKit)
+import UIKit
+#endif
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -8,10 +11,19 @@ class SentrySessionReplayTests: XCTestCase {
     
     private class ScreenshotProvider: NSObject, SentryViewScreenshotProvider {
         var lastImageCall: UIView?
+        var imageCallCount = 0
+        var beforeComplete: (() -> Void)?
+
         func image(view: UIView, onComplete: @escaping Sentry.ScreenshotCallback) {
-            onComplete(UIImage.add)
             lastImageCall = view
+            imageCallCount += 1
+            beforeComplete?()
+            onComplete(UIImage.add)
         }
+    }
+
+    private class DraggingScrollView: UIScrollView {
+        override var isDragging: Bool { true }
     }
      
     private class TestTouchTracker: SentryTouchTracker {
@@ -757,6 +769,86 @@ class SentrySessionReplayTests: XCTestCase {
         }
         
         XCTAssertEqual(screenshotCount, 5, "Should have taken exactly 5 screenshots in 1 second for 5 FPS")
+    }
+
+    func testNewFrame_whenScreenshotCaptureIsSlow_shouldBackOffCaptureInterval() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+        options.frameRate = 1
+        fixture.screenshotProvider.beforeComplete = {
+            fixture.dateProvider.advance(by: 0.06)
+        }
+        let sut = fixture.getSut(options: options)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        // -- Act --
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+        let capturesAfterSlowFrame = fixture.screenshotProvider.imageCallCount
+        fixture.screenshotProvider.beforeComplete = nil
+
+        fixture.dateProvider.advance(by: 1.99)
+        Dynamic(sut).newFrame(nil)
+        let capturesBeforeBackoffExpires = fixture.screenshotProvider.imageCallCount
+
+        fixture.dateProvider.advance(by: 3.1)
+        Dynamic(sut).newFrame(nil)
+
+        // -- Assert --
+        XCTAssertEqual(capturesAfterSlowFrame, 1)
+        XCTAssertEqual(capturesBeforeBackoffExpires, 1)
+        XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 2)
+    }
+
+    func testNewFrame_whenScrollViewIsDragging_shouldDeferScreenshotTemporarily() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        let scrollView = DraggingScrollView(frame: fixture.rootView.bounds)
+        fixture.rootView.addSubview(scrollView)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        // -- Act --
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 0)
+
+        fixture.dateProvider.advance(by: 1.01)
+        Dynamic(sut).newFrame(nil)
+
+        XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
+    }
+
+    func testNewFrame_whenViewHasManyActiveAnimations_shouldDeferScreenshotTemporarily() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        for index in 0..<4 {
+            let animatedView = UIView(frame: CGRect(x: index, y: index, width: 1, height: 1))
+            let animation = CABasicAnimation(keyPath: "opacity")
+            animation.fromValue = 0
+            animation.toValue = 1
+            animation.duration = 1
+            animatedView.layer.add(animation, forKey: "opacity")
+            fixture.rootView.addSubview(animatedView)
+        }
+
+        // -- Act --
+        fixture.dateProvider.advance(by: 1)
+        Dynamic(sut).newFrame(nil)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 0)
+
+        fixture.dateProvider.advance(by: 1.01)
+        Dynamic(sut).newFrame(nil)
+
+        XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
     }
 
     // MARK: - Helpers
