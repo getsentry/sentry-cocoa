@@ -1,5 +1,25 @@
 # Decision Log
 
+## `SentryCrashBinaryImageCache` initializes off the main thread
+
+Date: April 21st 2026
+Contributors: @noahsmarting, @itaybre, @philprime, @supervacuus
+
+We decided that `SentryCrashBinaryImageCache` (`BIC`) must not be initialized on the main thread, because `dyld_register_image_load_callback()` holds the `dyld` reader lock for the entirety of the replay over already-loaded images, and the per-image callback work is too expensive to run on main during `SentrySDK.start`.
+We also decided that the debug-image names used in VC swizzling will be decoupled from `BIC` initialization and will load their own snapshot via `_dyld_image_count()`/`_dyld_get_image_name()` on the main thread.
+We accept the trade-offs this introduces:
+
+VC swizzling's name iteration on the main thread acquires the `dyld` reader lock for each name. This contends with the `BIC`'s background replay, which holds the same lock for its full duration.
+The VC swizzling iteration is racy by design: index bounds can change during iteration. Using `compactMap` makes this safe with respect to stale indices (no null pointer dereferences when `_dyld_get_image_name()` returns `nil` for an out-of-bounds index), at the cost of potentially missing images loaded concurrently.
+VC swizzling provides a stale list of debug image names for any framework loaded or unloaded after the list is initialized, because the snapshot is taken once and not updated.
+
+These trade-offs are acceptable because the VC swizzling path is optional (users can disable it) and its incomplete or stale debug image data is less correctness-relevant than `BIC`'s, which is core SDK infrastructure consumed by the crash reporter.
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/pull/7269
+- https://github.com/getsentry/sentry-cocoa/pull/7821
+- https://github.com/getsentry/sentry-cocoa/pull/7823
+
 ## No local symbolication of crashes
 
 Date: Nov 7th, 2025
