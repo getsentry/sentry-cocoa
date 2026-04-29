@@ -238,7 +238,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
     SentryOptions *options = SentrySDK.startOption;
-    NSString *urlString = sessionTask.currentRequest.URL.absoluteString;
+    NSString *urlString = sessionTask.originalRequest.URL.absoluteString;
     if ([self isNetworkDetailCaptureEnabledFor:urlString options:options]) {
         [self captureRequestDetails:sessionTask
                networkCaptureBodies:options.sessionReplay.networkCaptureBodies
