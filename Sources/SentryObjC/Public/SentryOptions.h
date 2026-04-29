@@ -2,8 +2,12 @@
 
 #import "SentryDefines.h"
 #import "SentryExperimentalOptions.h"
+#import "SentryLastRunStatus.h"
 #import "SentryLevel.h"
 #import "SentryReplayOptions.h"
+
+@class SentryProfileOptions;
+@class SentryUserFeedbackConfiguration;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -88,6 +92,27 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign) BOOL enableCrashHandler;
 
+#if TARGET_OS_OSX
+/**
+ * When enabled, the SDK captures uncaught @c NSExceptions on macOS.
+ *
+ * This registers the @c NSApplicationCrashOnExceptions UserDefault so the app
+ * crashes on an uncaught exception, preventing a corrupted state.
+ *
+ * @note Default is @c NO.
+ */
+@property (nonatomic, assign) BOOL enableUncaughtNSExceptionReporting;
+#endif
+
+#if !TARGET_OS_WATCH
+/**
+ * When enabled, the SDK reports SIGTERM signals to Sentry.
+ *
+ * @note Default is @c NO.
+ */
+@property (nonatomic, assign) BOOL enableSigtermReporting;
+#endif
+
 /**
  * Maximum number of breadcrumbs to keep.
  *
@@ -167,6 +192,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, nullable) SentryOnCrashedLastRunCallback onCrashedLastRun;
 
 /**
+ * A block called shortly after SDK initialization when the crash status of the
+ * last program execution has been determined.
+ *
+ * Unlike @c onCrashedLastRun, this is invoked regardless of whether the app crashed.
+ */
+@property (nonatomic, copy, nullable) void (^onLastRunStatusDetermined)
+    (SentryLastRunStatus status, SentryEvent *_Nullable event);
+
+/**
  * The sample rate for error events.
  *
  * A value between 0.0 (0%) and 1.0 (100%). Defaults to 1.0 (all events sent).
@@ -207,6 +241,13 @@ NS_ASSUME_NONNULL_BEGIN
  * Defaults to @c YES.
  */
 @property (nonatomic, assign) BOOL attachStacktrace;
+
+/**
+ * When enabled, all threads are attached with full stack traces to all captured events.
+ *
+ * Requires @c attachStacktrace to be enabled. Defaults to @c NO.
+ */
+@property (nonatomic, assign) BOOL attachAllThreads;
 
 /**
  * Maximum size for attachments in bytes.
@@ -404,6 +445,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign) BOOL enableCoreDataTracing;
 
+#if !(TARGET_OS_WATCH || TARGET_OS_TV || TARGET_OS_VISION)
+/**
+ * Configuration for the Sentry profiler.
+ *
+ * @warning Continuous profiling is an experimental feature and may still have bugs.
+ */
+@property (nonatomic, copy, nullable) void (^configureProfiling)(SentryProfileOptions *profiling);
+#endif
+
 /**
  * Whether to send client reports about dropped events.
  *
@@ -470,6 +520,22 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, copy) NSArray *failedRequestTargets;
 
+#if !TARGET_OS_TV && !TARGET_OS_WATCH
+/**
+ * When enabled, the SDK integrates with MetricKit to capture diagnostics.
+ *
+ * @note Default is @c NO.
+ */
+@property (nonatomic, assign) BOOL enableMetricKit;
+
+/**
+ * When enabled, the SDK adds the raw @c MXDiagnosticPayload as an attachment.
+ *
+ * Requires @c enableMetricKit to be enabled. Defaults to @c NO.
+ */
+@property (nonatomic, assign) BOOL enableMetricKitRawPayload;
+#endif
+
 /**
  * Whether to enable Time To Full Display tracking.
  *
@@ -511,6 +577,38 @@ NS_ASSUME_NONNULL_BEGIN
  * Access experimental SDK features through this property.
  */
 @property (nonatomic, strong) SentryExperimentalOptions *experimental;
+
+/**
+ * If set to @c YES, the SDK only continues a trace if the organization ID of the
+ * incoming trace matches the organization ID of the current Sentry client.
+ *
+ * @note Default is @c NO.
+ */
+@property (nonatomic, assign) BOOL strictTraceContinuation;
+
+/**
+ * The organization ID for your Sentry project.
+ *
+ * The SDK tries to extract this from the DSN. Use this to override it.
+ */
+@property (nonatomic, copy, nullable) NSString *orgId;
+
+/**
+ * When enabled, the SDK sends metrics to Sentry.
+ *
+ * @note Default is @c YES.
+ */
+@property (nonatomic, assign) BOOL enableMetrics;
+
+#if TARGET_OS_IOS
+/**
+ * A block that configures the user feedback feature.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ */
+@property (nonatomic, copy, nullable) void (^configureUserFeedback)
+    (SentryUserFeedbackConfiguration *configuration);
+#endif
 
 /**
  * Adds a module/package prefix to the in-app includes list.

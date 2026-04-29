@@ -2,6 +2,7 @@
 
 #import "SentryDefines.h"
 #import "SentryFeedback.h"
+#import "SentryLastRunStatus.h"
 #import "SentryLogger.h"
 
 @class SentryBreadcrumb;
@@ -15,6 +16,10 @@
 
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 @class SentryReplayApi;
+#endif
+
+#if TARGET_OS_IOS
+@class SentryFeedbackAPI;
 #endif
 
 @protocol SentryMetricsApi;
@@ -139,6 +144,15 @@ SENTRY_NO_INIT
 + (SentryId *)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *scope))block;
 
 /**
+ * Captures an event with a per-call override for attaching all threads.
+ *
+ * @param event The event to capture.
+ * @param attachAllThreads Whether to attach all threads with full stack traces.
+ * @return The event ID of the captured event.
+ */
++ (SentryId *)captureEvent:(SentryEvent *)event attachAllThreads:(BOOL)attachAllThreads;
+
+/**
  * Starts a new transaction for performance monitoring.
  *
  * @param name The name of the transaction.
@@ -227,6 +241,15 @@ SENTRY_NO_INIT
 + (SentryId *)captureError:(NSError *)error withScopeBlock:(void (^)(SentryScope *scope))block;
 
 /**
+ * Captures an error with a per-call override for attaching all threads.
+ *
+ * @param error The error to capture.
+ * @param attachAllThreads Whether to attach all threads with full stack traces.
+ * @return The event ID of the captured error.
+ */
++ (SentryId *)captureError:(NSError *)error attachAllThreads:(BOOL)attachAllThreads;
+
+/**
  * Captures an @c NSException and sends it to Sentry.
  *
  * @param exception The exception to capture.
@@ -252,6 +275,15 @@ SENTRY_NO_INIT
  */
 + (SentryId *)captureException:(NSException *)exception
                 withScopeBlock:(void (^)(SentryScope *scope))block;
+
+/**
+ * Captures an exception with a per-call override for attaching all threads.
+ *
+ * @param exception The exception to capture.
+ * @param attachAllThreads Whether to attach all threads with full stack traces.
+ * @return The event ID of the captured exception.
+ */
++ (SentryId *)captureException:(NSException *)exception attachAllThreads:(BOOL)attachAllThreads;
 
 /**
  * Captures a message string and sends it to Sentry.
@@ -280,11 +312,31 @@ SENTRY_NO_INIT
 + (SentryId *)captureMessage:(NSString *)message withScopeBlock:(void (^)(SentryScope *scope))block;
 
 /**
+ * Captures a message with a per-call override for attaching all threads.
+ *
+ * @param message The message to capture.
+ * @param attachAllThreads Whether to attach all threads with full stack traces.
+ * @return The event ID of the captured message.
+ */
++ (SentryId *)captureMessage:(NSString *)message attachAllThreads:(BOOL)attachAllThreads;
+
+/**
  * Captures user feedback and sends it to Sentry.
  *
  * @param feedback The user feedback to capture.
  */
 + (void)captureFeedback:(SentryFeedback *)feedback;
+
+#if TARGET_OS_IOS
+/**
+ * The API for capturing user feedback.
+ *
+ * Use this to programmatically show or hide the feedback widget.
+ *
+ * @warning This is an experimental feature and may still have bugs.
+ */
++ (SentryFeedbackAPI *)feedback;
+#endif
 
 /**
  * Adds a breadcrumb to the current scope.
@@ -308,8 +360,17 @@ SENTRY_NO_INIT
  * Indicates whether the application crashed during the last run.
  *
  * @return @c YES if the app crashed on the previous run, @c NO otherwise.
+ * @deprecated Use @c lastRunStatus instead.
  */
 + (BOOL)crashedLastRun;
+
+/**
+ * Returns the crash status of the last program execution.
+ *
+ * Before @c +[SentrySDK startWithConfigureOptions:] finishes initializing the crash reporter,
+ * this returns @c SentryLastRunStatusUnknown.
+ */
++ (SentryLastRunStatus)lastRunStatus;
 
 /**
  * Indicates whether a startup crash was detected.

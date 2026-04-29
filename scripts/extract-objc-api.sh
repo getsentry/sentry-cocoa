@@ -19,22 +19,11 @@ TMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 AST_JSON="$TMP_DIR/ast.json"
-INTERFACES_JSON="$TMP_DIR/interfaces.json"
-PROTOCOLS_JSON="$TMP_DIR/protocols.json"
-METHODS_JSON="$TMP_DIR/methods.json"
-PROPERTIES_JSON="$TMP_DIR/properties.json"
-TYPEDEFS_JSON="$TMP_DIR/typedefs.json"
 
 # Get iOS SDK path
 SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
 
 # Step 1: Generate AST dump from umbrella header.
-# SentryObjC's umbrella uses `__has_include(<...>)` blocks to import headers
-# from Sentry / SentryObjCTypes when those frameworks are available, falling
-# back to bare-quote imports otherwise. In this clang-only context (no frame-
-# work search paths), the angle-bracket branches fail to resolve, so we add
-# all three public-header directories to the -I path so the quoted fallbacks
-# resolve directly.
 xcrun clang -x objective-c \
   -Xclang -ast-dump=json \
   -fsyntax-only \
@@ -45,84 +34,107 @@ xcrun clang -x objective-c \
   "$UMBRELLA_HEADER" \
   2>/dev/null > "$AST_JSON"
 
-# Step 2: Extract interfaces
+# Step 2: Extract declarations.
+#
+# We filter by name prefix ("Sentry"/"PrivateSentry") rather than source
+# file path because clang's AST JSON omits loc.file when it hasn't changed
+# from the previous node, making file-based filtering unreliable.
+#
+# Clang emits multiple ObjCInterfaceDecl nodes for the same class (forward
+# declarations + the full definition). We deduplicate by collecting all
+# members across all nodes sharing the same name and emitting each
+# interface/protocol only once.
 jq '
-  [.. | objects |
-   select(.kind == "ObjCInterfaceDecl") |
-   select(.loc.file? // "" | contains("SentryObjC") or contains("/Sentry/Public/")) |
-   {
-     kind,
-     name,
-     file: (.loc.file | split("/") | last),
-     super: .super.name?,
-     has_inner: (if .inner then true else false end)
-   }]
-' "$AST_JSON" > "$INTERFACES_JSON"
+  def is_sentry: startswith("Sentry") or startswith("PrivateSentry");
 
-# Step 3: Extract protocols
-jq '
-  [.. | objects |
-   select(.kind == "ObjCProtocolDecl") |
-   select(.loc.file? // "" | contains("SentryObjC") or contains("/Sentry/Public/")) |
-   {
-     kind,
-     name,
-     file: (.loc.file | split("/") | last)
-   }]
-' "$AST_JSON" > "$PROTOCOLS_JSON"
+  # Collect all interface nodes grouped by name, merge their members
+  (
+    [.inner[] |
+      select(.kind == "ObjCInterfaceDecl" and (.name // "" | is_sentry))
+    ] | group_by(.name) | map(
+      (.[0].name) as $name |
+      (map(select(.super.name?)) | first // null) as $super_node |
+      (map(select(.inner) | .inner[]) | map(
+        select(.kind == "ObjCMethodDecl" or .kind == "ObjCPropertyDecl")
+      )) as $members |
+      {
+        name: $name,
+        super: ($super_node // {} | .super.name? // null),
+        members: ($members | unique_by(.kind, .name))
+      }
+    )
+  ) as $interfaces |
 
-# Step 4: Extract methods (from interfaces)
-jq '
-  [.. | objects |
-   select(.kind == "ObjCInterfaceDecl") |
-   select(.loc.file? // "" | contains("SentryObjC") or contains("/Sentry/Public/")) |
-   select(.inner) |
-   . as $interface |
-   .inner[] |
-   select(.kind == "ObjCMethodDecl") |
-   {
-     kind,
-     name,
-     file: ($interface.loc.file | split("/") | last),
-     returnType: .returnType.qualType?,
-     instance: .instance?
-   }]
-' "$AST_JSON" > "$METHODS_JSON"
+  # Collect all protocol nodes grouped by name
+  (
+    [.inner[] |
+      select(.kind == "ObjCProtocolDecl" and (.name // "" | is_sentry))
+    ] | group_by(.name) | map(
+      (.[0].name) as $name |
+      (map(select(.inner) | .inner[]) | map(
+        select(.kind == "ObjCMethodDecl" or .kind == "ObjCPropertyDecl")
+      )) as $members |
+      {
+        name: $name,
+        members: ($members | unique_by(.kind, .name))
+      }
+    )
+  ) as $protocols |
 
-# Step 5: Extract properties (from interfaces)
-jq '
-  [.. | objects |
-   select(.kind == "ObjCInterfaceDecl") |
-   select(.loc.file? // "" | contains("SentryObjC") or contains("/Sentry/Public/")) |
-   select(.inner) |
-   . as $interface |
-   .inner[] |
-   select(.kind == "ObjCPropertyDecl") |
-   {
-     kind,
-     name,
-     file: ($interface.loc.file | split("/") | last),
-     type: .type.qualType?
-   }]
-' "$AST_JSON" > "$PROPERTIES_JSON"
+  # Collect typedefs
+  (
+    [.inner[] |
+      select(.kind == "TypedefDecl" and (.name // "" | is_sentry))
+    ] | unique_by(.name)
+  ) as $typedefs |
 
-# Step 6: Extract typedefs
-jq '
-  [.. | objects |
-   select(.kind == "TypedefDecl") |
-   select(.loc.file? // "" | contains("SentryObjC") or contains("/Sentry/Public/")) |
-   {
-     kind,
-     name,
-     file: (.loc.file | split("/") | last),
-     type: .type.qualType?
-   }]
-' "$AST_JSON" > "$TYPEDEFS_JSON"
+  # Collect enums
+  (
+    [.inner[] |
+      select(.kind == "EnumDecl" and (.name // "" | is_sentry))
+    ] | group_by(.name) | map(
+      (.[0].name) as $name |
+      (map(select(.inner) | .inner[]) | map(
+        select(.kind == "EnumConstantDecl")
+      )) as $constants |
+      {name: $name, constants: ($constants | unique_by(.name))}
+    )
+  ) as $enums |
 
-# Step 7: Combine all declarations and output
-jq -s 'add | sort_by(.file, .kind, .name)' \
-  "$INTERFACES_JSON" \
-  "$PROTOCOLS_JSON" \
-  "$METHODS_JSON" \
-  "$PROPERTIES_JSON" \
-  "$TYPEDEFS_JSON"
+  # Emit everything as a flat sorted array
+  [
+    # Interfaces + their members
+    ($interfaces[] | (
+      {kind: "ObjCInterfaceDecl", name, super, has_inner: ((.members | length) > 0)},
+      (.name as $p | .members[] |
+        if .kind == "ObjCMethodDecl" then
+          {kind, name, parent: $p, returnType: .returnType.qualType?, instance: .instance?}
+        else
+          {kind, name, parent: $p, type: .type.qualType?}
+        end
+      )
+    )),
+
+    # Protocols + their members
+    ($protocols[] | (
+      {kind: "ObjCProtocolDecl", name},
+      (.name as $p | .members[] |
+        if .kind == "ObjCMethodDecl" then
+          {kind, name, parent: $p, returnType: .returnType.qualType?, instance: .instance?}
+        else
+          {kind, name, parent: $p, type: .type.qualType?}
+        end
+      )
+    )),
+
+    # Typedefs
+    ($typedefs[] | {kind, name, type: .type.qualType?}),
+
+    # Enums + their constants
+    ($enums[] | (
+      {kind: "EnumDecl", name},
+      (.name as $p | .constants[] | {kind, name, parent: $p})
+    ))
+
+  ] | sort_by(.kind, .name)
+' "$AST_JSON"

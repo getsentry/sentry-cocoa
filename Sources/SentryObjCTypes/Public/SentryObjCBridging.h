@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class, nonatomic, readonly, nullable) id<SentrySpan> sdkSpan;
 @property (class, nonatomic, readonly) BOOL sdkIsEnabled;
 @property (class, nonatomic, readonly) BOOL sdkCrashedLastRun;
+@property (class, nonatomic, readonly) NSInteger sdkLastRunStatus;
 @property (class, nonatomic, readonly) BOOL sdkDetectedStartUpCrash;
 
 + (void)sdkStartWithOptions:(SentryOptions *)options NS_SWIFT_NAME(sdkStart(options:));
@@ -48,6 +49,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (SentryId *)sdkCaptureEvent:(SentryEvent *)event
                withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(sdkCaptureEvent(_:withScopeBlock:));
++ (SentryId *)sdkCaptureEvent:(SentryEvent *)event
+             attachAllThreads:(BOOL)attachAllThreads
+    NS_SWIFT_NAME(sdkCaptureEvent(_:attachAllThreads:));
 
 + (id<SentrySpan>)sdkStartTransactionWithName:(NSString *)name
                                     operation:(NSString *)operation
@@ -77,6 +81,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (SentryId *)sdkCaptureError:(NSError *)error
                withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(sdkCaptureError(_:withScopeBlock:));
++ (SentryId *)sdkCaptureError:(NSError *)error
+             attachAllThreads:(BOOL)attachAllThreads
+    NS_SWIFT_NAME(sdkCaptureError(_:attachAllThreads:));
 
 + (SentryId *)sdkCaptureException:(NSException *)exception NS_SWIFT_NAME(sdkCaptureException(_:));
 + (SentryId *)sdkCaptureException:(NSException *)exception
@@ -85,6 +92,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (SentryId *)sdkCaptureException:(NSException *)exception
                    withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(sdkCaptureException(_:withScopeBlock:));
++ (SentryId *)sdkCaptureException:(NSException *)exception
+                 attachAllThreads:(BOOL)attachAllThreads
+    NS_SWIFT_NAME(sdkCaptureException(_:attachAllThreads:));
 
 + (SentryId *)sdkCaptureMessage:(NSString *)message NS_SWIFT_NAME(sdkCaptureMessage(_:));
 + (SentryId *)sdkCaptureMessage:(NSString *)message
@@ -92,6 +102,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (SentryId *)sdkCaptureMessage:(NSString *)message
                  withScopeBlock:(void (^)(SentryScope *scope))block
     NS_SWIFT_NAME(sdkCaptureMessage(_:withScopeBlock:));
++ (SentryId *)sdkCaptureMessage:(NSString *)message
+               attachAllThreads:(BOOL)attachAllThreads
+    NS_SWIFT_NAME(sdkCaptureMessage(_:attachAllThreads:));
 
 + (void)sdkCaptureFeedback:(SentryFeedback *)feedback NS_SWIFT_NAME(sdkCaptureFeedback(_:));
 + (void)sdkAddBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(sdkAddBreadcrumb(_:));

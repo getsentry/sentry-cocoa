@@ -36,16 +36,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL enableSessionReplayInUnreliableEnvironment;
 
 /**
- * When enabled, the SDK sends metrics to Sentry.
- *
- * Metrics can be captured using the @c SentrySDK.metrics API, which supports counters, gauges,
- * and distributions.
- *
- * @note Enabled by default.
- */
-@property (nonatomic, assign) BOOL enableMetrics;
-
-/**
  * When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
  *
  * @note Disabled by default.

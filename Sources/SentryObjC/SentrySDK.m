@@ -8,15 +8,23 @@
 
 @class SentryReplayApi;
 
+#if TARGET_OS_IOS
+@class SentryFeedbackAPI;
+#endif
+
 // SentryObjCBridge ships in the same SDK and conforms to SentryObjCBridging
 // (declared in SentryObjCTypes). Adopting the protocol gives this file typed
 // access to the bridge's class methods without importing SentryObjCBridge-Swift.h.
-// `replay` is conditionally available and isn't part of the protocol — it's
-// declared here as an additional class method on the bridge.
+// `replay` and `feedback` are conditionally available and aren't part of the
+// protocol — they're declared here as additional class methods on the bridge.
 @interface SentryObjCBridge : NSObject <SentryObjCBridging>
 + (SentryReplayApi *)replay;
+#if TARGET_OS_IOS
++ (SentryFeedbackAPI *)sdkFeedback;
+#endif
 @end
 
+#import "SentryLastRunStatus.h"
 #import "SentryMetricsApiImpl.h"
 #import "SentrySDK.h"
 
@@ -79,6 +87,11 @@ NS_ASSUME_NONNULL_BEGIN
     return [SentryObjCBridge sdkCaptureEvent:event withScopeBlock:block];
 }
 
++ (SentryId *)captureEvent:(SentryEvent *)event attachAllThreads:(BOOL)attachAllThreads
+{
+    return [SentryObjCBridge sdkCaptureEvent:event attachAllThreads:attachAllThreads];
+}
+
 + (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
 {
     return [SentryObjCBridge sdkStartTransactionWithName:name operation:operation];
@@ -136,6 +149,11 @@ NS_ASSUME_NONNULL_BEGIN
     return [SentryObjCBridge sdkCaptureError:error withScopeBlock:block];
 }
 
++ (SentryId *)captureError:(NSError *)error attachAllThreads:(BOOL)attachAllThreads
+{
+    return [SentryObjCBridge sdkCaptureError:error attachAllThreads:attachAllThreads];
+}
+
 + (SentryId *)captureException:(NSException *)exception
 {
     return [SentryObjCBridge sdkCaptureException:exception];
@@ -150,6 +168,11 @@ NS_ASSUME_NONNULL_BEGIN
                 withScopeBlock:(void (^)(SentryScope *scope))block
 {
     return [SentryObjCBridge sdkCaptureException:exception withScopeBlock:block];
+}
+
++ (SentryId *)captureException:(NSException *)exception attachAllThreads:(BOOL)attachAllThreads
+{
+    return [SentryObjCBridge sdkCaptureException:exception attachAllThreads:attachAllThreads];
 }
 
 + (SentryId *)captureMessage:(NSString *)message
@@ -167,10 +190,22 @@ NS_ASSUME_NONNULL_BEGIN
     return [SentryObjCBridge sdkCaptureMessage:message withScopeBlock:block];
 }
 
++ (SentryId *)captureMessage:(NSString *)message attachAllThreads:(BOOL)attachAllThreads
+{
+    return [SentryObjCBridge sdkCaptureMessage:message attachAllThreads:attachAllThreads];
+}
+
 + (void)captureFeedback:(SentryFeedback *)feedback
 {
     [SentryObjCBridge sdkCaptureFeedback:feedback];
 }
+
+#if TARGET_OS_IOS
++ (SentryFeedbackAPI *)feedback
+{
+    return [SentryObjCBridge sdkFeedback];
+}
+#endif
 
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
@@ -185,6 +220,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)crashedLastRun
 {
     return [SentryObjCBridge sdkCrashedLastRun];
+}
+
++ (SentryLastRunStatus)lastRunStatus
+{
+    return (SentryLastRunStatus)[SentryObjCBridge sdkLastRunStatus];
 }
 
 + (BOOL)detectedStartUpCrash

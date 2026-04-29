@@ -31,6 +31,11 @@ public final class SentrySwiftBridge: NSObject {
         return SentrySDK.isEnabled
     }
 
+    /// Bridge for `SentrySDK.lastRunStatus`.
+    @objc public static var sdkLastRunStatus: Int {
+        return SentrySDK.lastRunStatus.rawValue
+    }
+
     /// Bridge for `SentrySDK.start(options:)`.
     @objc public static func sdkStart(options: Options) {
         SentrySDK.start(options: options)
@@ -54,6 +59,11 @@ public final class SentrySwiftBridge: NSObject {
     /// Bridge for `SentrySDK.capture(event:block:)`.
     @objc public static func sdkCaptureEvent(_ event: Event, withScopeBlock block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDK.capture(event: event, block: block)
+    }
+
+    /// Bridge for `SentrySDK.capture(event:attachAllThreads:)`.
+    @objc public static func sdkCaptureEvent(_ event: Event, attachAllThreads: Bool) -> SentryId {
+        return SentrySDK.capture(event: event, attachAllThreads: attachAllThreads)
     }
 
     /// Bridge for `SentrySDK.startTransaction(name:operation:)`.
@@ -105,6 +115,11 @@ public final class SentrySwiftBridge: NSObject {
         return SentrySDK.capture(error: error, block: block)
     }
 
+    /// Bridge for `SentrySDK.capture(error:attachAllThreads:)`.
+    @objc public static func sdkCaptureError(_ error: any Error, attachAllThreads: Bool) -> SentryId {
+        return SentrySDK.capture(error: error, attachAllThreads: attachAllThreads)
+    }
+
     /// Bridge for `SentrySDK.capture(exception:)`.
     @objc public static func sdkCaptureException(_ exception: NSException) -> SentryId {
         return SentrySDK.capture(exception: exception)
@@ -120,6 +135,11 @@ public final class SentrySwiftBridge: NSObject {
         return SentrySDK.capture(exception: exception, block: block)
     }
 
+    /// Bridge for `SentrySDK.capture(exception:attachAllThreads:)`.
+    @objc public static func sdkCaptureException(_ exception: NSException, attachAllThreads: Bool) -> SentryId {
+        return SentrySDK.capture(exception: exception, attachAllThreads: attachAllThreads)
+    }
+
     /// Bridge for `SentrySDK.capture(message:)`.
     @objc public static func sdkCaptureMessage(_ message: String) -> SentryId {
         return SentrySDK.capture(message: message)
@@ -133,6 +153,11 @@ public final class SentrySwiftBridge: NSObject {
     /// Bridge for `SentrySDK.capture(message:block:)`.
     @objc public static func sdkCaptureMessage(_ message: String, withScopeBlock block: @escaping (Scope) -> Void) -> SentryId {
         return SentrySDK.capture(message: message, block: block)
+    }
+
+    /// Bridge for `SentrySDK.capture(message:attachAllThreads:)`.
+    @objc public static func sdkCaptureMessage(_ message: String, attachAllThreads: Bool) -> SentryId {
+        return SentrySDK.capture(message: message, attachAllThreads: attachAllThreads)
     }
 
     /// Bridge for `SentrySDK.capture(feedback:)`.
@@ -257,6 +282,15 @@ public final class SentrySwiftBridge: NSObject {
     @objc public static var logger: SentryLogger {
         return SentrySDK.logger
     }
+
+    // MARK: - Feedback API
+
+    #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+    /// Bridge for `SentrySDK.feedback`.
+    @objc public static var sdkFeedback: SentryFeedbackAPI {
+        return SentrySDK.feedback
+    }
+    #endif
 
     // MARK: - Replay API
 
