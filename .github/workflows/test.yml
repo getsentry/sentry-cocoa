@@ -179,7 +179,8 @@ jobs:
 
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: ${{ matrix.xcode }}
 

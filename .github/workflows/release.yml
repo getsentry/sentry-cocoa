@@ -130,7 +130,8 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: XCFrameworkBuildPath/
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: "16"
       - name: Unzip all XCFrameworks
@@ -174,7 +175,8 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: "16"
       - run: swift build
@@ -210,7 +212,8 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: "16"
       - run: swift build
@@ -246,7 +249,8 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: "16"
       - run: swift build --target SentrySwiftUI
@@ -281,7 +285,8 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: "16"
       - run: set -o pipefail &&xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify
@@ -322,7 +327,8 @@ jobs:
     steps:
       - name: Git checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: "16"
       - name: Setup Ruby

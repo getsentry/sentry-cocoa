@@ -78,7 +78,8 @@ jobs:
         with:
           bundler-cache: true
 
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: ${{ inputs.xcode_version }}
 

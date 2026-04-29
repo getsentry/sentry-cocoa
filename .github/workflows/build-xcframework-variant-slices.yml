@@ -68,7 +68,8 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       # We use Xcode 16 (latest installed minor) for building XCFrameworks. The setup-xcode action
       # picks the newest 16.x available on the macos-15 runner image.
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: "16"
 

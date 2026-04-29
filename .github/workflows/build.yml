@@ -61,7 +61,8 @@ jobs:
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: "26"
       - name: Setup Ruby
@@ -123,7 +124,8 @@ jobs:
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: "16"
       - run: make init-ci-build
@@ -203,7 +205,8 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: "26"
 
@@ -235,7 +238,8 @@ jobs:
     needs: files-changed
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: "16"
 
@@ -263,7 +267,8 @@ jobs:
     needs: files-changed
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: ./.github/actions/setup-xcode
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
         with:
           version: "16"
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
