@@ -97,6 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic pop
 }
 
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 /**
  * Swizzles NSURLSession data task creation methods that use completion handlers
  * to enable response body capture for session replay.
@@ -117,8 +118,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)swizzleDataTaskWithRequestCompletionHandler:(SentryNetworkTracker *)networkTracker
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
     SEL selector = @selector(dataTaskWithRequest:completionHandler:);
     SentrySwizzleInstanceMethod([NSURLSession class], selector,
         SentrySWReturnType(NSURLSessionDataTask *),
@@ -142,7 +143,7 @@ NS_ASSUME_NONNULL_BEGIN
             return task;
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 }
 
 /**
@@ -150,8 +151,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)swizzleDataTaskWithURLCompletionHandler:(SentryNetworkTracker *)networkTracker
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
     SEL selector = @selector(dataTaskWithURL:completionHandler:);
     SentrySwizzleInstanceMethod([NSURLSession class], selector,
         SentrySWReturnType(NSURLSessionDataTask *),
@@ -175,8 +176,9 @@ NS_ASSUME_NONNULL_BEGIN
             return task;
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, (void *)selector);
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 }
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
 @end
 

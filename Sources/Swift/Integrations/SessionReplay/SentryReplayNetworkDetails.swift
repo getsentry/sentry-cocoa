@@ -16,6 +16,11 @@ enum NetworkBodyWarning: String {
 /// ObjC callers (SentryNetworkTracker) create this object and populate it
 /// via `setRequest`/`setResponse`. Swift callers (SentrySRDefaultBreadcrumbConverter)
 /// consume it via `serialize()`.
+///
+/// - Important: `setRequest` and `setResponse` can be called concurrently from
+///   `SentryNetworkTracker` because they write to independent properties.
+///   Adding shared mutable state between will require adding synchronization.
+
 @objc
 @_spi(Private) public class SentryReplayNetworkDetails: NSObject {
 
@@ -258,36 +263,44 @@ enum NetworkBodyWarning: String {
 
     // MARK: - ObjC Setters
 
-    /// Sets request details from raw components.
+    /// Sets request details from raw body data.
+    ///
+    /// Parses the body data based on content type (JSON, form-urlencoded, text)
+    /// and applies size limits and truncation warnings automatically.
     ///
     /// - Parameters:
     ///   - size: Request body size in bytes, or nil if unknown.
-    ///   - body: Pre-parsed body content (dictionary, array, or string), or nil if not captured.
+    ///   - bodyData: Raw body bytes, or nil if body capture is disabled or unavailable.
+    ///   - contentType: MIME content type for body parsing (e.g. "application/json").
     ///   - allHeaders: All headers from the request (e.g. from `NSURLRequest.allHTTPHeaderFields`).
     ///   - configuredHeaders: Header names to extract, matched case-insensitively.
     @objc
-    public func setRequest(size: NSNumber?, body: Any?, allHeaders: [String: Any]?, configuredHeaders: [String]?) {
+    public func setRequest(size: NSNumber?, bodyData: Data?, contentType: String?, allHeaders: [String: Any]?, configuredHeaders: [String]?) {
         self.request = Detail(
             size: size,
-            body: body.map { Body(content: $0) },
+            body: bodyData.flatMap { Body(data: $0, contentType: contentType) },
             headers: SentryReplayNetworkDetails.extractHeaders(from: allHeaders, matching: configuredHeaders)
         )
     }
 
-    /// Sets response details from raw components.
+    /// Sets response details from raw body data.
+    ///
+    /// Parses the body data based on content type (JSON, form-urlencoded, text)
+    /// and applies size limits and truncation warnings automatically.
     ///
     /// - Parameters:
     ///   - statusCode: HTTP status code.
     ///   - size: Response body size in bytes, or nil if unknown.
-    ///   - body: Pre-parsed body content (dictionary, array, or string), or nil if not captured.
+    ///   - bodyData: Raw body bytes, or nil if body capture is disabled or unavailable.
+    ///   - contentType: MIME content type for body parsing (e.g. "application/json").
     ///   - allHeaders: All headers from the response (e.g. from `NSHTTPURLResponse.allHeaderFields`).
     ///   - configuredHeaders: Header names to extract, matched case-insensitively.
     @objc
-    public func setResponse(statusCode: Int, size: NSNumber?, body: Any?, allHeaders: [String: Any]?, configuredHeaders: [String]?) {
+    public func setResponse(statusCode: Int, size: NSNumber?, bodyData: Data?, contentType: String?, allHeaders: [String: Any]?, configuredHeaders: [String]?) {
         self.statusCode = NSNumber(value: statusCode)
         self.response = Detail(
             size: size,
-            body: body.map { Body(content: $0) },
+            body: bodyData.flatMap { Body(data: $0, contentType: contentType) },
             headers: SentryReplayNetworkDetails.extractHeaders(from: allHeaders, matching: configuredHeaders)
         )
     }
