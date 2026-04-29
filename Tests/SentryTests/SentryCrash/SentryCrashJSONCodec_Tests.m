@@ -966,7 +966,12 @@ toString(NSData *data)
 
 - (void)testDecodeFloatingPoint_whenVariousFormats_shouldParseLikeStrtod
 {
-    // CWE-676: Verifies floating-point decode path uses strtod (replacing sscanf "%lg") correctly.
+    // The floating-point decode path used to call sscanf("%lg") on a buffer that is not
+    // guaranteed to be null-terminated, which is undefined behavior (CWE-676): sscanf would
+    // read past the end of the JSON slice if the slice happened not to contain a NUL. The
+    // decoder now copies the digits into a stringBuffer it explicitly NUL-terminates and parses
+    // them with strtod. These cases pin the externally observable behavior of that path
+    // (decimal, zero, scientific notation, signed zero) so the change cannot regress silently.
     NSError *error = nil;
 
     // -- Arrange & Act & Assert: decimal

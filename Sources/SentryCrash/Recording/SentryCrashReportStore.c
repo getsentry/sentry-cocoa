@@ -75,8 +75,14 @@ getCrashReportPathByID(int64_t id, char *pathBuffer)
 static int64_t
 getReportIDFromFilename(const char *filename)
 {
-    // Parse report ID from "AppName-report-<hex>.json" without sscanf (CWE-676).
-    // g_appName set at init; null-terminated.
+    // The previous implementation built a "%s-report-%%" PRIx64 ".json" format string and called
+    // sscanf, which has two problems flagged by CWE-676: a malformed filename can leave
+    // reportID uninitialized (sscanf only writes converted fields), and sscanf accepts arbitrary
+    // leading whitespace and silently ignores trailing junk, both of which are easy to misuse.
+    // We avoid both by parsing the fixed prefix with strncmp and converting the hex ID with
+    // strtoull, which reports exactly how many characters it consumed via endPtr. strlen on
+    // g_appName is safe: it is set once during sentrycrashcrs_initialize from a caller-owned
+    // C string and is never modified afterwards.
     const size_t appNameLen = strlen(g_appName);
     if (strncmp(filename, g_appName, appNameLen) != 0) {
         return 0;
@@ -101,7 +107,8 @@ getReportIDFromFilename(const char *filename)
 static int64_t
 getReportIDFromFilePath(const char *filepath)
 {
-    // Parse report ID by taking the basename (after last '/') and reusing filename parsing.
+    // Strip the directory portion and reuse the filename parser. strrchr returns the last '/'
+    // or NULL; in the NULL case (a bare filename) we use filepath unchanged.
     const char *lastSlash = strrchr(filepath, '/');
     const char *filename = lastSlash != NULL ? lastSlash + 1 : filepath;
     return getReportIDFromFilename(filename);

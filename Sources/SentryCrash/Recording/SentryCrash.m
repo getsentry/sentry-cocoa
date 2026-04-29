@@ -411,7 +411,9 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 {
     char *report = sentrycrash_readReport(reportID);
     if (report != NULL) {
-        // CWE-676: sentrycrash_readReport returns null-terminated buffer.
+        // strlen here cannot read out of bounds: sentrycrash_readReport reads the file fully into
+        // a heap buffer that it null-terminates before returning (see SentryCrashReportStore.c
+        // sentrycrashcrs_readReport / sentrycrashfu_readEntireFile).
         return [NSData dataWithBytesNoCopy:report length:strlen(report) freeWhenDone:YES];
     }
     return nil;

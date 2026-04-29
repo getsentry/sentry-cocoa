@@ -264,7 +264,10 @@ sentrycrashsysctl_getMacAddress(const char *const name, char *const macAddressBu
 
     struct if_msghdr *msgHdr = (struct if_msghdr *)ifBuffer;
     struct sockaddr_dl *sockaddr = (struct sockaddr_dl *)&msgHdr[1];
-    // CWE-676: MAC address is always 6 bytes; caller provides 6-byte buffer (see header).
+    // memcpy here cannot read or write out of bounds: an Ethernet/IEEE-802 MAC address is
+    // always exactly 6 bytes, and the public sentrycrashsysctl_getMacAddress contract (see
+    // SentryCrashSysCtl.h) requires the caller to pass a buffer of at least 6 bytes. The kernel
+    // guarantees LLADDR(sockaddr) points to that many valid bytes for an AF_LINK reply.
     memcpy(macAddressBuffer, LLADDR(sockaddr), 6);
 
     free(ifBuffer);

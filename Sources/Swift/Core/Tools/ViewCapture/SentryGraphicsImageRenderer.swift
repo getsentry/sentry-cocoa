@@ -48,7 +48,15 @@ final class SentryGraphicsImageRenderer {
         let bytesPerRow = bytesPerPixel * pixelsPerRow
         let bitsPerComponent = 8 // 8 bits for each of RGB component
 
-        // CWE-676: calloc used for zero-initialization; prefer over malloc. Guard against overflow.
+        // calloc here is intentional and guarded against overflow / zero-size requests. The
+        // overflow path is unreachable on any 64-bit Apple device (an Int multiplication
+        // overflows only above 2^63 bytes, i.e. an image larger than 9 EiB) and the zero-size
+        // path means "no pixels to draw". Both paths return an empty UIImage instead of
+        // calling calloc with degenerate arguments — calloc(0, 1) is implementation-defined,
+        // and an unchecked overflow would land us in CWE-190 → CWE-676 territory by passing a
+        // wrapped value to calloc. We use calloc rather than malloc because CGContext reads
+        // back the bitmap before the drawing actions run (e.g. when the image is queried mid-
+        // capture), and uninitialized bytes would surface as garbled pixels.
         let byteCount = pixelsPerColumn.multipliedReportingOverflow(by: bytesPerRow)
         guard !byteCount.overflow, byteCount.partialValue > 0,
               let rawData = calloc(byteCount.partialValue, MemoryLayout<UInt8>.size) else {

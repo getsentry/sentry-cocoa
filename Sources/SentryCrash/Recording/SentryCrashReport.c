@@ -234,7 +234,10 @@ static void
 addJSONElement(const SentryCrashReportWriter *const writer, const char *const key,
     const char *const jsonElement, bool closeLastContainer)
 {
-    // CWE-676: jsonElement is internal JSON fragment; null-terminated.
+    // strlen here cannot read out of bounds: jsonElement is a C string parameter that callers
+    // (writer->addJSONElement clients, e.g. scope serialization) pass as a null-terminated
+    // UTF-8 JSON fragment. The function signature is the contract; passing a non-terminated
+    // buffer would already be undefined behavior at the API level.
     int jsonResult = sentrycrashjson_addJSONElement(
         getJsonContext(writer), key, jsonElement, (int)strlen(jsonElement), closeLastContainer);
     if (jsonResult != SentryCrashJSON_OK) {
@@ -780,7 +783,9 @@ writeAddressReferencedByString(
     const SentryCrashReportWriter *const writer, const char *const key, const char *string)
 {
     uint64_t address = 0;
-    // CWE-676: string is report key value from our writer; null-terminated.
+    // strlen here cannot read out of bounds: string is a C-string parameter typed `const char *`
+    // and is null-checked on the same line. Callers in this file pass either string literals or
+    // values previously written through this same writer, all of which are null-terminated.
     if (string == NULL
         || !sentrycrashstring_extractHexValue(string, (int)strlen(string), &address)) {
         return;
@@ -1473,7 +1478,10 @@ sentrycrashreport_writeRecrashReport(
     SentryCrashBufferedWriter bufferedWriter;
     static char tempPath[SentryCrashFU_MAX_PATH_LENGTH];
     strlcpy(tempPath, path, sizeof(tempPath) - 10);
-    // CWE-676: tempPath just set by strlcpy; null-terminated. Overwrite ".json" with ".old".
+    // strlen on tempPath is safe here: strlcpy on the previous line always null-terminates the
+    // destination. The subsequent strlcpy(tempPath + strlen - 5, ".old", 5) overwrites the
+    // trailing ".json" suffix with ".old"; relying on path having that exact suffix is a
+    // pre-existing invariant of this internal recrash-path helper (see callers).
     strlcpy(tempPath + strlen(tempPath) - 5, ".old", 5);
     SENTRY_ASYNC_SAFE_LOG_INFO("Writing recrash report to %s", path);
 

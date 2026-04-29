@@ -213,6 +213,40 @@
     XCTAssertEqual(reportID, 0);
 }
 
+- (void)testReportCount_whenDirectoryContainsMalformedFiles_shouldIgnoreThem
+{
+    // The production parser getReportIDFromFilename in SentryCrashReportStore.c is `static`, so
+    // it cannot be called directly from tests. This test exercises it indirectly: it asks the
+    // store to enumerate reports while the directory also contains files whose names do not
+    // match the expected "AppName-report-<hex>.json" template, and asserts those files are
+    // filtered out (reportID == 0 means "ignore this entry"). This guards the strncmp + strtoull
+    // refactor that replaced the previous sscanf-based parser.
+    [self prepareReportStoreWithPathEnd:@"testReportCount_whenDirectoryContainsMalformedFiles"];
+    int64_t validReportID = [self writeCrashReportWithStringContents:@"valid"];
+
+    NSArray<NSString *> *malformedFilenames = @[
+        @"otherapp-report-0000000000000099.json", // wrong app prefix
+        @"myapp-notreport-0000000000000099.json", // wrong middle segment
+        @"myapp-report-zznothex.json", // non-hex ID
+        @"myapp-report-0000000000000099.txt", // wrong extension
+        @"myapp-report-.json", // empty hex ID
+    ];
+    for (NSString *name in malformedFilenames) {
+        NSString *path = [self.reportStorePath stringByAppendingPathComponent:name];
+        NSError *writeError = nil;
+        [@"junk" writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&writeError];
+        XCTAssertNil(writeError, @"failed to seed malformed file %@", name);
+    }
+
+    XCTAssertEqual(
+        sentrycrashcrs_getReportCount(), 1, @"Malformed filenames must not be counted as reports");
+
+    int64_t reportIDs[1] = { 0 };
+    int returned = sentrycrashcrs_getReportIDs(reportIDs, 1);
+    XCTAssertEqual(returned, 1);
+    XCTAssertEqual(reportIDs[0], validReportID);
+}
+
 - (void)testReportStorePathExists
 {
     [self prepareReportStoreWithPathEnd:@"somereports/blah/2/x"];

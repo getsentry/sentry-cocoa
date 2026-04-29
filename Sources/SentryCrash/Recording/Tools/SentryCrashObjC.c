@@ -1104,7 +1104,10 @@ sentrycrashobjc_ivarValue(const void *const objectPtr, int ivarIndex, void *dst)
         // Naively assume they want "value".
         if (isTaggedPointerNSDate(objectPtr)) {
             CFTimeInterval value = extractTaggedNSDate(objectPtr);
-            // CWE-676: Fixed-size copy; caller provides at least sizeof(value) bytes.
+            // memcpy here cannot write out of bounds: dst is the API contract of
+            // sentrycrashobjc_ivarValue, which documents that the caller must supply a buffer
+            // large enough for the ivar's underlying type. For a tagged NSDate that type is a
+            // CFTimeInterval (double), and sizeof(value) is exactly that size.
             memcpy(dst, &value, sizeof(value));
             return true;
         }
@@ -1112,7 +1115,9 @@ sentrycrashobjc_ivarValue(const void *const objectPtr, int ivarIndex, void *dst)
             // TODO: Correct to assume 64-bit signed int? What does the actual
             // ivar say?
             int64_t value = extractTaggedNSNumber(objectPtr);
-            // CWE-676: Fixed-size copy; caller provides at least sizeof(value) bytes.
+            // memcpy here cannot write out of bounds: same caller contract as above. For a
+            // tagged NSNumber we currently materialize the payload as int64_t, and the caller
+            // is required to provide at least sizeof(int64_t) bytes at dst.
             memcpy(dst, &value, sizeof(value));
             return true;
         }
@@ -1549,10 +1554,14 @@ taggedDateDescription(const void *object, char *buffer, int bufferLength)
 #pragma mark - NSNumber -
 //======================================================================
 
+/* memcpy in this macro cannot read out of bounds: DATA expands to a pointer into the
+ * __CFNumber _pad union, whose layout is large enough to hold every CFNumberType variant the
+ * macro is invoked with (sint8, sint16, sint32, sint64, float32, float64, ...). RETURN_TYPE is
+ * the matching primitive type for the CFTYPE case, so sizeof(result) is at most the size of
+ * _pad. result is a fresh stack local, so the destination is always sized exactly. */
 #define NSNUMBER_CASE(CFTYPE, RETURN_TYPE, CAST_TYPE, DATA)                                        \
     case CFTYPE: {                                                                                 \
         RETURN_TYPE result;                                                                        \
-        /* CWE-676: DATA is __CFNumber _pad; fixed-size copy matching RETURN_TYPE. */              \
         memcpy(&result, DATA, sizeof(result));                                                     \
         return (CAST_TYPE)result;                                                                  \
     }

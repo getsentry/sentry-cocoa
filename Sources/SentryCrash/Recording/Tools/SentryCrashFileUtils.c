@@ -121,7 +121,13 @@ dirContents(const char *path, char ***entries, int *count)
         goto done;
     }
 
-    // CWE-676: calloc used for zero-initialization; prefer over malloc. Guard against overflow.
+    // The overflow check below cannot trigger on any realistic filesystem: entryCount is a
+    // signed int from dirContentsCount and SIZE_MAX / sizeof(char *) is ~2^61 on 64-bit Apple
+    // platforms, so a directory would need billions of entries to exceed it. The check is kept
+    // as a defense-in-depth precondition for the calloc(n, size) call below, which would
+    // otherwise be the canonical CWE-190 → CWE-676 pattern. calloc is preferred over malloc
+    // here because the entries are populated in a loop that may exit early on errors, and
+    // freeing partially-populated entries below relies on uninitialized slots being NULL.
     if (entryCount > SIZE_MAX / sizeof(char *)) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Directory entry count too large: %d", entryCount);
         goto done;
@@ -190,7 +196,9 @@ deletePathContents(const char *path, bool deleteTopLevelPathAlso)
         int bufferLength = SentryCrashFU_MAX_PATH_LENGTH;
         char *pathBuffer = malloc((unsigned)bufferLength);
         snprintf(pathBuffer, bufferLength, "%s/", path);
-        // CWE-676: pathBuffer just written by snprintf; null-terminated.
+        // strlen on pathBuffer is safe here: snprintf above always null-terminates its
+        // destination (truncating if the input was too long), so the buffer is a valid C string
+        // before this strlen call.
         char *pathPtr = pathBuffer + strlen(pathBuffer);
         int pathRemainingLength = bufferLength - (int)(pathPtr - pathBuffer);
 
@@ -331,7 +339,9 @@ bool
 sentrycrashfu_writeStringToFD(const int fd, const char *const string)
 {
     if (*string != 0) {
-        // CWE-676: string is API input; caller must provide null-terminated string.
+        // strlen here cannot read out of bounds: string is the C-string contract of the public
+        // sentrycrashfu_writeStringToFD entry point. The non-null check above also guarantees
+        // we don't read past a leading NUL.
         int bytesToWrite = (int)strlen(string);
         const char *pos = string;
         while (bytesToWrite > 0) {
@@ -479,7 +489,11 @@ sentrycrashfu_writeBufferedWriter(
     if (length > writer->bufferLength) {
         return sentrycrashfu_writeBytesToFD(writer->fd, data, length);
     }
-    // CWE-676: length <= bufferLength - position ensured by flush/early return above.
+    // memcpy here cannot write out of bounds: the flush above resets writer->position to 0 if
+    // length would otherwise overflow the remaining buffer, and the second check returns
+    // early when length itself exceeds the entire buffer. After both checks we are guaranteed
+    // length <= writer->bufferLength - writer->position, which is exactly the space remaining
+    // at writer->buffer + writer->position.
     memcpy(writer->buffer + writer->position, data, length);
     writer->position += length;
     return true;
@@ -555,7 +569,10 @@ sentrycrashfu_readBufferedReader(SentryCrashBufferedReader *reader, char *dstBuf
         }
         int bytesToCopy = bytesInReader <= bytesRemaining ? bytesInReader : bytesRemaining;
         char *pSrc = reader->buffer + reader->dataStartPos;
-        // CWE-676: bytesToCopy = min(bytesInReader, bytesRemaining); both bounds valid.
+        // memcpy here cannot read or write out of bounds: bytesToCopy is the minimum of
+        // bytesInReader (which equals dataEndPos - dataStartPos, so [pSrc, pSrc+bytesToCopy)
+        // lies inside reader->buffer) and bytesRemaining (which is the unwritten capacity at
+        // pDst, since pDst advances by bytesToCopy each iteration).
         memcpy(pDst, pSrc, bytesToCopy);
         pDst += bytesToCopy;
         reader->dataStartPos += bytesToCopy;
@@ -585,7 +602,11 @@ sentrycrashfu_readBufferedReaderUntilChar(
                 bytesToCopy = bytesToChar;
             }
         }
-        // CWE-676: bytesToCopy bounded by bytesInReader and bytesRemaining.
+        // memcpy here cannot read or write out of bounds: bytesToCopy starts as min(
+        // bytesInReader, bytesRemaining) and may only be tightened by the bytesToChar branch
+        // above (which is at most bytesInReader, since pChar is found within pSrc's range). So
+        // [pSrc, pSrc+bytesToCopy) is inside reader->buffer and [pDst, pDst+bytesToCopy) is
+        // inside the caller's dstBuffer.
         memcpy(pDst, pSrc, bytesToCopy);
         pDst += bytesToCopy;
         reader->dataStartPos += bytesToCopy;
