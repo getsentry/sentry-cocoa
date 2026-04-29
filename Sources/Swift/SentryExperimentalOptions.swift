@@ -13,15 +13,6 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableUnhandledCPPExceptionsV2 = false
 
-    /// When enabled, the SDK sends metrics to Sentry. Metrics can be captured using the SentrySDK.metrics
-    /// API, which allows you to send, view and query counters, gauges and measurements.
-    /// @note Default value is @c true.
-    @objc public var enableMetrics: Bool = true
-
-    /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
-    /// drop the metric.
-    public var beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
-    
     /// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
     public var enableWatchdogTerminationsV2 = false
 

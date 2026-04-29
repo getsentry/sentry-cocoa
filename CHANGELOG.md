@@ -2,9 +2,22 @@
 
 ## Unreleased
 
+> [!WARNING]
+> This release promotes Metrics out of experimental and **removes** `options.experimental.enableMetrics` and `options.experimental.beforeSendMetric`. If you set either of these, your app will fail to compile after upgrading.
+> Migrate to `options.enableMetrics` and `options.beforeSendMetric` (top-level on `Options`) — the defaults and behavior are unchanged.
+
 ### Improvements
 
 - Remove `enableSessionReplayInUnreliableEnvironment` experimental option and the environment checker that temporarily disabled Session Replay on iOS 26 (#7831)
+
+### Features
+
+- Make feature Metrics generally available, moving experimental options to top-level options (#7843)
+
+### Fixes
+
+- Fix JSON encoding of infinite numeric values in crash reports (#7802)
+- Fix race condition in `SentryFramesTracker` listeners causing `EXC_BAD_ACCESS` in `NSConcreteHashTable removeItem:` when a listener is deallocated on a background thread (#7839)
 
 ## 9.11.0
 

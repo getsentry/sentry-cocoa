@@ -25,7 +25,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableAppHangTracking = false
         options.enableWatchdogTerminationTracking = false
         options.enableSwizzling = false
-        options.experimental.enableMetrics = false
+        options.enableMetrics = false
         
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)
@@ -53,7 +53,7 @@ final class SentrySwiftIntegrationInstallerTests: XCTestCase {
         options.enableAppHangTracking = false
         options.enableWatchdogTerminationTracking = false
         options.enableSwizzling = false
-        options.experimental.enableMetrics = false
+        options.enableMetrics = false
 
         let testHub = TestHub(client: nil, andScope: nil)
         SentrySDKInternal.setCurrentHub(testHub)

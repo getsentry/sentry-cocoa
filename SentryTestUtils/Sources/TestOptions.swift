@@ -21,7 +21,8 @@ public extension Options {
         attachViewHierarchy = false
         enableUIViewControllerTracing = false
         #endif
-        experimental.enableMetrics = false
+        enableMetrics = false
+        beforeSendMetric = { metric in metric }
     }
 
     static func noIntegrations() -> Options {
