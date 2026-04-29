@@ -498,9 +498,12 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(payloadData["fragment"] as? String, "fragment")
     }
 
+#if canImport(UIKit) && SENTRY_TARGET_REPLAY_SUPPORTED
     /// Simple case - when network details are enabled, `addBreadcrumbForSessionTask` will include
     /// serialized network details in the breadcrumb data.
     func testAddBreadcrumb_withNetworkDetails_shouldIncludeSerializedDetailsInBreadcrumbData() throws {
+        guard #available(iOS 16.0, tvOS 16.0, *) else { return }
+        
         // -- Arrange --
         let testUrl = URL(string: "https://api.example.com/users")!
         let options = Options()
@@ -571,6 +574,7 @@ class SentryNetworkTrackerTests: XCTestCase {
 
         clearTestState()
     }
+#endif
 
     func testBreadcrumb_GraphQLEnabled() throws {
         let body = """
