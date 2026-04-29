@@ -18,13 +18,13 @@ public protocol SentryFramesTrackerListener: NSObjectProtocol {
 
 @_spi(Private) @objc
 public class SentryFramesTracker: NSObject {
-    
+
     private var isStarted: Bool = false
-    
+
     // MARK: Private properties
     private var isRunningLock = NSLock()
     private var _isRunning: Bool = false
-    
+
     @objc public private(set) var isRunning: Bool {
         get {
             return isRunningLock.synchronized {
@@ -40,7 +40,13 @@ public class SentryFramesTracker: NSObject {
     private var previousFrameTimestamp: CFTimeInterval = SentryFramesTracker.previousFrameInitialValue
     private var previousFrameSystemTimestamp: UInt64 = 0
     private var currentFrameRate: UInt64 = 60
-    private var listeners: NSHashTable<SentryFramesTrackerListener>
+    // We hold listeners through `WeakReference` rather than `NSHashTable.weakObjects()`
+    // because NSHashTable's internal buckets can be zeroed by the ObjC runtime on the
+    // deallocating thread while the table is being iterated on another thread, causing
+    // `NSConcreteHashTable removeItem:` to `objc_msgSend` a freed entry.
+    // `WeakReference` is read via `objc_loadWeak`, which is safe against concurrent
+    // deallocation.
+    private var listeners: [WeakReference<SentryFramesTrackerListener>] = []
 
 #if os(iOS)
     private var frozenFrameTimestamps = SentryFrameInfoTimeSeries()
@@ -74,7 +80,6 @@ public class SentryFramesTracker: NSObject {
         self.dispatchQueueWrapper = dispatchQueueWrapper
         self.notificationCenter = notificationCenter
         self.delayedFramesTracker = delayedFramesTracker
-        self.listeners = NSHashTable<SentryFramesTrackerListener>.weakObjects()
 
         super.init()
 
@@ -135,7 +140,7 @@ public class SentryFramesTracker: NSObject {
 
         removeObservers()
 
-        listeners.removeAllObjects()
+        listeners.removeAll()
     }
 
     private func removeObservers() {
@@ -194,13 +199,22 @@ public class SentryFramesTracker: NSObject {
 
     @objc public func addListener(_ listener: SentryFramesTrackerListener) {
         dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
-            self.listeners.add(listener)
+            // Drop zeroed refs and any existing entry for this listener to avoid
+            // duplicate registrations, then append a fresh ref.
+            self.listeners.removeAll { ref in
+                guard let existing = ref.value else { return true }
+                return existing === listener
+            }
+            self.listeners.append(WeakReference(value: listener))
         }
     }
 
     @objc public func removeListener(_ listener: SentryFramesTrackerListener) {
         dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
-            self.listeners.remove(listener)
+            self.listeners.removeAll { ref in
+                guard let existing = ref.value else { return true }
+                return existing === listener
+            }
         }
     }
 
@@ -222,7 +236,7 @@ public class SentryFramesTracker: NSObject {
     }
     
     var listenersCount: Int {
-        listeners.count
+        listeners.filter { $0.value != nil }.count
     }
 #endif
 
@@ -365,10 +379,23 @@ public class SentryFramesTracker: NSObject {
 
     private func reportNewFrame() {
         let newFrameDate = dateProvider.date()
-        // We need to copy the list because some listeners will remove themselves
-        // from the list during the callback, causing a crash during iteration.
-        let listenersArray = self.listeners.allObjects
-        for listener in listenersArray {
+        // Resolve strong references out of the weak refs and drop any zeroed
+        // entries in a single pass before invoking callbacks. Callbacks may
+        // mutate `listeners` (e.g., by calling removeListener on self), but we
+        // iterate the local snapshot, so that is safe.
+        var activeListeners: [SentryFramesTrackerListener] = []
+        activeListeners.reserveCapacity(listeners.count)
+        var survivingRefs: [WeakReference<SentryFramesTrackerListener>] = []
+        survivingRefs.reserveCapacity(listeners.count)
+        for ref in listeners {
+            if let listener = ref.value {
+                activeListeners.append(listener)
+                survivingRefs.append(ref)
+            }
+        }
+        listeners = survivingRefs
+
+        for listener in activeListeners {
             listener.framesTrackerHasNewFrame(newFrameDate)
         }
     }
