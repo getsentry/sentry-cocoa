@@ -572,13 +572,8 @@ private final class SentrySessionReplayCaptureGuard {
     private static let activeAnimationThreshold = 4
 
     func shouldDeferCapture(rootView: UIView) -> Bool {
-        isTrackingRunLoopMode()
-            || containsActiveInteraction(in: rootView)
+        containsActiveInteraction(in: rootView)
             || activeAnimationCount(in: rootView.layer, upTo: Self.activeAnimationThreshold) >= Self.activeAnimationThreshold
-    }
-
-    private func isTrackingRunLoopMode() -> Bool {
-        RunLoop.current.currentMode == .tracking
     }
 
     private func containsActiveInteraction(in view: UIView) -> Bool {
