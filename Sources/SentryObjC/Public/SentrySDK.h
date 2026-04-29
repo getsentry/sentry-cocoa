@@ -360,9 +360,8 @@ SENTRY_NO_INIT
  * Indicates whether the application crashed during the last run.
  *
  * @return @c YES if the app crashed on the previous run, @c NO otherwise.
- * @deprecated Use @c lastRunStatus instead.
  */
-+ (BOOL)crashedLastRun;
++ (BOOL)crashedLastRun __attribute__((deprecated("Use lastRunStatus instead")));
 
 /**
  * Returns the crash status of the last program execution.
