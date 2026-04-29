@@ -31,6 +31,8 @@
 #import "SentryCrashReportStore.h"
 
 #include <inttypes.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define REPORT_PREFIX @"CrashReport-SentryCrashTest"
 
@@ -50,16 +52,22 @@
 
 - (int64_t)getReportIDFromPath:(NSString *)path
 {
-
     const char *filename = path.lastPathComponent.UTF8String;
-    char scanFormat[100];
-    snprintf(
-        scanFormat, sizeof(scanFormat), "%s-report-%%" PRIx64 ".json", self.appName.UTF8String);
-
-    int64_t reportID = 0;
-    sscanf(filename, scanFormat, &reportID);
-
-    return reportID;
+    const char *appName = self.appName.UTF8String;
+    const size_t appNameLen = strlen(appName);
+    if (strncmp(filename, appName, appNameLen) != 0) {
+        return 0;
+    }
+    if (strncmp(filename + appNameLen, "-report-", 8) != 0) {
+        return 0;
+    }
+    const char *hexStart = filename + appNameLen + 8;
+    char *endPtr = NULL;
+    const uint64_t id = strtoull(hexStart, &endPtr, 16);
+    if (endPtr == hexStart || strcmp(endPtr, ".json") != 0) {
+        return 0;
+    }
+    return (int64_t)id;
 }
 
 - (void)setUp
@@ -135,6 +143,108 @@
         [self loadReportID:reportID reportString:&loadedReportString];
         XCTAssertEqualObjects(loadedReportString, reportString);
     }
+}
+
+- (void)testGetReportIDFromPath_whenValidFilename_shouldReturnReportID
+{
+    // -- Arrange --
+    self.appName = @"myapp";
+    NSString *path =
+        [self.tempPath stringByAppendingPathComponent:@"myapp-report-0000000000000001.json"];
+
+    // -- Act --
+    int64_t reportID = [self getReportIDFromPath:path];
+
+    // -- Assert --
+    XCTAssertEqual(reportID, 1);
+}
+
+- (void)testGetReportIDFromPath_whenValidHexID_shouldReturnReportID
+{
+    // -- Arrange --
+    self.appName = @"myapp";
+    NSString *path = [self.tempPath stringByAppendingPathComponent:@"myapp-report-abc123def.json"];
+
+    // -- Act --
+    int64_t reportID = [self getReportIDFromPath:path];
+
+    // -- Assert --
+    XCTAssertEqual(reportID, (int64_t)0xabc123def);
+}
+
+- (void)testGetReportIDFromPath_whenWrongPrefix_shouldReturnZero
+{
+    // -- Arrange --
+    self.appName = @"myapp";
+    NSString *path =
+        [self.tempPath stringByAppendingPathComponent:@"other-report-0000000000000001.json"];
+
+    // -- Act --
+    int64_t reportID = [self getReportIDFromPath:path];
+
+    // -- Assert --
+    XCTAssertEqual(reportID, 0);
+}
+
+- (void)testGetReportIDFromPath_whenInvalidSuffix_shouldReturnZero
+{
+    // -- Arrange --
+    self.appName = @"myapp";
+    NSString *path =
+        [self.tempPath stringByAppendingPathComponent:@"myapp-report-0000000000000001.txt"];
+
+    // -- Act --
+    int64_t reportID = [self getReportIDFromPath:path];
+
+    // -- Assert --
+    XCTAssertEqual(reportID, 0);
+}
+
+- (void)testGetReportIDFromPath_whenNoReportSegment_shouldReturnZero
+{
+    // -- Arrange --
+    self.appName = @"myapp";
+    NSString *path = [self.tempPath stringByAppendingPathComponent:@"myapp-0000000000000001.json"];
+
+    // -- Act --
+    int64_t reportID = [self getReportIDFromPath:path];
+
+    // -- Assert --
+    XCTAssertEqual(reportID, 0);
+}
+
+- (void)testReportCount_whenDirectoryContainsMalformedFiles_shouldIgnoreThem
+{
+    // The production parser getReportIDFromFilename in SentryCrashReportStore.c is `static`, so
+    // it cannot be called directly from tests. This test exercises it indirectly: it asks the
+    // store to enumerate reports while the directory also contains files whose names do not
+    // match the expected "AppName-report-<hex>.json" template, and asserts those files are
+    // filtered out (reportID == 0 means "ignore this entry"). This guards the strncmp + strtoull
+    // refactor that replaced the previous sscanf-based parser.
+    [self prepareReportStoreWithPathEnd:@"testReportCount_whenDirectoryContainsMalformedFiles"];
+    int64_t validReportID = [self writeCrashReportWithStringContents:@"valid"];
+
+    NSArray<NSString *> *malformedFilenames = @[
+        @"otherapp-report-0000000000000099.json", // wrong app prefix
+        @"myapp-notreport-0000000000000099.json", // wrong middle segment
+        @"myapp-report-zznothex.json", // non-hex ID
+        @"myapp-report-0000000000000099.txt", // wrong extension
+        @"myapp-report-.json", // empty hex ID
+    ];
+    for (NSString *name in malformedFilenames) {
+        NSString *path = [self.reportStorePath stringByAppendingPathComponent:name];
+        NSError *writeError = nil;
+        [@"junk" writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&writeError];
+        XCTAssertNil(writeError, @"failed to seed malformed file %@", name);
+    }
+
+    XCTAssertEqual(
+        sentrycrashcrs_getReportCount(), 1, @"Malformed filenames must not be counted as reports");
+
+    int64_t reportIDs[1] = { 0 };
+    int returned = sentrycrashcrs_getReportIDs(reportIDs, 1);
+    XCTAssertEqual(returned, 1);
+    XCTAssertEqual(reportIDs[0], validReportID);
 }
 
 - (void)testReportStorePathExists
