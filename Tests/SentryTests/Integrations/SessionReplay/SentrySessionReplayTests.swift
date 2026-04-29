@@ -88,7 +88,6 @@ class SentrySessionReplayTests: XCTestCase {
         let dateProvider = TestCurrentDateProvider()
         let random = TestRandom(value: 0)
         let screenshotProvider = ScreenshotProvider()
-        let displayLink = TestDisplayLinkWrapper()
         let rootView = UIView()
         let replayMaker = TestReplayMaker()
         let cacheFolder = FileManager.default.temporaryDirectory
@@ -114,8 +113,7 @@ class SentrySessionReplayTests: XCTestCase {
                 breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
                 touchTracker: touchTracker ?? SentryTouchTracker(dateProvider: dateProvider, scale: 0),
                 dateProvider: dateProvider,
-                delegate: self,
-                displayLinkWrapper: displayLink
+                delegate: self
             )
         }
         
@@ -166,6 +164,18 @@ class SentrySessionReplayTests: XCTestCase {
         Dynamic(sut).newFrame(nil)
         
         XCTAssertNil(fixture.lastReplayEvent)
+    }
+
+    func testStart_StartsCaptureScheduler() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut()
+
+        // -- Act --
+        sut.start(rootView: fixture.rootView, fullSession: false)
+
+        // -- Assert --
+        XCTAssertTrue(sut.isRunning)
     }
     
     func testSentReplay_FullSession() {
@@ -325,12 +335,12 @@ class SentrySessionReplayTests: XCTestCase {
         Dynamic(sut).newFrame(nil)
         fixture.dateProvider.advance(by: 5)
         Dynamic(sut).newFrame(nil)
-        XCTAssertTrue(fixture.displayLink.isRunning())
+        XCTAssertTrue(sut.isRunning)
         fixture.dateProvider.advance(by: 3_600)
         Dynamic(sut).newFrame(nil)
 
         // -- Assert --
-        XCTAssertFalse(fixture.displayLink.isRunning())
+        XCTAssertFalse(sut.isRunning)
         XCTAssertEqual(fixture.sessionReplayEndedInvocations.count, 1)
     }
 
@@ -346,7 +356,7 @@ class SentrySessionReplayTests: XCTestCase {
         Dynamic(sut).newFrame(nil)
 
         // -- Assert --
-        XCTAssertTrue(fixture.displayLink.isRunning())
+        XCTAssertTrue(sut.isRunning)
         XCTAssertEqual(fixture.sessionReplayEndedInvocations.count, 0)
     }
     
@@ -622,17 +632,6 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(breadCrumbRREvents.count, 0)
     }
     
-    @available(iOS 16.0, tvOS 16, *)
-    func testDealloc_CallsStop() {
-        let fixture = Fixture()
-        func sutIsDeallocatedAfterCallingMe() {
-            _ = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
-        }
-        sutIsDeallocatedAfterCallingMe()
-        
-        XCTAssertEqual(fixture.displayLink.invalidateInvocations.count, 1)
-    }
-
     func testShouldEnableSessionReplay_withUnreliableEnvironment_withoutOverrideOptionEnabled_shouldNotStart() {
         // -- Arrange --
         let environmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)

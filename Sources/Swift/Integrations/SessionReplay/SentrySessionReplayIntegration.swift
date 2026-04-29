@@ -231,7 +231,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         let newSessionReplay = SentrySessionReplay(
             replayOptions: replayOptions, replayFolderPath: sessionDocs, screenshotProvider: screenshotProvider,
             replayMaker: replayMaker, breadcrumbConverter: breadcrumbConverter, touchTracker: touchTracker,
-            dateProvider: dateProvider, delegate: self, displayLinkWrapper: SentryDisplayLinkWrapper())
+            dateProvider: dateProvider, delegate: self)
 
         self.sessionReplay = newSessionReplay
         newSessionReplay.start(rootView: application?.getWindows()?.first, fullSession: fullSession)
