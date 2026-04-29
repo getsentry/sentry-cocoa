@@ -14,6 +14,7 @@ static void (*removeBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_s
 static NSMutableArray *mach_headers_test_cache;
 static NSMutableArray *mach_headers_expect_array;
 static const uint32_t maxDyldImages = 4096;
+static uint32_t invalid_mach_header_word = 0;
 
 static void
 sentry_register_func_for_add_image(
@@ -246,6 +247,32 @@ delayAddBinaryImage(void)
 
     addBinaryImage(0, 0);
     [self assertBinaryImageCacheLength:5];
+}
+
+- (void)testAddImage_whenBinaryImageLookupFails_shouldKeepReadyImageCountUnchanged
+{
+    sentrycrashbic_startCache();
+    [self assertBinaryImageCacheLength:5];
+
+    // The address of this global lives in a loaded image, so dladdr succeeds, but it is not a
+    // mach header and sentrycrashdl_getBinaryImageForHeader() returns false.
+    addBinaryImage((const struct mach_header *)&invalid_mach_header_word, 0);
+
+    [self assertBinaryImageCacheLength:5];
+}
+
+- (void)testRegisterAddedCallback_whenReservedSlotIsEmpty_shouldSkipUnpublishedImage
+{
+    sentrycrashbic_startCache();
+
+    addBinaryImage((const struct mach_header *)&invalid_mach_header_word, 0);
+    addBinaryImage([mach_headers_test_cache[5] pointerValue], 0);
+
+    [self assertBinaryImageCacheLength:6];
+
+    sentrycrashbic_registerAddedCallback(&captureAddedImageName);
+
+    XCTAssertEqual((NSUInteger)6, copyAddedImageNames().count);
 }
 
 - (void)testAddNewImageAfterStopping
