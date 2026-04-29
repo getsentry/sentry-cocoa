@@ -1,0 +1,10 @@
+name: "CI Diagnostics"
+description: >-
+  Captures Xcode/macOS environment diagnostics for failure investigation.
+  Intended to be called with `if: failure()` (or similar) at the end of a job.
+runs:
+  using: "composite"
+  steps:
+    - name: Run CI Diagnostics
+      shell: bash
+      run: "${{ github.action_path }}/../../../scripts/ci-diagnostics.sh"

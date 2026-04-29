@@ -64,8 +64,8 @@ jobs:
           fi
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   lint_clang_formatting-required-check:
     needs: [files-changed, lint]

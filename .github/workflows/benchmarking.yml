@@ -114,8 +114,8 @@ jobs:
             **/Debug-iphoneos/iOS-Benchmarking-Runner.app
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   run-ui-tests-with-sauce:
     name: Run Benchmarks ${{matrix.suite}}
@@ -214,8 +214,8 @@ jobs:
             --verbose
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   benchmarking-required-check:
     needs:
