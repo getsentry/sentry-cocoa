@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 
 #import "SentryDefines.h"
+#import "SentryTransactionNameSource.h"
 
 // Pure-ObjC types from main SDK (re-exported, single source of truth).
 // Xcode frameworks expose them under `<Sentry/...>`; SPM exposes them via -I on
@@ -76,7 +77,6 @@
 #    import "SentryUser.h"
 #endif
 #import "SentrySpan.h"
-#import "SentryTransactionNameSource.h"
 
 // Swift @objc types
 #import "SentryAttribute.h"

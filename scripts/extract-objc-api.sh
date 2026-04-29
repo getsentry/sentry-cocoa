@@ -49,7 +49,7 @@ xcrun clang -x objective-c \
 jq '
   [.. | objects |
    select(.kind == "ObjCInterfaceDecl") |
-   select(.loc.file? // "" | contains("SentryObjC")) |
+   select(.loc.file? // "" | contains("SentryObjC") or contains("/Sentry/Public/")) |
    {
      kind,
      name,
@@ -63,7 +63,7 @@ jq '
 jq '
   [.. | objects |
    select(.kind == "ObjCProtocolDecl") |
-   select(.loc.file? // "" | contains("SentryObjC")) |
+   select(.loc.file? // "" | contains("SentryObjC") or contains("/Sentry/Public/")) |
    {
      kind,
      name,
@@ -75,7 +75,7 @@ jq '
 jq '
   [.. | objects |
    select(.kind == "ObjCInterfaceDecl") |
-   select(.loc.file? // "" | contains("SentryObjC")) |
+   select(.loc.file? // "" | contains("SentryObjC") or contains("/Sentry/Public/")) |
    select(.inner) |
    . as $interface |
    .inner[] |
@@ -93,7 +93,7 @@ jq '
 jq '
   [.. | objects |
    select(.kind == "ObjCInterfaceDecl") |
-   select(.loc.file? // "" | contains("SentryObjC")) |
+   select(.loc.file? // "" | contains("SentryObjC") or contains("/Sentry/Public/")) |
    select(.inner) |
    . as $interface |
    .inner[] |
@@ -110,7 +110,7 @@ jq '
 jq '
   [.. | objects |
    select(.kind == "TypedefDecl") |
-   select(.loc.file? // "" | contains("SentryObjC")) |
+   select(.loc.file? // "" | contains("SentryObjC") or contains("/Sentry/Public/")) |
    {
      kind,
      name,

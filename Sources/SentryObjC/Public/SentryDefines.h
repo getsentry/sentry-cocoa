@@ -16,6 +16,40 @@
 #    define SENTRY_OBJC_REPLAY_SUPPORTED 0
 #endif
 
+// Macros required by re-exported main SDK headers (SentryBreadcrumb.h,
+// SentryEvent.h, SentryScope.h, etc.). When those headers fall through
+// their __has_include chain they pick up *this* SentryDefines.h, so
+// every macro they reference must be present here.
+#ifndef SENTRY_HEADER
+#    if __has_include(<SentryObjC/SentryObjC.h>)
+#        define SENTRY_HEADER(file) <SentryObjC/file.h>
+#    else
+#        define SENTRY_HEADER(file) <file.h>
+#    endif
+#endif
+
+#ifdef __cplusplus
+#    define SENTRY_OBJC_EXTERN extern "C" __attribute__((visibility("default")))
+#else
+#    define SENTRY_OBJC_EXTERN extern __attribute__((visibility("default")))
+#endif
+
+#ifndef SENTRY_EXTERN
+#    define SENTRY_EXTERN SENTRY_OBJC_EXTERN
+#endif
+
+#ifndef SENTRY_UIKIT_AVAILABLE
+#    define SENTRY_UIKIT_AVAILABLE SENTRY_OBJC_UIKIT_AVAILABLE
+#endif
+
+#ifndef SENTRY_TARGET_REPLAY_SUPPORTED
+#    define SENTRY_TARGET_REPLAY_SUPPORTED SENTRY_OBJC_REPLAY_SUPPORTED
+#endif
+
+#define SENTRY_NO_INIT                                                                             \
+    -(instancetype)init NS_UNAVAILABLE;                                                            \
+    +(instancetype) new NS_UNAVAILABLE;
+
 #import "SentryLog.h"
 
 @class SentryBreadcrumb;
@@ -34,16 +68,6 @@ typedef BOOL (^SentryBeforeCaptureScreenshotCallback)(SentryEvent *_Nonnull even
 typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event);
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
     SentrySamplingContext *_Nonnull samplingContext);
-
-#ifdef __cplusplus
-#    define SENTRY_OBJC_EXTERN extern "C" __attribute__((visibility("default")))
-#else
-#    define SENTRY_OBJC_EXTERN extern __attribute__((visibility("default")))
-#endif
-
-#define SENTRY_NO_INIT                                                                             \
-    -(instancetype)init NS_UNAVAILABLE;                                                            \
-    +(instancetype) new NS_UNAVAILABLE;
 
 /**
  * SentryObjC — Pure Objective-C wrapper for the Sentry SDK.
