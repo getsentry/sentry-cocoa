@@ -264,7 +264,12 @@ sentrycrashfu_readBytesFromFD(const int fd, char *const bytes, int length)
         int bytesRead = (int)read(fd, pos, (unsigned)length);
         if (bytesRead == -1) {
             SENTRY_ASYNC_SAFE_LOG_ERROR(
-                "Could not write to fd %d: %s", fd, SENTRY_STRERROR_R(errno));
+                "Could not read from fd %d: %s", fd, SENTRY_STRERROR_R(errno));
+            return false;
+        }
+        if (bytesRead == 0) {
+            SENTRY_ASYNC_SAFE_LOG_ERROR(
+                "Unexpected EOF on fd %d: expected %d more bytes", fd, length);
             return false;
         }
         length -= bytesRead;
