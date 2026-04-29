@@ -12,8 +12,8 @@ import UIKit
 
     private var urlToCache: URL?
     private var rootView: UIView?
-    private var lastScreenShot: Date?
-    private var nextScreenShot: Date?
+    private var lastScreenshotAt: Date?
+    private var nextScreenshotAt: Date?
     private var videoSegmentStart: Date?
     private var sessionStart: Date?
     private var imageCollection: [UIImage] = []
@@ -34,7 +34,7 @@ import UIKit
     private var deferredScreenshotStart: Date?
     private let screenshotIntervalTolerance: TimeInterval = 0.001
     private var captureRunLoopObserver: CFRunLoopObserver?
-    private var didProcessCaptureModeWork = false
+    private var didProcessRunLoopWork = false
     private var isCaptureSchedulerRunning = false
     public var replayTags: [String: Any]?
 
@@ -95,7 +95,7 @@ import UIKit
         
         self.rootView = rootView
         let now = dateProvider.date()
-        lastScreenShot = now
+        lastScreenshotAt = now
         adaptiveScreenshotInterval = 0
         deferredScreenshotStart = nil
         scheduleNextScreenshot(after: screenshotInterval, from: now)
@@ -107,13 +107,13 @@ import UIKit
         replayType = fullSession ? .session : .buffer
 
         if fullSession {
-            startFullReplay()
+            startFullReplay(startedAt: lastScreenshotAt)
         }
     }
 
-    private func startFullReplay() {
+    private func startFullReplay(startedAt: Date?) {
         SentrySDKLog.debug("[Session Replay] Starting full session replay")
-        sessionStart = lastScreenShot
+        sessionStart = startedAt
         isFullSession = true
         guard let sessionReplayId = sessionReplayId else { return }
         delegate?.sessionReplayStarted(replayId: sessionReplayId)
@@ -161,7 +161,7 @@ import UIKit
         
         videoSegmentStart = nil
         let now = dateProvider.date()
-        lastScreenShot = now
+        lastScreenshotAt = now
         scheduleNextScreenshot(after: screenshotInterval, from: now)
         startCaptureScheduler()
     }
@@ -209,7 +209,7 @@ import UIKit
         }
 
         self.replayType = replayType
-        startFullReplay()
+        startFullReplay(startedAt: lastScreenshotAt)
         let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration - (Double(replayOptions.frameRate) / 2.0))
 
         createAndCaptureInBackground(startedAt: replayStart, replayType: replayType)
@@ -263,21 +263,21 @@ import UIKit
         }
 
         if let rootView = rootView, shouldDeferScreenshot(rootView: rootView, at: now) {
-            lastScreenShot = now
+            lastScreenshotAt = now
             scheduleNextScreenshot(after: SentrySessionReplayCaptureGuard.captureDeferralInterval, from: now)
             return
         }
 
         guard let captureDuration = takeScreenshot(timestamp: now) else {
             let finishedAt = dateProvider.date()
-            lastScreenShot = finishedAt
+            lastScreenshotAt = finishedAt
             scheduleNextScreenshot(after: screenshotInterval, from: finishedAt)
             return
         }
 
         updateAdaptiveScreenshotInterval(captureDuration)
         let finishedAt = dateProvider.date()
-        lastScreenShot = finishedAt
+        lastScreenshotAt = finishedAt
         scheduleNextScreenshot(after: screenshotInterval, from: finishedAt)
         updateVideoSegment(at: now)
     }
@@ -287,12 +287,12 @@ import UIKit
     }
 
     private func shouldCaptureScreenshot(at date: Date) -> Bool {
-        guard let nextScreenShot = nextScreenShot else { return true }
-        return date.timeIntervalSince(nextScreenShot) >= -screenshotIntervalTolerance
+        guard let nextScreenshotAt = nextScreenshotAt else { return true }
+        return date.timeIntervalSince(nextScreenshotAt) >= -screenshotIntervalTolerance
     }
 
     private func scheduleNextScreenshot(after interval: TimeInterval, from date: Date) {
-        nextScreenShot = date.addingTimeInterval(interval)
+        nextScreenshotAt = date.addingTimeInterval(interval)
     }
 
     private func startCaptureScheduler() {
@@ -304,7 +304,7 @@ import UIKit
 
     private func stopCaptureScheduler() {
         isCaptureSchedulerRunning = false
-        didProcessCaptureModeWork = false
+        didProcessRunLoopWork = false
 
         if let captureRunLoopObserver = captureRunLoopObserver {
             CFRunLoopRemoveObserver(CFRunLoopGetMain(), captureRunLoopObserver, .commonModes)
@@ -320,31 +320,22 @@ import UIKit
             | CFRunLoopActivity.beforeSources.rawValue
             | CFRunLoopActivity.beforeWaiting.rawValue
             | CFRunLoopActivity.exit.rawValue
-        var context = CFRunLoopObserverContext(
-            version: 0,
-            info: Unmanaged.passUnretained(self).toOpaque(),
-            retain: nil,
-            release: nil,
-            copyDescription: nil
-        )
-        captureRunLoopObserver = CFRunLoopObserverCreate(
+
+        captureRunLoopObserver = CFRunLoopObserverCreateWithHandler(
             kCFAllocatorDefault,
             activities,
             true,
-            CFIndex.max,
-            { observer, activity, context in
-                guard let observer = observer,
-                    CFRunLoopObserverIsValid(observer),
-                    let context = context
-                else { return }
-                let sessionReplay = Unmanaged<SentrySessionReplay>.fromOpaque(context).takeUnretainedValue()
-                sessionReplay.captureOnRunLoopActivity(
-                    activity,
-                    in: CFRunLoopCopyCurrentMode(CFRunLoopGetCurrent())
-                )
-            },
-            &context
-        )
+            CFIndex.max
+        ) { [weak self] observer, activity in
+            guard let observer = observer,
+                CFRunLoopObserverIsValid(observer)
+            else { return }
+
+            self?.captureOnRunLoopActivity(
+                activity,
+                in: CFRunLoopCopyCurrentMode(CFRunLoopGetCurrent())
+            )
+        }
 
         if let captureRunLoopObserver = captureRunLoopObserver {
             CFRunLoopAddObserver(CFRunLoopGetMain(), captureRunLoopObserver, .commonModes)
@@ -354,20 +345,22 @@ import UIKit
     private func captureOnRunLoopActivity(_ activity: CFRunLoopActivity, in currentMode: CFRunLoopMode?) {
         guard isCaptureSchedulerRunning else { return }
         guard !isInteractiveRunLoopMode(currentMode) else {
-            didProcessCaptureModeWork = false
+            didProcessRunLoopWork = false
             return
         }
 
         if activity.contains(.afterWaiting)
             || activity.contains(.beforeTimers)
             || activity.contains(.beforeSources) {
-            didProcessCaptureModeWork = true
-        } else if activity.contains(.beforeWaiting) || activity.contains(.exit) {
-            guard didProcessCaptureModeWork else { return }
-
-            didProcessCaptureModeWork = false
-            captureFrameIfNeeded()
+            didProcessRunLoopWork = true
+            return
         }
+
+        guard activity.contains(.beforeWaiting) || activity.contains(.exit) else { return }
+        guard didProcessRunLoopWork else { return }
+
+        didProcessRunLoopWork = false
+        captureFrameIfNeeded()
     }
 
     private func isInteractiveRunLoopMode(_ currentMode: CFRunLoopMode?) -> Bool {
@@ -381,33 +374,36 @@ import UIKit
             return false
         }
 
-        if let deferredScreenshotStart = deferredScreenshotStart {
-            let deferralDuration = date.timeIntervalSince(deferredScreenshotStart)
-            if deferralDuration < SentrySessionReplayCaptureGuard.maximumCaptureDeferralInterval {
-                return true
-            }
-
-            SentrySDKLog.debug("[Session Replay] Forcing screenshot after deferring for \(deferralDuration)s")
-            self.deferredScreenshotStart = nil
-            return false
+        guard let deferredScreenshotStart = deferredScreenshotStart else {
+            self.deferredScreenshotStart = date
+            return true
         }
 
-        deferredScreenshotStart = date
-        return true
+        let deferralDuration = date.timeIntervalSince(deferredScreenshotStart)
+        guard deferralDuration >= SentrySessionReplayCaptureGuard.maximumCaptureDeferralInterval else {
+            return true
+        }
+
+        SentrySDKLog.debug("[Session Replay] Forcing screenshot after deferring for \(deferralDuration)s")
+        self.deferredScreenshotStart = nil
+        return false
     }
 
     private func updateAdaptiveScreenshotInterval(_ captureDuration: TimeInterval) {
         guard captureDuration > 0 else { return }
 
         let baseInterval = 1.0 / Double(replayOptions.frameRate)
-        if captureDuration >= SentrySessionReplayCaptureGuard.slowCaptureThreshold {
-            let nextInterval = adaptiveScreenshotInterval > 0 ? adaptiveScreenshotInterval * 2 : baseInterval * 2
-            adaptiveScreenshotInterval = min(nextInterval, SentrySessionReplayCaptureGuard.maximumAdaptiveCaptureInterval)
-            SentrySDKLog.debug("[Session Replay] Screenshot capture took \(captureDuration)s, backing off to \(adaptiveScreenshotInterval)s")
-        } else if adaptiveScreenshotInterval > 0 {
+        guard captureDuration >= SentrySessionReplayCaptureGuard.slowCaptureThreshold else {
+            guard adaptiveScreenshotInterval > 0 else { return }
+
             let nextInterval = adaptiveScreenshotInterval / 2
             adaptiveScreenshotInterval = nextInterval <= baseInterval ? 0 : nextInterval
+            return
         }
+
+        let nextInterval = adaptiveScreenshotInterval > 0 ? adaptiveScreenshotInterval * 2 : baseInterval * 2
+        adaptiveScreenshotInterval = min(nextInterval, SentrySessionReplayCaptureGuard.maximumAdaptiveCaptureInterval)
+        SentrySDKLog.debug("[Session Replay] Screenshot capture took \(captureDuration)s, backing off to \(adaptiveScreenshotInterval)s")
     }
 
     private func updateVideoSegment(at date: Date) {
