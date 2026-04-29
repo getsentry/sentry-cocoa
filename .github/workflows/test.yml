@@ -264,7 +264,7 @@ jobs:
       should_skip: ${{github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
-      test-destination-os: ${{matrix.test-destination-os || 'latest'}}
+      test-destination-os: ${{matrix.test-destination-os}}
       timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device || ''}}
       scheme: "Sentry"
