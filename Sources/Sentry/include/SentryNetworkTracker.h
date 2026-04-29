@@ -26,6 +26,11 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB
 @property (nonatomic, readonly) BOOL isCaptureFailedRequestsEnabled;
 @property (nonatomic, readonly) BOOL isGraphQLOperationTrackingEnabled;
 
+- (void)captureResponseDetails:(NSData *)data
+                      response:(NSURLResponse *)response
+                    requestURL:(nullable NSURL *)requestURL
+                          task:(NSURLSessionTask *)task;
+
 @end
 
 NS_ASSUME_NONNULL_END
