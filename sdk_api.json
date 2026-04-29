@@ -21095,6 +21095,167 @@
                           {
                             "children": [
                               {
+                                "kind": "TypeNominal",
+                                "name": "SentryMetric",
+                                "printedName": "Sentry.SentryMetric",
+                                "usr": "s:6Sentry0A6MetricV"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Sentry.SentryMetric?",
+                            "usr": "s:Sq"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryMetric",
+                            "printedName": "Sentry.SentryMetric",
+                            "usr": "s:6Sentry0A6MetricV"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryMetric) -> Sentry.SentryMetric?"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "((Sentry.SentryMetric) -> Sentry.SentryMetric?)?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC16beforeSendMetricAA0aE0VSgAFcSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry7OptionsC16beforeSendMetricAA0aE0VSgAFcSgvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryMetric",
+                                "printedName": "Sentry.SentryMetric",
+                                "usr": "s:6Sentry0A6MetricV"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Sentry.SentryMetric?",
+                            "usr": "s:Sq"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryMetric",
+                            "printedName": "Sentry.SentryMetric",
+                            "usr": "s:6Sentry0A6MetricV"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryMetric) -> Sentry.SentryMetric?"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "((Sentry.SentryMetric) -> Sentry.SentryMetric?)?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC16beforeSendMetricAA0aE0VSgAFcSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry7OptionsC16beforeSendMetricAA0aE0VSgAFcSgvs"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryMetric",
+                            "printedName": "Sentry.SentryMetric",
+                            "usr": "s:6Sentry0A6MetricV"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Optional",
+                        "printedName": "Sentry.SentryMetric?",
+                        "usr": "s:Sq"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryMetric",
+                        "printedName": "Sentry.SentryMetric",
+                        "usr": "s:6Sentry0A6MetricV"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryMetric) -> Sentry.SentryMetric?"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((Sentry.SentryMetric) -> Sentry.SentryMetric?)?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry7OptionsC16beforeSendMetricAA0aE0VSgAFcSgvp",
+            "moduleName": "Sentry",
+            "name": "beforeSendMetric",
+            "printedName": "beforeSendMetric",
+            "usr": "s:6Sentry7OptionsC16beforeSendMetricAA0aE0VSgAFcSgvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
                                 "children": [
                                   {
                                     "kind": "TypeNominal",
@@ -23066,6 +23227,82 @@
             "name": "enableMetricKitRawPayload",
             "printedName": "enableMetricKitRawPayload",
             "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableMetricKitRawPayload"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC13enableMetricsSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)enableMetrics"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry7OptionsC13enableMetricsSbvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions(im)setEnableMetrics:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry7OptionsC13enableMetricsSbvp",
+            "moduleName": "Sentry",
+            "name": "enableMetrics",
+            "printedName": "enableMetrics",
+            "usr": "c:@M@Sentry@objc(cs)SentryOptions(py)enableMetrics"
           },
           {
             "accessors": [
@@ -36486,243 +36723,6 @@
             "overriding": true,
             "printedName": "init()",
             "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)init"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "children": [
-                      {
-                        "children": [
-                          {
-                            "children": [
-                              {
-                                "kind": "TypeNominal",
-                                "name": "SentryMetric",
-                                "printedName": "Sentry.SentryMetric",
-                                "usr": "s:6Sentry0A6MetricV"
-                              }
-                            ],
-                            "kind": "TypeNominal",
-                            "name": "Optional",
-                            "printedName": "Sentry.SentryMetric?",
-                            "usr": "s:Sq"
-                          },
-                          {
-                            "kind": "TypeNominal",
-                            "name": "SentryMetric",
-                            "printedName": "Sentry.SentryMetric",
-                            "usr": "s:6Sentry0A6MetricV"
-                          }
-                        ],
-                        "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryMetric) -> Sentry.SentryMetric?"
-                      }
-                    ],
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "((Sentry.SentryMetric) -> Sentry.SentryMetric?)?",
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declAttributes": [
-                  "Final"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC16beforeSendMetricAA0aF0VSgAFcSgvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "s:6Sentry0A19ExperimentalOptionsC16beforeSendMetricAA0aF0VSgAFcSgvg"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "children": [
-                      {
-                        "children": [
-                          {
-                            "children": [
-                              {
-                                "kind": "TypeNominal",
-                                "name": "SentryMetric",
-                                "printedName": "Sentry.SentryMetric",
-                                "usr": "s:6Sentry0A6MetricV"
-                              }
-                            ],
-                            "kind": "TypeNominal",
-                            "name": "Optional",
-                            "printedName": "Sentry.SentryMetric?",
-                            "usr": "s:Sq"
-                          },
-                          {
-                            "kind": "TypeNominal",
-                            "name": "SentryMetric",
-                            "printedName": "Sentry.SentryMetric",
-                            "usr": "s:6Sentry0A6MetricV"
-                          }
-                        ],
-                        "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryMetric) -> Sentry.SentryMetric?"
-                      }
-                    ],
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "((Sentry.SentryMetric) -> Sentry.SentryMetric?)?",
-                    "usr": "s:Sq"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Final"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC16beforeSendMetricAA0aF0VSgAFcSgvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "printedName": "Set()",
-                "usr": "s:6Sentry0A19ExperimentalOptionsC16beforeSendMetricAA0aF0VSgAFcSgvs"
-              }
-            ],
-            "children": [
-              {
-                "children": [
-                  {
-                    "children": [
-                      {
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "SentryMetric",
-                            "printedName": "Sentry.SentryMetric",
-                            "usr": "s:6Sentry0A6MetricV"
-                          }
-                        ],
-                        "kind": "TypeNominal",
-                        "name": "Optional",
-                        "printedName": "Sentry.SentryMetric?",
-                        "usr": "s:Sq"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "SentryMetric",
-                        "printedName": "Sentry.SentryMetric",
-                        "usr": "s:6Sentry0A6MetricV"
-                      }
-                    ],
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryMetric) -> Sentry.SentryMetric?"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "((Sentry.SentryMetric) -> Sentry.SentryMetric?)?",
-                "usr": "s:Sq"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "HasInitialValue",
-              "HasStorage"
-            ],
-            "declKind": "Var",
-            "hasStorage": true,
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A19ExperimentalOptionsC16beforeSendMetricAA0aF0VSgAFcSgvp",
-            "moduleName": "Sentry",
-            "name": "beforeSendMetric",
-            "printedName": "beforeSendMetric",
-            "usr": "s:6Sentry0A19ExperimentalOptionsC16beforeSendMetricAA0aF0VSgAFcSgvp"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC13enableMetricsSbvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableMetrics"
-              },
-              {
-                "accessorKind": "set",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declAttributes": [
-                  "Final",
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC13enableMetricsSbvs",
-                "moduleName": "Sentry",
-                "name": "Set",
-                "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableMetrics:"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declAttributes": [
-              "Final",
-              "HasStorage",
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "hasStorage": true,
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A19ExperimentalOptionsC13enableMetricsSbvp",
-            "moduleName": "Sentry",
-            "name": "enableMetrics",
-            "printedName": "enableMetrics",
-            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableMetrics"
           },
           {
             "accessors": [
