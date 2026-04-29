@@ -694,6 +694,17 @@
     
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static let defaultEnvironment = "production"
+
+    // MARK: - Integration: Metrics
+
+    /// When enabled, the SDK sends metrics to Sentry. Metrics can be captured using the ``SentrySDK/metrics``
+    /// API, which allows you to send, view and query counters, gauges and measurements.
+    /// @note Default value is @c true.
+    @objc public var enableMetrics: Bool = true
+
+    /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
+    /// drop the metric.
+    public var beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 }
 
 extension NSNumber {

@@ -72,18 +72,11 @@ import Foundation
     ///
     /// ## Requirements
     ///
-    /// Metrics are enabled by default even though it is an experimental feature, because you must still
-    /// manually call the API methods (``SentryMetricsApiProtocol/count(key:value:attributes:)``,
-    /// ``SentryMetricsApiProtocol/gauge(key:value:unit:attributes:)``, or
-    /// ``SentryMetricsApiProtocol/distribution(key:value:unit:attributes:)``) to use it.
+    /// To disable metrics, set ``Options/enableMetrics`` to `false`.
     ///
-    /// To disable metrics, set ``Options/experimental`` ``SentryExperimentalOptions/enableMetrics`` to `false`.
-    ///
-    /// - Note: This feature is currently in open beta.
-    ///
-    /// - Important: The Metrics API has been designed and optimized for Swift. Objective-C support is not
-    ///   currently available. If you need Objective-C support, please open an issue at
-    ///   https://github.com/getsentry/sentry-cocoa/issues to show demand for this feature.
+    /// - Important: The Metrics API has been designed and optimized for Swift. Objective-C support is
+    ///   currently not available. If you need Objective-C support, please see the issue
+    ///   https://github.com/getsentry/sentry-cocoa/issues/6342 for progress.
     ///
     /// - SeeAlso: For complete documentation, visit https://docs.sentry.io/platforms/apple/metrics/
     public static var metrics: SentryMetricsApiProtocol = SentryMetricsApi(dependencies: SentryDependencyContainer.sharedInstance())
