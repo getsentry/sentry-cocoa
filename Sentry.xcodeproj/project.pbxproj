@@ -1277,6 +1277,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			publicHeaders = (
 				Public/SentryObjCAttributeContent.h,
+				Public/SentryObjCBridging.h,
 				Public/SentryObjCMetric.h,
 				Public/SentryObjCMetricValue.h,
 				Public/SentryObjCRedactRegionType.h,
