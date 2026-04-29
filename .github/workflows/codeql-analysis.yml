@@ -69,12 +69,13 @@ jobs:
             -workspace Sentry.xcworkspace \
             -scheme Sentry \
             -configuration Release \
-            -destination platform="iOS Simulator,OS=${{ env.IOS_SIMULATOR_OS }},name=iPhone 17 Pro" \
+            -destination platform="iOS Simulator,OS=${{ env.IOS_SIMULATOR_OS }},name=${{ env.IOS_DEVICE_NAME }}" \
             build 2>&1 |
             tee raw-analyze-output.log |
             xcbeautify
         env:
           IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_DEVICE_NAME: ${{ steps.setup-xcode.outputs.ios-device-name }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@256d634097be96e792d6764f9edaefc4320557b1 # v4
