@@ -11,6 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 HEADERS_DIR="$PROJECT_ROOT/Sources/SentryObjC/Public"
 TYPES_HEADERS_DIR="$PROJECT_ROOT/Sources/SentryObjCTypes/Public"
+SENTRY_HEADERS_DIR="$PROJECT_ROOT/Sources/Sentry/Public"
 UMBRELLA_HEADER="$HEADERS_DIR/SentryObjC.h"
 
 # Temporary files
@@ -28,16 +29,19 @@ TYPEDEFS_JSON="$TMP_DIR/typedefs.json"
 SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
 
 # Step 1: Generate AST dump from umbrella header.
-# SentryObjC's umbrella re-exposes data-carrier types from SentryObjCTypes via
-# `__has_include(<SentryObjCTypes/...>)`, then falls back to bare-quote imports.
-# The quoted form resolves through the SentryObjCTypes public headers dir, so
-# both are included on the -I path.
+# SentryObjC's umbrella uses `__has_include(<...>)` blocks to import headers
+# from Sentry / SentryObjCTypes when those frameworks are available, falling
+# back to bare-quote imports otherwise. In this clang-only context (no frame-
+# work search paths), the angle-bracket branches fail to resolve, so we add
+# all three public-header directories to the -I path so the quoted fallbacks
+# resolve directly.
 xcrun clang -x objective-c \
   -Xclang -ast-dump=json \
   -fsyntax-only \
   -isysroot "$SDK_PATH" \
   -I "$HEADERS_DIR" \
   -I "$TYPES_HEADERS_DIR" \
+  -I "$SENTRY_HEADERS_DIR" \
   "$UMBRELLA_HEADER" \
   2>/dev/null > "$AST_JSON"
 
