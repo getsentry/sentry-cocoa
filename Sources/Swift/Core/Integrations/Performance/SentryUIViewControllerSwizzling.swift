@@ -1,5 +1,7 @@
 @_implementationOnly import _SentryPrivate
 
+import MachO
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
@@ -11,6 +13,17 @@ import UIKit
 
 extension UIApplication: SentryUIApplication {}
 
+// This typealias, the defaultLoadedImageNamesProvider() function, and the init
+// parameter loadedImageNamesProvider exist to allow tests to inject images.
+// The default provider is the production code that iterates the dyld image list.
+private typealias SentryLoadedImageNamesProvider = () -> [String]
+
+private func defaultLoadedImageNamesProvider() -> [String] {
+    (0..<_dyld_image_count()).compactMap { index in
+        _dyld_get_image_name(index).map { String(cString: $0) }
+    }
+}
+
 class SentryUIViewControllerSwizzling {
     private let options: Options
     private let inAppLogic: SentryInAppLogic
@@ -19,8 +32,8 @@ class SentryUIViewControllerSwizzling {
     private let subClassFinder: SentrySubClassFinder
     private let imagesActedOnSubclassesOfUIViewControllers: NSMutableSet
     private let processInfoWrapper: SentryProcessInfoSource
-    private let binaryImageCache: SentryBinaryImageCache
     private let performanceTracker: SentryUIViewControllerPerformanceTracker
+    private let loadedImageNamesProvider: SentryLoadedImageNamesProvider
 
     init(
         options: Options,
@@ -28,8 +41,8 @@ class SentryUIViewControllerSwizzling {
         objcRuntimeWrapper: SentryObjCRuntimeWrapper,
         subClassFinder: SentrySubClassFinder,
         processInfoWrapper: SentryProcessInfoSource,
-        binaryImageCache: SentryBinaryImageCache,
-        performanceTracker: SentryUIViewControllerPerformanceTracker
+        performanceTracker: SentryUIViewControllerPerformanceTracker,
+        loadedImageNamesProvider: @escaping () -> [String] = defaultLoadedImageNamesProvider
     ) {
         self.options = options
         self.inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
@@ -38,19 +51,21 @@ class SentryUIViewControllerSwizzling {
         self.subClassFinder = subClassFinder
         self.imagesActedOnSubclassesOfUIViewControllers = NSMutableSet()
         self.processInfoWrapper = processInfoWrapper
-        self.binaryImageCache = binaryImageCache
         self.performanceTracker = performanceTracker
+        self.loadedImageNamesProvider = loadedImageNamesProvider
     }
 
     func start() {
+        let imageNames = loadedImageNamesProvider()
         for inAppInclude in inAppLogic.inAppIncludes {
-            let imagePathsToInAppInclude = binaryImageCache.imagePathsFor(inAppInclude: inAppInclude)
-
-            if !imagePathsToInAppInclude.isEmpty {
-                for imagePath in imagePathsToInAppInclude {
-                    swizzleUIViewControllers(ofImage: imagePath)
+            var found = false
+            for imageName in imageNames {
+                if SentryInAppLogic.isImageNameInApp(imageName, inAppInclude: inAppInclude) {
+                    found = true
+                    swizzleUIViewControllers(ofImage: imageName)
                 }
-            } else {
+            }
+            if !found {
                 SentrySDKLog.warning(
                     "Failed to find the binary image(s) for inAppInclude <\(inAppInclude)> and, therefore can't instrument UIViewControllers in these binaries."
                 )
