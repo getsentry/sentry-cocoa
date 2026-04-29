@@ -177,6 +177,20 @@ class SentrySessionReplayTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(sut.isRunning)
     }
+
+    func testCaptureRunLoopObserver_whenRunLoopIsTracking_shouldNotCapture() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        // -- Act --
+        fixture.dateProvider.advance(by: 1)
+        runRunLoop(mode: .tracking)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 0)
+    }
     
     func testSentReplay_FullSession() {
         let fixture = Fixture()
@@ -851,6 +865,16 @@ class SentrySessionReplayTests: XCTestCase {
     }
 
     // MARK: - Helpers
+
+    private func runRunLoop(mode: RunLoop.Mode, file: StaticString = #filePath, line: UInt = #line) {
+        var didRun = false
+        let timer = Timer(timeInterval: 0.01, repeats: false) { _ in
+            didRun = true
+        }
+        RunLoop.current.add(timer, forMode: mode)
+        RunLoop.current.run(mode: mode, before: Date(timeIntervalSinceNow: 0.1))
+        XCTAssertTrue(didRun, "Expected run loop to process timer", file: file, line: line)
+    }
 
     private func assertFullSession(_ sessionReplay: SentrySessionReplay, expected: Bool) {
         XCTAssertEqual(sessionReplay.isFullSession, expected)

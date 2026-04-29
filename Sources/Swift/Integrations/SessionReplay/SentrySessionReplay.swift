@@ -34,7 +34,7 @@ import UIKit
     private var deferredScreenshotStart: Date?
     private let screenshotIntervalTolerance: TimeInterval = 0.001
     private var captureRunLoopObserver: CFRunLoopObserver?
-    private var didProcessDefaultModeWork = false
+    private var didProcessCaptureModeWork = false
     private var isCaptureSchedulerRunning = false
     public var replayTags: [String: Any]?
 
@@ -304,10 +304,10 @@ import UIKit
 
     private func stopCaptureScheduler() {
         isCaptureSchedulerRunning = false
-        didProcessDefaultModeWork = false
+        didProcessCaptureModeWork = false
 
         if let captureRunLoopObserver = captureRunLoopObserver {
-            CFRunLoopRemoveObserver(CFRunLoopGetMain(), captureRunLoopObserver, .defaultMode)
+            CFRunLoopRemoveObserver(CFRunLoopGetMain(), captureRunLoopObserver, .commonModes)
             self.captureRunLoopObserver = nil
         }
     }
@@ -332,32 +332,47 @@ import UIKit
             activities,
             true,
             CFIndex.max,
-            { _, activity, context in
-                guard let context = context else { return }
+            { observer, activity, context in
+                guard let observer = observer,
+                    CFRunLoopObserverIsValid(observer),
+                    let context = context
+                else { return }
                 let sessionReplay = Unmanaged<SentrySessionReplay>.fromOpaque(context).takeUnretainedValue()
-                sessionReplay.captureOnRunLoopActivity(activity)
+                sessionReplay.captureOnRunLoopActivity(
+                    activity,
+                    in: CFRunLoopCopyCurrentMode(CFRunLoopGetCurrent())
+                )
             },
             &context
         )
 
         if let captureRunLoopObserver = captureRunLoopObserver {
-            CFRunLoopAddObserver(CFRunLoopGetMain(), captureRunLoopObserver, .defaultMode)
+            CFRunLoopAddObserver(CFRunLoopGetMain(), captureRunLoopObserver, .commonModes)
         }
     }
 
-    private func captureOnRunLoopActivity(_ activity: CFRunLoopActivity) {
+    private func captureOnRunLoopActivity(_ activity: CFRunLoopActivity, in currentMode: CFRunLoopMode?) {
         guard isCaptureSchedulerRunning else { return }
+        guard !isInteractiveRunLoopMode(currentMode) else {
+            didProcessCaptureModeWork = false
+            return
+        }
 
         if activity.contains(.afterWaiting)
             || activity.contains(.beforeTimers)
             || activity.contains(.beforeSources) {
-            didProcessDefaultModeWork = true
+            didProcessCaptureModeWork = true
         } else if activity.contains(.beforeWaiting) || activity.contains(.exit) {
-            guard didProcessDefaultModeWork else { return }
+            guard didProcessCaptureModeWork else { return }
 
-            didProcessDefaultModeWork = false
+            didProcessCaptureModeWork = false
             captureFrameIfNeeded()
         }
+    }
+
+    private func isInteractiveRunLoopMode(_ currentMode: CFRunLoopMode?) -> Bool {
+        guard let currentMode = currentMode else { return false }
+        return CFEqual(currentMode.rawValue, RunLoop.Mode.tracking.rawValue as CFString)
     }
 
     private func shouldDeferScreenshot(rootView: UIView, at date: Date) -> Bool {
