@@ -6,6 +6,37 @@
 > This release promotes Metrics out of experimental and **removes** `options.experimental.enableMetrics` and `options.experimental.beforeSendMetric`. If you set either of these, your app will fail to compile after upgrading.
 > Migrate to `options.enableMetrics` and `options.beforeSendMetric` (top-level on `Options`) — the defaults and behavior are unchanged.
 
+> [!WARNING]
+> Session Replay now runs on iOS 26 with Liquid Glass. Previously, the SDK auto-disabled Session Replay on iOS 26 builds that adopted Liquid Glass (built with Xcode 26+ and `UIDesignRequiresCompatibility` not set). Now that the underlying redaction issues have been addressed, replays will be captured in those environments — verify your masking still meets your privacy requirements.
+> If you want to keep Session Replay disabled on Liquid Glass builds, you will need to gate the sample rates yourself. For reference, see how the SDK used to perform the check: https://github.com/getsentry/sentry-cocoa/blob/adef457c1344e5efda4b74a1f33913d4d49ef7e0/Sources/Swift/Integrations/SessionReplay/SentrySessionReplayEnvironmentChecker.swift
+>
+> Example — disable Session Replay when Liquid Glass is active:
+>
+> ```swift
+> import Sentry
+>
+> SentrySDK.start { options in
+>     options.dsn = "___PUBLIC_DSN___"
+>
+>     var sessionRate: Float = 0.2
+>     var errorRate: Float = 1.0
+>
+>     if #available(iOS 26.0, *) {
+>         let compatibilityMode = Bundle.main.object(forInfoDictionaryKey: "UIDesignRequiresCompatibility") as? Bool ?? false
+>         let xcodeVersion = Int(Bundle.main.object(forInfoDictionaryKey: "DTXcode") as? String ?? "") ?? 0
+>         let builtWithXcode26OrLater = xcodeVersion >= 2600
+>         let liquidGlassActive = builtWithXcode26OrLater && !compatibilityMode
+>         if liquidGlassActive {
+>             sessionRate = 0
+>             errorRate = 0
+>         }
+>     }
+>
+>     options.sessionReplay.sessionSampleRate = sessionRate
+>     options.sessionReplay.onErrorSampleRate = errorRate
+> }
+> ```
+
 ### Improvements
 
 - Remove `enableSessionReplayInUnreliableEnvironment` experimental option and the environment checker that temporarily disabled Session Replay on iOS 26 (#7831)
