@@ -4,7 +4,7 @@
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-typealias SessionReplayIntegrationScope = SessionReplayEnvironmentCheckerProvider & NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & CrashWrapperProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider
+typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & CrashWrapperProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider
 
 // This is static because it will be used for swizzling and would cause retain cycles
 private var touchTracker: SentryTouchTracker?
@@ -44,14 +44,6 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     // MARK: - Initialization
 
     required convenience init?(with options: Options, dependencies: SentryDependencyContainer) {
-        guard SentrySessionReplay.shouldEnableSessionReplay(
-            environmentChecker: dependencies.sessionReplayEnvironmentChecker,
-            experimentalOptions: options.experimental
-        ) else {
-            SentrySDKLog.debug("Not going to enable SentrySessionReplayIntegration because environment check failed.")
-            return nil
-        }
-
         guard options.sessionReplay.sessionSampleRate > 0 || options.sessionReplay.onErrorSampleRate > 0 else {
             SentrySDKLog.debug("Not going to enable SentrySessionReplayIntegration because sample rates are 0.")
             return nil

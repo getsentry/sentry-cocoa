@@ -95,6 +95,9 @@
 
     [self setBool:options[@"enableLogs"] block:^(BOOL value) { sentryOptions.enableLogs = value; }];
 
+    [self setBool:options[@"enableMetrics"]
+            block:^(BOOL value) { sentryOptions.enableMetrics = value; }];
+
     [self setBool:options[@"enableNetworkBreadcrumbs"]
             block:^(BOOL value) { sentryOptions.enableNetworkBreadcrumbs = value; }];
 
