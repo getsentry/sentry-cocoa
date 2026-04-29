@@ -162,38 +162,7 @@ WATCHOS_OS=$(resolve_simulator_os watchsimulator watchOS)
 VISIONOS_OS=$(resolve_simulator_os xrsimulator visionOS xrOS)
 log_notice "Per-platform resolution complete"
 
-# Pick a sensible default iPhone for the iOS runtime that ships with this Xcode:
-# the highest-numbered "iPhone N Pro" available (excluding "Pro Max"/"Pro Plus").
-# This is just a default — matrix entries that pin a specific iOS major can still
-# override IOS_DEVICE_NAME explicitly.
-ios_default_device() {
-    local os_version="$1"
-    [[ -z "$os_version" ]] && return 0
-    # `simctl list devices available` groups devices under section headers like
-    # `-- iOS 26.4 --` using only major.minor, even when the runtime version
-    # (as reported by `simctl list runtimes -j`) is `26.4.1`. Strip the patch
-    # component so the awk pattern matches the section header simctl actually
-    # prints. Wrap the pipeline with `|| result=""` so a missing section or a
-    # `set -o pipefail`-induced failure doesn't kill the whole script.
-    local os_mm
-    os_mm=$(echo "$os_version" | awk -F. '{print $1"."$2}')
-    local result
-    result=$(xcrun simctl list devices available 2>/dev/null \
-        | awk -v platform="iOS" -v version="$os_mm" '
-            $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
-            in_section { if (/^-- /) exit; print }' \
-        | grep -E "iPhone [0-9]+ Pro \(" \
-        | sed -E 's/^[[:space:]]*(iPhone [0-9]+ Pro)[[:space:]]+\(.*$/\1/' \
-        | sort -V \
-        | tail -n1) || result=""
-    echo "$result"
-}
-
-log_notice "Resolving default iPhone for iOS $IOS_OS..."
-IOS_DEVICE=$(ios_default_device "$IOS_OS")
-log_notice "Default iPhone: ${IOS_DEVICE:-<none>}"
-
-log_notice "SDK versions for Xcode $RESOLVED -- iOS: ${IOS_OS:-none} (${IOS_DEVICE:-no Pro device}), tvOS: ${TVOS_OS:-none}, watchOS: ${WATCHOS_OS:-none}, visionOS: ${VISIONOS_OS:-none}"
+log_notice "SDK versions for Xcode $RESOLVED -- iOS: ${IOS_OS:-none}, tvOS: ${TVOS_OS:-none}, watchOS: ${WATCHOS_OS:-none}, visionOS: ${VISIONOS_OS:-none}"
 
 # Always emit step outputs (kebab-case keys) so callers using the composite
 # action can read them as `${{ steps.<id>.outputs.<name> }}`.
@@ -208,7 +177,6 @@ emit_output() {
 log_notice "Emitting step outputs..."
 emit_output xcode-version         "$RESOLVED"
 emit_output ios-simulator-os      "$IOS_OS"
-emit_output ios-device-name       "$IOS_DEVICE"
 emit_output tvos-simulator-os     "$TVOS_OS"
 emit_output watchos-simulator-os  "$WATCHOS_OS"
 emit_output visionos-simulator-os "$VISIONOS_OS"
@@ -236,7 +204,6 @@ if [[ -n "${GITHUB_ENV:-}" ]]; then
 fi
 
 emit_env_if_unset IOS_SIMULATOR_OS      "$IOS_OS"
-emit_env_if_unset IOS_DEVICE_NAME       "$IOS_DEVICE"
 emit_env_if_unset TVOS_SIMULATOR_OS     "$TVOS_OS"
 emit_env_if_unset WATCHOS_SIMULATOR_OS  "$WATCHOS_OS"
 emit_env_if_unset VISIONOS_SIMULATOR_OS "$VISIONOS_OS"

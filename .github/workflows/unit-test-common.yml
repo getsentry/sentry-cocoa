@@ -69,6 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Setup Xcode
+        id: setup-xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: ${{ inputs.xcode }}
@@ -77,7 +78,7 @@ jobs:
         id: resolve-test-destination
         uses: ./.github/actions/resolve-test-destination
         with:
-          test-destination-os: ${{ inputs.test-destination-os }}
+          test-destination-os: ${{ inputs.test-destination-os || steps.setup-xcode.outputs.ios-simulator-os }}
           device: ${{ inputs.device }}
           platform: ${{ inputs.platform }}
 

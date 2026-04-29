@@ -3,7 +3,8 @@ description: >-
   Resolves the simulator OS version and device name for a test run.
   When `test-destination-os` or `device` are provided they pass through unchanged.
   When omitted (empty), the action falls back to the values exported by
-  `setup-xcode` for the given platform (e.g. IOS_SIMULATOR_OS / IOS_DEVICE_NAME).
+  `setup-xcode` for the given platform (e.g. IOS_SIMULATOR_OS). For iOS,
+  the device defaults to the newest "iPhone N Pro" in the resolved runtime.
 inputs:
   test-destination-os:
     description: >-
@@ -13,8 +14,8 @@ inputs:
     default: ""
   device:
     description: >-
-      Explicit device name (e.g. "iPhone 15 Pro"). Leave empty to use the
-      default derived by setup-xcode for iOS.
+      Explicit device name (e.g. "iPhone 15 Pro"). Leave empty to auto-detect
+      per platform (newest iPhone Pro for iOS, Apple TV for tvOS, etc.).
     required: false
     default: ""
   platform:
@@ -50,7 +51,44 @@ runs:
             *)            TEST_OS="latest" ;;
           esac
         fi
-        TEST_DEVICE="${INPUT_DEVICE:-$IOS_DEVICE_NAME}"
+        if [ -n "$INPUT_DEVICE" ]; then
+          TEST_DEVICE="$INPUT_DEVICE"
+        else
+          case "$PLATFORM" in
+            iOS|Catalyst)
+              # Pick the newest "iPhone N Pro" (excluding Max/Plus) available in
+              # the resolved iOS runtime. `simctl list devices` groups by major.minor
+              # so strip any patch component before searching.
+              OS_MM=$(echo "$TEST_OS" | awk -F. '{print $1"."$2}')
+              TEST_DEVICE=$(xcrun simctl list devices available 2>/dev/null \
+                | awk -v platform="iOS" -v version="$OS_MM" '
+                    $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
+                    in_section { if (/^-- /) exit; print }' \
+                | grep -E "iPhone [0-9]+ Pro \(" \
+                | sed -E 's/^[[:space:]]*(iPhone [0-9]+ Pro)[[:space:]]+\(.*$/\1/' \
+                | sort -V \
+                | tail -n1) || TEST_DEVICE=""
+              ;;
+            tvOS)         TEST_DEVICE="Apple TV" ;;
+            watchOS)
+              # Pick the newest Apple Watch available in the resolved watchOS runtime.
+              # Watch names include parenthetical sizes (e.g. "Apple Watch Ultra 3 (49mm)")
+              # so we strip from the UUID pattern `(XXXX-...) (State)` rather than the
+              # first `(`, which would lose the size.
+              OS_MM=$(echo "$TEST_OS" | awk -F. '{print $1"."$2}')
+              TEST_DEVICE=$(xcrun simctl list devices available 2>/dev/null \
+                | awk -v platform="watchOS" -v version="$OS_MM" '
+                    $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
+                    in_section { if (/^-- /) exit; print }' \
+                | grep -E "Apple Watch" \
+                | sed -E 's/^[[:space:]]+//; s/ \([A-F0-9-]+\) \([A-Za-z]+\)[[:space:]]*$//' \
+                | sort -V \
+                | tail -n1) || TEST_DEVICE=""
+              ;;
+            visionOS)     TEST_DEVICE="Apple Vision Pro" ;;
+            *)            TEST_DEVICE="" ;;
+          esac
+        fi
 
         echo "TEST_OS=$TEST_OS" >> "$GITHUB_OUTPUT"
         echo "TEST_DEVICE=$TEST_DEVICE" >> "$GITHUB_OUTPUT"

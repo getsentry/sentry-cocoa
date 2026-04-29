@@ -183,6 +183,12 @@ jobs:
         with:
           version: "26"
 
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
+
       - name: Install xcodegen
         run: brew install xcodegen
 
@@ -190,7 +196,7 @@ jobs:
         run: make ${{ matrix.make-target }}
         env:
           IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
-          IOS_DEVICE_NAME: ${{ steps.setup-xcode.outputs.ios-device-name }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
       - name: Debug Xcode environment
         if: ${{ failure() || cancelled() }}
@@ -313,11 +319,17 @@ jobs:
         with:
           version: "16"
 
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
+
       - name: Build for Debug
         env:
           REF: ${{ github.ref }}
           IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
-          IOS_DEVICE_NAME: ${{ steps.setup-xcode.outputs.ios-device-name }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
@@ -348,11 +360,17 @@ jobs:
         with:
           version: "16"
 
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
+
       - name: Build for Release
         env:
           REF: ${{ github.ref }}
           IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
-          IOS_DEVICE_NAME: ${{ steps.setup-xcode.outputs.ios-device-name }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
@@ -383,11 +401,17 @@ jobs:
         with:
           version: "16"
 
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
+
       - name: Build for Debug
         env:
           REF: ${{ github.ref }}
           IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
-          IOS_DEVICE_NAME: ${{ steps.setup-xcode.outputs.ios-device-name }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
@@ -418,11 +442,17 @@ jobs:
         with:
           version: "16"
 
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
+
       - name: Build for Release
         env:
           REF: ${{ github.ref }}
           IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
-          IOS_DEVICE_NAME: ${{ steps.setup-xcode.outputs.ios-device-name }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
@@ -452,6 +482,12 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
 
       - name: Build for Release
         env:
@@ -484,6 +520,12 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
 
       - name: Build for Release
         env:
@@ -530,11 +572,17 @@ jobs:
         with:
           version: "16"
 
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
+
       - name: Build for Debug
         env:
           REF: ${{ github.ref }}
           IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
-          IOS_DEVICE_NAME: ${{ steps.setup-xcode.outputs.ios-device-name }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
