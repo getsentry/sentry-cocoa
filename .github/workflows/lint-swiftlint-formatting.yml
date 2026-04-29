@@ -46,7 +46,8 @@ jobs:
       - run: swiftlint --version
       - name: Run SwiftLint
         run: swiftlint --strict
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   # This check validates that either lint passed or was skipped, which allows us

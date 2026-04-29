@@ -87,7 +87,8 @@ jobs:
             cat sentryswiftui_result.json
             exit 1
           fi
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   # This check validates that either all API stability checks passed or were skipped, which allows us

@@ -177,5 +177,6 @@ jobs:
           name: xcframework-${{github.sha}}-${{inputs.override-name || inputs.variant-id}}
           if-no-files-found: error
           path: ${{ env.XCFRAMEWORK_NAME }}.xcframework.zip
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()

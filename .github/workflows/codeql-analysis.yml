@@ -72,7 +72,8 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@256d634097be96e792d6764f9edaefc4320557b1 # v4
 
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   # This check validates that either analyze passed or was skipped, which allows us

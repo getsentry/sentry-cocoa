@@ -94,7 +94,8 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   build-required-check:

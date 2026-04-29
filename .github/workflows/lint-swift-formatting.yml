@@ -58,7 +58,8 @@ jobs:
           else
             echo "✅ All code is formatted correctly."
           fi
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   lint_swift_formatting-required-check:

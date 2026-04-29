@@ -137,5 +137,6 @@ jobs:
           path: |
             *.log
 
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()

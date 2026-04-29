@@ -266,7 +266,8 @@ jobs:
           name: sentry-cocoa-unit-tests
           flags: unittests-${{ inputs.platform }}-${{ inputs.xcode }}-${{ inputs.test-destination-os }}, unittests
 
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
       - name: Store screenshot

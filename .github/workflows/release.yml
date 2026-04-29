@@ -138,7 +138,8 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         run: make strip-xcframework-expected-signature
       - run: make build-xcframework-sample
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   # Use github.event.pull_request.head.sha instead of github.sha when available as
@@ -174,7 +175,8 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   validate-spm-dynamic:
@@ -207,7 +209,8 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build
         working-directory: Samples/SPM-Dynamic
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   swift-build:
@@ -239,7 +242,8 @@ jobs:
             --change-path true
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: swift build --target SentrySwiftUI
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   validate-spm-visionos:
@@ -272,7 +276,8 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh 16.4
       - run: set -o pipefail &&xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify
         working-directory: Samples/visionOS-SPM
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   duplication-tests:
@@ -354,7 +359,8 @@ jobs:
         if: needs.files-changed.outputs.is_dependabot == 'true'
         run: |
           echo "::warning::App metrics collection was SKIPPED ON PURPOSE for dependabot PR. Code signing secrets are not available for dependabot PRs."
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
   job_release:
@@ -414,7 +420,8 @@ jobs:
           force: ${{ github.event.inputs.force }}
           merge_target: ${{ github.event.inputs.merge_target }}
 
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   release-required-check:

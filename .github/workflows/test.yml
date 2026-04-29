@@ -96,7 +96,8 @@ jobs:
             test-server-build-intel.log
             test-server-build-arm64.log
 
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   distribution-tests:
@@ -239,7 +240,8 @@ jobs:
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
       - name: Store screenshot

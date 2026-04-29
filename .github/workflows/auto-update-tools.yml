@@ -114,7 +114,8 @@ jobs:
           sign-commits: true
           base: main
 
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   # This check validates that either auto-update-tools passed or was skipped, which allows us

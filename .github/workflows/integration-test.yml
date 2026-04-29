@@ -60,7 +60,8 @@ jobs:
           name: integration-test-iOS-Cocoapods-Swift6.xcresult
           path: Samples/iOS-Cocoapods-Swift6/fastlane/test_results/results.xcresult
 
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   # This check validates that either all integration tests passed or were skipped, which allows us

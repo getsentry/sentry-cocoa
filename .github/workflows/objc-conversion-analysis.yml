@@ -78,7 +78,8 @@ jobs:
             SwiftConversion/objc_dependencies_topo.svg
           retention-days: 30
 
-      - uses: ./.github/actions/ci-diagnostics
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
 
   # This check validates that either all Objective-C conversion analysis passed or was skipped, which allows us
