@@ -3,7 +3,7 @@ import Foundation
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & HangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder
+typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & HangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider
 
 final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogTerminationTrackingProvider>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
 
@@ -29,6 +29,11 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
 
         guard dependencies.processInfoWrapper.environment["XCTestConfigurationFilePath"] == nil else {
             SentrySDKLog.debug("Not going to enable \(Self.name) because XCTestConfigurationFilePath is set.")
+            return nil
+        }
+
+        if let identifier = dependencies.extensionDetector.getExtensionPointIdentifier(), identifier.isDisabledExtensionPointIdentifier {
+            SentrySDKLog.debug("Not enabling watchdog termination tracking for extension: \(identifier)")
             return nil
         }
 
@@ -65,24 +70,27 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         anrTracker?.add(listener: self)
 
         let scopeObserver = dependencies.getWatchdogTerminationScopeObserverWithOptions(options)
-
         SentrySDKInternal.currentHub().configureScope { outerScope in
-            // Add the observer to the scope so that it can be notified when the scope changes.
-            outerScope.add(scopeObserver)
-
-            // Sync the current context to the observer to capture context modifications that happened
-            // before installation.
-            scopeObserver.setContext(outerScope.contextDictionary as? [String: [String: Any]])
-            scopeObserver.setUser(outerScope.userObject)
-            scopeObserver.setEnvironment(outerScope.environmentString)
-            scopeObserver.setDist(outerScope.distString)
-            scopeObserver.setTags(outerScope.tags)
-            scopeObserver.setExtras(outerScope.extraDictionary as? [String: Any])
-            scopeObserver.setFingerprint(outerScope.fingerprintArray as? [String])
-            // We intentionally skip calling `setTraceContext:` since traces are not stored for watchdog
-            // termination events
-            // We intentionally skip calling `setLevel:` since all termination events have fatal level
+            Self.syncWatchdogScopeObserver(scopeObserver, from: outerScope)
         }
+    }
+
+    private static func syncWatchdogScopeObserver(_ scopeObserver: SentryScopeObserver, from outerScope: Scope) {
+        // Add the observer to the scope so that it can be notified when the scope changes.
+        outerScope.add(scopeObserver)
+
+        // Sync the current context to the observer to capture context modifications that happened
+        // before installation.
+        scopeObserver.setContext(outerScope.contextDictionary as? [String: [String: Any]])
+        scopeObserver.setUser(outerScope.userObject)
+        scopeObserver.setEnvironment(outerScope.environmentString)
+        scopeObserver.setDist(outerScope.distString)
+        scopeObserver.setTags(outerScope.tags)
+        scopeObserver.setExtras(outerScope.extraDictionary as? [String: Any])
+        scopeObserver.setFingerprint(outerScope.fingerprintArray as? [String])
+        // We intentionally skip calling `setTraceContext:` since traces are not stored for watchdog
+        // termination events
+        // We intentionally skip calling `setLevel:` since all termination events have fatal level
     }
 
     static var name: String {

@@ -12,6 +12,7 @@
 
 ### Fixes
 
+- Disable app hang and watchdog termination tracking in Notification Service Extensions (#7818)
 - Fix JSON encoding of infinite numeric values in crash reports (#7802)
 - Fix race condition in `SentryFramesTracker` listeners causing `EXC_BAD_ACCESS` in `NSConcreteHashTable removeItem:` when a listener is deallocated on a background thread (#7839)
 
