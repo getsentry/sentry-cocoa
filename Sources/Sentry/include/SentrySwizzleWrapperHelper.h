@@ -26,6 +26,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)swizzleURLSessionTask:(SentryNetworkTracker *)networkTracker;
 
+// Swizzle [NSURLSession dataTaskWithURL:completionHandler:]
+//         [NSURLSession dataTaskWithRequest:completionHandler:]
++ (void)swizzleURLSessionDataTasksForResponseCapture:(SentryNetworkTracker *)networkTracker;
+
 @end
 
 NS_ASSUME_NONNULL_END
