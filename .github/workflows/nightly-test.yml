@@ -50,7 +50,6 @@ jobs:
             xcode: "26"
             test-destination-os: "26.4"
             platform: "watchOS"
-            device: "Apple Watch Ultra 3 (49mm)"
             timeout: 30
 
           - name: visionOS 2.5 Sentry
@@ -58,7 +57,6 @@ jobs:
             xcode: "26"
             test-destination-os: "2.5"
             platform: "visionOS"
-            device: "Apple Vision Pro"
             timeout: 30
 
   slack-notification:

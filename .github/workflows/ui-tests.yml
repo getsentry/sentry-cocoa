@@ -56,14 +56,10 @@ jobs:
           - job_id: ios_objc
             name: iOS Objective-C
             target: ios_objc
-            test_destination_os: "18.6"
-            device: iPhone 16 Pro
             platform: iOS
           - job_id: tvos_swift
             name: tvOS Swift
             target: tvos_swift
-            test_destination_os: "18.5"
-            device: "Apple TV"
             platform: tvOS
     with:
       fastlane_command: ui_tests_${{matrix.target}}
@@ -72,8 +68,6 @@ jobs:
       macos_version: "sequoia"
       run_on_cirrus_labs: true
       codecov_test_analytics: true
-      test-destination-os: ${{matrix.test_destination_os}}
-      device: ${{matrix.device}}
       files_suffix: _${{matrix.target}}_${{matrix.runner}}
       platform: ${{matrix.platform}}
     secrets:
@@ -91,8 +85,6 @@ jobs:
       xcode_version: "16"
       macos_version: "sequoia"
       run_on_cirrus_labs: true
-      test-destination-os: "18.6"
-      device: iPhone 16 Pro
       files_suffix: _swiftui_-${{matrix.runner}}
       platform: "iOS"
     secrets:
@@ -130,17 +122,13 @@ jobs:
             name: iOS 18
             runs_on: sequoia
             xcode: "16"
-            test_destination_os: "18.6"
             platform: "iOS"
-            device: iPhone 16 Pro
 
           - job_id: ios_26
             name: iOS 26
             runs_on: tahoe
             xcode: "26"
-            test_destination_os: "26.1"
             platform: "iOS"
-            device: iPhone 17 Pro
     with:
       fastlane_command: ui_tests_ios_swift
       files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}-${{matrix.runner}}
@@ -172,8 +160,6 @@ jobs:
       macos_version: "sequoia"
       run_on_cirrus_labs: true
       codecov_test_analytics: true
-      device: iPhone 16 Pro
-      test-destination-os: "18.6"
       platform: iOS
       files_suffix: _swift6_-${{matrix.runner}}
     secrets:

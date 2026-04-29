@@ -288,17 +288,13 @@ jobs:
           - name: iOS 18 Sentry
             runs-on: sequoia
             xcode: "16"
-            test-destination-os: "18.5"
             platform: "iOS"
-            device: "iPhone 16 Pro"
 
           # iOS 26
           - name: iOS 26 Sentry
             runs-on: tahoe
             xcode: "26"
-            test-destination-os: "26.3"
             platform: "iOS"
-            device: "iPhone 17 Pro"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
@@ -308,21 +304,18 @@ jobs:
           - name: macOS 14 Sentry
             runs-on: sonoma
             xcode: "16"
-            test-destination-os: "latest"
             platform: "macOS"
 
           # macOS 15
           - name: macOS 15 Sentry
             runs-on: sequoia
             xcode: "16"
-            test-destination-os: "latest"
             platform: "macOS"
 
           # macOS 26
           - name: macOS 26 Sentry
             runs-on: tahoe
             xcode: "26"
-            test-destination-os: "26.2"
             platform: "macOS"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
@@ -331,13 +324,11 @@ jobs:
           - name: Catalyst 14 Sentry
             runs-on: sonoma
             xcode: "16"
-            test-destination-os: "latest"
             platform: "Catalyst"
 
           - name: Catalyst 15 Sentry
             runs-on: sequoia
             xcode: "16"
-            test-destination-os: "latest"
             platform: "Catalyst"
 
           ## We don't run unit tests on macCatalyst 26 yet because of https://github.com/getsentry/sentry-cocoa/issues/6165.
@@ -357,14 +348,12 @@ jobs:
           - name: tvOS 18 Sentry
             runs-on: sequoia
             xcode: "16"
-            test-destination-os: "18.5"
             platform: "tvOS"
 
           # tvOS 26
           - name: tvOS 26 Sentry
             runs-on: tahoe
             xcode: "26"
-            test-destination-os: "26.2"
             platform: "tvOS"
             device: "Apple TV"
 
@@ -372,9 +361,7 @@ jobs:
           - name: visionOS 26 Sentry
             runs-on: tahoe
             xcode: "26"
-            test-destination-os: "26.2"
             platform: "visionOS"
-            device: "Apple Vision Pro"
             timeout: 30
 
   # This check validates that either all unit tests passed or were skipped, which allows us

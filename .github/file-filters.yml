@@ -31,9 +31,10 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - ".github/file-filters.yml"
   - ".github/workflows/unit-test-common.yml"
 
-  # Scripts
+  # Scripts & actions
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/sentry-xcodebuild.sh"
@@ -250,9 +251,10 @@ run_release_for_prs: &run_release_for_prs
   - ".github/workflows/fast-pr-checks.yml"
   - ".github/file-filters.yml"
 
-  # Scripts
+  # Scripts & actions
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/build-xcframework-slice.sh"
@@ -448,9 +450,10 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   - ".github/workflows/ui-tests-common.yml"
   - ".github/file-filters.yml"
 
-  # Scripts
+  # Scripts & actions
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
@@ -484,10 +487,11 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "**/*.xctestplan"
   - "Plans/**"
 
-  # Scripts
+  # Scripts & actions
   - "scripts/ci-boot-simulator.sh"
   - "scripts/ci-select-xcode.sh"
   - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"

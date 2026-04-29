@@ -1,0 +1,59 @@
+name: "Resolve test destination"
+description: >-
+  Resolves the simulator OS version and device name for a test run.
+  When `test-destination-os` or `device` are provided they pass through unchanged.
+  When omitted (empty), the action falls back to the values exported by
+  `setup-xcode` for the given platform (e.g. IOS_SIMULATOR_OS / IOS_DEVICE_NAME).
+inputs:
+  test-destination-os:
+    description: >-
+      Explicit simulator OS version (e.g. "17.5"). Leave empty to use the
+      default for the selected Xcode.
+    required: false
+    default: ""
+  device:
+    description: >-
+      Explicit device name (e.g. "iPhone 15 Pro"). Leave empty to use the
+      default derived by setup-xcode for iOS.
+    required: false
+    default: ""
+  platform:
+    description: "Target platform: iOS, macOS, tvOS, watchOS, visionOS, or Catalyst."
+    required: true
+outputs:
+  TEST_OS:
+    description: "Resolved simulator OS version."
+    value: ${{ steps.resolve.outputs.TEST_OS }}
+  TEST_DEVICE:
+    description: "Resolved device name."
+    value: ${{ steps.resolve.outputs.TEST_DEVICE }}
+runs:
+  using: "composite"
+  steps:
+    - name: Resolve test destination
+      id: resolve
+      shell: bash
+      env:
+        INPUT_OS: ${{ inputs.test-destination-os }}
+        INPUT_DEVICE: ${{ inputs.device }}
+        PLATFORM: ${{ inputs.platform }}
+      run: |
+        if [ -n "$INPUT_OS" ]; then
+          TEST_OS="$INPUT_OS"
+        else
+          case "$PLATFORM" in
+            iOS|Catalyst) TEST_OS="${IOS_SIMULATOR_OS:-latest}" ;;
+            tvOS)         TEST_OS="${TVOS_SIMULATOR_OS:-latest}" ;;
+            watchOS)      TEST_OS="${WATCHOS_SIMULATOR_OS:-latest}" ;;
+            visionOS)     TEST_OS="${VISIONOS_SIMULATOR_OS:-latest}" ;;
+            macOS)        TEST_OS="latest" ;;
+            *)            TEST_OS="latest" ;;
+          esac
+        fi
+        TEST_DEVICE="${INPUT_DEVICE:-$IOS_DEVICE_NAME}"
+
+        echo "TEST_OS=$TEST_OS" >> "$GITHUB_OUTPUT"
+        echo "TEST_DEVICE=$TEST_DEVICE" >> "$GITHUB_OUTPUT"
+        echo "TEST_OS=$TEST_OS" >> "$GITHUB_ENV"
+        echo "TEST_DEVICE=$TEST_DEVICE" >> "$GITHUB_ENV"
+        echo "Resolved: platform=$PLATFORM os=$TEST_OS device=$TEST_DEVICE"

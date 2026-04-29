@@ -84,7 +84,7 @@ jobs:
           PLATFORM: "iOS"
         run: ./sentry-cocoa/scripts/ci-ensure-runtime-loaded.sh --os-version "$IOS_SIMULATOR_OS" --platform "$PLATFORM"
 
-      - name: Create simulator device for iOS 18.4
+      - name: Create simulator device for iOS
         env:
           IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
           IOS_DEVICE_NAME: ${{ steps.setup-xcode.outputs.ios-device-name }}
