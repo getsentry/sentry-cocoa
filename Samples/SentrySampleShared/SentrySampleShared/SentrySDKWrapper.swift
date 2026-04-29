@@ -192,8 +192,8 @@ public struct SentrySDKWrapper {
         options.enableLogs = true
 
         // Integration: Metrics
-        options.experimental.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
-        options.experimental.beforeSendMetric = { metric in
+        options.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
+        options.beforeSendMetric = { metric in
             // Modify the metric in the callback
             var modifiedMetric = metric
 

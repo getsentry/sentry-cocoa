@@ -13,12 +13,14 @@ import UIKit
 
 extension UIApplication: SentryUIApplication {}
 
-// This exists to allow tests to inject images.
+// This typealias, the defaultLoadedImageNamesProvider() function, and the init
+// parameter loadedImageNamesProvider exist to allow tests to inject images.
+// The default provider is the production code that iterates the dyld image list.
 private typealias SentryLoadedImageNamesProvider = () -> [String]
 
 private func defaultLoadedImageNamesProvider() -> [String] {
-    (0..<_dyld_image_count()).compactMap { i in
-        _dyld_get_image_name(i).map { String(cString: $0) }
+    (0..<_dyld_image_count()).compactMap { index in
+        _dyld_get_image_name(index).map { String(cString: $0) }
     }
 }
 

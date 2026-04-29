@@ -1,6 +1,7 @@
 // swiftlint:disable file_length type_body_length
 
-@testable import SentryTestUtils
+@testable @_spi(Private) import Sentry
+@testable @_spi(Private) import SentryTestUtils
 import XCTest
 
 class TestNSNotificationCenterWrapperTests: XCTestCase {
