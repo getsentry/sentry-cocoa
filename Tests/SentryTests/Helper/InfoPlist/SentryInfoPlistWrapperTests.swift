@@ -158,28 +158,23 @@ class SentryInfoPlistWrapperTests: XCTestCase {
     }
     
     func testGetAppValueString_withSentryInfoPlistKey_shouldWork() throws {
-        // Arrange
-        // Test with the actual enum keys used in production
-        let xcodeKey = SentryInfoPlistKey.xcodeVersion.rawValue
-        
         // Act
-        let value = try sut.getAppValueString(for: xcodeKey)
+        let value = try sut.getAppValueString(for: "TestStringKey")
         
         // Assert
-        XCTAssertEqual(value, "1610", "Should return the DTXcode value from test bundle")
+        XCTAssertEqual(value, "TestStringValue", "Should return the TestStringKey value from test bundle")
     }
     
     func testGetAppValueBoolean_withSentryInfoPlistKey_shouldWork() {
         // Arrange
-        let compatibilityKey = SentryInfoPlistKey.designRequiresCompatibility.rawValue
         var error: NSError?
         
         // Act
-        let value = sut.getAppValueBoolean(for: compatibilityKey, errorPtr: &error)
+        let value = sut.getAppValueBoolean(for: "TestBooleanFalse", errorPtr: &error)
         
         // Assert
         XCTAssertNil(error, "Should not have an error when reading a valid boolean")
-        XCTAssertFalse(value, "Should return false for UIDesignRequiresCompatibility key")
+        XCTAssertFalse(value, "Should return false for TestBooleanFalse key")
     }
     
     // MARK: - Multiple Consecutive Calls

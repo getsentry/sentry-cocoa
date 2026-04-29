@@ -162,6 +162,57 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertNil(sut)
     }
 
+    func testInit_runningInNotificationServiceExtension_shouldReturnNil() throws {
+        // -- Arrange --
+        let infoPlistWrapper = TestInfoPlistWrapper()
+        infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.usernotifications.service"]
+        )
+        SentryDependencyContainer.sharedInstance().extensionDetector = SentryExtensionDetector(infoPlistWrapper: infoPlistWrapper)
+        defer { clearTestState() }
+
+        // -- Act --
+        let sut = fixture.getSut()
+
+        // -- Assert --
+        XCTAssertNil(sut, "Should not install watchdog termination tracking in a Notification Service Extension")
+    }
+
+    func testInit_runningInWidgetExtension_shouldReturnNil() throws {
+        // -- Arrange --
+        let infoPlistWrapper = TestInfoPlistWrapper()
+        infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.widgetkit-extension"]
+        )
+        SentryDependencyContainer.sharedInstance().extensionDetector = SentryExtensionDetector(infoPlistWrapper: infoPlistWrapper)
+        defer { clearTestState() }
+
+        // -- Act --
+        let sut = fixture.getSut()
+
+        // -- Assert --
+        XCTAssertNil(sut, "Should not install watchdog termination tracking in a Widget extension")
+    }
+
+    func testInit_runningInUnknownExtension_shouldInstall() throws {
+        // -- Arrange --
+        let infoPlistWrapper = TestInfoPlistWrapper()
+        infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.unknown-extension"]
+        )
+        SentryDependencyContainer.sharedInstance().extensionDetector = SentryExtensionDetector(infoPlistWrapper: infoPlistWrapper)
+        defer { clearTestState() }
+
+        // -- Act --
+        let sut = fixture.getSut()
+
+        // -- Assert --
+        XCTAssertNotNil(sut, "Should install watchdog termination tracking in an unknown extension type")
+    }
+
     func testInit_whenNoUnitTests_trackerInitialized() throws {
         let dependencies = MockDependencies()
         _ = SentryWatchdogTerminationTrackingIntegration(with: fixture.options, dependencies: dependencies)
@@ -389,7 +440,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
 }
 
-private class MockDependencies: ANRTrackerBuilder & HangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder {
+private class MockDependencies: ANRTrackerBuilder & HangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider {
     
     func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
@@ -431,6 +482,10 @@ private class MockDependencies: ANRTrackerBuilder & HangTrackerProvider & Proces
         getWatchdogTerminationTrackerCalled = true
         return SentryDependencyContainer.sharedInstance().getWatchdogTerminationTracker(options)
     }
+
+    var extensionDetector: SentryExtensionDetector {
+        SentryDependencyContainer.sharedInstance().extensionDetector
+    }
 }
 
 /// A mock HangTracker that allows manual triggering of hang observer callbacks
@@ -456,7 +511,7 @@ private class MockHangTracker: HangTracker {
 }
 
 /// Mock dependencies that use a controllable MockHangTracker for testing threshold behavior
-private class MockDependenciesWithControllableHangTracker: HangTrackerProvider & ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder {
+private class MockDependenciesWithControllableHangTracker: HangTrackerProvider & ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider {
     
     func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
@@ -482,6 +537,10 @@ private class MockDependenciesWithControllableHangTracker: HangTrackerProvider &
 
     func getWatchdogTerminationTracker(_ options: Sentry.Options) -> Sentry.SentryWatchdogTerminationTracker? {
         return SentryDependencyContainer.sharedInstance().getWatchdogTerminationTracker(options)
+    }
+
+    var extensionDetector: SentryExtensionDetector {
+        SentryDependencyContainer.sharedInstance().extensionDetector
     }
 }
 

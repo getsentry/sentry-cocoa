@@ -1337,6 +1337,16 @@
                                                                     <segue destination="ARr-dx-Xze" kind="show" id="eAg-n6-RXj"/>
                                                                 </connections>
                                                             </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nSE-Nt-fCi" userLabel="Notifications">
+                                                                <rect key="frame" x="0.0" y="514" width="160" height="28"/>
+                                                                <accessibility key="accessibilityConfiguration" identifier="show-notifications-vc"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                                <state key="normal" title="Notifications"/>
+                                                                <connections>
+                                                                    <segue destination="nSE-vC-001" kind="show" id="nSE-Sg-001"/>
+                                                                </connections>
+                                                            </button>
                                                         </subviews>
                                                     </stackView>
                                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="ULj-Tl-kYs">
@@ -2030,6 +2040,21 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1Q9-z5-Hib" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="4362.686567164179" y="-774.37070938215095"/>
+        </scene>
+        <scene sceneID="nSE-Sc-001">
+            <objects>
+                <viewController id="nSE-vC-001" customClass="NotificationsViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="nSE-Vw-001">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="nSE-Sa-001"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Notifications" id="nSE-nI-001"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="nSE-FR-001" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4362.686567164179" y="-1400"/>
         </scene>
     </scenes>
     <resources>
