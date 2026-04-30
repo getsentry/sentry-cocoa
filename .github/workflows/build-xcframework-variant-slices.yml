@@ -86,11 +86,6 @@ jobs:
           fi
         shell: sh
 
-      - name: Setup Xcode
-        uses: ./.github/actions/setup-xcode
-        with:
-          version: "16"
-
       - name: Bump version
         env:
           VERSION: ${{ env.VERSION }}
