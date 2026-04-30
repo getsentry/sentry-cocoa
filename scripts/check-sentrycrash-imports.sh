@@ -17,7 +17,8 @@ MAX_IMPORTS=86
 
 count=$(grep -rnE '#[[:space:]]*(import|include).*SentryCrash' Sources/Sentry Sources/Swift \
     --include='*.m' --include='*.h' --include='*.c' --include='*.mm' --include='*.cpp' \
-    | wc -l | tr -d ' ')
+    --include='*.hpp' \
+    | wc -l | tr -d ' ' || true)
 
 if [ "$count" -gt "$MAX_IMPORTS" ]; then
     log_error "SentryCrash import count increased from $MAX_IMPORTS to $count"
@@ -26,7 +27,8 @@ if [ "$count" -gt "$MAX_IMPORTS" ]; then
     echo ""
     log_notice "Offending imports:"
     grep -rnE '#[[:space:]]*(import|include).*SentryCrash' Sources/Sentry Sources/Swift \
-        --include='*.m' --include='*.h' --include='*.c' --include='*.mm' --include='*.cpp'
+        --include='*.m' --include='*.h' --include='*.c' --include='*.mm' --include='*.cpp' \
+        --include='*.hpp'
     exit 1
 fi
 
