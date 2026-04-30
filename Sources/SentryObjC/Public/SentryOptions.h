@@ -1,9 +1,9 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryDefines.h"
 #import "SentryExperimentalOptions.h"
 #import "SentryLastRunStatus.h"
 #import "SentryLevel.h"
+#import "SentryObjCDefines.h"
 #import "SentryReplayOptions.h"
 
 @class SentryProfileOptions;
@@ -600,7 +600,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign) BOOL enableMetrics;
 
-#if TARGET_OS_IOS
+/**
+ * Callback invoked before a metric is sent.
+ *
+ * Use this to modify or filter metrics. Return @c nil to prevent sending.
+ */
+@property (nonatomic, copy, nullable) SentryBeforeSendMetricCallback beforeSendMetric;
+
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 /**
  * A block that configures the user feedback feature.
  *

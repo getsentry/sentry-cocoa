@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryDefines.h"
+#import "SentryObjCDefines.h"
 #import "SentryTransactionNameSource.h"
 
 // Pure-ObjC types from main SDK (re-exported, single source of truth).

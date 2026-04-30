@@ -18,6 +18,27 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryObjCMetric : NSObject
 
+/**
+ * Creates a metric with the specified properties.
+ *
+ * @param timestamp When the metric was recorded.
+ * @param name Metric name (e.g., "response_time").
+ * @param traceId Trace ID for distributed tracing correlation.
+ * @param spanId Optional span ID for span correlation.
+ * @param value The metric value (counter, gauge, or distribution).
+ * @param unit Optional unit of measurement.
+ * @param attributes Additional structured attributes.
+ * @return A new metric instance.
+ */
+- (instancetype)initWithTimestamp:(NSDate *)timestamp
+                             name:(NSString *)name
+                          traceId:(SentryId *)traceId
+                           spanId:(nullable SentrySpanId *)spanId
+                            value:(SentryObjCMetricValue *)value
+                             unit:(nullable NSString *)unit
+                       attributes:
+                           (NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes;
+
 /// Timestamp when the metric was recorded.
 @property (nonatomic, readonly) NSDate *timestamp;
 

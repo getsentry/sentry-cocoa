@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryDefines.h"
+#import "SentryObjCDefines.h"
 
 @class SentryObjCAttributeContent;
 

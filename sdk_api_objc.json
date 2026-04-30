@@ -875,6 +875,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "beforeSendMetric",
+    "parent": "SentryOptions",
+    "returnType": "SentryBeforeSendMetricCallback _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "beforeSendSpan",
     "parent": "SentryOptions",
     "returnType": "SentryBeforeSendSpanCallback _Nullable",
@@ -1617,15 +1624,15 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "enableReportNonFullyBlockingAppHangs",
-    "parent": "SentryOptions",
+    "name": "enableReplayNetworkDetailsCapturing",
+    "parent": "SentryExperimentalOptions",
     "returnType": "BOOL",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "enableSessionReplayInUnreliableEnvironment",
-    "parent": "SentryExperimentalOptions",
+    "name": "enableReportNonFullyBlockingAppHangs",
+    "parent": "SentryOptions",
     "returnType": "BOOL",
     "instance": true
   },
@@ -2597,6 +2604,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "initWithTimestamp:name:traceId:spanId:value:unit:attributes:",
+    "parent": "SentryObjCMetric",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "initWithTraceId:publicKey:releaseName:environment:transaction:sampleRate:sampleRand:sampled:replayId:",
     "parent": "SentryBaggage",
     "returnType": "instancetype _Nonnull",
@@ -2831,6 +2845,13 @@
     "name": "isMain",
     "parent": "SentryThread",
     "returnType": "NSNumber * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "isNetworkDetailCaptureEnabledFor:",
+    "parent": "SentryReplayOptions",
+    "returnType": "BOOL",
     "instance": true
   },
   {
@@ -3140,6 +3161,41 @@
     "parent": "SentryMeasurementUnitDuration",
     "returnType": "SentryMeasurementUnitDuration * _Nonnull",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "networkCaptureBodies",
+    "parent": "SentryReplayOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "networkDetailAllowUrls",
+    "parent": "SentryReplayOptions",
+    "returnType": "NSArray * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "networkDetailDenyUrls",
+    "parent": "SentryReplayOptions",
+    "returnType": "NSArray * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "networkRequestHeaders",
+    "parent": "SentryReplayOptions",
+    "returnType": "NSArray<NSString *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "networkResponseHeaders",
+    "parent": "SentryReplayOptions",
+    "returnType": "NSArray<NSString *> * _Nonnull",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -4011,6 +4067,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setBeforeSendMetric:",
+    "parent": "SentryOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setBeforeSendSpan:",
     "parent": "SentryOptions",
     "returnType": "void",
@@ -4396,15 +4459,15 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setEnableReportNonFullyBlockingAppHangs:",
-    "parent": "SentryOptions",
+    "name": "setEnableReplayNetworkDetailsCapturing:",
+    "parent": "SentryExperimentalOptions",
     "returnType": "void",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setEnableSessionReplayInUnreliableEnvironment:",
-    "parent": "SentryExperimentalOptions",
+    "name": "setEnableReportNonFullyBlockingAppHangs:",
+    "parent": "SentryOptions",
     "returnType": "void",
     "instance": true
   },
@@ -4923,6 +4986,41 @@
     "kind": "ObjCMethodDecl",
     "name": "setName:",
     "parent": "SentryUser",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setNetworkCaptureBodies:",
+    "parent": "SentryReplayOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setNetworkDetailAllowUrls:",
+    "parent": "SentryReplayOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setNetworkDetailDenyUrls:",
+    "parent": "SentryReplayOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setNetworkRequestHeaders:",
+    "parent": "SentryReplayOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setNetworkResponseHeaders:",
+    "parent": "SentryReplayOptions",
     "returnType": "void",
     "instance": true
   },
@@ -6495,6 +6593,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "beforeSendMetric",
+    "parent": "SentryOptions",
+    "type": "SentryBeforeSendMetricCallback _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "beforeSendSpan",
     "parent": "SentryOptions",
     "type": "SentryBeforeSendSpanCallback _Nullable"
@@ -6909,14 +7013,14 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "enableReportNonFullyBlockingAppHangs",
-    "parent": "SentryOptions",
+    "name": "enableReplayNetworkDetailsCapturing",
+    "parent": "SentryExperimentalOptions",
     "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "enableSessionReplayInUnreliableEnvironment",
-    "parent": "SentryExperimentalOptions",
+    "name": "enableReportNonFullyBlockingAppHangs",
+    "parent": "SentryOptions",
     "type": "BOOL"
   },
   {
@@ -7524,6 +7628,36 @@
     "name": "nanosecond",
     "parent": "SentryMeasurementUnitDuration",
     "type": "SentryMeasurementUnitDuration * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "networkCaptureBodies",
+    "parent": "SentryReplayOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "networkDetailAllowUrls",
+    "parent": "SentryReplayOptions",
+    "type": "NSArray * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "networkDetailDenyUrls",
+    "parent": "SentryReplayOptions",
+    "type": "NSArray * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "networkRequestHeaders",
+    "parent": "SentryReplayOptions",
+    "type": "NSArray<NSString *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "networkResponseHeaders",
+    "parent": "SentryReplayOptions",
+    "type": "NSArray<NSString *> * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8489,6 +8623,11 @@
     "kind": "TypedefDecl",
     "name": "SentryBeforeSendLogCallback",
     "type": "SentryLog * _Nullable (^)(SentryLog * _Nonnull)"
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryBeforeSendMetricCallback",
+    "type": "SentryObjCMetric * _Nullable (^)(SentryObjCMetric * _Nonnull)"
   },
   {
     "kind": "TypedefDecl",

@@ -10,7 +10,13 @@
 #    define SENTRY_OBJC_UIKIT_AVAILABLE 0
 #endif
 
-#if SENTRY_OBJC_UIKIT_AVAILABLE && !TARGET_OS_VISION
+#if SENTRY_OBJC_UIKIT_AVAILABLE && !SENTRY_NO_UI_FRAMEWORK
+#    define SENTRY_OBJC_HAS_UIKIT 1
+#else
+#    define SENTRY_OBJC_HAS_UIKIT 0
+#endif
+
+#if SENTRY_OBJC_HAS_UIKIT && !TARGET_OS_VISION
 #    define SENTRY_OBJC_REPLAY_SUPPORTED 1
 #else
 #    define SENTRY_OBJC_REPLAY_SUPPORTED 0
@@ -18,7 +24,7 @@
 
 // Macros required by re-exported main SDK headers (SentryBreadcrumb.h,
 // SentryEvent.h, SentryScope.h, etc.). When those headers fall through
-// their __has_include chain they pick up *this* SentryDefines.h, so
+// their __has_include chain they pick up *this* SentryObjCDefines.h, so
 // every macro they reference must be present here.
 #ifndef SENTRY_HEADER
 #    if __has_include(<SentryObjC/SentryObjC.h>)
@@ -38,6 +44,10 @@
 #    define SENTRY_EXTERN SENTRY_OBJC_EXTERN
 #endif
 
+#ifndef SENTRY_HAS_UIKIT
+#    define SENTRY_HAS_UIKIT SENTRY_OBJC_HAS_UIKIT
+#endif
+
 #ifndef SENTRY_UIKIT_AVAILABLE
 #    define SENTRY_UIKIT_AVAILABLE SENTRY_OBJC_UIKIT_AVAILABLE
 #endif
@@ -54,6 +64,7 @@
 
 @class SentryBreadcrumb;
 @class SentryEvent;
+@class SentryObjCMetric;
 @class SentrySamplingContext;
 @protocol SentrySpan;
 
@@ -68,6 +79,8 @@ typedef BOOL (^SentryBeforeCaptureScreenshotCallback)(SentryEvent *_Nonnull even
 typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event);
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
     SentrySamplingContext *_Nonnull samplingContext);
+typedef SentryObjCMetric *_Nullable (^SentryBeforeSendMetricCallback)(
+    SentryObjCMetric *_Nonnull metric);
 
 /**
  * SentryObjC — Pure Objective-C wrapper for the Sentry SDK.

@@ -148,7 +148,8 @@ targets += [
         path: "Sources/SentryObjC",
         publicHeadersPath: "Public",
         cSettings: [
-            .headerSearchPath("Public")
+            .headerSearchPath("Public"),
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
         ]
     )
 ]

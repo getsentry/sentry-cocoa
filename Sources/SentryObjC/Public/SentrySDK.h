@@ -1,9 +1,9 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryDefines.h"
 #import "SentryFeedback.h"
 #import "SentryLastRunStatus.h"
 #import "SentryLogger.h"
+#import "SentryObjCDefines.h"
 
 @class SentryBreadcrumb;
 @class SentryEvent;
@@ -18,7 +18,7 @@
 @class SentryReplayApi;
 #endif
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 @class SentryFeedbackAPI;
 #endif
 
@@ -327,7 +327,7 @@ SENTRY_NO_INIT
  */
 + (void)captureFeedback:(SentryFeedback *)feedback;
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 /**
  * The API for capturing user feedback.
  *

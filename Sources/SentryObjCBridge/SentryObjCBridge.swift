@@ -327,22 +327,3 @@ public final class SentrySwiftBridge: NSObject {
 #if !SWIFT_PACKAGE
 extension SentrySwiftBridge: SentryObjCBridging {}
 #endif
-
-// MARK: - ObjC → Swift mapping
-
-private extension SentryObjCAttributeContent {
-    /// Convert the public ObjC data carrier into the internal Swift enum.
-    func toSwift() -> SentryAttributeContent {
-        switch type {
-        case .string:       return .string(stringValue ?? "")
-        case .boolean:      return .boolean(booleanValue)
-        case .integer:      return .integer(integerValue)
-        case .double:       return .double(doubleValue)
-        case .stringArray:  return .stringArray(stringArrayValue ?? [])
-        case .booleanArray: return .booleanArray((booleanArrayValue ?? []).map(\.boolValue))
-        case .integerArray: return .integerArray((integerArrayValue ?? []).map(\.intValue))
-        case .doubleArray:  return .doubleArray((doubleArrayValue ?? []).map(\.doubleValue))
-        @unknown default:   return .string("")
-        }
-    }
-}

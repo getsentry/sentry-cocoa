@@ -1,5 +1,7 @@
 #import <Foundation/Foundation.h>
 
+#import "SentryObjCDefines.h"
+
 #if __has_include(<SentryObjCTypes/SentryObjCBridging.h>)
 #    import <SentryObjCTypes/SentryObjCBridging.h>
 #else
@@ -8,7 +10,7 @@
 
 @class SentryReplayApi;
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 @class SentryFeedbackAPI;
 #endif
 
@@ -19,7 +21,7 @@
 // protocol — they're declared here as additional class methods on the bridge.
 @interface SentryObjCBridge : NSObject <SentryObjCBridging>
 + (SentryReplayApi *)replay;
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 + (SentryFeedbackAPI *)sdkFeedback;
 #endif
 @end
@@ -27,6 +29,8 @@
 #import "SentryLastRunStatus.h"
 #import "SentryMetricsApiImpl.h"
 #import "SentrySDK.h"
+
+extern void SentryBridgeCallbacksForOptions(SentryOptions *_Nonnull options);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -64,12 +68,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)startWithOptions:(SentryOptions *)options
 {
+    SentryBridgeCallbacksForOptions(options);
     [SentryObjCBridge sdkStartWithOptions:options];
 }
 
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
 {
-    [SentryObjCBridge sdkStartWithConfigureOptions:configureOptions];
+    [SentryObjCBridge sdkStartWithConfigureOptions:^(SentryOptions *options) {
+        configureOptions(options);
+        SentryBridgeCallbacksForOptions(options);
+    }];
 }
 
 + (SentryId *)captureEvent:(SentryEvent *)event
@@ -200,7 +208,7 @@ NS_ASSUME_NONNULL_BEGIN
     [SentryObjCBridge sdkCaptureFeedback:feedback];
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 + (SentryFeedbackAPI *)feedback
 {
     return [SentryObjCBridge sdkFeedback];

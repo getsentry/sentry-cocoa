@@ -23,17 +23,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL enableUnhandledCPPExceptionsV2;
 
 /**
- * Forces enabling of session replay in environments the SDK would otherwise disable it in.
+ * Enables network detail capture for Session Replay.
  *
- * Session replay is disabled by default on iOS 26+ unless the environment is detected as
- * reliable for masking text and images (e.g., @c UIDesignRequiresCompatibility is set, or the
- * app was built with Xcode < 26). Set this to @c YES to re-enable replay on iOS 26+ with the
- * understanding that masking cannot be fully guaranteed.
+ * When enabled, the SDK can capture request and response headers and bodies for network
+ * requests during session replay. You must also configure
+ * @c sessionReplay.networkDetailAllowUrls with URL patterns to specify which
+ * requests should be captured.
  *
  * @note Disabled by default.
- * @see https://github.com/getsentry/sentry-cocoa/issues/6389
  */
-@property (nonatomic, assign) BOOL enableSessionReplayInUnreliableEnvironment;
+@property (nonatomic, assign) BOOL enableReplayNetworkDetailsCapturing;
 
 /**
  * When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.

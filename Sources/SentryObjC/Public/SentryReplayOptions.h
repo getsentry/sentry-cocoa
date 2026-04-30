@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryDefines.h"
+#import "SentryObjCDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -107,6 +107,72 @@ typedef NS_ENUM(NSInteger, SentryReplayQuality) {
  * @warning Experimental. May change in future versions.
  */
 @property (nonatomic, assign) BOOL enableFastViewRendering;
+
+/**
+ * A list of URL patterns to capture request and response details for during session replay.
+ *
+ * When non-empty, network requests with URLs matching any of these patterns will have their
+ * headers and bodies captured for session replay.
+ *
+ * Supports both @c NSString (substring matching) and @c NSRegularExpression (regex matching).
+ *
+ * @note Requires @c options.experimental.enableReplayNetworkDetailsCapturing to be @c YES.
+ * @note Default is an empty array (network detail capture disabled).
+ */
+@property (nonatomic, copy) NSArray *networkDetailAllowUrls;
+
+/**
+ * A list of URL patterns to exclude from network detail capture during session replay.
+ *
+ * URLs matching any pattern in this array will NOT have their headers and bodies captured,
+ * even if they match patterns in @c networkDetailAllowUrls.
+ *
+ * Supports both @c NSString (substring matching) and @c NSRegularExpression (regex matching).
+ *
+ * @note Requires @c options.experimental.enableReplayNetworkDetailsCapturing to be @c YES.
+ * @note Default is an empty array (no URLs explicitly denied).
+ */
+@property (nonatomic, copy) NSArray *networkDetailDenyUrls;
+
+/**
+ * Whether to capture request and response bodies for allowed URLs.
+ *
+ * When @c YES (default), bodies will be captured and parsed for allowed URLs.
+ * When @c NO, only headers and metadata will be captured.
+ *
+ * @note This setting only applies when @c networkDetailAllowUrls is non-empty.
+ * @note Bodies are automatically truncated to 150KB.
+ * @note Requires @c options.experimental.enableReplayNetworkDetailsCapturing to be @c YES.
+ */
+@property (nonatomic, assign) BOOL networkCaptureBodies;
+
+/**
+ * Request headers to capture for allowed URLs during session replay.
+ *
+ * Default (always included): @c Content-Type, @c Content-Length, @c Accept.
+ * Header matching is case-insensitive.
+ *
+ * @note Requires @c options.experimental.enableReplayNetworkDetailsCapturing to be @c YES.
+ */
+@property (nonatomic, copy) NSArray<NSString *> *networkRequestHeaders;
+
+/**
+ * Response headers to capture for allowed URLs during session replay.
+ *
+ * Default (always included): @c Content-Type, @c Content-Length, @c Accept.
+ * Header matching is case-insensitive.
+ *
+ * @note Requires @c options.experimental.enableReplayNetworkDetailsCapturing to be @c YES.
+ */
+@property (nonatomic, copy) NSArray<NSString *> *networkResponseHeaders;
+
+/**
+ * Determines if network detail capture is enabled for a given URL.
+ *
+ * @param urlString The URL string to check.
+ * @return @c YES if network details should be captured for this URL, @c NO otherwise.
+ */
+- (BOOL)isNetworkDetailCaptureEnabledFor:(NSString *)urlString;
 
 /**
  * Excludes a view type from being rendered in replays.

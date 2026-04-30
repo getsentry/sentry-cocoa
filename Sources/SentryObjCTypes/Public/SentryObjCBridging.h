@@ -11,6 +11,7 @@
 @class SentryTransactionContext;
 @class SentryLogger;
 @class SentryObjCAttributeContent;
+@class SentryObjCMetric;
 @protocol SentrySpan;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -126,6 +127,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)sdkStartProfiler;
 + (void)sdkStopProfiler;
 #endif
+
+#pragma mark - Callback bridging
+
++ (void)bridgeBeforeSendMetricForOptions:(SentryOptions *)options
+                                callback:(SentryObjCMetric *_Nullable (^)(
+                                             SentryObjCMetric *_Nonnull))callback
+    NS_SWIFT_NAME(bridgeBeforeSendMetric(forOptions:callback:));
 
 #pragma mark - Logger accessor
 

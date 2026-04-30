@@ -1295,7 +1295,7 @@
 			publicHeaders = (
 				Public/PrivateSentrySDKOnly.h,
 				Public/SentryAttribute.h,
-				Public/SentryDefines.h,
+				Public/SentryObjCDefines.h,
 				Public/SentryEnvelope.h,
 				Public/SentryEnvelopeHeader.h,
 				Public/SentryEnvelopeItem.h,

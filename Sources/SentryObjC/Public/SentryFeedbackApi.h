@@ -1,7 +1,9 @@
 #import <Foundation/Foundation.h>
 #import <TargetConditionals.h>
 
-#if TARGET_OS_IOS
+#import "SentryObjCDefines.h"
+
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
