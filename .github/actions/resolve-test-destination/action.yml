@@ -34,64 +34,8 @@ runs:
     - name: Resolve test destination
       id: resolve
       shell: bash
-      env:
-        INPUT_OS: ${{ inputs.test-destination-os }}
-        INPUT_DEVICE: ${{ inputs.device }}
-        PLATFORM: ${{ inputs.platform }}
       run: |
-        if [ -n "$INPUT_OS" ]; then
-          TEST_OS="$INPUT_OS"
-        else
-          case "$PLATFORM" in
-            iOS|Catalyst) TEST_OS="${IOS_SIMULATOR_OS:-latest}" ;;
-            tvOS)         TEST_OS="${TVOS_SIMULATOR_OS:-latest}" ;;
-            watchOS)      TEST_OS="${WATCHOS_SIMULATOR_OS:-latest}" ;;
-            visionOS)     TEST_OS="${VISIONOS_SIMULATOR_OS:-latest}" ;;
-            macOS)        TEST_OS="latest" ;;
-            *)            TEST_OS="latest" ;;
-          esac
-        fi
-        if [ -n "$INPUT_DEVICE" ]; then
-          TEST_DEVICE="$INPUT_DEVICE"
-        else
-          case "$PLATFORM" in
-            iOS|Catalyst)
-              # Pick the newest "iPhone N Pro" (excluding Max/Plus) available in
-              # the resolved iOS runtime. `simctl list devices` groups by major.minor
-              # so strip any patch component before searching.
-              OS_MM=$(echo "$TEST_OS" | awk -F. '{print $1"."$2}')
-              TEST_DEVICE=$(xcrun simctl list devices available 2>/dev/null \
-                | awk -v platform="iOS" -v version="$OS_MM" '
-                    $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
-                    in_section { if (/^-- /) exit; print }' \
-                | grep -E "iPhone [0-9]+ Pro \(" \
-                | sed -E 's/^[[:space:]]*(iPhone [0-9]+ Pro)[[:space:]]+\(.*$/\1/' \
-                | sort -V \
-                | tail -n1) || TEST_DEVICE=""
-              ;;
-            tvOS)         TEST_DEVICE="Apple TV" ;;
-            watchOS)
-              # Pick the newest Apple Watch available in the resolved watchOS runtime.
-              # Watch names include parenthetical sizes (e.g. "Apple Watch Ultra 3 (49mm)")
-              # so we strip from the UUID pattern `(XXXX-...) (State)` rather than the
-              # first `(`, which would lose the size.
-              OS_MM=$(echo "$TEST_OS" | awk -F. '{print $1"."$2}')
-              TEST_DEVICE=$(xcrun simctl list devices available 2>/dev/null \
-                | awk -v platform="watchOS" -v version="$OS_MM" '
-                    $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
-                    in_section { if (/^-- /) exit; print }' \
-                | grep -E "Apple Watch" \
-                | sed -E 's/^[[:space:]]+//; s/ \([A-F0-9-]+\) \([A-Za-z]+\)[[:space:]]*$//' \
-                | sort -V \
-                | tail -n1) || TEST_DEVICE=""
-              ;;
-            visionOS)     TEST_DEVICE="Apple Vision Pro" ;;
-            *)            TEST_DEVICE="" ;;
-          esac
-        fi
-
-        echo "TEST_OS=$TEST_OS" >> "$GITHUB_OUTPUT"
-        echo "TEST_DEVICE=$TEST_DEVICE" >> "$GITHUB_OUTPUT"
-        echo "TEST_OS=$TEST_OS" >> "$GITHUB_ENV"
-        echo "TEST_DEVICE=$TEST_DEVICE" >> "$GITHUB_ENV"
-        echo "Resolved: platform=$PLATFORM os=$TEST_OS device=$TEST_DEVICE"
+        ${{ github.workspace }}/scripts/resolve-test-destination.sh \
+          --platform "${{ inputs.platform }}" \
+          --os "${{ inputs.test-destination-os }}" \
+          --device "${{ inputs.device }}"
