@@ -72,7 +72,7 @@ jobs:
         id: resolve-test-destination
         uses: ./.github/actions/resolve-test-destination
         with:
-          test-destination-os: ${{ inputs.test-destination-os || steps.setup-xcode.outputs.ios-simulator-os }}
+          test-destination-os: ${{ inputs.test-destination-os }}
           device: ${{ inputs.device }}
           platform: ${{ inputs.platform }}
 
