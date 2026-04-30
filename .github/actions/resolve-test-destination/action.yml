@@ -35,7 +35,7 @@ runs:
       id: resolve
       shell: bash
       run: |
-        ${{ github.workspace }}/scripts/resolve-test-destination.sh \
+        "${{ github.action_path }}/../../../scripts/resolve-test-destination.sh" \
           --platform "${{ inputs.platform }}" \
           --os "${{ inputs.test-destination-os }}" \
           --device "${{ inputs.device }}"
