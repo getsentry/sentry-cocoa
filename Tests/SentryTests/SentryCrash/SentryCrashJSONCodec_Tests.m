@@ -1883,4 +1883,32 @@ addJSONData(const char *data, int length, void *userData)
     [self expectEquivalentJSONData:encodedData toJSON:expectedJson];
 }
 
+- (void)testBeginObject_exceedingMaxNestingDepth_shouldReturnError
+{
+    NSMutableData *encodedData = [NSMutableData data];
+    SentryCrashJSONEncodeContext context = { 0 };
+    sentrycrashjson_beginEncode(&context, false, addJSONData, (__bridge void *)(encodedData));
+
+    int result = SentryCrashJSON_OK;
+    for (int i = 0; i < 250 && result == SentryCrashJSON_OK; i++) {
+        result = sentrycrashjson_beginObject(&context, NULL);
+    }
+
+    XCTAssertNotEqual(result, SentryCrashJSON_OK);
+}
+
+- (void)testBeginArray_exceedingMaxNestingDepth_shouldReturnError
+{
+    NSMutableData *encodedData = [NSMutableData data];
+    SentryCrashJSONEncodeContext context = { 0 };
+    sentrycrashjson_beginEncode(&context, false, addJSONData, (__bridge void *)(encodedData));
+
+    int result = SentryCrashJSON_OK;
+    for (int i = 0; i < 250 && result == SentryCrashJSON_OK; i++) {
+        result = sentrycrashjson_beginArray(&context, NULL);
+    }
+
+    XCTAssertNotEqual(result, SentryCrashJSON_OK);
+}
+
 @end

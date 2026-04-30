@@ -158,6 +158,24 @@ class SentryArrayTests: XCTestCase {
         let objectDescription = try XCTUnwrap(result[5] as? String)
         XCTAssertEqual(objectDescription, "CustomObject description")
     }
+
+    func testSanitizeArray_deeplyNestedArrays_shouldTruncateAtMaxDepth() {
+        var array: [Any] = ["leaf"]
+        for _ in 0..<250 {
+            array = [array]
+        }
+
+        let result = SentryArray.sanitizeArray(array)
+        XCTAssertEqual(result.count, 1)
+
+        var current: [Any]? = result
+        var depth = 0
+        while let next = current?.first as? [Any] {
+            current = next
+            depth += 1
+        }
+        XCTAssertLessThan(depth, 250)
+    }
 }
 
 // Helper class that inherits from NSObject but is not a real NSDictionary

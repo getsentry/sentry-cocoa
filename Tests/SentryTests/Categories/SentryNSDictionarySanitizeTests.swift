@@ -149,4 +149,22 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         let result = regex.matches(in: value, range: NSRange(location: 0, length: value.count))
         XCTAssertFalse(result.isEmpty)
     }
+
+    func testSentrySanitize_deeplyNestedDictionary_shouldTruncateAtMaxDepth() {
+        var dict: [String: Any] = ["leaf": "value"]
+        for _ in 0..<250 {
+            dict = ["nested": dict]
+        }
+
+        let sanitized = sentry_sanitize(dict)
+        XCTAssertNotNil(sanitized)
+
+        var current: [String: Any]? = sanitized as? [String: Any]
+        var depth = 0
+        while let next = current?["nested"] as? [String: Any] {
+            current = next
+            depth += 1
+        }
+        XCTAssertLessThan(depth, 250)
+    }
 }
