@@ -791,6 +791,13 @@
         "declKind": "Import",
         "kind": "Import",
         "moduleName": "Sentry",
+        "name": "UniformTypeIdentifiers",
+        "printedName": "UniformTypeIdentifiers"
+      },
+      {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
         "name": "WebKit",
         "printedName": "WebKit"
       },
@@ -36790,11 +36797,11 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC42enableSessionReplayInUnreliableEnvironmentSbvg",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC35enableReplayNetworkDetailsCapturingSbvg",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableSessionReplayInUnreliableEnvironment"
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)enableReplayNetworkDetailsCapturing"
               },
               {
                 "accessorKind": "set",
@@ -36818,11 +36825,11 @@
                 "declKind": "Accessor",
                 "implicit": true,
                 "kind": "Accessor",
-                "mangledName": "$s6Sentry0A19ExperimentalOptionsC42enableSessionReplayInUnreliableEnvironmentSbvs",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC35enableReplayNetworkDetailsCapturingSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
                 "printedName": "Set()",
-                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableSessionReplayInUnreliableEnvironment:"
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setEnableReplayNetworkDetailsCapturing:"
               }
             ],
             "children": [
@@ -36841,11 +36848,11 @@
             "declKind": "Var",
             "hasStorage": true,
             "kind": "Var",
-            "mangledName": "$s6Sentry0A19ExperimentalOptionsC42enableSessionReplayInUnreliableEnvironmentSbvp",
+            "mangledName": "$s6Sentry0A19ExperimentalOptionsC35enableReplayNetworkDetailsCapturingSbvp",
             "moduleName": "Sentry",
-            "name": "enableSessionReplayInUnreliableEnvironment",
-            "printedName": "enableSessionReplayInUnreliableEnvironment",
-            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableSessionReplayInUnreliableEnvironment"
+            "name": "enableReplayNetworkDetailsCapturing",
+            "printedName": "enableReplayNetworkDetailsCapturing",
+            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)enableReplayNetworkDetailsCapturing"
           },
           {
             "accessors": [
@@ -37206,6 +37213,45 @@
             "name": "intent",
             "printedName": "intent",
             "usr": "c:@M@Sentry@E@SentryExtensionType@SentryExtensionTypeIntent"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryExtensionType",
+                        "printedName": "Sentry.SentryExtensionType",
+                        "usr": "c:@M@Sentry@E@SentryExtensionType"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "Sentry.SentryExtensionType.Type"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryExtensionType",
+                    "printedName": "Sentry.SentryExtensionType",
+                    "usr": "c:@M@Sentry@E@SentryExtensionType"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Sentry.SentryExtensionType.Type) -> Sentry.SentryExtensionType"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "notificationService",
+            "printedName": "notificationService",
+            "usr": "c:@M@Sentry@E@SentryExtensionType@SentryExtensionTypeNotificationService"
           },
           {
             "accessors": [
@@ -50418,49 +50464,6 @@
             "name": "networkDetailDenyUrls",
             "printedName": "networkDetailDenyUrls",
             "usr": "s:6Sentry0A13ReplayOptionsC21networkDetailDenyUrlsSayAA0A12UrlMatchable_pGvp"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declAttributes": [
-                  "ObjC"
-                ],
-                "declKind": "Accessor",
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A13ReplayOptionsC20networkDetailHasUrlsSbvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(im)networkDetailHasUrls"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declAttributes": [
-              "ObjC"
-            ],
-            "declKind": "Var",
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A13ReplayOptionsC20networkDetailHasUrlsSbvp",
-            "moduleName": "Sentry",
-            "name": "networkDetailHasUrls",
-            "printedName": "networkDetailHasUrls",
-            "usr": "c:@M@Sentry@objc(cs)SentryReplayOptions(py)networkDetailHasUrls"
           },
           {
             "accessors": [

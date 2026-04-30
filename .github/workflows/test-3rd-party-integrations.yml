@@ -112,8 +112,8 @@ jobs:
           path: |
             3rd-party-integrations/${{matrix.integration_dir}}/.build/**/*.log
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   unit-tests-required-check:
     needs:

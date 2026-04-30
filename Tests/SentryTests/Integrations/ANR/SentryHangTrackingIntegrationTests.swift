@@ -837,6 +837,23 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         XCTAssertNil(sut, "Should not install when running in a Share extension")
     }
     
+    func testInstall_runningInNotificationServiceExtension_shouldNotInstall() throws {
+        // Arrange
+        fixture.infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+            forKey: SentryInfoPlistKey.extension.rawValue,
+            value: ["NSExtensionPointIdentifier": "com.apple.usernotifications.service"]
+        )
+        try fixture.setUpDI(
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: fixture.infoPlistWrapper)
+        )
+        crashWrapper.internalIsBeingTraced = false
+
+        let sut = hangTracker(with: options)
+
+        // Assert
+        XCTAssertNil(sut, "Should not install when running in a Notification Service Extension")
+    }
+
     func testInstall_runningInUnknownExtension_shouldInstall() throws {
         // Arrange
         fixture.infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
