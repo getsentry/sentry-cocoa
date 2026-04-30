@@ -308,6 +308,7 @@ jobs:
       xcode_version: "16"
       macos_version: macos-15
       needs_xcframework: true
+      platform: macOS
 
   app-metrics:
     name: Collect App Metrics
