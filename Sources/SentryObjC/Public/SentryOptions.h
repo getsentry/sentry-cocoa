@@ -348,7 +348,9 @@ NS_ASSUME_NONNULL_BEGIN
  * Defaults to @c NO.
  */
 @property (nonatomic, assign) BOOL enableReportNonFullyBlockingAppHangs;
+#endif
 
+#if SENTRY_OBJC_REPLAY_SUPPORTED
 /**
  * Configuration options for Session Replay.
  */
