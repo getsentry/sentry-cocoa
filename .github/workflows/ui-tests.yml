@@ -42,13 +42,11 @@ jobs:
   ui-tests:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
-    name: Test ${{matrix.name}} on ${{matrix.runner}} V3 # Up the version with every change to keep track of flaky tests
+    name: Test ${{matrix.name}} on Cirrus Labs V3 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
       fail-fast: false
       matrix:
-        runner:
-          - Cirrus Labs
         job_id:
           - ios_objc
           - tvos_swift
@@ -66,9 +64,8 @@ jobs:
       xcode_version: "16"
       build_with_make: true
       macos_version: "sequoia"
-      run_on_cirrus_labs: true
       codecov_test_analytics: true
-      files_suffix: _${{matrix.target}}_${{matrix.runner}}
+      files_suffix: _${{matrix.target}}_
       platform: ${{matrix.platform}}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -76,7 +73,7 @@ jobs:
   ui-tests-swift-ui:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
-    name: Test SwiftUI on ${{matrix.runner}} V4 # Up the version with every change to keep track of flaky tests
+    name: Test SwiftUI on Cirrus Labs V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swiftui
@@ -84,27 +81,19 @@ jobs:
       codecov_test_analytics: true
       xcode_version: "16"
       macos_version: "sequoia"
-      run_on_cirrus_labs: true
-      files_suffix: _swiftui_-${{matrix.runner}}
+      files_suffix: _swiftui_
       platform: "iOS"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - Cirrus Labs
 
   ui-tests-swift:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
-    name: Test Swift ${{matrix.name}} on ${{matrix.runner}} V5 # Up the version with every change to keep track of flaky tests
+    name: Test Swift ${{matrix.name}} V5 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
       fail-fast: false
       matrix:
-        runner:
-          - Cirrus Labs
         job_id:
           - ios_17
           - ios_18
@@ -131,10 +120,9 @@ jobs:
             platform: "iOS"
     with:
       fastlane_command: ui_tests_ios_swift
-      files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}-${{matrix.runner}}
+      files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
       build_with_make: true
       macos_version: ${{matrix.runs_on}}
-      run_on_cirrus_labs: true
       codecov_test_analytics: true
       xcode_version: ${{ matrix.xcode}}
       test-destination-os: ${{matrix.test_destination_os}}
@@ -148,20 +136,14 @@ jobs:
     needs: files-changed
     name: Test iOS Swift6 on ${{matrix.runner}} V3 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - Cirrus Labs
     with:
       fastlane_command: ui_tests_ios_swift6
       xcode_version: "16"
       build_with_make: true
       macos_version: "sequoia"
-      run_on_cirrus_labs: true
       codecov_test_analytics: true
       platform: iOS
-      files_suffix: _swift6_-${{matrix.runner}}
+      files_suffix: _swift6_
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 

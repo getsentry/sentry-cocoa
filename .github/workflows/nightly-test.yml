@@ -28,11 +28,9 @@ jobs:
       should_skip: false
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
-      test-destination-os: ${{matrix.test-destination-os}}
       timeout: ${{matrix.timeout || 20}}
-      device: ${{matrix.device || ''}}
+      device: ${{matrix.device}}
       scheme: "Sentry"
-      run_on_cirrus_labs: true
     strategy:
       fail-fast: false
       matrix:
@@ -41,21 +39,18 @@ jobs:
           - name: iOS 26 iPad Sentry
             runs-on: tahoe
             xcode: "26"
-            test-destination-os: "26.3"
             platform: "iOS"
             device: "iPad Pro 13-inch (M5)"
 
           - name: watchOS 26 Sentry
             runs-on: tahoe
             xcode: "26"
-            test-destination-os: "26.4"
             platform: "watchOS"
             timeout: 30
 
           - name: visionOS 2.5 Sentry
             runs-on: sequoia
             xcode: "26"
-            test-destination-os: "2.5"
             platform: "visionOS"
             timeout: 30
 

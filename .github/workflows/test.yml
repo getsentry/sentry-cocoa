@@ -169,7 +169,6 @@ jobs:
               - "runner_group_id:10"
             platform: "macOS"
             xcode: "16"
-            test-destination-os: "15.0"
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -268,7 +267,6 @@ jobs:
       timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device || ''}}
       scheme: "Sentry"
-      run_on_cirrus_labs: true # We always run tests on Cirrus Labs
     strategy:
       fail-fast: false
       matrix:

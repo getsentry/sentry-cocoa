@@ -51,8 +51,6 @@ jobs:
       files_suffix: _${{matrix.platform.xcode}}
       xcode_version: ${{matrix.platform.xcode}}
       platform: ${{matrix.platform.platform}}
-      # We run UI tests only on Cirrus Labs for now.
-      run_on_cirrus_labs: true
     strategy:
       fail-fast: false
       matrix:
