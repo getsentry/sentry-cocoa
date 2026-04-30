@@ -446,7 +446,7 @@ jobs:
         id: resolve-test-destination
         uses: ./.github/actions/resolve-test-destination
         with:
-          platform: macOS
+          platform: iOS
 
       - name: Build for Release
         env:
@@ -525,7 +525,7 @@ jobs:
         id: resolve-test-destination
         uses: ./.github/actions/resolve-test-destination
         with:
-          platform: iOS
+          platform: macOS
 
       - name: Build for Release
         env:
