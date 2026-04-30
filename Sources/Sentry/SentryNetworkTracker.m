@@ -236,6 +236,16 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+    SentryOptions *options = SentrySDK.startOption;
+    NSString *urlString = sessionTask.originalRequest.URL.absoluteString;
+    if ([self isNetworkDetailCaptureEnabledFor:urlString options:options]) {
+        [self captureRequestDetails:sessionTask
+               networkCaptureBodies:options.sessionReplay.networkCaptureBodies
+              networkRequestHeaders:options.sessionReplay.networkRequestHeaders];
+    }
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
+
     if (![self isTaskSupported:sessionTask]) {
         return;
     }
@@ -470,6 +480,18 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         breadcrumbData[@"http.fragment"] = urlComponents.fragment;
     }
 
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+    // Check if network details was enabled for this url.
+    @synchronized(sessionTask) {
+        SentryReplayNetworkDetails *networkDetails
+            = objc_getAssociatedObject(sessionTask, &SentryNetworkDetailsKey);
+        if (networkDetails) {
+            // Store raw object; serialized at read time by SentrySRDefaultBreadcrumbConverter
+            breadcrumbData[SentryReplayNetworkDetails.replayNetworkDetailsKey] = networkDetails;
+        }
+    }
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
+
     breadcrumb.data = breadcrumbData;
     [SentrySDK addBreadcrumb:breadcrumb];
 
@@ -562,15 +584,104 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     return breadcrumbLevel;
 }
 
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+// Associated object key for attaching SentryReplayNetworkDetails to each NSURLSessionTask.
+// Safe: setAssociatedObject follows existing patterns in urlSessionTask:setState:
+// and getAssociatedObject is called from blocks that hold a strong reference to the task.
+static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
+
+- (BOOL)isNetworkDetailCaptureEnabledFor:(NSString *)urlString options:(SentryOptions *)options
+{
+    if (!options) {
+        return NO;
+    }
+
+    if (!urlString) {
+        return NO;
+    }
+
+    if (!options.sessionReplay) {
+        return NO;
+    }
+
+    return [options.sessionReplay isNetworkDetailCaptureEnabledFor:urlString];
+}
+
 - (void)captureResponseDetails:(NSData *)data
                       response:(NSURLResponse *)response
                     requestURL:(NSURL *)requestURL
                           task:(NSURLSessionTask *)task
 {
-    // TODO: Implementation
-    // 2. Parse response body data
-    // 3. Store in appropriate location for session replay
-    // 4. Handle size limits and truncation if needed
+    NSString *urlString = requestURL.absoluteString;
+    SentryOptions *options = SentrySDK.startOption;
+    if (![self isNetworkDetailCaptureEnabledFor:urlString options:options]) {
+        return;
+    }
+
+    @synchronized(task) {
+        SentryReplayNetworkDetails *details
+            = objc_getAssociatedObject(task, &SentryNetworkDetailsKey);
+        if (!details) {
+            SENTRY_LOG_WARN(@"[NetworkCapture] No SentryReplayNetworkDetails found for %@ - "
+                            @"skipping response capture",
+                urlString);
+            return;
+        }
+
+        NSInteger statusCode = 0;
+        NSDictionary *allHeaders = nil;
+        NSString *contentType = nil;
+        if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            statusCode = httpResponse.statusCode;
+            allHeaders = httpResponse.allHeaderFields;
+            contentType = httpResponse.allHeaderFields[@"Content-Type"];
+        }
+
+        NSData *bodyData
+            = (options.sessionReplay.networkCaptureBodies && data.length > 0) ? data : nil;
+
+        [details setResponseWithStatusCode:statusCode
+                                      size:@(data ? data.length : 0)
+                                  bodyData:bodyData
+                               contentType:contentType
+                                allHeaders:allHeaders
+                         configuredHeaders:options.sessionReplay.networkResponseHeaders];
+    }
 }
+
+- (void)captureRequestDetails:(NSURLSessionTask *)sessionTask
+         networkCaptureBodies:(BOOL)networkCaptureBodies
+        networkRequestHeaders:(NSArray<NSString *> *)networkRequestHeaders
+{
+    if (!sessionTask || !sessionTask.currentRequest) {
+        return;
+    }
+
+    NSURLRequest *request = sessionTask.currentRequest;
+    SentryReplayNetworkDetails *details;
+
+    @synchronized(sessionTask) {
+        if (objc_getAssociatedObject(sessionTask, &SentryNetworkDetailsKey)) {
+            return;
+        }
+        details = [[SentryReplayNetworkDetails alloc] initWithMethod:request.HTTPMethod ?: @"GET"];
+        objc_setAssociatedObject(
+            sessionTask, &SentryNetworkDetailsKey, details, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+
+    // Prefer originalRequest.HTTPBody: currentRequest may reflect redirects, and its HTTPBody may
+    // be nil on in-flight tasks.
+    NSData *rawBody = sessionTask.originalRequest.HTTPBody ?: request.HTTPBody;
+    NSNumber *requestSize = rawBody ? [NSNumber numberWithUnsignedInteger:rawBody.length] : nil;
+    NSData *bodyData = networkCaptureBodies ? rawBody : nil;
+
+    [details setRequestWithSize:requestSize
+                       bodyData:bodyData
+                    contentType:request.allHTTPHeaderFields[@"Content-Type"]
+                     allHeaders:request.allHTTPHeaderFields
+              configuredHeaders:networkRequestHeaders];
+}
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
 @end

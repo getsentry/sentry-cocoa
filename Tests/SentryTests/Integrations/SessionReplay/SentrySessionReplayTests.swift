@@ -646,28 +646,15 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(breadCrumbRREvents.count, 0)
     }
     
-    func testShouldEnableSessionReplay_withUnreliableEnvironment_withoutOverrideOptionEnabled_shouldNotStart() {
-        // -- Arrange --
-        let environmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
-        let experimentalOptions = SentryExperimentalOptions()
-        experimentalOptions.enableSessionReplayInUnreliableEnvironment = false
-
-        // -- Assert --
-        // Verify that session replay will not actually start
-        // (it should have been blocked by isInUnreliableEnvironment)
-        XCTAssertFalse(SentrySessionReplay.shouldEnableSessionReplay(environmentChecker: environmentChecker, experimentalOptions: experimentalOptions))
-    }
-
-    func testShouldEnableSessionReplay_withUnreliableEnvironment_withOverrideOptionEnabled_shouldStart() {
-        // -- Arrange --
-        let environmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
-        let experimentalOptions = SentryExperimentalOptions()
-        experimentalOptions.enableSessionReplayInUnreliableEnvironment = true
-
-        // -- Assert --
-        // Verify that session replay will start despite unreliable environment
-        // (override option is enabled)
-        XCTAssertTrue(SentrySessionReplay.shouldEnableSessionReplay(environmentChecker: environmentChecker, experimentalOptions: experimentalOptions))
+    @available(iOS 16.0, tvOS 16, *)
+    func testDealloc_CallsStop() {
+        let fixture = Fixture()
+        func sutIsDeallocatedAfterCallingMe() {
+            _ = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        }
+        sutIsDeallocatedAfterCallingMe()
+        
+        XCTAssertEqual(fixture.displayLink.invalidateInvocations.count, 1)
     }
 
     // MARK: - Frame Rate Tests

@@ -135,6 +135,9 @@ onIntegerElement(const char *const name, const int64_t value, void *const userDa
         char buffer[21];
         sentrycrashdate_utcStringFromTimestamp((time_t)value, buffer);
 
+        // strlen here cannot read out of bounds: sentrycrashdate_utcStringFromTimestamp formats
+        // a fixed "YYYY-MM-DDTHH:MM:SSZ" timestamp (20 chars) and writes a trailing NUL at
+        // buffer[20], so the 21-byte stack buffer is always null-terminated within bounds.
         result = sentrycrashjson_addStringElement(
             context->encodeContext, name, buffer, (int)strlen(buffer));
     } else {
@@ -163,6 +166,10 @@ onStringElement(const char *const name, const char *const value, void *const use
     FixupContext *context = (FixupContext *)userData;
     const char *stringValue = value;
 
+    // strlen here cannot read out of bounds: stringValue is delivered by the JSON decoder via
+    // its onStringElement callback (sentrycrashjson_decode -> decodeString), which copies the
+    // decoded string into a stringBuffer the caller supplies and writes a NUL terminator at the
+    // end before invoking this callback.
     int result = sentrycrashjson_addStringElement(
         context->encodeContext, name, stringValue, (int)strlen(stringValue));
 
@@ -216,6 +223,9 @@ addJSONData(const char *data, int length, void *userData)
     if (length > context->outputBytesLeft) {
         return SentryCrashJSON_ERROR_DATA_TOO_LONG;
     }
+    // memcpy here cannot write out of bounds: the early return immediately above guarantees
+    // length <= outputBytesLeft, and outputBytesLeft is decremented by the same amount on every
+    // successful write so it always equals the remaining capacity at outputPtr.
     memcpy(context->outputPtr, data, length);
     context->outputPtr += length;
     context->outputBytesLeft -= length;
@@ -249,6 +259,10 @@ sentrycrashcrf_fixupCrashReport(const char *crashReport)
             "Failed to allocate string buffer of size %ul", stringBufferLength);
         return NULL;
     }
+    // strlen here cannot read out of bounds: crashReport is the C-string contract of this
+    // public sentrycrashcrf_fixupCrashReport entry point, called only by SentryCrashReportStore
+    // after reading a report file via sentrycrashfu_readEntireFile, which always
+    // null-terminates its returned buffer.
     int crashReportLength = (int)strlen(crashReport);
     int fixedReportLength = (int)(crashReportLength * 1.5);
     char *fixedReport = malloc((unsigned)fixedReportLength);
@@ -269,7 +283,7 @@ sentrycrashcrf_fixupCrashReport(const char *crashReport)
     sentrycrashjson_beginEncode(&encodeContext, true, addJSONData, &fixupContext);
 
     int errorOffset = 0;
-    int result = sentrycrashjson_decode(crashReport, (int)strlen(crashReport), stringBuffer,
+    int result = sentrycrashjson_decode(crashReport, crashReportLength, stringBuffer,
         stringBufferLength, &callbacks, &fixupContext, &errorOffset);
     *fixupContext.outputPtr = '\0';
     free(stringBuffer);

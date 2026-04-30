@@ -75,26 +75,43 @@ getCrashReportPathByID(int64_t id, char *pathBuffer)
 static int64_t
 getReportIDFromFilename(const char *filename)
 {
-    char scanFormat[SentryCrashCRS_MAX_PATH_LENGTH];
-    snprintf(scanFormat, sizeof(scanFormat), "%s-report-%%" PRIx64 ".json", g_appName);
-
-    int64_t reportID = 0;
-    sscanf(filename, scanFormat, &reportID);
-
-    return reportID;
+    // The previous implementation built a "%s-report-%%" PRIx64 ".json" format string and called
+    // sscanf, which has two problems flagged by CWE-676: a malformed filename can leave
+    // reportID uninitialized (sscanf only writes converted fields), and sscanf accepts arbitrary
+    // leading whitespace and silently ignores trailing junk, both of which are easy to misuse.
+    // We avoid both by parsing the fixed prefix with strncmp and converting the hex ID with
+    // strtoull, which reports exactly how many characters it consumed via endPtr. strlen on
+    // g_appName is safe: it is set once during sentrycrashcrs_initialize from a caller-owned
+    // C string and is never modified afterwards.
+    const size_t appNameLen = strlen(g_appName);
+    if (strncmp(filename, g_appName, appNameLen) != 0) {
+        return 0;
+    }
+    const char *rest = filename + appNameLen;
+    if (strncmp(rest, "-report-", 8) != 0) {
+        return 0;
+    }
+    const char *hexStart = rest + 8;
+    char *endPtr = NULL;
+    const uint64_t id = strtoull(hexStart, &endPtr, 16);
+    if (endPtr == hexStart) {
+        return 0;
+    }
+    // Expect ".json" suffix
+    if (strcmp(endPtr, ".json") != 0) {
+        return 0;
+    }
+    return (int64_t)id;
 }
 
 static int64_t
 getReportIDFromFilePath(const char *filepath)
 {
-    char scanFormat[SentryCrashCRS_MAX_PATH_LENGTH];
-    snprintf(
-        scanFormat, sizeof(scanFormat), "%s/%s-report-%%" PRIx64 ".json", g_reportsPath, g_appName);
-
-    int64_t reportID = 0;
-    sscanf(filepath, scanFormat, &reportID);
-
-    return reportID;
+    // Strip the directory portion and reuse the filename parser. strrchr returns the last '/'
+    // or NULL; in the NULL case (a bare filename) we use filepath unchanged.
+    const char *lastSlash = strrchr(filepath, '/');
+    const char *filename = lastSlash != NULL ? lastSlash + 1 : filepath;
+    return getReportIDFromFilename(filename);
 }
 
 static int

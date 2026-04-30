@@ -133,8 +133,8 @@ jobs:
             ${{ github.workspace }}/dSYMs/
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   # This check validates that either upload_to_testflight passed or was skipped, which allows us
   # to make testflight a required check with only running the upload_to_testflight when required.
