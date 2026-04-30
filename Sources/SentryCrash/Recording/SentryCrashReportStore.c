@@ -286,7 +286,7 @@ sentrycrashcrs_addUserReport(const char *report, int reportLength)
         goto done;
     } else if (bytesWritten < reportLength) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Expected to write %d bytes to file %s, but only wrote %d",
-            crashReportPath, reportLength, bytesWritten);
+            reportLength, crashReportPath, bytesWritten);
     }
 
 done:
