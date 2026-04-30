@@ -498,7 +498,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(payloadData["fragment"] as? String, "fragment")
     }
 
-#if canImport(UIKit) && SENTRY_TARGET_REPLAY_SUPPORTED
+#if os(iOS) || os(tvOS)
     /// Simple case - when network details are enabled, `addBreadcrumbForSessionTask` will include
     /// serialized network details in the breadcrumb data.
     func testAddBreadcrumb_withNetworkDetails_shouldIncludeSerializedDetailsInBreadcrumbData() throws {
@@ -511,6 +511,7 @@ class SentryNetworkTrackerTests: XCTestCase {
         options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
         options.sessionReplay.networkResponseHeaders = ["Cache-Control"]
         options.sessionReplay.networkCaptureBodies = false
+        options.experimental.enableReplayNetworkDetailsCapturing = true
 
         let scope = Scope()
         let client = TestClient(options: options)
