@@ -102,7 +102,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         // -- Arrange --
         var beforeSendCalled = false
         let client = try givenSdkWithHub { options in
-            options.experimental.beforeSendMetric = { metric in
+            options.beforeSendMetric = { metric in
                 beforeSendCalled = true
 
                 XCTAssertEqual(metric.name, "test.metric")
@@ -142,7 +142,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         // -- Arrange --
         var beforeSendCalled = false
         let client = try givenSdkWithHub { options in
-            options.experimental.beforeSendMetric = { _ in
+            options.beforeSendMetric = { _ in
                 beforeSendCalled = true
                 return nil // Drop the metric
             }
@@ -171,7 +171,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
     func testAddMetric_beforeSendMetricNotSet_metricCapturedUnmodified() throws {
         // -- Arrange --
         let client = try givenSdkWithHub { options in
-            options.experimental.beforeSendMetric = nil
+            options.beforeSendMetric = nil
         }
 
         let integration = try getSut()
@@ -202,7 +202,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         var beforeSendCalled = false
         try givenSdkWithHub { options in
             options.environment = "test"
-            options.experimental.beforeSendMetric = { metric in
+            options.beforeSendMetric = { metric in
                 beforeSendCalled = true
 
                 // Verify that scope attributes were already applied before the callback runs
@@ -270,7 +270,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
             $0.dsn = TestConstants.dsnForTestCase(type: Self.self)
             $0.removeAllIntegrations()
 
-            $0.experimental.enableMetrics = isEnabled
+            $0.enableMetrics = isEnabled
 
             configure?($0)
         }
@@ -281,7 +281,7 @@ class SentryMetricsIntegrationTests: XCTestCase {
         let options = Options()
         options.dsn = TestConstants.dsnForTestCase(type: Self.self)
         options.removeAllIntegrations()
-        options.experimental.enableMetrics = true
+        options.enableMetrics = true
 
         configure?(options)
 

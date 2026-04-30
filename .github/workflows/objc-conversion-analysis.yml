@@ -79,8 +79,8 @@ jobs:
           retention-days: 30
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   # This check validates that either all Objective-C conversion analysis passed or was skipped, which allows us
   # to make the analysis a required check with only running the analysis when required.

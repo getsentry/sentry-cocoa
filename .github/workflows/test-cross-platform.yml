@@ -127,8 +127,8 @@ jobs:
             test SWIFT_ACTIVE_COMPILATION_CONDITIONS=CROSS_PLATFORM_TEST GCC_PREPROCESSOR_DEFINITIONS"=CROSS_PLATFORM_TEST=1" | xcbeautify
 
       - name: Run CI Diagnostics
+        uses: ./sentry-cocoa/.github/actions/ci-diagnostics
         if: failure()
-        run: ./sentry-cocoa/scripts/ci-diagnostics.sh
 
   test_cross_platform-required-check:
     needs:

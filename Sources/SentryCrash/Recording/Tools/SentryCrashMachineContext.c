@@ -139,6 +139,10 @@ sentrycrashmc_getContextForSignal(
     SENTRY_ASYNC_SAFE_LOG_DEBUG(
         "Get context from signal user context and put into %p.", destinationContext);
     _STRUCT_MCONTEXT *sourceContext = ((SignalUserContext *)signalUserContext)->UC_MCONTEXT;
+    // memcpy here cannot read or write out of bounds: both endpoints are typed _STRUCT_MCONTEXT
+    // (the kernel-supplied machine context for the trapping signal frame) and we copy exactly
+    // sizeof(destinationContext->machineContext) bytes, which by definition fits in the
+    // destination field and matches the size the kernel provides via UC_MCONTEXT.
     memcpy(&destinationContext->machineContext, sourceContext,
         sizeof(destinationContext->machineContext));
     destinationContext->thisThread = (thread_t)sentrycrashthread_self();

@@ -750,36 +750,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertNil(weakSut, "SentrySessionReplayIntegration should be deallocated")
     }
-    
-    func testInstallWithOptions_WithUnsafe_withoutOverrideOptionEnabled_shouldReturnFalse() {
-        // -- Arrange --
-        let options = Options()
-        options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
-        options.experimental.enableSessionReplayInUnreliableEnvironment = false
-
-        SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
-
-        // -- Act --
-        let instance = SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
-
-        // -- Assert --
-        XCTAssertNil(instance)
-    }
-
-    func testInstallWithOptions_WithUnsafe_withOverrideOptionEnabled_shouldReturnTrue() {
-        // -- Arrange --
-        let options = Options()
-        options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
-        options.experimental.enableSessionReplayInUnreliableEnvironment = true
-
-        SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
-
-        // -- Act --
-        let instance = SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
-
-        // -- Assert --
-        XCTAssertNotNil(instance)
-    }
 
     func testReplayIdAndSessionReplayCleared_whenMaxDurationReached() throws {
         // -- Arrange --
@@ -830,21 +800,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         XCTAssertNil(replayId)
         XCTAssertNil(sut.sessionReplay)
-    }
-
-    func testInstallWithOptions_WithoutUnsafe_shouldReturnTrue() {
-        // -- Arrange --
-        let options = Options()
-        options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
-        options.experimental.enableSessionReplayInUnreliableEnvironment = false
-
-        SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: true)
-
-        // -- Act --
-        let instance = SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
-
-        // -- Assert --
-        XCTAssertNotNil(instance)
     }
 
     private func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {

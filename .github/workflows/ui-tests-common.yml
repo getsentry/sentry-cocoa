@@ -185,5 +185,5 @@ jobs:
           suffix: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh

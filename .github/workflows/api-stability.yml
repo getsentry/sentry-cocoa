@@ -88,8 +88,8 @@ jobs:
             exit 1
           fi
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   # This check validates that either all API stability checks passed or were skipped, which allows us
   # to make API stability checks a required check with only running the API stability checks when required.
