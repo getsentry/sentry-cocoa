@@ -36,7 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 {
     // In iOS 26 apple changed the implementation and it may call this method twice when encoding
     // the string to a JSON. We should ignore it if the caller is `__CFStringEncodeByteStream`
-    if ([NSThread.callStackSymbols[1] rangeOfString:@"[NSString"].location != NSNotFound) {
+    if ([NSThread.callStackSymbols[1] rangeOfString:@"__CFStringEncodeByteStream"].location
+        == NSNotFound) {
         self.lengthInvocations++;
     }
 
