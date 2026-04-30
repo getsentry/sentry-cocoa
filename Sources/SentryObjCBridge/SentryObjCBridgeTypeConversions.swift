@@ -83,7 +83,7 @@ extension SentryMetric {
 
 extension SentryObjCMetric {
     func toSwift() -> SentryMetric {
-        return SentryMetric(
+        var metric = SentryMetric(
             timestamp: timestamp,
             traceId: traceId,
             name: name,
@@ -91,5 +91,7 @@ extension SentryObjCMetric {
             unit: unit.flatMap { SentryUnit(rawValue: $0) },
             attributes: attributes.mapValues { $0.toSwift() }
         )
+        metric.spanId = spanId
+        return metric
     }
 }

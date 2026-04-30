@@ -4,16 +4,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryObjCMetric ()
-@property (nonatomic, readwrite) NSDate *timestamp;
-@property (nonatomic, readwrite) NSString *name;
-@property (nonatomic, readwrite) SentryId *traceId;
-@property (nonatomic, readwrite, nullable) SentrySpanId *spanId;
-@property (nonatomic, readwrite) SentryObjCMetricValue *value;
-@property (nonatomic, readwrite, nullable) NSString *unit;
-@property (nonatomic, readwrite) NSDictionary<NSString *, SentryObjCAttributeContent *> *attributes;
-@end
-
 @implementation SentryObjCMetric
 
 - (instancetype)init

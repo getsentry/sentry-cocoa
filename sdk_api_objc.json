@@ -4032,6 +4032,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setAttributes:",
+    "parent": "SentryObjCMetric",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setBeforeBreadcrumb:",
     "parent": "SentryOptions",
     "returnType": "void",
@@ -4978,6 +4985,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setName:",
+    "parent": "SentryObjCMetric",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setName:",
     "parent": "SentryThread",
     "returnType": "void",
     "instance": true
@@ -5405,6 +5419,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setSpanId:",
+    "parent": "SentryObjCMetric",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setSpanId:",
     "parent": "SentrySpan",
     "returnType": "void",
     "instance": true
@@ -5573,6 +5594,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setTimestamp:",
+    "parent": "SentryObjCMetric",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setTimestamp:",
     "parent": "SentrySpan",
     "returnType": "void",
     "instance": true
@@ -5581,6 +5609,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setTraceId:",
     "parent": "SentryLog",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setTraceId:",
+    "parent": "SentryObjCMetric",
     "returnType": "void",
     "instance": true
   },
@@ -5656,6 +5691,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setUnit:",
+    "parent": "SentryObjCMetric",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setUnmaskedViewClasses:",
     "parent": "SentryReplayOptions",
     "returnType": "void",
@@ -5721,6 +5763,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setValue:",
     "parent": "SentryException",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setValue:",
+    "parent": "SentryObjCMetric",
     "returnType": "void",
     "instance": true
   },
