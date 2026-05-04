@@ -47,6 +47,7 @@ jobs:
     outputs:
       run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
       is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
+      is_fork: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Get changed files
@@ -298,10 +299,11 @@ jobs:
     name: Collect App Metrics
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
-    # Run for PRs with related changes (including dependabot) or non-PR events.
+    # Run for PRs with related changes (including dependabot) or non-PR events. Skip fork PRs (no secrets available).
     if: |
       github.event_name != 'pull_request' || (
-        needs.files-changed.outputs.run_release_for_prs == 'true' && (
+        needs.files-changed.outputs.run_release_for_prs == 'true' &&
+        needs.files-changed.outputs.is_fork != 'true' && (
           contains(
           fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'),
           github.event.pull_request.author_association
