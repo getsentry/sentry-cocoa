@@ -111,6 +111,16 @@ jobs:
           find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
         shell: bash
 
+      # SentryObjCBridge and SentryObjC depend on SentryObjCTypes, which gets built as a byproduct.
+      - name: Remove SentryObjCTypes.framework byproduct
+        if: inputs.name == 'SentryObjCBridge' || inputs.name == 'SentryObjC'
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: |
+          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCTypes.framework" -print0 | xargs -t0 rm -rf
+          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCTypes.framework.dSYM" -print0 | xargs -t0 rm -rf
+        shell: bash
+
       # SentryObjC depends on SentryObjCBridge, which gets built as a byproduct.
       - name: Remove SentryObjCBridge.framework byproduct
         if: inputs.name == 'SentryObjC'
