@@ -151,6 +151,9 @@ var targets: [Target] = [\
     sed -i '' '/^    dependencies: \[/,/^    ],/c\
     dependencies: [],\
 ' "$PACKAGE_FILE"
+
+    # Remove marker-delimited regions not needed for distribution tests.
+    sed -i '' '/\/\/ BEGIN:OBJC_WRAPPER/,/\/\/ END:OBJC_WRAPPER/d' "$PACKAGE_FILE"
   fi
 
   echo

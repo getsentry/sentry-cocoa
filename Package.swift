@@ -120,6 +120,7 @@ targets += [
             .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
 ]
 
+// BEGIN:OBJC_WRAPPER
 // Swift bridge that exposes SDK functionality to pure ObjC code (no modules)
 products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjCTypes", "SentryObjCBridge", "SentryObjC"]))
 targets += [
@@ -157,6 +158,7 @@ targets += [
         ]
     )
 ]
+// END:OBJC_WRAPPER
 
 let package = Package(
     name: "Sentry",
