@@ -821,6 +821,16 @@
                                                                 <action selector="sentryCrash:" target="XfG-lQ-9wD" id="8gG-2n-QOP"/>
                                                             </connections>
                                                         </button>
+                                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="WTh-yP-KnL" userLabel="NullProgramCounterCrash">
+                                                            <rect key="frame" x="224" y="396" width="150" height="24"/>
+                                                            <buttonCell key="cell" type="push" title="Null PC Crash" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="q9J-vN-O3r">
+                                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                                <font key="font" metaFont="system"/>
+                                                            </buttonCell>
+                                                            <connections>
+                                                                <action selector="nullProgramCounterCrash:" target="XfG-lQ-9wD" id="mFk-N0-PC0"/>
+                                                            </connections>
+                                                        </button>
                                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="sxu-g3-vT7" userLabel="CppException">
                                                             <rect key="frame" x="242" y="396" width="113" height="24"/>
                                                             <buttonCell key="cell" type="push" title="CPP Exception" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="B4S-qm-cMV">
