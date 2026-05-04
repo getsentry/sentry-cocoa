@@ -20,7 +20,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 
 @interface SentryANRTrackerV2 ()
 
-@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
+@property (nonatomic, strong) id<SentryCrashReporter> crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
 @property (nonatomic, strong) NSHashTable<id<SentryANRTrackerInternalDelegate>> *listeners;
@@ -45,7 +45,7 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
 }
 
 - (instancetype)initWithTimeoutInterval:(NSTimeInterval)timeoutInterval
-                           crashWrapper:(SentryCrashWrapper *)crashWrapper
+                           crashWrapper:(id<SentryCrashReporter>)crashWrapper
                    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                           threadWrapper:(SentryThreadWrapper *)threadWrapper
                           framesTracker:(SentryFramesTracker *)framesTracker

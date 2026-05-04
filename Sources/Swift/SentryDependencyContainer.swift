@@ -112,14 +112,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var dateProvider: SentryCurrentDateProvider = Dependencies.dateProvider
     @objc public var notificationCenterWrapper = Dependencies.notificationCenterWrapper
     @objc public var processInfoWrapper = Dependencies.processInfoWrapper
-    private var _crashWrapper: SentryCrashWrapper?
-    @objc public lazy var crashWrapper: SentryCrashWrapper = getLazyVar(\._crashWrapper) {
+    private var _crashWrapper: SentryCrashReporter?
+    @objc public lazy var crashWrapper: SentryCrashReporter = getLazyVar(\._crashWrapper) {
         let bridge = SentryCrashBridge(
             notificationCenterWrapper: self.notificationCenterWrapper,
             dateProvider: self.dateProvider,
             crashReporter: self.crashReporter
         )
-        return SentryCrashWrapper(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
+        return SentryDefaultCrashReporter(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
     }
     @objc public var dispatchFactory = SentryDispatchFactory()
     @objc public var timerFactory = SentryNSTimerFactory()
@@ -490,7 +490,7 @@ protocol ReachabilityProvider {
 extension SentryDependencyContainer: ReachabilityProvider {}
 
 protocol CrashWrapperProvider {
-    var crashWrapper: SentryCrashWrapper { get }
+    var crashWrapper: SentryCrashReporter { get }
 }
 extension SentryDependencyContainer: CrashWrapperProvider {}
 
