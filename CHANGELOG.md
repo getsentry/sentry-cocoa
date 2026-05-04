@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Report crashed thread for null function calls ([#7866](https://github.com/getsentry/sentry-cocoa/pull/7866))
+
 ## 9.12.0
 
 > [!WARNING]
