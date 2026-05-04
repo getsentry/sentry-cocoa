@@ -37,7 +37,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y cmake pkg-config libicu-dev
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@0cb964fd540e0a24c900370abf38a33466142735 # v1.305.0
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
           bundler-cache: true
 
@@ -55,8 +55,8 @@ jobs:
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   deploy:
     name: Deploy to GitHub Pages

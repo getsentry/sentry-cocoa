@@ -15,6 +15,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ProcessInfo.processInfo.environment
     }
 
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        let token = deviceToken.map { String(format: "%02x", $0) }.joined()
+        NotificationCenter.default.post(name: .apnsTokenReceived, object: token)
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        NotificationCenter.default.post(name: .apnsTokenReceived, object: nil)
+        print("[iOS-Swift] Failed to register for remote notifications: \(error)")
+    }
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         print("[iOS-Swift] [debug] launch arguments: \(args)")
         print("[iOS-Swift] [debug] launch environment: \(env)")
@@ -61,4 +71,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         SentrySDKOverrides.resetDefaults()
     }
+}
+
+extension Notification.Name {
+    static let apnsTokenReceived = Notification.Name("io.sentry.apns-token-received")
 }

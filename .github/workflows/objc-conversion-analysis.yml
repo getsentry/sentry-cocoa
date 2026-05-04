@@ -46,7 +46,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Setup Ruby
-        uses: ruby/setup-ruby@0cb964fd540e0a24c900370abf38a33466142735 # v1.305.0
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
           bundler-cache: true
 
@@ -79,8 +79,8 @@ jobs:
           retention-days: 30
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   # This check validates that either all Objective-C conversion analysis passed or was skipped, which allows us
   # to make the analysis a required check with only running the analysis when required.

@@ -26,6 +26,7 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertEqual(options.sessionSegmentDuration, 5)
         XCTAssertEqual(options.maximumDuration, 60 * 60)
         
+        XCTAssertFalse(options.networkDetailHasUrls)
         XCTAssertEqual(options.networkDetailAllowUrls.count, 0)
         XCTAssertEqual(options.networkDetailDenyUrls.count, 0)
         XCTAssertTrue(options.networkCaptureBodies)
@@ -69,6 +70,7 @@ class SentryReplayOptionsTests: XCTestCase {
         XCTAssertEqual(options.maximumDuration, 60 * 60)
         
         // Network details assertions
+        XCTAssertTrue(options.networkDetailHasUrls)
         XCTAssertEqual(options.networkDetailAllowUrls as? [String], ["https://api.example.com", "https://test.example.org"])
         XCTAssertEqual(options.networkDetailDenyUrls as? [String], ["https://sensitive.example.com", "https://private.example.org"])
         XCTAssertFalse(options.networkCaptureBodies)

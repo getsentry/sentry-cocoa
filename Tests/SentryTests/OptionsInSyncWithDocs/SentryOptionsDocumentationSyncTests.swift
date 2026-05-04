@@ -20,7 +20,9 @@ final class SentryOptionsDocumentationSyncTests: XCTestCase {
             "onLastRunStatusDetermined",
             "strictTraceContinuation", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
             "orgId", // Docs PR: https://github.com/getsentry/sentry-docs/pull/16983
-            "effectiveOrgId" // @_spi(Private) - internal computed property, not a user-facing option
+            "effectiveOrgId", // @_spi(Private) - internal computed property, not a user-facing option
+            "enableMetrics", // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
+            "beforeSendMetric" // Promoted to GA in https://github.com/getsentry/sentry-cocoa/pull/7843; docs update pending
         ]
         
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
