@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Prevent memory strings in stack overflow crash reports (#7841)
+
+### Fixes
+
 ## 9.12.0
 
 > [!WARNING]
