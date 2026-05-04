@@ -3,7 +3,7 @@
 ## `SentryCrashBinaryImageCache` initializes off the main thread
 
 Date: April 21st 2026
-Contributors: @noahsmarting, @itaybre, @philprime, @supervacuus
+Contributors: @noahsmartin, @itaybre, @philprime, @supervacuus
 
 We decided that `SentryCrashBinaryImageCache` (`BIC`) must not be initialized on the main thread, because `dyld_register_image_load_callback()` holds the `dyld` reader lock for the entirety of the replay over already-loaded images, and the per-image callback work is too expensive to run on main during `SentrySDK.start`.
 We also decided that the debug-image names used in VC swizzling will be decoupled from `BIC` initialization and will load their own snapshot via `_dyld_image_count()`/`_dyld_get_image_name()` on the main thread.
