@@ -81,7 +81,12 @@ static bool g_checkedIsDebugging;
 static void
 writeToLog(const char *const str)
 {
+    unlikely_if(str == NULL) { return; }
+
     if (g_fd >= 0) {
+        // strlen cannot read out of bounds here: str comes from string literals in this file or
+        // from vsnprintf into a fixed-size stack buffer, both of which are guaranteed
+        // null-terminated.
         int bytesToWrite = (int)strlen(str);
         const char *pos = str;
         while (bytesToWrite > 0) {

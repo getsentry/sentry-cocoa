@@ -22,6 +22,8 @@ sentrySessionReplaySync_start(const char *const path)
         free(crashReplay.path);
     }
 
+    // strlen here cannot read out of bounds: path is the C-string contract of this public C
+    // entry point. Callers are NSString/Swift String bridges that emit null-terminated UTF-8.
     size_t buffer_size = sizeof(char) * (strlen(path) + 1); // Add a byte for the null-terminator.
     crashReplay.path = malloc(buffer_size);
 

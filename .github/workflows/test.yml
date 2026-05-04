@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Cache for Test Server
         id: cache_test_server
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: ./test-server/.build
           key: test-server-${{ hashFiles('./test-server') }}-universal
@@ -97,8 +97,8 @@ jobs:
             test-server-build-arm64.log
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   distribution-tests:
     name: Distribution Tests
@@ -112,11 +112,14 @@ jobs:
       - name: Prepare Package.swift
         shell: bash
         run: |
-          # Swift 6.1+ uses Package@swift-6.1.swift; hide it so prepare-package's
+          # Swift 6.1+ and 6.2+ uses Package@swift-6.1.swift and Package@swift-6.2.swift; hide it so prepare-package's
           # modified Package.swift is used (avoids "Multiple commands produce" from
-          # unmodified binary targets in the 6.1 manifest).
+          # unmodified binary targets in the 6.1 and 6.2 manifests).
           if [[ -f Package@swift-6.1.swift ]]; then
             mv Package@swift-6.1.swift Package@swift-6.1.swift.bak
+          fi
+          if [[ -f Package@swift-6.2.swift ]]; then
+            mv Package@swift-6.2.swift Package@swift-6.2.swift.bak
           fi
           ./scripts/prepare-package.sh \
             --package-file Package.swift \
@@ -186,22 +189,26 @@ jobs:
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
         id: build_tests
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
             --os ${{matrix.test-destination-os}} \
-            --ref ${{ github.ref_name }} \
+            --ref "${REF_NAME}" \
             --command build-for-testing \
             --configuration TestCI \
             --scheme Sentry \
             --test-plan Sentry_TestServer
 
       - name: Run tests
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
             --os ${{matrix.test-destination-os}} \
-            --ref ${{ github.ref_name }} \
+            --ref "${REF_NAME}" \
             --command test-without-building \
             --configuration TestCI \
             --scheme Sentry \
@@ -234,8 +241,8 @@ jobs:
             ~/Library/Logs/DiagnosticReports/**
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
       - name: Store screenshot
         uses: ./.github/actions/capture-screenshot

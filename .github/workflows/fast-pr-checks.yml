@@ -58,7 +58,11 @@ jobs:
       run_on_cirrus_labs: true
 
   fast-checks-required:
-    needs: [files-changed, fast-xcframework-slices, fast-unit-tests]
+    needs: [
+      files-changed,
+      fast-xcframework-slices,
+      fast-unit-tests,
+    ]
     name: Fast PR Checks
     if: always()
     runs-on: ubuntu-latest
