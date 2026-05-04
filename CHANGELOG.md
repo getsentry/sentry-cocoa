@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.12.0
 
 > [!WARNING]
 > This release promotes Metrics out of experimental and **removes** `options.experimental.enableMetrics` and `options.experimental.beforeSendMetric`. If you set either of these, your app will fail to compile after upgrading.
