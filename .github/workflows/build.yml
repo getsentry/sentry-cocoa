@@ -121,6 +121,7 @@ jobs:
       # sample projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
       # Therefore, we only keep the local DistributionSample reference in the Package.swift as a workaround.
       - name: Only keep distribution lib and target in Package.swift
+        if: matrix.scheme == 'DistributionSample'
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
       - run: ./scripts/ci-select-xcode.sh 16.4
