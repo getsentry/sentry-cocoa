@@ -297,7 +297,7 @@ public final class SentrySwiftBridge: NSObject {
     // Replay is conditionally available; not part of the SentryObjCBridging protocol
     // (which can't easily express the same conditional in pure ObjC). SentryObjC's
     // .m files declare it as an additional method on the bridge interface.
-    #if SENTRY_TARGET_REPLAY_SUPPORTED
+    #if canImport(UIKit) && !os(visionOS)
     /// Bridge for replay API access from ObjC to Swift
     @objc public static var replay: SentryReplayApi {
         return SentrySDK.replay
