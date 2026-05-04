@@ -182,7 +182,7 @@ GEM
       xcodeproj (>= 1.13.0, < 2.0.0)
       xcpretty (~> 0.4.1)
       xcpretty-travis-formatter (>= 0.0.3, < 2.0.0)
-    fastlane-plugin-sentry (2.5.2)
+    fastlane-plugin-sentry (2.5.3)
       os (~> 1.1, >= 1.1.4)
     fastlane-sirp (1.1.0)
     ffi (1.17.3)
