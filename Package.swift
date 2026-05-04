@@ -134,11 +134,6 @@ targets += [
         cSettings: [
             .headerSearchPath("Public")
         ]),
-    .testTarget(
-        name: "SentryObjCTypesTests",
-        dependencies: ["SentryObjCTypes", "SentryHeaders"],
-        path: "Tests/SentryObjCTypesTests"),
-
     .target(
         name: "SentryObjCBridge",
         dependencies: ["SentryObjCInternal", "SentryObjCTypes"],
