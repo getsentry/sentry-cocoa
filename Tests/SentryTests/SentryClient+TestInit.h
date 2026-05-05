@@ -4,7 +4,6 @@
 @protocol SentryRandomProtocol;
 @protocol SentryEventContextEnricher;
 
-@class SentryCrashWrapper;
 @class SentryDispatchQueueWrapper;
 @class SentryDefaultThreadInspector;
 @class SentryTransportAdapter;

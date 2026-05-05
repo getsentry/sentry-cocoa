@@ -1,7 +1,7 @@
 #import "SentryDefines.h"
 
 @class SentryAppState;
-@class SentryCrashWrapper;
+@protocol SentryCrashReporter;
 @class SentryDispatchQueueWrapper;
 @class SentryFileManager;
 @class SentryOptions;

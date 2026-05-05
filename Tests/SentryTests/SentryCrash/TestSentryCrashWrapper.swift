@@ -1,10 +1,9 @@
 import Foundation
 @_spi(Private) @testable import Sentry
 
-/**
- * This is a test wrapper around SentryCrashWrapper for testing purposes.
- */
-class TestSentryCrashWrapper: SentryCrashWrapper {
+/// Protocol-based test double for SentryCrashReporter.
+/// Implements the protocol directly -- no subclassing of the concrete class.
+class TestSentryCrashReporter: NSObject, SentryCrashReporter {
 
     // MARK: - Test Properties
 
@@ -16,69 +15,48 @@ class TestSentryCrashWrapper: SentryCrashWrapper {
     var internalIsApplicationInForeground = true
     var internalFreeMemorySize: UInt64 = 0
     var internalAppMemorySize: UInt64 = 0
+    var internalSystemInfo: [String: Any] = [:]
     var binaryCacheStarted = false
     var binaryCacheStopped = false
     var enrichScopeCalled = false
 
-    // MARK: - Initialization
+    // MARK: - Convenience Init (backward compatibility)
 
-    init(processInfoWrapper: SentryProcessInfoSource) {
-        // Create a test bridge from the shared container
-        let container = SentryDependencyContainer.sharedInstance()
-        let bridge = SentryCrashBridge(
-            notificationCenterWrapper: container.notificationCenterWrapper,
-            dateProvider: container.dateProvider,
-            crashReporter: container.crashReporter
-        )
-        super.init(processInfoWrapper: processInfoWrapper, bridge: bridge)
+    /// Compatibility init so the test files that call
+    /// `TestSentryCrashWrapper(processInfoWrapper:)` compile without changes.
+    convenience init(processInfoWrapper: SentryProcessInfoSource) {
+        self.init()
+        self.internalProcessInfoWrapper = processInfoWrapper
     }
-    
-    // MARK: - Overridden Methods
-    
-    override func startBinaryImageCache() {
+
+    // MARK: - SentryCrashReporter Protocol
+
+    var crashedLastLaunch: Bool { internalCrashedLastLaunch }
+    var durationFromCrashStateInitToLastCrash: TimeInterval { internalDurationFromCrashStateInitToLastCrash }
+    var activeDurationSinceLastCrash: TimeInterval { internalActiveDurationSinceLastCrash }
+    var isBeingTraced: Bool { internalIsBeingTraced }
+    var isSimulatorBuild: Bool { internalIsSimulatorBuild }
+    var isApplicationInForeground: Bool { internalIsApplicationInForeground }
+    var freeMemorySize: UInt64 { internalFreeMemorySize }
+    var appMemorySize: UInt64 { internalAppMemorySize }
+    var systemInfo: [String: Any] { internalSystemInfo }
+
+    private var internalProcessInfoWrapper: SentryProcessInfoSource = ProcessInfo.processInfo
+    var processInfoWrapper: SentryProcessInfoSource { internalProcessInfoWrapper }
+
+    func startBinaryImageCache() {
         binaryCacheStarted = true
-        super.startBinaryImageCache()
     }
-    
-    override func stopBinaryImageCache() {
-        super.stopBinaryImageCache()
+
+    func stopBinaryImageCache() {
         binaryCacheStopped = true
     }
-    
-    override var crashedLastLaunch: Bool {
-        return internalCrashedLastLaunch
-    }
-    
-    override var durationFromCrashStateInitToLastCrash: TimeInterval {
-        return internalDurationFromCrashStateInitToLastCrash
-    }
-    
-    override var activeDurationSinceLastCrash: TimeInterval {
-        return internalActiveDurationSinceLastCrash
-    }
-    
-    override var isBeingTraced: Bool {
-        return internalIsBeingTraced
-    }
-    
-    override var isSimulatorBuild: Bool {
-        return internalIsSimulatorBuild
-    }
-    
-    override var isApplicationInForeground: Bool {
-        return internalIsApplicationInForeground
-    }
 
-    override var freeMemorySize: UInt64 {
-        return internalFreeMemorySize
-    }
-    
-    override var appMemorySize: UInt64 {
-        return internalAppMemorySize
-    }
-    
-    override func enrichScope(_ scope: Scope) {
+    func enrichScope(_ scope: Scope) {
         enrichScopeCalled = true
-        super.enrichScope(scope)
     }
 }
+
+/// Backward compatibility alias so test files that reference
+/// `TestSentryCrashWrapper` by name compile without modification.
+typealias TestSentryCrashWrapper = TestSentryCrashReporter
