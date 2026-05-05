@@ -1116,6 +1116,7 @@
                         <segue destination="NZr-bH-g9o" kind="relationship" relationship="viewControllers" id="QeG-0S-MzX"/>
                         <segue destination="aU9-zi-mBa" kind="relationship" relationship="viewControllers" id="w0L-TJ-bTb"/>
                         <segue destination="WaX-S9-H5w" kind="relationship" relationship="viewControllers" id="FlP-dO-Q4y"/>
+                        <segue destination="fdb-vc-001" kind="relationship" relationship="viewControllers" id="fdb-tab-seg"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZEF-L9-zzL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1930,6 +1931,75 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tQB-KH-TlY" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-201" y="3364"/>
+        </scene>
+        <!--Feedback-->
+        <scene sceneID="fdb-scn-001">
+            <objects>
+                <viewController id="fdb-vc-001" customClass="FeedbackViewController" customModule="iOS_Swift" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="fdb-view-1">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="fdb-stack-1">
+                                <rect key="frame" x="16" y="176.5" width="288" height="215.5"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fdb-btn-default">
+                                        <rect key="frame" x="0.0" y="0.0" width="288" height="34.5"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Present (Default)"/>
+                                        <connections>
+                                            <action selector="presentConvenience:" destination="fdb-vc-001" eventType="touchUpInside" id="fdb-act-default"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fdb-btn-vc">
+                                        <rect key="frame" x="0.0" y="50.5" width="288" height="34.5"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Present from View Controller"/>
+                                        <connections>
+                                            <action selector="presentFromViewController:" destination="fdb-vc-001" eventType="touchUpInside" id="fdb-act-vc"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fdb-btn-scene">
+                                        <rect key="frame" x="0.0" y="101" width="288" height="34.5"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Present in Window Scene"/>
+                                        <connections>
+                                            <action selector="presentFromWindowScene:" destination="fdb-vc-001" eventType="touchUpInside" id="fdb-act-scene"/>
+                                        </connections>
+                                    </button>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="OR" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fdb-or-label">
+                                        <rect key="frame" x="0.0" y="151.5" width="288" height="13.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fdb-btn-toggle">
+                                        <rect key="frame" x="0.0" y="181" width="288" height="34.5"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Hide Widget"/>
+                                        <connections>
+                                            <action selector="toggleWidget:" destination="fdb-vc-001" eventType="touchUpInside" id="fdb-act-toggle"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="fdb-safe-1"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="fdb-stack-1" firstAttribute="centerY" secondItem="fdb-view-1" secondAttribute="centerY" id="fdb-center-y"/>
+                            <constraint firstItem="fdb-stack-1" firstAttribute="leading" secondItem="fdb-safe-1" secondAttribute="leading" constant="16" id="fdb-leading"/>
+                            <constraint firstItem="fdb-safe-1" firstAttribute="trailing" secondItem="fdb-stack-1" secondAttribute="trailing" constant="16" id="fdb-trailing"/>
+                        </constraints>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Feedback" image="bubble.left.and.bubble.right" catalog="system" selectedImage="bubble.left.and.bubble.right.fill" id="fdb-tab-itm"/>
+                    <connections>
+                        <outlet property="toggleWidgetButton" destination="fdb-btn-toggle" id="fdb-out-toggle"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fdb-first-r" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="529" y="3381"/>
         </scene>
         <!--Scope Debug-->
         <scene sceneID="cos-sS-BSR">

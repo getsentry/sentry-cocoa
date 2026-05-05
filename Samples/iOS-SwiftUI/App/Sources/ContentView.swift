@@ -223,6 +223,10 @@ struct ContentView: View {
                             NavigationLink(destination: FormScreen()) {
                                 Text("Form Screen")
                             }
+
+                            NavigationLink(destination: FeedbackScreen()) {
+                                Text("Feedback Screen")
+                            }
                         }
                         .background(Color.white)
                     }
@@ -236,6 +240,7 @@ struct ContentView: View {
                 }
             }
         }
+        .sentryFeedbackPresenter()
     }
 }
 
