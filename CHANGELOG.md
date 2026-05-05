@@ -4,9 +4,8 @@
 
 ### Fixes
 
-- Report crashed thread for null function calls ([#7866](https://github.com/getsentry/sentry-cocoa/pull/7866))
-
 - Prevent memory strings in stack overflow crash reports (#7841)
+- Report crashed thread for null function calls (#7866)
 
 ### Fixes
 
