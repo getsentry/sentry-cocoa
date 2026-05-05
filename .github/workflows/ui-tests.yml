@@ -134,7 +134,7 @@ jobs:
   ui-tests-swift6:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
-    name: Test iOS Swift6 on ${{matrix.runner}} V3 # Up the version with every change to keep track of flaky tests
+    name: Test iOS Swift6 on Cirrus Labs V3 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swift6
