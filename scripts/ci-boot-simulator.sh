@@ -122,8 +122,12 @@ end_group
 begin_group "Device Discovery"
 log_notice "Searching for simulator: $SIMULATOR running $PLATFORM_NAME $PLATFORM_VERSION"
 
+# simctl device headers use major.minor (e.g. "-- iOS 26.4 --") even for
+# hotfix versions like 26.4.1. Extract major.minor for section matching.
+VERSION_MM=$(echo "$PLATFORM_VERSION" | awk -F. '{print $1"."$2}')
+
 UDID=$(xcrun simctl list devices available | \
-awk -v platform="$PLATFORM_NAME" -v version="$PLATFORM_VERSION" '
+awk -v platform="$PLATFORM_NAME" -v version="$VERSION_MM" '
   $0 ~ "^-- " platform " " version " --" { in_section = 1; next }
   in_section { if (/^-- /) exit; print }
 ' | \

@@ -61,7 +61,10 @@ jobs:
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
-      - run: ./scripts/ci-select-xcode.sh 26.3
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
       - name: Setup Ruby
         uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
@@ -121,7 +124,10 @@ jobs:
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - run: make init-ci-build
       - run: make xcode-ci
 
@@ -171,8 +177,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - name: Select Xcode
-        run: ./scripts/ci-select-xcode.sh 26.3
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
 
       - name: Install xcodegen
         run: brew install xcodegen
@@ -180,8 +195,8 @@ jobs:
       - name: Build Sample
         run: make ${{ matrix.make-target }}
         env:
-          IOS_SIMULATOR_OS: latest
-          IOS_DEVICE_NAME: iPhone 17 Pro
+          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -196,8 +211,10 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - name: Select Xcode
-        run: ./scripts/ci-select-xcode.sh 26.4.1
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
 
       - name: Build macOS-CLI-Xcode sample
         run: |
@@ -227,8 +244,10 @@ jobs:
     needs: files-changed
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
-        shell: sh
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
 
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: |
@@ -254,8 +273,10 @@ jobs:
     needs: files-changed
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
-        shell: sh
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
@@ -292,18 +313,30 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
 
       - name: Build for Debug
         env:
           REF: ${{ github.ref }}
+          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.5 \
+            --os "$IOS_SIMULATOR_OS" \
             --ref "${REF}" \
             --command build \
-            --device "iPhone 16 Pro" \
+            --device "$IOS_DEVICE_NAME" \
             --configuration DebugWithoutUIKit \
             --derived-data uikit-check-build
 
@@ -321,18 +354,30 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
 
       - name: Build for Release
         env:
           REF: ${{ github.ref }}
+          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.5 \
+            --os "$IOS_SIMULATOR_OS" \
             --ref "${REF}" \
             --command build \
-            --device "iPhone 16 Pro" \
+            --device "$IOS_DEVICE_NAME" \
             --configuration ReleaseWithoutUIKit \
             --derived-data uikit-check-build
 
@@ -350,18 +395,30 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
 
       - name: Build for Debug
         env:
           REF: ${{ github.ref }}
+          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.5 \
+            --os "$IOS_SIMULATOR_OS" \
             --ref "${REF}" \
             --command build \
-            --device "iPhone 16 Pro" \
+            --device "$IOS_DEVICE_NAME" \
             --configuration Debug \
             --derived-data uikit-check-build
 
@@ -379,18 +436,30 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
 
       - name: Build for Release
         env:
           REF: ${{ github.ref }}
+          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.5 \
+            --os "$IOS_SIMULATOR_OS" \
             --ref "${REF}" \
             --command build \
-            --device "iPhone 16 Pro" \
+            --device "$IOS_DEVICE_NAME" \
             --configuration Release \
             --derived-data uikit-check-build
 
@@ -408,7 +477,17 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: macOS
 
       - name: Build for Release
         env:
@@ -416,7 +495,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform macOS \
-            --os 15.0 \
+            --os latest \
             --ref "${REF}" \
             --command build \
             --configuration Release \
@@ -436,7 +515,17 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: macOS
 
       - name: Build for Release
         env:
@@ -444,7 +533,7 @@ jobs:
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform macOS \
-            --os 15.0 \
+            --os latest \
             --ref "${REF}" \
             --command build \
             --configuration ReleaseWithoutUIKit \
@@ -477,18 +566,30 @@ jobs:
           sed -i '' 's/#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR/#define SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_TRACE/' Sources/Sentry/SentryAsyncSafeLog.h
         shell: bash
 
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
 
       - name: Build for Debug
         env:
           REF: ${{ github.ref }}
+          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform iOS \
-            --os 18.5 \
+            --os "$IOS_SIMULATOR_OS" \
             --ref "${REF}" \
             --command build \
-            --device "iPhone 16 Pro" \
+            --device "$IOS_DEVICE_NAME" \
             --configuration Debug
 
       - name: Run CI Diagnostics

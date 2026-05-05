@@ -131,7 +131,10 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: XCFrameworkBuildPath/
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - name: Unzip all XCFrameworks
         run: |
           find XCFrameworkBuildPath -name "*.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
@@ -173,7 +176,10 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
@@ -207,7 +213,10 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - run: swift build
         working-directory: Samples/SPM-Dynamic
       - name: Run CI Diagnostics
@@ -241,7 +250,10 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - run: swift build --target SentrySwiftUI
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -274,7 +286,10 @@ jobs:
             --package-file Package@swift-6.2.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - run: set -o pipefail &&xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify
         working-directory: Samples/visionOS-SPM
       - name: Run CI Diagnostics
@@ -291,9 +306,10 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     with:
       fastlane_command: duplication_test
-      xcode_version: 16.4
+      xcode_version: "16"
       macos_version: macos-15
       needs_xcframework: true
+      platform: macOS
 
   app-metrics:
     name: Collect App Metrics
@@ -314,7 +330,10 @@ jobs:
     steps:
       - name: Git checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - name: Setup Ruby
         uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:

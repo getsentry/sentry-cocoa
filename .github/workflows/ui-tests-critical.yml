@@ -49,12 +49,8 @@ jobs:
       build_with_make: true
       macos_version: ${{matrix.platform.runs-on}}
       files_suffix: _${{matrix.platform.xcode}}
-      test-destination-os: ${{matrix.platform.test-destination-os}}
       xcode_version: ${{matrix.platform.xcode}}
       platform: ${{matrix.platform.platform}}
-      device: ${{matrix.platform.device}}
-      # We run UI tests only on Cirrus Labs for now.
-      run_on_cirrus_labs: true
     strategy:
       fail-fast: false
       matrix:
@@ -67,19 +63,15 @@ jobs:
           - name: iOS 18
             platform:
               runs-on: sequoia
-              xcode: "16.4"
-              test-destination-os: "18.4"
+              xcode: "16"
               platform: "iOS"
-              device: "iPhone 16 Pro"
 
           # iOS 26 - Use pre-installed iOS 26.1 runtime on macOS-26
           - name: iOS 26
             platform:
               runs-on: tahoe
-              xcode: "26.1.1"
-              test-destination-os: "26.1"
+              xcode: "26"
               platform: "iOS"
-              device: "iPhone 17 Pro"
 
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -94,7 +86,11 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
 
       - run: make init-ci-build
       - run: make xcode-ci
@@ -107,7 +103,7 @@ jobs:
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
         timeout-minutes: 5 # 5 minutes timeout
         env:
-          OS_VERSION: "18.4"
+          OS_VERSION: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
           PLATFORM: "iOS"
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 

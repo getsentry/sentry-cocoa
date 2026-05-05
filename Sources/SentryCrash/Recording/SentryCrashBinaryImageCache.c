@@ -1,153 +1,169 @@
 #include "SentryCrashBinaryImageCache.h"
+#include "SentryAsyncSafeLog.h"
+#include "SentryCrashBinaryImageCacheState.h"
 #include "SentryCrashDynamicLinker.h"
+#include <dispatch/dispatch.h>
 #include <mach-o/dyld.h>
 #include <mach-o/dyld_images.h>
-#include <pthread.h>
+#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
+#define MAX_DYLD_IMAGES SENTRYCRASHBIC_MAX_DYLD_IMAGES
 
-typedef void (*SentryRegisterImageCallback)(const struct mach_header *mh, intptr_t vmaddr_slide);
-typedef void (*SentryRegisterFunction)(SentryRegisterImageCallback function);
+// Entry lifecycle states
+#define IMAGE_EMPTY 0 // Slot reserved but data not written, or write failed
+#define IMAGE_READY 1 // Published, visible to readers
+#define IMAGE_REMOVED 3 // Image was unloaded
 
-static SentryRegisterFunction _sentry_register_func_for_add_image
-    = &_dyld_register_func_for_add_image;
-static SentryRegisterFunction _sentry_register_func_for_remove_image
-    = &_dyld_register_func_for_remove_image;
+static SentryCrashBinaryImageCacheState g_defaultCache = {
+    .addImageCallback = &_dyld_register_func_for_add_image,
+    .removeImageCallback = &_dyld_register_func_for_remove_image,
+};
+static _Atomic(SentryCrashBinaryImageCacheState *) g_activeCache = &g_defaultCache;
 
-static void (*SentryWillAddImageCallback)(void) = NULL;
-
-void
-sentry_setRegisterFuncForAddImage(SentryRegisterFunction addFunction)
+static inline SentryCrashBinaryImageCacheState *
+currentCache(void)
 {
-    _sentry_register_func_for_add_image = addFunction;
+    return atomic_load_explicit(&g_activeCache, memory_order_acquire);
 }
 
-void
-sentry_setRegisterFuncForRemoveImage(SentryRegisterFunction removeFunction)
+// Returns the number of reserved slots, clamped to the backing array capacity.
+static inline uint32_t
+reservedSlotCount(SentryCrashBinaryImageCacheState *cache, memory_order loadOrder)
 {
-    _sentry_register_func_for_remove_image = removeFunction;
+    uint32_t count = atomic_load_explicit(&cache->nextIndex, loadOrder);
+    return count > MAX_DYLD_IMAGES ? MAX_DYLD_IMAGES : count;
 }
 
-void
-sentry_setFuncForBeforeAdd(void (*callback)(void))
+static inline void
+registerDyldAddImageCallback(
+    SentryCrashBinaryImageCacheState *cache, SentryRegisterImageCallback callback)
 {
-    SentryWillAddImageCallback = callback;
+    cache->addImageCallback(callback);
 }
 
-void
-sentry_resetFuncForAddRemoveImage(void)
+static inline void
+registerDyldRemoveImageCallback(
+    SentryCrashBinaryImageCacheState *cache, SentryRegisterImageCallback callback)
 {
-    _sentry_register_func_for_add_image = &_dyld_register_func_for_add_image;
-    _sentry_register_func_for_remove_image = &_dyld_register_func_for_remove_image;
+    cache->removeImageCallback(callback);
 }
 
-#    define sentry_dyld_register_func_for_add_image(CALLBACK)                                      \
-        _sentry_register_func_for_add_image(CALLBACK);
-#    define sentry_dyld_register_func_for_remove_image(CALLBACK)                                   \
-        _sentry_register_func_for_remove_image(CALLBACK);
-#    define _will_add_image()                                                                      \
-        if (SentryWillAddImageCallback)                                                            \
-            SentryWillAddImageCallback();
+static inline void
+callBeforeAddImageCallback(SentryCrashBinaryImageCacheState *cache)
+{
+    // we need this callback only for test verification, it is a noop in prod
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+    void (*cb)(void) = cache->beforeAddImageCallback;
+    if (cb != NULL) {
+        cb();
+    }
 #else
-#    define sentry_dyld_register_func_for_add_image(CALLBACK)                                      \
-        _dyld_register_func_for_add_image(CALLBACK)
-#    define sentry_dyld_register_func_for_remove_image(CALLBACK)                                   \
-        _dyld_register_func_for_remove_image(CALLBACK)
-#    define _will_add_image()
-#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
-
-typedef struct SentryCrashBinaryImageNode {
-    SentryCrashBinaryImage image;
-    bool available;
-    struct SentryCrashBinaryImageNode *next;
-} SentryCrashBinaryImageNode;
-
-static SentryCrashBinaryImageNode rootNode = { 0 };
-static SentryCrashBinaryImageNode *tailNode = NULL;
-static pthread_mutex_t binaryImagesMutex = PTHREAD_MUTEX_INITIALIZER;
-
-static sentrycrashbic_cacheChangeCallback imageAddedCallback = NULL;
-static sentrycrashbic_cacheChangeCallback imageRemovedCallback = NULL;
+    (void)cache;
+#endif
+}
 
 static void
-binaryImageAdded(const struct mach_header *header, intptr_t slide)
+logImageLimitReached(SentryCrashBinaryImageCacheState *cache)
 {
-    pthread_mutex_lock(&binaryImagesMutex);
-    if (tailNode == NULL) {
-        pthread_mutex_unlock(&binaryImagesMutex);
-        return;
+    if (!atomic_exchange_explicit(&cache->didLogImageLimitReached, true, memory_order_acq_rel)) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
+            "Binary image cache reached capacity of %d images. New images will not be tracked.",
+            MAX_DYLD_IMAGES);
     }
-    pthread_mutex_unlock(&binaryImagesMutex);
+}
+
+static void
+addImage(const struct mach_header *header)
+{
+    SentryCrashBinaryImageCacheState *cache = currentCache();
+
+    // Check dladdr first, before reserving a slot in the array.
     Dl_info info;
     if (!dladdr(header, &info) || info.dli_fname == NULL) {
         return;
     }
 
-    SentryCrashBinaryImage binaryImage = { 0 };
-    if (!sentrycrashdl_getBinaryImageForHeader(
-            (const void *)header, info.dli_fname, &binaryImage, false)) {
+    // Test hook: called just before adding the image.
+    callBeforeAddImageCallback(cache);
+
+    uint32_t nextIndex = atomic_fetch_add_explicit(&cache->nextIndex, 1, memory_order_relaxed);
+
+    if (nextIndex >= MAX_DYLD_IMAGES) {
+        logImageLimitReached(cache);
         return;
     }
 
-    SentryCrashBinaryImageNode *newNode = malloc(sizeof(SentryCrashBinaryImageNode));
-    newNode->available = true;
-    newNode->image = binaryImage;
-    newNode->next = NULL;
-    _will_add_image();
-    pthread_mutex_lock(&binaryImagesMutex);
-    // Recheck tailNode as it could be null when
-    // stopped from another thread.
-    if (tailNode != NULL) {
-        tailNode->next = newNode;
-        tailNode = tailNode->next;
-    } else {
-        free(newNode);
-        newNode = NULL;
+    PublishedBinaryImage *entry = &cache->images[nextIndex];
+
+    if (!sentrycrashdl_getBinaryImageForHeader(header, info.dli_fname, &entry->image, false)) {
+        // Leave state as IMAGE_EMPTY so the entry is never published.
+        return;
     }
-    pthread_mutex_unlock(&binaryImagesMutex);
-    if (newNode && imageAddedCallback) {
-        imageAddedCallback(&newNode->image);
+
+    sentrycrashbic_cacheChangeCallback callback
+        = atomic_load_explicit(&cache->addedCallback, memory_order_acquire);
+
+    atomic_store_explicit(&entry->state, IMAGE_READY, memory_order_release);
+
+    if (callback != NULL) {
+        callback(&entry->image);
     }
 }
 
 static void
-binaryImageRemoved(const struct mach_header *header, intptr_t slide)
+dyldAddImageCallback(const struct mach_header *mh, intptr_t slide)
 {
-    SentryCrashBinaryImageNode *nextNode = &rootNode;
+    addImage(mh);
+}
 
-    while (nextNode != NULL) {
-        if (nextNode->image.address == (uint64_t)header) {
-            nextNode->available = false;
-            if (imageRemovedCallback) {
-                imageRemovedCallback(&nextNode->image);
-            }
-            break;
+static void
+dyldRemoveImageCallback(const struct mach_header *mh, intptr_t slide)
+{
+    SentryCrashBinaryImageCacheState *cache = currentCache();
+    sentrycrashbic_cacheChangeCallback callback
+        = atomic_load_explicit(&cache->removedCallback, memory_order_acquire);
+
+    uint32_t count = reservedSlotCount(cache, memory_order_acquire);
+
+    for (uint32_t i = 0; i < count; i++) {
+        PublishedBinaryImage *src = &cache->images[i];
+        if (atomic_load_explicit(&src->state, memory_order_acquire) != IMAGE_READY) {
+            continue;
         }
-        nextNode = nextNode->next;
+        if (src->image.address == (uintptr_t)mh) {
+            atomic_store_explicit(&src->state, IMAGE_REMOVED, memory_order_release);
+            if (callback != NULL) {
+                callback(&src->image);
+            }
+            return;
+        }
     }
+}
+
+static void
+startDyldTracking(void)
+{
+    SentryCrashBinaryImageCacheState *cache = currentCache();
+    registerDyldAddImageCallback(cache, dyldAddImageCallback);
+    registerDyldRemoveImageCallback(cache, dyldRemoveImageCallback);
 }
 
 void
 sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback callback, void *context)
 {
-    /**
-     We can't use locks here because this is meant to be used during crashes,
-     where we can't use async unsafe functions. In order to avoid potential problems,
-     we choose an approach that doesn't remove nodes from the list.
-    */
-    SentryCrashBinaryImageNode *nextNode = &rootNode;
+    SentryCrashBinaryImageCacheState *cache = currentCache();
+    uint32_t count = reservedSlotCount(cache, memory_order_acquire);
 
-    // If tailNode is null it means the cache was stopped, therefore we end the iteration.
-    // This will minimize any race condition effect without the need for locks.
-    while (nextNode != NULL && tailNode != NULL) {
-        if (nextNode->available) {
-            callback(&nextNode->image, context);
+    for (uint32_t i = 0; i < count; i++) {
+        PublishedBinaryImage *src = &cache->images[i];
+
+        if (atomic_load_explicit(&src->state, memory_order_acquire) == IMAGE_READY) {
+            callback(&src->image, context);
         }
-        nextNode = nextNode->next;
     }
 }
 
@@ -159,8 +175,8 @@ sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback callback, 
  * @return true if dyld is not found in the loaded images and should be added to the cache,
  *         false if dyld is already present in the loaded images.
  */
-bool
-sentrycrashbic_shouldAddDyld(void)
+static bool
+shouldAddDyld(void)
 {
     // dyld is different from libdyld.dylib; the latter contains the public API
     // (like dlopen, dlsym, dlclose) while the former is the actual dynamic
@@ -169,94 +185,111 @@ sentrycrashbic_shouldAddDyld(void)
 }
 
 // Since Apple no longer includes dyld in the images listed `_dyld_image_count` and related
-// functions We manually include it to our cache.
-SentryCrashBinaryImageNode *
-sentrycrashbic_getDyldNode(void)
+// functions we manually include it in the cache.
+// Note: This bypasses addImage() because dladdr() returns NULL for dyld, so we
+// need to use sentrycrashdl_getBinaryImageForHeader() directly with a hardcoded filename.
+static void
+addDyldImage(void)
 {
+    SentryCrashBinaryImageCacheState *cache = currentCache();
     const struct mach_header *header = sentryDyldHeader;
 
-    SentryCrashBinaryImage binaryImage = { 0 };
-    if (!sentrycrashdl_getBinaryImageForHeader((const void *)header, "dyld", &binaryImage, false)) {
-        return NULL;
+    uint32_t idx = atomic_fetch_add_explicit(&cache->nextIndex, 1, memory_order_relaxed);
+    if (idx >= MAX_DYLD_IMAGES) {
+        logImageLimitReached(cache);
+        return;
     }
 
-    SentryCrashBinaryImageNode *newNode = malloc(sizeof(SentryCrashBinaryImageNode));
-    newNode->available = true;
-    newNode->image = binaryImage;
-    newNode->next = NULL;
+    PublishedBinaryImage *entry = &cache->images[idx];
+    if (!sentrycrashdl_getBinaryImageForHeader(
+            (const void *)header, "dyld", &entry->image, false)) {
+        return;
+    }
 
-    return newNode;
+    atomic_store_explicit(&entry->state, IMAGE_READY, memory_order_release);
+
+    sentrycrashbic_cacheChangeCallback callback
+        = atomic_load_explicit(&cache->addedCallback, memory_order_acquire);
+    if (callback != NULL) {
+        callback(&entry->image);
+    }
+}
+
+static void
+startCacheImpl(void)
+{
+    if (shouldAddDyld()) {
+        sentrycrashdl_initialize();
+        addDyldImage();
+    }
+    // During this call the callback is invoked synchronously for every existing image.
+    startDyldTracking();
 }
 
 void
 sentrycrashbic_startCache(void)
 {
-    pthread_mutex_lock(&binaryImagesMutex);
-    if (tailNode != NULL) {
-        // Already initialized
-        pthread_mutex_unlock(&binaryImagesMutex);
+    SentryCrashBinaryImageCacheState *cache = currentCache();
+    if (atomic_exchange_explicit(&cache->trackingStarted, true, memory_order_acq_rel)) {
         return;
     }
 
-    if (sentrycrashbic_shouldAddDyld()) {
-        sentrycrashdl_initialize();
-        SentryCrashBinaryImageNode *dyldNode = sentrycrashbic_getDyldNode();
-        tailNode = dyldNode;
-        rootNode.next = dyldNode;
-    } else {
-        tailNode = &rootNode;
-        rootNode.next = NULL;
-    }
-    pthread_mutex_unlock(&binaryImagesMutex);
-
     // During a call to _dyld_register_func_for_add_image() the callback func is called for every
-    // existing image
-    sentry_dyld_register_func_for_add_image(&binaryImageAdded);
-    sentry_dyld_register_func_for_remove_image(&binaryImageRemoved);
+    // existing image.
+    // This must be done on a background thread to not block app launch due to the extensive use of
+    // locks in the image added callback. The main culprit is the calls to `dladdr`. The downside of
+    // doing this async is if there is a crash very shortly after app launch we might not have
+    // recorded all the load addresses of images yet. We think this is an acceptible tradeoff to not
+    // block app launch, since it's always possible to crash early in app launch before Sentry can
+    // capture the crash.
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+    startCacheImpl();
+#else
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{ startCacheImpl(); });
+#endif
 }
 
 void
 sentrycrashbic_stopCache(void)
 {
-    pthread_mutex_lock(&binaryImagesMutex);
-    if (tailNode == NULL) {
-        pthread_mutex_unlock(&binaryImagesMutex);
-        return;
-    }
-
-    SentryCrashBinaryImageNode *node = rootNode.next;
-    rootNode.next = NULL;
-    tailNode = NULL;
-
-    while (node != NULL) {
-        SentryCrashBinaryImageNode *nextNode = node->next;
-        free(node);
-        node = nextNode;
-    }
-
-    pthread_mutex_unlock(&binaryImagesMutex);
+    // Intentionally left running. Once bootstrapped, the canonical C cache keeps tracking loaded
+    // images so crashes can still be symbolicated even if higher-level consumers temporarily stop.
 }
 
-static void
-initialReportToCallback(SentryCrashBinaryImage *image, void *context)
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+void
+sentrycrashbic_setActiveCacheState(SentryCrashBinaryImageCacheState *cache)
 {
-    sentrycrashbic_cacheChangeCallback callback = (sentrycrashbic_cacheChangeCallback)context;
-    callback(image);
+    if (cache == NULL) {
+        cache = &g_defaultCache;
+    }
+    atomic_store_explicit(&g_activeCache, cache, memory_order_release);
 }
+#endif
 
 void
 sentrycrashbic_registerAddedCallback(sentrycrashbic_cacheChangeCallback callback)
 {
-    imageAddedCallback = callback;
-    if (callback) {
-        pthread_mutex_lock(&binaryImagesMutex);
-        sentrycrashbic_iterateOverImages(&initialReportToCallback, callback);
-        pthread_mutex_unlock(&binaryImagesMutex);
+    SentryCrashBinaryImageCacheState *cache = currentCache();
+    atomic_store_explicit(&cache->addedCallback, callback, memory_order_release);
+
+    if (callback != NULL) {
+        // Call for all existing images already in the cache
+        uint32_t count = reservedSlotCount(cache, memory_order_acquire);
+
+        for (uint32_t i = 0; i < count; i++) {
+            PublishedBinaryImage *src = &cache->images[i];
+            if (atomic_load_explicit(&src->state, memory_order_acquire) != IMAGE_READY) {
+                continue;
+            }
+            callback(&src->image);
+        }
     }
 }
 
 void
 sentrycrashbic_registerRemovedCallback(sentrycrashbic_cacheChangeCallback callback)
 {
-    imageRemovedCallback = callback;
+    SentryCrashBinaryImageCacheState *cache = currentCache();
+    atomic_store_explicit(&cache->removedCallback, callback, memory_order_release);
 }
