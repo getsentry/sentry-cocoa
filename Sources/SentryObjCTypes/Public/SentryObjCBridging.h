@@ -12,6 +12,7 @@
 @class SentryLogger;
 @class SentryObjCAttributeContent;
 @class SentryObjCMetric;
+@class SentryReplayOptions;
 @protocol SentrySpan;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -134,6 +135,15 @@ NS_ASSUME_NONNULL_BEGIN
                                 callback:(SentryObjCMetric *_Nullable (^)(
                                              SentryObjCMetric *_Nonnull))callback
     NS_SWIFT_NAME(bridgeBeforeSendMetric(forOptions:callback:));
+
+#if TARGET_OS_IOS || TARGET_OS_TV
++ (void)bridgeReplayNetworkDetailAllowUrlsForReplayOptions:(SentryReplayOptions *)replayOptions
+                                                      urls:(NSArray *)urls
+    NS_SWIFT_NAME(bridgeReplayNetworkDetailAllowUrls(forReplayOptions:urls:));
++ (void)bridgeReplayNetworkDetailDenyUrlsForReplayOptions:(SentryReplayOptions *)replayOptions
+                                                     urls:(NSArray *)urls
+    NS_SWIFT_NAME(bridgeReplayNetworkDetailDenyUrls(forReplayOptions:urls:));
+#endif
 
 #pragma mark - Logger accessor
 
