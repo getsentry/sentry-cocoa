@@ -113,7 +113,7 @@ jobs:
       - name: Setup Ruby
         # We use the same ruby version used by Cirrus to install fastlane and other tools
         # see: https://github.com/cirruslabs/macos-image-templates/blob/9115ef25530497999073cdf0f5497a4d142e3256/templates/xcode.pkr.hcl#L235
-        uses: ruby/setup-ruby@0cb964fd540e0a24c900370abf38a33466142735 # v1.305.0
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
           ruby-version: "3.3.10"
 
@@ -140,8 +140,8 @@ jobs:
             test SWIFT_ACTIVE_COMPILATION_CONDITIONS=CROSS_PLATFORM_TEST GCC_PREPROCESSOR_DEFINITIONS"=CROSS_PLATFORM_TEST=1" | xcbeautify
 
       - name: Run CI Diagnostics
+        uses: ./sentry-cocoa/.github/actions/ci-diagnostics
         if: failure()
-        run: ./sentry-cocoa/scripts/ci-diagnostics.sh
 
   test_cross_platform-required-check:
     needs:

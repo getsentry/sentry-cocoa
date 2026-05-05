@@ -17,8 +17,6 @@ class SentryReplayApiTests: XCTestCase {
         // Arrange
         let options = Options()
         options.sessionReplay.sessionSampleRate = 1.0
-        // Ensure the integration will always be enabled
-        options.experimental.enableSessionReplayInUnreliableEnvironment = true
         let mockClient = TestClient(options: options)
         let mockReplayIntegration = try XCTUnwrap(MockSessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let mockHub = TestHub(client: mockClient, andScope: Scope())
@@ -34,62 +32,6 @@ class SentryReplayApiTests: XCTestCase {
         // Assert
         XCTAssertTrue(mockReplayIntegration.startCalled)
         XCTAssertEqual(mockHub.installedIntegrations().count, 1) // No new integration added
-    }
-
-    func testStart_whenReplayIntegrationNilAndUnreliableToEnable_shouldNotCreateIntegration() {
-        // Arrange
-        let options = Options()
-        options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
-        options.experimental.enableSessionReplayInUnreliableEnvironment = false
-        let mockClient = TestClient(options: options)
-        let mockHub = TestHub(client: mockClient, andScope: Scope())
-        mockHub.removeAllIntegrations()
-        SentrySDKInternal.setCurrentHub(mockHub)
-        
-        let sut = SentryReplayApi()
-        
-        SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
-
-        // Act
-        sut.start()
-
-        // Assert
-        XCTAssertTrue(mockHub.installedIntegrations().isEmpty)
-    }
-
-    func testStart_whenReplayIntegrationNilWithUnreliableEnvironmentAndOverrideOptionEnabled_shouldCreateAndInstallIntegration() throws {
-        // Arrange
-        let options = Options()
-        options.sessionReplay = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 1.0)
-        options.experimental.enableSessionReplayInUnreliableEnvironment = true
-        options.dsn = "https://user@test.com/test"
-        let mockClient = TestClient(options: options)
-        let mockHub = TestHub(client: mockClient, andScope: Scope())
-        mockHub.removeAllIntegrations()
-        SentrySDKInternal.setCurrentHub(mockHub)
-        
-        let sut = SentryReplayApi()
-        
-        SentryDependencyContainer.sharedInstance().sessionReplayEnvironmentChecker = TestSessionReplayEnvironmentChecker(mockedIsReliableReturnValue: false)
-        
-        let dispatchQueue = TestSentryDispatchQueueWrapper()
-        SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
-        SentryDependencyContainer.sharedInstance().fileManager = try SentryFileManager(
-            options: options,
-            dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
-            dispatchQueueWrapper: dispatchQueue
-        )
-        
-        // Act
-        sut.start()
-        
-        // Assert
-        XCTAssertEqual(mockHub.installedIntegrations().count, 1)
-        let integration = try XCTUnwrap(mockHub.installedIntegrations().first as? SentrySessionReplayIntegration)
-        XCTAssertNotNil(integration.sessionReplay)
-        XCTAssertTrue(integration.sessionReplay?.isRunning ?? false)
-        SentrySDKInternal.currentHub().endSession()
-        XCTAssertTrue(integration.sessionReplay?.isFullSession ?? false)
     }
 }
 

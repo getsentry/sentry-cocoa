@@ -181,6 +181,28 @@ run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
   - "Makefile"
   - "Brewfile*"
 
+# Same ObjC/C/C++ source patterns as run_lint_clang_formatting_for_prs; omits clang-format-only paths.
+run_sentrycrash_import_ratchet_for_prs:
+  - "**/*.h"
+  - "**/*.hpp"
+  - "**/*.c"
+  - "**/*.cpp"
+  - "**/*.m"
+  - "**/*.mm"
+
+  # GH Actions
+  - ".github/workflows/lint-sentrycrash-imports.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/check-sentrycrash-imports.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
+
+  # Build configuration
+  - "Makefile"
+  - "Brewfile*"
+
 run_objc_conversion_analysis_for_prs: &run_objc_conversion_analysis_for_prs
   - "SwiftConversion/**"
 

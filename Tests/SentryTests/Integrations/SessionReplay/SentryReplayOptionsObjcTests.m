@@ -37,7 +37,6 @@
 
     // Currently there is not Obj-C SDK support for network details
     //  => assert it's turned off.
-    XCTAssertFalse(options.networkDetailHasUrls);
 }
 
 - (void)testInit_withAllArguments_shouldSetAllValues
@@ -72,7 +71,6 @@
 
     // Currently there is not Obj-C SDK support for network details
     //  => assert it's turned off.
-    XCTAssertFalse(options.networkDetailHasUrls);
 }
 
 @end

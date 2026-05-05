@@ -66,7 +66,7 @@ jobs:
         with:
           version: "26"
       - name: Setup Ruby
-        uses: ruby/setup-ruby@0cb964fd540e0a24c900370abf38a33466142735 # v1.305.0
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
           bundler-cache: true
       - run: make init-ci-build
@@ -75,9 +75,9 @@ jobs:
         # We only need to archive, not package the IPA, so we skip codesigning.
         run: bundle exec fastlane build_ios_swift_without_codesigning
 
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
   build-sample:
     name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
@@ -149,9 +149,9 @@ jobs:
           path: |
             raw-build-output.log
 
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
   build-sample-spm:
     name: Sample SPM ${{ matrix.name }}
@@ -198,9 +198,9 @@ jobs:
           IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
   check-macOS-CLI-Xcode-no-UI-framework:
     name: macOS CLI (NoUIFramework) builds and has no AppKit/UIKit
@@ -232,9 +232,9 @@ jobs:
       - name: Ensure CLI binary does not link UIKit
         run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data "$GITHUB_WORKSPACE/cli-xcode-build" --linkage unlinked --module macOS-CLI-Xcode --framework UIKit
 
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
   build-distribution:
     name: Build the distribution framework
@@ -302,9 +302,9 @@ jobs:
             raw-build-output-spm-watchos.log
             raw-build-output-spm-iphoneos.log
 
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
   check-debug-without-UIKit:
     name: Check no UIKit linkage (DebugWithoutUIKit)
@@ -343,9 +343,9 @@ jobs:
       - name: Ensure UIKit is not linked
         run: ./scripts/check-ui-framework-linkage.sh --configuration DebugWithoutUIKit --derived-data uikit-check-build --linkage unlinked --module SentryWithoutUIKit
 
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
   check-release-without-UIKit:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
@@ -384,9 +384,9 @@ jobs:
       - name: Ensure UIKit is not linked
         run: ./scripts/check-ui-framework-linkage.sh --configuration ReleaseWithoutUIKit --derived-data uikit-check-build --linkage unlinked --module SentryWithoutUIKit
 
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
   check-debug-with-UIKit:
     name: Check UIKit linkage (Debug)
@@ -425,9 +425,9 @@ jobs:
       - name: Ensure UIKit is linked
         run: ./scripts/check-ui-framework-linkage.sh --configuration Debug --derived-data uikit-check-build --linkage linked --module Sentry
 
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
   check-release-with-UIKit:
     name: Check UIKit linkage (Release)
@@ -466,9 +466,9 @@ jobs:
       - name: Ensure UIKit is linked
         run: ./scripts/check-ui-framework-linkage.sh --configuration Release --derived-data uikit-check-build --linkage linked --module Sentry
 
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
   check-release-with-AppKit:
     name: Check AppKit linkage (Release)
@@ -504,9 +504,9 @@ jobs:
       - name: Ensure AppKit is linked
         run: ./scripts/check-ui-framework-linkage.sh --configuration Release --derived-data appkit-check-build --linkage linked --module Sentry --framework AppKit
 
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
   check-release-without-AppKit:
     name: Check no AppKit linkage (ReleaseWithoutUIKit)
@@ -542,9 +542,9 @@ jobs:
       - name: Ensure AppKit is not linked
         run: ./scripts/check-ui-framework-linkage.sh --configuration ReleaseWithoutUIKit --derived-data no-appkit-check-build --linkage unlinked --module SentryWithoutUIKit --framework AppKit
 
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
     # The compiler only evaluates SentryAsyncSafeLogs that get printed based on the SENTRY_ASYNC_SAFE_LOG_LEVEL.
     # So if the level is set to error, which is the default, and a SENTRY_ASYNC_SAFE_LOG_DEBUG has a compiler error,
@@ -592,9 +592,9 @@ jobs:
             --device "$IOS_DEVICE_NAME" \
             --configuration Debug
 
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
   build-required-check:
     needs:

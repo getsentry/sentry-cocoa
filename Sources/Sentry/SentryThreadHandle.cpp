@@ -45,8 +45,8 @@ namespace profiling {
     ThreadHandle::all() noexcept
     {
         std::vector<std::unique_ptr<ThreadHandle>> threads;
-        mach_msg_type_number_t count;
-        thread_act_array_t list;
+        mach_msg_type_number_t count = 0;
+        thread_act_array_t list = nullptr;
         if (SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count))
             == KERN_SUCCESS) {
             for (decltype(count) i = 0; i < count; i++) {
@@ -54,9 +54,9 @@ namespace profiling {
                 threads.push_back(std::unique_ptr<ThreadHandle>(
                     new ThreadHandle(thread, true /* isOwnedPort */)));
             }
+            SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(vm_deallocate(
+                mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count));
         }
-        SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(vm_deallocate(
-            mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count));
         return threads;
     }
 
@@ -64,8 +64,8 @@ namespace profiling {
     ThreadHandle::allExcludingCurrent() noexcept
     {
         std::vector<std::unique_ptr<ThreadHandle>> threads;
-        mach_msg_type_number_t count;
-        thread_act_array_t list;
+        mach_msg_type_number_t count = 0;
+        thread_act_array_t list = nullptr;
         auto current = ThreadHandle::current();
         if (SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(task_threads(mach_task_self(), &list, &count))
             == KERN_SUCCESS) {
@@ -79,9 +79,9 @@ namespace profiling {
                         mach_port_deallocate(mach_task_self(), thread));
                 }
             }
+            SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(vm_deallocate(
+                mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count));
         }
-        SENTRY_ASYNC_SAFE_LOG_KERN_RETURN(vm_deallocate(
-            mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count));
         return std::make_pair(std::move(threads), std::move(current));
     }
 

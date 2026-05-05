@@ -95,6 +95,14 @@ update-versions:
 check-versions:
 	./scripts/check-tooling-versions.sh
 
+## Check SentryCrash imports
+#
+# CI ratchet that ensures the number of direct SentryCrash header imports
+# from SDK source files does not increase beyond the established baseline.
+.PHONY: check-sentrycrash-imports
+check-sentrycrash-imports:
+	@./scripts/check-sentrycrash-imports.sh
+
 # ============================================================================
 # BUILDING
 # ============================================================================

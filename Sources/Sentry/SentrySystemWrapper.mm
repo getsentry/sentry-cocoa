@@ -44,8 +44,8 @@
 
 - (NSNumber *)cpuUsageWithError:(NSError **)error
 {
-    mach_msg_type_number_t count;
-    thread_act_array_t list;
+    mach_msg_type_number_t count = 0;
+    thread_act_array_t list = nullptr;
 
     const auto taskThreadsStatus = task_threads(mach_task_self(), &list, &count);
     if (taskThreadsStatus != KERN_SUCCESS) {
@@ -53,8 +53,6 @@
             *error = NSErrorFromSentryErrorWithKernelError(
                 kSentryErrorKernel, @"task_threads reported an error.", taskThreadsStatus);
         }
-        vm_deallocate(
-            mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count);
         return nil;
     }
 
@@ -98,8 +96,8 @@
         if (error) {
             *error = NSErrorFromSentryErrorWithKernelError(
                 kSentryErrorKernel, @"Error with task_info(…TASK_POWER_INFO_V2…).", kr);
-            ;
         }
+        return nil;
     }
     return @(powerInfo.task_energy);
 }

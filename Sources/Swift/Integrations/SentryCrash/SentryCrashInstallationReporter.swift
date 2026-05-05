@@ -10,12 +10,12 @@ import Foundation
 final class SentryCrashInstallationReporter: SentryCrashInstallation {
 
     private let inAppLogic: SentryInAppLogic
-    private let crashWrapper: SentryCrashWrapper
+    private let crashWrapper: SentryCrashReporter
     private let dispatchQueue: SentryDispatchQueueWrapper
 
     init(
         inAppLogic: SentryInAppLogic,
-        crashWrapper: SentryCrashWrapper,
+        crashWrapper: SentryCrashReporter,
         dispatchQueue: SentryDispatchQueueWrapper
     ) {
         self.inAppLogic = inAppLogic

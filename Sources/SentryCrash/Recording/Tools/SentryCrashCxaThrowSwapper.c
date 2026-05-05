@@ -127,6 +127,10 @@ addPair(SentryCrashImageToOriginalCxaThrowPair pair)
             return;
         }
     }
+    // memcpy here cannot write out of bounds: the realloc above grew g_cxa_originals to
+    // g_cxa_originals_capacity entries, and the surrounding logic (see the loop entry) only
+    // reaches this line when g_cxa_originals_count < g_cxa_originals_capacity, so the indexed
+    // slot is in range. The destination size is the full struct size by construction.
     memcpy(&g_cxa_originals[g_cxa_originals_count++], &pair,
         sizeof(SentryCrashImageToOriginalCxaThrowPair));
 }

@@ -47,6 +47,7 @@ jobs:
     outputs:
       run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
       is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
+      is_fork: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Get changed files
@@ -142,8 +143,8 @@ jobs:
         run: make strip-xcframework-expected-signature
       - run: make build-xcframework-sample
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   # Use github.event.pull_request.head.sha instead of github.sha when available as
   # the github.sha is be the pre merge commit id for PRs.
@@ -182,8 +183,8 @@ jobs:
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   validate-spm-dynamic:
     name: Validate SPM Dynamic
@@ -219,8 +220,8 @@ jobs:
       - run: swift build
         working-directory: Samples/SPM-Dynamic
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   swift-build:
     name: Build Swift Static
@@ -255,8 +256,8 @@ jobs:
           version: "16"
       - run: swift build --target SentrySwiftUI
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   validate-spm-visionos:
     name: Validate SPM Static visionOS
@@ -292,8 +293,8 @@ jobs:
       - run: set -o pipefail &&xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify
         working-directory: Samples/visionOS-SPM
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   duplication-tests:
     name: Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests
@@ -314,10 +315,11 @@ jobs:
     name: Collect App Metrics
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
-    # Run for PRs with related changes (including dependabot) or non-PR events.
+    # Run for PRs with related changes (including dependabot) or non-PR events. Skip fork PRs (no secrets available).
     if: |
       github.event_name != 'pull_request' || (
-        needs.files-changed.outputs.run_release_for_prs == 'true' && (
+        needs.files-changed.outputs.run_release_for_prs == 'true' &&
+        needs.files-changed.outputs.is_fork != 'true' && (
           contains(
           fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'),
           github.event.pull_request.author_association
@@ -333,7 +335,7 @@ jobs:
         with:
           version: "16"
       - name: Setup Ruby
-        uses: ruby/setup-ruby@0cb964fd540e0a24c900370abf38a33466142735 # v1.305.0
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
           bundler-cache: true
       - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
@@ -378,9 +380,9 @@ jobs:
         if: needs.files-changed.outputs.is_dependabot == 'true'
         run: |
           echo "::warning::App metrics collection was SKIPPED ON PURPOSE for dependabot PR. Code signing secrets are not available for dependabot PRs."
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
   job_release:
     runs-on: ubuntu-latest
@@ -440,8 +442,8 @@ jobs:
           merge_target: ${{ github.event.inputs.merge_target }}
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   release-required-check:
     needs:

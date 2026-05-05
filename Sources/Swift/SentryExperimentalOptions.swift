@@ -13,34 +13,18 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableUnhandledCPPExceptionsV2 = false
 
-    /**
-     * Forces enabling of session replay in unreliable environments.
-     *
-     * Due to internal changes with the release of Liquid Glass on iOS 26.0, the masking of text and images can not be reliably guaranteed.
-     * Therefore the SDK uses a defensive programming approach to disable the session replay integration by default, unless the environment is detected as reliable.
-     *
-     * Indicators for reliable environments include:
-     * - Running on an older version of iOS that doesn't have Liquid Glass (iOS 18 or earlier)
-     * - UIDesignRequiresCompatibility is explicitly set to YES in Info.plist
-     * - The app was built with Xcode < 26.0 (DTXcode < 2600)
-     *
-     * - Important: This flag allows to re-enable the session replay integration on iOS 26.0 and later, but please be aware that text and images may not be masked as expected.
-     *
-     * - Note: See [GitHub issues #6389](https://github.com/getsentry/sentry-cocoa/issues/6389) for more information.
-     */
-    public var enableSessionReplayInUnreliableEnvironment = false
-
-    /// When enabled, the SDK sends metrics to Sentry. Metrics can be captured using the SentrySDK.metrics
-    /// API, which allows you to send, view and query counters, gauges and measurements.
-    /// @note Default value is @c true.
-    @objc public var enableMetrics: Bool = true
-
-    /// Use this callback to drop or modify a metric before the SDK sends it to Sentry. Return nil to
-    /// drop the metric.
-    public var beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
-    
     /// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
     public var enableWatchdogTerminationsV2 = false
+
+    /**
+     * Enables network detail capture for Session Replay.
+     *
+     * When enabled, the SDK can capture request and response headers and bodies for network
+     * requests during session replay. You must also configure
+     * `options.sessionReplay.networkDetailAllowUrls` with URL patterns to specify which
+     * requests should be captured.
+     */
+    public var enableReplayNetworkDetailsCapturing = false
 
     // swiftlint:disable:next missing_docs
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {

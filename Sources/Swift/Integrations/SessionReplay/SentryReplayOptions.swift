@@ -333,6 +333,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * ```
      *
      * - Note: Request and response bodies are truncated to 150KB maximum.
+     * - Note: Requires `options.experimental.enableReplayNetworkDetailsCapturing` to be `true`.
      * - Note: See ``SentryReplayOptions.DefaultValues.networkDetailAllowUrls`` for the default value.
      */
     public var networkDetailAllowUrls: [SentryUrlMatchable]
@@ -354,6 +355,8 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * - String patterns: "/auth/", "/payment/", "password", ".internal."
      * - NSRegularExpression patterns: Use try NSRegularExpression(pattern:) to create regex objects
      * - Mixed arrays are supported with both types
+     *
+     * - Note: Requires `options.experimental.enableReplayNetworkDetailsCapturing` to be `true`.
      */
     public var networkDetailDenyUrls: [SentryUrlMatchable]
 
@@ -369,6 +372,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: This setting only applies when ``networkDetailAllowUrls`` is non-empty.
      * - Note: Bodies are automatically truncated to 150KB to prevent excessive memory usage.
+     * - Note: Requires `options.experimental.enableReplayNetworkDetailsCapturing` to be `true`.
      */
     public var networkCaptureBodies: Bool
 
@@ -391,6 +395,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: This setting only applies when ``networkDetailAllowUrls`` is non-empty.
      * - Note: Header names preserve the case seen on the request, not the case specified here.
+     * - Note: Requires `options.experimental.enableReplayNetworkDetailsCapturing` to be `true`.
      */
     public var networkRequestHeaders: [String] {
         get { _networkRequestHeaders }
@@ -417,6 +422,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: This setting only applies when ``networkDetailAllowUrls`` is non-empty.
      * - Note: Header names preserve the case seen on the response, not the case specified here.
+     * - Note: Requires `options.experimental.enableReplayNetworkDetailsCapturing` to be `true`.
      */
     public var networkResponseHeaders: [String] {
         get { _networkResponseHeaders }
@@ -488,8 +494,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Returns: `true` if `networkDetailAllowUrls` is non-empty, `false` otherwise.
      */
-    @objc
-    public var networkDetailHasUrls: Bool {
+    var networkDetailHasUrls: Bool {
         !networkDetailAllowUrls.isEmpty
     }
 

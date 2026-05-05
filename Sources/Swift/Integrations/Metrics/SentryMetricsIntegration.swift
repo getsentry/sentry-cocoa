@@ -12,7 +12,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
     private let beforeSendMetric: ((SentryMetric) -> SentryMetric?)?
 
     init?(with options: Options, dependencies _: Dependencies) {
-        guard options.experimental.enableMetrics else { return nil }
+        guard options.enableMetrics else { return nil }
 
         self.scopeMetaData = SentryDefaultScopeApplyingMetadata(
             environment: options.environment,
@@ -21,7 +21,7 @@ final class SentryMetricsIntegration<Dependencies: SentryMetricsIntegrationDepen
             sendDefaultPii: options.sendDefaultPii
         )
 
-        self.beforeSendMetric = options.experimental.beforeSendMetric
+        self.beforeSendMetric = options.beforeSendMetric
 
         super.init()
     }

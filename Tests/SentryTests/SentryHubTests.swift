@@ -203,7 +203,7 @@ class SentryHubTests: XCTestCase {
             dateProvider: container.dateProvider,
             crashReporter: container.crashReporter
         )
-        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper, bridge: bridge)
+        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
         
         // Act
         let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
@@ -224,7 +224,7 @@ class SentryHubTests: XCTestCase {
             dateProvider: container.dateProvider,
             crashReporter: container.crashReporter
         )
-        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper, bridge: bridge)
+        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
         
         // Act
         let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
@@ -248,7 +248,7 @@ class SentryHubTests: XCTestCase {
             dateProvider: container.dateProvider,
             crashReporter: container.crashReporter
         )
-        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper, bridge: bridge)
+        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
         
         // Act
         let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
@@ -701,7 +701,6 @@ class SentryHubTests: XCTestCase {
         // Setup replay integration
         let replayOptions = SentryReplayOptions(sessionSampleRate: 1.0, onErrorSampleRate: 0.0)
         fixture.options.sessionReplay = replayOptions
-        fixture.options.experimental.enableSessionReplayInUnreliableEnvironment = true
         
         let replayIntegration = try XCTUnwrap(SentrySessionReplayIntegration(with: fixture.options, dependencies: SentryDependencyContainer.sharedInstance()))
         replayIntegration.addItselfToSentryHub(hub: sut)
@@ -1675,7 +1674,6 @@ class SentryHubTests: XCTestCase {
     func testGetSessionReplayId_ReturnsNilWhenSessionReplayIsNil() throws {
         let options = Options()
         options.sessionReplay.sessionSampleRate = 1.0
-        options.experimental.enableSessionReplayInUnreliableEnvironment = true
         let integration = try XCTUnwrap(SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         integration.addItselfToSentryHub(hub: sut)
         
@@ -1687,7 +1685,6 @@ class SentryHubTests: XCTestCase {
     func testGetSessionReplayId_ReturnsNilWhenSessionReplayIdIsNil() throws {
         let options = Options()
         options.sessionReplay.sessionSampleRate = 1.0
-        options.experimental.enableSessionReplayInUnreliableEnvironment = true
         let integration = try XCTUnwrap(SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let mockSessionReplay = createMockSessionReplay()
         Dynamic(integration).sessionReplay = mockSessionReplay
@@ -1701,7 +1698,6 @@ class SentryHubTests: XCTestCase {
     func testGetSessionReplayId_ReturnsIdStringWhenSessionReplayIdExists() throws {
         let options = Options()
         options.sessionReplay.sessionSampleRate = 1.0
-        options.experimental.enableSessionReplayInUnreliableEnvironment = true
         let integration = try XCTUnwrap(SentrySessionReplayIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance()))
         let mockSessionReplay = createMockSessionReplay()
         let rootView = UIView()

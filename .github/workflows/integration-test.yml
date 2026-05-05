@@ -47,7 +47,7 @@ jobs:
           version: "16"
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@0cb964fd540e0a24c900370abf38a33466142735 # v1.305.0
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
           bundler-cache: true
 
@@ -63,9 +63,8 @@ jobs:
           path: Samples/iOS-Cocoapods-Swift6/fastlane/test_results/results.xcresult
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        shell: bash
-        run: ./scripts/ci-diagnostics.sh
 
   # This check validates that either all integration tests passed or were skipped, which allows us
   # to make integration tests a required check with only running the integration tests when required.

@@ -112,14 +112,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var dateProvider: SentryCurrentDateProvider = Dependencies.dateProvider
     @objc public var notificationCenterWrapper = Dependencies.notificationCenterWrapper
     @objc public var processInfoWrapper = Dependencies.processInfoWrapper
-    private var _crashWrapper: SentryCrashWrapper?
-    @objc public lazy var crashWrapper: SentryCrashWrapper = getLazyVar(\._crashWrapper) {
+    private var _crashWrapper: SentryCrashReporter?
+    @objc public lazy var crashWrapper: SentryCrashReporter = getLazyVar(\._crashWrapper) {
         let bridge = SentryCrashBridge(
             notificationCenterWrapper: self.notificationCenterWrapper,
             dateProvider: self.dateProvider,
             crashReporter: self.crashReporter
         )
-        return SentryCrashWrapper(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
+        return SentryDefaultCrashReporter(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
     }
     @objc public var dispatchFactory = SentryDispatchFactory()
     @objc public var timerFactory = SentryNSTimerFactory()
@@ -133,7 +133,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         currentDateProvider: Dependencies.dateProvider)
     @objc public var reachability = SentryReachability()
     @objc public var sysctlWrapper = Dependencies.sysctlWrapper
-    @objc public var sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentCheckerProvider = Dependencies.sessionReplayEnvironmentChecker
     @objc public var debugImageProvider = Dependencies.debugImageProvider
     @objc public var objcRuntimeWrapper: SentryObjCRuntimeWrapper = SentryDefaultObjCRuntimeWrapper()
     var extensionDetector: SentryExtensionDetector = {
@@ -253,7 +252,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             objcRuntimeWrapper: objcRuntimeWrapper,
             subClassFinder: subClassFinder,
             processInfoWrapper: processInfoWrapper,
-            binaryImageCache: binaryImageCache,
             performanceTracker: uiViewControllerPerformanceTracker
         )
 
@@ -461,11 +459,6 @@ protocol ViewHierarchyProviderProvider {
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
 #endif
 
-protocol SessionReplayEnvironmentCheckerProvider {
-    var sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentCheckerProvider { get }
-}
-extension SentryDependencyContainer: SessionReplayEnvironmentCheckerProvider {}
-
 protocol NotificationCenterProvider {
     var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
 }
@@ -497,7 +490,7 @@ protocol ReachabilityProvider {
 extension SentryDependencyContainer: ReachabilityProvider {}
 
 protocol CrashWrapperProvider {
-    var crashWrapper: SentryCrashWrapper { get }
+    var crashWrapper: SentryCrashReporter { get }
 }
 extension SentryDependencyContainer: CrashWrapperProvider {}
 

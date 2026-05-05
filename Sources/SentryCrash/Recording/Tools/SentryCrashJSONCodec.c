@@ -34,6 +34,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -267,6 +268,9 @@ sentrycrashjson_beginElement(SentryCrashJSONEncodeContext *const context, const 
             SENTRY_ASYNC_SAFE_LOG_DEBUG("Name was null inside an object");
             return SentryCrashJSON_ERROR_INVALID_DATA;
         }
+        // strlen here cannot read out of bounds: name is the C-string contract of the public
+        // sentrycrashjson_begin* / sentrycrashjson_add* encode API. The non-null check above
+        // covers the only invalid case the API contract leaves open.
         unlikely_if((result = addQuotedEscapedString(context, name, (int)strlen(name)))
             != SentryCrashJSON_OK)
         {
@@ -386,6 +390,11 @@ sentrycrashjson_addStringElement(SentryCrashJSONEncodeContext *const context,
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
     if (length == SentryCrashJSON_SIZE_AUTOMATIC) {
+        // strlen here cannot read out of bounds: this branch is only entered when the caller
+        // explicitly opts in by passing SentryCrashJSON_SIZE_AUTOMATIC, which signals "this
+        // value is a null-terminated C string, please measure it for me." Callers that pass
+        // an explicit length skip this branch entirely. value was null-checked at function
+        // entry above.
         length = (int)strlen(value);
     }
     return addQuotedEscapedString(context, value, length);
@@ -982,6 +991,11 @@ decodeString(SentryCrashJSONDecodeContext *context, char *dstBuffer, int dstBuff
     // If no escape characters were encountered, we can fast copy.
     likely_if(fastCopy)
     {
+        // memcpy and the trailing NUL write cannot exceed dstBuffer here: the early return
+        // above rejects length >= dstBufferLength, so we know length < dstBufferLength and
+        // dstBuffer[length] is the last writable slot used for the null terminator. The source
+        // range [src, srcEnd) is the unescaped string body that the scan above already walked
+        // entirely within context->buffer, so the read is in-bounds as well.
         memcpy(dstBuffer, src, length);
         dstBuffer[length] = 0;
         return SentryCrashJSON_OK;
@@ -1270,9 +1284,12 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
             return SentryCrashJSON_ERROR_INCOMPLETE;
         }
 
-        // our buffer is not necessarily NULL-terminated, so
-        // it would be undefined to call sscanf/sttod etc. directly.
-        // instead we create a temporary string.
+        // The decoder's input buffer is not necessarily null-terminated (it can be a slice of a
+        // larger document streamed in via JSONFromFileContext), so we cannot point sscanf or
+        // any %s-based parser at it directly: those functions read until they find a NUL and
+        // would walk off the end of the buffer (CWE-676 / out-of-bounds read). Instead we copy
+        // the digits we just scanned into context->stringBuffer, terminate it explicitly, and
+        // parse with strtod, which is bounded both by our explicit NUL and by its own endptr.
         double value;
         int len = (int)(context->bufferPtr - start);
         if (len >= context->stringBufferLength) {
@@ -1288,9 +1305,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
         strncpy(context->stringBuffer, start, len);
         context->stringBuffer[len] = '\0';
 
-        // Parses a floating point number from the string buffer into value using %lg format
-        // %lg uses shortest decimal representation and removes trailing zeros
-        sscanf(context->stringBuffer, "%lg", &value);
+        value = strtod(context->stringBuffer, NULL);
 
         value *= sign;
         return context->callbacks->onFloatingPointElement(name, value, context->userData);
@@ -1362,6 +1377,10 @@ updateDecoder_readFile(struct JSONFromFileContext *context)
         unlikely_if(remainingLength < bufferLength / 2)
         {
             int fillLength = bufferLength - remainingLength;
+            // memcpy here cannot read or write out of bounds: bufferLength is the full size of
+            // [start, end) and remainingLength = end - ptr, so [ptr, ptr+remainingLength) is
+            // inside that same range and remainingLength <= bufferLength means the destination
+            // [start, start+remainingLength) is also inside the buffer.
             memcpy(start, ptr, remainingLength);
             context->decodeContext->bufferPtr = start;
             int bytesRead = (int)read(context->fd, start + remainingLength, (unsigned)fillLength);
@@ -1438,6 +1457,9 @@ addJSONFromFile_onStringElement(
     const char *const name, const char *const value, void *const userData)
 {
     JSONFromFileContext *context = (JSONFromFileContext *)userData;
+    // strlen on value is safe here: this is the onStringElement decoder callback, which is
+    // invoked with the stringBuffer that decodeString just populated and explicitly NUL-
+    // terminated (see the dstBuffer[length] = 0 in the fast-copy and slow-copy paths above).
     int result
         = sentrycrashjson_addStringElement(context->encodeContext, name, value, (int)strlen(value));
     context->updateDecoderCallback(context);
