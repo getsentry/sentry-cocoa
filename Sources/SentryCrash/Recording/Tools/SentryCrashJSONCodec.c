@@ -479,6 +479,9 @@ sentrycrashjson_beginArray(SentryCrashJSONEncodeContext *const context, const ch
         unlikely_if(result != SentryCrashJSON_OK) { return result; }
     }
 
+    // Check before incrementing so containerLevel stays valid on error.
+    // Callers in SentryCrashReport.c may ignore the return value and call
+    // endContainer, which would read isObject[containerLevel] out of bounds.
     unlikely_if(context->containerLevel + 1
         >= (int)(sizeof(context->isObject) / sizeof(context->isObject[0])))
     {
@@ -500,6 +503,9 @@ sentrycrashjson_beginObject(SentryCrashJSONEncodeContext *const context, const c
         unlikely_if(result != SentryCrashJSON_OK) { return result; }
     }
 
+    // Check before incrementing so containerLevel stays valid on error.
+    // Callers in SentryCrashReport.c may ignore the return value and call
+    // endContainer, which would read isObject[containerLevel] out of bounds.
     unlikely_if(context->containerLevel + 1
         >= (int)(sizeof(context->isObject) / sizeof(context->isObject[0])))
     {

@@ -8,7 +8,7 @@ class SentryArrayTests: XCTestCase {
         let array: [String] = []
 
         // Act
-        let result = SentryArray.sanitizeArray(array)
+        let result = sentry_sanitizeArray(array)
 
         // Assert
         XCTAssertEqual(result.count, 0)
@@ -19,7 +19,7 @@ class SentryArrayTests: XCTestCase {
         let array = ["hello", "world", "test"]
 
         // Act
-        let result = SentryArray.sanitizeArray(array)
+        let result = sentry_sanitizeArray(array)
 
         // Assert
         let stringArray = try XCTUnwrap(result as? [String])
@@ -31,7 +31,7 @@ class SentryArrayTests: XCTestCase {
         let array = [NSNumber(value: 42), NSNumber(value: 3.14), NSNumber(value: true)]
 
         // Act
-        let result = SentryArray.sanitizeArray(array)
+        let result = sentry_sanitizeArray(array)
 
         // Assert
         XCTAssertEqual(result.count, 3)
@@ -47,7 +47,7 @@ class SentryArrayTests: XCTestCase {
         let array: [Any] = [dict1, dict2]
 
         // Act
-        let result = SentryArray.sanitizeArray(array)
+        let result = sentry_sanitizeArray(array)
 
         // Assert
         XCTAssertEqual(result.count, 2)
@@ -66,7 +66,7 @@ class SentryArrayTests: XCTestCase {
         let array: [Any] = [invalidDict, validDict]
 
         // Act
-        let result = SentryArray.sanitizeArray(array)
+        let result = sentry_sanitizeArray(array)
 
         // Assert
         // Should only contain the valid dictionary, invalid one should be skipped
@@ -81,7 +81,7 @@ class SentryArrayTests: XCTestCase {
         let array: [Any] = [nestedArray, "topLevel"]
 
         // Act
-        let result = SentryArray.sanitizeArray(array)
+        let result = sentry_sanitizeArray(array)
 
         // Assert
         XCTAssertEqual(result.count, 2)
@@ -100,7 +100,7 @@ class SentryArrayTests: XCTestCase {
         let array: [Any] = [date1, date2]
 
         // Act
-        let result = SentryArray.sanitizeArray(array)
+        let result = sentry_sanitizeArray(array)
 
         // Assert
         XCTAssertEqual(result.count, 2)
@@ -117,7 +117,7 @@ class SentryArrayTests: XCTestCase {
         let array: [Any] = [customObject]
 
         // Act
-        let result = SentryArray.sanitizeArray(array)
+        let result = sentry_sanitizeArray(array)
 
         // Assert
         XCTAssertEqual(result.count, 1)
@@ -141,7 +141,7 @@ class SentryArrayTests: XCTestCase {
         ]
 
         // Act
-        let result = SentryArray.sanitizeArray(array)
+        let result = sentry_sanitizeArray(array)
 
         // Assert
         XCTAssertEqual(result.count, 6)
@@ -160,14 +160,17 @@ class SentryArrayTests: XCTestCase {
     }
 
     func testSanitizeArray_deeplyNestedArrays_shouldTruncateAtMaxDepth() {
+        // Arrange
         var array: [Any] = ["leaf"]
         for _ in 0..<250 {
             array = [array]
         }
 
-        let result = SentryArray.sanitizeArray(array)
-        XCTAssertEqual(result.count, 1)
+        // Act
+        let result = sentry_sanitizeArray(array)
 
+        // Assert
+        XCTAssertEqual(result.count, 1)
         var current: [Any]? = result
         var depth = 0
         while let next = current?.first as? [Any] {

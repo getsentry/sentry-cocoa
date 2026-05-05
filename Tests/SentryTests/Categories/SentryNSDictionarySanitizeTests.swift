@@ -151,14 +151,17 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
     }
 
     func testSentrySanitize_deeplyNestedDictionary_shouldTruncateAtMaxDepth() {
+        // Arrange
         var dict: [String: Any] = ["leaf": "value"]
         for _ in 0..<250 {
             dict = ["nested": dict]
         }
 
+        // Act
         let sanitized = sentry_sanitize(dict)
-        XCTAssertNotNil(sanitized)
 
+        // Assert
+        XCTAssertNotNil(sanitized)
         var current: [String: Any]? = sanitized as? [String: Any]
         var depth = 0
         while let next = current?["nested"] as? [String: Any] {
