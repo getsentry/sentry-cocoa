@@ -1,5 +1,6 @@
 #include "SentryCrashBinaryImageCache.h"
 #include "SentryAsyncSafeLog.h"
+#include "SentryCrashBinaryImageCacheState.h"
 #include "SentryCrashDynamicLinker.h"
 #include <dispatch/dispatch.h>
 #include <mach-o/dyld.h>
@@ -10,65 +11,17 @@
 #include <string.h>
 #include <unistd.h>
 
-typedef void (*SentryRegisterImageCallback)(const struct mach_header *mh, intptr_t vmaddr_slide);
-typedef void (*SentryRegisterFunction)(SentryRegisterImageCallback function);
-
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
-#    define SENTRY_HAS_DYLD_TEST_HOOKS 1
-#else
-#    define SENTRY_HAS_DYLD_TEST_HOOKS 0
-#endif
-
-#define MAX_DYLD_IMAGES 4096
+#define MAX_DYLD_IMAGES SENTRYCRASHBIC_MAX_DYLD_IMAGES
 
 // Entry lifecycle states
 #define IMAGE_EMPTY 0 // Slot reserved but data not written, or write failed
 #define IMAGE_READY 1 // Published, visible to readers
 #define IMAGE_REMOVED 3 // Image was unloaded
 
-typedef struct {
-    _Atomic(uint32_t) state; // IMAGE_* lifecycle for this slot.
-    SentryCrashBinaryImage image; // Stored image snapshot once the slot is published.
-} PublishedBinaryImage;
-
-typedef struct {
-    // Canonical append-only storage for all published images in this cache state.
-    PublishedBinaryImage images[MAX_DYLD_IMAGES];
-    // Next slot to reserve. In production this only increases for the process lifetime.
-    _Atomic(uint32_t) nextIndex;
-
-    // Consumer callback invoked for newly published images and for replay during registration.
-    _Atomic(sentrycrashbic_cacheChangeCallback) addedCallback;
-    // Consumer callback invoked when a previously published image is marked removed.
-    _Atomic(sentrycrashbic_cacheChangeCallback) removedCallback;
-
-    // Guards the one-time dyld bootstrap/registration for the currently active cache state.
-    _Atomic(bool) trackingStarted;
-    // Guards the one-time capacity warning for the currently active cache state.
-    _Atomic(bool) didLogImageLimitReached;
-
-#if SENTRY_HAS_DYLD_TEST_HOOKS
-    // Test/debug override for `_dyld_register_func_for_add_image()`.
-    SentryRegisterFunction addImageCallback;
-    // Test/debug override for `_dyld_register_func_for_remove_image()`.
-    SentryRegisterFunction removeImageCallback;
-    // Test hook invoked immediately before a new image enters the add path.
-    void (*beforeAddImageCallback)(void);
-#endif
-} SentryCrashBinaryImageCacheState;
-
 static SentryCrashBinaryImageCacheState g_defaultCache = {
-#if SENTRY_HAS_DYLD_TEST_HOOKS
-    .addImageCallback = &_dyld_register_func_for_add_image,
-    .removeImageCallback = &_dyld_register_func_for_remove_image,
-#endif
-};
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
-static SentryCrashBinaryImageCacheState g_testCache = {
     .addImageCallback = &_dyld_register_func_for_add_image,
     .removeImageCallback = &_dyld_register_func_for_remove_image,
 };
-#endif
 static _Atomic(SentryCrashBinaryImageCacheState *) g_activeCache = &g_defaultCache;
 
 static inline SentryCrashBinaryImageCacheState *
@@ -83,47 +36,6 @@ reservedSlotCount(SentryCrashBinaryImageCacheState *cache, memory_order loadOrde
 {
     uint32_t count = atomic_load_explicit(&cache->nextIndex, loadOrder);
     return count > MAX_DYLD_IMAGES ? MAX_DYLD_IMAGES : count;
-}
-
-#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
-static void
-resetState(SentryCrashBinaryImageCacheState *cache)
-{
-    uint32_t count = reservedSlotCount(cache, memory_order_relaxed);
-    for (uint32_t i = 0; i < count; i++) {
-        atomic_store_explicit(&cache->images[i].state, IMAGE_EMPTY, memory_order_relaxed);
-    }
-    atomic_store_explicit(&cache->nextIndex, 0, memory_order_relaxed);
-    atomic_store_explicit(&cache->addedCallback, NULL, memory_order_relaxed);
-    atomic_store_explicit(&cache->removedCallback, NULL, memory_order_relaxed);
-    atomic_store_explicit(&cache->trackingStarted, false, memory_order_relaxed);
-    atomic_store_explicit(&cache->didLogImageLimitReached, false, memory_order_relaxed);
-    cache->addImageCallback = &_dyld_register_func_for_add_image;
-    cache->removeImageCallback = &_dyld_register_func_for_remove_image;
-    cache->beforeAddImageCallback = NULL;
-}
-#endif
-
-// Keep test/debug dyld indirection out of the main flow so call sites stay close to the
-// production dyld API.
-#if SENTRY_HAS_DYLD_TEST_HOOKS
-
-void
-sentrycrashbic_setRegisterFuncForAddImage(SentryRegisterFunction addFunction)
-{
-    currentCache()->addImageCallback = addFunction;
-}
-
-void
-sentrycrashbic_setRegisterFuncForRemoveImage(SentryRegisterFunction removeFunction)
-{
-    currentCache()->removeImageCallback = removeFunction;
-}
-
-void
-sentrycrashbic_setBeforeAddImageCallback(void (*callback)(void))
-{
-    currentCache()->beforeAddImageCallback = callback;
 }
 
 static inline void
@@ -143,37 +55,16 @@ registerDyldRemoveImageCallback(
 static inline void
 callBeforeAddImageCallback(SentryCrashBinaryImageCacheState *cache)
 {
+    // we need this callback only for test verification, it is a noop in prod
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     void (*cb)(void) = cache->beforeAddImageCallback;
     if (cb != NULL) {
         cb();
     }
-}
-
 #else
-
-static inline void
-registerDyldAddImageCallback(
-    SentryCrashBinaryImageCacheState *cache, SentryRegisterImageCallback callback)
-{
     (void)cache;
-    _dyld_register_func_for_add_image(callback);
+#endif
 }
-
-static inline void
-registerDyldRemoveImageCallback(
-    SentryCrashBinaryImageCacheState *cache, SentryRegisterImageCallback callback)
-{
-    (void)cache;
-    _dyld_register_func_for_remove_image(callback);
-}
-
-static inline void
-callBeforeAddImageCallback(SentryCrashBinaryImageCacheState *cache)
-{
-    (void)cache;
-}
-
-#endif // SENTRY_HAS_DYLD_TEST_HOOKS
 
 static void
 logImageLimitReached(SentryCrashBinaryImageCacheState *cache)
@@ -365,20 +256,14 @@ sentrycrashbic_stopCache(void)
     // images so crashes can still be symbolicated even if higher-level consumers temporarily stop.
 }
 
-// Resetting can create race conditions so should only be done in controlled test environments.
 #if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 void
-sentrycrashbic_useFreshTestCacheState(void)
+sentrycrashbic_setActiveCacheState(SentryCrashBinaryImageCacheState *cache)
 {
-    resetState(&g_testCache);
-    atomic_store_explicit(&g_activeCache, &g_testCache, memory_order_release);
-}
-
-void
-sentrycrashbic_useDefaultCacheState(void)
-{
-    resetState(&g_defaultCache);
-    atomic_store_explicit(&g_activeCache, &g_defaultCache, memory_order_release);
+    if (cache == NULL) {
+        cache = &g_defaultCache;
+    }
+    atomic_store_explicit(&g_activeCache, cache, memory_order_release);
 }
 #endif
 

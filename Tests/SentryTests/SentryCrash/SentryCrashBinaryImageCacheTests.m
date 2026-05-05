@@ -1,11 +1,13 @@
 #import "SentryCrashBinaryImageCache+Test.h"
 #import "SentryCrashBinaryImageCache.h"
+#import "SentryCrashBinaryImageCacheState.h"
 #import "SentryCrashDynamicLinker+Test.h"
 #import "SentrySwift.h"
 #import <XCTest/XCTest.h>
 
 #include <mach-o/dyld.h>
 #include <mach-o/dyld_images.h>
+#include <string.h>
 
 // Test-only functions are declared in `SentryCrashBinaryImageCache+Test.h`
 
@@ -13,7 +15,7 @@ static void (*addBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slid
 static void (*removeBinaryImage)(const struct mach_header *mh, intptr_t vmaddr_slide);
 static NSMutableArray *mach_headers_test_cache;
 static NSMutableArray *mach_headers_expect_array;
-static const uint32_t maxDyldImages = 4096;
+static const uint32_t maxDyldImages = SENTRYCRASHBIC_MAX_DYLD_IMAGES;
 static uint32_t invalid_mach_header_word = 0;
 
 static void
@@ -70,6 +72,7 @@ addBinaryImageNameToArray(SentryCrashBinaryImage *image, void *context)
 }
 
 static NSMutableArray<NSString *> *added_image_names;
+static SentryCrashBinaryImageCacheState test_cache_state;
 
 static void
 captureAddedImageName(const SentryCrashBinaryImage *image)
@@ -104,6 +107,14 @@ delayAddBinaryImage(void)
     }
 }
 
+static void
+initializeTestCacheState(SentryCrashBinaryImageCacheState *cache)
+{
+    memset(cache, 0, sizeof(*cache));
+    cache->addImageCallback = &sentry_register_func_for_add_image;
+    cache->removeImageCallback = &sentry_register_func_for_remove_image;
+}
+
 @interface SentryCrashBinaryImageCacheTests : XCTestCase
 
 @end
@@ -123,9 +134,8 @@ delayAddBinaryImage(void)
 
 - (void)setUp
 {
-    sentrycrashbic_useFreshTestCacheState();
-    sentrycrashbic_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
-    sentrycrashbic_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
+    initializeTestCacheState(&test_cache_state);
+    sentrycrashbic_setActiveCacheState(&test_cache_state);
 
     added_image_names = [NSMutableArray array];
     delaySemaphore = NULL;
@@ -144,7 +154,7 @@ delayAddBinaryImage(void)
     delayCalled = NULL;
 
     sentrycrashdl_clearDyld();
-    sentrycrashbic_useDefaultCacheState();
+    sentrycrashbic_setActiveCacheState(NULL);
     [SentryDependencyContainer reset];
 }
 
@@ -194,19 +204,19 @@ delayAddBinaryImage(void)
     XCTAssertTrue([names containsObject:@"dyld"]);
 }
 
-- (void)testUseFreshTestCacheState_whenSwitchingStates_shouldResetAndIsolateTheActiveCache
+- (void)testSetActiveCacheState_whenSwitchingStates_shouldIsolateTheActiveCaches
 {
-    sentrycrashbic_useDefaultCacheState();
-    sentrycrashbic_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
-    sentrycrashbic_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
+    SentryCrashBinaryImageCacheState firstState;
+    initializeTestCacheState(&firstState);
+    sentrycrashbic_setActiveCacheState(&firstState);
 
     sentrycrashbic_startCache();
     addBinaryImage([mach_headers_test_cache[5] pointerValue], 0);
     [self assertBinaryImageCacheLength:6];
 
-    sentrycrashbic_useFreshTestCacheState();
-    sentrycrashbic_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
-    sentrycrashbic_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
+    SentryCrashBinaryImageCacheState secondState;
+    initializeTestCacheState(&secondState);
+    sentrycrashbic_setActiveCacheState(&secondState);
 
     sentrycrashbic_startCache();
     [self assertBinaryImageCacheLength:5];
@@ -214,12 +224,10 @@ delayAddBinaryImage(void)
     addBinaryImage([mach_headers_test_cache[6] pointerValue], 0);
     [self assertBinaryImageCacheLength:6];
 
-    sentrycrashbic_useDefaultCacheState();
-    sentrycrashbic_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
-    sentrycrashbic_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
+    sentrycrashbic_setActiveCacheState(&firstState);
 
     sentrycrashbic_startCache();
-    [self assertBinaryImageCacheLength:5];
+    [self assertBinaryImageCacheLength:6];
 }
 
 - (void)testAddNewImage
@@ -368,7 +376,7 @@ delayAddBinaryImage(void)
 - (void)testCloseCacheWhileAdding
 {
     sentrycrashbic_startCache();
-    sentrycrashbic_setBeforeAddImageCallback(&delayAddBinaryImage);
+    test_cache_state.beforeAddImageCallback = &delayAddBinaryImage;
     delaySemaphore = dispatch_semaphore_create(0);
     delayCalled = dispatch_semaphore_create(0);
     dispatch_semaphore_t addFinished = dispatch_semaphore_create(0);
@@ -469,9 +477,8 @@ delayAddBinaryImage(void)
 - (void)bootstrapDyldCallbacksAndResetCacheState
 {
     sentrycrashbic_startCache();
-    sentrycrashbic_useFreshTestCacheState();
-    sentrycrashbic_setRegisterFuncForAddImage(&sentry_register_func_for_add_image);
-    sentrycrashbic_setRegisterFuncForRemoveImage(&sentry_register_func_for_remove_image);
+    initializeTestCacheState(&test_cache_state);
+    sentrycrashbic_setActiveCacheState(&test_cache_state);
 }
 
 - (void)fillStartedCacheToImageLimitWithHeader:(const struct mach_header *)header

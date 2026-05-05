@@ -48,6 +48,7 @@
 #import "SentryCrash+Test.h"
 #import "SentryCrashBinaryImageCache+Test.h"
 #import "SentryCrashBinaryImageCache.h"
+#import "SentryCrashBinaryImageCacheTestHelper.h"
 #import "SentryCrashC.h"
 #import "SentryCrashCachedData.h"
 #import "SentryCrashCxaThrowSwapper.h"
