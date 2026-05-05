@@ -7,18 +7,43 @@ class SentrySystemWrapperTests: XCTestCase {
     }
     lazy private var fixture = Fixture()
 
-    func testCPUUsageReportsData() throws {
-        XCTAssertNoThrow({
-            let cpuUsage = try XCTUnwrap(self.fixture.systemWrapper.cpuUsage())
-            XCTAssertTrue((0.0 ... 100.0).contains(cpuUsage.doubleValue))
-        })
+    // MARK: - cpuUsageWithError
+
+    func testCPUUsage_shouldReturnNonNilValue() throws {
+        let cpuUsage = try XCTUnwrap(fixture.systemWrapper.cpuUsage())
+        XCTAssertGreaterThanOrEqual(cpuUsage.floatValue, 0.0)
     }
 
-    func testMemoryFootprint() {
-        let error: NSErrorPointer = nil
-        let memoryFootprint = fixture.systemWrapper.memoryFootprintBytes(error)
-        XCTAssertNil(error?.pointee)
-        XCTAssertTrue((0...UINT64_MAX).contains(memoryFootprint))
+    func testCPUUsage_shouldNotThrow() throws {
+        XCTAssertNotNil(try fixture.systemWrapper.cpuUsage())
     }
+
+    // Error path for cpuUsageWithError: untestable — task_threads uses hardcoded
+    // mach_task_self() which cannot be made to fail without resource exhaustion.
+
+    // MARK: - memoryFootprintBytes
+
+    func testMemoryFootprint_shouldReturnPositiveValue() {
+        var error: NSError?
+        let memoryFootprint = fixture.systemWrapper.memoryFootprintBytes(&error)
+        XCTAssertNil(error)
+        XCTAssertGreaterThan(memoryFootprint, 0)
+    }
+
+    // MARK: - cpuEnergyUsageWithError
+
+#if arch(arm64)
+    func testCPUEnergyUsage_shouldReturnNonNilValue() throws {
+        let energyUsage = try XCTUnwrap(fixture.systemWrapper.cpuEnergyUsage())
+        XCTAssertGreaterThanOrEqual(energyUsage.uint64Value, 0)
+    }
+
+    func testCPUEnergyUsage_shouldNotThrow() throws {
+        XCTAssertNotNil(try fixture.systemWrapper.cpuEnergyUsage())
+    }
+
+    // Error path for cpuEnergyUsageWithError: untestable — task_info uses hardcoded
+    // mach_task_self() which cannot be made to fail without resource exhaustion.
+#endif // arch(arm64)
 }
 #endif // os(iOS) || os(macOS)
