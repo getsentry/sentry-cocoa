@@ -58,16 +58,30 @@ jobs:
         uses: github/codeql-action/init@256d634097be96e792d6764f9edaefc4320557b1 # v4
         with:
           languages: ${{ matrix.language }}
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: iOS
 
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
             -workspace Sentry.xcworkspace \
             -scheme Sentry \
             -configuration Release \
-            -destination platform="iOS Simulator,OS=26.1,name=iPhone 17 Pro" \
+            -destination "platform=iOS Simulator,OS=$IOS_SIMULATOR_OS,name=$IOS_DEVICE_NAME" \
             build 2>&1 |
             tee raw-analyze-output.log |
             xcbeautify
+        env:
+          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@256d634097be96e792d6764f9edaefc4320557b1 # v4

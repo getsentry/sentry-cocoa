@@ -47,10 +47,26 @@ if [ -z "$PLATFORM" ]; then
     usage
 fi
 
+# Check runtime availability using JSON output. The text-based `simctl list
+# runtimes -v` format shows only major.minor in the display name (e.g.
+# "iOS 26.4") while hotfix versions like 26.4.1 only appear in parentheses,
+# causing simple grep patterns to miss them. JSON is unambiguous.
+# visionOS runtimes may report as "xrOS" in older simctl versions.
+runtime_is_available() {
+    xcrun simctl list runtimes -j 2>/dev/null \
+        | jq -e --arg p "$PLATFORM" --arg v "$OS_VERSION" \
+            '[.runtimes[]
+              | select(.isAvailable == true)
+              | select(.platform == $p or ($p == "visionOS" and .platform == "xrOS") or ($p == "xrOS" and .platform == "visionOS"))
+              | select(.version == $v)
+             ] | length > 0' \
+            > /dev/null 2>&1
+}
+
 echo "Ensuring runtime $PLATFORM ($OS_VERSION) is loaded"
 
 # Check if the runtime is loaded
-if xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION" && ! xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION.*unavailable" ; then
+if runtime_is_available; then
     echo "Runtime $OS_VERSION is loaded"
     exit 0
 fi
@@ -69,7 +85,7 @@ sudo pkill -9 com.apple.CoreSimulator.CoreSimulatorService || true
 count=0
 MAX_ATTEMPTS=60 # 300 seconds (5 minutes) timeout
 while [ $count -lt $MAX_ATTEMPTS ]; do
-    if xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION" && ! xcrun simctl list runtimes -v | grep -qE "$PLATFORM $OS_VERSION.*unavailable"; then
+    if runtime_is_available; then
         echo "Runtime $OS_VERSION is loaded after $count attempts"
         exit 0
     fi
