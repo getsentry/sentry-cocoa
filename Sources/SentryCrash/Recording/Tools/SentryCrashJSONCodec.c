@@ -479,12 +479,12 @@ sentrycrashjson_beginArray(SentryCrashJSONEncodeContext *const context, const ch
         unlikely_if(result != SentryCrashJSON_OK) { return result; }
     }
 
-    context->containerLevel++;
-    unlikely_if(
-        context->containerLevel >= (int)(sizeof(context->isObject) / sizeof(context->isObject[0])))
+    unlikely_if(context->containerLevel + 1
+        >= (int)(sizeof(context->isObject) / sizeof(context->isObject[0])))
     {
         return SentryCrashJSON_ERROR_DATA_TOO_LONG;
     }
+    context->containerLevel++;
     context->isObject[context->containerLevel] = false;
     context->containerFirstEntry = true;
 
@@ -500,12 +500,12 @@ sentrycrashjson_beginObject(SentryCrashJSONEncodeContext *const context, const c
         unlikely_if(result != SentryCrashJSON_OK) { return result; }
     }
 
-    context->containerLevel++;
-    unlikely_if(
-        context->containerLevel >= (int)(sizeof(context->isObject) / sizeof(context->isObject[0])))
+    unlikely_if(context->containerLevel + 1
+        >= (int)(sizeof(context->isObject) / sizeof(context->isObject[0])))
     {
         return SentryCrashJSON_ERROR_DATA_TOO_LONG;
     }
+    context->containerLevel++;
     context->isObject[context->containerLevel] = true;
     context->containerFirstEntry = true;
 
