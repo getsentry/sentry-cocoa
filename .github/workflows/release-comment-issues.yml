@@ -30,9 +30,9 @@ jobs:
       - name: Comment on linked issues that are mentioned in release
         if: |
           steps.get_version.outputs.version != ''
-          && !contains(steps.get_version.outputs.version, '-beta.')
-          && !contains(steps.get_version.outputs.version, '-alpha.')
-          && !contains(steps.get_version.outputs.version, '-rc.')
+          && !contains(steps.get_version.outputs.version, '-beta')
+          && !contains(steps.get_version.outputs.version, '-alpha')
+          && !contains(steps.get_version.outputs.version, '-rc')
 
         # Pin matches getsentry/release-comment-issues-gh-action@v1 (repo policy: full SHA).
         # changelog_pr_mode: Craft release notes use (#1234); default mode expects markdown PR links.
