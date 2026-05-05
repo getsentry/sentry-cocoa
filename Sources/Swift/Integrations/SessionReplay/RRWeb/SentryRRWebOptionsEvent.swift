@@ -26,6 +26,28 @@ final class SentryRRWebOptionsEvent: SentryRRWebCustomEvent {
             payload["unmaskedViewClasses"] = options.unmaskedViewClasses.map(String.init(describing:)).joined(separator: ", ")
         }
         
+        payload["networkDetailHasUrls"] = options.networkDetailHasUrls
+
+        if options.networkDetailHasUrls {
+            payload["networkDetailAllowUrls"] = options.networkDetailAllowUrls.map { pattern in
+                if let regex = pattern as? NSRegularExpression {
+                    return regex.pattern
+                } else {
+                    return String(describing: pattern)
+                }
+            }
+            payload["networkDetailDenyUrls"] = options.networkDetailDenyUrls.map { pattern in
+                if let regex = pattern as? NSRegularExpression {
+                    return regex.pattern
+                } else {
+                    return String(describing: pattern)
+                }
+            }
+            payload["networkCaptureBodies"] = options.networkCaptureBodies
+            payload["networkRequestHeaders"] = options.networkRequestHeaders
+            payload["networkResponseHeaders"] = options.networkResponseHeaders
+        }
+
         super.init(timestamp: timestamp, tag: "options", payload: payload)
     }
 }

@@ -27,7 +27,9 @@ public struct SentrySDKWrapper {
         }
 
         if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
+            print("[Sentry] lastRunStatus before start: \(SentrySDK.lastRunStatus)")
             SentrySDK.start(configureOptions: configureSentryOptions(options:))
+            print("[Sentry] lastRunStatus after start: \(SentrySDK.lastRunStatus)")
         }
     }
 
@@ -36,6 +38,7 @@ public struct SentrySDKWrapper {
         if let sampleRate = SentrySDKOverrides.Events.sampleRate.floatValue {
             options.sampleRate = NSNumber(value: sampleRate)
         }
+        options.attachAllThreads = SentrySDKOverrides.Events.attachAllThreads.boolValue
         options.beforeSend = {
             guard !SentrySDKOverrides.Events.rejectAll.boolValue else { return nil }
             return $0
@@ -59,12 +62,31 @@ public struct SentrySDKWrapper {
                 // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
                 enableFastViewRendering: SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
             )
+            
+            // Configure network detail capture for testing
+            options.sessionReplay.networkDetailAllowUrls = [
+                "httpbin.org"
+            ]
+            
+            do {
+                let sentryDomainRegex = try NSRegularExpression(pattern: ".*\\.sentry\\.io.*", options: [])
+                options.sessionReplay.networkDetailDenyUrls = [sentryDomainRegex]
+            } catch {
+                preconditionFailure("Invalid regex pattern: \(error)")
+            }
+
+            options.sessionReplay.networkRequestHeaders = [
+                "User-Agent",
+                "X-Custom-Header",
+                "X-Request-ID"
+            ]
+            options.sessionReplay.networkResponseHeaders = [
+                "Server",
+                "Access-Control-Allow-Origin",
+                "access-control-allow-credentials"
+            ]
             let defaultReplayQuality = options.sessionReplay.quality
             options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
-
-            // Allow configuring unreliable environment protection via SDK override.
-            // Default to false for the sample app to allow testing on iOS 26+ with Liquid Glass.
-            options.experimental.enableSessionReplayInUnreliableEnvironment = SentrySDKOverrides.SessionReplay.enableInUnreliableEnvironment.boolValue
         }
 
 #endif // !os(macOS) && !os(watchOS) && !os(visionOS)
@@ -133,6 +155,11 @@ public struct SentrySDKWrapper {
         options.enableSwizzling = !SentrySDKOverrides.Other.disableSwizzling.boolValue
         options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
         options.enablePersistingTracesWhenCrashing = true
+
+        options.onLastRunStatusDetermined = { status, crashEvent in
+            let eventId = crashEvent?.eventId.sentryIdString ?? "nil"
+            print("[Sentry] lastRunStatus: \(status) (event: \(eventId))")
+        }
         options.enableTimeToFullDisplayTracing = !SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.boolValue
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
 
@@ -161,8 +188,8 @@ public struct SentrySDKWrapper {
         options.enableLogs = true
 
         // Integration: Metrics
-        options.experimental.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
-        options.experimental.beforeSendMetric = { metric in
+        options.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
+        options.beforeSendMetric = { metric in
             // Modify the metric in the callback
             var modifiedMetric = metric
 

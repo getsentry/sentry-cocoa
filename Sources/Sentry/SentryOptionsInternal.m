@@ -95,6 +95,9 @@
 
     [self setBool:options[@"enableLogs"] block:^(BOOL value) { sentryOptions.enableLogs = value; }];
 
+    [self setBool:options[@"enableMetrics"]
+            block:^(BOOL value) { sentryOptions.enableMetrics = value; }];
+
     [self setBool:options[@"enableNetworkBreadcrumbs"]
             block:^(BOOL value) { sentryOptions.enableNetworkBreadcrumbs = value; }];
 
@@ -133,7 +136,14 @@
     }
 
     if ([self isBlock:options[@"onCrashedLastRun"]]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         sentryOptions.onCrashedLastRun = options[@"onCrashedLastRun"];
+#pragma clang diagnostic pop
+    }
+
+    if ([self isBlock:options[@"onLastRunStatusDetermined"]]) {
+        sentryOptions.onLastRunStatusDetermined = options[@"onLastRunStatusDetermined"];
     }
 
     if ([options[@"sampleRate"] isKindOfClass:[NSNumber class]]) {
@@ -296,6 +306,13 @@
     [self setBool:options[@"enableMetricKitRawPayload"]
             block:^(BOOL value) { sentryOptions.enableMetricKitRawPayload = value; }];
 #endif // SENTRY_HAS_METRIC_KIT
+
+    [self setBool:options[@"strictTraceContinuation"]
+            block:^(BOOL value) { sentryOptions.strictTraceContinuation = value; }];
+
+    if ([options[@"orgId"] isKindOfClass:[NSString class]]) {
+        sentryOptions.orgId = SENTRY_UNWRAP_NULLABLE(NSString, options[@"orgId"]);
+    }
 
     [self setBool:options[@"enableSpotlight"]
             block:^(BOOL value) { sentryOptions.enableSpotlight = value; }];

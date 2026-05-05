@@ -5,6 +5,127 @@
 ### Features
 
 - Add standalone app start tracing as an experimental option (#7660), enable it via `options.experimental.enableStandaloneAppStartTracing = true`
+- Prevent memory strings in stack overflow crash reports (#7841)
+
+### Fixes
+
+## 9.12.0
+
+> [!WARNING]
+> This release promotes Metrics out of experimental and **removes** `options.experimental.enableMetrics` and `options.experimental.beforeSendMetric`. If you set either of these, your app will fail to compile after upgrading.
+> Migrate to `options.enableMetrics` and `options.beforeSendMetric` (top-level on `Options`) — the defaults and behavior are unchanged.
+
+> [!WARNING]
+> Session Replay now runs on iOS 26 with Liquid Glass. Previously, the SDK auto-disabled Session Replay on iOS 26 builds that adopted Liquid Glass (built with Xcode 26+ and `UIDesignRequiresCompatibility` not set). Now that the underlying redaction issues have been addressed, replays will be captured in those environments — verify your masking still meets your privacy requirements.
+> If you want to keep Session Replay disabled on Liquid Glass builds, you will need to gate the sample rates yourself. For reference, see how the SDK used to perform the check: https://github.com/getsentry/sentry-cocoa/blob/adef457c1344e5efda4b74a1f33913d4d49ef7e0/Sources/Swift/Integrations/SessionReplay/SentrySessionReplayEnvironmentChecker.swift
+>
+> Example — disable Session Replay when Liquid Glass is active:
+>
+> ```swift
+> import Sentry
+>
+> SentrySDK.start { options in
+>     options.dsn = "___PUBLIC_DSN___"
+>
+>     var sessionRate: Float = 0.2
+>     var errorRate: Float = 1.0
+>
+>     if #available(iOS 26.0, *) {
+>         let compatibilityMode = Bundle.main.object(forInfoDictionaryKey: "UIDesignRequiresCompatibility") as? Bool ?? false
+>         let xcodeVersion = Int(Bundle.main.object(forInfoDictionaryKey: "DTXcode") as? String ?? "") ?? 0
+>         let builtWithXcode26OrLater = xcodeVersion >= 2600
+>         let liquidGlassActive = builtWithXcode26OrLater && !compatibilityMode
+>         if liquidGlassActive {
+>             sessionRate = 0
+>             errorRate = 0
+>         }
+>     }
+>
+>     options.sessionReplay.sessionSampleRate = sessionRate
+>     options.sessionReplay.onErrorSampleRate = errorRate
+> }
+> ```
+
+### Improvements
+
+- Remove `enableSessionReplayInUnreliableEnvironment` experimental option and the environment checker that temporarily disabled Session Replay on iOS 26 (#7831)
+
+### Features
+
+- Make feature Metrics generally available, moving experimental options to top-level options (#7843)
+- Add Session Replay network details capture, including request/response headers and bodies extraction (#7580, #7582, #7584, #7585, #7588, #7590, #7854)
+
+### Fixes
+
+- Fix infinite loop in `sentrycrashfu_readBytesFromFD` when `read()` returns EOF on a truncated file (#7853)
+- Disable app hang and watchdog termination tracking in Notification Service Extensions (#7818)
+- Fix JSON encoding of infinite numeric values in crash reports (#7802)
+- Fix race condition in `SentryFramesTracker` listeners causing `EXC_BAD_ACCESS` in `NSConcreteHashTable removeItem:` when a listener is deallocated on a background thread (#7839)
+- Moved `BinaryImageCache` initialization to a background thread to reduce blocking on dyld reader locks on the main thread (#7823)
+
+## 9.11.0
+
+### Features
+
+- Track low power mode in device context (#7777)
+
+### Fixes
+
+- Added `Package@swift-6.2.swift` to avoid issues with unsafe build flags on SPM > 6.2 (#7778)
+- Detect development builds via provisioning profile and debugger attachment (#7702)
+- Keep replayType as `buffer` for Session Replay triggered by an error (#7804)
+- Fix race condition in scope observer notifications causing EXC_BAD_ACCESS during cold launch (#7807)
+- Unsubscribe to system event during background to avoid reporting breadcrumbs with wrong timestamps on return to foreground (#7702)
+- Fix SwiftUI's images and text redaction in iOS 26 (#7781)
+- Add foreground state to app context in app hang events (#7801)
+
+## 9.10.0
+
+### Features
+
+- Prevent cross-organization trace continuation (#7705)
+  - By default, the SDK now extracts the organization ID from the DSN (e.g. `o123.ingest.sentry.io`) and compares it with the `sentry-org_id` value in incoming baggage headers. When the two differ, the SDK starts a fresh trace instead of continuing the foreign one. This guards against accidentally linking traces across organizations.
+  - New option `strictTraceContinuation` (default `false`): when enabled, both the SDK's org ID **and** the incoming baggage org ID must be present and match for a trace to be continued. Traces with a missing org ID on either side are rejected.
+  - New option `orgId`: allows explicitly setting the organization ID for self-hosted and Relay setups where it cannot be extracted from the DSN.
+
+### Fixes
+
+- Scope clipOut masking to active clip bounds (#7780)
+- Fix AOT interop with managed .NET runtimes (#6193)
+
+## 9.9.0
+
+### Features
+
+- Add `attachAllThreads` option to `SentryOptions` to attach full stack traces for all threads to captured events (#7764)
+- Add per-call `attachAllThreads` parameter to `capture(event:)`, `capture(error:)`, `capture(exception:)`, and `capture(message:)` to override the global option for specific calls (#7767)
+
+### Improvements
+
+- Align app lifecycle breadcrumb `state` values with `in_foreground`/`is_active` app context (#7703)
+  - **Breaking**: Update any `beforeBreadcrumb` filters or dashboard queries matching on the old `state` values:
+    - iOS/tvOS/visionOS
+      - `didBecomeActive` state changed from `foreground` to `active`
+    - macOS
+      - `didBecomeActive` state changed from `foreground` to `active`
+      - `willResignActive` state changed from `background` to `inactive`
+
+### Fixes
+
+- Copy incoming tags dict to prevent crash (#7763)
+- Per-instance unmaskView propagates to child views (#7733)
+  - **Warning:** If you relied on children of an unmasked view still being individually redacted, verify your Session Replay redaction after updating. An explicit `maskView(_:)` on a descendant still takes precedence.
+- Move SessionTracker file I/O off the main thread (#7704)
+
+## 9.8.0
+
+### Features
+
+- Add `SentrySDK.lastRunStatus` to distinguish unknown, no-crash and crash (#7469)
+
+### Fixes
+
+- Make SentryBreadcrumb thread-safe to prevent crashes in addBreadcrumb (#7665)
 
 ## 9.7.0
 
@@ -177,6 +298,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
 - Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes local symbolication when `debug=True` which fixes various deadlocks (#6562)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
@@ -259,6 +381,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
 - Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes local symbolication when `debug=True` which fixes various deadlocks (#6562)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
@@ -335,6 +458,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
 - Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes local symbolication when `debug=True` which fixes various deadlocks (#6562)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)
@@ -410,6 +534,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Properties on SentryOptions that had no effect on the WithoutUIKit variant are now removed from the API (#6644)
 - Removes the SentryOptions.inAppExclude property because it had no effect (#6646)
 - Removes segment property on SentryUser, SentryBaggage, and SentryTraceContext (#5638)
+- Removes local symbolication when `debug=True` which fixes various deadlocks (#6562)
 - Removes deprecated TraceContext initializers (#6348)
 - Removes deprecated user feedback API, this is replaced with the new feedback API (#5591)
 - Removes `enablePerformanceV2` option and makes this the default. The app start duration will now finish when the first frame is drawn instead of when the OS posts the UIWindowDidBecomeVisibleNotification. (#6008)

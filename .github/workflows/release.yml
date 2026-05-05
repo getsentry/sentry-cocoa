@@ -47,11 +47,12 @@ jobs:
     outputs:
       run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
       is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
+      is_fork: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -122,15 +123,18 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-sentry-static
           path: XCFrameworkBuildPath/
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-sentry-swiftui
           path: XCFrameworkBuildPath/
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - name: Unzip all XCFrameworks
         run: |
           find XCFrameworkBuildPath -name "*.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
@@ -139,8 +143,8 @@ jobs:
         run: make strip-xcframework-expected-signature
       - run: make build-xcframework-sample
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   # Use github.event.pull_request.head.sha instead of github.sha when available as
   # the github.sha is be the pre merge commit id for PRs.
@@ -153,7 +157,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -168,12 +172,19 @@ jobs:
             --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
-      - run: ./scripts/ci-select-xcode.sh 16.4
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.2.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   validate-spm-dynamic:
     name: Validate SPM Dynamic
@@ -183,7 +194,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -198,12 +209,19 @@ jobs:
             --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
-      - run: ./scripts/ci-select-xcode.sh 16.4
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.2.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - run: swift build
         working-directory: Samples/SPM-Dynamic
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   swift-build:
     name: Build Swift Static
@@ -213,7 +231,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -228,11 +246,18 @@ jobs:
             --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
-      - run: ./scripts/ci-select-xcode.sh 16.4
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.2.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - run: swift build --target SentrySwiftUI
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   validate-spm-visionos:
     name: Validate SPM Static visionOS
@@ -242,7 +267,7 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
@@ -257,12 +282,19 @@ jobs:
             --package-file Package@swift-6.1.swift \
             --is-pr "${{ github.event_name == 'pull_request' }}" \
             --change-path true
-      - run: ./scripts/ci-select-xcode.sh 16.4
+          ./scripts/prepare-package.sh \
+            --package-file Package@swift-6.2.swift \
+            --is-pr "${{ github.event_name == 'pull_request' }}" \
+            --change-path true
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - run: set -o pipefail &&xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify
         working-directory: Samples/visionOS-SPM
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   duplication-tests:
     name: Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests
@@ -274,18 +306,20 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     with:
       fastlane_command: duplication_test
-      xcode_version: 16.4
+      xcode_version: "16"
       macos_version: macos-15
       needs_xcframework: true
+      platform: macOS
 
   app-metrics:
     name: Collect App Metrics
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
-    # Run for PRs with related changes (including dependabot) or non-PR events.
+    # Run for PRs with related changes (including dependabot) or non-PR events. Skip fork PRs (no secrets available).
     if: |
       github.event_name != 'pull_request' || (
-        needs.files-changed.outputs.run_release_for_prs == 'true' && (
+        needs.files-changed.outputs.run_release_for_prs == 'true' &&
+        needs.files-changed.outputs.is_fork != 'true' && (
           contains(
           fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'),
           github.event.pull_request.author_association
@@ -296,12 +330,15 @@ jobs:
     steps:
       - name: Git checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
       - name: Setup Ruby
-        uses: ruby/setup-ruby@6ca151fd1bfcfd6fe0c4eb6837eb0584d0134a0c # v1.290.0
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
           bundler-cache: true
-      - uses: actions/cache@v5
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         id: app-plain-cache
         with:
           path: Tests/Perf/test-app-plain.ipa
@@ -318,7 +355,7 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-sentry-dynamic
           path: XCFrameworkBuildPath/
@@ -334,7 +371,7 @@ jobs:
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
       - name: Collect app metrics
         if: needs.files-changed.outputs.is_dependabot != 'true'
-        uses: getsentry/action-app-sdk-overhead-metrics@5f2d99b8e5a7b833386524924d24320501099a44
+        uses: getsentry/action-app-sdk-overhead-metrics@44fb5489ac4ac252c87d84811972dc93a1e490b8
         with:
           config: Tests/Perf/metrics-test.yml
           sauce-user: ${{ secrets.SAUCE_USERNAME }}
@@ -343,9 +380,9 @@ jobs:
         if: needs.files-changed.outputs.is_dependabot == 'true'
         run: |
           echo "::warning::App metrics collection was SKIPPED ON PURPOSE for dependabot PR. Code signing secrets are not available for dependabot PRs."
-      - name: Debug Xcode environment
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
-        run: ./scripts/ci-diagnostics.sh
 
   job_release:
     runs-on: ubuntu-latest
@@ -364,7 +401,7 @@ jobs:
     steps:
       - name: Get auth token
         id: token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
@@ -374,14 +411,14 @@ jobs:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-${{github.sha}}-*
           merge-multiple: true
           path: XCFrameworkBuildPath/
 
       - name: Archive XCFrameworks for Craft
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: xcframeworks.zip
           if-no-files-found: error
@@ -396,7 +433,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@d630201930c7fe5aee6366ebee19ebb681128512 # v2
+        uses: getsentry/craft@3dc647fee3586e57c7c31eb900fdec7cbb44f23f # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:
@@ -405,8 +442,8 @@ jobs:
           merge_target: ${{ github.event.inputs.merge_target }}
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh
 
   release-required-check:
     needs:

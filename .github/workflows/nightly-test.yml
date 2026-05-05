@@ -28,11 +28,9 @@ jobs:
       should_skip: false
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
-      test-destination-os: ${{matrix.test-destination-os}}
       timeout: ${{matrix.timeout || 20}}
-      device: ${{matrix.device || ''}}
+      device: ${{matrix.device}}
       scheme: "Sentry"
-      run_on_cirrus_labs: true
     strategy:
       fail-fast: false
       matrix:
@@ -40,25 +38,20 @@ jobs:
         include:
           - name: iOS 26 iPad Sentry
             runs-on: tahoe
-            xcode: "26.2"
-            test-destination-os: "26.2"
+            xcode: "26"
             platform: "iOS"
             device: "iPad Pro 13-inch (M5)"
 
           - name: watchOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.2"
-            test-destination-os: "26.4"
+            xcode: "26"
             platform: "watchOS"
-            device: "Apple Watch Ultra 3 (49mm)"
             timeout: 30
 
           - name: visionOS 2.5 Sentry
             runs-on: sequoia
-            xcode: "26.0.1"
-            test-destination-os: "2.5"
+            xcode: "26"
             platform: "visionOS"
-            device: "Apple Vision Pro"
             timeout: 30
 
   slack-notification:
@@ -86,7 +79,7 @@ jobs:
       - name: Get failed jobs
         id: failed_jobs
         if: steps.results.outputs.status != 'success'
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const jobs = await github.paginate(

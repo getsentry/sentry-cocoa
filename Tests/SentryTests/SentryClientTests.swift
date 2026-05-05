@@ -652,6 +652,139 @@ final class SentryClientTests: XCTestCase {
         try assertValidErrorEvent(actual, error)
     }
     
+    func testCaptureEvent_whenAttachAllThreadsEnabled_shouldUseGetCurrentThreadsWithStackTrace() throws {
+        let event = Event(level: SentryLevel.fatal)
+        event.message = fixture.message
+
+        fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = true
+        }).capture(event: event)
+
+        let actual = try lastSentEvent()
+        XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsInvocations)
+        // We assert getCurrentThreadsInvocations calls before `assertValidThreads` because it is called during the assert
+        assertValidThreads(actual: actual.threads)
+        assertValidDebugMeta(actual: actual.debugMeta, forThreads: actual.threads)
+    }
+
+    func testCaptureEvent_whenAttachAllThreadsDisabled_shouldUseGetCurrentThreads() throws {
+        let event = Event(level: SentryLevel.fatal)
+        event.message = fixture.message
+
+        fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = false
+        }).capture(event: event)
+
+        let actual = try lastSentEvent()
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsInvocations)
+        
+        // We assert getCurrentThreadsInvocations calls before `assertValidThreads` because it is called during the assert
+        assertValidThreads(actual: actual.threads)
+    }
+
+    func testCaptureEvent_whenAttachAllThreadsEnabled_andAttachStacktraceDisabled_shouldNotAttachThreads() throws {
+        let event = Event(level: SentryLevel.info)
+        event.message = fixture.message
+
+        fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = false
+            options.attachAllThreads = true
+        }).capture(event: event)
+
+        let actual = try lastSentEvent()
+        XCTAssertNil(actual.threads)
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsInvocations)
+    }
+
+    func testCaptureEvent_whenAttachAllThreadsEnabled_andThreadsAlreadyAttached_shouldKeepExistingThreads() throws {
+        let sut = fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = true
+        })
+
+        let event = givenEventWithThreads()
+        sut.capture(event: event)
+
+        let actual = try lastSentEvent()
+        XCTAssertEqual(event.threads, actual.threads)
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsInvocations)
+    }
+
+    func testCaptureEvent_whenAttachAllThreadsOverrideEnabled_andGlobalDisabled_shouldUseGetCurrentThreadsWithStackTrace() throws {
+        let event = Event(level: SentryLevel.fatal)
+        event.message = fixture.message
+        event.attachAllThreadsOverride = NSNumber(value: true)
+
+        fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = false
+        }).capture(event: event)
+
+        let actual = try lastSentEvent()
+        XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsInvocations)
+        assertValidThreads(actual: actual.threads)
+        assertValidDebugMeta(actual: actual.debugMeta, forThreads: actual.threads)
+    }
+
+    func testCaptureEvent_whenAttachAllThreadsOverrideDisabled_andGlobalEnabled_shouldUseGetCurrentThreads() throws {
+        let event = Event(level: SentryLevel.fatal)
+        event.message = fixture.message
+        event.attachAllThreadsOverride = NSNumber(value: false)
+
+        fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = true
+        }).capture(event: event)
+
+        let actual = try lastSentEvent()
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsInvocations)
+        assertValidThreads(actual: actual.threads)
+    }
+
+    func testCaptureMessage_whenAttachAllThreadsOverrideEnabled_shouldUseGetCurrentThreadsWithStackTrace() throws {
+        fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = false
+        }).capture(message: fixture.messageAsString, scope: fixture.scope, attachAllThreads: NSNumber(value: true))
+
+        let actual = try lastSentEvent()
+        XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsInvocations)
+        assertValidThreads(actual: actual.threads)
+    }
+
+    func testCaptureError_whenAttachAllThreadsOverrideEnabled_shouldUseGetCurrentThreadsWithStackTrace() throws {
+        fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = false
+        }).capture(error: error, scope: fixture.scope, attachAllThreads: NSNumber(value: true))
+
+        let actual = try lastSentEventWithAttachment()
+        XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsInvocations)
+        assertValidThreads(actual: actual.threads)
+    }
+
+    func testCaptureException_whenAttachAllThreadsOverrideEnabled_shouldUseGetCurrentThreadsWithStackTrace() throws {
+        fixture.getSut(configureOptions: { options in
+            options.attachStacktrace = true
+            options.attachAllThreads = false
+        }).capture(exception: exception, scope: fixture.scope, attachAllThreads: NSNumber(value: true))
+
+        let actual = try lastSentEventWithAttachment()
+        XCTAssertEqual(1, fixture.threadInspector.getCurrentThreadsWithStackTraceInvocations)
+        XCTAssertEqual(0, fixture.threadInspector.getCurrentThreadsInvocations)
+        assertValidThreads(actual: actual.threads)
+    }
+
     func testCaptureEvent_RetrievesDebugMetaFromCache() throws {
         let event = Event(level: SentryLevel.warning)
         
@@ -2055,6 +2188,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(1, fixture.fileManager.getAllEnvelopes().count)
     }
     
+    @available(*, deprecated, message: "Testing deprecated onCrashedLastRun API")
     func testOnCrashedLastRun_OnCaptureCrashWithSession() {
         let event = TestData.event
         
@@ -2068,6 +2202,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertTrue(onCrashedLastRunCalled)
     }
     
+    @available(*, deprecated, message: "Testing deprecated onCrashedLastRun API")
     func testOnCrashedLastRun_DontRunIfBeforeSendReturnsNill() {
         let event = TestData.event
         
@@ -2084,6 +2219,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertFalse(onCrashedLastRunCalled)
     }
     
+    @available(*, deprecated, message: "Testing deprecated onCrashedLastRun API")
     func testOnCrashedLastRun_WithTwoCrashes_OnlyInvokeCallbackOnce() {
         let event = TestData.event
         
@@ -2106,6 +2242,7 @@ final class SentryClientTests: XCTestCase {
         client.captureFatalEvent(TestData.event, with: fixture.scope)
     }
     
+    @available(*, deprecated, message: "Testing deprecated onCrashedLastRun API")
     func testOnCrashedLastRun_CallingCaptureCrash_OnlyInvokeCallbackOnce() {
         let event = TestData.event
         let callbackExpectation = expectation(description: "onCrashedLastRun called")
@@ -2126,6 +2263,98 @@ final class SentryClientTests: XCTestCase {
         wait(for: [callbackExpectation], timeout: 0.1)
     }
     
+    // MARK: - onLastRunStatusDetermined
+
+    func testOnLastRunStatus_whenCaptureCrashWithSession_shouldCallWithDidCrash() {
+        // -- Arrange --
+        let event = TestData.event
+        var receivedStatus: SentryLastRunStatus?
+        var receivedEvent: Event?
+
+        let client = fixture.getSut(configureOptions: { options in
+            options.onLastRunStatusDetermined = { status, crashEvent in
+                receivedStatus = status
+                receivedEvent = crashEvent
+            }
+        })
+
+        // -- Act --
+        client.captureFatalEvent(event, with: fixture.session, with: fixture.scope)
+
+        // -- Assert --
+        XCTAssertEqual(receivedStatus, .didCrash)
+        XCTAssertEqual(receivedEvent?.eventId, event.eventId)
+    }
+
+    func testOnLastRunStatus_whenBeforeSendReturnsNil_shouldNotCallCallback() {
+        // -- Arrange --
+        var callbackCalled = false
+
+        fixture.getSut(configureOptions: { options in
+            options.beforeSend = { _ in return nil }
+            options.onLastRunStatusDetermined = { _, _ in
+                callbackCalled = true
+            }
+        }).captureFatalEvent(TestData.event, with: fixture.session, with: fixture.scope)
+
+        // -- Assert --
+        XCTAssertFalse(callbackCalled)
+    }
+
+    func testOnLastRunStatus_whenTwoCrashes_shouldOnlyInvokeCallbackOnce() {
+        // -- Arrange --
+        let event = TestData.event
+        var callCount = 0
+
+        let client = fixture.getSut(configureOptions: { options in
+            options.onLastRunStatusDetermined = { status, crashEvent in
+                callCount += 1
+                XCTAssertEqual(status, .didCrash)
+                XCTAssertEqual(crashEvent?.eventId, event.eventId)
+            }
+        })
+
+        // -- Act --
+        client.captureFatalEvent(event, with: fixture.scope)
+        client.captureFatalEvent(TestData.event, with: fixture.scope)
+
+        // -- Assert --
+        XCTAssertEqual(callCount, 1)
+    }
+
+    func testOnLastRunStatus_whenNoCallbackSet_shouldNotCrash() {
+        // -- Arrange --
+        let client = fixture.getSut()
+
+        // -- Act & Assert -- (should not crash)
+        client.captureFatalEvent(TestData.event, with: fixture.scope)
+    }
+
+    @available(*, deprecated, message: "Testing deprecated onCrashedLastRun alongside onLastRunStatusDetermined")
+    func testOnLastRunStatus_whenBothCallbacksSet_shouldCallBoth() {
+        // -- Arrange --
+        let event = TestData.event
+        var onCrashedLastRunCalled = false
+        var onLastRunStatusDeterminedCalled = false
+
+        let client = fixture.getSut(configureOptions: { options in
+            options.onCrashedLastRun = { _ in
+                onCrashedLastRunCalled = true
+            }
+            options.onLastRunStatusDetermined = { status, _ in
+                onLastRunStatusDeterminedCalled = true
+                XCTAssertEqual(status, .didCrash)
+            }
+        })
+
+        // -- Act --
+        client.captureFatalEvent(event, with: fixture.session, with: fixture.scope)
+
+        // -- Assert --
+        XCTAssertTrue(onCrashedLastRunCalled)
+        XCTAssertTrue(onLastRunStatusDeterminedCalled)
+    }
+
     func testSaveCrashTransaction_StoresEventWithTraceContext() throws {
         let transaction = fixture.transaction
         let client = fixture.getSut()

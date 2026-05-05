@@ -254,6 +254,60 @@
     [self isValidReport:@"Resources/StackOverflow"];
 }
 
+- (void)testConvertExceptions_whenStackOverflow_shouldIgnoreNotableAddressStrings
+{
+    // -- Arrange --
+    NSString *sensitiveMemoryContents = @"customer email contents from stack memory";
+    NSString *diagnosis = @"Generated crash diagnosis";
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"diagnosis" : diagnosis,
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ { @"contents" : @[] },
+                @"stack" : @ { @"overflow" : @YES },
+                @"notable_addresses" : @ {
+                    @"stack@0x1" : @ { @"type" : @"string", @"value" : sensitiveMemoryContents }
+                }
+            } ],
+            @"error" : @ {
+                @"type" : @"mach",
+                @"mach" : @ {
+                    @"exception" : @1,
+                    @"exception_name" : @"EXC_BAD_ACCESS",
+                    @"code" : @2,
+                    @"subcode" : @0
+                },
+                @"signal" : @ {
+                    @"signal" : @10,
+                    @"name" : @"SIGBUS",
+                    @"code" : @0,
+                    @"code_name" : @"BUS_NOOP"
+                },
+                @"address" : @0
+            }
+        },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    SentryException *exception = event.exceptions.firstObject;
+    XCTAssertEqualObjects(exception.type, @"EXC_BAD_ACCESS");
+    XCTAssertFalse([exception.value containsString:sensitiveMemoryContents],
+        @"Stack overflow exception value must not include notable address strings. Got: %@",
+        exception.value);
+    XCTAssertTrue([exception.value containsString:diagnosis],
+        @"Crash diagnosis should remain in the exception value. Got: %@", exception.value);
+}
+
 - (void)testCPPException
 {
     [self isValidReport:@"Resources/CPPException"];

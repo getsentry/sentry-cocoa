@@ -1,3 +1,4 @@
+#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -25,6 +26,13 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB
 @property (nonatomic, readonly) BOOL isNetworkBreadcrumbEnabled;
 @property (nonatomic, readonly) BOOL isCaptureFailedRequestsEnabled;
 @property (nonatomic, readonly) BOOL isGraphQLOperationTrackingEnabled;
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+- (void)captureResponseDetails:(NSData *)data
+                      response:(NSURLResponse *)response
+                    requestURL:(nullable NSURL *)requestURL
+                          task:(NSURLSessionTask *)task;
+#endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
 @end
 

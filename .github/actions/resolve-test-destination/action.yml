@@ -1,0 +1,41 @@
+name: "Resolve test destination"
+description: >-
+  Resolves the simulator OS version and device name for a test run.
+  When `test-destination-os` or `device` are provided they pass through unchanged.
+  When omitted (empty), the action falls back to the values exported by
+  `setup-xcode` for the given platform (e.g. IOS_SIMULATOR_OS). For iOS,
+  the device defaults to the newest "iPhone N Pro" in the resolved runtime.
+inputs:
+  test-destination-os:
+    description: >-
+      Explicit simulator OS version (e.g. "17.5"). Leave empty to use the
+      default for the selected Xcode.
+    required: false
+    default: ""
+  device:
+    description: >-
+      Explicit device name (e.g. "iPhone 15 Pro"). Leave empty to auto-detect
+      per platform (newest iPhone Pro for iOS, Apple TV for tvOS, etc.).
+    required: false
+    default: ""
+  platform:
+    description: "Target platform: iOS, macOS, tvOS, watchOS, visionOS, or Catalyst."
+    required: true
+outputs:
+  TEST_OS:
+    description: "Resolved simulator OS version."
+    value: ${{ steps.resolve.outputs.TEST_OS }}
+  TEST_DEVICE:
+    description: "Resolved device name."
+    value: ${{ steps.resolve.outputs.TEST_DEVICE }}
+runs:
+  using: "composite"
+  steps:
+    - name: Resolve test destination
+      id: resolve
+      shell: bash
+      run: |
+        "${{ github.action_path }}/../../../scripts/resolve-test-destination.sh" \
+          --platform "${{ inputs.platform }}" \
+          --os "${{ inputs.test-destination-os }}" \
+          --device "${{ inputs.device }}"

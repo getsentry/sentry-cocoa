@@ -31,8 +31,11 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - ".github/file-filters.yml"
   - ".github/workflows/unit-test-common.yml"
 
-  # Scripts
+  # Scripts & actions
   - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
+  - "scripts/resolve-test-destination.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/sentry-xcodebuild.sh"
@@ -99,6 +102,7 @@ run_integration_test_for_prs: &run_integration_test_for_prs
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
 
@@ -113,6 +117,11 @@ run_integration_test_for_prs: &run_integration_test_for_prs
 run_benchmarking_for_prs: &run_benchmarking_for_prs # GH Actions
   - ".github/workflows/benchmarking.yml"
   - ".github/file-filters.yml"
+
+  # Scripts & actions
+  - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
+  - "scripts/ci-utils.sh"
 
   # Benchmarking test target and implementation
   - "Samples/iOS-Swift/iOS-Benchmarking/**"
@@ -139,6 +148,7 @@ run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
@@ -165,6 +175,28 @@ run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
   - "scripts/check-clang-format.py"
 
   # Scripts
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
+
+  # Build configuration
+  - "Makefile"
+  - "Brewfile*"
+
+# Same ObjC/C/C++ source patterns as run_lint_clang_formatting_for_prs; omits clang-format-only paths.
+run_sentrycrash_import_ratchet_for_prs:
+  - "**/*.h"
+  - "**/*.hpp"
+  - "**/*.c"
+  - "**/*.cpp"
+  - "**/*.m"
+  - "**/*.mm"
+
+  # GH Actions
+  - ".github/workflows/lint-sentrycrash-imports.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts
+  - "scripts/check-sentrycrash-imports.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
 
@@ -216,6 +248,7 @@ run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/pod-lib-lint.sh"
@@ -241,8 +274,11 @@ run_release_for_prs: &run_release_for_prs
   - ".github/workflows/fast-pr-checks.yml"
   - ".github/file-filters.yml"
 
-  # Scripts
+  # Scripts & actions
   - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
+  - "scripts/resolve-test-destination.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/build-xcframework-slice.sh"
@@ -318,6 +354,7 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
 
@@ -344,6 +381,7 @@ run_build_for_prs: &run_build_for_prs
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/sentry-xcodebuild.sh"
   - "scripts/check-ui-framework-linkage.sh"
@@ -360,6 +398,11 @@ run_testflight_for_prs: &run_testflight_for_prs
   - ".github/workflows/testflight.yml"
   - ".github/file-filters.yml"
 
+  # Scripts & actions
+  - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
+  - "scripts/ci-utils.sh"
+
 run_testflight_for_pushes: &run_testflight_for_pushes
   - "Sources/**"
   - "Samples/iOS-Swift/**"
@@ -370,6 +413,7 @@ run_testflight_for_pushes: &run_testflight_for_pushes
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
 
@@ -389,6 +433,8 @@ run_codeql_analysis_for_prs: &run_codeql_analysis_for_prs
   - "Sentry.xcodeproj/**"
 
   # Scripts
+  - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
 
@@ -428,8 +474,11 @@ run_ui_tests_for_prs: &run_ui_tests_for_prs
   - ".github/workflows/ui-tests-common.yml"
   - ".github/file-filters.yml"
 
-  # Scripts
+  # Scripts & actions
   - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
+  - "scripts/resolve-test-destination.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
@@ -463,9 +512,12 @@ run_ui_tests_critical_for_prs: &run_ui_tests_critical_for_prs
   - "**/*.xctestplan"
   - "Plans/**"
 
-  # Scripts
+  # Scripts & actions
   - "scripts/ci-boot-simulator.sh"
   - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
+  - "scripts/resolve-test-destination.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
@@ -491,6 +543,7 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
 
@@ -512,6 +565,7 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
 
@@ -533,6 +587,7 @@ run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
   - "scripts/ci-utils.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/prepare-package.sh"

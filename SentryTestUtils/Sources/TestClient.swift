@@ -82,6 +82,13 @@ open class TestClient: SentryClientInternal {
         captureMessageWithScopeInvocations.record((message, scope))
         return SentryId()
     }
+
+    public var captureMessageWithScopeAttachAllThreadsInvocations = Invocations<(message: String, scope: Scope, attachAllThreads: NSNumber?)>()
+    public override func capture(message: String, scope: Scope, attachAllThreads: NSNumber?) -> SentryId {
+        super.capture(message: message, scope: scope, attachAllThreads: attachAllThreads)
+        captureMessageWithScopeAttachAllThreadsInvocations.record((message, scope, attachAllThreads))
+        return SentryId()
+    }
     
     public var captureErrorInvocations = Invocations<Error>()
     public override func capture(error: Error) -> SentryId {
@@ -98,6 +105,14 @@ open class TestClient: SentryClientInternal {
         captureErrorWithScopeInvocations.record((error, scope))
         return SentryId()
     }
+
+    public var captureErrorWithScopeAttachAllThreadsInvocations = Invocations<(error: Error, scope: Scope, attachAllThreads: NSNumber?)>()
+    public override func capture(error: Error, scope: Scope, attachAllThreads: NSNumber?) -> SentryId {
+        super.capture(error: error, scope: scope, attachAllThreads: attachAllThreads)
+        
+        captureErrorWithScopeAttachAllThreadsInvocations.record((error, scope, attachAllThreads))
+        return SentryId()
+    }
     
     var captureExceptionInvocations = Invocations<NSException>()
     public override func capture(exception: NSException) -> SentryId {
@@ -112,6 +127,13 @@ open class TestClient: SentryClientInternal {
         super.capture(exception: exception, scope: scope)
 
         captureExceptionWithScopeInvocations.record((exception, scope))
+        return SentryId()
+    }
+
+    public var captureExceptionWithScopeAttachAllThreadsInvocations = Invocations<(exception: NSException, scope: Scope, attachAllThreads: NSNumber?)>()
+    public override func capture(exception: NSException, scope: Scope, attachAllThreads: NSNumber?) -> SentryId {
+        super.capture(exception: exception, scope: scope, attachAllThreads: attachAllThreads)
+        captureExceptionWithScopeAttachAllThreadsInvocations.record((exception, scope, attachAllThreads))
         return SentryId()
     }
 

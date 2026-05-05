@@ -7,10 +7,10 @@ import Foundation
 public final class SentryWatchdogTerminationLogic: NSObject {
 
     private let options: Options
-    private let crashAdapter: SentryCrashWrapper
+    private let crashAdapter: SentryCrashReporter
     private let appStateManager: SentryAppStateManager
 
-    @objc public init(options: Options, crashAdapter: SentryCrashWrapper, appStateManager: SentryAppStateManager) {
+    @objc public init(options: Options, crashAdapter: SentryCrashReporter, appStateManager: SentryAppStateManager) {
         self.options = options
         self.crashAdapter = crashAdapter
         self.appStateManager = appStateManager

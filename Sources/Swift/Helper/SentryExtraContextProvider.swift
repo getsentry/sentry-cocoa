@@ -8,19 +8,19 @@
     private static let kSentryProcessInfoThermalStateSerious = "serious"
     private static let kSentryProcessInfoThermalStateCritical = "critical"
     
-    private let crashWrapper: SentryCrashWrapper
+    private let crashWrapper: SentryCrashReporter
     private let processInfoWrapper: SentryProcessInfoSource
     
     #if (os(iOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let deviceWrapper: SentryUIDeviceWrapper
 
-    init(crashWrapper: SentryCrashWrapper, processInfoWrapper: SentryProcessInfoSource, deviceWrapper: SentryUIDeviceWrapper) {
+    init(crashWrapper: SentryCrashReporter, processInfoWrapper: SentryProcessInfoSource, deviceWrapper: SentryUIDeviceWrapper) {
         self.crashWrapper = crashWrapper
         self.processInfoWrapper = processInfoWrapper
         self.deviceWrapper = deviceWrapper
     }
     #else
-    init(crashWrapper: SentryCrashWrapper, processInfoWrapper: SentryProcessInfoSource) {
+    init(crashWrapper: SentryCrashReporter, processInfoWrapper: SentryProcessInfoSource) {
         self.crashWrapper = crashWrapper
         self.processInfoWrapper = processInfoWrapper
     }
@@ -51,6 +51,10 @@
             extraDeviceContext["thermal_state"] = Self.kSentryProcessInfoThermalStateCritical
         default:
             SentrySDKLog.warning("Unexpected thermal state enum value: \(thermalState)")
+        }
+
+        if #available(macOS 12.0, *) {
+            extraDeviceContext["low_power_mode"] = NSNumber(value: processInfoWrapper.isLowPowerModeEnabled)
         }
         
         #if (os(iOS)) && !SENTRY_NO_UI_FRAMEWORK

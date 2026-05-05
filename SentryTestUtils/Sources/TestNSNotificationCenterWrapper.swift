@@ -21,7 +21,7 @@ public typealias CrossPlatformApplication = NSApplication
 
     private var observers: [Observer] = []
 
-    public var addObserverWithObjectInvocations = Invocations<(
+    @_spi(Private) public var addObserverWithObjectInvocations = Invocations<(
         observer: WeakReference<AnyObject>,
         selector: Selector,
         name: NSNotification.Name?,
@@ -39,7 +39,7 @@ public typealias CrossPlatformApplication = NSApplication
         }
     }
 
-    public var addObserverForKeyPathWithContextInvocations = Invocations<(
+    @_spi(Private) public var addObserverForKeyPathWithContextInvocations = Invocations<(
         observer: WeakReference<NSObject>,
         keyPath: String,
         options: NSKeyValueObservingOptions,
@@ -57,7 +57,7 @@ public typealias CrossPlatformApplication = NSApplication
         }
     }
 
-    public var addObserverWithBlockInvocations = Invocations<(observer: WeakReference<NSObject>, name: NSNotification.Name?, block: (Notification) -> Void)>()
+    @_spi(Private) public var addObserverWithBlockInvocations = Invocations<(observer: WeakReference<NSObject>, name: NSNotification.Name?, block: (Notification) -> Void)>()
     public func addObserver(forName name: NSNotification.Name?, object obj: Any?, queue: OperationQueue?, using block: @escaping (Notification) -> Void) -> any NSObjectProtocol {
         if ignoreAddObserver == false {
             let observer = NSObject()
@@ -82,10 +82,14 @@ public typealias CrossPlatformApplication = NSApplication
             observers.removeAll { item in
                 switch item {
                 case .observerWithObject(let weakObserver, _, let name, let object):
-                    return (weakObserver.value === observer as? NSObject) || 
-                           (name == aName && ((object == nil && anObject == nil) || (object as AnyObject === anObject as AnyObject)))
+                    guard weakObserver.value === observer as AnyObject else { return false }
+                    if let aName = aName, name != aName { return false }
+                    if anObject != nil && object as AnyObject? !== anObject as AnyObject? { return false }
+                    return true
                 case .observerWithBlock(let weakObserver, let name, _):
-                    return (weakObserver.value === observer as? NSObject) || name == aName
+                    guard weakObserver.value === observer as AnyObject else { return false }
+                    if let aName = aName, name != aName { return false }
+                    return true
                 default:
                     return false
                 }

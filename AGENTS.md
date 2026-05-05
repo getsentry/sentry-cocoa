@@ -115,9 +115,15 @@ make build-ios
 # 4. Test (targeted — see Tests/AGENTS.md for ONLY_TESTING usage)
 make test-ios ONLY_TESTING=<AffectedTestClass>
 
-# 5. If samples changed
+# 5. If the public API surface changed (Swift/ObjC public headers, @objc/public symbols)
+make generate-public-api  # regenerates sdk_api.json; commit any diff
+
+# 6. If samples changed
 make build-sample-iOS-Swift
+make test-sample-iOS-Swift-ui  # if UI behavior changed
 ```
+
+- **Public API regeneration is mandatory** for any PR that adds, removes, or renames `public` Swift symbols, `@objc` properties/methods, or ObjC public headers. The `api-stability` CI check diffs `sdk_api.json` against the committed file and fails the PR otherwise. Run `make generate-public-api` and commit the resulting `sdk_api.json` (and `sdk_api_sentryswiftui.json` if it changes) in the same PR. The script auto-locates Xcode 16 if it isn't the active toolchain.
 
 ### Platform Decision Tree
 

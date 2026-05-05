@@ -7,7 +7,153 @@
 #import "SentryNSDictionarySanitize.h"
 #import "SentrySwift.h"
 
+/**
+ * Recursively copies a value, producing immutable collections at every level.
+ * For @c NSDictionary / @c NSArray (including mutable subclasses) a new immutable copy is
+ * returned with all nested containers copied as well. Other values are returned as-is.
+ * This prevents the SDK from holding references to caller-owned mutable objects whose
+ * concurrent mutation would crash serialization (see
+ * https://github.com/getsentry/sentry-cocoa/issues/2601).
+ */
+static id
+sentry_deepCopyValue(id value)
+{
+    if ([value isKindOfClass:[NSDictionary class]]) {
+        // Defensive copy to prevent mutation during enumeration.
+        NSDictionary *dictionaryCopy = [(NSDictionary *)value copy];
+        NSMutableDictionary *result =
+            [NSMutableDictionary dictionaryWithCapacity:dictionaryCopy.count];
+        for (id key in dictionaryCopy) {
+            id v = dictionaryCopy[key];
+            if (v != nil) {
+                result[key] = sentry_deepCopyValue(v);
+            }
+        }
+        return [result copy]; // immutable
+    } else if ([value isKindOfClass:[NSArray class]]) {
+        // Defensive copy to prevent mutation during enumeration.
+        NSArray *arrayCopy = [(NSArray *)value copy];
+        NSMutableArray *result = [NSMutableArray arrayWithCapacity:arrayCopy.count];
+        for (id item in arrayCopy) {
+            [result addObject:sentry_deepCopyValue(item)];
+        }
+        return [result copy]; // immutable
+    }
+    return value;
+}
+
 @implementation SentryBreadcrumb
+
+// Explicit @synthesize so we can provide thread-safe accessors via @synchronized(self).
+@synthesize level = _level;
+@synthesize category = _category;
+@synthesize timestamp = _timestamp;
+@synthesize type = _type;
+@synthesize message = _message;
+@synthesize origin = _origin;
+@synthesize data = _data;
+
+#pragma mark - Thread-safe property accessors
+
+- (void)setLevel:(SentryLevel)level
+{
+    @synchronized(self) {
+        _level = level;
+    }
+}
+
+- (SentryLevel)level
+{
+    @synchronized(self) {
+        return _level;
+    }
+}
+
+- (void)setCategory:(NSString *)category
+{
+    @synchronized(self) {
+        _category = [category copy];
+    }
+}
+
+- (NSString *)category
+{
+    @synchronized(self) {
+        return _category;
+    }
+}
+
+- (void)setTimestamp:(NSDate *)timestamp
+{
+    @synchronized(self) {
+        _timestamp = timestamp;
+    }
+}
+
+- (NSDate *)timestamp
+{
+    @synchronized(self) {
+        return _timestamp;
+    }
+}
+
+- (void)setType:(NSString *)type
+{
+    @synchronized(self) {
+        _type = [type copy];
+    }
+}
+
+- (NSString *)type
+{
+    @synchronized(self) {
+        return _type;
+    }
+}
+
+- (void)setMessage:(NSString *)message
+{
+    @synchronized(self) {
+        _message = [message copy];
+    }
+}
+
+- (NSString *)message
+{
+    @synchronized(self) {
+        return _message;
+    }
+}
+
+- (void)setOrigin:(NSString *)origin
+{
+    @synchronized(self) {
+        _origin = [origin copy];
+    }
+}
+
+- (NSString *)origin
+{
+    @synchronized(self) {
+        return _origin;
+    }
+}
+
+- (void)setData:(NSDictionary<NSString *, id> *)data
+{
+    @synchronized(self) {
+        _data = data ? sentry_deepCopyValue(data) : nil;
+    }
+}
+
+- (NSDictionary<NSString *, id> *)data
+{
+    @synchronized(self) {
+        return _data;
+    }
+}
+
+#pragma mark - Initializers
 
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary
 {
@@ -56,23 +202,45 @@
     return [self initWithLevel:kSentryLevelInfo category:@"default"];
 }
 
+#pragma mark - Serialization
+
 - (NSDictionary<NSString *, id> *)serialize
 {
+    // Capture all properties under the lock to get a consistent snapshot.
+    SentryLevel level;
+    NSDate *timestamp;
+    NSString *category;
+    NSString *type;
+    NSString *origin;
+    NSString *message;
+    NSDictionary *data;
+
+    @synchronized(self) {
+        level = _level;
+        timestamp = _timestamp;
+        category = _category;
+        type = _type;
+        origin = _origin;
+        message = _message;
+        data = _data;
+    }
+
     NSMutableDictionary *serializedData = [[NSMutableDictionary alloc] init];
 
-    [serializedData setValue:nameForSentryLevel(self.level) forKey:@"level"];
-    if (self.timestamp != nil) {
-        [serializedData
-            setValue:sentry_toIso8601String(SENTRY_UNWRAP_NULLABLE(NSDate, self.timestamp))
-              forKey:@"timestamp"];
+    [serializedData setValue:nameForSentryLevel(level) forKey:@"level"];
+    if (timestamp != nil) {
+        [serializedData setValue:sentry_toIso8601String(SENTRY_UNWRAP_NULLABLE(NSDate, timestamp))
+                          forKey:@"timestamp"];
     }
-    [serializedData setValue:self.category forKey:@"category"];
-    [serializedData setValue:self.type forKey:@"type"];
-    [serializedData setValue:self.origin forKey:@"origin"];
-    [serializedData setValue:self.message forKey:@"message"];
-    [serializedData setValue:sentry_sanitize(self.data) forKey:@"data"];
+    [serializedData setValue:category forKey:@"category"];
+    [serializedData setValue:type forKey:@"type"];
+    [serializedData setValue:origin forKey:@"origin"];
+    [serializedData setValue:message forKey:@"message"];
+    [serializedData setValue:sentry_sanitize(data) forKey:@"data"];
     return serializedData;
 }
+
+#pragma mark - Equality
 
 - (BOOL)isEqual:(id _Nullable)other
 {

@@ -99,8 +99,10 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return defaultApplicationProvider()
     }
     
+    private lazy var sessionDispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.session-tracker")
+
     func getSessionTracker(with options: Options) -> SessionTracker {
-        return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper)
+        return SessionTracker(options: options, applicationProvider: defaultApplicationProvider, dateProvider: dateProvider, notificationCenter: notificationCenterWrapper, dispatchQueue: sessionDispatchQueue)
     }
     
     @objc public var dispatchQueueWrapper = Dependencies.dispatchQueueWrapper
@@ -110,7 +112,15 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var dateProvider: SentryCurrentDateProvider = Dependencies.dateProvider
     @objc public var notificationCenterWrapper = Dependencies.notificationCenterWrapper
     @objc public var processInfoWrapper = Dependencies.processInfoWrapper
-    @objc public var crashWrapper = Dependencies.crashWrapper
+    private var _crashWrapper: SentryCrashReporter?
+    @objc public lazy var crashWrapper: SentryCrashReporter = getLazyVar(\._crashWrapper) {
+        let bridge = SentryCrashBridge(
+            notificationCenterWrapper: self.notificationCenterWrapper,
+            dateProvider: self.dateProvider,
+            crashReporter: self.crashReporter
+        )
+        return SentryDefaultCrashReporter(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
+    }
     @objc public var dispatchFactory = SentryDispatchFactory()
     @objc public var timerFactory = SentryNSTimerFactory()
     @objc public var fileIOTracker = Dependencies.fileIOTracker
@@ -123,7 +133,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         currentDateProvider: Dependencies.dateProvider)
     @objc public var reachability = SentryReachability()
     @objc public var sysctlWrapper = Dependencies.sysctlWrapper
-    @objc public var sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentCheckerProvider = Dependencies.sessionReplayEnvironmentChecker
     @objc public var debugImageProvider = Dependencies.debugImageProvider
     @objc public var objcRuntimeWrapper: SentryObjCRuntimeWrapper = SentryDefaultObjCRuntimeWrapper()
     var extensionDetector: SentryExtensionDetector = {
@@ -135,9 +144,15 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     lazy var hangTracker: HangTracker = DefaultHangTracker(dateProvider: Dependencies.dateProvider)
     
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
-    @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
+    private var _extraContextProvider: SentryExtraContextProvider?
+    @objc public lazy var extraContextProvider: SentryExtraContextProvider = getLazyVar(\._extraContextProvider) {
+        SentryExtraContextProvider(crashWrapper: self.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper, deviceWrapper: Dependencies.uiDeviceWrapper)
+    }
 #else
-    @objc public var extraContextProvider = SentryExtraContextProvider(crashWrapper: Dependencies.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper)
+    private var _extraContextProvider: SentryExtraContextProvider?
+    @objc public lazy var extraContextProvider: SentryExtraContextProvider = getLazyVar(\._extraContextProvider) {
+        SentryExtraContextProvider(crashWrapper: self.crashWrapper, processInfoWrapper: Dependencies.processInfoWrapper)
+    }
 #endif
 
     private var _eventContextEnricher: SentryEventContextEnricher?
@@ -237,7 +252,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             objcRuntimeWrapper: objcRuntimeWrapper,
             subClassFinder: subClassFinder,
             processInfoWrapper: processInfoWrapper,
-            binaryImageCache: binaryImageCache,
             performanceTracker: uiViewControllerPerformanceTracker
         )
 
@@ -272,14 +286,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #endif
     
     private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
-    func getCrashIntegrationSessionBuilder(_ options: Options) -> SentryCrashIntegrationSessionHandler? {
+    func getCrashIntegrationSessionBuilder(_ options: Options, bridge: SentryCrashBridge) -> SentryCrashIntegrationSessionHandler? {
         getOptionalLazyVar(\.crashIntegrationSessionHandler) {
-            
+
             guard let fileManager = fileManager else {
                 SentrySDKLog.fatal("File manager is not available")
                 return nil
             }
-            
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
             let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
                                                        crashAdapter: crashWrapper,
@@ -287,10 +301,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             return SentryCrashIntegrationSessionHandler(
                 crashWrapper: crashWrapper,
                 watchdogTerminationLogic: watchdogLogic,
-                fileManager: fileManager
+                fileManager: fileManager,
+                bridge: bridge
             )
 #else
-            return SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper, fileManager: fileManager)
+            return SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper, fileManager: fileManager, bridge: bridge)
 #endif
         }
     }
@@ -445,11 +460,6 @@ protocol ViewHierarchyProviderProvider {
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
 #endif
 
-protocol SessionReplayEnvironmentCheckerProvider {
-    var sessionReplayEnvironmentChecker: SentrySessionReplayEnvironmentCheckerProvider { get }
-}
-extension SentryDependencyContainer: SessionReplayEnvironmentCheckerProvider {}
-
 protocol NotificationCenterProvider {
     var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
 }
@@ -481,7 +491,7 @@ protocol ReachabilityProvider {
 extension SentryDependencyContainer: ReachabilityProvider {}
 
 protocol CrashWrapperProvider {
-    var crashWrapper: SentryCrashWrapper { get }
+    var crashWrapper: SentryCrashReporter { get }
 }
 extension SentryDependencyContainer: CrashWrapperProvider {}
 
@@ -566,7 +576,7 @@ protocol SentryCrashReporterProvider {
 extension SentryDependencyContainer: SentryCrashReporterProvider {}
 
 protocol CrashIntegrationSessionHandlerBuilder {
-    func getCrashIntegrationSessionBuilder(_ options: Options) -> SentryCrashIntegrationSessionHandler?
+    func getCrashIntegrationSessionBuilder(_ options: Options, bridge: SentryCrashBridge) -> SentryCrashIntegrationSessionHandler?
 }
 extension SentryDependencyContainer: CrashIntegrationSessionHandlerBuilder {}
 

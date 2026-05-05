@@ -51,11 +51,6 @@ on:
         required: false
         default: ""
         type: string
-      run_on_cirrus_labs:
-        description: "Whether to run the tests on Cirrus Labs"
-        required: false
-        default: false
-        type: boolean
       should_skip:
         description: "Whether to skip the job"
         required: false
@@ -69,26 +64,35 @@ jobs:
   common-ui-tests:
     if: ${{ !inputs.should_skip }}
     name: UI Tests Common
-    runs-on: ${{ inputs.run_on_cirrus_labs && fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.macos_version, github.run_id)) || inputs.macos_version }}
+    runs-on: ${{ fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.macos_version, github.run_id)) }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Setup Ruby
-        uses: ruby/setup-ruby@6ca151fd1bfcfd6fe0c4eb6837eb0584d0134a0c # v1.290.0
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
           bundler-cache: true
 
-      - name: Select Xcode version
-        env:
-          XCODE_VERSION: ${{ inputs.xcode_version }}
-        run: ./scripts/ci-select-xcode.sh "$XCODE_VERSION"
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: ${{ inputs.xcode_version }}
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          test-destination-os: ${{ inputs.test-destination-os || steps.setup-xcode.outputs.ios-simulator-os }}
+          device: ${{ inputs.device }}
+          platform: ${{ inputs.platform }}
 
       - name: Ensure required runtime is loaded
         if: ${{ inputs.platform == 'iOS' || inputs.platform == 'tvOS' }}
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
         timeout-minutes: 5 # 5 minutes timeout
         env:
-          OS_VERSION: ${{ inputs.test-destination-os }}
+          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           PLATFORM: ${{ inputs.platform }}
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
@@ -98,8 +102,8 @@ jobs:
         if: ${{ inputs.platform == 'iOS' }}
         env:
           XCODE_VERSION: ${{ inputs.xcode_version }}
-          DEVICE_NAME: ${{ inputs.device }}
-          OS_VERSION: ${{ inputs.test-destination-os }}
+          DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
 
       - run: make init-ci-build
@@ -113,7 +117,7 @@ jobs:
 
       - name: Download XCFramework
         if: ${{ inputs.needs_xcframework }}
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: xcframework-${{github.sha}}-sentry-static
           path: XCFrameworkBuildPath/
@@ -126,17 +130,20 @@ jobs:
       - name: Run Fastlane
         env:
           FASTLANE_COMMAND: ${{ inputs.fastlane_command }}
-          DEVICE: ${{ inputs.device }}
-          TEST_DESTINATION_OS: ${{ inputs.test-destination-os }}
+          DEVICE: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          TEST_DESTINATION_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: |
           if [ -n "$DEVICE" ] && [ -n "$TEST_DESTINATION_OS" ]; then
-            bundle exec fastlane "$FASTLANE_COMMAND" device:"$DEVICE ($TEST_DESTINATION_OS)"
+            # Fastlane resolves simulators by major.minor (e.g. "26.4"), not
+            # hotfix versions like 26.4.1. Strip the patch component.
+            OS_MM=$(echo "$TEST_DESTINATION_OS" | awk -F. '{print $1"."$2}')
+            bundle exec fastlane "$FASTLANE_COMMAND" device:"$DEVICE ($OS_MM)"
           else
             bundle exec fastlane "$FASTLANE_COMMAND"
           fi
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@49b2ca06f62aa7ef83ae6769a2179271e160d8e4 # v6.3.1
+        uses: mikepenz/action-junit-report@bccf2e31636835cf0874589931c4116687171386 # v6.4.0
         if: always()
         with:
           report_paths: build/reports/*junit.xml
@@ -154,7 +161,7 @@ jobs:
           flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}, ui-tests
 
       - name: Upload Result Bundle
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
@@ -162,7 +169,7 @@ jobs:
             fastlane/test_results/**/*.xcresult
 
       - name: Upload iOS Simulator Crash Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_crash_logs
@@ -170,7 +177,7 @@ jobs:
             ~/Library/Logs/DiagnosticReports/**
 
       - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_raw_output
@@ -185,5 +192,5 @@ jobs:
           suffix: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        run: ./scripts/ci-diagnostics.sh

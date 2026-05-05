@@ -77,8 +77,9 @@ public enum SentrySDKOverrides: String, CaseIterable {
     case feedback = "Feedback"
 
     public enum Events: String, SentrySDKOverride {
-        case sampleRate = "--io.sentry.events.sampleRate"
-        case rejectAll = "--io.sentry.events.reject-all"
+        case sampleRate        = "--io.sentry.events.sampleRate"
+        case rejectAll         = "--io.sentry.events.reject-all"
+        case attachAllThreads  = "--io.sentry.events.attach-all-threads"
     }
     case events = "Events"
 
@@ -109,8 +110,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
         
         case disableMaskAllImages = "--io.sentry.session-replay.disable-mask-all-images"
         case disableMaskAllText = "--io.sentry.session-replay.disable-mask-all-text"
-        
-        case enableInUnreliableEnvironment = "--io.sentry.session-replay.enable-in-unreliable-environment"
     }
     case sessionReplay = "Session Replay"
 
@@ -294,7 +293,7 @@ extension SentrySDKOverrides.Networking {
 extension SentrySDKOverrides.Events {
     public var overrideType: OverrideType {
         switch self {
-        case .rejectAll: return .boolean
+        case .rejectAll, .attachAllThreads: return .boolean
         case .sampleRate: return .float
         }
     }
@@ -322,7 +321,7 @@ extension SentrySDKOverrides.Performance {
 extension SentrySDKOverrides.SessionReplay {
     public var overrideType: OverrideType {
         switch self {
-        case .disable, .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages, .enableInUnreliableEnvironment: return .boolean
+        case .disable, .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages: return .boolean
         case .onErrorSampleRate, .sessionSampleRate: return .float
         case .quality: return .string
         }
@@ -389,7 +388,12 @@ extension SentrySDKOverrides.Networking {
 }
 
 extension SentrySDKOverrides.Events {
-    public var ignoresDisableEverything: Bool { return false }
+    public var ignoresDisableEverything: Bool {
+        switch self {
+        case .rejectAll, .sampleRate: return false
+        case .attachAllThreads: return true
+        }
+    }
 }
 
 extension SentrySDKOverrides.Other {
@@ -414,7 +418,7 @@ extension SentrySDKOverrides.SessionReplay {
     public var ignoresDisableEverything: Bool {
         switch self {
         case .disable: return false
-        case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages, .onErrorSampleRate, .sessionSampleRate, .quality, .enableInUnreliableEnvironment: return true
+        case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText, .disableMaskAllImages, .onErrorSampleRate, .sessionSampleRate, .quality: return true
         }
     }
 }

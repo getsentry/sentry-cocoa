@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -41,11 +41,13 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - name: Select Xcode
-        run: ./scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@6ca151fd1bfcfd6fe0c4eb6837eb0584d0134a0c # v1.290.0
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
           bundler-cache: true
 
@@ -54,16 +56,15 @@ jobs:
         working-directory: Samples/iOS-Cocoapods-Swift6
 
       - name: Upload Result Bundle
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() }}
         with:
           name: integration-test-iOS-Cocoapods-Swift6.xcresult
           path: Samples/iOS-Cocoapods-Swift6/fastlane/test_results/results.xcresult
 
       - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
         if: failure()
-        shell: bash
-        run: ./scripts/ci-diagnostics.sh
 
   # This check validates that either all integration tests passed or were skipped, which allows us
   # to make integration tests a required check with only running the integration tests when required.

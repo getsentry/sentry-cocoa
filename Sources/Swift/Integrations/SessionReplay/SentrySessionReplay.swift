@@ -27,6 +27,7 @@ import UIKit
     private var currentSegmentId = 0
     private var processingScreenshot = false
     private var reachedMaximumDuration = false
+    private var replayType = SentryReplayType.buffer
     private(set) var isSessionPaused = false
     
     private let replayOptions: SentryReplayOptions
@@ -68,23 +69,6 @@ import UIKit
     
     deinit { displayLink.invalidate() }
     
-    @objc
-    static public func shouldEnableSessionReplay(environmentChecker: SentrySessionReplayEnvironmentCheckerProvider, experimentalOptions: SentryExperimentalOptions) -> Bool {
-        // Detect if we are running on iOS 26.0 with Liquid Glass and disable session replay.
-        // This needs to be done until masking for session replay is properly supported, as it can lead
-        // to PII leaks otherwise.
-        if environmentChecker.isReliable() {
-            return true
-        }
-        guard experimentalOptions.enableSessionReplayInUnreliableEnvironment else {
-            SentrySDKLog.fatal("[Session Replay] Detected environment potentially causing PII leaks, disabling Session Replay. To override this mechanism, set `options.experimental.enableSessionReplayInUnreliableEnvironment` to `true`")
-            return false
-        }
-        SentrySDKLog.warning("[Session Replay] Detected environment potentially causing PII leaks, but `options.experimental.enableSessionReplayInUnreliableEnvironment` is set to `true`, ignoring and enabling Session Replay.")
-
-        return true
-    }
-    
     public func start(rootView: UIView?, fullSession: Bool) {
         SentrySDKLog.debug("[Session Replay] Starting session replay with full session: \(fullSession)")
         guard !isRunning else {
@@ -99,6 +83,7 @@ import UIKit
         currentSegmentId = 0
         sessionReplayId = SentryId()
         imageCollection = []
+        replayType = fullSession ? .session : .buffer
 
         if fullSession {
             startFullReplay()
@@ -170,7 +155,7 @@ import UIKit
             return
         }
 
-        guard (event.error != nil || event.exceptions?.isEmpty == false) && captureReplay() else { 
+        guard (event.error != nil || event.exceptions?.isEmpty == false) && captureReplay(replayType: .buffer) else {
             SentrySDKLog.debug("[Session Replay] Not capturing replay, reason: event is not an error or exceptions are empty")
             return
         }
@@ -180,13 +165,18 @@ import UIKit
 
     @discardableResult
     public func captureReplay() -> Bool {
+        captureReplay(replayType: .buffer)
+    }
+
+    @discardableResult
+    func captureReplay(replayType: SentryReplayType) -> Bool {
         guard isRunning else {
             SentrySDKLog.debug("[Session Replay] Session replay is not running, not capturing replay")
-            return false 
+            return false
         }
-        guard !isFullSession else { 
+        guard !isFullSession else {
             SentrySDKLog.debug("[Session Replay] Session replay is full, not capturing replay")
-            return true 
+            return true
         }
 
         guard delegate?.sessionReplayShouldCaptureReplayForError() == true else {
@@ -194,10 +184,11 @@ import UIKit
             return false
         }
 
+        self.replayType = replayType
         startFullReplay()
         let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration - (Double(replayOptions.frameRate) / 2.0))
 
-        createAndCaptureInBackground(startedAt: replayStart, replayType: .buffer)
+        createAndCaptureInBackground(startedAt: replayStart, replayType: replayType)
         return true
     }
 
@@ -270,7 +261,7 @@ import UIKit
         pathToSegment = pathToSegment.appendingPathComponent("\(currentSegmentId).mp4")
         let segmentStart = videoSegmentStart ?? dateProvider.date().addingTimeInterval(-replayOptions.sessionSegmentDuration)
 
-        createAndCaptureInBackground(startedAt: segmentStart, replayType: .session)
+        createAndCaptureInBackground(startedAt: segmentStart, replayType: replayType)
     }
 
     private func createAndCaptureInBackground(startedAt: Date, replayType: SentryReplayType) {

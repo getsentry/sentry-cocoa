@@ -207,6 +207,11 @@
     [self testBooleanField:@"enableLogs" defaultValue:NO];
 }
 
+- (void)testEnableMetrics
+{
+    [self testBooleanField:@"enableMetrics" defaultValue:YES];
+}
+
 - (void)testEnableAutoBreadcrumbTracking
 {
     [self testBooleanField:@"enableAutoBreadcrumbTracking"];
@@ -505,6 +510,8 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(nil, options.beforeBreadcrumb);
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testOnCrashedLastRun
 {
     __block BOOL onCrashedLastRunCalled = NO;
@@ -531,6 +538,30 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     SentryOptions *options = [self getValidOptions:@{ @"onCrashedLastRun" : @"fault" }];
 
     XCTAssertNil(options.onCrashedLastRun);
+}
+#pragma clang diagnostic pop
+
+- (void)testOnLastRunStatus
+{
+    void (^callback)(NSInteger, SentryEvent *_Nullable)
+        = ^(__unused NSInteger status, __unused SentryEvent *_Nullable event) { };
+    SentryOptions *options = [self getValidOptions:@{ @"onLastRunStatusDetermined" : callback }];
+
+    XCTAssertNotNil(options.onLastRunStatusDetermined);
+}
+
+- (void)testDefaultOnLastRunStatus
+{
+    SentryOptions *options = [self getValidOptions:@{ }];
+
+    XCTAssertNil(options.onLastRunStatusDetermined);
+}
+
+- (void)testGarbageOnLastRunStatus_ReturnsNil
+{
+    SentryOptions *options = [self getValidOptions:@{ @"onLastRunStatusDetermined" : @"fault" }];
+
+    XCTAssertNil(options.onLastRunStatusDetermined);
 }
 
 - (void)testSampleRateWithDict
@@ -706,7 +737,11 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertTrue([[self getDefaultCacheDirectoryPath] isEqualToString:options.cacheDirectoryPath]);
     XCTAssertNil(options.beforeSend);
     XCTAssertNil(options.beforeBreadcrumb);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertNil(options.onCrashedLastRun);
+#pragma clang diagnostic pop
+    XCTAssertNil(options.onLastRunStatusDetermined);
     XCTAssertEqual(1.0, options.sampleRate.floatValue);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);
     XCTAssertEqual(YES, options.enableWatchdogTerminationTracking);
@@ -1229,6 +1264,59 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertTrue(options.isAppHangTrackingDisabled);
 }
 #endif // SENTRY_HAS_UIKIT
+
+#pragma mark - Strict Trace Continuation
+
+- (void)testStrictTraceContinuation
+{
+    [self testBooleanField:@"strictTraceContinuation" defaultValue:NO];
+}
+
+- (void)testOrgId_Default
+{
+    SentryOptions *options = [self getValidOptions:@{ }];
+    XCTAssertNil(options.orgId);
+}
+
+- (void)testOrgId_SetViaDict
+{
+    SentryOptions *options = [self getValidOptions:@{ @"orgId" : @"12345" }];
+    XCTAssertEqualObjects(options.orgId, @"12345");
+}
+
+- (void)testOrgId_InvalidType_Ignored
+{
+    SentryOptions *options = [self getValidOptions:@{ @"orgId" : @42 }];
+    XCTAssertNil(options.orgId);
+}
+
+- (void)testEffectiveOrgId_PrefersExplicitOverDsn
+{
+    SentryOptions *options = [self getValidOptions:@{ @"orgId" : @"999" }];
+    options.dsn = @"https://key@o123.ingest.sentry.io/456";
+    XCTAssertEqualObjects(options.effectiveOrgId, @"999");
+}
+
+- (void)testEffectiveOrgId_FallsBackToDsn
+{
+    SentryOptions *options = [self getValidOptions:@{ }];
+    options.dsn = @"https://key@o123.ingest.sentry.io/456";
+    XCTAssertEqualObjects(options.effectiveOrgId, @"123");
+}
+
+- (void)testEffectiveOrgId_NilWhenNoDsnOrgId
+{
+    SentryOptions *options = [self getValidOptions:@{ }];
+    options.dsn = @"https://key@sentry.io/456";
+    XCTAssertNil(options.effectiveOrgId);
+}
+
+- (void)testEffectiveOrgId_EmptyExplicitFallsBackToDsn
+{
+    SentryOptions *options = [self getValidOptions:@{ @"orgId" : @"" }];
+    options.dsn = @"https://key@o123.ingest.sentry.io/456";
+    XCTAssertEqualObjects(options.effectiveOrgId, @"123");
+}
 
 #pragma mark - Private
 

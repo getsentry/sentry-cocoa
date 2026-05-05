@@ -5,11 +5,12 @@ platform :ios do
     ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "10" # sometimes running xcodebuild commands is slow on CI runners. give them more time than the default of 10 seconds. see https://github.com/fastlane-old/gym/issues/188#issuecomment-190320592 and https://docs.fastlane.tools/advanced/lanes/
   end
 
-  ios_swift_infoplist_path = "./Samples/iOS-Swift/iOS-Swift/Info.plist"
-  ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/iOS-SwiftClip/Info.plist"
-  ios_swift_share_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-ShareExtension/Resources/Info.plist"
-  ios_swift_intent_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-IntentExtension/Resources/Info.plist"
-  ios_swift_action_extension_infoplist_path = "./Samples/iOS-Swift/iOS-Swift-ActionExtension/Resources/Info.plist"
+  ios_swift_infoplist_path = "./Samples/iOS-Swift/App/Configurations/Info.plist"
+  ios_swift_clip_infoplist_path = "./Samples/iOS-Swift/AppClip/Configurations/Info.plist"
+  ios_swift_share_extension_infoplist_path = "./Samples/iOS-Swift/ShareExtension/Configurations/Info.plist"
+  ios_swift_intent_extension_infoplist_path = "./Samples/iOS-Swift/IntentExtension/Configurations/Info.plist"
+  ios_swift_action_extension_infoplist_path = "./Samples/iOS-Swift/ActionExtension/Configurations/Info.plist"
+  ios_swift_notification_service_extension_infoplist_path = "./Samples/iOS-Swift/NotificationServiceExtension/Configurations/Info.plist"
 
   # Helper method to run tests with common configuration
   def run_ui_tests(scheme:, result_bundle_name:, device: nil, address_sanitizer: false, app_identifier: nil)
@@ -86,6 +87,11 @@ platform :ios do
       key: "CFBundleShortVersionString",
       value: new_version
     )
+    set_info_plist_value(
+      path: ios_swift_notification_service_extension_infoplist_path,
+      key: "CFBundleShortVersionString",
+      value: new_version
+    )
 
     sentryInfoPlistPath = "./Sources/Resources/Info.plist"
     set_info_plist_value(
@@ -114,7 +120,8 @@ platform :ios do
         "io.sentry.sample.iOS-Swift.Clip",
         "io.sentry.sample.iOS-Swift.ShareExtension",
         "io.sentry.sample.iOS-Swift.IntentExtension",
-        "io.sentry.sample.iOS-Swift.ActionExtension"
+        "io.sentry.sample.iOS-Swift.ActionExtension",
+        "io.sentry.sample.iOS-Swift.NotificationServiceExtension"
       ],
       readonly: true
     )
@@ -130,7 +137,8 @@ platform :ios do
         "io.sentry.sample.iOS-Swift.Clip",
         "io.sentry.sample.iOS-Swift.ShareExtension",
         "io.sentry.sample.iOS-Swift.IntentExtension",
-        "io.sentry.sample.iOS-Swift.ActionExtension"
+        "io.sentry.sample.iOS-Swift.ActionExtension",
+        "io.sentry.sample.iOS-Swift.NotificationServiceExtension"
       ],
       readonly: true
     )
@@ -150,7 +158,8 @@ platform :ios do
           "io.sentry.sample.iOS-Swift.Clip",
           "io.sentry.sample.iOS-Swift.ShareExtension",
           "io.sentry.sample.iOS-Swift.IntentExtension",
-          "io.sentry.sample.iOS-Swift.ActionExtension"
+          "io.sentry.sample.iOS-Swift.ActionExtension",
+          "io.sentry.sample.iOS-Swift.NotificationServiceExtension"
         ],
       )
     end
@@ -194,7 +203,8 @@ platform :ios do
           "io.sentry.sample.iOS-Swift.Clip",
           "io.sentry.sample.iOS-Swift.ShareExtension",
           "io.sentry.sample.iOS-Swift.IntentExtension",
-          "io.sentry.sample.iOS-Swift.ActionExtension"
+          "io.sentry.sample.iOS-Swift.ActionExtension",
+          "io.sentry.sample.iOS-Swift.NotificationServiceExtension"
         ]
       )
     end
@@ -225,6 +235,7 @@ platform :ios do
         "io.sentry.sample.iOS-Swift.ShareExtension", 
         "io.sentry.sample.iOS-Swift.IntentExtension",
         "io.sentry.sample.iOS-Swift.ActionExtension",
+        "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
         "io.sentry.iOS-Swift-UITests.xctrunner"
       ],
     )
@@ -251,6 +262,7 @@ platform :ios do
           "io.sentry.sample.iOS-Swift.ShareExtension",
           "io.sentry.sample.iOS-Swift.IntentExtension",
           "io.sentry.sample.iOS-Swift.ActionExtension",
+          "io.sentry.sample.iOS-Swift.NotificationServiceExtension",
           "io.sentry.iOS-Benchmarking.xctrunner"
         ],
       )
@@ -440,7 +452,8 @@ platform :ios do
       "io.sentry.sample.iOS-Swift.Clip",
       "io.sentry.sample.iOS-Swift.ShareExtension",
       "io.sentry.sample.iOS-Swift.IntentExtension",
-      "io.sentry.sample.iOS-Swift.ActionExtension"
+      "io.sentry.sample.iOS-Swift.ActionExtension",
+      "io.sentry.sample.iOS-Swift.NotificationServiceExtension"
     ]
     sync_code_signing(
       type: "development",

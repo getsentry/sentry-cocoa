@@ -166,6 +166,106 @@ class SentryMobileProvisionParserTests: XCTestCase {
     func testPathDoesNotExist() throws {
         let parser = SentryMobileProvisionParser("/randomPath.xml")
         XCTAssertFalse(parser.mobileProvisionProfileProvisionsAllDevices)
+        XCTAssertFalse(parser.mobileProvisionProfileAllowsDebugging)
+    }
+    
+    // MARK: - Debugging Entitlement Tests
+    
+    func testDevelopmentProfileAllowsDebugging() throws {
+        let content = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>Entitlements</key>
+            <dict>
+                <key>get-task-allow</key>
+                <true/>
+            </dict>
+        </dict>
+        </plist>
+        """
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertTrue(parser.mobileProvisionProfileAllowsDebugging)
+        }
+    }
+    
+    func testDistributionProfileDoesNotAllowDebugging() throws {
+        let content = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>Entitlements</key>
+            <dict>
+                <key>get-task-allow</key>
+                <false/>
+            </dict>
+        </dict>
+        </plist>
+        """
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertFalse(parser.mobileProvisionProfileAllowsDebugging)
+        }
+    }
+    
+    func testNoEntitlementsDictDefaultsToNotDebuggable() throws {
+        let content = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>AppIDName</key>
+            <string>No Entitlements</string>
+        </dict>
+        </plist>
+        """
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertFalse(parser.mobileProvisionProfileAllowsDebugging)
+        }
+    }
+    
+    func testEntitlementsWithoutGetTaskAllowDefaultsToFalse() throws {
+        let content = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>Entitlements</key>
+            <dict>
+                <key>application-identifier</key>
+                <string>TEAMID.com.example.app</string>
+            </dict>
+        </dict>
+        </plist>
+        """
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertFalse(parser.mobileProvisionProfileAllowsDebugging)
+        }
+    }
+    
+    func testGetTaskAllowWithNonBooleanValueDefaultsToFalse() throws {
+        let content = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+            <key>Entitlements</key>
+            <dict>
+                <key>get-task-allow</key>
+                <string>true</string>
+            </dict>
+        </dict>
+        </plist>
+        """
+        try createFileAndAssert(content) { path in
+            let parser = SentryMobileProvisionParser(path)
+            XCTAssertFalse(parser.mobileProvisionProfileAllowsDebugging)
+        }
     }
     
     func testContentWithEmojiAndJapaneseCharacters() throws {

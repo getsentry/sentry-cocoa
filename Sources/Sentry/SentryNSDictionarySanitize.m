@@ -12,9 +12,12 @@ NSDictionary *_Nullable sentry_sanitize(NSDictionary *_Nullable dictionary)
         return nil;
     }
 
+    // Defensive copy to prevent mutation during enumeration.
+    NSDictionary *dictionaryCopy = [dictionary copy];
+
     NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    for (id rawKey in dictionary.allKeys) {
-        id rawValue = [dictionary objectForKey:rawKey];
+    for (id rawKey in dictionaryCopy.allKeys) {
+        id rawValue = [dictionaryCopy objectForKey:rawKey];
 
         NSString *stringKey;
         if ([rawKey isKindOfClass:NSString.class]) {

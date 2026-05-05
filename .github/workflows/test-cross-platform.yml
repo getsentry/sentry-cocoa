@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Get changed files
         id: changes
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         with:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
@@ -65,23 +65,36 @@ jobs:
         working-directory: sentry-react-native
         run: npm i -g corepack --force
 
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: 18
           cache: "yarn"
           cache-dependency-path: sentry-react-native/yarn.lock
-      - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./sentry-cocoa/.github/actions/setup-xcode
+        with:
+          version: "16"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./sentry-cocoa/.github/actions/resolve-test-destination
+        with:
+          platform: iOS
 
       - name: Ensure required runtime is loaded
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
         timeout-minutes: 5 # 5 minutes timeout
         env:
-          OS_VERSION: "18.4"
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           PLATFORM: "iOS"
-        run: ./sentry-cocoa/scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
+        run: ./sentry-cocoa/scripts/ci-ensure-runtime-loaded.sh --os-version "$IOS_SIMULATOR_OS" --platform "$PLATFORM"
 
-      - name: Create simulator device for iOS 18.4
-        run: ./sentry-cocoa/scripts/ci-create-simulator.sh --platform "iOS" --os-version "18.4" --device-name "iPhone 15 Pro"
+      - name: Create simulator device for iOS
+        env:
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+        run: ./sentry-cocoa/scripts/ci-create-simulator.sh --platform "iOS" --os-version "$IOS_SIMULATOR_OS" --device-name "$IOS_DEVICE_NAME"
 
       - name: Install SDK JS Dependencies
         working-directory: sentry-react-native
@@ -100,7 +113,7 @@ jobs:
       - name: Setup Ruby
         # We use the same ruby version used by Cirrus to install fastlane and other tools
         # see: https://github.com/cirruslabs/macos-image-templates/blob/9115ef25530497999073cdf0f5497a4d142e3256/templates/xcode.pkr.hcl#L235
-        uses: ruby/setup-ruby@6ca151fd1bfcfd6fe0c4eb6837eb0584d0134a0c # v1.290.0
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
           ruby-version: "3.3.10"
 
@@ -117,7 +130,7 @@ jobs:
         env:
           SCHEME: RNSentryCocoaTester
           CONFIGURATION: Release
-          DESTINATION: "platform=iOS Simulator,OS=18.4,name=iPhone 15 Pro"
+          DESTINATION: "platform=iOS Simulator,OS=${{ steps.resolve-test-destination.outputs.TEST_OS }},name=${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}"
         run: |
           set -o pipefail
           env NSUnbufferedIO=YES \
@@ -127,8 +140,8 @@ jobs:
             test SWIFT_ACTIVE_COMPILATION_CONDITIONS=CROSS_PLATFORM_TEST GCC_PREPROCESSOR_DEFINITIONS"=CROSS_PLATFORM_TEST=1" | xcbeautify
 
       - name: Run CI Diagnostics
+        uses: ./sentry-cocoa/.github/actions/ci-diagnostics
         if: failure()
-        run: ./sentry-cocoa/scripts/ci-diagnostics.sh
 
   test_cross_platform-required-check:
     needs:
