@@ -69,8 +69,8 @@
 		631E6D331EBC679C00712345 /* SentryQueueableRequestManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 631E6D311EBC679C00712345 /* SentryQueueableRequestManager.h */; };
 		631E6D341EBC679C00712345 /* SentryQueueableRequestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 631E6D321EBC679C00712345 /* SentryQueueableRequestManager.m */; };
 		632331F9240506DF008D91D6 /* SentryScope+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 632331F7240506DF008D91D6 /* SentryScope+Private.h */; };
-		63295AF51EF3C7DB002D4490 /* SentryNSDictionarySanitize.h in Headers */ = {isa = PBXBuildFile; fileRef = 63295AF31EF3C7DB002D4490 /* SentryNSDictionarySanitize.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		63295AF71EF3C7DB002D4490 /* SentryNSDictionarySanitize.m in Sources */ = {isa = PBXBuildFile; fileRef = 63295AF41EF3C7DB002D4490 /* SentryNSDictionarySanitize.m */; };
+		63295AF51EF3C7DB002D4490 /* SentrySanitizerUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 63295AF31EF3C7DB002D4490 /* SentrySanitizerUtils.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		63295AF71EF3C7DB002D4490 /* SentrySanitizerUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 63295AF41EF3C7DB002D4490 /* SentrySanitizerUtils.m */; };
 		632F43501F581D5400A18A36 /* SentryCrashExceptionApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 632F434E1F581D5400A18A36 /* SentryCrashExceptionApplication.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		632F43521F581D5400A18A36 /* SentryCrashExceptionApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 632F434F1F581D5400A18A36 /* SentryCrashExceptionApplication.m */; };
 		6334314120AD9AE40077E581 /* SentryMechanism.h in Headers */ = {isa = PBXBuildFile; fileRef = 6334313F20AD9AE40077E581 /* SentryMechanism.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -671,8 +671,8 @@
 		631E6D311EBC679C00712345 /* SentryQueueableRequestManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryQueueableRequestManager.h; path = include/SentryQueueableRequestManager.h; sourceTree = "<group>"; };
 		631E6D321EBC679C00712345 /* SentryQueueableRequestManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentryQueueableRequestManager.m; sourceTree = "<group>"; };
 		632331F7240506DF008D91D6 /* SentryScope+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryScope+Private.h"; path = "include/SentryScope+Private.h"; sourceTree = "<group>"; };
-		63295AF31EF3C7DB002D4490 /* SentryNSDictionarySanitize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryNSDictionarySanitize.h; path = include/SentryNSDictionarySanitize.h; sourceTree = "<group>"; };
-		63295AF41EF3C7DB002D4490 /* SentryNSDictionarySanitize.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryNSDictionarySanitize.m; sourceTree = "<group>"; };
+		63295AF31EF3C7DB002D4490 /* SentrySanitizerUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentrySanitizerUtils.h; path = include/SentrySanitizerUtils.h; sourceTree = "<group>"; };
+		63295AF41EF3C7DB002D4490 /* SentrySanitizerUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySanitizerUtils.m; sourceTree = "<group>"; };
 		632F434E1F581D5400A18A36 /* SentryCrashExceptionApplication.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryCrashExceptionApplication.h; path = Public/SentryCrashExceptionApplication.h; sourceTree = "<group>"; };
 		632F434F1F581D5400A18A36 /* SentryCrashExceptionApplication.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryCrashExceptionApplication.m; sourceTree = "<group>"; };
 		6334313F20AD9AE40077E581 /* SentryMechanism.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SentryMechanism.h; path = Public/SentryMechanism.h; sourceTree = "<group>"; };
@@ -1328,8 +1328,8 @@
 				630436091EC0595B00C4D3FA /* SentryNSDataUtils.m */,
 				63BE856E1ECEC6DE00DC44F5 /* SentryDateUtils.h */,
 				63BE856F1ECEC6DE00DC44F5 /* SentryDateUtils.m */,
-				63295AF31EF3C7DB002D4490 /* SentryNSDictionarySanitize.h */,
-				63295AF41EF3C7DB002D4490 /* SentryNSDictionarySanitize.m */,
+				63295AF31EF3C7DB002D4490 /* SentrySanitizerUtils.h */,
+				63295AF41EF3C7DB002D4490 /* SentrySanitizerUtils.m */,
 				7B0DC72D288698F70039995F /* NSMutableDictionary+Sentry.h */,
 				7B0DC72E288698F70039995F /* NSMutableDictionary+Sentry.m */,
 				7B6438A826A70F24000D0F65 /* UIViewController+Sentry.h */,
@@ -2337,7 +2337,7 @@
 				627E7589299F6FE40085504D /* SentryInternalDefines.h in Headers */,
 				7D0637032382B34300B30749 /* SentryScope.h in Headers */,
 				03F84D2727DD414C008FE43F /* SentryMachLogging.hpp in Headers */,
-				63295AF51EF3C7DB002D4490 /* SentryNSDictionarySanitize.h in Headers */,
+				63295AF51EF3C7DB002D4490 /* SentrySanitizerUtils.h in Headers */,
 				8E4A037825F6F52100000D77 /* SentrySampleDecision.h in Headers */,
 				63FE717920DA4C1100CDBAE8 /* SentryCrashReportStore.h in Headers */,
 				7B14089624878F090035403D /* SentryCrashStackEntryMapper.h in Headers */,
@@ -2963,7 +2963,7 @@
 				63FE70D520DA4C1000CDBAE8 /* SentryCrashMonitor_NSException.m in Sources */,
 				7BC63F0A28081288009D9E37 /* SentrySwizzleWrapperHelper.m in Sources */,
 				F400C0CD2F368A8B0042712D /* SentryProfilerSampleCreation.m in Sources */,
-				63295AF71EF3C7DB002D4490 /* SentryNSDictionarySanitize.m in Sources */,
+				63295AF71EF3C7DB002D4490 /* SentrySanitizerUtils.m in Sources */,
 				7B8ECBFC26498958005FE2EF /* SentryDefaultAppStateManager.m in Sources */,
 				FA6555162E30182B009917BC /* SentrySDKInternal.m in Sources */,
 				FA27EBDE2EB639D900F2ECF7 /* SentryId.m in Sources */,

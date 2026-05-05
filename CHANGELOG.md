@@ -1272,7 +1272,7 @@ This changelog lists every breaking change. For a high-level overview and upgrad
 - Use strlcpy to save session replay info path (#4740)
 - `sentryReplayUnmask` and `sentryReplayUnmask` preventing interaction (#4749)
 - Missing `SentryCrashExceptionApplication` implementation for non-macOS target (#4759)
-- Add `NSNull` handling to `sentry_sanitize` (#4760)
+- Add `NSNull` handling to `sentry_sanitize_dictionary( (#4760)
 
 ### Improvements
 
@@ -3768,7 +3768,7 @@ Other new features and fixes:
 ## 5.0.3
 
 - fix: Exit session with timestamp #518
-- feat: Add sentry_sanitize for NSArray #509
+- feat: Add sentry_sanitize_dictionary(for NSArray #509
 
 ## 5.0.2
 

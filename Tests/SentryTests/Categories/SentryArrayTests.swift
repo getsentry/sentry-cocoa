@@ -8,7 +8,7 @@ class SentryArrayTests: XCTestCase {
         let array: [String] = []
 
         // Act
-        let result = sentry_sanitizeArray(array)
+        let result = sentry_sanitize_array(array)
 
         // Assert
         XCTAssertEqual(result.count, 0)
@@ -19,7 +19,7 @@ class SentryArrayTests: XCTestCase {
         let array = ["hello", "world", "test"]
 
         // Act
-        let result = sentry_sanitizeArray(array)
+        let result = sentry_sanitize_array(array)
 
         // Assert
         let stringArray = try XCTUnwrap(result as? [String])
@@ -31,7 +31,7 @@ class SentryArrayTests: XCTestCase {
         let array = [NSNumber(value: 42), NSNumber(value: 3.14), NSNumber(value: true)]
 
         // Act
-        let result = sentry_sanitizeArray(array)
+        let result = sentry_sanitize_array(array)
 
         // Assert
         XCTAssertEqual(result.count, 3)
@@ -47,7 +47,7 @@ class SentryArrayTests: XCTestCase {
         let array: [Any] = [dict1, dict2]
 
         // Act
-        let result = sentry_sanitizeArray(array)
+        let result = sentry_sanitize_array(array)
 
         // Assert
         XCTAssertEqual(result.count, 2)
@@ -60,13 +60,13 @@ class SentryArrayTests: XCTestCase {
     
     func testSanitizeArray_withInvalidDictionary_shouldSkipNilResult() throws {
         // Arrange
-        // Create a dictionary-like object that will cause sentry_sanitize to return nil
+        // Create a dictionary-like object that will cause sentry_sanitize_dictionary(to return nil
         let invalidDict = NotReallyADictionary()
         let validDict: [String: Any] = ["key": "value"]
         let array: [Any] = [invalidDict, validDict]
 
         // Act
-        let result = sentry_sanitizeArray(array)
+        let result = sentry_sanitize_array(array)
 
         // Assert
         // Should only contain the valid dictionary, invalid one should be skipped
@@ -81,7 +81,7 @@ class SentryArrayTests: XCTestCase {
         let array: [Any] = [nestedArray, "topLevel"]
 
         // Act
-        let result = sentry_sanitizeArray(array)
+        let result = sentry_sanitize_array(array)
 
         // Assert
         XCTAssertEqual(result.count, 2)
@@ -100,7 +100,7 @@ class SentryArrayTests: XCTestCase {
         let array: [Any] = [date1, date2]
 
         // Act
-        let result = sentry_sanitizeArray(array)
+        let result = sentry_sanitize_array(array)
 
         // Assert
         XCTAssertEqual(result.count, 2)
@@ -117,7 +117,7 @@ class SentryArrayTests: XCTestCase {
         let array: [Any] = [customObject]
 
         // Act
-        let result = sentry_sanitizeArray(array)
+        let result = sentry_sanitize_array(array)
 
         // Assert
         XCTAssertEqual(result.count, 1)
@@ -141,7 +141,7 @@ class SentryArrayTests: XCTestCase {
         ]
 
         // Act
-        let result = sentry_sanitizeArray(array)
+        let result = sentry_sanitize_array(array)
 
         // Assert
         XCTAssertEqual(result.count, 6)
@@ -167,7 +167,7 @@ class SentryArrayTests: XCTestCase {
         }
 
         // Act
-        let result = sentry_sanitizeArray(array)
+        let result = sentry_sanitize_array(array)
 
         // Assert
         XCTAssertEqual(result.count, 1)
@@ -182,7 +182,7 @@ class SentryArrayTests: XCTestCase {
 }
 
 // Helper class that inherits from NSObject but is not a real NSDictionary
-// This will cause sentry_sanitize to return nil when it checks isSubclassOfClass
+// This will cause sentry_sanitize_dictionary(to return nil when it checks isSubclassOfClass
 private class NotReallyADictionary: NSObject {
     override func isKind(of aClass: AnyClass) -> Bool {
         if aClass == NSDictionary.self {

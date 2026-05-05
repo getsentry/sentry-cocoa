@@ -7,7 +7,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         // Arrange
         let dict: [String: Any]? = nil
         // Act
-        let sanitized = sentry_sanitize(dict)
+        let sanitized = sentry_sanitize_dictionary(dict)
         // Assert
         XCTAssertNil(sanitized)
     }
@@ -30,7 +30,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         // Arrange
         let dict = [String: Any]()
         // Act
-        let sanitized = sentry_sanitize(dict)
+        let sanitized = sentry_sanitize_dictionary(dict)
         // Assert
         XCTAssertEqual(sanitized?.count, 0)
     }
@@ -39,7 +39,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         // Arrange
         let dict = ["key": "value"]
         // Act
-        let sanitized = sentry_sanitize(dict)
+        let sanitized = sentry_sanitize_dictionary(dict)
         // Assert
         XCTAssertEqual(sanitized?["key"] as? String, "value")
     }
@@ -53,7 +53,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
             Date(timeIntervalSince1970: 1_234): "date value"
         ]
         // Act
-        let sanitized = sentry_sanitize(dict)
+        let sanitized = sentry_sanitize_dictionary(dict)
         // Assert
         XCTAssertEqual(sanitized?.count, 4)
         XCTAssertEqual(sanitized?["1"] as? String, "number value")
@@ -74,7 +74,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
             true: "bool value"
         ]
         // Act
-        let sanitized = sentry_sanitize(dict)
+        let sanitized = sentry_sanitize_dictionary(dict)
         // Assert
         XCTAssertEqual(sanitized?.count, 1)
         // The order is not deterministic, so it can be either one.
@@ -86,7 +86,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         // Arrange
         let dict = ["__sentry_key": "value", "__sentry": "value 2", "key": "value 3"]
         // Act
-        let sanitized = sentry_sanitize(dict)
+        let sanitized = sentry_sanitize_dictionary(dict)
         // Assert
         XCTAssertEqual(sanitized?.count, 1)
         XCTAssertEqual(sanitized?["key"] as? String, "value 3")
@@ -96,7 +96,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         // Arrange
         let dict = ["key": "value"]
         // Act
-        let sanitized = sentry_sanitize(dict)
+        let sanitized = sentry_sanitize_dictionary(dict)
         // Assert
         XCTAssertEqual(sanitized?["key"] as? String, "value")
     }
@@ -105,7 +105,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         // Arrange
         let dict = ["key": 123]
         // Act
-        let sanitized = sentry_sanitize(dict)
+        let sanitized = sentry_sanitize_dictionary(dict)
         // Assert
         XCTAssertEqual(sanitized?["key"] as? Int, 123)
     }
@@ -114,7 +114,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         // Arrange
         let dict = ["key": ["__sentry": "value 1", "key": "value 2"]]
         // Act
-        let sanitized = sentry_sanitize(dict)
+        let sanitized = sentry_sanitize_dictionary(dict)
         // Assert
         XCTAssertEqual(sanitized?["key"] as? [String: String], ["key": "value 2"])
     }
@@ -123,7 +123,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         // Arrange
         let dict = ["key": ["value", "value 2"]]
         // Act
-        let sanitized = sentry_sanitize(dict)
+        let sanitized = sentry_sanitize_dictionary(dict)
         // Assert
         XCTAssertEqual(sanitized?["key"] as? [String], ["value", "value 2"])
     }
@@ -133,7 +133,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         let date = Date(timeIntervalSince1970: 1_234)
         let dict = ["key": date]
         // Act
-        let sanitized = sentry_sanitize(dict)
+        let sanitized = sentry_sanitize_dictionary(dict)
         // Assert
         XCTAssertEqual(sanitized?["key"] as? String, "1970-01-01T00:20:34.000Z")
     }
@@ -142,7 +142,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         // Arrange
         let dict = ["key": NSObject()]
         // Act
-        let sanitized = sentry_sanitize(dict)
+        let sanitized = sentry_sanitize_dictionary(dict)
         // Assert
         let value = try XCTUnwrap(sanitized?["key"] as? String)
         let regex = try NSRegularExpression(pattern: "^<NSObject: 0x[0-9a-f]+>$")
@@ -158,7 +158,7 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
         }
 
         // Act
-        let sanitized = sentry_sanitize(dict)
+        let sanitized = sentry_sanitize_dictionary(dict)
 
         // Assert
         XCTAssertNotNil(sanitized)
