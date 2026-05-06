@@ -168,6 +168,121 @@ class SentryNSDictionarySanitizeTests: XCTestCase {
             current = next
             depth += 1
         }
-        XCTAssertLessThan(depth, 250)
+        XCTAssertEqual(depth, 199)
+    }
+
+    // MARK: - Array value sanitization
+
+    func testSentrySanitize_arrayValueWithStrings_shouldReturnSameStrings() throws {
+        // Arrange
+        let dict: [String: Any] = ["key": ["hello", "world", "test"]]
+        // Act
+        let sanitized = sentry_sanitize_dictionary(dict)
+        // Assert
+        let array = try XCTUnwrap(sanitized?["key"] as? [String])
+        XCTAssertEqual(array, ["hello", "world", "test"])
+    }
+
+    func testSentrySanitize_arrayValueWithNumbers_shouldReturnSameNumbers() throws {
+        // Arrange
+        let dict: [String: Any] = ["key": [NSNumber(value: 42), NSNumber(value: 3.14), NSNumber(value: true)]]
+        // Act
+        let sanitized = sentry_sanitize_dictionary(dict)
+        // Assert
+        let array = try XCTUnwrap(sanitized?["key"] as? [Any])
+        XCTAssertEqual(array.count, 3)
+        XCTAssertEqual(array[0] as? NSNumber, NSNumber(value: 42))
+        XCTAssertEqual(array[1] as? NSNumber, NSNumber(value: 3.14))
+        XCTAssertEqual(array[2] as? NSNumber, NSNumber(value: true))
+    }
+
+    func testSentrySanitize_arrayValueWithNestedDictionaries_shouldSanitize() throws {
+        // Arrange
+        let dict: [String: Any] = ["key": [["key1": "value1", "__sentry": "hidden"], ["key2": "value2"]]]
+        // Act
+        let sanitized = sentry_sanitize_dictionary(dict)
+        // Assert
+        let array = try XCTUnwrap(sanitized?["key"] as? [[String: Any]])
+        XCTAssertEqual(array.count, 2)
+        XCTAssertEqual(array[0]["key1"] as? String, "value1")
+        XCTAssertNil(array[0]["__sentry"])
+        XCTAssertEqual(array[1]["key2"] as? String, "value2")
+    }
+
+    func testSentrySanitize_arrayValueWithNestedArrays_shouldRecursivelySanitize() throws {
+        // Arrange
+        let dict: [String: Any] = ["key": [["nested1", NSNumber(value: 456)], "topLevel"]]
+        // Act
+        let sanitized = sentry_sanitize_dictionary(dict)
+        // Assert
+        let array = try XCTUnwrap(sanitized?["key"] as? [Any])
+        XCTAssertEqual(array.count, 2)
+        let nested = try XCTUnwrap(array[0] as? [Any])
+        XCTAssertEqual(nested[0] as? String, "nested1")
+        XCTAssertEqual(nested[1] as? NSNumber, NSNumber(value: 456))
+        XCTAssertEqual(array[1] as? String, "topLevel")
+    }
+
+    func testSentrySanitize_arrayValueWithDates_shouldConvertToISO8601String() throws {
+        // Arrange
+        let date = Date(timeIntervalSince1970: 1_640_995_200)
+        let dict: [String: Any] = ["key": [date]]
+        // Act
+        let sanitized = sentry_sanitize_dictionary(dict)
+        // Assert
+        let array = try XCTUnwrap(sanitized?["key"] as? [Any])
+        XCTAssertEqual(array[0] as? String, "2022-01-01T00:00:00.000Z")
+    }
+
+    func testSentrySanitize_arrayValueWithOtherObjects_shouldUseDescription() throws {
+        // Arrange
+        let dict: [String: Any] = ["key": [NSObject()]]
+        // Act
+        let sanitized = sentry_sanitize_dictionary(dict)
+        // Assert
+        let array = try XCTUnwrap(sanitized?["key"] as? [Any])
+        let description = try XCTUnwrap(array[0] as? String)
+        let regex = try NSRegularExpression(pattern: "^<NSObject: 0x[0-9a-f]+>$")
+        let result = regex.matches(in: description, range: NSRange(location: 0, length: description.count))
+        XCTAssertFalse(result.isEmpty)
+    }
+
+    func testSentrySanitize_arrayValueWithMixedTypes_shouldHandleAllTypes() throws {
+        // Arrange
+        let date = Date(timeIntervalSince1970: 1_640_995_200)
+        let innerArray: [Any] = ["string", NSNumber(value: 42), ["nested": "value"], ["inner"], date]
+        let dict: [String: Any] = ["key": innerArray]
+        // Act
+        let sanitized = sentry_sanitize_dictionary(dict)
+        // Assert
+        let array = try XCTUnwrap(sanitized?["key"] as? [Any])
+        XCTAssertEqual(array.count, 5)
+        XCTAssertEqual(array[0] as? String, "string")
+        XCTAssertEqual(array[1] as? NSNumber, NSNumber(value: 42))
+        XCTAssertNotNil(array[2] as? [String: Any])
+        XCTAssertNotNil(array[3] as? [Any])
+        XCTAssertEqual(array[4] as? String, "2022-01-01T00:00:00.000Z")
+    }
+
+    func testSentrySanitize_deeplyNestedArrayInDictionary_shouldTruncateAtMaxDepth() {
+        // Arrange
+        var inner: [Any] = ["leaf"]
+        for _ in 0..<250 {
+            inner = [inner]
+        }
+        let dict: [String: Any] = ["key": inner]
+
+        // Act
+        let sanitized = sentry_sanitize_dictionary(dict)
+
+        // Assert
+        XCTAssertNotNil(sanitized)
+        var current = sanitized?["key"] as? [Any]
+        var depth = 0
+        while let next = current?.first as? [Any] {
+            current = next
+            depth += 1
+        }
+        XCTAssertEqual(depth, 199)
     }
 }
