@@ -82,7 +82,9 @@ jobs:
       #   XCFrameworkBuildPath/archive/SentryObjC/{sdk}.xcarchive/...
       - name: Arrange slice archives
         shell: bash
-        run: ./scripts/ci-arrange-xcframework-slices.sh --sdks "${{ inputs.sdks }}"
+        env:
+          SDKS: ${{ inputs.sdks }}
+        run: ./scripts/ci-arrange-xcframework-slices.sh --sdks "$SDKS"
 
       - name: Link and assemble SentryObjC XCFrameworks
         env:
