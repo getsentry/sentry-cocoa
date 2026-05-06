@@ -29,8 +29,9 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ./scripts/ci-select-xcode.sh 16.4
-        shell: bash
+      - uses: ./.github/actions/setup-xcode
+        with:
+          version: "16.4"
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@4eb9f110bac952a8b68ecf92e3b5c7a987594ba6 # v1.292.0
@@ -81,44 +82,7 @@ jobs:
       #   XCFrameworkBuildPath/archive/SentryObjC/{sdk}.xcarchive/...
       - name: Arrange slice archives
         shell: bash
-        env:
-          SDKS: ${{ inputs.sdks }}
-        run: |
-          set -euo pipefail
-          mkdir -p XCFrameworkBuildPath/archive
-
-          arrange_slices() {
-            local variant_id="$1"
-            local slice_dir="$2"
-            local archive_name="$3"
-
-            IFS=',' read -r -a sdk_list <<< "$SDKS"
-            for sdk in "${sdk_list[@]}"; do
-              artifact_dir="${slice_dir}/xcframework-${variant_id}-slice-${sdk}"
-              zip_file=$(find "$artifact_dir" -name "*.xcarchive.zip" -type f | head -1)
-              if [ -z "$zip_file" ]; then
-                echo "ERROR: No xcarchive.zip found in $artifact_dir"
-                exit 1
-              fi
-              # Unzip into a temp location, then move the xcarchive into place
-              unzip_dir="/tmp/sentryobjc-unzip-${variant_id}-${sdk}"
-              rm -rf "$unzip_dir"
-              mkdir -p "$unzip_dir"
-              unzip -q "$zip_file" -d "$unzip_dir"
-              # The zip contains {sdk}.xcarchive/ (created with --keepParent)
-              mkdir -p "XCFrameworkBuildPath/archive/${archive_name}"
-              mv "$unzip_dir/${sdk}.xcarchive" "XCFrameworkBuildPath/archive/${archive_name}/${sdk}.xcarchive"
-              rm -rf "$unzip_dir"
-            done
-          }
-
-          arrange_slices "sentry-static" "xcframework-slices/sentry-static" "Sentry"
-          arrange_slices "sentryobjc-types" "xcframework-slices/sentryobjc-types" "SentryObjCTypes"
-          arrange_slices "sentryobjc-bridge" "xcframework-slices/sentryobjc-bridge" "SentryObjCBridge"
-          arrange_slices "sentryobjc-objc" "xcframework-slices/sentryobjc-objc" "SentryObjC"
-
-          echo "Archive layout:"
-          find XCFrameworkBuildPath/archive -maxdepth 3 -type d | head -30
+        run: ./scripts/ci-arrange-xcframework-slices.sh --sdks "${{ inputs.sdks }}"
 
       - name: Link and assemble SentryObjC XCFrameworks
         env:
