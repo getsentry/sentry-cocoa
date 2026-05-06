@@ -51,13 +51,14 @@ STATIC_OUTPUT_BASE="${ARCHIVE_BASE}/SentryObjC-Standalone-Static"
 DYNAMIC_OUTPUT_BASE="${ARCHIVE_BASE}/SentryObjC-Standalone-Dynamic"
 
 # Read deployment targets from Xcode project build settings (single query).
+# Uses the main Sentry scheme which reliably exposes all platform settings.
 echo "=== Reading deployment targets from Xcode project ==="
-XCODE_SETTINGS=$(xcodebuild -showBuildSettings -scheme SentryObjC -sdk iphoneos 2>/dev/null)
-IOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/IPHONEOS_DEPLOYMENT_TARGET =/{print $NF}')
-MACOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/MACOSX_DEPLOYMENT_TARGET =/{print $NF}')
-TVOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/TVOS_DEPLOYMENT_TARGET =/{print $NF}')
-WATCHOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/WATCHOS_DEPLOYMENT_TARGET =/{print $NF}')
-XROS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/XROS_DEPLOYMENT_TARGET =/{print $NF}')
+XCODE_SETTINGS=$(xcodebuild -showBuildSettings -scheme Sentry -sdk iphoneos 2>/dev/null)
+IOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/^ *IPHONEOS_DEPLOYMENT_TARGET =/{print $NF}')
+MACOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/^ *MACOSX_DEPLOYMENT_TARGET =/{print $NF}')
+TVOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/^ *TVOS_DEPLOYMENT_TARGET =/{print $NF}')
+WATCHOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/^ *WATCHOS_DEPLOYMENT_TARGET =/{print $NF}')
+XROS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/^ *XROS_DEPLOYMENT_TARGET =/{print $NF}')
 echo "  iOS=$IOS_DEPLOYMENT_TARGET macOS=$MACOS_DEPLOYMENT_TARGET tvOS=$TVOS_DEPLOYMENT_TARGET watchOS=$WATCHOS_DEPLOYMENT_TARGET xrOS=$XROS_DEPLOYMENT_TARGET"
 
 for target_var in IOS_DEPLOYMENT_TARGET MACOS_DEPLOYMENT_TARGET TVOS_DEPLOYMENT_TARGET WATCHOS_DEPLOYMENT_TARGET XROS_DEPLOYMENT_TARGET; do
