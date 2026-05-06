@@ -627,6 +627,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjcSDK",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryOptions",
     "super": "NSObject",
     "has_inner": true
@@ -652,12 +658,6 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryRequest",
-    "super": "NSObject",
-    "has_inner": true
-  },
-  {
-    "kind": "ObjCInterfaceDecl",
-    "name": "SentrySDK",
     "super": "NSObject",
     "has_inner": true
   },
@@ -743,7 +743,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "addBreadcrumb:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
@@ -967,119 +967,119 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "captureError:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureError:attachAllThreads:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureError:withScope:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureError:withScopeBlock:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureEvent:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureEvent:attachAllThreads:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureEvent:withScope:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureEvent:withScopeBlock:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureException:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureException:attachAllThreads:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureException:withScope:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureException:withScopeBlock:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureFeedback:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureMessage:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureMessage:attachAllThreads:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureMessage:withScope:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "captureMessage:withScopeBlock:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryId * _Nonnull",
     "instance": false
   },
@@ -1121,7 +1121,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "close",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
@@ -1156,7 +1156,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "configureScope:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
@@ -1233,7 +1233,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "crash",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
@@ -1247,7 +1247,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "crashedLastRun",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "BOOL",
     "instance": false
   },
@@ -1352,7 +1352,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "detectedStartUpCrash",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "BOOL",
     "instance": false
   },
@@ -1716,7 +1716,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "endSession",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
@@ -1877,7 +1877,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "feedback",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryFeedbackAPI * _Nonnull",
     "instance": false
   },
@@ -1926,7 +1926,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "flush:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
@@ -2297,14 +2297,14 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
-    "parent": "SentryRequest",
+    "parent": "SentryObjcSDK",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
-    "parent": "SentrySDK",
+    "parent": "SentryRequest",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -2780,7 +2780,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "isEnabled",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "BOOL",
     "instance": false
   },
@@ -2892,7 +2892,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "lastRunStatus",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryLastRunStatus",
     "instance": false
   },
@@ -2934,7 +2934,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "logger",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryLogger * _Nonnull",
     "instance": false
   },
@@ -3060,7 +3060,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "metrics",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "id<SentryMetricsApi> _Nonnull",
     "instance": false
   },
@@ -3298,7 +3298,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
@@ -3515,7 +3515,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "pauseAppHangTracking",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
@@ -3690,7 +3690,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "replay",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "SentryReplayApi * _Nonnull",
     "instance": false
   },
@@ -3725,7 +3725,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "reportFullyDisplayed",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
@@ -3746,7 +3746,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "resumeAppHangTracking",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
@@ -5734,7 +5734,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setUser:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
@@ -5832,7 +5832,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "span",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "id<SentrySpan> _Nullable",
     "instance": false
   },
@@ -5951,14 +5951,14 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "startProfiler",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "startSession",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
@@ -5979,56 +5979,56 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "startTransactionWithContext:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "id<SentrySpan> _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "startTransactionWithContext:bindToScope:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "id<SentrySpan> _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "startTransactionWithContext:bindToScope:customSamplingContext:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "id<SentrySpan> _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "startTransactionWithContext:customSamplingContext:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "id<SentrySpan> _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "startTransactionWithName:operation:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "id<SentrySpan> _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "startTransactionWithName:operation:bindToScope:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "id<SentrySpan> _Nonnull",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "startWithConfigureOptions:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
     "name": "startWithOptions:",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
@@ -6049,7 +6049,7 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "stopProfiler",
-    "parent": "SentrySDK",
+    "parent": "SentryObjcSDK",
     "returnType": "void",
     "instance": false
   },
