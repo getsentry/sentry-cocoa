@@ -203,7 +203,7 @@ class SentryHubTests: XCTestCase {
             dateProvider: container.dateProvider,
             crashReporter: container.crashReporter
         )
-        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper, bridge: bridge)
+        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
         
         // Act
         let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
@@ -224,7 +224,7 @@ class SentryHubTests: XCTestCase {
             dateProvider: container.dateProvider,
             crashReporter: container.crashReporter
         )
-        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper, bridge: bridge)
+        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
         
         // Act
         let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())
@@ -248,7 +248,7 @@ class SentryHubTests: XCTestCase {
             dateProvider: container.dateProvider,
             crashReporter: container.crashReporter
         )
-        let crashWrapper = SentryCrashWrapper(processInfoWrapper: processInfoWrapper, bridge: bridge)
+        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: processInfoWrapper, bridge: bridge)
         
         // Act
         let hub = SentryHubInternal(client: nil, andScope: Scope(), andCrashWrapper: crashWrapper, andDispatchQueue: TestSentryDispatchQueueWrapper())

@@ -70,18 +70,31 @@ jobs:
           node-version: 18
           cache: "yarn"
           cache-dependency-path: sentry-react-native/yarn.lock
-      - run: ./sentry-cocoa/scripts/ci-select-xcode.sh 16.4
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./sentry-cocoa/.github/actions/setup-xcode
+        with:
+          version: "16"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./sentry-cocoa/.github/actions/resolve-test-destination
+        with:
+          platform: iOS
 
       - name: Ensure required runtime is loaded
         # Ideally we will not need this, but CI sometimes is failing to load some runtimes, this will ensure they are loaded
         timeout-minutes: 5 # 5 minutes timeout
         env:
-          OS_VERSION: "18.4"
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
           PLATFORM: "iOS"
-        run: ./sentry-cocoa/scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
+        run: ./sentry-cocoa/scripts/ci-ensure-runtime-loaded.sh --os-version "$IOS_SIMULATOR_OS" --platform "$PLATFORM"
 
-      - name: Create simulator device for iOS 18.4
-        run: ./sentry-cocoa/scripts/ci-create-simulator.sh --platform "iOS" --os-version "18.4" --device-name "iPhone 15 Pro"
+      - name: Create simulator device for iOS
+        env:
+          IOS_SIMULATOR_OS: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+        run: ./sentry-cocoa/scripts/ci-create-simulator.sh --platform "iOS" --os-version "$IOS_SIMULATOR_OS" --device-name "$IOS_DEVICE_NAME"
 
       - name: Install SDK JS Dependencies
         working-directory: sentry-react-native
@@ -117,7 +130,7 @@ jobs:
         env:
           SCHEME: RNSentryCocoaTester
           CONFIGURATION: Release
-          DESTINATION: "platform=iOS Simulator,OS=18.4,name=iPhone 15 Pro"
+          DESTINATION: "platform=iOS Simulator,OS=${{ steps.resolve-test-destination.outputs.TEST_OS }},name=${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}"
         run: |
           set -o pipefail
           env NSUnbufferedIO=YES \

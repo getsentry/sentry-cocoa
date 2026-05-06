@@ -76,8 +76,12 @@ log_notice "Listing all available runtimes:"
 xcrun simctl list runtimes
 end_group
 
+# simctl text output uses major.minor in display names (e.g. "iOS 26.4") even
+# for hotfix versions like 26.4.1. Extract major.minor for text matching.
+VERSION_MM=$(echo "$OS_VERSION" | awk -F. '{print $1"."$2}')
+
 begin_group "Finding runtime ID for ${SIMCTL_PLATFORM} ${OS_VERSION}"
-RUNTIME_ID=$(xcrun simctl list runtimes | grep "${SIMCTL_PLATFORM} ${OS_VERSION}" | grep -v unavailable | awk '{print $NF}' | head -n1)
+RUNTIME_ID=$(xcrun simctl list runtimes | grep "${SIMCTL_PLATFORM} ${VERSION_MM}" | grep -v unavailable | awk '{print $NF}' | head -n1)
 if [[ -z "$RUNTIME_ID" ]]; then
   log_error "Could not find runtime for ${SIMCTL_PLATFORM} ${OS_VERSION}"
   xcrun simctl list runtimes
@@ -90,7 +94,7 @@ end_group
 begin_group "Checking if simulator already exists"
 # Use a simpler approach to check for existing simulator
 DEVICES_OUTPUT=$(xcrun simctl list devices available 2>/dev/null || true)
-EXISTING_UDID=$(echo "$DEVICES_OUTPUT" | grep -A 20 -- "-- ${SIMCTL_PLATFORM} ${OS_VERSION} --" | grep "${DEVICE_NAME} (" | awk -F '[()]' '{print $2}' | head -n1 || true)
+EXISTING_UDID=$(echo "$DEVICES_OUTPUT" | grep -A 20 -- "-- ${SIMCTL_PLATFORM} ${VERSION_MM} --" | grep "${DEVICE_NAME} (" | awk -F '[()]' '{print $2}' | head -n1 || true)
 if [[ -n "$EXISTING_UDID" ]]; then
   log_notice "Simulator '${DEVICE_NAME}' for runtime '${SIMCTL_PLATFORM} ${OS_VERSION}' already exists (UDID: $EXISTING_UDID)"
   end_group

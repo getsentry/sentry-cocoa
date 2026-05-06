@@ -21,7 +21,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
 @interface SentryCrashReportSink ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
-@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
+@property (nonatomic, strong) id<SentryCrashReporter> crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 
 @end
@@ -29,7 +29,7 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
 @implementation SentryCrashReportSink
 
 - (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
-                      crashWrapper:(SentryCrashWrapper *)crashWrapper
+                      crashWrapper:(id<SentryCrashReporter>)crashWrapper
                      dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
     if (self = [super init]) {

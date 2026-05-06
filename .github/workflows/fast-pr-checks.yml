@@ -50,18 +50,26 @@ jobs:
       runs-on: sequoia
       timeout: 20
       should_skip: false
-      xcode: "16.4"
-      test-destination-os: "18.5"
+      xcode: "16"
       platform: iOS
-      device: iPhone 16 Pro
       scheme: Sentry
-      run_on_cirrus_labs: true
+
+  sentrycrash-import-ratchet:
+    name: SentryCrash Import Ratchet
+    if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
+    needs: files-changed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Check SentryCrash import count
+        run: ./scripts/check-sentrycrash-imports.sh
 
   fast-checks-required:
     needs: [
       files-changed,
       fast-xcframework-slices,
       fast-unit-tests,
+      sentrycrash-import-ratchet,
     ]
     name: Fast PR Checks
     if: always()
