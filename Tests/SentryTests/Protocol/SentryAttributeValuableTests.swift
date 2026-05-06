@@ -545,12 +545,12 @@ final class SentryAttributeValueTests: XCTestCase {
                 return .string("custom")
             }
         }
-        
+
         let array: [CustomStringType] = []
-        
+
         // -- Act --
         let result = array.asSentryAttributeContent
-        
+
         // -- Assert --
         // Empty arrays of custom SentryAttributeValue types cannot determine the intended type,
         // so they should default to stringArray as a safe fallback
@@ -558,5 +558,177 @@ final class SentryAttributeValueTests: XCTestCase {
             return XCTFail("Expected .stringArray case for empty custom array (should not be booleanArray)")
         }
         XCTAssertEqual(value, [])
+    }
+
+    // MARK: - Set Extension Tests
+
+    func testAsSentryAttributeContent_whenStringSet_shouldReturnStringArrayCase() {
+        // -- Arrange --
+        let set: Set<String> = ["hello", "world", "test"]
+
+        // -- Act --
+        let result = set.asSentryAttributeContent
+
+        // -- Assert --
+        guard case .stringArray(let value) = result else {
+            return XCTFail("Expected .stringArray case")
+        }
+        XCTAssertEqual(Set(value), set)
+    }
+
+    func testAsSentryAttributeContent_whenEmptyStringSet_shouldReturnStringArrayCase() {
+        // -- Arrange --
+        let set: Set<String> = []
+
+        // -- Act --
+        let result = set.asSentryAttributeContent
+
+        // -- Assert --
+        guard case .stringArray(let value) = result else {
+            return XCTFail("Expected .stringArray case")
+        }
+        XCTAssertEqual(value, [])
+    }
+
+    func testAsSentryAttributeContent_whenBooleanSet_shouldReturnBooleanArrayCase() {
+        // -- Arrange --
+        let set: Set<Bool> = [true, false]
+
+        // -- Act --
+        let result = set.asSentryAttributeContent
+
+        // -- Assert --
+        guard case .booleanArray(let value) = result else {
+            return XCTFail("Expected .booleanArray case")
+        }
+        XCTAssertEqual(Set(value), set)
+    }
+
+    func testAsSentryAttributeContent_whenEmptyBooleanSet_shouldReturnBooleanArrayCase() {
+        // -- Arrange --
+        let set: Set<Bool> = []
+
+        // -- Act --
+        let result = set.asSentryAttributeContent
+
+        // -- Assert --
+        guard case .booleanArray(let value) = result else {
+            return XCTFail("Expected .booleanArray case")
+        }
+        XCTAssertEqual(value, [])
+    }
+
+    func testAsSentryAttributeContent_whenIntegerSet_shouldReturnIntegerArrayCase() {
+        // -- Arrange --
+        let set: Set<Int> = [1, 2, 3, 42]
+
+        // -- Act --
+        let result = set.asSentryAttributeContent
+
+        // -- Assert --
+        guard case .integerArray(let value) = result else {
+            return XCTFail("Expected .integerArray case")
+        }
+        XCTAssertEqual(Set(value), set)
+    }
+
+    func testAsSentryAttributeContent_whenEmptyIntegerSet_shouldReturnIntegerArrayCase() {
+        // -- Arrange --
+        let set: Set<Int> = []
+
+        // -- Act --
+        let result = set.asSentryAttributeContent
+
+        // -- Assert --
+        guard case .integerArray(let value) = result else {
+            return XCTFail("Expected .integerArray case")
+        }
+        XCTAssertEqual(value, [])
+    }
+
+    func testAsSentryAttributeContent_whenDoubleSet_shouldReturnDoubleArrayCase() {
+        // -- Arrange --
+        let set: Set<Double> = [1.1, 2.2, 3.14159]
+
+        // -- Act --
+        let result = set.asSentryAttributeContent
+
+        // -- Assert --
+        guard case .doubleArray(let value) = result else {
+            return XCTFail("Expected .doubleArray case")
+        }
+        XCTAssertEqual(Set(value), set)
+    }
+
+    func testAsSentryAttributeContent_whenEmptyDoubleSet_shouldReturnDoubleArrayCase() {
+        // -- Arrange --
+        let set: Set<Double> = []
+
+        // -- Act --
+        let result = set.asSentryAttributeContent
+
+        // -- Assert --
+        guard case .doubleArray(let value) = result else {
+            return XCTFail("Expected .doubleArray case")
+        }
+        XCTAssertEqual(value, [])
+    }
+
+    func testAsSentryAttributeContent_whenFloatSet_shouldReturnDoubleArrayCase() {
+        // -- Arrange --
+        let set: Set<Float> = [Float(1.1), Float(2.2), Float(3.14159)]
+
+        // -- Act --
+        let result = set.asSentryAttributeContent
+
+        // -- Assert --
+        guard case .doubleArray(let value) = result else {
+            return XCTFail("Expected .doubleArray case (Float set converted to Double array)")
+        }
+        
+        let doubleSet = Set<Double>(set.map { Double($0) })
+        XCTAssertEqual(Set(value), doubleSet)
+    }
+
+    func testAsSentryAttributeContent_whenEmptyFloatSet_shouldReturnDoubleArrayCase() {
+        // -- Arrange --
+        let set: Set<Float> = []
+
+        // -- Act --
+        let result = set.asSentryAttributeContent
+
+        // -- Assert --
+        guard case .doubleArray(let value) = result else {
+            return XCTFail("Expected .doubleArray case (Float set converted to Double array)")
+        }
+        XCTAssertEqual(value, [])
+    }
+
+    func testAsSentryAttributeContent_whenSingleElementStringSet_shouldReturnStringArrayCase() {
+        // -- Arrange --
+        let set: Set<String> = ["single"]
+
+        // -- Act --
+        let result = set.asSentryAttributeContent
+
+        // -- Assert --
+        guard case .stringArray(let value) = result else {
+            return XCTFail("Expected .stringArray case")
+        }
+        XCTAssertEqual(value, ["single"])
+    }
+
+    func testAsSentryAttributeContent_whenHeterogeneousAnyHashableSet_shouldReturnStringArrayCase() {
+        // -- Arrange --
+        let set: Set<AnyHashable> = ["hello", 42]
+
+        // -- Act --
+        let result = set.asSentryAttributeContent
+
+        // -- Assert --
+        guard case .stringArray(let value) = result else {
+            return XCTFail("Expected .stringArray case for heterogeneous AnyHashable set")
+        }
+        XCTAssertEqual(value.sorted(), ["42", "hello"])
     }
 }

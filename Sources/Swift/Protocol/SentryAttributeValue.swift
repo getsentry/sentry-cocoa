@@ -220,7 +220,7 @@ extension Array: SentryAttributeValue {
         guard !values.isEmpty, case .string = values[0].asSentryAttributeContent else {
             return nil
         }
-        
+
         let mappedStringValues = values.compactMap { element -> String? in
             guard case .string(let value) = element.asSentryAttributeContent else {
                 return nil
@@ -231,5 +231,35 @@ extension Array: SentryAttributeValue {
             return nil
         }
         return .stringArray(mappedStringValues)
-    }   
+    }
+}
+
+extension Set: SentryAttributeValue {
+    /// Converts a set to a `SentryAttributeContent` value.
+    ///
+    /// Homogeneous sets of `Bool`, `Double`, `Float`, `Int`, and `String` are converted to
+    /// their corresponding typed array content. For all other element types the set is
+    /// converted to an `Array` and that extension's homogeneous/heterogeneous logic is
+    /// applied, ultimately falling back to a string array if the elements are mixed.
+    ///
+    /// - Note: Sets are unordered, so the resulting array order is not guaranteed to be
+    ///   consistent across calls.
+    public var asSentryAttributeContent: SentryAttributeContent {
+        if Element.self == Bool.self, let values = self as? Set<Bool> {
+            return .booleanArray(Array(values))
+        }
+        if Element.self == Double.self, let values = self as? Set<Double> {
+            return .doubleArray(Array(values))
+        }
+        if Element.self == Float.self, let values = self as? Set<Float> {
+            return .doubleArray(Array(values).map(Double.init))
+        }
+        if Element.self == Int.self, let values = self as? Set<Int> {
+            return .integerArray(Array(values))
+        }
+        if Element.self == String.self, let values = self as? Set<String> {
+            return .stringArray(Array(values))
+        }
+        return Array(self).asSentryAttributeContent
+    }
 }
