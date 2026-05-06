@@ -4,9 +4,9 @@
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
-#import "SentryNSDictionarySanitize.h"
 #import "SentryNoOpSpan.h"
 #import "SentrySampleDecision+Private.h"
+#import "SentrySanitizerUtils.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
 #import "SentrySpanInternal+Private.h"
@@ -373,7 +373,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         if (data.count > 0) {
-            mutableDictionary[@"data"] = sentry_sanitize(data.copy);
+            mutableDictionary[@"data"] = sentry_sanitize_dictionary(data.copy);
         }
     }
 
