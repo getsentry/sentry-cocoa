@@ -80,6 +80,14 @@ We use [Swiftlint](https://github.com/realm/SwiftLint) and Clang-Format. For Swi
 make lint
 ```
 
+## Changelog entries and linked issues
+
+Changelog entries are generated from merged PRs (see Danger and release tooling). If a PR should
+trigger a comment on a linked issue after a release ships, use a GitHub closing keyword in the PR
+description, such as `Fixes #123`, `Closes #123`, or `Resolves #123`. The release notification
+workflow only comments on issues GitHub recognizes as closed by the released PR; mentioning an issue
+without a closing keyword is not enough.
+
 ## Final Notes
 
 When contributing to the codebase, please make note of the following:
