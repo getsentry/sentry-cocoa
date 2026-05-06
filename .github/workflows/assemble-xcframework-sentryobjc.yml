@@ -89,7 +89,11 @@ jobs:
       - name: Link and assemble SentryObjC XCFrameworks
         env:
           SDKS: ${{ inputs.sdks }}
-        run: ./scripts/build-xcframework-sentryobjc-standalone.sh "$SDKS"
+        run: |
+          sdk_args=()
+          IFS=',' read -r -a sdk_list <<< "$SDKS"
+          for s in "${sdk_list[@]}"; do sdk_args+=(--sdk "$s"); done
+          ./scripts/build-xcframework-sentryobjc-standalone.sh "${sdk_args[@]}"
         shell: bash
 
       - name: Validate XCFramework structure

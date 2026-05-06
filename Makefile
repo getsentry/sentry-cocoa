@@ -231,9 +231,8 @@ build-xcframework-sample:
 #
 # Builds the SentryObjC framework target for iOS Simulator.
 # This is the Objective-C wrapper framework that provides a stable ABI for ObjC++ consumers.
-# The target must first be added to the Xcode project using: bundle exec ruby scripts/add-sentryobjc-target.rb
-.PHONY: build-sentryobjc
-build-sentryobjc:
+.PHONY: build-framework-objc
+build-framework-objc:
 	@echo "--> Building SentryObjC for iOS Simulator"
 	set -o pipefail && xcodebuild build \
 		-project Sentry.xcodeproj \

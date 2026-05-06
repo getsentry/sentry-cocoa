@@ -78,7 +78,15 @@ if [ "$variants" = "SentryObjCOnly" ] || [ "$variants" = "AllVariants" ]; then
     ./scripts/build-xcframework-variant.sh "SentryObjC" "" "staticlib" "" "$sdks" ""
 
     # 5. Assemble both the static and dynamic standalone SentryObjC xcframeworks
-    ./scripts/build-xcframework-sentryobjc-standalone.sh "$sdks"
+    sdk_args=()
+    case "$sdks" in
+        AllSDKs)         for s in iphoneos iphonesimulator macosx maccatalyst appletvos appletvsimulator watchos watchsimulator xros xrsimulator; do sdk_args+=(--sdk "$s"); done ;;
+        iOSOnly)         sdk_args=(--sdk iphoneos --sdk iphonesimulator) ;;
+        macOSOnly)       sdk_args=(--sdk macosx) ;;
+        macCatalystOnly) sdk_args=(--sdk maccatalyst) ;;
+        *)               IFS=',' read -r -a sdk_list <<< "$sdks"; for s in "${sdk_list[@]}"; do sdk_args+=(--sdk "$s"); done ;;
+    esac
+    ./scripts/build-xcframework-sentryobjc-standalone.sh "${sdk_args[@]}"
 
     for linkage in Static Dynamic; do
         ./scripts/validate-xcframework-format.sh "SentryObjC-${linkage}.xcframework"

@@ -18,30 +18,65 @@
 #      Headers/ dir, and rewrite `<SentryObjCTypes/...>` imports in the umbrella
 #      so they resolve within the single-framework layout (`<SentryObjC/...>`).
 # After all slices are built, xcodebuild -create-xcframework assembles each set.
-#
-# Parameters:
-#   $1 - sdks_to_build (comma-separated list or preset: AllSDKs, iOSOnly, etc.)
 
 set -eoux pipefail
 
-sdks_to_build="${1:-AllSDKs}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./scripts/ci-utils.sh disable=SC1091
+source "$SCRIPT_DIR/ci-utils.sh"
 
-if [ "$sdks_to_build" = "iOSOnly" ]; then
-    sdks=( iphoneos iphonesimulator )
-elif [ "$sdks_to_build" = "macOSOnly" ]; then
-    sdks=( macosx )
-elif [ "$sdks_to_build" = "macCatalystOnly" ]; then
-    sdks=( maccatalyst )
-elif [ "$sdks_to_build" = "AllSDKs" ]; then
+sdks=()
+
+usage() {
+    log_notice "Usage: $0"
+    log_notice "  --sdk <name>    SDK to build (repeatable, e.g. --sdk iphoneos --sdk iphonesimulator)"
+    log_notice ""
+    log_notice "If no --sdk is given, all SDKs are built."
+    exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --sdk)  sdks+=("$2"); shift 2 ;;
+        *)      usage ;;
+    esac
+done
+
+if [ ${#sdks[@]} -eq 0 ]; then
     sdks=( iphoneos iphonesimulator macosx maccatalyst appletvos appletvsimulator watchos watchsimulator xros xrsimulator )
-else
-    # Treat as comma-separated list (e.g. from CI)
-    IFS=',' read -r -a sdks <<< "$sdks_to_build"
 fi
 
 ARCHIVE_BASE="$(pwd)/XCFrameworkBuildPath/archive"
 STATIC_OUTPUT_BASE="${ARCHIVE_BASE}/SentryObjC-Standalone-Static"
 DYNAMIC_OUTPUT_BASE="${ARCHIVE_BASE}/SentryObjC-Standalone-Dynamic"
+
+# Read deployment targets from Xcode project build settings (single query).
+echo "=== Reading deployment targets from Xcode project ==="
+XCODE_SETTINGS=$(xcodebuild -showBuildSettings -scheme SentryObjC -sdk iphoneos 2>/dev/null)
+IOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/IPHONEOS_DEPLOYMENT_TARGET =/{print $NF}')
+MACOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/MACOSX_DEPLOYMENT_TARGET =/{print $NF}')
+TVOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/TVOS_DEPLOYMENT_TARGET =/{print $NF}')
+WATCHOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/WATCHOS_DEPLOYMENT_TARGET =/{print $NF}')
+XROS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/XROS_DEPLOYMENT_TARGET =/{print $NF}')
+echo "  iOS=$IOS_DEPLOYMENT_TARGET macOS=$MACOS_DEPLOYMENT_TARGET tvOS=$TVOS_DEPLOYMENT_TARGET watchOS=$WATCHOS_DEPLOYMENT_TARGET xrOS=$XROS_DEPLOYMENT_TARGET"
+
+# Builds an {arch}-apple-{os}{version}[-environment] triple for a given SDK and architecture.
+build_triple() {
+    local sdk="$1"
+    local arch="$2"
+    case "$sdk" in
+        iphoneos)          echo "${arch}-apple-ios${IOS_DEPLOYMENT_TARGET}" ;;
+        iphonesimulator)   echo "${arch}-apple-ios${IOS_DEPLOYMENT_TARGET}-simulator" ;;
+        macosx)            echo "${arch}-apple-macos${MACOS_DEPLOYMENT_TARGET}" ;;
+        maccatalyst)       echo "${arch}-apple-ios${IOS_DEPLOYMENT_TARGET}-macabi" ;;
+        appletvos)         echo "${arch}-apple-tvos${TVOS_DEPLOYMENT_TARGET}" ;;
+        appletvsimulator)  echo "${arch}-apple-tvos${TVOS_DEPLOYMENT_TARGET}-simulator" ;;
+        watchos)           echo "${arch}-apple-watchos${WATCHOS_DEPLOYMENT_TARGET}" ;;
+        watchsimulator)    echo "${arch}-apple-watchos${WATCHOS_DEPLOYMENT_TARGET}-simulator" ;;
+        xros)              echo "${arch}-apple-xros${XROS_DEPLOYMENT_TARGET}" ;;
+        xrsimulator)       echo "${arch}-apple-xros${XROS_DEPLOYMENT_TARGET}-simulator" ;;
+    esac
+}
 
 # System libraries required for all platforms (dynamic link only).
 SYSTEM_LIBS=( z c++ )
@@ -157,7 +192,8 @@ for sdk in "${sdks[@]}"; do
         echo "  Found: $lib ($(du -h "$lib" | cut -f1))"
     done
 
-    combined_a="/tmp/SentryObjC_combined_${sdk}.a"
+    tmp_dir="$(mktemp -d)"
+    combined_a="${tmp_dir}/SentryObjC_combined_${sdk}.a"
     libtool -static "$sentry_a" "$types_a" "$bridge_a" "$objc_a" -o "$combined_a"
     echo "  Combined: $(du -h "$combined_a" | cut -f1)"
 
@@ -171,19 +207,16 @@ for sdk in "${sdks[@]}"; do
 
     # --- Dynamic slice: re-link the combined archive into a dylib via swiftc ---
     sysroot="$(xcrun --sdk "${sdk}" --show-sdk-path 2>/dev/null || xcrun --sdk iphoneos --show-sdk-path)"
-    case "$sdk" in
-        iphoneos)          arch_targets=( "arm64-apple-ios15.0" ) ;;
-        iphonesimulator)   arch_targets=( "arm64-apple-ios15.0-simulator" "x86_64-apple-ios15.0-simulator" ) ;;
-        macosx)            arch_targets=( "arm64-apple-macos10.14" "x86_64-apple-macos10.14" ) ;;
-        maccatalyst)       arch_targets=( "arm64-apple-ios15.0-macabi" "x86_64-apple-ios15.0-macabi" )
-                           sysroot="$(xcrun --sdk macosx --show-sdk-path)" ;;
-        appletvos)         arch_targets=( "arm64-apple-tvos15.0" ) ;;
-        appletvsimulator)  arch_targets=( "arm64-apple-tvos15.0-simulator" "x86_64-apple-tvos15.0-simulator" ) ;;
-        watchos)           arch_targets=( "arm64-apple-watchos8.0" "arm64_32-apple-watchos8.0" ) ;;
-        watchsimulator)    arch_targets=( "arm64-apple-watchos8.0-simulator" "x86_64-apple-watchos8.0-simulator" ) ;;
-        xros)              arch_targets=( "arm64-apple-xros1.0" ) ;;
-        xrsimulator)       arch_targets=( "arm64-apple-xros1.0-simulator" ) ;;
-    esac
+    if [ "$sdk" = "maccatalyst" ]; then
+        sysroot="$(xcrun --sdk macosx --show-sdk-path)"
+    fi
+
+    # Derive architectures and triples from the already-built static archive.
+    read -r -a archs <<< "$(lipo -archs "$combined_a")"
+    arch_targets=()
+    for arch in "${archs[@]}"; do
+        arch_targets+=( "$(build_triple "$sdk" "$arch")" )
+    done
 
     # Discover which weak frameworks are available on this SDK.
     fw_search_path="${sysroot}/System/Library/Frameworks"
@@ -226,7 +259,9 @@ for sdk in "${sdks[@]}"; do
         linker_flags+=( -l"$lib" )
     done
 
-    dummy_swift="/tmp/SentryObjC_dummy.swift"
+    # swiftc -emit-library requires at least one source file; the empty file
+    # lets swiftc act purely as a linker driver for the Swift runtime.
+    dummy_swift="${tmp_dir}/SentryObjC_dummy.swift"
     echo "" > "$dummy_swift"
 
     arch_binaries=()
@@ -234,7 +269,7 @@ for sdk in "${sdks[@]}"; do
         arch="${target%%-*}"
         echo "  Linking arch: $arch ($target)"
 
-        arch_output="/tmp/SentryObjC_${sdk}_${arch}"
+        arch_output="${tmp_dir}/SentryObjC_${sdk}_${arch}"
         xcrun swiftc \
             "$dummy_swift" \
             -emit-library \
@@ -256,8 +291,7 @@ for sdk in "${sdks[@]}"; do
     fi
     echo "  Dynamic binary: $(du -h "$dynamic_binary" | cut -f1)"
 
-    rm -f "$combined_a" "$dummy_swift"
-    rm -f /tmp/SentryObjC_"${sdk}"_*
+    rm -rf "$tmp_dir"
 
     echo "=== Done: ${sdk} ==="
 done
