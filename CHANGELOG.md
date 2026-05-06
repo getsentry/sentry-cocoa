@@ -6,8 +6,10 @@
 
 - Prevent memory strings in stack overflow crash reports (#7841)
 - Report crashed thread for null function calls (#7866)
-
-### Fixes
+- Add depth limits to data sanitization and JSON encoder (#7857)
+- Moved `BinaryImageCache` initialization to a background thread to reduce blocking on dyld reader locks on the main thread (#7823)
+- Init vars before `task_threads` and `vm_deallocate` (#7858)
+- Handle extra length call in `SentryInvalidJSONString` (#7859)
 
 ## 9.12.0
 
@@ -61,7 +63,6 @@
 - Disable app hang and watchdog termination tracking in Notification Service Extensions (#7818)
 - Fix JSON encoding of infinite numeric values in crash reports (#7802)
 - Fix race condition in `SentryFramesTracker` listeners causing `EXC_BAD_ACCESS` in `NSConcreteHashTable removeItem:` when a listener is deallocated on a background thread (#7839)
-- Moved `BinaryImageCache` initialization to a background thread to reduce blocking on dyld reader locks on the main thread (#7823)
 
 ## 9.11.0
 
