@@ -60,6 +60,13 @@ WATCHOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/WATCHOS_DEPLOYMENT_TA
 XROS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/XROS_DEPLOYMENT_TARGET =/{print $NF}')
 echo "  iOS=$IOS_DEPLOYMENT_TARGET macOS=$MACOS_DEPLOYMENT_TARGET tvOS=$TVOS_DEPLOYMENT_TARGET watchOS=$WATCHOS_DEPLOYMENT_TARGET xrOS=$XROS_DEPLOYMENT_TARGET"
 
+for target_var in IOS_DEPLOYMENT_TARGET MACOS_DEPLOYMENT_TARGET TVOS_DEPLOYMENT_TARGET WATCHOS_DEPLOYMENT_TARGET XROS_DEPLOYMENT_TARGET; do
+    if [ -z "${!target_var}" ]; then
+        echo "ERROR: Could not read ${target_var} from Xcode project build settings"
+        exit 1
+    fi
+done
+
 # Builds an {arch}-apple-{os}{version}[-environment] triple for a given SDK and architecture.
 build_triple() {
     local sdk="$1"
@@ -162,6 +169,10 @@ merge_types_headers() {
         sed -i '' 's|<SentryObjCTypes/|<SentryObjC/|g' "$umbrella"
     fi
 }
+
+tmp_dir=""
+cleanup() { [ -n "$tmp_dir" ] && rm -r "$tmp_dir"; }
+trap cleanup EXIT
 
 for sdk in "${sdks[@]}"; do
     echo "=== Building SentryObjC slices for ${sdk} ==="
@@ -291,7 +302,7 @@ for sdk in "${sdks[@]}"; do
     fi
     echo "  Dynamic binary: $(du -h "$dynamic_binary" | cut -f1)"
 
-    rm -rf "$tmp_dir"
+    rm -r "$tmp_dir"
 
     echo "=== Done: ${sdk} ==="
 done

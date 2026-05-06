@@ -15,7 +15,7 @@ static const void *kBeforeSendMetricKey = &kBeforeSendMetricKey;
 
 - (void)setBeforeSendMetric:(SentryBeforeSendMetricCallback)block
 {
-    objc_setAssociatedObject(self, kBeforeSendMetricKey, block, OBJC_ASSOCIATION_COPY_NONATOMIC);
+    objc_setAssociatedObject(self, kBeforeSendMetricKey, block, OBJC_ASSOCIATION_COPY);
 }
 
 - (SentryBeforeSendMetricCallback)beforeSendMetric

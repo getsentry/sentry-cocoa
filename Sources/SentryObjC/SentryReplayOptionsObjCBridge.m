@@ -13,8 +13,7 @@ static const void *kNetworkDetailDenyUrlsKey = &kNetworkDetailDenyUrlsKey;
 
 - (void)setNetworkDetailAllowUrls:(NSArray *)urls
 {
-    objc_setAssociatedObject(
-        self, kNetworkDetailAllowUrlsKey, urls, OBJC_ASSOCIATION_COPY_NONATOMIC);
+    objc_setAssociatedObject(self, kNetworkDetailAllowUrlsKey, urls, OBJC_ASSOCIATION_COPY);
 }
 
 - (NSArray *)networkDetailAllowUrls
@@ -24,8 +23,7 @@ static const void *kNetworkDetailDenyUrlsKey = &kNetworkDetailDenyUrlsKey;
 
 - (void)setNetworkDetailDenyUrls:(NSArray *)urls
 {
-    objc_setAssociatedObject(
-        self, kNetworkDetailDenyUrlsKey, urls, OBJC_ASSOCIATION_COPY_NONATOMIC);
+    objc_setAssociatedObject(self, kNetworkDetailDenyUrlsKey, urls, OBJC_ASSOCIATION_COPY);
 }
 
 - (NSArray *)networkDetailDenyUrls

@@ -136,7 +136,7 @@ NS_ASSUME_NONNULL_BEGIN
                                              SentryObjCMetric *_Nonnull))callback
     NS_SWIFT_NAME(bridgeBeforeSendMetric(forOptions:callback:));
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if (TARGET_OS_IOS || TARGET_OS_TV) && !SENTRY_NO_UI_FRAMEWORK
 + (void)bridgeReplayNetworkDetailAllowUrlsForReplayOptions:(SentryReplayOptions *)replayOptions
                                                       urls:(NSArray *)urls
     NS_SWIFT_NAME(bridgeReplayNetworkDetailAllowUrls(forReplayOptions:urls:));
