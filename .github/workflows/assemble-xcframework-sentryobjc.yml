@@ -51,25 +51,25 @@ jobs:
       # Download all four sets of static library slices.
       # Each artifact contains a {sdk}.xcarchive.zip for one platform.
       - name: Download Sentry static slices
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-sentry-static-slice-*
           path: xcframework-slices/sentry-static
 
       - name: Download SentryObjCTypes slices
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-sentryobjc-types-slice-*
           path: xcframework-slices/sentryobjc-types
 
       - name: Download SentryObjCBridge slices
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-sentryobjc-bridge-slice-*
           path: xcframework-slices/sentryobjc-bridge
 
       - name: Download SentryObjC slices
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           pattern: xcframework-sentryobjc-objc-slice-*
           path: xcframework-slices/sentryobjc-objc
@@ -116,7 +116,7 @@ jobs:
         shell: bash
 
       - name: Upload SentryObjC-Static XCFramework
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           overwrite: true
           name: xcframework-${{github.sha}}-sentryobjc-static
@@ -124,7 +124,7 @@ jobs:
           path: SentryObjC-Static.xcframework.zip
 
       - name: Upload SentryObjC-Dynamic XCFramework
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           overwrite: true
           name: xcframework-${{github.sha}}-sentryobjc-dynamic
