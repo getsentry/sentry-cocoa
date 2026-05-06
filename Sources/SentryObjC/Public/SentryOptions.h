@@ -15,9 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
  * Configuration options for the Sentry SDK.
  *
  * Configure all SDK features and behavior through this object before
- * passing it to @c +[SentryObjcSDK startWithOptions:].
+ * passing it to @c +[SentryObjCSDK startWithOptions:].
  *
- * @see SentryObjcSDK
+ * @see SentryObjCSDK
  */
 @interface SentryOptions : NSObject
 

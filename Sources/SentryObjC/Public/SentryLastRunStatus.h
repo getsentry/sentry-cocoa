@@ -3,7 +3,7 @@
 /**
  * Represents the crash status of the last program execution.
  *
- * Use @c +[SentryObjcSDK lastRunStatus] to check if the previous app execution
+ * Use @c +[SentryObjCSDK lastRunStatus] to check if the previous app execution
  * terminated with a crash.
  */
 typedef NS_ENUM(NSInteger, SentryLastRunStatus) {

@@ -9,13 +9,13 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [SentryObjcSDK addBreadcrumb:[[SentryBreadcrumb alloc] init]];
+    [SentryObjCSDK addBreadcrumb:[[SentryBreadcrumb alloc] init]];
 }
 
 - (IBAction)captureError:(id)sender
 {
     NSError *error = [NSError errorWithDomain:@"iOS-ObjectiveCpp-NoModules" code:1 userInfo:nil];
-    [SentryObjcSDK captureError:error];
+    [SentryObjCSDK captureError:error];
 }
 
 @end

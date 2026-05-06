@@ -41,7 +41,7 @@ graph TD
     Consumer["ObjC / ObjC++ consumer<br/>#import &lt;Sentry/SentryObjC.h&gt;"]
 
     subgraph SentryObjC["SentryObjC (pure ObjC facade)"]
-        Facade["SentryObjcSDK, SentryHub, SentryScope, …<br/>SentryMetricsApiImpl, SentryLoggerImpl<br/>(classes with behavior — forward to bridge or SDK)"]
+        Facade["SentryObjCSDK, SentryHub, SentryScope, …<br/>SentryMetricsApiImpl, SentryLoggerImpl<br/>(classes with behavior — forward to bridge or SDK)"]
     end
 
     subgraph SentryObjCBridge["SentryObjCBridge (Swift)"]
@@ -68,7 +68,7 @@ graph TD
 
 | Target             | Language     | Purpose                                                                                                                                                                                            | Public ABI?                                                        |
 | ------------------ | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `SentryObjC`       | ObjC         | Facade / behavior — implements SDK entry points (`SentryObjcSDK`, metrics/logger/replay APIs), hand-writes ObjC redeclarations of Swift `@objc` classes, and re-exports main SDK pure-ObjC headers | Yes — composed surface (re-exports + redeclarations + facades)     |
+| `SentryObjC`       | ObjC         | Facade / behavior — implements SDK entry points (`SentryObjCSDK`, metrics/logger/replay APIs), hand-writes ObjC redeclarations of Swift `@objc` classes, and re-exports main SDK pure-ObjC headers | Yes — composed surface (re-exports + redeclarations + facades)     |
 | `SentryObjCBridge` | Swift        | Mapping layer — converts between `SentryObjCTypes` and internal Swift                                                                                                                              | No — internal                                                      |
 | `SentryObjCTypes`  | ObjC         | Data carriers — value-type-like public ObjC classes the bridge reads                                                                                                                               | **Yes — stable, additive only, not used directly by the consumer** |
 | `Sentry`           | ObjC + Swift | Core SDK — the existing Sentry codebase written in Mixed Swift / ObjC                                                                                                                              | Yes (re-exported by `SentryObjC` for the pure-ObjC subset)         |
@@ -79,7 +79,7 @@ graph TD
 
 - **Pure-ObjC types in main SDK** (e.g., `SentryUser`, `SentryEvent`, `SentryBreadcrumb`, `SentryScope`, `SentryAttachment`, ~30 others): the umbrella re-exports the main SDK's header directly via `<Sentry/X.h>`. The Headers build phase copies the file into `SentryObjC.framework/Headers/`. Single source of truth lives in `Sources/Sentry/Public/`.
 - **Swift `@objc` classes with ObjC-compatible API** (e.g., `SentryOptions`, `SentryLogger`, `SentryFeedback`, `SentryReplayOptions`, `SentryExperimentalOptions`, `SentryAttribute`, `SentryLog`, `SentryEnvelope*`): the Swift class is annotated `@objc(SentryX)` so its runtime name is the plain `SentryX`. `SentryObjC/Public/SentryX.h` declares a hand-written `@interface SentryX : NSObject` that resolves to the Swift class at link time. No `@compatibility_alias` machinery, no Swift-mangled names in the public headers.
-- **`SentryObjcSDK`** is a special case: it's a pure-ObjC facade (not a Swift shim) that delegates to `SentryObjCBridge`. It uses a different name than the Swift `SentrySDK` to avoid duplicate ObjC class registration when both `SentryObjC.framework` and the embedded `Sentry.framework` are loaded.
+- **`SentryObjCSDK`** is a special case: it's a pure-ObjC facade (not a Swift shim) that delegates to `SentryObjCBridge`. It uses a different name than the Swift `SentrySDK` to avoid duplicate ObjC class registration when both `SentryObjC.framework` and the embedded `Sentry.framework` are loaded.
 
 **Bridge path** (`SentryObjC → SentryObjCBridge → Sentry`) — for Swift-only internal types that don't naturally bridge to ObjC.
 
@@ -123,7 +123,7 @@ Characteristics:
 
 Examples:
 
-- `SentryObjcSDK`, `SentryHub`, `SentryScope`, `SentryClient`
+- `SentryObjCSDK`, `SentryHub`, `SentryScope`, `SentryClient`
 - API entry-point implementations: `SentryMetricsApiImpl`, `SentryLoggerImpl`, `SentryReplayApiImpl`
 
 ### Mental model
@@ -150,7 +150,7 @@ Two naming patterns coexist; which to use depends on whether the underlying type
 When the underlying type already has an ObjC-compatible runtime presence, the public ObjC name is the same as the SDK's name. There is **no separate wrapper class**; `SentryObjC` exposes the type via one of two mechanisms (see "Two dependency paths"):
 
 - **Pure-ObjC main SDK types** (`SentryUser`, `SentryEvent`, `SentryScope`, …) — re-exported from `Sources/Sentry/Public/`, single declaration shared between SDKs.
-- **Swift `@objc` classes** (`SentryOptions`, `SentryLogger`, …) — the Swift class is `@objc(SentryX)` so the runtime symbol is the plain name; the public ObjC `@interface` is hand-written in `Sources/SentryObjC/Public/`. Exception: `SentryObjcSDK` uses a distinct name from Swift's `SentrySDK` to avoid duplicate class registration.
+- **Swift `@objc` classes** (`SentryOptions`, `SentryLogger`, …) — the Swift class is `@objc(SentryX)` so the runtime symbol is the plain name; the public ObjC `@interface` is hand-written in `Sources/SentryObjC/Public/`. Exception: `SentryObjCSDK` uses a distinct name from Swift's `SentrySDK` to avoid duplicate class registration.
 
 **Why it works for ObjC consumers without modules:** in both sub-cases the consumer's translation unit only ever sees ObjC headers. No `*-Swift.h` is involved, no `@import` is required, and the runtime class resolves to a single definition (either main SDK's `@implementation` or the Swift `@objc(SentryX)` class) at link time.
 
@@ -249,7 +249,7 @@ Annotating the Swift class with `@objc(SentryX)` makes the runtime name explicit
 - **Coupling to internal structure that's about to change.** `SentrySDKInternal.m` is planned to merge into `SentrySDK.swift`. A direct call from `SentryObjC/SentrySDK.m` to `SentrySDKInternal` breaks when that merge happens, even though no consumer-visible API changed.
 - **`id`-typed forward declaration.** Importing `SentrySDKInternal.h` would require Clang modules in the `.m`, which we avoid. The fallback was a hand-written `@interface SentrySDKInternal` with `id`-typed parameters — and that's what produced the `startWithConfigureOptions:` runtime crash in early Unreal sample testing (the forward declaration claimed a method that doesn't exist on the underlying class; ObjC's late binding accepted the call at compile time and the runtime selector lookup failed).
 
-Routing through the bridge fixes both: the bridge calls into the Swift `SentrySDK` (which has full `@objc` coverage of all SDK entry points), so internal SDK refactors only affect bridge code; and the bridge's `@objc` methods take typed ObjC parameters (`SentryOptions *`, `SentryUser *`, etc.) that `SentryObjC/SentryObjcSDK.m` consumes via a typed forward declaration of a class we own end-to-end. Drift surface bounded to our own codebase, compile errors instead of runtime crashes.
+Routing through the bridge fixes both: the bridge calls into the Swift `SentrySDK` (which has full `@objc` coverage of all SDK entry points), so internal SDK refactors only affect bridge code; and the bridge's `@objc` methods take typed ObjC parameters (`SentryOptions *`, `SentryUser *`, etc.) that `SentryObjC/SentryObjCSDK.m` consumes via a typed forward declaration of a class we own end-to-end. Drift surface bounded to our own codebase, compile errors instead of runtime crashes.
 
 ### Why re-export main SDK headers instead of redeclaring them?
 
@@ -276,7 +276,7 @@ Each target is a separate framework to avoid module conflicts. If `SentryObjCBri
 The four-tier architecture described above is implemented. `Sources/SentryObjC/Public/` contains:
 
 - The umbrella `SentryObjC.h` with an `__has_include(<Sentry/...>)` block re-exporting ~32 pure-ObjC types from the main SDK.
-- Hand-written `@interface` declarations for ~10 Swift `@objc` classes (`SentryOptions`, `SentryObjcSDK`, `SentryLogger`, `SentryFeedback`, `SentryReplayOptions`, `SentryExperimentalOptions`, `SentryAttribute`, `SentryLog`, `SentryEnvelope*`, `PrivateSentrySDKOnly`).
+- Hand-written `@interface` declarations for ~10 Swift `@objc` classes (`SentryOptions`, `SentryObjCSDK`, `SentryLogger`, `SentryFeedback`, `SentryReplayOptions`, `SentryExperimentalOptions`, `SentryAttribute`, `SentryLog`, `SentryEnvelope*`, `PrivateSentrySDKOnly`).
 - Protocol facades and SentryObjC-specific types (`SentryMetricsApi`, `SentrySpan`, `SentryTransactionNameSource`, `SentryFeedbackSource`, `SentryLogLevel`).
 
 `Sources/SentryObjCTypes/Public/` contains the bridged data carriers (`SentryObjCAttributeContent`, `SentryObjCMetric`, `SentryObjCMetricValue`, `SentryObjCRedactRegionType`, `SentryObjCUnit`).

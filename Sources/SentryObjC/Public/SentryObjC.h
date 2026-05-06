@@ -88,7 +88,7 @@
 #import "SentryLog.h"
 #import "SentryLogLevel.h"
 #import "SentryLogger.h"
-#import "SentryObjcSDK.h"
+#import "SentryObjCSDK.h"
 #import "SentryOptions.h"
 #import "SentryReplayOptions.h"
 
