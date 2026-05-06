@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Provides severity-based logging methods. Logs are captured as breadcrumbs
  * or events depending on severity level and SDK configuration.
  *
- * @see SentrySDK
+ * @see SentryObjcSDK
  */
 @interface SentryLogger : NSObject
 

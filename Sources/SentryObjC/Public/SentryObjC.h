@@ -88,9 +88,9 @@
 #import "SentryLog.h"
 #import "SentryLogLevel.h"
 #import "SentryLogger.h"
+#import "SentryObjcSDK.h"
 #import "SentryOptions.h"
 #import "SentryReplayOptions.h"
-#import "SentrySDK.h"
 
 // Envelope types (SPI for hybrid SDKs)
 #import "PrivateSentrySDKOnly.h"

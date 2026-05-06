@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * API for interacting with the User Feedback feature.
  *
- * Access this through @c +[SentrySDK feedback].
+ * Access this through @c +[SentryObjcSDK feedback].
  */
 @interface SentryFeedbackAPI : NSObject
 

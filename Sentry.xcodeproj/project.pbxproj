@@ -1355,7 +1355,7 @@
 				Public/SentryObjCDefines.h,
 				Public/SentryOptions.h,
 				Public/SentryReplayOptions.h,
-				Public/SentrySDK.h,
+				Public/SentryObjcSDK.h,
 				Public/SentrySpan.h,
 				Public/SentryTransactionNameSource.h,
 				SentryMetricsApiImpl.h,

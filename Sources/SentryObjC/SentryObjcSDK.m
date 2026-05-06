@@ -28,13 +28,13 @@
 
 #import "SentryLastRunStatus.h"
 #import "SentryMetricsApiImpl.h"
-#import "SentrySDK.h"
+#import "SentryObjcSDK.h"
 
 extern void SentryBridgeCallbacksForOptions(SentryOptions *_Nonnull options);
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation SentrySDK
+@implementation SentryObjcSDK
 
 + (nullable id<SentrySpan>)span
 {

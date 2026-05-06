@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see SentryOptions
  * @see SentryScope
  */
-@interface SentrySDK : NSObject
+@interface SentryObjcSDK : NSObject
 
 SENTRY_NO_INIT
 
@@ -81,10 +81,10 @@ SENTRY_NO_INIT
  *
  * @code
  * // Simple counter
- * [[SentrySDK metrics] countWithKey:@"button.click"];
+ * [[SentryObjcSDK metrics] countWithKey:@"button.click"];
  *
  * // Distribution with unit and attributes
- * [[SentrySDK metrics] distributionWithKey:@"response.time"
+ * [[SentryObjcSDK metrics] distributionWithKey:@"response.time"
  *                                         value:125.5
  *                                          unit:SentryObjCUnitNameMillisecond
  *                                    attributes:@{
@@ -366,7 +366,7 @@ SENTRY_NO_INIT
 /**
  * Returns the crash status of the last program execution.
  *
- * Before @c +[SentrySDK startWithConfigureOptions:] finishes initializing the crash reporter,
+ * Before @c +[SentryObjcSDK startWithConfigureOptions:] finishes initializing the crash reporter,
  * this returns @c SentryLastRunStatusUnknown.
  */
 + (SentryLastRunStatus)lastRunStatus;
