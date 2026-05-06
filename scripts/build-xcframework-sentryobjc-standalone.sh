@@ -53,7 +53,7 @@ DYNAMIC_OUTPUT_BASE="${ARCHIVE_BASE}/SentryObjC-Standalone-Dynamic"
 # Read deployment targets from Xcode project build settings (single query).
 # Uses the main Sentry scheme which reliably exposes all platform settings.
 echo "=== Reading deployment targets from Xcode project ==="
-XCODE_SETTINGS=$(xcodebuild -showBuildSettings -scheme Sentry -sdk iphoneos 2>/dev/null)
+XCODE_SETTINGS=$(xcodebuild -showBuildSettings -scheme Sentry 2>/dev/null)
 IOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/^ *IPHONEOS_DEPLOYMENT_TARGET =/{print $NF}')
 MACOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/^ *MACOSX_DEPLOYMENT_TARGET =/{print $NF}')
 TVOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/^ *TVOS_DEPLOYMENT_TARGET =/{print $NF}')
