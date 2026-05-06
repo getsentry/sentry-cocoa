@@ -116,6 +116,7 @@ copy_framework_resources() {
         if [ -d "${versioned}/Modules" ]; then
             ln -sfh Versions/Current/Modules "${dest_fw}/Modules"
         fi
+        ln -sfh Versions/Current/Resources "${dest_fw}/Resources"
         ln -sfh Versions/Current/SentryObjC "${dest_fw}/SentryObjC"
     else
         mkdir -p "$dest_fw"
