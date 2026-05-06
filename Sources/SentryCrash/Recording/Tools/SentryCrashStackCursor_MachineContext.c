@@ -65,11 +65,8 @@ advanceCursor(SentryCrashStackCursor *cursor)
         return false;
     }
 
-    if (context->instructionAddress == 0) {
+    if (context->instructionAddress == 0 && cursor->state.currentDepth == 0) {
         context->instructionAddress = sentrycrashcpu_instructionAddress(context->machineContext);
-        if (context->instructionAddress == 0) {
-            goto tryAsyncChain;
-        }
         nextAddress = context->instructionAddress;
         goto successfulExit;
     }

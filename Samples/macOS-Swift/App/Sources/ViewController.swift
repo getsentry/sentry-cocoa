@@ -71,6 +71,10 @@ class ViewController: NSViewController {
         SentrySDK.crash()
     }
 
+    @IBAction func nullProgramCounterCrash(_ sender: Any) {
+        CppWrapper().crashWithNullProgramCounter()
+    }
+
     @IBAction func cppException(_ sender: Any) {
         let wrapper = CppWrapper()
         wrapper.throwCPPException()
