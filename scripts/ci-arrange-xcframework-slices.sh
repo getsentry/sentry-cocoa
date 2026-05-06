@@ -40,9 +40,7 @@ arrange_slices() {
             log_error "No xcarchive.zip found in $artifact_dir"
             exit 1
         fi
-        unzip_dir="/tmp/sentryobjc-unzip-${variant_id}-${sdk}"
-        rm -rf "$unzip_dir"
-        mkdir -p "$unzip_dir"
+        unzip_dir="$(mktemp -d)"
         unzip -q "$zip_file" -d "$unzip_dir"
         mkdir -p "XCFrameworkBuildPath/archive/${archive_name}"
         mv "$unzip_dir/${sdk}.xcarchive" "XCFrameworkBuildPath/archive/${archive_name}/${sdk}.xcarchive"
