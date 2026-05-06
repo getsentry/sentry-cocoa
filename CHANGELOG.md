@@ -6,6 +6,7 @@
 
 - Prevent memory strings in stack overflow crash reports (#7841)
 - Report crashed thread for null function calls (#7866)
+- Add Set conformance to SentryAttributeValue (#7876)
 
 ### Fixes
 
