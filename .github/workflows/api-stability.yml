@@ -57,7 +57,7 @@ jobs:
           if diff -q "sdk_api_base.json" "sdk_api.json" > /dev/null; then
             echo "No Sentry API changes detected."
           else
-            echo "❌ Sentry public API changes are detected. If they're intended run "make generate-public-api" and commit the changes."
+            echo "❌ Sentry public API changes are detected. If they're intended run 'make generate-public-api' and commit the changes."
             diff "sdk_api_base.json" "sdk_api.json" || true
             xcrun --sdk iphoneos swift-api-digester \
               -diagnose-sdk \
@@ -76,7 +76,7 @@ jobs:
           if diff -q "sdk_api_sentryswiftui_base.json" "sdk_api_sentryswiftui.json" > /dev/null; then
             echo "No SentrySwiftUI API changes detected."
           else
-            echo "❌ SentrySwiftUI public API changes are detected. If they're intended run "make generate-public-api" and commit the changes."
+            echo "❌ SentrySwiftUI public API changes are detected. If they're intended run 'make generate-public-api' and commit the changes."
             diff "sdk_api_sentryswiftui_base.json" "sdk_api_sentryswiftui.json" || true
             xcrun --sdk iphoneos swift-api-digester \
               -diagnose-sdk \
@@ -95,7 +95,7 @@ jobs:
           if diff -q "sdk_api_objc_base.json" "sdk_api_objc.json" > /dev/null; then
             echo "No SentryObjC API changes detected."
           else
-            echo "❌ SentryObjC public API changes are detected. If they're intended run "make generate-public-api" and commit the changes."
+            echo "❌ SentryObjC public API changes are detected. If they're intended run 'make generate-public-api' and commit the changes."
             diff "sdk_api_objc_base.json" "sdk_api_objc.json" || true
             exit 1
           fi
