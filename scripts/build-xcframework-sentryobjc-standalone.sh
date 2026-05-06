@@ -50,20 +50,23 @@ ARCHIVE_BASE="$(pwd)/XCFrameworkBuildPath/archive"
 STATIC_OUTPUT_BASE="${ARCHIVE_BASE}/SentryObjC-Standalone-Static"
 DYNAMIC_OUTPUT_BASE="${ARCHIVE_BASE}/SentryObjC-Standalone-Dynamic"
 
-# Read deployment targets from Xcode project build settings (single query).
-# Uses the main Sentry scheme which reliably exposes all platform settings.
-echo "=== Reading deployment targets from Xcode project ==="
-XCODE_SETTINGS=$(xcodebuild -showBuildSettings -scheme Sentry 2>/dev/null)
-IOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/^ *IPHONEOS_DEPLOYMENT_TARGET =/{print $NF}')
-MACOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/^ *MACOSX_DEPLOYMENT_TARGET =/{print $NF}')
-TVOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/^ *TVOS_DEPLOYMENT_TARGET =/{print $NF}')
-WATCHOS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/^ *WATCHOS_DEPLOYMENT_TARGET =/{print $NF}')
-XROS_DEPLOYMENT_TARGET=$(echo "$XCODE_SETTINGS" | awk '/^ *XROS_DEPLOYMENT_TARGET =/{print $NF}')
+# Read deployment targets from the canonical xcconfig (single source of truth).
+DEPLOY_XCCONFIG="${SCRIPT_DIR}/../Sources/Configuration/DeploymentTargets.xcconfig"
+echo "=== Reading deployment targets from ${DEPLOY_XCCONFIG} ==="
+if [ ! -f "$DEPLOY_XCCONFIG" ]; then
+    echo "ERROR: DeploymentTargets.xcconfig not found at ${DEPLOY_XCCONFIG}"
+    exit 1
+fi
+IOS_DEPLOYMENT_TARGET=$(awk -F' = ' '/IPHONEOS_DEPLOYMENT_TARGET/{print $2}' "$DEPLOY_XCCONFIG")
+MACOS_DEPLOYMENT_TARGET=$(awk -F' = ' '/MACOSX_DEPLOYMENT_TARGET/{print $2}' "$DEPLOY_XCCONFIG")
+TVOS_DEPLOYMENT_TARGET=$(awk -F' = ' '/TVOS_DEPLOYMENT_TARGET/{print $2}' "$DEPLOY_XCCONFIG")
+WATCHOS_DEPLOYMENT_TARGET=$(awk -F' = ' '/WATCHOS_DEPLOYMENT_TARGET/{print $2}' "$DEPLOY_XCCONFIG")
+XROS_DEPLOYMENT_TARGET=$(awk -F' = ' '/XROS_DEPLOYMENT_TARGET/{print $2}' "$DEPLOY_XCCONFIG")
 echo "  iOS=$IOS_DEPLOYMENT_TARGET macOS=$MACOS_DEPLOYMENT_TARGET tvOS=$TVOS_DEPLOYMENT_TARGET watchOS=$WATCHOS_DEPLOYMENT_TARGET xrOS=$XROS_DEPLOYMENT_TARGET"
 
 for target_var in IOS_DEPLOYMENT_TARGET MACOS_DEPLOYMENT_TARGET TVOS_DEPLOYMENT_TARGET WATCHOS_DEPLOYMENT_TARGET XROS_DEPLOYMENT_TARGET; do
     if [ -z "${!target_var}" ]; then
-        echo "ERROR: Could not read ${target_var} from Xcode project build settings"
+        echo "ERROR: Could not read ${target_var} from ${DEPLOY_XCCONFIG}"
         exit 1
     fi
 done
