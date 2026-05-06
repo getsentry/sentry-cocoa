@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+> [!IMPORTANT]
+> The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
+
 ### Features
 
 - Add SentryObjC wrapper SDK to provide pure Objective-C compatibility layer that wraps the main Sentry SDK with stable, documented Objective-C interfaces. (#7598)
@@ -11,10 +14,6 @@
 
 - Prevent memory strings in stack overflow crash reports (#7841)
 - Report crashed thread for null function calls (#7866)
-
-### Fixes
-
-- Prevent memory strings in stack overflow crash reports (#7841)
 
 ## 9.12.0
 
