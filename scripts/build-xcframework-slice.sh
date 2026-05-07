@@ -10,6 +10,10 @@
 #   $5 - configuration_suffix (optional)
 set -eoux pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./scripts/ci-utils.sh disable=SC1091
+source "$SCRIPT_DIR/ci-utils.sh"
+
 sdk="${1:-}"
 scheme="$2"
 suffix="${3:-}"
@@ -39,6 +43,49 @@ slice_id="${scheme}${suffix}-${sdk}"
 output_xcarchive_path="XCFrameworkBuildPath/archive/${scheme}${suffix}"
 sentry_xcarchive_path="$output_xcarchive_path/${sdk}.xcarchive"
 
+print_archive_diagnostics() {
+    local frameworks_path="${sentry_xcarchive_path}/Products/Library/Frameworks"
+    local framework_path="${frameworks_path}/${resolved_product_name}"
+    local binary_name="${resolved_product_name%.framework}"
+    local binary_path="${framework_path}/${binary_name}"
+    local architectures=""
+    local modules_path=""
+
+    if [ -f "${framework_path}/Versions/A/${binary_name}" ]; then
+        binary_path="${framework_path}/Versions/A/${binary_name}"
+    fi
+
+    begin_group "Archive diagnostics for ${slice_id}"
+    log_notice "Framework: ${framework_path}"
+
+    if [ -f "$binary_path" ]; then
+        log_notice "Binary: ${binary_path}"
+        if architectures="$(xcrun lipo -archs "$binary_path" 2>/dev/null)"; then
+            log_notice "Architectures: ${architectures}"
+        else
+            log_warning "Could not read architectures with lipo; falling back to file"
+            file "$binary_path" || true
+        fi
+    else
+        log_warning "Missing binary: ${binary_path}"
+    fi
+
+    if [ -d "${framework_path}/Versions/A/Modules" ]; then
+        modules_path="${framework_path}/Versions/A/Modules"
+    elif [ -d "${framework_path}/Modules" ]; then
+        modules_path="${framework_path}/Modules"
+    fi
+
+    if [ -n "$modules_path" ]; then
+        log_notice "Module files in ${modules_path}:"
+        find "$modules_path" -maxdepth 2 -type f -print | sort
+    else
+        log_warning "Missing module directory for ${resolved_product_name}"
+    fi
+
+    end_group
+}
+
 if [ "$sdk" = "maccatalyst" ]; then
     # we can't use the "archive" action here because it doesn't support the -destination option, which we need to build the maccatalyst slice. so we'll have to build it manually and then copy the build product to an xcarchive directory we create.
     # shellcheck disable=SC2086
@@ -55,7 +102,7 @@ if [ "$sdk" = "maccatalyst" ]; then
         SUPPORTS_MACCATALYST=YES \
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify
+        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify --preserve-unbeautified
 
     maccatalyst_build_product_directory="XCFrameworkBuildPath/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
 
@@ -82,8 +129,10 @@ else
         MACH_O_TYPE="$MACH_O_TYPE" \
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.log" | xcbeautify
+        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.log" | xcbeautify --preserve-unbeautified
 fi
+
+print_archive_diagnostics
 
 if [ "$MACH_O_TYPE" = "staticlib" ]; then
     if [ "$sdk" = "macosx" ] || [ "$sdk" = "maccatalyst" ]; then
