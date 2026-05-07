@@ -245,21 +245,6 @@ extension Set: SentryAttributeValue {
     /// - Note: Sets are unordered, so the resulting array order is not guaranteed to be
     ///   consistent across calls.
     public var asSentryAttributeContent: SentryAttributeContent {
-        if Element.self == Bool.self, let values = self as? Set<Bool> {
-            return .booleanArray(Array(values))
-        }
-        if Element.self == Double.self, let values = self as? Set<Double> {
-            return .doubleArray(Array(values))
-        }
-        if Element.self == Float.self, let values = self as? Set<Float> {
-            return .doubleArray(Array(values).map(Double.init))
-        }
-        if Element.self == Int.self, let values = self as? Set<Int> {
-            return .integerArray(Array(values))
-        }
-        if Element.self == String.self, let values = self as? Set<String> {
-            return .stringArray(Array(values))
-        }
         return Array(self).asSentryAttributeContent
     }
 }
