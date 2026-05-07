@@ -1,9 +1,37 @@
 #!/bin/bash
 
-# This script is used to generate the matrix combinations for the release workflow.
-# Rewritten to use jq as much as possible for maintainability.
-
 set -euo pipefail
+
+# Disable SC1091 because it won't work with pre-commit
+# shellcheck source=./scripts/ci-utils.sh disable=SC1091
+source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+
+usage() {
+    cat <<EOF
+Usage: $(basename "$0")
+
+Generate matrix combinations for the release workflow.
+
+Reads EVENT_NAME from the environment to decide which slices, variants,
+and SDKs to include. Pull requests get the base set; other events
+(push to main, release) additionally include arm64e and simulator SDKs.
+
+ENVIRONMENT:
+    EVENT_NAME    GitHub Actions event name (e.g., pull_request, push)
+
+OUTPUTS (via GITHUB_OUTPUT):
+    slices             JSON array of slice definitions
+    variants           JSON array of variant definitions
+    sdk-list-array     JSON array of SDK names
+    sdk-list-string    Comma-separated SDK names
+
+EOF
+    exit 1
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    usage
+fi
 
 # Slices and Variants only needed on PRs
 BASE_SLICES_JSON='[
@@ -39,19 +67,33 @@ ADDITIONAL_SDKS_JSON='[
   "xrsimulator"
 ]'
 
-if [ "$EVENT_NAME" = "pull_request" ]; then
+begin_group "Compute matrix for EVENT_NAME=${EVENT_NAME:-unset}"
+
+if [ "${EVENT_NAME:-}" = "pull_request" ]; then
+    echo "Pull request detected — using base slices/variants/SDKs only"
     SLICES_COMBINATIONS="$BASE_SLICES_JSON"
     VARIANTS_COMBINATIONS="$BASE_VARIANTS_JSON"
     SDK_LIST="$BASE_SDKS_JSON"
 else
+    echo "Non-PR event — merging additional variants and SDKs"
     SLICES_COMBINATIONS="$BASE_SLICES_JSON"
     VARIANTS_COMBINATIONS=$(jq -c -s '.[0] + .[1]' <(echo "$BASE_VARIANTS_JSON") <(echo "$ADDITIONAL_VARIANTS_JSON"))
     SDK_LIST=$(jq -c -s '.[0] + .[1]' <(echo "$BASE_SDKS_JSON") <(echo "$ADDITIONAL_SDKS_JSON"))
 fi
 
-{
-  echo "slices=$(echo "$SLICES_COMBINATIONS" | jq -c '.')"
-  echo "variants=$(echo "$VARIANTS_COMBINATIONS" | jq -c '.')"
-  echo "sdk-list-array=$(echo "$SDK_LIST" | jq -c '.')"
-  echo "sdk-list-string=$(echo "$SDK_LIST" | jq -r 'join(",")')"
-}  >> "$GITHUB_OUTPUT"
+SLICES_OUTPUT=$(echo "$SLICES_COMBINATIONS" | jq -c '.')
+VARIANTS_OUTPUT=$(echo "$VARIANTS_COMBINATIONS" | jq -c '.')
+SDK_ARRAY_OUTPUT=$(echo "$SDK_LIST" | jq -c '.')
+SDK_STRING_OUTPUT=$(echo "$SDK_LIST" | jq -r 'join(",")')
+
+set_output "slices" "$SLICES_OUTPUT"
+set_output "variants" "$VARIANTS_OUTPUT"
+set_output "sdk-list-array" "$SDK_ARRAY_OUTPUT"
+set_output "sdk-list-string" "$SDK_STRING_OUTPUT"
+
+echo "Generated matrix:"
+echo "  Slices:     $SLICES_OUTPUT"
+echo "  Variants:   $VARIANTS_OUTPUT"
+echo "  SDKs:       $SDK_STRING_OUTPUT"
+
+end_group

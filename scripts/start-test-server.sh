@@ -2,34 +2,49 @@
 
 set -euo pipefail
 
-log() {
-    echo "[$(date '+%H:%M:%S')] $1"
+# Disable SC1091 because it won't work with pre-commit
+# shellcheck source=./scripts/ci-utils.sh disable=SC1091
+source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+
+usage() {
+    cat <<EOF
+Usage: $(basename "$0")
+
+Start the test server (./test-server-exec) in the background and wait
+up to 20 seconds for it to respond on http://localhost:8080.
+
+EOF
+    exit 1
 }
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    usage
+fi
 
 is_server_running() {
     curl -s http://localhost:8080/echo-baggage-header > /dev/null 2>&1
 }
 
-log "🚀 Starting test server..."
+begin_group "Starting test server"
 
-log "Make the test server executable"
+echo "Making test server executable"
 chmod +x ./test-server-exec
 
-log "Start the test server in the background"
+echo "Start the test server in the background"
 ./test-server-exec &
 
-log "⏳ Waiting for 20 seconds that the test server to responds"
+echo "Waiting up to 20 seconds for the test server to respond"
 
 start_time=$(date +%s)
 server_started=false
 
 while true; do
     if is_server_running; then
-        log "✅ Test server is running and responding."
+        echo "Test server is running and responding."
         server_started=true
         break
     else
-        log "⏳ Test server is not yet responding, waiting..."
+        echo "Test server is not yet responding, waiting..."
     fi
 
     current_time=$(date +%s)
@@ -38,13 +53,15 @@ while true; do
     if [ $elapsed -ge 20 ]; then
         break
     fi
-    
+
     sleep 0.1
 done
 
+end_group
+
 if [ "$server_started" = true ]; then
-    log "✅ Test server successfully started and is responding at http://localhost:8080"
+    echo "Test server successfully started and is responding at http://localhost:8080"
 else
-    log "❌ Test server failed to start or is not responding after 20 seconds"
+    log_error "Test server failed to start or is not responding after 20 seconds"
     exit 1
-fi 
+fi

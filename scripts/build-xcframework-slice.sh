@@ -4,15 +4,59 @@
 
 set -eoux pipefail
 
+# Disable SC1091 because it won't work with pre-commit
+# shellcheck source=./scripts/ci-utils.sh disable=SC1091
+source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") <sdk> <scheme> [suffix] [mach_o_type] [configuration_suffix]
+
+Build a single SDK slice to be packaged into an XCFramework.
+
+ARGUMENTS:
+    sdk                     Target SDK (e.g., iphoneos, macosx, maccatalyst, watchos)
+    scheme                  Xcode scheme name (e.g., Sentry, SentrySwiftUI)
+    suffix                  Output name suffix, e.g. '-Dynamic' (default: empty)
+    mach_o_type             Mach-O type: mh_dylib or staticlib (default: mh_dylib)
+    configuration_suffix    Build configuration suffix (default: empty)
+
+EXAMPLES:
+    $(basename "$0") iphoneos Sentry "-Dynamic" mh_dylib
+    $(basename "$0") macosx Sentry "" staticlib
+
+EOF
+    exit 1
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    usage
+fi
+
+if [[ $# -lt 2 ]]; then
+    log_error "Expected at least 2 arguments (sdk, scheme), got $#"
+    usage
+fi
+
 sdk="${1:-}"
 scheme="$2"
 suffix="${3:-}"
 MACH_O_TYPE="${4-mh_dylib}"
 configuration_suffix="${5-}"
 
+echo "Building XCFramework slice:"
+echo "  SDK:                  $sdk"
+echo "  Scheme:               $scheme"
+echo "  Suffix:               ${suffix:-(none)}"
+echo "  Mach-O type:          $MACH_O_TYPE"
+echo "  Configuration suffix: ${configuration_suffix:-(none)}"
+
 resolved_configuration="Release$configuration_suffix"
 resolved_product_name="$scheme$configuration_suffix.framework"
 OTHER_LDFLAGS=""
+
+echo "  Configuration:        $resolved_configuration"
+echo "  Product name:         $resolved_product_name"
 
 GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
 if [ "$MACH_O_TYPE" = "staticlib" ]; then
@@ -33,9 +77,11 @@ slice_id="${scheme}${suffix}-${sdk}"
 
 output_xcarchive_path="XCFrameworkBuildPath/archive/${scheme}${suffix}"
 sentry_xcarchive_path="$output_xcarchive_path/${sdk}.xcarchive"
+echo "  Output archive:       $sentry_xcarchive_path"
 
 if [ "$sdk" = "maccatalyst" ]; then
     # we can't use the "archive" action here because it doesn't support the -destination option, which we need to build the maccatalyst slice. so we'll have to build it manually and then copy the build product to an xcarchive directory we create.
+    begin_group "Build ${slice_id} (maccatalyst)"
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -project Sentry.xcodeproj/ \
         -scheme "$scheme" \
@@ -50,19 +96,27 @@ if [ "$sdk" = "maccatalyst" ]; then
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
         OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify
+    end_group
 
     maccatalyst_build_product_directory="XCFrameworkBuildPath/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
 
+    begin_group "Assemble maccatalyst xcarchive (${slice_id})"
     maccatalyst_xcarchive_framework_directory="${sentry_xcarchive_path}/Products/Library/Frameworks"
     mkdir -p "${maccatalyst_xcarchive_framework_directory}"
+    echo "Copying framework to ${maccatalyst_xcarchive_framework_directory}"
     cp -R "${maccatalyst_build_product_directory}/${resolved_product_name}" "${maccatalyst_xcarchive_framework_directory}"
 
     if [ -d "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" ]; then
         maccatalyst_archive_dsym_destination="${output_xcarchive_path}/maccatalyst.xcarchive/dSYMs"
         mkdir "${maccatalyst_archive_dsym_destination}"
+        echo "Copying dSYM to ${maccatalyst_archive_dsym_destination}"
         cp -R "${maccatalyst_build_product_directory}/${resolved_product_name}.dSYM" "${maccatalyst_archive_dsym_destination}"
+    else
+        echo "No dSYM found for maccatalyst slice (GCC_GENERATE_DEBUGGING_SYMBOLS=$GCC_GENERATE_DEBUGGING_SYMBOLS)"
     fi
+    end_group
 else
+    begin_group "Archive ${slice_id}"
     set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
         -project Sentry.xcodeproj/ \
         -scheme "$scheme" \
@@ -76,9 +130,11 @@ else
         ENABLE_CODE_COVERAGE=NO \
         GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
         OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.log" | xcbeautify
+    end_group
 fi
 
 if [ "$MACH_O_TYPE" = "staticlib" ]; then
+    begin_group "Patch Info.plist for static framework (${slice_id})"
     if [ "$sdk" = "macosx" ] || [ "$sdk" = "maccatalyst" ]; then
         infoPlistPath="Resources/Info.plist"
     else
@@ -87,5 +143,9 @@ if [ "$MACH_O_TYPE" = "staticlib" ]; then
     # This workaround is necessary to make Sentry Static framework to work
     # More information in here: https://github.com/getsentry/sentry-cocoa/issues/3769
     # The version 100 seems to work with all Xcode up to 15.4
+    echo "Patching MinimumOSVersion to 100.0 in $infoPlistPath"
     plutil -replace "MinimumOSVersion" -string "100.0" "$sentry_xcarchive_path/Products/Library/Frameworks/${resolved_product_name}/$infoPlistPath"
+    end_group
 fi
+
+echo "Slice ${slice_id} built successfully"

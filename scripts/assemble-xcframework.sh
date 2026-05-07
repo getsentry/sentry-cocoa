@@ -2,10 +2,46 @@
 
 set -eoux pipefail
 
+# Disable SC1091 because it won't work with pre-commit
+# shellcheck source=./scripts/ci-utils.sh disable=SC1091
+source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") <scheme> <suffix> <configuration_suffix> <sdks> <xcarchive_path_template>
+
+Assembles an XCFramework from per-SDK xcarchive slices.
+
+ARGUMENTS:
+    scheme                      Xcode scheme name (e.g., Sentry)
+    suffix                      Suffix for the output xcframework name (can be empty)
+    configuration_suffix        Suffix for the product name inside archives (can be empty)
+    sdks                        Comma-separated list of SDKs (e.g., iphoneos,macosx)
+    xcarchive_path_template     Path template with SDK_NAME placeholder(s)
+
+EXAMPLES:
+    $(basename "$0") Sentry "" "" "iphoneos,macosx" "/path/to/SDK_NAME.xcarchive"
+
+EOF
+    exit 1
+}
+
+if [ $# -lt 5 ]; then
+    log_error "Expected 5 arguments, got $#"
+    usage
+fi
+
 scheme="$1"
 suffix="$2"
 configuration_suffix="$3"
 IFS=',' read -r -a sdks <<< "$4"
+
+echo "Assembling XCFramework:"
+echo "  Scheme:               $scheme"
+echo "  Suffix:               ${suffix:-(none)}"
+echo "  Configuration suffix: ${configuration_suffix:-(none)}"
+echo "  SDKs:                 ${sdks[*]}"
+echo "  Archive template:     $5"
 
 # on ci, the xcarchives live in paths like the following:
 #   /path/to/.../xcframework-slices/xcframework-sentry-swiftui-slice-maccatalyst/Library/Frameworks/SentrySwiftUI.framework
@@ -27,6 +63,7 @@ fi
 
 framework_filename="$resolved_product_name.framework"
 
+begin_group "Collecting framework slices"
 for sdk in "${sdks[@]}"; do
     xcarchive_path="${xcarchive_path_template//SDK_NAME/$sdk}"
     framework_path="$xcarchive_path/Products/Library/Frameworks/$framework_filename"
@@ -57,6 +94,7 @@ for sdk in "${sdks[@]}"; do
         fi
     fi
 done
+end_group
 
 if [ -z "$suffix" ]; then
     resolved_xcframework_name="$scheme"
@@ -67,4 +105,6 @@ xcframework_filename="$resolved_xcframework_name.xcframework"
 rm -rf "$xcframework_filename"
 xcodebuild_cmd+=" -output \"$xcframework_filename\""
 
+begin_group "Creating $xcframework_filename"
 eval "$xcodebuild_cmd"
+end_group

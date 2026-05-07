@@ -1,27 +1,39 @@
 #!/bin/bash
 
-# This script ensures that a required runtime is loaded.
-#
-# Primary use cases:
-# 1. CI sometimes is failing to load some runtimes, this will ensure they are loaded
-
 set -euo pipefail
 
-# Parse named arguments
-OS_VERSION=""
-PLATFORM=""
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./scripts/ci-utils.sh disable=SC1091
+source "$SCRIPT_DIR/ci-utils.sh"
 
 usage() {
-    echo "Usage: $0 --os-version <os_version> --platform <platform>"
-    echo "  OS version: Version to ensure is loaded (e.g., 26.1 for beta, 16.4 for older iOS)"
-    echo "  Platform: Platform to ensure is loaded (e.g., iOS, tvOS, visionOS)"
-    echo "  Example: $0 --os-version 26.1 --platform iOS"
-    echo "  Example: $0 --os-version 16.4"
+    cat <<EOF
+Usage: $(basename "$0") --os-version <version> --platform <platform>
+
+Ensure a simulator runtime is loaded. CI sometimes fails to load runtimes
+automatically; this script unmounts simulator volumes and waits for reload.
+
+OPTIONS:
+    --os-version <version>   Runtime version (e.g., 18.2, 26.1)
+    --platform <platform>    Platform name (e.g., iOS, tvOS, visionOS)
+    -h, --help               Show this help message
+
+EXAMPLES:
+    $(basename "$0") --os-version 26.1 --platform iOS
+    $(basename "$0") --os-version 16.4 --platform tvOS
+
+EOF
     exit 1
 }
 
+OS_VERSION=""
+PLATFORM=""
+
 while [[ $# -gt 0 ]]; do
     case $1 in
+        -h|--help)
+            usage
+            ;;
         --os-version)
             OS_VERSION="$2"
             shift 2
@@ -31,21 +43,25 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         *)
-            echo "Unknown argument: $1"
+            log_error "Unknown argument: $1"
             usage
             ;;
     esac
 done
 
 if [ -z "$OS_VERSION" ]; then
-    echo "Error: --os-version argument is required"
+    log_error "--os-version argument is required"
     usage
 fi
 
 if [ -z "$PLATFORM" ]; then
-    echo "Error: --platform argument is required"
+    log_error "--platform argument is required"
     usage
 fi
+
+echo "Ensuring runtime is loaded:"
+echo "  Platform:   $PLATFORM"
+echo "  OS version: $OS_VERSION"
 
 # Check runtime availability using JSON output. The text-based `simctl list
 # runtimes -v` format shows only major.minor in the display name (e.g.
@@ -63,36 +79,37 @@ runtime_is_available() {
             > /dev/null 2>&1
 }
 
-echo "Ensuring runtime $PLATFORM ($OS_VERSION) is loaded"
-
-# Check if the runtime is loaded
 if runtime_is_available; then
-    echo "Runtime $OS_VERSION is loaded"
+    echo "Runtime $PLATFORM $OS_VERSION is already loaded"
     exit 0
 fi
 
 echo "Runtime $PLATFORM ($OS_VERSION) is not loaded, will try to load it"
 
-# Unmount simulator volumes once before checking
+begin_group "Unmount simulator volumes"
 for dir in /Library/Developer/CoreSimulator/Volumes/*; do
     echo "Ejecting $dir"
     sudo diskutil unmount force "$dir" || true
 done
 sudo launchctl kill -9 system/com.apple.CoreSimulator.simdiskimaged || true
 sudo pkill -9 com.apple.CoreSimulator.CoreSimulatorService || true
+end_group
 
 # Wait for a runtime to be loaded
+begin_group "Wait for runtime $PLATFORM ($OS_VERSION)"
 count=0
 MAX_ATTEMPTS=60 # 300 seconds (5 minutes) timeout
 while [ $count -lt $MAX_ATTEMPTS ]; do
     if runtime_is_available; then
         echo "Runtime $OS_VERSION is loaded after $count attempts"
+        end_group
         exit 0
     fi
     echo "Waiting for runtime $OS_VERSION to be loaded... attempt $count"
     count=$((count + 1))
     sleep 5
 done
+end_group
 
-echo "Runtime $PLATFORM ($OS_VERSION) is not loaded after $count attempts"
+log_error "Runtime $PLATFORM ($OS_VERSION) is not loaded after $count attempts"
 exit 1
