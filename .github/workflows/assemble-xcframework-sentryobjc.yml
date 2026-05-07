@@ -99,7 +99,9 @@ jobs:
       - name: Validate XCFramework structure
         run: |
           ./scripts/validate-xcframework-format.sh "SentryObjC-Static.xcframework"
+          ./scripts/validate-xcframework-architectures.sh --xcframework "SentryObjC-Static.xcframework"
           ./scripts/validate-xcframework-format.sh "SentryObjC-Dynamic.xcframework"
+          ./scripts/validate-xcframework-architectures.sh --xcframework "SentryObjC-Dynamic.xcframework"
         shell: bash
 
       - name: Zip XCFrameworks

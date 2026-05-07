@@ -16,6 +16,7 @@ if [[ "$should_sign" == true ]]; then
     echo "Signing $framework"
     # This is Sentry's certificate name, and should not change
     codesign --sign "$sentry_certificate" --timestamp --options runtime --deep --force "$framework_path"
+    codesign --verify --deep --strict --verbose=2 "$framework_path"
 fi
 
 echo "Compressing $framework"
