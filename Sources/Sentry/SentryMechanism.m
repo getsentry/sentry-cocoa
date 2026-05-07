@@ -1,8 +1,8 @@
 #import "SentryMechanism.h"
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryMechanismContext.h"
-#import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
+#import "SentrySanitizerUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
     [SentryDictionary setBoolValue:self.handled forKey:@"handled" intoDictionary:serializedData];
     [serializedData setValue:self.synthetic forKey:@"synthetic"];
     [serializedData setValue:self.desc forKey:@"description"];
-    [serializedData setValue:sentry_sanitize(self.data) forKey:@"data"];
+    [serializedData setValue:sentry_sanitize_dictionary(self.data) forKey:@"data"];
     [serializedData setValue:self.helpLink forKey:@"help_link"];
 
     if (nil != self.meta) {

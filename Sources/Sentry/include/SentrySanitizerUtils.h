@@ -3,6 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-SENTRY_EXTERN NSDictionary *_Nullable sentry_sanitize(NSDictionary *_Nullable dictionary);
+SENTRY_EXTERN NSDictionary *_Nullable sentry_sanitize_dictionary(
+    NSDictionary *_Nullable dictionary);
 
 NS_ASSUME_NONNULL_END

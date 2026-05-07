@@ -2,8 +2,12 @@
 
 #import "SentryCrashMachineContext.h"
 #import "SentryCrashMachineContext_Apple.h"
+#import "SentryCrashStackCursor_MachineContext.h"
 #import "TestThread.h"
 #import <mach/mach.h>
+#if defined(__arm64__)
+#    import <mach/arm/thread_status.h>
+#endif
 
 #if !TARGET_OS_WATCH
 
@@ -11,6 +15,41 @@
 @end
 
 @implementation SentryCrashMachineContextTests
+
+#    if defined(__arm64__)
+- (void)testStackCursor_WhenProgramCounterIsZero_ShouldRecoverLinkRegisterFrames
+{
+    // -- Arrange --
+    typedef struct TestFrameEntry {
+        struct TestFrameEntry *previous;
+        uintptr_t returnAddress;
+    } TestFrameEntry;
+
+    const uintptr_t linkRegisterAddress = 0x12345678;
+    const uintptr_t frameReturnAddress = 0x87654321;
+    TestFrameEntry lastFrame = { 0 };
+    TestFrameEntry firstFrame = { .previous = &lastFrame, .returnAddress = frameReturnAddress };
+
+    SentryCrashMachineContext machineContext = { 0 };
+    arm_thread_state64_set_pc_fptr(machineContext.machineContext.__ss, NULL);
+    arm_thread_state64_set_lr_fptr(
+        machineContext.machineContext.__ss, (void (*)(void))linkRegisterAddress);
+    arm_thread_state64_set_fp(machineContext.machineContext.__ss, &firstFrame);
+
+    SentryCrashStackCursor cursor;
+    sentrycrashsc_initWithMachineContext(&cursor, 10, &machineContext);
+
+    // -- Act / Assert --
+    XCTAssertTrue(cursor.advanceCursor(&cursor), @"PC=0 should still emit the null frame");
+    XCTAssertEqual(cursor.stackEntry.address, (uintptr_t)0);
+
+    XCTAssertTrue(cursor.advanceCursor(&cursor), @"Should recover the caller from LR");
+    XCTAssertEqual(cursor.stackEntry.address, linkRegisterAddress);
+
+    XCTAssertTrue(cursor.advanceCursor(&cursor), @"Should continue walking from FP");
+    XCTAssertEqual(cursor.stackEntry.address, frameReturnAddress);
+}
+#    endif
 
 - (void)testGetContextForThread_NonCrashedContext_DoesNotPopulateThreadList
 {

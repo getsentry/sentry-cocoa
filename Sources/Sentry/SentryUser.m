@@ -1,7 +1,7 @@
 #import "SentryUser.h"
 #import "SentryGeo.h"
 #import "SentryInternalDefines.h"
-#import "SentryNSDictionarySanitize.h"
+#import "SentrySanitizerUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -86,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.ipAddress forKey:@"ip_address"];
     [serializedData setValue:self.name forKey:@"name"];
     [serializedData setValue:[self.geo serialize] forKey:@"geo"];
-    [serializedData setValue:sentry_sanitize(self.data) forKey:@"data"];
+    [serializedData setValue:sentry_sanitize_dictionary(self.data) forKey:@"data"];
     NSDictionary<NSString *, id> *unknown = self.unknown;
     if (unknown != nil) {
         for (id key in unknown) {

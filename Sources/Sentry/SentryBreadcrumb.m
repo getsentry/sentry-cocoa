@@ -4,7 +4,7 @@
 #import "SentryInternalDefines.h"
 #import "SentryLevel.h"
 #import "SentryLevelMapper.h"
-#import "SentryNSDictionarySanitize.h"
+#import "SentrySanitizerUtils.h"
 #import "SentrySwift.h"
 
 /**
@@ -236,7 +236,7 @@ sentry_deepCopyValue(id value)
     [serializedData setValue:type forKey:@"type"];
     [serializedData setValue:origin forKey:@"origin"];
     [serializedData setValue:message forKey:@"message"];
-    [serializedData setValue:sentry_sanitize(data) forKey:@"data"];
+    [serializedData setValue:sentry_sanitize_dictionary(data) forKey:@"data"];
     return serializedData;
 }
 

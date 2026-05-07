@@ -2,6 +2,18 @@
 #import "CppSample.hpp"
 #import <Foundation/Foundation.h>
 
+namespace {
+using NullFunctionPointer = void (*)(void);
+
+__attribute__((noinline)) void
+callNullFunctionPointer(void)
+{
+    volatile uintptr_t address = 0;
+    auto function = reinterpret_cast<NullFunctionPointer>(address);
+    function();
+}
+} // namespace
+
 @implementation CppWrapper
 
 - (void)throwCPPException
@@ -26,6 +38,11 @@
 {
     NSArray *array = [NSArray array];
     NSLog(@"%@", array[9]);
+}
+
+- (void)crashWithNullProgramCounter
+{
+    callNullFunctionPointer();
 }
 
 @end

@@ -7,27 +7,37 @@ on:
     inputs:
       version:
         description: Which version to notify issues for
-        required: false
+        required: true
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
 
 # This workflow is triggered when a release is published
 jobs:
   release-comment-issues:
     runs-on: ubuntu-24.04
-    name: Notify issues
+    name: "Notify issues"
     steps:
       - name: Get version
         id: get_version
-        run: echo "version=${VERSION}" >> $GITHUB_OUTPUT
         env:
-          VERSION: ${{ github.event.inputs.version || github.event.release.tag_name }}
+          INPUTS_VERSION: ${{ github.event.inputs.version }}
+          RELEASE_TAG_NAME: ${{ github.event.release.tag_name }}
+        run: echo "version=${INPUTS_VERSION:-$RELEASE_TAG_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Comment on linked issues that are mentioned in release
         if: |
           steps.get_version.outputs.version != ''
-          && !contains(steps.get_version.outputs.version, 'a')
-          && !contains(steps.get_version.outputs.version, 'b')
-          && !contains(steps.get_version.outputs.version, 'rc')
+          && !contains(steps.get_version.outputs.version, '-beta')
+          && !contains(steps.get_version.outputs.version, '-alpha')
+          && !contains(steps.get_version.outputs.version, '-rc')
+
+        # Pin matches getsentry/release-comment-issues-gh-action@v1 (repo policy: full SHA).
+        # changelog_pr_mode: Craft release notes use (#1234); default mode expects markdown PR links.
         uses: getsentry/release-comment-issues-gh-action@52e08022ca721e701515ede89edd224b63b180eb # v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ steps.get_version.outputs.version }}
+          changelog_pr_mode: SIMPLE_ROUND_BRACKETS
