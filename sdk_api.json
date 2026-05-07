@@ -67713,6 +67713,363 @@
       {
         "children": [
           {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryAttributeContent",
+                    "printedName": "Sentry.SentryAttributeContent",
+                    "usr": "s:6Sentry0A16AttributeContentO"
+                  }
+                ],
+                "declKind": "Accessor",
+                "genericSig": "<Element where Element : Swift.Hashable>",
+                "isFromExtension": true,
+                "kind": "Accessor",
+                "mangledName": "$sSh6SentryE02asA16AttributeContentAA0acD0Ovg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:Sh6SentryE02asA16AttributeContentAA0acD0Ovg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
+              }
+            ],
+            "declKind": "Var",
+            "isFromExtension": true,
+            "kind": "Var",
+            "mangledName": "$sSh6SentryE02asA16AttributeContentAA0acD0Ovp",
+            "moduleName": "Sentry",
+            "name": "asSentryAttributeContent",
+            "printedName": "asSentryAttributeContent",
+            "usr": "s:Sh6SentryE02asA16AttributeContentAA0acD0Ovp"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss7CVarArgP",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "GenericTypeParam",
+                        "printedName": "Element"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Element",
+                    "printedName": "Swift.Set<Element>.Element"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "Element",
+                "printedName": "Element"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Index",
+                    "printedName": "Swift.Set<Element>.Index",
+                    "usr": "s:Sh5IndexV"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "Index",
+                "printedName": "Index"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "GenericTypeParam",
+                                "printedName": "Element"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Set",
+                            "printedName": "Swift.Set<Element>",
+                            "usr": "s:Sh"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "DefaultIndices",
+                        "printedName": "Swift.DefaultIndices<Swift.Set<Element>>",
+                        "usr": "s:SI"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Indices",
+                    "printedName": "Swift.Set<Element>.Indices"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "Indices",
+                "printedName": "Indices"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Iterator",
+                    "printedName": "Swift.Set<Element>.Iterator",
+                    "usr": "s:Sh8IteratorV"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "Iterator",
+                "printedName": "Iterator"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "GenericTypeParam",
+                                "printedName": "Element"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Set",
+                            "printedName": "Swift.Set<Element>",
+                            "usr": "s:Sh"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Slice",
+                        "printedName": "Swift.Slice<Swift.Set<Element>>",
+                        "usr": "s:s5SliceV"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "SubSequence",
+                    "printedName": "Swift.Set<Element>.SubSequence"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "SubSequence",
+                "printedName": "SubSequence"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$sSl",
+            "name": "Collection",
+            "printedName": "Collection",
+            "usr": "s:Sl"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss28CustomDebugStringConvertibleP",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss17CustomReflectableP",
+            "name": "CustomReflectable",
+            "printedName": "CustomReflectable",
+            "usr": "s:s17CustomReflectableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss23CustomStringConvertibleP",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSe",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSE",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "GenericTypeParam",
+                        "printedName": "Element"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "ArrayLiteralElement",
+                    "printedName": "Swift.Set<Element>.ArrayLiteralElement"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "ArrayLiteralElement",
+                "printedName": "ArrayLiteralElement"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$ss25ExpressibleByArrayLiteralP",
+            "name": "ExpressibleByArrayLiteral",
+            "printedName": "ExpressibleByArrayLiteral",
+            "usr": "s:s25ExpressibleByArrayLiteralP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8SendableP",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$s6Sentry0A14AttributeValueP",
+            "name": "SentryAttributeValue",
+            "printedName": "SentryAttributeValue",
+            "usr": "s:6Sentry0A14AttributeValueP"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "Element"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "Element",
+                "printedName": "Element"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Iterator",
+                    "printedName": "Swift.Set<Element>.Iterator",
+                    "usr": "s:Sh8IteratorV"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "Iterator",
+                "printedName": "Iterator"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$sST",
+            "name": "Sequence",
+            "printedName": "Sequence",
+            "usr": "s:ST"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "GenericTypeParam",
+                        "printedName": "Element"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Element",
+                    "printedName": "Swift.Set<Element>.Element"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "Element",
+                "printedName": "Element"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$ss10SetAlgebraP",
+            "name": "SetAlgebra",
+            "printedName": "SetAlgebra",
+            "usr": "s:s10SetAlgebraP"
+          }
+        ],
+        "declAttributes": [
+          "EagerMove",
+          "Frozen"
+        ],
+        "declKind": "Struct",
+        "genericSig": "<Element where Element : Swift.Hashable>",
+        "isExternal": true,
+        "kind": "TypeDecl",
+        "mangledName": "$sSh",
+        "moduleName": "Swift",
+        "name": "Set",
+        "printedName": "Set",
+        "usr": "s:Sh"
+      },
+      {
+        "children": [
+          {
             "children": [
               {
                 "children": [
