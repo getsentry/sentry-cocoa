@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add Set conformance to SentryAttributeValue (#7876)
+
 ## 9.12.1
 
 ### Fixes
