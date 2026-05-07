@@ -176,7 +176,12 @@ merge_types_headers() {
 }
 
 tmp_dir=""
-cleanup() { [ -n "$tmp_dir" ] && rm -r "$tmp_dir"; }
+cleanup() {
+    if [ -n "$tmp_dir" ] && [ -d "$tmp_dir" ]; then
+        rm -r "$tmp_dir"
+    fi
+    tmp_dir=""
+}
 trap cleanup EXIT
 
 for sdk in "${sdks[@]}"; do
@@ -307,7 +312,7 @@ for sdk in "${sdks[@]}"; do
     fi
     echo "  Dynamic binary: $(du -h "$dynamic_binary" | cut -f1)"
 
-    rm -r "$tmp_dir"
+    cleanup
 
     echo "=== Done: ${sdk} ==="
 done

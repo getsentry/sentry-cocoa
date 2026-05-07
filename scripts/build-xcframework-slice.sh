@@ -23,6 +23,11 @@ configuration_suffix="${5-}"
 resolved_configuration="Release$configuration_suffix"
 resolved_product_name="$scheme$configuration_suffix.framework"
 OTHER_LDFLAGS=""
+destination_args=()
+
+if [ "$sdk" = "macosx" ]; then
+    destination_args=(-destination "generic/platform=macOS")
+fi
 
 GCC_GENERATE_DEBUGGING_SYMBOLS="YES"
 if [ "$MACH_O_TYPE" = "staticlib" ]; then
@@ -122,6 +127,7 @@ else
         -scheme "$scheme" \
         -configuration "$resolved_configuration" \
         -sdk "$sdk" \
+        "${destination_args[@]}" \
         -archivePath "./$sentry_xcarchive_path" \
         CODE_SIGNING_REQUIRED=NO \
         SKIP_INSTALL=NO \
