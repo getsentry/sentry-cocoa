@@ -1,0 +1,4 @@
+#include "DeploymentTargets.xcconfig"
+
+ARCHS = $(ARCHS_STANDARD)
+ARCHS[sdk=*simulator] = $(ARCHS_STANDARD)
