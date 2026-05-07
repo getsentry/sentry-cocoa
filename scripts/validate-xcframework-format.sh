@@ -97,15 +97,15 @@ validate_framework() {
                     echo "    Symlink target exists"
                 else
                     log_error "Symlink target does not exist: $framework_path/$symlink_target"
-                    ((validation_errors++))
+                    validation_errors=$((validation_errors + 1))
                 fi
             else
                 log_error "Symlink is broken (target does not exist)"
-                ((validation_errors++))
+                validation_errors=$((validation_errors + 1))
             fi
         else
             log_error "Main binary should be a symlink when Versions directory exists"
-            ((validation_errors++))
+            validation_errors=$((validation_errors + 1))
         fi
         
         # Check Versions directory structure
@@ -120,15 +120,15 @@ validate_framework() {
                     echo "    Versions/Current symlink is valid"
                 else
                     log_error "Versions/Current symlink is broken"
-                    ((validation_errors++))
+                    validation_errors=$((validation_errors + 1))
                 fi
             else
                 log_error "Versions/Current should be a symlink"
-                ((validation_errors++))
+                validation_errors=$((validation_errors + 1))
             fi
         else
             log_error "Versions/Current directory not found"
-            ((validation_errors++))
+            validation_errors=$((validation_errors + 1))
         fi
     else
         echo "    No Versions directory found (standard framework structure)"
@@ -138,7 +138,7 @@ validate_framework() {
             echo "    Main binary is not a symlink"
         else
             log_error "Main binary is a symlink or does not exist: $binary_path"
-            ((validation_errors++))
+            validation_errors=$((validation_errors + 1))
         fi
     fi
 }
@@ -153,7 +153,7 @@ fi
 
 platform_count=0
 while IFS= read -r dir; do
-    [ -n "$dir" ] && ((platform_count++))
+    [ -n "$dir" ] && platform_count=$((platform_count + 1))
 done <<< "$platform_dirs"
 
 echo "Found $platform_count platform slice(s):"
@@ -177,7 +177,7 @@ while IFS= read -r platform_dir; do
             while IFS= read -r framework; do
                 if [ -n "$framework" ]; then
                     validate_framework "$framework"
-                    ((framework_count++))
+                    framework_count=$((framework_count + 1))
                 fi
             done <<< "$frameworks"
         fi

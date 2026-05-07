@@ -30,7 +30,7 @@ run_with_timeout() {
             return 124  # Same exit code as GNU timeout
         fi
         sleep 1
-        ((count++))
+        count=$((count + 1))
     done
     
     # Get the exit code of the command
