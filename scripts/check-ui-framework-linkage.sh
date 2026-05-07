@@ -107,12 +107,12 @@ if [[ "$LINKAGE_TEST" != "linked" && "$LINKAGE_TEST" != "unlinked" ]]; then
     exit 1
 fi
 
-log_notice "Checking ${FRAMEWORK_TYPE} linkage for:"
-log_notice " - Configuration:     $CONFIGURATION"
-log_notice " - Derived Data Path: $DERIVED_DATA_PATH"
-log_notice " - Linkage Test:      $LINKAGE_TEST"
-log_notice " - Module Name:       $MODULE_NAME"
-log_notice " - Framework Type:    $FRAMEWORK_TYPE"
+echo "Checking ${FRAMEWORK_TYPE} linkage for:"
+echo " - Configuration:     $CONFIGURATION"
+echo " - Derived Data Path: $DERIVED_DATA_PATH"
+echo " - Linkage Test:      $LINKAGE_TEST"
+echo " - Module Name:       $MODULE_NAME"
+echo " - Framework Type:    $FRAMEWORK_TYPE"
 
 # Define the path to the Sentry build product.
 # Find the framework in the Build/Products directory (supports different platform suffixes like -iphonesimulator, -macosx, etc.)
@@ -130,7 +130,7 @@ if [ -z "$SENTRY_BUILD_PRODUCT_PATH" ]; then
     log_error "Build product not found in $DERIVED_DATA_PATH/Build/Products/$CONFIGURATION* (looked for $MODULE_NAME.framework or $MODULE_NAME)"
     exit 1
 fi
-log_notice "Checking build product path: $SENTRY_BUILD_PRODUCT_PATH"
+echo "Checking build product path: $SENTRY_BUILD_PRODUCT_PATH"
 
 if [ ! -f "$SENTRY_BUILD_PRODUCT_PATH" ]; then
     log_error "Sentry build product not found at path: $SENTRY_BUILD_PRODUCT_PATH"
@@ -140,17 +140,17 @@ fi
 # For some frameworks, the binary in the framework root is a symlink to the binary in the Versions directory.
 # We need to check resolve the symlink and check the binary in the Versions directory.
 if [ -L "$SENTRY_BUILD_PRODUCT_PATH" ]; then
-    log_notice "Sentry build product is a symlink, resolving it."
+    echo "Sentry build product is a symlink, resolving it."
     SENTRY_BUILD_PRODUCT_PATH=$(readlink -f "$SENTRY_BUILD_PRODUCT_PATH")
     if [ ! -f "$SENTRY_BUILD_PRODUCT_PATH" ]; then
         log_error "Sentry build product not found at path: $SENTRY_BUILD_PRODUCT_PATH"
         exit 1
     fi
-    log_notice "Resolved Sentry build product path: $SENTRY_BUILD_PRODUCT_PATH"
+    echo "Resolved Sentry build product path: $SENTRY_BUILD_PRODUCT_PATH"
 fi
 
 # Check if the binary is linked to the specified framework.
-log_notice "Checking if Sentry build product is linked to ${FRAMEWORK_TYPE}."
+echo "Checking if Sentry build product is linked to ${FRAMEWORK_TYPE}."
 OTOOL_OUTPUT=$(otool -L "$SENTRY_BUILD_PRODUCT_PATH")
 begin_group "OTool output"
 echo "$OTOOL_OUTPUT"
@@ -165,7 +165,7 @@ case "$FRAMEWORK_TYPE" in
     MATCHES=$(echo "$OTOOL_OUTPUT" | grep -c -e "/System/Library/Frameworks/AppKit.framework/Versions/" -e "libswiftAppKit.dylib" ||:)
     ;;
 esac
-log_notice "Matches: $MATCHES"
+echo "Matches: $MATCHES"
 
 # Check the linkage.
 case "$LINKAGE_TEST" in
@@ -174,14 +174,14 @@ case "$LINKAGE_TEST" in
         log_error "${FRAMEWORK_TYPE}.framework linkage not found, but expected linkage."
         exit 1
     fi
-    log_notice "Success! ${FRAMEWORK_TYPE}.framework linked."
+    echo "Success! ${FRAMEWORK_TYPE}.framework linked."
     ;;
 "unlinked")
-    log_notice "Checking if Sentry build product is not linked to ${FRAMEWORK_TYPE}."
+    echo "Checking if Sentry build product is not linked to ${FRAMEWORK_TYPE}."
     if [ "$MATCHES" != 0 ]; then
         log_error "${FRAMEWORK_TYPE}.framework linkage found, but expected no linkage."
         exit 1
     fi
-    log_notice "Success! ${FRAMEWORK_TYPE}.framework not linked."
+    echo "Success! ${FRAMEWORK_TYPE}.framework not linked."
     ;;
 esac

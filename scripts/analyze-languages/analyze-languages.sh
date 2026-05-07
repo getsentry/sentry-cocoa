@@ -54,7 +54,7 @@ begin_group "Setting up github-linguist"
 # Install gems if not already installed (e.g., local development).
 # In CI, bundle install is handled by the workflow before this script runs.
 if ! bundle check > /dev/null 2>&1; then
-    log_notice "Running bundle install for linguist"
+    echo "Running bundle install for linguist"
     bundle install
 fi
 
@@ -93,13 +93,13 @@ if [ -n "$SINCE_ARG" ]; then
     START_YEAR="${SINCE_ARG%%-*}"
     START_MONTH="$(echo "$SINCE_ARG" | cut -d- -f2)"
     START_MONTH=$((10#$START_MONTH))
-    log_notice "Finding monthly commits since $SINCE_ARG"
+    echo "Finding monthly commits since $SINCE_ARG"
 else
     # Default: start from January 2019. Before that, the language stats
     # fluctuate significantly between months, making the chart unreliable.
     START_YEAR=2019
     START_MONTH=1
-    log_notice "Finding monthly commits since January 2019"
+    echo "Finding monthly commits since January 2019"
 fi
 
 COMMITS=()
@@ -140,7 +140,7 @@ begin_group "Analyzing $TOTAL revisions"
 for i in $(seq 0 $((TOTAL - 1))); do
     month="${MONTHS[$i]}"
     sha="${COMMITS[$i]}"
-    log_notice "[$((i + 1))/$TOTAL] $month"
+    echo "[$((i + 1))/$TOTAL] $month"
     bundle exec github-linguist --rev "$sha" --breakdown --json > "$DATA_DIR/${month}.linguist.json" 2>/dev/null
     git ls-tree -r -l "$sha" > "$DATA_DIR/${month}.lstree.txt"
 done
@@ -150,7 +150,7 @@ end_group
 begin_group "Generating chart"
 python3 "$SCRIPT_DIR/generate-chart.py" --data-dir "$DATA_DIR" --output-file "$OUTPUT_FILE"
 
-log_notice "Chart written to $OUTPUT_FILE"
+echo "Chart written to $OUTPUT_FILE"
 end_group
 
 # ── 6. Open in browser ───────────────────────────────────────────────────
@@ -162,4 +162,4 @@ if [ "${CI:-}" != "true" ]; then
     fi
 fi
 
-log_notice "Done!"
+echo "Done!"

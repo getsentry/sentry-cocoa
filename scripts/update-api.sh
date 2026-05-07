@@ -17,8 +17,8 @@ if [[ "$XCODE_MAJOR_VERSION" != "16" ]]; then
     XCODE_16_PATH=$(find /Applications -maxdepth 1 -type d -name "Xcode-16*" 2>/dev/null | head -n 1)
     
     if [[ -n "$XCODE_16_PATH" ]]; then
-        log_notice "Xcode $XCODE_VERSION is currently selected, but found Xcode 16 at $XCODE_16_PATH"
-        log_notice "Using Xcode 16 for this script execution..."
+        echo "Xcode $XCODE_VERSION is currently selected, but found Xcode 16 at $XCODE_16_PATH"
+        echo "Using Xcode 16 for this script execution..."
         export DEVELOPER_DIR="$XCODE_16_PATH/Contents/Developer"
         
         # Verify the Xcode 16 installation works
@@ -33,7 +33,7 @@ if [[ "$XCODE_MAJOR_VERSION" != "16" ]]; then
             exit 1
         fi
         
-        log_notice "Successfully using Xcode 16 ($XCODE_16_VERSION)"
+        echo "Successfully using Xcode 16 ($XCODE_16_VERSION)"
     else
         log_error "Xcode 16 is required for running the update-api.sh script, because Xcode 26 doesn't include the ObjC public API, but Xcode $XCODE_VERSION is currently selected."
         log_error "Please select Xcode 16 using 'sudo xcode-select' or 'xcodes select 16.x'"
@@ -46,28 +46,28 @@ end_group
 
 # Build both frameworks at once, as they depend on each other
 begin_group "Build Sentry-Dynamic XCFramework"
-log_notice "Building Sentry-Dynamic slice"
+echo "Building Sentry-Dynamic slice"
 ./scripts/build-xcframework-slice.sh "iphoneos" "Sentry" "-Dynamic" "mh_dylib"
 
-log_notice "Assembling Sentry-Dynamic xcframework"
+echo "Assembling Sentry-Dynamic xcframework"
 ./scripts/assemble-xcframework.sh "Sentry" "-Dynamic" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/Sentry-Dynamic/SDK_NAME.xcarchive"
 end_group
 
 begin_group "Build SentrySwiftUI XCFramework"
-log_notice "Building SentrySwiftUI slice"
+echo "Building SentrySwiftUI slice"
 ./scripts/build-xcframework-slice.sh "iphoneos" "SentrySwiftUI" "" "mh_dylib"
 
-log_notice "Assembling SentrySwiftUI xcframework"
+echo "Assembling SentrySwiftUI xcframework"
 ./scripts/assemble-xcframework.sh "SentrySwiftUI" "" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/SentrySwiftUI/SDK_NAME.xcarchive"
 end_group
 
 begin_group "Extract Public API"
 # Delete private .swiftinterface files before running swift-api-digester
 # This ensures only public interfaces are analyzed
-log_notice "Deleting private .swiftinterface files"
+echo "Deleting private .swiftinterface files"
 find ./Sentry-Dynamic.xcframework -name "*.private.swiftinterface" -type f -delete
 
-log_notice "Running swift-api-digester for Sentry module"
+echo "Running swift-api-digester for Sentry module"
 xcrun --sdk iphoneos swift-api-digester \
     -dump-sdk \
     -o sdk_api.json \
@@ -79,17 +79,17 @@ xcrun --sdk iphoneos swift-api-digester \
     -iframework ./Sentry-Dynamic.xcframework/ios-arm64_arm64e
 
 # Sort the JSON keys and arrays for stable output across runs
-log_notice "Sorting JSON keys and arrays for stable output"
+echo "Sorting JSON keys and arrays for stable output"
 jq -S 'walk(if type == "array" then sort_by(tostring) else . end)' sdk_api.json > sdk_api.json.tmp && mv sdk_api.json.tmp sdk_api.json
 end_group
 
 begin_group "Extract SentrySwiftUI Public API"
 # Delete private .swiftinterface files before running swift-api-digester
 # This ensures only public interfaces are analyzed
-log_notice "Deleting private .swiftinterface files from SentrySwiftUI"
+echo "Deleting private .swiftinterface files from SentrySwiftUI"
 find ./SentrySwiftUI.xcframework -name "*.private.swiftinterface" -type f -delete
 
-log_notice "Running swift-api-digester for SentrySwiftUI module"
+echo "Running swift-api-digester for SentrySwiftUI module"
 xcrun --sdk iphoneos swift-api-digester \
     -dump-sdk \
     -o sdk_api_sentryswiftui.json \
@@ -102,6 +102,6 @@ xcrun --sdk iphoneos swift-api-digester \
     -iframework "$(pwd)/Sentry-Dynamic.xcframework/ios-arm64_arm64e"
 
 # Sort the JSON keys and arrays for stable output across runs
-log_notice "Sorting JSON keys and arrays for stable output"
+echo "Sorting JSON keys and arrays for stable output"
 jq -S 'walk(if type == "array" then sort_by(tostring) else . end)' sdk_api_sentryswiftui.json > sdk_api_sentryswiftui.json.tmp && mv sdk_api_sentryswiftui.json.tmp sdk_api_sentryswiftui.json
 end_group

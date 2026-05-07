@@ -21,15 +21,11 @@ count=$(grep -rnE '#[[:space:]]*(import|include).*SentryCrash' Sources/Sentry So
     | wc -l | tr -d ' ' || true)
 
 if [ "$count" -gt "$MAX_IMPORTS" ]; then
-    log_error "SentryCrash import count increased from $MAX_IMPORTS to $count"
-    log_error "New #import / #include of SentryCrash from SDK files is not allowed."
-    log_error "Use the SentryCrashReporter protocol instead."
-    echo ""
-    log_notice "Offending imports:"
-    grep -rnE '#[[:space:]]*(import|include).*SentryCrash' Sources/Sentry Sources/Swift \
+    OFFENDING=$(grep -rnE '#[[:space:]]*(import|include).*SentryCrash' Sources/Sentry Sources/Swift \
         --include='*.m' --include='*.h' --include='*.c' --include='*.mm' --include='*.cpp' \
-        --include='*.hpp'
+        --include='*.hpp')
+    log_error "SentryCrash import count increased from $MAX_IMPORTS to $count. New #import / #include of SentryCrash from SDK files is not allowed. Use the SentryCrashReporter protocol instead.%0A%0AOffending imports:%0A${OFFENDING//$'\n'/%0A}"
     exit 1
 fi
 
-log_notice "SentryCrash import ratchet: $count / $MAX_IMPORTS (OK)"
+echo "SentryCrash import ratchet: $count / $MAX_IMPORTS (OK)"

@@ -6,7 +6,7 @@ set -euo pipefail
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
 source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 
-log_notice "Starting Xcode/macOS environment diagnostics"
+echo "Starting Xcode/macOS environment diagnostics"
 
 begin_group "System information"
 echo "Date (UTC): $(date -u)"
@@ -90,4 +90,4 @@ begin_group "Disk space"
 df -h || true
 end_group
 
-log_notice "Completed Xcode/macOS environment diagnostics"
+echo "Completed Xcode/macOS environment diagnostics"

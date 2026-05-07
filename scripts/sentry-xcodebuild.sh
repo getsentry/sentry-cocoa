@@ -26,18 +26,30 @@ RESULT_BUNDLE_PATH="results.xcresult"
 ONLY_TESTING=""
 
 usage() {
-    echo "Usage: $0"
-    echo "  -p|--platform <platform>        Platform (macOS/Catalyst/iOS/tvOS)"
-    echo "  -o|--os <os>                    OS version (default: latest)"
-    echo "  -r|--ref <ref>                  Reference name (default: HEAD)"
-    echo "  -c|--command <command>          Command (build/build-for-testing/test-without-building/test)"
-    echo "  -d|--device <device>            Device name (default: iPhone 16 Pro)"
-    echo "  -C|--configuration <config>     Configuration override"
-    echo "  -D|--derived-data <path>        Derived data path"
-    echo "  -s|--scheme <scheme>            Test scheme (default: Sentry)"
-    echo "  -t|--test-plan <plan>           Test plan name (default: empty)"
-    echo "  --only-testing <tests>          Comma-separated test classes (default: empty, runs all tests)"
-    echo "  -R|--result-bundle <path>       Result bundle path (default: results.xcresult)"
+    cat <<EOF
+Usage: $(basename "$0") [OPTIONS]
+
+Run xcodebuild commands (build, test, etc.) with the correct destination for CI.
+
+OPTIONS:
+    -p, --platform <platform>        Platform (macOS/Catalyst/iOS/tvOS/visionOS/watchOS)
+    -o, --os <os>                    OS version (default: latest)
+    -r, --ref <ref>                  Reference name (default: HEAD)
+    -c, --command <command>          Command (build/build-for-testing/test-without-building/test)
+    -d, --device <device>            Device name (default: iPhone 16 Pro)
+    -C, --configuration <config>     Configuration override
+    -D, --derived-data <path>        Derived data path
+    -s, --scheme <scheme>            Test scheme (default: Sentry)
+    -t, --test-plan <plan>           Test plan name (default: empty)
+    --only-testing <tests>           Comma-separated test classes (default: empty, runs all tests)
+    -R, --result-bundle <path>       Result bundle path (default: results.xcresult)
+
+EXAMPLES:
+    $(basename "$0") -p iOS -c test
+    $(basename "$0") -p macOS -c build -C Release
+    $(basename "$0") -p iOS -c test --only-testing SentryTests
+
+EOF
     exit 1
 }
 
@@ -90,7 +102,7 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         *)
-            echo "Unknown option: $1"
+            log_error "Unknown option: $1"
             usage
             ;;
     esac
@@ -143,7 +155,7 @@ case $PLATFORM in
     ;;
 
 *)
-    echo "Xcode Test: Can't find destination for platform '$PLATFORM'"
+    log_error "Xcode Test: Can't find destination for platform '$PLATFORM'"
     exit 1
     ;;
 esac
@@ -186,7 +198,7 @@ case $COMMAND in
 esac
 
 if [ $RUN_BUILD == true ]; then
-    log_notice "Running xcodebuild build"
+    echo "Running xcodebuild build"
     
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
@@ -214,7 +226,7 @@ fi
 
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
-    log_notice "Running xcodebuild build-for-testing"
+    echo "Running xcodebuild build-for-testing"
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
@@ -230,10 +242,10 @@ fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
-    log_notice "Running xcodebuild test-without-building"
+    echo "Running xcodebuild test-without-building"
 
     if [ -d "$RESULT_BUNDLE_PATH" ]; then
-        log_notice "Removing existing result bundle at $RESULT_BUNDLE_PATH"
+        echo "Removing existing result bundle at $RESULT_BUNDLE_PATH"
         rm -rf "$RESULT_BUNDLE_PATH"
     fi
 
@@ -250,4 +262,4 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         xcbeautify --report junit
 fi
 
-log_notice "Finished xcodebuild"
+echo "Finished xcodebuild"
