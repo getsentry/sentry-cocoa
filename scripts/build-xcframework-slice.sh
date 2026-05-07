@@ -187,9 +187,10 @@ if [ "$sdk" = "maccatalyst" ]; then
         -scheme "$scheme"
         -configuration "$resolved_configuration"
         -sdk iphoneos
-        -destination "platform=macOS,variant=Mac Catalyst"
+        -destination "generic/platform=macOS,variant=Mac Catalyst"
         -derivedDataPath ./XCFrameworkBuildPath/DerivedData
         CODE_SIGNING_REQUIRED=NO
+        SKIP_INSTALL=NO
         CODE_SIGN_IDENTITY=
         MACH_O_TYPE="$MACH_O_TYPE"
         SUPPORTS_MACCATALYST=YES
