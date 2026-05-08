@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Prevent crash-loop from malformed recrash reports (#7888)
+- Prevent crash-loop from malformed recrash reports (#7892)
 
 ### Features
 
