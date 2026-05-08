@@ -41,7 +41,8 @@ jobs:
           filters: .github/file-filters.yml
 
   analyze:
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_codeql_analysis_for_prs == 'true'
+    if: github.event_name != 'pull_request' ||
+      needs.files-changed.outputs.run_codeql_analysis_for_prs == 'true'
     needs: files-changed
     name: Analyze (${{ matrix.language }})
     runs-on: macos-26
@@ -78,7 +79,7 @@ jobs:
             -destination "platform=iOS Simulator,OS=$IOS_SIMULATOR_OS,name=$IOS_DEVICE_NAME" \
             build 2>&1 |
             tee raw-analyze-output.log |
-            xcbeautify
+            xcbeautify --preserve-unbeautified
         env:
           IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
           IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}

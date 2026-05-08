@@ -10,10 +10,22 @@ DEVICE=""
 PLATFORM=""
 
 usage() {
-    log_notice "Usage: $0"
-    log_notice "  --os <version>         Explicit simulator OS version, e.g. '17.5' (optional)"
-    log_notice "  --device <name>        Explicit device name, e.g. 'iPhone 15 Pro' (optional)"
-    log_notice "  --platform <platform>  Target platform: iOS, macOS, tvOS, watchOS, visionOS, or Catalyst (required)"
+    cat <<EOF
+Usage: $(basename "$0") [OPTIONS]
+
+Resolve the simulator test destination (OS version and device) for a given platform.
+
+OPTIONS:
+    --os <version>         Explicit simulator OS version, e.g. '17.5' (optional)
+    --device <name>        Explicit device name, e.g. 'iPhone 15 Pro' (optional)
+    --platform <platform>  Target platform: iOS, macOS, tvOS, watchOS, visionOS, or Catalyst (required)
+
+EXAMPLES:
+    $(basename "$0") --platform iOS
+    $(basename "$0") --platform tvOS --os 18.2
+    $(basename "$0") --platform iOS --os 17.5 --device "iPhone 15 Pro"
+
+EOF
     exit 1
 }
 
@@ -27,7 +39,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ -z "$PLATFORM" ]; then
-    log_error "Error: --platform is required"
+    log_error "--platform is required"
     usage
 fi
 
@@ -89,14 +101,10 @@ else
     esac
 fi
 
-if [ -n "${GITHUB_OUTPUT:-}" ]; then
-    echo "TEST_OS=$TEST_OS" >> "$GITHUB_OUTPUT"
-    echo "TEST_DEVICE=$TEST_DEVICE" >> "$GITHUB_OUTPUT"
-fi
+set_output "TEST_OS" "$TEST_OS"
+set_env "TEST_OS" "$TEST_OS"
 
-if [ -n "${GITHUB_ENV:-}" ]; then
-    echo "TEST_OS=$TEST_OS" >> "$GITHUB_ENV"
-    echo "TEST_DEVICE=$TEST_DEVICE" >> "$GITHUB_ENV"
-fi
+set_output "TEST_DEVICE" "$TEST_DEVICE"
+set_env "TEST_DEVICE" "$TEST_DEVICE"
 
-log_notice "Resolved: platform=$PLATFORM os=$TEST_OS device=$TEST_DEVICE"
+log_info "Resolved: platform=$PLATFORM os=$TEST_OS device=$TEST_DEVICE"

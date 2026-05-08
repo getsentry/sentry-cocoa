@@ -1,9 +1,5 @@
 version = 1
-agents = ["claude", "cursor"]
-
-[[skills]]
-name = "*"
-source = "getsentry/dotagents"
+agents = ["claude", "codex", "cursor"]
 
 [[mcp]]
 name = "XcodeBuildMCP"
@@ -15,45 +11,13 @@ name = "sentry"
 url = "https://mcp.sentry.dev/mcp/sentry-sdks/sentry-cocoa"
 
 [[skills]]
-name = "brainstorming"
+name = "*"
+source = "getsentry/dotagents"
+
+[[skills]]
+name = "*"
 source = "obra/superpowers"
 
 [[skills]]
-name = "dispatching-parallel-agents"
-source = "obra/superpowers"
-
-[[skills]]
-name = "executing-plans"
-source = "obra/superpowers"
-
-[[skills]]
-name = "finishing-a-development-branch"
-source = "obra/superpowers"
-
-[[skills]]
-name = "subagent-driven-development"
-source = "obra/superpowers"
-
-[[skills]]
-name = "systematic-debugging"
-source = "obra/superpowers"
-
-[[skills]]
-name = "test-driven-development"
-source = "obra/superpowers"
-
-[[skills]]
-name = "using-git-worktrees"
-source = "obra/superpowers"
-
-[[skills]]
-name = "using-superpowers"
-source = "obra/superpowers"
-
-[[skills]]
-name = "verification-before-completion"
-source = "obra/superpowers"
-
-[[skills]]
-name = "writing-plans"
-source = "obra/superpowers"
+name = "*"
+source = "getsentry/sentry-skills"

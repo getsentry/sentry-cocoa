@@ -2,20 +2,33 @@
 
 set -euo pipefail
 
-usage() {
-  cat <<'USAGE'
-Usage: prepare-package.sh [options]
+# Disable SC1091 because it won't work with pre-commit
+# shellcheck source=./scripts/ci-utils.sh disable=SC1091
+source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 
-Options:
-  --package-file PATH        Path to a single Package.swift file (default: none; all package files are updated)
-  --is-pr true|false         Whether this run simulates a pull request (default: false)
-  --remove-duplicate true|false
-                             Whether to strip duplicate targets (default: false)
-  --change-path true|false   Whether to swap SPM binary URLs for local paths (default: false)
-  --remove-binary-targets true|false
-                             Whether to keep only SentryDistribution product/target (default: false)
-  -h, --help                 Show this help message
-USAGE
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") [options]
+
+Prepare Package.swift files for CI builds by stripping or rewriting
+targets, paths, and binary definitions.
+
+OPTIONS:
+    --package-file PATH              Single Package.swift file (default: all discovered)
+    --is-pr true|false               Strip arm64e targets for PR builds (default: false)
+    --remove-duplicate true|false    Strip duplicate variant targets (default: false)
+    --change-path true|false         Swap binary URLs for local paths (default: false)
+    --remove-binary-targets true|false
+                                     Keep only SentryDistribution (default: false)
+    -h, --help                       Show this help message
+
+EXAMPLES:
+    $(basename "$0") --is-pr true
+    $(basename "$0") --package-file Package.swift --change-path true
+    $(basename "$0") --remove-binary-targets true
+
+EOF
+    exit 1
 }
 
 is_enabled() {
@@ -48,38 +61,36 @@ REMOVE_BINARY_TARGETS="false"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --package-file)
-      [[ $# -lt 2 ]] && { echo "Missing value for $1" >&2; exit 1; }
+      [[ $# -lt 2 ]] && { log_error "Missing value for $1"; exit 1; }
       PACKAGE_FILES=("$2")
       shift 2
       ;;
     --is-pr)
-      [[ $# -lt 2 ]] && { echo "Missing value for $1" >&2; exit 1; }
+      [[ $# -lt 2 ]] && { log_error "Missing value for $1"; exit 1; }
       IS_PR="$2"
       shift 2
       ;;
     --remove-duplicate)
-      [[ $# -lt 2 ]] && { echo "Missing value for $1" >&2; exit 1; }
+      [[ $# -lt 2 ]] && { log_error "Missing value for $1"; exit 1; }
       REMOVE_DUPLICATE="$2"
       shift 2
       ;;
     --change-path)
-      [[ $# -lt 2 ]] && { echo "Missing value for $1" >&2; exit 1; }
+      [[ $# -lt 2 ]] && { log_error "Missing value for $1"; exit 1; }
       CHANGE_PATH="$2"
       shift 2
       ;;
     --remove-binary-targets)
-      [[ $# -lt 2 ]] && { echo "Missing value for $1" >&2; exit 1; }
+      [[ $# -lt 2 ]] && { log_error "Missing value for $1"; exit 1; }
       REMOVE_BINARY_TARGETS="$2"
       shift 2
       ;;
     -h|--help)
       usage
-      exit 0
       ;;
     *)
-      echo "Unknown option: $1" >&2
-      usage >&2
-      exit 1
+      log_error "Unknown option: $1"
+      usage
       ;;
   esac
 done
@@ -94,10 +105,17 @@ fi
 
 for PACKAGE_FILE in "${PACKAGE_FILES[@]}"; do
   if [[ ! -f "$PACKAGE_FILE" ]]; then
-    echo "Package file not found: $PACKAGE_FILE" >&2
+    log_error "Package file not found: $PACKAGE_FILE"
     exit 1
   fi
 done
+
+log_info "Preparing package files:"
+log_info "  Files:                ${PACKAGE_FILES[*]}"
+log_info "  Is PR:                $IS_PR"
+log_info "  Remove duplicate:     $REMOVE_DUPLICATE"
+log_info "  Change path:          $CHANGE_PATH"
+log_info "  Remove binary targets: $REMOVE_BINARY_TARGETS"
 
 for PACKAGE_FILE in "${PACKAGE_FILES[@]}"; do
   if is_enabled "$IS_PR"; then
@@ -156,9 +174,7 @@ var targets: [Target] = [\
     sed -i '' '/\/\/ BEGIN:OBJC_WRAPPER/,/\/\/ END:OBJC_WRAPPER/d' "$PACKAGE_FILE"
   fi
 
-  echo
-  echo "===== $PACKAGE_FILE (after prepare-package.sh) ====="
+  begin_group "$PACKAGE_FILE (after prepare-package.sh)"
   cat "$PACKAGE_FILE"
-  echo "===== end of $PACKAGE_FILE (after prepare-package.sh) ====="
-  echo
+  end_group
 done
