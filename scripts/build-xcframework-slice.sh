@@ -60,10 +60,9 @@ log_info "  Configuration suffix: ${configuration_suffix:-(none)}"
 resolved_configuration="Release$configuration_suffix"
 resolved_product_name="$scheme$configuration_suffix.framework"
 OTHER_LDFLAGS=""
-destination_args=()
-
+destination_flag=""
 if [ "$sdk" = "macosx" ]; then
-    destination_args=(-destination "generic/platform=macOS")
+    destination_flag="-destination generic/platform=macOS"
 fi
 
 log_info "  Configuration:        $resolved_configuration"
@@ -127,12 +126,13 @@ if [ "$sdk" = "maccatalyst" ]; then
     end_group
 else
     begin_group "Archive ${slice_id}"
+    # shellcheck disable=SC2086
     set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
         -project Sentry.xcodeproj/ \
         -scheme "$scheme" \
         -configuration "$resolved_configuration" \
         -sdk "$sdk" \
-        "${destination_args[@]}" \
+        $destination_flag \
         -archivePath "./$sentry_xcarchive_path" \
         CODE_SIGNING_REQUIRED=NO \
         SKIP_INSTALL=NO \
