@@ -1,9 +1,5 @@
 version = 1
-agents = ["claude", "cursor"]
-
-[[skills]]
-name = "*"
-source = "getsentry/dotagents"
+agents = ["claude", "codex", "cursor"]
 
 [[mcp]]
 name = "XcodeBuildMCP"
@@ -13,3 +9,15 @@ args = ["-y", "xcodebuildmcp@2.0.7", "mcp"]
 [[mcp]]
 name = "sentry"
 url = "https://mcp.sentry.dev/mcp/sentry-sdks/sentry-cocoa"
+
+[[skills]]
+name = "*"
+source = "getsentry/dotagents"
+
+[[skills]]
+name = "*"
+source = "obra/superpowers"
+
+[[skills]]
+name = "*"
+source = "getsentry/sentry-skills"
