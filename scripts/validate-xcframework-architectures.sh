@@ -118,19 +118,33 @@ begin_group "Validate XCFramework architectures: $XCFRAMEWORK_PATH"
 
 xcframework_json="$(plutil -convert json -o - "$info_plist_path")"
 validation_errors=0
+processed_libraries=0
+
+library_records="$(
+    printf "%s\n" "$xcframework_json" \
+        | jq -r '.AvailableLibraries[] | [.LibraryIdentifier, .LibraryPath, (.SupportedArchitectures | join(" "))] | @tsv'
+)" || {
+    log_error "Could not parse AvailableLibraries from $info_plist_path"
+    end_group
+    exit 1
+}
 
 while IFS=$'\t' read -r library_identifier library_path expected_archs; do
     if [ -z "$library_identifier" ]; then
         continue
     fi
 
+    processed_libraries=$((processed_libraries + 1))
+
     if ! validate_library_architectures "$library_identifier" "$library_path" "$expected_archs"; then
         validation_errors=$((validation_errors + 1))
     fi
-done < <(
-    printf "%s\n" "$xcframework_json" \
-        | jq -r '.AvailableLibraries[] | [.LibraryIdentifier, .LibraryPath, (.SupportedArchitectures | join(" "))] | @tsv'
-)
+done <<< "$library_records"
+
+if [ "$processed_libraries" -eq 0 ]; then
+    log_error "XCFramework Info.plist does not contain any AvailableLibraries entries."
+    validation_errors=$((validation_errors + 1))
+fi
 
 end_group
 
