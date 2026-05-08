@@ -70,12 +70,12 @@ ADDITIONAL_SDKS_JSON='[
 begin_group "Compute matrix for EVENT_NAME=${EVENT_NAME:-unset}"
 
 if [ "${EVENT_NAME:-}" = "pull_request" ]; then
-    echo "Pull request detected — using base slices/variants/SDKs only"
+    log_info "Pull request detected — using base slices/variants/SDKs only"
     SLICES_COMBINATIONS="$BASE_SLICES_JSON"
     VARIANTS_COMBINATIONS="$BASE_VARIANTS_JSON"
     SDK_LIST="$BASE_SDKS_JSON"
 else
-    echo "Non-PR event — merging additional variants and SDKs"
+    log_info "Non-PR event — merging additional variants and SDKs"
     SLICES_COMBINATIONS="$BASE_SLICES_JSON"
     VARIANTS_COMBINATIONS=$(jq -c -s '.[0] + .[1]' <(echo "$BASE_VARIANTS_JSON") <(echo "$ADDITIONAL_VARIANTS_JSON"))
     SDK_LIST=$(jq -c -s '.[0] + .[1]' <(echo "$BASE_SDKS_JSON") <(echo "$ADDITIONAL_SDKS_JSON"))
@@ -91,9 +91,9 @@ set_output "variants" "$VARIANTS_OUTPUT"
 set_output "sdk-list-array" "$SDK_ARRAY_OUTPUT"
 set_output "sdk-list-string" "$SDK_STRING_OUTPUT"
 
-echo "Generated matrix:"
-echo "  Slices:     $SLICES_OUTPUT"
-echo "  Variants:   $VARIANTS_OUTPUT"
-echo "  SDKs:       $SDK_STRING_OUTPUT"
+log_info "Generated matrix:"
+log_info "  Slices:     $SLICES_OUTPUT"
+log_info "  Variants:   $VARIANTS_OUTPUT"
+log_info "  SDKs:       $SDK_STRING_OUTPUT"
 
 end_group

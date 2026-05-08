@@ -36,9 +36,9 @@ fi
 OLD_VERSION="${1}"
 NEW_VERSION="${2}"
 
-echo "Bumping version:"
-echo "  Old version: $OLD_VERSION"
-echo "  New version: $NEW_VERSION"
+log_info "Bumping version:"
+log_info "  Old version: $OLD_VERSION"
+log_info "  New version: $NEW_VERSION"
 
 begin_group "Build VersionBump"
 cd Utils/VersionBump && swift build
@@ -53,4 +53,4 @@ begin_group "Update package SHA"
 ./scripts/update-package-sha.sh
 end_group
 
-echo "Version bump from ${OLD_VERSION} to ${NEW_VERSION} completed successfully"
+log_info "Version bump from ${OLD_VERSION} to ${NEW_VERSION} completed successfully"

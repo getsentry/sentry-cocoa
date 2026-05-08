@@ -70,7 +70,7 @@ if [[ -z "${RESOLVED:-}" ]]; then
     exit 1
 fi
 
-echo "Resolved Xcode '$XCODE_INPUT' -> $RESOLVED"
+log_info "Resolved Xcode '$XCODE_INPUT' -> $RESOLVED"
 
 # We prefer this over `sudo xcode-select` because it fails fast if the version
 # is not installed. `xcodes` is preinstalled on GH-hosted runners.
@@ -78,9 +78,9 @@ xcodes select "$RESOLVED"
 # Diagnostic only. A freshly-selected Xcode that hasn't been "first-launched"
 # may make the first `swiftc` invocation slow and/or non-zero; don't let that
 # abort the rest of the script (env/outputs export still needs to happen).
-echo "Running swiftc --version (may take a while on first launch of a fresh Xcode)..."
+log_info "Running swiftc --version (may take a while on first launch of a fresh Xcode)..."
 swiftc --version || log_warning "swiftc --version exited non-zero (continuing — diagnostic only)"
-echo "swiftc --version returned"
+log_info "swiftc --version returned"
 
 # Discover the simulator OS version that ships with the SELECTED Xcode.
 # `xcrun --sdk <name> --show-sdk-version` reads from the active developer
@@ -95,10 +95,10 @@ echo "swiftc --version returned"
 # actually exists, we anchor on the SDK's major.minor and pick the newest
 # installed runtime in that line. If no matching runtime is installed, we
 # fall back to the SDK version so callers still get a useful default.
-echo "Querying simctl runtimes JSON..."
+log_info "Querying simctl runtimes JSON..."
 RUNTIMES_JSON=$(xcrun simctl list runtimes -j 2>/dev/null || echo '{"runtimes":[]}')
 RUNTIMES_COUNT=$(echo "$RUNTIMES_JSON" | jq -r '.runtimes | length' 2>/dev/null || echo "?")
-echo "simctl returned $RUNTIMES_COUNT runtimes"
+log_info "simctl returned $RUNTIMES_COUNT runtimes"
 
 # Print a compact platform/version table once for visibility into what we're
 # matching against. Helps diagnose "expected 26.4.1 but got 26.4" issues.
@@ -117,19 +117,19 @@ resolve_simulator_os() {
     # at the call site. Anything we want to log MUST go to stderr (`>&2`),
     # otherwise it pollutes the captured value and ends up appended to
     # $GITHUB_ENV / $GITHUB_OUTPUT, which GH Actions then refuses to parse.
-    echo "resolve_simulator_os(sdk=$sdk platforms=[$platform_a,$platform_b])" >&2
+    log_info "resolve_simulator_os(sdk=$sdk platforms=[$platform_a,$platform_b])" >&2
 
     local sdk_v
     sdk_v=$(xcrun --sdk "$sdk" --show-sdk-version 2>/dev/null || true)
-    echo "  $sdk SDK version: ${sdk_v:-<empty>}" >&2
+    log_info "  $sdk SDK version: ${sdk_v:-<empty>}" >&2
     if [[ -z "$sdk_v" ]]; then
-        echo "  (no SDK version — skipping platform)" >&2
+        log_info "  (no SDK version — skipping platform)" >&2
         return 0
     fi
 
     local mm
     mm=$(echo "$sdk_v" | awk -F. '{print $1"."$2}')
-    echo "  major.minor cap: $mm" >&2
+    log_info "  major.minor cap: $mm" >&2
 
     # Defensive: simctl can list partially-loaded runtimes with `.version == null`,
     # which would crash jq's `startswith()`. The `select(.version != null)` skips
@@ -148,23 +148,23 @@ resolve_simulator_os() {
           | .version]
          | sort_by(split(".") | map(tonumber))
          | last // empty' 2>/dev/null) || matched=""
-    echo "  matched runtime: ${matched:-<none>}" >&2
+    log_info "  matched runtime: ${matched:-<none>}" >&2
 
     local result="${matched:-$sdk_v}"
-    echo "  -> resolved: $result" >&2
+    log_info "  -> resolved: $result" >&2
     echo "$result"
 }
 
-echo "Resolving simulator OS for each platform..."
+log_info "Resolving simulator OS for each platform..."
 IOS_OS=$(resolve_simulator_os iphonesimulator iOS)
 TVOS_OS=$(resolve_simulator_os appletvsimulator tvOS)
 WATCHOS_OS=$(resolve_simulator_os watchsimulator watchOS)
 VISIONOS_OS=$(resolve_simulator_os xrsimulator visionOS xrOS)
-echo "Per-platform resolution complete"
+log_info "Per-platform resolution complete"
 
-echo "SDK versions for Xcode $RESOLVED -- iOS: ${IOS_OS:-none}, tvOS: ${TVOS_OS:-none}, watchOS: ${WATCHOS_OS:-none}, visionOS: ${VISIONOS_OS:-none}"
+log_info "SDK versions for Xcode $RESOLVED -- iOS: ${IOS_OS:-none}, tvOS: ${TVOS_OS:-none}, watchOS: ${WATCHOS_OS:-none}, visionOS: ${VISIONOS_OS:-none}"
 
-echo "Emitting step outputs..."
+log_info "Emitting step outputs..."
 set_output xcode-version         "$RESOLVED"
 set_output ios-simulator-os      "$IOS_OS"
 set_output tvos-simulator-os     "$TVOS_OS"
@@ -177,20 +177,20 @@ emit_env_if_unset() {
     local name="$1" value="$2"
     [[ -z "$value" ]] && return 0
     if [[ -n "${!name:-}" ]]; then
-        echo "Keeping existing $name=${!name} (discovered: $value)"
+        log_info "Keeping existing $name=${!name} (discovered: $value)"
         return 0
     fi
     set_env "$name" "$value"
 }
 
-echo "Emitting GITHUB_ENV exports..."
+log_info "Emitting GITHUB_ENV exports..."
 set_env "XCODE_VERSION" "$RESOLVED"
 
 emit_env_if_unset IOS_SIMULATOR_OS      "$IOS_OS"
 emit_env_if_unset TVOS_SIMULATOR_OS     "$TVOS_OS"
 emit_env_if_unset WATCHOS_SIMULATOR_OS  "$WATCHOS_OS"
 emit_env_if_unset VISIONOS_SIMULATOR_OS "$VISIONOS_OS"
-echo "Exports complete"
+log_info "Exports complete"
 
 # On GH Actions this command should cause the runner to recache and detect
 # missing runtimes, as pointed out in
@@ -205,4 +205,4 @@ xcrun_simctl_list_duration=$((end_time - start_time))
 
 end_group
 
-echo "List Available Simulators completed in ${xcrun_simctl_list_duration} seconds"
+log_info "List Available Simulators completed in ${xcrun_simctl_list_duration} seconds"

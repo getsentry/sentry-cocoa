@@ -36,10 +36,10 @@ LIBRARY_TYPE="${3:-dynamic}"
 INCLUDE_POD_SPECS=""
 EXTRA_ARGS=""
 
-echo "Pod lib lint:"
-echo "  Platform:     $PLATFORM"
-echo "  Pod spec:     $POD_SPEC"
-echo "  Library type: $LIBRARY_TYPE"
+log_info "Pod lib lint:"
+log_info "  Platform:     $PLATFORM"
+log_info "  Pod spec:     $POD_SPEC"
+log_info "  Library type: $LIBRARY_TYPE"
 
 case $POD_SPEC in
 "Sentry")

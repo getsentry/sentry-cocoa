@@ -47,7 +47,7 @@ if [ ! -f "$XCFRAMEWORK_PATH/Info.plist" ]; then
     exit 1
 fi
 
-echo "Validating XCFramework: $XCFRAMEWORK_PATH"
+log_info "Validating XCFramework: $XCFRAMEWORK_PATH"
 
 # Track validation results
 validation_errors=0
@@ -74,27 +74,27 @@ validate_framework() {
     framework_name=$(basename "$framework_path" .framework)
     local binary_path="$framework_path/$framework_name"
     
-    echo "  Validating framework: $framework_name"
+    log_info "  Validating framework: $framework_name"
     
     # Check if framework has a Versions directory
     if [ -d "$framework_path/Versions" ]; then
-        echo "    Framework is versioned"
+        log_info "    Framework is versioned"
         
         # Check if the main binary is a symlink
         if is_symlink "$binary_path"; then
-            echo "    Main binary is a symlink"
+            log_info "    Main binary is a symlink"
 
             # Check if the symlink is valid
             if is_valid_symlink "$binary_path"; then
-                echo "    Symlink is valid"
+                log_info "    Symlink is valid"
 
                 # Get the target of the symlink
                 symlink_target=$(readlink "$binary_path")
-                echo "    Symlink points to: $symlink_target"
+                log_info "    Symlink points to: $symlink_target"
 
                 # Verify the target exists in Versions
                 if [ -f "$framework_path/$symlink_target" ]; then
-                    echo "    Symlink target exists"
+                    log_info "    Symlink target exists"
                 else
                     log_error "Symlink target does not exist: $framework_path/$symlink_target"
                     validation_errors=$((validation_errors + 1))
@@ -110,14 +110,14 @@ validate_framework() {
         
         # Check Versions directory structure
         if [ -d "$framework_path/Versions/Current" ]; then
-            echo "    Found Versions/Current directory"
+            log_info "    Found Versions/Current directory"
             
             # Check if Current is a symlink
             if is_symlink "$framework_path/Versions/Current"; then
-                echo "    Versions/Current is a symlink"
+                log_info "    Versions/Current is a symlink"
 
                 if is_valid_symlink "$framework_path/Versions/Current"; then
-                    echo "    Versions/Current symlink is valid"
+                    log_info "    Versions/Current symlink is valid"
                 else
                     log_error "Versions/Current symlink is broken"
                     validation_errors=$((validation_errors + 1))
@@ -131,11 +131,11 @@ validate_framework() {
             validation_errors=$((validation_errors + 1))
         fi
     else
-        echo "    No Versions directory found (standard framework structure)"
+        log_info "    No Versions directory found (standard framework structure)"
         
         # For frameworks without Versions, the binary should be a regular file
         if [ -f "$binary_path" ] && ! is_symlink "$binary_path"; then
-            echo "    Main binary is not a symlink"
+            log_info "    Main binary is not a symlink"
         else
             log_error "Main binary is a symlink or does not exist: $binary_path"
             validation_errors=$((validation_errors + 1))
@@ -156,9 +156,9 @@ while IFS= read -r dir; do
     [ -n "$dir" ] && platform_count=$((platform_count + 1))
 done <<< "$platform_dirs"
 
-echo "Found $platform_count platform slice(s):"
+log_info "Found $platform_count platform slice(s):"
 while IFS= read -r dir; do
-    [ -n "$dir" ] && echo "  $(basename "$dir")"
+    [ -n "$dir" ] && log_info "  $(basename "$dir")"
 done <<< "$platform_dirs"
 end_group
 
@@ -186,14 +186,14 @@ while IFS= read -r platform_dir; do
     fi
 done <<< "$platform_dirs"
 
-echo "Validation summary:"
-echo "  XCFramework:      $XCFRAMEWORK_PATH"
-echo "  Platform slices:   $platform_count"
-echo "  Frameworks checked: $framework_count"
-echo "  Errors:            $validation_errors"
+log_info "Validation summary:"
+log_info "  XCFramework:      $XCFRAMEWORK_PATH"
+log_info "  Platform slices:   $platform_count"
+log_info "  Frameworks checked: $framework_count"
+log_info "  Errors:            $validation_errors"
 
 if [ $validation_errors -eq 0 ]; then
-    echo "Validation passed"
+    log_info "Validation passed"
     exit 0
 else
     log_error "Validation failed for $XCFRAMEWORK_PATH with $validation_errors error(s)"

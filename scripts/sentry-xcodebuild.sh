@@ -198,7 +198,7 @@ case $COMMAND in
 esac
 
 if [ $RUN_BUILD == true ]; then
-    echo "Running xcodebuild build"
+    log_info "Running xcodebuild build"
     
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
@@ -226,7 +226,7 @@ fi
 
 if [ $RUN_BUILD_FOR_TESTING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
-    echo "Running xcodebuild build-for-testing"
+    log_info "Running xcodebuild build-for-testing"
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
         -workspace Sentry.xcworkspace \
@@ -242,10 +242,10 @@ fi
 
 if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
-    echo "Running xcodebuild test-without-building"
+    log_info "Running xcodebuild test-without-building"
 
     if [ -d "$RESULT_BUNDLE_PATH" ]; then
-        echo "Removing existing result bundle at $RESULT_BUNDLE_PATH"
+        log_info "Removing existing result bundle at $RESULT_BUNDLE_PATH"
         rm -rf "$RESULT_BUNDLE_PATH"
     fi
 
@@ -262,4 +262,4 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         xcbeautify --report junit
 fi
 
-echo "Finished xcodebuild"
+log_info "Finished xcodebuild"

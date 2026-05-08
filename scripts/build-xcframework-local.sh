@@ -37,7 +37,7 @@ sdks="${1:-AllSDKs}"
 variants="${2:-AllVariants}"
 signed="${3:-}"
 
-echo "Building XCFrameworks: sdks=$sdks variants=$variants signed=${signed:-unsigned}"
+log_info "Building XCFrameworks: sdks=$sdks variants=$variants signed=${signed:-unsigned}"
 
 rm -rf XCFrameworkBuildPath/
 mkdir XCFrameworkBuildPath

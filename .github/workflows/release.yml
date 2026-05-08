@@ -19,7 +19,8 @@ on:
         description: Force a release even when there are release-blockers (optional)
         required: false
       merge_target:
-        description: Target branch to merge into. Uses the default branch as a fallback (optional)
+        description: Target branch to merge into. Uses the default branch as a fallback
+          (optional)
         required: false
 
 # Concurrency configuration:
@@ -32,7 +33,8 @@ on:
 # - For workflow_dispatch events (manual releases), each run gets a unique group using run_id
 #   to prevent manual releases from canceling each other, allowing multiple concurrent releases.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name == 'workflow_dispatch' && format('{0}-{1}', github.ref, github.run_id) || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'workflow_dispatch' &&
+    format('{0}-{1}', github.ref, github.run_id) || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -47,7 +49,8 @@ jobs:
     outputs:
       run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
       is_dependabot: ${{ github.actor == 'dependabot[bot]' }}
-      is_fork: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+      is_fork: ${{ github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Get changed files
@@ -59,7 +62,8 @@ jobs:
 
   setup-matrix:
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: github.event_name != 'pull_request' ||
+      needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: files-changed
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -78,7 +82,8 @@ jobs:
   build-xcframework-variant-slices:
     name: Build XCFramework Slices
     # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: github.event_name != 'pull_request' ||
+      needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: [files-changed, setup-matrix]
     uses: ./.github/workflows/build-xcframework-variant-slices.yml
     with:
@@ -96,7 +101,8 @@ jobs:
   assemble-xcframework-variant:
     needs: [files-changed, build-xcframework-variant-slices, setup-matrix]
     # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: github.event_name != 'pull_request' ||
+      needs.files-changed.outputs.run_release_for_prs == 'true'
     name: Assemble XCFramework Variant
     uses: ./.github/workflows/assemble-xcframework-variant.yml
     secrets: inherit
@@ -120,7 +126,8 @@ jobs:
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: github.event_name != 'pull_request' ||
+      needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -154,7 +161,8 @@ jobs:
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: github.event_name != 'pull_request' ||
+      needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -191,7 +199,8 @@ jobs:
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: github.event_name != 'pull_request' ||
+      needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -228,7 +237,8 @@ jobs:
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: github.event_name != 'pull_request' ||
+      needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -264,7 +274,8 @@ jobs:
     runs-on: macos-15
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: github.event_name != 'pull_request' ||
+      needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -290,7 +301,9 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
-      - run: set -o pipefail &&xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify
+      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild \ build \ -scheme
+          visionOS-SPM \ -sdk xros \ -destination 'generic/platform=xros' | tee
+          raw-build-output-spm-visionOS.log | xcbeautify --preserve-unbeautified
         working-directory: Samples/visionOS-SPM
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -301,7 +314,8 @@ jobs:
     uses: ./.github/workflows/ui-tests-common.yml
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    if: github.event_name != 'pull_request' ||
+      needs.files-changed.outputs.run_release_for_prs == 'true'
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     with:
@@ -342,7 +356,8 @@ jobs:
         id: app-plain-cache
         with:
           path: Tests/Perf/test-app-plain.ipa
-          key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ hashFiles('fastlane/Fastfile', 'Tests/Perf/test-app-plain/**') }}
+          key: ${{ github.workflow }}-${{ github.job }}-appplain-${{
+            hashFiles('fastlane/Fastfile', 'Tests/Perf/test-app-plain/**') }}
       # When running the workflows for dependabot PRs, we need to skip code signing, because the code signing secrets are not available for dependabot PRs.
       # We still want to run as much of the full workflow as possible, to verify the behaviour.
       - name: Build test app plain
@@ -359,7 +374,8 @@ jobs:
         with:
           pattern: xcframework-${{github.sha}}-sentry-dynamic
           path: XCFrameworkBuildPath/
-      - run: find XCFrameworkBuildPath -name "Sentry-Dynamic.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
+      - run: find XCFrameworkBuildPath -name "Sentry-Dynamic.xcframework.zip" -print0 |
+          xargs -t0I @ unzip @ -d XCFrameworkBuildPath
       - name: Build test app with sentry
         run: |
           bundle exec fastlane build_perf_test_app_sentry \

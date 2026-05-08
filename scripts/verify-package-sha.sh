@@ -110,7 +110,7 @@ fi
 
 # Verify checksums in each Package file
 for package_file in $PACKAGE_FILES; do
-    echo "Verifying checksums in $package_file"
+    log_info "Verifying checksums in $package_file"
     
     # Verify static checksum
     UPDATED_PACKAGE_SHA=$(grep "checksum.*Sentry-Static" "$package_file" | cut -d '"' -f 2)
@@ -147,12 +147,12 @@ for package_file in $PACKAGE_FILES; do
         exit 1
     fi
     
-    echo "✓ All checksums verified in $package_file"
+    log_info "✓ All checksums verified in $package_file"
 done
 
 
 
-echo "Verify last-release-runid"
+log_info "Verify last-release-runid"
 LAST_RELEASE_RUNID=$(cat .github/last-release-runid)
 if [ "$LAST_RELEASE_RUNID" != "$EXPECTED_LAST_RELEASE_RUNID" ]; then
     log_error "Expected last-release-runid to be $EXPECTED_LAST_RELEASE_RUNID but got $LAST_RELEASE_RUNID"

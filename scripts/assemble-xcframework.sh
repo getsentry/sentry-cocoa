@@ -36,12 +36,12 @@ suffix="$2"
 configuration_suffix="$3"
 IFS=',' read -r -a sdks <<< "$4"
 
-echo "Assembling XCFramework:"
-echo "  Scheme:               $scheme"
-echo "  Suffix:               ${suffix:-(none)}"
-echo "  Configuration suffix: ${configuration_suffix:-(none)}"
-echo "  SDKs:                 ${sdks[*]}"
-echo "  Archive template:     $5"
+log_info "Assembling XCFramework:"
+log_info "  Scheme:               $scheme"
+log_info "  Suffix:               ${suffix:-(none)}"
+log_info "  Configuration suffix: ${configuration_suffix:-(none)}"
+log_info "  SDKs:                 ${sdks[*]}"
+log_info "  Archive template:     $5"
 
 # on ci, the xcarchives live in paths like the following:
 #   /path/to/.../xcframework-slices/xcframework-sentry-swiftui-slice-maccatalyst/Library/Frameworks/SentrySwiftUI.framework
@@ -67,13 +67,13 @@ begin_group "Collecting framework slices"
 for sdk in "${sdks[@]}"; do
     xcarchive_path="${xcarchive_path_template//SDK_NAME/$sdk}"
     framework_path="$xcarchive_path/Products/Library/Frameworks/$framework_filename"
-    echo "Processing $framework_path"
+    log_info "Processing $framework_path"
 
     xcodebuild_cmd+=" -framework \"$framework_path\""
 
     dsym_path="$xcarchive_path/dSYMs/$framework_filename.dSYM"
     if [[ -d "$dsym_path" ]]; then
-        echo "Processing $dsym_path"
+        log_info "Processing $dsym_path"
 
         xcodebuild_cmd+=" -debug-symbols \"$dsym_path\""
     fi
@@ -81,13 +81,13 @@ for sdk in "${sdks[@]}"; do
     if [ "$sdk" = "macosx" ]; then
         mac_catalyst_xcarchive_path="${xcarchive_path_template//SDK_NAME/maccatalyst}/Library/Frameworks"
         if [[ -d "$mac_catalyst_xcarchive_path" ]]; then
-            echo "Processing $mac_catalyst_xcarchive_path"
+            log_info "Processing $mac_catalyst_xcarchive_path"
 
             xcodebuild_cmd+=" -framework \"$mac_catalyst_xcarchive_path/$framework_filename\""
 
             mac_catalyst_dsym_path="$mac_catalyst_xcarchive_path/dSYMs/$framework_filename.dSYM"
             if [[ -d "$mac_catalyst_dsym_path" ]]; then
-                echo "Processing $mac_catalyst_dsym_path"
+                log_info "Processing $mac_catalyst_dsym_path"
 
                 xcodebuild_cmd+=" -debug-symbols \"$mac_catalyst_dsym_path\""
             fi

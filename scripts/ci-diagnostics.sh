@@ -6,18 +6,18 @@ set -euo pipefail
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
 source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 
-echo "Starting Xcode/macOS environment diagnostics"
+log_info "Starting Xcode/macOS environment diagnostics"
 
 begin_group "System information"
-echo "Date (UTC): $(date -u)"
-echo "uname: $(uname -a)"
+log_info "Date (UTC): $(date -u)"
+log_info "uname: $(uname -a)"
 if command -v sw_vers >/dev/null 2>&1; then
   sw_vers
 fi
 end_group
 
 begin_group "Developer directory"
-echo "DEVELOPER_DIR=${DEVELOPER_DIR:-<not set>}"
+log_info "DEVELOPER_DIR=${DEVELOPER_DIR:-<not set>}"
 if command -v xcode-select >/dev/null 2>&1; then
   xcode-select -p
 fi
@@ -90,4 +90,4 @@ begin_group "Disk space"
 df -h || true
 end_group
 
-echo "Completed Xcode/macOS environment diagnostics"
+log_info "Completed Xcode/macOS environment diagnostics"

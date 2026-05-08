@@ -110,12 +110,12 @@ for PACKAGE_FILE in "${PACKAGE_FILES[@]}"; do
   fi
 done
 
-echo "Preparing package files:"
-echo "  Files:                ${PACKAGE_FILES[*]}"
-echo "  Is PR:                $IS_PR"
-echo "  Remove duplicate:     $REMOVE_DUPLICATE"
-echo "  Change path:          $CHANGE_PATH"
-echo "  Remove binary targets: $REMOVE_BINARY_TARGETS"
+log_info "Preparing package files:"
+log_info "  Files:                ${PACKAGE_FILES[*]}"
+log_info "  Is PR:                $IS_PR"
+log_info "  Remove duplicate:     $REMOVE_DUPLICATE"
+log_info "  Change path:          $CHANGE_PATH"
+log_info "  Remove binary targets: $REMOVE_BINARY_TARGETS"
 
 for PACKAGE_FILE in "${PACKAGE_FILES[@]}"; do
   if is_enabled "$IS_PR"; then

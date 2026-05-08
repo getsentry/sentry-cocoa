@@ -46,29 +46,29 @@ if [ -z "$EXCLUDED_ARCH" ]; then
     exit 0
 fi
 
-echo "Remove architecture:"
-echo "  XCArchive path: $XCARCHIVE_PATH"
-echo "  Architecture:   $EXCLUDED_ARCH"
+log_info "Remove architecture:"
+log_info "  XCArchive path: $XCARCHIVE_PATH"
+log_info "  Architecture:   $EXCLUDED_ARCH"
 
 # Find all framework directories and process their binaries
 find "$XCARCHIVE_PATH" -name "*.framework" -type d | while read -r framework_path; do
     binary_path="$framework_path/$(basename "$framework_path" .framework)"
     if [ -L "$binary_path" ]; then
-        echo "Resolving symlink at path: $binary_path"
+        log_info "Resolving symlink at path: $binary_path"
         binary_path=$(readlink -f "$binary_path")
     fi
     if [ -f "$binary_path" ]; then
         begin_group "Processing binary: $binary_path"
 
         # Check what architectures are currently in the binary
-        echo "Current architectures in binary:"
+        log_info "Current architectures in binary:"
         lipo -info "$binary_path"
 
         should_remove=""
 
         # Check if the excluded architectures are actually present
         if lipo -info "$binary_path" | grep -q "$EXCLUDED_ARCH"; then
-            echo "Architecture '$EXCLUDED_ARCH' found in binary, will remove it"
+            log_info "Architecture '$EXCLUDED_ARCH' found in binary, will remove it"
             should_remove=true
         else
             log_warning "Architecture '$EXCLUDED_ARCH' not found in binary, skipping removal"
@@ -76,17 +76,17 @@ find "$XCARCHIVE_PATH" -name "*.framework" -type d | while read -r framework_pat
 
         # Only perform removal if there are architectures to remove
         if [ -n "$should_remove" ]; then
-            echo "Removing architectures: $EXCLUDED_ARCH"
+            log_info "Removing architectures: $EXCLUDED_ARCH"
             temp_binary="${binary_path}.tmp"
             lipo -remove "$EXCLUDED_ARCH" "$binary_path" -output "$temp_binary"
             mv "$temp_binary" "$binary_path"
-            echo "Updated binary: $binary_path"
+            log_info "Updated binary: $binary_path"
         else
-            echo "No architectures to remove for this binary"
+            log_info "No architectures to remove for this binary"
         fi
 
         end_group
     fi
 done
 
-echo "Architecture removal completed successfully."
+log_info "Architecture removal completed successfully."

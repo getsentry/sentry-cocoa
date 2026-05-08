@@ -59,9 +59,9 @@ if [ -z "$PLATFORM" ]; then
     usage
 fi
 
-echo "Ensuring runtime is loaded:"
-echo "  Platform:   $PLATFORM"
-echo "  OS version: $OS_VERSION"
+log_info "Ensuring runtime is loaded:"
+log_info "  Platform:   $PLATFORM"
+log_info "  OS version: $OS_VERSION"
 
 # Check runtime availability using JSON output. The text-based `simctl list
 # runtimes -v` format shows only major.minor in the display name (e.g.
@@ -80,15 +80,15 @@ runtime_is_available() {
 }
 
 if runtime_is_available; then
-    echo "Runtime $PLATFORM $OS_VERSION is already loaded"
+    log_info "Runtime $PLATFORM $OS_VERSION is already loaded"
     exit 0
 fi
 
-echo "Runtime $PLATFORM ($OS_VERSION) is not loaded, will try to load it"
+log_info "Runtime $PLATFORM ($OS_VERSION) is not loaded, will try to load it"
 
 begin_group "Unmount simulator volumes"
 for dir in /Library/Developer/CoreSimulator/Volumes/*; do
-    echo "Ejecting $dir"
+    log_info "Ejecting $dir"
     sudo diskutil unmount force "$dir" || true
 done
 sudo launchctl kill -9 system/com.apple.CoreSimulator.simdiskimaged || true
@@ -101,11 +101,11 @@ count=0
 MAX_ATTEMPTS=60 # 300 seconds (5 minutes) timeout
 while [ $count -lt $MAX_ATTEMPTS ]; do
     if runtime_is_available; then
-        echo "Runtime $OS_VERSION is loaded after $count attempts"
+        log_info "Runtime $OS_VERSION is loaded after $count attempts"
         end_group
         exit 0
     fi
-    echo "Waiting for runtime $OS_VERSION to be loaded... attempt $count"
+    log_info "Waiting for runtime $OS_VERSION to be loaded... attempt $count"
     count=$((count + 1))
     sleep 5
 done

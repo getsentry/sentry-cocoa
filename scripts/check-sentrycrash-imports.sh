@@ -28,4 +28,4 @@ if [ "$count" -gt "$MAX_IMPORTS" ]; then
     exit 1
 fi
 
-echo "SentryCrash import ratchet: $count / $MAX_IMPORTS (OK)"
+log_info "SentryCrash import ratchet: $count / $MAX_IMPORTS (OK)"

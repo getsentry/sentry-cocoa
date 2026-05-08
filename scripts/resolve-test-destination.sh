@@ -107,4 +107,4 @@ set_env "TEST_OS" "$TEST_OS"
 set_output "TEST_DEVICE" "$TEST_DEVICE"
 set_env "TEST_DEVICE" "$TEST_DEVICE"
 
-echo "Resolved: platform=$PLATFORM os=$TEST_OS device=$TEST_DEVICE"
+log_info "Resolved: platform=$PLATFORM os=$TEST_OS device=$TEST_DEVICE"

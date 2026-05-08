@@ -41,19 +41,19 @@ should_sign=false
 sentry_certificate="Apple Distribution: GetSentry LLC (97JCY7859U)"
 framework_path="$framework.xcframework"
 
-echo "Compress XCFramework:"
-echo "  Framework: $framework"
-echo "  Path:      $framework_path"
-echo "  Signing:   $should_sign"
+log_info "Compress XCFramework:"
+log_info "  Framework: $framework"
+log_info "  Path:      $framework_path"
+log_info "  Signing:   $should_sign"
 
 if [[ "$should_sign" == true ]]; then
     begin_group "Signing $framework"
-    echo "Signing with certificate: $sentry_certificate"
+    log_info "Signing with certificate: $sentry_certificate"
     codesign --sign "$sentry_certificate" --timestamp --options runtime --deep --force "$framework_path"
     end_group
 fi
 
 begin_group "Compressing $framework"
 ditto -c -k -X --rsrc --keepParent "$framework_path" "$framework_path.zip"
-echo "Created $framework_path.zip"
+log_info "Created $framework_path.zip"
 end_group

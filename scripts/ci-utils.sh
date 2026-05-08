@@ -7,6 +7,7 @@
 # Specification: https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions
 #
 # Available functions:
+#   log_info <message>           — echo {message}
 #   log_debug <message>          — ::debug::{message}
 #   log_notice <message>         — ::notice::{message}
 #   log_warning <message>        — ::warning::{message}
@@ -31,6 +32,12 @@ fi
 # Get current timestamp in format HH:MM:SS
 get_timestamp() {
   date +"%T"
+}
+
+# Print an info message to the log.
+# This is a wrapper around the `echo` command for consistency.
+log_info() {
+  echo "$*"
 }
 
 # Print a debug message to the log.

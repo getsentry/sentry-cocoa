@@ -27,24 +27,24 @@ is_server_running() {
 
 begin_group "Starting test server"
 
-echo "Making test server executable"
+log_info "Making test server executable"
 chmod +x ./test-server-exec
 
-echo "Start the test server in the background"
+log_info "Start the test server in the background"
 ./test-server-exec &
 
-echo "Waiting up to 20 seconds for the test server to respond"
+log_info "Waiting up to 20 seconds for the test server to respond"
 
 start_time=$(date +%s)
 server_started=false
 
 while true; do
     if is_server_running; then
-        echo "Test server is running and responding."
+        log_info "Test server is running and responding."
         server_started=true
         break
     else
-        echo "Test server is not yet responding, waiting..."
+        log_info "Test server is not yet responding, waiting..."
     fi
 
     current_time=$(date +%s)
@@ -60,7 +60,7 @@ done
 end_group
 
 if [ "$server_started" = true ]; then
-    echo "Test server successfully started and is responding at http://localhost:8080"
+    log_info "Test server successfully started and is responding at http://localhost:8080"
 else
     log_error "Test server failed to start or is not responding after 20 seconds"
     exit 1

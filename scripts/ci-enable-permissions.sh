@@ -14,9 +14,9 @@ if csrutil status | grep -q 'disabled'; then
     else
         tcc_update="replace into access (service,client,client_type,auth_value,auth_reason,auth_version,indirect_object_identifier,flags,last_modified) values (\"kTCCServiceScreenCapture\",\"/bin/bash\",0,2,1,1,\"UNUSED\",0,$epochdate);"
     fi
-    echo "Updating system TCC database"
+    log_info "Updating system TCC database"
     sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" "$tcc_update"
-    echo "Updating user TCC database"
+    log_info "Updating user TCC database"
     sudo sqlite3 "/Users/$USER/Library/Application Support/com.apple.TCC/TCC.db" "$tcc_update"
     end_group
 else
@@ -25,8 +25,8 @@ else
 fi
 
 begin_group "Screen capture approval"
-echo "Writing screen capture approval for /bin/bash"
+log_info "Writing screen capture approval for /bin/bash"
 defaults write ~/Library/Group\ Containers/group.com.apple.replayd/ScreenCaptureApprovals.plist "/bin/bash" -date "3024-09-23 12:00:00 +0000"
 end_group
 
-echo "CI permissions enabled successfully"
+log_info "CI permissions enabled successfully"
