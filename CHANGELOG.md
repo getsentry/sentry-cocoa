@@ -1,12 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix crash with AVAssetDownloadTask in urlSessionTask:setState: (#7886)
+
 ## 9.12.1
 
 ### Fixes
 
 - Prevent memory strings in stack overflow crash reports (#7841)
 - Report crashed thread for null function calls (#7866)
-- Fix crash with AVAssetDownloadTask in urlSessionTask:setState: (#7886)
 
 ## 9.12.0
 
