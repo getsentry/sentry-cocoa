@@ -8,6 +8,9 @@
 
 ## 9.12.1
 
+> [!WARNING]
+> ⚠️ **Known Issue:** Sentry Cocoa **9.12.0+** crashes apps using `AVAssetDownloadURLSession`. Pin to **9.11.x** until a fix ships. ([#7886](https://github.com/getsentry/sentry-cocoa/issues/7886))
+
 ### Fixes
 
 - Prevent memory strings in stack overflow crash reports (#7841)
@@ -18,6 +21,9 @@
 - Handle extra length call in `SentryInvalidJSONString` (#7859)
 
 ## 9.12.0
+
+> [!WARNING]
+> ⚠️ **Known Issue:** Sentry Cocoa **9.12.0+** crashes apps using `AVAssetDownloadURLSession`. Pin to **9.11.x** until a fix ships. ([#7886](https://github.com/getsentry/sentry-cocoa/issues/7886))
 
 > [!WARNING]
 > This release promotes Metrics out of experimental and **removes** `options.experimental.enableMetrics` and `options.experimental.beforeSendMetric`. If you set either of these, your app will fail to compile after upgrading.
