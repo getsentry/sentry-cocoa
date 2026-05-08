@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Prevent crash-loop from malformed recrash reports (#7888)
+
 ### Features
 
 - Add Set conformance to SentryAttributeValue (#7876)
