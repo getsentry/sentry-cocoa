@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Fix crash with AVAssetDownloadTask in urlSessionTask:setState: (#7886)
+- Fix crash with AVAssetDownloadTask in urlSessionTask:setState: (#7891)
 
 ### Features
 
