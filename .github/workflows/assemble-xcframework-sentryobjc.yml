@@ -33,6 +33,18 @@ jobs:
         with:
           version: "16.4"
 
+      - name: Get version
+        id: get-version
+        env:
+          RELEASE_VERSION: ${{ inputs.release-version }}
+        run: |
+          if [ -n "$RELEASE_VERSION" ]; then
+            echo "VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+          else
+            echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+${{ github.sha }}" >> $GITHUB_ENV
+          fi
+        shell: sh
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@4eb9f110bac952a8b68ecf92e3b5c7a987594ba6 # v1.292.0
         if: ${{ inputs.signed }}
