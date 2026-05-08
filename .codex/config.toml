@@ -1,0 +1,6 @@
+[mcp_servers.XcodeBuildMCP]
+command = "npx"
+args = [ "-y", "xcodebuildmcp@2.0.7", "mcp" ]
+
+[mcp_servers.sentry]
+url = "https://mcp.sentry.dev/mcp/sentry-sdks/sentry-cocoa"
