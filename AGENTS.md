@@ -54,6 +54,11 @@ SentrySDK (public entry point)
 | `SentryCrash/`        | C/C++ crash reporting (KSCrash fork)                                |
 | `SentryCppHelper/`    | C++ helpers (backtrace, sampling profiler, thread handle)           |
 | `SentrySwiftUI/`      | SwiftUI tracing (`TracedView`)                                      |
+| `SentryObjC/`         | Pure ObjC facade — behavior classes consumers invoke                |
+| `SentryObjCBridge/`   | Swift bridge — maps `SentryObjCTypes` ⇄ internal Swift types        |
+| `SentryObjCTypes/`    | Frozen public ObjC ABI — pure data carriers, Foundation-only        |
+
+> **Before touching `SentryObjC*` targets** (headers, types, bridge, build config), read [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md). It defines the four-tier architecture, type placement rules, naming conventions, and stability contract. Violations (e.g., leaking SDK types into `SentryObjCTypes`) cause linker failures or ABI breaks.
 
 ## Skills & MCP (dotagents)
 

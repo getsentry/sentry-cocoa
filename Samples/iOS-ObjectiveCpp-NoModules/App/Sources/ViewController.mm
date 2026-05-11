@@ -1,9 +1,7 @@
-// Objective-C++ file - same module restrictions as AppDelegate.mm.
-// Cannot use @import Sentry here; must use #import.
-// No Sentry-Swift.h - would cause forward declaration errors from .mm without modules.
+// Objective-C++ file - uses SentryObjC for full SDK access without modules.
 
 #import "ViewController.h"
-#import <Sentry/Sentry.h>
+#import <SentryObjC.h>
 #import <UIKit/UIKit.h>
 
 @implementation ViewController
@@ -11,14 +9,13 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Fails: SentrySDK undeclared with #import alone
-    [SentrySDK addBreadcrumb:[[SentryBreadcrumb alloc] init]];
+    [SentryObjCSDK addBreadcrumb:[[SentryBreadcrumb alloc] init]];
 }
 
 - (IBAction)captureError:(id)sender
 {
     NSError *error = [NSError errorWithDomain:@"iOS-ObjectiveCpp-NoModules" code:1 userInfo:nil];
-    [SentrySDK captureError:error];
+    [SentryObjCSDK captureError:error];
 }
 
 @end

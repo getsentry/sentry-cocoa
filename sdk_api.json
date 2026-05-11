@@ -34160,6 +34160,7 @@
         "mangledName": "$s6Sentry0A9AttributeC",
         "moduleName": "Sentry",
         "name": "SentryAttribute",
+        "objc_name": "SentryAttribute",
         "printedName": "SentryAttribute",
         "superclassNames": [
           "ObjectiveC.NSObject"
@@ -34526,6 +34527,45 @@
             "name": "UnicodeScalarLiteralType",
             "printedName": "UnicodeScalarLiteralType",
             "usr": "s:6Sentry0A16AttributeContentO24UnicodeScalarLiteralTypea"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryAttributeContent",
+                    "printedName": "Sentry.SentryAttributeContent",
+                    "usr": "s:6Sentry0A16AttributeContentO"
+                  }
+                ],
+                "declKind": "Accessor",
+                "isFromExtension": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A16AttributeContentO02asabC0ACvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A16AttributeContentO02asabC0ACvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryAttributeContent",
+                "printedName": "Sentry.SentryAttributeContent",
+                "usr": "s:6Sentry0A16AttributeContentO"
+              }
+            ],
+            "declKind": "Var",
+            "isFromExtension": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A16AttributeContentO02asabC0ACvp",
+            "moduleName": "Sentry",
+            "name": "asSentryAttributeContent",
+            "printedName": "asSentryAttributeContent",
+            "usr": "s:6Sentry0A16AttributeContentO02asabC0ACvp"
           },
           {
             "children": [
@@ -35248,6 +35288,13 @@
             "name": "Hashable",
             "printedName": "Hashable",
             "usr": "s:SH"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$s6Sentry0A14AttributeValueP",
+            "name": "SentryAttributeValue",
+            "printedName": "SentryAttributeValue",
+            "usr": "s:6Sentry0A14AttributeValueP"
           }
         ],
         "declKind": "Enum",
@@ -37136,6 +37183,7 @@
         "mangledName": "$s6Sentry0A19ExperimentalOptionsC",
         "moduleName": "Sentry",
         "name": "SentryExperimentalOptions",
+        "objc_name": "SentryExperimentalOptions",
         "printedName": "SentryExperimentalOptions",
         "superclassNames": [
           "ObjectiveC.NSObject"
@@ -38004,6 +38052,7 @@
         "mangledName": "$s6Sentry0A8FeedbackC",
         "moduleName": "Sentry",
         "name": "SentryFeedback",
+        "objc_name": "SentryFeedback",
         "printedName": "SentryFeedback",
         "superclassNames": [
           "ObjectiveC.NSObject"
@@ -42450,6 +42499,7 @@
         "mangledName": "$s6Sentry0A3LogC",
         "moduleName": "Sentry",
         "name": "SentryLog",
+        "objc_name": "SentryLog",
         "printedName": "SentryLog",
         "superclassNames": [
           "ObjectiveC.NSObject"
@@ -43825,6 +43875,7 @@
         "mangledName": "$s6Sentry0A6LoggerC",
         "moduleName": "Sentry",
         "name": "SentryLogger",
+        "objc_name": "SentryLogger",
         "printedName": "SentryLogger",
         "superclassNames": [
           "ObjectiveC.NSObject"
@@ -51185,6 +51236,7 @@
         "mangledName": "$s6Sentry0A13ReplayOptionsC",
         "moduleName": "Sentry",
         "name": "SentryReplayOptions",
+        "objc_name": "SentryReplayOptions",
         "printedName": "SentryReplayOptions",
         "superclassNames": [
           "ObjectiveC.NSObject"

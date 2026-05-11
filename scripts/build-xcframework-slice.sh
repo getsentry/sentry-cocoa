@@ -67,35 +67,36 @@ fi
 rm -rf XCFrameworkBuildPath/DerivedData
 
 ## watchos and watchsimulator don't support make_mergeable: ld: unknown option: -make_mergeable
-if [[ "$sdk" == "watchos" || "$sdk" == "watchsimulator" ]]; then
-    OTHER_LDFLAGS=""
-elif [ "$MACH_O_TYPE" != "staticlib" ]; then
-    OTHER_LDFLAGS="-Wl,-make_mergeable"
+## For other dynamic frameworks, add -make_mergeable (append to existing flags)
+if [[ "$sdk" != "watchos" && "$sdk" != "watchsimulator" ]] && [ "$MACH_O_TYPE" != "staticlib" ]; then
+    OTHER_LDFLAGS="$OTHER_LDFLAGS -Wl,-make_mergeable"
 fi
 
 slice_id="${scheme}${suffix}-${sdk}"
 
 output_xcarchive_path="XCFrameworkBuildPath/archive/${scheme}${suffix}"
 sentry_xcarchive_path="$output_xcarchive_path/${sdk}.xcarchive"
-log_info "  Output archive:       $sentry_xcarchive_path"
 
 if [ "$sdk" = "maccatalyst" ]; then
     # we can't use the "archive" action here because it doesn't support the -destination option, which we need to build the maccatalyst slice. so we'll have to build it manually and then copy the build product to an xcarchive directory we create.
     begin_group "Build ${slice_id} (maccatalyst)"
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -project Sentry.xcodeproj/ \
-        -scheme "$scheme" \
-        -configuration "$resolved_configuration" \
-        -sdk iphoneos \
-        -destination 'platform=macOS,variant=Mac Catalyst' \
-        -derivedDataPath ./XCFrameworkBuildPath/DerivedData \
-        CODE_SIGNING_REQUIRED=NO \
-        CODE_SIGN_IDENTITY= \
-        MACH_O_TYPE="$MACH_O_TYPE" \
-        SUPPORTS_MACCATALYST=YES \
-        ENABLE_CODE_COVERAGE=NO \
-        GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify --preserve-unbeautified
+    maccatalyst_args=(
+        -project Sentry.xcodeproj/
+        -scheme "$scheme"
+        -configuration "$resolved_configuration"
+        -sdk iphoneos
+        -destination "generic/platform=macOS,variant=Mac Catalyst"
+        -derivedDataPath ./XCFrameworkBuildPath/DerivedData
+        CODE_SIGNING_REQUIRED=NO
+        SKIP_INSTALL=NO
+        CODE_SIGN_IDENTITY=
+        MACH_O_TYPE="$MACH_O_TYPE"
+        SUPPORTS_MACCATALYST=YES
+        ENABLE_CODE_COVERAGE=NO
+        GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
+        OTHER_LDFLAGS="$OTHER_LDFLAGS"
+    )
+    set -o pipefail && NSUnbufferedIO=YES xcodebuild "${maccatalyst_args[@]}" 2>&1 | tee "${slice_id}.maccatalyst.log" | xcbeautify --preserve-unbeautified
     end_group
 
     maccatalyst_build_product_directory="XCFrameworkBuildPath/DerivedData/Build/Products/$resolved_configuration-maccatalyst"
@@ -117,19 +118,35 @@ if [ "$sdk" = "maccatalyst" ]; then
     end_group
 else
     begin_group "Archive ${slice_id}"
-    set -o pipefail && NSUnbufferedIO=YES xcodebuild archive \
-        -project Sentry.xcodeproj/ \
-        -scheme "$scheme" \
-        -configuration "$resolved_configuration" \
-        -sdk "$sdk" \
-        -archivePath "./$sentry_xcarchive_path" \
-        CODE_SIGNING_REQUIRED=NO \
-        SKIP_INSTALL=NO \
-        CODE_SIGN_IDENTITY= \
-        MACH_O_TYPE="$MACH_O_TYPE" \
-        ENABLE_CODE_COVERAGE=NO \
-        GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS" \
-        OTHER_LDFLAGS="$OTHER_LDFLAGS" 2>&1 | tee "${slice_id}.log" | xcbeautify --preserve-unbeautified
+    xcodebuild_args=(
+        -project Sentry.xcodeproj/
+        -scheme "$scheme"
+        -configuration "$resolved_configuration"
+        -sdk "$sdk"
+    )
+
+    if [ "$sdk" = "macosx" ]; then
+        xcodebuild_args+=(-destination "generic/platform=macOS")
+    fi
+
+    build_setting_overrides=(
+        CODE_SIGNING_REQUIRED=NO
+        SKIP_INSTALL=NO
+        CODE_SIGN_IDENTITY=
+        MACH_O_TYPE="$MACH_O_TYPE"
+        ENABLE_CODE_COVERAGE=NO
+        GCC_GENERATE_DEBUGGING_SYMBOLS="$GCC_GENERATE_DEBUGGING_SYMBOLS"
+        OTHER_LDFLAGS="$OTHER_LDFLAGS"
+    )
+
+    archive_args=(
+        archive
+        "${xcodebuild_args[@]}"
+        -archivePath "./$sentry_xcarchive_path"
+        "${build_setting_overrides[@]}"
+    )
+
+    set -o pipefail && NSUnbufferedIO=YES xcodebuild "${archive_args[@]}" 2>&1 | tee "${slice_id}.log" | xcbeautify --preserve-unbeautified
     end_group
 fi
 

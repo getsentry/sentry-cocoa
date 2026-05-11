@@ -107,6 +107,8 @@ jobs:
             config: Debug
           - scheme: iOS-ObjectiveC
             config: Debug
+          - scheme: iOS-ObjectiveCpp-NoModules
+            config: Debug
           - scheme: SPM
             config: Debug
           - scheme: DistributionSample
@@ -122,6 +124,7 @@ jobs:
       # sample projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
       # Therefore, we only keep the local DistributionSample reference in the Package.swift as a workaround.
       - name: Only keep distribution lib and target in Package.swift
+        if: matrix.scheme == 'DistributionSample'
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
       - name: Setup Xcode

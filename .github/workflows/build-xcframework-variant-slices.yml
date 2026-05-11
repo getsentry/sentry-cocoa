@@ -101,14 +101,35 @@ jobs:
         run: ./scripts/build-xcframework-slice.sh "$MATRIX_SDK" "$INPUT_NAME" "$INPUT_SUFFIX" "$INPUT_MACHO_TYPE" "$INPUT_CONFIG_SUFFIX"
         shell: bash
 
-      # The SentrySwiftUI archive build also builds Sentry.framework as a byproduct of the dependency. We need to remove that to avoid downstream assembly tasks from tripping on these extra files. In the future we could investigate using this byproduct instead of running a separate task for Sentry.framework, or use the one already built by that other task instead of rebuilding it here.
-      - name: Remove Sentry.framework from SentrySwiftUI build
-        if: inputs.name == 'SentrySwiftUI'
+      # Targets that depend on Sentry also build Sentry.framework as a byproduct.
+      # Remove it to avoid downstream assembly tasks from tripping on extra files.
+      - name: Remove Sentry.framework byproduct
+        if: inputs.name == 'SentrySwiftUI' || inputs.name == 'SentryObjCBridge' || inputs.name == 'SentryObjC'
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
         run: |
           find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
           find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
+        shell: bash
+
+      # SentryObjCBridge and SentryObjC depend on SentryObjCTypes, which gets built as a byproduct.
+      - name: Remove SentryObjCTypes.framework byproduct
+        if: inputs.name == 'SentryObjCBridge' || inputs.name == 'SentryObjC'
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: |
+          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCTypes.framework" -print0 | xargs -t0 rm -rf
+          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCTypes.framework.dSYM" -print0 | xargs -t0 rm -rf
+        shell: bash
+
+      # SentryObjC depends on SentryObjCBridge, which gets built as a byproduct.
+      - name: Remove SentryObjCBridge.framework byproduct
+        if: inputs.name == 'SentryObjC'
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: |
+          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCBridge.framework" -print0 | xargs -t0 rm -rf
+          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCBridge.framework.dSYM" -print0 | xargs -t0 rm -rf
         shell: bash
 
       # the upload action broke symlinks in the mac sdk slice's xcarchive

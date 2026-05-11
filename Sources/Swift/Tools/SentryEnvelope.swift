@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
-@_spi(Private) @objc public final class SentryEnvelope: NSObject {
+@_spi(Private) @objc(SentryEnvelope) public final class SentryEnvelope: NSObject {
     
     @objc(initWithId:singleItem:) public convenience init(id: SentryId?, singleItem item: SentryEnvelopeItem) {
         self.init(header: SentryEnvelopeHeader(id: id), singleItem: item)

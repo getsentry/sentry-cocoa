@@ -115,6 +115,19 @@ jobs:
       matrix:
         variant: ${{ fromJson(needs.setup-matrix.outputs.variants) }}
 
+  assemble-sentryobjc:
+    needs: [files-changed, build-xcframework-variant-slices, setup-matrix]
+    # Run the job only for PRs with related changes or non-PR events.
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    name: Assemble SentryObjC XCFramework
+    uses: ./.github/workflows/assemble-xcframework-sentryobjc.yml
+    secrets: inherit
+    with:
+      # Only sign the XCFramework on releases
+      signed: ${{ github.event_name != 'pull_request' }}
+      release-version: ${{ github.event.inputs.version }}
+      sdks: ${{ needs.setup-matrix.outputs.sdk-list-string }}
+
   validate-xcframework:
     name: Validate XCFramework
     runs-on: macos-15
@@ -451,6 +464,7 @@ jobs:
         files-changed,
         build-xcframework-variant-slices,
         assemble-xcframework-variant,
+        assemble-sentryobjc,
         validate-xcframework,
         validate-spm,
         validate-spm-dynamic,

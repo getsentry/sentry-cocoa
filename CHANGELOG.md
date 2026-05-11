@@ -7,9 +7,14 @@
 - Fix crash with AVAssetDownloadTask in urlSessionTask:setState: (#7891)
 - Prevent crash-loop from malformed recrash reports (#7892)
 
+> [!IMPORTANT]
+> The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
+
 ### Features
 
 - Add Set conformance to SentryAttributeValue (#7876)
+- Add SentryObjC wrapper SDK to provide pure Objective-C compatibility layer that wraps the main Sentry SDK with stable, documented Objective-C interfaces. (#7598)
+  This SDK is designed for projects that require strict Objective-C compatibility without Swift dependencies. It ships as two xcframework variants — `SentryObjC-Static.xcframework.zip` and `SentryObjC-Dynamic.xcframework.zip` — and as a compile-from-source SPM library under the `SentryObjC` product.
 
 ## 9.12.1
 
