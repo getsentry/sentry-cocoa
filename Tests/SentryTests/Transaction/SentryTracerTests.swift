@@ -1046,7 +1046,7 @@ class SentryTracerTests: XCTestCase {
         whenFinishingAutoUITransaction(startTimestamp: 5)
         let secondTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.last).event.serialize()
         let measurements = secondTransaction["measurements"] as? [String: Any]
-        XCTAssertNil(measurements?["app.vitals.start.warm.value"])
+        XCTAssertNil(measurements?["app_start_warm"])
     }
 
     func testFinish_whenStandaloneAppStartWithNilConfigMeasurement_shouldNotAddAppStartSpans() throws {
