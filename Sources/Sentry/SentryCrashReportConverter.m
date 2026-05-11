@@ -56,15 +56,18 @@
         self.userContext = userContextMerged;
 
         NSDictionary *crashContext;
-        // This is an incomplete crash report
-        if (nil != report[@"recrash_report"][@"crash"]) {
-            crashContext = report[@"recrash_report"][@"crash"];
+        id recrashReport = report[@"recrash_report"];
+        NSDictionary *recrashDict =
+            [recrashReport isKindOfClass:[NSDictionary class]] ? recrashReport : nil;
+
+        if (nil != recrashDict[@"crash"]) {
+            crashContext = recrashDict[@"crash"];
         } else {
             crashContext = report[@"crash"];
         }
 
-        if (nil != report[@"recrash_report"][@"binary_images"]) {
-            self.binaryImages = report[@"recrash_report"][@"binary_images"];
+        if (nil != recrashDict[@"binary_images"]) {
+            self.binaryImages = recrashDict[@"binary_images"];
         } else {
             self.binaryImages = report[@"binary_images"];
         }
