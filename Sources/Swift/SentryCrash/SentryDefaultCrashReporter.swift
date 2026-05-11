@@ -64,6 +64,16 @@ public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
 
 @_spi(Private) extension SentryDefaultCrashReporter {
     @objc
+    public func startBinaryImageCache() {
+        sentrycrashbic_startCache()
+    }
+    
+    @objc
+    public func stopBinaryImageCache() {
+        sentrycrashbic_stopCache()
+    }
+    
+    @objc
     public var crashedLastLaunch: Bool {
         return bridge.crashReporter.crashedLastLaunch
     }

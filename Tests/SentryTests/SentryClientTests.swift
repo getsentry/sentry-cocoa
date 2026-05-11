@@ -219,10 +219,12 @@ final class SentryClientTests: XCTestCase {
     }
     
     func testInit_WhenUsingStandaloneClient_shouldStartBinaryImageCache() throws {
-        SentryDependencyContainer.sharedInstance().stopBinaryImageCache()
+        SentryDependencyContainer.sharedInstance().crashWrapper.stopBinaryImageCache()
+        SentryDependencyContainer.sharedInstance().binaryImageCache.stop()
         sentrycrashbic_useFreshTestCacheState()
         defer {
-            SentryDependencyContainer.sharedInstance().stopBinaryImageCache()
+            SentryDependencyContainer.sharedInstance().crashWrapper.stopBinaryImageCache()
+            SentryDependencyContainer.sharedInstance().binaryImageCache.stop()
             sentrycrashbic_useDefaultCacheState()
         }
 
@@ -235,7 +237,7 @@ final class SentryClientTests: XCTestCase {
         let cache = try XCTUnwrap(SentryDependencyContainer.sharedInstance().binaryImageCache.cache)
         XCTAssertGreaterThan(cache.count, 0)
     }
-    
+
     func testClientIsEnabled() {
         XCTAssertTrue(fixture.getSut().isEnabled)
     }

@@ -16,6 +16,8 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
     var internalFreeMemorySize: UInt64 = 0
     var internalAppMemorySize: UInt64 = 0
     var internalSystemInfo: [String: Any] = [:]
+    var binaryCacheStarted = false
+    var binaryCacheStopped = false
     var enrichScopeCalled = false
 
     // MARK: - Convenience Init (backward compatibility)
@@ -41,6 +43,14 @@ class TestSentryCrashReporter: NSObject, SentryCrashReporter {
 
     private var internalProcessInfoWrapper: SentryProcessInfoSource = ProcessInfo.processInfo
     var processInfoWrapper: SentryProcessInfoSource { internalProcessInfoWrapper }
+
+    func startBinaryImageCache() {
+        binaryCacheStarted = true
+    }
+
+    func stopBinaryImageCache() {
+        binaryCacheStopped = true
+    }
 
     func enrichScope(_ scope: Scope) {
         enrichScopeCalled = true

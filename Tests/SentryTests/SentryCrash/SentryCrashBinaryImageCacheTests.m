@@ -160,7 +160,7 @@ initializeTestCacheState(SentryCrashBinaryImageCacheState *cache)
 
 - (void)testStartCache
 {
-    sentrycrashbic_startCache();
+    [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
     [self assertBinaryImageCacheLength:5];
 }
 

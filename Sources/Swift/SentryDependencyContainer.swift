@@ -98,17 +98,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 #endif
         return defaultApplicationProvider()
     }
-
-    @objc(startBinaryImageCache:)
-    public func startBinaryImageCache(_ isDebug: Bool) {
-        sentrycrashbic_startCache()
-        binaryImageCache.start(isDebug)
-    }
-
-    @objc public func stopBinaryImageCache() {
-        binaryImageCache.stop()
-        sentrycrashbic_stopCache()
-    }
     
     private lazy var sessionDispatchQueue = SentryDispatchQueueWrapper(name: "io.sentry.session-tracker")
 
