@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix crash with AVAssetDownloadTask in urlSessionTask:setState: (#7891)
+
 ### Features
 
 - Add Set conformance to SentryAttributeValue (#7876)

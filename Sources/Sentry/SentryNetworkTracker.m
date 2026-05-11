@@ -236,6 +236,10 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
+    if (![self isTaskSupported:sessionTask]) {
+        return;
+    }
+
 #if SENTRY_TARGET_REPLAY_SUPPORTED
     SentryOptions *options = SentrySDK.startOption;
     NSString *urlString = sessionTask.originalRequest.URL.absoluteString;
@@ -245,10 +249,6 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
               networkRequestHeaders:options.sessionReplay.networkRequestHeaders];
     }
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
-
-    if (![self isTaskSupported:sessionTask]) {
-        return;
-    }
 
     // Suspended is not a terminal state: a task can be suspended and later resumed or
     // cancelled, so we must wait for a final state before finishing the span.
