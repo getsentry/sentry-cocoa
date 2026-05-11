@@ -29,8 +29,6 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         var appMemorySize: UInt64 { 0 }
         var systemInfo: [String: Any] { [:] }
         var processInfoWrapper: SentryProcessInfoSource { ProcessInfo.processInfo }
-        func startBinaryImageCache() {}
-        func stopBinaryImageCache() {}
         func enrichScope(_ scope: Scope) {}
     }
     

@@ -34,6 +34,10 @@ import Foundation
     
     @objc public func start(_ isDebug: Bool) {
         lock.synchronized {
+            guard cache == nil else {
+                self.isDebug = self.isDebug || isDebug
+                return
+            }
             self.isDebug = isDebug
             self.cache = []
             sentrycrashbic_registerAddedCallback { imagePtr in
@@ -58,6 +62,9 @@ import Foundation
     
     @objc public func stop() {
         lock.synchronized {
+            guard cache != nil else {
+                return
+            }
             sentrycrashbic_registerAddedCallback(nil)
             sentrycrashbic_registerRemovedCallback(nil)
             self.cache = nil
