@@ -8,7 +8,7 @@ extension SentryScopePersistentStore {
             // Otherwise it will throw an unhandled `NSInvalidArgumentException` exception.
             // The error handler is required but will never be executed due to Swift type safety.
             guard let wrapped = genericModel as? [AnyHashable: Any],
-                  let sanitizedModel = sentry_sanitize(wrapped) else {
+                  let sanitizedModel = sentry_sanitize_dictionary(wrapped) else {
                 SentrySDKLog.error("Failed to sanitize \(name), reason: \(name) is not valid json: \(genericModel)")
                 return nil
             }

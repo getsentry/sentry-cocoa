@@ -1,6 +1,6 @@
 #import "SentryFrame.h"
 #import "NSMutableDictionary+Sentry.h"
-#import "SentryNSDictionarySanitize.h"
+#import "SentrySanitizerUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.parentIndex forKey:@"parent_index"];
     [serializedData setValue:self.sampleCount forKey:@"sample_count"];
     [serializedData setValue:self.postContext forKey:@"post_context"];
-    [serializedData setValue:sentry_sanitize(self.vars) forKey:@"vars"];
+    [serializedData setValue:sentry_sanitize_dictionary(self.vars) forKey:@"vars"];
     [SentryDictionary setBoolValue:self.inApp forKey:@"in_app" intoDictionary:serializedData];
     [SentryDictionary setBoolValue:self.stackStart
                             forKey:@"stack_start"

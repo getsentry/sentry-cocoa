@@ -10,18 +10,27 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
 source "${SCRIPT_DIR}/ci-utils.sh"
 
-# Usage: ./scripts/ci-create-simulator.sh --platform <platform> --os-version <os_version> --device-name <device_name>
-# Example: ./scripts/ci-create-simulator.sh --platform iOS --os-version 26.1 --device-name "iPhone 17 Pro"
-# Example: ./scripts/ci-create-simulator.sh --platform iOS --os-version 16.4 --device-name "iPhone 14 Pro"
 
 PLATFORM=""
 OS_VERSION=""
 DEVICE_NAME=""
 
 usage() {
-  log_error "Usage: $0 --platform <platform> --os-version <os_version> --device-name <device_name>"
-  log_error "  Example: $0 --platform iOS --os-version 26.1 --device-name \"iPhone 17 Pro\""
-  log_error "  Example: $0 --platform iOS --os-version 16.4 --device-name \"iPhone 14 Pro\""
+  cat <<EOF
+Usage: $(basename "$0") --platform <platform> --os-version <os_version> --device-name <device_name>
+
+Create a simulator for the given platform, OS version, and device name.
+
+OPTIONS:
+    --platform <platform>       Target platform: iOS, tvOS, or visionOS
+    --os-version <os_version>   Simulator OS version, e.g. '26.1' or '16.4'
+    --device-name <device_name> Device name, e.g. 'iPhone 17 Pro'
+
+EXAMPLES:
+    $(basename "$0") --platform iOS --os-version 26.1 --device-name "iPhone 17 Pro"
+    $(basename "$0") --platform iOS --os-version 16.4 --device-name "iPhone 14 Pro"
+
+EOF
   exit 1
 }
 
@@ -52,7 +61,7 @@ if [[ -z "$PLATFORM" || -z "$OS_VERSION" || -z "$DEVICE_NAME" ]]; then
   usage
 fi
 
-log_notice "Requested simulator: Platform='$PLATFORM', OS Version='$OS_VERSION', Device Name='$DEVICE_NAME'"
+log_info "Requested simulator: Platform='$PLATFORM', OS Version='$OS_VERSION', Device Name='$DEVICE_NAME'"
 
 # Map platform to simctl device type and runtime
 case "$PLATFORM" in
@@ -66,41 +75,45 @@ case "$PLATFORM" in
     SIMCTL_PLATFORM="visionOS"
     ;;
   *)
-    log_notice "Platform '$PLATFORM' does not require simulator creation or is not supported. Skipping."
+    log_info "Platform '$PLATFORM' does not require simulator creation or is not supported. Skipping."
     exit 0
     ;;
 esac
 
 begin_group "Finding runtime for ${SIMCTL_PLATFORM} ${OS_VERSION}"
-log_notice "Listing all available runtimes:"
+log_info "Listing all available runtimes:"
 xcrun simctl list runtimes
 end_group
 
+# simctl text output uses major.minor in display names (e.g. "iOS 26.4") even
+# for hotfix versions like 26.4.1. Extract major.minor for text matching.
+VERSION_MM=$(echo "$OS_VERSION" | awk -F. '{print $1"."$2}')
+
 begin_group "Finding runtime ID for ${SIMCTL_PLATFORM} ${OS_VERSION}"
-RUNTIME_ID=$(xcrun simctl list runtimes | grep "${SIMCTL_PLATFORM} ${OS_VERSION}" | grep -v unavailable | awk '{print $NF}' | head -n1)
+RUNTIME_ID=$(xcrun simctl list runtimes | grep "${SIMCTL_PLATFORM} ${VERSION_MM}" | grep -v unavailable | awk '{print $NF}' | head -n1)
 if [[ -z "$RUNTIME_ID" ]]; then
   log_error "Could not find runtime for ${SIMCTL_PLATFORM} ${OS_VERSION}"
   xcrun simctl list runtimes
   end_group
   exit 1
 fi
-log_notice "Found runtime ID: $RUNTIME_ID"
+log_info "Found runtime ID: $RUNTIME_ID"
 end_group
 
 begin_group "Checking if simulator already exists"
 # Use a simpler approach to check for existing simulator
 DEVICES_OUTPUT=$(xcrun simctl list devices available 2>/dev/null || true)
-EXISTING_UDID=$(echo "$DEVICES_OUTPUT" | grep -A 20 -- "-- ${SIMCTL_PLATFORM} ${OS_VERSION} --" | grep "${DEVICE_NAME} (" | awk -F '[()]' '{print $2}' | head -n1 || true)
+EXISTING_UDID=$(echo "$DEVICES_OUTPUT" | grep -A 20 -- "-- ${SIMCTL_PLATFORM} ${VERSION_MM} --" | grep "${DEVICE_NAME} (" | awk -F '[()]' '{print $2}' | head -n1 || true)
 if [[ -n "$EXISTING_UDID" ]]; then
-  log_notice "Simulator '${DEVICE_NAME}' for runtime '${SIMCTL_PLATFORM} ${OS_VERSION}' already exists (UDID: $EXISTING_UDID)"
+  log_info "Simulator '${DEVICE_NAME}' for runtime '${SIMCTL_PLATFORM} ${OS_VERSION}' already exists (UDID: $EXISTING_UDID)"
   end_group
   exit 0
 fi
-log_notice "No existing simulator found for '${DEVICE_NAME}' (${SIMCTL_PLATFORM} ${OS_VERSION})"
+log_info "No existing simulator found for '${DEVICE_NAME}' (${SIMCTL_PLATFORM} ${OS_VERSION})"
 end_group
 
 begin_group "Creating simulator"
-log_notice "Attempting to create simulator: Name='${DEVICE_NAME}', Platform='${SIMCTL_PLATFORM}', OS='${OS_VERSION}'"
+log_info "Attempting to create simulator: Name='${DEVICE_NAME}', Platform='${SIMCTL_PLATFORM}', OS='${OS_VERSION}'"
 NEW_UDID=$(xcrun simctl create "${DEVICE_NAME}" "com.apple.CoreSimulator.SimDeviceType.${DEVICE_NAME// /-}" "$RUNTIME_ID" 2>/dev/null || true)
 
 # If the above fails, try to find the device type identifier
@@ -113,7 +126,7 @@ if [[ -z "$NEW_UDID" ]]; then
     end_group
     exit 1
   fi
-  log_notice "Found device type ID: $DEVICE_TYPE_ID"
+  log_info "Found device type ID: $DEVICE_TYPE_ID"
   NEW_UDID=$(xcrun simctl create "${DEVICE_NAME}" "$DEVICE_TYPE_ID" "$RUNTIME_ID")
 fi
 
@@ -123,5 +136,5 @@ if [[ -z "$NEW_UDID" ]]; then
   exit 1
 fi
 
-log_notice "Created simulator '${DEVICE_NAME}' (${SIMCTL_PLATFORM} ${OS_VERSION}) with UDID: $NEW_UDID"
+log_info "Created simulator '${DEVICE_NAME}' (${SIMCTL_PLATFORM} ${OS_VERSION}) with UDID: $NEW_UDID"
 end_group

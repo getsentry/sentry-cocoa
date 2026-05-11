@@ -168,8 +168,7 @@ jobs:
               - "ghcr.io/cirruslabs/macos-runner:sequoia,runner_concurrency_group=${{ github.run_id }}"
               - "runner_group_id:10"
             platform: "macOS"
-            xcode: "16.4"
-            test-destination-os: "15.0"
+            xcode: "16"
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -179,7 +178,16 @@ jobs:
 
       - name: Start Test Server
         run: ./scripts/start-test-server.sh
-      - run: ./scripts/ci-select-xcode.sh ${{matrix.xcode}}
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: ${{ matrix.xcode }}
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: ${{ matrix.platform }}
 
       # Note: We don't install Slather or gather code coverage for this job because it only runs
       # the SentryTestServerTests target, which contains minimal tests that don't significantly
@@ -191,10 +199,11 @@ jobs:
         id: build_tests
         env:
           REF_NAME: ${{ github.ref_name }}
+          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
-            --os ${{matrix.test-destination-os}} \
+            --os "${OS_VERSION}" \
             --ref "${REF_NAME}" \
             --command build-for-testing \
             --configuration TestCI \
@@ -204,10 +213,11 @@ jobs:
       - name: Run tests
         env:
           REF_NAME: ${{ github.ref_name }}
+          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: |
           ./scripts/sentry-xcodebuild.sh \
             --platform ${{matrix.platform}} \
-            --os ${{matrix.test-destination-os}} \
+            --os "${OS_VERSION}" \
             --ref "${REF_NAME}" \
             --command test-without-building \
             --configuration TestCI \
@@ -261,11 +271,10 @@ jobs:
       should_skip: ${{github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
-      test-destination-os: ${{matrix.test-destination-os || 'latest'}}
+      test-destination-os: ${{matrix.test-destination-os}}
       timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device || ''}}
       scheme: "Sentry"
-      run_on_cirrus_labs: true # We always run tests on Cirrus Labs
     strategy:
       fail-fast: false
       matrix:
@@ -276,7 +285,7 @@ jobs:
           # iOS 17
           - name: iOS 17 Sentry
             runs-on: sequoia
-            xcode: "16.4"
+            xcode: "16"
             test-destination-os: "17.5"
             platform: "iOS"
             device: "iPhone 15 Pro"
@@ -284,18 +293,14 @@ jobs:
           # iOS 18
           - name: iOS 18 Sentry
             runs-on: sequoia
-            xcode: "16.4"
-            test-destination-os: "18.5"
+            xcode: "16"
             platform: "iOS"
-            device: "iPhone 16 Pro"
 
           # iOS 26
           - name: iOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.3"
-            test-destination-os: "26.3"
+            xcode: "26"
             platform: "iOS"
-            device: "iPhone 17 Pro"
 
           # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 14 is minimal.
@@ -304,22 +309,19 @@ jobs:
           # macOS 14
           - name: macOS 14 Sentry
             runs-on: sonoma
-            xcode: "16.1"
-            test-destination-os: "latest"
+            xcode: "16"
             platform: "macOS"
 
           # macOS 15
           - name: macOS 15 Sentry
             runs-on: sequoia
-            xcode: "16.4"
-            test-destination-os: "latest"
+            xcode: "16"
             platform: "macOS"
 
           # macOS 26
           - name: macOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.3"
-            test-destination-os: "26.2"
+            xcode: "26"
             platform: "macOS"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
@@ -327,14 +329,12 @@ jobs:
           # In addition we are running tests on macOS 14, as there were OS-internal changes introduced in succeeding versions.
           - name: Catalyst 14 Sentry
             runs-on: sonoma
-            xcode: "16.1"
-            test-destination-os: "latest"
+            xcode: "16"
             platform: "Catalyst"
 
           - name: Catalyst 15 Sentry
             runs-on: sequoia
-            xcode: "16.4"
-            test-destination-os: "latest"
+            xcode: "16"
             platform: "Catalyst"
 
           ## We don't run unit tests on macCatalyst 26 yet because of https://github.com/getsentry/sentry-cocoa/issues/6165.
@@ -346,32 +346,28 @@ jobs:
           # tvOS 17
           - name: tvOS 17 Sentry
             runs-on: sequoia
-            xcode: "16.4"
+            xcode: "16"
             test-destination-os: "17.5"
             platform: "tvOS"
 
           # tvOS 18
           - name: tvOS 18 Sentry
             runs-on: sequoia
-            xcode: "16.4"
-            test-destination-os: "18.5"
+            xcode: "16"
             platform: "tvOS"
 
           # tvOS 26
           - name: tvOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.3"
-            test-destination-os: "26.2"
+            xcode: "26"
             platform: "tvOS"
             device: "Apple TV"
 
           # visionOS 26
           - name: visionOS 26 Sentry
             runs-on: tahoe
-            xcode: "26.3"
-            test-destination-os: "26.2"
+            xcode: "26"
             platform: "visionOS"
-            device: "Apple Vision Pro"
             timeout: 30
 
   # This check validates that either all unit tests passed or were skipped, which allows us

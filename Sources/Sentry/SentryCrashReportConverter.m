@@ -56,15 +56,18 @@
         self.userContext = userContextMerged;
 
         NSDictionary *crashContext;
-        // This is an incomplete crash report
-        if (nil != report[@"recrash_report"][@"crash"]) {
-            crashContext = report[@"recrash_report"][@"crash"];
+        id recrashReport = report[@"recrash_report"];
+        NSDictionary *recrashDict =
+            [recrashReport isKindOfClass:[NSDictionary class]] ? recrashReport : nil;
+
+        if (nil != recrashDict[@"crash"]) {
+            crashContext = recrashDict[@"crash"];
         } else {
             crashContext = report[@"crash"];
         }
 
-        if (nil != report[@"recrash_report"][@"binary_images"]) {
-            self.binaryImages = report[@"recrash_report"][@"binary_images"];
+        if (nil != recrashDict[@"binary_images"]) {
+            self.binaryImages = recrashDict[@"binary_images"];
         } else {
             self.binaryImages = report[@"binary_images"];
         }
@@ -518,13 +521,34 @@
     return [[SentryException alloc] initWithValue:reason type:type];
 }
 
+- (BOOL)isStackOverflowThread:(NSDictionary *)thread
+{
+    id stack = thread[@"stack"];
+    if (![stack isKindOfClass:NSDictionary.class]) {
+        return NO;
+    }
+
+    id overflow = ((NSDictionary *)stack)[@"overflow"];
+    return [overflow respondsToSelector:@selector(boolValue)] && [overflow boolValue];
+}
+
 - (void)enhanceValueFromNotableAddresses:(SentryException *)exception
 {
     // Gatekeeper fixes https://github.com/getsentry/sentry-cocoa/issues/231
-    if ([self.threads count] == 0 || self.crashedThreadIndex >= [self.threads count]) {
+    if ([self.threads count] == 0 || self.crashedThreadIndex < 0
+        || self.crashedThreadIndex >= (NSInteger)[self.threads count]) {
         return;
     }
     NSDictionary *crashedThread = self.threads[self.crashedThreadIndex];
+
+    // Stack overflow crashes can leave unrelated app data near the stack pointer. Don't promote
+    // those memory-introspection strings to the exception value.
+    if ([self isStackOverflowThread:crashedThread]) {
+        SENTRY_LOG_DEBUG(@"Skipping notable address exception value enhancement because "
+                         @"crashed thread stack.overflow is true");
+        return;
+    }
+
     NSDictionary *_Nullable notableAddresses = crashedThread[@"notable_addresses"];
     NSMutableOrderedSet *reasons = [[NSMutableOrderedSet alloc] init];
     if (nil != notableAddresses) {

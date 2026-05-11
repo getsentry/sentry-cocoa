@@ -12,8 +12,8 @@ import UIKit
  */
 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
 @objc @_spi(Private)
-public class SentryCrashWrapper: NSObject {
-    let processInfoWrapper: SentryProcessInfoSource
+public class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
+    public let processInfoWrapper: SentryProcessInfoSource
     private let bridge: SentryCrashBridge
 
     @objc
@@ -42,8 +42,8 @@ public class SentryCrashWrapper: NSObject {
 }
 #else
 @objc @_spi(Private)
-public final class SentryCrashWrapper: NSObject {
-    let processInfoWrapper: SentryProcessInfoSource
+public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
+    public let processInfoWrapper: SentryProcessInfoSource
     private let bridge: SentryCrashBridge
 
     @objc
@@ -62,7 +62,16 @@ public final class SentryCrashWrapper: NSObject {
 }
 #endif
 
-@_spi(Private) extension SentryCrashWrapper {
+@_spi(Private) extension SentryDefaultCrashReporter {
+    @objc
+    public func startBinaryImageCache() {
+        sentrycrashbic_startCache()
+    }
+    
+    @objc
+    public func stopBinaryImageCache() {
+        sentrycrashbic_stopCache()
+    }
     
     @objc
     public var crashedLastLaunch: Bool {

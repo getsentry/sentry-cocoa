@@ -8,7 +8,7 @@ import UIKit
 @_spi(Private) @objc public final class SentryAppStateManager: NSObject {
     
     private let releaseName: String?
-    private let crashWrapper: SentryCrashWrapper
+    private let crashWrapper: SentryCrashReporter
     private let fileManager: SentryFileManager?
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     private let _updateAppState: (@escaping (SentryAppState) -> Void) -> Void
@@ -16,7 +16,7 @@ import UIKit
     private let helper: SentryDefaultAppStateManager
 #endif
     
-    init(releaseName: String?, crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl) {
+    init(releaseName: String?, crashWrapper: SentryCrashReporter, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl) {
         self.releaseName = releaseName
         self.crashWrapper = crashWrapper
         self.fileManager = fileManager
@@ -59,7 +59,7 @@ import UIKit
 #if SENTRY_TEST || SENTRY_TEST_CI
     /// Test-only initializer to allow injecting a custom `buildCurrentAppState` closure for testing
     /// scenarios where the current app state needs specific values (e.g., nil vendorId).
-    init(releaseName: String?, crashWrapper: SentryCrashWrapper, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl, customBuildCurrentAppState: @escaping () -> SentryAppState) {
+    init(releaseName: String?, crashWrapper: SentryCrashReporter, fileManager: SentryFileManager?, sysctlWrapper: SentrySysctl, customBuildCurrentAppState: @escaping () -> SentryAppState) {
         self.releaseName = releaseName
         self.crashWrapper = crashWrapper
         self.fileManager = fileManager

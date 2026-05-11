@@ -2,9 +2,9 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-final class SentryCrashWrapperTests: XCTestCase {
+final class SentryDefaultCrashReporterTests: XCTestCase {
 
-    private var crashWrapper: SentryCrashWrapper!
+    private var crashWrapper: SentryDefaultCrashReporter!
     private var scope: Scope!
 
     private func makeTestBridge() -> SentryCrashBridge {
@@ -18,7 +18,7 @@ final class SentryCrashWrapperTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        crashWrapper = SentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo,
+        crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: ProcessInfo.processInfo,
             systemInfo: [
             "osVersion": "23A344",
             "kernelVersion": "23.0.0",
@@ -150,7 +150,7 @@ final class SentryCrashWrapperTests: XCTestCase {
         mockProcessInfo.overrides.isMacCatalystApp = false
         
         let testScope = Scope()
-        let crashWrapper = SentryCrashWrapper(processInfoWrapper: mockProcessInfo, systemInfo: [
+        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: mockProcessInfo, systemInfo: [
             "osVersion": "23A344",
             "kernelVersion": "23.0.0",
             "isJailbroken": false,
@@ -182,7 +182,7 @@ final class SentryCrashWrapperTests: XCTestCase {
         mockProcessInfo.overrides.isMacCatalystApp = true
         
         let testScope = Scope()
-        let crashWrapper = SentryCrashWrapper(processInfoWrapper: mockProcessInfo, systemInfo: [
+        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: mockProcessInfo, systemInfo: [
             "osVersion": "23A344",
             "kernelVersion": "23.0.0",
             "isJailbroken": false,
@@ -212,7 +212,7 @@ final class SentryCrashWrapperTests: XCTestCase {
         mockProcessInfo.overrides.isiOSAppOnVisionOS = true
         
         let testScope = Scope()
-        let crashWrapper = SentryCrashWrapper(processInfoWrapper: mockProcessInfo, systemInfo: [
+        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: mockProcessInfo, systemInfo: [
             "osVersion": "23A344",
             "kernelVersion": "23.0.0",
             "isJailbroken": false,
@@ -244,7 +244,7 @@ final class SentryCrashWrapperTests: XCTestCase {
         mockProcessInfo.overrides.isiOSAppOnVisionOS = false
 
         let testScope = Scope()
-        let crashWrapper = SentryCrashWrapper(processInfoWrapper: mockProcessInfo, systemInfo: [
+        let crashWrapper = SentryDefaultCrashReporter(processInfoWrapper: mockProcessInfo, systemInfo: [
             "osVersion": "23A344",
             "kernelVersion": "23.0.0",
             "isJailbroken": false,
@@ -277,7 +277,7 @@ final class SentryCrashWrapperTests: XCTestCase {
         // Previously, systemInfo was read before setEnabled(true), causing
         // addContextualInfoToEvent to return empty data.
         let bridge = makeTestBridge()
-        let wrapper = SentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo, bridge: bridge)
+        let wrapper = SentryDefaultCrashReporter(processInfoWrapper: ProcessInfo.processInfo, bridge: bridge)
 
         XCTAssertFalse(wrapper.systemInfo.isEmpty, "systemInfo should be populated when the system monitor is enabled before reading it")
     }
@@ -286,7 +286,7 @@ final class SentryCrashWrapperTests: XCTestCase {
         // Verifies that the real system monitor produces meaningful data,
         // not just a non-empty dictionary.
         let bridge = makeTestBridge()
-        let wrapper = SentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo, bridge: bridge)
+        let wrapper = SentryDefaultCrashReporter(processInfoWrapper: ProcessInfo.processInfo, bridge: bridge)
 
         XCTAssertNotNil(wrapper.systemInfo["systemName"], "systemInfo should contain systemName")
         XCTAssertNotNil(wrapper.systemInfo["cpuArchitecture"], "systemInfo should contain cpuArchitecture")
@@ -294,10 +294,10 @@ final class SentryCrashWrapperTests: XCTestCase {
     }
 
     func testInit_EnrichScopePopulatesDeviceAndAppContexts() throws {
-        // End-to-end check: a real SentryCrashWrapper should populate device
+        // End-to-end check: a real SentryDefaultCrashReporter should populate device
         // and app contexts on the scope. This would fail if systemInfo were empty.
         let bridge = makeTestBridge()
-        let wrapper = SentryCrashWrapper(processInfoWrapper: ProcessInfo.processInfo, bridge: bridge)
+        let wrapper = SentryDefaultCrashReporter(processInfoWrapper: ProcessInfo.processInfo, bridge: bridge)
 
         let testScope = Scope()
         wrapper.enrichScope(testScope)
