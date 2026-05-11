@@ -35,7 +35,6 @@ import Foundation
     @objc public func start(_ isDebug: Bool) {
         lock.synchronized {
             guard cache == nil else {
-                self.isDebug = self.isDebug || isDebug
                 return
             }
             self.isDebug = isDebug
