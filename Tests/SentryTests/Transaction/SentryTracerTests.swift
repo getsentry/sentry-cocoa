@@ -33,6 +33,7 @@ class SentryTracerTests: XCTestCase {
         let transactionOperation = "ui.load"
         var transactionContext: TransactionContext!
         
+        let appStartOperation = "app.start"
         let appStartWarmOperation = "app.start.warm"
         let appStartColdOperation = "app.start.cold"
         
@@ -697,7 +698,9 @@ class SentryTracerTests: XCTestCase {
         
         whenFinishingAutoUITransaction(startTimestamp: 5)
 
-        try assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
+        try assertMeasurements([
+            "app_start_cold": ["value": fixture.appStartDuration * 1_000]
+        ])
 
         let transaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first!.event as? Transaction)
         assertAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", operation: fixture.appStartColdOperation, appStartMeasurement: appStartMeasurement)
@@ -759,7 +762,9 @@ class SentryTracerTests: XCTestCase {
 
         whenFinishingAutoUITransaction(startTimestamp: 5)
 
-        try assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
+        try assertMeasurements([
+            "app_start_cold": ["value": fixture.appStartDuration * 1_000]
+        ])
 
         let transaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first!.event as? Transaction)
         assertPreWarmedAppStartsSpanAdded(transaction: transaction, startType: "Cold Start", operation: fixture.appStartColdOperation, appStartMeasurement: appStartMeasurement)
@@ -967,7 +972,7 @@ class SentryTracerTests: XCTestCase {
     func testFinish_whenStandaloneAppStart_shouldUseConfigurationMeasurement() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
 
-        let context = TransactionContext(name: "App Start Cold", operation: fixture.appStartColdOperation)
+        let context = TransactionContext(name: "App Start", operation: fixture.appStartOperation)
         let sut = fixture.hub.startTransaction(
             with: context,
             bindToScope: false,
@@ -984,8 +989,13 @@ class SentryTracerTests: XCTestCase {
 
         let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
 
-        // Verify cold app start measurement is attached
-        try assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
+        // Verify cold app start vitals are set as span data (not measurements)
+        let extra = serializedTransaction["extra"] as? [String: Any]
+        let coldValue = try XCTUnwrap(extra?["app.vitals.start.cold.value"] as? NSNumber)
+        XCTAssertEqual(coldValue.doubleValue, fixture.appStartDuration * 1_000, accuracy: 0.001)
+        let startValue = try XCTUnwrap(extra?["app.vitals.start.value"] as? NSNumber)
+        XCTAssertEqual(startValue.doubleValue, fixture.appStartDuration * 1_000, accuracy: 0.001)
+        XCTAssertNil(serializedTransaction["measurements"], "Standalone should not have legacy measurements")
 
         // Standalone transactions have no intermediate grouping span, so 5 child spans
         // (not 6) for a non-prewarmed cold start.
@@ -1002,7 +1012,7 @@ class SentryTracerTests: XCTestCase {
             "Application Init",
             "Initial Frame Render"
         ])
-        XCTAssertEqual(Set(spanOperations), ["app.start.cold"])
+        XCTAssertEqual(Set(spanOperations), ["app.start"])
     }
 
     func testFinish_whenBothConfigAndGlobalAppStartSet_shouldUseConfigAndMarkGlobalAsRead() throws {
@@ -1013,7 +1023,7 @@ class SentryTracerTests: XCTestCase {
         SentrySDKInternal.setAppStartMeasurement(globalMeasurement)
 
         let configMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        let context = TransactionContext(name: "App Start Cold", operation: fixture.appStartColdOperation)
+        let context = TransactionContext(name: "App Start", operation: fixture.appStartOperation)
         let sut = fixture.hub.startTransaction(
             with: context,
             bindToScope: false,
@@ -1025,19 +1035,22 @@ class SentryTracerTests: XCTestCase {
         sut.origin = SentryTraceOriginAutoAppStart
         sut.finish()
 
-        // The config measurement must be used (cold), verified via the transaction measurement key.
-        try assertMeasurements(["app_start_cold": ["value": fixture.appStartDuration * 1_000]])
+        // The config measurement must be used (cold), verified via span data (not measurements).
+        let serializedFirst = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
+        let extra = serializedFirst["extra"] as? [String: Any]
+        let coldValue = try XCTUnwrap(extra?["app.vitals.start.cold.value"] as? NSNumber)
+        XCTAssertEqual(coldValue.doubleValue, fixture.appStartDuration * 1_000, accuracy: 0.001)
 
         // A subsequent ui.load transaction must not get the app start measurement
         // because the standalone transaction marked it as read.
         whenFinishingAutoUITransaction(startTimestamp: 5)
         let secondTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.last).event.serialize()
         let measurements = secondTransaction["measurements"] as? [String: Any]
-        XCTAssertNil(measurements?["app_start_warm"])
+        XCTAssertNil(measurements?["app.vitals.start.warm.value"])
     }
 
     func testFinish_whenStandaloneAppStartWithNilConfigMeasurement_shouldNotAddAppStartSpans() throws {
-        let context = TransactionContext(name: "App Start Cold", operation: fixture.appStartColdOperation)
+        let context = TransactionContext(name: "App Start", operation: fixture.appStartOperation)
         // No appStartMeasurement set on the configuration.
         let sut = fixture.hub.startTransaction(
             with: context,
@@ -1053,7 +1066,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertTrue(spans.isEmpty, "Standalone transaction with nil config measurement should have no app start spans")
 
         let measurements = serializedTransaction["measurements"] as? [String: Any]
-        XCTAssertNil(measurements?["app_start_cold"], "Should not have app start measurement")
+        XCTAssertNil(measurements?["app.vitals.start.cold.value"], "Should not have app start measurement")
     }
 
 #endif // os(iOS) || os(tvOS)

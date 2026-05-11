@@ -374,11 +374,11 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         startApp(callDisplayLink: true)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
-        XCTAssertEqual(serialized["transaction"] as? String, "App Start Cold")
+        XCTAssertEqual(serialized["transaction"] as? String, "App Start")
 
         let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
         let traceContext = try XCTUnwrap(contexts["trace"] as? [String: Any])
-        XCTAssertEqual(traceContext["op"] as? String, "app.start.cold")
+        XCTAssertEqual(traceContext["op"] as? String, "app.start")
 
         // The global static must not be set — standalone bypasses it.
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
@@ -391,9 +391,9 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         XCTAssertTrue(descriptions.contains("Pre Runtime Init"))
         XCTAssertTrue(descriptions.contains("Initial Frame Render"))
 
-        // Verify the app start measurement is attached.
-        let measurements = try XCTUnwrap(serialized["measurements"] as? [String: Any])
-        XCTAssertNotNil(measurements["app_start_cold"])
+        // Verify the app start vitals are set as span data.
+        let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
+        XCTAssertNotNil(extra["app.vitals.start.cold.value"])
     }
 
     private func store(appState: SentryAppState) {

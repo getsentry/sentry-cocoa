@@ -79,11 +79,11 @@ class AppStartReportingStrategyTests: XCTestCase {
         StandaloneTransactionStrategy().report(measurement)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
-        XCTAssertEqual(serialized["transaction"] as? String, "App Start Cold")
+        XCTAssertEqual(serialized["transaction"] as? String, "App Start")
 
         let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
         let traceContext = try XCTUnwrap(contexts["trace"] as? [String: Any])
-        XCTAssertEqual(traceContext["op"] as? String, "app.start.cold")
+        XCTAssertEqual(traceContext["op"] as? String, "app.start")
         XCTAssertEqual(traceContext["origin"] as? String, "auto.app.start")
     }
 
@@ -94,20 +94,23 @@ class AppStartReportingStrategyTests: XCTestCase {
         StandaloneTransactionStrategy().report(measurement)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
-        XCTAssertEqual(serialized["transaction"] as? String, "App Start Warm")
+        XCTAssertEqual(serialized["transaction"] as? String, "App Start")
 
         let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
         let traceContext = try XCTUnwrap(contexts["trace"] as? [String: Any])
-        XCTAssertEqual(traceContext["op"] as? String, "app.start.warm")
+        XCTAssertEqual(traceContext["op"] as? String, "app.start")
     }
 
-    func testReport_whenUnknownStartType_shouldNotCaptureTransaction() {
-        let hub = setCurrentHub()
+    func testReport_whenUnknownStartType_shouldCaptureTransactionWithSpansButNoMeasurements() throws {
+        let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .unknown)
 
         StandaloneTransactionStrategy().report(measurement)
 
-        XCTAssertTrue(hub.capturedTransactionsWithScope.invocations.isEmpty)
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let spans = serialized["spans"] as? [[String: Any]] ?? []
+        XCTAssertFalse(spans.isEmpty, "Standalone uses unified op, so spans are built regardless of type")
+        XCTAssertNil(serialized["measurements"], "Unknown start type should produce no measurements")
     }
 
     func testReport_whenColdStart_shouldNotSetGlobalStatic() {
@@ -145,28 +148,28 @@ class AppStartReportingStrategyTests: XCTestCase {
         return hub
     }
 
-    func testReport_whenColdStart_shouldAddAppStartMeasurement() throws {
+    func testReport_whenColdStart_shouldAddAppStartAttributes() throws {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold, duration: 0.5)
 
         StandaloneTransactionStrategy().report(measurement)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
-        let measurements = try XCTUnwrap(serialized["measurements"] as? [String: Any])
-        let appStartCold = try XCTUnwrap(measurements["app_start_cold"] as? [String: Any])
-        XCTAssertEqual(appStartCold["value"] as? Double, 500)
+        let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
+        let appStartCold = try XCTUnwrap(extra["app.vitals.start.cold.value"] as? NSNumber)
+        XCTAssertEqual(appStartCold.doubleValue, 500, accuracy: 0.001)
     }
 
-    func testReport_whenWarmStart_shouldAddAppStartMeasurement() throws {
+    func testReport_whenWarmStart_shouldAddAppStartAttributes() throws {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .warm, duration: 0.3)
 
         StandaloneTransactionStrategy().report(measurement)
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
-        let measurements = try XCTUnwrap(serialized["measurements"] as? [String: Any])
-        let appStartWarm = try XCTUnwrap(measurements["app_start_warm"] as? [String: Any])
-        XCTAssertEqual(appStartWarm["value"] as? Double, 300)
+        let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
+        let appStartWarm = try XCTUnwrap(extra["app.vitals.start.warm.value"] as? NSNumber)
+        XCTAssertEqual(appStartWarm.doubleValue, 300, accuracy: 0.001)
     }
 
     func testReport_whenColdStart_shouldAddDebugMeta() throws {
@@ -236,7 +239,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         ])
 
         let operations = Set(spans.compactMap { $0["op"] as? String })
-        XCTAssertEqual(operations, ["app.start.warm"])
+        XCTAssertEqual(operations, ["app.start"])
 
         let appStartInterval = appStart.timeIntervalSince1970
 
@@ -264,16 +267,16 @@ class AppStartReportingStrategyTests: XCTestCase {
 
     // MARK: - StandaloneAppStartTransactionHelper
 
-    func testIsStandaloneAppStartTransaction_whenColdStartWithAutoOrigin_shouldReturnTrue() {
+    func testIsStandaloneAppStartTransaction_whenAppStartWithAutoOrigin_shouldReturnTrue() {
         XCTAssertTrue(StandaloneAppStartTransactionHelper.isStandaloneAppStartTransaction(
-            operation: "app.start.cold",
+            operation: "app.start",
             origin: "auto.app.start"
         ))
     }
 
-    func testIsStandaloneAppStartTransaction_whenWarmStartWithAutoOrigin_shouldReturnTrue() {
-        XCTAssertTrue(StandaloneAppStartTransactionHelper.isStandaloneAppStartTransaction(
-            operation: "app.start.warm",
+    func testIsStandaloneAppStartTransaction_whenColdStartWithAutoOrigin_shouldReturnFalse() {
+        XCTAssertFalse(StandaloneAppStartTransactionHelper.isStandaloneAppStartTransaction(
+            operation: "app.start.cold",
             origin: "auto.app.start"
         ))
     }
@@ -285,9 +288,9 @@ class AppStartReportingStrategyTests: XCTestCase {
         ))
     }
 
-    func testIsStandaloneAppStartTransaction_whenColdStartWithManualOrigin_shouldReturnFalse() {
+    func testIsStandaloneAppStartTransaction_whenAppStartWithManualOrigin_shouldReturnFalse() {
         XCTAssertFalse(StandaloneAppStartTransactionHelper.isStandaloneAppStartTransaction(
-            operation: "app.start.cold",
+            operation: "app.start",
             origin: "manual"
         ))
     }

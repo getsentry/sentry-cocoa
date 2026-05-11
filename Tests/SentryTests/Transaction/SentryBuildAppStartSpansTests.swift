@@ -27,7 +27,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
     }
 
-    func testBuildStandaloneAppStartSpans_whenUnknownType_shouldNotReturnAnySpans() {
+    func testBuildStandaloneAppStartSpans_whenUnknownType_shouldStillBuildSpans() {
         let context = SpanContext(operation: "operation")
         let tracer = SentryTracer(context: context, framesTracker: nil)
         let appStartMeasurement = SentryAppStartMeasurement(
@@ -44,7 +44,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
 
         let result = sentryBuildStandaloneAppStartSpans(tracer, appStartMeasurement)
 
-        XCTAssertTrue(result.isEmpty, "Expected no spans but got \(result.count)")
+        XCTAssertEqual(result.count, 5, "Standalone uses unified app.start op regardless of type")
     }
 
     func testSentryBuildAppStartSpans_appStartMeasurementIsNotColdOrWarm_shouldNotReturnAnySpans() {
@@ -261,7 +261,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             span: result[0],
             expectedTraceId: tracer.traceId.sentryIdString,
             expectedParentSpanId: tracer.spanId.sentrySpanIdString,
-            expectedOperation: "app.start.cold",
+            expectedOperation: "app.start",
             expectedDescription: "Pre Runtime Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_000),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_300),
@@ -271,7 +271,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             span: result[1],
             expectedTraceId: tracer.traceId.sentryIdString,
             expectedParentSpanId: tracer.spanId.sentrySpanIdString,
-            expectedOperation: "app.start.cold",
+            expectedOperation: "app.start",
             expectedDescription: "Runtime Init to Pre Main Initializers",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_300),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_400),
@@ -281,7 +281,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             span: result[2],
             expectedTraceId: tracer.traceId.sentryIdString,
             expectedParentSpanId: tracer.spanId.sentrySpanIdString,
-            expectedOperation: "app.start.cold",
+            expectedOperation: "app.start",
             expectedDescription: "UIKit Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_400),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_500),
@@ -291,7 +291,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             span: result[3],
             expectedTraceId: tracer.traceId.sentryIdString,
             expectedParentSpanId: tracer.spanId.sentrySpanIdString,
-            expectedOperation: "app.start.cold",
+            expectedOperation: "app.start",
             expectedDescription: "Application Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_500),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_600),
@@ -301,7 +301,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             span: result[4],
             expectedTraceId: tracer.traceId.sentryIdString,
             expectedParentSpanId: tracer.spanId.sentrySpanIdString,
-            expectedOperation: "app.start.cold",
+            expectedOperation: "app.start",
             expectedDescription: "Initial Frame Render",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_600),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
@@ -334,7 +334,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             span: result[0],
             expectedTraceId: tracer.traceId.sentryIdString,
             expectedParentSpanId: tracer.spanId.sentrySpanIdString,
-            expectedOperation: "app.start.warm",
+            expectedOperation: "app.start",
             expectedDescription: "UIKit Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_400),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_500),
@@ -344,7 +344,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             span: result[1],
             expectedTraceId: tracer.traceId.sentryIdString,
             expectedParentSpanId: tracer.spanId.sentrySpanIdString,
-            expectedOperation: "app.start.warm",
+            expectedOperation: "app.start",
             expectedDescription: "Application Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_500),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_600),
@@ -354,7 +354,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             span: result[2],
             expectedTraceId: tracer.traceId.sentryIdString,
             expectedParentSpanId: tracer.spanId.sentrySpanIdString,
-            expectedOperation: "app.start.warm",
+            expectedOperation: "app.start",
             expectedDescription: "Initial Frame Render",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_600),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
