@@ -24,21 +24,8 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
             return
         }
 
-        let operation: String
-        let name: String
-
-        switch measurement.type {
-        case .cold:
-            operation = SentrySpanOperationAppStartCold
-            name = "App Start Cold"
-        case .warm:
-            operation = SentrySpanOperationAppStartWarm
-            name = "App Start Warm"
-        default:
-            SentrySDKLog.error("Unknown app start type, can't report standalone app start transaction")
-            return
-        }
-
+        let operation = SentrySpanOperationAppStart
+        let name = "App Start"
         let context = TransactionContext(name: name, operation: operation)
 
         // Pass the measurement directly to the tracer via configuration instead of storing
@@ -65,9 +52,7 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
 @_spi(Private) @objc public final class StandaloneAppStartTransactionHelper: NSObject {
     /// Returns `true` when the operation and origin match a standalone app start transaction.
     @objc public static func isStandaloneAppStartTransaction(operation: String, origin: String) -> Bool {
-        return (operation == SentrySpanOperationAppStartCold
-                || operation == SentrySpanOperationAppStartWarm)
-            && origin == SentryTraceOriginAutoAppStart
+        return operation == SentrySpanOperationAppStart && origin == SentryTraceOriginAutoAppStart
     }
 }
 

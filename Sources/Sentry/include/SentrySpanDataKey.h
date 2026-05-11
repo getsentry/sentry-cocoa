@@ -26,3 +26,8 @@
 
 SENTRY_EXTERN NSString *const SentrySpanDataKeyFileSize;
 SENTRY_EXTERN NSString *const SentrySpanDataKeyFilePath;
+
+SENTRY_EXTERN NSString *const SentrySpanDataKeyAppVitalsStartType;
+SENTRY_EXTERN NSString *const SentrySpanDataKeyAppVitalsStartValue;
+SENTRY_EXTERN NSString *const SentrySpanDataKeyAppVitalsStartColdValue;
+SENTRY_EXTERN NSString *const SentrySpanDataKeyAppVitalsStartWarmValue;

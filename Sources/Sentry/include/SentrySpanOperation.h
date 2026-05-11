@@ -36,6 +36,7 @@ SENTRY_EXTERN NSString *const SentrySpanOperationNetworkRequestOperation;
 SENTRY_EXTERN NSString *const SentrySpanOperationUiAction;
 SENTRY_EXTERN NSString *const SentrySpanOperationUiActionClick;
 
+SENTRY_EXTERN NSString *const SentrySpanOperationAppStart;
 SENTRY_EXTERN NSString *const SentrySpanOperationAppStartCold;
 SENTRY_EXTERN NSString *const SentrySpanOperationAppStartWarm;
 
