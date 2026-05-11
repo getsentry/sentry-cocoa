@@ -30,7 +30,7 @@ NSArray<id<SentrySpan>> *sentryBuildAppStartSpans(
  * directly to the tracer (no intermediate grouping span):
  *
  * @code
- *   App Start Cold (op: app.start.cold)       ← tracer
+ *   App Start (op: app.start)                 ← tracer
  *     ├─ Pre Runtime Init
  *     ├─ Runtime Init to Pre Main Initializers
  *     ├─ UIKit Init

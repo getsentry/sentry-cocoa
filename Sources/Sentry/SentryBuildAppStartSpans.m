@@ -66,10 +66,14 @@ sentryBuildAppStartSpansInternal(SentryTracer *tracer,
         }
     }
 
-    NSString *startType = appStartMeasurement.isPreWarmed
-        ? [NSString stringWithFormat:@"%@.prewarmed",
-              appStartMeasurement.type == SentryAppStartTypeCold ? @"cold" : @"warm"]
-        : (appStartMeasurement.type == SentryAppStartTypeCold ? @"cold" : @"warm");
+    NSString *startType = nil;
+    if (appStartMeasurement.type == SentryAppStartTypeCold
+        || appStartMeasurement.type == SentryAppStartTypeWarm) {
+        NSString *base = appStartMeasurement.type == SentryAppStartTypeCold ? @"cold" : @"warm";
+        startType = appStartMeasurement.isPreWarmed
+            ? [NSString stringWithFormat:@"%@.prewarmed", base]
+            : base;
+    }
 
     NSMutableArray<id<SentrySpan>> *appStartSpans = [NSMutableArray array];
 
@@ -93,7 +97,7 @@ sentryBuildAppStartSpansInternal(SentryTracer *tracer,
             = sentryBuildAppStartSpan(tracer, appStartSpanParentId, operation, @"Pre Runtime Init");
         [premainSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
         [premainSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
-        if (isStandalone) {
+        if (isStandalone && startType != nil) {
             [premainSpan setDataValue:startType forKey:SentrySpanDataKeyAppVitalsStartType];
         }
         [appStartSpans addObject:premainSpan];
@@ -102,7 +106,7 @@ sentryBuildAppStartSpansInternal(SentryTracer *tracer,
             tracer, appStartSpanParentId, operation, @"Runtime Init to Pre Main Initializers");
         [runtimeInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
         [runtimeInitSpan setTimestamp:appStartMeasurement.moduleInitializationTimestamp];
-        if (isStandalone) {
+        if (isStandalone && startType != nil) {
             [runtimeInitSpan setDataValue:startType forKey:SentrySpanDataKeyAppVitalsStartType];
         }
         [appStartSpans addObject:runtimeInitSpan];
@@ -112,7 +116,7 @@ sentryBuildAppStartSpansInternal(SentryTracer *tracer,
         = sentryBuildAppStartSpan(tracer, appStartSpanParentId, operation, @"UIKit Init");
     [appInitSpan setStartTimestamp:appStartMeasurement.moduleInitializationTimestamp];
     [appInitSpan setTimestamp:appStartMeasurement.sdkStartTimestamp];
-    if (isStandalone) {
+    if (isStandalone && startType != nil) {
         [appInitSpan setDataValue:startType forKey:SentrySpanDataKeyAppVitalsStartType];
     }
     [appStartSpans addObject:appInitSpan];
@@ -121,7 +125,7 @@ sentryBuildAppStartSpansInternal(SentryTracer *tracer,
         = sentryBuildAppStartSpan(tracer, appStartSpanParentId, operation, @"Application Init");
     [didFinishLaunching setStartTimestamp:appStartMeasurement.sdkStartTimestamp];
     [didFinishLaunching setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
-    if (isStandalone) {
+    if (isStandalone && startType != nil) {
         [didFinishLaunching setDataValue:startType forKey:SentrySpanDataKeyAppVitalsStartType];
     }
     [appStartSpans addObject:didFinishLaunching];
@@ -130,7 +134,7 @@ sentryBuildAppStartSpansInternal(SentryTracer *tracer,
         = sentryBuildAppStartSpan(tracer, appStartSpanParentId, operation, @"Initial Frame Render");
     [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
     [frameRenderSpan setTimestamp:appStartEndTimestamp];
-    if (isStandalone) {
+    if (isStandalone && startType != nil) {
         [frameRenderSpan setDataValue:startType forKey:SentrySpanDataKeyAppVitalsStartType];
     }
     [appStartSpans addObject:frameRenderSpan];
