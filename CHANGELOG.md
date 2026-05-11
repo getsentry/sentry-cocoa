@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix crash with AVAssetDownloadTask in urlSessionTask:setState: (#7891)
+- Prevent crash-loop from malformed recrash reports (#7892)
 
 ### Features
 
