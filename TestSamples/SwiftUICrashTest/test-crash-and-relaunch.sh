@@ -123,7 +123,7 @@ xcodebuild -workspace Sentry.xcworkspace \
     -derivedDataPath DerivedData \
     -configuration Debug \
     CODE_SIGNING_REQUIRED=NO \
-    build 2>&1 | tee raw-build.log | xcbeautify
+    build 2>&1 | tee raw-build.log | xcbeautify --preserve-unbeautified
 
 xcrun simctl runtime dyld_shared_cache update iOS18.4
 

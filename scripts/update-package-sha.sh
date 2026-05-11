@@ -1,15 +1,19 @@
 #!/bin/bash
 set -euo pipefail
 
+# Disable SC1091 because it won't work with pre-commit
+# shellcheck source=./scripts/ci-utils.sh disable=SC1091
+source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+
 if [ -z "$GITHUB_RUN_ID" ]; then
-  echo "Error: GITHUB_RUN_ID is not set. Exiting script."
+  log_error "GITHUB_RUN_ID is not set. Exiting script."
   exit 1
 fi
 
 PACKAGE_FILES=$(find . -maxdepth 1 -name "Package.swift" -o -name "Package@swift-*.swift" | sort)
 
 if [ -z "$PACKAGE_FILES" ]; then
-    echo "::error::No Package.swift or Package@swift-*.swift files found"
+    log_error "No Package.swift or Package@swift-*.swift files found"
     exit 1
 fi
 

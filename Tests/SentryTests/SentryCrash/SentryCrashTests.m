@@ -13,6 +13,8 @@
 
 - (NSArray *)getAttachmentPaths:(int64_t)reportID;
 
+- (void)doctorReport:(NSMutableDictionary *)report;
+
 @end
 
 @implementation SentryCrashTests
@@ -96,6 +98,64 @@
         fileExistsAtPath:[installPath stringByAppendingPathComponent:@"Data"]]);
     XCTAssertTrue([NSFileManager.defaultManager
         fileExistsAtPath:[installPath stringByAppendingPathComponent:@"Data/CrashState.json"]]);
+}
+
+// GH-7888: doctorReport must not crash when recrash_report is an unexpected type.
+- (void)test_doctorReport_recrashReportIsArray_doesNotCrash
+{
+    SentryCrash *sentryCrash = [[SentryCrash alloc]
+        initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
+
+    NSMutableDictionary *report = [@{
+        @"crash" : [@{
+            @"error" : @ { @"type" : @"mach" },
+        } mutableCopy],
+        @"recrash_report" : @[ @"garbage", @"data" ],
+    } mutableCopy];
+
+    XCTAssertNoThrow([sentryCrash doctorReport:report]);
+}
+
+- (void)test_doctorReport_recrashReportCrashFieldIsArray_doesNotCrash
+{
+    SentryCrash *sentryCrash = [[SentryCrash alloc]
+        initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
+
+    NSMutableDictionary *report = [@{
+        @"crash" : [@{
+            @"error" : @ { @"type" : @"mach" },
+        } mutableCopy],
+        @"recrash_report" : @ { @"crash" : @[ @"not", @"a", @"dict" ] },
+    } mutableCopy];
+
+    XCTAssertNoThrow([sentryCrash doctorReport:report]);
+}
+
+- (void)test_doctorReport_crashFieldIsArray_doesNotCrash
+{
+    SentryCrash *sentryCrash = [[SentryCrash alloc]
+        initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
+
+    NSMutableDictionary *report = [@{
+        @"crash" : @[ @"not", @"a", @"dict" ],
+    } mutableCopy];
+
+    XCTAssertNoThrow([sentryCrash doctorReport:report]);
+}
+
+- (void)test_doctorReport_recrashReportIsString_doesNotCrash
+{
+    SentryCrash *sentryCrash = [[SentryCrash alloc]
+        initWithBasePath:[self.tempPath stringByAppendingPathComponent:@"Reports"]];
+
+    NSMutableDictionary *report = [@{
+        @"crash" : [@{
+            @"error" : @ { @"type" : @"mach" },
+        } mutableCopy],
+        @"recrash_report" : @"unexpected_string",
+    } mutableCopy];
+
+    XCTAssertNoThrow([sentryCrash doctorReport:report]);
 }
 
 - (void)initReport:(uint64_t)reportId withScreenshots:(int)amount
