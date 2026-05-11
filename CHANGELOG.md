@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add standalone app start tracing as an experimental option (#7660), enable it via `options.experimental.enableStandaloneAppStartTracing = true`
+
 ## 9.13.0
 
 ### Fixes
@@ -9,7 +15,6 @@
 
 ### Features
 
-- Add standalone app start tracing as an experimental option (#7660), enable it via `options.experimental.enableStandaloneAppStartTracing = true`
 - Prevent memory strings in stack overflow crash reports (#7841)
 - Add Set conformance to SentryAttributeValue (#7876)
 
