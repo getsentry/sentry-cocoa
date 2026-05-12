@@ -13,7 +13,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
     let configuration: SentryUserFeedbackConfiguration
     private var widget: SentryUserFeedbackWidget?
     private weak var presentedForm: SentryUserFeedbackFormController?
-    private var restoresWidgetButtonForPresentedForm = false
+    private var shouldRestoreWidgetAfterFormDismissal = false
     private var swiftUIPresenter: ((SentryUserFeedbackIntegrationDriver) -> Bool)?
     fileprivate let callback: (SentryFeedback) -> Void
     let screenshotSource: SentryScreenshotSource
@@ -80,13 +80,13 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
 
     func hideWidgetForPresentedForm() {
         guard let widget = widget else { return }
-        restoresWidgetButtonForPresentedForm = widget.isVisible
+        shouldRestoreWidgetAfterFormDismissal = widget.isVisible
         hideWidget()
     }
 
     func restoreWidgetForPresentedFormIfNeeded() {
-        guard restoresWidgetButtonForPresentedForm else { return }
-        restoresWidgetButtonForPresentedForm = false
+        guard shouldRestoreWidgetAfterFormDismissal else { return }
+        shouldRestoreWidgetAfterFormDismissal = false
         widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
     }
 
