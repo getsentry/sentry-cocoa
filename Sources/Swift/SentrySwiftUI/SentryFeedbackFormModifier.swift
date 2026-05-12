@@ -1,15 +1,9 @@
 #if canImport(SwiftUI) && canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && os(iOS)
 import SwiftUI
 
-private struct SentryFeedbackFormPresentation: Identifiable {
-    let id = UUID()
-    let driver: SentryUserFeedbackIntegrationDriver
-}
-
 private struct SentryFeedbackFormModifier: ViewModifier {
     @Binding private var isPresented: Bool
     private let registersGlobalPresenter: Bool
-    @State private var presentation: SentryFeedbackFormPresentation?
     @State private var presentedDriver: SentryUserFeedbackIntegrationDriver?
 
     init(isPresented: Binding<Bool>, registersGlobalPresenter: Bool = false) {
@@ -38,20 +32,22 @@ private struct SentryFeedbackFormModifier: ViewModifier {
                 if newValue {
                     presentFromBinding()
                 } else {
-                    presentation = nil
+                    presentedDriver?.finishPresentation()
                 }
             }
-            .sheet(item: $presentation, onDismiss: finishDismissal) { presentation in
-                SentryFeedbackFormRepresentable(driver: presentation.driver, isPresented: formBinding)
+            .sheet(isPresented: formBinding, onDismiss: finishDismissal) {
+                if let presentedDriver = presentedDriver {
+                    SentryFeedbackFormRepresentable(driver: presentedDriver, isPresented: formBinding)
+                }
             }
     }
 
     private var formBinding: Binding<Bool> {
         Binding(
-            get: { presentation != nil },
+            get: { presentedDriver?.isPresenting(.swiftUI) == true },
             set: { isPresented in
                 if !isPresented {
-                    presentation = nil
+                    presentedDriver?.finishPresentation()
                 }
             })
     }
@@ -70,17 +66,15 @@ private struct SentryFeedbackFormModifier: ViewModifier {
 
     @discardableResult
     private func present(using driver: SentryUserFeedbackIntegrationDriver) -> Bool {
-        guard presentation == nil else { return false }
-        guard driver.beginPresentation() else { return false }
+        guard presentedDriver == nil else { return false }
+        guard driver.beginPresentation(.swiftUI) else { return false }
 
         presentedDriver = driver
-        presentation = SentryFeedbackFormPresentation(driver: driver)
         return true
     }
 
     private func finishDismissal() {
         presentedDriver?.finishPresentation()
-        presentation = nil
         presentedDriver = nil
         isPresented = false
     }

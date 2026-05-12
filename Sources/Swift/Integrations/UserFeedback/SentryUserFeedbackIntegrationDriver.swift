@@ -4,6 +4,11 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+enum SentryFeedbackPresentationMode {
+    case uiKit
+    case swiftUI
+}
+
 /**
  * An integration managing a workflow for end users to report feedback via Sentry.
  * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
@@ -14,7 +19,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
     private var widget: SentryUserFeedbackWidget?
     private weak var presentedForm: SentryUserFeedbackFormController?
     private var shouldRestoreWidgetAfterFormDismissal = false
-    private var isDisplayingForm = false
+    private var presentationMode: SentryFeedbackPresentationMode?
     private var didOpenForm = false
     private var swiftUIPresenter: ((SentryUserFeedbackIntegrationDriver) -> Bool)?
     fileprivate let callback: (SentryFeedback) -> Void
@@ -80,13 +85,23 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
         widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
     }
 
+    var isDisplayingForm: Bool {
+        presentationMode != nil
+    }
+
+    func isPresenting(_ mode: SentryFeedbackPresentationMode) -> Bool {
+        presentationMode == mode
+    }
+
     @discardableResult
-    func beginPresentation() -> Bool {
+    func beginPresentation(_ mode: SentryFeedbackPresentationMode) -> Bool {
         guard canStartPresentation() else {
             return false
         }
 
-        startPresentation()
+        hideWidgetForPresentedForm()
+        presentationMode = mode
+        didOpenForm = false
         return true
     }
 
@@ -112,7 +127,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
 
         restoreWidgetForPresentedFormIfNeeded()
         presentedForm = nil
-        isDisplayingForm = false
+        presentationMode = nil
 
         if didOpenForm {
             didOpenForm = false
@@ -204,12 +219,6 @@ private extension SentryUserFeedbackIntegrationDriver {
         return true
     }
 
-    func startPresentation() {
-        hideWidgetForPresentedForm()
-        isDisplayingForm = true
-        didOpenForm = false
-    }
-
     func hideWidgetForPresentedForm() {
         guard let widget = widget else { return }
         shouldRestoreWidgetAfterFormDismissal = widget.isVisible
@@ -224,15 +233,13 @@ private extension SentryUserFeedbackIntegrationDriver {
 
     @discardableResult
     func showForm(from viewController: UIViewController, screenshot: UIImage?) -> Bool {
-        guard canStartPresentation() else {
-            return false
-        }
-
         guard canPresentForm(from: viewController) else {
             return false
         }
 
-        startPresentation()
+        guard beginPresentation(.uiKit) else {
+            return false
+        }
 
         let form = SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: screenshot)
         form.presentationController?.delegate = self

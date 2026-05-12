@@ -60,7 +60,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         }
         let feedback = SentryFeedback(message: "message", name: nil, email: nil)
 
-        XCTAssertTrue(sut.beginPresentation())
+        XCTAssertTrue(sut.beginPresentation(.swiftUI))
         sut.formDidOpen()
         sut.formDidOpen()
         sut.formDidFinish(feedback: feedback)
@@ -81,7 +81,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         }
         let feedback = SentryFeedback(message: "message", name: nil, email: nil)
 
-        XCTAssertTrue(sut.beginPresentation())
+        XCTAssertTrue(sut.beginPresentation(.swiftUI))
         sut.formDidFinish(feedback: feedback)
 
         XCTAssertEqual(capturedFeedback.count, 1)
@@ -95,10 +95,27 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             configuration: SentryUserFeedbackConfiguration(),
             screenshotSource: makeScreenshotSource()) { _ in }
 
-        XCTAssertTrue(sut.beginPresentation())
-        XCTAssertFalse(sut.beginPresentation())
+        XCTAssertTrue(sut.beginPresentation(.swiftUI))
+        XCTAssertFalse(sut.beginPresentation(.swiftUI))
 
         sut.finishPresentation()
+    }
+
+    func testDriverFinishesSwiftUIPresentationLifecycle() {
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: SentryUserFeedbackConfiguration(),
+            screenshotSource: makeScreenshotSource()) { _ in }
+
+        XCTAssertFalse(sut.isDisplayingForm)
+        XCTAssertFalse(sut.isPresenting(.swiftUI))
+
+        XCTAssertTrue(sut.beginPresentation(.swiftUI))
+        XCTAssertTrue(sut.isDisplayingForm)
+        XCTAssertTrue(sut.isPresenting(.swiftUI))
+
+        sut.finishPresentation()
+        XCTAssertFalse(sut.isDisplayingForm)
+        XCTAssertFalse(sut.isPresenting(.swiftUI))
     }
 
     func testDriverDoesNotCallCloseHookWhenFormDidNotOpen() {
@@ -109,7 +126,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             configuration: config,
             screenshotSource: makeScreenshotSource()) { _ in }
 
-        XCTAssertTrue(sut.beginPresentation())
+        XCTAssertTrue(sut.beginPresentation(.swiftUI))
         sut.finishPresentation()
 
         XCTAssertEqual(closeCount, 0)
