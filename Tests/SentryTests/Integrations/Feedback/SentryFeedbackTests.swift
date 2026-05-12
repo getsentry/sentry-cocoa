@@ -10,7 +10,7 @@ class SentryFeedbackTests: XCTestCase {
     
     private class Fixture {
         class TestFormDelegate: NSObject, SentryUserFeedbackFormDelegate {
-            func didShow() {
+            func didAppear() {
                 // no-op
             }
 

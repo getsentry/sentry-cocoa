@@ -18,13 +18,11 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
     private var activePresenter: SentryFeedbackFormPresenter?
     fileprivate let callback: (SentryFeedback) -> Void
     let screenshotSource: SentryScreenshotSource
-    weak var customButton: UIButton?
 
     init(configuration: SentryUserFeedbackConfiguration, screenshotSource: SentryScreenshotSource, callback: @escaping (SentryFeedback) -> Void) {
         self.configuration = configuration
         self.callback = callback
         self.screenshotSource = screenshotSource
-        self.customButton = configuration.customButton
         super.init()
 
         if let uiFormConfigBuilder = configuration.configureForm {
@@ -38,7 +36,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
         }
 
         if let customButton = configuration.customButton {
-            customButton.addTarget(self, action: #selector(showFormAction), for: .touchUpInside)
+            customButton.addTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
         } else if let widgetConfigBuilder = configuration.configureWidget {
             widgetConfigBuilder(configuration.widgetConfig)
             validate(configuration.widgetConfig)
@@ -63,7 +61,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
     }
 
     deinit {
-        customButton?.removeTarget(self, action: #selector(showFormAction), for: .touchUpInside)
+        configuration.customButton?.removeTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
         SentryShakeDetector.disable()
         NotificationCenter.default.removeObserver(self)
     }
@@ -109,12 +107,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
     }
 
     @discardableResult
-    func presentForm() -> Bool {
-        return presentForm(screenshot: nil)
-    }
-
-    @discardableResult
-    func presentForm(screenshot: UIImage?) -> Bool {
+    func presentForm(screenshot: UIImage? = nil) -> Bool {
         if let installedPresenter = installedPresenter {
             return present(using: installedPresenter, screenshot: screenshot)
         }
@@ -123,7 +116,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
     }
 
     @discardableResult
-    func presentForm(in windowScene: UIWindowScene, screenshot: UIImage? = nil) -> Bool {
+    func presentForm(in windowScene: UIWindowScene, screenshot: UIImage?) -> Bool {
         return present(
             using: makeUIKitPresenter { [weak windowScene] in
                 windowScene?.windows.first(where: { $0.isKeyWindow })?.rootViewController
@@ -133,7 +126,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
     }
 
     @discardableResult
-    func presentForm(from viewController: UIViewController, screenshot: UIImage? = nil) -> Bool {
+    func presentForm(from viewController: UIViewController, screenshot: UIImage?) -> Bool {
         return present(
             using: makeUIKitPresenter { [weak viewController] in
                 viewController
@@ -142,7 +135,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
         )
     }
 
-    @objc func showFormAction() {
+    @objc func showForm(sender: UIButton) {
         presentForm(screenshot: nil)
     }
 
@@ -154,7 +147,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
 // MARK: SentryUserFeedbackFormDelegate
 @available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
-    func didShow() {
+    func didAppear() {
         formDidOpen()
     }
 
@@ -232,16 +225,16 @@ private extension SentryUserFeedbackIntegrationDriver {
         }
     }
 
-    func makeUIKitPresenter(hostProvider: @escaping SentryFeedbackFormHostProvider) -> SentryFeedbackFormPresenter {
+    func makeUIKitPresenter(presentingViewControllerProvider: @escaping SentryFeedbackFormPresentingViewControllerProvider) -> SentryFeedbackFormPresenter {
         return SentryUIKitFeedbackFormPresenter(
-            hostProvider: hostProvider,
+            presentingViewControllerProvider: presentingViewControllerProvider,
             configuration: configuration,
             formDelegate: self
         )
     }
 
     var automaticHost: UIViewController? {
-        if let customButtonHost = customButton?.controller {
+        if let customButtonHost = configuration.customButton?.controller {
             return customButtonHost
         }
 

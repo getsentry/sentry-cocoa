@@ -3,30 +3,30 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-typealias SentryFeedbackFormHostProvider = () -> UIViewController?
+typealias SentryFeedbackFormPresentingViewControllerProvider = () -> UIViewController?
 
 @available(iOSApplicationExtension, unavailable)
 final class SentryUIKitFeedbackFormPresenter: NSObject, SentryFeedbackFormPresenter {
     weak var delegate: SentryFeedbackFormPresenterDelegate?
 
-    private let hostProvider: SentryFeedbackFormHostProvider
+    private let presentingViewControllerProvider: SentryFeedbackFormPresentingViewControllerProvider
     private let configuration: SentryUserFeedbackConfiguration
     private weak var formDelegate: SentryUserFeedbackFormDelegate?
     private weak var form: SentryUserFeedbackFormController?
 
     init(
-        hostProvider: @escaping SentryFeedbackFormHostProvider,
+        presentingViewControllerProvider: @escaping SentryFeedbackFormPresentingViewControllerProvider,
         configuration: SentryUserFeedbackConfiguration,
         formDelegate: SentryUserFeedbackFormDelegate
     ) {
-        self.hostProvider = hostProvider
+        self.presentingViewControllerProvider = presentingViewControllerProvider
         self.configuration = configuration
         self.formDelegate = formDelegate
     }
 
     @discardableResult
     func present(screenshot: UIImage?) -> Bool {
-        guard let controller = hostProvider() else {
+        guard let controller = presentingViewControllerProvider() else {
             SentrySDKLog.debug("Cannot show feedback form — no presenter available")
             return false
         }
