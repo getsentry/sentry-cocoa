@@ -24,7 +24,7 @@ import UIKit
 
     /// Present the feedback form from the foreground window scene.
     ///
-    /// If a SwiftUI feedback presenter is registered, the SDK presents with SwiftUI sheet presentation.
+    /// If a SwiftUI feedback form modifier is registered, the SDK presents with SwiftUI sheet presentation.
     /// Otherwise, the SDK presents from the foreground window scene's root view controller.
     ///
     /// - Returns: `true` if presentation was requested, or `false` if feedback isn't configured,
