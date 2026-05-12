@@ -3,15 +3,14 @@ import SwiftUI
 
 private struct SentryFeedbackFormPresentation: Identifiable {
     let id = UUID()
-    let configuration: SentryUserFeedbackConfiguration
+    let driver: SentryUserFeedbackIntegrationDriver
 }
 
 private struct SentryFeedbackFormModifier: ViewModifier {
     @Binding private var isPresented: Bool
     private let registersGlobalPresenter: Bool
     @State private var presentation: SentryFeedbackFormPresentation?
-    @State private var didOpenForm = false
-    @State private var presentedConfiguration: SentryUserFeedbackConfiguration?
+    @State private var presentedDriver: SentryUserFeedbackIntegrationDriver?
 
     init(isPresented: Binding<Bool>, registersGlobalPresenter: Bool = false) {
         _isPresented = isPresented
@@ -43,10 +42,7 @@ private struct SentryFeedbackFormModifier: ViewModifier {
                 }
             }
             .sheet(item: $presentation, onDismiss: finishDismissal) { presentation in
-                SentryFeedbackFormRepresentable(configuration: presentation.configuration, isPresented: formBinding)
-                    .onAppear {
-                        formDidAppear(configuration: presentation.configuration)
-                    }
+                SentryFeedbackFormRepresentable(driver: presentation.driver, isPresented: formBinding)
             }
     }
 
@@ -75,37 +71,18 @@ private struct SentryFeedbackFormModifier: ViewModifier {
     @discardableResult
     private func present(using driver: SentryUserFeedbackIntegrationDriver) -> Bool {
         guard presentation == nil else { return false }
-        guard !displayingFeedbackForm else {
-            SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
-            return false
-        }
+        guard driver.beginPresentation() else { return false }
 
-        driver.hideWidgetForPresentedForm()
-        presentedConfiguration = driver.configuration
-        didOpenForm = false
-        displayingFeedbackForm = true
-        presentation = SentryFeedbackFormPresentation(configuration: driver.configuration)
+        presentedDriver = driver
+        presentation = SentryFeedbackFormPresentation(driver: driver)
         return true
     }
 
-    private func formDidAppear(configuration: SentryUserFeedbackConfiguration) {
-        guard !didOpenForm else { return }
-        didOpenForm = true
-        configuration.onFormOpen?()
-    }
-
     private func finishDismissal() {
-        let configuration = presentedConfiguration
-        SentryFeedbackAPI.getIntegration()?.driver.restoreWidgetForPresentedFormIfNeeded()
+        presentedDriver?.finishPresentation()
         presentation = nil
-        presentedConfiguration = nil
-        displayingFeedbackForm = false
+        presentedDriver = nil
         isPresented = false
-
-        if didOpenForm {
-            didOpenForm = false
-            configuration?.onFormClose?()
-        }
     }
 }
 

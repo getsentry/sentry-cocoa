@@ -14,6 +14,8 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
     private var widget: SentryUserFeedbackWidget?
     private weak var presentedForm: SentryUserFeedbackFormController?
     private var shouldRestoreWidgetAfterFormDismissal = false
+    private var isDisplayingForm = false
+    private var didOpenForm = false
     private var swiftUIPresenter: ((SentryUserFeedbackIntegrationDriver) -> Bool)?
     fileprivate let callback: (SentryFeedback) -> Void
     let screenshotSource: SentryScreenshotSource
@@ -78,16 +80,44 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
         widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
     }
 
-    func hideWidgetForPresentedForm() {
-        guard let widget = widget else { return }
-        shouldRestoreWidgetAfterFormDismissal = widget.isVisible
-        hideWidget()
+    @discardableResult
+    func beginPresentation() -> Bool {
+        guard canStartPresentation() else {
+            return false
+        }
+
+        startPresentation()
+        return true
     }
 
-    func restoreWidgetForPresentedFormIfNeeded() {
-        guard shouldRestoreWidgetAfterFormDismissal else { return }
-        shouldRestoreWidgetAfterFormDismissal = false
-        widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
+    func formDidOpen() {
+        guard isDisplayingForm, !didOpenForm else {
+            return
+        }
+
+        didOpenForm = true
+        configuration.onFormOpen?()
+    }
+
+    func formDidFinish(feedback: SentryFeedback?) {
+        if let feedback = feedback {
+            callback(feedback)
+        }
+    }
+
+    func finishPresentation() {
+        guard isDisplayingForm else {
+            return
+        }
+
+        restoreWidgetForPresentedFormIfNeeded()
+        presentedForm = nil
+        isDisplayingForm = false
+
+        if didOpenForm {
+            didOpenForm = false
+            configuration.onFormClose?()
+        }
     }
 
     func setSwiftUIPresenter(_ presenter: ((SentryUserFeedbackIntegrationDriver) -> Bool)?) {
@@ -137,21 +167,19 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
 // MARK: SentryUserFeedbackFormDelegate
 @available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
+    func didShow() {
+        formDidOpen()
+    }
+
     func finished(with feedback: SentryFeedback?) {
-        if let feedback = feedback {
-            callback(feedback)
-        }
-        let completion = { [weak self] in
-            self?.restoreWidgetForPresentedFormIfNeeded()
-            self?.presentedForm = nil
-            displayingFeedbackForm = false
-            self?.configuration.onFormClose?()
-        }
+        formDidFinish(feedback: feedback)
 
         if let presentedForm = presentedForm {
-            presentedForm.dismiss(animated: configuration.animations, completion: completion)
+            presentedForm.dismiss(animated: configuration.animations) { [weak self] in
+                self?.finishPresentation()
+            }
         } else {
-            completion()
+            finishPresentation()
         }
     }
 }
@@ -160,20 +188,43 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
 @available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerDelegate {
     public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        restoreWidgetForPresentedFormIfNeeded()
-        presentedForm = nil
-        displayingFeedbackForm = false
-        configuration.onFormClose?()
+        finishPresentation()
     }
 }
 
 // MARK: Private
 @available(iOSApplicationExtension, unavailable)
 private extension SentryUserFeedbackIntegrationDriver {
+    func canStartPresentation() -> Bool {
+        guard !isDisplayingForm else {
+            SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
+            return false
+        }
+
+        return true
+    }
+
+    func startPresentation() {
+        hideWidgetForPresentedForm()
+        isDisplayingForm = true
+        didOpenForm = false
+    }
+
+    func hideWidgetForPresentedForm() {
+        guard let widget = widget else { return }
+        shouldRestoreWidgetAfterFormDismissal = widget.isVisible
+        hideWidget()
+    }
+
+    func restoreWidgetForPresentedFormIfNeeded() {
+        guard shouldRestoreWidgetAfterFormDismissal else { return }
+        shouldRestoreWidgetAfterFormDismissal = false
+        widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
+    }
+
     @discardableResult
     func showForm(from viewController: UIViewController, screenshot: UIImage?) -> Bool {
-        guard !displayingFeedbackForm else {
-            SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
+        guard canStartPresentation() else {
             return false
         }
 
@@ -181,15 +232,12 @@ private extension SentryUserFeedbackIntegrationDriver {
             return false
         }
 
-        hideWidgetForPresentedForm()
+        startPresentation()
 
         let form = SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: screenshot)
         form.presentationController?.delegate = self
         presentedForm = form
-        displayingFeedbackForm = true
-        viewController.present(form, animated: configuration.animations) { [weak self] in
-            self?.configuration.onFormOpen?()
-        }
+        viewController.present(form, animated: configuration.animations)
         return true
     }
 
@@ -257,7 +305,7 @@ private extension SentryUserFeedbackIntegrationDriver {
     }
 
     @objc func handleShakeGesture() {
-        guard !displayingFeedbackForm else {
+        guard !isDisplayingForm else {
             SentrySDKLog.debug("Shake gesture ignored — feedback form is already displayed")
             return
         }

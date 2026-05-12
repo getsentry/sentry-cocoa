@@ -5,6 +5,7 @@ import Foundation
 import UIKit
 
 protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
+    func didShow()
     func finished(with feedback: SentryFeedback?)
 }
 
@@ -18,6 +19,11 @@ final class SentryUserFeedbackFormController: UIViewController {
         config.theme.updateDefaultFonts()
         config.recalculateScaleFactors()
         viewModel.updateLayout()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        delegate?.didShow()
     }
     
     init(config: SentryUserFeedbackConfiguration, delegate: SentryUserFeedbackFormDelegate?, screenshot: UIImage?) {

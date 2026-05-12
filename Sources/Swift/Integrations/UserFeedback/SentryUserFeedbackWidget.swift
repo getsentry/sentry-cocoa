@@ -4,8 +4,6 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-var displayingFeedbackForm = false
-
 protocol SentryUserFeedbackWidgetDelegate: NSObjectProtocol {
     func showFeedbackForm()
 }

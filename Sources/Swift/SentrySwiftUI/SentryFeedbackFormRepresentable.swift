@@ -4,33 +4,37 @@ import SwiftUI
 import UIKit
 
 struct SentryFeedbackFormRepresentable: UIViewControllerRepresentable {
-    let configuration: SentryUserFeedbackConfiguration
+    let driver: SentryUserFeedbackIntegrationDriver
     @Binding var isPresented: Bool
 
     func makeUIViewController(context: Context) -> SentryUserFeedbackFormController {
         // swiftlint:disable:next todo
         // TODO: Decide how SwiftUI presentations should handle screenshots.
-        return SentryUserFeedbackFormController(config: configuration, delegate: context.coordinator, screenshot: nil)
+        return SentryUserFeedbackFormController(config: driver.configuration, delegate: context.coordinator, screenshot: nil)
     }
 
     func updateUIViewController(_ uiViewController: SentryUserFeedbackFormController, context: Context) { }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator(isPresented: $isPresented)
+        return Coordinator(driver: driver, isPresented: $isPresented)
     }
 
     final class Coordinator: NSObject, SentryUserFeedbackFormDelegate {
+        private weak var driver: SentryUserFeedbackIntegrationDriver?
         @Binding private var isPresented: Bool
 
-        init(isPresented: Binding<Bool>) {
+        init(driver: SentryUserFeedbackIntegrationDriver, isPresented: Binding<Bool>) {
+            self.driver = driver
             _isPresented = isPresented
             super.init()
         }
 
+        func didShow() {
+            driver?.formDidOpen()
+        }
+
         func finished(with feedback: SentryFeedback?) {
-            if let feedback = feedback {
-                SentrySDK.capture(feedback: feedback)
-            }
+            driver?.formDidFinish(feedback: feedback)
             isPresented = false
         }
     }
