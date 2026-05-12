@@ -221,7 +221,17 @@ private extension SentryUserFeedbackIntegrationDriver {
     // custom button, widget, foreground key-window root, then first key-window root fallback.
     func makeAutomaticUIKitPresenter() -> SentryFeedbackFormPresenter {
         return makeUIKitPresenter { [weak self] in
-            self?.automaticHost
+            guard let self else { return nil }
+            
+            if let customButtonController {
+                return customButtonController
+            }
+
+            if let widgetHost = widget?.rootVC {
+                return widgetHost
+            }
+
+            return firstAvailableWindowHost
         }
     }
 
@@ -232,19 +242,25 @@ private extension SentryUserFeedbackIntegrationDriver {
             formDelegate: self
         )
     }
-
-    var automaticHost: UIViewController? {
-        if let customButtonHost = configuration.customButton?.controller {
-            return customButtonHost
+    
+    /// In order to present our form, we need a `UIViewController` on which to call `presentViewController`. This computed var helps to find one. While we may know the owning UIVC for our own widget button, we won't know the makeup of the view/controller hierarchy if a customer uses their own button with `SentryUserFeedbackConfiguration.customButton`.
+    /// - returns: The innermost `UIViewController` instance managing the receiving view.
+    var customButtonController: UIViewController? {
+        var responder = configuration.customButton?.next
+        while responder != nil {
+            guard let resolvedResponder = responder else { break }
+            let klass = type(of: resolvedResponder)
+            guard klass.isSubclass(of: UIViewController.self) else {
+                responder = resolvedResponder.next
+                continue
+            }
+            return resolvedResponder as? UIViewController
         }
-
-        if let widgetHost = widget?.rootVC {
-            return widgetHost
-        }
-
-        return firstAvailableWindowHost
+        return nil
     }
 
+    /// Finds a root view controller suitable for automatic presentation by preferring the key
+    /// window in a foreground-active scene and falling back to the first key-window root found.
     var firstAvailableWindowHost: UIViewController? {
         var fallbackPresenter: UIViewController?
 
@@ -319,24 +335,6 @@ private extension SentryUserFeedbackIntegrationDriver {
 
     func stopObservingScreenshots() {
         NotificationCenter.default.removeObserver(self, name: UIApplication.userDidTakeScreenshotNotification, object: nil)
-    }
-}
-
-extension UIView {
-    /// In order to present our form, we need a `UIViewController` on which to call `presentViewController`. This computed var helps to find one. While we may know the owning UIVC for our own widget button, we won't know the makeup of the view/controller hierarchy if a customer uses their own button with `SentryUserFeedbackConfiguration.customButton`.
-    /// - returns: The innermost `UIViewController` instance managing the receiving view.
-    var controller: UIViewController? {
-        var responder = next
-        while responder != nil {
-            guard let resolvedResponder = responder else { break }
-            let klass = type(of: resolvedResponder)
-            guard klass.isSubclass(of: UIViewController.self) else {
-                responder = resolvedResponder.next
-                continue
-            }
-            return resolvedResponder as? UIViewController
-        }
-        return nil
     }
 }
 
