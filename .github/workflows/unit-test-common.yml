@@ -123,6 +123,15 @@ jobs:
             --configuration TestCI \
             --scheme "$SCHEME"
 
+      - name: Collect SentryTests Metadata
+        id: collect_sentrytests_metadata
+        if: ${{ steps.build_tests.outcome == 'success' && inputs.scheme == 'Sentry' }}
+        continue-on-error: true
+        run: |
+          ./scripts/ci-collect-sentrytests-metadata.sh \
+            --derived-data-root "$HOME/Library/Developer/Xcode/DerivedData" \
+            --output-dir sentrytests-metadata
+
       # Run Flaky Tests TestPlan which has a retry mechanism on failure.
       # We intentionally run these before the other test plan to fail early.
       # Use a separate result bundle name to avoid conflicts with the regular test run.
@@ -234,6 +243,15 @@ jobs:
           path: |
             results.xcresult
             flaky-results.xcresult
+
+      - name: Archiving SentryTests Metadata
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ (failure() || cancelled()) && inputs.scheme == 'Sentry' && steps.collect_sentrytests_metadata.outcome == 'success' }}
+        with:
+          name: sentrytests-metadata-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          if-no-files-found: error
+          path: |
+            sentrytests-metadata/**
 
       - name: Gather code coverage information via slather
         run: slather coverage --configuration TestCI --scheme Sentry
