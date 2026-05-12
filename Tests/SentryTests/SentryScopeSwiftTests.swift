@@ -474,6 +474,27 @@ class SentryScopeSwiftTests: XCTestCase {
         // If the test completes without a crash or TSan error, the fix works.
     }
 
+    func testAddObserverWhileEnumeratingObservers() {
+        // Regression test for https://github.com/getsentry/sentry-react-native/issues/6131
+        // addScopeObserver: mutates the observers array, which can race with
+        // observer enumeration in setter methods, causing EXC_BREAKPOINT.
+        let scope = Scope(maxBreadcrumbs: 10)
+
+        testConcurrentModifications(asyncWorkItems: 5, writeLoopCount: 200, writeWork: { i in
+            scope.setTag(value: "v-\(i)", key: "key-\(i % 5)")
+            scope.setExtra(value: i, key: "key-\(i % 5)")
+            scope.setContext(value: ["k": "v-\(i)"], key: "ctx-\(i % 5)")
+            scope.setUser(User(userId: "user-\(i)"))
+            scope.setDist("dist-\(i)")
+            scope.setEnvironment("env-\(i)")
+            scope.addBreadcrumb(self.fixture.breadcrumb)
+
+            if i % 10 == 0 {
+                scope.add(AsyncIteratingObserver())
+            }
+        })
+    }
+
     func testScopeObserver_passesDistinctCopyToObservers() {
         // Verify that observers receive a different object (copy) than the internal
         // mutable collection, preventing race conditions when observers dispatch async work.
