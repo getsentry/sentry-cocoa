@@ -72,8 +72,9 @@ NS_ASSUME_NONNULL_BEGIN
         newSpan = [activeSpan startChildWithOperation:operation description:name];
         newSpan.origin = origin;
     } else {
-        SentryId *appStartTraceId = [SentryAppStartMeasurementProvider appStartTraceId];
         SentryTransactionContext *context;
+#if SENTRY_HAS_UIKIT
+        SentryId *appStartTraceId = [SentryAppStartMeasurementProvider appStartTraceId];
         if (appStartTraceId != nil) {
             context = [[SentryTransactionContext alloc] initWithName:name
                                                           nameSource:nameSource
@@ -85,7 +86,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                        parentSampled:kSentrySampleDecisionUndecided
                                                     parentSampleRate:nil
                                                     parentSampleRand:nil];
-        } else {
+        } else
+#endif // SENTRY_HAS_UIKIT
+        {
             context = [[SentryTransactionContext alloc] initWithName:name
                                                           nameSource:nameSource
                                                            operation:operation
