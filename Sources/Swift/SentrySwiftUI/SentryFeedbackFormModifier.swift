@@ -3,6 +3,7 @@ import SwiftUI
 
 private struct SentryFeedbackFormModifier: ViewModifier {
     @State private var isPresented = false
+    @StateObject private var presenter = SentrySwiftUIFeedbackFormPresenter()
 
     private var driver: SentryUserFeedbackIntegrationDriver? {
         SentryFeedbackAPI.getIntegration()?.driver
@@ -11,31 +12,25 @@ private struct SentryFeedbackFormModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onAppear {
-                driver?.setSwiftUIPresenter { driver in
-                    present(using: driver)
-                }
+                presenter.update(isPresented: $isPresented)
+                driver?.setFeedbackFormPresenter(presenter)
             }
             .onDisappear {
-                driver?.setSwiftUIPresenter(nil)
+                driver?.removeFeedbackFormPresenter(presenter)
             }
             .sheet(isPresented: $isPresented, onDismiss: finishDismissal) {
                 if let driver = driver {
-                    SentryFeedbackFormRepresentable(driver: driver, isPresented: $isPresented)
+                    SentryFeedbackFormRepresentable(
+                        configuration: driver.configuration,
+                        delegate: driver,
+                        screenshot: presenter.activeScreenshot
+                    )
                 }
             }
     }
 
-    @discardableResult
-    private func present(using driver: SentryUserFeedbackIntegrationDriver) -> Bool {
-        guard !isPresented else { return false }
-        guard driver.beginPresentation(.swiftUI) else { return false }
-
-        isPresented = true
-        return true
-    }
-
     private func finishDismissal() {
-        driver?.finishPresentation()
+        presenter.sheetDidDismiss()
         isPresented = false
     }
 }

@@ -22,10 +22,11 @@ import UIKit
         Self.getIntegration()?.driver.hideWidget()
     }
 
-    /// Present the feedback form from the foreground window scene.
+    /// Present the feedback form using the best available presenter.
     ///
     /// If a SwiftUI feedback form modifier is registered, the SDK presents with SwiftUI sheet presentation.
-    /// Otherwise, the SDK presents from the foreground window scene's root view controller.
+    /// Otherwise, the SDK presents from the configured custom button host, widget host, foreground
+    /// window scene root view controller, or first available key-window root view controller.
     ///
     /// - Returns: `true` if presentation was requested, or `false` if feedback isn't configured,
     /// no presenter is available, or the presenter can't currently present.
