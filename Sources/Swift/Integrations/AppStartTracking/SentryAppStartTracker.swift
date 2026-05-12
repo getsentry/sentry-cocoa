@@ -102,6 +102,10 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
             object: nil
         )
 
+        if reportingStrategy is StandaloneTransactionStrategy {
+            SentryAppStartMeasurementProvider.setAppStartTrace(SentryId())
+        }
+
         if PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode {
             buildAppStartMeasurement(dateProvider.date())
         }

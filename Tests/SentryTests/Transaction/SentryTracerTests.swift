@@ -972,7 +972,7 @@ class SentryTracerTests: XCTestCase {
     func testFinish_whenStandaloneAppStart_shouldUseConfigurationMeasurement() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
 
-        let context = TransactionContext(name: "App Start", operation: fixture.appStartOperation)
+        let context = TransactionContext(name: "App Start", nameSource: .component, operation: fixture.appStartOperation, origin: SentryTraceOriginAutoAppStart)
         let sut = fixture.hub.startTransaction(
             with: context,
             bindToScope: false,
@@ -981,7 +981,6 @@ class SentryTracerTests: XCTestCase {
                 $0.appStartMeasurement = appStartMeasurement
             })
         )
-        sut.origin = SentryTraceOriginAutoAppStart
         sut.finish()
 
         // The global static must remain untouched.
@@ -1023,7 +1022,7 @@ class SentryTracerTests: XCTestCase {
         SentrySDKInternal.setAppStartMeasurement(globalMeasurement)
 
         let configMeasurement = fixture.getAppStartMeasurement(type: .cold)
-        let context = TransactionContext(name: "App Start", operation: fixture.appStartOperation)
+        let context = TransactionContext(name: "App Start", nameSource: .component, operation: fixture.appStartOperation, origin: SentryTraceOriginAutoAppStart)
         let sut = fixture.hub.startTransaction(
             with: context,
             bindToScope: false,
@@ -1032,7 +1031,6 @@ class SentryTracerTests: XCTestCase {
                 $0.appStartMeasurement = configMeasurement
             })
         )
-        sut.origin = SentryTraceOriginAutoAppStart
         sut.finish()
 
         // The config measurement must be used (cold), verified via span data (not measurements).
@@ -1049,8 +1047,57 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(measurements?["app_start_warm"])
     }
 
+    func testFinish_whenStandaloneAppStart_sharesTraceIdWithFirstUILoad() throws {
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold)
+
+        // Step 0: Pre-generate a traceId during SDK init (simulates SentryAppStartTracker.start()).
+        let preGeneratedTraceId = SentryId()
+        SentryAppStartMeasurementProvider.setAppStartTrace(preGeneratedTraceId)
+
+        // Step 1: The performance tracker creates the ui.load transaction (viewWillAppear
+        // fires before the first frame). It picks up the pre-generated traceId.
+        let tracker = SentryPerformanceTracker()
+        let spanId = tracker.startSpan(
+            withName: "TestViewController",
+            nameSource: SentryTransactionNameSource.component.rawValue,
+            operation: "ui.load",
+            origin: "auto.ui.view_controller"
+        )
+        let uiLoadTracer = try XCTUnwrap(tracker.getSpan(spanId) as? SentryTracer)
+        XCTAssertEqual(uiLoadTracer.traceId, preGeneratedTraceId, "ui.load should use the pre-generated traceId")
+
+        // Step 2: The standalone app start transaction also reads the same traceId
+        // (first frame callback fires after viewWillAppear).
+        let appStartContext = TransactionContext(
+            name: "App Start",
+            nameSource: .component,
+            operation: fixture.appStartOperation,
+            origin: SentryTraceOriginAutoAppStart,
+            trace: SentryAppStartMeasurementProvider.appStartTraceId() ?? SentryId(),
+            spanId: SpanId(),
+            parentSpanId: nil,
+            parentSampled: .undecided,
+            parentSampleRate: nil,
+            parentSampleRand: nil
+        )
+        let appStartTracer = fixture.hub.startTransaction(
+            with: appStartContext,
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: SentryTracerConfiguration(block: {
+                $0.appStartMeasurement = appStartMeasurement
+            })
+        )
+        appStartTracer.finish()
+
+        XCTAssertEqual(appStartTracer.traceId, preGeneratedTraceId, "app.start should share the same traceId")
+        XCTAssertEqual(appStartTracer.traceId, uiLoadTracer.traceId, "Both transactions must be on the same trace")
+
+        uiLoadTracer.finish()
+    }
+
     func testFinish_whenStandaloneAppStartWithNilConfigMeasurement_shouldNotAddAppStartSpans() throws {
-        let context = TransactionContext(name: "App Start", operation: fixture.appStartOperation)
+        let context = TransactionContext(name: "App Start", nameSource: .component, operation: fixture.appStartOperation, origin: SentryTraceOriginAutoAppStart)
         // No appStartMeasurement set on the configuration.
         let sut = fixture.hub.startTransaction(
             with: context,
@@ -1058,7 +1105,6 @@ class SentryTracerTests: XCTestCase {
             customSamplingContext: [:],
             configuration: SentryTracerConfiguration.`default`
         )
-        sut.origin = SentryTraceOriginAutoAppStart
         sut.finish()
 
         let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()

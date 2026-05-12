@@ -26,11 +26,26 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
 
         let operation = SentrySpanOperationAppStart
         let name = "App Start"
-        let context = TransactionContext(name: name, operation: operation)
 
-        // Pass the measurement directly to the tracer via configuration instead of storing
-        // it on the global static. This avoids race conditions where a UIViewController
-        // transaction could consume the measurement first.
+        let appStartTraceId = SentryAppStartMeasurementProvider.appStartTraceId()
+        let context: TransactionContext
+        if let traceId = appStartTraceId {
+            context = SentryTransactionContextCreateWithTraceId(
+                traceId,
+                name,
+                SentryTransactionNameSource.component.rawValue,
+                operation,
+                SentryTraceOriginAutoAppStart
+            )
+        } else {
+            context = SentryTransactionContextCreate(
+                name,
+                SentryTransactionNameSource.component.rawValue,
+                operation,
+                SentryTraceOriginAutoAppStart
+            )
+        }
+
         let configuration = SentryTracerConfiguration(block: { config in
             config.appStartMeasurement = measurement
         })
@@ -42,7 +57,9 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
             customSamplingContext: [:],
             configuration: configuration
         )
-        tracer.origin = SentryTraceOriginAutoAppStart
+        if let screen = SentryAppStartMeasurementProvider.consumeAppStartScreen() {
+            tracer.setData(value: screen, key: "app.vitals.start.screen")
+        }
 
         tracer.finish()
     }

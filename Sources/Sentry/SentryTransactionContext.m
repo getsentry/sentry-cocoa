@@ -7,6 +7,7 @@
 #import "SentryThread.h"
 #import "SentryTraceOrigin.h"
 #import "SentryTransactionContext+Private.h"
+#import "SentryTransactionContextFactory.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -228,5 +229,31 @@ static const NSUInteger kSentryDefaultSamplingDecision = kSentrySampleDecisionUn
 }
 
 @end
+
+SentryTransactionContext *
+SentryTransactionContextCreate(
+    NSString *name, NSInteger nameSource, NSString *operation, NSString *origin)
+{
+    return [[SentryTransactionContext alloc] initWithName:name
+                                               nameSource:(SentryTransactionNameSource)nameSource
+                                                operation:operation
+                                                   origin:origin];
+}
+
+SentryTransactionContext *
+SentryTransactionContextCreateWithTraceId(
+    SentryId *traceId, NSString *name, NSInteger nameSource, NSString *operation, NSString *origin)
+{
+    return [[SentryTransactionContext alloc] initWithName:name
+                                               nameSource:(SentryTransactionNameSource)nameSource
+                                                operation:operation
+                                                   origin:origin
+                                                  traceId:traceId
+                                                   spanId:[[SentrySpanId alloc] init]
+                                             parentSpanId:nil
+                                            parentSampled:kSentrySampleDecisionUndecided
+                                         parentSampleRate:nil
+                                         parentSampleRand:nil];
+}
 
 NS_ASSUME_NONNULL_END
