@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Support stack traces for standalone clients (#7817)
+
 ## 9.13.0
 
 ### Fixes

@@ -2,6 +2,12 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+private var externalAddedCallbackInvocations = 0
+
+private func recordExternalAddedCallback(_ image: UnsafePointer<SentryCrashBinaryImage>?) {
+    externalAddedCallbackInvocations += 1
+}
+
 class SentryBinaryImageCacheTests: XCTestCase {
     private var sut: SentryBinaryImageCache {
         SentryDependencyContainer.sharedInstance().binaryImageCache
@@ -26,6 +32,33 @@ class SentryBinaryImageCacheTests: XCTestCase {
                              address: binaryImage.address,
                              size: binaryImage.size,
                              uuid: binaryImage.uuid)
+    }
+
+    func testStart_WhenAlreadyStarted_shouldNotResetCache() throws {
+        let binaryImage = createCrashBinaryImage(100)
+        addBinaryImageToSut(binaryImage)
+
+        XCTAssertEqual("Expected Name at 100", sut.imageByAddress(100)?.name)
+
+        sut.start(true)
+
+        let cache = try XCTUnwrap(sut.cache)
+        XCTAssertEqual(1, cache.count)
+        XCTAssertEqual("Expected Name at 100", sut.imageByAddress(100)?.name)
+    }
+
+    func testStop_WhenAlreadyStopped_shouldNotUnregisterExternalCallbacks() {
+        sut.stop()
+        externalAddedCallbackInvocations = 0
+        sentrycrashbic_registerAddedCallback(recordExternalAddedCallback)
+
+        sut.stop()
+
+        // Starting the C cache triggers the currently registered added callback.
+        sentrycrashbic_startCache()
+
+        // If the second stop removed the external callback, this would stay at 0.
+        XCTAssertGreaterThan(externalAddedCallbackInvocations, 0)
     }
 
     func testBinaryImageAdded() {
