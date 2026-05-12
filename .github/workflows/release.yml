@@ -290,7 +290,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
-      - run: set -o pipefail &&xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify
+      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify --preserve-unbeautified
         working-directory: Samples/visionOS-SPM
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -433,7 +433,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@3dc647fee3586e57c7c31eb900fdec7cbb44f23f # v2
+        uses: getsentry/craft@bae212ca7aec50bb716eafd387c80bcfb28da937 # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

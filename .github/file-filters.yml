@@ -43,6 +43,7 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "scripts/tests-with-thread-sanitizer.sh"
   - "scripts/ci-boot-simulator.sh"
   - "scripts/ci-ensure-runtime-loaded.sh"
+  - "scripts/ci-collect-sentrytests-metadata.sh"
   - "scripts/prepare-package.sh"
 
   # Test infrastructure
@@ -268,6 +269,7 @@ run_release_for_prs: &run_release_for_prs
 
   # GH Actions
   - ".github/workflows/release.yml"
+  - ".github/workflows/release-comment-issues.yml"
   - ".github/workflows/build-xcframework-variant-slices.yml"
   - ".github/workflows/assemble-xcframework-variant.yml"
   - ".github/workflows/ui-tests-common.yml"

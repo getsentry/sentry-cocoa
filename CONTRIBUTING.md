@@ -40,6 +40,11 @@ Our different types of reviews:
 3. **Only comments.** You must address all the comments and need another review until you merge.
 4. **Request changes.** Only use if something critical is in the PR that absolutely must be addressed. We usually use `h` comments for that. When someone requests changes, the same person must approve the changes to allow merging. Use this sparingly.
 
+**Comment resolution workflow:**
+
+- `h` (high) comments **must be resolved by the reviewer** who left them — the author should not self-resolve these.
+- `m` (medium) and `l` (low) comments may be resolved by the PR author once they believe the concern has been appropriately addressed.
+
 ### After Addressing PR Feedback
 
 **After addressing PR feedback, request another PR review via GitHub.** This changes the pull request status back from commented/approved to waiting, ensuring maintainers are notified that you've addressed their feedback and the PR is ready for re-review.
@@ -79,6 +84,14 @@ We use [Swiftlint](https://github.com/realm/SwiftLint) and Clang-Format. For Swi
 ```sh
 make lint
 ```
+
+## Changelog entries and linked issues
+
+Changelog entries are generated from merged PRs (see Danger and release tooling). If a PR should
+trigger a comment on a linked issue after a release ships, use a GitHub closing keyword in the PR
+description, such as `Fixes #123`, `Closes #123`, or `Resolves #123`. The release notification
+workflow only comments on issues GitHub recognizes as closed by the released PR; mentioning an issue
+without a closing keyword is not enough.
 
 ## Final Notes
 

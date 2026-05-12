@@ -1,12 +1,34 @@
 # Changelog
 
-## Unreleased
-
-- Prevent memory strings in stack overflow crash reports (#7841)
+## 9.13.0
 
 ### Fixes
 
+- Fix crash with AVAssetDownloadTask in urlSessionTask:setState: (#7891)
+- Prevent crash-loop from malformed recrash reports (#7892)
+
+### Features
+
+- Add Set conformance to SentryAttributeValue (#7876)
+
+## 9.12.1
+
+> [!WARNING]
+> ⚠️ **Known Issue:** Sentry Cocoa **9.12.0+** crashes apps using `AVAssetDownloadURLSession`. Pin to **9.11.x** until a fix ships. ([#7886](https://github.com/getsentry/sentry-cocoa/issues/7886))
+
+### Fixes
+
+- Prevent memory strings in stack overflow crash reports (#7841)
+- Report crashed thread for null function calls (#7866)
+- Add depth limits to data sanitization and JSON encoder (#7857)
+- Moved `BinaryImageCache` initialization to a background thread to reduce blocking on dyld reader locks on the main thread (#7823)
+- Init vars before `task_threads` and `vm_deallocate` (#7858)
+- Handle extra length call in `SentryInvalidJSONString` (#7859)
+
 ## 9.12.0
+
+> [!WARNING]
+> ⚠️ **Known Issue:** Sentry Cocoa **9.12.0+** crashes apps using `AVAssetDownloadURLSession`. Pin to **9.11.x** until a fix ships. ([#7886](https://github.com/getsentry/sentry-cocoa/issues/7886))
 
 > [!WARNING]
 > This release promotes Metrics out of experimental and **removes** `options.experimental.enableMetrics` and `options.experimental.beforeSendMetric`. If you set either of these, your app will fail to compile after upgrading.
@@ -58,7 +80,6 @@
 - Disable app hang and watchdog termination tracking in Notification Service Extensions (#7818)
 - Fix JSON encoding of infinite numeric values in crash reports (#7802)
 - Fix race condition in `SentryFramesTracker` listeners causing `EXC_BAD_ACCESS` in `NSConcreteHashTable removeItem:` when a listener is deallocated on a background thread (#7839)
-- Moved `BinaryImageCache` initialization to a background thread to reduce blocking on dyld reader locks on the main thread (#7823)
 
 ## 9.11.0
 

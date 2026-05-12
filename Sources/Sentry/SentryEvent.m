@@ -7,8 +7,8 @@
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
-#import "SentryNSDictionarySanitize.h"
 #import "SentryRequest.h"
+#import "SentrySanitizerUtils.h"
 #import "SentryStacktrace.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     // This is important here, since we probably use __sentry internal extras
     // before
-    [serializedData setValue:sentry_sanitize(self.extra) forKey:@"extra"];
+    [serializedData setValue:sentry_sanitize_dictionary(self.extra) forKey:@"extra"];
     [serializedData setValue:self.tags forKey:@"tags"];
     SENTRY_LOG_DEBUG(@"Serialized event: %@", serializedData);
 
@@ -126,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addSimpleProperties:(NSMutableDictionary *)serializedData
 {
-    [serializedData setValue:sentry_sanitize(self.sdk) forKey:@"sdk"];
+    [serializedData setValue:sentry_sanitize_dictionary(self.sdk) forKey:@"sdk"];
     [serializedData setValue:self.releaseName forKey:@"release"];
     [serializedData setValue:self.dist forKey:@"dist"];
     [serializedData setValue:self.environment forKey:@"environment"];
@@ -151,7 +151,7 @@ NS_ASSUME_NONNULL_BEGIN
         [serializedData setValue:breadcrumbs forKey:@"breadcrumbs"];
     }
 
-    [serializedData setValue:sentry_sanitize(self.context) forKey:@"contexts"];
+    [serializedData setValue:sentry_sanitize_dictionary(self.context) forKey:@"contexts"];
 
     if (nil != self.message) {
         [serializedData setValue:[self.message serialize] forKey:@"message"];

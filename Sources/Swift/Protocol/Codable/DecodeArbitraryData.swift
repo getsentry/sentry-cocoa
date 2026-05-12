@@ -33,7 +33,7 @@ enum ArbitraryData: Decodable {
         // The order here matters as we're dealing with arbitrary data.
         // We have to check the double before the Date, because otherwise
         // a double value could turn into a Date. So only ISO 8601 string formatted
-        // dates work, which sanitizeArray and sentry_sanitize use.
+        // dates work, which sentry_sanitize_array and sentry_sanitize_dictionary(use.
         // We must check String after Date, because otherwise we would turn a ISO 8601
         // string into a string and not a date.
         if let intValue = try? container.decode(Int.self) {

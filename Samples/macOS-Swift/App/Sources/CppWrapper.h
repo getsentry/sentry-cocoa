@@ -5,4 +5,5 @@
 - (void)noExceptCppException;
 - (void)rethrowNoActiveCPPException;
 - (void)throwNSRangeException;
+- (void)crashWithNullProgramCounter;
 @end
