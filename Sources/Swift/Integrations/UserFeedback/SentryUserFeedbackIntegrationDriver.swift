@@ -9,12 +9,15 @@ import UIKit
  * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
  */
 @available(iOSApplicationExtension, unavailable)
-final class SentryUserFeedbackIntegrationDriver: NSObject {
+final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWidgetDelegate {
     let configuration: SentryUserFeedbackConfiguration
     private var widget: SentryUserFeedbackWidget?
+    private var shouldRestoreWidgetAfterFormDismissal = false
+    private var didOpenForm = false
+    private weak var installedPresenter: SentryFeedbackFormPresenter?
+    private var activePresenter: SentryFeedbackFormPresenter?
     fileprivate let callback: (SentryFeedback) -> Void
     let screenshotSource: SentryScreenshotSource
-    weak var customButton: UIButton?
 
     init(configuration: SentryUserFeedbackConfiguration, screenshotSource: SentryScreenshotSource, callback: @escaping (SentryFeedback) -> Void) {
         self.configuration = configuration
@@ -58,7 +61,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
     }
 
     deinit {
-        customButton?.removeTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
+        configuration.customButton?.removeTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
         SentryShakeDetector.disable()
         NotificationCenter.default.removeObserver(self)
     }
@@ -75,63 +78,214 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
     }
 
-    @objc func showForm(sender: UIButton) {
-        presenter?.present(SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: nil), animated: configuration.animations) {
-            self.configuration.onFormOpen?()
+    var isDisplayingForm: Bool {
+        activePresenter != nil
+    }
+
+    func formDidOpen() {
+        guard isDisplayingForm, !didOpenForm else {
+            return
         }
+
+        didOpenForm = true
+        configuration.onFormOpen?()
+    }
+
+    func formDidFinish(feedback: SentryFeedback?) {
+        if let feedback = feedback {
+            callback(feedback)
+        }
+    }
+
+    func setFeedbackFormPresenter(_ presenter: SentryFeedbackFormPresenter?) {
+        installedPresenter = presenter
+    }
+
+    func removeFeedbackFormPresenter(_ presenter: SentryFeedbackFormPresenter) {
+        guard installedPresenter === presenter else { return }
+        installedPresenter = nil
+    }
+
+    @discardableResult
+    func presentForm(screenshot: UIImage? = nil) -> Bool {
+        if let installedPresenter = installedPresenter {
+            return present(using: installedPresenter, screenshot: screenshot)
+        }
+
+        return present(using: makeAutomaticUIKitPresenter(), screenshot: screenshot)
+    }
+
+    @discardableResult
+    func presentForm(in windowScene: UIWindowScene, screenshot: UIImage?) -> Bool {
+        return present(
+            using: makeUIKitPresenter { [weak windowScene] in
+                windowScene?.windows.first(where: { $0.isKeyWindow })?.rootViewController
+            },
+            screenshot: screenshot
+        )
+    }
+
+    @discardableResult
+    func presentForm(from viewController: UIViewController, screenshot: UIImage?) -> Bool {
+        return present(
+            using: makeUIKitPresenter { [weak viewController] in
+                viewController
+            },
+            screenshot: screenshot
+        )
+    }
+
+    @objc func showForm(sender: UIButton) {
+        presentForm(screenshot: nil)
+    }
+
+    func showFeedbackForm() {
+        presentForm(screenshot: nil)
     }
 }
 
 // MARK: SentryUserFeedbackFormDelegate
 @available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
+    func didAppear() {
+        formDidOpen()
+    }
+
     func finished(with feedback: SentryFeedback?) {
-        if let feedback = feedback {
-            callback(feedback)
-        }
-        presenter?.dismiss(animated: configuration.animations) {
-            self.configuration.onFormClose?()
-        }
-        widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
-        displayingForm = false
+        formDidFinish(feedback: feedback)
+        activePresenter?.dismiss()
     }
 }
 
-// MARK: SentryUserFeedbackWidgetDelegate
+// MARK: SentryFeedbackFormPresenterDelegate
 @available(iOSApplicationExtension, unavailable)
-extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {
-    func showForm() {
-        showForm(screenshot: nil)
+extension SentryUserFeedbackIntegrationDriver: SentryFeedbackFormPresenterDelegate {
+    func feedbackFormPresenterDidDismiss(_ presenter: SentryFeedbackFormPresenter) {
+        guard activePresenter === presenter else { return }
+
+        presenter.delegate = nil
+        activePresenter = nil
+        restoreWidgetForPresentedFormIfNeeded()
+
+        if didOpenForm {
+            didOpenForm = false
+            configuration.onFormClose?()
+        }
     }
 }
 
-// MARK: UIAdaptivePresentationControllerDelegate
+// MARK: Presentation
 @available(iOSApplicationExtension, unavailable)
-extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerDelegate {
-    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+private extension SentryUserFeedbackIntegrationDriver {
+    func hideWidgetForPresentedForm() {
+        guard let widget = widget else { return }
+        shouldRestoreWidgetAfterFormDismissal = widget.isVisible
+        hideWidget()
+    }
+
+    func restoreWidgetForPresentedFormIfNeeded() {
+        guard shouldRestoreWidgetAfterFormDismissal else { return }
+        shouldRestoreWidgetAfterFormDismissal = false
         widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
-        displayingForm = false
-        configuration.onFormClose?()
+    }
+
+    func present(
+        using presenter: SentryFeedbackFormPresenter,
+        screenshot: UIImage?
+    ) -> Bool {
+        guard activePresenter == nil else {
+            SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
+            return false
+        }
+
+        hideWidgetForPresentedForm()
+        didOpenForm = false
+        presenter.delegate = self
+
+        guard presenter.present(screenshot: screenshot) else {
+            restoreWidgetForPresentedFormIfNeeded()
+            presenter.delegate = nil
+            return false
+        }
+
+        activePresenter = presenter
+        return true
+    }
+
+}
+
+// MARK: Host Resolving
+@available(iOSApplicationExtension, unavailable)
+private extension SentryUserFeedbackIntegrationDriver {
+    // Host preference order for automatic presentation:
+    // custom button, widget, foreground key-window root, then first key-window root fallback.
+    func makeAutomaticUIKitPresenter() -> SentryFeedbackFormPresenter {
+        return makeUIKitPresenter { [weak self] in
+            guard let self else { return nil }
+            
+            if let customButtonController {
+                return customButtonController
+            }
+
+            if let widgetHost = widget?.rootVC {
+                return widgetHost
+            }
+
+            return firstAvailableWindowHost
+        }
+    }
+
+    func makeUIKitPresenter(presentingViewControllerProvider: @escaping SentryFeedbackFormPresentingViewControllerProvider) -> SentryFeedbackFormPresenter {
+        return SentryUIKitFeedbackFormPresenter(
+            presentingViewControllerProvider: presentingViewControllerProvider,
+            configuration: configuration,
+            formDelegate: self
+        )
+    }
+    
+    /// In order to present our form, we need a `UIViewController` on which to call `presentViewController`. This computed var helps to find one. While we may know the owning UIVC for our own widget button, we won't know the makeup of the view/controller hierarchy if a customer uses their own button with `SentryUserFeedbackConfiguration.customButton`.
+    /// - returns: The innermost `UIViewController` instance managing the receiving view.
+    var customButtonController: UIViewController? {
+        var responder = configuration.customButton?.next
+        while responder != nil {
+            guard let resolvedResponder = responder else { break }
+            let klass = type(of: resolvedResponder)
+            guard klass.isSubclass(of: UIViewController.self) else {
+                responder = resolvedResponder.next
+                continue
+            }
+            return resolvedResponder as? UIViewController
+        }
+        return nil
+    }
+
+    /// Finds a root view controller suitable for automatic presentation by preferring the key
+    /// window in a foreground-active scene and falling back to the first key-window root found.
+    var firstAvailableWindowHost: UIViewController? {
+        var fallbackPresenter: UIViewController?
+
+        for scene in UIApplication.shared.connectedScenes {
+            guard let windowScene = scene as? UIWindowScene,
+                let presenter = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController else {
+                continue
+            }
+
+            if windowScene.activationState == .foregroundActive {
+                return presenter
+            }
+
+            if fallbackPresenter == nil {
+                fallbackPresenter = presenter
+            }
+        }
+
+        return fallbackPresenter
     }
 }
 
 // MARK: Private
 @available(iOSApplicationExtension, unavailable)
 private extension SentryUserFeedbackIntegrationDriver {
-    func showForm(screenshot: UIImage?) {
-        guard let presenter = presenter else {
-            SentrySDKLog.debug("Cannot show feedback form — no presenter available")
-            return
-        }
-        let form = SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: screenshot)
-        form.presentationController?.delegate = self
-        widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
-        displayingForm = true
-        presenter.present(form, animated: configuration.animations) {
-            self.configuration.onFormOpen?()
-        }
-    }
-
     func validate(_ config: SentryUserFeedbackWidgetConfiguration) {
         let noOpposingHorizontals = config.location.contains(.trailing) && !config.location.contains(.leading)
         || !config.location.contains(.trailing) && config.location.contains(.leading)
@@ -167,46 +321,20 @@ private extension SentryUserFeedbackIntegrationDriver {
     }
 
     @objc func handleShakeGesture() {
-        guard !displayingForm else {
+        guard !isDisplayingForm else {
             SentrySDKLog.debug("Shake gesture ignored — feedback form is already displayed")
             return
         }
-        showForm(screenshot: nil)
+        presentForm(screenshot: nil)
     }
 
     @objc func userCapturedScreenshot() {
         stopObservingScreenshots()
-        showForm(screenshot: screenshotSource.appScreenshots().first)
+        presentForm(screenshot: screenshotSource.appScreenshots().first)
     }
 
     func stopObservingScreenshots() {
         NotificationCenter.default.removeObserver(self, name: UIApplication.userDidTakeScreenshotNotification, object: nil)
-    }
-
-    var presenter: UIViewController? {
-        if let customButton = configuration.customButton {
-            return customButton.controller
-        }
-        
-        return widget?.rootVC
-    }
-}
-
-extension UIView {
-    /// In order to present our form, we need a `UIViewController` on which to call `presentViewController`. This computed var helps to find one. While we may know the owning UIVC for our own widget button, we won't know the makeup of the view/controller hierarchy if a customer uses their own button with `SentryUserFeedbackConfiguration.customButton`.
-    /// - returns: The innermost `UIViewController` instance managing the receiving view.
-    var controller: UIViewController? {
-        var responder = next
-        while responder != nil {
-            guard let resolvedResponder = responder else { break }
-            let klass = type(of: resolvedResponder)
-            guard klass.isSubclass(of: UIViewController.self) else {
-                responder = resolvedResponder.next
-                continue
-            }
-            return resolvedResponder as? UIViewController
-        }
-        return nil
     }
 }
 

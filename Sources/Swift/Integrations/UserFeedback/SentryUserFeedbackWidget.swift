@@ -4,10 +4,8 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-var displayingForm = false
-
 protocol SentryUserFeedbackWidgetDelegate: NSObjectProtocol {
-    func showForm()
+    func showFeedbackForm()
 }
 
 @available(iOSApplicationExtension, unavailable)
@@ -20,6 +18,10 @@ final class SentryUserFeedbackWidget {
     lazy var rootVC = RootViewController(config: config, button: button)
 
     private var window: Window?
+
+    var isVisible: Bool {
+        return rootVC.isWidgetVisible
+    }
 
     let config: SentryUserFeedbackConfiguration
     weak var delegate: (any SentryUserFeedbackWidgetDelegate)?
@@ -47,7 +49,7 @@ final class SentryUserFeedbackWidget {
     }
 
     @objc func showForm() {
-        self.delegate?.showForm()
+        self.delegate?.showFeedbackForm()
     }
 
     final class Window: UIWindow {
@@ -70,7 +72,8 @@ final class SentryUserFeedbackWidget {
         }
         
         override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-            guard !displayingForm else {
+            // Only let the overlay window intercept all touches when it owns the presented form.
+            if rootViewController?.presentedViewController != nil {
                 return super.hitTest(point, with: event)
             }
             
@@ -86,6 +89,7 @@ final class SentryUserFeedbackWidget {
 
     final class RootViewController: UIViewController, UIAdaptivePresentationControllerDelegate {
         let defaultWidgetSpacing: CGFloat = 8
+        private(set) var isWidgetVisible = true
         weak var button: SentryUserFeedbackWidgetButtonView?
         init(config: SentryUserFeedbackConfiguration, button: SentryUserFeedbackWidgetButtonView) {
             self.button = button
@@ -119,11 +123,16 @@ final class SentryUserFeedbackWidget {
         }
 
         func setWidget(visible: Bool, animated: Bool) {
+            isWidgetVisible = visible
+            if visible {
+                button?.isHidden = false
+            }
             if animated {
                 UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
                     self.button?.alpha = visible ? 1 : 0
                 }
             } else {
+                button?.alpha = visible ? 1 : 0
                 button?.isHidden = !visible
             }
         }
