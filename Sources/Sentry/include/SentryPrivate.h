@@ -90,7 +90,7 @@
 #import "SentryTraceOrigin.h"
 #import "SentryTraceProfiler.h"
 #import "SentryTracerConfiguration.h"
-#import "SentryTransactionContextFactory.h"
+#import "SentryTransactionContext+Private.h"
 #import "SentryUIViewControllerSwizzlingHelper.h"
 #import "SentryUncaughtNSExceptions.h"
 #import "SentryWatchdogTerminationBreadcrumbProcessor.h"

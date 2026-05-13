@@ -1,3 +1,4 @@
+#import "SentryDefines.h"
 #include "SentryProfilingConditionals.h"
 #import "SentryTransactionContext.h"
 
@@ -50,6 +51,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryThread *)sentry_threadInfo;
 #endif
+
+@end
+
+// Swift-visible initializers. The anonymous extension above doesn't bridge across
+// module boundaries, and nameSource uses a Swift-defined @objc enum that the
+// _SentryPrivate Clang module cannot resolve. The renamed parameter (rawNameSource)
+// gives these a distinct ObjC selector to avoid clashing with the extension methods.
+@interface SentryTransactionContext (SwiftPrivate)
+
+- (instancetype)initWithName:(NSString *)name
+               rawNameSource:(SENTRY_SWIFT_MIGRATION_VALUE(SentryTransactionNameSource))source
+                   operation:(NSString *)operation
+                      origin:(NSString *)origin;
+
+- (instancetype)initWithName:(NSString *)name
+               rawNameSource:(SENTRY_SWIFT_MIGRATION_VALUE(SentryTransactionNameSource))source
+                   operation:(NSString *)operation
+                      origin:(NSString *)origin
+                     traceId:(SentryId *)traceId;
 
 @end
 

@@ -30,19 +30,19 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
         let appStartTraceId = SentryAppStartMeasurementProvider.appStartTraceId()
         let context: TransactionContext
         if let traceId = appStartTraceId {
-            context = SentryTransactionContextCreateWithTraceId(
-                traceId,
-                name,
-                SentryTransactionNameSource.component.rawValue,
-                operation,
-                SentryTraceOriginAutoAppStart
+            context = TransactionContext(
+                name: name,
+                rawNameSource: SentryTransactionNameSource.component.rawValue,
+                operation: operation,
+                origin: SentryTraceOriginAutoAppStart,
+                trace: traceId
             )
         } else {
-            context = SentryTransactionContextCreate(
-                name,
-                SentryTransactionNameSource.component.rawValue,
-                operation,
-                SentryTraceOriginAutoAppStart
+            context = TransactionContext(
+                name: name,
+                rawNameSource: SentryTransactionNameSource.component.rawValue,
+                operation: operation,
+                origin: SentryTraceOriginAutoAppStart
             )
         }
 
