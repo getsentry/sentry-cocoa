@@ -6,12 +6,12 @@ import XCTest
 
 class AppStartReportingStrategyTests: XCTestCase {
 
-    private func createMeasurement(type: SentryAppStartType, duration: TimeInterval = 0.5) -> SentryAppStartMeasurement {
+    private func createMeasurement(type: SentryAppStartType, duration: TimeInterval = 0.5, isPreWarmed: Bool = false) -> SentryAppStartMeasurement {
         let dateProvider = TestCurrentDateProvider()
         let appStart = dateProvider.date()
         return SentryAppStartMeasurement(
             type: type,
-            isPreWarmed: false,
+            isPreWarmed: isPreWarmed,
             appStartTimestamp: appStart,
             runtimeInitSystemTimestamp: dateProvider.systemTime(),
             duration: duration,
@@ -170,6 +170,55 @@ class AppStartReportingStrategyTests: XCTestCase {
         let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
         let appStartWarm = try XCTUnwrap(extra["app.vitals.start.warm.value"] as? NSNumber)
         XCTAssertEqual(appStartWarm.doubleValue, 300, accuracy: 0.001)
+    }
+
+    func testReport_whenNotPrewarmed_shouldSetPrewarmedAttributeToFalse() throws {
+        let hub = setUpIntegrationHub()
+        let measurement = createMeasurement(type: .cold, isPreWarmed: false)
+
+        StandaloneTransactionStrategy().report(measurement)
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
+        let prewarmed = try XCTUnwrap(extra["app.vitals.start.prewarmed"] as? NSNumber)
+        XCTAssertFalse(prewarmed.boolValue)
+    }
+
+    func testReport_whenPrewarmed_shouldSetPrewarmedAttributeToTrue() throws {
+        let hub = setUpIntegrationHub()
+        let measurement = createMeasurement(type: .cold, isPreWarmed: true)
+
+        StandaloneTransactionStrategy().report(measurement)
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
+        let prewarmed = try XCTUnwrap(extra["app.vitals.start.prewarmed"] as? NSNumber)
+        XCTAssertTrue(prewarmed.boolValue)
+    }
+
+    func testReport_whenScreenNameSet_shouldAddScreenAttribute() throws {
+        let hub = setUpIntegrationHub()
+        let measurement = createMeasurement(type: .cold)
+        SentryAppStartMeasurementProvider.setAppStartScreen("MainViewController")
+        addTeardownBlock { SentryAppStartMeasurementProvider.reset() }
+
+        StandaloneTransactionStrategy().report(measurement)
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
+        let screen = try XCTUnwrap(extra["app.vitals.start.screen"] as? String)
+        XCTAssertEqual(screen, "MainViewController")
+    }
+
+    func testReport_whenNoScreenNameSet_shouldNotAddScreenAttribute() throws {
+        let hub = setUpIntegrationHub()
+        let measurement = createMeasurement(type: .cold)
+
+        StandaloneTransactionStrategy().report(measurement)
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let extra = serialized["extra"] as? [String: Any]
+        XCTAssertNil(extra?["app.vitals.start.screen"])
     }
 
     func testReport_whenColdStart_shouldAddDebugMeta() throws {
