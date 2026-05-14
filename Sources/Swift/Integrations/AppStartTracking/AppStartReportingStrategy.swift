@@ -58,8 +58,9 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
             configuration: configuration
         )
         if let screen = SentryAppStartMeasurementProvider.consumeAppStartScreen() {
-            tracer.setData(value: screen, key: "app.vitals.start.screen")
+            tracer.setData(value: screen, key: SentrySpanDataKeyAppVitalsStartScreen)
         }
+        tracer.setData(value: measurement.isPreWarmed, key: SentrySpanDataKeyAppVitalsStartPrewarmed)
 
         tracer.finish()
     }
