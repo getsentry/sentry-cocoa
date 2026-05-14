@@ -31,9 +31,5 @@ import UIKit
     }
 }
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-extension SentryDisplayLinkWrapper: SentryReplayDisplayLinkWrapper {}
-#endif
-
 #endif
 // swiftlint:enable missing_docs
