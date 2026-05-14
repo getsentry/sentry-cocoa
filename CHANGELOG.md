@@ -5,6 +5,7 @@
 ### Features
 
 - Add standalone app start tracing as an experimental option (#7660), enable it via `options.experimental.enableStandaloneAppStartTracing = true`
+
 ### Fixes
 
 - Fix race conditions in scope observer iteration and propagation context locking (#7897)
