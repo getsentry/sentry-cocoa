@@ -60,6 +60,7 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
         if let screen = SentryAppStartMeasurementProvider.consumeAppStartScreen() {
             tracer.setData(value: screen, key: "app.vitals.start.screen")
         }
+        tracer.setData(value: "launch", key: SentrySpanDataKeyAppVitalsStartReason)
 
         tracer.finish()
     }
