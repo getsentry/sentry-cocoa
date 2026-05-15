@@ -62,6 +62,8 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
         }
 
         tracer.finish()
+
+        SentryAppStartMeasurementProvider.setAppStartTrace(nil)
     }
 }
 

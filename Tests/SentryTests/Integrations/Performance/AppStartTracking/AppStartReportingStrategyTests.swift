@@ -122,6 +122,18 @@ class AppStartReportingStrategyTests: XCTestCase {
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
     }
 
+    func testReport_shouldClearAppStartTraceIdAfterUse() {
+        _ = setCurrentHub()
+        let measurement = createMeasurement(type: .cold)
+        SentryAppStartMeasurementProvider.setAppStartTrace(SentryId())
+
+        XCTAssertNotNil(SentryAppStartMeasurementProvider.appStartTraceId())
+
+        StandaloneTransactionStrategy().report(measurement)
+
+        XCTAssertNil(SentryAppStartMeasurementProvider.appStartTraceId())
+    }
+
     // MARK: - StandaloneTransactionStrategy Integration Tests
 
     private func setUpIntegrationHub() -> TestHub {
