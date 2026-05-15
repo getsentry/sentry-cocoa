@@ -172,6 +172,18 @@ class AppStartReportingStrategyTests: XCTestCase {
         XCTAssertEqual(appStartWarm.doubleValue, 300, accuracy: 0.001)
     }
 
+    func testReport_shouldSetStartReasonToLaunch() throws {
+        let hub = setUpIntegrationHub()
+        let measurement = createMeasurement(type: .cold)
+
+        StandaloneTransactionStrategy().report(measurement)
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
+        let reason = try XCTUnwrap(extra["app.vitals.start.reason"] as? String)
+        XCTAssertEqual(reason, "launch")
+    }
+
     func testReport_whenColdStart_shouldAddDebugMeta() throws {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold)

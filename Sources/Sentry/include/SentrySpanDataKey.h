@@ -31,3 +31,4 @@ SENTRY_EXTERN NSString *const SentrySpanDataKeyAppVitalsStartType;
 SENTRY_EXTERN NSString *const SentrySpanDataKeyAppVitalsStartValue;
 SENTRY_EXTERN NSString *const SentrySpanDataKeyAppVitalsStartColdValue;
 SENTRY_EXTERN NSString *const SentrySpanDataKeyAppVitalsStartWarmValue;
+SENTRY_EXTERN NSString *const SentrySpanDataKeyAppVitalsStartReason;
