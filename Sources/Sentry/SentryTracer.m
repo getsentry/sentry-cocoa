@@ -12,6 +12,7 @@
 #import "SentryScope+Private.h"
 #import "SentrySpanContext+Private.h"
 #import "SentrySpanContext.h"
+#import "SentrySpanDataKey.h"
 #import "SentrySpanId.h"
 #import "SentrySpanInternal.h"
 #import "SentrySwift.h"
@@ -596,9 +597,22 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
         [super finishWithStatus:_finishStatus];
     }
 #if SENTRY_HAS_UIKIT
-    appStartMeasurement =
-        [SentryAppStartMeasurementProvider appStartMeasurementForOperation:self.operation
-                                                            startTimestamp:self.startTimestamp];
+    // Standalone app start transactions carry their measurement directly in the configuration,
+    // bypassing the global static in SentryAppStartMeasurementProvider. The main advantage is
+    // avoiding a race condition between the app start tracker producing the measurement and
+    // the first UIViewController transaction consuming it. We don't change the existing
+    // UIViewController/AppStart path below because it's bulletproof and we'll likely remove
+    // it once standalone app start tracing is stable.
+    if ([self isStandaloneAppStartTransaction] && _configuration.appStartMeasurement != nil) {
+        appStartMeasurement = _configuration.appStartMeasurement;
+        // Safeguard: this shouldn't normally happen, but mark as read so no UIViewController
+        // transaction picks up the global static too.
+        [SentryAppStartMeasurementProvider markAsRead];
+    } else {
+        appStartMeasurement =
+            [SentryAppStartMeasurementProvider appStartMeasurementForOperation:self.operation
+                                                                startTimestamp:self.startTimestamp];
+    }
 
     if (appStartMeasurement != nil) {
         [self updateStartTime:appStartMeasurement.appStartTimestamp];
@@ -706,7 +720,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 #if SENTRY_HAS_UIKIT
     [self addFrameStatistics];
 
-    NSArray<id<SentrySpan>> *appStartSpans = sentryBuildAppStartSpans(self, appStartMeasurement);
+    NSArray<id<SentrySpan>> *appStartSpans = [self isStandaloneAppStartTransaction]
+        ? sentryBuildStandaloneAppStartSpans(self, appStartMeasurement)
+        : sentryBuildAppStartSpans(self, appStartMeasurement);
     capacity = _children.count + appStartSpans.count;
 #else
     capacity = _children.count;
@@ -758,25 +774,46 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
 #if SENTRY_HAS_UIKIT
 
+- (BOOL)isStandaloneAppStartTransaction
+{
+    return [StandaloneAppStartTransactionHelper
+        isStandaloneAppStartTransactionWithOperation:self.operation
+                                              origin:self.origin];
+}
+
 - (void)addAppStartMeasurements:(SentryTransaction *)transaction
 {
     if (appStartMeasurement != nil && appStartMeasurement.type != SentryAppStartTypeUnknown) {
-        NSString *type = nil;
+        NSString *legacyType = nil;
+        NSString *vitalsType = nil;
         NSString *appContextType = nil;
         if (appStartMeasurement.type == SentryAppStartTypeCold) {
-            type = @"app_start_cold";
+            legacyType = @"app_start_cold";
+            vitalsType = SentrySpanDataKeyAppVitalsStartColdValue;
             appContextType = @"cold";
         } else if (appStartMeasurement.type == SentryAppStartTypeWarm) {
-            type = @"app_start_warm";
+            legacyType = @"app_start_warm";
+            vitalsType = SentrySpanDataKeyAppVitalsStartWarmValue;
             appContextType = @"warm";
         }
 
-        if (type != nil && appContextType != nil) {
-            [self setMeasurement:type value:@(appStartMeasurement.duration * 1000)];
+        if (vitalsType != nil && appContextType != nil) {
+            BOOL isStandalone = [self isStandaloneAppStartTransaction];
+            NSNumber *durationMs = @(appStartMeasurement.duration * 1000);
+
+            if (!isStandalone) {
+                [self setMeasurement:legacyType value:durationMs];
+            } else {
+                [self setDataValue:durationMs forKey:vitalsType];
+                [self setDataValue:durationMs forKey:SentrySpanDataKeyAppVitalsStartValue];
+            }
 
             NSString *appStartType = appStartMeasurement.isPreWarmed
                 ? [NSString stringWithFormat:@"%@.prewarmed", appContextType]
                 : appContextType;
+            if (isStandalone) {
+                [self setDataValue:appStartType forKey:SentrySpanDataKeyAppVitalsStartType];
+            }
             NSMutableDictionary *context =
                 [[NSMutableDictionary alloc] initWithDictionary:[transaction context] ?: @{ }];
             NSDictionary *appContext = @{ @"app" : @ { @"start_type" : appStartType } };

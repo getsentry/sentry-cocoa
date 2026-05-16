@@ -272,6 +272,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             appStateManager: appStateManager,
             framesTracker: framesTracker,
             enablePreWarmedAppStartTracing: options.enablePreWarmedAppStartTracing,
+            enableStandaloneAppStartTracing: options.experimental.enableStandaloneAppStartTracing,
             dateProvider: dateProvider,
             sysctlWrapper: sysctlWrapper,
             appStartInfoProvider: appStartInfoProvider

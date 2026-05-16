@@ -229,4 +229,37 @@ static const NSUInteger kSentryDefaultSamplingDecision = kSentrySampleDecisionUn
 
 @end
 
+@implementation SentryTransactionContext (SwiftPrivate)
+
+- (instancetype)initWithName:(NSString *)name
+               rawNameSource:(NSInteger)source
+                   operation:(NSString *)operation
+                      origin:(NSString *)origin
+{
+    return [self initWithName:name
+                   nameSource:(SentryTransactionNameSource)source
+                    operation:operation
+                       origin:origin];
+}
+
+- (instancetype)initWithName:(NSString *)name
+               rawNameSource:(NSInteger)source
+                   operation:(NSString *)operation
+                      origin:(NSString *)origin
+                     traceId:(SentryId *)traceId
+{
+    return [self initWithName:name
+                   nameSource:(SentryTransactionNameSource)source
+                    operation:operation
+                       origin:origin
+                      traceId:traceId
+                       spanId:[[SentrySpanId alloc] init]
+                 parentSpanId:nil
+                parentSampled:kSentrySampleDecisionUndecided
+             parentSampleRate:nil
+             parentSampleRand:nil];
+}
+
+@end
+
 NS_ASSUME_NONNULL_END

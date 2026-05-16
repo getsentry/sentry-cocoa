@@ -1,4 +1,5 @@
 #import "SentryPerformanceTracker.h"
+#import "SentryAppStartMeasurementProvider.h"
 #import "SentryHub+Private.h"
 #import "SentryLogC.h"
 #import "SentrySDK+Private.h"
@@ -71,11 +72,28 @@ NS_ASSUME_NONNULL_BEGIN
         newSpan = [activeSpan startChildWithOperation:operation description:name];
         newSpan.origin = origin;
     } else {
-        SentryTransactionContext *context =
-            [[SentryTransactionContext alloc] initWithName:name
-                                                nameSource:nameSource
-                                                 operation:operation
-                                                    origin:origin];
+        SentryTransactionContext *context;
+#if SENTRY_HAS_UIKIT
+        SentryId *appStartTraceId = [SentryAppStartMeasurementProvider appStartTraceId];
+        if (appStartTraceId != nil) {
+            context = [[SentryTransactionContext alloc] initWithName:name
+                                                          nameSource:nameSource
+                                                           operation:operation
+                                                              origin:origin
+                                                             traceId:appStartTraceId
+                                                              spanId:[[SentrySpanId alloc] init]
+                                                        parentSpanId:nil
+                                                       parentSampled:kSentrySampleDecisionUndecided
+                                                    parentSampleRate:nil
+                                                    parentSampleRand:nil];
+        } else
+#endif // SENTRY_HAS_UIKIT
+        {
+            context = [[SentryTransactionContext alloc] initWithName:name
+                                                          nameSource:nameSource
+                                                           operation:operation
+                                                              origin:origin];
+        }
 
         id<SentrySpan> span = SentrySDKInternal.currentHub.scope.span;
 

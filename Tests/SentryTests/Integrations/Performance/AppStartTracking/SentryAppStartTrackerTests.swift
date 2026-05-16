@@ -2,6 +2,7 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+// swiftlint:disable file_length type_body_length
 #if os(iOS) || os(tvOS)
 
 class TestAppStartInfoProvider: AppStartInfoProvider {
@@ -38,6 +39,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         let framesTracker: SentryFramesTracker
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         var enablePreWarmedAppStartTracing = true
+        var enableStandaloneAppStartTracing = false
         var appStartInfoProvider: TestAppStartInfoProvider
 
         let appStartDuration: TimeInterval = 0.4
@@ -91,6 +93,7 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
                 appStateManager: appStateManager,
                 framesTracker: framesTracker,
                 enablePreWarmedAppStartTracing: enablePreWarmedAppStartTracing,
+                enableStandaloneAppStartTracing: enableStandaloneAppStartTracing,
                 dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
                 sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper,
                 appStartInfoProvider: appStartInfoProvider
@@ -341,10 +344,58 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 
         fixture.fileManager.moveAppStateToPreviousAppState()
         hybridAppStart()
-        
+
         assertValidHybridStart(type: .warm)
     }
-    
+
+    func testStart_whenStandaloneAppStartTracingAndSDKNotEnabled_shouldDropAppStart() {
+        fixture.enableStandaloneAppStartTracing = true
+        startApp(callDisplayLink: true)
+
+        // The standalone handler guards on SentrySDK.isEnabled. Since the SDK is not
+        // fully started in this test, the measurement is dropped.
+        assertNoAppStartUp()
+    }
+
+    func testStart_whenStandaloneAppStartTracingDisabled_shouldSetAppStartMeasurement() {
+        fixture.enableStandaloneAppStartTracing = false
+        startApp(callDisplayLink: true)
+
+        assertValidStart(type: .cold, expectedDuration: 0.45)
+    }
+
+    func testStart_whenStandaloneAppStartTracingEnabled_shouldCaptureTransaction() throws {
+        fixture.options.tracesSampleRate = 1
+        let client = TestClient(options: fixture.options)
+        let hub = TestHub(client: client, andScope: Scope())
+        SentrySDKInternal.setCurrentHub(hub)
+
+        fixture.enableStandaloneAppStartTracing = true
+        startApp(callDisplayLink: true)
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        XCTAssertEqual(serialized["transaction"] as? String, "App Start")
+
+        let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
+        let traceContext = try XCTUnwrap(contexts["trace"] as? [String: Any])
+        XCTAssertEqual(traceContext["op"] as? String, "app.start")
+
+        // The global static must not be set — standalone bypasses it.
+        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
+
+        // Verify the transaction contains app start child spans (standalone = no grouping span).
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        XCTAssertEqual(spans.count, 5)
+
+        let descriptions = spans.compactMap { $0["description"] as? String }
+        XCTAssertTrue(descriptions.contains("Pre Runtime Init"))
+        XCTAssertTrue(descriptions.contains("Initial Frame Render"))
+
+        // Verify the app start vitals are set as span data.
+        let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
+        XCTAssertNotNil(extra["app.vitals.start.cold.value"])
+    }
+
     private func store(appState: SentryAppState) {
         fixture.fileManager.store(appState)
     }

@@ -3,6 +3,7 @@
 
 #if SENTRY_HAS_UIKIT
 
+#    import "SentryAppStartMeasurementProvider.h"
 #    import "SentryHub.h"
 #    import "SentryLogC.h"
 #    import "SentryPerformanceTracker.h"
@@ -183,6 +184,9 @@
         }
 
         NSString *name = [SwiftDescriptor getViewControllerClassName:controller];
+
+        [SentryAppStartMeasurementProvider setAppStartScreen:name];
+
         spanId = [self.tracker startSpanWithName:name
                                       nameSource:kSentryTransactionNameSourceComponent
                                        operation:SentrySpanOperationUiLoad
