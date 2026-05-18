@@ -153,6 +153,7 @@ initializeTestCacheState(SentryCrashBinaryImageCacheState *cache)
     delaySemaphore = NULL;
     delayCalled = NULL;
 
+    [SentryDependencyContainer.sharedInstance.binaryImageCache stop];
     sentrycrashdl_clearDyld();
     sentrycrashbic_setActiveCacheState(NULL);
     [SentryDependencyContainer reset];
