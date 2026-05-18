@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startSession
 {
     SentrySession *lastSession = nil;
-    SentrySession *session = nil;
+    SentrySession *newSession = nil;
     SentryScope *scope = self.scope;
     SentryOptions *options = [self.client options];
     if (options == nil) {
@@ -97,6 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
             @"Release name of the options of the client is nil. Not starting a session.");
         return;
     }
+    NSString *releaseName = SENTRY_UNWRAP_NULLABLE(NSString, options.releaseName);
 
     @synchronized(_sessionLock) {
         if (_session != nil) {
@@ -106,27 +107,28 @@ NS_ASSUME_NONNULL_BEGIN
         NSString *distinctId =
             [SentryInstallation idWithCacheDirectoryPath:options.cacheDirectoryPath];
 
-        _session = [[SentrySession alloc] initWithReleaseName:options.releaseName
-                                                   distinctId:distinctId];
+        SentrySession *session = [[SentrySession alloc] initWithReleaseName:releaseName
+                                                                 distinctId:distinctId];
+        _session = session;
 
         if (_errorsBeforeSession > 0 && options.enableAutoSessionTracking == YES) {
-            _session.errors = _errorsBeforeSession;
+            session.errors = _errorsBeforeSession;
             _errorsBeforeSession = 0;
         }
 
-        _session.environment = options.environment;
+        session.environment = options.environment;
 
-        [scope applyToSession:_session];
+        [scope applyToSession:session];
 
-        [self storeCurrentSession:_session];
-        [self captureSession:_session];
-        session = _session;
+        [self storeCurrentSession:session];
+        [self captureSession:session];
+        newSession = session;
     }
     [lastSession
         endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     [self captureSession:lastSession];
 
-    [self notifySessionStarted:session];
+    [self notifySessionStarted:newSession];
 }
 
 - (void)endSession
