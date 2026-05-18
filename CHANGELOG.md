@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Move SessionTracker file I/O off the main thread (#7704)
+
 ## 8.58.2
 
 ### Fixes

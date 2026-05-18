@@ -77,6 +77,7 @@ SentryApplicationProviderBlock defaultApplicationProvider = ^id<SentryApplicatio
 @interface SentryDependencyContainer ()
 
 @property (nonatomic, strong) id<SentryANRTracker> anrTracker;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *sessionDispatchQueue;
 
 @end
 
@@ -467,12 +468,19 @@ static BOOL isInitialializingDependencyContainer = NO;
     SENTRY_LAZY_INIT(_globalEventProcessor, [[SentryGlobalEventProcessor alloc] init])
 }
 
+- (SentryDispatchQueueWrapper *)sessionDispatchQueue SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
+{
+    SENTRY_LAZY_INIT(_sessionDispatchQueue,
+        [self.dispatchFactory createUtilityQueue:"io.sentry.session-tracker" relativePriority:0]);
+}
+
 - (SentrySessionTracker *)getSessionTrackerWithOptions:(SentryOptions *)options
 {
     return [[SentrySessionTracker alloc] initWithOptions:options
                                      applicationProvider:defaultApplicationProvider
                                             dateProvider:self.dateProvider
-                                      notificationCenter:self.notificationCenterWrapper];
+                                      notificationCenter:self.notificationCenterWrapper
+                                           dispatchQueue:self.sessionDispatchQueue];
 }
 
 - (id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK

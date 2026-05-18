@@ -2,6 +2,7 @@
 
 @class SentryEvent;
 @class SentryOptions;
+@class SentryDispatchQueueWrapper;
 
 @protocol SentryApplication;
 @protocol SentryNSNotificationCenterWrapper;
@@ -20,7 +21,8 @@ SENTRY_NO_INIT
 - (instancetype)initWithOptions:(SentryOptions *)options
             applicationProvider:(id<SentryApplication> _Nullable (^)(void))applicationProvider
                    dateProvider:(id<SentryCurrentDateProvider>)dateProvider
-             notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter;
+             notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter
+                  dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
 
 - (void)start;
 - (void)stop;

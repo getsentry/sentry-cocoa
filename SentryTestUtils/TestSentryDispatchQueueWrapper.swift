@@ -76,6 +76,12 @@ import Foundation
         dispatchAfterWorkItemInvocations.invocations.last?.workItem.perform()
     }
 
+    public var dispatchSyncInvocations = Invocations<() -> Void>()
+    public override func dispatchSync(_ block: @escaping () -> Void) {
+        dispatchSyncInvocations.record(block)
+        block()
+    }
+
     public var dispatchCancelInvocations = 0
     public override var shouldDispatchCancel: Bool {
         dispatchCancelInvocations += 1
