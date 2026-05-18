@@ -37,8 +37,7 @@ jobs:
   run-version-bump:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_version_bump_util_for_prs == 'true'
     needs: files-changed
-    # The release workflow uses the Makefile to bump the version so it needs to be tested.
-    name: Run Version Bump (Makefile)
+    name: Run Version Bump (Scripts)
     # We intentionally run this on ubuntu because the release workflow also runs on ubuntu, which uses the version bump util.
     runs-on: ubuntu-latest
     steps:
@@ -49,8 +48,8 @@ jobs:
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
           echo "VERSION=100.0.$TIMESTAMP" >> $GITHUB_OUTPUT
       # We don't care which version we bump to, as long as it's a valid semver
-      - run: make bump-version TO=${{ steps.generate-version-number.outputs.VERSION }}
-      - run: make verify-version TO=${{ steps.generate-version-number.outputs.VERSION }}
+      - run: ./scripts/bump-version.sh --version "${{ steps.generate-version-number.outputs.VERSION }}"
+      - run: ./scripts/verify-version.sh --version "${{ steps.generate-version-number.outputs.VERSION }}"
 
   run-version-bump-script:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_version_bump_util_for_prs == 'true'
@@ -90,7 +89,7 @@ jobs:
         run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}
 
       - name: Verify outputs of bump.sh
-        run: make verify-version TO=${{ steps.generate-version-number.outputs.NEW_VERSION }}
+        run: ./scripts/verify-version.sh --version "${{ steps.generate-version-number.outputs.NEW_VERSION }}"
 
       - name: Verify outputs of update-package-sha.sh
         run: |
