@@ -9,6 +9,15 @@
 
 - Fix race conditions in scope observer iteration and propagation context locking (#7897)
 
+> [!IMPORTANT]
+> The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
+
+### Fixes
+
+- Fix race conditions in scope observer iteration and propagation context locking (#7897)
+- Add SentryObjC wrapper SDK to provide pure Objective-C compatibility layer that wraps the main Sentry SDK with stable, documented Objective-C interfaces. (#7598)
+  This SDK is designed for projects that require strict Objective-C compatibility without Swift dependencies. It ships as two xcframework variants — `SentryObjC-Static.xcframework.zip` and `SentryObjC-Dynamic.xcframework.zip` — and as a compile-from-source SPM library under the `SentryObjC` product.
+
 ## 9.13.0
 
 ### Fixes
@@ -19,8 +28,6 @@
 ### Features
 
 - Add Set conformance to SentryAttributeValue (#7876)
-- Add SentryObjC wrapper SDK to provide pure Objective-C compatibility layer that wraps the main Sentry SDK with stable, documented Objective-C interfaces. (#7598)
-  This SDK is designed for projects that require strict Objective-C compatibility without Swift dependencies. It ships as two xcframework variants — `SentryObjC-Static.xcframework.zip` and `SentryObjC-Dynamic.xcframework.zip` — and as a compile-from-source SPM library under the `SentryObjC` product.
 
 ## 9.12.1
 
