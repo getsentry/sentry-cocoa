@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Populate trace operation and related fields on transaction trace context after the root tracer is detached from the scope so `beforeSend` can inspect the operation
 - Fix race conditions in scope observer iteration and propagation context locking (#7897)
 
 ## 9.13.0

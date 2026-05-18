@@ -233,6 +233,20 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(trace["span_id"] as? String, fixture.transaction.spanId.sentrySpanIdString)
         XCTAssertEqual(trace["status"] as? String, "ok")
     }
+
+    func testApplyToEvent_whenTransactionEventWithoutScopeSpan_shouldPopulateTraceOp() throws {
+        // Mirrors async transaction capture after the tracer is unbound from the scope.
+        fixture.scope.span = nil
+        let tracer = try XCTUnwrap(fixture.transaction as? SentryTracer)
+        let transactionEvent = Transaction(trace: tracer, children: [])
+
+        let actual = fixture.scope.applyTo(event: transactionEvent, maxBreadcrumbs: 10)
+
+        let trace = try XCTUnwrap(actual?.context?["trace"] as? [String: Any])
+        XCTAssertEqual(trace["op"] as? String, fixture.transactionOperation)
+        XCTAssertEqual(trace["trace_id"] as? String, tracer.traceId.sentryIdString)
+        XCTAssertEqual(trace["span_id"] as? String, tracer.spanId.sentrySpanIdString)
+    }
     
     func testApplyToEvent_EventWithDist() {
         let event = fixture.event

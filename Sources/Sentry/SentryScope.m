@@ -12,6 +12,7 @@
 #import "SentrySpanInternal+Private.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
+#import "SentryTransaction.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
 
@@ -685,7 +686,19 @@ NS_ASSUME_NONNULL_BEGIN
                                       intoDictionary:newContext];
     }
 
-    newContext[@"trace"] = [self buildTraceContext:span];
+    // Transaction payloads carry the root tracer on the event. `captureTransaction` may apply the
+    // scope after the tracer is no longer bound, so using only `scope.span` drops fields like `op`
+    // and falls back to propagation context. Prefer the transaction's tracer when present.
+    id<SentrySpan> traceSpan = span;
+    if ([event.type isEqualToString:SentryEnvelopeItemTypes.transaction] &&
+        [event isKindOfClass:[SentryTransaction class]]) {
+        SentryTracer *transactionTracer = [(SentryTransaction *)event trace];
+        if (transactionTracer != nil) {
+            traceSpan = transactionTracer;
+        }
+    }
+
+    newContext[@"trace"] = [self buildTraceContext:traceSpan];
 
     event.context = newContext;
     return event;
