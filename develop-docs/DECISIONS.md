@@ -615,3 +615,57 @@ Steps:
 1. Consolidate Headers into the main target and remove `HybridSDK` subspec
 2. Update downstream SDKs
 3. Align on an API naming convention (ask other maintainers for input regarding what they need)
+
+## Session Replay Network Details: Body Capture Strategy
+
+Date: April 27, 2026
+Contributors: @43jay, @philprime, @itaybre
+
+We chose method swizzling over `NSURLProtocol` for capturing HTTP request/response bodies in Session Replay. Three alternative approaches were evaluated and discarded.
+
+### Why not `NSURLProtocol`
+
+`NSURLProtocol` was the most commonly suggested alternative (used by tools we evaluated), but has three critical problems in an SDK context:
+
+1. Any URLSessionConfiguration that overwrites `protocolClasses` **silently drops** Sentry's protocol without warning. This is common in apps with custom networking stacks.
+2. The protocol's internal session handles TLS, **bypassing the app's certificate pinning** delegate. An SDK must never break the host app's security model.
+3. Risk of silently dropping delegate callbacks that the app depends on, e.g. custom ones added by the SDK user or by other libraries.
+
+### Why not stream wrapping
+
+Wrapping [`URLRequest.httpBodyStream`](https://developer.apple.com/documentation/foundation/urlrequest/httpbodystream) with a tee-ing `InputStream` subclass was discarded because `InputStream` subclassing is fragile on iOS and would require injecting the wrapper early enough via `protocolClasses` swizzling, reintroducing the same risks as `NSURLProtocol`.
+
+### What we capture
+
+**Request bodies**: Read `originalRequest.HTTPBody` (a concrete `Data` object) when the swizzled `setState:` fires. We never read `httpBodyStream` because it is read-once and consuming it would break the request. This covers the majority of use cases; stream-based bodies (large file uploads) are intentionally unsupported.
+
+**Response bodies**: Swizzle `dataTaskWithRequest:completionHandler:` and `dataTaskWithURL:completionHandler:` on `NSURLSession` to wrap the completion handler and capture the response `NSData` before delegating to the original handler.
+
+### Scoping: completion-handler dataTasks only
+
+Delegate-based data tasks were excluded from the initial implementation because:
+
+1. Response data arrives in chunks via `URLSession:dataTask:didReceiveData:` rather than all at once.
+2. Multiple tasks can share the same delegate instance, complicating per-task accumulation.
+3. The delegate is owned by the app, not by Sentry — swizzling it is riskier.
+
+Upload and download tasks were excluded pending user demand. Download tasks are typically large binary GETs where body capture adds little value.
+
+### Size limit and content filtering
+
+Body data is truncated to 150KB, matching the `NETWORK_BODY_MAX_SIZE` constant in sentry-javascript's replay-internal.
+Only JSON, text, and form-urlencoded bodies are parsed; binary content types produce a placeholder string.
+Truncation adds a warning (`MAYBE_JSON_TRUNCATED` or `TEXT_TRUNCATED`) so the Sentry UI can indicate incomplete data.
+
+### Gating
+
+The feature requires explicit opt-in via `SentryReplayOptions.networkDetailAllowUrls` (URL allowlist) and the experimental flag `enableReplayNetworkDetailsCapturing`.
+Body capture within that gate is controlled by `networkCaptureBodies` (default `true`).
+The swizzling for response capture is skipped entirely when `networkDetailAllowUrls` is empty, so there is zero overhead for users who don't opt in.
+
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/issues/4944
+- https://github.com/getsentry/sentry/issues/84596 (cross-platform parent)
+- PRs #7580, #7581, #7582, #7584, #7585, #7588, #7590
+- Android implementation: https://github.com/getsentry/sentry-java/pull/4919
