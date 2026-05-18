@@ -38064,6 +38064,138 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UIImage",
+                    "printedName": "UIKit.UIImage",
+                    "usr": "c:objc(cs)UIImage"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "UIKit.UIImage?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "UIViewController",
+                "printedName": "UIKit.UIViewController",
+                "usr": "c:objc(cs)UIViewController"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "DiscardableResult",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC11presentForm4from5imageSbSo16UIViewControllerC_So7UIImageCSgtF",
+            "moduleName": "Sentry",
+            "name": "presentForm",
+            "objc_name": "presentFormFrom:image:",
+            "printedName": "presentForm(from:image:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)presentFormFrom:image:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UIImage",
+                    "printedName": "UIKit.UIImage",
+                    "usr": "c:objc(cs)UIImage"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "UIKit.UIImage?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "DiscardableResult",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC11presentForm5imageSbSo7UIImageCSg_tF",
+            "moduleName": "Sentry",
+            "name": "presentForm",
+            "objc_name": "presentFormWithImage:",
+            "printedName": "presentForm(image:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)presentFormWithImage:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UIImage",
+                    "printedName": "UIKit.UIImage",
+                    "usr": "c:objc(cs)UIImage"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "UIKit.UIImage?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "UIWindowScene",
+                "printedName": "UIKit.UIWindowScene",
+                "usr": "c:objc(cs)UIWindowScene"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "DiscardableResult",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC11presentForm2in5imageSbSo13UIWindowSceneC_So7UIImageCSgtF",
+            "moduleName": "Sentry",
+            "name": "presentForm",
+            "objc_name": "presentFormIn:image:",
+            "printedName": "presentForm(in:image:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)presentFormIn:image:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "Void",
                 "printedName": "()"
               }
@@ -74069,6 +74201,38 @@
       },
       {
         "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Custom",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "genericSig": "<Self where Self : SwiftUI.View>",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s7SwiftUI4ViewP6SentryE18sentryFeedbackFormQryF",
+            "moduleName": "Sentry",
+            "name": "sentryFeedbackForm",
+            "printedName": "sentryFeedbackForm()",
+            "usr": "s:7SwiftUI4ViewP6SentryE18sentryFeedbackFormQryF"
+          },
           {
             "children": [
               {

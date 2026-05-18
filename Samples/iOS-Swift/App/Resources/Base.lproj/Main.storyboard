@@ -1946,7 +1946,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fdb-btn-default">
                                         <rect key="frame" x="0.0" y="0.0" width="288" height="34.5"/>
                                         <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="filled" title="Present (Default)"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Present (Automatic)"/>
                                         <connections>
                                             <action selector="presentConvenience:" destination="fdb-vc-001" eventType="touchUpInside" id="fdb-act-default"/>
                                         </connections>
@@ -1954,7 +1954,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fdb-btn-vc">
                                         <rect key="frame" x="0.0" y="50.5" width="288" height="34.5"/>
                                         <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="filled" title="Present from View Controller"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Present (View Controller)"/>
                                         <connections>
                                             <action selector="presentFromViewController:" destination="fdb-vc-001" eventType="touchUpInside" id="fdb-act-vc"/>
                                         </connections>
@@ -1962,7 +1962,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fdb-btn-scene">
                                         <rect key="frame" x="0.0" y="101" width="288" height="34.5"/>
                                         <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="filled" title="Present in Window Scene"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Present (Window Scene)"/>
                                         <connections>
                                             <action selector="presentFromWindowScene:" destination="fdb-vc-001" eventType="touchUpInside" id="fdb-act-scene"/>
                                         </connections>

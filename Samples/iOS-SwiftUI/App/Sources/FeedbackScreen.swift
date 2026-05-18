@@ -7,7 +7,7 @@ struct FeedbackScreen: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Button("Present with Host") {
+            Button("Present (Modifier)") {
                 SentrySDK.feedback.presentForm()
             }
             .buttonStyle(.borderedProminent)

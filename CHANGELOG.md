@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add feedback form presentation APIs (#7873)
+
 ## 9.13.0
 
 ### Fixes

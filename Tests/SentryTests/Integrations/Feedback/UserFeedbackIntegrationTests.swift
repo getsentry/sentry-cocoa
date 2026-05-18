@@ -1,16 +1,18 @@
 @_spi(Private) @testable import Sentry
+@_spi(Private) import SentryTestUtils
 import XCTest
 
 #if os(iOS)
+import UIKit
 
 final class UserFeedbackIntegrationTests: XCTestCase {
-    
+
     static private var optionsWithFeedback: Options {
         let options = Options()
         options.configureUserFeedback = { _ in }
         return options
     }
-    
+
     private struct TestDependencies: ScreenshotSourceProvider {
         let screenshotSource: SentryScreenshotSource?
     }
@@ -51,23 +53,23 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             enableMaskRendererV2: false)
         return SentryScreenshotSource(photographer: photographer)
     }
-    
+
     func testUsesCorrectName() {
         XCTAssertEqual(UserFeedbackIntegration<TestDependencies>.name, "SentryUserFeedbackIntegration")
     }
-    
+
     func testInitializerFailsWhenNoScreenshotSource() {
         let integration = UserFeedbackIntegration(with: Self.optionsWithFeedback, dependencies: TestDependencies(screenshotSource: nil))
         XCTAssertNil(integration)
     }
-    
+
     func testInitializerSucceedsWhenScreenshotSourceIsPresent() {
         let integration = UserFeedbackIntegration(
             with: Self.optionsWithFeedback,
             dependencies: TestDependencies(screenshotSource: makeScreenshotSource()))
         XCTAssertNotNil(integration)
     }
-    
+
     func testInitializerFailsWhenFeedbackNotConfigured() {
         let integration = UserFeedbackIntegration(with: Options(), dependencies: TestDependencies(screenshotSource: nil))
         XCTAssertNil(integration)
@@ -213,6 +215,23 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
         XCTAssertFalse(sut.isDisplayingForm)
         XCTAssertNil(presenter.delegate)
+    }
+
+    func testFeedbackAPI_whenIntegrationIsMissing_shouldReturnFalse() {
+        let previousHub = SentrySDKInternal.currentHub()
+        SentrySDKInternal.setCurrentHub(TestHub(client: nil, andScope: nil))
+        defer { SentrySDKInternal.setCurrentHub(previousHub) }
+
+        let sut = SentryFeedbackAPI()
+        let viewController = UIViewController()
+
+        XCTAssertFalse(sut.presentForm())
+        XCTAssertFalse(sut.presentForm(from: viewController))
+
+        guard let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
+            return
+        }
+        XCTAssertFalse(sut.presentForm(in: windowScene))
     }
 }
 

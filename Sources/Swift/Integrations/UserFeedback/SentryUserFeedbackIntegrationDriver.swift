@@ -118,8 +118,9 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
     @discardableResult
     func presentForm(in windowScene: UIWindowScene, screenshot: UIImage?) -> Bool {
         return present(
-            using: makeUIKitPresenter { [weak windowScene] in
-                windowScene?.windows.first(where: { $0.isKeyWindow })?.rootViewController
+            using: makeUIKitPresenter { [weak self, weak windowScene] in
+                guard let windowScene = windowScene else { return nil }
+                return self?.keyWindowPresenter(in: windowScene)
             },
             screenshot: screenshot
         )
@@ -211,18 +212,17 @@ private extension SentryUserFeedbackIntegrationDriver {
         activePresenter = presenter
         return true
     }
-
 }
 
 // MARK: Host Resolving
 @available(iOSApplicationExtension, unavailable)
 private extension SentryUserFeedbackIntegrationDriver {
-    // Host preference order for automatic presentation:
-    // custom button, widget, foreground key-window root, then first key-window root fallback.
+    // View-controller preference order for automatic presentation:
+    // custom button, widget, foreground key-window presenter, then first key-window presenter fallback.
     func makeAutomaticUIKitPresenter() -> SentryFeedbackFormPresenter {
         return makeUIKitPresenter { [weak self] in
             guard let self else { return nil }
-            
+
             if let customButtonController {
                 return customButtonController
             }
@@ -231,7 +231,7 @@ private extension SentryUserFeedbackIntegrationDriver {
                 return widgetHost
             }
 
-            return firstAvailableWindowHost
+            return fallbackPresenter
         }
     }
 
@@ -242,31 +242,28 @@ private extension SentryUserFeedbackIntegrationDriver {
             formDelegate: self
         )
     }
-    
+
     /// In order to present our form, we need a `UIViewController` on which to call `presentViewController`. This computed var helps to find one. While we may know the owning UIVC for our own widget button, we won't know the makeup of the view/controller hierarchy if a customer uses their own button with `SentryUserFeedbackConfiguration.customButton`.
     /// - returns: The innermost `UIViewController` instance managing the receiving view.
     var customButtonController: UIViewController? {
         var responder = configuration.customButton?.next
-        while responder != nil {
-            guard let resolvedResponder = responder else { break }
-            let klass = type(of: resolvedResponder)
-            guard klass.isSubclass(of: UIViewController.self) else {
-                responder = resolvedResponder.next
-                continue
+        while let resolvedResponder = responder {
+            if let viewController = resolvedResponder as? UIViewController {
+                return presentingViewController(from: viewController)
             }
-            return resolvedResponder as? UIViewController
+            responder = resolvedResponder.next
         }
         return nil
     }
 
-    /// Finds a root view controller suitable for automatic presentation by preferring the key
-    /// window in a foreground-active scene and falling back to the first key-window root found.
-    var firstAvailableWindowHost: UIViewController? {
-        var fallbackPresenter: UIViewController?
+    /// Finds a view controller suitable for automatic presentation by preferring the key
+    /// window in a foreground-active scene and falling back to the first key-window found.
+    var fallbackPresenter: UIViewController? {
+        var firstKeyWindowPresenter: UIViewController?
 
         for scene in UIApplication.shared.connectedScenes {
             guard let windowScene = scene as? UIWindowScene,
-                let presenter = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController else {
+                let presenter = keyWindowPresenter(in: windowScene) else {
                 continue
             }
 
@@ -274,12 +271,33 @@ private extension SentryUserFeedbackIntegrationDriver {
                 return presenter
             }
 
-            if fallbackPresenter == nil {
-                fallbackPresenter = presenter
+            if firstKeyWindowPresenter == nil {
+                firstKeyWindowPresenter = presenter
             }
         }
 
-        return fallbackPresenter
+        return firstKeyWindowPresenter
+    }
+
+    /// Finds the view controller that should present the feedback form for the key window in
+    /// the given scene. If the root view controller is already presenting another controller,
+    /// this returns the top-most presented controller that is not currently being dismissed.
+    func keyWindowPresenter(in windowScene: UIWindowScene) -> UIViewController? {
+        let rootViewController = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController
+        return presentingViewController(from: rootViewController)
+    }
+
+    /// Resolves the view controller best suited for presenting the feedback form by walking
+    /// through any view controllers already presented by the starting view controller.
+    func presentingViewController(from viewController: UIViewController?) -> UIViewController? {
+        guard let viewController = viewController else { return nil }
+
+        if let presentedViewController = viewController.presentedViewController,
+            !presentedViewController.isBeingDismissed {
+            return presentingViewController(from: presentedViewController)
+        }
+
+        return viewController
     }
 }
 
