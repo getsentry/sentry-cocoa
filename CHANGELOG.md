@@ -5,6 +5,7 @@
 ### Features
 
 - Add feedback form presentation APIs (#7873)
+
 ### Fixes
 
 - Fix race conditions in scope observer iteration and propagation context locking (#7897)
