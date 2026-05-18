@@ -34,9 +34,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryScope {
     NSObject *_spanLock;
+    NSObject *_observersLock;
+    NSObject *_propagationContextLock;
 }
 
 @synthesize span = _span;
+@synthesize propagationContext = _propagationContext;
 
 #pragma mark Initializer
 
@@ -53,6 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
         self.fingerprintArray = [[NSMutableArray alloc] init];
         self.attributesDictionary = [[NSMutableDictionary alloc] init];
         _spanLock = [[NSObject alloc] init];
+        _observersLock = [[NSObject alloc] init];
+        _propagationContextLock = [[NSObject alloc] init];
         self.observers = [[NSMutableArray alloc] init];
         self.propagationContext = [[SentryPropagationContext alloc] init];
     }
@@ -116,7 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
 
         // Serializing is expensive. Only do it once.
         NSDictionary<NSString *, id> *serializedBreadcrumb = [crumb serialize];
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer addSerializedBreadcrumb:serializedBreadcrumb];
         }
     }
@@ -127,20 +132,28 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_spanLock) {
         _span = span;
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setTraceContext:[self buildTraceContext:span]];
         }
     }
 }
 
+- (SentryPropagationContext *)propagationContext
+{
+    @synchronized(_propagationContextLock) {
+        return _propagationContext;
+    }
+}
+
 - (void)setPropagationContext:(SentryPropagationContext *)propagationContext
 {
-    @synchronized(_propagationContext) {
+    @synchronized(_propagationContextLock) {
         _propagationContext = propagationContext;
 
-        if (self.observers.count > 0) {
-            NSDictionary *traceContext = [self.propagationContext traceContextForEvent];
-            for (id<SentryScopeObserver> observer in self.observers) {
+        NSArray<id<SentryScopeObserver>> *observers = [self observerSnapshot];
+        if (observers.count > 0) {
+            NSDictionary *traceContext = [propagationContext traceContextForEvent];
+            for (id<SentryScopeObserver> observer in observers) {
                 [observer setTraceContext:traceContext];
             }
         }
@@ -203,7 +216,7 @@ NS_ASSUME_NONNULL_BEGIN
     self.environmentString = nil;
     self.levelEnum = kSentryLevelNone;
 
-    for (id<SentryScopeObserver> observer in self.observers) {
+    for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
         [observer clear];
     }
 }
@@ -214,7 +227,7 @@ NS_ASSUME_NONNULL_BEGIN
         _currentBreadcrumbIndex = 0;
         [_breadcrumbArray removeAllObjects];
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer clearBreadcrumbs];
         }
     }
@@ -243,7 +256,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_contextDictionary) {
         [_contextDictionary setValue:value forKey:key];
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setContext:_contextDictionary.copy];
         }
     }
@@ -261,7 +274,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_contextDictionary) {
         [_contextDictionary removeObjectForKey:key];
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setContext:_contextDictionary.copy];
         }
     }
@@ -279,7 +292,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_extraDictionary) {
         [_extraDictionary setValue:value forKey:key];
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setExtras:_extraDictionary.copy];
         }
     }
@@ -290,7 +303,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_extraDictionary) {
         [_extraDictionary removeObjectForKey:key];
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setExtras:_extraDictionary.copy];
         }
     }
@@ -305,7 +318,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_extraDictionary
             addEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(NSString *, id, extras)];
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setExtras:_extraDictionary.copy];
         }
     }
@@ -323,7 +336,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_tagDictionary) {
         _tagDictionary[key] = value;
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setTags:_tagDictionary.copy];
         }
     }
@@ -334,7 +347,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_tagDictionary) {
         [_tagDictionary removeObjectForKey:key];
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setTags:_tagDictionary.copy];
         }
     }
@@ -349,7 +362,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_tagDictionary) {
         [_tagDictionary addEntriesFromDictionary:tagsCopy];
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setTags:_tagDictionary.copy];
         }
     }
@@ -367,7 +380,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(self) {
         self.userObject = user;
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setUser:user];
         }
     }
@@ -377,7 +390,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     self.distString = dist;
 
-    for (id<SentryScopeObserver> observer in self.observers) {
+    for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
         [observer setDist:dist];
     }
 }
@@ -386,7 +399,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     self.environmentString = environment;
 
-    for (id<SentryScopeObserver> observer in self.observers) {
+    for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
         [observer setEnvironment:environment];
     }
 }
@@ -400,7 +413,7 @@ NS_ASSUME_NONNULL_BEGIN
                 addObjectsFromArray:SENTRY_UNWRAP_NULLABLE(NSArray<NSString *>, fingerprint)];
         }
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setFingerprint:_fingerprintArray.copy];
         }
     }
@@ -418,7 +431,7 @@ NS_ASSUME_NONNULL_BEGIN
     _currentScreen = currentScreen;
 
     SEL setCurrentScreen = @selector(setCurrentScreen:);
-    for (id<SentryScopeObserver> observer in self.observers) {
+    for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
         if ([observer respondsToSelector:setCurrentScreen]) {
             [observer setCurrentScreen:currentScreen];
         }
@@ -429,7 +442,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     self.levelEnum = level;
 
-    for (id<SentryScopeObserver> observer in self.observers) {
+    for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
         [observer setLevel:level];
     }
 }
@@ -490,7 +503,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_attributesDictionary) {
         _attributesDictionary[key] = value;
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setAttributes:_attributesDictionary.copy];
         }
     }
@@ -501,7 +514,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_attributesDictionary) {
         [_attributesDictionary removeObjectForKey:key];
 
-        for (id<SentryScopeObserver> observer in self.observers) {
+        for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer setAttributes:_attributesDictionary.copy];
         }
     }
@@ -706,7 +719,16 @@ NS_ASSUME_NONNULL_BEGIN
     SENTRY_ASSERT(conformsToScopeObserver,
         @"Observer must be an instance conforming to SentryScopeObserver protocol")
     if (conformsToScopeObserver) {
-        [self.observers addObject:observer];
+        @synchronized(_observersLock) {
+            [self.observers addObject:observer];
+        }
+    }
+}
+
+- (NSArray<id<SentryScopeObserver>> *)observerSnapshot
+{
+    @synchronized(_observersLock) {
+        return [self.observers copy];
     }
 }
 
