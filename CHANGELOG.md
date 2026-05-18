@@ -5,6 +5,17 @@
 > [!IMPORTANT]
 > The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
 
+### Fixes
+
+- Fix race conditions in scope observer iteration and propagation context locking (#7897)
+
+## 9.13.0
+
+### Fixes
+
+- Fix crash with AVAssetDownloadTask in urlSessionTask:setState: (#7891)
+- Prevent crash-loop from malformed recrash reports (#7892)
+
 ### Features
 
 - Add Set conformance to SentryAttributeValue (#7876)
@@ -12,6 +23,9 @@
   This SDK is designed for projects that require strict Objective-C compatibility without Swift dependencies. It ships as two xcframework variants — `SentryObjC-Static.xcframework.zip` and `SentryObjC-Dynamic.xcframework.zip` — and as a compile-from-source SPM library under the `SentryObjC` product.
 
 ## 9.12.1
+
+> [!WARNING]
+> ⚠️ **Known Issue:** Sentry Cocoa **9.12.0+** crashes apps using `AVAssetDownloadURLSession`. Pin to **9.11.x** until a fix ships. ([#7886](https://github.com/getsentry/sentry-cocoa/issues/7886))
 
 ### Fixes
 
@@ -23,6 +37,9 @@
 - Handle extra length call in `SentryInvalidJSONString` (#7859)
 
 ## 9.12.0
+
+> [!WARNING]
+> ⚠️ **Known Issue:** Sentry Cocoa **9.12.0+** crashes apps using `AVAssetDownloadURLSession`. Pin to **9.11.x** until a fix ships. ([#7886](https://github.com/getsentry/sentry-cocoa/issues/7886))
 
 > [!WARNING]
 > This release promotes Metrics out of experimental and **removes** `options.experimental.enableMetrics` and `options.experimental.beforeSendMetric`. If you set either of these, your app will fail to compile after upgrading.

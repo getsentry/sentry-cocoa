@@ -131,6 +131,47 @@
     XCTAssertEqual(21, thread.stacktrace.registers.count);
 }
 
+// GH-7888: Converter must not crash when recrash_report is a non-dictionary type.
+- (void)testRecrashReport_WithArrayInsteadOfDict_doesNotCrash
+{
+    NSDictionary *report = @{
+        @"crash" : @ {
+            @"error" :
+                @ { @"type" : @"mach", @"mach" : @ { @"exception_name" : @"EXC_BAD_ACCESS" } },
+            @"threads" : @[ @{ @"crashed" : @YES, @"backtrace" : @ { @"contents" : @[] } } ],
+        },
+        @"binary_images" : @[],
+        @"recrash_report" : @[ @"malformed", @"array" ],
+    };
+
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    XCTAssertNotNil(event);
+    XCTAssertEqual(1, event.exceptions.count);
+}
+
+- (void)testRecrashReport_WithStringInsteadOfDict_doesNotCrash
+{
+    NSDictionary *report = @{
+        @"crash" : @ {
+            @"error" :
+                @ { @"type" : @"mach", @"mach" : @ { @"exception_name" : @"EXC_BAD_ACCESS" } },
+            @"threads" : @[ @{ @"crashed" : @YES, @"backtrace" : @ { @"contents" : @[] } } ],
+        },
+        @"binary_images" : @[],
+        @"recrash_report" : @"unexpected_string",
+    };
+
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:report inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    XCTAssertNotNil(event);
+    XCTAssertEqual(1, event.exceptions.count);
+}
+
 - (void)testRawWithCrashReport
 {
     NSDictionary *rawCrash = [self getCrashReport:@"Resources/raw-crash"];

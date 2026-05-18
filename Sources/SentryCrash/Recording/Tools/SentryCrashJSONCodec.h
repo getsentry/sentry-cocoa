@@ -529,7 +529,7 @@ typedef struct SentryCrashJSONDecodeCallbacks {
  * @oaram errorOffset If not null, will contain the offset into the data
  *                    where the error (if any) occurred.
  *
- * @return SentryCrashJSON_OK if succesful. An error code otherwise.
+ * @return SentryCrashJSON_OK if successful. An error code otherwise.
  */
 int sentrycrashjson_decode(const char *data, int length, char *stringBuffer, int stringBufferLength,
     SentryCrashJSONDecodeCallbacks *callbacks, void *userData, int *errorOffset);

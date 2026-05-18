@@ -443,15 +443,18 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 
 - (void)doctorReport:(NSMutableDictionary *)report
 {
-    NSMutableDictionary *crashReport = report[@SentryCrashField_Crash];
-    if (crashReport != nil) {
-        crashReport[@SentryCrashField_Diagnosis] =
-            [[SentryCrashDoctor doctor] diagnoseCrash:report];
+    id crashField = report[@SentryCrashField_Crash];
+    if ([crashField isKindOfClass:[NSMutableDictionary class]]) {
+        crashField[@SentryCrashField_Diagnosis] = [[SentryCrashDoctor doctor] diagnoseCrash:report];
     }
-    crashReport = report[@SentryCrashField_RecrashReport][@SentryCrashField_Crash];
-    if (crashReport != nil) {
-        crashReport[@SentryCrashField_Diagnosis] =
-            [[SentryCrashDoctor doctor] diagnoseCrash:report];
+
+    id recrashField = report[@SentryCrashField_RecrashReport];
+    if ([recrashField isKindOfClass:[NSDictionary class]]) {
+        id recrashCrashField = recrashField[@SentryCrashField_Crash];
+        if ([recrashCrashField isKindOfClass:[NSMutableDictionary class]]) {
+            recrashCrashField[@SentryCrashField_Diagnosis] =
+                [[SentryCrashDoctor doctor] diagnoseCrash:report];
+        }
     }
 }
 

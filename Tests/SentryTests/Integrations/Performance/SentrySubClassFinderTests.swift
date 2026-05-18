@@ -63,14 +63,21 @@ class SentrySubClassFinderTests: XCTestCase {
         assertActOnSubclassesOfViewController(expected: [], imageName: "OtherImage")
     }
   
-    func testGettingSubclasses_DoesNotCallInitializer() {
-        let sut = SentrySubClassFinder(dispatchQueue: TestSentryDispatchQueueWrapper(), objcRuntimeWrapper: fixture.runtimeWrapper, swizzleClassNameExcludes: [])
-        
-        var actual: [AnyClass] = []
-        sut.actOnSubclassesOfViewController(inImage: fixture.imageName) { subClass in
-            actual.append(subClass)
+    func testGettingSubclasses_DoesNotCallInitializer() throws {
+        let trackedClassName = try XCTUnwrap(
+            SentryInitializeForGettingSubclassesCalled.registerDynamicClass())
+        fixture.runtimeWrapper.classesNames = { _ in
+            return self.fixture.testClassesNames + [trackedClassName]
         }
-        
+
+        assertActOnSubclassesOfViewController(
+            expected: [
+                FirstViewController.self,
+                SecondViewController.self,
+                ViewControllerNumberThree.self,
+                VCAnyNaming.self
+            ])
+
         XCTAssertFalse(SentryInitializeForGettingSubclassesCalled.wasCalled())
     }
     
