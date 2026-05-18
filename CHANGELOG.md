@@ -4,8 +4,8 @@
 
 ### Fixes
 
-- Support stack traces for standalone clients (#7817)
 - Fix race conditions in scope observer iteration and propagation context locking (#7897)
+- Support stack traces for standalone clients (#7817)
 
 ## 9.13.0
 
