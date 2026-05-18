@@ -85,6 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startSession
 {
     SentrySession *lastSession = nil;
+    SentrySession *session = nil;
     SentryScope *scope = self.scope;
     SentryOptions *options = [self.client options];
     if (options == nil) {
@@ -119,12 +120,13 @@ NS_ASSUME_NONNULL_BEGIN
 
         [self storeCurrentSession:_session];
         [self captureSession:_session];
+        session = _session;
     }
     [lastSession
         endSessionExitedWithTimestamp:[SentryDependencyContainer.sharedInstance.dateProvider date]];
     [self captureSession:lastSession];
 
-    [_sessionListener sentrySessionStarted:_session];
+    [self notifySessionStarted:session];
 }
 
 - (void)endSession
@@ -149,7 +151,35 @@ NS_ASSUME_NONNULL_BEGIN
     [currentSession endSessionExitedWithTimestamp:timestamp];
     [self captureSession:currentSession];
 
-    [_sessionListener sentrySessionEnded:currentSession];
+    [self notifySessionEnded:currentSession];
+}
+
+- (void)notifySessionStarted:(SentrySession *)session
+{
+    id<SentrySessionListener> listener = self.sessionListener;
+    if (listener == nil) {
+        return;
+    }
+
+    [self.dispatchQueue dispatchAsyncOnMainQueue:^{
+        if (self.sessionListener == listener) {
+            [listener sentrySessionStarted:session];
+        }
+    }];
+}
+
+- (void)notifySessionEnded:(SentrySession *)session
+{
+    id<SentrySessionListener> listener = self.sessionListener;
+    if (listener == nil) {
+        return;
+    }
+
+    [self.dispatchQueue dispatchAsyncOnMainQueue:^{
+        if (self.sessionListener == listener) {
+            [listener sentrySessionEnded:session];
+        }
+    }];
 }
 
 - (void)storeCurrentSession:(SentrySession *)session
