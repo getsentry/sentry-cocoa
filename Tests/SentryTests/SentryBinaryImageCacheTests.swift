@@ -2,10 +2,10 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-private var externalAddedCallbackInvocations = 0
+private let externalAddedCallbackInvocations = Invocations<Void>()
 
 private func recordExternalAddedCallback(_ image: UnsafePointer<SentryCrashBinaryImage>?) {
-    externalAddedCallbackInvocations += 1
+    externalAddedCallbackInvocations.record(())
 }
 
 class SentryBinaryImageCacheTests: XCTestCase {
@@ -49,7 +49,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
 
     func testStop_WhenAlreadyStopped_shouldNotUnregisterExternalCallbacks() {
         sut.stop()
-        externalAddedCallbackInvocations = 0
+        externalAddedCallbackInvocations.removeAll()
         sentrycrashbic_registerAddedCallback(recordExternalAddedCallback)
 
         sut.stop()
@@ -58,7 +58,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
         sentrycrashbic_startCache()
 
         // If the second stop removed the external callback, this would stay at 0.
-        XCTAssertGreaterThan(externalAddedCallbackInvocations, 0)
+        XCTAssertGreaterThan(externalAddedCallbackInvocations.count, 0)
     }
 
     func testBinaryImageAdded() {

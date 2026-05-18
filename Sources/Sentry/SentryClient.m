@@ -59,23 +59,25 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (_Nullable instancetype)initWithOptions:(SentryOptions *)options
 {
+    SentryDependencyContainer *dependencies = SentryDependencyContainer.sharedInstance;
+
     NSError *error;
-    SentryFileManager *fileManager = [[SentryFileManager alloc]
-             initWithOptions:options
-                dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-        dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
-                       error:&error];
+    SentryFileManager *fileManager =
+        [[SentryFileManager alloc] initWithOptions:options
+                                      dateProvider:dependencies.dateProvider
+                              dispatchQueueWrapper:dependencies.dispatchQueueWrapper
+                                             error:&error];
     if (error != nil) {
         SENTRY_LOG_FATAL(@"Failed to initialize file system: %@", error.localizedDescription);
         return nil;
     }
 
-    NSArray<id<SentryTransport>> *transports = [SentryTransportFactory
-           initTransports:options
-             dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
-        sentryFileManager:fileManager
-               rateLimits:SentryDependencyContainer.sharedInstance.rateLimits
-             reachability:SentryDependencyContainer.sharedInstance.reachability];
+    NSArray<id<SentryTransport>> *transports =
+        [SentryTransportFactory initTransports:options
+                                  dateProvider:dependencies.dateProvider
+                             sentryFileManager:fileManager
+                                    rateLimits:dependencies.rateLimits
+                                  reachability:dependencies.reachability];
 
     SentryTransportAdapter *transportAdapter =
         [[SentryTransportAdapter alloc] initWithTransports:transports options:options];
@@ -83,19 +85,18 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryDefaultThreadInspector *threadInspector =
         [[SentryDefaultThreadInspector alloc] initWithOptions:options];
 
-    id<SentryEventContextEnricher> eventContextEnricher
-        = SentryDependencyContainer.sharedInstance.eventContextEnricher;
-
     return [self initWithOptions:options
-                    dateProvider:SentryDependencyContainer.sharedInstance.dateProvider
+                    dateProvider:dependencies.dateProvider
                 transportAdapter:transportAdapter
                      fileManager:fileManager
                  threadInspector:threadInspector
-              debugImageProvider:[SentryDependencyContainer sharedInstance].debugImageProvider
-                          random:[SentryDependencyContainer sharedInstance].random
+              debugImageProvider:dependencies.debugImageProvider
+                          random:dependencies.random
                           locale:[NSLocale autoupdatingCurrentLocale]
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone
-            eventContextEnricher:eventContextEnricher];
+            eventContextEnricher:dependencies.eventContextEnricher
+                    crashWrapper:dependencies.crashWrapper
+                binaryImageCache:dependencies.binaryImageCache];
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options
@@ -108,6 +109,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
            eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
+                   crashWrapper:(id<SentryCrashReporter>)crashWrapper
+               binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
 {
     if (self = [super init]) {
         _isEnabled = YES;
@@ -133,8 +136,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                                                    cacheDirectoryPath:options.cacheDirectoryPath
                                                        sendDefaultPii:options.sendDefaultPii];
 
-        [SentryDependencyContainer.sharedInstance.crashWrapper startBinaryImageCache];
-        [SentryDependencyContainer.sharedInstance.binaryImageCache start:options.debug];
+        [crashWrapper startBinaryImageCache];
+        [binaryImageCache start:options.debug];
 
         // The SDK stores the installationID in a file. The first call requires file IO. To avoid
         // executing this on the main thread, we cache the installationID async here.

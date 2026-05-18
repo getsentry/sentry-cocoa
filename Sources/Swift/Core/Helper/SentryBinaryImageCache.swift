@@ -35,6 +35,7 @@ import Foundation
     @objc public func start(_ isDebug: Bool) {
         lock.synchronized {
             guard cache == nil else {
+                SentrySDKLog.debug("SentryBinaryImageCache is already started. Skipping start.")
                 return
             }
             self.isDebug = isDebug
@@ -62,6 +63,7 @@ import Foundation
     @objc public func stop() {
         lock.synchronized {
             guard cache != nil else {
+                SentrySDKLog.debug("SentryBinaryImageCache is already stopped. Skipping stop.")
                 return
             }
             sentrycrashbic_registerAddedCallback(nil)

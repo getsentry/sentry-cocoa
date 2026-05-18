@@ -18,7 +18,9 @@ extension SentryClientInternal {
             random: SentryDependencyContainer.sharedInstance().random,
             locale: Locale.autoupdatingCurrent,
             timezone: Calendar.autoupdatingCurrent.timeZone,
-            eventContextEnricher: TestEventContextEnricher()
+            eventContextEnricher: TestEventContextEnricher(),
+            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
+            binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache
         )
     }
 }
@@ -128,7 +130,9 @@ final class SentryClientTests: XCTestCase {
                     random: random,
                     locale: locale,
                     timezone: timezone,
-                    eventContextEnricher: eventContextEnricher
+                    eventContextEnricher: eventContextEnricher,
+                    crashWrapper: crashWrapper,
+                    binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache
                 )
             } catch {
                 XCTFail("Options could not be created")
