@@ -24,7 +24,7 @@ This feature is experimental and is currently not compatible with SPM.
 ```bash
 make build-xcframework     # Build XCFramework for distribution
 make pod-lint              # Validate CocoaPods specs
-make bump-version TO=X.Y.Z # Bump version (requires TO parameter)
+./scripts/bump-version.sh --version X.Y.Z # Bump version
 ```
 
 ## Platform-Specific Build Notes

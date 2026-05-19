@@ -3,11 +3,13 @@
 @protocol SentryCurrentDateProvider;
 @protocol SentryRandomProtocol;
 @protocol SentryEventContextEnricher;
+@protocol SentryCrashReporter;
 
 @class SentryDispatchQueueWrapper;
 @class SentryDefaultThreadInspector;
 @class SentryTransportAdapter;
 @class SentryDebugImageProvider;
+@class SentryBinaryImageCache;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,7 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
                          random:(id<SentryRandomProtocol>)random
                          locale:(NSLocale *)locale
                        timezone:(NSTimeZone *)timezone
-           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher;
+           eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
+                   crashWrapper:(id<SentryCrashReporter>)crashWrapper
+               binaryImageCache:(SentryBinaryImageCache *)binaryImageCache;
 
 @end
 

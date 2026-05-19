@@ -149,7 +149,9 @@ jobs:
         shell: bash
 
       - name: Validate XCFramework structure
-        run: ./scripts/validate-xcframework-format.sh "${{env.XCFRAMEWORK_NAME}}.xcframework"
+        run: |
+          ./scripts/validate-xcframework-format.sh "${{env.XCFRAMEWORK_NAME}}.xcframework"
+          ./scripts/validate-xcframework-architectures.sh --xcframework "${{env.XCFRAMEWORK_NAME}}.xcframework"
         shell: bash
         env:
           XCFRAMEWORK_NAME: ${{ env.XCFRAMEWORK_NAME }}

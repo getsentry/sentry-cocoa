@@ -1132,7 +1132,7 @@
 		FA8A36172DEAA1EB0058D883 /* SentryThread+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SentryThread+Private.h"; path = "include/SentryThread+Private.h"; sourceTree = "<group>"; };
 		FA914E952ED61AA300C54BDD /* SentryFormatterSwift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryFormatterSwift.h; path = include/SentryFormatterSwift.h; sourceTree = "<group>"; };
 		FA914E9C2ED61AB900C54BDD /* SentryFormatterSwift.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryFormatterSwift.m; sourceTree = "<group>"; };
-		FAA414502ED7608E00B269CD /* SentrySessionReplayHybridSDK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SentrySessionReplayHybridSDK.m; sourceTree = "<group>"; };
+		FAA414502ED7608E00B269CD /* SentrySessionReplayHybridSDK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySessionReplayHybridSDK.m; sourceTree = "<group>"; };
 		FAAB95DD2EA1EB470030A2DB /* SentryDeviceContextKeys.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryDeviceContextKeys.h; path = include/SentryDeviceContextKeys.h; sourceTree = "<group>"; };
 		FAAB96422EA684380030A2DB /* SentryANRTrackerInternalDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryANRTrackerInternalDelegate.h; path = include/SentryANRTrackerInternalDelegate.h; sourceTree = "<group>"; };
 		FAAB96492EA688CB0030A2DB /* SentryANRStoppedResultInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SentryANRStoppedResultInternal.h; path = include/SentryANRStoppedResultInternal.h; sourceTree = "<group>"; };

@@ -9,6 +9,7 @@
 ### Fixes
 
 - Fix race conditions in scope observer iteration and propagation context locking (#7897)
+- Support stack traces for standalone clients (#7817)
 
 ## 9.13.0
 
@@ -83,6 +84,7 @@
 
 - Make feature Metrics generally available, moving experimental options to top-level options (#7843)
 - Add Session Replay network details capture, including request/response headers and bodies extraction (#7580, #7582, #7584, #7585, #7588, #7590, #7854)
+  - Find more details [here](https://docs.sentry.dev/platforms/apple/guides/ios/session-replay/configuration/).
 
 ### Fixes
 
