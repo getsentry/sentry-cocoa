@@ -6,7 +6,7 @@
 #   SentryObjC-Dynamic.xcframework  - dynamic library; consumer embeds the framework.
 #
 # Both variants bundle the four static archives (Sentry, SentryObjCTypes,
-# SentryObjCBridge, SentryObjC) into a single binary so downstream consumers
+# SentryObjCCompat, SentryObjC) into a single binary so downstream consumers
 # only have to link one framework, and neither requires Clang modules.
 #
 # Strategy per SDK slice:
@@ -190,18 +190,18 @@ for sdk in "${sdks[@]}"; do
     # Locate the four static archives (reuses the normal Sentry static build)
     sentry_archive="${ARCHIVE_BASE}/Sentry/${sdk}.xcarchive/Products/Library/Frameworks/Sentry.framework"
     types_archive="${ARCHIVE_BASE}/SentryObjCTypes/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjCTypes.framework"
-    bridge_archive="${ARCHIVE_BASE}/SentryObjCBridge/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjCBridge.framework"
+    bridge_archive="${ARCHIVE_BASE}/SentryObjCCompat/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjCCompat.framework"
     objc_archive="${ARCHIVE_BASE}/SentryObjC/${sdk}.xcarchive/Products/Library/Frameworks/SentryObjC.framework"
 
     if [ "$sdk" = "macosx" ] || [ "$sdk" = "maccatalyst" ]; then
         sentry_a="${sentry_archive}/Versions/A/Sentry"
         types_a="${types_archive}/Versions/A/SentryObjCTypes"
-        bridge_a="${bridge_archive}/Versions/A/SentryObjCBridge"
+        bridge_a="${bridge_archive}/Versions/A/SentryObjCCompat"
         objc_a="${objc_archive}/Versions/A/SentryObjC"
     else
         sentry_a="${sentry_archive}/Sentry"
         types_a="${types_archive}/SentryObjCTypes"
-        bridge_a="${bridge_archive}/SentryObjCBridge"
+        bridge_a="${bridge_archive}/SentryObjCCompat"
         objc_a="${objc_archive}/SentryObjC"
     fi
 

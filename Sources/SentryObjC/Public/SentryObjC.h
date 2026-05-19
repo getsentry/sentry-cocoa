@@ -101,16 +101,16 @@
 // Protocols / facades for Swift-only APIs (stay in SentryObjC — behavior layer)
 #import "SentryMetricsApi.h"
 
-// Frozen public ObjC data carriers (from SentryObjCTypes).
-// Xcode frameworks expose them under `<SentryObjCTypes/...>`; SPM exposes the
+// ObjC data carriers (from SentryObjCCompat).
+// Xcode frameworks expose them under `<SentryObjCCompat/...>`; SPM exposes the
 // headers via -I on the dependency's publicHeadersPath (no framework wrapper),
 // so we detect with __has_include and fall back to the quoted form.
-#if __has_include(<SentryObjCTypes/SentryObjCAttributeContent.h>)
-#    import <SentryObjCTypes/SentryObjCAttributeContent.h>
-#    import <SentryObjCTypes/SentryObjCMetric.h>
-#    import <SentryObjCTypes/SentryObjCMetricValue.h>
-#    import <SentryObjCTypes/SentryObjCRedactRegionType.h>
-#    import <SentryObjCTypes/SentryObjCUnit.h>
+#if __has_include(<SentryObjCCompat/SentryObjCAttributeContent.h>)
+#    import <SentryObjCCompat/SentryObjCAttributeContent.h>
+#    import <SentryObjCCompat/SentryObjCMetric.h>
+#    import <SentryObjCCompat/SentryObjCMetricValue.h>
+#    import <SentryObjCCompat/SentryObjCRedactRegionType.h>
+#    import <SentryObjCCompat/SentryObjCUnit.h>
 #else
 #    import "SentryObjCAttributeContent.h"
 #    import "SentryObjCMetric.h"

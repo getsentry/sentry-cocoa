@@ -6,7 +6,7 @@ import Foundation
 @_spi(Private) @testable import Sentry
 #endif
 
-@testable import SentryObjCBridge
+@testable import SentryObjCCompat
 import SentryObjCTypes
 import XCTest
 
@@ -67,7 +67,7 @@ final class SentryObjCBridgeMetricConversionTests: XCTestCase {
         let updatedTraceId = SentryId(uuidString: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         let updatedSpanId = SpanId(value: "aaaaaaaaaaaaaaaa")
 
-        SentrySwiftBridge.bridgeBeforeSendMetric(forOptions: options) { metric in
+        SentryObjCBridge.bridgeBeforeSendMetric(forOptions: options) { metric in
             metric.timestamp = updatedTimestamp
             metric.name = "callback.metric"
             metric.traceId = updatedTraceId

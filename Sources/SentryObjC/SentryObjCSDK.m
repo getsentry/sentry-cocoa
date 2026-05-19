@@ -2,28 +2,115 @@
 
 #import "SentryObjCDefines.h"
 
-#if __has_include(<SentryObjCTypes/SentryObjCBridging.h>)
-#    import <SentryObjCTypes/SentryObjCBridging.h>
-#else
-#    import "SentryObjCBridging.h"
-#endif
-
+@class SentryBreadcrumb;
+@class SentryEvent;
+@class SentryFeedback;
+@class SentryId;
+@class SentryLogger;
+@class SentryOptions;
 @class SentryReplayApi;
+@class SentryScope;
+@class SentryTransactionContext;
+@class SentryUser;
+@protocol SentrySpan;
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 @class SentryFeedbackAPI;
 #endif
 
-// SentryObjCBridge ships in the same SDK and conforms to SentryObjCBridging
-// (declared in SentryObjCTypes). Adopting the protocol gives this file typed
-// access to the bridge's class methods without importing SentryObjCBridge-Swift.h.
-// `replay` and `feedback` are conditionally available and aren't part of the
-// protocol — they're declared here as additional class methods on the bridge.
-@interface SentryObjCBridge : NSObject <SentryObjCBridging>
+// Forward declarations of SentryObjCBridge — a Swift class
+// (@objc(SentryObjCBridge)) in the SentryObjCCompat target.
+//
+// We cannot import its Swift-generated header here because the SentryObjC
+// target must stay pure ObjC (no *-Swift.h imports).  These hand-written
+// declarations let the compiler resolve selectors without a module import.
+//
+// LIMITATION: forward declarations only provide link-time safety.  If the
+// Swift compat layer renames a selector, the linker will catch it (undefined
+// symbol).  But if a parameter or return type changes (e.g. SentryEvent* →
+// SentryScope*), the mismatch is invisible until runtime — ObjC dispatches
+// on selector name alone and does not verify argument types at link time.
+//
+// COMPILE-TIME ALTERNATIVE: declaring an ObjC @protocol with these same
+// method signatures in SentryObjCTypes (the shared upstream target that both
+// SentryObjCCompat and SentryObjC can import) would restore full compile-time
+// type checking.  The Swift class would adopt the protocol, and each .m file
+// would declare `@interface SentryObjCBridge : NSObject <SentryObjCBridging>`.
+// Any signature drift — added/removed methods, changed parameter types — would
+// then fail to compile on both sides of the boundary instead of silently
+// passing through to a link-time error.
+@interface SentryObjCBridge : NSObject
+
++ (nullable id<SentrySpan>)sdkSpan;
++ (BOOL)sdkIsEnabled;
++ (NSInteger)sdkLastRunStatus;
++ (BOOL)sdkCrashedLastRun;
++ (BOOL)sdkDetectedStartUpCrash;
++ (SentryLogger *)logger;
+
++ (void)sdkStartWithOptions:(SentryOptions *)options;
++ (void)sdkStartWithConfigureOptions:(void (^)(SentryOptions *))block;
+
++ (SentryId *)sdkCaptureEvent:(SentryEvent *)event;
++ (SentryId *)sdkCaptureEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
++ (SentryId *)sdkCaptureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *))block;
++ (SentryId *)sdkCaptureEvent:(SentryEvent *)event attachAllThreads:(BOOL)attachAllThreads;
+
++ (id<SentrySpan>)sdkStartTransactionWithName:(NSString *)name operation:(NSString *)operation;
++ (id<SentrySpan>)sdkStartTransactionWithName:(NSString *)name
+                                    operation:(NSString *)operation
+                                  bindToScope:(BOOL)bindToScope;
++ (id<SentrySpan>)sdkStartTransactionWithContext:(SentryTransactionContext *)ctx;
++ (id<SentrySpan>)sdkStartTransactionWithContext:(SentryTransactionContext *)ctx
+                                     bindToScope:(BOOL)bindToScope;
++ (id<SentrySpan>)sdkStartTransactionWithContext:(SentryTransactionContext *)ctx
+                           customSamplingContext:(NSDictionary<NSString *, id> *)samplingCtx;
++ (id<SentrySpan>)sdkStartTransactionWithContext:(SentryTransactionContext *)ctx
+                                     bindToScope:(BOOL)bindToScope
+                           customSamplingContext:(NSDictionary<NSString *, id> *)samplingCtx;
+
++ (SentryId *)sdkCaptureError:(NSError *)error;
++ (SentryId *)sdkCaptureError:(NSError *)error withScope:(SentryScope *)scope;
++ (SentryId *)sdkCaptureError:(NSError *)error withScopeBlock:(void (^)(SentryScope *))block;
++ (SentryId *)sdkCaptureError:(NSError *)error attachAllThreads:(BOOL)attachAllThreads;
+
++ (SentryId *)sdkCaptureException:(NSException *)exception;
++ (SentryId *)sdkCaptureException:(NSException *)exception withScope:(SentryScope *)scope;
++ (SentryId *)sdkCaptureException:(NSException *)exception
+                   withScopeBlock:(void (^)(SentryScope *))block;
++ (SentryId *)sdkCaptureException:(NSException *)exception attachAllThreads:(BOOL)attachAllThreads;
+
++ (SentryId *)sdkCaptureMessage:(NSString *)message;
++ (SentryId *)sdkCaptureMessage:(NSString *)message withScope:(SentryScope *)scope;
++ (SentryId *)sdkCaptureMessage:(NSString *)message withScopeBlock:(void (^)(SentryScope *))block;
++ (SentryId *)sdkCaptureMessage:(NSString *)message attachAllThreads:(BOOL)attachAllThreads;
+
++ (void)sdkCaptureFeedback:(SentryFeedback *)feedback;
++ (void)sdkAddBreadcrumb:(SentryBreadcrumb *)crumb;
++ (void)sdkConfigureScope:(void (^)(SentryScope *))callback;
++ (void)sdkSetUser:(nullable SentryUser *)user;
++ (void)sdkStartSession;
++ (void)sdkEndSession;
++ (void)sdkCrash;
++ (void)sdkReportFullyDisplayed;
++ (void)sdkPauseAppHangTracking;
++ (void)sdkResumeAppHangTracking;
++ (void)sdkFlushWithTimeout:(NSTimeInterval)timeout;
++ (void)sdkClose;
+
+#if !(TARGET_OS_WATCH || TARGET_OS_TV || TARGET_OS_VISION)
++ (void)sdkStartProfiler;
++ (void)sdkStopProfiler;
+#endif
+
+#if SENTRY_OBJC_REPLAY_SUPPORTED
 + (SentryReplayApi *)replay;
+#endif
+
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 + (SentryFeedbackAPI *)sdkFeedback;
 #endif
+
 @end
 
 #import "SentryLastRunStatus.h"

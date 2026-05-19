@@ -74,11 +74,11 @@ jobs:
           pattern: xcframework-sentryobjc-types-slice-*
           path: xcframework-slices/sentryobjc-types
 
-      - name: Download SentryObjCBridge slices
+      - name: Download SentryObjCCompat slices
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          pattern: xcframework-sentryobjc-bridge-slice-*
-          path: xcframework-slices/sentryobjc-bridge
+          pattern: xcframework-sentryobjc-compat-slice-*
+          path: xcframework-slices/sentryobjc-compat
 
       - name: Download SentryObjC slices
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -90,7 +90,7 @@ jobs:
       # build-xcframework-sentryobjc-standalone.sh:
       #   XCFrameworkBuildPath/archive/Sentry/{sdk}.xcarchive/...
       #   XCFrameworkBuildPath/archive/SentryObjCTypes/{sdk}.xcarchive/...
-      #   XCFrameworkBuildPath/archive/SentryObjCBridge/{sdk}.xcarchive/...
+      #   XCFrameworkBuildPath/archive/SentryObjCCompat/{sdk}.xcarchive/...
       #   XCFrameworkBuildPath/archive/SentryObjC/{sdk}.xcarchive/...
       - name: Arrange slice archives
         shell: bash

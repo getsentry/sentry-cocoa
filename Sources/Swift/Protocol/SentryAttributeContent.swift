@@ -220,11 +220,4 @@ extension SentryAttributeContent: ExpressibleByIntegerLiteral {
         self = .integer(value)
     }
 }
-
-extension SentryAttributeContent: SentryAttributeValue {
-    /// Returns self since `SentryAttributeContent` is already the canonical representation.
-    public var asSentryAttributeContent: SentryAttributeContent {
-        return self
-    }
-}
 // swiftlint:enable missing_docs

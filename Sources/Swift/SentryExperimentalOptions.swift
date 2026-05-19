@@ -1,7 +1,6 @@
 import Foundation
 
 /// Options for experimental features that are subject to change or may be removed in future versions.
-@objc(SentryExperimentalOptions)
 @objcMembers
 public final class SentryExperimentalOptions: NSObject {
     /**
