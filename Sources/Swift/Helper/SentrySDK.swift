@@ -349,6 +349,7 @@ import Foundation
     /// The API for capturing user feedback.
     ///
     /// Use this to programmatically show the feedback form or access feedback-related functionality.
+    @available(iOSApplicationExtension, unavailable)
     @objc public static let feedback = {
       return SentryFeedbackAPI()
     }()
