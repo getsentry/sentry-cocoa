@@ -46,8 +46,8 @@ for package_file in $PACKAGE_FILES; do
         marker="${entry##*|}"
         zip_path="XCFrameworkBuildPath/${zip}"
         if [ ! -f "$zip_path" ]; then
-            echo "::warning::Skipping ${marker}: ${zip_path} not found"
-            continue
+            log_error "Missing ${marker}: ${zip_path} not found"
+            exit 1
         fi
         checksum=$(shasum -a 256 "$zip_path" | awk '{print $1}')
         sed "${sed_inplace[@]}" "s/checksum: \".*\" \/\/${marker}/checksum: \"${checksum}\" \/\/${marker}/" "$package_file"
