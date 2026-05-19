@@ -3,6 +3,7 @@
 #import "SentryClient.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryLogC.h"
 #import "SentryNotificationNames.h"
@@ -203,7 +204,7 @@
     SentryOptions *options = self.options;
     NSDate *now = [self.dateProvider date];
 
-    // Reset synchronously to avoid racing with willResignActive.
+    // Clear inline so delayed async work can't overwrite a newer willResignActive timestamp.
     self.lastInForeground = nil;
 
     __weak SentrySessionTracker *weakSelf = self;
@@ -213,10 +214,10 @@
         }
 
         SentryHub *hub = [SentrySDKInternal currentHub];
-        NSDate *_Nullable lastInForeground =
+        NSDate *_Nullable nullableLastInForeground =
             [[[hub getClient] fileManager] readTimestampLastInForeground];
 
-        if (nil == lastInForeground) {
+        if (nil == nullableLastInForeground) {
             // Cause we don't want to track sessions if the app is in the background we need to wait
             // until the app is in the foreground to start a session.
             SENTRY_LOG_DEBUG(
@@ -226,6 +227,7 @@
             // When the app was already in the foreground we have to decide whether it was long
             // enough in the background to start a new session or to keep the session open. We don't
             // want a new session if the user switches to another app for just a few seconds.
+            NSDate *lastInForeground = SENTRY_UNWRAP_NULLABLE(NSDate, nullableLastInForeground);
             NSTimeInterval secondsInBackground = [now timeIntervalSinceDate:lastInForeground];
 
             if (secondsInBackground * 1000 >= (double)(options.sessionTrackingIntervalMillis)) {

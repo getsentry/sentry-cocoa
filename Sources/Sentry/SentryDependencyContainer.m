@@ -471,7 +471,9 @@ static BOOL isInitialializingDependencyContainer = NO;
 - (SentryDispatchQueueWrapper *)sessionDispatchQueue SENTRY_THREAD_SANITIZER_DOUBLE_CHECKED_LOCK
 {
     SENTRY_LAZY_INIT(_sessionDispatchQueue,
-        [self.dispatchFactory createUtilityQueue:"io.sentry.session-tracker" relativePriority:0]);
+        [self.dispatchFactory queueWithName:"io.sentry.session-tracker"
+                                 attributes:dispatch_queue_attr_make_with_qos_class(
+                                                DISPATCH_QUEUE_SERIAL, QOS_CLASS_DEFAULT, 0)]);
 }
 
 - (SentrySessionTracker *)getSessionTrackerWithOptions:(SentryOptions *)options

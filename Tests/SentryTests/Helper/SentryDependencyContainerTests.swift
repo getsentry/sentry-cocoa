@@ -266,6 +266,28 @@ final class SentryDependencyContainerTests: XCTestCase {
 #endif
     }
 
+    func testGetSessionTrackerWithOptions_shouldCreateSessionTrackerQueue() throws {
+        // -- Arrange --
+        let options = Options()
+        options.dsn = SentryDependencyContainerTests.dsn
+        SentrySDKInternal.setStart(with: options)
+
+        let container = SentryDependencyContainer.sharedInstance()
+        let dispatchFactory = TestDispatchFactory()
+        var sessionQueue: TestSentryDispatchQueueWrapper?
+        dispatchFactory.vendedQueueHandler = { sessionQueue = $0 }
+        container.dispatchFactory = dispatchFactory
+
+        // -- Act --
+        _ = container.getSessionTracker(with: options)
+
+        // -- Assert --
+        let queue = try XCTUnwrap(sessionQueue)
+        XCTAssertEqual(queue.queue.label, "io.sentry.session-tracker")
+        XCTAssertEqual(queue.queue.qos.qosClass, .default)
+        XCTAssertEqual(queue.queue.qos.relativePriority, 0)
+    }
+
     func testGetSessionTrackerWithOptions_shouldReturnNewInstancePerCall() throws {
         // -- Arrange --
         let options1 = Options()
