@@ -20,6 +20,8 @@ private struct SentryFeedbackFormModifier: ViewModifier {
                 driver?.removeFeedbackFormPresenter(presenter)
             }
             .sheet(isPresented: $isPresented, onDismiss: finishDismissal) {
+                // If the SDK shuts down while presentation is pending, uninstall dismisses the
+                // presenter before removing the driver.
                 if let driver = driver {
                     SentryFeedbackFormRepresentable(
                         configuration: driver.configuration,

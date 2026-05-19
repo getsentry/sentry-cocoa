@@ -157,6 +157,21 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.isDisplayingForm)
     }
 
+    func testUninstall_whenDisplayingForm_shouldDismissPresenter() throws {
+        let presenter = TestFeedbackFormPresenter()
+        let sut = try XCTUnwrap(UserFeedbackIntegration(
+            with: Self.optionsWithFeedback,
+            dependencies: TestDependencies(screenshotSource: makeScreenshotSource())))
+
+        sut.driver.setFeedbackFormPresenter(presenter)
+        XCTAssertTrue(sut.driver.presentForm())
+
+        sut.uninstall()
+
+        XCTAssertEqual(presenter.dismissCount, 1)
+        XCTAssertFalse(sut.driver.isDisplayingForm)
+    }
+
     func testDriverDoesNotCallCloseHookWhenFormDidNotOpen() {
         let config = SentryUserFeedbackConfiguration()
         let presenter = TestFeedbackFormPresenter()

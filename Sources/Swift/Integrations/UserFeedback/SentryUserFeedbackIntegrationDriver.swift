@@ -66,6 +66,11 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
         NotificationCenter.default.removeObserver(self)
     }
 
+    func uninstall() {
+        activePresenter?.dismiss()
+        installedPresenter = nil
+    }
+
     func showWidget() {
         if widget == nil {
             widget = SentryUserFeedbackWidget(config: configuration, delegate: self)

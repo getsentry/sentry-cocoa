@@ -26,7 +26,9 @@ final class UserFeedbackIntegration<Dependencies: ScreenshotSourceProvider>: NSO
         }
     }
 
-    func uninstall() { /* Empty on purpose. Nothing to uninstall. */ }
+    func uninstall() {
+        driver.uninstall()
+    }
     
     static var name: String {
         "SentryUserFeedbackIntegration"
