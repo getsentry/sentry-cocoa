@@ -352,17 +352,22 @@ void
 sentry_stopAndDiscardLaunchProfileTracer(SentryHubInternal *_Nullable hub)
 {
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
-    // With waitForChildren, finish returns immediately if children are active.
-    // Globals are cleared after so that finishInternal (called synchronously for
-    // no-children case) still enters the profiling early-return path which stops
-    // the profiler and discards the empty launch transaction. When children exist,
-    // finishInternal runs later with globals already nil, bypassing the early-return
-    // and capturing the transaction with its VC child spans.
+    // Clear sentry_isTracingAppLaunch first so SentryPerformanceTracker stops
+    // parenting new VC spans under the launch tracer. Keep sentry_launchTracer
+    // set so the tracer stays alive (child spans hold only a weak ref) and the
+    // identity check in sentry_stopProfilerDueToFinishedTransaction can match it.
+    // For immediate finish (no children): finishInternal runs synchronously,
+    // block 1 matches and discards the empty launch transaction, then we clear
+    // sentry_launchTracer. For deferred finish (waitForChildren): finish returns
+    // without completing, sentry_launchTracer keeps the tracer alive until
+    // children complete and finishInternal captures the transaction.
+    sentry_isTracingAppLaunch = NO;
     sentry_launchTracer.hub = hub;
     [sentry_launchTracer finish];
     sentry_profileConfiguration = nil;
-    sentry_isTracingAppLaunch = NO;
-    sentry_launchTracer = nil;
+    if (sentry_launchTracer.isFinished) {
+        sentry_launchTracer = nil;
+    }
 }
 
 NS_ASSUME_NONNULL_END
