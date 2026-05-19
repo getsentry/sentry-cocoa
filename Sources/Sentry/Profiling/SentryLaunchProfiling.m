@@ -138,6 +138,7 @@ _sentry_startTraceProfiler(
 
     SentryTracerConfiguration *tracerConfig = [SentryTracerConfiguration defaultConfiguration];
     tracerConfig.profilesSamplerDecision = decision;
+    tracerConfig.waitForChildren = YES;
 
     SentryTransactionContext *transactionContext
         = sentry_contextForLaunchProfilerForTrace(tracesRate, tracesRand);
@@ -351,11 +352,16 @@ void
 sentry_stopAndDiscardLaunchProfileTracer(SentryHubInternal *_Nullable hub)
 {
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
-    sentry_launchTracer.hub = hub;
-    [sentry_launchTracer finish];
+    SentryTracer *tracer = sentry_launchTracer;
+    // Clear globals before finishing so that:
+    // 1. New spans are no longer captured as children of the launch tracer.
+    // 2. finishInternal doesn't hit the early-return in
+    //    sentry_stopProfilerDueToFinishedTransaction that skips captureTransaction.
+    sentry_launchTracer = nil;
     sentry_profileConfiguration = nil;
     sentry_isTracingAppLaunch = NO;
-    sentry_launchTracer = nil;
+    tracer.hub = hub;
+    [tracer finish];
 }
 
 NS_ASSUME_NONNULL_END
