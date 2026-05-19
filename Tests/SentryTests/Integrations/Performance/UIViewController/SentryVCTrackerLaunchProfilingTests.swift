@@ -61,7 +61,6 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
                 operation: SentrySpanOperationAppLifecycle,
                 origin: "auto.app.start.profile"
             )
-            sentry_isTracingAppLaunch = true
             return SentryTracer(
                 transactionContext: context,
                 hub: hub,
@@ -160,7 +159,6 @@ class SentryVCTrackerLaunchProfilingTests: XCTestCase {
         sut.viewControllerViewWillAppear(viewController) { }
         reportFrame()
 
-        sentry_isTracingAppLaunch = false
         sentry_launchTracer = nil
 
         sut.viewControllerViewDidAppear(viewController) { }

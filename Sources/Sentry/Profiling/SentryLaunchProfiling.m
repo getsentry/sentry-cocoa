@@ -34,6 +34,11 @@ NSString *const kSentryLaunchProfileConfigKeyWaitForFullDisplay
 
 SentryTracer *_Nullable sentry_launchTracer;
 
+// Child spans hold a weak ref to their parent tracer. After sentry_launchTracer
+// is cleared, this static keeps the tracer alive so deferred finishInternal
+// (triggered when children complete) can still run and capture the transaction.
+static SentryTracer *_Nullable _pendingLaunchTracer;
+
 #    pragma mark - Private
 
 SentrySamplerDecision *_Nullable _sentry_profileSampleDecision(
@@ -352,22 +357,23 @@ void
 sentry_stopAndDiscardLaunchProfileTracer(SentryHubInternal *_Nullable hub)
 {
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
-    // Clear sentry_isTracingAppLaunch first so SentryPerformanceTracker stops
-    // parenting new VC spans under the launch tracer. Keep sentry_launchTracer
-    // set so the tracer stays alive (child spans hold only a weak ref) and the
-    // identity check in sentry_stopProfilerDueToFinishedTransaction can match it.
-    // For immediate finish (no children): finishInternal runs synchronously,
-    // block 1 matches and discards the empty launch transaction, then we clear
-    // sentry_launchTracer. For deferred finish (waitForChildren): finish returns
-    // without completing, sentry_launchTracer keeps the tracer alive until
-    // children complete and finishInternal captures the transaction.
-    sentry_isTracingAppLaunch = NO;
+    // Finish first, then clear globals. This preserves the profiling early-return
+    // path for the immediate-finish case (no children), which stops the profiler
+    // and discards the empty launch transaction via the identity check.
+    //
+    // _pendingLaunchTracer prevents deallocation after sentry_launchTracer is
+    // nilled: child spans hold only a weak ref to their parent, so without this
+    // the tracer would be freed before children can trigger finishInternal.
+    // The finishCallback clears it once finishInternal completes (the tracer
+    // stays alive on the call stack through sentry_stopProfilerDueToFinishedTransaction).
+    _pendingLaunchTracer = sentry_launchTracer;
+    _pendingLaunchTracer.finishCallback
+        = ^(SentryTracer *_Nonnull t) { _pendingLaunchTracer = nil; };
     sentry_launchTracer.hub = hub;
     [sentry_launchTracer finish];
     sentry_profileConfiguration = nil;
-    if (sentry_launchTracer.isFinished) {
-        sentry_launchTracer = nil;
-    }
+    sentry_isTracingAppLaunch = NO;
+    sentry_launchTracer = nil;
 }
 
 NS_ASSUME_NONNULL_END

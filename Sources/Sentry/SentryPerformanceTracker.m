@@ -57,9 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     id<SentrySpan> activeSpan;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (sentry_isTracingAppLaunch) {
-        activeSpan = sentry_launchTracer;
-    }
+    activeSpan = sentry_launchTracer;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
     if (activeSpan == nil) {
