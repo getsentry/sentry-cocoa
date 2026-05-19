@@ -1,4 +1,5 @@
-#if os(iOS) || os(tvOS) || os(visionOS)
+// Profiling is only supported on iOS
+#if os(iOS)
 
 import ObjectiveC
 @_spi(Private) @testable import Sentry
