@@ -31,7 +31,6 @@ private struct SentryFeedbackFormModifier: ViewModifier {
 
     private func finishDismissal() {
         presenter.sheetDidDismiss()
-        isPresented = false
     }
 }
 
