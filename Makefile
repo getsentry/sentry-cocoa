@@ -963,50 +963,6 @@ generate-public-api:
 strip-xcframework-expected-signature:
 	sed -i '' 's/expectedSignature = "[^"]*"; //g' Samples/XCFramework-Validation/XCFramework.xcodeproj/project.pbxproj
 
-## Bump version to specified version
-#
-# Updates the version across all project files.
-# Usage: make bump-version TO=5.0.0-rc.0
-.PHONY: bump-version
-bump-version: clean-version-bump
-	@echo "--> Bumping version to ${TO}"
-	./Utils/VersionBump/.build/debug/VersionBump --update ${TO}
-
-## Verify version matches specified version
-#
-# Verifies that the version matches the specified version across all project files.
-# Usage: make verify-version TO=5.0.0-rc.0
-.PHONY: verify-version
-verify-version: clean-version-bump
-	@echo "--> Verifying version ${TO}"
-	./Utils/VersionBump/.build/debug/VersionBump --verify ${TO}
-
-## Clean and build VersionBump tool
-#
-# Cleans and rebuilds the VersionBump utility tool.
-.PHONY: clean-version-bump
-clean-version-bump:
-	@echo "--> Clean VersionBump"
-	cd Utils/VersionBump && rm -rf .build && swift build
-
-## Release new version
-#
-# Bumps version, commits changes, creates tag, and pushes to remote.
-# Usage: make release TO=5.0.0-rc.0
-.PHONY: release
-release: bump-version git-commit-add
-
-## Commit version changes and create tag
-#
-# Commits version changes, creates git tag, and pushes to remote.
-# Usage: make git-commit-add TO=5.0.0-rc.0
-.PHONY: git-commit-add
-git-commit-add:
-	@echo "\n\n\n--> Committing git ${TO}"
-	git commit -am "release: ${TO}"
-	git tag ${TO}
-	git push
-	git push --tags
 
 # ============================================================================
 # VALIDATION

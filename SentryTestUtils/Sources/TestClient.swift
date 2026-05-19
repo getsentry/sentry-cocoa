@@ -20,7 +20,9 @@ open class TestClient: SentryClientInternal {
             random: SentryDependencyContainer.sharedInstance().random,
             locale: NSLocale.autoupdatingCurrent,
             timezone: NSCalendar.autoupdatingCurrent.timeZone,
-            eventContextEnricher: SentryDependencyContainer.sharedInstance().eventContextEnricher
+            eventContextEnricher: SentryDependencyContainer.sharedInstance().eventContextEnricher,
+            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
+            binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache
         )
     }
     
@@ -36,7 +38,9 @@ open class TestClient: SentryClientInternal {
         random: SentryRandomProtocol,
         locale: Locale,
         timezone: TimeZone,
-        eventContextEnricher: SentryEventContextEnricher
+        eventContextEnricher: SentryEventContextEnricher,
+        crashWrapper: SentryCrashReporter,
+        binaryImageCache: SentryBinaryImageCache
     ) {
         super.init(
             options: options,
@@ -48,7 +52,9 @@ open class TestClient: SentryClientInternal {
             random: random,
             locale: locale,
             timezone: timezone,
-            eventContextEnricher: eventContextEnricher
+            eventContextEnricher: eventContextEnricher,
+            crashWrapper: crashWrapper,
+            binaryImageCache: binaryImageCache
         )
     }
     

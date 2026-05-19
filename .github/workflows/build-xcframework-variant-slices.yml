@@ -89,7 +89,7 @@ jobs:
       - name: Bump version
         env:
           VERSION: ${{ env.VERSION }}
-        run: make bump-version TO=$VERSION
+        run: ./scripts/bump-version.sh --version "$VERSION"
 
       - name: Build ${{inputs.name}}${{inputs.suffix}} XCFramework slice for ${{matrix.sdk}}
         env:
