@@ -1,6 +1,7 @@
 #if canImport(SwiftUI) && canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && os(iOS)
 import SwiftUI
 
+@available(iOSApplicationExtension, unavailable)
 private struct SentryFeedbackFormModifier: ViewModifier {
     @State private var isPresented = false
     @StateObject private var presenter = SentrySwiftUIFeedbackFormPresenter()
