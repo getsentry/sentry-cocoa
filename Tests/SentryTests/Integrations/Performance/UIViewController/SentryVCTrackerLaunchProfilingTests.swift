@@ -1,4 +1,4 @@
-#if (os(iOS) || os(tvOS) || os(visionOS)) && (os(iOS) || os(macOS))
+#if os(iOS) || os(tvOS) || os(visionOS)
 
 import ObjectiveC
 @_spi(Private) @testable import Sentry
