@@ -22,6 +22,8 @@ OPTIONS:
     --dynamic-with-arm64e-checksum <sha256>             Expected Sentry-Dynamic-WithARM64e checksum (required)
     --without-uikit-or-appkit-checksum <sha256>         Expected Sentry-WithoutUIKitOrAppKit checksum (required)
     --without-uikit-or-appkit-with-arm64e-checksum <sha256>  Expected Sentry-WithoutUIKitOrAppKit-WithARM64e checksum (required)
+    --sentryobjc-static-checksum <sha256>               Expected SentryObjC-Static checksum (required)
+    --sentryobjc-dynamic-checksum <sha256>               Expected SentryObjC-Dynamic checksum (required)
     --last-release-runid <id>                           Expected GitHub Actions run ID (required)
 
 EOF
@@ -34,6 +36,8 @@ EXPECTED_DYNAMIC_CHECKSUM=""
 EXPECTED_DYNAMIC_WITH_ARM64E_CHECKSUM=""
 EXPECTED_WITHOUT_UIKIT_OR_APPKIT_CHECKSUM=""
 EXPECTED_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E_CHECKSUM=""
+EXPECTED_SENTRYOBJC_STATIC_CHECKSUM=""
+EXPECTED_SENTRYOBJC_DYNAMIC_CHECKSUM=""
 EXPECTED_LAST_RELEASE_RUNID=""
 
 while [[ $# -gt 0 ]]; do
@@ -56,6 +60,14 @@ while [[ $# -gt 0 ]]; do
         ;;
     --without-uikit-or-appkit-with-arm64e-checksum)
         EXPECTED_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E_CHECKSUM="$2"
+        shift 2
+        ;;
+    --sentryobjc-static-checksum)
+        EXPECTED_SENTRYOBJC_STATIC_CHECKSUM="$2"
+        shift 2
+        ;;
+    --sentryobjc-dynamic-checksum)
+        EXPECTED_SENTRYOBJC_DYNAMIC_CHECKSUM="$2"
         shift 2
         ;;
     --last-release-runid)
@@ -92,6 +104,16 @@ fi
 
 if [ -z "$EXPECTED_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E_CHECKSUM" ]; then
     log_error "--without-uikit-or-appkit-with-arm64e-checksum is required"
+    usage
+fi
+
+if [ -z "$EXPECTED_SENTRYOBJC_STATIC_CHECKSUM" ]; then
+    log_error "--sentryobjc-static-checksum is required"
+    usage
+fi
+
+if [ -z "$EXPECTED_SENTRYOBJC_DYNAMIC_CHECKSUM" ]; then
+    log_error "--sentryobjc-dynamic-checksum is required"
     usage
 fi
 
@@ -146,7 +168,21 @@ for package_file in $PACKAGE_FILES; do
         log_error "Expected checksum to be $EXPECTED_WITHOUT_UIKIT_OR_APPKIT_WITH_ARM64E_CHECKSUM but got $UPDATED_PACKAGE_SHA in $package_file"
         exit 1
     fi
-    
+
+    # Verify SentryObjC-Static checksum
+    UPDATED_PACKAGE_SHA=$(grep "checksum.*SentryObjC-Static" "$package_file" | cut -d '"' -f 2)
+    if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_SENTRYOBJC_STATIC_CHECKSUM" ]; then
+        log_error "Expected SentryObjC-Static checksum to be $EXPECTED_SENTRYOBJC_STATIC_CHECKSUM but got $UPDATED_PACKAGE_SHA in $package_file"
+        exit 1
+    fi
+
+    # Verify SentryObjC-Dynamic checksum
+    UPDATED_PACKAGE_SHA=$(grep "checksum.*SentryObjC-Dynamic" "$package_file" | cut -d '"' -f 2)
+    if [ "$UPDATED_PACKAGE_SHA" != "$EXPECTED_SENTRYOBJC_DYNAMIC_CHECKSUM" ]; then
+        log_error "Expected SentryObjC-Dynamic checksum to be $EXPECTED_SENTRYOBJC_DYNAMIC_CHECKSUM but got $UPDATED_PACKAGE_SHA in $package_file"
+        exit 1
+    fi
+
     log_info "✓ All checksums verified in $package_file"
 done
 
