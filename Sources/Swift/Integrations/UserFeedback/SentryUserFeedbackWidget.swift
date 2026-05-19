@@ -127,9 +127,12 @@ final class SentryUserFeedbackWidget {
             if visible {
                 button?.isHidden = false
             }
-            if animated {
+            if animated && UIView.areAnimationsEnabled {
                 UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
                     self.button?.alpha = visible ? 1 : 0
+                } completion: { [weak self] _ in
+                    guard self?.isWidgetVisible == visible else { return }
+                    self?.button?.isHidden = !visible
                 }
             } else {
                 button?.alpha = visible ? 1 : 0
