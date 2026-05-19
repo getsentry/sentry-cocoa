@@ -37,6 +37,10 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         }
     }
 
+    private final class TestWidgetTarget: NSObject {
+        @objc func showForm() { }
+    }
+
     private final class WeakReference<T: AnyObject> {
         weak var value: T?
 
@@ -215,6 +219,23 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
         XCTAssertFalse(sut.isDisplayingForm)
         XCTAssertNil(presenter.delegate)
+    }
+
+    func testSetWidget_whenAnimatedHide_shouldHideButtonAfterAnimation() {
+        let config = SentryUserFeedbackConfiguration()
+        let target = TestWidgetTarget()
+        let button = SentryUserFeedbackWidgetButtonView(config: config, target: target, selector: #selector(TestWidgetTarget.showForm))
+        let sut = SentryUserFeedbackWidget.RootViewController(config: config, button: button)
+
+        let animationsWereEnabled = UIView.areAnimationsEnabled
+        UIView.setAnimationsEnabled(false)
+        defer { UIView.setAnimationsEnabled(animationsWereEnabled) }
+
+        sut.setWidget(visible: false, animated: true)
+
+        XCTAssertEqual(button.alpha, 0)
+        XCTAssertTrue(button.isHidden)
+        XCTAssertFalse(sut.isWidgetVisible)
     }
 
     func testFeedbackAPI_whenIntegrationIsMissing_shouldReturnFalse() {
