@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Move SessionTracker file I/O off the main thread (#7704)
+- Move SessionTracker I/O to Background (#7912)
 
 ## 8.58.2
 
