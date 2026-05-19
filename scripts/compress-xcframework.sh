@@ -50,6 +50,7 @@ if [[ "$should_sign" == true ]]; then
     begin_group "Signing $framework"
     log_info "Signing with certificate: $sentry_certificate"
     codesign --sign "$sentry_certificate" --timestamp --options runtime --deep --force "$framework_path"
+    codesign --verify --deep --strict --verbose=2 "$framework_path"
     end_group
 fi
 
