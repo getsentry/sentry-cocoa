@@ -34,11 +34,6 @@ NSString *const kSentryLaunchProfileConfigKeyWaitForFullDisplay
 
 SentryTracer *_Nullable sentry_launchTracer;
 
-// Child spans hold a weak ref to their parent tracer. After sentry_launchTracer
-// is cleared, this static keeps the tracer alive so deferred finishInternal
-// (triggered when children complete) can still run and capture the transaction.
-static SentryTracer *_Nullable _pendingLaunchTracer;
-
 #    pragma mark - Private
 
 SentrySamplerDecision *_Nullable _sentry_profileSampleDecision(
@@ -143,7 +138,6 @@ _sentry_startTraceProfiler(
 
     SentryTracerConfiguration *tracerConfig = [SentryTracerConfiguration defaultConfiguration];
     tracerConfig.profilesSamplerDecision = decision;
-    tracerConfig.waitForChildren = YES;
 
     SentryTransactionContext *transactionContext
         = sentry_contextForLaunchProfilerForTrace(tracesRate, tracesRand);
@@ -357,18 +351,6 @@ void
 sentry_stopAndDiscardLaunchProfileTracer(SentryHubInternal *_Nullable hub)
 {
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
-    // Finish first, then clear globals. This preserves the profiling early-return
-    // path for the immediate-finish case (no children), which stops the profiler
-    // and discards the empty launch transaction via the identity check.
-    //
-    // _pendingLaunchTracer prevents deallocation after sentry_launchTracer is
-    // nilled: child spans hold only a weak ref to their parent, so without this
-    // the tracer would be freed before children can trigger finishInternal.
-    // The finishCallback clears it once finishInternal completes (the tracer
-    // stays alive on the call stack through sentry_stopProfilerDueToFinishedTransaction).
-    _pendingLaunchTracer = sentry_launchTracer;
-    _pendingLaunchTracer.finishCallback
-        = ^(SentryTracer *_Nonnull t) { _pendingLaunchTracer = nil; };
     sentry_launchTracer.hub = hub;
     [sentry_launchTracer finish];
     sentry_profileConfiguration = nil;
