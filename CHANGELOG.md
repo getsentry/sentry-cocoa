@@ -12,6 +12,7 @@
 - Support stack traces for standalone clients (#7817)
 - Prevent SessionTracker crash with profiling (#7927)
   - Reevaluation of sampling decision is only done for new sessions.
+- Call SentrySessionListener on main thread (#7917)
 
 ## 9.13.0
 
