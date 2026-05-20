@@ -40,6 +40,7 @@ class AppStartReportingStrategyTests: XCTestCase {
     // MARK: - AttachToTransactionStrategy
 
     func testReport_whenColdStart_shouldSetMeasurementOnGlobalStatic() throws {
+        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement(), "Precondition: global measurement should be nil before test")
         addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
         let measurement = createMeasurement(type: .cold)
 
@@ -51,6 +52,7 @@ class AppStartReportingStrategyTests: XCTestCase {
     }
 
     func testReport_whenWarmStart_shouldSetMeasurementOnGlobalStatic() throws {
+        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement(), "Precondition: global measurement should be nil before test")
         addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
         let measurement = createMeasurement(type: .warm)
 
@@ -114,6 +116,7 @@ class AppStartReportingStrategyTests: XCTestCase {
     }
 
     func testReport_whenColdStart_shouldNotSetGlobalStatic() {
+        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement(), "Precondition: global measurement should be nil before test")
         _ = setCurrentHub()
         let measurement = createMeasurement(type: .cold)
 
