@@ -19,7 +19,6 @@
 
 ### Features
 
-- Prevent memory strings in stack overflow crash reports (#7841)
 - Add Set conformance to SentryAttributeValue (#7876)
 
 ## 9.12.1
