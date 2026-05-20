@@ -9,3 +9,4 @@ NSString *const SentrySpanDataKeyAppVitalsStartColdValue = @"app.vitals.start.co
 NSString *const SentrySpanDataKeyAppVitalsStartWarmValue = @"app.vitals.start.warm.value";
 NSString *const SentrySpanDataKeyAppVitalsStartPrewarmed = @"app.vitals.start.prewarmed";
 NSString *const SentrySpanDataKeyAppVitalsStartScreen = @"app.vitals.start.screen";
+NSString *const SentrySpanDataKeyAppVitalsStartReason = @"app.vitals.start.reason";
