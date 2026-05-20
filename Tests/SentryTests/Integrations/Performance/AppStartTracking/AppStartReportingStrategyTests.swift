@@ -6,6 +6,11 @@ import XCTest
 
 class AppStartReportingStrategyTests: XCTestCase {
 
+    override func tearDown() {
+        super.tearDown()
+        SentryAppStartMeasurementProvider.reset()
+    }
+
     private func createMeasurement(type: SentryAppStartType, duration: TimeInterval = 0.5) -> SentryAppStartMeasurement {
         let dateProvider = TestCurrentDateProvider()
         let appStart = dateProvider.date()
@@ -123,6 +128,21 @@ class AppStartReportingStrategyTests: XCTestCase {
         StandaloneTransactionStrategy().report(measurement)
 
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
+    }
+
+    func testReport_whenColdStart_shouldMarkMeasurementAsRead() {
+        _ = setCurrentHub()
+        let globalMeasurement = createMeasurement(type: .warm)
+        SentrySDKInternal.setAppStartMeasurement(globalMeasurement)
+        addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
+
+        StandaloneTransactionStrategy().report(createMeasurement(type: .cold))
+
+        let result = SentryAppStartMeasurementProvider.appStartMeasurement(
+            forOperation: SentrySpanOperationUiLoad,
+            startTimestamp: globalMeasurement.appStartTimestamp.addingTimeInterval(globalMeasurement.duration)
+        )
+        XCTAssertNil(result, "Standalone report should mark measurement as read so no ui.load transaction picks it up")
     }
 
     // MARK: - StandaloneTransactionStrategy Integration Tests

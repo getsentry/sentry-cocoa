@@ -48,6 +48,8 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
             )
         }
 
+        SentryAppStartMeasurementProvider.markAsRead()
+
         let configuration = SentryTracerConfiguration(block: { config in
             config.appStartMeasurement = measurement
         })
