@@ -99,7 +99,7 @@ targets.append(
 )
 
 // Targets required to support compile-from-source builds via SPM.
-products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
+//products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
 targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
