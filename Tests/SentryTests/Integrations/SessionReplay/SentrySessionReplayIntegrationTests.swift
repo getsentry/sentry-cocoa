@@ -115,6 +115,18 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let sut = try getSut()
         XCTAssertNil(sut.sessionReplay)
     }
+
+    func testLifecycleNotificationDoesNotStartReplayWhenStartIsNotPending() throws {
+        SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.3)
+        startSDK(sessionSampleRate: 0.2, errorSampleRate: 0)
+
+        let sut = try getSut()
+        XCTAssertNil(sut.sessionReplay)
+
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        XCTAssertNil(sut.sessionReplay)
+    }
     
     func testInstallFullSessionReplayBecauseOfRandom() throws {
         SentryDependencyContainer.sharedInstance().random = TestRandom(value: 0.1)

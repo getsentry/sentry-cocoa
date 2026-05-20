@@ -23,7 +23,6 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private let replayOptions: SentryReplayOptions
     private let rateLimits: RateLimits
     private let random: SentryRandomProtocol
-    private let application: SentryApplication?
     private var startedAsFullSession = false
     private let experimentalOptions: SentryExperimentalOptions
     private let notificationCenter: SentryNSNotificationCenterWrapper
@@ -34,11 +33,25 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private let crashWrapper: SentryCrashReporter
     private let replayFileManager: SessionReplayFileManager
     private var replayRecovery: SessionReplayRecovery?
-    
+
+    /// Getter to get the current application at runtime
+    ///
+    /// When initializing the Sentry SDK from ``SwiftUI/App.init`` the ``UIKit/UIApplication.shared`` returns `nil`, therefore we need to
+    /// dynamically get it later, even if the application is not changing during the life-time of the app
+    private let getApplication: () -> SentryApplication?
+
     /// We need to use this variable to identify whether rate limiting was ever activated for session replay
     /// in this session, instead of always looking for the rate status in `SentryRateLimits`. This is the
     /// easiest way to ensure segment 0 will always reach the server, because session replay needs segment 0.
     private var rateLimited = false
+
+    /// Indicates that session replay should start once the SDK can resolve a usable application
+    /// window. This is needed because SDK startup can run before `UIApplication.shared` or a
+    /// foreground scene window is available; lifecycle notifications should retry startup while this
+    /// flag is set. Clear it when the pending start is no longer valid, such as on session end,
+    /// manual stop, or replay rate limiting.
+    private var isPendingStart = false
+
     @objc public static var name: String { "SentrySessionReplayIntegration" }
 
     // MARK: - Initialization
@@ -55,9 +68,11 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     @objc
     public convenience init(forManualUseWith options: Options, dependencies: SentryDependencyContainer) {
         self.init(nonOptionalWith: options, dependencies: dependencies)
-        startWithOptions(options.sessionReplay,
-                         experimentalOptions: options.experimental,
-                         fullSession: true)
+        startWithOptions(
+            options.sessionReplay,
+            experimentalOptions: options.experimental,
+            fullSession: true
+        )
     }
     
     init(nonOptionalWith options: Options, dependencies: SessionReplayIntegrationScope) {
@@ -68,8 +83,8 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         self.dateProvider = dependencies.dateProvider
         self.random = dependencies.random
         self.crashWrapper = dependencies.crashWrapper
-        self.application = dependencies.application()
-        
+        self.getApplication = dependencies.application
+
         self.replayFileManager = SessionReplayFileManager(
             fileManager: dependencies.fileManager,
             sharedDispatchQueue: dependencies.dispatchQueueWrapper
@@ -95,10 +110,16 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         
         SentrySDKInternal.currentHub().registerSessionListener(self)
         dependencies.reachability.add(self)
+
+        // Create observers of the application lifecycle for UIKit and SwiftUI
+        notificationCenter.addObserver(self, selector: #selector(applicationDidBecomeActiveHandler), name: UIApplication.didBecomeActiveNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(sceneDidActivateHandler), name: UIScene.didActivateNotification, object: nil)
     }
 
     public func uninstall() {
         SentrySDKLog.debug("[Session Replay] Uninstalling")
+        notificationCenter.removeObserver(self, name: UIScene.didActivateNotification, object: nil)
+        notificationCenter.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
         SentrySDKInternal.currentHub().unregisterSessionListener(self)
         touchTracker = nil
         pause()
@@ -175,44 +196,93 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         SentrySDKLog.debug("[Session Replay] Starting session")
         sessionReplay?.pause()
         startedAsFullSession = random.nextNumber() < Double(replayOptions.sessionSampleRate)
-        
+
         if !startedAsFullSession && replayOptions.onErrorSampleRate == 0 {
             SentrySDKLog.debug("[Session Replay] Not full session and onErrorSampleRate is 0, not starting session")
             return
         }
-        
+
+        isPendingStart = true
         runReplayForAvailableWindow()
     }
 
     private func runReplayForAvailableWindow() {
-        if let windowCount = application?.getWindows()?.count, windowCount > 0 {
-            SentrySDKLog.debug("[Session Replay] Running replay for available window")
-            // If a window its already available start replay right away
-            startWithOptions(replayOptions, experimentalOptions: experimentalOptions, fullSession: startedAsFullSession)
-        } else {
-            SentrySDKLog.debug("[Session Replay] Waiting for a scene to be available to started the replay")
-            // Wait for a scene to be available to started the replay
-            notificationCenter.addObserver(self, selector: #selector(newSceneActivate), name: UIScene.didActivateNotification, object: nil)
+        // Lifecycle notifications are long-lived retry triggers, so only act when a sampled or
+        // manual start request explicitly marked replay startup as pending.
+        guard isPendingStart else {
+            return
         }
+        // If replay already started between the pending request and this retry, clear the pending
+        // state so later lifecycle notifications do not create another replay instance.
+        guard sessionReplay == nil else {
+            isPendingStart = false
+            return
+        }
+        // SwiftUI can initialize the SDK before UIApplication.shared is available, so resolve the
+        // application lazily on every retry instead of keeping the value from integration init.
+        guard let application = getApplication() else {
+            return SentrySDKLog.debug("[Session Replay] Cannot get application, not starting replay")
+        }
+        // getWindows() centralizes the foreground scene and app delegate fallback logic. If no
+        // window exists yet, keep the pending start and wait for the next lifecycle notification.
+        guard let window = application.getWindows()?.first else {
+            SentrySDKLog.debug("[Session Replay] Waiting for a window to be available to start replay")
+            return
+        }
+        // Clear before starting so any synchronous callbacks or later lifecycle notifications cannot
+        // re-enter this path and create a second replay for the same pending request.
+        isPendingStart = false
+
+        SentrySDKLog.debug("[Session Replay] Running replay for available window")
+        startReplayForWindow(window: window)
     }
 
-    @objc private func newSceneActivate() {
+    private func startReplayForWindow(window: UIWindow) {
+        startWithOptions(
+            replayOptions: replayOptions,
+            experimentalOptions: experimentalOptions,
+            screenshotProvider: currentScreenshotProvider ?? viewPhotographer,
+            breadcrumbConverter: currentBreadcrumbConverter ?? SentrySRDefaultBreadcrumbConverter(),
+            fullSession: startedAsFullSession,
+            rootView: window
+        )
+    }
+
+    @objc private func applicationDidBecomeActiveHandler(_ notification: Notification) {
+        SentrySDKLog.debug("[Session Replay] Application did become active, starting replay")
+        runReplayForAvailableWindow()
+    }
+
+    @objc private func sceneDidActivateHandler(_ notification: Notification) {
         SentrySDKLog.debug("[Session Replay] Scene is available, starting replay")
-        notificationCenter.removeObserver(self, name: UIScene.didActivateNotification, object: nil)
-        startWithOptions(replayOptions, experimentalOptions: experimentalOptions, fullSession: startedAsFullSession)
+        runReplayForAvailableWindow()
     }
 
     // MARK: - Session Replay Setup
 
     func startWithOptions(_ replayOptions: SentryReplayOptions, experimentalOptions: SentryExperimentalOptions, fullSession: Bool) {
-        startWithOptions(replayOptions, experimentalOptions: experimentalOptions,
-                        screenshotProvider: currentScreenshotProvider ?? viewPhotographer,
-                        breadcrumbConverter: currentBreadcrumbConverter ?? SentrySRDefaultBreadcrumbConverter(),
-                        fullSession: fullSession)
+        guard let rootView = getApplication()?.getWindows()?.first else {
+            SentrySDKLog.warning("Failed to start session replay, no root window found")
+            return
+        }
+        startWithOptions(
+            replayOptions: replayOptions,
+            experimentalOptions: experimentalOptions,
+            screenshotProvider: currentScreenshotProvider ?? viewPhotographer,
+            breadcrumbConverter: currentBreadcrumbConverter ?? SentrySRDefaultBreadcrumbConverter(),
+            fullSession: fullSession,
+            rootView: rootView
+        )
     }
 
-    private func startWithOptions(_ replayOptions: SentryReplayOptions, experimentalOptions: SentryExperimentalOptions,
-                                  screenshotProvider: SentryViewScreenshotProvider, breadcrumbConverter: SentryReplayBreadcrumbConverter, fullSession: Bool) {
+    private func startWithOptions(
+        replayOptions: SentryReplayOptions,
+        experimentalOptions: SentryExperimentalOptions,
+        screenshotProvider: SentryViewScreenshotProvider,
+        breadcrumbConverter: SentryReplayBreadcrumbConverter,
+        fullSession: Bool,
+        rootView: UIView
+    ) {
         SentrySDKLog.debug("[Session Replay] Starting session")
         guard let sessionDocs = replayFileManager.createSessionDirectory() else {
             SentrySDKLog.warning("[Session Replay] Failed to create session direcotry, cancelling starting session")
@@ -226,7 +296,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             dateProvider: dateProvider, delegate: self, displayLinkWrapper: SentryDisplayLinkWrapper())
 
         self.sessionReplay = newSessionReplay
-        newSessionReplay.start(rootView: application?.getWindows()?.first, fullSession: fullSession)
+        newSessionReplay.start(rootView: rootView, fullSession: fullSession)
         addBackgroundForegroundObservers()
         
         if let replayId = newSessionReplay.sessionReplayId {
@@ -283,6 +353,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             return
         }
         startedAsFullSession = true
+        isPendingStart = true
         runReplayForAvailableWindow()
     }
 
@@ -320,7 +391,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             SentrySDKLog.debug("[Session Replay] No tracing is active, not showing mask preview")
             return 
         }
-        guard let window = application?.getWindows()?.first else { 
+        guard let window = getApplication()?.getWindows()?.first else {
             SentrySDKLog.debug("[Session Replay] No UIWindow available to display preview")
             return 
         }
@@ -374,7 +445,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     }
 
     public func currentScreenNameForSessionReplay() -> String? {
-        SentrySDKInternal.currentHub().scope.currentScreen ?? application?.relevantViewControllersNames()?.first
+        SentrySDKInternal.currentHub().scope.currentScreen ?? getApplication()?.relevantViewControllersNames()?.first
     }
 
     // MARK: - SentryReachabilityObserver
