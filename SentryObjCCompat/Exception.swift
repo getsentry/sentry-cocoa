@@ -2,7 +2,7 @@
 import Foundation
 
 /// A captured exception with its stacktrace and mechanism metadata.
-@objc(SentryCompatException)
+@objc(SOCSentryException)
 public final class Exception: NSObject {
     internal let wrapped: Sentry.Exception
 

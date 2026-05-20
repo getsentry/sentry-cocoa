@@ -6,8 +6,8 @@ import Foundation
 /// Objective-C interop should import `SentryObjCCompat` and call these APIs
 /// instead of `SentrySDK` directly.
 ///
-/// Imported as `SentryCompat` from Objective-C.
-@objc(SentryCompat)
+/// Imported as `SOCSentrySDK` from Objective-C.
+@objc(SOCSentrySDK)
 public final class SentryObjCCompatSDK: NSObject {
 
     private override init() { super.init() }

@@ -2,7 +2,7 @@
 import Foundation
 
 /// Parsed representation of a Sentry DSN.
-@objc(SentryCompatDsn)
+@objc(SOCSentryDsn)
 public final class Dsn: NSObject {
     internal let wrapped: Sentry.SentryDsn
 

@@ -2,7 +2,7 @@
 import Foundation
 
 /// A thread captured as part of an event payload.
-@objc(SentryCompatThread)
+@objc(SOCSentryThread)
 public final class Thread: NSObject {
     internal let wrapped: Sentry.SentryThread
 

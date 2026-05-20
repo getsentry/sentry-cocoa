@@ -6,7 +6,7 @@ import Foundation
 /// The SDK exposes spans/transactions through a protocol. To keep
 /// `@_implementationOnly` viable, this wrapper hides the protocol existential
 /// and re-exposes every public member as a class method/property.
-@objc(SentryCompatSpan)
+@objc(SOCSentrySpan)
 public final class Span: NSObject {
     internal let wrapped: any Sentry.Span
 

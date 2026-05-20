@@ -2,7 +2,7 @@
 import Foundation
 
 /// Information about an HTTP request attached to an event.
-@objc(SentryCompatRequest)
+@objc(SOCSentryRequest)
 public final class Request: NSObject {
     internal let wrapped: Sentry.SentryRequest
 

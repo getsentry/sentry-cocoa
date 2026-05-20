@@ -2,7 +2,7 @@
 import Foundation
 
 /// Trace-level context propagated in the baggage header.
-@objc(SentryCompatTraceContext)
+@objc(SOCSentryTraceContext)
 public final class TraceContext: NSObject {
     internal let wrapped: Sentry.TraceContext
 

@@ -4,7 +4,7 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 
 /// API for showing/hiding the in-app feedback widget. iOS only.
-@objc(SentryCompatFeedbackAPI)
+@objc(SOCSentryFeedbackAPI)
 public final class FeedbackAPI: NSObject {
     internal let wrapped: Sentry.SentryFeedbackAPI
 

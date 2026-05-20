@@ -2,7 +2,7 @@
 import Foundation
 
 /// Metadata describing a loaded debug image / library.
-@objc(SentryCompatDebugMeta)
+@objc(SOCSentryDebugMeta)
 public final class DebugMeta: NSObject {
     internal let wrapped: Sentry.DebugMeta
 

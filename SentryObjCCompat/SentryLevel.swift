@@ -4,7 +4,7 @@ import Foundation
 /// Severity of a Sentry event or breadcrumb.
 ///
 /// Raw values match `Sentry.SentryLevel` so an unchecked bitcast is safe.
-@objc(SentryCompatLevel)
+@objc(SOCSentryLevel)
 public enum SentryLevel: UInt {
     case none = 0
     case debug = 1

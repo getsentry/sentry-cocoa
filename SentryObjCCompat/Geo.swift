@@ -2,7 +2,7 @@
 import Foundation
 
 /// Approximate geographic location of the end user or device.
-@objc(SentryCompatGeo)
+@objc(SOCSentryGeo)
 public final class Geo: NSObject {
     internal let wrapped: Sentry.Geo
 

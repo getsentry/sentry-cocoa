@@ -2,7 +2,7 @@
 import Foundation
 
 /// Platform-specific error context attached to an exception mechanism.
-@objc(SentryCompatMechanismContext)
+@objc(SOCSentryMechanismContext)
 public final class MechanismContext: NSObject {
     internal let wrapped: Sentry.MechanismContext
 

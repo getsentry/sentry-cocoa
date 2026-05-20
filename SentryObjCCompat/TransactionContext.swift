@@ -6,7 +6,7 @@ import Foundation
 /// In the SDK this class subclasses `SpanContext`, but per the plan's
 /// flatten-the-hierarchy decision we mirror only the public surface as a
 /// standalone wrapper.
-@objc(SentryCompatTransactionContext)
+@objc(SOCSentryTransactionContext)
 public final class TransactionContext: NSObject {
     internal let wrapped: Sentry.TransactionContext
 

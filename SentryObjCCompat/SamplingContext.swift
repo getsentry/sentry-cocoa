@@ -2,7 +2,7 @@
 import Foundation
 
 /// Context passed to the `tracesSampler` callback.
-@objc(SentryCompatSamplingContext)
+@objc(SOCSentrySamplingContext)
 public final class SamplingContext: NSObject {
     internal let wrapped: Sentry.SamplingContext
 

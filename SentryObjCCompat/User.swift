@@ -2,7 +2,7 @@
 import Foundation
 
 /// User identification attached to events.
-@objc(SentryCompatUser)
+@objc(SOCSentryUser)
 public final class User: NSObject {
     internal let wrapped: Sentry.User
 

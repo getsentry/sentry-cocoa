@@ -2,7 +2,7 @@
 import Foundation
 
 /// File or in-memory data sent alongside an event.
-@objc(SentryCompatAttachment)
+@objc(SOCSentryAttachment)
 public final class Attachment: NSObject {
     internal let wrapped: Sentry.Attachment
 

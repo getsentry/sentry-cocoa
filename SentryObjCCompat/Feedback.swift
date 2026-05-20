@@ -2,7 +2,7 @@
 import Foundation
 
 /// User feedback gathered manually and forwarded to Sentry.
-@objc(SentryCompatFeedback)
+@objc(SOCSentryFeedback)
 public final class Feedback: NSObject {
     internal let wrapped: Sentry.SentryFeedback
 

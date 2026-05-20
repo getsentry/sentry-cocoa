@@ -2,7 +2,7 @@
 import Foundation
 
 /// Read-only context describing a span's identity.
-@objc(SentryCompatSpanContext)
+@objc(SOCSentrySpanContext)
 public class SpanContext: NSObject {
     internal let wrapped: Sentry.SpanContext
 

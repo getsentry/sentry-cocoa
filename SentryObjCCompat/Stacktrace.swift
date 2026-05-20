@@ -2,7 +2,7 @@
 import Foundation
 
 /// A stack trace, composed of frames plus optional register state.
-@objc(SentryCompatStacktrace)
+@objc(SOCSentryStacktrace)
 public final class Stacktrace: NSObject {
     internal let wrapped: Sentry.SentryStacktrace
 

@@ -2,7 +2,7 @@
 import Foundation
 
 /// A breadcrumb attached to a Sentry event.
-@objc(SentryCompatBreadcrumb)
+@objc(SOCSentryBreadcrumb)
 public final class Breadcrumb: NSObject {
     internal let wrapped: Sentry.Breadcrumb
 

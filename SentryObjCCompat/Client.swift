@@ -2,7 +2,7 @@
 import Foundation
 
 /// The Sentry client is responsible for capturing events and sending them to Sentry.
-@objc(SentryCompatClient)
+@objc(SOCSentryClient)
 public final class Client: NSObject {
     internal let wrapped: Sentry.SentryClient
 

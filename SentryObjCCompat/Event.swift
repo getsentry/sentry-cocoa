@@ -3,7 +3,7 @@
 import Foundation
 
 /// A Sentry event payload.
-@objc(SentryCompatEvent)
+@objc(SOCSentryEvent)
 public final class Event: NSObject {
     internal let wrapped: Sentry.Event
 

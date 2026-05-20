@@ -10,7 +10,7 @@ import Foundation
 /// other wrapped types from this module — properties that take SDK types
 /// (`Event`, `Scope`, `Span`, etc.) are intentionally omitted in this first
 /// cut and tagged `// TODO: wrap` below.
-@objc(SentryCompatOptions)
+@objc(SOCSentryOptions)
 public final class Options: NSObject {
     internal let wrapped: Sentry.Options
 

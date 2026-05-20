@@ -11,7 +11,13 @@ import MSVCRT
 import PackageDescription
 
 var products: [Product] = [
-
+  .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
+  .library(name: "Sentry-Dynamic", targets: ["Sentry-Dynamic"]),
+  .library(name: "Sentry-Dynamic-WithARM64e", targets: ["Sentry-Dynamic-WithARM64e"]),
+  .library(name: "Sentry-WithoutUIKitOrAppKit", targets: ["Sentry-WithoutUIKitOrAppKit", "SentryCppHelper"]),
+  .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
+  .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
+  .library(name: "SentryDistribution", targets: ["SentryDistribution"])
 ]
 
 var targets: [Target] = [
@@ -92,7 +98,7 @@ targets.append(
 )
 
 // Targets required to support compile-from-source builds via SPM.
-//products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
+products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
 targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(

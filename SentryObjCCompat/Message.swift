@@ -2,7 +2,7 @@
 import Foundation
 
 /// A log message that describes an event or error.
-@objc(SentryCompatMessage)
+@objc(SOCSentryMessage)
 public final class Message: NSObject {
     internal let wrapped: Sentry.SentryMessage
 

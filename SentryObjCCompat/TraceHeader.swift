@@ -2,7 +2,7 @@
 import Foundation
 
 /// W3C-style `sentry-trace` HTTP header.
-@objc(SentryCompatTraceHeader)
+@objc(SOCSentryTraceHeader)
 public final class TraceHeader: NSObject {
     internal let wrapped: Sentry.TraceHeader
 

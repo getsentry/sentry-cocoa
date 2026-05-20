@@ -2,7 +2,7 @@
 import Foundation
 
 /// A single frame in a stack trace.
-@objc(SentryCompatFrame)
+@objc(SOCSentryFrame)
 public final class Frame: NSObject {
     internal let wrapped: Sentry.Frame
 

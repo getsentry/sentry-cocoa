@@ -2,7 +2,7 @@
 import Foundation
 
 /// 16-character span identifier.
-@objc(SentryCompatSpanId)
+@objc(SOCSentrySpanId)
 public final class SpanId: NSObject {
     internal let wrapped: Sentry.SpanId
 

@@ -4,7 +4,7 @@ import Foundation
 /// Crash status of the previous program execution.
 ///
 /// Raw values match `Sentry.SentryLastRunStatus`.
-@objc(SentryCompatLastRunStatus)
+@objc(SOCSentryLastRunStatus)
 public enum SentryLastRunStatus: Int {
     case unknown = 0
     case didNotCrash = 1

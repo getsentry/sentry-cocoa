@@ -2,7 +2,7 @@
 import Foundation
 
 /// Central manager for SDK configuration, event capture, and scope management.
-@objc(SentryCompatHub)
+@objc(SOCSentryHub)
 public final class Hub: NSObject {
     internal let wrapped: Sentry.SentryHub
 

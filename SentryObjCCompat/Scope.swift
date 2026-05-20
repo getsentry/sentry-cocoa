@@ -2,7 +2,7 @@
 import Foundation
 
 /// Contextual data attached to every captured event.
-@objc(SentryCompatScope)
+@objc(SOCSentryScope)
 public final class Scope: NSObject {
     internal let wrapped: Sentry.Scope
 

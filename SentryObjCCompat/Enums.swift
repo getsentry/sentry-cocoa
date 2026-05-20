@@ -4,7 +4,7 @@ import Foundation
 /// Status of a span/transaction.
 ///
 /// Raw values match `Sentry.SentrySpanStatus`.
-@objc(SentryCompatSpanStatus)
+@objc(SOCSentrySpanStatus)
 public enum SentrySpanStatus: UInt {
     case undefined = 0
     case ok = 1
@@ -39,7 +39,7 @@ extension SentrySpanStatus {
 /// Trace sample decision.
 ///
 /// Raw values match `Sentry.SentrySampleDecision`.
-@objc(SentryCompatSampleDecision)
+@objc(SOCSentrySampleDecision)
 public enum SentrySampleDecision: UInt {
     case undecided = 0
     case yes = 1
@@ -59,7 +59,7 @@ extension SentrySampleDecision {
 /// Origin of a transaction name.
 ///
 /// Raw values match `Sentry.SentryTransactionNameSource`.
-@objc(SentryCompatTransactionNameSource)
+@objc(SOCSentryTransactionNameSource)
 public enum SentryTransactionNameSource: Int {
     case custom = 0
     case url = 1
@@ -82,7 +82,7 @@ extension SentryTransactionNameSource {
 /// Where a user-feedback submission originated.
 ///
 /// Raw values match the nested `Sentry.SentryFeedback.SentryFeedbackSource` enum.
-@objc(SentryCompatFeedbackSource)
+@objc(SOCSentryFeedbackSource)
 public enum SentryFeedbackSource: Int {
     case widget = 0
     case custom = 1
@@ -101,7 +101,7 @@ extension SentryFeedbackSource {
 /// Attachment classification.
 ///
 /// Raw values match `Sentry.SentryAttachmentType`.
-@objc(SentryCompatAttachmentType)
+@objc(SOCSentryAttachmentType)
 public enum SentryAttachmentType: Int {
     case eventAttachment = 0
     case viewHierarchy = 1

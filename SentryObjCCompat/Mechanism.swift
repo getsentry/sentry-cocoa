@@ -2,7 +2,7 @@
 import Foundation
 
 /// Metadata describing how an exception was reported.
-@objc(SentryCompatMechanism)
+@objc(SOCSentryMechanism)
 public final class Mechanism: NSObject {
     internal let wrapped: Sentry.Mechanism
 

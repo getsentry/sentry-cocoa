@@ -4,7 +4,7 @@ import Foundation
 /// 32-character hexadecimal identifier for a Sentry event.
 ///
 /// Mirrors `Sentry.SentryId` without exposing it on the wrapper's public ABI.
-@objc(SentryCompatId)
+@objc(SOCSentryId)
 public final class SentryId: NSObject {
     internal let wrapped: Sentry.SentryId
 
