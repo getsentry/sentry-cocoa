@@ -71,10 +71,10 @@ _sentry_hydrateV2Options(NSDictionary<NSString *, NSNumber *> *launchConfigDict,
     profileOptions.profileAppStarts = true;
     profileOptions.sessionSampleRate = samplerDecision.sampleRate.floatValue;
 
-    sentry_profileConfiguration = [[SentryProfileConfiguration alloc]
+    sentry_setProfileConfiguration([[SentryProfileConfiguration alloc]
         initContinuousProfilingV2WaitingForFullDisplay:shouldWaitForFullDisplay
                                        samplerDecision:samplerDecision
-                                        profileOptions:profileOptions];
+                                        profileOptions:profileOptions]);
 }
 
 /**
@@ -353,7 +353,7 @@ sentry_stopAndDiscardLaunchProfileTracer(SentryHubInternal *_Nullable hub)
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
     sentry_launchTracer.hub = hub;
     [sentry_launchTracer finish];
-    sentry_profileConfiguration = nil;
+    sentry_setProfileConfiguration(nil);
     sentry_isTracingAppLaunch = NO;
     sentry_launchTracer = nil;
 }

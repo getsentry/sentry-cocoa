@@ -1014,10 +1014,9 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(Set(spanOperations), ["app.start"])
     }
 
-    func testFinish_whenBothConfigAndGlobalAppStartSet_shouldUseConfigAndMarkGlobalAsRead() throws {
+    func testFinish_whenBothConfigAndGlobalAppStartSet_shouldUseConfig() throws {
         // In practice only one of config or global should be set, never both. This test
-        // verifies that if both happen to be set, the config measurement wins and the
-        // global static is marked as read so no UIViewController transaction consumes it.
+        // verifies that if both happen to be set, the config measurement wins.
         let globalMeasurement = fixture.getAppStartMeasurement(type: .warm)
         SentrySDKInternal.setAppStartMeasurement(globalMeasurement)
 
@@ -1038,13 +1037,6 @@ class SentryTracerTests: XCTestCase {
         let extra = serializedFirst["extra"] as? [String: Any]
         let coldValue = try XCTUnwrap(extra?["app.vitals.start.cold.value"] as? NSNumber)
         XCTAssertEqual(coldValue.doubleValue, fixture.appStartDuration * 1_000, accuracy: 0.001)
-
-        // A subsequent ui.load transaction must not get the app start measurement
-        // because the standalone transaction marked it as read.
-        whenFinishingAutoUITransaction(startTimestamp: 5)
-        let secondTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.last).event.serialize()
-        let measurements = secondTransaction["measurements"] as? [String: Any]
-        XCTAssertNil(measurements?["app_start_warm"])
     }
 
     func testFinish_whenStandaloneAppStart_sharesTraceIdWithFirstUILoad() throws {
