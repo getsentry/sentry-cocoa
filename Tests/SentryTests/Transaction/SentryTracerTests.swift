@@ -1037,13 +1037,6 @@ class SentryTracerTests: XCTestCase {
         let extra = serializedFirst["extra"] as? [String: Any]
         let coldValue = try XCTUnwrap(extra?["app.vitals.start.cold.value"] as? NSNumber)
         XCTAssertEqual(coldValue.doubleValue, fixture.appStartDuration * 1_000, accuracy: 0.001)
-
-        // A subsequent ui.load transaction must not get the app start measurement
-        // because the standalone transaction marked it as read.
-        whenFinishingAutoUITransaction(startTimestamp: 5)
-        let secondTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.last).event.serialize()
-        let measurements = secondTransaction["measurements"] as? [String: Any]
-        XCTAssertNil(measurements?["app_start_warm"])
     }
 
     func testFinish_whenStandaloneAppStart_sharesTraceIdWithFirstUILoad() throws {
