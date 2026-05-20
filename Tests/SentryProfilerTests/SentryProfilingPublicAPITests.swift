@@ -54,6 +54,9 @@ class SentryProfilingPublicAPITests: XCTestCase {
     }
 
     override func tearDown() {
+        fixture.sessionTracker?.removeObservers()
+        fixture.sessionTracker = nil
+
         super.tearDown()
 
         givenSdkWithHubButNoClient()
