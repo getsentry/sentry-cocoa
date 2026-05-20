@@ -1,17 +1,19 @@
 #!/bin/bash
-set -eux
+set -euo pipefail
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
-
-# Disable SC1091 because it won't work with pre-commit
-# shellcheck source=./scripts/ci-utils.sh disable=SC1091
-source "${SCRIPT_DIR}/ci-utils.sh"
+# shellcheck source=./ci-utils.sh disable=SC1091
+source "$SCRIPT_DIR/ci-utils.sh"
 
 usage() {
     cat <<EOF
 Usage: $(basename "$0") <old_version> <new_version>
 
 Bump the SDK version across all source files and update the package SHA.
+This is the entry point used by Craft during releases.
+
+Accepts positional parameters for Craft compatibility.
 
 ARGUMENTS:
     old_version     Current version string (e.g., 9.12.0)
@@ -40,17 +42,10 @@ log_info "Bumping version:"
 log_info "  Old version: $OLD_VERSION"
 log_info "  New version: $NEW_VERSION"
 
-begin_group "Build VersionBump"
-cd Utils/VersionBump && swift build
-cd "$SCRIPT_DIR/.."
-end_group
-
-begin_group "Bump version from ${OLD_VERSION} to ${NEW_VERSION}"
-./Utils/VersionBump/.build/debug/VersionBump --update "${NEW_VERSION}"
-end_group
+"$SCRIPT_DIR/bump-version.sh" --version "${NEW_VERSION}"
 
 begin_group "Update package SHA"
-./scripts/update-package-sha.sh
+"$SCRIPT_DIR/update-package-sha.sh"
 end_group
 
 log_info "Version bump from ${OLD_VERSION} to ${NEW_VERSION} completed successfully"

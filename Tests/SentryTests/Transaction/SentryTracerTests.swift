@@ -1014,10 +1014,9 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(Set(spanOperations), ["app.start"])
     }
 
-    func testFinish_whenBothConfigAndGlobalAppStartSet_shouldUseConfigAndMarkGlobalAsRead() throws {
+    func testFinish_whenBothConfigAndGlobalAppStartSet_shouldUseConfig() throws {
         // In practice only one of config or global should be set, never both. This test
-        // verifies that if both happen to be set, the config measurement wins and the
-        // global static is marked as read so no UIViewController transaction consumes it.
+        // verifies that if both happen to be set, the config measurement wins.
         let globalMeasurement = fixture.getAppStartMeasurement(type: .warm)
         SentrySDKInternal.setAppStartMeasurement(globalMeasurement)
 
