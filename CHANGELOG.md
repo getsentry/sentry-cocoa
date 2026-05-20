@@ -6,6 +6,7 @@
 
 - Fix race conditions in scope observer iteration and propagation context locking (#7897)
 - Support stack traces for standalone clients (#7817)
+- Call SentrySessionListener on main thread (#7917)
 
 ## 9.13.0
 
