@@ -49,7 +49,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
         let measurement = createMeasurement(type: .cold)
 
-        AttachToTransactionStrategy().report(measurement)
+        AttachToTransactionStrategy().report(measurement, traceId: SentryId())
 
         let stored = try XCTUnwrap(SentrySDKInternal.getAppStartMeasurement())
         XCTAssertEqual(stored.type, .cold)
@@ -61,7 +61,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
         let measurement = createMeasurement(type: .warm)
 
-        AttachToTransactionStrategy().report(measurement)
+        AttachToTransactionStrategy().report(measurement, traceId: SentryId())
 
         let stored = try XCTUnwrap(SentrySDKInternal.getAppStartMeasurement())
         XCTAssertEqual(stored.type, .warm)
@@ -125,7 +125,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         _ = setCurrentHub()
         let measurement = createMeasurement(type: .cold)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
     }
@@ -149,7 +149,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         SentrySDKInternal.setAppStartMeasurement(globalMeasurement)
         addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
 
-        StandaloneTransactionStrategy().report(createMeasurement(type: .cold))
+        StandaloneTransactionStrategy().report(createMeasurement(type: .cold), traceId: SentryId())
 
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
