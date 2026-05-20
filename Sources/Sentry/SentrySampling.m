@@ -3,6 +3,7 @@
 #import "SentrySampleDecision.h"
 #import "SentrySamplerDecision.h"
 #import "SentrySamplingContext.h"
+#import "SentrySpanOperation.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"
 
@@ -63,6 +64,12 @@ sentry_sampleTrace(SentrySamplingContext *context, SentryOptions *_Nullable opti
             [[SentrySamplerDecision alloc] initWithDecision:context.transactionContext.sampled
                                               forSampleRate:context.transactionContext.sampleRate
                                              withSampleRand:context.transactionContext.sampleRand];
+    }
+
+    NSNumber *appStartRate = options.experimental.appStartSampleRate;
+    if (appStartRate != nil &&
+        [context.transactionContext.operation isEqualToString:SentrySpanOperationAppStart]) {
+        return _sentry_calcSampleFromNumericalRate(appStartRate);
     }
 
     NSNumber *callbackRate = _sentry_samplerCallbackRate(options.tracesSampler, context, 0);

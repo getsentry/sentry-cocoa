@@ -125,6 +125,7 @@ public struct SentrySDKWrapper {
 
         options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.boolValue
         options.experimental.enableStandaloneAppStartTracing = SentrySDKOverrides.Performance.enableStandaloneAppStartTracing.boolValue
+        options.experimental.appStartSampleRate = SentrySDKOverrides.Performance.appStartSampleRate.floatValue.map { NSNumber(value: $0) }
         options.enableUIViewControllerTracing = !SentrySDKOverrides.Performance.disableUIVCTracing.boolValue
 
         // -- Screenshot Options --

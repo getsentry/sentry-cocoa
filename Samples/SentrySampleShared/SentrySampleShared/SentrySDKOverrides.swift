@@ -94,6 +94,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case disableUITracing                   = "--io.sentry.performance.disable-ui-tracing"
         case disablePrewarmedAppStartTracing    = "--io.sentry.performance.disable-prewarmed-app-start-tracing"
         case enableStandaloneAppStartTracing    = "--io.sentry.performance.enable-standalone-app-start-tracing"
+        case appStartSampleRate                 = "--io.sentry.performance.appStartSampleRate"
         case disablePerformanceTracing          = "--io.sentry.performance.disable-auto-performance-tracing"
         case sessionTrackingIntervalMillis      = "--io.sentry.performance.sessionTrackingIntervalMillis"
     }
@@ -314,6 +315,7 @@ extension SentrySDKOverrides.Performance {
     public var overrideType: OverrideType {
         switch self {
         case .disableTimeToFullDisplayTracing, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .enableStandaloneAppStartTracing, .disablePerformanceTracing: return .boolean
+        case .appStartSampleRate: return .float
         case .sessionTrackingIntervalMillis: return .string
         }
     }
@@ -410,7 +412,7 @@ extension SentrySDKOverrides.Performance {
     public var ignoresDisableEverything: Bool {
         switch self {
         case .disableTimeToFullDisplayTracing, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .enableStandaloneAppStartTracing, .disablePerformanceTracing: return false
-        case .sessionTrackingIntervalMillis: return true
+        case .appStartSampleRate, .sessionTrackingIntervalMillis: return true
         }
     }
 }

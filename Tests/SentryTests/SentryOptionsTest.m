@@ -1122,6 +1122,52 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertTrue(options.isTracingEnabled);
 }
 
+- (void)testDefaultAppStartSampleRate
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    XCTAssertNil(options.experimental.appStartSampleRate);
+}
+
+- (void)testAppStartSampleRate_SetToNil
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.experimental.appStartSampleRate = @0.5;
+    options.experimental.appStartSampleRate = nil;
+    XCTAssertNil(options.experimental.appStartSampleRate);
+}
+
+- (void)testAppStartSampleRateLowerBound
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.experimental.appStartSampleRate = @0.5;
+
+    NSNumber *lowerBound = @0;
+    options.experimental.appStartSampleRate = lowerBound;
+    XCTAssertEqual(lowerBound, options.experimental.appStartSampleRate);
+
+    options.experimental.appStartSampleRate = @0.5;
+
+    NSNumber *tooLow = @-0.01;
+    options.experimental.appStartSampleRate = tooLow;
+    XCTAssertEqual(options.experimental.appStartSampleRate.doubleValue, 0);
+}
+
+- (void)testAppStartSampleRateUpperBound
+{
+    SentryOptions *options = [[SentryOptions alloc] init];
+    options.experimental.appStartSampleRate = @0.5;
+
+    NSNumber *upperBound = @1;
+    options.experimental.appStartSampleRate = upperBound;
+    XCTAssertEqual(upperBound, options.experimental.appStartSampleRate);
+
+    options.experimental.appStartSampleRate = @0.5;
+
+    NSNumber *tooHigh = @1.01;
+    options.experimental.appStartSampleRate = tooHigh;
+    XCTAssertEqual(options.experimental.appStartSampleRate.doubleValue, 0);
+}
+
 - (void)testInAppIncludes
 {
     NSArray<NSString *> *expected = @[ @"iOS-Swift", @"BusinessLogic" ];

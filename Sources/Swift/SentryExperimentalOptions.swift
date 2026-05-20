@@ -32,6 +32,37 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableStandaloneAppStartTracing = false
 
+    /**
+     * The sample rate for standalone app start transactions, overriding `tracesSampleRate`.
+     *
+     * When set, standalone app start transactions use this rate instead of
+     * `tracesSampleRate`. A custom `tracesSampler` callback still takes precedence.
+     *
+     * Requires `enableStandaloneAppStartTracing` to be `true`.
+     *
+     * - Note: Specifying `nil` falls back to `tracesSampleRate`. Specifying `0` discards all
+     *   app start transactions, `1.0` collects all of them.
+     * - Note: The value needs to be >= 0.0 and <= 1.0. When setting a value out of range
+     *   the SDK sets it to the default of `0`.
+     */
+    public var appStartSampleRate: NSNumber? {
+        set {
+            guard let newValue else {
+                _appStartSampleRate = nil
+                return
+            }
+            if newValue.isValidSampleRate() {
+                _appStartSampleRate = newValue
+            } else {
+                _appStartSampleRate = 0
+            }
+        }
+        get {
+            _appStartSampleRate
+        }
+    }
+    private var _appStartSampleRate: NSNumber?
+
     // swiftlint:disable:next missing_docs
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }

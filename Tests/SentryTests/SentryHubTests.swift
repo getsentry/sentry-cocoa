@@ -458,7 +458,60 @@ class SentryHubTests: XCTestCase {
         let span = hub.startTransaction(name: fixture.transactionName, operation: fixture.transactionOperation)
         XCTAssertEqual(span.sampled, .no)
     }
-    
+
+    func testStartTransaction_AppStartSampleRate_UsedForAppStartOperation() {
+        fixture.options.tracesSampleRate = 0
+        fixture.options.experimental.appStartSampleRate = 1.0
+
+        let hub = fixture.getSut()
+        let span = hub.startTransaction(
+            transactionContext: TransactionContext(name: "App Start", operation: "app.start"),
+            customSamplingContext: [:]
+        )
+
+        XCTAssertEqual(span.sampled, .yes)
+    }
+
+    func testStartTransaction_AppStartSampleRate_NotUsedForOtherOperations() {
+        fixture.options.tracesSampleRate = 0
+        fixture.options.experimental.appStartSampleRate = 1.0
+
+        let hub = fixture.getSut()
+        let span = hub.startTransaction(
+            name: fixture.transactionName,
+            operation: fixture.transactionOperation
+        )
+
+        XCTAssertEqual(span.sampled, .no)
+    }
+
+    func testStartTransaction_AppStartSampleRate_NilFallsBackToTracesSampleRate() {
+        fixture.options.tracesSampleRate = 0.50
+        fixture.options.experimental.appStartSampleRate = nil
+
+        let hub = fixture.getSut()
+        let span = hub.startTransaction(
+            transactionContext: TransactionContext(name: "App Start", operation: "app.start"),
+            customSamplingContext: [:]
+        )
+
+        XCTAssertEqual(span.sampled, .yes)
+    }
+
+    func testStartTransaction_AppStartSampleRate_SetsCorrectSampleRate() {
+        fixture.options.tracesSampleRate = 0.1
+        fixture.options.experimental.appStartSampleRate = 0.75
+
+        let hub = fixture.getSut()
+        let span = hub.startTransaction(
+            transactionContext: TransactionContext(name: "App Start", operation: "app.start"),
+            customSamplingContext: [:]
+        )
+
+        let context = (span as? SentryTracer)?.transactionContext
+        XCTAssertEqual(context?.sampleRate, 0.75)
+    }
+
     func testCaptureTransaction_CapturesEventAsync() throws {
         let transaction = sut.startTransaction(transactionContext: TransactionContext(name: fixture.transactionName, operation: fixture.transactionOperation, sampled: .yes, sampleRate: nil, sampleRand: nil))
 

@@ -36845,6 +36845,103 @@
                 "accessorKind": "get",
                 "children": [
                   {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "NSNumber",
+                        "printedName": "Foundation.NSNumber",
+                        "usr": "c:objc(cs)NSNumber"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.NSNumber?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC18appStartSampleRateSo8NSNumberCSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)appStartSampleRate"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "NSNumber",
+                        "printedName": "Foundation.NSNumber",
+                        "usr": "c:objc(cs)NSNumber"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Foundation.NSNumber?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC18appStartSampleRateSo8NSNumberCSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setAppStartSampleRate:",
+                "printedName": "Set()",
+                "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)setAppStartSampleRate:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "NSNumber",
+                    "printedName": "Foundation.NSNumber",
+                    "usr": "c:objc(cs)NSNumber"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.NSNumber?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A19ExperimentalOptionsC18appStartSampleRateSo8NSNumberCSgvp",
+            "moduleName": "Sentry",
+            "name": "appStartSampleRate",
+            "printedName": "appStartSampleRate",
+            "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(py)appStartSampleRate"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
                     "kind": "TypeNominal",
                     "name": "Bool",
                     "printedName": "Swift.Bool",
