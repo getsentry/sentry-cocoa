@@ -164,7 +164,7 @@ final class SessionTracker {
         }
 
         dispatchQueue.dispatchAsync { [weak self] in
-            guard self != nil else { return }
+            guard let self else { return }
             let hub = SentrySDKInternal.currentHub()
             let lastInForeground = SentryDependencyContainerSwiftHelper.readTimestampLastInForeground()
 
@@ -178,6 +178,7 @@ final class SessionTracker {
                     SentrySDKLog.debug("App was in the background for \(secondsInBackground) seconds. Starting a new session.")
                     hub.endSession(withTimestamp: lastInForeground)
                     hub.startSession()
+                    reevaluateProfileSessionSampleRateIfNeeded()
                 } else {
                     SentrySDKLog.debug("App was in the background for \(secondsInBackground) seconds. Not starting a new session.")
                 }
@@ -186,14 +187,9 @@ final class SessionTracker {
                 // wait until the app is in the foreground to start a session.
                 SentrySDKLog.debug("App was in the foreground for the first time. Starting a new session.")
                 hub.startSession()
+                reevaluateProfileSessionSampleRateIfNeeded()
             }
             SentryDependencyContainerSwiftHelper.deleteTimestampLastInForeground()
-
-        #if !(os(watchOS) || os(tvOS) || os(visionOS))
-            if SentryDependencyContainerSwiftHelper.hasProfilingOptions() {
-                sentry_reevaluateSessionSampleRate()
-            }
-        #endif // SENTRY_TARGET_PROFILING_SUPPORTED
         }
     }
 
@@ -224,5 +220,14 @@ final class SessionTracker {
             SentryDependencyContainerSwiftHelper.deleteTimestampLastInForeground()
         }
         wasStartSessionCalled = false
+    }
+
+    // Private helper for profiling session sample-rate reevaluation.
+    private func reevaluateProfileSessionSampleRateIfNeeded() {
+    #if !(os(watchOS) || os(tvOS) || os(visionOS))
+        if SentryDependencyContainerSwiftHelper.hasProfilingOptions() {
+            sentry_reevaluateSessionSampleRate()
+        }
+    #endif // !(os(watchOS) || os(tvOS) || os(visionOS))
     }
 }

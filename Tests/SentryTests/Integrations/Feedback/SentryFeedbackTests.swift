@@ -234,7 +234,9 @@ class SentryFeedbackTests: XCTestCase {
             random: TestRandom(value: 1.0),
             locale: Locale(identifier: "en_US"),
             timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna")),
-            eventContextEnricher: TestEventContextEnricher()
+            eventContextEnricher: TestEventContextEnricher(),
+            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
+            binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache
         )
         let hub = TestHub(client: client, andScope: nil)
 
@@ -279,7 +281,9 @@ class SentryFeedbackTests: XCTestCase {
             random: TestRandom(value: 1.0),
             locale: Locale(identifier: "en_US"),
             timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna")),
-            eventContextEnricher: TestEventContextEnricher()
+            eventContextEnricher: TestEventContextEnricher(),
+            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
+            binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache
         )
         let hub = TestHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
@@ -324,7 +328,9 @@ class SentryFeedbackTests: XCTestCase {
             random: TestRandom(value: 1.0),
             locale: Locale(identifier: "en_US"),
             timezone: try XCTUnwrap(TimeZone(identifier: "Europe/Vienna")),
-            eventContextEnricher: TestEventContextEnricher()
+            eventContextEnricher: TestEventContextEnricher(),
+            crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
+            binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache
         )
         let hub = TestHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)

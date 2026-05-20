@@ -29,30 +29,55 @@ using namespace sentry::profiling;
  * The current configuration the profiler operates under for this session. Set when a launch profile
  * runs, and then is updated on SDK start.
  */
-SentryProfileConfiguration *_Nullable sentry_profileConfiguration;
+static SentryProfileConfiguration *_Nullable sentry_profileConfiguration;
 
 namespace {
 
 static const int kSentryProfilerFrequencyHz = 101;
 
+NSObject *
+sentry_profileConfigurationLock()
+{
+    // Function-local static lazily initializes this once and returns the same lock on every call.
+    static NSObject *lock = [[NSObject alloc] init];
+    return lock;
+}
+
 } // namespace
 
 #    pragma mark - Public
 
+SentryProfileConfiguration *_Nullable sentry_getProfileConfiguration(void)
+{
+    @synchronized(sentry_profileConfigurationLock()) {
+        return sentry_profileConfiguration;
+    }
+}
+
+void
+sentry_setProfileConfiguration(SentryProfileConfiguration *_Nullable configuration)
+{
+    @synchronized(sentry_profileConfigurationLock()) {
+        sentry_profileConfiguration = configuration;
+    }
+}
+
 void
 sentry_reevaluateSessionSampleRate()
 {
-    [sentry_profileConfiguration reevaluateSessionSampleRate];
+    SentryProfileConfiguration *configuration = sentry_getProfileConfiguration();
+    [configuration reevaluateSessionSampleRate];
 }
 
 BOOL
 sentry_isLaunchProfileCorrelatedToTraces(void)
 {
-    if (nil == sentry_profileConfiguration) {
+    SentryProfileConfiguration *configuration = sentry_getProfileConfiguration();
+    if (nil == configuration) {
         return NO;
     }
 
-    SentryProfileOptions *_Nullable nullableOptions = sentry_profileConfiguration.profileOptions;
+    SentryProfileOptions *_Nullable nullableOptions = configuration.profileOptions;
     if (nil == nullableOptions) {
         return YES;
     }

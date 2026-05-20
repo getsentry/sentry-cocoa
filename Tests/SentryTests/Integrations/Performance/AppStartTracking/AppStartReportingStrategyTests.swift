@@ -6,6 +6,11 @@ import XCTest
 
 class AppStartReportingStrategyTests: XCTestCase {
 
+    override func tearDown() {
+        super.tearDown()
+        SentryAppStartMeasurementProvider.reset()
+    }
+
     private func createMeasurement(type: SentryAppStartType, duration: TimeInterval = 0.5, isPreWarmed: Bool = false) -> SentryAppStartMeasurement {
         let dateProvider = TestCurrentDateProvider()
         let appStart = dateProvider.date()
@@ -40,6 +45,7 @@ class AppStartReportingStrategyTests: XCTestCase {
     // MARK: - AttachToTransactionStrategy
 
     func testReport_whenColdStart_shouldSetMeasurementOnGlobalStatic() throws {
+        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement(), "Precondition: global measurement should be nil before test")
         addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
         let measurement = createMeasurement(type: .cold)
 
@@ -51,6 +57,7 @@ class AppStartReportingStrategyTests: XCTestCase {
     }
 
     func testReport_whenWarmStart_shouldSetMeasurementOnGlobalStatic() throws {
+        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement(), "Precondition: global measurement should be nil before test")
         addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
         let measurement = createMeasurement(type: .warm)
 
@@ -114,12 +121,28 @@ class AppStartReportingStrategyTests: XCTestCase {
     }
 
     func testReport_whenColdStart_shouldNotSetGlobalStatic() {
+        XCTAssertNil(SentrySDKInternal.getAppStartMeasurement(), "Precondition: global measurement should be nil before test")
         _ = setCurrentHub()
         let measurement = createMeasurement(type: .cold)
 
         StandaloneTransactionStrategy().report(measurement)
 
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
+    }
+
+    func testReport_whenColdStart_shouldMarkMeasurementAsRead() {
+        _ = setCurrentHub()
+        let globalMeasurement = createMeasurement(type: .warm)
+        SentrySDKInternal.setAppStartMeasurement(globalMeasurement)
+        addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
+
+        StandaloneTransactionStrategy().report(createMeasurement(type: .cold))
+
+        let result = SentryAppStartMeasurementProvider.appStartMeasurement(
+            forOperation: SentrySpanOperationUiLoad,
+            startTimestamp: globalMeasurement.appStartTimestamp.addingTimeInterval(globalMeasurement.duration)
+        )
+        XCTAssertNil(result, "Standalone report should mark measurement as read so no ui.load transaction picks it up")
     }
 
     // MARK: - StandaloneTransactionStrategy Integration Tests
