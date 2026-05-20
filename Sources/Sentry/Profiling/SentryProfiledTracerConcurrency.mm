@@ -121,8 +121,8 @@ SentryId *_Nullable _sentry_startContinuousProfilerV2ForTrace(
         return nil;
     }
 
-    if (sentry_profileConfiguration.profilerSessionSampleDecision.decision
-        != kSentrySampleDecisionYes) {
+    SentryProfileConfiguration *profileConfiguration = sentry_getProfileConfiguration();
+    if (profileConfiguration.profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
         return nil;
     }
 
@@ -245,10 +245,11 @@ sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
 #    endif // SENTRY_HAS_UIKIT
 )
 {
-    if (sentry_profileConfiguration != nil && sentry_profileConfiguration.isProfilingThisLaunch
-        && sentry_profileConfiguration.profileOptions != nil
-        && sentry_isTraceLifecycle(SENTRY_UNWRAP_NULLABLE(
-            SentryProfileOptions, sentry_profileConfiguration.profileOptions))) {
+    SentryProfileConfiguration *profileConfiguration = sentry_getProfileConfiguration();
+    if (profileConfiguration != nil && profileConfiguration.isProfilingThisLaunch
+        && profileConfiguration.profileOptions != nil
+        && sentry_isTraceLifecycle(
+            SENTRY_UNWRAP_NULLABLE(SentryProfileOptions, profileConfiguration.profileOptions))) {
         SENTRY_LOG_DEBUG(@"Stopping launch UI trace profile.");
         sentry_stopTrackingRootSpanForContinuousProfilerV2();
         // The launch tracer is intentionally discarded by sentry_stopAndDiscardLaunchProfileTracer.
@@ -341,11 +342,12 @@ sentry_stopProfilerDueToFinishedTransaction(SentryHubInternal *hub,
 SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *configuration,
     SentryHubInternal *_Nullable hub, SentryTransactionContext *transactionContext)
 {
-    if (sentry_profileConfiguration.profileOptions != nil) {
+    SentryProfileConfiguration *profileConfiguration = sentry_getProfileConfiguration();
+    if (profileConfiguration.profileOptions != nil) {
         // launch profile; there's no hub to get options from, so they're read from the launch
         // profile config file
         return _sentry_startContinuousProfilerV2ForTrace(
-            sentry_profileConfiguration.profileOptions, transactionContext);
+            profileConfiguration.profileOptions, transactionContext);
     }
     SentryClientInternal *_Nullable client = hub.getClient;
     if (client != nil

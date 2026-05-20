@@ -12,6 +12,8 @@
 
 @implementation SentryProfileConfiguration
 
+@synthesize profilerSessionSampleDecision = _profilerSessionSampleDecision;
+
 - (instancetype)initWithProfileOptions:(SentryProfileOptions *)options
 {
     if (!(self = [super init])) {
@@ -45,6 +47,20 @@
     _profilerSessionSampleDecision = decision;
     _isProfilingThisLaunch = YES;
     return self;
+}
+
+- (SentrySamplerDecision *_Nullable)profilerSessionSampleDecision
+{
+    @synchronized(self) {
+        return _profilerSessionSampleDecision;
+    }
+}
+
+- (void)setProfilerSessionSampleDecision:(SentrySamplerDecision *_Nullable)decision
+{
+    @synchronized(self) {
+        _profilerSessionSampleDecision = decision;
+    }
 }
 
 - (void)reevaluateSessionSampleRate
