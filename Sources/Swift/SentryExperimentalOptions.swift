@@ -26,6 +26,12 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableReplayNetworkDetailsCapturing = false
 
+    /**
+     * When enabled, the SDK sends a standalone app start transaction instead of attaching app
+     * start data to the first UIViewController transaction.
+     */
+    public var enableStandaloneAppStartTracing = false
+
     // swiftlint:disable:next missing_docs
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }

@@ -7,6 +7,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryAppStartMeasurement;
+@class SentryId;
 
 /**
  * Provides the app start measurement for attaching to the first UI load transaction.
@@ -20,6 +21,29 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable SentryAppStartMeasurement *)appStartMeasurementForOperation:(NSString *)operation
                                                          startTimestamp:
                                                              (nullable NSDate *)startTimestamp;
+
+/**
+ * Marks the app start measurement as read so subsequent calls to
+ * @c appStartMeasurementForOperation:startTimestamp: return @c nil.
+ * Used by standalone app start transactions that carry their own measurement.
+ */
++ (void)markAsRead;
+
+/**
+ * Pre-generated trace ID for the app start trace. Set early during SDK init so both
+ * the standalone app start transaction and the first UIViewController transaction
+ * share the same trace. Returns the stored value without clearing; call @c reset to
+ * clear.
+ */
++ (void)setAppStartTraceId:(nullable SentryId *)traceId;
++ (nullable SentryId *)appStartTraceId;
+
+/**
+ * Stores the name of the first UIViewController rendered during app launch.
+ * Used by standalone app start transactions to set the @c app.vitals.start.screen attribute.
+ */
++ (void)setAppStartScreen:(nullable NSString *)screenName;
++ (nullable NSString *)consumeAppStartScreen;
 
 /**
  * Internal. Only needed for testing.
