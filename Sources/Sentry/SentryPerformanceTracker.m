@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
         SentryTransactionContext *context;
 #if SENTRY_HAS_UIKIT
-        SentryId *appStartTraceId = [SentryAppStartMeasurementProvider appStartTraceId];
+        SentryId *appStartTraceId = [SentryAppStartMeasurementProvider consumeAppStartTraceId];
         if (appStartTraceId != nil) {
             context = [[SentryTransactionContext alloc] initWithName:name
                                                           nameSource:nameSource

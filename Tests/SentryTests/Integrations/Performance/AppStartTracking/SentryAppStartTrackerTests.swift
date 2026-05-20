@@ -348,6 +348,28 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         assertValidHybridStart(type: .warm)
     }
 
+    func testBackgroundLaunch_whenStandalone_shouldClearAppStartTraceId() {
+        fixture.enableStandaloneAppStartTracing = true
+        sut = fixture.sut
+        sut.start()
+
+        XCTAssertNotNil(SentryAppStartMeasurementProvider.appStartTraceId())
+
+        didEnterBackground()
+
+        assertNoAppStartUp()
+        XCTAssertNil(SentryAppStartMeasurementProvider.appStartTraceId())
+    }
+
+    func testMaxDurationExceeded_whenStandalone_shouldClearAppStartTraceId() {
+        fixture.enableStandaloneAppStartTracing = true
+        let processStartTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-180)
+        startApp(processStartTimeStamp: processStartTime, callDisplayLink: true)
+
+        assertNoAppStartUp()
+        XCTAssertNil(SentryAppStartMeasurementProvider.appStartTraceId())
+    }
+
     func testStart_whenStandaloneAppStartTracingAndSDKNotEnabled_shouldDropAppStart() {
         fixture.enableStandaloneAppStartTracing = true
         startApp(callDisplayLink: true)

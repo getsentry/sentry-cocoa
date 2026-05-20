@@ -32,11 +32,15 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Pre-generated trace ID for the app start trace. Set early during SDK init so both
  * the standalone app start transaction and the first UIViewController transaction
- * share the same trace. Returns the stored value without clearing; call @c reset to
- * clear.
+ * share the same trace.
  */
 + (void)setAppStartTraceId:(nullable SentryId *)traceId;
-+ (nullable SentryId *)appStartTraceId;
+
+/**
+ * Atomically reads and clears the app start trace ID. Use this when a consumer
+ * should only receive the trace ID once (e.g., @c SentryPerformanceTracker).
+ */
++ (nullable SentryId *)consumeAppStartTraceId;
 
 /**
  * Stores the name of the first UIViewController rendered during app launch.
@@ -45,10 +49,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setAppStartScreen:(nullable NSString *)screenName;
 + (nullable NSString *)consumeAppStartScreen;
 
-/**
- * Internal. Only needed for testing.
- */
+#    if SENTRY_TEST || SENTRY_TEST_CI
++ (nullable SentryId *)appStartTraceId;
 + (void)reset;
+#    endif
 
 @end
 

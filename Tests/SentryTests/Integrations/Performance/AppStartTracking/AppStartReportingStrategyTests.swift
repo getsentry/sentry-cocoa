@@ -49,7 +49,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
         let measurement = createMeasurement(type: .cold)
 
-        AttachToTransactionStrategy().report(measurement)
+        AttachToTransactionStrategy().report(measurement, traceId: SentryId())
 
         let stored = try XCTUnwrap(SentrySDKInternal.getAppStartMeasurement())
         XCTAssertEqual(stored.type, .cold)
@@ -61,7 +61,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
         let measurement = createMeasurement(type: .warm)
 
-        AttachToTransactionStrategy().report(measurement)
+        AttachToTransactionStrategy().report(measurement, traceId: SentryId())
 
         let stored = try XCTUnwrap(SentrySDKInternal.getAppStartMeasurement())
         XCTAssertEqual(stored.type, .warm)
@@ -74,7 +74,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         // Don't set hub on SDK — isEnabled returns false
         let measurement = createMeasurement(type: .cold)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         XCTAssertTrue(hub.capturedEventsWithScopes.invocations.isEmpty)
     }
@@ -83,7 +83,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         let hub = setCurrentHub()
         let measurement = createMeasurement(type: .cold)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         XCTAssertEqual(serialized["transaction"] as? String, "App Start")
@@ -98,7 +98,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         let hub = setCurrentHub()
         let measurement = createMeasurement(type: .warm)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         XCTAssertEqual(serialized["transaction"] as? String, "App Start")
@@ -112,7 +112,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .unknown)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let spans = serialized["spans"] as? [[String: Any]] ?? []
@@ -125,9 +125,22 @@ class AppStartReportingStrategyTests: XCTestCase {
         _ = setCurrentHub()
         let measurement = createMeasurement(type: .cold)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
+    }
+
+    func testReport_shouldUseAppStartTraceId() throws {
+        let hub = setCurrentHub()
+        let measurement = createMeasurement(type: .cold)
+        let traceId = SentryId()
+
+        StandaloneTransactionStrategy().report(measurement, traceId: traceId)
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
+        let traceContext = try XCTUnwrap(contexts["trace"] as? [String: Any])
+        XCTAssertEqual(traceContext["trace_id"] as? String, traceId.sentryIdString)
     }
 
     func testReport_whenColdStart_shouldMarkMeasurementAsRead() {
@@ -136,7 +149,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         SentrySDKInternal.setAppStartMeasurement(globalMeasurement)
         addTeardownBlock { SentrySDKInternal.setAppStartMeasurement(nil) }
 
-        StandaloneTransactionStrategy().report(createMeasurement(type: .cold))
+        StandaloneTransactionStrategy().report(createMeasurement(type: .cold), traceId: SentryId())
 
         let result = SentryAppStartMeasurementProvider.appStartMeasurement(
             forOperation: SentrySpanOperationUiLoad,
@@ -175,7 +188,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold, duration: 0.5)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
@@ -187,7 +200,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .warm, duration: 0.3)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
@@ -261,7 +274,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let debugMeta = try XCTUnwrap(serialized["debug_meta"] as? [String: Any])
@@ -277,7 +290,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let startTimestamp = try XCTUnwrap(serialized["start_timestamp"] as? TimeInterval)
@@ -306,7 +319,7 @@ class AppStartReportingStrategyTests: XCTestCase {
             didFinishLaunchingTimestamp: appStart.addingTimeInterval(0.3)
         )
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
