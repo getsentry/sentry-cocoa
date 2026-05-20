@@ -209,20 +209,15 @@
     id<SentrySpan> _Nullable vcSpan =
         [self.tracker getSpan:SENTRY_UNWRAP_NULLABLE(SentrySpanId, spanId)];
 
-    // When a VC span is a root SentryTracer, we create a TTD tracker directly on it.
-    // When launch profiling is active, VC spans are children of the launch tracer
-    // (operation "app.lifecycle") rather than root tracers. We still need a TTD tracker
-    // in that case so TTID fires and eventually stops the launch tracer. For nested VCs
-    // within another VC's transaction (non-launch parent), we skip TTD tracking since
-    // TTID/TTFD are meant to cover the whole screen, not individual child VCs.
-    SentryTracer *tracer;
-    if ([vcSpan isKindOfClass:[SentryTracer self]]) {
-        tracer = (SentryTracer *)vcSpan;
-    } else {
-        tracer = [SentryTracer getTracer:vcSpan];
-        if (tracer == nil || ![tracer.operation isEqualToString:SentrySpanOperationAppLifecycle]) {
-            return;
-        }
+    // Resolve the root tracer for TTD tracking. For root VC transactions this is
+    // the span itself; for launch tracer children it walks up to the launch tracer.
+    // Skip nested VCs within another VC's transaction — TTID/TTFD cover the whole
+    // screen, not individual child VCs.
+    SentryTracer *tracer = [SentryTracer getTracer:vcSpan];
+    if (tracer == nil
+        || (tracer != (SentryTracer *)vcSpan
+            && ![tracer.operation isEqualToString:SentrySpanOperationAppLifecycle])) {
+        return;
     }
 
     if ([self getTimeToDisplayTrackerForController:controller]) {
