@@ -212,7 +212,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold, isPreWarmed: false)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
@@ -224,7 +224,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold, isPreWarmed: true)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
@@ -238,7 +238,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         SentryAppStartMeasurementProvider.setAppStartScreen("MainViewController")
         addTeardownBlock { SentryAppStartMeasurementProvider.reset() }
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
@@ -250,7 +250,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let extra = serialized["extra"] as? [String: Any]
@@ -262,7 +262,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         let hub = setUpIntegrationHub()
         let measurement = createMeasurement(type: .cold)
 
-        StandaloneTransactionStrategy().report(measurement)
+        StandaloneTransactionStrategy().report(measurement, traceId: SentryId())
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
