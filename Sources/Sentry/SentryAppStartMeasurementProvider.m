@@ -111,10 +111,12 @@ static NSString *_Nullable appStartScreen;
     }
 }
 
-+ (nullable SentryId *)appStartTraceId
++ (nullable SentryId *)consumeAppStartTraceId
 {
     @synchronized(appStartMeasurementLock) {
-        return appStartTraceId;
+        SentryId *traceId = appStartTraceId;
+        appStartTraceId = nil;
+        return traceId;
     }
 }
 
@@ -136,6 +138,14 @@ static NSString *_Nullable appStartScreen;
     }
 }
 
+#    if SENTRY_TEST || SENTRY_TEST_CI
++ (nullable SentryId *)appStartTraceId
+{
+    @synchronized(appStartMeasurementLock) {
+        return appStartTraceId;
+    }
+}
+
 + (void)reset
 {
     @synchronized(appStartMeasurementLock) {
@@ -144,6 +154,7 @@ static NSString *_Nullable appStartScreen;
         appStartScreen = nil;
     }
 }
+#    endif
 
 @end
 

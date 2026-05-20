@@ -4,12 +4,12 @@
 
 /// Determines how a completed app start measurement is reported to Sentry.
 protocol AppStartReportingStrategy {
-    func report(_ measurement: SentryAppStartMeasurement)
+    func report(_ measurement: SentryAppStartMeasurement, traceId: SentryId)
 }
 
 /// Attaches app start data to the first UIViewController transaction (default behavior).
 struct AttachToTransactionStrategy: AppStartReportingStrategy {
-    func report(_ measurement: SentryAppStartMeasurement) {
+    func report(_ measurement: SentryAppStartMeasurement, traceId: SentryId) {
         SentrySDKInternal.setAppStartMeasurement(measurement)
     }
 }
@@ -18,7 +18,7 @@ struct AttachToTransactionStrategy: AppStartReportingStrategy {
 /// configuration. The existing tracer pipeline then handles span building, measurements, context,
 /// debug images, and profiling.
 struct StandaloneTransactionStrategy: AppStartReportingStrategy {
-    func report(_ measurement: SentryAppStartMeasurement) {
+    func report(_ measurement: SentryAppStartMeasurement, traceId: SentryId) {
         guard SentrySDK.isEnabled else {
             SentrySDKLog.warning("SDK is not enabled, dropping standalone app start transaction")
             return
@@ -27,24 +27,13 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
         let operation = SentrySpanOperationAppStart
         let name = "App Start"
 
-        let appStartTraceId = SentryAppStartMeasurementProvider.appStartTraceId()
-        let context: TransactionContext
-        if let traceId = appStartTraceId {
-            context = TransactionContext(
-                name: name,
-                rawNameSource: SentryTransactionNameSource.component.rawValue,
-                operation: operation,
-                origin: SentryTraceOriginAutoAppStart,
-                trace: traceId
-            )
-        } else {
-            context = TransactionContext(
-                name: name,
-                rawNameSource: SentryTransactionNameSource.component.rawValue,
-                operation: operation,
-                origin: SentryTraceOriginAutoAppStart
-            )
-        }
+        let context = TransactionContext(
+            name: name,
+            rawNameSource: SentryTransactionNameSource.component.rawValue,
+            operation: operation,
+            origin: SentryTraceOriginAutoAppStart,
+            trace: traceId
+        )
 
         let configuration = SentryTracerConfiguration(block: { config in
             config.appStartMeasurement = measurement
@@ -62,8 +51,6 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
         }
 
         tracer.finish()
-
-        SentryAppStartMeasurementProvider.setAppStartTrace(nil)
     }
 }
 

@@ -1073,7 +1073,7 @@ class SentryTracerTests: XCTestCase {
             nameSource: .component,
             operation: fixture.appStartOperation,
             origin: SentryTraceOriginAutoAppStart,
-            trace: SentryAppStartMeasurementProvider.appStartTraceId() ?? SentryId(),
+            trace: preGeneratedTraceId,
             spanId: SpanId(),
             parentSpanId: nil,
             parentSampled: .undecided,
