@@ -1,23 +1,23 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Context passed to the `tracesSampler` callback.
 @objc(SOCSentrySamplingContext)
 public final class SamplingContext: NSObject {
-    internal let wrapped: Sentry.SamplingContext
+    internal let wrapped: SentrySwift.SamplingContext
 
-    internal init(_ wrapped: Sentry.SamplingContext) {
+    internal init(_ wrapped: SentrySwift.SamplingContext) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public init(transactionContext: TransactionContext) {
-        self.wrapped = Sentry.SamplingContext(transactionContext: transactionContext.wrapped)
+        self.wrapped = SentrySwift.SamplingContext(transactionContext: transactionContext.wrapped)
         super.init()
     }
 
     @objc public init(transactionContext: TransactionContext, customSamplingContext: [String: Any]) {
-        self.wrapped = Sentry.SamplingContext(
+        self.wrapped = SentrySwift.SamplingContext(
             transactionContext: transactionContext.wrapped,
             customSamplingContext: customSamplingContext
         )

@@ -73,7 +73,7 @@ var targets: [Target] = [
 targets.append(
     .target(
         name: "SentryObjCCompat",
-        dependencies: ["Sentry"],
+        dependencies: ["SentryObjCInternal"],
         path: "SentryObjCCompat",
         swiftSettings: [
             .unsafeFlags(["-enable-library-evolution"])

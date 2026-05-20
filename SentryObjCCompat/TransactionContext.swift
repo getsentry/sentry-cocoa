@@ -1,4 +1,4 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Context describing a transaction's identity and sampling state.
@@ -8,15 +8,15 @@ import Foundation
 /// standalone wrapper.
 @objc(SOCSentryTransactionContext)
 public final class TransactionContext: NSObject {
-    internal let wrapped: Sentry.TransactionContext
+    internal let wrapped: SentrySwift.TransactionContext
 
-    internal init(_ wrapped: Sentry.TransactionContext) {
+    internal init(_ wrapped: SentrySwift.TransactionContext) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public init(name: String, operation: String) {
-        self.wrapped = Sentry.TransactionContext(name: name, operation: operation)
+        self.wrapped = SentrySwift.TransactionContext(name: name, operation: operation)
         super.init()
     }
 
@@ -27,7 +27,7 @@ public final class TransactionContext: NSObject {
         sampleRate: NSNumber?,
         sampleRand: NSNumber?
     ) {
-        self.wrapped = Sentry.TransactionContext(
+        self.wrapped = SentrySwift.TransactionContext(
             name: name,
             operation: operation,
             sampled: sampled.underlying,
@@ -47,7 +47,7 @@ public final class TransactionContext: NSObject {
         parentSampleRate: NSNumber?,
         parentSampleRand: NSNumber?
     ) {
-        self.wrapped = Sentry.TransactionContext(
+        self.wrapped = SentrySwift.TransactionContext(
             name: name,
             operation: operation,
             trace: traceId.wrapped,
@@ -61,9 +61,6 @@ public final class TransactionContext: NSObject {
     }
 
     @objc public var name: String { wrapped.name }
-    @objc public var nameSource: SentryTransactionNameSource {
-        SentryTransactionNameSource(wrapped.nameSource)
-    }
 
     @objc public var sampleRate: NSNumber? {
         get { wrapped.sampleRate }

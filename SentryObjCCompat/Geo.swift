@@ -1,18 +1,18 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Approximate geographic location of the end user or device.
 @objc(SOCSentryGeo)
 public final class Geo: NSObject {
-    internal let wrapped: Sentry.Geo
+    internal let wrapped: SentrySwift.Geo
 
-    internal init(_ wrapped: Sentry.Geo) {
+    internal init(_ wrapped: SentrySwift.Geo) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public override init() {
-        self.wrapped = Sentry.Geo()
+        self.wrapped = SentrySwift.Geo()
         super.init()
     }
 

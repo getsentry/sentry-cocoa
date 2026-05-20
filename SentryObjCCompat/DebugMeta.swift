@@ -1,18 +1,18 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Metadata describing a loaded debug image / library.
 @objc(SOCSentryDebugMeta)
 public final class DebugMeta: NSObject {
-    internal let wrapped: Sentry.DebugMeta
+    internal let wrapped: SentrySwift.DebugMeta
 
-    internal init(_ wrapped: Sentry.DebugMeta) {
+    internal init(_ wrapped: SentrySwift.DebugMeta) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public override init() {
-        self.wrapped = Sentry.DebugMeta()
+        self.wrapped = SentrySwift.DebugMeta()
         super.init()
     }
 

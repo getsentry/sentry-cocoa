@@ -1,23 +1,23 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// User identification attached to events.
 @objc(SOCSentryUser)
 public final class User: NSObject {
-    internal let wrapped: Sentry.User
+    internal let wrapped: SentrySwift.User
 
-    internal init(_ wrapped: Sentry.User) {
+    internal init(_ wrapped: SentrySwift.User) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public override init() {
-        self.wrapped = Sentry.User()
+        self.wrapped = SentrySwift.User()
         super.init()
     }
 
     @objc public init(userId: String) {
-        self.wrapped = Sentry.User(userId: userId)
+        self.wrapped = SentrySwift.User(userId: userId)
         super.init()
     }
 

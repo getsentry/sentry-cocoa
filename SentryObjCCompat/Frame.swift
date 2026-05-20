@@ -1,18 +1,18 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// A single frame in a stack trace.
 @objc(SOCSentryFrame)
 public final class Frame: NSObject {
-    internal let wrapped: Sentry.Frame
+    internal let wrapped: SentrySwift.Frame
 
-    internal init(_ wrapped: Sentry.Frame) {
+    internal init(_ wrapped: SentrySwift.Frame) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public override init() {
-        self.wrapped = Sentry.Frame()
+        self.wrapped = SentrySwift.Frame()
         super.init()
     }
 

@@ -1,4 +1,4 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Severity of a Sentry event or breadcrumb.
@@ -15,11 +15,11 @@ public enum SentryLevel: UInt {
 }
 
 extension SentryLevel {
-    init(_ underlying: Sentry.SentryLevel) {
+    init(_ underlying: SentrySwift.SentryLevel) {
         self = SentryLevel(rawValue: underlying.rawValue) ?? .none
     }
 
-    var underlying: Sentry.SentryLevel {
-        Sentry.SentryLevel(rawValue: rawValue) ?? .none
+    var underlying: SentrySwift.SentryLevel {
+      SentrySwift.SentryLevel(rawValue: rawValue) ?? .none
     }
 }

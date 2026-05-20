@@ -1,12 +1,12 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Trace-level context propagated in the baggage header.
 @objc(SOCSentryTraceContext)
 public final class TraceContext: NSObject {
-    internal let wrapped: Sentry.TraceContext
+    internal let wrapped: SentrySwift.TraceContext
 
-    internal init(_ wrapped: Sentry.TraceContext) {
+    internal init(_ wrapped: SentrySwift.TraceContext) {
         self.wrapped = wrapped
         super.init()
     }

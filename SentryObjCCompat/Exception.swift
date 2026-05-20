@@ -1,18 +1,18 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// A captured exception with its stacktrace and mechanism metadata.
 @objc(SOCSentryException)
 public final class Exception: NSObject {
-    internal let wrapped: Sentry.Exception
+    internal let wrapped: SentrySwift.Exception
 
-    internal init(_ wrapped: Sentry.Exception) {
+    internal init(_ wrapped: SentrySwift.Exception) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public init(value: String?, type: String?) {
-        self.wrapped = Sentry.Exception(value: value, type: type)
+        self.wrapped = SentrySwift.Exception(value: value, type: type)
         super.init()
     }
 

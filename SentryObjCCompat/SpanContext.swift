@@ -1,23 +1,23 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Read-only context describing a span's identity.
 @objc(SOCSentrySpanContext)
 public class SpanContext: NSObject {
-    internal let wrapped: Sentry.SpanContext
+    internal let wrapped: SentrySwift.SpanContext
 
-    internal init(_ wrapped: Sentry.SpanContext) {
+    internal init(_ wrapped: SentrySwift.SpanContext) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public init(operation: String) {
-        self.wrapped = Sentry.SpanContext(operation: operation)
+        self.wrapped = SentrySwift.SpanContext(operation: operation)
         super.init()
     }
 
     @objc public init(operation: String, sampled: SentrySampleDecision) {
-        self.wrapped = Sentry.SpanContext(operation: operation, sampled: sampled.underlying)
+        self.wrapped = SentrySwift.SpanContext(operation: operation, sampled: sampled.underlying)
         super.init()
     }
 
@@ -28,7 +28,7 @@ public class SpanContext: NSObject {
         operation: String,
         sampled: SentrySampleDecision
     ) {
-        self.wrapped = Sentry.SpanContext(
+        self.wrapped = SentrySwift.SpanContext(
             trace: traceId.wrapped,
             spanId: spanId.wrapped,
             parentId: parentId?.wrapped,
@@ -46,7 +46,7 @@ public class SpanContext: NSObject {
         spanDescription: String?,
         sampled: SentrySampleDecision
     ) {
-        self.wrapped = Sentry.SpanContext(
+        self.wrapped = SentrySwift.SpanContext(
             trace: traceId.wrapped,
             spanId: spanId.wrapped,
             parentId: parentId?.wrapped,

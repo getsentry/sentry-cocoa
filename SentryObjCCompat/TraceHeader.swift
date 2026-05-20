@@ -1,18 +1,18 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// W3C-style `sentry-trace` HTTP header.
 @objc(SOCSentryTraceHeader)
 public final class TraceHeader: NSObject {
-    internal let wrapped: Sentry.TraceHeader
+    internal let wrapped: SentrySwift.TraceHeader
 
-    internal init(_ wrapped: Sentry.TraceHeader) {
+    internal init(_ wrapped: SentrySwift.TraceHeader) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public init(traceId: SentryId, spanId: SpanId, sampled: SentrySampleDecision) {
-        self.wrapped = Sentry.TraceHeader(
+        self.wrapped = SentrySwift.TraceHeader(
             trace: traceId.wrapped,
             spanId: spanId.wrapped,
             sampled: sampled.underlying

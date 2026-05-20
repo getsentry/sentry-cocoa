@@ -1,19 +1,19 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Central manager for SDK configuration, event capture, and scope management.
 @objc(SOCSentryHub)
 public final class Hub: NSObject {
-    internal let wrapped: Sentry.SentryHub
+    internal let wrapped: SentrySwift.SentryHub
 
-    internal init(_ wrapped: Sentry.SentryHub) {
+    internal init(_ wrapped: SentrySwift.SentryHub) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc(initWithClient:andScope:)
     public init(client: Client?, andScope scope: Scope?) {
-        self.wrapped = Sentry.SentryHub(client: client?.wrapped, andScope: scope?.wrapped)
+        self.wrapped = SentrySwift.SentryHub(client: client?.wrapped, andScope: scope?.wrapped)
         super.init()
     }
 

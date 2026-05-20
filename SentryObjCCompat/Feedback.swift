@@ -1,12 +1,12 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// User feedback gathered manually and forwarded to Sentry.
 @objc(SOCSentryFeedback)
 public final class Feedback: NSObject {
-    internal let wrapped: Sentry.SentryFeedback
+    internal let wrapped: SentrySwift.SentryFeedback
 
-    internal init(_ wrapped: Sentry.SentryFeedback) {
+    internal init(_ wrapped: SentrySwift.SentryFeedback) {
         self.wrapped = wrapped
         super.init()
     }
@@ -21,7 +21,7 @@ public final class Feedback: NSObject {
         associatedEventId: SentryId?,
         attachments: [Attachment]?
     ) {
-        self.wrapped = Sentry.SentryFeedback(
+        self.wrapped = SentrySwift.SentryFeedback(
             message: message,
             name: name,
             email: email,

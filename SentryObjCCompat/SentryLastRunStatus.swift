@@ -1,4 +1,4 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Crash status of the previous program execution.
@@ -12,7 +12,7 @@ public enum SentryLastRunStatus: Int {
 }
 
 extension SentryLastRunStatus {
-    init(_ underlying: Sentry.SentryLastRunStatus) {
+    init(_ underlying: SentrySwift.SentryLastRunStatus) {
         self = SentryLastRunStatus(rawValue: underlying.rawValue) ?? .unknown
     }
 }

@@ -1,18 +1,18 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Metadata describing how an exception was reported.
 @objc(SOCSentryMechanism)
 public final class Mechanism: NSObject {
-    internal let wrapped: Sentry.Mechanism
+    internal let wrapped: SentrySwift.Mechanism
 
-    internal init(_ wrapped: Sentry.Mechanism) {
+    internal init(_ wrapped: SentrySwift.Mechanism) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public init(type: String) {
-        self.wrapped = Sentry.Mechanism(type: type)
+        self.wrapped = SentrySwift.Mechanism(type: type)
         super.init()
     }
 

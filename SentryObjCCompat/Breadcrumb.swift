@@ -1,23 +1,23 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// A breadcrumb attached to a Sentry event.
 @objc(SOCSentryBreadcrumb)
 public final class Breadcrumb: NSObject {
-    internal let wrapped: Sentry.Breadcrumb
+    internal let wrapped: SentrySwift.Breadcrumb
 
-    internal init(_ wrapped: Sentry.Breadcrumb) {
+    internal init(_ wrapped: SentrySwift.Breadcrumb) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public override init() {
-        self.wrapped = Sentry.Breadcrumb()
+        self.wrapped = SentrySwift.Breadcrumb()
         super.init()
     }
 
     @objc public init(level: SentryLevel, category: String) {
-        self.wrapped = Sentry.Breadcrumb(level: level.underlying, category: category)
+        self.wrapped = SentrySwift.Breadcrumb(level: level.underlying, category: category)
         super.init()
     }
 

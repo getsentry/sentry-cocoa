@@ -1,8 +1,8 @@
 // swiftlint:disable file_length
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
-/// Pure-Swift `@objc` shim around `Sentry.SentrySDK`. Consumers that need
+/// Pure-Swift `@objc` shim around `SentrySwift.SentrySDK`. Consumers that need
 /// Objective-C interop should import `SentryObjCCompat` and call these APIs
 /// instead of `SentrySDK` directly.
 ///
@@ -15,83 +15,83 @@ public final class SentryObjCCompatSDK: NSObject {
     // MARK: - Lifecycle
 
     @objc public static func start(options: Options) {
-        Sentry.SentrySDK.start(options: options.wrapped)
+        SentrySwift.SentrySDK.start(options: options.wrapped)
     }
 
     @objc public static func start(configureOptions: @escaping (Options) -> Void) {
         let options = Options()
         configureOptions(options)
-        Sentry.SentrySDK.start(options: options.wrapped)
+        SentrySwift.SentrySDK.start(options: options.wrapped)
     }
 
     @objc public static var isEnabled: Bool {
-        Sentry.SentrySDK.isEnabled
+        SentrySwift.SentrySDK.isEnabled
     }
 
     @objc(flush:)
     public static func flush(timeout: TimeInterval) {
-        Sentry.SentrySDK.flush(timeout: timeout)
+        SentrySwift.SentrySDK.flush(timeout: timeout)
     }
 
     @objc public static func close() {
-        Sentry.SentrySDK.close()
+        SentrySwift.SentrySDK.close()
     }
 
     // MARK: - Crash status
 
     @available(*, deprecated, message: "Use lastRunStatus instead, which distinguishes between 'did not crash' and 'unknown'.")
     @objc public static var crashedLastRun: Bool {
-        Sentry.SentrySDK.crashedLastRun
+      SentrySwift.SentrySDK.crashedLastRun
     }
 
     @objc public static var lastRunStatus: SentryLastRunStatus {
-        SentryLastRunStatus(Sentry.SentrySDK.lastRunStatus)
+        SentryLastRunStatus(SentrySwift.SentrySDK.lastRunStatus)
     }
 
     @objc public static var detectedStartUpCrash: Bool {
-        Sentry.SentrySDK.detectedStartUpCrash
+      SentrySwift.SentrySDK.detectedStartUpCrash
     }
 
     @objc public static func crash() {
-        Sentry.SentrySDK.crash()
+      SentrySwift.SentrySDK.crash()
     }
 
     // MARK: - Sessions
 
     @objc public static func startSession() {
-        Sentry.SentrySDK.startSession()
+      SentrySwift.SentrySDK.startSession()
     }
 
     @objc public static func endSession() {
-        Sentry.SentrySDK.endSession()
+        SentrySwift.SentrySDK.endSession()
     }
 
     // MARK: - App-hang tracking
 
     @objc public static func pauseAppHangTracking() {
-        Sentry.SentrySDK.pauseAppHangTracking()
+        SentrySwift.SentrySDK.pauseAppHangTracking()
     }
 
     @objc public static func resumeAppHangTracking() {
-        Sentry.SentrySDK.resumeAppHangTracking()
+        SentrySwift.SentrySDK.resumeAppHangTracking()
     }
 
     // MARK: - UI lifecycle
 
     @objc public static func reportFullyDisplayed() {
-        Sentry.SentrySDK.reportFullyDisplayed()
+        SentrySwift.SentrySDK.reportFullyDisplayed()
     }
 
     // MARK: - Tracing
 
     /// Current active transaction or span bound to the scope.
     @objc public static var span: Span? {
-        Sentry.SentrySDK.span.map(Span.init)
+        SentrySwift.SentrySDK.span.map(Span.init)
     }
 
     @discardableResult
     @objc public static func startTransaction(name: String, operation: String) -> Span {
-        Span(Sentry.SentrySDK.startTransaction(name: name, operation: operation))
+        Span(SentrySwift.SentrySDK.startTransaction(name: name, operation: operation))
     }
 
     @discardableResult
@@ -100,7 +100,7 @@ public final class SentryObjCCompatSDK: NSObject {
         operation: String,
         bindToScope: Bool
     ) -> Span {
-        Span(Sentry.SentrySDK.startTransaction(
+        Span(SentrySwift.SentrySDK.startTransaction(
             name: name,
             operation: operation,
             bindToScope: bindToScope
@@ -110,7 +110,7 @@ public final class SentryObjCCompatSDK: NSObject {
     @discardableResult
     @objc(startTransactionWithContext:)
     public static func startTransaction(transactionContext: TransactionContext) -> Span {
-        Span(Sentry.SentrySDK.startTransaction(transactionContext: transactionContext.wrapped))
+        Span(SentrySwift.SentrySDK.startTransaction(transactionContext: transactionContext.wrapped))
     }
 
     @discardableResult
@@ -119,7 +119,7 @@ public final class SentryObjCCompatSDK: NSObject {
         transactionContext: TransactionContext,
         bindToScope: Bool
     ) -> Span {
-        Span(Sentry.SentrySDK.startTransaction(
+        Span(SentrySwift.SentrySDK.startTransaction(
             transactionContext: transactionContext.wrapped,
             bindToScope: bindToScope
         ))
@@ -132,7 +132,7 @@ public final class SentryObjCCompatSDK: NSObject {
         bindToScope: Bool,
         customSamplingContext: [String: Any]
     ) -> Span {
-        Span(Sentry.SentrySDK.startTransaction(
+        Span(SentrySwift.SentrySDK.startTransaction(
             transactionContext: transactionContext.wrapped,
             bindToScope: bindToScope,
             customSamplingContext: customSamplingContext
@@ -145,7 +145,7 @@ public final class SentryObjCCompatSDK: NSObject {
         transactionContext: TransactionContext,
         customSamplingContext: [String: Any]
     ) -> Span {
-        Span(Sentry.SentrySDK.startTransaction(
+        Span(SentrySwift.SentrySDK.startTransaction(
             transactionContext: transactionContext.wrapped,
             customSamplingContext: customSamplingContext
         ))
@@ -156,19 +156,19 @@ public final class SentryObjCCompatSDK: NSObject {
     @objc(captureEvent:)
     @discardableResult
     public static func capture(event: Event) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(event: event.wrapped))
+        SentryId(SentrySwift.SentrySDK.capture(event: event.wrapped))
     }
 
     @objc(captureEvent:withScope:)
     @discardableResult
     public static func capture(event: Event, scope: Scope) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(event: event.wrapped, scope: scope.wrapped))
+        SentryId(SentrySwift.SentrySDK.capture(event: event.wrapped, scope: scope.wrapped))
     }
 
     @objc(captureEvent:withScopeBlock:)
     @discardableResult
     public static func capture(event: Event, block: @escaping (Scope) -> Void) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(event: event.wrapped) { underlying in
+        SentryId(SentrySwift.SentrySDK.capture(event: event.wrapped) { underlying in
             block(Scope(underlying))
         })
     }
@@ -176,7 +176,7 @@ public final class SentryObjCCompatSDK: NSObject {
     @objc(captureEvent:attachAllThreads:)
     @discardableResult
     public static func capture(event: Event, attachAllThreads: Bool) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(event: event.wrapped, attachAllThreads: attachAllThreads))
+        SentryId(SentrySwift.SentrySDK.capture(event: event.wrapped, attachAllThreads: attachAllThreads))
     }
 
     // MARK: - Error capture
@@ -184,19 +184,19 @@ public final class SentryObjCCompatSDK: NSObject {
     @objc(captureError:)
     @discardableResult
     public static func capture(error: Error) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(error: error))
+        SentryId(SentrySwift.SentrySDK.capture(error: error))
     }
 
     @objc(captureError:withScope:)
     @discardableResult
     public static func capture(error: Error, scope: Scope) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(error: error, scope: scope.wrapped))
+        SentryId(SentrySwift.SentrySDK.capture(error: error, scope: scope.wrapped))
     }
 
     @objc(captureError:withScopeBlock:)
     @discardableResult
     public static func capture(error: Error, block: @escaping (Scope) -> Void) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(error: error) { underlying in
+        SentryId(SentrySwift.SentrySDK.capture(error: error) { underlying in
             block(Scope(underlying))
         })
     }
@@ -204,7 +204,7 @@ public final class SentryObjCCompatSDK: NSObject {
     @objc(captureError:attachAllThreads:)
     @discardableResult
     public static func capture(error: Error, attachAllThreads: Bool) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(error: error, attachAllThreads: attachAllThreads))
+        SentryId(SentrySwift.SentrySDK.capture(error: error, attachAllThreads: attachAllThreads))
     }
 
     // MARK: - Exception capture
@@ -212,13 +212,13 @@ public final class SentryObjCCompatSDK: NSObject {
     @objc(captureException:)
     @discardableResult
     public static func capture(exception: NSException) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(exception: exception))
+        SentryId(SentrySwift.SentrySDK.capture(exception: exception))
     }
 
     @objc(captureException:withScope:)
     @discardableResult
     public static func capture(exception: NSException, scope: Scope) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(exception: exception, scope: scope.wrapped))
+        SentryId(SentrySwift.SentrySDK.capture(exception: exception, scope: scope.wrapped))
     }
 
     @objc(captureException:withScopeBlock:)
@@ -227,7 +227,7 @@ public final class SentryObjCCompatSDK: NSObject {
         exception: NSException,
         block: @escaping (Scope) -> Void
     ) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(exception: exception) { underlying in
+        SentryId(SentrySwift.SentrySDK.capture(exception: exception) { underlying in
             block(Scope(underlying))
         })
     }
@@ -235,7 +235,7 @@ public final class SentryObjCCompatSDK: NSObject {
     @objc(captureException:attachAllThreads:)
     @discardableResult
     public static func capture(exception: NSException, attachAllThreads: Bool) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(exception: exception, attachAllThreads: attachAllThreads))
+        SentryId(SentrySwift.SentrySDK.capture(exception: exception, attachAllThreads: attachAllThreads))
     }
 
     // MARK: - Message capture
@@ -243,19 +243,19 @@ public final class SentryObjCCompatSDK: NSObject {
     @objc(captureMessage:)
     @discardableResult
     public static func capture(message: String) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(message: message))
+        SentryId(SentrySwift.SentrySDK.capture(message: message))
     }
 
     @objc(captureMessage:withScope:)
     @discardableResult
     public static func capture(message: String, scope: Scope) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(message: message, scope: scope.wrapped))
+        SentryId(SentrySwift.SentrySDK.capture(message: message, scope: scope.wrapped))
     }
 
     @objc(captureMessage:withScopeBlock:)
     @discardableResult
     public static func capture(message: String, block: @escaping (Scope) -> Void) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(message: message) { underlying in
+        SentryId(SentrySwift.SentrySDK.capture(message: message) { underlying in
             block(Scope(underlying))
         })
     }
@@ -263,20 +263,20 @@ public final class SentryObjCCompatSDK: NSObject {
     @objc(captureMessage:attachAllThreads:)
     @discardableResult
     public static func capture(message: String, attachAllThreads: Bool) -> SentryId {
-        SentryId(Sentry.SentrySDK.capture(message: message, attachAllThreads: attachAllThreads))
+        SentryId(SentrySwift.SentrySDK.capture(message: message, attachAllThreads: attachAllThreads))
     }
 
     // MARK: - Feedback
 
     @objc(captureFeedback:)
     public static func capture(feedback: Feedback) {
-        Sentry.SentrySDK.capture(feedback: feedback.wrapped)
+        SentrySwift.SentrySDK.capture(feedback: feedback.wrapped)
     }
 
     #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     /// The user-feedback API; iOS only.
     @objc public static var feedback: FeedbackAPI {
-        FeedbackAPI(Sentry.SentrySDK.feedback)
+        FeedbackAPI(SentrySwift.SentrySDK.feedback)
     }
     #endif
 
@@ -284,29 +284,29 @@ public final class SentryObjCCompatSDK: NSObject {
 
     @objc(addBreadcrumb:)
     public static func addBreadcrumb(_ crumb: Breadcrumb) {
-        Sentry.SentrySDK.addBreadcrumb(crumb.wrapped)
+        SentrySwift.SentrySDK.addBreadcrumb(crumb.wrapped)
     }
 
     @objc(configureScope:)
     public static func configureScope(_ callback: @escaping (Scope) -> Void) {
-        Sentry.SentrySDK.configureScope { underlying in
+        SentrySwift.SentrySDK.configureScope { underlying in
             callback(Scope(underlying))
         }
     }
 
     @objc public static func setUser(_ user: User?) {
-        Sentry.SentrySDK.setUser(user?.wrapped)
+        SentrySwift.SentrySDK.setUser(user?.wrapped)
     }
 
     // MARK: - Continuous profiling
 
     #if !(os(watchOS) || os(tvOS) || os(visionOS))
     @objc public static func startProfiler() {
-        Sentry.SentrySDK.startProfiler()
+        SentrySwift.SentrySDK.startProfiler()
     }
 
     @objc public static func stopProfiler() {
-        Sentry.SentrySDK.stopProfiler()
+        SentrySwift.SentrySDK.stopProfiler()
     }
     #endif
 

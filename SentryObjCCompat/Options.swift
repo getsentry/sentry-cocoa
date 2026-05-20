@@ -1,5 +1,5 @@
 // swiftlint:disable file_length
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Configuration options for the Sentry SDK, exposed through the
@@ -12,15 +12,15 @@ import Foundation
 /// cut and tagged `// TODO: wrap` below.
 @objc(SOCSentryOptions)
 public final class Options: NSObject {
-    internal let wrapped: Sentry.Options
+    internal let wrapped: SentrySwift.Options
 
-    internal init(_ wrapped: Sentry.Options) {
+    internal init(_ wrapped: SentrySwift.Options) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public override init() {
-        self.wrapped = Sentry.Options()
+        self.wrapped = SentrySwift.Options()
         super.init()
     }
 

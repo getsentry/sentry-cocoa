@@ -1,18 +1,18 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Information about an HTTP request attached to an event.
 @objc(SOCSentryRequest)
 public final class Request: NSObject {
-    internal let wrapped: Sentry.SentryRequest
+    internal let wrapped: SentrySwift.SentryRequest
 
-    internal init(_ wrapped: Sentry.SentryRequest) {
+    internal init(_ wrapped: SentrySwift.SentryRequest) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public override init() {
-        self.wrapped = Sentry.SentryRequest()
+        self.wrapped = SentrySwift.SentryRequest()
         super.init()
     }
 

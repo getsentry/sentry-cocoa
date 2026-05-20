@@ -1,38 +1,38 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// File or in-memory data sent alongside an event.
 @objc(SOCSentryAttachment)
 public final class Attachment: NSObject {
-    internal let wrapped: Sentry.Attachment
+    internal let wrapped: SentrySwift.Attachment
 
-    internal init(_ wrapped: Sentry.Attachment) {
+    internal init(_ wrapped: SentrySwift.Attachment) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public init(data: Data, filename: String) {
-        self.wrapped = Sentry.Attachment(data: data, filename: filename)
+        self.wrapped = SentrySwift.Attachment(data: data, filename: filename)
         super.init()
     }
 
     @objc public init(data: Data, filename: String, contentType: String?) {
-        self.wrapped = Sentry.Attachment(data: data, filename: filename, contentType: contentType)
+        self.wrapped = SentrySwift.Attachment(data: data, filename: filename, contentType: contentType)
         super.init()
     }
 
     @objc public init(path: String) {
-        self.wrapped = Sentry.Attachment(path: path)
+        self.wrapped = SentrySwift.Attachment(path: path)
         super.init()
     }
 
     @objc public init(path: String, filename: String) {
-        self.wrapped = Sentry.Attachment(path: path, filename: filename)
+        self.wrapped = SentrySwift.Attachment(path: path, filename: filename)
         super.init()
     }
 
     @objc public init(path: String, filename: String, contentType: String?) {
-        self.wrapped = Sentry.Attachment(path: path, filename: filename, contentType: contentType)
+        self.wrapped = SentrySwift.Attachment(path: path, filename: filename, contentType: contentType)
         super.init()
     }
 
@@ -42,7 +42,7 @@ public final class Attachment: NSObject {
         contentType: String?,
         attachmentType: SentryAttachmentType
     ) {
-        self.wrapped = Sentry.Attachment(
+        self.wrapped = SentrySwift.Attachment(
             data: data,
             filename: filename,
             contentType: contentType,
@@ -57,7 +57,7 @@ public final class Attachment: NSObject {
         contentType: String?,
         attachmentType: SentryAttachmentType
     ) {
-        self.wrapped = Sentry.Attachment(
+        self.wrapped = SentrySwift.Attachment(
             path: path,
             filename: filename,
             contentType: contentType,

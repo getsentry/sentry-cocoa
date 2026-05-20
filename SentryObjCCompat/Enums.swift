@@ -1,4 +1,4 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Status of a span/transaction.
@@ -27,12 +27,12 @@ public enum SentrySpanStatus: UInt {
 }
 
 extension SentrySpanStatus {
-    init(_ underlying: Sentry.SentrySpanStatus) {
+    init(_ underlying: SentrySwift.SentrySpanStatus) {
         self = SentrySpanStatus(rawValue: underlying.rawValue) ?? .undefined
     }
 
-    var underlying: Sentry.SentrySpanStatus {
-        Sentry.SentrySpanStatus(rawValue: rawValue) ?? .undefined
+    var underlying: SentrySwift.SentrySpanStatus {
+      SentrySwift.SentrySpanStatus(rawValue: rawValue) ?? .undefined
     }
 }
 
@@ -47,12 +47,12 @@ public enum SentrySampleDecision: UInt {
 }
 
 extension SentrySampleDecision {
-    init(_ underlying: Sentry.SentrySampleDecision) {
+    init(_ underlying: SentrySwift.SentrySampleDecision) {
         self = SentrySampleDecision(rawValue: underlying.rawValue) ?? .undecided
     }
 
-    var underlying: Sentry.SentrySampleDecision {
-        Sentry.SentrySampleDecision(rawValue: rawValue) ?? .undecided
+    var underlying: SentrySwift.SentrySampleDecision {
+      SentrySwift.SentrySampleDecision(rawValue: rawValue) ?? .undecided
     }
 }
 
@@ -70,12 +70,12 @@ public enum SentryTransactionNameSource: Int {
 }
 
 extension SentryTransactionNameSource {
-    init(_ underlying: Sentry.SentryTransactionNameSource) {
+    init(_ underlying: SentrySwift.SentryTransactionNameSource) {
         self = SentryTransactionNameSource(rawValue: underlying.rawValue) ?? .custom
     }
 
-    var underlying: Sentry.SentryTransactionNameSource {
-        Sentry.SentryTransactionNameSource(rawValue: rawValue) ?? .custom
+    var underlying: SentrySwift.SentryTransactionNameSource {
+      SentrySwift.SentryTransactionNameSource(rawValue: rawValue) ?? .custom
     }
 }
 
@@ -89,12 +89,12 @@ public enum SentryFeedbackSource: Int {
 }
 
 extension SentryFeedbackSource {
-    init(_ underlying: Sentry.SentryFeedback.SentryFeedbackSource) {
+    init(_ underlying: SentrySwift.SentryFeedback.SentryFeedbackSource) {
         self = SentryFeedbackSource(rawValue: underlying.rawValue) ?? .widget
     }
 
-    var underlying: Sentry.SentryFeedback.SentryFeedbackSource {
-        Sentry.SentryFeedback.SentryFeedbackSource(rawValue: rawValue) ?? .widget
+    var underlying: SentrySwift.SentryFeedback.SentryFeedbackSource {
+      SentrySwift.SentryFeedback.SentryFeedbackSource(rawValue: rawValue) ?? .widget
     }
 }
 
@@ -108,11 +108,11 @@ public enum SentryAttachmentType: Int {
 }
 
 extension SentryAttachmentType {
-    init(_ underlying: Sentry.SentryAttachmentType) {
+    init(_ underlying: SentrySwift.SentryAttachmentType) {
         self = SentryAttachmentType(rawValue: underlying.rawValue) ?? .eventAttachment
     }
 
-    var underlying: Sentry.SentryAttachmentType {
-        Sentry.SentryAttachmentType(rawValue: rawValue) ?? .eventAttachment
+    var underlying: SentrySwift.SentryAttachmentType {
+      SentrySwift.SentryAttachmentType(rawValue: rawValue) ?? .eventAttachment
     }
 }

@@ -1,18 +1,18 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// A thread captured as part of an event payload.
 @objc(SOCSentryThread)
 public final class Thread: NSObject {
-    internal let wrapped: Sentry.SentryThread
+    internal let wrapped: SentrySwift.SentryThread
 
-    internal init(_ wrapped: Sentry.SentryThread) {
+    internal init(_ wrapped: SentrySwift.SentryThread) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public init(threadId: NSNumber?) {
-        self.wrapped = Sentry.SentryThread(threadId: threadId)
+        self.wrapped = SentrySwift.SentryThread(threadId: threadId)
         super.init()
     }
 

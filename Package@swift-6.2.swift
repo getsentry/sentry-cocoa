@@ -67,13 +67,13 @@ var targets: [Target] = [
 ]
 
 // Pure-Swift ObjC compatibility wrapper. Imports the SDK via
-// `@_implementationOnly import Sentry` so no Sentry symbol leaks through the
+// `internal import SentrySwift` so no Sentry symbol leaks through the
 // wrapper's public ABI. When the core SDK eventually drops `@objc` from its
 // Swift surface, ObjC consumers can depend on this product instead.
 targets.append(
     .target(
         name: "SentryObjCCompat",
-        dependencies: ["Sentry"],
+        dependencies: ["SentryObjCInternal"],
         path: "SentryObjCCompat",
         swiftSettings: [
             .unsafeFlags(["-enable-library-evolution"])

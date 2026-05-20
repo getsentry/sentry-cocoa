@@ -1,18 +1,18 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Platform-specific error context attached to an exception mechanism.
 @objc(SOCSentryMechanismContext)
 public final class MechanismContext: NSObject {
-    internal let wrapped: Sentry.MechanismContext
+    internal let wrapped: SentrySwift.MechanismContext
 
-    internal init(_ wrapped: Sentry.MechanismContext) {
+    internal init(_ wrapped: SentrySwift.MechanismContext) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public override init() {
-        self.wrapped = Sentry.MechanismContext()
+        self.wrapped = SentrySwift.MechanismContext()
         super.init()
     }
 

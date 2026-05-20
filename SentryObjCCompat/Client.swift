@@ -1,18 +1,18 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// The Sentry client is responsible for capturing events and sending them to Sentry.
 @objc(SOCSentryClient)
 public final class Client: NSObject {
-    internal let wrapped: Sentry.SentryClient
+    internal let wrapped: SentrySwift.SentryClient
 
-    internal init(_ wrapped: Sentry.SentryClient) {
+    internal init(_ wrapped: SentrySwift.SentryClient) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public init?(options: Options) {
-        guard let underlying = Sentry.SentryClient(options: options.wrapped) else {
+        guard let underlying = SentrySwift.SentryClient(options: options.wrapped) else {
             return nil
         }
         self.wrapped = underlying

@@ -1,28 +1,28 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Contextual data attached to every captured event.
 @objc(SOCSentryScope)
 public final class Scope: NSObject {
-    internal let wrapped: Sentry.Scope
+    internal let wrapped: SentrySwift.Scope
 
-    internal init(_ wrapped: Sentry.Scope) {
+    internal init(_ wrapped: SentrySwift.Scope) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public init(maxBreadcrumbs: Int) {
-        self.wrapped = Sentry.Scope(maxBreadcrumbs: maxBreadcrumbs)
+        self.wrapped = SentrySwift.Scope(maxBreadcrumbs: maxBreadcrumbs)
         super.init()
     }
 
     @objc public override init() {
-        self.wrapped = Sentry.Scope()
+        self.wrapped = SentrySwift.Scope()
         super.init()
     }
 
     @objc public init(scope: Scope) {
-        self.wrapped = Sentry.Scope(scope: scope.wrapped)
+        self.wrapped = SentrySwift.Scope(scope: scope.wrapped)
         super.init()
     }
 

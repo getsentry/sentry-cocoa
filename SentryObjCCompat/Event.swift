@@ -1,29 +1,29 @@
 // swiftlint:disable file_length
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// A Sentry event payload.
 @objc(SOCSentryEvent)
 public final class Event: NSObject {
-    internal let wrapped: Sentry.Event
+    internal let wrapped: SentrySwift.Event
 
-    internal init(_ wrapped: Sentry.Event) {
+    internal init(_ wrapped: SentrySwift.Event) {
         self.wrapped = wrapped
         super.init()
     }
 
     @objc public override init() {
-        self.wrapped = Sentry.Event()
+        self.wrapped = SentrySwift.Event()
         super.init()
     }
 
     @objc public init(level: SentryLevel) {
-        self.wrapped = Sentry.Event(level: level.underlying)
+        self.wrapped = SentrySwift.Event(level: level.underlying)
         super.init()
     }
 
     @objc public init(error: Error) {
-        self.wrapped = Sentry.Event(error: error)
+        self.wrapped = SentrySwift.Event(error: error)
         super.init()
     }
 

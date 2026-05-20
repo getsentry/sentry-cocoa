@@ -1,4 +1,4 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// 32-character hexadecimal identifier for a Sentry event.
@@ -6,29 +6,29 @@ import Foundation
 /// Mirrors `Sentry.SentryId` without exposing it on the wrapper's public ABI.
 @objc(SOCSentryId)
 public final class SentryId: NSObject {
-    internal let wrapped: Sentry.SentryId
+    internal let wrapped: SentrySwift.SentryId
 
-    internal init(_ wrapped: Sentry.SentryId) {
+    internal init(_ wrapped: SentrySwift.SentryId) {
         self.wrapped = wrapped
         super.init()
     }
 
     /// Creates an id with a random UUID.
     @objc public override init() {
-        self.wrapped = Sentry.SentryId()
+        self.wrapped = SentrySwift.SentryId()
         super.init()
     }
 
     /// Creates an id from an existing UUID.
     @objc public init(uuid: UUID) {
-        self.wrapped = Sentry.SentryId(uuid: uuid)
+        self.wrapped = SentrySwift.SentryId(uuid: uuid)
         super.init()
     }
 
     /// Creates an id from a 32- or 36-character hex string. Returns
     /// `SentryId.empty` for invalid input, matching the underlying SDK.
     @objc public init(uuidString: String) {
-        self.wrapped = Sentry.SentryId(uuidString: uuidString)
+        self.wrapped = SentrySwift.SentryId(uuidString: uuidString)
         super.init()
     }
 
@@ -39,7 +39,7 @@ public final class SentryId: NSObject {
 
     /// An id whose UUID is all zeros.
     @objc public static var empty: SentryId {
-        SentryId(Sentry.SentryId.empty)
+        SentryId(SentrySwift.SentryId.empty)
     }
 
     public override func isEqual(_ object: Any?) -> Bool {

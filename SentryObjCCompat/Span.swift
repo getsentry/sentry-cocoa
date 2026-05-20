@@ -1,4 +1,4 @@
-@_implementationOnly import Sentry
+internal import SentrySwift
 import Foundation
 
 /// Concrete `@objc` wrapper around the underlying `Sentry.Span` protocol.
@@ -8,9 +8,9 @@ import Foundation
 /// and re-exposes every public member as a class method/property.
 @objc(SOCSentrySpan)
 public final class Span: NSObject {
-    internal let wrapped: any Sentry.Span
+    internal let wrapped: any SentrySwift.Span
 
-    internal init(_ wrapped: any Sentry.Span) {
+    internal init(_ wrapped: any SentrySwift.Span) {
         self.wrapped = wrapped
         super.init()
     }
