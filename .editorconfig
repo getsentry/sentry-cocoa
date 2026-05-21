@@ -1,0 +1,63 @@
+# EditorConfig is awesome: https://editorconfig.org
+
+# top-most EditorConfig file
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+indent_style = space
+
+# Swift — matches existing source files
+[*.swift]
+indent_size = 4
+
+# Objective-C, C, C++ — matches .clang-format (IndentWidth: 4)
+[*.{m,h,c,mm,cpp,cc,hpp}]
+indent_size = 4
+
+# Ruby — standard Ruby convention
+[*.{rb,podspec}]
+indent_size = 2
+
+[{Gemfile,Fastfile,Matchfile,Appfile,Deliverfile}]
+indent_size = 2
+
+# Shell — matches existing scripts
+[*.sh]
+indent_size = 4
+
+# Python — PEP 8
+[*.py]
+indent_size = 4
+
+# YAML — matches dprint.json (indentWidth: 2)
+[*.{yml,yaml}]
+indent_size = 2
+
+# JSON — matches dprint.json (indentWidth: 2)
+[*.json]
+indent_size = 2
+
+# TOML
+[*.toml]
+indent_size = 2
+
+# Markdown — matches existing files
+[*.md]
+indent_size = 2
+trim_trailing_whitespace = false
+
+# Makefiles require tabs
+[{Makefile,GNUmakefile,*.mk}]
+indent_style = tab
+
+# Xcode project/workspace files - align with Xcode defaults
+[*.{pbxproj,xcscheme,xcsettings}]
+indent_style = tab
+
+# XML / Interface Builder - align with Xcode defaults
+[*.{xml,xib,storyboard}]
+indent_size = 2
