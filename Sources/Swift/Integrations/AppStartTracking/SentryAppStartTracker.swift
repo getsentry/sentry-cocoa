@@ -34,6 +34,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     private let framesTracker: SentryFramesTracker
     private let enablePreWarmedAppStartTracing: Bool
     private let reportingStrategy: AppStartReportingStrategy
+    let extendedAppLaunchManager: SentryExtendedAppLaunchManager
 
     private var previousAppState: SentryAppState?
     private var appStartTraceId: SentryId?
@@ -57,14 +58,16 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         enableStandaloneAppStartTracing: Bool,
         dateProvider: SentryCurrentDateProvider,
         sysctlWrapper: SentrySysctl,
-        appStartInfoProvider: AppStartInfoProvider
+        appStartInfoProvider: AppStartInfoProvider,
+        extendedAppLaunchManager: SentryExtendedAppLaunchManager
     ) {
         self.dispatchQueue = dispatchQueueWrapper
         self.appStateManager = appStateManager
         self.framesTracker = framesTracker
         self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
+        self.extendedAppLaunchManager = extendedAppLaunchManager
         self.reportingStrategy = enableStandaloneAppStartTracing
-            ? StandaloneTransactionStrategy()
+            ? StandaloneTransactionStrategy(extendedAppLaunchManager: extendedAppLaunchManager)
             : AttachToTransactionStrategy()
         self.previousAppState = appStateManager.loadPreviousAppState()
         self.dateProvider = dateProvider

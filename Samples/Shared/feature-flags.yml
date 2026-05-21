@@ -56,6 +56,7 @@ schemeTemplates:
         "--io.sentry.performance.disable-automatic-session-tracking": false
         "--io.sentry.performance.disable-watchdog-tracking": false
         "--io.sentry.performance.enable-standalone-app-start-tracing": false
+        "--io.sentry.performance.extend-app-launch-3-seconds": false
         "--io.sentry.tracing.disable-tracing": false
         "--io.sentry.performance.disable-core-data-tracing": false
         "--io.sentry.performance.disable-uiviewcontroller-tracing": false

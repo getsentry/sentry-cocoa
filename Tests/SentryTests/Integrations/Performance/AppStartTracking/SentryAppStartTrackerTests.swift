@@ -96,7 +96,8 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
                 enableStandaloneAppStartTracing: enableStandaloneAppStartTracing,
                 dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
                 sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper,
-                appStartInfoProvider: appStartInfoProvider
+                appStartInfoProvider: appStartInfoProvider,
+                extendedAppLaunchManager: SentryDependencyContainer.sharedInstance().extendedAppLaunchManager
             )
             return sut
         }

@@ -25,11 +25,21 @@ public struct SentrySDKWrapper {
             print("SentrySDK already enabled, closing it")
             SentrySDK.close()
         }
+        
+        if SentrySDKOverrides.Performance.extendAppLaunch3Seconds.boolValue {
+            SentrySDK.extendAppLaunch()
+        }
 
         if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
             print("[Sentry] lastRunStatus before start: \(SentrySDK.lastRunStatus)")
             SentrySDK.start(configureOptions: configureSentryOptions(options:))
             print("[Sentry] lastRunStatus after start: \(SentrySDK.lastRunStatus)")
+        }
+        
+        if SentrySDKOverrides.Performance.extendAppLaunch3Seconds.boolValue {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                SentrySDK.finishExtendedAppLaunch()
+            }
         }
     }
 

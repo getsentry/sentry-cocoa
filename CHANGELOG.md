@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `SentrySDK.extendAppLaunch()` and `SentrySDK.finishExtendedAppLaunch()` to customize app launch end time (#6886)
+
 ## 9.14.0
 
 ### Features
