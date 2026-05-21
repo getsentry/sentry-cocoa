@@ -33,6 +33,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private let crashWrapper: SentryCrashReporter
     private let replayFileManager: SessionReplayFileManager
     private var replayRecovery: SessionReplayRecovery?
+    private var backgroundForegroundObserver: SentrySessionReplayBackgroundForegroundObserver?
 
     /// Getter to get the current application at runtime
     ///
@@ -94,6 +95,8 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         (self.replayProcessingQueue, self.replayAssetWorkerQueue) = Self.createDispatchQueues(dependencies: dependencies)
         
         super.init()
+
+        self.backgroundForegroundObserver = SentrySessionReplayBackgroundForegroundObserver(integration: self)
         
         self.replayRecovery = SessionReplayRecovery(
             replayOptions: replayOptions,
@@ -118,11 +121,12 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     public func uninstall() {
         SentrySDKLog.debug("[Session Replay] Uninstalling")
+        isPendingStart = false
         notificationCenter.removeObserver(self, name: UIScene.didActivateNotification, object: nil)
         notificationCenter.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
         SentrySDKInternal.currentHub().unregisterSessionListener(self)
         touchTracker = nil
-        pause()
+        stopCurrentReplay()
     }
 
     deinit {
@@ -187,18 +191,17 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     public func sentrySessionEnded(session: SentrySession) {
         SentrySDKLog.debug("[Session Replay] Session ended")
-        pause()
-        removeBackgroundForegroundObservers()
-        sessionReplay = nil
+        cancelPendingStartAndStopCurrentReplay()
     }
 
     private func startSession() {
         SentrySDKLog.debug("[Session Replay] Starting session")
-        sessionReplay?.pause()
+        stopCurrentReplay()
         startedAsFullSession = random.nextNumber() < Double(replayOptions.sessionSampleRate)
 
         if !startedAsFullSession && replayOptions.onErrorSampleRate == 0 {
             SentrySDKLog.debug("[Session Replay] Not full session and onErrorSampleRate is 0, not starting session")
+            isPendingStart = false
             return
         }
 
@@ -319,13 +322,39 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     // MARK: - Notification Observers
     
     private func addBackgroundForegroundObservers() {
-        notificationCenter.addObserver(self, selector: #selector(pause), name: UIApplication.didEnterBackgroundNotification, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(resume), name: UIApplication.didBecomeActiveNotification, object: nil)
+        guard let observer = backgroundForegroundObserver else {
+            return
+        }
+
+        // The deferred-start retry observers are registered on `self` in init and intentionally
+        // live until uninstall. Session replay also needs a `didBecomeActive` observer for
+        // pause/resume, but `removeObserver(observer, name:object:)` removes every selector
+        // registered for that observer and notification name. Use a separate observer identity for
+        // replay-lifetime pause/resume so removing it cannot unregister the pending-start retry
+        // path on `self`.
+        removeBackgroundForegroundObservers()
+        notificationCenter.addObserver(observer, selector: #selector(SentrySessionReplayBackgroundForegroundObserver.pause(_:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        notificationCenter.addObserver(observer, selector: #selector(SentrySessionReplayBackgroundForegroundObserver.resume(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
     
     private func removeBackgroundForegroundObservers() {
-        notificationCenter.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
-        notificationCenter.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
+        guard let observer = backgroundForegroundObserver else {
+            return
+        }
+
+        notificationCenter.removeObserver(observer, name: UIApplication.didEnterBackgroundNotification, object: nil)
+        notificationCenter.removeObserver(observer, name: UIApplication.didBecomeActiveNotification, object: nil)
+    }
+
+    private func cancelPendingStartAndStopCurrentReplay() {
+        isPendingStart = false
+        stopCurrentReplay()
+    }
+
+    private func stopCurrentReplay() {
+        sessionReplay?.pause()
+        removeBackgroundForegroundObservers()
+        sessionReplay = nil
     }
 
     // MARK: - API Exposed to ObjC
@@ -359,8 +388,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc public func stop() {
         SentrySDKLog.debug("[Session Replay] Stopping session")
-        sessionReplay?.pause()
-        sessionReplay = nil 
+        cancelPendingStartAndStopCurrentReplay()
     }
 
     @objc @discardableResult public func captureReplay() -> Bool {
@@ -433,6 +461,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     public func sessionReplayEnded() {
         SentrySDKLog.debug("[Session Replay] Session replay ended")
+        isPendingStart = false
         SentrySDKInternal.currentHub().configureScope { scope in scope.replayId = nil }
         removeBackgroundForegroundObservers()
         sessionReplay = nil
@@ -470,6 +499,26 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 #endif
 }
 // swiftlint:enable type_body_length
+
+// NotificationCenter selector observers are removed by observer object and notification name, not by
+// selector. Keep replay pause/resume observers on a dedicated object so removing them does not also
+// remove `SentrySessionReplayIntegration`'s persistent deferred-start lifecycle observers.
+private final class SentrySessionReplayBackgroundForegroundObserver: NSObject {
+    weak var integration: SentrySessionReplayIntegration?
+
+    init(integration: SentrySessionReplayIntegration) {
+        self.integration = integration
+        super.init()
+    }
+
+    @objc func pause(_ notification: Notification) {
+        integration?.pause()
+    }
+
+    @objc func resume(_ notification: Notification) {
+        integration?.resume()
+    }
+}
 
 #endif // (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 // swiftlint:enable missing_docs file_length
