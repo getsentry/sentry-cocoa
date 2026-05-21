@@ -22,7 +22,7 @@ indent_size = 4
 [*.{rb,podspec}]
 indent_size = 2
 
-[{Gemfile,Fastfile,Matchfile,Appfile,Deliverfile}]
+[{Gemfile,Fastfile,Matchfile,Appfile}]
 indent_size = 2
 
 # Shell — matches existing scripts
@@ -41,23 +41,6 @@ indent_size = 2
 [*.json]
 indent_size = 2
 
-# TOML
-[*.toml]
-indent_size = 2
-
-# Markdown — matches existing files
-[*.md]
-indent_size = 2
-trim_trailing_whitespace = false
-
 # Makefiles require tabs
-[{Makefile,GNUmakefile,*.mk}]
+[Makefile]
 indent_style = tab
-
-# Xcode project/workspace files - align with Xcode defaults
-[*.{pbxproj,xcscheme,xcsettings}]
-indent_style = tab
-
-# XML / Interface Builder - align with Xcode defaults
-[*.{xml,xib,storyboard}]
-indent_size = 2
