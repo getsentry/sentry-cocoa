@@ -324,16 +324,16 @@ class AppStartReportingStrategyTests: XCTestCase {
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
 
-        // Warm non-prewarmed standalone: no grouping span, includes pre-runtime spans → 5 child spans
-        XCTAssertEqual(spans.count, 5)
+        // Warm non-prewarmed standalone: no grouping span, includes pre-runtime spans,
+        // no "Initial Frame Render" (standalone ends at didFinishLaunching) → 4 child spans
+        XCTAssertEqual(spans.count, 4)
 
         let descriptions = spans.compactMap { $0["description"] as? String }
         XCTAssertEqual(descriptions, [
             "Pre Runtime Init",
             "Runtime Init to Pre Main Initializers",
             "UIKit Init",
-            "Application Init",
-            "Initial Frame Render"
+            "Application Init"
         ])
 
         let operations = Set(spans.compactMap { $0["op"] as? String })
@@ -357,10 +357,6 @@ class AppStartReportingStrategyTests: XCTestCase {
         assertSpanTimestamps(spans[3],
                              expectedStart: appStartInterval + 0.15,
                              expectedEnd: appStartInterval + 0.3)
-        // Initial Frame Render: didFinishLaunching → appStart + duration
-        assertSpanTimestamps(spans[4],
-                             expectedStart: appStartInterval + 0.3,
-                             expectedEnd: appStartInterval + 0.5)
     }
 
     // MARK: - StandaloneAppStartTransactionHelper

@@ -307,6 +307,9 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     @objc
     private func didFinishLaunching() {
         didFinishLaunchingTimestamp = dateProvider.date()
+        if reportingStrategy is StandaloneTransactionStrategy {
+            buildAppStartMeasurement(didFinishLaunchingTimestamp)
+        }
     }
 
     @objc
