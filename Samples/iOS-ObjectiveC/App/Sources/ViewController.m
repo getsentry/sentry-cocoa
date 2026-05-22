@@ -65,9 +65,9 @@
 - (IBAction)captureUserFeedbackV2:(id)sender
 {
     NSData *data = [NSData dataWithContentsOfURL:BundleResourceProvider.screenshotURL];
-    NSArray<NSData *> *attachments = nil;
+    NSArray<SentryAttachment *> *attachments = nil;
     if (data != nil) {
-        attachments = @[ data ];
+        attachments = @[ [[SentryAttachment alloc] initWithData:data filename:@"screenshot.png"] ];
     }
     SentryId *errorEventID =
         [SentrySDK captureError:[NSError errorWithDomain:@"test-error.user-feedback.iOS-ObjectiveC"

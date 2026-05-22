@@ -452,6 +452,8 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
 
   # Scripts
   - "scripts/bump.sh"
+  - "scripts/bump-version.sh"
+  - "scripts/verify-version.sh"
 
   # Version-related source files
   - "Sources/Sentry/SentryMeta.m"
