@@ -37,6 +37,14 @@
 		2CC64625538247BE9E5E1D92 /* SentryAppStartMeasurementProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 85AE23B0FFFD4830A3D05EBB /* SentryAppStartMeasurementProvider.h */; };
 		33EB2A912C3412E4004FED3D /* SentryWithoutUIKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 33EB2A8F2C3411AE004FED3D /* SentryWithoutUIKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		33EB2A922C341300004FED3D /* Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 63AA76931EB9C1C200D153DE /* Sentry.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3C5262182FC04B5300BE8085 /* BootTimeMonitor in Frameworks */ = {isa = PBXBuildFile; productRef = 3C5262172FC04B5300BE8085 /* BootTimeMonitor */; };
+		3C52621A2FC04B5300BE8085 /* DemangleFilter in Frameworks */ = {isa = PBXBuildFile; productRef = 3C5262192FC04B5300BE8085 /* DemangleFilter */; };
+		3C52621C2FC04B5300BE8085 /* DiscSpaceMonitor in Frameworks */ = {isa = PBXBuildFile; productRef = 3C52621B2FC04B5300BE8085 /* DiscSpaceMonitor */; };
+		3C52621E2FC04B5300BE8085 /* Filters in Frameworks */ = {isa = PBXBuildFile; productRef = 3C52621D2FC04B5300BE8085 /* Filters */; };
+		3C5262202FC04B5300BE8085 /* Installations in Frameworks */ = {isa = PBXBuildFile; productRef = 3C52621F2FC04B5300BE8085 /* Installations */; };
+		3C5262222FC04B5300BE8085 /* Recording in Frameworks */ = {isa = PBXBuildFile; productRef = 3C5262212FC04B5300BE8085 /* Recording */; };
+		3C5262242FC04B5300BE8085 /* Reporting in Frameworks */ = {isa = PBXBuildFile; productRef = 3C5262232FC04B5300BE8085 /* Reporting */; };
+		3C5262262FC04B5300BE8085 /* Sinks in Frameworks */ = {isa = PBXBuildFile; productRef = 3C5262252FC04B5300BE8085 /* Sinks */; };
 		620379DB2AFE1415005AC0C1 /* SentryBuildAppStartSpans.h in Headers */ = {isa = PBXBuildFile; fileRef = 620379DA2AFE1415005AC0C1 /* SentryBuildAppStartSpans.h */; };
 		620379DD2AFE1432005AC0C1 /* SentryBuildAppStartSpans.m in Sources */ = {isa = PBXBuildFile; fileRef = 620379DC2AFE1432005AC0C1 /* SentryBuildAppStartSpans.m */; };
 		621AE74B2C626C230012E730 /* SentryANRTrackerV2.h in Headers */ = {isa = PBXBuildFile; fileRef = 621AE74A2C626C230012E730 /* SentryANRTrackerV2.h */; };
@@ -1409,9 +1417,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C5262262FC04B5300BE8085 /* Sinks in Frameworks */,
 				84F994E82A6894BD00EC0190 /* SystemConfiguration.framework in Frameworks */,
+				3C52621A2FC04B5300BE8085 /* DemangleFilter in Frameworks */,
+				3C5262202FC04B5300BE8085 /* Installations in Frameworks */,
+				3C5262242FC04B5300BE8085 /* Reporting in Frameworks */,
 				84F994E62A6894B500EC0190 /* CoreData.framework in Frameworks */,
+				3C5262182FC04B5300BE8085 /* BootTimeMonitor in Frameworks */,
+				3C52621E2FC04B5300BE8085 /* Filters in Frameworks */,
 				63AF656C1ED87B8C00EBCFF7 /* libz.tbd in Frameworks */,
+				3C52621C2FC04B5300BE8085 /* DiscSpaceMonitor in Frameworks */,
+				3C5262222FC04B5300BE8085 /* Recording in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3151,6 +3167,9 @@
 				Base,
 			);
 			mainGroup = 6327C5C91EB8A783004E799B;
+			packageReferences = (
+				3C5262162FC04B5300BE8085 /* XCRemoteSwiftPackageReference "KSCrash" */,
+			);
 			productRefGroup = 6327C5D41EB8A783004E799B /* Products */;
 			projectDirPath = "";
 			projectReferences = (
@@ -6927,6 +6946,60 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3C5262162FC04B5300BE8085 /* XCRemoteSwiftPackageReference "KSCrash" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kstenerud/KSCrash";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3C5262172FC04B5300BE8085 /* BootTimeMonitor */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3C5262162FC04B5300BE8085 /* XCRemoteSwiftPackageReference "KSCrash" */;
+			productName = BootTimeMonitor;
+		};
+		3C5262192FC04B5300BE8085 /* DemangleFilter */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3C5262162FC04B5300BE8085 /* XCRemoteSwiftPackageReference "KSCrash" */;
+			productName = DemangleFilter;
+		};
+		3C52621B2FC04B5300BE8085 /* DiscSpaceMonitor */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3C5262162FC04B5300BE8085 /* XCRemoteSwiftPackageReference "KSCrash" */;
+			productName = DiscSpaceMonitor;
+		};
+		3C52621D2FC04B5300BE8085 /* Filters */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3C5262162FC04B5300BE8085 /* XCRemoteSwiftPackageReference "KSCrash" */;
+			productName = Filters;
+		};
+		3C52621F2FC04B5300BE8085 /* Installations */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3C5262162FC04B5300BE8085 /* XCRemoteSwiftPackageReference "KSCrash" */;
+			productName = Installations;
+		};
+		3C5262212FC04B5300BE8085 /* Recording */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3C5262162FC04B5300BE8085 /* XCRemoteSwiftPackageReference "KSCrash" */;
+			productName = Recording;
+		};
+		3C5262232FC04B5300BE8085 /* Reporting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3C5262162FC04B5300BE8085 /* XCRemoteSwiftPackageReference "KSCrash" */;
+			productName = Reporting;
+		};
+		3C5262252FC04B5300BE8085 /* Sinks */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3C5262162FC04B5300BE8085 /* XCRemoteSwiftPackageReference "KSCrash" */;
+			productName = Sinks;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6327C5CA1EB8A783004E799B /* Project object */;
 }
