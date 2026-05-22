@@ -26,21 +26,25 @@ public struct SentrySDKWrapper {
             SentrySDK.close()
         }
         
+#if os(iOS) || os(tvOS) || os(visionOS)
         if SentrySDKOverrides.Performance.extendAppLaunch3Seconds.boolValue {
             SentrySDK.extendAppLaunch()
         }
+#endif // os(iOS) || os(tvOS) || os(visionOS))
 
         if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
             print("[Sentry] lastRunStatus before start: \(SentrySDK.lastRunStatus)")
             SentrySDK.start(configureOptions: configureSentryOptions(options:))
             print("[Sentry] lastRunStatus after start: \(SentrySDK.lastRunStatus)")
         }
-        
+
+#if os(iOS) || os(tvOS) || os(visionOS)
         if SentrySDKOverrides.Performance.extendAppLaunch3Seconds.boolValue {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 SentrySDK.finishExtendedAppLaunch()
             }
         }
+#endif // os(iOS) || os(tvOS) || os(visionOS))
     }
 
     func configureSentryOptions(options: Options) {
