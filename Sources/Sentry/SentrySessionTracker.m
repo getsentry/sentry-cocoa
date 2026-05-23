@@ -37,6 +37,8 @@
 @property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenter;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 
+- (void)reevaluateProfileSessionSampleRateIfNeededForHub:(SentryHub *_Nullable)hub;
+
 @end
 
 @implementation SentrySessionTracker
@@ -209,7 +211,8 @@
 
     __weak SentrySessionTracker *weakSelf = self;
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        if (weakSelf == nil) {
+        SentrySessionTracker *strongSelf = weakSelf;
+        if (strongSelf == nil) {
             return;
         }
 
@@ -223,6 +226,7 @@
             SENTRY_LOG_DEBUG(
                 @"App was in the foreground for the first time. Starting a new session.");
             [hub startSession];
+            [strongSelf reevaluateProfileSessionSampleRateIfNeededForHub:hub];
         } else {
             // When the app was already in the foreground we have to decide whether it was long
             // enough in the background to start a new session or to keep the session open. We don't
@@ -236,6 +240,7 @@
                     secondsInBackground);
                 [hub endSessionWithTimestamp:lastInForeground];
                 [hub startSession];
+                [strongSelf reevaluateProfileSessionSampleRateIfNeededForHub:hub];
             } else {
                 SENTRY_LOG_DEBUG(
                     @"App was in the background for %f seconds. Not starting a new session.",
@@ -243,12 +248,6 @@
             }
         }
         [[[hub getClient] fileManager] deleteTimestampLastInForeground];
-
-#if SENTRY_TARGET_PROFILING_SUPPORTED
-        if (hub.client.options.profiling != nil) {
-            sentry_reevaluateSessionSampleRate();
-        }
-#endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }];
 }
 
@@ -285,6 +284,16 @@
         [[[hub getClient] fileManager] deleteTimestampLastInForeground];
     }];
     self.wasStartSessionCalled = NO;
+}
+
+// Private helper for profiling session sample-rate reevaluation.
+- (void)reevaluateProfileSessionSampleRateIfNeededForHub:(SentryHub *_Nullable)hub
+{
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    if (hub.client.options.profiling != nil) {
+        sentry_reevaluateSessionSampleRate();
+    }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 @end

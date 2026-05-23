@@ -78,18 +78,18 @@ _sentry_hydrateV2Options(NSDictionary<NSString *, NSNumber *> *launchConfigDict,
     profileOptions.profileAppStarts = true;
     profileOptions.sessionSampleRate = samplerDecision.sampleRate.floatValue;
 
-    sentry_profileConfiguration = [[SentryProfileConfiguration alloc]
+    sentry_setProfileConfiguration([[SentryProfileConfiguration alloc]
         initContinuousProfilingV2WaitingForFullDisplay:shouldWaitForFullDisplay
                                        samplerDecision:samplerDecision
-                                        profileOptions:profileOptions];
+                                        profileOptions:profileOptions]);
 }
 
 void
 _sentry_continuousProfilingV1_startLaunchProfile(BOOL shouldWaitForFullDisplay)
 {
-    sentry_profileConfiguration =
+    sentry_setProfileConfiguration(
         [[SentryProfileConfiguration alloc] initWaitingForFullDisplay:shouldWaitForFullDisplay
-                                                         continuousV1:YES];
+                                                         continuousV1:YES]);
     [SentryContinuousProfiler start];
 }
 
@@ -389,9 +389,9 @@ _sentry_nondeduplicated_startLaunchProfile(void)
         _sentry_hydrateV2Options(persistedLaunchConfigOptionsDict, profileOptions, decision,
             SentryProfileLifecycleTrace, shouldWaitForFullDisplay);
     } else {
-        sentry_profileConfiguration =
+        sentry_setProfileConfiguration(
             [[SentryProfileConfiguration alloc] initWaitingForFullDisplay:shouldWaitForFullDisplay
-                                                             continuousV1:NO];
+                                                             continuousV1:NO]);
     }
 
     // trace lifecycle UI profiling (continuous profiling v2) and trace-based profiling both join
@@ -476,7 +476,7 @@ sentry_stopAndDiscardLaunchProfileTracer(SentryHub *_Nullable hub)
     SENTRY_LOG_DEBUG(@"Finishing launch tracer.");
     sentry_launchTracer.hub = hub;
     [sentry_launchTracer finish];
-    sentry_profileConfiguration = nil;
+    sentry_setProfileConfiguration(nil);
     sentry_isTracingAppLaunch = NO;
     sentry_launchTracer = nil;
 }
