@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix crash in `SentryFramesTracker.add/removeListener` when called from a listener's own `init` / `deinit` on a background thread, observed on iOS 26
+
 ## 9.14.0
 
 ### Features

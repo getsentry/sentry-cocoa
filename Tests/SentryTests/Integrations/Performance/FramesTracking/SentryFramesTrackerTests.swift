@@ -801,7 +801,83 @@ final class SentryFramesTrackerTests: XCTestCase {
 
         XCTAssertEqual(listener.newFrameInvocations.count, 0)
     }
-    
+
+    /// Regression test for the `add/removeListener` closure-capture crash
+    /// class: prior to the fix, both methods strongly captured `listener` in
+    /// the closure passed to `dispatchAsyncOnMainQueueIfNotMainThread`. When
+    /// that closure was bridged to an Obj-C block and dispatched to main, the
+    /// listener was retained for the duration of the hop. If a caller invoked
+    /// `removeListener(self)` from inside its own `deinit` on a background
+    /// thread, the closure's retain hit the listener mid-dealloc — and on
+    /// iOS 26's hardened ARC, retaining a mid-dealloc object trips
+    /// `swift_unknownObjectRetain` with `EXC_BREAKPOINT`. Older simulators
+    /// (and older iOS versions) don't enforce the hardened-ARC trap, so a
+    /// no-crash assertion would silently pass the unfixed code in CI.
+    ///
+    /// The structural invariant the fix establishes is "the dispatched
+    /// closure does not strongly capture `listener`." This test asserts that
+    /// invariant directly via a `weak` reference check, which is deterministic
+    /// across iOS versions and simulator/device — strictly stronger than a
+    /// no-crash assertion that depends on hardened-ARC trapping.
+    func testAddAndRemoveListener_DoNotRetainListenerAcrossMainQueueHop() {
+        // `blockBeforeMainBlock` returning `false` makes the test wrapper
+        // capture dispatched blocks without executing them — load-bearing
+        // because the test runs on the main thread, where the real
+        // `dispatchAsyncOnMainQueueIfNotMainThread` short-circuits to a
+        // synchronous `block()` call. Without this knob, the closures would
+        // run before we could observe the listener's lifetime. With the
+        // unfixed code, the captured blocks pin `listener` strongly →
+        // `weakListener` stays non-nil after the autorelease pool drains.
+        // With the fix, the blocks capture only an `ObjectIdentifier` (value
+        // type) and a pre-built `WeakReference` (which holds the listener
+        // weakly), so `weakListener` zeroes as soon as we release our
+        // strong reference.
+        let dispatchQueueWrapper = TestSentryDispatchQueueWrapper()
+        dispatchQueueWrapper.blockBeforeMainBlock = { false }
+        let sut = SentryFramesTracker(
+            displayLinkWrapper: fixture.displayLinkWrapper,
+            dateProvider: fixture.dateProvider,
+            dispatchQueueWrapper: dispatchQueueWrapper,
+            notificationCenter: fixture.notificationCenter,
+            delayedFramesTracker: TestDelayedWrapper(
+                keepDelayedFramesDuration: fixture.keepDelayedFramesDuration,
+                dateProvider: fixture.dateProvider
+            )
+        )
+
+        weak var weakListener: FrameTrackerListener?
+        autoreleasepool {
+            let listener = FrameTrackerListener()
+            weakListener = listener
+            sut.addListener(listener)
+            sut.removeListener(listener)
+            // Exiting the pool releases our local strong reference. With the
+            // fix in place, no other strong reference exists (the captured
+            // blocks hold `ObjectIdentifier` + `WeakReference`, neither of
+            // which retains the listener), so `weakListener` must be nil.
+        }
+
+        XCTAssertNil(
+            weakListener,
+            "Closures dispatched by addListener/removeListener must not retain the listener across the main-queue hop"
+        )
+
+        // Sanity: addListener and removeListener each enqueued one block, in
+        // that order. Pin the count so a future refactor that changes the
+        // hop semantics (or `Invocations`' ordering) surfaces here instead
+        // of producing a confusing post-drain assertion failure.
+        XCTAssertEqual(dispatchQueueWrapper.blockOnMainInvocations.invocations.count, 2)
+
+        // Drain the captured blocks to verify the listener-iteration path
+        // still converges to empty with the fix (no crash, no listener
+        // resurrection — the assertion below would catch a regression that
+        // re-introduced strong capture and then revived the dead listener).
+        for block in dispatchQueueWrapper.blockOnMainInvocations.invocations {
+            block()
+        }
+        XCTAssertEqual(sut.listenersCount, 0)
+    }
+
     func testListenerNotCalledAfterCallingStop() {
         let sut = fixture.sut
         let listener1 = FrameTrackerListener()
@@ -1029,7 +1105,7 @@ final class SentryFramesTrackerTests: XCTestCase {
 }
 
 private class FrameTrackerListener: NSObject, SentryFramesTrackerListener {
-    
+
     var newFrameInvocations = Invocations<Date>()
     var callback: (() -> Void)?
     func framesTrackerHasNewFrame(_ newFrameDate: Date) {
