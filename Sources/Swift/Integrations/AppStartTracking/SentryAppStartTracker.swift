@@ -105,6 +105,12 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
             object: nil
         )
 
+        // Standalone app starts rely on didFinishLaunchingNotification to trigger the
+        // measurement. If the SDK is initialized after that notification has already been 
+        // posted, the notification is never received and no app start is
+        // measured. 
+        // There is no reliable way to detect if the notification was already posted.
+        // UIApplication.applicationState may be .active in SwiftUI apps during App.init(),
         if reportingStrategy is StandaloneTransactionStrategy {
             let traceId = SentryId()
             appStartTraceId = traceId
