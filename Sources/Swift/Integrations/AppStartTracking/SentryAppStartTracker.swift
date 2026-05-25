@@ -74,7 +74,9 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
 
         super.init()
 
-        framesTracker.addListener(self)
+        if !enableStandaloneAppStartTracing {
+            framesTracker.addListener(self)
+        }
     }
 
     deinit {
@@ -133,7 +135,9 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
             object: nil
         )
 
-        framesTracker.removeListener(self)
+        if !(reportingStrategy is StandaloneTransactionStrategy) {
+            framesTracker.removeListener(self)
+        }
         SentryAppStartMeasurementProvider.setAppStartTrace(nil)
 
         #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
