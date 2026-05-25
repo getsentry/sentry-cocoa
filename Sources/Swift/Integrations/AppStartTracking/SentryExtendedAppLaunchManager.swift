@@ -9,6 +9,7 @@ final class SentryExtendedAppLaunchManager {
     private var extendRequested = false
     private var extendTimestamp: Date?
     private var tracer: (any Span)?
+    private var appStartCreated = false
 
     var isExtendRequested: Bool {
         lock.synchronized { extendRequested }
@@ -16,7 +17,7 @@ final class SentryExtendedAppLaunchManager {
 
     func extend() {
         lock.synchronized {
-            if tracer != nil {
+            if appStartCreated {
                 SentrySDKLog.warning("extendAppLaunch() called after the app start transaction was already created. The app launch cannot be extended.")
                 return
             }
@@ -25,9 +26,9 @@ final class SentryExtendedAppLaunchManager {
         }
     }
 
-    func storeTracer(_ tracer: any Span) {
+    func markAppStartCreated() {
         lock.synchronized {
-            self.tracer = tracer
+            appStartCreated = true
         }
     }
 
@@ -44,20 +45,26 @@ final class SentryExtendedAppLaunchManager {
     }
 
     func finish() {
-        let (tracerToFinish, startTimestamp) = lock.synchronized { () -> (Span?, Date?) in
+        let (tracerToFinish, startTimestamp, wasAppStartCreated) = lock.synchronized { () -> (Span?, Date?, Bool) in
+            let created = appStartCreated
             defer {
                 tracer = nil
                 extendTimestamp = nil
                 extendRequested = false
+                appStartCreated = false
             }
             guard let t = tracer, let ts = extendTimestamp else {
-                return (nil, nil)
+                return (nil, nil, created)
             }
-            return (t as Span?, ts as Date?)
+            return (t as Span?, ts as Date?, created)
         }
 
         guard let tracerToFinish, let startTimestamp else {
-            SentrySDKLog.warning("finishExtendedAppLaunch() called but there is no extended app launch in progress.")
+            if wasAppStartCreated {
+                SentrySDKLog.warning("finishExtendedAppLaunch() called but the app start transaction was already completed. Call extendAppLaunch() before the app start transaction finishes.")
+            } else {
+                SentrySDKLog.warning("finishExtendedAppLaunch() called but there is no extended app launch in progress.")
+            }
             return
         }
 
@@ -73,6 +80,7 @@ final class SentryExtendedAppLaunchManager {
             extendRequested = false
             extendTimestamp = nil
             tracer = nil
+            appStartCreated = false
         }
     }
 }

@@ -187,6 +187,35 @@ class SentryExtendedAppLaunchTests: XCTestCase {
         XCTAssertEqual(hub.capturedTransactionsWithScope.invocations.count, 1)
     }
 
+    func testExtendAfterAppStartCompleted_doesNotSetFlag() {
+        let hub = setUpIntegrationHub()
+        let manager = SentryExtendedAppLaunchManager()
+
+        let measurement = createMeasurement(type: .cold)
+        StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
+        XCTAssertEqual(hub.capturedTransactionsWithScope.invocations.count, 1, "Precondition: transaction finished immediately")
+
+        manager.extend()
+
+        XCTAssertFalse(manager.isExtendRequested,
+            "extend() should be rejected after app start already completed")
+    }
+
+    func testFinishAfterAppStartCompleted_doesNotCaptureExtraTransaction() {
+        let hub = setUpIntegrationHub()
+        let manager = SentryExtendedAppLaunchManager()
+
+        let measurement = createMeasurement(type: .cold)
+        StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
+        XCTAssertEqual(hub.capturedTransactionsWithScope.invocations.count, 1, "Precondition")
+
+        manager.extend()
+        manager.finish()
+
+        XCTAssertEqual(hub.capturedTransactionsWithScope.invocations.count, 1,
+            "finish() should not capture another transaction when extend was rejected")
+    }
+
     func testReport_whenWarmStartExtended_shouldWorkSameAsCold() throws {
         let hub = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()

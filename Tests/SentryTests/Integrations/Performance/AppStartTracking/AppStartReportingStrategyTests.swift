@@ -363,6 +363,47 @@ class AppStartReportingStrategyTests: XCTestCase {
                              expectedEnd: appStartInterval + 0.5)
     }
 
+    // MARK: - StandaloneTransactionStrategy Extended Launch Integration
+
+    func testReport_marksAppStartCreated_soLateExtendIsRejected() {
+        _ = setUpIntegrationHub()
+        let manager = SentryExtendedAppLaunchManager()
+        let measurement = createMeasurement(type: .cold)
+
+        StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
+
+        manager.extend()
+        XCTAssertFalse(manager.isExtendRequested,
+            "report() should mark app start as created so a late extend() is rejected")
+    }
+
+    func testReport_whenExtendRequested_storesTracerAndDoesNotFinish() {
+        let hub = setUpIntegrationHub()
+        let manager = SentryExtendedAppLaunchManager()
+        manager.extend()
+        let measurement = createMeasurement(type: .cold)
+
+        StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
+
+        XCTAssertTrue(hub.capturedTransactionsWithScope.invocations.isEmpty,
+            "report() should store the tracer via storeTracerIfExtendRequested and not finish it")
+
+        manager.finish()
+        XCTAssertEqual(hub.capturedTransactionsWithScope.invocations.count, 1,
+            "finish() should complete the stored tracer")
+    }
+
+    func testReport_whenExtendNotRequested_finishesTracerImmediately() {
+        let hub = setUpIntegrationHub()
+        let manager = SentryExtendedAppLaunchManager()
+        let measurement = createMeasurement(type: .cold)
+
+        StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
+
+        XCTAssertEqual(hub.capturedTransactionsWithScope.invocations.count, 1,
+            "report() should finish the tracer immediately when extend is not requested")
+    }
+
     // MARK: - StandaloneAppStartTransactionHelper
 
     func testIsStandaloneAppStartTransaction_whenAppStartWithAutoOrigin_shouldReturnTrue() {

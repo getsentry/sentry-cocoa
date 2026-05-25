@@ -57,6 +57,7 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
         // "background_launch" or "prewarmed_launch" if those paths are tracked separately.
         tracer.setData(value: "launch", key: SentrySpanDataKeyAppVitalsStartReason)
 
+        extendedAppLaunchManager.markAppStartCreated()
         if !extendedAppLaunchManager.storeTracerIfExtendRequested(tracer) {
             tracer.finish()
         }
