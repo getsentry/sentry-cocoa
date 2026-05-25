@@ -31,16 +31,29 @@ final class SentryExtendedAppLaunchManager {
         }
     }
 
+    /// Atomically checks if an extend was requested and stores the tracer if so.
+    /// Returns `true` if the tracer was stored; `false` if caller should finish it.
+    func storeTracerIfExtendRequested(_ tracer: any Span) -> Bool {
+        lock.synchronized {
+            guard extendRequested else {
+                return false
+            }
+            self.tracer = tracer
+            return true
+        }
+    }
+
     func finish() {
         let (tracerToFinish, startTimestamp) = lock.synchronized { () -> (Span?, Date?) in
+            defer {
+                tracer = nil
+                extendTimestamp = nil
+                extendRequested = false
+            }
             guard let t = tracer, let ts = extendTimestamp else {
                 return (nil, nil)
             }
-            let result = (t as Span?, ts as Date?)
-            tracer = nil
-            extendTimestamp = nil
-            extendRequested = false
-            return result
+            return (t as Span?, ts as Date?)
         }
 
         guard let tracerToFinish, let startTimestamp else {
