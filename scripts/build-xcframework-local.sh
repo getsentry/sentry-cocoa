@@ -105,7 +105,7 @@ fi
 if [ "$variants" = "SentryObjCOnly" ] || [ "$variants" = "AllVariants" ]; then
     # Build standalone SentryObjC xcframeworks (static + dynamic) that embed the full SDK.
     #
-    # Strategy: build Sentry, SentryObjCTypes, SentryObjCCompat, and SentryObjC as
+    # Strategy: build Sentry, SentryObjCTypes, SentryObjCBridge, and SentryObjC as
     # static frameworks, merge them with libtool, then assemble two xcframeworks —
     # one shipping the merged static archive directly, one re-linked as a dylib via
     # swiftc.
@@ -122,8 +122,8 @@ if [ "$variants" = "SentryObjCOnly" ] || [ "$variants" = "AllVariants" ]; then
     # 2. Build SentryObjCTypes as a static framework
     ./scripts/build-xcframework-variant.sh "SentryObjCTypes" "" "staticlib" "" "$sdks" ""
 
-    # 3. Build SentryObjCCompat as a static framework
-    ./scripts/build-xcframework-variant.sh "SentryObjCCompat" "" "staticlib" "" "$sdks" ""
+    # 3. Build SentryObjCBridge as a static framework
+    ./scripts/build-xcframework-variant.sh "SentryObjCBridge" "" "staticlib" "" "$sdks" ""
 
     # 4. Build SentryObjC as a static framework
     ./scripts/build-xcframework-variant.sh "SentryObjC" "" "staticlib" "" "$sdks" ""
@@ -148,6 +148,6 @@ if [ "$variants" = "SentryObjCOnly" ] || [ "$variants" = "AllVariants" ]; then
 
     # Clean up intermediate static builds (keep Sentry/ — shared with StaticOnly)
     rm -rf "XCFrameworkBuildPath/archive/SentryObjCTypes"
-    rm -rf "XCFrameworkBuildPath/archive/SentryObjCCompat"
+    rm -rf "XCFrameworkBuildPath/archive/SentryObjCBridge"
     rm -rf "XCFrameworkBuildPath/archive/SentryObjC"
 fi

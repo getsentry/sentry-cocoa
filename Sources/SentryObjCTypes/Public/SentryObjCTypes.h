@@ -11,12 +11,14 @@ FOUNDATION_EXPORT const unsigned char SentryObjCTypesVersionString[];
 // so we detect with __has_include and fall back to the quoted form.
 #if __has_include(<SentryObjCTypes/SentryObjCAttributeContent.h>)
 #    import <SentryObjCTypes/SentryObjCAttributeContent.h>
+#    import <SentryObjCTypes/SentryObjCBridging.h>
 #    import <SentryObjCTypes/SentryObjCMetric.h>
 #    import <SentryObjCTypes/SentryObjCMetricValue.h>
 #    import <SentryObjCTypes/SentryObjCRedactRegionType.h>
 #    import <SentryObjCTypes/SentryObjCUnit.h>
 #else
 #    import "SentryObjCAttributeContent.h"
+#    import "SentryObjCBridging.h"
 #    import "SentryObjCMetric.h"
 #    import "SentryObjCMetricValue.h"
 #    import "SentryObjCRedactRegionType.h"

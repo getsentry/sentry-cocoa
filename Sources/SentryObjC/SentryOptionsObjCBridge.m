@@ -3,8 +3,8 @@
 
 #import "SentryOptions.h"
 
-#if __has_include(<SentryObjCCompat/SentryObjCMetric.h>)
-#    import <SentryObjCCompat/SentryObjCMetric.h>
+#if __has_include(<SentryObjCTypes/SentryObjCMetric.h>)
+#    import <SentryObjCTypes/SentryObjCMetric.h>
 #else
 #    import "SentryObjCMetric.h"
 #endif

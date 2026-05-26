@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs
 @_implementationOnly import _SentryPrivate
 
-@_spi(Private) @objc public final class SentryEnvelopeHeader: NSObject {
+@_spi(Private) @objc(SentryEnvelopeHeader) public final class SentryEnvelopeHeader: NSObject {
     /**
      * Initializes an @c SentryEnvelopeHeader object with the specified eventId.
      * @note Sets the @c sdkInfo from @c SentryMeta.

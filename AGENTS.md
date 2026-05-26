@@ -44,19 +44,19 @@ SentrySDK (public entry point)
 
 ### Module Layout (`Sources/`)
 
-| Directory             | Contents                                                                   |
-| --------------------- | -------------------------------------------------------------------------- |
-| `Sentry/`             | ObjC core: SDK, Hub, Client, Scope, Transport, Serialization               |
-| `Sentry/Public/`      | Public ObjC headers                                                        |
-| `Sentry/Profiling/`   | C++/ObjC++ profiler, sampling, serialization                               |
-| `Swift/`              | Swift layer: integrations, networking, persistence, tools                  |
-| `Swift/Integrations/` | Feature integrations (ANR, Performance, SessionReplay, Crash, etc.)        |
-| `SentryCrash/`        | C/C++ crash reporting (KSCrash fork)                                       |
-| `SentryCppHelper/`    | C++ helpers (backtrace, sampling profiler, thread handle)                  |
-| `SentrySwiftUI/`      | SwiftUI tracing (`TracedView`)                                             |
-| `SentryObjC/`         | Pure ObjC facade — behavior classes consumers invoke                       |
-| `SentryObjCCompat/`   | Swift compat layer — bridge + wrappers for types without stable ObjC names |
-| `SentryObjCTypes/`    | Frozen public ObjC ABI — pure data carriers, Foundation-only               |
+| Directory             | Contents                                                            |
+| --------------------- | ------------------------------------------------------------------- |
+| `Sentry/`             | ObjC core: SDK, Hub, Client, Scope, Transport, Serialization        |
+| `Sentry/Public/`      | Public ObjC headers                                                 |
+| `Sentry/Profiling/`   | C++/ObjC++ profiler, sampling, serialization                        |
+| `Swift/`              | Swift layer: integrations, networking, persistence, tools           |
+| `Swift/Integrations/` | Feature integrations (ANR, Performance, SessionReplay, Crash, etc.) |
+| `SentryCrash/`        | C/C++ crash reporting (KSCrash fork)                                |
+| `SentryCppHelper/`    | C++ helpers (backtrace, sampling profiler, thread handle)           |
+| `SentrySwiftUI/`      | SwiftUI tracing (`TracedView`)                                      |
+| `SentryObjC/`         | Pure ObjC facade — behavior classes consumers invoke                |
+| `SentryObjCBridge/`   | Swift bridge — maps `SentryObjCTypes` ⇄ internal Swift types        |
+| `SentryObjCTypes/`    | Frozen public ObjC ABI — pure data carriers, Foundation-only        |
 
 > **Before touching `SentryObjC*` targets** (headers, types, bridge, build config), read [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md). It defines the four-tier architecture, type placement rules, naming conventions, and stability contract. Violations (e.g., leaking SDK types into `SentryObjCTypes`) cause linker failures or ABI breaks.
 

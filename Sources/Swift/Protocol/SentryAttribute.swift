@@ -9,6 +9,7 @@
 /// and allows you to pass native Swift types (String, Bool, Int, Double, Float, and their arrays)
 /// directly without wrapping them in a class instance. This Objective-C-compatible class will be
 /// removed in a future major version release.
+@objc(SentryAttribute)
 @objcMembers
 public final class SentryAttribute: NSObject {
     /// The type identifier for this attribute

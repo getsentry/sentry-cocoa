@@ -120,7 +120,7 @@ targets += [
             "SentryDistribution",
             "SentryDistributionTests",
             "SentryObjC",
-            "SentryObjCCompat",
+            "SentryObjCBridge",
             "SentryObjCTypes"
         ],
         cSettings: [
@@ -137,10 +137,10 @@ targets += [
 
 // BEGIN:OBJC_WRAPPER
 // Swift bridge that exposes SDK functionality to pure ObjC code (no modules)
-products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjCTypes", "SentryObjCCompat", "SentryObjC"]))
+products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjCTypes", "SentryObjCBridge", "SentryObjC"]))
 targets += [
     // Frozen public ObjC ABI — pure data carriers, depends only on Foundation.
-    // Both SentryObjCCompat and SentryObjC depend on this so they reference
+    // Both SentryObjCBridge and SentryObjC depend on this so they reference
     // the same authoritative type declarations.
     .target(
         name: "SentryObjCTypes",
@@ -150,17 +150,17 @@ targets += [
             .headerSearchPath("Public")
         ]),
     .target(
-        name: "SentryObjCCompat",
+        name: "SentryObjCBridge",
         dependencies: ["SentryObjCInternal", "SentryObjCTypes"],
-        path: "Sources/SentryObjCCompat"),
+        path: "Sources/SentryObjCBridge"),
     .testTarget(
-        name: "SentryObjCCompatTests",
-        dependencies: ["SentryObjCCompat", "SentryObjCTypes", "SentrySwift"],
-        path: "Tests/SentryObjCCompatTests"),
+        name: "SentryObjCBridgeTests",
+        dependencies: ["SentryObjCBridge", "SentryObjCTypes", "SentrySwift"],
+        path: "Tests/SentryObjCBridgeTests"),
 
     .target(
         name: "SentryObjC",
-        dependencies: ["SentryObjCInternal", "SentryObjCCompat", "SentryObjCTypes"],
+        dependencies: ["SentryObjCInternal", "SentryObjCBridge", "SentryObjCTypes"],
         path: "Sources/SentryObjC",
         publicHeadersPath: "Public",
         cSettings: [

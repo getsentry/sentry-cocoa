@@ -50,7 +50,7 @@ arrange_slices() {
 
 arrange_slices "sentry-static" "xcframework-slices/sentry-static" "Sentry"
 arrange_slices "sentryobjc-types" "xcframework-slices/sentryobjc-types" "SentryObjCTypes"
-arrange_slices "sentryobjc-compat" "xcframework-slices/sentryobjc-compat" "SentryObjCCompat"
+arrange_slices "sentryobjc-bridge" "xcframework-slices/sentryobjc-bridge" "SentryObjCBridge"
 arrange_slices "sentryobjc-objc" "xcframework-slices/sentryobjc-objc" "SentryObjC"
 
 echo "Archive layout:"

@@ -77,7 +77,7 @@
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",
         "identifier" : "D4E0C0712F80000000B64C01",
-        "name" : "SentryObjCCompatTests"
+        "name" : "SentryObjCBridgeTests"
       }
     },
     {

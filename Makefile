@@ -243,7 +243,7 @@ build-framework-objc:
 
 ## Build SentryObjC XCFrameworks locally for one or more SDKs
 #
-# Builds the four staticlib slices (Sentry, SentryObjCTypes, SentryObjCCompat,
+# Builds the four staticlib slices (Sentry, SentryObjCTypes, SentryObjCBridge,
 # SentryObjC) and runs the standalone merger to produce SentryObjC-Static and
 # SentryObjC-Dynamic xcframeworks. Output lands in XCFrameworkBuildPath/.
 #

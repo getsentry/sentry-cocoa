@@ -30,7 +30,7 @@ import Foundation
 /// logger.debug("Processing \(itemCount) items, active: \(isActive)")
 /// logger.warn("Retry attempt \(currentAttempt) of \(maxAttempts) failed")
 /// ```
-@objc
+@objc(SentryLogger)
 public final class SentryLogger: NSObject {
     private weak var delegate: SentryLoggerDelegate?
     private let dateProvider: SentryCurrentDateProvider

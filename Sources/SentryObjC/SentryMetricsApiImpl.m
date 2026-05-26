@@ -1,27 +1,17 @@
 #import "SentryMetricsApiImpl.h"
 
-#if __has_include(<SentryObjCCompat/SentryObjCAttributeContent.h>)
-#    import <SentryObjCCompat/SentryObjCAttributeContent.h>
+#if __has_include(<SentryObjCTypes/SentryObjCAttributeContent.h>)
+#    import <SentryObjCTypes/SentryObjCAttributeContent.h>
+#    import <SentryObjCTypes/SentryObjCBridging.h>
 #else
 #    import "SentryObjCAttributeContent.h"
+#    import "SentryObjCBridging.h"
 #endif
 
-// Forward declarations of SentryObjCBridge (see SentryObjCSDK.m for the full
-// rationale).  Signature drift is only caught at link time / runtime — a
-// shared @protocol in SentryObjCCompat would provide compile-time safety.
-@interface SentryObjCBridge : NSObject
-+ (void)metricsCountWithKey:(NSString *)key
-                      value:(NSUInteger)value
-                 attributes:(NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes;
-+ (void)metricsDistributionWithKey:(NSString *)key
-                             value:(double)value
-                              unit:(nullable NSString *)unit
-                        attributes:
-                            (NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes;
-+ (void)metricsGaugeWithKey:(NSString *)key
-                      value:(double)value
-                       unit:(nullable NSString *)unit
-                 attributes:(NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes;
+// SentryObjCBridge ships in the same SDK and conforms to SentryObjCBridging
+// (declared in SentryObjCTypes). Adopting the protocol gives this file typed
+// access to the bridge's class methods without importing SentryObjCBridge-Swift.h.
+@interface SentryObjCBridge : NSObject <SentryObjCBridging>
 @end
 
 NS_ASSUME_NONNULL_BEGIN

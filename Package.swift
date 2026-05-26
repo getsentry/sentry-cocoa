@@ -119,7 +119,7 @@ targets += [
             "SentryDistribution", 
             "SentryDistributionTests",
             "SentryObjC",
-            "SentryObjCCompat",
+            "SentryObjCBridge",
             "SentryObjCTypes"
         ],
         cSettings: [
@@ -133,11 +133,12 @@ targets += [
 ]
 
 // BEGIN:OBJC_WRAPPER
-// Pure ObjC wrapper SDK — zero modifications to existing Sentry source files.
-// SentryObjCCompat wraps types that lack stable ObjC names; SentryObjCTypes
-// provides shared data carriers; SentryObjC is the consumer-facing facade.
-products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjCTypes", "SentryObjCCompat", "SentryObjC"]))
+// Swift bridge that exposes SDK functionality to pure ObjC code (no modules)
+products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjCTypes", "SentryObjCBridge", "SentryObjC"]))
 targets += [
+    // Frozen public ObjC ABI — pure data carriers, depends only on Foundation.
+    // Both SentryObjCBridge and SentryObjC depend on this so they reference
+    // the same authoritative type declarations.
     .target(
         name: "SentryObjCTypes",
         path: "Sources/SentryObjCTypes",
@@ -146,17 +147,17 @@ targets += [
             .headerSearchPath("Public")
         ]),
     .target(
-        name: "SentryObjCCompat",
+        name: "SentryObjCBridge",
         dependencies: ["SentryObjCInternal", "SentryObjCTypes"],
-        path: "Sources/SentryObjCCompat"),
+        path: "Sources/SentryObjCBridge"),
     .testTarget(
-        name: "SentryObjCCompatTests",
-        dependencies: ["SentryObjCCompat", "SentryObjCTypes", "SentrySwift"],
-        path: "Tests/SentryObjCCompatTests"),
+        name: "SentryObjCBridgeTests",
+        dependencies: ["SentryObjCBridge", "SentryObjCTypes", "SentrySwift"],
+        path: "Tests/SentryObjCBridgeTests"),
 
     .target(
         name: "SentryObjC",
-        dependencies: ["SentryObjCInternal", "SentryObjCCompat", "SentryObjCTypes"],
+        dependencies: ["SentryObjCInternal", "SentryObjCBridge", "SentryObjCTypes"],
         path: "Sources/SentryObjC",
         publicHeadersPath: "Public",
         cSettings: [

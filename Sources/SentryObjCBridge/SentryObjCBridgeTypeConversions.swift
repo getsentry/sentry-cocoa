@@ -1,30 +1,15 @@
-// swiftlint:disable missing_docs
 import Foundation
 import SentryObjCTypes
 
 #if SWIFT_PACKAGE
-@_spi(Private) internal import SentrySwift
+@_spi(Private) import SentrySwift
 #else
-@_spi(Private) internal import Sentry
+@_spi(Private) import Sentry
 #endif
 
 // MARK: - SentryObjCAttributeContent
 
 extension SentryObjCAttributeContent {
-    func toAttributeValue() -> any SentryAttributeValue {
-        switch type {
-        case .string:       return stringValue ?? ""
-        case .boolean:      return booleanValue
-        case .integer:      return integerValue
-        case .double:       return doubleValue
-        case .stringArray:  return stringArrayValue ?? [String]()
-        case .booleanArray: return (booleanArrayValue ?? []).map(\.boolValue)
-        case .integerArray: return (integerArrayValue ?? []).map(\.intValue)
-        case .doubleArray:  return (doubleArrayValue ?? []).map(\.doubleValue)
-        @unknown default:   return ""
-        }
-    }
-
     func toSwift() -> SentryAttributeContent {
         switch type {
         case .string:       return .string(stringValue ?? "")

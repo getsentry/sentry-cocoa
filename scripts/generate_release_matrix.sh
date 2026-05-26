@@ -40,7 +40,7 @@ BASE_SLICES_JSON='[
   {"name": "SentrySwiftUI", "macho-type": "mh_dylib", "id": "sentry-swiftui"},
   {"name": "Sentry", "macho-type": "mh_dylib", "suffix": "-WithoutUIKitOrAppKit", "configuration-suffix": "WithoutUIKit", "id": "sentry-withoutuikit-dynamic"},
   {"name": "SentryObjCTypes", "macho-type": "staticlib", "id": "sentryobjc-types"},
-  {"name": "SentryObjCCompat", "macho-type": "staticlib", "id": "sentryobjc-compat"},
+  {"name": "SentryObjCBridge", "macho-type": "staticlib", "id": "sentryobjc-bridge"},
   {"name": "SentryObjC", "macho-type": "staticlib", "id": "sentryobjc-objc"}
 ]'
 BASE_VARIANTS_JSON='[
