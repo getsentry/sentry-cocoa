@@ -10,7 +10,7 @@ final class SentryInvalidJSONStringTests: XCTestCase {
         XCTAssertFalse(JSONSerialization.isValidJSONObject(array))
     }
     
-    func testInitWithInvocations_ReturnsValidJSONUntilInvocationsReached() {
+    func testInitWithInvocations_ReturnsValidJSONUntilInvocationsReached() throws {
         let sut = SentryInvalidJSONString(lengthInvocationsToBeInvalid: 2)
         
         let array = [sut]
