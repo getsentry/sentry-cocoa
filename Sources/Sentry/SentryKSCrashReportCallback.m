@@ -13,3 +13,13 @@ sentry_kscrash_isWritingReportCallback(
         writer->addJSONElement(writer, "sentry_sdk_scope", json, false);
     }
 }
+
+void
+sentry_kscrash_willWriteReportCallback(
+    KSCrash_ExceptionHandlingPlan *plan, const struct KSCrash_MonitorContext *context)
+{
+    if (plan->crashedDuringExceptionHandling || plan->requiresAsyncSafety) {
+        return;
+    }
+    sentry_finishAndSaveTransaction();
+}

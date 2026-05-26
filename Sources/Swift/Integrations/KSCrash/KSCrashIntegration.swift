@@ -98,11 +98,13 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
         let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
         self.installation = SentryKSCrashInstallationReporter(inAppLogic: inAppLogic)
 
+        let persistTracesOnCrash = options.enablePersistingTracesWhenCrashing
         let config = SentryKSCrashConfigurationFactory.configuration(
             withInstallPath: cacheDirectory,
             monitors: .productionSafeMinimal,
             enableSigTermMonitoring: enableSigtermReporting,
-            enableSwapCxaThrow: enableCppExceptionsV2)
+            enableSwapCxaThrow: enableCppExceptionsV2,
+            persistTracesOnCrash: persistTracesOnCrash)
 
         try? installation?.install(with: config)
 

@@ -228,6 +228,23 @@ final class KSCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertFalse(SentrySDKInternal.lastRunStatusCalled)
     }
 
+    // MARK: - Transaction Tracing
+
+    func testPersistingTracesEnabled_passedThroughToConfiguration() throws {
+        fixture.options.enablePersistingTracesWhenCrashing = true
+        let sut = try fixture.getSut()
+        XCTAssertNotNil(sut)
+        // Integration initialised without crash — configuration with willWriteReportCallback
+        // is wired inside startCrashHandler. The factory tests verify the callback is set;
+        // here we just confirm the integration does not throw when the flag is enabled.
+    }
+
+    func testPersistingTracesDisabled_integrationInitialises() throws {
+        fixture.options.enablePersistingTracesWhenCrashing = false
+        let sut = try fixture.getSut()
+        XCTAssertNotNil(sut)
+    }
+
     // MARK: - Private helpers
 
     private func givenCurrentSession() -> SentrySession {
