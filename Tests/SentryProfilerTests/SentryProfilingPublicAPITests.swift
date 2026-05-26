@@ -57,6 +57,9 @@ class SentryProfilingPublicAPITests: XCTestCase {
 
     @available(*, deprecated, message: "This is deprecated because SentryOptions integrations is deprecated")
     override func tearDown() {
+        fixture.sessionTracker?.removeObservers()
+        fixture.sessionTracker = nil
+
         super.tearDown()
 
         givenSdkWithHubButNoClient()
@@ -630,8 +633,9 @@ extension SentryProfilingPublicAPITests {
     }
 
 #if !os(macOS)
-    func testSessionSampleRateReevaluationOnAppBecomingActive() {
+    func testSessionSampleRateReevaluationOnAppBecomingActive_whenNewSessionStarts_shouldReevaluate() {
         // Arrange
+        fixture.options.sessionTrackingIntervalMillis = 10_000
         fixture.options.configureProfiling = {
             $0.sessionSampleRate = 0.5
             $0.lifecycle = .manual
@@ -647,14 +651,14 @@ extension SentryProfilingPublicAPITests {
             notificationCenter: nc,
             dispatchQueue: TestSentryDispatchQueueWrapper()
         )
-        fixture.sessionTracker?.start()
         givenSdkWithHub()
+        fixture.sessionTracker?.start()
 
         // Act
         SentrySDK.startProfiler()
 
         // Assert
-        XCTAssert(SentryContinuousProfiler.isCurrentlyProfiling())
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
 
         // Act
         nc.post(Notification(name: UIApplication.willResignActiveNotification))
@@ -662,6 +666,7 @@ extension SentryProfilingPublicAPITests {
 
         // Arrange
         fixture.random = TestRandom(value: 1)
+        fixture.currentDate.advance(by: 10)
 
         // Act
         nc.post(Notification(name: UIApplication.didBecomeActiveNotification))
@@ -669,6 +674,49 @@ extension SentryProfilingPublicAPITests {
 
         // Assert
         XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+    }
+
+    func testSessionSampleRateReevaluationOnAppBecomingActive_whenSameSession_shouldNotReevaluate() {
+        // Arrange
+        fixture.options.sessionTrackingIntervalMillis = 10_000
+        fixture.options.configureProfiling = {
+            $0.sessionSampleRate = 0.5
+            $0.lifecycle = .manual
+        }
+        fixture.random = TestRandom(value: 0)
+        let container = SentryDependencyContainer.sharedInstance()
+        let nc = container.notificationCenterWrapper
+        let application = container.application()
+        fixture.sessionTracker = SessionTracker(
+            options: fixture.options,
+            applicationProvider: { application },
+            dateProvider: fixture.currentDate,
+            notificationCenter: nc,
+            dispatchQueue: TestSentryDispatchQueueWrapper()
+        )
+        givenSdkWithHub()
+        fixture.sessionTracker?.start()
+
+        // Act
+        SentrySDK.startProfiler()
+
+        // Assert
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // Act
+        nc.post(Notification(name: UIApplication.willResignActiveNotification))
+        XCTAssertFalse(SentryContinuousProfiler.isCurrentlyProfiling())
+
+        // Arrange
+        fixture.random = TestRandom(value: 1)
+        fixture.currentDate.advance(by: 9)
+
+        // Act
+        nc.post(Notification(name: UIApplication.didBecomeActiveNotification))
+        SentrySDK.startProfiler()
+
+        // Assert
+        XCTAssertTrue(SentryContinuousProfiler.isCurrentlyProfiling())
     }
 #endif // !os(macOS)
 }

@@ -34,7 +34,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSUInteger)length
 {
-    self.lengthInvocations++;
+    // Apple changed the implementation of `__CFStringEncodeByteStream` in some version after iOS26
+    // (and other platforms). Previously `length` was only called from
+    // `-[NSString(NSStringOtherEncodings) dataUsingEncoding:allowLossyConversion:]` but now it is
+    // also called by `__CFStringEncodeByteStream` so to avoid double counting, we ignore it.
+    if ([NSThread.callStackSymbols[1] rangeOfString:@"__CFStringEncodeByteStream"].location
+        == NSNotFound) {
+        self.lengthInvocations++;
+    }
 
     if (self.lengthInvocations > self.lengthInvocationsToBeInvalid) {
         NSMutableString *invalidString = [NSMutableString stringWithString:@"invalid string"];

@@ -5,6 +5,8 @@
 ### Fixes
 
 - Move SessionTracker I/O to Background (#7912)
+- Prevent SessionTracker crash with profiling (#7944)
+  - Reevaluation of sampling decision is only done for new sessions.
 
 ## 8.58.2
 

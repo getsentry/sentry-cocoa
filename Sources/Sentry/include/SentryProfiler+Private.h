@@ -37,7 +37,10 @@ typedef struct {
  */
 SENTRY_EXTERN void sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHub *hub);
 
-SENTRY_EXTERN SentryProfileConfiguration *_Nullable sentry_profileConfiguration;
+SENTRY_EXTERN SentryProfileConfiguration *_Nullable sentry_getProfileConfiguration(void);
+
+SENTRY_EXTERN void sentry_setProfileConfiguration(
+    SentryProfileConfiguration *_Nullable configuration);
 
 SENTRY_EXTERN BOOL sentry_isLaunchProfileCorrelatedToTraces(void);
 
