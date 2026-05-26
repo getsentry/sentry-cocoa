@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCTransactionContext: SentryObjCSpanContext {
+@objc(SentryObjCTransactionContext) public final class SentryObjCTransactionContext: SentryObjCSpanContext {
     internal var wrappedTransaction: TransactionContext {
         // swiftlint:disable:next force_cast
         wrapped as! TransactionContext
@@ -33,7 +33,12 @@ public final class SentryObjCTransactionContext: SentryObjCSpanContext {
     }
 
     @objc public var nameSource: SentryObjCTransactionNameSource {
-        SentryObjCTransactionNameSource(wrappedTransaction.nameSource)
+        // SentryTransactionNameSource is forward-declared in ObjC headers but defined in Swift,
+        // so the property is unavailable through the ObjC import. Use KVC to read the raw value.
+        guard let raw = wrappedTransaction.value(forKey: "nameSource") as? Int else {
+            return .custom
+        }
+        return SentryObjCTransactionNameSource(rawValue: raw) ?? .custom
     }
 
     @objc public var sampleRate: NSNumber? {

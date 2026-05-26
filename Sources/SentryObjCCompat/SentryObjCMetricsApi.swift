@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCMetricsApi: NSObject {
+@objc(SentryObjCMetricsApi) public final class SentryObjCMetricsApi: NSObject {
     private let api: SentryMetricsApiProtocol
 
     internal init(_ api: SentryMetricsApiProtocol) {

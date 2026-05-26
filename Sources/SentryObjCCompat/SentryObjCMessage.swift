@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCMessage: NSObject {
+@objc(SentryObjCMessage) public final class SentryObjCMessage: NSObject {
     internal let wrapped: SentryMessage
 
     internal init(_ wrapped: SentryMessage) {

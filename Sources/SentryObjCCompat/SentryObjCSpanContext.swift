@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public class SentryObjCSpanContext: NSObject {
+@objc(SentryObjCSpanContext) public class SentryObjCSpanContext: NSObject {
     internal var wrapped: SpanContext
 
     internal init(_ wrapped: SpanContext) {

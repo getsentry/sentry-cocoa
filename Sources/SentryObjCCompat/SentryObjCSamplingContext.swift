@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCSamplingContext: NSObject {
+@objc(SentryObjCSamplingContext) public final class SentryObjCSamplingContext: NSObject {
     internal let wrapped: SamplingContext
 
     internal init(_ wrapped: SamplingContext) {

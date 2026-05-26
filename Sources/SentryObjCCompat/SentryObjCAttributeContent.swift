@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCAttributeContent: NSObject {
+@objc(SentryObjCAttributeContent) public final class SentryObjCAttributeContent: NSObject {
     private let content: SentryAttributeContent
 
     internal init(_ content: SentryAttributeContent) {

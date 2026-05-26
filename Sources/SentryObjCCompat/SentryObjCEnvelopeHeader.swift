@@ -6,7 +6,7 @@
 #endif
 import Foundation
 
-public final class SentryObjCEnvelopeHeader: NSObject {
+@objc(SentryObjCEnvelopeHeader) public final class SentryObjCEnvelopeHeader: NSObject {
     internal let wrapped: SentryEnvelopeHeader
 
     internal init(_ wrapped: SentryEnvelopeHeader) {

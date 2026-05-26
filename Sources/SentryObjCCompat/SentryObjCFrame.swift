@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCFrame: NSObject {
+@objc(SentryObjCFrame) public final class SentryObjCFrame: NSObject {
     internal let wrapped: Frame
 
     internal init(_ wrapped: Frame) {

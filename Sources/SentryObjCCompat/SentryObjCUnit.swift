@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCUnit: NSObject {
+@objc(SentryObjCUnit) public final class SentryObjCUnit: NSObject {
     private let unit: SentryUnit
 
     internal init(_ unit: SentryUnit) {

@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCEvent: NSObject {
+@objc(SentryObjCEvent) public final class SentryObjCEvent: NSObject {
     internal let wrapped: Event
 
     internal init(_ wrapped: Event) {

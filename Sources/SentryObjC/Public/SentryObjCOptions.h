@@ -85,6 +85,25 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SentryObjCExperimentalOptions *experimental;
 @property (nonatomic) BOOL enableMetrics;
 
+#if TARGET_OS_IOS && SENTRY_OBJC_HAS_UIKIT
+
+@property (nonatomic) BOOL enableUIViewControllerTracing;
+@property (nonatomic) BOOL attachScreenshot;
+@property (nonatomic) BOOL attachViewHierarchy;
+@property (nonatomic) BOOL reportAccessibilityIdentifier;
+@property (nonatomic) BOOL enableUserInteractionTracing;
+@property (nonatomic) NSTimeInterval idleTimeout;
+@property (nonatomic) BOOL enablePreWarmedAppStartTracing;
+@property (nonatomic) BOOL enableReportNonFullyBlockingAppHangs;
+
+#endif
+
+#if (TARGET_OS_IOS || TARGET_OS_TV) && SENTRY_OBJC_HAS_UIKIT
+
+@property (nonatomic, strong) SentryObjCReplayOptions *sessionReplay;
+
+#endif
+
 - (instancetype)init;
 - (void)addInAppInclude:(NSString *)inAppInclude;
 

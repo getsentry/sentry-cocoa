@@ -132,7 +132,7 @@ targets += [
 ]
 
 // BEGIN:OBJC_WRAPPER
-products.append(.library(name: "SentryObjC", targets: ["SentryObjCInternal", "SentryObjCCompat", "SentryObjC"]))
+products.append(.library(name: "SentryObjC", targets: ["SentryObjC"]))
 targets += [
     .target(
         name: "SentryObjCCompat",
@@ -144,7 +144,7 @@ targets += [
         path: "Tests/SentryObjCCompatTests"),
     .target(
         name: "SentryObjC",
-        dependencies: ["SentryObjCInternal", "SentryObjCCompat"],
+        dependencies: ["SentryObjCCompat"],
         path: "Sources/SentryObjC",
         publicHeadersPath: "Public",
         cSettings: [

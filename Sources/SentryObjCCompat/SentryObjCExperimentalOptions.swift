@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCExperimentalOptions: NSObject {
+@objc(SentryObjCExperimentalOptions) public final class SentryObjCExperimentalOptions: NSObject {
     internal let wrapped: SentryExperimentalOptions
 
     internal init(_ wrapped: SentryExperimentalOptions) {

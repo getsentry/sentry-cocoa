@@ -6,7 +6,7 @@
 #endif
 import Foundation
 
-public final class SentryObjCFeedback: NSObject {
+@objc(SentryObjCFeedback) public final class SentryObjCFeedback: NSObject {
     internal let wrapped: SentryFeedback
 
     // Store init values locally since SentryFeedback properties are internal

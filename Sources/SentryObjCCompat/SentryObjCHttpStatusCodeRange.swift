@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCHttpStatusCodeRange: NSObject {
+@objc(SentryObjCHttpStatusCodeRange) public final class SentryObjCHttpStatusCodeRange: NSObject {
     internal let wrapped: HttpStatusCodeRange
 
     internal init(_ wrapped: HttpStatusCodeRange) {

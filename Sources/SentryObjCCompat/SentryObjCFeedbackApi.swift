@@ -8,7 +8,7 @@ import Foundation
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 
-public final class SentryObjCFeedbackApi: NSObject {
+@objc(SentryObjCFeedbackApi) public final class SentryObjCFeedbackApi: NSObject {
     internal let wrapped: SentryFeedbackAPI
 
     internal init(_ wrapped: SentryFeedbackAPI) {

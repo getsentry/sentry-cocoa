@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCBreadcrumb: NSObject {
+@objc(SentryObjCBreadcrumb) public final class SentryObjCBreadcrumb: NSObject {
     internal let wrapped: Breadcrumb
 
     internal init(_ wrapped: Breadcrumb) {

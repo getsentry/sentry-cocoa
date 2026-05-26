@@ -6,7 +6,7 @@
 #endif
 import Foundation
 
-public final class SentryObjCMetric: NSObject {
+@objc(SentryObjCMetric) public final class SentryObjCMetric: NSObject {
     internal var wrapped: SentryMetric
 
     internal init(_ wrapped: SentryMetric) {

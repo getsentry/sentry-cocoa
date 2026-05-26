@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCDebugMeta: NSObject {
+@objc(SentryObjCDebugMeta) public final class SentryObjCDebugMeta: NSObject {
     internal let wrapped: DebugMeta
 
     internal init(_ wrapped: DebugMeta) {

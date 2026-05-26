@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCMetricValue: NSObject {
+@objc(SentryObjCMetricValue) public final class SentryObjCMetricValue: NSObject {
     private let metricValue: SentryMetricValue
 
     internal init(_ metricValue: SentryMetricValue) {

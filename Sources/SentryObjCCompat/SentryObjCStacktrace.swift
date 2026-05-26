@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCStacktrace: NSObject {
+@objc(SentryObjCStacktrace) public final class SentryObjCStacktrace: NSObject {
     internal let wrapped: SentryStacktrace
 
     internal init(_ wrapped: SentryStacktrace) {

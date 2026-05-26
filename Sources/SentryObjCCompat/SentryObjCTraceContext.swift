@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCTraceContext: NSObject {
+@objc(SentryObjCTraceContext) public final class SentryObjCTraceContext: NSObject {
     internal let wrapped: TraceContext
 
     internal init(_ wrapped: TraceContext) {

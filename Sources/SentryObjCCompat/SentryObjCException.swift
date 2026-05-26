@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCException: NSObject {
+@objc(SentryObjCException) public final class SentryObjCException: NSObject {
     internal let wrapped: Exception
 
     internal init(_ wrapped: Exception) {

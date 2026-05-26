@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCThread: NSObject {
+@objc(SentryObjCThread) public final class SentryObjCThread: NSObject {
     internal let wrapped: SentryThread
 
     internal init(_ wrapped: SentryThread) {

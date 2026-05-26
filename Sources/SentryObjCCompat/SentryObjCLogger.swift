@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCLogger: NSObject {
+@objc(SentryObjCLogger) public final class SentryObjCLogger: NSObject {
     internal let wrapped: SentryLogger
 
     internal init(_ wrapped: SentryLogger) {

@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCReplayOptions: NSObject {
+@objc(SentryObjCReplayOptions) public final class SentryObjCReplayOptions: NSObject {
     internal let wrapped: SentryReplayOptions
 
     internal init(_ wrapped: SentryReplayOptions) {

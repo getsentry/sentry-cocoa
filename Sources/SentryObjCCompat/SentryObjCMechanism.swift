@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCMechanism: NSObject {
+@objc(SentryObjCMechanism) public final class SentryObjCMechanism: NSObject {
     internal let wrapped: Mechanism
 
     internal init(_ wrapped: Mechanism) {

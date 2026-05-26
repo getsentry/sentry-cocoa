@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCTraceHeader: NSObject {
+@objc(SentryObjCTraceHeader) public final class SentryObjCTraceHeader: NSObject {
     internal let wrapped: TraceHeader
 
     internal init(_ wrapped: TraceHeader) {

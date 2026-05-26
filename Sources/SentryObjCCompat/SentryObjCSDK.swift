@@ -7,7 +7,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCSDK: NSObject {
+@objc(SentryObjCSDK) public final class SentryObjCSDK: NSObject {
 
     @objc public static var span: SentryObjCSpan? {
         guard let s = SentrySDK.span else { return nil }

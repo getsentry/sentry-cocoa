@@ -6,18 +6,25 @@
 #endif
 import Foundation
 
-public final class SentryObjCPrivateSDKOnly: NSObject {
+@objc(SentryObjCPrivateSDKOnly) public final class SentryObjCPrivateSDKOnly: NSObject {
+
+    // swiftlint:disable:next todo
+    // TODO: Replace selector dispatch with direct calls once PrivateSentrySDKOnly is migrated to Swift.
+    // SentryEnvelope is forward-declared in ObjC headers but defined in Swift, making ObjC methods
+    // that use it unavailable through the Swift importer. Selector dispatch is a workaround.
 
     @objc public static func storeEnvelope(_ envelope: SentryObjCEnvelope) {
-        PrivateSentrySDKOnly.store(envelope.wrapped)
+        let cls = PrivateSentrySDKOnly.self as AnyObject
+        _ = cls.perform(NSSelectorFromString("storeEnvelope:"), with: envelope.wrapped)
     }
 
     @objc public static func captureEnvelope(_ envelope: SentryObjCEnvelope) {
-        PrivateSentrySDKOnly.capture(envelope.wrapped)
+        let cls = PrivateSentrySDKOnly.self as AnyObject
+        _ = cls.perform(NSSelectorFromString("captureEnvelope:"), with: envelope.wrapped)
     }
 
     @objc public static func envelopeWithData(_ data: Data) -> SentryObjCEnvelope? {
-        guard let envelope = PrivateSentrySDKOnly.envelope(with: data) else { return nil }
+        guard let envelope = SentrySerializationSwift.envelope(with: data) else { return nil }
         return SentryObjCEnvelope(envelope)
     }
 

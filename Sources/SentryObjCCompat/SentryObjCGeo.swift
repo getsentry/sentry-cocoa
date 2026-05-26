@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCGeo: NSObject {
+@objc(SentryObjCGeo) public final class SentryObjCGeo: NSObject {
     internal let wrapped: Geo
 
     internal init(_ wrapped: Geo) {

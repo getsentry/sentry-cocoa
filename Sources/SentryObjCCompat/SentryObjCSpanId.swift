@@ -6,7 +6,7 @@ internal import Sentry
 #endif
 import Foundation
 
-public final class SentryObjCSpanId: NSObject {
+@objc(SentryObjCSpanId) public final class SentryObjCSpanId: NSObject {
     internal let wrapped: SpanId
 
     internal init(_ wrapped: SpanId) {

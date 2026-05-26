@@ -9,7 +9,7 @@ import Foundation
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
 import UIKit
 
-public final class SentryObjCReplayApi: NSObject {
+@objc(SentryObjCReplayApi) public final class SentryObjCReplayApi: NSObject {
     internal let wrapped: SentryReplayApi
 
     internal init(_ wrapped: SentryReplayApi) {
