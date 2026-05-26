@@ -171,14 +171,6 @@ extension SentryUserFeedbackFormController {
             self?.notifyStandaloneFormDidClose()
         }
 
-        if let navigationController = navigationController,
-           navigationController.viewControllers.last === self,
-           navigationController.viewControllers.count > 1 {
-            navigationController.popViewController(animated: config.animations)
-            completion()
-            return
-        }
-
         dismiss(animated: config.animations, completion: completion)
     }
 

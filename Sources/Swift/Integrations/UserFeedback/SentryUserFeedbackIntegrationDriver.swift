@@ -14,7 +14,6 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
     private var widget: SentryUserFeedbackWidget?
     private var shouldRestoreWidgetAfterFormDismissal = false
     private var didOpenForm = false
-    private weak var installedPresenter: SentryFeedbackFormPresenter?
     private var activePresenter: SentryFeedbackFormPresenter?
     let screenshotSource: SentryScreenshotSource
 
@@ -58,7 +57,6 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
 
     func uninstall() {
         activePresenter?.dismiss()
-        installedPresenter = nil
     }
 
     func showWidget() {
@@ -86,21 +84,8 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
         configuration.onFormOpen?()
     }
 
-    func setFeedbackFormPresenter(_ presenter: SentryFeedbackFormPresenter?) {
-        installedPresenter = presenter
-    }
-
-    func removeFeedbackFormPresenter(_ presenter: SentryFeedbackFormPresenter) {
-        guard installedPresenter === presenter else { return }
-        installedPresenter = nil
-    }
-
     @discardableResult
     func showForm(screenshot: UIImage? = nil) -> Bool {
-        if let installedPresenter = installedPresenter {
-            return present(using: installedPresenter, screenshot: screenshot)
-        }
-
         return present(using: makeAutomaticUIKitPresenter(), screenshot: screenshot)
     }
 
@@ -144,19 +129,8 @@ extension SentryUserFeedbackIntegrationDriver: SentryFeedbackFormPresenterDelega
 
 // MARK: Presentation
 @available(iOSApplicationExtension, unavailable)
-private extension SentryUserFeedbackIntegrationDriver {
-    func hideWidgetForPresentedForm() {
-        guard let widget = widget else { return }
-        shouldRestoreWidgetAfterFormDismissal = widget.isVisible
-        hideWidget()
-    }
-
-    func restoreWidgetForPresentedFormIfNeeded() {
-        guard shouldRestoreWidgetAfterFormDismissal else { return }
-        shouldRestoreWidgetAfterFormDismissal = false
-        widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
-    }
-
+extension SentryUserFeedbackIntegrationDriver {
+    @discardableResult
     func present(
         using presenter: SentryFeedbackFormPresenter,
         screenshot: UIImage?
@@ -178,6 +152,21 @@ private extension SentryUserFeedbackIntegrationDriver {
 
         activePresenter = presenter
         return true
+    }
+}
+
+@available(iOSApplicationExtension, unavailable)
+private extension SentryUserFeedbackIntegrationDriver {
+    func hideWidgetForPresentedForm() {
+        guard let widget = widget else { return }
+        shouldRestoreWidgetAfterFormDismissal = widget.isVisible
+        hideWidget()
+    }
+
+    func restoreWidgetForPresentedFormIfNeeded() {
+        guard shouldRestoreWidgetAfterFormDismissal else { return }
+        shouldRestoreWidgetAfterFormDismissal = false
+        widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
     }
 }
 

@@ -23,8 +23,7 @@ import UIKit
 
     /// Show the feedback form using the best available presenter.
     ///
-    /// If a SwiftUI feedback form modifier is registered, the SDK shows the form with SwiftUI sheet presentation.
-    /// Otherwise, the SDK shows the form from the configured custom button host, widget host, foreground
+    /// The SDK shows the form from the configured custom button host, widget host, foreground
     /// window scene presenter, or first available key-window presenter.
     ///
     /// - Parameter image: An optional image to attach to the feedback form.

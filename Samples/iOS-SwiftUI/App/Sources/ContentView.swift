@@ -240,7 +240,6 @@ struct ContentView: View {
                 }
             }
         }
-        .sentryFeedbackForm()
     }
 }
 
