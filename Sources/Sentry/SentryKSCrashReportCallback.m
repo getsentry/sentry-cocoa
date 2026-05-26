@@ -5,9 +5,11 @@ void
 sentry_kscrash_isWritingReportCallback(
     const KSCrash_ExceptionHandlingPlan *plan, const KSCrashReportWriter *writer)
 {
-    (void)plan;
+    if (plan->crashedDuringExceptionHandling) {
+        return;
+    }
     const char *json = sentryKSCrash_getScopeJSON();
     if (json != NULL) {
-        writer->addJSONElement(writer, "sentry_sdk_scope", json, true);
+        writer->addJSONElement(writer, "sentry_sdk_scope", json, false);
     }
 }

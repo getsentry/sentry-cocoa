@@ -3,9 +3,6 @@
 
 #ifdef __OBJC__
 @import KSCrashRecording;
-#else
-struct KSCrash_ExceptionHandlingPlan;
-struct KSCrashReportWriter;
 #endif
 
 #ifdef __cplusplus
