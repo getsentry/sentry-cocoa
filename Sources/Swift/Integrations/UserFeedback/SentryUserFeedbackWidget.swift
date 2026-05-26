@@ -5,7 +5,7 @@ import Foundation
 import UIKit
 
 protocol SentryUserFeedbackWidgetDelegate: NSObjectProtocol {
-    func showFeedbackForm()
+    func showForm()
 }
 
 @available(iOSApplicationExtension, unavailable)
@@ -49,7 +49,7 @@ final class SentryUserFeedbackWidget {
     }
 
     @objc func showForm() {
-        self.delegate?.showFeedbackForm()
+        self.delegate?.showForm()
     }
 
     final class Window: UIWindow {

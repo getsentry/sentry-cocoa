@@ -58,14 +58,6 @@ public final class SentryUserFeedbackFormController: UIViewController {
         commonInit()
     }
 
-    /// Creates a feedback form controller from a decoder.
-    public required init?(coder: NSCoder) {
-        self.config = SentryUserFeedbackConfiguration()
-        self.screenshot = nil
-        super.init(coder: coder)
-        commonInit()
-    }
-
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -78,6 +70,14 @@ public final class SentryUserFeedbackFormController: UIViewController {
         let nc = NotificationCenter.default
         nc.addObserver(self, selector: #selector(showedKeyboard(note:)), name: UIResponder.keyboardDidShowNotification, object: nil)
         nc.addObserver(self, selector: #selector(hidKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    /// Creates a feedback form controller from a decoder.
+    public required init?(coder: NSCoder) {
+        self.config = SentryUserFeedbackConfiguration()
+        self.screenshot = nil
+        super.init(coder: coder)
+        commonInit()
     }
 }
 
