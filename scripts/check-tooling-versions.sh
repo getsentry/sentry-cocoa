@@ -10,7 +10,14 @@ cd "${0%/*}"
 # -- Begin Script --
 
 REMOTE_CLANG_FORMAT_VERSION=$(cat .clang-format-version)
-LOCAL_CLANG_FORMAT_VERSION=$(clang-format --version | awk '{print $3}')
+CLANG_FORMAT_VERSION_STR=$(clang-format --version)
+
+# Xcode's clang-format & Homebrew's LLVM clang-format have prefixes that mean we need to extract the version from the 4th field
+# we need to extract the version from the 4th field
+case "$CLANG_FORMAT_VERSION_STR" in
+    Apple\ *|Homebrew\ *) LOCAL_CLANG_FORMAT_VERSION=$(echo "$CLANG_FORMAT_VERSION_STR" | awk '{print $4}') ;;
+    *)                    LOCAL_CLANG_FORMAT_VERSION=$(echo "$CLANG_FORMAT_VERSION_STR" | awk '{print $3}') ;;
+esac
 
 REMOTE_SWIFTLINT_VERSION=$(cat .swiftlint-version)
 LOCAL_SWIFTLINT_VERSION=$(swiftlint version)
