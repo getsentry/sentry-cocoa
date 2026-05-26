@@ -34160,7 +34160,6 @@
         "mangledName": "$s6Sentry0A9AttributeC",
         "moduleName": "Sentry",
         "name": "SentryAttribute",
-        "objc_name": "SentryAttribute",
         "printedName": "SentryAttribute",
         "superclassNames": [
           "ObjectiveC.NSObject"
@@ -37183,7 +37182,6 @@
         "mangledName": "$s6Sentry0A19ExperimentalOptionsC",
         "moduleName": "Sentry",
         "name": "SentryExperimentalOptions",
-        "objc_name": "SentryExperimentalOptions",
         "printedName": "SentryExperimentalOptions",
         "superclassNames": [
           "ObjectiveC.NSObject"
@@ -38052,7 +38050,6 @@
         "mangledName": "$s6Sentry0A8FeedbackC",
         "moduleName": "Sentry",
         "name": "SentryFeedback",
-        "objc_name": "SentryFeedback",
         "printedName": "SentryFeedback",
         "superclassNames": [
           "ObjectiveC.NSObject"
@@ -42499,7 +42496,6 @@
         "mangledName": "$s6Sentry0A3LogC",
         "moduleName": "Sentry",
         "name": "SentryLog",
-        "objc_name": "SentryLog",
         "printedName": "SentryLog",
         "superclassNames": [
           "ObjectiveC.NSObject"
@@ -43875,7 +43871,6 @@
         "mangledName": "$s6Sentry0A6LoggerC",
         "moduleName": "Sentry",
         "name": "SentryLogger",
-        "objc_name": "SentryLogger",
         "printedName": "SentryLogger",
         "superclassNames": [
           "ObjectiveC.NSObject"
@@ -51236,7 +51231,6 @@
         "mangledName": "$s6Sentry0A13ReplayOptionsC",
         "moduleName": "Sentry",
         "name": "SentryReplayOptions",
-        "objc_name": "SentryReplayOptions",
         "printedName": "SentryReplayOptions",
         "superclassNames": [
           "ObjectiveC.NSObject"
