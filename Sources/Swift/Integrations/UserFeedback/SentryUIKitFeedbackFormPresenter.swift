@@ -41,9 +41,8 @@ final class SentryUIKitFeedbackFormPresenter: NSObject, SentryFeedbackFormPresen
             screenshot: screenshot
         )
         self.form = form
-        controller.present(form, animated: configuration.animations) { [weak self, weak form] in
-            form?.presentationController?.delegate = self
-        }
+        controller.present(form, animated: configuration.animations)
+        form.presentationController?.delegate = self
         return true
     }
 
