@@ -3,8 +3,6 @@
 #    import <Sentry/SentryDefines.h>
 #elif __has_include(<SentryWithoutUIKit/Sentry.h>)
 #    import <SentryWithoutUIKit/SentryDefines.h>
-#elif __has_include(<SentryObjC/SentryObjCDefines.h>)
-#    import <SentryObjC/SentryObjCDefines.h>
 #else
 #    import <SentryDefines.h>
 #endif
