@@ -21,7 +21,7 @@ class SentryFeedbackTests: XCTestCase {
         let config: SentryUserFeedbackConfiguration
         let testCaseConfig: FeedbackTestCaseConfiguration
         let formDelegate = TestFormDelegate()
-        lazy var controller = SentryFeedbackFormController(config: config, delegate: formDelegate, screenshot: self.testCaseConfig.includeScreenshot ? UIImage() : nil)
+        lazy var controller = SentryUserFeedbackFormController(config: config, delegate: formDelegate, screenshot: self.testCaseConfig.includeScreenshot ? UIImage() : nil)
                 
         init(config: SentryUserFeedbackConfiguration, testCaseConfig: FeedbackTestCaseConfiguration) {
             self.config = config

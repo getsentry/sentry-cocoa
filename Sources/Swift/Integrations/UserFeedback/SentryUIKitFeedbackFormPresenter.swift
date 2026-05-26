@@ -12,7 +12,7 @@ final class SentryUIKitFeedbackFormPresenter: NSObject, SentryFeedbackFormPresen
     private let presentingViewControllerProvider: SentryFeedbackFormPresentingViewControllerProvider
     private let configuration: SentryUserFeedbackConfiguration
     private weak var formDelegate: SentryUserFeedbackFormDelegate?
-    private weak var form: SentryFeedbackFormController?
+    private weak var form: SentryUserFeedbackFormController?
 
     init(
         presentingViewControllerProvider: @escaping SentryFeedbackFormPresentingViewControllerProvider,
@@ -35,7 +35,7 @@ final class SentryUIKitFeedbackFormPresenter: NSObject, SentryFeedbackFormPresen
             return false
         }
 
-        let form = SentryFeedbackFormController(
+        let form = SentryUserFeedbackFormController(
             config: configuration,
             delegate: formDelegate,
             screenshot: screenshot

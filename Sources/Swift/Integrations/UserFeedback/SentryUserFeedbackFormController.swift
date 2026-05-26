@@ -11,7 +11,7 @@ protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
 
 /// A view controller that displays the Sentry user feedback form.
 @available(iOSApplicationExtension, unavailable)
-public final class SentryFeedbackFormController: UIViewController {
+public final class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
     weak var delegate: SentryUserFeedbackFormDelegate?
     let screenshot: UIImage?
@@ -89,7 +89,7 @@ public final class SentryFeedbackFormController: UIViewController {
 }
 
 // MARK: Layout
-extension SentryFeedbackFormController {
+extension SentryUserFeedbackFormController {
     func initLayout() {
         viewModel.setScrollViewBottomInset(0)
         view.addSubview(viewModel.scrollView)
@@ -113,7 +113,7 @@ extension SentryFeedbackFormController {
 }
 
 // MARK: SentryUserFeedbackFormViewModelDelegate
-extension SentryFeedbackFormController: SentryUserFeedbackFormViewModelDelegate {
+extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDelegate {
     func submitFeedback() {
         switch viewModel.validate() {
         case .success(_):
@@ -152,7 +152,7 @@ extension SentryFeedbackFormController: SentryUserFeedbackFormViewModelDelegate 
 }
 
 // MARK: Standalone presentation
-extension SentryFeedbackFormController {
+extension SentryUserFeedbackFormController {
     private func finish(with feedback: SentryFeedback?) {
         if let feedback = feedback {
             SentrySDK.capture(feedback: feedback)
@@ -196,7 +196,7 @@ extension SentryFeedbackFormController {
 }
 
 // MARK: UITextFieldDelegate
-extension SentryFeedbackFormController: UITextFieldDelegate {
+extension SentryUserFeedbackFormController: UITextFieldDelegate {
     /// Handles the return key for feedback form text fields.
     public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
@@ -210,7 +210,7 @@ extension SentryFeedbackFormController: UITextFieldDelegate {
 }
 
 // MARK: UITextViewDelegate
-extension SentryFeedbackFormController: UITextViewDelegate {
+extension SentryUserFeedbackFormController: UITextViewDelegate {
     /// Updates validation state when the feedback message changes.
     public func textViewDidChange(_ textView: UITextView) {
         viewModel.messageTextViewPlaceholder.isHidden = textView.text != ""
@@ -233,13 +233,13 @@ struct ViewControllerWrapper: UIViewControllerRepresentable {
 
 @available(iOS 17.0, *)
 #Preview {
-    SentryFeedbackFormController(config: .init(), delegate: nil, screenshot: nil)
+    SentryUserFeedbackFormController(config: .init(), delegate: nil, screenshot: nil)
 }
 
 @available(iOS 17.0, *)
 #Preview {
     ViewControllerWrapper(
-        viewController: SentryFeedbackFormController(
+        viewController: SentryUserFeedbackFormController(
             config: .init(),
             delegate: nil,
             screenshot: nil))
@@ -249,7 +249,7 @@ struct ViewControllerWrapper: UIViewControllerRepresentable {
 @available(iOS 17.0, *)
 #Preview {
     ViewControllerWrapper(
-        viewController: SentryFeedbackFormController(
+        viewController: SentryUserFeedbackFormController(
             config: .init(),
             delegate: nil,
             screenshot: nil))

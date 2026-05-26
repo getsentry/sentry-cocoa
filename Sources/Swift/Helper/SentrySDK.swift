@@ -347,7 +347,7 @@ import Foundation
     
     #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     /// A UIKit view controller that displays the Sentry user feedback form.
-    public typealias FeedbackForm = SentryFeedbackFormController
+    public typealias FeedbackForm = SentryUserFeedbackFormController
 
     /// The API for capturing user feedback.
     ///

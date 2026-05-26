@@ -7,10 +7,10 @@ struct SentryFeedbackFormRepresentable: UIViewControllerRepresentable {
     let delegate: SentryUserFeedbackFormDelegate
     let screenshot: UIImage?
 
-    func makeUIViewController(context: Context) -> SentryFeedbackFormController {
-        return SentryFeedbackFormController(config: configuration, delegate: delegate, screenshot: screenshot)
+    func makeUIViewController(context: Context) -> SentryUserFeedbackFormController {
+        return SentryUserFeedbackFormController(config: configuration, delegate: delegate, screenshot: screenshot)
     }
 
-    func updateUIViewController(_ uiViewController: SentryFeedbackFormController, context: Context) { }
+    func updateUIViewController(_ uiViewController: SentryUserFeedbackFormController, context: Context) { }
 }
 #endif

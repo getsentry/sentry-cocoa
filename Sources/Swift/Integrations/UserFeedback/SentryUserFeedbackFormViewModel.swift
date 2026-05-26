@@ -13,7 +13,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
 @objcMembers
 @_spi(Private) public class SentryUserFeedbackFormViewModel: NSObject {
     let config: SentryUserFeedbackConfiguration
-    unowned let controller: SentryFeedbackFormController
+    unowned let controller: SentryUserFeedbackFormController
     weak var delegate: SentryUserFeedbackFormViewModelDelegate?
     let screenshot: UIImage?
     
@@ -24,7 +24,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
         return formatter
     }()
     
-    init(config: SentryUserFeedbackConfiguration, controller: SentryFeedbackFormController, screenshot: UIImage?) {
+    init(config: SentryUserFeedbackConfiguration, controller: SentryUserFeedbackFormController, screenshot: UIImage?) {
         self.config = config
         self.controller = controller
         self.screenshot = screenshot
