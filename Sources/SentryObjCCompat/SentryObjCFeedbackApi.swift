@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 
@@ -25,5 +26,6 @@ public final class SentryObjCFeedbackApi: NSObject {
     }
 }
 #endif
+import Foundation
 
 // swiftlint:enable missing_docs

@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 @objc public enum SentryObjCLastRunStatus: Int {
     case unknown = 0, didNotCrash, didCrash

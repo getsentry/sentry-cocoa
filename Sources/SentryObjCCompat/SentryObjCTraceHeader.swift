@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 public final class SentryObjCTraceHeader: NSObject {
     internal let wrapped: TraceHeader
@@ -13,7 +14,7 @@ public final class SentryObjCTraceHeader: NSObject {
     }
 
     @objc public init(traceId: SentryObjCId, spanId: SentryObjCSpanId, sampled: SentryObjCSampleDecision) {
-        self.wrapped = TraceHeader(traceId: traceId.wrapped, spanId: spanId.wrapped, sampled: sampled.underlying)
+        self.wrapped = TraceHeader(trace: traceId.wrapped, spanId: spanId.wrapped, sampled: sampled.underlying)
     }
 
     @objc public var traceId: SentryObjCId {

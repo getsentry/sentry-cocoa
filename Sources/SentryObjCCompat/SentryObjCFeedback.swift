@@ -4,15 +4,33 @@
 #else
 @_spi(Private) internal import Sentry
 #endif
+import Foundation
 
 public final class SentryObjCFeedback: NSObject {
     internal let wrapped: SentryFeedback
 
-    internal init(_ wrapped: SentryFeedback) {
+    // Store init values locally since SentryFeedback properties are internal
+    private let _message: String
+    private let _name: String?
+    private let _email: String?
+    private let _source: SentryObjCFeedbackSource
+    private let _associatedEventId: SentryObjCId?
+
+    internal init(_ wrapped: SentryFeedback, message: String, name: String?, email: String?, source: SentryObjCFeedbackSource, associatedEventId: SentryObjCId?) {
         self.wrapped = wrapped
+        self._message = message
+        self._name = name
+        self._email = email
+        self._source = source
+        self._associatedEventId = associatedEventId
     }
 
     @objc public init(message: String, name: String?, email: String?, source: SentryObjCFeedbackSource = .widget, associatedEventId: SentryObjCId? = nil, attachments: [SentryObjCAttachment]? = nil) {
+        self._message = message
+        self._name = name
+        self._email = email
+        self._source = source
+        self._associatedEventId = associatedEventId
         self.wrapped = SentryFeedback(
             message: message,
             name: name,
@@ -24,19 +42,19 @@ public final class SentryObjCFeedback: NSObject {
     }
 
     @objc public var message: String {
-        wrapped.message
+        _message
     }
 
     @objc public var name: String? {
-        wrapped.name
+        _name
     }
 
     @objc public var email: String? {
-        wrapped.email
+        _email
     }
 
     @objc public var source: SentryObjCFeedbackSource {
-        SentryObjCFeedbackSource(wrapped.source)
+        _source
     }
 
     @objc public var eventId: SentryObjCId {
@@ -44,7 +62,7 @@ public final class SentryObjCFeedback: NSObject {
     }
 
     @objc public var associatedEventId: SentryObjCId? {
-        wrapped.associatedEventId.map { SentryObjCId($0) }
+        _associatedEventId
     }
 
     @objc public var attachments: [SentryObjCAttachment]? {

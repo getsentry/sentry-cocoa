@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 @objc public enum SentryObjCSpanStatus: UInt {
     case undefined = 0

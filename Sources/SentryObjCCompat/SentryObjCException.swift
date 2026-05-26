@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 public final class SentryObjCException: NSObject {
     internal let wrapped: Exception

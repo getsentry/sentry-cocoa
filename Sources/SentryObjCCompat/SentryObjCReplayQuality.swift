@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 @objc public enum SentryObjCReplayQuality: Int {
     case low = 0, medium, high

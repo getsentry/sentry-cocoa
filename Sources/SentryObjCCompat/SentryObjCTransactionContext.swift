@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 public final class SentryObjCTransactionContext: SentryObjCSpanContext {
     internal var wrappedTransaction: TransactionContext {
@@ -24,7 +25,7 @@ public final class SentryObjCTransactionContext: SentryObjCSpanContext {
     }
 
     @objc public init(name: String, operation: String, traceId: SentryObjCId, spanId: SentryObjCSpanId, parentSpanId: SentryObjCSpanId?, parentSampled: SentryObjCSampleDecision, parentSampleRate: NSNumber?, parentSampleRand: NSNumber?) {
-        super.init(TransactionContext(name: name, operation: operation, traceId: traceId.wrapped, spanId: spanId.wrapped, parentSpanId: parentSpanId?.wrapped, parentSampled: parentSampled.underlying, parentSampleRate: parentSampleRate, parentSampleRand: parentSampleRand))
+        super.init(TransactionContext(name: name, operation: operation, trace: traceId.wrapped, spanId: spanId.wrapped, parentSpanId: parentSpanId?.wrapped, parentSampled: parentSampled.underlying, parentSampleRate: parentSampleRate, parentSampleRand: parentSampleRand))
     }
 
     @objc public var name: String {

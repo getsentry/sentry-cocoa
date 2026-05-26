@@ -4,6 +4,7 @@
 #else
 @_spi(Private) internal import Sentry
 #endif
+import Foundation
 
 public final class SentryObjCMetric: NSObject {
     internal var wrapped: SentryMetric

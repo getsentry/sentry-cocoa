@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 public final class SentryObjCSpanId: NSObject {
     internal let wrapped: SpanId
@@ -17,7 +18,7 @@ public final class SentryObjCSpanId: NSObject {
     }
 
     @objc public init(uuid: UUID) {
-        self.wrapped = SpanId(uuid: uuid as NSUUID)
+        self.wrapped = SpanId(uuid: uuid)
     }
 
     @objc public init(value: String) {

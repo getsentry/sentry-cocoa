@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 @objc public enum SentryObjCSampleDecision: UInt {
     case undecided = 0, yes, no

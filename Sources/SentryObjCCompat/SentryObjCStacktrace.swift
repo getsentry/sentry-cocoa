@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 public final class SentryObjCStacktrace: NSObject {
     internal let wrapped: SentryStacktrace

@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 public final class SentryObjCSamplingContext: NSObject {
     internal let wrapped: SamplingContext

@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 public final class SentryObjCReplayOptions: NSObject {
     internal let wrapped: SentryReplayOptions

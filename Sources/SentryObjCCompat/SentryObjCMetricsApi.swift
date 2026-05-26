@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 public final class SentryObjCMetricsApi: NSObject {
     private let api: SentryMetricsApiProtocol

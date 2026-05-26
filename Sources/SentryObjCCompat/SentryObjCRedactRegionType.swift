@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 @objc public enum SentryObjCRedactRegionType: Int {
     case redact = 0
@@ -21,6 +22,7 @@ extension SentryObjCRedactRegionType {
         case .clipBegin: self = .clipBegin
         case .clipEnd: self = .clipEnd
         case .redactSwiftUI: self = .redactSwiftUI
+        @unknown default: self = .redact
         }
     }
     var underlying: SentryRedactRegionType {

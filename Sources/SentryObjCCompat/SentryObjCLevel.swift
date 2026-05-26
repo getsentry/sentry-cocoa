@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 @objc public enum SentryObjCLevel: UInt {
     case none = 0, debug, info, warning, error, fatal

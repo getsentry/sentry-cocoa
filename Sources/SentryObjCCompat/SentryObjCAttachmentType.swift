@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 @objc public enum SentryObjCAttachmentType: Int {
     case eventAttachment = 0, viewHierarchy

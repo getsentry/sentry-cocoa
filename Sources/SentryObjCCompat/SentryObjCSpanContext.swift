@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 public class SentryObjCSpanContext: NSObject {
     internal var wrapped: SpanContext
@@ -21,11 +22,11 @@ public class SentryObjCSpanContext: NSObject {
     }
 
     @objc public init(traceId: SentryObjCId, spanId: SentryObjCSpanId, parentId: SentryObjCSpanId?, operation: String, sampled: SentryObjCSampleDecision) {
-        self.wrapped = SpanContext(traceId: traceId.wrapped, spanId: spanId.wrapped, parentId: parentId?.wrapped, operation: operation, sampled: sampled.underlying)
+        self.wrapped = SpanContext(trace: traceId.wrapped, spanId: spanId.wrapped, parentId: parentId?.wrapped, operation: operation, sampled: sampled.underlying)
     }
 
     @objc public init(traceId: SentryObjCId, spanId: SentryObjCSpanId, parentId: SentryObjCSpanId?, operation: String, spanDescription: String?, sampled: SentryObjCSampleDecision) {
-        self.wrapped = SpanContext(traceId: traceId.wrapped, spanId: spanId.wrapped, parentId: parentId?.wrapped, operation: operation, spanDescription: spanDescription, sampled: sampled.underlying)
+        self.wrapped = SpanContext(trace: traceId.wrapped, spanId: spanId.wrapped, parentId: parentId?.wrapped, operation: operation, spanDescription: spanDescription, sampled: sampled.underlying)
     }
 
     @objc public var traceId: SentryObjCId {

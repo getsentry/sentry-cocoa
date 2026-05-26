@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 @objc public enum SentryObjCTransactionNameSource: Int {
     case custom = 0, url, route, view, component, task

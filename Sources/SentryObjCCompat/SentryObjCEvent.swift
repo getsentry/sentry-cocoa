@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 public final class SentryObjCEvent: NSObject {
     internal let wrapped: Event
@@ -38,7 +39,7 @@ public final class SentryObjCEvent: NSObject {
     }
 
     @objc public var error: NSError? {
-        get { wrapped.error }
+        get { wrapped.error as NSError? }
         set { wrapped.error = newValue }
     }
 

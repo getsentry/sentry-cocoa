@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+import Foundation
 
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
 import UIKit
@@ -52,5 +53,6 @@ public final class SentryObjCReplayApi: NSObject {
     }
 }
 #endif
+import Foundation
 
 // swiftlint:enable missing_docs

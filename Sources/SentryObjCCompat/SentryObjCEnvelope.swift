@@ -4,6 +4,7 @@
 #else
 @_spi(Private) internal import Sentry
 #endif
+import Foundation
 
 public final class SentryObjCEnvelope: NSObject {
     internal let wrapped: SentryEnvelope

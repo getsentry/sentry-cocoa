@@ -4,6 +4,7 @@
 #else
 @_spi(Private) internal import Sentry
 #endif
+import Foundation
 
 public final class SentryObjCPrivateSDKOnly: NSObject {
 
@@ -41,7 +42,7 @@ public final class SentryObjCPrivateSDKOnly: NSObject {
     }
 
     @objc public static func getExtraContext() -> [String: Any] {
-        PrivateSentrySDKOnly.getExtraContext()
+        PrivateSentrySDKOnly.getExtraContext() as? [String: Any] ?? [:]
     }
 
     @objc public static func setTrace(_ traceId: SentryObjCId, spanId: SentryObjCSpanId) {
