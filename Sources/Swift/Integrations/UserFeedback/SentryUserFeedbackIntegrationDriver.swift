@@ -20,7 +20,9 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
         self.screenshotSource = screenshotSource
         super.init()
 
-        configuration.applyFormConfigurationIfNeeded()
+        configuration.configureForm?(configuration.formConfig)
+        configuration.configureTheme?(configuration.theme)
+        configuration.configureDarkTheme?(configuration.darkTheme)
 
         if let customButton = configuration.customButton {
             customButton.addTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
@@ -108,7 +110,7 @@ extension SentryUserFeedbackIntegrationDriver {
             return false
         }
 
-        let form = SentryUserFeedbackFormController(config: configuration, image: screenshot)
+        let form = SentryUserFeedbackFormController(preparedConfig: configuration, image: screenshot)
         activeForm = form
         presenter.present(form, animated: configuration.animations)
         form.presentationController?.delegate = self

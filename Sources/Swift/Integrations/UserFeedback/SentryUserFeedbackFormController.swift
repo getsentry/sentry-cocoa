@@ -26,7 +26,10 @@ public final class SentryUserFeedbackFormController: UIViewController {
     ///   - image: An optional image to attach to the feedback form.
     @objc(initWithConfig:image:)
     public convenience init(config: SentryUserFeedbackConfiguration, image: UIImage?) {
-        self.init(config: config, screenshot: image)
+        config.configureForm?(config.formConfig)
+        config.configureTheme?(config.theme)
+        config.configureDarkTheme?(config.darkTheme)
+        self.init(preparedConfig: config, image: image)
     }
 
     override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -48,9 +51,9 @@ public final class SentryUserFeedbackFormController: UIViewController {
         }
     }
 
-    private init(config: SentryUserFeedbackConfiguration, screenshot: UIImage?) {
+    init(preparedConfig config: SentryUserFeedbackConfiguration, image: UIImage?) {
         self.config = config
-        self.screenshot = screenshot
+        self.screenshot = image
         super.init(nibName: nil, bundle: nil)
         commonInit()
     }
@@ -68,7 +71,6 @@ public final class SentryUserFeedbackFormController: UIViewController {
     }
 
     private func commonInit() {
-        config.applyFormConfigurationIfNeeded()
         view.backgroundColor = config.theme.background
         initLayout()
         viewModel.themeElements()

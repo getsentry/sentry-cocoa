@@ -82,6 +82,40 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
+    func testPresent_whenConfigurationBuildersAreSet_shouldNotApplyBuildersAgain() throws {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let viewController = TestPresentingViewController()
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        var configureFormCalls = 0
+        var configureThemeCalls = 0
+        config.configureForm = {
+            configureFormCalls += 1
+            $0.formTitle = "Custom title"
+        }
+        config.configureTheme = {
+            configureThemeCalls += 1
+            $0.background = .red
+        }
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource())
+
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+
+        XCTAssertEqual(configureFormCalls, 1)
+        XCTAssertEqual(configureThemeCalls, 1)
+        XCTAssertTrue(sut.present(from: viewController, screenshot: nil))
+        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+        XCTAssertEqual(configureFormCalls, 1)
+        XCTAssertEqual(configureThemeCalls, 1)
+        XCTAssertEqual(form.config.formConfig.formTitle, "Custom title")
+        XCTAssertEqual(form.config.theme.background, .red)
+
+        withExtendedLifetime(window) { }
+    }
+
     func testPresent_whenFormAlreadyPresented_shouldReturnFalse() {
         let window = UIWindow(frame: UIScreen.main.bounds)
         let viewController = TestPresentingViewController()
