@@ -38,11 +38,11 @@ import Foundation
         wrapped.setUser(user?.wrapped)
     }
 
-    @objc public func setTag(value: String, key: String) {
+    @objc(setTagValue:forKey:) public func setTag(value: String, key: String) {
         wrapped.setTag(value: value, key: key)
     }
 
-    @objc public func removeTag(key: String) {
+    @objc(removeTagForKey:) public func removeTag(key: String) {
         wrapped.removeTag(key: key)
     }
 
@@ -54,11 +54,11 @@ import Foundation
         wrapped.setExtras(extras)
     }
 
-    @objc public func setExtra(value: Any?, key: String) {
+    @objc(setExtraValue:forKey:) public func setExtra(value: Any?, key: String) {
         wrapped.setExtra(value: value, key: key)
     }
 
-    @objc public func removeExtra(key: String) {
+    @objc(removeExtraForKey:) public func removeExtra(key: String) {
         wrapped.removeExtra(key: key)
     }
 
@@ -86,11 +86,11 @@ import Foundation
         wrapped.clearBreadcrumbs()
     }
 
-    @objc public func setContext(value: [String: Any], key: String) {
+    @objc(setContextValue:forKey:) public func setContext(value: [String: Any], key: String) {
         wrapped.setContext(value: value, key: key)
     }
 
-    @objc public func removeContext(key: String) {
+    @objc(removeContextForKey:) public func removeContext(key: String) {
         wrapped.removeContext(key: key)
     }
 
@@ -98,11 +98,11 @@ import Foundation
         wrapped.addAttachment(attachment.wrapped)
     }
 
-    @objc public func setAttribute(value: Any, key: String) {
+    @objc(setAttributeValue:forKey:) public func setAttribute(value: Any, key: String) {
         wrapped.setAttribute(value: value, key: key)
     }
 
-    @objc public func removeAttribute(key: String) {
+    @objc(removeAttributeForKey:) public func removeAttribute(key: String) {
         wrapped.removeAttribute(key: key)
     }
 

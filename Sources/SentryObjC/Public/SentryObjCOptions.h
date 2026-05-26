@@ -468,7 +468,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enableMetrics;
 
-#if TARGET_OS_IOS && SENTRY_OBJC_HAS_UIKIT
+#if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 
 /**
  * When enabled, the SDK tracks performance for UIViewController subclasses.
@@ -532,6 +532,43 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Configuration options for Session Replay.
 @property (nonatomic, strong) SentryObjCReplayOptions *sessionReplay;
+
+#endif
+
+#if TARGET_OS_OSX && SENTRY_OBJC_HAS_UIKIT
+
+/**
+ * When enabled, the SDK reports uncaught NSExceptions via @c NSSetUncaughtExceptionHandler.
+ * @note Default value is @c YES.
+ */
+@property (nonatomic) BOOL enableUncaughtNSExceptionReporting;
+
+#endif
+
+#if !TARGET_OS_WATCH
+
+/**
+ * When enabled, the SDK reports SIGTERM signals.
+ * @note Default value is @c NO.
+ */
+@property (nonatomic) BOOL enableSigtermReporting;
+
+#endif
+
+#if __has_include(<MetricKit/MetricKit.h>) && !TARGET_OS_TV
+
+/**
+ * When enabled, the SDK collects @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic,
+ * and @c MXHangDiagnostic from MetricKit and converts them to Sentry events.
+ * @note Default value is @c YES.
+ */
+@property (nonatomic) BOOL enableMetricKit;
+
+/**
+ * When enabled, the SDK sends the raw MXDiagnosticPayload as an attachment to Sentry.
+ * @note Default value is @c NO.
+ */
+@property (nonatomic) BOOL enableMetricKitRawPayload;
 
 #endif
 

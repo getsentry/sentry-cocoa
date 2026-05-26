@@ -91,19 +91,19 @@ import Foundation
         SentryObjCSpan(wrapped.startChild(operation: operation, description: description))
     }
 
-    @objc public func setData(value: Any?, key: String) {
+    @objc(setDataValue:forKey:) public func setData(value: Any?, key: String) {
         wrapped.setData(value: value, key: key)
     }
 
-    @objc public func removeData(key: String) {
+    @objc(removeDataForKey:) public func removeData(key: String) {
         wrapped.removeData(key: key)
     }
 
-    @objc public func setTag(value: String, key: String) {
+    @objc(setTagValue:forKey:) public func setTag(value: String, key: String) {
         wrapped.setTag(value: value, key: key)
     }
 
-    @objc public func removeTag(key: String) {
+    @objc(removeTagForKey:) public func removeTag(key: String) {
         wrapped.removeTag(key: key)
     }
 
