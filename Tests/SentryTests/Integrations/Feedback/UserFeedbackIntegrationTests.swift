@@ -79,59 +79,35 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertNil(integration)
     }
 
-    func testDriverPresentationLifecycleCallsHooksAndCapturesFeedback() throws {
+    func testDriverPresentationLifecycleCallsHooks() {
         let config = SentryUserFeedbackConfiguration()
         let presenter = TestFeedbackFormPresenter()
         var openCount = 0
         var closeCount = 0
-        var capturedFeedback = [SentryFeedback]()
         config.onFormOpen = { openCount += 1 }
         config.onFormClose = { closeCount += 1 }
 
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: config,
-            screenshotSource: makeScreenshotSource()) { feedback in
-                capturedFeedback.append(feedback)
-        }
-        let feedback = SentryFeedback(message: "message", name: nil, email: nil)
+            screenshotSource: makeScreenshotSource())
 
         sut.setFeedbackFormPresenter(presenter)
         XCTAssertTrue(sut.showForm())
         sut.formDidOpen()
         sut.formDidOpen()
-        sut.finished(with: feedback)
+        sut.finished()
 
         XCTAssertEqual(openCount, 1)
         XCTAssertEqual(closeCount, 1)
-        XCTAssertEqual(capturedFeedback.count, 1)
-        XCTAssertIdentical(try XCTUnwrap(capturedFeedback.first), feedback)
         XCTAssertEqual(presenter.dismissCount, 1)
         XCTAssertNil(presenter.delegate)
-    }
-
-    func testDriverCapturesFeedbackWhenFormFinishes() throws {
-        let presenter = TestFeedbackFormPresenter()
-        var capturedFeedback = [SentryFeedback]()
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: SentryUserFeedbackConfiguration(),
-            screenshotSource: makeScreenshotSource()) { feedback in
-                capturedFeedback.append(feedback)
-        }
-        let feedback = SentryFeedback(message: "message", name: nil, email: nil)
-
-        sut.setFeedbackFormPresenter(presenter)
-        XCTAssertTrue(sut.showForm())
-        sut.finished(with: feedback)
-
-        XCTAssertEqual(capturedFeedback.count, 1)
-        XCTAssertIdentical(try XCTUnwrap(capturedFeedback.first), feedback)
     }
 
     func testDriverDoesNotStartPresentationTwice() {
         let presenter = TestFeedbackFormPresenter()
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: SentryUserFeedbackConfiguration(),
-            screenshotSource: makeScreenshotSource()) { _ in }
+            screenshotSource: makeScreenshotSource())
 
         sut.setFeedbackFormPresenter(presenter)
         XCTAssertTrue(sut.showForm())
@@ -145,7 +121,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let presenter = TestFeedbackFormPresenter()
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: SentryUserFeedbackConfiguration(),
-            screenshotSource: makeScreenshotSource()) { _ in }
+            screenshotSource: makeScreenshotSource())
 
         XCTAssertFalse(sut.isDisplayingForm)
 
@@ -179,7 +155,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         config.onFormClose = { closeCount += 1 }
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: config,
-            screenshotSource: makeScreenshotSource()) { _ in }
+            screenshotSource: makeScreenshotSource())
 
         sut.setFeedbackFormPresenter(presenter)
         XCTAssertTrue(sut.showForm())
@@ -193,7 +169,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let screenshot = UIImage()
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: SentryUserFeedbackConfiguration(),
-            screenshotSource: makeScreenshotSource()) { _ in }
+            screenshotSource: makeScreenshotSource())
 
         sut.setFeedbackFormPresenter(presenter)
         XCTAssertTrue(sut.showForm(screenshot: screenshot))
@@ -206,7 +182,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     func testDriverRetainsActivePresenterUntilDismissal() {
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: SentryUserFeedbackConfiguration(),
-            screenshotSource: makeScreenshotSource()) { _ in }
+            screenshotSource: makeScreenshotSource())
         var presenter: TestFeedbackFormPresenter? = TestFeedbackFormPresenter()
         let weakPresenter = WeakReference(presenter)
 
@@ -227,7 +203,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         presenter.shouldPresent = false
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: SentryUserFeedbackConfiguration(),
-            screenshotSource: makeScreenshotSource()) { _ in }
+            screenshotSource: makeScreenshotSource())
 
         sut.setFeedbackFormPresenter(presenter)
         XCTAssertFalse(sut.showForm())

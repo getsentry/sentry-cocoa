@@ -44,7 +44,7 @@ final class SentryUIKitFeedbackFormPresenterTests: XCTestCase {
         window.makeKeyAndVisible()
 
         XCTAssertTrue(sut.present(screenshot: screenshot))
-        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryFeedbackFormController)
         XCTAssertIdentical(try XCTUnwrap(form.screenshot), screenshot)
         XCTAssertFalse(try XCTUnwrap(viewController.lastAnimated))
 
@@ -69,7 +69,7 @@ final class SentryUIKitFeedbackFormPresenterTests: XCTestCase {
         sut.delegate = presenterDelegate
 
         XCTAssertTrue(sut.present(screenshot: nil))
-        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryFeedbackFormController)
         let presentationController = UIPresentationController(
             presentedViewController: form,
             presenting: viewController
@@ -97,14 +97,14 @@ final class SentryUIKitFeedbackFormPresenterTests: XCTestCase {
 
     private final class TestFormDelegate: NSObject, SentryUserFeedbackFormDelegate {
         private(set) var didAppearCount = 0
-        private(set) var finishedFeedback: SentryFeedback?
+        private(set) var didFinish = false
 
         func didAppear() {
             didAppearCount += 1
         }
 
-        func finished(with feedback: SentryFeedback?) {
-            finishedFeedback = feedback
+        func finished() {
+            didFinish = true
         }
     }
 

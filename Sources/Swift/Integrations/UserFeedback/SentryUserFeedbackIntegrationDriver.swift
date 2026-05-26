@@ -16,24 +16,14 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
     private var didOpenForm = false
     private weak var installedPresenter: SentryFeedbackFormPresenter?
     private var activePresenter: SentryFeedbackFormPresenter?
-    fileprivate let callback: (SentryFeedback) -> Void
     let screenshotSource: SentryScreenshotSource
 
-    init(configuration: SentryUserFeedbackConfiguration, screenshotSource: SentryScreenshotSource, callback: @escaping (SentryFeedback) -> Void) {
+    init(configuration: SentryUserFeedbackConfiguration, screenshotSource: SentryScreenshotSource) {
         self.configuration = configuration
-        self.callback = callback
         self.screenshotSource = screenshotSource
         super.init()
 
-        if let uiFormConfigBuilder = configuration.configureForm {
-            uiFormConfigBuilder(configuration.formConfig)
-        }
-        if let themeOverrideBuilder = configuration.configureTheme {
-            themeOverrideBuilder(configuration.theme)
-        }
-        if let darkThemeOverrideBuilder = configuration.configureDarkTheme {
-            darkThemeOverrideBuilder(configuration.darkTheme)
-        }
+        configuration.applyFormConfigurationIfNeeded()
 
         if let customButton = configuration.customButton {
             customButton.addTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
@@ -96,12 +86,6 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
         configuration.onFormOpen?()
     }
 
-    func formDidFinish(feedback: SentryFeedback?) {
-        if let feedback = feedback {
-            callback(feedback)
-        }
-    }
-
     func setFeedbackFormPresenter(_ presenter: SentryFeedbackFormPresenter?) {
         installedPresenter = presenter
     }
@@ -136,8 +120,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
         formDidOpen()
     }
 
-    func finished(with feedback: SentryFeedback?) {
-        formDidFinish(feedback: feedback)
+    func finished() {
         activePresenter?.dismiss()
     }
 }

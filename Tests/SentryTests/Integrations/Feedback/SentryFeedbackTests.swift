@@ -14,18 +14,14 @@ class SentryFeedbackTests: XCTestCase {
                 // no-op
             }
 
-            func finished(with feedback: Sentry.SentryFeedback?) {
+            func finished() {
                 // no-op
             }
         }
         let config: SentryUserFeedbackConfiguration
         let testCaseConfig: FeedbackTestCaseConfiguration
         let formDelegate = TestFormDelegate()
-        lazy var controller = {
-            let controller = SentryUserFeedbackFormController(config: config, delegate: formDelegate, screenshot: self.testCaseConfig.includeScreenshot ? UIImage() : nil)
-            config.configureForm?(config.formConfig) // this is needed to actually get the configured test photo picker into the controller. usually done by the driver
-            return controller
-        }()
+        lazy var controller = SentryFeedbackFormController(config: config, delegate: formDelegate, screenshot: self.testCaseConfig.includeScreenshot ? UIImage() : nil)
                 
         init(config: SentryUserFeedbackConfiguration, testCaseConfig: FeedbackTestCaseConfiguration) {
             self.config = config

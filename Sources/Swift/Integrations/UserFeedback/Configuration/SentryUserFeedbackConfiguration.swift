@@ -8,6 +8,8 @@ import UIKit
  */
 @objcMembers
 public final class SentryUserFeedbackConfiguration: NSObject {
+    private var didApplyFormConfiguration = false
+
     /**
      * Whether or not to show animations, like for presenting and dismissing the form.
      * - note: Default: `true`.
@@ -115,6 +117,21 @@ public final class SentryUserFeedbackConfiguration: NSObject {
     
     lazy var darkTheme = SentryUserFeedbackThemeConfiguration()
     
+    func applyFormConfigurationIfNeeded() {
+        guard !didApplyFormConfiguration else { return }
+        didApplyFormConfiguration = true
+
+        if let uiFormConfigBuilder = configureForm {
+            uiFormConfigBuilder(formConfig)
+        }
+        if let themeOverrideBuilder = configureTheme {
+            themeOverrideBuilder(theme)
+        }
+        if let darkThemeOverrideBuilder = configureDarkTheme {
+            darkThemeOverrideBuilder(darkTheme)
+        }
+    }
+
     // MARK: Derived properties
     
     lazy var textEffectiveHeightCenter: CGFloat = {
