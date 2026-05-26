@@ -76,6 +76,10 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
                 object: nil
             )
         }
+
+        // KSCrash does not support uninstalling monitors after installation.
+        // Clear userInfo so sensitive scope data is not retained in memory.
+        KSCrash.shared.userInfo = nil
     }
 
     // MARK: - Crash Handler
@@ -131,6 +135,8 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
             // Crashes don't use the attributes field, we remove them to avoid uploading
             // them unnecessarily.
             userInfo.removeValue(forKey: "attributes")
+
+            KSCrash.shared.userInfo = userInfo
 
             outerScope.add(self.scopeObserver)
         }
