@@ -38,5 +38,13 @@ Pod::Spec.new do |s|
         "Sources/Sentry/Public/*.h"
       sp.preserve_path = "Sources/Sentry/include/module.modulemap"
       sp.resource_bundles = { "Sentry" => "Sources/Resources/PrivacyInfo.xcprivacy" }
+      sp.dependency 'KSCrash/Recording',        '>= 2.5.1', '< 3.0.0'
+      sp.dependency 'KSCrash/Reporting',        '>= 2.5.1', '< 3.0.0'
+      sp.dependency 'KSCrash/Installations',    '>= 2.5.1', '< 3.0.0'
+      sp.dependency 'KSCrash/Filters',          '>= 2.5.1', '< 3.0.0'
+      sp.dependency 'KSCrash/Sinks',            '>= 2.5.1', '< 3.0.0'
+      sp.dependency 'KSCrash/BootTimeMonitor',  '>= 2.5.1', '< 3.0.0'
+      sp.dependency 'KSCrash/DemangleFilter',   '>= 2.5.1', '< 3.0.0'
+      sp.dependency 'KSCrash/DiscSpaceMonitor', '>= 2.5.1', '< 3.0.0'
   end
 end

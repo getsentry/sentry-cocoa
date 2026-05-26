@@ -100,7 +100,18 @@ targets += [
         publicHeadersPath: "include"),
     .target(
         name: "SentrySwift",
-        dependencies: ["_SentryPrivate", "SentryHeaders"],
+        dependencies: [
+            "_SentryPrivate",
+            "SentryHeaders",
+            .product(name: "Recording", package: "kscrash"),
+            .product(name: "Reporting", package: "kscrash"),
+            .product(name: "Installations", package: "kscrash"),
+            .product(name: "Filters", package: "kscrash"),
+            .product(name: "Sinks", package: "kscrash"),
+            .product(name: "BootTimeMonitor", package: "kscrash"),
+            .product(name: "DemangleFilter", package: "kscrash"),
+            .product(name: "DiscSpaceMonitor", package: "kscrash")
+        ],
         path: "Sources/Swift",
         swiftSettings: [
             .unsafeFlags(["-enable-library-evolution"])
@@ -110,7 +121,17 @@ targets += [
     // to reserve "SentryObjC" for a future public Objective-C wrapper around the SDK.
     .target(
         name: "SentryObjCInternal",
-        dependencies: ["SentrySwift"],
+        dependencies: [
+            "SentrySwift",
+            .product(name: "Recording", package: "kscrash"),
+            .product(name: "Reporting", package: "kscrash"),
+            .product(name: "Installations", package: "kscrash"),
+            .product(name: "Filters", package: "kscrash"),
+            .product(name: "Sinks", package: "kscrash"),
+            .product(name: "BootTimeMonitor", package: "kscrash"),
+            .product(name: "DemangleFilter", package: "kscrash"),
+            .product(name: "DiscSpaceMonitor", package: "kscrash")
+        ],
         path: "Sources",
         exclude: [
             "Sentry/SentryDummyPublicEmptyClass.m",
@@ -158,6 +179,12 @@ let package = Package(
     name: "Sentry",
     platforms: [.iOS(.v15), .macOS(.v10_14), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
     products: products,
+    dependencies: [
+        .package(
+            url: "https://github.com/kstenerud/KSCrash",
+            from: "2.5.1"
+        )
+    ],
     targets: targets,
     swiftLanguageModes: [.v5],
     cxxLanguageStandard: .cxx14
