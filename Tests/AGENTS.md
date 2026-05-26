@@ -35,10 +35,9 @@ make stop-test-server   # always stop after use
 
 SPM does not support mixed ObjC/Swift sources in one target. Place tests accordingly:
 
-| Test language | Target                  | Path                          | Has access to                           |
-| ------------- | ----------------------- | ----------------------------- | --------------------------------------- |
-| Swift         | `SentryObjCCompatTests` | `Tests/SentryObjCCompatTests` | Wrapper internals, SDK types            |
-| ObjC          | `SentryObjCTests`       | `Tests/SentryObjCTests`       | Full SDK (SentryId, SentrySpanId, etc.) |
+| Test language | Target            | Path                    | Has access to                           |
+| ------------- | ----------------- | ----------------------- | --------------------------------------- |
+| ObjC          | `SentryObjCTests` | `Tests/SentryObjCTests` | Full SDK (SentryId, SentrySpanId, etc.) |
 
 - Do **not** create test targets that depend on `SentryHeaders` for implementations — it is header-only (see [`develop-docs/SENTRY-OBJC.md`](../develop-docs/SENTRY-OBJC.md))
 

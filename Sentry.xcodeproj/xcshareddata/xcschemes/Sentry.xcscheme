@@ -55,6 +55,9 @@
          <TestPlanReference
             reference = "container:Plans/Sentry_Flaky.xctestplan">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Plans/SentryObjC_Base.xctestplan">
+         </TestPlanReference>
       </TestPlans>
       <Testables>
          <TestableReference

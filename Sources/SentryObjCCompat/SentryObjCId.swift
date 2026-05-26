@@ -21,7 +21,7 @@ import Foundation
         self.wrapped = SentryId(uuid: uuid)
     }
 
-    @objc public init(uuidString: String) {
+    @objc(initWithUUIDString:) public init(uuidString: String) {
         self.wrapped = SentryId(uuidString: uuidString)
     }
 

@@ -1,7 +1,7 @@
-#import "SentryObjCDefines.h"
-#import "SentryObjCFeedbackSource.h"
-#import "SentryObjCLastRunStatus.h"
 #import <Foundation/Foundation.h>
+#import <SentryObjC/SentryObjCDefines.h>
+#import <SentryObjC/SentryObjCFeedbackSource.h>
+#import <SentryObjC/SentryObjCLastRunStatus.h>
 
 @class SentryObjCAttachment;
 @class SentryObjCBreadcrumb;

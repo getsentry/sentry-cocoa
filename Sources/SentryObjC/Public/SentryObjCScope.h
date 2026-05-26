@@ -1,5 +1,5 @@
-#import "SentryObjCLevel.h"
 #import <Foundation/Foundation.h>
+#import <SentryObjC/SentryObjCLevel.h>
 
 @class SentryObjCAttachment;
 @class SentryObjCBreadcrumb;

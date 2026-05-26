@@ -141,10 +141,6 @@ targets += [
         name: "SentryObjCCompat",
         dependencies: ["SentryObjCInternal"],
         path: "Sources/SentryObjCCompat"),
-    .testTarget(
-        name: "SentryObjCCompatTests",
-        dependencies: ["SentryObjCCompat", "SentrySwift"],
-        path: "Tests/SentryObjCCompatTests"),
     .target(
         name: "SentryObjC",
         dependencies: ["SentryObjCCompat"],

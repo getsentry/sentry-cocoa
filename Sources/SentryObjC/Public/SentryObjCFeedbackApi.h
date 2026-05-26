@@ -1,5 +1,5 @@
-#import "SentryObjCDefines.h"
 #import <Foundation/Foundation.h>
+#import <SentryObjC/SentryObjCDefines.h>
 
 #if TARGET_OS_IOS && SENTRY_OBJC_HAS_UIKIT
 
