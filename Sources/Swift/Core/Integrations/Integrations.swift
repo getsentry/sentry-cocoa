@@ -54,6 +54,7 @@ private struct AnyIntegration {
         #endif
         
         integrations.append(contentsOf: [
+            .init(KSCrashIntegration.self),
             .init(SentryCrashIntegration.self),
             .init(SentryAutoSessionTrackingIntegration.self),
             .init(SentryNetworkTrackingIntegration.self),
