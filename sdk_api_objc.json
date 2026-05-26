@@ -663,7 +663,21 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "attachScreenshot",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "attachStacktrace",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "attachViewHierarchy",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
     "instance": true
@@ -1622,6 +1636,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enablePreWarmedAppStartTracing",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enablePropagateTraceparent",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -1631,6 +1652,13 @@
     "kind": "ObjCMethodDecl",
     "name": "enableReplayNetworkDetailsCapturing",
     "parent": "SentryObjCExperimentalOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableReportNonFullyBlockingAppHangs",
+    "parent": "SentryObjCOptions",
     "returnType": "BOOL",
     "instance": true
   },
@@ -1657,8 +1685,22 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableUIViewControllerTracing",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableUnhandledCPPExceptionsV2",
     "parent": "SentryObjCExperimentalOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "enableUserInteractionTracing",
+    "parent": "SentryObjCOptions",
     "returnType": "BOOL",
     "instance": true
   },
@@ -2130,6 +2172,13 @@
     "parent": "SentryObjCUnit",
     "returnType": "SentryObjCUnit * _Nonnull",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "idleTimeout",
+    "parent": "SentryObjCOptions",
+    "returnType": "NSTimeInterval",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -3575,6 +3624,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "reportAccessibilityIdentifier",
+    "parent": "SentryObjCOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "reportFullyDisplayed",
     "parent": "SentryObjCHub",
     "returnType": "void",
@@ -3750,6 +3806,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "sessionReplay",
+    "parent": "SentryObjCOptions",
+    "returnType": "SentryObjCReplayOptions * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "sessionSampleRate",
     "parent": "SentryObjCReplayOptions",
     "returnType": "float",
@@ -3785,7 +3848,21 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setAttachScreenshot:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setAttachStacktrace:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setAttachViewHierarchy:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -4191,6 +4268,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnablePreWarmedAppStartTracing:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnablePropagateTraceparent:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -4200,6 +4284,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setEnableReplayNetworkDetailsCapturing:",
     "parent": "SentryObjCExperimentalOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableReportNonFullyBlockingAppHangs:",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -4226,8 +4317,22 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableUIViewControllerTracing:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnableUnhandledCPPExceptionsV2:",
     "parent": "SentryObjCExperimentalOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEnableUserInteractionTracing:",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -4424,6 +4529,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setHelpLink:",
     "parent": "SentryObjCMechanism",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setIdleTimeout:",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -4898,6 +5010,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setReportAccessibilityIdentifier:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setRequest:",
     "parent": "SentryObjCEvent",
     "returnType": "void",
@@ -4984,6 +5103,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setServerName:",
     "parent": "SentryObjCEvent",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setSessionReplay:",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -6252,7 +6378,19 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "attachScreenshot",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "attachStacktrace",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "attachViewHierarchy",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
@@ -6696,6 +6834,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "enablePreWarmedAppStartTracing",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "enablePropagateTraceparent",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
@@ -6704,6 +6848,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableReplayNetworkDetailsCapturing",
     "parent": "SentryObjCExperimentalOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableReportNonFullyBlockingAppHangs",
+    "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
   {
@@ -6726,8 +6876,20 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "enableUIViewControllerTracing",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "enableUnhandledCPPExceptionsV2",
     "parent": "SentryObjCExperimentalOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableUserInteractionTracing",
+    "parent": "SentryObjCOptions",
     "type": "BOOL"
   },
   {
@@ -6981,6 +7143,12 @@
     "name": "hour",
     "parent": "SentryObjCUnit",
     "type": "SentryObjCUnit * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "idleTimeout",
+    "parent": "SentryObjCOptions",
+    "type": "NSTimeInterval"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -7674,6 +7842,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "reportAccessibilityIdentifier",
+    "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "request",
     "parent": "SentryObjCEvent",
     "type": "SentryObjCRequest * _Nullable"
@@ -7797,6 +7971,12 @@
     "name": "serverName",
     "parent": "SentryObjCEvent",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "sessionReplay",
+    "parent": "SentryObjCOptions",
+    "type": "SentryObjCReplayOptions * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
