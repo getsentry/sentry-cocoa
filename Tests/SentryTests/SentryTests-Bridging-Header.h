@@ -1,5 +1,7 @@
 #import "SentryDefines.h"
 
+@import KSCrashRecording;
+
 #import "SentryLaunchProfiling+Tests.h"
 
 #if SENTRY_HAS_UIKIT
@@ -96,6 +98,7 @@
 #import "SentryInitializeForGettingSubclassesNotCalled.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryInvalidJSONString.h"
+#import "SentryKSCrashConfigurationFactory.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogC.h"
 #import "SentryLogTestHelper.h"
