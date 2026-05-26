@@ -9,20 +9,10 @@ class SentryFeedbackTests: XCTestCase {
     private typealias FeedbackTestCase = (config: FeedbackTestCaseConfiguration, shouldValidate: Bool, expectedSubmitButtonAccessibilityHint: String)
     
     private class Fixture {
-        class TestFormDelegate: NSObject, SentryUserFeedbackFormDelegate {
-            func didAppear() {
-                // no-op
-            }
-
-            func finished() {
-                // no-op
-            }
-        }
         let config: SentryUserFeedbackConfiguration
         let testCaseConfig: FeedbackTestCaseConfiguration
-        let formDelegate = TestFormDelegate()
-        lazy var controller = SentryUserFeedbackFormController(config: config, delegate: formDelegate, screenshot: self.testCaseConfig.includeScreenshot ? UIImage() : nil)
-                
+        lazy var controller = SentryUserFeedbackFormController(config: config, image: self.testCaseConfig.includeScreenshot ? UIImage() : nil)
+
         init(config: SentryUserFeedbackConfiguration, testCaseConfig: FeedbackTestCaseConfiguration) {
             self.config = config
             self.testCaseConfig = testCaseConfig

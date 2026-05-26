@@ -17,36 +17,8 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let screenshotSource: SentryScreenshotSource?
     }
 
-    private final class TestFeedbackFormPresenter: SentryFeedbackFormPresenter {
-        weak var delegate: SentryFeedbackFormPresenterDelegate?
-        var shouldPresent = true
-        private(set) var presentCount = 0
-        private(set) var lastScreenshot: UIImage?
-        private(set) var dismissCount = 0
-
-        @discardableResult
-        func present(screenshot: UIImage?) -> Bool {
-            presentCount += 1
-            lastScreenshot = screenshot
-            return shouldPresent
-        }
-
-        func dismiss() {
-            dismissCount += 1
-            delegate?.feedbackFormPresenterDidDismiss(self)
-        }
-    }
-
     private final class TestWidgetTarget: NSObject {
         @objc func showForm() { }
-    }
-
-    private final class WeakReference<T: AnyObject> {
-        weak var value: T?
-
-        init(_ value: T?) {
-            self.value = value
-        }
     }
 
     private func makeScreenshotSource() -> SentryScreenshotSource {
@@ -79,134 +51,95 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertNil(integration)
     }
 
-    func testDriverPresentationLifecycleCallsHooks() {
-        let config = SentryUserFeedbackConfiguration()
-        let presenter = TestFeedbackFormPresenter()
-        var openCount = 0
-        var closeCount = 0
-        config.onFormOpen = { openCount += 1 }
-        config.onFormClose = { closeCount += 1 }
+    func testPresent_whenPresenterIsNotAttachedToWindow_shouldReturnFalse() {
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: SentryUserFeedbackConfiguration(),
+            screenshotSource: makeScreenshotSource())
 
+        XCTAssertFalse(sut.present(from: UIViewController(), screenshot: nil))
+        XCTAssertFalse(sut.isDisplayingForm)
+    }
+
+    func testPresent_whenPresenterIsAttachedToWindow_shouldPresentFormWithScreenshot() throws {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let viewController = TestPresentingViewController()
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource())
+        let screenshot = UIImage()
+
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+
+        XCTAssertTrue(sut.present(from: viewController, screenshot: screenshot))
+        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+        XCTAssertIdentical(try XCTUnwrap(form.screenshot), screenshot)
+        XCTAssertFalse(try XCTUnwrap(viewController.lastAnimated))
+        XCTAssertTrue(sut.isDisplayingForm)
+
+        withExtendedLifetime(window) { }
+    }
+
+    func testPresent_whenFormAlreadyPresented_shouldReturnFalse() {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let viewController = TestPresentingViewController()
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: SentryUserFeedbackConfiguration(),
+            screenshotSource: makeScreenshotSource())
+
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+
+        XCTAssertTrue(sut.present(from: viewController, screenshot: nil))
+        XCTAssertFalse(sut.present(from: viewController, screenshot: nil))
+
+        withExtendedLifetime(window) { }
+    }
+
+    func testPresentationControllerDidDismiss_whenFormWasPresented_shouldClearActiveForm() throws {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let viewController = TestPresentingViewController()
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: SentryUserFeedbackConfiguration(),
+            screenshotSource: makeScreenshotSource())
+
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+
+        XCTAssertTrue(sut.present(from: viewController, screenshot: nil))
+        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+        let presentationController = UIPresentationController(
+            presentedViewController: form,
+            presenting: viewController
+        )
+
+        sut.presentationControllerDidDismiss(presentationController)
+
+        XCTAssertFalse(sut.isDisplayingForm)
+
+        withExtendedLifetime(window) { }
+    }
+
+    func testUninstall_whenDisplayingForm_shouldClearActiveForm() {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let viewController = TestPresentingViewController()
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: config,
             screenshotSource: makeScreenshotSource())
 
-        XCTAssertTrue(sut.present(using: presenter, screenshot: nil))
-        sut.formDidOpen()
-        sut.formDidOpen()
-        sut.finished()
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
 
-        XCTAssertEqual(openCount, 1)
-        XCTAssertEqual(closeCount, 1)
-        XCTAssertEqual(presenter.dismissCount, 1)
-        XCTAssertNil(presenter.delegate)
-    }
-
-    func testDriverDoesNotStartPresentationTwice() {
-        let presenter = TestFeedbackFormPresenter()
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: SentryUserFeedbackConfiguration(),
-            screenshotSource: makeScreenshotSource())
-
-        XCTAssertTrue(sut.present(using: presenter, screenshot: nil))
-        XCTAssertFalse(sut.present(using: presenter, screenshot: nil))
-        XCTAssertEqual(presenter.presentCount, 1)
-
-        presenter.dismiss()
-    }
-
-    func testDriverFinishesPresentationLifecycle() {
-        let presenter = TestFeedbackFormPresenter()
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: SentryUserFeedbackConfiguration(),
-            screenshotSource: makeScreenshotSource())
-
-        XCTAssertFalse(sut.isDisplayingForm)
-
-        XCTAssertTrue(sut.present(using: presenter, screenshot: nil))
-        XCTAssertTrue(sut.isDisplayingForm)
-
-        presenter.dismiss()
-        XCTAssertFalse(sut.isDisplayingForm)
-    }
-
-    func testUninstall_whenDisplayingForm_shouldDismissPresenter() throws {
-        let presenter = TestFeedbackFormPresenter()
-        let sut = try XCTUnwrap(UserFeedbackIntegration(
-            with: Self.optionsWithFeedback,
-            dependencies: TestDependencies(screenshotSource: makeScreenshotSource())))
-
-        XCTAssertTrue(sut.driver.present(using: presenter, screenshot: nil))
-
+        XCTAssertTrue(sut.present(from: viewController, screenshot: nil))
         sut.uninstall()
 
-        XCTAssertEqual(presenter.dismissCount, 1)
-        XCTAssertFalse(sut.driver.isDisplayingForm)
-    }
-
-    func testDriverDoesNotCallCloseHookWhenFormDidNotOpen() {
-        let config = SentryUserFeedbackConfiguration()
-        let presenter = TestFeedbackFormPresenter()
-        var closeCount = 0
-        config.onFormClose = { closeCount += 1 }
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: config,
-            screenshotSource: makeScreenshotSource())
-
-        XCTAssertTrue(sut.present(using: presenter, screenshot: nil))
-        presenter.dismiss()
-
-        XCTAssertEqual(closeCount, 0)
-    }
-
-    func testDriverPassesScreenshotToPresenter() throws {
-        let presenter = TestFeedbackFormPresenter()
-        let screenshot = UIImage()
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: SentryUserFeedbackConfiguration(),
-            screenshotSource: makeScreenshotSource())
-
-        XCTAssertTrue(sut.present(using: presenter, screenshot: screenshot))
-
-        XCTAssertIdentical(try XCTUnwrap(presenter.lastScreenshot), screenshot)
-
-        presenter.dismiss()
-    }
-
-    func testDriverRetainsActivePresenterUntilDismissal() {
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: SentryUserFeedbackConfiguration(),
-            screenshotSource: makeScreenshotSource())
-        var presenter: TestFeedbackFormPresenter? = TestFeedbackFormPresenter()
-        let weakPresenter = WeakReference(presenter)
-
-        do {
-            guard let presenterToPresent = presenter else {
-                return XCTFail("Expected test presenter")
-            }
-            XCTAssertTrue(sut.present(using: presenterToPresent, screenshot: nil))
-        }
-        presenter = nil
-
-        XCTAssertNotNil(weakPresenter.value)
-        XCTAssertTrue(sut.isDisplayingForm)
-
-        weakPresenter.value?.dismiss()
-        XCTAssertNil(weakPresenter.value)
         XCTAssertFalse(sut.isDisplayingForm)
-    }
 
-    func testDriverClearsDelegateWhenPresenterFails() {
-        let presenter = TestFeedbackFormPresenter()
-        presenter.shouldPresent = false
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: SentryUserFeedbackConfiguration(),
-            screenshotSource: makeScreenshotSource())
-
-        XCTAssertFalse(sut.present(using: presenter, screenshot: nil))
-
-        XCTAssertFalse(sut.isDisplayingForm)
-        XCTAssertNil(presenter.delegate)
+        withExtendedLifetime(window) { }
     }
 
     func testSetWidget_whenAnimatedHide_shouldHideButtonAfterAnimation() {
@@ -234,6 +167,23 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let sut = SentryFeedbackAPI()
 
         XCTAssertFalse(sut.show())
+    }
+
+    // MARK: - Helper Types
+
+    private final class TestPresentingViewController: UIViewController {
+        private(set) var lastPresentedViewController: UIViewController?
+        private(set) var lastAnimated: Bool?
+
+        override func present(
+            _ viewControllerToPresent: UIViewController,
+            animated flag: Bool,
+            completion: (() -> Void)? = nil
+        ) {
+            lastPresentedViewController = viewControllerToPresent
+            lastAnimated = flag
+            completion?()
+        }
     }
 }
 

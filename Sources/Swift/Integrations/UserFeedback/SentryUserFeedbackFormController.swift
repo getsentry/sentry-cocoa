@@ -4,19 +4,13 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
-    func didAppear()
-    func finished()
-}
-
 /// A view controller that displays the Sentry user feedback form.
 @available(iOSApplicationExtension, unavailable)
 public final class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
-    weak var delegate: SentryUserFeedbackFormDelegate?
     let screenshot: UIImage?
-    private var didOpenStandaloneForm = false
-    private var didCloseStandaloneForm = false
+    private var didOpenForm = false
+    private var didCloseForm = false
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
 
     /// Creates a feedback form controller with the specified configuration.
@@ -32,7 +26,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
     ///   - image: An optional image to attach to the feedback form.
     @objc(initWithConfig:image:)
     public convenience init(config: SentryUserFeedbackConfiguration, image: UIImage?) {
-        self.init(config: config, delegate: nil, screenshot: image)
+        self.init(config: config, screenshot: image)
     }
 
     override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -43,31 +37,24 @@ public final class SentryUserFeedbackFormController: UIViewController {
 
     override public func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-
-        if let delegate = delegate {
-            delegate.didAppear()
-        } else {
-            notifyStandaloneFormDidOpen()
-        }
+        notifyFormDidOpen()
     }
 
     override public func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
 
-        guard delegate == nil else { return }
         if isBeingDismissed || navigationController?.isBeingDismissed == true || isMovingFromParent {
-            notifyStandaloneFormDidClose()
+            notifyFormDidClose()
         }
     }
-    
-    init(config: SentryUserFeedbackConfiguration, delegate: SentryUserFeedbackFormDelegate?, screenshot: UIImage?) {
+
+    private init(config: SentryUserFeedbackConfiguration, screenshot: UIImage?) {
         self.config = config
-        self.delegate = delegate
         self.screenshot = screenshot
         super.init(nibName: nil, bundle: nil)
         commonInit()
     }
-    
+
     /// Creates a feedback form controller from a decoder.
     public required init?(coder: NSCoder) {
         self.config = SentryUserFeedbackConfiguration()
@@ -76,12 +63,16 @@ public final class SentryUserFeedbackFormController: UIViewController {
         commonInit()
     }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     private func commonInit() {
         config.applyFormConfigurationIfNeeded()
         view.backgroundColor = config.theme.background
         initLayout()
         viewModel.themeElements()
-        
+
         let nc = NotificationCenter.default
         nc.addObserver(self, selector: #selector(showedKeyboard(note:)), name: UIResponder.keyboardDidShowNotification, object: nil)
         nc.addObserver(self, selector: #selector(hidKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -95,7 +86,7 @@ extension SentryUserFeedbackFormController {
         view.addSubview(viewModel.scrollView)
         NSLayoutConstraint.activate(viewModel.allConstraints(view: view))
     }
-    
+
     @objc
     func showedKeyboard(note: Notification) {
         guard let keyboardValue = note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
@@ -105,7 +96,7 @@ extension SentryUserFeedbackFormController {
         let keyboardViewEndFrame = self.view.convert(keyboardValue.cgRectValue, from: self.view.window)
         viewModel.setScrollViewBottomInset(keyboardViewEndFrame.height - self.view.safeAreaInsets.bottom)
     }
-    
+
     @objc
     func hidKeyboard() {
         viewModel.setScrollViewBottomInset(0)
@@ -116,13 +107,14 @@ extension SentryUserFeedbackFormController {
 extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDelegate {
     func submitFeedback() {
         switch viewModel.validate() {
-        case .success(_):
+        case .success:
             let feedback = viewModel.feedbackObject()
             SentrySDKLog.debug("Sending user feedback")
             if let block = config.onSubmitSuccess {
                 block(feedback.dataDictionary())
             }
-            finish(with: feedback)
+            SentrySDK.capture(feedback: feedback)
+            dismissForm()
         case .failure(let error):
             func presentAlert(message: String, errorCode: Int, info: [String: Any]) {
                 let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
@@ -134,55 +126,42 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
                     }
                 }
             }
-            
+
             guard case let SentryUserFeedbackFormViewModel.InputError.validationError(missing, _) = error,
                 let errorDescription = error.errorDescription else {
                 SentrySDKLog.warning("Unexpected error type.")
                 presentAlert(message: config.formConfig.unexpectedErrorText, errorCode: 2, info: [NSLocalizedDescriptionKey: "Client error: ."])
                 return
             }
-            
+
             presentAlert(message: errorDescription, errorCode: 1, info: ["missing_fields": missing, NSLocalizedDescriptionKey: "The user did not complete the feedback form."])
         }
     }
-    
+
     func cancel() {
-        finish(with: nil)
+        dismissForm()
     }
 }
 
-// MARK: Standalone presentation
+// MARK: Form lifecycle
 extension SentryUserFeedbackFormController {
-    private func finish(with feedback: SentryFeedback?) {
-        if let feedback = feedback {
-            SentrySDK.capture(feedback: feedback)
-        }
-
-        if let delegate = delegate {
-            delegate.finished()
-            return
-        }
-
-        dismissStandaloneForm()
-    }
-
-    private func dismissStandaloneForm() {
+    private func dismissForm() {
         let completion: () -> Void = { [weak self] in
-            self?.notifyStandaloneFormDidClose()
+            self?.notifyFormDidClose()
         }
 
         dismiss(animated: config.animations, completion: completion)
     }
 
-    private func notifyStandaloneFormDidOpen() {
-        guard !didOpenStandaloneForm else { return }
-        didOpenStandaloneForm = true
+    private func notifyFormDidOpen() {
+        guard !didOpenForm else { return }
+        didOpenForm = true
         config.onFormOpen?()
     }
 
-    private func notifyStandaloneFormDidClose() {
-        guard didOpenStandaloneForm, !didCloseStandaloneForm else { return }
-        didCloseStandaloneForm = true
+    private func notifyFormDidClose() {
+        guard didOpenForm, !didCloseForm else { return }
+        didCloseForm = true
         config.onFormClose?()
     }
 }
@@ -194,7 +173,7 @@ extension SentryUserFeedbackFormController: UITextFieldDelegate {
         textField.resignFirstResponder()
         return true
     }
-    
+
     /// Updates validation state when feedback form text fields change.
     public func textFieldDidChangeSelection(_ textField: UITextField) {
         viewModel.updateSubmitButtonAccessibilityHint()
@@ -225,26 +204,20 @@ struct ViewControllerWrapper: UIViewControllerRepresentable {
 
 @available(iOS 17.0, *)
 #Preview {
-    SentryUserFeedbackFormController(config: .init(), delegate: nil, screenshot: nil)
+    SentryUserFeedbackFormController(config: .init())
 }
 
 @available(iOS 17.0, *)
 #Preview {
     ViewControllerWrapper(
-        viewController: SentryUserFeedbackFormController(
-            config: .init(),
-            delegate: nil,
-            screenshot: nil))
+        viewController: SentryUserFeedbackFormController(config: .init()))
     .preferredColorScheme(.dark).colorScheme(.dark)
 }
 
 @available(iOS 17.0, *)
 #Preview {
     ViewControllerWrapper(
-        viewController: SentryUserFeedbackFormController(
-            config: .init(),
-            delegate: nil,
-            screenshot: nil))
+        viewController: SentryUserFeedbackFormController(config: .init()))
     .dynamicTypeSize(.accessibility5)
 }
 #endif // DEBUG && swift(>=5.10)
