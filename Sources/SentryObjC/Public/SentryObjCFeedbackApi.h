@@ -7,8 +7,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryObjCFeedbackApi : NSObject
 
-- (void)showWidget API_UNAVAILABLE(ios_app_extension);
-- (void)hideWidget API_UNAVAILABLE(ios_app_extension);
+- (void)showWidget NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
+- (void)hideWidget NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
 
 @end
 

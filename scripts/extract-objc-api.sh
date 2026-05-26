@@ -10,7 +10,6 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 HEADERS_DIR="$PROJECT_ROOT/Sources/SentryObjC/Public"
-TYPES_HEADERS_DIR="$PROJECT_ROOT/Sources/SentryObjCTypes/Public"
 SENTRY_HEADERS_DIR="$PROJECT_ROOT/Sources/Sentry/Public"
 UMBRELLA_HEADER="$HEADERS_DIR/SentryObjC.h"
 
@@ -29,7 +28,6 @@ xcrun clang -x objective-c \
   -fsyntax-only \
   -isysroot "$SDK_PATH" \
   -I "$HEADERS_DIR" \
-  -I "$TYPES_HEADERS_DIR" \
   -I "$SENTRY_HEADERS_DIR" \
   "$UMBRELLA_HEADER" \
   2>/dev/null > "$AST_JSON"
