@@ -19,7 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentrySessionListener
 
+/// Called on the main thread when a session ends.
 - (void)sentrySessionEnded:(SentrySession *)session;
+/// Called on the main thread when a session starts.
 - (void)sentrySessionStarted:(SentrySession *)session;
 
 @end

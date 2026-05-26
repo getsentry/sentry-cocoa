@@ -3,6 +3,7 @@
 #import "SentryClient.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
+#import "SentryInternalDefines.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryLogC.h"
 #import "SentryNotificationNames.h"
@@ -19,6 +20,11 @@
 #    import <Cocoa/Cocoa.h>
 #endif
 
+// dispatchSync is internal Swift API; declare it privately for ObjC callers.
+@interface SentryDispatchQueueWrapper ()
+- (void)dispatchSync:(void (^)(void))block;
+@end
+
 @interface SentrySessionTracker ()
 
 @property (nonatomic, strong) SentryOptions *options;
@@ -29,6 +35,7 @@
 @property (nonatomic, strong) id<SentryApplication> _Nullable (^applicationProvider)(void);
 @property (nonatomic, strong) id<SentryCurrentDateProvider> dateProvider;
 @property (nonatomic, strong) id<SentryNSNotificationCenterWrapper> notificationCenter;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 
 @end
 
@@ -38,6 +45,7 @@
             applicationProvider:(id<SentryApplication> _Nullable (^)(void))applicationProvider
                    dateProvider:(id<SentryCurrentDateProvider>)dateProvider
              notificationCenter:(id<SentryNSNotificationCenterWrapper>)notificationCenter
+                  dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
     if (self = [super init]) {
         self.options = options;
@@ -45,6 +53,7 @@
         self.applicationProvider = applicationProvider;
         self.dateProvider = dateProvider;
         self.notificationCenter = notificationCenter;
+        self.dispatchQueue = dispatchQueue;
     }
     return self;
 }
@@ -108,7 +117,9 @@
 
 - (void)stop
 {
-    [[SentrySDKInternal currentHub] endSession];
+    // Sync because SentrySDK.close() flushes and shuts down the transport after uninstalling
+    // integrations.
+    [self.dispatchQueue dispatchSync:^{ [[SentrySDKInternal currentHub] endSession]; }];
 
     [self removeObservers];
 
@@ -149,14 +160,16 @@
  */
 - (void)endCachedSession
 {
-    SentryHub *hub = [SentrySDKInternal currentHub];
-    NSDate *_Nullable lastInForeground =
-        [[[hub getClient] fileManager] readTimestampLastInForeground];
-    if (nil != lastInForeground) {
-        [[[hub getClient] fileManager] deleteTimestampLastInForeground];
-    }
+    [self.dispatchQueue dispatchAsyncWithBlock:^{
+        SentryHub *hub = [SentrySDKInternal currentHub];
+        NSDate *_Nullable lastInForeground =
+            [[[hub getClient] fileManager] readTimestampLastInForeground];
+        if (nil != lastInForeground) {
+            [[[hub getClient] fileManager] deleteTimestampLastInForeground];
+        }
 
-    [hub closeCachedSessionWithTimestamp:lastInForeground];
+        [hub closeCachedSessionWithTimestamp:lastInForeground];
+    }];
 }
 
 /**
@@ -188,40 +201,55 @@
         self.wasStartSessionCalled = YES;
     }
 
-    SentryHub *hub = [SentrySDKInternal currentHub];
-    self.lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
+    SentryOptions *options = self.options;
+    NSDate *now = [self.dateProvider date];
 
-    if (nil == self.lastInForeground) {
-        // Cause we don't want to track sessions if the app is in the background we need to wait
-        // until the app is in the foreground to start a session.
-        SENTRY_LOG_DEBUG(@"App was in the foreground for the first time. Starting a new session.");
-        [hub startSession];
-    } else {
-        // When the app was already in the foreground we have to decide whether it was long enough
-        // in the background to start a new session or to keep the session open. We don't want a new
-        // session if the user switches to another app for just a few seconds.
-        NSTimeInterval secondsInBackground =
-            [[self.dateProvider date] timeIntervalSinceDate:self.lastInForeground];
-
-        if (secondsInBackground * 1000 >= (double)(self.options.sessionTrackingIntervalMillis)) {
-            SENTRY_LOG_DEBUG(@"App was in the background for %f seconds. Starting a new session.",
-                secondsInBackground);
-            [hub endSessionWithTimestamp:self.lastInForeground];
-            [hub startSession];
-        } else {
-            SENTRY_LOG_DEBUG(
-                @"App was in the background for %f seconds. Not starting a new session.",
-                secondsInBackground);
-        }
-    }
-    [[[hub getClient] fileManager] deleteTimestampLastInForeground];
+    // Clear inline so delayed async work can't overwrite a newer willResignActive timestamp.
     self.lastInForeground = nil;
 
+    __weak SentrySessionTracker *weakSelf = self;
+    [self.dispatchQueue dispatchAsyncWithBlock:^{
+        if (weakSelf == nil) {
+            return;
+        }
+
+        SentryHub *hub = [SentrySDKInternal currentHub];
+        NSDate *_Nullable nullableLastInForeground =
+            [[[hub getClient] fileManager] readTimestampLastInForeground];
+
+        if (nil == nullableLastInForeground) {
+            // Cause we don't want to track sessions if the app is in the background we need to wait
+            // until the app is in the foreground to start a session.
+            SENTRY_LOG_DEBUG(
+                @"App was in the foreground for the first time. Starting a new session.");
+            [hub startSession];
+        } else {
+            // When the app was already in the foreground we have to decide whether it was long
+            // enough in the background to start a new session or to keep the session open. We don't
+            // want a new session if the user switches to another app for just a few seconds.
+            NSDate *lastInForeground = SENTRY_UNWRAP_NULLABLE(NSDate, nullableLastInForeground);
+            NSTimeInterval secondsInBackground = [now timeIntervalSinceDate:lastInForeground];
+
+            if (secondsInBackground * 1000 >= (double)(options.sessionTrackingIntervalMillis)) {
+                SENTRY_LOG_DEBUG(
+                    @"App was in the background for %f seconds. Starting a new session.",
+                    secondsInBackground);
+                [hub endSessionWithTimestamp:lastInForeground];
+                [hub startSession];
+            } else {
+                SENTRY_LOG_DEBUG(
+                    @"App was in the background for %f seconds. Not starting a new session.",
+                    secondsInBackground);
+            }
+        }
+        [[[hub getClient] fileManager] deleteTimestampLastInForeground];
+
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-    if (hub.client.options.profiling != nil) {
-        sentry_reevaluateSessionSampleRate();
-    }
+        if (hub.client.options.profiling != nil) {
+            sentry_reevaluateSessionSampleRate();
+        }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+    }];
 }
 
 /**
@@ -232,10 +260,16 @@
  */
 - (void)willResignActive
 {
-    self.lastInForeground = [self.dateProvider date];
-    SentryHub *hub = [SentrySDKInternal currentHub];
-    [[[hub getClient] fileManager] storeTimestampLastInForeground:self.lastInForeground];
+    NSDate *lastInForeground = [self.dateProvider date];
+    self.lastInForeground = lastInForeground;
     self.wasStartSessionCalled = NO;
+
+    // If this write is lost due to a crash, the next launch will find a cached session
+    // without a lastInForeground timestamp and closeCachedSession will end it as abnormal.
+    [self.dispatchQueue dispatchAsyncWithBlock:^{
+        SentryHub *hub = [SentrySDKInternal currentHub];
+        [[[hub getClient] fileManager] storeTimestampLastInForeground:lastInForeground];
+    }];
 }
 
 /**
@@ -245,9 +279,11 @@
 {
     NSDate *sessionEnded
         = nil == self.lastInForeground ? [self.dateProvider date] : self.lastInForeground;
-    SentryHub *hub = [SentrySDKInternal currentHub];
-    [hub endSessionWithTimestamp:sessionEnded];
-    [[[hub getClient] fileManager] deleteTimestampLastInForeground];
+    [self.dispatchQueue dispatchSync:^{
+        SentryHub *hub = [SentrySDKInternal currentHub];
+        [hub endSessionWithTimestamp:sessionEnded];
+        [[[hub getClient] fileManager] deleteTimestampLastInForeground];
+    }];
     self.wasStartSessionCalled = NO;
 }
 

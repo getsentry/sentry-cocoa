@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Move SessionTracker I/O to Background (#7912)
+
 ## 8.58.2
 
 ### Fixes
