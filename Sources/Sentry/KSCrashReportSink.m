@@ -8,6 +8,10 @@
 #import "SentrySDKInternal.h"
 #import "SentryScope+Private.h"
 #import "SentrySwift.h"
+@import KSCrashRecording;
+
+static const NSTimeInterval SENTRY_APP_START_CRASH_DURATION_THRESHOLD = 2.0;
+static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
 
 @interface KSCrashReportSink ()
 
@@ -28,8 +32,24 @@
 - (void)filterReports:(NSArray<id<KSCrashReport>> *)reports
          onCompletion:(nullable KSCrashReportFilterCompletion)onCompletion
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-        ^{ [self sendReports:reports onCompletion:onCompletion]; });
+    // KSCrash tracks active time since the last crash; use this as the equivalent of
+    // durationFromCrashStateInitToLastCrash for startup-crash detection.
+    NSTimeInterval activeDurationSinceLastCrash
+        = KSCrash.sharedInstance.activeDurationSinceLastCrash;
+    if (activeDurationSinceLastCrash > 0
+        && activeDurationSinceLastCrash <= SENTRY_APP_START_CRASH_DURATION_THRESHOLD) {
+        SENTRY_LOG_WARN(@"Startup crash: detected.");
+
+        [SentrySDKInternal setDetectedStartUpCrash:YES];
+
+        [self sendReports:reports onCompletion:onCompletion];
+
+        [SentrySDKInternal flush:SENTRY_APP_START_CRASH_FLUSH_DURATION];
+        SENTRY_LOG_DEBUG(@"Startup crash: Finished flushing.");
+    } else {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+            ^{ [self sendReports:reports onCompletion:onCompletion]; });
+    }
 }
 
 - (void)sendReports:(NSArray<id<KSCrashReport>> *)reports
@@ -48,10 +68,7 @@
         if (nil != [SentrySDKInternal.currentHub getClient]) {
             SentryEvent *event = [reportConverter convertReportToEvent];
             if (nil != event) {
-                [sentReports addObject:report];
-                SentryScope *scope =
-                    [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
-                [SentrySDKInternal captureFatalEvent:event withScope:scope];
+                [self handleConvertedEvent:event report:report sentReports:sentReports];
             }
         } else {
             SENTRY_LOG_ERROR(
@@ -61,9 +78,28 @@
                 @"calling startCrashHandlerWithError:.");
         }
     }
+    // KSCrashReportFilterCompletion signature: (NSArray<id<KSCrashReport>> *, NSError *)
+    // Note: the legacy SentryCrashReportFilterCompletion had an additional BOOL completed
+    // parameter; KSCrash v2 omits it.
     if (onCompletion) {
         onCompletion(sentReports, nil);
     }
+}
+
+- (void)handleConvertedEvent:(SentryEvent *)event
+                      report:(id<KSCrashReport>)report
+                 sentReports:(NSMutableArray<id<KSCrashReport>> *)sentReports
+{
+    [sentReports addObject:report];
+    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDKInternal.currentHub.scope];
+
+    // TODO: KSCrash v2 does not provide an attachment mechanism in the report dictionary.
+    // The legacy SentryCrashReportSink read file paths from
+    // SENTRYCRASH_REPORT_ATTACHMENTS_ITEM ("attachments") injected by our SentryCrash fork.
+    // Upstream KSCrash 2.x has no equivalent key; attachment forwarding is not supported
+    // until KSCrash exposes a custom metadata channel.
+
+    [SentrySDKInternal captureFatalEvent:event withScope:scope];
 }
 
 @end
