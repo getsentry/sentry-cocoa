@@ -23,6 +23,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     /// multiple stages during the launch we pick a higher threshold. This threshold also prevents
     /// reporting way too long app starts, since we can't always reliably detect prewarming, for example.
     /// It is a safety guard to discard suspiciously long app starts to avoid reporting false app starts.
+    /// When using standalone app start tracing, this limit is not applied.
     private static let maxAppStartDuration: TimeInterval = 180.0
 
     // MARK: - Instance Properties
@@ -208,8 +209,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
                 appStartTimestamp = sysctl.processStartTimestamp
             }
 
-            // Safety check to not report app starts that are completely off.
-            if appStartDuration >= Self.maxAppStartDuration {
+            if !(self.reportingStrategy is StandaloneTransactionStrategy) && appStartDuration >= Self.maxAppStartDuration {
                 SentrySDKLog.info("The app start exceeded the max duration of \(Self.maxAppStartDuration) seconds. Not measuring app start.")
                 return
             }

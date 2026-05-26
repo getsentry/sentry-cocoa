@@ -273,15 +273,15 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     
     func testAppLaunches_MaximumAppStartDuration_NoAppStart() {
         let processStartTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-180)
-        startApp(processStartTimeStamp: processStartTime)
-        
+        startApp(processStartTimeStamp: processStartTime, callDisplayLink: true)
+
         assertNoAppStartUp()
     }
-    
+
     func testAppLaunches_OSAlmostPrewarmedProcess_AppStartUp() {
         let processStartTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-179)
         startApp(processStartTimeStamp: processStartTime, callDisplayLink: true)
-        
+
         assertValidStart(type: .cold, expectedDuration: 179.45)
     }
     
@@ -361,12 +361,18 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         XCTAssertNil(SentryAppStartMeasurementProvider.appStartTraceId())
     }
 
-    func testMaxDurationExceeded_whenStandalone_shouldClearAppStartTraceId() {
+    func testLongDuration_whenStandalone_shouldNotDropAppStart() throws {
+        fixture.options.tracesSampleRate = 1
+        let client = TestClient(options: fixture.options)
+        let hub = TestHub(client: client, andScope: Scope())
+        SentrySDKInternal.setCurrentHub(hub)
+
         fixture.enableStandaloneAppStartTracing = true
         let processStartTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-180)
         startApp(processStartTimeStamp: processStartTime, callDisplayLink: true)
 
-        assertNoAppStartUp()
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        XCTAssertEqual(serialized["transaction"] as? String, "App Start")
         XCTAssertNil(SentryAppStartMeasurementProvider.appStartTraceId())
     }
 
