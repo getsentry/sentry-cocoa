@@ -292,6 +292,38 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 #endif
     
+    private var _kscrashReporter: SentryCrashReporter?
+    public lazy var kscrashReporter: SentryCrashReporter = getLazyVar(\._kscrashReporter) {
+        SentryKSCrashDefaultReporter(processInfoWrapper: Dependencies.processInfoWrapper)
+    }
+
+    private var kscrashIntegrationSessionHandler: SentryKSCrashIntegrationSessionHandler?
+    func getKSCrashIntegrationSessionHandler(_ options: Options) -> SentryKSCrashIntegrationSessionHandler? {
+        getOptionalLazyVar(\.kscrashIntegrationSessionHandler) {
+            guard let fileManager = fileManager else {
+                SentrySDKLog.fatal("File manager is not available")
+                return nil
+            }
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+            let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
+                                                               crashAdapter: kscrashReporter,
+                                                               appStateManager: appStateManager)
+            return SentryKSCrashIntegrationSessionHandler(
+                crashReporter: kscrashReporter,
+                watchdogTerminationLogic: watchdogLogic,
+                dateProvider: dateProvider,
+                fileManager: fileManager
+            )
+#else
+            return SentryKSCrashIntegrationSessionHandler(
+                crashReporter: kscrashReporter,
+                dateProvider: dateProvider,
+                fileManager: fileManager
+            )
+#endif
+        }
+    }
+
     private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
     func getCrashIntegrationSessionBuilder(_ options: Options, bridge: SentryCrashBridge) -> SentryCrashIntegrationSessionHandler? {
         getOptionalLazyVar(\.crashIntegrationSessionHandler) {
@@ -591,6 +623,18 @@ protocol CrashInstallationReporterBuilder {
     func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter
 }
 extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
+
+// MARK: - KSCrash Integration Providers
+
+protocol KSCrashReporterProvider {
+    var kscrashReporter: SentryCrashReporter { get }
+}
+extension SentryDependencyContainer: KSCrashReporterProvider {}
+
+protocol KSCrashIntegrationSessionHandlerBuilder {
+    func getKSCrashIntegrationSessionHandler(_ options: Options) -> SentryKSCrashIntegrationSessionHandler?
+}
+extension SentryDependencyContainer: KSCrashIntegrationSessionHandlerBuilder {}
 
 protocol SentryCoreDataSwizzlingProvider {
     var coreDataSwizzling: SentryCoreDataSwizzling { get }
