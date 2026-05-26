@@ -6,11 +6,10 @@ import Foundation
 @_spi(Private) @testable import Sentry
 #endif
 
-@testable import SentryObjCBridge
-import SentryObjCTypes
+@testable import SentryObjCCompat
 import XCTest
 
-final class SentryObjCBridgeMetricConversionTests: XCTestCase {
+final class SentryObjCCompatMetricConversionTests: XCTestCase {
 
     func testMetricToObjC_shouldIncludeAllProperties() throws {
         // -- Arrange --

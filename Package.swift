@@ -119,8 +119,7 @@ targets += [
             "SentryDistribution", 
             "SentryDistributionTests",
             "SentryObjC",
-            "SentryObjCCompat",
-            "SentryObjCTypes"
+            "SentryObjCCompat"
         ],
         cSettings: [
             .headerSearchPath("Sentry"),

@@ -104,7 +104,7 @@ jobs:
       # Targets that depend on Sentry also build Sentry.framework as a byproduct.
       # Remove it to avoid downstream assembly tasks from tripping on extra files.
       - name: Remove Sentry.framework byproduct
-        if: inputs.name == 'SentrySwiftUI' || inputs.name == 'SentryObjCBridge' || inputs.name == 'SentryObjC'
+        if: inputs.name == 'SentrySwiftUI' || inputs.name == 'SentryObjCCompat' || inputs.name == 'SentryObjC'
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
         run: |
@@ -112,24 +112,14 @@ jobs:
           find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
         shell: bash
 
-      # SentryObjCBridge and SentryObjC depend on SentryObjCTypes, which gets built as a byproduct.
-      - name: Remove SentryObjCTypes.framework byproduct
-        if: inputs.name == 'SentryObjCBridge' || inputs.name == 'SentryObjC'
-        env:
-          GITHUB_WORKSPACE: ${{ github.workspace }}
-        run: |
-          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCTypes.framework" -print0 | xargs -t0 rm -rf
-          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCTypes.framework.dSYM" -print0 | xargs -t0 rm -rf
-        shell: bash
-
-      # SentryObjC depends on SentryObjCBridge, which gets built as a byproduct.
-      - name: Remove SentryObjCBridge.framework byproduct
+      # SentryObjC depends on SentryObjCCompat, which gets built as a byproduct.
+      - name: Remove SentryObjCCompat.framework byproduct
         if: inputs.name == 'SentryObjC'
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
         run: |
-          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCBridge.framework" -print0 | xargs -t0 rm -rf
-          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCBridge.framework.dSYM" -print0 | xargs -t0 rm -rf
+          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCCompat.framework" -print0 | xargs -t0 rm -rf
+          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCCompat.framework.dSYM" -print0 | xargs -t0 rm -rf
         shell: bash
 
       # the upload action broke symlinks in the mac sdk slice's xcarchive

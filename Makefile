@@ -243,9 +243,9 @@ build-framework-objc:
 
 ## Build SentryObjC XCFrameworks locally for one or more SDKs
 #
-# Builds the four staticlib slices (Sentry, SentryObjCTypes, SentryObjCBridge,
-# SentryObjC) and runs the standalone merger to produce SentryObjC-Static and
-# SentryObjC-Dynamic xcframeworks. Output lands in XCFrameworkBuildPath/.
+# Builds the three staticlib slices (Sentry, SentryObjCCompat, SentryObjC) and
+# runs the standalone merger to produce SentryObjC-Static and SentryObjC-Dynamic
+# xcframeworks. Output lands in XCFrameworkBuildPath/.
 #
 # SDKS accepts either an SDK preset (iOSOnly, macOSOnly, macCatalystOnly,
 # AllSDKs) or a comma-separated list of SDK names. Required — no default,

@@ -37,10 +37,9 @@ SPM does not support mixed ObjC/Swift sources in one target. Place tests accordi
 
 | Test language | Target                  | Path                          | Has access to                           |
 | ------------- | ----------------------- | ----------------------------- | --------------------------------------- |
-| Swift         | `SentryObjCBridgeTests` | `Tests/SentryObjCBridgeTests` | Bridge internals, SDK types, ObjCTypes  |
+| Swift         | `SentryObjCCompatTests` | `Tests/SentryObjCCompatTests` | Wrapper internals, SDK types            |
 | ObjC          | `SentryObjCTests`       | `Tests/SentryObjCTests`       | Full SDK (SentryId, SentrySpanId, etc.) |
 
-- **`SentryObjCTypes`** has no dedicated test target — it depends only on Foundation and its types are tested through the bridge tests
 - Do **not** create test targets that depend on `SentryHeaders` for implementations — it is header-only (see [`develop-docs/SENTRY-OBJC.md`](../develop-docs/SENTRY-OBJC.md))
 
 ## Naming Convention
