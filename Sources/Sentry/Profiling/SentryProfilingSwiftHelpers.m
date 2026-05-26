@@ -231,9 +231,9 @@ sentry_configureContinuousProfiling(SentryOptions *options)
     // help determine when/how to stop the launch profile. otherwise, there won't yet be a
     // SentryProfileConfiguration instance, so we'll instantiate one which will be used to access
     // the profile session sample rate henceforth
-    if (sentry_profileConfiguration == nil) {
-        sentry_profileConfiguration =
-            [[SentryProfileConfiguration alloc] initWithProfileOptions:profilingOptions];
+    if (sentry_getProfileConfiguration() == nil) {
+        sentry_setProfileConfiguration(
+            [[SentryProfileConfiguration alloc] initWithProfileOptions:profilingOptions]);
     }
 
     sentry_reevaluateSessionSampleRate();
@@ -250,7 +250,7 @@ sentry_sdkInitProfilerTasks(SentryOptions *options, SentryHubInternal *hub)
 {
     // get the configuration options from the last time the launch config was written; it may be
     // different than the new options the SDK was just started with
-    SentryProfileConfiguration *configurationFromLaunch = sentry_profileConfiguration;
+    SentryProfileConfiguration *configurationFromLaunch = sentry_getProfileConfiguration();
 
     sentry_configureContinuousProfiling(options);
 

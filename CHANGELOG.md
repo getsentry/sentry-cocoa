@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 9.14.0
+
+### Features
+
+- Add standalone app start tracing as an experimental option (#7660), enable it via `options.experimental.enableStandaloneAppStartTracing = true`
 
 ### Features
 
@@ -8,8 +12,12 @@
 
 ### Fixes
 
+- Defer Session Replay startup until a foreground window is available (#7928)
 - Fix race conditions in scope observer iteration and propagation context locking (#7897)
 - Support stack traces for standalone clients (#7817)
+- Prevent SessionTracker crash with profiling (#7927)
+  - Reevaluation of sampling decision is only done for new sessions.
+- Call SentrySessionListener on main thread (#7917)
 
 ## 9.13.0
 
@@ -20,12 +28,13 @@
 
 ### Features
 
+- Prevent memory strings in stack overflow crash reports (#7841)
 - Add Set conformance to SentryAttributeValue (#7876)
 
 ## 9.12.1
 
 > [!WARNING]
-> ⚠️ **Known Issue:** Sentry Cocoa **9.12.0+** crashes apps using `AVAssetDownloadURLSession`. Pin to **9.11.x** until a fix ships. ([#7886](https://github.com/getsentry/sentry-cocoa/issues/7886))
+> ⚠️ **Known Issue:** Sentry Cocoa **9.12.0+** crashes apps using `AVAssetDownloadURLSession` ([#7886](https://github.com/getsentry/sentry-cocoa/issues/7886)). Fixed in [**9.13.0**](https://github.com/getsentry/sentry-cocoa/releases/tag/9.13.0).
 
 ### Fixes
 
@@ -39,7 +48,7 @@
 ## 9.12.0
 
 > [!WARNING]
-> ⚠️ **Known Issue:** Sentry Cocoa **9.12.0+** crashes apps using `AVAssetDownloadURLSession`. Pin to **9.11.x** until a fix ships. ([#7886](https://github.com/getsentry/sentry-cocoa/issues/7886))
+> ⚠️ **Known Issue:** Sentry Cocoa **9.12.0+** crashes apps using `AVAssetDownloadURLSession` ([#7886](https://github.com/getsentry/sentry-cocoa/issues/7886)). Fixed in [**9.13.0**](https://github.com/getsentry/sentry-cocoa/releases/tag/9.13.0).
 
 > [!WARNING]
 > This release promotes Metrics out of experimental and **removes** `options.experimental.enableMetrics` and `options.experimental.beforeSendMetric`. If you set either of these, your app will fail to compile after upgrading.
