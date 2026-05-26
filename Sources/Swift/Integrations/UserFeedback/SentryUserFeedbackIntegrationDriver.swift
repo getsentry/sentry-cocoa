@@ -112,7 +112,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
     }
 
     @discardableResult
-    func presentForm(screenshot: UIImage? = nil) -> Bool {
+    func showForm(screenshot: UIImage? = nil) -> Bool {
         if let installedPresenter = installedPresenter {
             return present(using: installedPresenter, screenshot: screenshot)
         }
@@ -120,33 +120,12 @@ final class SentryUserFeedbackIntegrationDriver: NSObject, SentryUserFeedbackWid
         return present(using: makeAutomaticUIKitPresenter(), screenshot: screenshot)
     }
 
-    @discardableResult
-    func presentForm(in windowScene: UIWindowScene, screenshot: UIImage?) -> Bool {
-        return present(
-            using: makeUIKitPresenter { [weak self, weak windowScene] in
-                guard let windowScene = windowScene else { return nil }
-                return self?.keyWindowPresenter(in: windowScene)
-            },
-            screenshot: screenshot
-        )
-    }
-
-    @discardableResult
-    func presentForm(from viewController: UIViewController, screenshot: UIImage?) -> Bool {
-        return present(
-            using: makeUIKitPresenter { [weak viewController] in
-                viewController
-            },
-            screenshot: screenshot
-        )
-    }
-
     @objc func showForm(sender: UIButton) {
-        presentForm(screenshot: nil)
+        showForm(screenshot: nil)
     }
 
     func showFeedbackForm() {
-        presentForm(screenshot: nil)
+        showForm(screenshot: nil)
     }
 }
 
@@ -348,12 +327,12 @@ private extension SentryUserFeedbackIntegrationDriver {
             SentrySDKLog.debug("Shake gesture ignored — feedback form is already displayed")
             return
         }
-        presentForm(screenshot: nil)
+        showForm(screenshot: nil)
     }
 
     @objc func userCapturedScreenshot() {
         stopObservingScreenshots()
-        presentForm(screenshot: screenshotSource.appScreenshots().first)
+        showForm(screenshot: screenshotSource.appScreenshots().first)
     }
 
     func stopObservingScreenshots() {

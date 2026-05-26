@@ -39,7 +39,7 @@ private struct SentryFeedbackFormModifier: ViewModifier {
 
 /// nodoc
 public extension View {
-    /// Registers this view as the SwiftUI presenter for `SentrySDK.feedback.presentForm()`.
+    /// Registers this view as the SwiftUI presenter for `SentrySDK.feedback.show()`.
     ///
     /// Apply this near the root of a SwiftUI app to make the convenience API use SwiftUI sheet presentation.
     /// - Returns: A view that can present the Sentry-managed feedback form for global feedback presentation requests.

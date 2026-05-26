@@ -13,17 +13,8 @@ final class FeedbackViewController: UIViewController {
         updateToggleWidgetButtonTitle()
     }
 
-    @IBAction private func presentFromViewController(_: UIButton) {
-        SentrySDK.feedback.presentForm(from: self)
-    }
-
-    @IBAction private func presentFromWindowScene(_: UIButton) {
-        guard let windowScene = view.window?.windowScene else { return }
-        SentrySDK.feedback.presentForm(in: windowScene)
-    }
-
     @IBAction private func presentConvenience(_: UIButton) {
-        SentrySDK.feedback.presentForm()
+        SentrySDK.feedback.show()
     }
 
     @IBAction private func toggleWidget(_: UIButton) {

@@ -96,7 +96,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let feedback = SentryFeedback(message: "message", name: nil, email: nil)
 
         sut.setFeedbackFormPresenter(presenter)
-        XCTAssertTrue(sut.presentForm())
+        XCTAssertTrue(sut.showForm())
         sut.formDidOpen()
         sut.formDidOpen()
         sut.finished(with: feedback)
@@ -120,7 +120,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let feedback = SentryFeedback(message: "message", name: nil, email: nil)
 
         sut.setFeedbackFormPresenter(presenter)
-        XCTAssertTrue(sut.presentForm())
+        XCTAssertTrue(sut.showForm())
         sut.finished(with: feedback)
 
         XCTAssertEqual(capturedFeedback.count, 1)
@@ -134,8 +134,8 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             screenshotSource: makeScreenshotSource()) { _ in }
 
         sut.setFeedbackFormPresenter(presenter)
-        XCTAssertTrue(sut.presentForm())
-        XCTAssertFalse(sut.presentForm())
+        XCTAssertTrue(sut.showForm())
+        XCTAssertFalse(sut.showForm())
         XCTAssertEqual(presenter.presentCount, 1)
 
         presenter.dismiss()
@@ -150,7 +150,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.isDisplayingForm)
 
         sut.setFeedbackFormPresenter(presenter)
-        XCTAssertTrue(sut.presentForm())
+        XCTAssertTrue(sut.showForm())
         XCTAssertTrue(sut.isDisplayingForm)
 
         presenter.dismiss()
@@ -164,7 +164,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             dependencies: TestDependencies(screenshotSource: makeScreenshotSource())))
 
         sut.driver.setFeedbackFormPresenter(presenter)
-        XCTAssertTrue(sut.driver.presentForm())
+        XCTAssertTrue(sut.driver.showForm())
 
         sut.uninstall()
 
@@ -182,7 +182,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             screenshotSource: makeScreenshotSource()) { _ in }
 
         sut.setFeedbackFormPresenter(presenter)
-        XCTAssertTrue(sut.presentForm())
+        XCTAssertTrue(sut.showForm())
         presenter.dismiss()
 
         XCTAssertEqual(closeCount, 0)
@@ -196,7 +196,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             screenshotSource: makeScreenshotSource()) { _ in }
 
         sut.setFeedbackFormPresenter(presenter)
-        XCTAssertTrue(sut.presentForm(screenshot: screenshot))
+        XCTAssertTrue(sut.showForm(screenshot: screenshot))
 
         XCTAssertIdentical(try XCTUnwrap(presenter.lastScreenshot), screenshot)
 
@@ -211,7 +211,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let weakPresenter = WeakReference(presenter)
 
         sut.setFeedbackFormPresenter(presenter)
-        XCTAssertTrue(sut.presentForm())
+        XCTAssertTrue(sut.showForm())
         presenter = nil
 
         XCTAssertNotNil(weakPresenter.value)
@@ -230,7 +230,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             screenshotSource: makeScreenshotSource()) { _ in }
 
         sut.setFeedbackFormPresenter(presenter)
-        XCTAssertFalse(sut.presentForm())
+        XCTAssertFalse(sut.showForm())
 
         XCTAssertFalse(sut.isDisplayingForm)
         XCTAssertNil(presenter.delegate)
@@ -259,15 +259,8 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         defer { SentrySDKInternal.setCurrentHub(previousHub) }
 
         let sut = SentryFeedbackAPI()
-        let viewController = UIViewController()
 
-        XCTAssertFalse(sut.presentForm())
-        XCTAssertFalse(sut.presentForm(from: viewController))
-
-        guard let windowScene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
-            return
-        }
-        XCTAssertFalse(sut.presentForm(in: windowScene))
+        XCTAssertFalse(sut.show())
     }
 }
 

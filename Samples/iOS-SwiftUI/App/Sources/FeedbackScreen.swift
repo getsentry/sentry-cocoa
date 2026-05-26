@@ -8,7 +8,7 @@ struct FeedbackScreen: View {
     var body: some View {
         VStack(spacing: 16) {
             Button("Present (Modifier)") {
-                SentrySDK.feedback.presentForm()
+                SentrySDK.feedback.show()
             }
             .buttonStyle(.borderedProminent)
 
@@ -22,7 +22,7 @@ struct FeedbackScreen: View {
             }
             .buttonStyle(.borderedProminent)
 
-            Text("This screen tests SentrySDK.feedback.presentForm() via .sentryFeedbackForm() and the feedback widget in a SwiftUI app.")
+            Text("This screen tests SentrySDK.feedback.show() via .sentryFeedbackForm() and the feedback widget in a SwiftUI app.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
