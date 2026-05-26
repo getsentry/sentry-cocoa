@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Feature
+
+- Skip max app start duration limit for standalone app start tracing (#7949)
+
 ## 9.14.0
 
 ### Features
@@ -8,7 +14,6 @@
 
 ### Fixes
 
-- Skip max app start duration limit for standalone app start tracing (#7949)
 - Defer Session Replay startup until a foreground window is available (#7928)
 - Fix race conditions in scope observer iteration and propagation context locking (#7897)
 - Support stack traces for standalone clients (#7817)
