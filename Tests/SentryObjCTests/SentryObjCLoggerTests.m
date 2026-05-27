@@ -22,6 +22,17 @@
     [super tearDown];
 }
 
+#pragma mark - logger accessibility
+
+- (void)testLogger_shouldBeAccessibleFromSDK
+{
+    // -- Act --
+    SentryObjCLogger *logger = SentryObjCSDK.logger;
+
+    // -- Assert --
+    XCTAssertNotNil(logger);
+}
+
 #pragma mark - trace
 
 - (void)testTrace_shouldNotCrash
@@ -104,6 +115,38 @@
 {
     // -- Act & Assert (no crash) --
     [SentryObjCSDK.logger fatal:@"fatal" attributes:@{ @"key" : @"value" }];
+}
+
+#pragma mark - mixed attribute types
+
+- (void)testInfoWithMixedAttributeTypes_shouldNotCrash
+{
+    // -- Arrange --
+    NSDictionary *attributes = @{
+        @"string_key" : @"string_value",
+        @"int_key" : @42,
+        @"double_key" : @3.14,
+        @"bool_key" : @YES
+    };
+
+    // -- Act & Assert (no crash) --
+    [SentryObjCSDK.logger info:@"mixed types" attributes:attributes];
+}
+
+#pragma mark - logs disabled
+
+- (void)testLoggerMethod_whenLogsDisabled_shouldNotCrash
+{
+    // -- Arrange --
+    [SentryObjCSDK close];
+    [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
+        options.dsn = @"https://key@sentry.io/123";
+        options.enableCrashHandler = NO;
+        options.enableLogs = NO;
+    }];
+
+    // -- Act & Assert (no crash) --
+    [SentryObjCSDK.logger info:@"should not crash"];
 }
 
 @end

@@ -12,6 +12,7 @@
     [super setUp];
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
     options.dsn = @"https://key@sentry.io/123";
+    options.enableCrashHandler = NO;
     SentryObjCClient *client = [[SentryObjCClient alloc] initWithOptions:options];
     self.sut = [[SentryObjCHub alloc] initWithClient:client
                                             andScope:[[SentryObjCScope alloc] init]];
@@ -69,7 +70,7 @@
 
 #pragma mark - Capture Event
 
-- (void)testCaptureEvent_shouldReturnId
+- (void)testCaptureEvent_shouldReturnNonEmptyId
 {
     // -- Arrange --
     SentryObjCEvent *event = [[SentryObjCEvent alloc] init];
@@ -79,24 +80,29 @@
 
     // -- Assert --
     XCTAssertNotNil(eventId);
+    XCTAssertEqual(eventId.sentryIdString.length, 32U);
+    XCTAssertNotEqualObjects(eventId.sentryIdString, SentryObjCId.empty.sentryIdString);
 }
 
-- (void)testCaptureEventWithScope_shouldReturnId
+- (void)testCaptureEventWithScope_shouldReturnNonEmptyId
 {
     // -- Arrange --
     SentryObjCEvent *event = [[SentryObjCEvent alloc] init];
     SentryObjCScope *scope = [[SentryObjCScope alloc] init];
+    [scope setTagValue:@"val" forKey:@"key"];
 
     // -- Act --
     SentryObjCId *eventId = [self.sut captureEvent:event withScope:scope];
 
     // -- Assert --
     XCTAssertNotNil(eventId);
+    XCTAssertEqual(eventId.sentryIdString.length, 32U);
+    XCTAssertNotEqualObjects(eventId.sentryIdString, SentryObjCId.empty.sentryIdString);
 }
 
 #pragma mark - Capture Error
 
-- (void)testCaptureError_shouldReturnId
+- (void)testCaptureError_shouldReturnNonEmptyId
 {
     // -- Arrange --
     NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
@@ -106,9 +112,11 @@
 
     // -- Assert --
     XCTAssertNotNil(eventId);
+    XCTAssertEqual(eventId.sentryIdString.length, 32U);
+    XCTAssertNotEqualObjects(eventId.sentryIdString, SentryObjCId.empty.sentryIdString);
 }
 
-- (void)testCaptureErrorWithScope_shouldReturnId
+- (void)testCaptureErrorWithScope_shouldReturnNonEmptyId
 {
     // -- Arrange --
     NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
@@ -119,11 +127,13 @@
 
     // -- Assert --
     XCTAssertNotNil(eventId);
+    XCTAssertEqual(eventId.sentryIdString.length, 32U);
+    XCTAssertNotEqualObjects(eventId.sentryIdString, SentryObjCId.empty.sentryIdString);
 }
 
 #pragma mark - Capture Exception
 
-- (void)testCaptureException_shouldReturnId
+- (void)testCaptureException_shouldReturnNonEmptyId
 {
     // -- Arrange --
     NSException *exception = [NSException exceptionWithName:NSGenericException
@@ -135,9 +145,11 @@
 
     // -- Assert --
     XCTAssertNotNil(eventId);
+    XCTAssertEqual(eventId.sentryIdString.length, 32U);
+    XCTAssertNotEqualObjects(eventId.sentryIdString, SentryObjCId.empty.sentryIdString);
 }
 
-- (void)testCaptureExceptionWithScope_shouldReturnId
+- (void)testCaptureExceptionWithScope_shouldReturnNonEmptyId
 {
     // -- Arrange --
     NSException *exception = [NSException exceptionWithName:NSGenericException
@@ -150,20 +162,24 @@
 
     // -- Assert --
     XCTAssertNotNil(eventId);
+    XCTAssertEqual(eventId.sentryIdString.length, 32U);
+    XCTAssertNotEqualObjects(eventId.sentryIdString, SentryObjCId.empty.sentryIdString);
 }
 
 #pragma mark - Capture Message
 
-- (void)testCaptureMessage_shouldReturnId
+- (void)testCaptureMessage_shouldReturnNonEmptyId
 {
     // -- Act --
     SentryObjCId *eventId = [self.sut captureMessage:@"hello"];
 
     // -- Assert --
     XCTAssertNotNil(eventId);
+    XCTAssertEqual(eventId.sentryIdString.length, 32U);
+    XCTAssertNotEqualObjects(eventId.sentryIdString, SentryObjCId.empty.sentryIdString);
 }
 
-- (void)testCaptureMessageWithScope_shouldReturnId
+- (void)testCaptureMessageWithScope_shouldReturnNonEmptyId
 {
     // -- Arrange --
     SentryObjCScope *scope = [[SentryObjCScope alloc] init];
@@ -173,6 +189,8 @@
 
     // -- Assert --
     XCTAssertNotNil(eventId);
+    XCTAssertEqual(eventId.sentryIdString.length, 32U);
+    XCTAssertNotEqualObjects(eventId.sentryIdString, SentryObjCId.empty.sentryIdString);
 }
 
 #pragma mark - Capture Feedback
@@ -194,16 +212,17 @@
 
 #pragma mark - Transactions
 
-- (void)testStartTransaction_shouldReturnSpan
+- (void)testStartTransaction_shouldReturnSpanWithCorrectOperation
 {
     // -- Act --
     SentryObjCSpan *span = [self.sut startTransactionWithName:@"test" operation:@"op"];
 
     // -- Assert --
     XCTAssertNotNil(span);
+    XCTAssertEqualObjects(span.operation, @"op");
 }
 
-- (void)testStartTransactionBindToScope_shouldReturnSpan
+- (void)testStartTransactionBindToScope_shouldReturnSpanWithCorrectOperation
 {
     // -- Act --
     SentryObjCSpan *span = [self.sut startTransactionWithName:@"test"
@@ -212,9 +231,10 @@
 
     // -- Assert --
     XCTAssertNotNil(span);
+    XCTAssertEqualObjects(span.operation, @"op");
 }
 
-- (void)testStartTransactionWithContext_shouldReturnSpan
+- (void)testStartTransactionWithContext_shouldReturnSpanWithCorrectOperation
 {
     // -- Arrange --
     SentryObjCTransactionContext *context =
@@ -225,9 +245,10 @@
 
     // -- Assert --
     XCTAssertNotNil(span);
+    XCTAssertEqualObjects(span.operation, @"op");
 }
 
-- (void)testStartTransactionWithContextBindToScope_shouldReturnSpan
+- (void)testStartTransactionWithContextBindToScope_shouldReturnSpanWithCorrectOperation
 {
     // -- Arrange --
     SentryObjCTransactionContext *context =
@@ -238,9 +259,11 @@
 
     // -- Assert --
     XCTAssertNotNil(span);
+    XCTAssertEqualObjects(span.operation, @"op");
 }
 
-- (void)testStartTransactionWithContextBindToScopeCustomSampling_shouldReturnSpan
+- (void)
+    testStartTransactionWithContextBindToScopeCustomSampling_shouldReturnSpanWithCorrectOperation
 {
     // -- Arrange --
     SentryObjCTransactionContext *context =
@@ -254,9 +277,10 @@
 
     // -- Assert --
     XCTAssertNotNil(span);
+    XCTAssertEqualObjects(span.operation, @"op");
 }
 
-- (void)testStartTransactionWithContextCustomSampling_shouldReturnSpan
+- (void)testStartTransactionWithContextCustomSampling_shouldReturnSpanWithCorrectOperation
 {
     // -- Arrange --
     SentryObjCTransactionContext *context =
@@ -269,20 +293,19 @@
 
     // -- Assert --
     XCTAssertNotNil(span);
+    XCTAssertEqualObjects(span.operation, @"op");
 }
 
 #pragma mark - Configure Scope
 
-- (void)testConfigureScope_shouldCallBlock
+- (void)testConfigureScope_shouldPersistTagChanges
 {
-    // -- Arrange --
-    __block BOOL called = NO;
-
     // -- Act --
-    [self.sut configureScope:^(SentryObjCScope *scope) { called = YES; }];
+    [self.sut configureScope:^(
+        SentryObjCScope *scope) { [scope setTagValue:@"test-value" forKey:@"test-key"]; }];
 
     // -- Assert --
-    XCTAssertTrue(called);
+    XCTAssertEqualObjects(self.sut.scope.tags[@"test-key"], @"test-value");
 }
 
 #pragma mark - Breadcrumbs
@@ -299,13 +322,14 @@
 
 #pragma mark - Client
 
-- (void)testGetClient_whenClientSet_shouldReturnClient
+- (void)testGetClient_whenClientSet_shouldReturnEnabledClient
 {
     // -- Act --
     SentryObjCClient *client = [self.sut getClient];
 
     // -- Assert --
     XCTAssertNotNil(client);
+    XCTAssertTrue(client.isEnabled);
 }
 
 - (void)testGetClient_whenNilClient_shouldReturnNil
@@ -322,13 +346,15 @@
 
 #pragma mark - Scope
 
-- (void)testScope_shouldReturnScope
+- (void)testScope_shouldReturnUsableScope
 {
     // -- Act --
     SentryObjCScope *scope = self.sut.scope;
 
     // -- Assert --
     XCTAssertNotNil(scope);
+    [scope setTagValue:@"value" forKey:@"key"];
+    XCTAssertEqualObjects(scope.tags[@"key"], @"value");
 }
 
 #pragma mark - Bind Client
@@ -341,22 +367,22 @@
 
 #pragma mark - Integrations
 
-- (void)testHasIntegration_shouldReturnBool
+- (void)testHasIntegration_whenUnknownName_shouldReturnNo
 {
     // -- Act --
-    BOOL result = [self.sut hasIntegration:@"SomeName"];
+    BOOL result = [self.sut hasIntegration:@"NonExistentIntegration"];
 
-    // -- Assert (just exercise the method) --
-    (void)result;
+    // -- Assert --
+    XCTAssertFalse(result);
 }
 
-- (void)testIsIntegrationInstalled_shouldReturnBool
+- (void)testIsIntegrationInstalled_whenUnrelatedClass_shouldReturnNo
 {
     // -- Act --
     BOOL result = [self.sut isIntegrationInstalled:[NSObject class]];
 
-    // -- Assert (just exercise the method) --
-    (void)result;
+    // -- Assert --
+    XCTAssertFalse(result);
 }
 
 #pragma mark - User

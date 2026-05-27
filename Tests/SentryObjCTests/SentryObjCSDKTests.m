@@ -65,7 +65,7 @@
 
 #pragma mark - Capture Event
 
-- (void)testCaptureEvent_shouldReturnId
+- (void)testCaptureEvent_shouldReturnNonEmptyId
 {
     // -- Arrange --
     SentryObjCEvent *event = [[SentryObjCEvent alloc] init];
@@ -75,9 +75,11 @@
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
-- (void)testCaptureEventWithScope_shouldReturnId
+- (void)testCaptureEventWithScope_shouldReturnNonEmptyId
 {
     // -- Arrange --
     SentryObjCEvent *event = [[SentryObjCEvent alloc] init];
@@ -88,22 +90,29 @@
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
-- (void)testCaptureEventWithScopeBlock_shouldReturnId
+- (void)testCaptureEventWithScopeBlock_shouldReturnNonEmptyId
 {
     // -- Arrange --
     SentryObjCEvent *event = [[SentryObjCEvent alloc] init];
+    __block BOOL blockCalled = NO;
 
     // -- Act --
-    SentryObjCId *result = [SentryObjCSDK captureEvent:event
-                                        withScopeBlock:^(SentryObjCScope *scope) { }];
+    SentryObjCId *result =
+        [SentryObjCSDK captureEvent:event
+                     withScopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
+    XCTAssertTrue(blockCalled);
 }
 
-- (void)testCaptureEventAttachAllThreads_shouldReturnId
+- (void)testCaptureEventAttachAllThreads_shouldReturnNonEmptyId
 {
     // -- Arrange --
     SentryObjCEvent *event = [[SentryObjCEvent alloc] init];
@@ -113,20 +122,23 @@
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
 #pragma mark - Transactions
 
-- (void)testStartTransaction_shouldReturnSpan
+- (void)testStartTransaction_shouldReturnSpanWithCorrectOperation
 {
     // -- Act --
     SentryObjCSpan *span = [SentryObjCSDK startTransactionWithName:@"test" operation:@"op"];
 
     // -- Assert --
     XCTAssertNotNil(span);
+    XCTAssertEqualObjects(span.operation, @"op");
 }
 
-- (void)testStartTransactionBindToScope_shouldReturnSpan
+- (void)testStartTransactionBindToScope_shouldReturnSpanWithCorrectOperation
 {
     // -- Act --
     SentryObjCSpan *span = [SentryObjCSDK startTransactionWithName:@"test"
@@ -135,9 +147,10 @@
 
     // -- Assert --
     XCTAssertNotNil(span);
+    XCTAssertEqualObjects(span.operation, @"op");
 }
 
-- (void)testStartTransactionWithContext_shouldReturnSpan
+- (void)testStartTransactionWithContext_shouldReturnSpanWithCorrectOperation
 {
     // -- Arrange --
     SentryObjCTransactionContext *ctx = [[SentryObjCTransactionContext alloc] initWithName:@"test"
@@ -148,9 +161,10 @@
 
     // -- Assert --
     XCTAssertNotNil(span);
+    XCTAssertEqualObjects(span.operation, @"op");
 }
 
-- (void)testStartTransactionWithContextBindToScope_shouldReturnSpan
+- (void)testStartTransactionWithContextBindToScope_shouldReturnSpanWithCorrectOperation
 {
     // -- Arrange --
     SentryObjCTransactionContext *ctx = [[SentryObjCTransactionContext alloc] initWithName:@"test"
@@ -161,9 +175,11 @@
 
     // -- Assert --
     XCTAssertNotNil(span);
+    XCTAssertEqualObjects(span.operation, @"op");
 }
 
-- (void)testStartTransactionWithContextBindToScopeCustomSampling_shouldReturnSpan
+- (void)
+    testStartTransactionWithContextBindToScopeCustomSampling_shouldReturnSpanWithCorrectOperation
 {
     // -- Arrange --
     SentryObjCTransactionContext *ctx = [[SentryObjCTransactionContext alloc] initWithName:@"test"
@@ -177,9 +193,10 @@
 
     // -- Assert --
     XCTAssertNotNil(span);
+    XCTAssertEqualObjects(span.operation, @"op");
 }
 
-- (void)testStartTransactionWithContextCustomSampling_shouldReturnSpan
+- (void)testStartTransactionWithContextCustomSampling_shouldReturnSpanWithCorrectOperation
 {
     // -- Arrange --
     SentryObjCTransactionContext *ctx = [[SentryObjCTransactionContext alloc] initWithName:@"test"
@@ -192,11 +209,12 @@
 
     // -- Assert --
     XCTAssertNotNil(span);
+    XCTAssertEqualObjects(span.operation, @"op");
 }
 
 #pragma mark - Capture Error
 
-- (void)testCaptureError_shouldReturnId
+- (void)testCaptureError_shouldReturnNonEmptyId
 {
     // -- Arrange --
     NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
@@ -206,9 +224,11 @@
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
-- (void)testCaptureErrorWithScope_shouldReturnId
+- (void)testCaptureErrorWithScope_shouldReturnNonEmptyId
 {
     // -- Arrange --
     NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
@@ -219,22 +239,29 @@
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
-- (void)testCaptureErrorWithScopeBlock_shouldReturnId
+- (void)testCaptureErrorWithScopeBlock_shouldReturnNonEmptyId
 {
     // -- Arrange --
     NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
+    __block BOOL blockCalled = NO;
 
     // -- Act --
-    SentryObjCId *result = [SentryObjCSDK captureError:error
-                                        withScopeBlock:^(SentryObjCScope *scope) { }];
+    SentryObjCId *result =
+        [SentryObjCSDK captureError:error
+                     withScopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
+    XCTAssertTrue(blockCalled);
 }
 
-- (void)testCaptureErrorAttachAllThreads_shouldReturnId
+- (void)testCaptureErrorAttachAllThreads_shouldReturnNonEmptyId
 {
     // -- Arrange --
     NSError *error = [NSError errorWithDomain:@"test" code:1 userInfo:nil];
@@ -244,11 +271,13 @@
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
 #pragma mark - Capture Exception
 
-- (void)testCaptureException_shouldReturnId
+- (void)testCaptureException_shouldReturnNonEmptyId
 {
     // -- Arrange --
     NSException *exception = [NSException exceptionWithName:NSGenericException
@@ -260,9 +289,11 @@
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
-- (void)testCaptureExceptionWithScope_shouldReturnId
+- (void)testCaptureExceptionWithScope_shouldReturnNonEmptyId
 {
     // -- Arrange --
     NSException *exception = [NSException exceptionWithName:NSGenericException
@@ -275,24 +306,31 @@
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
-- (void)testCaptureExceptionWithScopeBlock_shouldReturnId
+- (void)testCaptureExceptionWithScopeBlock_shouldReturnNonEmptyId
 {
     // -- Arrange --
     NSException *exception = [NSException exceptionWithName:NSGenericException
                                                      reason:@"test"
                                                    userInfo:nil];
+    __block BOOL blockCalled = NO;
 
     // -- Act --
-    SentryObjCId *result = [SentryObjCSDK captureException:exception
-                                            withScopeBlock:^(SentryObjCScope *scope) { }];
+    SentryObjCId *result =
+        [SentryObjCSDK captureException:exception
+                         withScopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
+    XCTAssertTrue(blockCalled);
 }
 
-- (void)testCaptureExceptionAttachAllThreads_shouldReturnId
+- (void)testCaptureExceptionAttachAllThreads_shouldReturnNonEmptyId
 {
     // -- Arrange --
     NSException *exception = [NSException exceptionWithName:NSGenericException
@@ -304,20 +342,24 @@
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
 #pragma mark - Capture Message
 
-- (void)testCaptureMessage_shouldReturnId
+- (void)testCaptureMessage_shouldReturnNonEmptyId
 {
     // -- Act --
     SentryObjCId *result = [SentryObjCSDK captureMessage:@"hello"];
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
-- (void)testCaptureMessageWithScope_shouldReturnId
+- (void)testCaptureMessageWithScope_shouldReturnNonEmptyId
 {
     // -- Arrange --
     SentryObjCScope *scope = [[SentryObjCScope alloc] init];
@@ -327,25 +369,36 @@
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
-- (void)testCaptureMessageWithScopeBlock_shouldReturnId
+- (void)testCaptureMessageWithScopeBlock_shouldReturnNonEmptyId
 {
+    // -- Arrange --
+    __block BOOL blockCalled = NO;
+
     // -- Act --
-    SentryObjCId *result = [SentryObjCSDK captureMessage:@"hello"
-                                          withScopeBlock:^(SentryObjCScope *scope) { }];
+    SentryObjCId *result =
+        [SentryObjCSDK captureMessage:@"hello"
+                       withScopeBlock:^(SentryObjCScope *scope) { blockCalled = YES; }];
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
+    XCTAssertTrue(blockCalled);
 }
 
-- (void)testCaptureMessageAttachAllThreads_shouldReturnId
+- (void)testCaptureMessageAttachAllThreads_shouldReturnNonEmptyId
 {
     // -- Act --
     SentryObjCId *result = [SentryObjCSDK captureMessage:@"hello" attachAllThreads:YES];
 
     // -- Assert --
     XCTAssertNotNil(result);
+    XCTAssertEqual(result.sentryIdString.length, 32U);
+    XCTAssertFalse([result.sentryIdString isEqualToString:SentryObjCId.empty.sentryIdString]);
 }
 
 #pragma mark - Feedback
@@ -375,21 +428,23 @@
 
 #pragma mark - Configure Scope
 
-- (void)testConfigureScope_shouldCallBlock
+- (void)testConfigureScope_shouldPersistTagOnScope
 {
     // -- Arrange --
-    __block BOOL called = NO;
+    [SentryObjCSDK configureScope:^(
+        SentryObjCScope *scope) { [scope setTagValue:@"test-value" forKey:@"test-key"]; }];
 
     // -- Act --
-    [SentryObjCSDK configureScope:^(SentryObjCScope *scope) { called = YES; }];
+    __block NSDictionary *capturedTags;
+    [SentryObjCSDK configureScope:^(SentryObjCScope *scope) { capturedTags = scope.tags; }];
 
     // -- Assert --
-    XCTAssertTrue(called);
+    XCTAssertEqualObjects(capturedTags[@"test-key"], @"test-value");
 }
 
 #pragma mark - Crash Status
 
-- (void)testCrashedLastRun_shouldReturnBool
+- (void)testCrashedLastRun_shouldReturnValidBool
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -401,7 +456,7 @@
 #pragma clang diagnostic pop
 }
 
-- (void)testLastRunStatus_shouldReturnStatus
+- (void)testLastRunStatus_shouldReturnValidStatus
 {
     // -- Arrange & Act --
     SentryObjCLastRunStatus status = SentryObjCSDK.lastRunStatus;
@@ -413,7 +468,7 @@
         || status == SentryObjCLastRunStatusDidNotCrash);
 }
 
-- (void)testDetectedStartUpCrash_shouldReturnBool
+- (void)testDetectedStartUpCrash_shouldReturnValidBool
 {
     // -- Arrange & Act --
     BOOL detected = SentryObjCSDK.detectedStartUpCrash;
