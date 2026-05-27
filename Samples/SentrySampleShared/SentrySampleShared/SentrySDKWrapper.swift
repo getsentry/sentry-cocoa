@@ -27,7 +27,7 @@ public struct SentrySDKWrapper {
         }
         
 #if os(iOS) || os(tvOS) || os(visionOS)
-        if SentrySDKOverrides.Performance.extendAppLaunch3Seconds.boolValue {
+        if let delay = SentrySDKOverrides.Performance.extendAppLaunchDelay.floatValue {
             SentrySDK.extendAppLaunch()
         }
 #endif // os(iOS) || os(tvOS) || os(visionOS))
@@ -39,8 +39,8 @@ public struct SentrySDKWrapper {
         }
 
 #if os(iOS) || os(tvOS) || os(visionOS)
-        if SentrySDKOverrides.Performance.extendAppLaunch3Seconds.boolValue {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+        if let delay = SentrySDKOverrides.Performance.extendAppLaunchDelay.floatValue {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(delay)) {
                 SentrySDK.finishExtendedAppLaunch()
             }
         }
