@@ -1528,7 +1528,6 @@
 				FAB1188E2F4633F40000CC24 /* SentryTestUtils */,
 				D84DAD4E2B17428D003CF120 /* SentryTestUtilsDynamic */,
 				D4CBA2522DE06D1600581618 /* SentryTestUtilsTests */,
-				D4B67CFD2FC5E6F20022BC67 /* SentryObjCTests */,
 				6304360C1EC05CEF00C4D3FA /* Frameworks */,
 				6327C5D41EB8A783004E799B /* Products */,
 			);
@@ -1694,6 +1693,7 @@
 				63AA76AA1EB9D5CD00D153DE /* Configuration */,
 				846D3F122E286ECF00D4E7E3 /* DuplicatedSDKTest */,
 				FAB1CB682F458C680000CC24 /* SentryTests */,
+				D4B67CFD2FC5E6F20022BC67 /* SentryObjCTests */,
 				8431EFDB29B27B3D00D8DC56 /* SentryProfilerTests */,
 			);
 			path = Tests;
