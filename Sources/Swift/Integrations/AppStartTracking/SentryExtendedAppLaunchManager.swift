@@ -55,7 +55,7 @@ final class SentryExtendedAppLaunchManager {
                 tracer = nil
                 extendTimestamp = nil
                 extendRequested = false
-                appStartCreated = false
+                appStartCreated = true
             }
             guard let t = tracer, let ts = extendTimestamp else {
                 return (nil, nil, created)
