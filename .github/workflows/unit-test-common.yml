@@ -284,9 +284,10 @@ jobs:
 
       - name: Codecov test analytics
         if: ${{ !cancelled() && !contains(github.ref, 'release') && github.event.schedule == '' }}
-        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # pin@v1.2.1
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # pin@v6.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: test_results
           verbose: true
           name: sentry-cocoa-unit-tests
           flags: unittests-${{ inputs.platform }}-${{ inputs.xcode }}-${{ steps.resolve-test-destination.outputs.TEST_OS }}, unittests
