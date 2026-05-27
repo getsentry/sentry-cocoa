@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCLogLevel.h"
 #else
 #    import <SentryObjC/SentryObjCLogLevel.h>

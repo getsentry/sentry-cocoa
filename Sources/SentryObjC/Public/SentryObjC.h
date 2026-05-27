@@ -1,14 +1,14 @@
 #import <Foundation/Foundation.h>
 
 // Platform detection and shared macros
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCDefines.h"
 #else
 #    import <SentryObjC/SentryObjCDefines.h>
 #endif
 
 // --- Enums (no dependencies) ---
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCAttachmentType.h"
 #    import "SentryObjCFeedbackSource.h"
 #    import "SentryObjCLastRunStatus.h"
@@ -31,7 +31,7 @@
 #endif
 
 // --- Data carriers ---
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCAttributeContent.h"
 #    import "SentryObjCMetric.h"
 #    import "SentryObjCMetricValue.h"
@@ -46,7 +46,7 @@
 #endif
 
 // --- Leaf types (no wrapper dependencies) ---
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCDebugMeta.h"
 #    import "SentryObjCFrame.h"
 #    import "SentryObjCGeo.h"
@@ -75,7 +75,7 @@
 #endif
 
 // --- Composite types (depend on leaf types) ---
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCAttachment.h"
 #    import "SentryObjCBreadcrumb.h"
 #    import "SentryObjCException.h"
@@ -94,7 +94,7 @@
 #endif
 
 // --- Span context hierarchy ---
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCSpanContext.h"
 #    import "SentryObjCTransactionContext.h"
 #else
@@ -103,7 +103,7 @@
 #endif
 
 // --- Higher-level types ---
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCEvent.h"
 #    import "SentryObjCFeedback.h"
 #    import "SentryObjCSamplingContext.h"
@@ -120,7 +120,7 @@
 #endif
 
 // --- Attribute and log types ---
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCAttribute.h"
 #    import "SentryObjCLog.h"
 #    import "SentryObjCLogger.h"
@@ -131,7 +131,7 @@
 #endif
 
 // --- Configuration ---
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCExperimentalOptions.h"
 #    import "SentryObjCOptions.h"
 #    import "SentryObjCReplayOptions.h"
@@ -142,7 +142,7 @@
 #endif
 
 // --- API surfaces ---
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCFeedbackApi.h"
 #    import "SentryObjCMetricsApi.h"
 #    import "SentryObjCReplayApi.h"
@@ -153,7 +153,7 @@
 #endif
 
 // --- Envelope types (SPI for hybrid SDKs) ---
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCEnvelope.h"
 #    import "SentryObjCEnvelopeHeader.h"
 #    import "SentryObjCEnvelopeItem.h"
@@ -164,7 +164,7 @@
 #endif
 
 // --- Entry points ---
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCClient.h"
 #    import "SentryObjCHub.h"
 #    import "SentryObjCPrivateSDKOnly.h"

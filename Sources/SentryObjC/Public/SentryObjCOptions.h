@@ -1,6 +1,6 @@
 // swiftlint:disable file_length
 #import <Foundation/Foundation.h>
-#if SWIFT_PACKAGE
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCDefines.h"
 #    import "SentryObjCLastRunStatus.h"
 #    import "SentryObjCLevel.h"
