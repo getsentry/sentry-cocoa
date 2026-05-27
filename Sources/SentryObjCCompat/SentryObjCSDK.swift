@@ -160,7 +160,7 @@ import Foundation
         SentryObjCId(SentrySDK.capture(message: message, attachAllThreads: attachAllThreads))
     }
 
-    @objc(captureFeedback:name:email:source:associatedEventId:attachments:)
+    @objc(captureFeedbackWithMessage:name:email:source:associatedEventId:attachments:)
     public static func captureFeedback(message: String, name: String?, email: String?, source: SentryObjCFeedbackSource, associatedEventId: SentryObjCId?, attachments: [SentryObjCAttachment]?) {
         let feedback = SentryFeedback(
             message: message,

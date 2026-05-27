@@ -1027,17 +1027,17 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "captureFeedback:name:email:source:associatedEventId:attachments:",
-    "parent": "SentryObjCSDK",
-    "returnType": "void",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "captureFeedback:withScope:",
     "parent": "SentryObjCClient",
     "returnType": "void",
     "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "captureFeedbackWithMessage:name:email:source:associatedEventId:attachments:",
+    "parent": "SentryObjCSDK",
+    "returnType": "void",
+    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",

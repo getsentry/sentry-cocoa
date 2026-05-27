@@ -23,13 +23,6 @@
     },
     {
       "kind": "ObjCMethodDecl",
-      "name": "captureFeedbackWithMessage:name:email:source:associatedEventId:attachments:",
-      "parent": "SentryObjCSDK",
-      "returnType": "void",
-      "instance": false
-    },
-    {
-      "kind": "ObjCMethodDecl",
       "name": "counter:",
       "parent": "SentryObjCMetricValue",
       "returnType": "instancetype _Nonnull",
@@ -339,13 +332,6 @@
       "name": "booleanArray:",
       "parent": "SentryObjCAttributeContent",
       "returnType": "SentryObjCAttributeContent * _Nonnull",
-      "instance": false
-    },
-    {
-      "kind": "ObjCMethodDecl",
-      "name": "captureFeedback:name:email:source:associatedEventId:attachments:",
-      "parent": "SentryObjCSDK",
-      "returnType": "void",
       "instance": false
     },
     {

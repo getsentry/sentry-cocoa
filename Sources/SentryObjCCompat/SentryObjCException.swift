@@ -35,7 +35,7 @@ import Foundation
         set { wrapped.mechanism = newValue?.wrapped }
     }
 
-    @objc public var module: String? {
+    @objc(module) public var module: String? {
         get { wrapped.module }
         set { wrapped.module = newValue }
     }
