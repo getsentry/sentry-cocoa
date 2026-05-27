@@ -54,13 +54,6 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
             customSamplingContext: [:],
             configuration: configuration
         )
-        if let screen = SentryAppStartMeasurementProvider.consumeAppStartScreen() {
-            tracer.setData(value: screen, key: SentrySpanDataKeyAppVitalsStartScreen)
-        }
-        tracer.setData(value: measurement.isPreWarmed, key: SentrySpanDataKeyAppVitalsStartPrewarmed)
-        // Only regular app launches are supported for now. Future work could add
-        // "background_launch" or "prewarmed_launch" if those paths are tracked separately.
-        tracer.setData(value: "launch", key: SentrySpanDataKeyAppVitalsStartReason)
 
         extendedAppLaunchManager.markAppStartCreated()
         if !extendedAppLaunchManager.storeTracerIfExtendRequested(tracer) {
