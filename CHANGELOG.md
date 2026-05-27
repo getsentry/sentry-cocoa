@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Feature
+
+- Skip max app start duration limit for standalone app start tracing (#7949)
+
 ## 9.14.0
 
 ### Features
