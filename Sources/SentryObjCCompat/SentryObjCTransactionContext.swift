@@ -33,7 +33,10 @@ import Foundation
     }
 
     @objc public var nameSource: SentryObjCTransactionNameSource {
-        SentryObjCTransactionNameSource(wrappedTransaction.nameSource)
+        // The ObjC property returns a Swift-defined @objc enum that SPM can't
+        // import across module boundaries. Read the raw NSInteger via KVC.
+        let raw = (wrappedTransaction as NSObject).value(forKey: "nameSource") as? Int ?? 0
+        return SentryObjCTransactionNameSource(rawValue: raw) ?? .custom
     }
 
     @objc public var sampleRate: NSNumber? {
