@@ -427,6 +427,10 @@ class ExtraViewController: UIViewController {
         let networkTestingVC = NetworkTestingViewController()
         navigationController?.pushViewController(networkTestingVC, animated: true)
     }
+    
+    @IBAction func checkLaunchVCTransactions() {
+        displayStringForUITest(string: LaunchVCTransactionCapture.shared.serialized())
+    }
 }
 
 extension ExtraViewController: ASWebAuthenticationPresentationContextProviding {

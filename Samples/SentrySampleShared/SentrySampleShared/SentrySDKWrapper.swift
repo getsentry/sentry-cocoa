@@ -8,6 +8,7 @@ import UIKit
 
 public struct SentrySDKWrapper {
     public static let shared = SentrySDKWrapper()
+    public static var spanCaptureHandler: ((Span) -> Void)?
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS)
     public let feedbackButton = {
@@ -43,9 +44,10 @@ public struct SentrySDKWrapper {
             guard !SentrySDKOverrides.Events.rejectAll.boolValue else { return nil }
             return $0
         }
-        options.beforeSendSpan = {
+        options.beforeSendSpan = { span in
             guard !SentrySDKOverrides.Other.rejectAllSpans.boolValue else { return nil }
-            return $0
+            SentrySDKWrapper.spanCaptureHandler?(span)
+            return span
         }
         options.beforeCaptureScreenshot = { _ in !SentrySDKOverrides.Other.rejectScreenshots.boolValue }
         options.beforeCaptureViewHierarchy = { _ in !SentrySDKOverrides.Other.rejectViewHierarchy.boolValue }
