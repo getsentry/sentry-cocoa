@@ -623,6 +623,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "initWithTestApi:",
+      "parent": "SentryObjCMetricsApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "initWithTraceId:spanId:parentId:operation:sampled:",
       "parent": "SentryObjCTransactionContext",
       "returnType": "instancetype _Nonnull",

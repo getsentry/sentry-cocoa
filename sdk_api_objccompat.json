@@ -2917,6 +2917,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "initWithTestApi:",
+    "parent": "SentryObjCMetricsApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithTestDict:",
+    "parent": "SentryObjCTraceContext",
+    "returnType": "instancetype _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "initWithThreadId:",
     "parent": "SentryObjCThread",
     "returnType": "instancetype _Nonnull",
