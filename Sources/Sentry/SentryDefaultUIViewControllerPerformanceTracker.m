@@ -194,10 +194,12 @@
 
         [self setSpanIdForViewController:controller spanId:spanId];
 
-        // If there is no active span in the queue push this transaction
-        // to serve as an umbrella transaction that will capture every span
-        // happening while the transaction is active.
-        if (self.tracker.activeSpanId == nil) {
+        // Only push true root transactions (no parent) onto the active span stack.
+        // Launch tracer children have a parentSpanId and must not be pushed, otherwise
+        // they become stale after the launch tracer is cleared.
+        id<SentrySpan> newSpan =
+            [self.tracker getSpan:SENTRY_UNWRAP_NULLABLE(SentrySpanId, spanId)];
+        if (self.tracker.activeSpanId == nil && newSpan.parentSpanId == nil) {
             SENTRY_LOG_DEBUG(@"Started new transaction with id %@ to track view controller %@.",
                 spanId.sentrySpanIdString, name);
             [self.tracker pushActiveSpan:SENTRY_UNWRAP_NULLABLE(SentrySpanId, spanId)];
@@ -211,9 +213,14 @@
     id<SentrySpan> _Nullable vcSpan =
         [self.tracker getSpan:SENTRY_UNWRAP_NULLABLE(SentrySpanId, spanId)];
 
-    if (![vcSpan isKindOfClass:[SentryTracer self]]) {
-        // Since TTID and TTFD are meant to the whole screen
-        // we will not track child view controllers
+    // Resolve the root tracer for TTD tracking. For root VC transactions this is
+    // the span itself; for launch tracer children it walks up to the launch tracer.
+    // Skip nested VCs within another VC's transaction — TTID/TTFD cover the whole
+    // screen, not individual child VCs.
+    SentryTracer *tracer = [SentryTracer getTracer:vcSpan];
+    if (tracer == nil
+        || (tracer != (SentryTracer *)vcSpan
+            && ![tracer.operation isEqualToString:SentrySpanOperationAppLifecycle])) {
         return;
     }
 
@@ -229,7 +236,7 @@
     SentryTimeToDisplayTracker *ttdTracker =
         [self startTimeToDisplayTrackerForScreen:[SwiftDescriptor getObjectClassName:controller]
                               waitForFullDisplay:self.alwaysWaitForFullDisplay
-                                          tracer:(SentryTracer *)vcSpan];
+                                          tracer:tracer];
 
     if (ttdTracker) {
         [self setTimeToDisplayTrackerForController:controller ttdTracker:ttdTracker];

@@ -6,6 +6,10 @@
 
 - Skip max app start duration limit for standalone app start tracing (#7949)
 
+### Fixes
+
+- Fix UIViewController transactions lost during launch profiling (#7920)
+
 ## 9.14.0
 
 ### Features
