@@ -589,11 +589,13 @@ test: test-ios test-macos test-catalyst test-tvos test-visionos
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
 # Examples:
 #   make test-ios
 #   make test-ios ONLY_TESTING=SentryHttpTransportTests
 #   make test-ios ONLY_TESTING=SentryHttpTransportTests,SentryHubTests
 #   make test-ios ONLY_TESTING=SentryHttpTransportTests/testFlush_WhenNoInternet
+#   make test-ios TEST_SCHEME=SentryObjCTests
 .PHONY: test-ios
 test-ios:
 	@echo "--> Running iOS tests"
@@ -604,6 +606,7 @@ test-ios:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run macOS tests
@@ -612,9 +615,11 @@ test-ios:
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
 # Examples:
 #   make test-macos
 #   make test-macos ONLY_TESTING=SentryHttpTransportTests
+#   make test-macos TEST_SCHEME=SentryObjCTests
 .PHONY: test-macos
 test-macos:
 	@echo "--> Running macOS tests"
@@ -624,6 +629,7 @@ test-macos:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run Catalyst tests
@@ -632,6 +638,7 @@ test-macos:
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
 # Examples:
 #   make test-catalyst
 #   make test-catalyst ONLY_TESTING=SentryHttpTransportTests
@@ -644,6 +651,7 @@ test-catalyst:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run tvOS tests
@@ -652,6 +660,7 @@ test-catalyst:
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
 # Examples:
 #   make test-tvos
 #   make test-tvos ONLY_TESTING=SentryHttpTransportTests
@@ -665,6 +674,7 @@ test-tvos:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run visionOS tests
@@ -673,6 +683,7 @@ test-tvos:
 # Outputs logs and uses xcbeautify for formatted output.
 #
 # Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
 # Examples:
 #   make test-visionos
 #   make test-visionos ONLY_TESTING=SentryHttpTransportTests
@@ -686,6 +697,7 @@ test-visionos:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 # Note: test-watchos target is not available because watchOS does not support XCTest.

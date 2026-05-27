@@ -13,11 +13,19 @@
   },
   "testTargets" : [
     {
-      "parallelizable" : true,
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",
         "identifier" : "D4B67CFB2FC5E6F20022BC67",
         "name" : "SentryObjCTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "D4711CB02FC6E96D00508994",
+        "name" : "SentryObjCCompatTests"
       }
     }
   ],
