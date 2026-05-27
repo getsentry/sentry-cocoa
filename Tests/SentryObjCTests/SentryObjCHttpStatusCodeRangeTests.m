@@ -10,9 +10,6 @@
 
 - (void)testInitWithMinMax_shouldReturnNonNil
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCHttpStatusCodeRange *range = [[SentryObjCHttpStatusCodeRange alloc] initWithMin:400
                                                                                           max:499];
@@ -23,9 +20,6 @@
 
 - (void)testInitWithMinMax_shouldSetMin
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCHttpStatusCodeRange *range = [[SentryObjCHttpStatusCodeRange alloc] initWithMin:400
                                                                                           max:499];
@@ -36,9 +30,6 @@
 
 - (void)testInitWithMinMax_shouldSetMax
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCHttpStatusCodeRange *range = [[SentryObjCHttpStatusCodeRange alloc] initWithMin:400
                                                                                           max:499];
@@ -49,9 +40,6 @@
 
 - (void)testInitWithMinMax_whenFullRange_shouldSetMinAndMax
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCHttpStatusCodeRange *range = [[SentryObjCHttpStatusCodeRange alloc] initWithMin:200
                                                                                           max:599];
@@ -65,9 +53,6 @@
 
 - (void)testInitWithStatusCode_shouldReturnNonNil
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCHttpStatusCodeRange *range =
         [[SentryObjCHttpStatusCodeRange alloc] initWithStatusCode:500];
@@ -78,9 +63,6 @@
 
 - (void)testInitWithStatusCode_shouldSetMinToStatusCode
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCHttpStatusCodeRange *range =
         [[SentryObjCHttpStatusCodeRange alloc] initWithStatusCode:500];
@@ -91,9 +73,6 @@
 
 - (void)testInitWithStatusCode_shouldSetMaxToStatusCode
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCHttpStatusCodeRange *range =
         [[SentryObjCHttpStatusCodeRange alloc] initWithStatusCode:500];

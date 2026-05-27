@@ -6,29 +6,26 @@
 
 @implementation SentryObjCEventTests
 
-- (void)testInit_whenDefault_shouldCreateInstance
+- (void)testInit_whenDefault_shouldHaveEventIdAndPlatform
 {
-    // -- Arrange & Act --
+    // -- Act --
     SentryObjCEvent *event = [[SentryObjCEvent alloc] init];
 
     // -- Assert --
-    XCTAssertNotNil(event);
+    XCTAssertGreaterThan(event.eventId.sentryIdString.length, 0u);
+    XCTAssertEqualObjects(event.platform, @"cocoa");
 }
 
 - (void)testInitWithLevel_whenError_shouldSetLevel
 {
-    // -- Arrange --
-    SentryObjCLevel level = SentryObjCLevelError;
-
     // -- Act --
-    SentryObjCEvent *event = [[SentryObjCEvent alloc] initWithLevel:level];
+    SentryObjCEvent *event = [[SentryObjCEvent alloc] initWithLevel:SentryObjCLevelError];
 
     // -- Assert --
-    XCTAssertNotNil(event);
     XCTAssertEqual(event.level, SentryObjCLevelError);
 }
 
-- (void)testInitWithError_whenProvided_shouldCreateInstance
+- (void)testInitWithError_whenProvided_shouldSetError
 {
     // -- Arrange --
     NSError *nsError = [NSError errorWithDomain:@"test" code:42 userInfo:nil];
@@ -37,16 +34,17 @@
     SentryObjCEvent *event = [[SentryObjCEvent alloc] initWithError:nsError];
 
     // -- Assert --
-    XCTAssertNotNil(event);
+    XCTAssertEqualObjects(event.error.domain, @"test");
+    XCTAssertEqual(event.error.code, 42);
 }
 
-- (void)testEventId_whenDefault_shouldNotBeNil
+- (void)testEventId_whenDefault_shouldBeNonEmptyString
 {
-    // -- Arrange & Act --
+    // -- Act --
     SentryObjCEvent *event = [[SentryObjCEvent alloc] init];
 
     // -- Assert --
-    XCTAssertNotNil(event.eventId);
+    XCTAssertGreaterThan(event.eventId.sentryIdString.length, 0u);
 }
 
 - (void)testEventId_whenSet_shouldReturnNewValue
@@ -72,7 +70,6 @@
     event.message = msg;
 
     // -- Assert --
-    XCTAssertNotNil(event.message);
     XCTAssertEqualObjects(event.message.formatted, @"hello");
 }
 
@@ -99,7 +96,7 @@
     event.error = nsError;
 
     // -- Assert --
-    XCTAssertNotNil(event.error);
+    XCTAssertEqualObjects(event.error.domain, @"test");
     XCTAssertEqual(event.error.code, 42);
 }
 
@@ -180,13 +177,13 @@
     XCTAssertEqual(event.level, SentryObjCLevelWarning);
 }
 
-- (void)testPlatform_whenDefault_shouldNotBeNil
+- (void)testPlatform_whenDefault_shouldBeCocoa
 {
-    // -- Arrange & Act --
+    // -- Act --
     SentryObjCEvent *event = [[SentryObjCEvent alloc] init];
 
     // -- Assert --
-    XCTAssertNotNil(event.platform);
+    XCTAssertEqualObjects(event.platform, @"cocoa");
 }
 
 - (void)testPlatform_whenSet_shouldReturnValue
@@ -485,7 +482,7 @@
     event.fingerprint = @[ @"custom-fingerprint" ];
 
     // -- Assert --
-    XCTAssertEqual(event.fingerprint.count, 1u);
+    XCTAssertEqualObjects(event.fingerprint, (@[ @"custom-fingerprint" ]));
 }
 
 - (void)testFingerprint_whenSetToNil_shouldReturnNil
@@ -511,7 +508,6 @@
     event.user = user;
 
     // -- Assert --
-    XCTAssertNotNil(event.user);
     XCTAssertEqualObjects(event.user.userId, @"u1");
 }
 
@@ -532,12 +528,13 @@
 {
     // -- Arrange --
     SentryObjCEvent *event = [[SentryObjCEvent alloc] init];
+    NSDictionary *context = @{ @"device" : @ { @"name" : @"iPhone" } };
 
     // -- Act --
-    event.context = @{ @"device" : @ { @"name" : @"iPhone" } };
+    event.context = context;
 
     // -- Assert --
-    XCTAssertNotNil(event.context);
+    XCTAssertEqualObjects(event.context[@"device"][@"name"], @"iPhone");
 }
 
 - (void)testContext_whenSetToNil_shouldReturnNil
@@ -564,6 +561,7 @@
 
     // -- Assert --
     XCTAssertEqual(event.threads.count, 1u);
+    XCTAssertEqualObjects(event.threads[0].threadId, @(1));
 }
 
 - (void)testThreads_whenSetToNil_shouldReturnNil
@@ -590,6 +588,8 @@
 
     // -- Assert --
     XCTAssertEqual(event.exceptions.count, 1u);
+    XCTAssertEqualObjects(event.exceptions[0].value, @"bad");
+    XCTAssertEqualObjects(event.exceptions[0].type, @"Error");
 }
 
 - (void)testExceptions_whenSetToNil_shouldReturnNil
@@ -615,7 +615,7 @@
     event.stacktrace = st;
 
     // -- Assert --
-    XCTAssertNotNil(event.stacktrace);
+    XCTAssertEqual(event.stacktrace.frames.count, 0u);
 }
 
 - (void)testStacktrace_whenSetToNil_shouldReturnNil
@@ -669,6 +669,7 @@
 
     // -- Assert --
     XCTAssertEqual(event.breadcrumbs.count, 1u);
+    XCTAssertEqualObjects(event.breadcrumbs[0].category, @"nav");
 }
 
 - (void)testBreadcrumbs_whenSetToNil_shouldReturnNil
@@ -697,7 +698,7 @@
     event.request = req;
 
     // -- Assert --
-    XCTAssertNotNil(event.request);
+    XCTAssertEqualObjects(event.request.url, @"https://example.com");
 }
 
 - (void)testRequest_whenSetToNil_shouldReturnNil

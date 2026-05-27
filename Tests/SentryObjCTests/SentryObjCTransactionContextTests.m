@@ -10,9 +10,6 @@
 
 - (void)testInitWithNameOperation_shouldReturnNonNil
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"my-transaction"
@@ -24,9 +21,6 @@
 
 - (void)testInitWithNameOperation_shouldSetName
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"my-transaction"
@@ -38,9 +32,6 @@
 
 - (void)testInitWithNameOperation_shouldSetOperation
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"my-transaction"
@@ -52,9 +43,6 @@
 
 - (void)testInitWithNameOperation_shouldDefaultNameSourceToCustom
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"my-transaction"
@@ -66,9 +54,6 @@
 
 - (void)testInitWithNameOperation_shouldDefaultSampleRateToNil
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"my-transaction"
@@ -80,9 +65,6 @@
 
 - (void)testInitWithNameOperation_shouldDefaultSampleRandToNil
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"my-transaction"
@@ -94,9 +76,6 @@
 
 - (void)testInitWithNameOperation_shouldDefaultParentSampleRateToNil
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"my-transaction"
@@ -108,9 +87,6 @@
 
 - (void)testInitWithNameOperation_shouldDefaultParentSampleRandToNil
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"my-transaction"
@@ -122,9 +98,6 @@
 
 - (void)testInitWithNameOperation_shouldDefaultForNextAppLaunchToNo
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"my-transaction"
@@ -138,9 +111,6 @@
 
 - (void)testInitWithNameOperationSampledSampleRateSampleRand_shouldReturnNonNil
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"tx-sampled"
@@ -155,9 +125,6 @@
 
 - (void)testInitWithNameOperationSampledSampleRateSampleRand_shouldSetName
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"tx-sampled"
@@ -172,9 +139,6 @@
 
 - (void)testInitWithNameOperationSampledSampleRateSampleRand_shouldSetOperation
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"tx-sampled"
@@ -189,9 +153,6 @@
 
 - (void)testInitWithNameOperationSampledSampleRateSampleRand_shouldSetSampled
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"tx-sampled"
@@ -240,9 +201,6 @@
 
 - (void)testInitWithNameOperationSampled_whenNilRates_shouldHaveNilSampleRate
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"tx"
@@ -257,9 +215,6 @@
 
 - (void)testInitWithNameOperationSampled_whenNilRates_shouldHaveNilSampleRand
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"tx"
@@ -274,9 +229,6 @@
 
 - (void)testInitWithNameOperationSampled_whenNilRates_shouldSetSampled
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCTransactionContext *ctx =
         [[SentryObjCTransactionContext alloc] initWithName:@"tx"

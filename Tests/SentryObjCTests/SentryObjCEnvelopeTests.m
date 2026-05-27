@@ -17,8 +17,7 @@
     SentryObjCEnvelopeHeader *header = [[SentryObjCEnvelopeHeader alloc] initWithId:eventId];
 
     // -- Assert --
-    XCTAssertNotNil(header);
-    XCTAssertNotNil(header.eventId);
+    XCTAssertEqualObjects(header.eventId.sentryIdString, eventId.sentryIdString);
 }
 
 - (void)testInitWithId_whenNilId_shouldHaveNilEventId
@@ -27,7 +26,6 @@
     SentryObjCEnvelopeHeader *header = [[SentryObjCEnvelopeHeader alloc] initWithId:nil];
 
     // -- Assert --
-    XCTAssertNotNil(header);
     XCTAssertNil(header.eventId);
 }
 
@@ -41,22 +39,18 @@
                                                                        traceContext:nil];
 
     // -- Assert --
-    XCTAssertNotNil(header);
-    XCTAssertNotNil(header.eventId);
+    XCTAssertEqualObjects(header.eventId.sentryIdString, eventId.sentryIdString);
     XCTAssertNil(header.traceContext);
 }
 
-- (void)testTraceContext_whenNotProvided_shouldBeAccessible
+- (void)testTraceContext_whenNotProvided_shouldBeNil
 {
     // -- Arrange --
-    SentryObjCId *eventId = [[SentryObjCId alloc] init];
-    SentryObjCEnvelopeHeader *header = [[SentryObjCEnvelopeHeader alloc] initWithId:eventId];
-
-    // -- Act --
-    id traceContext = header.traceContext;
+    SentryObjCEnvelopeHeader *header =
+        [[SentryObjCEnvelopeHeader alloc] initWithId:[[SentryObjCId alloc] init]];
 
     // -- Assert --
-    (void)traceContext; // readonly nullable property; verify it compiles
+    XCTAssertNil(header.traceContext);
 }
 
 - (void)testSentAt_whenSet_shouldReturnNewValue
@@ -103,14 +97,13 @@
     SentryObjCEnvelopeHeader *header = [SentryObjCEnvelopeHeader empty];
 
     // -- Assert --
-    XCTAssertNotNil(header);
     XCTAssertNil(header.eventId);
     XCTAssertNil(header.traceContext);
 }
 
 #pragma mark - SentryObjCEnvelopeItem
 
-- (void)testItemInitWithTypeDataContentTypeItemCount_shouldSetTypeAndData
+- (void)testItemInitWithTypeDataContentTypeItemCount_shouldSetAllProperties
 {
     // -- Arrange --
     NSData *data = [@"payload" dataUsingEncoding:NSUTF8StringEncoding];
@@ -122,9 +115,8 @@
                                                                       itemCount:@1];
 
     // -- Assert --
-    XCTAssertNotNil(item);
     XCTAssertEqualObjects(item.type, @"attachment");
-    XCTAssertNotNil(item.data);
+    XCTAssertEqualObjects(item.data, data);
 }
 
 - (void)testItemInitWithTypeDataAddPlatform_shouldSetTypeAndData
@@ -138,9 +130,8 @@
                                                                     addPlatform:YES];
 
     // -- Assert --
-    XCTAssertNotNil(item);
     XCTAssertEqualObjects(item.type, @"event");
-    XCTAssertNotNil(item.data);
+    XCTAssertEqualObjects(item.data, data);
 }
 
 - (void)testItemInitWithTypeDataAddPlatform_whenNilData_shouldHaveNilData
@@ -151,7 +142,7 @@
                                                                     addPlatform:NO];
 
     // -- Assert --
-    XCTAssertNotNil(item);
+    XCTAssertEqualObjects(item.type, @"attachment");
     XCTAssertNil(item.data);
 }
 
@@ -164,9 +155,8 @@
     SentryObjCEnvelopeItem *item = [[SentryObjCEnvelopeItem alloc] initWithEvent:event];
 
     // -- Assert --
-    XCTAssertNotNil(item);
     XCTAssertEqualObjects(item.type, @"event");
-    XCTAssertNotNil(item.data);
+    XCTAssertGreaterThan(item.data.length, 0u);
 }
 
 #pragma mark - SentryObjCEnvelope
@@ -174,7 +164,8 @@
 - (void)testEnvelopeInitWithHeaderAndItems_shouldSetHeaderAndItems
 {
     // -- Arrange --
-    SentryObjCEnvelopeHeader *header = [[SentryObjCEnvelopeHeader alloc] initWithId:nil];
+    SentryObjCId *eventId = [[SentryObjCId alloc] init];
+    SentryObjCEnvelopeHeader *header = [[SentryObjCEnvelopeHeader alloc] initWithId:eventId];
     NSData *data = [@"test" dataUsingEncoding:NSUTF8StringEncoding];
     SentryObjCEnvelopeItem *item = [[SentryObjCEnvelopeItem alloc] initWithType:@"attachment"
                                                                            data:data
@@ -185,9 +176,9 @@
                                                                         items:@[ item ]];
 
     // -- Assert --
-    XCTAssertNotNil(envelope);
-    XCTAssertNotNil(envelope.header);
+    XCTAssertEqualObjects(envelope.header.eventId.sentryIdString, eventId.sentryIdString);
     XCTAssertEqual(envelope.items.count, 1u);
+    XCTAssertEqualObjects(envelope.items[0].type, @"attachment");
 }
 
 - (void)testEnvelopeInitWithHeaderAndSingleItem_shouldContainOneItem
@@ -204,8 +195,9 @@
                                                                    singleItem:item];
 
     // -- Assert --
-    XCTAssertNotNil(envelope);
     XCTAssertEqual(envelope.items.count, 1u);
+    XCTAssertEqualObjects(envelope.items[0].type, @"attachment");
+    XCTAssertEqualObjects(envelope.items[0].data, data);
 }
 
 - (void)testEnvelopeInitWithIdAndSingleItem_whenValidId_shouldSetEventId
@@ -221,9 +213,7 @@
     SentryObjCEnvelope *envelope = [[SentryObjCEnvelope alloc] initWithId:eventId singleItem:item];
 
     // -- Assert --
-    XCTAssertNotNil(envelope);
-    XCTAssertNotNil(envelope.header);
-    XCTAssertNotNil(envelope.header.eventId);
+    XCTAssertEqualObjects(envelope.header.eventId.sentryIdString, eventId.sentryIdString);
     XCTAssertEqual(envelope.items.count, 1u);
 }
 
@@ -239,8 +229,8 @@
     SentryObjCEnvelope *envelope = [[SentryObjCEnvelope alloc] initWithId:nil singleItem:item];
 
     // -- Assert --
-    XCTAssertNotNil(envelope);
     XCTAssertNil(envelope.header.eventId);
+    XCTAssertEqual(envelope.items.count, 1u);
 }
 
 - (void)testEnvelopeInitWithIdAndItems_shouldSetEventIdAndContainAllItems
@@ -260,9 +250,10 @@
                                                                     items:@[ item1, item2 ]];
 
     // -- Assert --
-    XCTAssertNotNil(envelope);
-    XCTAssertNotNil(envelope.header.eventId);
+    XCTAssertEqualObjects(envelope.header.eventId.sentryIdString, eventId.sentryIdString);
     XCTAssertEqual(envelope.items.count, 2u);
+    XCTAssertEqualObjects(envelope.items[0].type, @"attachment");
+    XCTAssertEqualObjects(envelope.items[1].type, @"event");
 }
 
 @end

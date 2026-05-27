@@ -8,24 +8,8 @@
 
 #pragma mark - initWithUnit:
 
-- (void)testInitWithUnit_shouldReturnNonNil
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit =
-        [[SentryObjCMeasurementUnit alloc] initWithUnit:@"custom_unit"];
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-}
-
 - (void)testInitWithUnit_shouldSetUnit
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCMeasurementUnit *unit =
         [[SentryObjCMeasurementUnit alloc] initWithUnit:@"custom_unit"];
@@ -36,335 +20,55 @@
 
 #pragma mark - none
 
-- (void)testNone_shouldReturnNonNil
+- (void)testNone_shouldReturnEmptyString
 {
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.none;
-
     // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.none.unit, @"");
 }
 
 #pragma mark - Duration
 
-- (void)testNanosecond_shouldReturnNonNilWithUnit
+- (void)testDurationUnits_shouldReturnExpectedUnit
 {
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.nanosecond;
-
     // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testMicrosecond_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.microsecond;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testMillisecond_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.millisecond;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testSecond_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.second;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testMinute_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.minute;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testHour_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.hour;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testDay_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.day;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testWeek_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.week;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.nanosecond.unit, @"nanosecond");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.microsecond.unit, @"microsecond");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.millisecond.unit, @"millisecond");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.second.unit, @"second");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.minute.unit, @"minute");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.hour.unit, @"hour");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.day.unit, @"day");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.week.unit, @"week");
 }
 
 #pragma mark - Information
 
-- (void)testBit_shouldReturnNonNilWithUnit
+- (void)testInformationUnits_shouldReturnExpectedUnit
 {
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.bit;
-
     // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testByte_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.byte;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testKilobyte_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.kilobyte;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testKibibyte_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.kibibyte;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testMegabyte_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.megabyte;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testMebibyte_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.mebibyte;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testGigabyte_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.gigabyte;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testGibibyte_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.gibibyte;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testTerabyte_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.terabyte;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testTebibyte_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.tebibyte;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testPetabyte_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.petabyte;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testPebibyte_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.pebibyte;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testExabyte_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.exabyte;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testExbibyte_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.exbibyte;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.bit.unit, @"bit");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.byte.unit, @"byte");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.kilobyte.unit, @"kilobyte");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.kibibyte.unit, @"kibibyte");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.megabyte.unit, @"megabyte");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.mebibyte.unit, @"mebibyte");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.gigabyte.unit, @"gigabyte");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.gibibyte.unit, @"gibibyte");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.terabyte.unit, @"terabyte");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.tebibyte.unit, @"tebibyte");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.petabyte.unit, @"petabyte");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.pebibyte.unit, @"pebibyte");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.exabyte.unit, @"exabyte");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.exbibyte.unit, @"exbibyte");
 }
 
 #pragma mark - Fraction
 
-- (void)testRatio_shouldReturnNonNilWithUnit
+- (void)testFractionUnits_shouldReturnExpectedUnit
 {
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.ratio;
-
     // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
-}
-
-- (void)testPercent_shouldReturnNonNilWithUnit
-{
-    // -- Arrange --
-    // (nothing)
-
-    // -- Act --
-    SentryObjCMeasurementUnit *unit = SentryObjCMeasurementUnit.percent;
-
-    // -- Assert --
-    XCTAssertNotNil(unit);
-    XCTAssertNotNil(unit.unit);
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.ratio.unit, @"ratio");
+    XCTAssertEqualObjects(SentryObjCMeasurementUnit.percent.unit, @"percent");
 }
 
 @end

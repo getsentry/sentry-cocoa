@@ -10,9 +10,6 @@
 
 - (void)testInitWithOperation_shouldReturnNonNil
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCSpanContext *ctx = [[SentryObjCSpanContext alloc] initWithOperation:@"http.request"];
 
@@ -22,9 +19,6 @@
 
 - (void)testInitWithOperation_shouldSetOperation
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCSpanContext *ctx = [[SentryObjCSpanContext alloc] initWithOperation:@"http.request"];
 
@@ -34,9 +28,6 @@
 
 - (void)testInitWithOperation_shouldGenerateTraceId
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCSpanContext *ctx = [[SentryObjCSpanContext alloc] initWithOperation:@"http.request"];
 
@@ -46,9 +37,6 @@
 
 - (void)testInitWithOperation_shouldGenerateSpanId
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCSpanContext *ctx = [[SentryObjCSpanContext alloc] initWithOperation:@"http.request"];
 
@@ -58,9 +46,6 @@
 
 - (void)testInitWithOperation_shouldDefaultSampledToUndecided
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCSpanContext *ctx = [[SentryObjCSpanContext alloc] initWithOperation:@"http.request"];
 
@@ -70,9 +55,6 @@
 
 - (void)testInitWithOperation_shouldDefaultParentSpanIdToNil
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCSpanContext *ctx = [[SentryObjCSpanContext alloc] initWithOperation:@"http.request"];
 
@@ -82,9 +64,6 @@
 
 - (void)testInitWithOperation_shouldDefaultSpanDescriptionToNil
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCSpanContext *ctx = [[SentryObjCSpanContext alloc] initWithOperation:@"http.request"];
 
@@ -94,9 +73,6 @@
 
 - (void)testInitWithOperation_shouldSetOriginToNonNil
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCSpanContext *ctx = [[SentryObjCSpanContext alloc] initWithOperation:@"http.request"];
 
@@ -108,9 +84,6 @@
 
 - (void)testInitWithOperationSampled_shouldReturnNonNil
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCSpanContext *ctx =
         [[SentryObjCSpanContext alloc] initWithOperation:@"db.query"
@@ -122,9 +95,6 @@
 
 - (void)testInitWithOperationSampled_shouldSetOperation
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCSpanContext *ctx =
         [[SentryObjCSpanContext alloc] initWithOperation:@"db.query"
@@ -136,9 +106,6 @@
 
 - (void)testInitWithOperationSampled_shouldSetSampled
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCSpanContext *ctx =
         [[SentryObjCSpanContext alloc] initWithOperation:@"db.query"
@@ -150,9 +117,6 @@
 
 - (void)testInitWithOperationSampled_shouldGenerateTraceId
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCSpanContext *ctx =
         [[SentryObjCSpanContext alloc] initWithOperation:@"db.query"
@@ -164,9 +128,6 @@
 
 - (void)testInitWithOperationSampled_shouldGenerateSpanId
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     SentryObjCSpanContext *ctx =
         [[SentryObjCSpanContext alloc] initWithOperation:@"db.query"

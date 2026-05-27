@@ -13,9 +13,6 @@
 
 - (void)testClass_shouldExist
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     Class traceContextClass = [SentryObjCTraceContext class];
 
@@ -27,9 +24,6 @@
 
 - (void)testTraceId_selectorShouldExist
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(traceId)];
 
@@ -39,9 +33,6 @@
 
 - (void)testPublicKey_selectorShouldExist
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(publicKey)];
 
@@ -51,9 +42,6 @@
 
 - (void)testReleaseName_selectorShouldExist
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(releaseName)];
 
@@ -63,9 +51,6 @@
 
 - (void)testEnvironment_selectorShouldExist
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(environment)];
 
@@ -75,9 +60,6 @@
 
 - (void)testTransaction_selectorShouldExist
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(transaction)];
 
@@ -87,9 +69,6 @@
 
 - (void)testSampleRate_selectorShouldExist
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(sampleRate)];
 
@@ -99,9 +78,6 @@
 
 - (void)testSampleRand_selectorShouldExist
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(sampleRand)];
 
@@ -111,9 +87,6 @@
 
 - (void)testSampled_selectorShouldExist
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(sampled)];
 
@@ -123,9 +96,6 @@
 
 - (void)testReplayId_selectorShouldExist
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(replayId)];
 
@@ -135,9 +105,6 @@
 
 - (void)testOrgId_selectorShouldExist
 {
-    // -- Arrange --
-    // (nothing)
-
     // -- Act --
     BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(orgId)];
 
