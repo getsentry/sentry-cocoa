@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCSampleDecision.h>
-#import <SentryObjC/SentryObjCSpanStatus.h>
+#import "SentryObjCSampleDecision.h"
+#import "SentryObjCSpanStatus.h"
 
 @class SentryObjCId;
 @class SentryObjCMeasurementUnit;

@@ -9,7 +9,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [SentryObjCSDK addBreadcrumb:[[SentryObjCBreadcrumb alloc] init]];
+    [SentryObjCSDK addBreadcrumb:[[SentryObjCBreadcrumb alloc] initWithLevel:SentryObjCLevelNone category:@""]];
 }
 
 - (IBAction)captureError:(id)sender

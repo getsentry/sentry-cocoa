@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCLevel.h>
+#import "SentryObjCLevel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

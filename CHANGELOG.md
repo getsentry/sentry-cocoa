@@ -9,7 +9,7 @@
 
 - Skip max app start duration limit for standalone app start tracing (#7949)
 - Add SentryObjC wrapper SDK — a pure Objective-C interface for projects that cannot enable Clang modules (e.g., ObjC++ with `-fmodules=NO`). Ships as `SentryObjC-Dynamic.xcframework.zip` and as a compile-from-source SPM product. (#6342)
-  To adopt: replace your `Sentry` dependency with `SentryObjC` (SPM product or xcframework), change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`, and rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
+  To adopt: replace your `Sentry` dependency with `SentryObjC` (SPM product or xcframework), change `#import <Sentry/Sentry.h>` to `#import "SentryObjC.h"`, and rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
 
 ## 9.14.0
 

@@ -42,7 +42,7 @@ SPM does not support mixed ObjC/Swift sources in one target. Two test targets ex
 
 **When to use which:**
 
-- **`SentryObjCTests`** — verifies the public ObjC surface works from an ObjC consumer's perspective. Tests are `.m` files using `@import SentryObjC; @import XCTest;`. Use for property getters/setters, ObjC-visible initializers, and ObjC-only behavior
+- **`SentryObjCTests`** — verifies the public ObjC surface works from an ObjC consumer's perspective. Tests are `.m` files using `#import "SentryObjC.h" @import XCTest;`. Use for property getters/setters, ObjC-visible initializers, and ObjC-only behavior
 - **`SentryObjCCompatTests`** — verifies Swift `@objc` wrapper internals (enum conversions, metric bridging, internal-only initializers). Tests are `.swift` files using `@testable import SentryObjCCompat`. Use when you need access to `internal` symbols or Swift-only test patterns (generics, `Invocations<T>`)
 
 **Rules:**

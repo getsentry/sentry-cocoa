@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCFeedbackSource.h>
+#import "SentryObjCFeedbackSource.h"
 
 @class SentryObjCId;
 @class SentryObjCAttachment;

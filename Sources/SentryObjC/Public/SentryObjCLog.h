@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCLogLevel.h>
+#import "SentryObjCLogLevel.h"
 
 @class SentryObjCId;
 @class SentryObjCSpanId;

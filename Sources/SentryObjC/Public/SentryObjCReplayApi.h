@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCDefines.h>
+#import "SentryObjCDefines.h"
 
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 

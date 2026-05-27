@@ -1,4 +1,4 @@
-@import SentryObjC;
+#import "SentryObjC.h"
 @import XCTest;
 
 @interface SentryObjCLogLevelTests : XCTestCase

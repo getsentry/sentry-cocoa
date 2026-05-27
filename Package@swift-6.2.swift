@@ -18,7 +18,6 @@ var products: [Product] = [
     .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
     .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
-    // .library(name: "SentryObjC-Dynamic", targets: ["SentryObjC-Dynamic"])
 ]
 
 var targets: [Target] = [
@@ -128,7 +127,6 @@ targets += [
         ])
 ]
 
-// BEGIN:OBJC_WRAPPER
 products.append(.library(name: "SentryObjC", targets: ["SentryObjC"]))
 targets += [
     .target(
@@ -144,9 +142,9 @@ targets += [
             .headerSearchPath("Public"),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
         ]
-    )
+    ),
+    .testTarget(name: "SentryObjCTests", dependencies: ["SentryObjC"], path: "Tests/SentryObjCTests")
 ]
-// END:OBJC_WRAPPER
 
 let package = Package(
     name: "Sentry",

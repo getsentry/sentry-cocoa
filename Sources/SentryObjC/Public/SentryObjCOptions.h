@@ -1,8 +1,8 @@
 // swiftlint:disable file_length
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCDefines.h>
-#import <SentryObjC/SentryObjCLastRunStatus.h>
-#import <SentryObjC/SentryObjCLevel.h>
+#import "SentryObjCDefines.h"
+#import "SentryObjCLastRunStatus.h"
+#import "SentryObjCLevel.h"
 
 @class SentryObjCBreadcrumb;
 @class SentryObjCEvent;

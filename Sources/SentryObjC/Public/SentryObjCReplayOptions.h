@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCReplayQuality.h>
+#import "SentryObjCReplayQuality.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

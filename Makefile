@@ -371,7 +371,7 @@ build-sample-visionOS-SwiftUI-SPM:
 ## Build the iOS-ObjectiveCpp-NoModules sample app
 #
 # Builds the ObjC++ without-modules sample that uses SentryObjC (#6342).
-# Uses #import <SentryObjC/SentryObjC.h> for ObjC++ without -fmodules.
+# Uses #import "SentryObjC.h" for ObjC++ without -fmodules.
 .PHONY: build-sample-iOS-ObjectiveCpp-NoModules
 build-sample-iOS-ObjectiveCpp-NoModules:
 	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml

@@ -18,7 +18,6 @@ var products: [Product] = [
     .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
     .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
-    // .library(name: "SentryObjC-Dynamic", targets: ["SentryObjC-Dynamic"])
 ]
 
 var targets: [Target] = [
@@ -47,11 +46,6 @@ var targets: [Target] = [
         url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.14.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
         checksum: "7725afd5092e9203939a30e750ef395338662a8ad0b57c5a9534d2d6a09cf52a" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
-    // .binaryTarget(
-    //     name: "SentryObjC-Dynamic",
-    //     url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.13.0/SentryObjC-Dynamic.xcframework.zip",
-    //     checksum: "0000000000000000000000000000000000000000000000000000000000000000" //SentryObjC-Dynamic
-    // ),
     .target(
         name: "SentrySwiftUI",
         dependencies: ["Sentry"],
@@ -128,7 +122,6 @@ targets += [
         ])
 ]
 
-// BEGIN:OBJC_WRAPPER
 products.append(.library(name: "SentryObjC", targets: ["SentryObjC"]))
 targets += [
     .target(
@@ -144,9 +137,9 @@ targets += [
             .headerSearchPath("Public"),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
         ]
-    )
+    ),
+    .testTarget(name: "SentryObjCTests", dependencies: ["SentryObjC"], path: "Tests/SentryObjCTests")
 ]
-// END:OBJC_WRAPPER
 
 let package = Package(
     name: "Sentry",
