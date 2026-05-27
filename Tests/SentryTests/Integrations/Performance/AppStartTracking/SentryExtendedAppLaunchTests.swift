@@ -98,8 +98,16 @@ class SentryExtendedAppLaunchTests: XCTestCase {
         let measurement = createMeasurement(type: .cold)
         StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
 
-        XCTAssertFalse(hub.capturedTransactionsWithScope.invocations.isEmpty,
-            "Transaction should be captured immediately when launch is not extended")
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        XCTAssertEqual(serialized["transaction"] as? String, "App Start")
+
+        let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
+        let traceContext = try XCTUnwrap(contexts["trace"] as? [String: Any])
+        XCTAssertEqual(traceContext["op"] as? String, "app.start")
+        XCTAssertEqual(traceContext["origin"] as? String, "auto.app.start")
+
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        XCTAssertFalse(spans.isEmpty, "Transaction should contain app start child spans")
     }
 
     func testFinishExtendedAppLaunch_capturesTransactionWithExtendedSpan() throws {
