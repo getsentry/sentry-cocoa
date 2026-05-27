@@ -1,5 +1,4 @@
-// swiftlint:disable missing_docs
-// swiftlint:disable file_length type_body_length
+// swiftlint:disable missing_docs file_length type_body_length
 #if SWIFT_PACKAGE
 internal import SentrySwift
 #else
@@ -245,6 +244,4 @@ import Foundation
     }
     #endif
 }
-// swiftlint:enable file_length type_body_length
-
-// swiftlint:enable missing_docs
+// swiftlint:enable file_length type_body_length missing_docs

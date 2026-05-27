@@ -33,12 +33,7 @@ import Foundation
     }
 
     @objc public var nameSource: SentryObjCTransactionNameSource {
-        // SentryTransactionNameSource is forward-declared in ObjC headers but defined in Swift,
-        // so the property is unavailable through the ObjC import. Use KVC to read the raw value.
-        guard let raw = wrappedTransaction.value(forKey: "nameSource") as? Int else {
-            return .custom
-        }
-        return SentryObjCTransactionNameSource(rawValue: raw) ?? .custom
+        SentryObjCTransactionNameSource(wrappedTransaction.nameSource)
     }
 
     @objc public var sampleRate: NSNumber? {
