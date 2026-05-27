@@ -1,7 +1,13 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCDefines.h>
-#import <SentryObjC/SentryObjCFeedbackSource.h>
-#import <SentryObjC/SentryObjCLastRunStatus.h>
+#if SWIFT_PACKAGE
+#    import "SentryObjCDefines.h"
+#    import "SentryObjCFeedbackSource.h"
+#    import "SentryObjCLastRunStatus.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#    import <SentryObjC/SentryObjCFeedbackSource.h>
+#    import <SentryObjC/SentryObjCLastRunStatus.h>
+#endif
 
 @class SentryObjCAttachment;
 @class SentryObjCBreadcrumb;

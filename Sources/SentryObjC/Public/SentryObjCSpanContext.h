@@ -1,5 +1,9 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCSampleDecision.h>
+#if SWIFT_PACKAGE
+#    import "SentryObjCSampleDecision.h"
+#else
+#    import <SentryObjC/SentryObjCSampleDecision.h>
+#endif
 
 @class SentryObjCId;
 @class SentryObjCSpanId;

@@ -1,5 +1,9 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCAttachmentType.h>
+#if SWIFT_PACKAGE
+#    import "SentryObjCAttachmentType.h"
+#else
+#    import <SentryObjC/SentryObjCAttachmentType.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

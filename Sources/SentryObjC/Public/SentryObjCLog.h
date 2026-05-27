@@ -1,5 +1,9 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCLogLevel.h>
+#if SWIFT_PACKAGE
+#    import "SentryObjCLogLevel.h"
+#else
+#    import <SentryObjC/SentryObjCLogLevel.h>
+#endif
 
 @class SentryObjCId;
 @class SentryObjCSpanId;

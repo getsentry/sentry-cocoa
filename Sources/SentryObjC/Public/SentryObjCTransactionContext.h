@@ -1,7 +1,13 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCSampleDecision.h>
-#import <SentryObjC/SentryObjCSpanContext.h>
-#import <SentryObjC/SentryObjCTransactionNameSource.h>
+#if SWIFT_PACKAGE
+#    import "SentryObjCSampleDecision.h"
+#    import "SentryObjCSpanContext.h"
+#    import "SentryObjCTransactionNameSource.h"
+#else
+#    import <SentryObjC/SentryObjCSampleDecision.h>
+#    import <SentryObjC/SentryObjCSpanContext.h>
+#    import <SentryObjC/SentryObjCTransactionNameSource.h>
+#endif
 
 @class SentryObjCId;
 @class SentryObjCSpanId;

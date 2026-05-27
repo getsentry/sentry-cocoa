@@ -1,5 +1,9 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCDefines.h>
+#if SWIFT_PACKAGE
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 

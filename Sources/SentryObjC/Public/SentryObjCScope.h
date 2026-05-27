@@ -1,5 +1,9 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCLevel.h>
+#if SWIFT_PACKAGE
+#    import "SentryObjCLevel.h"
+#else
+#    import <SentryObjC/SentryObjCLevel.h>
+#endif
 
 @class SentryObjCAttachment;
 @class SentryObjCBreadcrumb;

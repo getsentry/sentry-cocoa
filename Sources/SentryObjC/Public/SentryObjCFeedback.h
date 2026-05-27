@@ -1,5 +1,9 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCFeedbackSource.h>
+#if SWIFT_PACKAGE
+#    import "SentryObjCFeedbackSource.h"
+#else
+#    import <SentryObjC/SentryObjCFeedbackSource.h>
+#endif
 
 @class SentryObjCId;
 @class SentryObjCAttachment;

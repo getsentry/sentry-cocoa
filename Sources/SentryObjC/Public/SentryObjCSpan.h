@@ -1,6 +1,11 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCSampleDecision.h>
-#import <SentryObjC/SentryObjCSpanStatus.h>
+#if SWIFT_PACKAGE
+#    import "SentryObjCSampleDecision.h"
+#    import "SentryObjCSpanStatus.h"
+#else
+#    import <SentryObjC/SentryObjCSampleDecision.h>
+#    import <SentryObjC/SentryObjCSpanStatus.h>
+#endif
 
 @class SentryObjCId;
 @class SentryObjCMeasurementUnit;
