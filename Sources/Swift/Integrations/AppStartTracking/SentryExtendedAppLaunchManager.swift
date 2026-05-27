@@ -21,6 +21,7 @@ final class SentryExtendedAppLaunchManager {
                 SentrySDKLog.warning("extendAppLaunch() called after the app start transaction was already created. The app launch cannot be extended.")
                 return
             }
+            SentrySDKLog.debug("Extending app launch")
             extendRequested = true
             extendTimestamp = Date()
         }
@@ -28,6 +29,7 @@ final class SentryExtendedAppLaunchManager {
 
     func markAppStartCreated() {
         lock.synchronized {
+            SentrySDKLog.debug("Marking app start as created")
             appStartCreated = true
         }
     }
@@ -37,8 +39,10 @@ final class SentryExtendedAppLaunchManager {
     func storeTracerIfExtendRequested(_ tracer: any Span) -> Bool {
         lock.synchronized {
             guard extendRequested else {
+                SentrySDKLog.debug("storeTracerIfExtendRequested() called but no extend was requested")
                 return false
             }
+            SentrySDKLog.debug("Storing tracer for extended app launch")
             self.tracer = tracer
             return true
         }
@@ -68,6 +72,7 @@ final class SentryExtendedAppLaunchManager {
             return
         }
 
+        SentrySDKLog.debug("Finishing extended app launch")
         let child = tracerToFinish.startChild(operation: SentrySpanOperationAppStart, description: "Extended App Start")
         child.startTimestamp = startTimestamp
         child.finish()
