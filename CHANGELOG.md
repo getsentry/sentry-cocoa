@@ -5,13 +5,11 @@
 > [!IMPORTANT]
 > The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
 
-### Features
-
-- Add SentryObjC wrapper SDK to provide pure Objective-C compatibility layer that wraps the main Sentry SDK with stable, documented Objective-C interfaces. (#7598)
-  This SDK is designed for projects that require strict Objective-C compatibility without Swift dependencies. It ships as two xcframework variants — `SentryObjC-Static.xcframework.zip` and `SentryObjC-Dynamic.xcframework.zip` — and as a compile-from-source SPM library under the `SentryObjC` product.
 ### Feature
 
 - Skip max app start duration limit for standalone app start tracing (#7949)
+- Add SentryObjC wrapper SDK — a pure Objective-C interface for projects that cannot enable Clang modules (e.g., ObjC++ with `-fmodules=NO`). Ships as `SentryObjC-Dynamic.xcframework.zip` and as a compile-from-source SPM product. (#6342)
+  To adopt: replace your `Sentry` dependency with `SentryObjC` (SPM product or xcframework), change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`, and rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
 
 ## 9.14.0
 
