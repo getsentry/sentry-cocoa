@@ -241,11 +241,10 @@ build-framework-objc:
 		-configuration Release \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
 
-## Build SentryObjC XCFrameworks locally for one or more SDKs
+## Build SentryObjC XCFramework locally for one or more SDKs
 #
-# Builds the three staticlib slices (Sentry, SentryObjCCompat, SentryObjC) and
-# runs the standalone merger to produce SentryObjC-Static and SentryObjC-Dynamic
-# xcframeworks. Output lands in XCFrameworkBuildPath/.
+# Builds SentryObjC as a dynamic framework via the standard xcframework pipeline.
+# Output lands in XCFrameworkBuildPath/.
 #
 # SDKS accepts either an SDK preset (iOSOnly, macOSOnly, macCatalystOnly,
 # AllSDKs) or a comma-separated list of SDK names. Required — no default,

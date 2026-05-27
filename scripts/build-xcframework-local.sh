@@ -103,46 +103,11 @@ if [ "$variants" = "WithoutUIKitWithARM64eOnly" ] || [ "$variants" = "AllVariant
 fi
 
 if [ "$variants" = "SentryObjCOnly" ] || [ "$variants" = "AllVariants" ]; then
-    # Build standalone SentryObjC xcframeworks (static + dynamic) that embed the full SDK.
-    #
-    # Strategy: build Sentry, SentryObjCCompat, and SentryObjC as static frameworks,
-    # merge them with libtool, then assemble two xcframeworks — one shipping the
-    # merged static archive directly, one re-linked as a dylib via swiftc.
-    #
-    # The Sentry static framework is already built by StaticOnly above (or will be
-    # built here if running SentryObjCOnly alone). We reuse those archives from
-    # XCFrameworkBuildPath/archive/Sentry/.
-
-    # 1. Build Sentry as a static framework if not already built
-    if [ ! -d "XCFrameworkBuildPath/archive/Sentry" ]; then
-        ./scripts/build-xcframework-variant.sh "Sentry" "" "staticlib" "" "$sdks" ""
-    fi
-
-    # 2. Build SentryObjCCompat as a static framework
-    ./scripts/build-xcframework-variant.sh "SentryObjCCompat" "" "staticlib" "" "$sdks" ""
-
-    # 3. Build SentryObjC as a static framework
-    ./scripts/build-xcframework-variant.sh "SentryObjC" "" "staticlib" "" "$sdks" ""
-
-    # 4. Assemble both the static and dynamic standalone SentryObjC xcframeworks
-    sdk_args=()
-    case "$sdks" in
-        AllSDKs)         for s in iphoneos iphonesimulator macosx maccatalyst appletvos appletvsimulator watchos watchsimulator xros xrsimulator; do sdk_args+=(--sdk "$s"); done ;;
-        iOSOnly)         sdk_args=(--sdk iphoneos --sdk iphonesimulator) ;;
-        macOSOnly)       sdk_args=(--sdk macosx) ;;
-        macCatalystOnly) sdk_args=(--sdk maccatalyst) ;;
-        *)               IFS=',' read -r -a sdk_list <<< "$sdks"; for s in "${sdk_list[@]}"; do sdk_args+=(--sdk "$s"); done ;;
-    esac
-    ./scripts/build-xcframework-sentryobjc-standalone.sh "${sdk_args[@]}"
-
-    for linkage in Static Dynamic; do
-        ./scripts/validate-xcframework-format.sh "SentryObjC-${linkage}.xcframework"
-        ./scripts/validate-xcframework-architectures.sh --xcframework "SentryObjC-${linkage}.xcframework"
-        ./scripts/compress-xcframework.sh "$signed" "SentryObjC-${linkage}"
-        mv "SentryObjC-${linkage}.xcframework.zip" "XCFrameworkBuildPath/SentryObjC-${linkage}.xcframework.zip"
-    done
-
-    # Clean up intermediate static builds (keep Sentry/ — shared with StaticOnly)
-    rm -rf "XCFrameworkBuildPath/archive/SentryObjCCompat"
-    rm -rf "XCFrameworkBuildPath/archive/SentryObjC"
+    begin_group "SentryObjC-Dynamic"
+    ./scripts/build-xcframework-variant.sh "SentryObjC" "-Dynamic" "mh_dylib" "" "$sdks" ""
+    ./scripts/validate-xcframework-format.sh "SentryObjC-Dynamic.xcframework"
+    ./scripts/validate-xcframework-architectures.sh --xcframework "SentryObjC-Dynamic.xcframework"
+    ./scripts/compress-xcframework.sh "$signed" SentryObjC-Dynamic
+    mv SentryObjC-Dynamic.xcframework.zip XCFrameworkBuildPath/SentryObjC-Dynamic.xcframework.zip
+    end_group
 fi

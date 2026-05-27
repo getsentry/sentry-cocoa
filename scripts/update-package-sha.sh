@@ -27,7 +27,6 @@ ZIPS_AND_MARKERS=(
     "Sentry-Dynamic-WithARM64e.xcframework.zip|Sentry-Dynamic-WithARM64e"
     "Sentry-WithoutUIKitOrAppKit.xcframework.zip|Sentry-WithoutUIKitOrAppKit"
     "Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip|Sentry-WithoutUIKitOrAppKit-WithARM64e"
-    "SentryObjC-Static.xcframework.zip|SentryObjC-Static"
     "SentryObjC-Dynamic.xcframework.zip|SentryObjC-Dynamic"
 )
 

@@ -84,7 +84,6 @@ jobs:
           echo "<FAKE DYNAMIC WITH ARM64E ZIP>" > XCFrameworkBuildPath/Sentry-Dynamic-WithARM64e.xcframework.zip
           echo "<FAKE WITHOUT UIKIT OR APPKIT ZIP>" > XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit.xcframework.zip
           echo "<FAKE WITHOUT UIKIT OR APPKIT WITH ARM64E ZIP>" > XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip
-          echo "<FAKE SENTRYOBJC STATIC ZIP>" > XCFrameworkBuildPath/SentryObjC-Static.xcframework.zip
           echo "<FAKE SENTRYOBJC DYNAMIC ZIP>" > XCFrameworkBuildPath/SentryObjC-Dynamic.xcframework.zip
 
       - name: Bump version
@@ -101,7 +100,6 @@ jobs:
             --dynamic-with-arm64e-checksum "bbb84b054e5792aa705b95541aa4585f793e566a6b95638f8fef8e308d9782c3" \
             --without-uikit-or-appkit-checksum "c647afe93889063325b5dfcabf43101749f6a8f37008cca858833ed280d2a84e" \
             --without-uikit-or-appkit-with-arm64e-checksum "af5af7edc8e107fe04b905bd23524fdc93914fce8e1bd72ccf281408efff9a47" \
-            --sentryobjc-static-checksum "75efb1ba6f25d0f666d07474cf3e35bb56688bb938d04ba48bd42a986f8810a1" \
             --sentryobjc-dynamic-checksum "cf74ef3cb789b9cabbd3c366bf717a4f6811ce3ac8b97bc78bb0e210593e4c82" \
             --last-release-runid "${{ github.run_id }}"
 

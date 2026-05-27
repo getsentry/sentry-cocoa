@@ -104,7 +104,7 @@ jobs:
       # Targets that depend on Sentry also build Sentry.framework as a byproduct.
       # Remove it to avoid downstream assembly tasks from tripping on extra files.
       - name: Remove Sentry.framework byproduct
-        if: inputs.name == 'SentrySwiftUI' || inputs.name == 'SentryObjCCompat' || inputs.name == 'SentryObjC'
+        if: inputs.name == 'SentrySwiftUI' || inputs.name == 'SentryObjC'
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
         run: |
