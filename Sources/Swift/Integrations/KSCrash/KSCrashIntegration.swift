@@ -1,10 +1,5 @@
 @_implementationOnly import _SentryPrivate
-import Foundation
 @_implementationOnly import KSCrashRecording
-
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-import UIKit
-#endif
 
 // MARK: - C Callback
 
@@ -13,28 +8,26 @@ import UIKit
 @_cdecl("sentry_finishAndSaveTransaction")
 func sentry_finishAndSaveTransaction() {
     let scope = SentrySDKInternal.currentHub().scope as Scope
-    guard let span = scope.getCastedInternalSpan() else { return }
+    guard let span = scope.getCastedInternalSpan() else {
+        SentrySDKLog.debug("No span found in current scope, skipping transaction finish and save")
+        return
+    }
     span.tracer?.finishForCrash()
 }
 
 // MARK: - Dependency Provider
 
 /// Provides dependencies for `KSCrashIntegration`.
-typealias KSCrashIntegrationProvider = KSCrashReporterProvider
-    & KSCrashIntegrationSessionHandlerBuilder
-    & DateProviderProvider
-    & FileManagerProvider
-    & AppStateManagerProvider
+typealias KSCrashIntegrationProvider = KSCrashReporterProvider & KSCrashIntegrationSessionHandlerBuilder & CrashInstallationReporterBuilder
 
 // MARK: - KSCrashIntegration
 
 final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObject, SwiftIntegration {
     private weak var options: Options?
 
-    private var scopeObserver: SentryKSCrashScopeObserver
-    private var sessionHandler: SentryKSCrashIntegrationSessionHandler?
-    private var crashReporter: SentryCrashReporter
-    private var installation: SentryKSCrashInstallationReporter?
+    private let scopeObserver: SentryKSCrashScopeObserver
+    private let crashReporter: SentryCrashReporter
+    private let installation: SentryKSCrashInstallationReporter?
 
     // MARK: - Initialization
 
@@ -45,26 +38,14 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
         }
 
         self.options = options
+
         self.crashReporter = dependencies.kscrashReporter
         self.scopeObserver = SentryKSCrashScopeObserver(maxBreadcrumbs: Int(options.maxBreadcrumbs))
+        self.installation = dependencies.getCrashInstallationReporter(options)
 
         super.init()
 
-        let enableSigtermReporting: Bool
-        #if !os(watchOS)
-        enableSigtermReporting = options.enableSigtermReporting
-        #else
-        enableSigtermReporting = false
-        #endif
-
-        let enableCppExceptionsV2 = options.experimental.enableUnhandledCPPExceptionsV2
-
-        startCrashHandler(
-            cacheDirectory: options.cacheDirectoryPath,
-            enableSigtermReporting: enableSigtermReporting,
-            enableCppExceptionsV2: enableCppExceptionsV2,
-            dependencies: dependencies
-        )
+        startCrashHandler(options: options, dependencies: dependencies)
 
         configureScope()
     }
@@ -85,7 +66,7 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
         if #available(macOS 12.0, *) {
             NotificationCenter.default.removeObserver(
                 self,
-                name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
+                name: .NSProcessInfoPowerStateDidChange,
                 object: nil
             )
         }
@@ -97,39 +78,59 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
 
     // MARK: - Crash Handler
 
-    private func startCrashHandler(
-        cacheDirectory: String,
-        enableSigtermReporting: Bool,
-        enableCppExceptionsV2: Bool,
-        dependencies: Dependencies
-    ) {
-        guard let options = self.options else {
-            SentrySDKLog.debug("No options found, skipping crash handler initialization")
-            return
-        }
+    private func startCrashHandler(options: Options, dependencies: Dependencies) {
+        let enableSigtermReporting: Bool
+        #if !os(watchOS)
+        enableSigtermReporting = options.enableSigtermReporting
+        #else
+        enableSigtermReporting = false
+        #endif
 
-        let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
-        self.installation = SentryKSCrashInstallationReporter(inAppLogic: inAppLogic)
-
-        let persistTracesOnCrash = options.enablePersistingTracesWhenCrashing
         let config = SentryKSCrashConfigurationFactory.configuration(
-            withInstallPath: cacheDirectory,
+            withInstallPath: options.cacheDirectoryPath,
             monitors: .productionSafeMinimal,
             enableSigTermMonitoring: enableSigtermReporting,
-            enableSwapCxaThrow: enableCppExceptionsV2,
-            persistTracesOnCrash: persistTracesOnCrash)
+            enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2,
+            persistTracesOnCrash: options.enablePersistingTracesWhenCrashing
+        )
 
-        try? installation?.install(with: config)
+        do {
+            try installation?.install(with: config)
+        } catch {
+            SentrySDKLog.debug("KSCrash Installation failed: \(error)")
+        }
 
         // The crash reporter has loaded its state from disk. Set these flags so
-        // SentrySDK.lastRunStatus returns a definitive answer.
+        // SentrySDK.lastRunStatus returns a definitive answer and the integration
+        // installer can determine the .didNotCrash case. We can't use
+        // isIntegrationInstalled because it's set after init returns.
         SentrySDKInternal.crashReporterInstalled = true
         if SentryDependencyContainer.sharedInstance().crashWrapper.crashedLastLaunch {
             SentrySDKInternal.fatalDetected = true
         }
 
-        self.sessionHandler = dependencies.getKSCrashIntegrationSessionHandler(options)
-        sessionHandler?.endCurrentSessionIfRequired()
+        #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
+        if options.enableReportingUncaughtExceptions {
+            SentryUncaughtNSExceptions.configureCrashOnExceptions()
+            SentryUncaughtNSExceptions.swizzleNSApplicationReportException()
+            SentryUncaughtNSExceptions.swizzleNSApplicationCrashOnException()
+        }
+        #endif
+
+        // We need to send the crashed event together with the crashed session in the same envelope
+        // to have proper statistics in release health. To achieve this we need both synchronously
+        // in the hub. The crashed event is converted from a SentryCrashReport to an event in
+        // SentryCrashReportSink and then passed to the SDK on a background thread. This process is
+        // started with installing this integration. We need to end and delete the previous session
+        // before being able to start a new session for the AutoSessionTrackingIntegration. The
+        // SentryKSCrashIntegration is installed before the AutoSessionTrackingIntegration so there is
+        // no guarantee if the crashed event is created before or after the
+        // AutoSessionTrackingIntegration. By ending the previous session and storing it as crashed
+        // in here we have the guarantee once the crashed event is sent to the hub it is already
+        // there and the AutoSessionTrackingIntegration can work properly.
+        //
+        // This is a pragmatic and not the most optimal place for this logic.
+        dependencies.getKSCrashIntegrationSessionHandler(options)?.endCurrentSessionIfRequired()
 
         installation?.sendAllReports(completion: nil)
     }
@@ -137,13 +138,20 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
     // MARK: - Scope Configuration
 
     private func configureScope() {
+        // We need to make sure to set always the scope to SentryCrash so we have it in
+        // case of a crash
         SentrySDKInternal.currentHub().configureScope { [weak self] outerScope in
-            guard let self = self, let options = self.options else { return }
+            guard let self, let options else { return }
 
             var userInfo = outerScope.serialize()
 
-            // KSCrashReportSink needs the release name and dist of the SentryOptions
-            // in the UserInfo so it can map them to the event.
+            // TODO: this comment is now outdated - update it to ensure accuracy before pushing
+            // KSCrashReportConverter.convertReportToEvent needs the release name and
+            // the dist of the Options in the UserInfo. When SentryCrash records a
+            // crash it writes the UserInfo into SentryCrashField_User of the report.
+            // KSCrashReportConverter.initWithReport loads the contents of
+            // SentryCrashField_User into self.userContext and convertReportToEvent can map
+            // the release name and dist to the SentryEvent. Fixes GH-581
             userInfo["release"] = options.releaseName
             userInfo["dist"] = options.dist
 
@@ -158,7 +166,7 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
 
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(currentLocaleDidChange),
+            selector: #selector(currentLocaleDidChange(_:)),
             name: NSLocale.currentLocaleDidChangeNotification,
             object: nil
         )
@@ -167,55 +175,34 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
             updateLowPowerModeContext(ProcessInfo.processInfo)
             NotificationCenter.default.addObserver(
                 self,
-                selector: #selector(powerStateDidChange(notification:)),
-                name: NSNotification.Name.NSProcessInfoPowerStateDidChange,
+                selector: #selector(powerStateDidChange(_:)),
+                name: .NSProcessInfoPowerStateDidChange,
                 object: nil
             )
         }
     }
 
-    // Exposed to objc for the NotificationCenter in configureScope()
-    @objc private func currentLocaleDidChange() {
+    @objc private func currentLocaleDidChange(_ notification: Notification) {
         SentrySDKInternal.currentHub().configureScope { scope in
-            var device: [String: Any]
-            let contextDictionary = scope.contextDictionary
-            if let existingDevice = contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] as? [String: Any] {
-                device = existingDevice
-            } else {
-                device = [:]
-            }
-
-            let locale = Locale.autoupdatingCurrent.identifier
-            device["locale"] = locale
+            var device = (scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] as? [String: Any]) ?? [:]
+            device["locale"] = Locale.autoupdatingCurrent.identifier
 
             scope.setContext(value: device, key: SENTRY_CONTEXT_DEVICE_KEY)
         }
     }
 
     @objc @available(macOS 12.0, *)
-    private func powerStateDidChange(notification: Notification) {
-        let processInfo = if let notificationProcessInfo = notification.object as? ProcessInfo {
-            notificationProcessInfo
-        } else {
-            ProcessInfo.processInfo
-        }
+    private func powerStateDidChange(_ notification: Notification) {
+        let processInfo = (notification.object as? ProcessInfo) ?? ProcessInfo.processInfo
 
         updateLowPowerModeContext(processInfo)
     }
 
     @available(macOS 12.0, *)
     private func updateLowPowerModeContext(_ processInfo: ProcessInfo) {
-        let isLowPowerMode = processInfo.isLowPowerModeEnabled
         SentrySDKInternal.currentHub().configureScope { scope in
-            var device: [String: Any]
-            let contextDictionary = scope.contextDictionary
-            if let existingDevice = contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] as? [String: Any] {
-                device = existingDevice
-            } else {
-                device = [:]
-            }
-
-            device["low_power_mode"] = isLowPowerMode
+            var device = (scope.contextDictionary[SENTRY_CONTEXT_DEVICE_KEY] as? [String: Any]) ?? [:]
+            device["low_power_mode"] = processInfo.isLowPowerModeEnabled
 
             scope.setContext(value: device, key: SENTRY_CONTEXT_DEVICE_KEY)
         }

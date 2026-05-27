@@ -84,7 +84,7 @@ final class SentryKSCrashIntegrationSessionHandler: NSObject {
                 return
             }
 
-            session.endAbnormal(withTimestamp: appHangEvent.timestamp ?? Date())
+            session.endAbnormal(withTimestamp: appHangEvent.timestamp ?? dateProvider.date())
             fileManager.storeAbnormalSession(session)
             fileManager.deleteCurrentSession()
 #endif

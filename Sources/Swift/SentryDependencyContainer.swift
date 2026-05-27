@@ -379,7 +379,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         #endif
         }
     }
-    
+
+    private var crashInstallationReporter: SentryKSCrashInstallationReporter?
+    func getCrashInstallationReporter(_ options: Options) -> SentryKSCrashInstallationReporter {
+        getLazyVar(\.crashInstallationReporter) {
+            SentryKSCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes))
+        }
+    }
+
     func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker {
         let threadInspector = SentryDefaultThreadInspector(options: options)
         return SentryCoreDataTracker(
@@ -572,6 +579,11 @@ protocol KSCrashIntegrationSessionHandlerBuilder {
     func getKSCrashIntegrationSessionHandler(_ options: Options) -> SentryKSCrashIntegrationSessionHandler?
 }
 extension SentryDependencyContainer: KSCrashIntegrationSessionHandlerBuilder {}
+
+protocol CrashInstallationReporterBuilder {
+    func getCrashInstallationReporter(_ options: Options) -> SentryKSCrashInstallationReporter
+}
+extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
 
 protocol SentryCoreDataSwizzlingProvider {
     var coreDataSwizzling: SentryCoreDataSwizzling { get }
