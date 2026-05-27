@@ -4,6 +4,7 @@
 
 #    import "PrivateSentrySDKOnly.h"
 #    import "SentryAppStartMeasurement.h"
+#    import "SentryId.h"
 #    import "SentryInternalCDefines.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLogC.h"
@@ -21,6 +22,8 @@ static const NSTimeInterval SENTRY_APP_START_MEASUREMENT_DIFFERENCE = 5.0;
 
 static NSObject *appStartMeasurementLock;
 static BOOL appStartMeasurementRead;
+static SentryId *_Nullable appStartTraceId;
+static NSString *_Nullable appStartScreen;
 
 @implementation SentryAppStartMeasurementProvider
 
@@ -94,12 +97,64 @@ static BOOL appStartMeasurementRead;
     return measurement;
 }
 
++ (void)markAsRead
+{
+    @synchronized(appStartMeasurementLock) {
+        appStartMeasurementRead = YES;
+    }
+}
+
++ (void)setAppStartTraceId:(nullable SentryId *)traceId
+{
+    @synchronized(appStartMeasurementLock) {
+        appStartTraceId = traceId;
+    }
+}
+
++ (nullable SentryId *)consumeAppStartTraceId
+{
+    @synchronized(appStartMeasurementLock) {
+        SentryId *traceId = appStartTraceId;
+        appStartTraceId = nil;
+        return traceId;
+    }
+}
+
++ (void)setAppStartScreen:(nullable NSString *)screenName
+{
+    @synchronized(appStartMeasurementLock) {
+        if (appStartScreen == nil) {
+            appStartScreen = [screenName copy];
+        }
+    }
+}
+
++ (nullable NSString *)consumeAppStartScreen
+{
+    @synchronized(appStartMeasurementLock) {
+        NSString *name = appStartScreen;
+        appStartScreen = nil;
+        return name;
+    }
+}
+
+#    if SENTRY_TEST || SENTRY_TEST_CI
++ (nullable SentryId *)appStartTraceId
+{
+    @synchronized(appStartMeasurementLock) {
+        return appStartTraceId;
+    }
+}
+
 + (void)reset
 {
     @synchronized(appStartMeasurementLock) {
         appStartMeasurementRead = NO;
+        appStartTraceId = nil;
+        appStartScreen = nil;
     }
 }
+#    endif
 
 @end
 

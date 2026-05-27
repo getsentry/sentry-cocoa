@@ -23,6 +23,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     /// multiple stages during the launch we pick a higher threshold. This threshold also prevents
     /// reporting way too long app starts, since we can't always reliably detect prewarming, for example.
     /// It is a safety guard to discard suspiciously long app starts to avoid reporting false app starts.
+    /// When using standalone app start tracing, this limit is not applied.
     private static let maxAppStartDuration: TimeInterval = 180.0
 
     // MARK: - Instance Properties
@@ -33,8 +34,10 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     let appStateManager: SentryAppStateManager
     private let framesTracker: SentryFramesTracker
     private let enablePreWarmedAppStartTracing: Bool
+    private let reportingStrategy: AppStartReportingStrategy
 
     private var previousAppState: SentryAppState?
+    private var appStartTraceId: SentryId?
     private var wasInBackground = false
     private var didFinishLaunchingTimestamp: Date
     private var dateProvider: SentryCurrentDateProvider
@@ -52,6 +55,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         appStateManager: SentryAppStateManager,
         framesTracker: SentryFramesTracker,
         enablePreWarmedAppStartTracing: Bool,
+        enableStandaloneAppStartTracing: Bool,
         dateProvider: SentryCurrentDateProvider,
         sysctlWrapper: SentrySysctl,
         appStartInfoProvider: AppStartInfoProvider
@@ -60,6 +64,9 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         self.appStateManager = appStateManager
         self.framesTracker = framesTracker
         self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
+        self.reportingStrategy = enableStandaloneAppStartTracing
+            ? StandaloneTransactionStrategy()
+            : AttachToTransactionStrategy()
         self.previousAppState = appStateManager.loadPreviousAppState()
         self.dateProvider = dateProvider
         self.didFinishLaunchingTimestamp = dateProvider.date()
@@ -97,6 +104,12 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
             object: nil
         )
 
+        if reportingStrategy is StandaloneTransactionStrategy {
+            let traceId = SentryId()
+            appStartTraceId = traceId
+            SentryAppStartMeasurementProvider.setAppStartTrace(traceId)
+        }
+
         if PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode {
             buildAppStartMeasurement(dateProvider.date())
         }
@@ -122,6 +135,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         )
 
         framesTracker.removeListener(self)
+        SentryAppStartMeasurementProvider.setAppStartTrace(nil)
 
         #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
         isRunning = false
@@ -195,8 +209,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
                 appStartTimestamp = sysctl.processStartTimestamp
             }
 
-            // Safety check to not report app starts that are completely off.
-            if appStartDuration >= Self.maxAppStartDuration {
+            if !self.reportingStrategy.shouldSkipMaxAppStartDurationLimit() && appStartDuration >= Self.maxAppStartDuration {
                 SentrySDKLog.info("The app start exceeded the max duration of \(Self.maxAppStartDuration) seconds. Not measuring app start.")
                 return
             }
@@ -218,6 +231,8 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
                 return
             }
 
+            let traceId = self.appStartTraceId ?? SentryId()
+
             let appStartMeasurement = SentryAppStartMeasurement(
                 type: appStartType,
                 isPreWarmed: isPreWarmed,
@@ -230,7 +245,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
                 didFinishLaunchingTimestamp: finalDidFinishLaunchingTimestamp
             )
 
-            SentrySDKInternal.setAppStartMeasurement(appStartMeasurement)
+            self.reportingStrategy.report(appStartMeasurement, traceId: traceId)
         }
 
         // With only running this once we know that the process is a new one when the following
@@ -294,6 +309,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     @objc
     private func didEnterBackground() {
         wasInBackground = true
+        SentryAppStartMeasurementProvider.setAppStartTrace(nil)
     }
 }
 

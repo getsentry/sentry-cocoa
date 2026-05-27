@@ -40,6 +40,8 @@ extension SentryApplication {
         var windows = Set<UIWindow>()
         Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
             guard let self else { return }
+
+            // For each active scene we get the window
             let scenes = self.connectedScenes
             for scene in scenes {
                 if scene.activationState == .foregroundActive {
@@ -53,10 +55,16 @@ extension SentryApplication {
                 }
             }
 
-            if let window = self.delegate?.window {
-                if let window {
-                    windows.insert(window)
-                }
+            // If no scenes are given, we try to find the window of the application delegate
+            guard let delegate else {
+                SentrySDKLog.debug("No application delegate found.")
+                return
+            }
+
+            // If scenes are not used, we fallback to the default UIApplicationDelegate.window.
+            // The property is of type UIWindow?? so we need to unwrap both optional layers.
+            if let optionalWindow = delegate.window, let window = optionalWindow {
+                windows.insert(window)
             }
         }, timeout: 0.01)
         return Array(windows)
