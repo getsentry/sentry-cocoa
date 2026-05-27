@@ -5,6 +5,13 @@
 ### Features
 
 - Add `SentrySDK.extendAppLaunch()` and `SentrySDK.finishExtendedAppLaunch()` to extend standalone app start spans beyond the default end point (e.g. include initial data loading). Call `extendAppLaunch()` after `SentrySDK.start(options:)` and before the app start transaction is created, then call `finishExtendedAppLaunch()` when your app is fully ready. Requires `options.experimental.enableStandaloneAppStartTracing = true`. (#7936)
+### Feature
+
+- Skip max app start duration limit for standalone app start tracing (#7949)
+
+### Fixes
+
+- Fix UIViewController transactions lost during launch profiling (#7920)
 
 ## 9.14.0
 

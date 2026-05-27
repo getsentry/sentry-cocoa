@@ -5,12 +5,17 @@
 /// Determines how a completed app start measurement is reported to Sentry.
 protocol AppStartReportingStrategy {
     func report(_ measurement: SentryAppStartMeasurement, traceId: SentryId)
+    func shouldSkipMaxAppStartDurationLimit() -> Bool
 }
 
 /// Attaches app start data to the first UIViewController transaction (default behavior).
 struct AttachToTransactionStrategy: AppStartReportingStrategy {
     func report(_ measurement: SentryAppStartMeasurement, traceId: SentryId) {
         SentrySDKInternal.setAppStartMeasurement(measurement)
+    }
+
+    func shouldSkipMaxAppStartDurationLimit() -> Bool {
+        return false
     }
 }
 
@@ -61,6 +66,10 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
         if !extendedAppLaunchManager.storeTracerIfExtendRequested(tracer) {
             tracer.finish()
         }
+    }
+
+    func shouldSkipMaxAppStartDurationLimit() -> Bool {
+        return true
     }
 }
 
