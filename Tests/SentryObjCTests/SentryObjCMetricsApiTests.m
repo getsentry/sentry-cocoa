@@ -1,5 +1,5 @@
 @import SentryObjC;
-@import SentryTestUtils;
+@import SentryTestUtilsDynamic;
 @import XCTest;
 
 @interface SentryObjCMetricsApiTests : XCTestCase

@@ -6,110 +6,72 @@
 
 @implementation SentryObjCTraceContextTests
 
-/// SentryObjCTraceContext has no public initializer, so we verify the class exists and
-/// that all readonly property selectors are valid by checking instancesRespondToSelector.
-
-#pragma mark - Class existence
-
-- (void)testClass_shouldExist
+- (void)testInitWithTestDict_shouldSetAllProperties
 {
+    // -- Arrange --
+    NSDictionary *dict = @{
+        @"trace_id" : @"a0a0a0a0b1b1b1b1c2c2c2c2d3d3d3d3",
+        @"public_key" : @"abc123publickey",
+        @"release" : @"com.example.app@1.0.0",
+        @"environment" : @"production",
+        @"transaction" : @"/api/users",
+        @"sample_rate" : @"0.5",
+        @"sample_rand" : @"0.123456",
+        @"sampled" : @"true",
+        @"replay_id" : @"e4e4e4e4f5f5f5f5a6a6a6a6b7b7b7b7",
+        @"org_id" : @"42"
+    };
+
     // -- Act --
-    Class traceContextClass = [SentryObjCTraceContext class];
+    SentryObjCTraceContext *ctx = [[SentryObjCTraceContext alloc] initWithTestDict:dict];
 
     // -- Assert --
-    XCTAssertTrue(traceContextClass != Nil);
+    XCTAssertNotNil(ctx);
+    XCTAssertEqualObjects(ctx.traceId.sentryIdString, @"a0a0a0a0b1b1b1b1c2c2c2c2d3d3d3d3");
+    XCTAssertEqualObjects(ctx.publicKey, @"abc123publickey");
+    XCTAssertEqualObjects(ctx.releaseName, @"com.example.app@1.0.0");
+    XCTAssertEqualObjects(ctx.environment, @"production");
+    XCTAssertEqualObjects(ctx.transaction, @"/api/users");
+    XCTAssertEqualObjects(ctx.sampleRate, @"0.5");
+    XCTAssertEqualObjects(ctx.sampleRand, @"0.123456");
+    XCTAssertEqualObjects(ctx.sampled, @"true");
+    XCTAssertEqualObjects(ctx.replayId, @"e4e4e4e4f5f5f5f5a6a6a6a6b7b7b7b7");
+    XCTAssertEqualObjects(ctx.orgId, @"42");
 }
 
-#pragma mark - Property selectors
-
-- (void)testTraceId_selectorShouldExist
+- (void)testInitWithTestDict_whenOptionalFieldsMissing_shouldReturnNilForOptionals
 {
+    // -- Arrange --
+    NSDictionary *dict =
+        @{ @"trace_id" : @"a0a0a0a0b1b1b1b1c2c2c2c2d3d3d3d3", @"public_key" : @"abc123publickey" };
+
     // -- Act --
-    BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(traceId)];
+    SentryObjCTraceContext *ctx = [[SentryObjCTraceContext alloc] initWithTestDict:dict];
 
     // -- Assert --
-    XCTAssertTrue(responds);
+    XCTAssertNotNil(ctx);
+    XCTAssertEqualObjects(ctx.traceId.sentryIdString, @"a0a0a0a0b1b1b1b1c2c2c2c2d3d3d3d3");
+    XCTAssertEqualObjects(ctx.publicKey, @"abc123publickey");
+    XCTAssertNil(ctx.releaseName);
+    XCTAssertNil(ctx.environment);
+    XCTAssertNil(ctx.transaction);
+    XCTAssertNil(ctx.sampleRate);
+    XCTAssertNil(ctx.sampleRand);
+    XCTAssertNil(ctx.sampled);
+    XCTAssertNil(ctx.replayId);
+    XCTAssertNil(ctx.orgId);
 }
 
-- (void)testPublicKey_selectorShouldExist
+- (void)testInitWithTestDict_whenMissingRequiredKeys_shouldReturnNil
 {
+    // -- Arrange --
+    NSDictionary *dict = @{ @"environment" : @"staging" };
+
     // -- Act --
-    BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(publicKey)];
+    SentryObjCTraceContext *ctx = [[SentryObjCTraceContext alloc] initWithTestDict:dict];
 
     // -- Assert --
-    XCTAssertTrue(responds);
-}
-
-- (void)testReleaseName_selectorShouldExist
-{
-    // -- Act --
-    BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(releaseName)];
-
-    // -- Assert --
-    XCTAssertTrue(responds);
-}
-
-- (void)testEnvironment_selectorShouldExist
-{
-    // -- Act --
-    BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(environment)];
-
-    // -- Assert --
-    XCTAssertTrue(responds);
-}
-
-- (void)testTransaction_selectorShouldExist
-{
-    // -- Act --
-    BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(transaction)];
-
-    // -- Assert --
-    XCTAssertTrue(responds);
-}
-
-- (void)testSampleRate_selectorShouldExist
-{
-    // -- Act --
-    BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(sampleRate)];
-
-    // -- Assert --
-    XCTAssertTrue(responds);
-}
-
-- (void)testSampleRand_selectorShouldExist
-{
-    // -- Act --
-    BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(sampleRand)];
-
-    // -- Assert --
-    XCTAssertTrue(responds);
-}
-
-- (void)testSampled_selectorShouldExist
-{
-    // -- Act --
-    BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(sampled)];
-
-    // -- Assert --
-    XCTAssertTrue(responds);
-}
-
-- (void)testReplayId_selectorShouldExist
-{
-    // -- Act --
-    BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(replayId)];
-
-    // -- Assert --
-    XCTAssertTrue(responds);
-}
-
-- (void)testOrgId_selectorShouldExist
-{
-    // -- Act --
-    BOOL responds = [SentryObjCTraceContext instancesRespondToSelector:@selector(orgId)];
-
-    // -- Assert --
-    XCTAssertTrue(responds);
+    XCTAssertNil(ctx);
 }
 
 @end

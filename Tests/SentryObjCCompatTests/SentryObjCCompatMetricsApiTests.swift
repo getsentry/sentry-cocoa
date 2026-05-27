@@ -7,7 +7,7 @@ import Foundation
 #endif
 
 @testable import SentryObjCCompat
-import SentryTestUtils
+import SentryTestUtilsDynamic
 import XCTest
 
 final class SentryObjCCompatMetricsApiTests: XCTestCase {

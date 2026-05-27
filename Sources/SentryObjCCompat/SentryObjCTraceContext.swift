@@ -4,6 +4,7 @@ internal import SentrySwift
 #else
 internal import Sentry
 #endif
+@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objc(SentryObjCTraceContext) public final class SentryObjCTraceContext: NSObject {
@@ -52,6 +53,15 @@ import Foundation
     @objc public var orgId: String? {
         wrapped.orgId
     }
+
+    // MARK: - Testing
+    
+    /// Test-only initializer. Do not use in production code.
+    @objc public init?(testDict dict: [String: Any]) {
+        guard let wrapped = TraceContext(dict: dict) else { return nil }
+        self.wrapped = wrapped
+    }
+
 }
 
 // swiftlint:enable missing_docs

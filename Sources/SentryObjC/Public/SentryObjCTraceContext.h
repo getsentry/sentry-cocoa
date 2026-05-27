@@ -43,6 +43,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// The organization ID extracted from the DSN or configured explicitly.
 @property (nonatomic, readonly, copy, nullable) NSString *orgId;
 
+#pragma mark - Testing
+
+/// Test-only initializer. Do not use in production code.
+- (nullable instancetype)initWithTestDict:(NSDictionary<NSString *, id> *)dict;
+
 @end
 
 NS_ASSUME_NONNULL_END

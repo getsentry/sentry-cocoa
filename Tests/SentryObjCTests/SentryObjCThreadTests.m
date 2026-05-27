@@ -10,21 +10,19 @@
 
 - (void)testInit_whenThreadId_shouldSetThreadId
 {
-    // -- Arrange & Act --
+    // -- Act --
     SentryObjCThread *thread = [[SentryObjCThread alloc] initWithThreadId:@1];
 
     // -- Assert --
-    XCTAssertNotNil(thread);
     XCTAssertEqualObjects(thread.threadId, @1);
 }
 
 - (void)testInit_whenNilThreadId_shouldSetNil
 {
-    // -- Arrange & Act --
+    // -- Act --
     SentryObjCThread *thread = [[SentryObjCThread alloc] initWithThreadId:nil];
 
     // -- Assert --
-    XCTAssertNotNil(thread);
     XCTAssertNil(thread.threadId);
 }
 
@@ -57,11 +55,8 @@
     // -- Arrange --
     SentryObjCThread *thread = [[SentryObjCThread alloc] initWithThreadId:@1];
 
-    // -- Act --
-    NSString *result = thread.name;
-
     // -- Assert --
-    XCTAssertNil(result);
+    XCTAssertNil(thread.name);
 }
 
 - (void)testName_whenSet_shouldReturnNewValue
@@ -94,18 +89,16 @@
     // -- Arrange --
     SentryObjCThread *thread = [[SentryObjCThread alloc] initWithThreadId:@1];
 
-    // -- Act --
-    SentryObjCStacktrace *result = thread.stacktrace;
-
     // -- Assert --
-    XCTAssertNil(result);
+    XCTAssertNil(thread.stacktrace);
 }
 
-- (void)testStacktrace_whenSet_shouldReturnValue
+- (void)testStacktrace_whenSet_shouldReturnValueWithFrames
 {
     // -- Arrange --
     SentryObjCThread *thread = [[SentryObjCThread alloc] initWithThreadId:@1];
     SentryObjCFrame *frame = [[SentryObjCFrame alloc] init];
+    frame.function = @"main";
     SentryObjCStacktrace *st = [[SentryObjCStacktrace alloc] initWithFrames:@[ frame ]
                                                                   registers:@{ }];
 
@@ -113,7 +106,8 @@
     thread.stacktrace = st;
 
     // -- Assert --
-    XCTAssertNotNil(thread.stacktrace);
+    XCTAssertEqual(thread.stacktrace.frames.count, 1u);
+    XCTAssertEqualObjects(thread.stacktrace.frames.firstObject.function, @"main");
 }
 
 - (void)testStacktrace_whenSetToNil_shouldReturnNil
@@ -135,11 +129,8 @@
     // -- Arrange --
     SentryObjCThread *thread = [[SentryObjCThread alloc] initWithThreadId:@1];
 
-    // -- Act --
-    NSNumber *result = thread.crashed;
-
     // -- Assert --
-    XCTAssertNil(result);
+    XCTAssertNil(thread.crashed);
 }
 
 - (void)testCrashed_whenSet_shouldReturnNewValue
@@ -172,11 +163,8 @@
     // -- Arrange --
     SentryObjCThread *thread = [[SentryObjCThread alloc] initWithThreadId:@1];
 
-    // -- Act --
-    NSNumber *result = thread.current;
-
     // -- Assert --
-    XCTAssertNil(result);
+    XCTAssertNil(thread.current);
 }
 
 - (void)testCurrent_whenSet_shouldReturnNewValue
@@ -209,11 +197,8 @@
     // -- Arrange --
     SentryObjCThread *thread = [[SentryObjCThread alloc] initWithThreadId:@1];
 
-    // -- Act --
-    NSNumber *result = thread.isMain;
-
     // -- Assert --
-    XCTAssertNil(result);
+    XCTAssertNil(thread.isMain);
 }
 
 - (void)testIsMain_whenSet_shouldReturnNewValue
@@ -243,7 +228,7 @@
 
 #pragma mark - SentryObjCStacktrace
 
-- (void)testStacktraceInit_whenFramesAndRegisters_shouldSetBoth
+- (void)testStacktraceInit_shouldSetFramesAndRegisters
 {
     // -- Arrange --
     SentryObjCFrame *frame = [[SentryObjCFrame alloc] init];
@@ -255,7 +240,6 @@
                                                                   registers:registers];
 
     // -- Assert --
-    XCTAssertNotNil(st);
     XCTAssertEqual(st.frames.count, 1u);
     XCTAssertEqualObjects(st.frames.firstObject.function, @"main");
     XCTAssertEqualObjects(st.registers[@"rip"], @"0xdeadbeef");
@@ -278,38 +262,30 @@
 - (void)testStacktraceRegisters_whenSet_shouldReturnNewValue
 {
     // -- Arrange --
-    SentryObjCFrame *frame = [[SentryObjCFrame alloc] init];
     SentryObjCStacktrace *st =
-        [[SentryObjCStacktrace alloc] initWithFrames:@[ frame ]
-                                           registers:@{ @"rip" : @"0xdeadbeef" }];
+        [[SentryObjCStacktrace alloc] initWithFrames:@[] registers:@{ @"rip" : @"0xdeadbeef" }];
 
     // -- Act --
     st.registers = @{ @"rsp" : @"0xcafebabe" };
 
     // -- Assert --
     XCTAssertEqualObjects(st.registers[@"rsp"], @"0xcafebabe");
+    XCTAssertNil(st.registers[@"rip"]);
 }
 
 - (void)testStacktraceSnapshot_whenDefault_shouldReturnNil
 {
     // -- Arrange --
-    SentryObjCFrame *frame = [[SentryObjCFrame alloc] init];
-    SentryObjCStacktrace *st = [[SentryObjCStacktrace alloc] initWithFrames:@[ frame ]
-                                                                  registers:@{ }];
-
-    // -- Act --
-    NSNumber *result = st.snapshot;
+    SentryObjCStacktrace *st = [[SentryObjCStacktrace alloc] initWithFrames:@[] registers:@{ }];
 
     // -- Assert --
-    XCTAssertNil(result);
+    XCTAssertNil(st.snapshot);
 }
 
 - (void)testStacktraceSnapshot_whenSet_shouldReturnNewValue
 {
     // -- Arrange --
-    SentryObjCFrame *frame = [[SentryObjCFrame alloc] init];
-    SentryObjCStacktrace *st = [[SentryObjCStacktrace alloc] initWithFrames:@[ frame ]
-                                                                  registers:@{ }];
+    SentryObjCStacktrace *st = [[SentryObjCStacktrace alloc] initWithFrames:@[] registers:@{ }];
 
     // -- Act --
     st.snapshot = @YES;
@@ -321,9 +297,7 @@
 - (void)testStacktraceSnapshot_whenSetToNil_shouldReturnNil
 {
     // -- Arrange --
-    SentryObjCFrame *frame = [[SentryObjCFrame alloc] init];
-    SentryObjCStacktrace *st = [[SentryObjCStacktrace alloc] initWithFrames:@[ frame ]
-                                                                  registers:@{ }];
+    SentryObjCStacktrace *st = [[SentryObjCStacktrace alloc] initWithFrames:@[] registers:@{ }];
     st.snapshot = @YES;
 
     // -- Act --

@@ -112,6 +112,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)gaugeWithKey:(NSString *)key value:(double)value;
 
+#pragma mark - Testing
+
+#if SENTRY_TEST || SENTRY_TEST_CI
+- (instancetype)initWithTestApi:(NSObject *)api;
+#endif
+
 @end
 
 NS_ASSUME_NONNULL_END
