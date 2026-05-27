@@ -588,13 +588,6 @@
 			remoteGlobalIDString = D84DAD4C2B17428D003CF120;
 			remoteInfo = SentryTestUtilsDynamic;
 		};
-		D4715F992FC711CE00508994 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
-			remoteInfo = Sentry;
-		};
 		D4715FA22FC711DA00508994 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
@@ -3089,7 +3082,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D4715F9A2FC711CE00508994 /* PBXTargetDependency */,
 				D4715FA32FC711DA00508994 /* PBXTargetDependency */,
 			);
 			name = SentryTestUtilsDynamic;
@@ -3648,11 +3640,6 @@
 			isa = PBXTargetDependency;
 			target = D84DAD4C2B17428D003CF120 /* SentryTestUtilsDynamic */;
 			targetProxy = D4713A3B2FC704D600508994 /* PBXContainerItemProxy */;
-		};
-		D4715F9A2FC711CE00508994 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 63AA759A1EB8AEF500D153DE /* Sentry */;
-			targetProxy = D4715F992FC711CE00508994 /* PBXContainerItemProxy */;
 		};
 		D4715FA32FC711DA00508994 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
