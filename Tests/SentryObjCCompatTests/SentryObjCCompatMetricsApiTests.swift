@@ -10,56 +10,14 @@ import Foundation
 import SentryTestUtils
 import XCTest
 
-private struct CountInvocation: Equatable {
-    let key: String
-    let value: UInt
-    let attributes: [String: SentryAttributeValue]
-
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.key == rhs.key && lhs.value == rhs.value && lhs.attributes.keys == rhs.attributes.keys
-    }
-}
-
-private struct DistributionInvocation {
-    let key: String
-    let value: Double
-    let unit: SentryUnit?
-    let attributes: [String: SentryAttributeValue]
-}
-
-private struct GaugeInvocation {
-    let key: String
-    let value: Double
-    let unit: SentryUnit?
-    let attributes: [String: SentryAttributeValue]
-}
-
-private final class MockMetricsApi: SentryMetricsApiProtocol {
-    let countInvocations = Invocations<CountInvocation>()
-    let distributionInvocations = Invocations<DistributionInvocation>()
-    let gaugeInvocations = Invocations<GaugeInvocation>()
-
-    func count(key: String, value: UInt, attributes: [String: SentryAttributeValue]) {
-        countInvocations.record(CountInvocation(key: key, value: value, attributes: attributes))
-    }
-
-    func distribution(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
-        distributionInvocations.record(DistributionInvocation(key: key, value: value, unit: unit, attributes: attributes))
-    }
-
-    func gauge(key: String, value: Double, unit: SentryUnit?, attributes: [String: SentryAttributeValue]) {
-        gaugeInvocations.record(GaugeInvocation(key: key, value: value, unit: unit, attributes: attributes))
-    }
-}
-
 final class SentryObjCCompatMetricsApiTests: XCTestCase {
 
-    private var mock = MockMetricsApi()
-    private var sut = SentryObjCMetricsApi(MockMetricsApi())
+    private var mock = TestMetricsApi()
+    private var sut = SentryObjCMetricsApi(TestMetricsApi())
 
     override func setUp() {
         super.setUp()
-        mock = MockMetricsApi()
+        mock = TestMetricsApi()
         sut = SentryObjCMetricsApi(mock)
     }
 
@@ -72,9 +30,8 @@ final class SentryObjCCompatMetricsApiTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(mock.countInvocations.count, 1)
         let inv = mock.countInvocations.first
-        XCTAssertEqual(inv?.key, "events")
-        XCTAssertEqual(inv?.value, 5)
-        XCTAssertEqual(inv?.attributes.count, 1)
+        XCTAssertEqual(inv?["key"] as? String, "events")
+        XCTAssertEqual(inv?["value"] as? UInt, 5)
     }
 
     func testCountWithKeyValue_shouldForwardWithEmptyAttributes() {
@@ -83,9 +40,8 @@ final class SentryObjCCompatMetricsApiTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(mock.countInvocations.count, 1)
-        XCTAssertEqual(mock.countInvocations.first?.key, "events")
-        XCTAssertEqual(mock.countInvocations.first?.value, 3)
-        XCTAssertEqual(mock.countInvocations.first?.attributes.count, 0)
+        XCTAssertEqual(mock.countInvocations.first?["key"] as? String, "events")
+        XCTAssertEqual(mock.countInvocations.first?["value"] as? UInt, 3)
     }
 
     func testCountWithKey_shouldForwardWithValueOneAndEmptyAttributes() {
@@ -94,9 +50,8 @@ final class SentryObjCCompatMetricsApiTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(mock.countInvocations.count, 1)
-        XCTAssertEqual(mock.countInvocations.first?.key, "events")
-        XCTAssertEqual(mock.countInvocations.first?.value, 1)
-        XCTAssertEqual(mock.countInvocations.first?.attributes.count, 0)
+        XCTAssertEqual(mock.countInvocations.first?["key"] as? String, "events")
+        XCTAssertEqual(mock.countInvocations.first?["value"] as? UInt, 1)
     }
 
     // MARK: - distribution
@@ -108,10 +63,9 @@ final class SentryObjCCompatMetricsApiTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(mock.distributionInvocations.count, 1)
         let inv = mock.distributionInvocations.first
-        XCTAssertEqual(inv?.key, "latency")
-        XCTAssertEqual(inv?.value, 42.5)
-        XCTAssertNotNil(inv?.unit)
-        XCTAssertEqual(inv?.attributes.count, 1)
+        XCTAssertEqual(inv?["key"] as? String, "latency")
+        XCTAssertEqual(inv?["value"] as? Double, 42.5)
+        XCTAssertEqual(inv?["unit"] as? String, "millisecond")
     }
 
     func testDistributionWithKeyValueUnit_shouldForwardWithEmptyAttributes() {
@@ -120,10 +74,9 @@ final class SentryObjCCompatMetricsApiTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(mock.distributionInvocations.count, 1)
-        XCTAssertEqual(mock.distributionInvocations.first?.key, "latency")
-        XCTAssertEqual(mock.distributionInvocations.first?.value, 10.0)
-        XCTAssertNotNil(mock.distributionInvocations.first?.unit)
-        XCTAssertEqual(mock.distributionInvocations.first?.attributes.count, 0)
+        XCTAssertEqual(mock.distributionInvocations.first?["key"] as? String, "latency")
+        XCTAssertEqual(mock.distributionInvocations.first?["value"] as? Double, 10.0)
+        XCTAssertEqual(mock.distributionInvocations.first?["unit"] as? String, "second")
     }
 
     func testDistributionWithKeyValue_shouldForwardWithNilUnitAndEmptyAttributes() {
@@ -132,10 +85,9 @@ final class SentryObjCCompatMetricsApiTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(mock.distributionInvocations.count, 1)
-        XCTAssertEqual(mock.distributionInvocations.first?.key, "latency")
-        XCTAssertEqual(mock.distributionInvocations.first?.value, 5.0)
-        XCTAssertNil(mock.distributionInvocations.first?.unit)
-        XCTAssertEqual(mock.distributionInvocations.first?.attributes.count, 0)
+        XCTAssertEqual(mock.distributionInvocations.first?["key"] as? String, "latency")
+        XCTAssertEqual(mock.distributionInvocations.first?["value"] as? Double, 5.0)
+        XCTAssertNil(mock.distributionInvocations.first?["unit"])
     }
 
     // MARK: - gauge
@@ -147,10 +99,9 @@ final class SentryObjCCompatMetricsApiTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(mock.gaugeInvocations.count, 1)
         let inv = mock.gaugeInvocations.first
-        XCTAssertEqual(inv?.key, "memory")
-        XCTAssertEqual(inv?.value, 1_024.0)
-        XCTAssertNotNil(inv?.unit)
-        XCTAssertEqual(inv?.attributes.count, 1)
+        XCTAssertEqual(inv?["key"] as? String, "memory")
+        XCTAssertEqual(inv?["value"] as? Double, 1_024.0)
+        XCTAssertEqual(inv?["unit"] as? String, "byte")
     }
 
     func testGaugeWithKeyValueUnit_shouldForwardWithEmptyAttributes() {
@@ -159,10 +110,9 @@ final class SentryObjCCompatMetricsApiTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(mock.gaugeInvocations.count, 1)
-        XCTAssertEqual(mock.gaugeInvocations.first?.key, "memory")
-        XCTAssertEqual(mock.gaugeInvocations.first?.value, 512.0)
-        XCTAssertNotNil(mock.gaugeInvocations.first?.unit)
-        XCTAssertEqual(mock.gaugeInvocations.first?.attributes.count, 0)
+        XCTAssertEqual(mock.gaugeInvocations.first?["key"] as? String, "memory")
+        XCTAssertEqual(mock.gaugeInvocations.first?["value"] as? Double, 512.0)
+        XCTAssertEqual(mock.gaugeInvocations.first?["unit"] as? String, "megabyte")
     }
 
     func testGaugeWithKeyValue_shouldForwardWithNilUnitAndEmptyAttributes() {
@@ -171,10 +121,9 @@ final class SentryObjCCompatMetricsApiTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(mock.gaugeInvocations.count, 1)
-        XCTAssertEqual(mock.gaugeInvocations.first?.key, "memory")
-        XCTAssertEqual(mock.gaugeInvocations.first?.value, 256.0)
-        XCTAssertNil(mock.gaugeInvocations.first?.unit)
-        XCTAssertEqual(mock.gaugeInvocations.first?.attributes.count, 0)
+        XCTAssertEqual(mock.gaugeInvocations.first?["key"] as? String, "memory")
+        XCTAssertEqual(mock.gaugeInvocations.first?["value"] as? Double, 256.0)
+        XCTAssertNil(mock.gaugeInvocations.first?["unit"])
     }
 
     // MARK: - nil unit
@@ -184,7 +133,7 @@ final class SentryObjCCompatMetricsApiTests: XCTestCase {
         sut.distribution(key: "test", value: 1.0, unit: nil, attributes: [:])
 
         // -- Assert --
-        XCTAssertNil(mock.distributionInvocations.first?.unit)
+        XCTAssertNil(mock.distributionInvocations.first?["unit"])
     }
 
     func testGaugeWithNilUnit_shouldForwardNil() {
@@ -192,6 +141,6 @@ final class SentryObjCCompatMetricsApiTests: XCTestCase {
         sut.gauge(key: "test", value: 1.0, unit: nil, attributes: [:])
 
         // -- Assert --
-        XCTAssertNil(mock.gaugeInvocations.first?.unit)
+        XCTAssertNil(mock.gaugeInvocations.first?["unit"])
     }
 }

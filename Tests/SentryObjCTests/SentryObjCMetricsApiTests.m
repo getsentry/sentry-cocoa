@@ -1,108 +1,138 @@
 @import SentryObjC;
+@import SentryTestUtils;
 @import XCTest;
 
 @interface SentryObjCMetricsApiTests : XCTestCase
+@property (nonatomic, strong) SentryTestMetricsApi *mock;
+@property (nonatomic, strong) SentryObjCMetricsApi *sut;
 @end
 
 @implementation SentryObjCMetricsApiTests
 
-#pragma mark - Class existence
-
-- (void)testClass_shouldExist
+- (void)setUp
 {
-    // -- Arrange & Act --
-    Class metricsClass = NSClassFromString(@"SentryObjCMetricsApi");
-
-    // -- Assert --
-    XCTAssertNotNil(metricsClass);
+    [super setUp];
+    self.mock = [[SentryTestMetricsApi alloc] init];
+    self.sut = [[SentryObjCMetricsApi alloc] initWithTestApi:self.mock];
 }
 
-#pragma mark - count selectors
+#pragma mark - count
 
-- (void)testCountKeyValueAttributes_selectorShouldExist
+- (void)testCountWithKeyValueAttributes_shouldForwardAllParameters
 {
-    // -- Arrange --
-    Class cls = NSClassFromString(@"SentryObjCMetricsApi");
+    // -- Act --
+    [self.sut countWithKey:@"events"
+                     value:5
+                attributes:@{ @"source" : [SentryObjCAttributeContent string:@"test"] }];
 
     // -- Assert --
-    XCTAssertTrue([cls instancesRespondToSelector:@selector(countWithKey:value:attributes:)]);
+    XCTAssertEqual(self.mock.countInvocations.count, 1);
+    XCTAssertEqualObjects(self.mock.countInvocations.first[@"key"], @"events");
+    XCTAssertEqualObjects(self.mock.countInvocations.first[@"value"], @5);
 }
 
-- (void)testCountKeyValue_selectorShouldExist
+- (void)testCountWithKeyValue_shouldForwardWithEmptyAttributes
 {
-    // -- Arrange --
-    Class cls = NSClassFromString(@"SentryObjCMetricsApi");
+    // -- Act --
+    [self.sut countWithKey:@"events" value:3];
 
     // -- Assert --
-    XCTAssertTrue([cls instancesRespondToSelector:@selector(countWithKey:value:)]);
+    XCTAssertEqual(self.mock.countInvocations.count, 1);
+    XCTAssertEqualObjects(self.mock.countInvocations.first[@"key"], @"events");
+    XCTAssertEqualObjects(self.mock.countInvocations.first[@"value"], @3);
 }
 
-- (void)testCountKey_selectorShouldExist
+- (void)testCountWithKey_shouldForwardWithValueOneAndEmptyAttributes
 {
-    // -- Arrange --
-    Class cls = NSClassFromString(@"SentryObjCMetricsApi");
+    // -- Act --
+    [self.sut countWithKey:@"events"];
 
     // -- Assert --
-    XCTAssertTrue([cls instancesRespondToSelector:@selector(countWithKey:)]);
+    XCTAssertEqual(self.mock.countInvocations.count, 1);
+    XCTAssertEqualObjects(self.mock.countInvocations.first[@"key"], @"events");
+    XCTAssertEqualObjects(self.mock.countInvocations.first[@"value"], @1);
 }
 
-#pragma mark - distribution selectors
+#pragma mark - distribution
 
-- (void)testDistributionKeyValueUnitAttributes_selectorShouldExist
+- (void)testDistributionWithKeyValueUnitAttributes_shouldForwardAllParameters
 {
-    // -- Arrange --
-    Class cls = NSClassFromString(@"SentryObjCMetricsApi");
+    // -- Act --
+    [self.sut distributionWithKey:@"latency"
+                            value:42.5
+                             unit:SentryObjCUnit.millisecond
+                       attributes:@{ @"endpoint" : [SentryObjCAttributeContent string:@"/api"] }];
 
     // -- Assert --
-    XCTAssertTrue(
-        [cls instancesRespondToSelector:@selector(distributionWithKey:value:unit:attributes:)]);
+    XCTAssertEqual(self.mock.distributionInvocations.count, 1);
+    XCTAssertEqualObjects(self.mock.distributionInvocations.first[@"key"], @"latency");
+    XCTAssertEqualObjects(self.mock.distributionInvocations.first[@"value"], @42.5);
+    XCTAssertEqualObjects(self.mock.distributionInvocations.first[@"unit"], @"millisecond");
 }
 
-- (void)testDistributionKeyValueUnit_selectorShouldExist
+- (void)testDistributionWithKeyValueUnit_shouldForwardWithEmptyAttributes
 {
-    // -- Arrange --
-    Class cls = NSClassFromString(@"SentryObjCMetricsApi");
+    // -- Act --
+    [self.sut distributionWithKey:@"latency" value:10.0 unit:SentryObjCUnit.second];
 
     // -- Assert --
-    XCTAssertTrue([cls instancesRespondToSelector:@selector(distributionWithKey:value:unit:)]);
+    XCTAssertEqual(self.mock.distributionInvocations.count, 1);
+    XCTAssertEqualObjects(self.mock.distributionInvocations.first[@"key"], @"latency");
+    XCTAssertEqualObjects(self.mock.distributionInvocations.first[@"value"], @10.0);
+    XCTAssertEqualObjects(self.mock.distributionInvocations.first[@"unit"], @"second");
 }
 
-- (void)testDistributionKeyValue_selectorShouldExist
+- (void)testDistributionWithKeyValue_shouldForwardWithNilUnitAndEmptyAttributes
 {
-    // -- Arrange --
-    Class cls = NSClassFromString(@"SentryObjCMetricsApi");
+    // -- Act --
+    [self.sut distributionWithKey:@"latency" value:5.0];
 
     // -- Assert --
-    XCTAssertTrue([cls instancesRespondToSelector:@selector(distributionWithKey:value:)]);
+    XCTAssertEqual(self.mock.distributionInvocations.count, 1);
+    XCTAssertEqualObjects(self.mock.distributionInvocations.first[@"key"], @"latency");
+    XCTAssertEqualObjects(self.mock.distributionInvocations.first[@"value"], @5.0);
+    XCTAssertNil(self.mock.distributionInvocations.first[@"unit"]);
 }
 
-#pragma mark - gauge selectors
+#pragma mark - gauge
 
-- (void)testGaugeKeyValueUnitAttributes_selectorShouldExist
+- (void)testGaugeWithKeyValueUnitAttributes_shouldForwardAllParameters
 {
-    // -- Arrange --
-    Class cls = NSClassFromString(@"SentryObjCMetricsApi");
+    // -- Act --
+    [self.sut gaugeWithKey:@"memory"
+                     value:1024.0
+                      unit:SentryObjCUnit.byte
+                attributes:@{ @"process" : [SentryObjCAttributeContent string:@"main"] }];
 
     // -- Assert --
-    XCTAssertTrue([cls instancesRespondToSelector:@selector(gaugeWithKey:value:unit:attributes:)]);
+    XCTAssertEqual(self.mock.gaugeInvocations.count, 1);
+    XCTAssertEqualObjects(self.mock.gaugeInvocations.first[@"key"], @"memory");
+    XCTAssertEqualObjects(self.mock.gaugeInvocations.first[@"value"], @1024.0);
+    XCTAssertEqualObjects(self.mock.gaugeInvocations.first[@"unit"], @"byte");
 }
 
-- (void)testGaugeKeyValueUnit_selectorShouldExist
+- (void)testGaugeWithKeyValueUnit_shouldForwardWithEmptyAttributes
 {
-    // -- Arrange --
-    Class cls = NSClassFromString(@"SentryObjCMetricsApi");
+    // -- Act --
+    [self.sut gaugeWithKey:@"memory" value:512.0 unit:SentryObjCUnit.megabyte];
 
     // -- Assert --
-    XCTAssertTrue([cls instancesRespondToSelector:@selector(gaugeWithKey:value:unit:)]);
+    XCTAssertEqual(self.mock.gaugeInvocations.count, 1);
+    XCTAssertEqualObjects(self.mock.gaugeInvocations.first[@"key"], @"memory");
+    XCTAssertEqualObjects(self.mock.gaugeInvocations.first[@"value"], @512.0);
+    XCTAssertEqualObjects(self.mock.gaugeInvocations.first[@"unit"], @"megabyte");
 }
 
-- (void)testGaugeKeyValue_selectorShouldExist
+- (void)testGaugeWithKeyValue_shouldForwardWithNilUnitAndEmptyAttributes
 {
-    // -- Arrange --
-    Class cls = NSClassFromString(@"SentryObjCMetricsApi");
+    // -- Act --
+    [self.sut gaugeWithKey:@"memory" value:256.0];
 
     // -- Assert --
-    XCTAssertTrue([cls instancesRespondToSelector:@selector(gaugeWithKey:value:)]);
+    XCTAssertEqual(self.mock.gaugeInvocations.count, 1);
+    XCTAssertEqualObjects(self.mock.gaugeInvocations.first[@"key"], @"memory");
+    XCTAssertEqualObjects(self.mock.gaugeInvocations.first[@"value"], @256.0);
+    XCTAssertNil(self.mock.gaugeInvocations.first[@"unit"]);
 }
 
 @end

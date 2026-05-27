@@ -13,6 +13,15 @@ import Foundation
         self.api = api
     }
 
+    #if SENTRY_TEST || SENTRY_TEST_CI
+    @objc public convenience init(testApi: NSObject) {
+        guard let api = testApi as? SentryMetricsApiProtocol else {
+            preconditionFailure("testApi must conform to SentryMetricsApiProtocol")
+        }
+        self.init(api)
+    }
+    #endif
+
     @objc public func count(key: String, value: UInt, attributes: [String: SentryObjCAttributeContent]) {
         api.count(key: key, value: value, attributes: attributes.mapValues { $0.toAttributeContent() })
     }
