@@ -1,9 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Disable SC1091 because it won't work with pre-commit
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
-source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+source "$SCRIPT_DIR/ci-utils.sh"
 
 begin_group "Check Xcode Version"
 # Check if Xcode 16 is selected
@@ -47,67 +49,48 @@ end_group
 # Build both frameworks at once, as they depend on each other
 begin_group "Build Sentry-Dynamic XCFramework"
 log_info "Building Sentry-Dynamic slice"
-./scripts/build-xcframework-slice.sh "iphoneos" "Sentry" "-Dynamic" "mh_dylib"
+"$SCRIPT_DIR/build-xcframework-slice.sh" "iphoneos" "Sentry" "-Dynamic" "mh_dylib"
 
 log_info "Assembling Sentry-Dynamic xcframework"
-./scripts/assemble-xcframework.sh "Sentry" "-Dynamic" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/Sentry-Dynamic/SDK_NAME.xcarchive"
+"$SCRIPT_DIR/assemble-xcframework.sh" "Sentry" "-Dynamic" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/Sentry-Dynamic/SDK_NAME.xcarchive"
 end_group
 
 begin_group "Build SentrySwiftUI XCFramework"
 log_info "Building SentrySwiftUI slice"
-./scripts/build-xcframework-slice.sh "iphoneos" "SentrySwiftUI" "" "mh_dylib"
+"$SCRIPT_DIR/build-xcframework-slice.sh" "iphoneos" "SentrySwiftUI" "" "mh_dylib"
 
 log_info "Assembling SentrySwiftUI xcframework"
-./scripts/assemble-xcframework.sh "SentrySwiftUI" "" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/SentrySwiftUI/SDK_NAME.xcarchive"
+"$SCRIPT_DIR/assemble-xcframework.sh" "SentrySwiftUI" "" "" "iphoneos" "$(pwd)/XCFrameworkBuildPath/archive/SentrySwiftUI/SDK_NAME.xcarchive"
 end_group
 
 begin_group "Extract Public API"
-# Delete private .swiftinterface files before running swift-api-digester
-# This ensures only public interfaces are analyzed
-log_info "Deleting private .swiftinterface files"
-find ./Sentry-Dynamic.xcframework -name "*.private.swiftinterface" -type f -delete
-
-log_info "Running swift-api-digester for Sentry module"
-xcrun --sdk iphoneos swift-api-digester \
-    -dump-sdk \
-    -o sdk_api.json \
-    -abort-on-module-fail \
-    -avoid-tool-args \
-    -avoid-location \
-    -module Sentry \
-    -target arm64-apple-ios10.0 \
-    -iframework ./Sentry-Dynamic.xcframework/ios-arm64_arm64e
-
-# Sort the JSON keys and arrays for stable output across runs
-log_info "Sorting JSON keys and arrays for stable output"
-jq -S 'walk(if type == "array" then sort_by(tostring) else . end)' sdk_api.json > sdk_api.json.tmp && mv sdk_api.json.tmp sdk_api.json
+"$SCRIPT_DIR/extract-swift-api.sh" \
+    --module Sentry \
+    --output sdk_api.json \
+    --framework-path "./Sentry-Dynamic.xcframework/ios-arm64_arm64e"
 end_group
 
 begin_group "Extract SentrySwiftUI Public API"
-# Delete private .swiftinterface files before running swift-api-digester
-# This ensures only public interfaces are analyzed
-log_info "Deleting private .swiftinterface files from SentrySwiftUI"
-find ./SentrySwiftUI.xcframework -name "*.private.swiftinterface" -type f -delete
-
-log_info "Running swift-api-digester for SentrySwiftUI module"
-xcrun --sdk iphoneos swift-api-digester \
-    -dump-sdk \
-    -o sdk_api_sentryswiftui.json \
-    -abort-on-module-fail \
-    -avoid-tool-args \
-    -avoid-location \
-    -module SentrySwiftUI \
-    -target arm64-apple-ios10.0 \
-    -iframework "$(pwd)/SentrySwiftUI.xcframework/ios-arm64_arm64e" \
-    -iframework "$(pwd)/Sentry-Dynamic.xcframework/ios-arm64_arm64e"
-
-# Sort the JSON keys and arrays for stable output across runs
-log_info "Sorting JSON keys and arrays for stable output"
-jq -S 'walk(if type == "array" then sort_by(tostring) else . end)' sdk_api_sentryswiftui.json > sdk_api_sentryswiftui.json.tmp && mv sdk_api_sentryswiftui.json.tmp sdk_api_sentryswiftui.json
+"$SCRIPT_DIR/extract-swift-api.sh" \
+    --module SentrySwiftUI \
+    --output sdk_api_sentryswiftui.json \
+    --framework-path "$(pwd)/SentrySwiftUI.xcframework/ios-arm64_arm64e" \
+    --framework-path "$(pwd)/Sentry-Dynamic.xcframework/ios-arm64_arm64e"
 end_group
 
 begin_group "Extract SentryObjC Public API"
-log_notice "Extracting SentryObjC public API from headers"
-"$(dirname "$0")/extract-objc-api.sh" > sdk_api_objc.json
-log_notice "SentryObjC API written to sdk_api_objc.json"
+"$SCRIPT_DIR/extract-objc-api.sh" \
+    --output sdk_api_objc.json
+end_group
+
+begin_group "Extract SentryObjCCompat Public API"
+"$SCRIPT_DIR/extract-objc-compat-api.sh" \
+    --output sdk_api_objccompat.json
+end_group
+
+begin_group "Diff SentryObjC vs SentryObjCCompat"
+"$SCRIPT_DIR/generate-objc-compat-api-diff.sh" \
+    --headers sdk_api_objc.json \
+    --compat sdk_api_objccompat.json \
+    --output sdk_api_objc.diff.json
 end_group

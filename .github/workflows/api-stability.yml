@@ -49,6 +49,8 @@ jobs:
           mv sdk_api.json sdk_api_base.json
           mv sdk_api_sentryswiftui.json sdk_api_sentryswiftui_base.json
           mv sdk_api_objc.json sdk_api_objc_base.json
+          mv sdk_api_objccompat.json sdk_api_objccompat_base.json
+          mv sdk_api_objc.diff.json sdk_api_objc.diff_base.json
           ./scripts/update-api.sh
 
       - name: Diagnose breaking changes for Sentry
@@ -97,6 +99,28 @@ jobs:
           else
             echo "❌ SentryObjC public API changes are detected. If they're intended run 'make generate-public-api' and commit the changes."
             diff "sdk_api_objc_base.json" "sdk_api_objc.json" || true
+            exit 1
+          fi
+
+      - name: Diagnose breaking changes for SentryObjCCompat
+        if: always()
+        run: |
+          if diff -q "sdk_api_objccompat_base.json" "sdk_api_objccompat.json" > /dev/null; then
+            echo "No SentryObjCCompat API changes detected."
+          else
+            echo "❌ SentryObjCCompat public API changes are detected. If they're intended run 'make generate-public-api' and commit the changes."
+            diff "sdk_api_objccompat_base.json" "sdk_api_objccompat.json" || true
+            exit 1
+          fi
+
+      - name: Diagnose ObjC/ObjCCompat drift changes
+        if: always()
+        run: |
+          if diff -q "sdk_api_objc.diff_base.json" "sdk_api_objc.diff.json" > /dev/null; then
+            echo "No ObjC/ObjCCompat drift changes detected."
+          else
+            echo "❌ ObjC/ObjCCompat drift has changed. If intended run 'make generate-public-api' and commit the changes."
+            diff "sdk_api_objc.diff_base.json" "sdk_api_objc.diff.json" || true
             exit 1
           fi
 

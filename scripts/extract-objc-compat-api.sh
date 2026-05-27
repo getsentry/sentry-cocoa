@@ -1,11 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-# Extract public API declarations from SentryObjC headers for stability tracking.
+# Extract ObjC-visible API from the SentryObjCCompat Swift wrappers.
 #
-# Uses clang AST parsing to reliably extract Objective-C declarations.
-# Outputs a sorted JSON array of declaration objects. Used by update-api.sh
-# to generate sdk_api_objc.json. Changes to the output indicate API changes.
+# Builds SentryObjCCompat, then parses the compiler-generated -Swift.h
+# header with clang AST to extract all ObjC declarations. Output format
+# matches extract-objc-api.sh (flat sorted JSON array) so the two can
+# be compared for drift detection.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
@@ -33,48 +34,53 @@ if [ -z "$OUTPUT" ]; then
     usage
 fi
 
-HEADERS_DIR="$PROJECT_ROOT/Sources/SentryObjC/Public"
-SENTRY_HEADERS_DIR="$PROJECT_ROOT/Sources/Sentry/Public"
-UMBRELLA_HEADER="$HEADERS_DIR/SentryObjC.h"
-
 TMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TMP_DIR"' EXIT
 
+BUILD_DIR="$TMP_DIR/build"
+INTERMEDIATES_DIR="$TMP_DIR/intermediates"
 AST_JSON="$TMP_DIR/ast.json"
 
-# The headers use angle-bracket imports (#import <SentryObjC/...>) so clang
-# needs a directory named "SentryObjC" on its include path. Create a symlink
-# so that $TMP_DIR/SentryObjC -> the actual headers directory.
-ln -s "$HEADERS_DIR" "$TMP_DIR/SentryObjC"
+# Step 1: Build SentryObjCCompat to generate the -Swift.h header.
+log_info "Building SentryObjCCompat framework"
+xcodebuild build \
+    -project "$PROJECT_ROOT/Sentry.xcodeproj" \
+    -scheme SentryObjCCompat \
+    -configuration Release \
+    -sdk iphoneos \
+    -arch arm64 \
+    CODE_SIGNING_ALLOWED=NO \
+    ONLY_ACTIVE_ARCH=YES \
+    SYMROOT="$BUILD_DIR" \
+    OBJROOT="$INTERMEDIATES_DIR" \
+    >/dev/null 2>&1
 
-# Get iOS SDK path
+# Step 2: Locate the generated header.
+SWIFT_HEADER="$INTERMEDIATES_DIR/Sentry.build/Release-iphoneos/SentryObjCCompat.build/DerivedSources/SentryObjCCompat-Swift.h"
+if [ ! -f "$SWIFT_HEADER" ]; then
+    log_error "SentryObjCCompat-Swift.h not found at expected path"
+    log_error "looked in: $SWIFT_HEADER"
+    exit 1
+fi
+
+# Step 3: Parse with clang AST dump.
+log_info "Generating clang AST from SentryObjCCompat-Swift.h"
 SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
 
-# Step 1: Generate AST dump from umbrella header.
-log_info "Generating clang AST from SentryObjC umbrella header"
 xcrun clang -x objective-c \
-  -Xclang -ast-dump=json \
-  -fsyntax-only \
-  -isysroot "$SDK_PATH" \
-  -I "$TMP_DIR" \
-  -I "$HEADERS_DIR" \
-  -I "$SENTRY_HEADERS_DIR" \
-  "$UMBRELLA_HEADER" \
-  2>/dev/null > "$AST_JSON"
+    -Xclang -ast-dump=json \
+    -fsyntax-only \
+    -isysroot "$SDK_PATH" \
+    "$SWIFT_HEADER" \
+    2>/dev/null > "$AST_JSON"
 
-# Step 2: Extract declarations.
+# Step 4: Extract declarations using the same approach as extract-objc-api.sh.
 #
-# We filter by name prefix ("Sentry"/"PrivateSentry") rather than source
-# file path because clang's AST JSON omits loc.file when it hasn't changed
-# from the previous node, making file-based filtering unreliable.
-#
-# Clang emits multiple ObjCInterfaceDecl nodes for the same class (forward
-# declarations + the full definition). We deduplicate by collecting all
-# members across all nodes sharing the same name and emitting each
-# interface/protocol only once.
+# Filter by SentryObjC prefix. Deduplicate interfaces that appear multiple
+# times (forward declarations + full definition).
 log_info "Extracting declarations from AST"
 jq '
-  def is_sentry: startswith("Sentry") or startswith("PrivateSentry");
+  def is_sentry: startswith("SentryObjC");
 
   # Collect all interface nodes grouped by name, merge their members
   (
@@ -168,4 +174,4 @@ jq '
   ] | sort_by(.kind, .name)
 ' "$AST_JSON" > "$OUTPUT"
 
-log_info "SentryObjC API written to $OUTPUT"
+log_info "SentryObjCCompat API written to $OUTPUT"
