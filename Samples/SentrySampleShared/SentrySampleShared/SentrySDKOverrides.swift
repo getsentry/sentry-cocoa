@@ -94,6 +94,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case disableUITracing                   = "--io.sentry.performance.disable-ui-tracing"
         case disablePrewarmedAppStartTracing    = "--io.sentry.performance.disable-prewarmed-app-start-tracing"
         case enableStandaloneAppStartTracing    = "--io.sentry.performance.enable-standalone-app-start-tracing"
+        case extendAppLaunchDelay               = "--io.sentry.performance.extend-app-launch-delay"
         case disablePerformanceTracing          = "--io.sentry.performance.disable-auto-performance-tracing"
         case sessionTrackingIntervalMillis      = "--io.sentry.performance.sessionTrackingIntervalMillis"
     }
@@ -314,6 +315,7 @@ extension SentrySDKOverrides.Performance {
     public var overrideType: OverrideType {
         switch self {
         case .disableTimeToFullDisplayTracing, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .enableStandaloneAppStartTracing, .disablePerformanceTracing: return .boolean
+        case .extendAppLaunchDelay: return .float
         case .sessionTrackingIntervalMillis: return .string
         }
     }
@@ -409,7 +411,7 @@ extension SentrySDKOverrides.Other {
 extension SentrySDKOverrides.Performance {
     public var ignoresDisableEverything: Bool {
         switch self {
-        case .disableTimeToFullDisplayTracing, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .enableStandaloneAppStartTracing, .disablePerformanceTracing: return false
+        case .disableTimeToFullDisplayTracing, .disableSessionTracking, .disableFileIOTracing, .disableUIVCTracing, .disableCoreDataTracing, .disableANRTracking, .disableWatchdogTracking, .disableUITracing, .disablePrewarmedAppStartTracing, .enableStandaloneAppStartTracing, .extendAppLaunchDelay, .disablePerformanceTracing: return false
         case .sessionTrackingIntervalMillis: return true
         }
     }

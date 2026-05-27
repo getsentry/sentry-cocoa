@@ -23,6 +23,8 @@ struct AttachToTransactionStrategy: AppStartReportingStrategy {
 /// configuration. The existing tracer pipeline then handles span building, measurements, context,
 /// debug images, and profiling.
 struct StandaloneTransactionStrategy: AppStartReportingStrategy {
+    let extendedAppLaunchManager: SentryExtendedAppLaunchManager
+
     func report(_ measurement: SentryAppStartMeasurement, traceId: SentryId) {
         guard SentrySDK.isEnabled else {
             SentrySDKLog.warning("SDK is not enabled, dropping standalone app start transaction")
@@ -60,7 +62,10 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
         // "background_launch" or "prewarmed_launch" if those paths are tracked separately.
         tracer.setData(value: "launch", key: SentrySpanDataKeyAppVitalsStartReason)
 
-        tracer.finish()
+        extendedAppLaunchManager.markAppStartCreated()
+        if !extendedAppLaunchManager.storeTracerIfExtendRequested(tracer) {
+            tracer.finish()
+        }
     }
 
     func shouldSkipMaxAppStartDurationLimit() -> Bool {
