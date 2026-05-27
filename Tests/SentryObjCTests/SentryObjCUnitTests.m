@@ -16,88 +16,43 @@
     XCTAssertEqualObjects(unit.rawValue, @"custom_unit");
 }
 
-- (void)testDurationUnits_shouldReturnNonNilWithRawValue
+- (void)testDurationUnits_shouldReturnExpectedRawValue
 {
     // -- Assert --
-    XCTAssertNotNil(SentryObjCUnit.nanosecond);
-    XCTAssertNotNil(SentryObjCUnit.nanosecond.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.microsecond);
-    XCTAssertNotNil(SentryObjCUnit.microsecond.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.millisecond);
-    XCTAssertNotNil(SentryObjCUnit.millisecond.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.second);
-    XCTAssertNotNil(SentryObjCUnit.second.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.minute);
-    XCTAssertNotNil(SentryObjCUnit.minute.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.hour);
-    XCTAssertNotNil(SentryObjCUnit.hour.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.day);
-    XCTAssertNotNil(SentryObjCUnit.day.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.week);
-    XCTAssertNotNil(SentryObjCUnit.week.rawValue);
+    XCTAssertEqualObjects(SentryObjCUnit.nanosecond.rawValue, @"nanosecond");
+    XCTAssertEqualObjects(SentryObjCUnit.microsecond.rawValue, @"microsecond");
+    XCTAssertEqualObjects(SentryObjCUnit.millisecond.rawValue, @"millisecond");
+    XCTAssertEqualObjects(SentryObjCUnit.second.rawValue, @"second");
+    XCTAssertEqualObjects(SentryObjCUnit.minute.rawValue, @"minute");
+    XCTAssertEqualObjects(SentryObjCUnit.hour.rawValue, @"hour");
+    XCTAssertEqualObjects(SentryObjCUnit.day.rawValue, @"day");
+    XCTAssertEqualObjects(SentryObjCUnit.week.rawValue, @"week");
 }
 
-- (void)testInformationUnits_shouldReturnNonNilWithRawValue
+- (void)testInformationUnits_shouldReturnExpectedRawValue
 {
     // -- Assert --
-    XCTAssertNotNil(SentryObjCUnit.bit);
-    XCTAssertNotNil(SentryObjCUnit.bit.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.byte);
-    XCTAssertNotNil(SentryObjCUnit.byte.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.kilobyte);
-    XCTAssertNotNil(SentryObjCUnit.kilobyte.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.kibibyte);
-    XCTAssertNotNil(SentryObjCUnit.kibibyte.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.megabyte);
-    XCTAssertNotNil(SentryObjCUnit.megabyte.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.mebibyte);
-    XCTAssertNotNil(SentryObjCUnit.mebibyte.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.gigabyte);
-    XCTAssertNotNil(SentryObjCUnit.gigabyte.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.gibibyte);
-    XCTAssertNotNil(SentryObjCUnit.gibibyte.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.terabyte);
-    XCTAssertNotNil(SentryObjCUnit.terabyte.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.tebibyte);
-    XCTAssertNotNil(SentryObjCUnit.tebibyte.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.petabyte);
-    XCTAssertNotNil(SentryObjCUnit.petabyte.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.pebibyte);
-    XCTAssertNotNil(SentryObjCUnit.pebibyte.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.exabyte);
-    XCTAssertNotNil(SentryObjCUnit.exabyte.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.exbibyte);
-    XCTAssertNotNil(SentryObjCUnit.exbibyte.rawValue);
+    XCTAssertEqualObjects(SentryObjCUnit.bit.rawValue, @"bit");
+    XCTAssertEqualObjects(SentryObjCUnit.byte.rawValue, @"byte");
+    XCTAssertEqualObjects(SentryObjCUnit.kilobyte.rawValue, @"kilobyte");
+    XCTAssertEqualObjects(SentryObjCUnit.kibibyte.rawValue, @"kibibyte");
+    XCTAssertEqualObjects(SentryObjCUnit.megabyte.rawValue, @"megabyte");
+    XCTAssertEqualObjects(SentryObjCUnit.mebibyte.rawValue, @"mebibyte");
+    XCTAssertEqualObjects(SentryObjCUnit.gigabyte.rawValue, @"gigabyte");
+    XCTAssertEqualObjects(SentryObjCUnit.gibibyte.rawValue, @"gibibyte");
+    XCTAssertEqualObjects(SentryObjCUnit.terabyte.rawValue, @"terabyte");
+    XCTAssertEqualObjects(SentryObjCUnit.tebibyte.rawValue, @"tebibyte");
+    XCTAssertEqualObjects(SentryObjCUnit.petabyte.rawValue, @"petabyte");
+    XCTAssertEqualObjects(SentryObjCUnit.pebibyte.rawValue, @"pebibyte");
+    XCTAssertEqualObjects(SentryObjCUnit.exabyte.rawValue, @"exabyte");
+    XCTAssertEqualObjects(SentryObjCUnit.exbibyte.rawValue, @"exbibyte");
 }
 
-- (void)testFractionUnits_shouldReturnNonNilWithRawValue
+- (void)testFractionUnits_shouldReturnExpectedRawValue
 {
     // -- Assert --
-    XCTAssertNotNil(SentryObjCUnit.ratio);
-    XCTAssertNotNil(SentryObjCUnit.ratio.rawValue);
-
-    XCTAssertNotNil(SentryObjCUnit.percent);
-    XCTAssertNotNil(SentryObjCUnit.percent.rawValue);
+    XCTAssertEqualObjects(SentryObjCUnit.ratio.rawValue, @"ratio");
+    XCTAssertEqualObjects(SentryObjCUnit.percent.rawValue, @"percent");
 }
 
 @end

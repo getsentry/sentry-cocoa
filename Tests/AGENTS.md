@@ -33,13 +33,23 @@ make stop-test-server   # always stop after use
 
 ## Test Location for SentryObjC Targets
 
-SPM does not support mixed ObjC/Swift sources in one target. Place tests accordingly:
+SPM does not support mixed ObjC/Swift sources in one target. Two test targets exist:
 
-| Test language | Target            | Path                    | Has access to                           |
-| ------------- | ----------------- | ----------------------- | --------------------------------------- |
-| ObjC          | `SentryObjCTests` | `Tests/SentryObjCTests` | Full SDK (SentryId, SentrySpanId, etc.) |
+| Test language | Target                  | Path                          | Has access to                                                   |
+| ------------- | ----------------------- | ----------------------------- | --------------------------------------------------------------- |
+| ObjC          | `SentryObjCTests`       | `Tests/SentryObjCTests`       | `@import SentryObjC` — public ObjC API (headers/"promise")      |
+| Swift         | `SentryObjCCompatTests` | `Tests/SentryObjCCompatTests` | `@testable import SentryObjCCompat` — Swift wrappers/"delivery" |
+
+**When to use which:**
+
+- **`SentryObjCTests`** — verifies the public ObjC surface works from an ObjC consumer's perspective. Tests are `.m` files using `@import SentryObjC; @import XCTest;`. Use for property getters/setters, ObjC-visible initializers, and ObjC-only behavior
+- **`SentryObjCCompatTests`** — verifies Swift `@objc` wrapper internals (enum conversions, metric bridging, internal-only initializers). Tests are `.swift` files using `@testable import SentryObjCCompat`. Use when you need access to `internal` symbols or Swift-only test patterns (generics, `Invocations<T>`)
+
+**Rules:**
 
 - Do **not** create test targets that depend on `SentryHeaders` for implementations — it is header-only (see [`develop-docs/SENTRY-OBJC.md`](../develop-docs/SENTRY-OBJC.md))
+- Both targets are in the `SentryObjCTests` scheme and `SentryObjC_Base.xctestplan`
+- Run via: `make test-macos TEST_SCHEME=SentryObjCTests`
 
 ## Naming Convention
 
