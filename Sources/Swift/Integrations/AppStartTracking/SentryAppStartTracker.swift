@@ -209,7 +209,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
                 appStartTimestamp = sysctl.processStartTimestamp
             }
 
-            if !(self.reportingStrategy is StandaloneTransactionStrategy) && appStartDuration >= Self.maxAppStartDuration {
+            if !self.reportingStrategy.shouldSkipMaxAppStartDurationLimit() && appStartDuration >= Self.maxAppStartDuration {
                 SentrySDKLog.info("The app start exceeded the max duration of \(Self.maxAppStartDuration) seconds. Not measuring app start.")
                 return
             }
