@@ -147,13 +147,7 @@ targets += [
             "SentryObjCCompat"
         ],
         cSettings: [
-            .headerSearchPath("Sentry"),
-            .headerSearchPath("SentryCrash/Recording"),
-            .headerSearchPath("SentryCrash/Recording/Monitors"),
-            .headerSearchPath("SentryCrash/Recording/Tools"),
-            .headerSearchPath("SentryCrash/Installations"),
-            .headerSearchPath("SentryCrash/Reporting/Filters"),
-            .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
+            .headerSearchPath("Sentry")])
 ]
 
 // BEGIN:OBJC_WRAPPER

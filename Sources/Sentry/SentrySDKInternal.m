@@ -3,7 +3,6 @@
 #import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
-#import "SentryCrash.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentryLogC.h"
@@ -481,7 +480,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (BOOL)crashedLastRun
 {
-    return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
+    return SentryDependencyContainer.sharedInstance.crashWrapper.crashedLastLaunch;
 }
 
 + (NSInteger)lastRunStatus

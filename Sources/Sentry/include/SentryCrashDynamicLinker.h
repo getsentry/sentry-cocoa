@@ -101,6 +101,9 @@ void sentrycrashdl_getCrashInfo(uint64_t address, SentryCrashBinaryImage *buffer
 
 void sentrycrashdl_initialize(void);
 
+/** Resets the cached dyld header. For testing only. */
+void sentrycrashdl_clearDyld(void);
+
 extern const struct mach_header *sentryDyldHeader;
 
 #ifdef __cplusplus

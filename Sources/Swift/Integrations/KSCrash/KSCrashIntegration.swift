@@ -6,6 +6,17 @@ import Foundation
 import UIKit
 #endif
 
+// MARK: - C Callback
+
+/// Finishes and saves the active transaction so it can be attached to the crash event.
+/// Called from the KSCrash willWriteReportCallback (ObjC/C context).
+@_cdecl("sentry_finishAndSaveTransaction")
+func sentry_finishAndSaveTransaction() {
+    let scope = SentrySDKInternal.currentHub().scope as Scope
+    guard let span = scope.getCastedInternalSpan() else { return }
+    span.tracer?.finishForCrash()
+}
+
 // MARK: - Dependency Provider
 
 /// Provides dependencies for `KSCrashIntegration`.
@@ -39,9 +50,11 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
 
         super.init()
 
-        var enableSigtermReporting = false
+        let enableSigtermReporting: Bool
         #if !os(watchOS)
         enableSigtermReporting = options.enableSigtermReporting
+        #else
+        enableSigtermReporting = false
         #endif
 
         let enableCppExceptionsV2 = options.experimental.enableUnhandledCPPExceptionsV2

@@ -1,148 +1,74 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
+// Compatibility shim — forwards to upstream KSCrash.
 //
-//  SentryCrashMachineContext.h
-//
-//  Created by Karl Stenerud on 2016-12-02.
-//
-//  Copyright (c) 2012 Karl Stenerud. All rights reserved.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall remain in place
-// in this source code.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
+// All sentrycrashmc_* symbols are aliases for their ksmc_* counterparts.
+// The SentryCrashMachineContext struct is now KSMachineContext.
+// The SentryCrashMC_NEW_CONTEXT macro allocates a KSMachineContext on the stack.
 
 #ifndef HDR_SentryCrashMachineContext_h
 #define HDR_SentryCrashMachineContext_h
 
-#include "SentryCrashMachineContext_Apple.h"
+#include "KSMachineContext.h"
 #include "SentryCrashThread.h"
-#include <mach/mach.h>
-#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/** Suspend the runtime environment.
- */
-void sentrycrashmc_suspendEnvironment(
-    thread_act_array_t *suspendedThreads, mach_msg_type_number_t *numSuspendedThreads);
+// SentryCrashMachineContext is now an alias for KSMachineContext.
+// Define the struct alias so that `struct SentryCrashMachineContext *` is a valid type.
+typedef struct KSMachineContext SentryCrashMachineContext;
 
-/**
- Suspend the runtime environment only if the amount of threads is not higher than
- maxSupportedThreads.
- */
-void sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(thread_act_array_t *suspendedThreads,
-    mach_msg_type_number_t *numSuspendedThreads, mach_msg_type_number_t maxSupportedThreads);
-
-/** Resume the runtime environment.
- */
-void sentrycrashmc_resumeEnvironment(thread_act_array_t threads, mach_msg_type_number_t numThreads);
-
-/** Create a new machine context on the stack.
- * This macro creates a storage object on the stack, as well as a pointer of
- * type struct SentryCrashMachineContext* in the current scope, which points to
- * the storage object.
- *
- * Example usage: SentryCrashMC_NEW_CONTEXT(a_context);
- * This creates a new pointer at the current scope that behaves as if:
- *     struct SentryCrashMachineContext* a_context = some_storage_location;
- *
- * @param NAME The C identifier to give the pointer.
- */
+// Allocate on the stack just like the original macro.
 #define SentryCrashMC_NEW_CONTEXT(NAME)                                                            \
-    char sentrycrashmc_##NAME##_storage[sizeof(SentryCrashMachineContext)];                        \
-    struct SentryCrashMachineContext *NAME                                                         \
-        = (struct SentryCrashMachineContext *)sentrycrashmc_##NAME##_storage
+    char sentrycrashmc_##NAME##_storage[sizeof(KSMachineContext)];                                 \
+    struct KSMachineContext *NAME = (struct KSMachineContext *)sentrycrashmc_##NAME##_storage
 
-struct SentryCrashMachineContext;
+// Function aliases: sentrycrashmc_* → ksmc_*
+#define sentrycrashmc_getContextForThread ksmc_getContextForThread
+#define sentrycrashmc_getContextForSignal ksmc_getContextForSignal
+#define sentrycrashmc_getThreadFromContext ksmc_getThreadFromContext
+#define sentrycrashmc_getThreadCount ksmc_getThreadCount
+#define sentrycrashmc_getThreadAtIndex ksmc_getThreadAtIndex
+#define sentrycrashmc_indexOfThread ksmc_indexOfThread
+#define sentrycrashmc_isCrashedContext ksmc_isCrashedContext
+#define sentrycrashmc_canHaveCPUState ksmc_canHaveCPUState
+#define sentrycrashmc_hasValidExceptionRegisters ksmc_hasValidExceptionRegisters
+#define sentrycrashmc_suspendEnvironment ksmc_suspendEnvironment
 
-/** Fill in a machine context from a thread.
- *
- * @param thread The thread to get information from.
- * @param destinationContext The context to fill.
- * @param isCrashedContext Used to indicate that this is the thread that
- * crashed,
- *
- * @return true if successful.
- */
-bool sentrycrashmc_getContextForThread(SentryCrashThread thread,
-    struct SentryCrashMachineContext *destinationContext, bool isCrashedContext);
+// sentrycrashmc_resumeEnvironment(threads, numThreads) — old API passes values, not pointers.
+// Provide an inline wrapper that adapts to ksmc_resumeEnvironment(*, *) taking pointers.
+static inline void
+sentrycrashmc_resumeEnvironment(thread_act_array_t threads, mach_msg_type_number_t numThreads)
+{
+    ksmc_resumeEnvironment(&threads, &numThreads);
+}
 
-/** Fill in a machine context from a signal handler.
- * A signal handler context is always assumed to be a crashed context.
- *
- * @param signalUserContext The signal context to get information from.
- * @param destinationContext The context to fill.
- *
- * @return true if successful.
- */
-bool sentrycrashmc_getContextForSignal(
-    void *signalUserContext, struct SentryCrashMachineContext *destinationContext);
+// Sentry-specific: suspend only when thread count is within limit.
+// KSCrash has no equivalent, so we implement it inline.
+#include <mach/mach.h>
+static inline void
+sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(thread_act_array_t *suspendedThreads,
+    mach_msg_type_number_t *numSuspendedThreads, mach_msg_type_number_t maxSupportedThreads)
+{
+    // Get the count first without suspending.
+    mach_port_t task = mach_task_self();
+    thread_act_array_t threads = NULL;
+    mach_msg_type_number_t count = 0;
+    if (task_threads(task, &threads, &count) != KERN_SUCCESS) {
+        *suspendedThreads = NULL;
+        *numSuspendedThreads = 0;
+        return;
+    }
+    // Deallocate the temporary list — we just needed the count.
+    vm_deallocate(task, (vm_address_t)threads, count * sizeof(thread_t));
 
-/** Get the thread associated with a machine context.
- *
- * @param context The machine context.
- *
- * @return The associated thread.
- */
-SentryCrashThread sentrycrashmc_getThreadFromContext(
-    const struct SentryCrashMachineContext *const context);
-
-/** Get the number of threads stored in a machine context.
- *
- * @param context The machine context.
- *
- * @return The number of threads.
- */
-int sentrycrashmc_getThreadCount(const struct SentryCrashMachineContext *const context);
-
-/** Get a thread from a machine context.
- *
- * @param context The machine context.
- * @param index The index of the thread to retrieve.
- *
- * @return The thread.
- */
-SentryCrashThread sentrycrashmc_getThreadAtIndex(
-    const struct SentryCrashMachineContext *const context, int index);
-
-/** Get the index of a thread.
- *
- * @param context The machine context.
- * @param thread The thread.
- *
- * @return The thread's index, or -1 if it couldn't be determined.
- */
-int sentrycrashmc_indexOfThread(
-    const struct SentryCrashMachineContext *const context, SentryCrashThread thread);
-
-/** Check if this is a crashed context.
- */
-bool sentrycrashmc_isCrashedContext(const struct SentryCrashMachineContext *const context);
-
-/** Check if this context can have stored CPU state.
- */
-bool sentrycrashmc_canHaveCPUState(const struct SentryCrashMachineContext *const context);
-
-/** Check if this context has valid exception registers.
- */
-bool sentrycrashmc_hasValidExceptionRegisters(
-    const struct SentryCrashMachineContext *const context);
+    if (count > maxSupportedThreads) {
+        *suspendedThreads = NULL;
+        *numSuspendedThreads = 0;
+        return;
+    }
+    ksmc_suspendEnvironment(suspendedThreads, numSuspendedThreads);
+}
 
 #ifdef __cplusplus
 }

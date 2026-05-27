@@ -1,108 +1,44 @@
-// Adapted from: https://github.com/kstenerud/KSCrash
+// Compatibility shim — forwards to upstream KSCrash.
 //
-//  SentryCrashStackCursor.h
+// SentryCrashStackCursor is now an alias for KSStackCursor.
+// SentryCrashStackEntry is aliased to the stackEntry inner struct of KSStackCursor.
+// sentrycrashsc_* functions map to kssc_* equivalents.
 //
-//  Copyright (c) 2016 Karl Stenerud. All rights reserved.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall remain in place
-// in this source code.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
+// Sentry-specific additions kept here:
+//   SentryCrashSC_ASYNC_MARKER — special frame marker for async stack stitching.
 
 #ifndef SentryCrashStackCursor_h
 #define SentryCrashStackCursor_h
 
-#include "SentryCrashMachineContext.h"
-#include <stdbool.h>
-#include <sys/types.h>
+#include "KSStackCursor.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define SentryCrashSC_CONTEXT_SIZE 100
+// Type alias — typedef (not #define) so Swift can see SentryCrashStackCursor as a type.
+typedef KSStackCursor SentryCrashStackCursor;
+#define SentryCrashSC_CONTEXT_SIZE KSSC_CONTEXT_SIZE
+#define SentryCrashSC_STACK_OVERFLOW_THRESHOLD KSSC_STACK_OVERFLOW_THRESHOLD
 
-/** Point at which to give up walking a stack and consider it a stack overflow.
- */
-#define SentryCrashSC_STACK_OVERFLOW_THRESHOLD 150
-
-/** A special marker frame being yielded as `address` to denote a chained async stacktrace. */
-#define SentryCrashSC_ASYNC_MARKER (UINTPTR_MAX - 1234)
-
+// SentryCrashStackEntry is the anonymous struct type of KSStackCursor.stackEntry.
+// We can't typedef it directly, so we replicate the fields as a named type.
+// Code that accesses cursor.stackEntry.* works directly via KSStackCursor.
+// Code that takes SentryCrashStackEntry as a value type needs this typedef.
 typedef struct {
-    /** Current address in the stack trace. */
     uintptr_t address;
-
-    /** The name (if any) of the binary image the current address falls
-     * inside. */
     const char *imageName;
-
-    /** The starting address of the binary image the current address falls
-     * inside. */
     uintptr_t imageAddress;
-
-    /** The name (if any) of the closest symbol to the current address. */
     const char *symbolName;
-
-    /** The address of the closest symbol to the current address. */
     uintptr_t symbolAddress;
 } SentryCrashStackEntry;
 
-typedef struct SentryCrashStackCursor {
-    SentryCrashStackEntry stackEntry;
+/** A special marker frame to denote a chained async stacktrace (Sentry-specific). */
+#define SentryCrashSC_ASYNC_MARKER (UINTPTR_MAX - 1234)
 
-    struct {
-        /** Current depth as we walk the stack (1-based). */
-        int currentDepth;
-
-        /** If true, cursor has given up walking the stack. */
-        bool hasGivenUp;
-    } state;
-
-    /** Reset the cursor back to the beginning. */
-    void (*resetCursor)(struct SentryCrashStackCursor *);
-
-    /** Advance the cursor to the next stack entry. */
-    bool (*advanceCursor)(struct SentryCrashStackCursor *);
-
-    /** Internal context-specific information. */
-    void *context[SentryCrashSC_CONTEXT_SIZE];
-} SentryCrashStackCursor;
-
-/** Common initialization routine for a stack cursor.
- *  Note: This is intended primarily for other cursors to call.
- *
- * @param cursor The cursor to initialize.
- *
- * @param resetCursor Function that will reset the cursor (NULL = default: Do
- * nothing).
- *
- * @param advanceCursor Function to advance the cursor (NULL = default: Do
- * nothing and return false).
- */
-void sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
-    void (*resetCursor)(SentryCrashStackCursor *), bool (*advanceCursor)(SentryCrashStackCursor *));
-
-/** Reset a cursor.
- *  INTERNAL METHOD. Do not call!
- *
- * @param cursor The cursor to reset.
- */
-void sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor);
+// Function aliases
+#define sentrycrashsc_initCursor kssc_initCursor
+#define sentrycrashsc_resetCursor kssc_resetCursor
 
 #ifdef __cplusplus
 }

@@ -8,11 +8,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol SentryCrashMachineContextWrapper <NSObject>
 
-- (void)fillContextForCurrentThread:(struct SentryCrashMachineContext *)context;
+- (void)fillContextForCurrentThread:(SentryCrashMachineContext *)context;
 
-- (int)getThreadCount:(struct SentryCrashMachineContext *)context;
+- (int)getThreadCount:(SentryCrashMachineContext *)context;
 
-- (SentryCrashThread)getThread:(struct SentryCrashMachineContext *)context withIndex:(int)index;
+- (SentryCrashThread)getThread:(SentryCrashMachineContext *)context withIndex:(int)index;
 
 - (BOOL)getThreadName:(const SentryCrashThread)thread
             andBuffer:(char *const)buffer

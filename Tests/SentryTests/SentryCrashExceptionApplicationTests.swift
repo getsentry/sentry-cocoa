@@ -15,7 +15,7 @@ class SentryNSExceptionCaptureHelperTests: XCTestCase {
         super.tearDown()
 
         SentryNSExceptionCaptureHelper.reportExceptionDidFinish()
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+        let crashReporter = SentryDependencyContainer.sharedInstance().kscrashReporter
         crashReporter.uncaughtExceptionHandler = nil
         exceptionHandlerCallCount = 0
 
@@ -25,7 +25,7 @@ class SentryNSExceptionCaptureHelperTests: XCTestCase {
     }
 
     func testReportExceptionCallsHandler() {
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+        let crashReporter = SentryDependencyContainer.sharedInstance().kscrashReporter
         crashReporter.uncaughtExceptionHandler = countingExceptionHandler
 
         SentryNSExceptionCaptureHelper.report(uncaughtInternalInconsistencyException)
@@ -35,7 +35,7 @@ class SentryNSExceptionCaptureHelperTests: XCTestCase {
     }
 
     func testReportExceptionWithoutUncaughtExceptionHandler() {
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+        let crashReporter = SentryDependencyContainer.sharedInstance().kscrashReporter
         crashReporter.uncaughtExceptionHandler = nil
 
         SentryNSExceptionCaptureHelper.report(uncaughtInternalInconsistencyException)
@@ -45,7 +45,7 @@ class SentryNSExceptionCaptureHelperTests: XCTestCase {
     }
 
     func testCrashOnException_directCall_capturesException() {
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+        let crashReporter = SentryDependencyContainer.sharedInstance().kscrashReporter
         crashReporter.uncaughtExceptionHandler = countingExceptionHandler
 
         SentryNSExceptionCaptureHelper.crash(on: uncaughtInternalInconsistencyException)
@@ -54,7 +54,7 @@ class SentryNSExceptionCaptureHelperTests: XCTestCase {
     }
 
     func testCrashOnException_calledDuringReportException_doesNotDuplicate() {
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+        let crashReporter = SentryDependencyContainer.sharedInstance().kscrashReporter
         crashReporter.uncaughtExceptionHandler = countingExceptionHandler
 
         // Simulate the flow: reportException: captures, then [super reportException:]
@@ -70,7 +70,7 @@ class SentryNSExceptionCaptureHelperTests: XCTestCase {
     }
 
     func testCrashOnException_afterReportExceptionFinishes_capturesNormally() {
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+        let crashReporter = SentryDependencyContainer.sharedInstance().kscrashReporter
         crashReporter.uncaughtExceptionHandler = countingExceptionHandler
 
         // First: a full reportException: cycle

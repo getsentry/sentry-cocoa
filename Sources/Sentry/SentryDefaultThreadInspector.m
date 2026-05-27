@@ -9,6 +9,7 @@
 #import "SentrySwift.h"
 #import "SentryThread.h"
 #include <pthread.h>
+#include <string.h>
 
 @interface SentryDefaultThreadInspector ()
 
@@ -29,7 +30,7 @@ typedef struct {
 // If asyncUnsafeSymbolicate is `true` the stack will be symbolicated but the function is no longer
 // async-signal-safe.
 unsigned int
-getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineContext *context,
+getStackEntriesFromThread(SentryCrashThread thread, SentryCrashMachineContext *context,
     SentryCrashStackEntry *buffer, unsigned int maxEntries)
 {
     sentrycrashmc_getContextForThread(thread, context, NO);
@@ -41,7 +42,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
     while (stackCursor.advanceCursor(&stackCursor)) {
         if (entries == maxEntries)
             break;
-        buffer[entries] = stackCursor.stackEntry;
+        memcpy(&buffer[entries], &stackCursor.stackEntry, sizeof(SentryCrashStackEntry));
         entries++;
     }
 

@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
-                                       context:(struct SentryCrashMachineContext *)context
+                                       context:(SentryCrashMachineContext *)context
 {
     sentrycrashmc_getContextForThread(thread, context, NO);
     SentryCrashStackCursor stackCursor;

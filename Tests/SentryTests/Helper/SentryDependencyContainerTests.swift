@@ -89,7 +89,7 @@ final class SentryDependencyContainerTests: XCTestCase {
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().appStateManager)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().threadInspector)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().fileIOTracker)
-                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().crashReporter)
+                    XCTAssertNotNil(SentryDependencyContainer.sharedInstance().kscrashReporter)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().scopePersistentStore)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().debugImageProvider)
                     XCTAssertNotNil(SentryDependencyContainer.sharedInstance().getANRTracker(2.0))

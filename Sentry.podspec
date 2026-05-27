@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |sp|
       sp.source_files = "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
-        "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}", "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
+        "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
       sp.public_header_files =
         "Sources/Sentry/Public/*.h"
       sp.preserve_path = "Sources/Sentry/include/module.modulemap"

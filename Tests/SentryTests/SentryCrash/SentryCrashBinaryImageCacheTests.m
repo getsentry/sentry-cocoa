@@ -1,7 +1,6 @@
 #import "SentryCrashBinaryImageCache+Test.h"
 #import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashBinaryImageCacheState.h"
-#import "SentryCrashDynamicLinker+Test.h"
 #import "SentrySwift.h"
 #import <XCTest/XCTest.h>
 

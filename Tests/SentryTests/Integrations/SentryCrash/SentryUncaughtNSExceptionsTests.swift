@@ -14,7 +14,7 @@ final class SentryUncaughtNSExceptionsTests: XCTestCase {
     }
     
     func testSwizzleNSApplicationReportException() throws {
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+        let crashReporter = SentryDependencyContainer.sharedInstance().kscrashReporter
         
         defer {
             resetUserDefaults()
@@ -40,7 +40,7 @@ final class SentryUncaughtNSExceptionsTests: XCTestCase {
             "_crashOnException: class method not available on this macOS version"
         )
 
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+        let crashReporter = SentryDependencyContainer.sharedInstance().kscrashReporter
 
         defer {
             crashReporter.uncaughtExceptionHandler = nil
@@ -65,7 +65,7 @@ final class SentryUncaughtNSExceptionsTests: XCTestCase {
             "_crashOnException: class method not available on this macOS version"
         )
 
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+        let crashReporter = SentryDependencyContainer.sharedInstance().kscrashReporter
 
         defer {
             crashReporter.uncaughtExceptionHandler = nil
@@ -93,7 +93,7 @@ final class SentryUncaughtNSExceptionsTests: XCTestCase {
             "_crashOnException: instance method not available on this macOS version"
         )
 
-        let crashReporter = SentryDependencyContainer.sharedInstance().crashReporter
+        let crashReporter = SentryDependencyContainer.sharedInstance().kscrashReporter
 
         defer {
             crashReporter.uncaughtExceptionHandler = nil

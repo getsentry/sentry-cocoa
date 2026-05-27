@@ -40,7 +40,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryFrame *)mapStackEntryWithCursor:(SentryCrashStackCursor)stackCursor
 {
-    return [self sentryCrashStackEntryToSentryFrame:stackCursor.stackEntry];
+    // KSStackCursor.stackEntry is an anonymous struct; copy fields into named
+    // SentryCrashStackEntry.
+    SentryCrashStackEntry entry;
+    entry.address = stackCursor.stackEntry.address;
+    entry.imageName = stackCursor.stackEntry.imageName;
+    entry.imageAddress = stackCursor.stackEntry.imageAddress;
+    entry.symbolName = stackCursor.stackEntry.symbolName;
+    entry.symbolAddress = stackCursor.stackEntry.symbolAddress;
+    return [self sentryCrashStackEntryToSentryFrame:entry];
 }
 
 @end

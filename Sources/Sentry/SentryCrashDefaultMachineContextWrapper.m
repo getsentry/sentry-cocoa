@@ -25,17 +25,17 @@ SentryCrashThread mainThreadID;
     mainThreadID = pthread_mach_thread_np(pthread_self());
 }
 
-- (void)fillContextForCurrentThread:(struct SentryCrashMachineContext *)context
+- (void)fillContextForCurrentThread:(SentryCrashMachineContext *)context
 {
     sentrycrashmc_getContextForThread(sentrycrashthread_self(), context, YES);
 }
 
-- (int)getThreadCount:(struct SentryCrashMachineContext *)context
+- (int)getThreadCount:(SentryCrashMachineContext *)context
 {
     return sentrycrashmc_getThreadCount(context);
 }
 
-- (SentryCrashThread)getThread:(struct SentryCrashMachineContext *)context withIndex:(int)index
+- (SentryCrashThread)getThread:(SentryCrashMachineContext *)context withIndex:(int)index
 {
     SentryCrashThread thread = sentrycrashmc_getThreadAtIndex(context, index);
     return thread;

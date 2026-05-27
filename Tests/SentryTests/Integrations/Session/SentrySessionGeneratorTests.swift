@@ -17,8 +17,8 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
     
     private var sentryCrash: TestSentryCrashWrapper!
     private var autoSessionTrackingIntegration: SentryAutoSessionTrackingIntegration<SentryDependencyContainer>!
-    private var crashIntegration: SentryCrashIntegration<MockCrashDependencies>!
-    private var mockedCrashDependencies: MockCrashDependencies!
+    private var crashIntegration: KSCrashIntegration<MockKSCrashDependencies>!
+    private var mockedCrashDependencies: MockKSCrashDependencies!
     private var options: Options!
     private var fileManager: SentryFileManager!
     
@@ -92,13 +92,13 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         sentryCrash.internalCrashedLastLaunch = true
         for _ in Array(1...amount.crashed) {
             // send crashed session
-            crashIntegration = try XCTUnwrap(SentryCrashIntegration(with: options, dependencies: mockedCrashDependencies))
+            crashIntegration = try XCTUnwrap(KSCrashIntegration(with: options, dependencies: mockedCrashDependencies))
             autoSessionTrackingIntegration.uninstall()
             autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
             goToForeground()
-            
+
             // Almost always the AutoSessionTrackingIntegration is faster
-            // than the SentryCrashIntegration creating the event from the
+            // than the KSCrashIntegration creating the event from the
             // crash report on a background thread.
             let fatalEvent = Event()
             fatalEvent.level = SentryLevel.fatal
@@ -114,8 +114,8 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         
         for _ in Array(1...amount.oom) {
             // send crashed session
-            crashIntegration = try XCTUnwrap(SentryCrashIntegration(with: options, dependencies: mockedCrashDependencies))
-            
+            crashIntegration = try XCTUnwrap(KSCrashIntegration(with: options, dependencies: mockedCrashDependencies))
+
             autoSessionTrackingIntegration.uninstall()
             autoSessionTrackingIntegration = SentryAutoSessionTrackingIntegration(with: options, dependencies: SentryDependencyContainer.sharedInstance())
             goToForeground()
@@ -147,8 +147,8 @@ class SentrySessionGeneratorTests: NotificationCenterTestCase {
         let hub = SentryHubInternal(client: client, andScope: nil, andCrashWrapper: self.sentryCrash, andDispatchQueue: SentryDispatchQueueWrapper())
         SentrySDKInternal.setCurrentHub(hub)
         
-        mockedCrashDependencies = MockCrashDependencies(crashWrapper: sentryCrash, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), fileManager: fileManager)
-        crashIntegration = try XCTUnwrap(SentryCrashIntegration(with: options, dependencies: mockedCrashDependencies))
+        mockedCrashDependencies = MockKSCrashDependencies(crashReporter: sentryCrash, dispatchQueueWrapper: TestSentryDispatchQueueWrapper(), fileManager: fileManager)
+        crashIntegration = try XCTUnwrap(KSCrashIntegration(with: options, dependencies: mockedCrashDependencies))
         
         // We need to enable auto session tracking in options or SentryAutoSessionTrackingIntegration's init will return nil
         options.enableAutoSessionTracking = true

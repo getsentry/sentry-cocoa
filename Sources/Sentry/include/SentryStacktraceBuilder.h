@@ -42,7 +42,7 @@ SENTRY_NO_INIT
  * without skipping frames.
  */
 - (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
-                                       context:(struct SentryCrashMachineContext *)context;
+                                       context:(SentryCrashMachineContext *)context;
 
 - (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries
                                                amount:(unsigned int)amount;

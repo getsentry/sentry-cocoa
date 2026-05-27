@@ -114,12 +114,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public var processInfoWrapper = Dependencies.processInfoWrapper
     private var _crashWrapper: SentryCrashReporter?
     @objc public lazy var crashWrapper: SentryCrashReporter = getLazyVar(\._crashWrapper) {
-        let bridge = SentryCrashBridge(
-            notificationCenterWrapper: self.notificationCenterWrapper,
-            dateProvider: self.dateProvider,
-            crashReporter: self.crashReporter
-        )
-        return SentryDefaultCrashReporter(processInfoWrapper: Dependencies.processInfoWrapper, bridge: bridge)
+        SentryKSCrashDefaultReporter(processInfoWrapper: Dependencies.processInfoWrapper)
     }
     @objc public var dispatchFactory = SentryDispatchFactory()
     @objc public var timerFactory = SentryNSTimerFactory()
@@ -324,31 +319,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         }
     }
 
-    private var crashIntegrationSessionHandler: SentryCrashIntegrationSessionHandler?
-    func getCrashIntegrationSessionBuilder(_ options: Options, bridge: SentryCrashBridge) -> SentryCrashIntegrationSessionHandler? {
-        getOptionalLazyVar(\.crashIntegrationSessionHandler) {
-
-            guard let fileManager = fileManager else {
-                SentrySDKLog.fatal("File manager is not available")
-                return nil
-            }
-
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-            let watchdogLogic = SentryWatchdogTerminationLogic(options: options,
-                                                       crashAdapter: crashWrapper,
-                                                       appStateManager: appStateManager)
-            return SentryCrashIntegrationSessionHandler(
-                crashWrapper: crashWrapper,
-                watchdogTerminationLogic: watchdogLogic,
-                fileManager: fileManager,
-                bridge: bridge
-            )
-#else
-            return SentryCrashIntegrationSessionHandler(crashWrapper: crashWrapper, fileManager: fileManager, bridge: bridge)
-#endif
-        }
-    }
-
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     private var _screenshotSource: SentryScreenshotSource?
     @objc public lazy var screenshotSource: SentryScreenshotSource? = getOptionalLazyVar(\._screenshotSource) {
@@ -399,11 +369,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             fileManager: fileManager,
             sysctlWrapper: sysctlWrapper)
     }
-    private var _crashReporter: SentryCrashSwift?
-    @objc public lazy var crashReporter = getLazyVar(\._crashReporter) {
-        SentryCrashSwift(with: SentrySDK.startOption?.cacheDirectoryPath)
-    }
-    
     private var anrTracker: SentryANRTracker?
     @objc public func getANRTracker(_ timeout: TimeInterval) -> SentryANRTracker {
         getLazyVar(\.anrTracker) {
@@ -412,19 +377,6 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         #else
             SentryANRTracker(helper: SentryANRTrackerV1(timeoutInterval: timeout))
         #endif
-        }
-    }
-    
-    private var crashInstallationReporter: SentryCrashInstallationReporter?
-    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter {
-        getLazyVar(\.crashInstallationReporter) {
-            let inAppLogic = SentryInAppLogic(inAppIncludes: options.inAppIncludes)
-
-            return SentryCrashInstallationReporter(
-                inAppLogic: inAppLogic,
-                crashWrapper: crashWrapper,
-                dispatchQueue: dispatchQueueWrapper
-            )
         }
     }
     
@@ -608,21 +560,6 @@ extension SentryDependencyContainer: NetworkTrackerProvider {
         SentryNetworkTracker.sharedInstance
     }
 }
-
-protocol SentryCrashReporterProvider {
-    var crashReporter: SentryCrashSwift { get }
-}
-extension SentryDependencyContainer: SentryCrashReporterProvider {}
-
-protocol CrashIntegrationSessionHandlerBuilder {
-    func getCrashIntegrationSessionBuilder(_ options: Options, bridge: SentryCrashBridge) -> SentryCrashIntegrationSessionHandler?
-}
-extension SentryDependencyContainer: CrashIntegrationSessionHandlerBuilder {}
-
-protocol CrashInstallationReporterBuilder {
-    func getCrashInstallationReporter(_ options: Options) -> SentryCrashInstallationReporter
-}
-extension SentryDependencyContainer: CrashInstallationReporterBuilder {}
 
 // MARK: - KSCrash Integration Providers
 
