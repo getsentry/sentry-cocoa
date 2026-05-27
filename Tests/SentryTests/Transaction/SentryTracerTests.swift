@@ -999,7 +999,7 @@ class SentryTracerTests: XCTestCase {
         // Standalone transactions have no intermediate grouping span, so 5 child spans
         // (not 6) for a non-prewarmed cold start.
         let spans = try XCTUnwrap(serializedTransaction["spans"] as? [[String: Any]])
-        XCTAssertEqual(spans.count, 5)
+        XCTAssertEqual(spans.count, 4)
 
         let spanDescriptions = spans.compactMap { $0["description"] as? String }
         let spanOperations = spans.compactMap { $0["op"] as? String }
@@ -1008,8 +1008,7 @@ class SentryTracerTests: XCTestCase {
             "Pre Runtime Init",
             "Runtime Init to Pre Main Initializers",
             "UIKit Init",
-            "Application Init",
-            "Initial Frame Render"
+            "Application Init"
         ])
         XCTAssertEqual(Set(spanOperations), ["app.start"])
     }

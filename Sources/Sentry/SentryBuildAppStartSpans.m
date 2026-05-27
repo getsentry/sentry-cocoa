@@ -130,14 +130,15 @@ sentryBuildAppStartSpansInternal(SentryTracer *tracer,
     }
     [appStartSpans addObject:didFinishLaunching];
 
-    id<SentrySpan> frameRenderSpan
-        = sentryBuildAppStartSpan(tracer, appStartSpanParentId, operation, @"Initial Frame Render");
-    [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
-    [frameRenderSpan setTimestamp:appStartEndTimestamp];
-    if (isStandalone && startType != nil) {
-        [frameRenderSpan setDataValue:startType forKey:SentrySpanDataKeyAppVitalsStartType];
+    // Standalone app starts end at didFinishLaunching, so the frame render span
+    // does not apply. Non-standalone starts still end at the first frame render.
+    if (!isStandalone) {
+        id<SentrySpan> frameRenderSpan = sentryBuildAppStartSpan(
+            tracer, appStartSpanParentId, operation, @"Initial Frame Render");
+        [frameRenderSpan setStartTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
+        [frameRenderSpan setTimestamp:appStartEndTimestamp];
+        [appStartSpans addObject:frameRenderSpan];
     }
-    [appStartSpans addObject:frameRenderSpan];
 
     return appStartSpans;
 }
