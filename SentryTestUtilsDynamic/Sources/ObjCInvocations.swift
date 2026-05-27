@@ -27,10 +27,10 @@ public final class ObjCInvocations: NSObject {
     }
 
     @objc public func record(_ invocation: NSDictionary) {
-        queue.async { self._invocations.append(invocation) }
+        queue.sync { self._invocations.append(invocation) }
     }
 
     @objc public func removeAll() {
-        queue.async { self._invocations.removeAll() }
+        queue.sync { self._invocations.removeAll() }
     }
 }
