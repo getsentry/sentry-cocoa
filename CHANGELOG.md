@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Feature
+
+- Skip max app start duration limit for standalone app start tracing (#7949)
+
 ### Fixes
 
 - Fix UIViewController transactions lost during launch profiling (#7920)
