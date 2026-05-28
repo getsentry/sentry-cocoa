@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+> [!IMPORTANT]
+> The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
+
 ### Features
 
 - Add SentryObjC wrapper SDK — a pure Objective-C interface for projects that cannot enable Clang modules (e.g., ObjC++ with `-fmodules=NO`). Ships as `SentryObjC-Dynamic.xcframework.zip` and as a compile-from-source SPM product. (#6342)
@@ -11,9 +14,6 @@
   - Rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
 
 ## 9.15.0
-
-> [!IMPORTANT]
-> The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
 
 ### Features
 
