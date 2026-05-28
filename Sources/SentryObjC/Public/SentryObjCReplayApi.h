@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// API for interacting with the Session Replay feature.
 @interface SentryObjCReplayApi : NSObject
+SENTRY_NO_INIT
 
 /// Marks this view to be masked during replays.
 - (void)maskView:(UIView *)view;

@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 @class SentryObjCAttributeContent;
 @class SentryObjCUnit;
@@ -12,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
  * for monitoring application performance, tracking business metrics, and analyzing system behavior.
  */
 @interface SentryObjCMetricsApi : NSObject
+SENTRY_NO_INIT
 
 /**
  * Records a count metric for the specified key with attributes.

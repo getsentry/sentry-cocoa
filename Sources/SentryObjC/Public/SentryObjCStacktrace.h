@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 @class SentryObjCFrame;
 
@@ -8,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Represents a stacktrace containing a list of frames and register values.
  */
 @interface SentryObjCStacktrace : NSObject
+SENTRY_NO_INIT
 
 /**
  * Array of all frames in the stacktrace.

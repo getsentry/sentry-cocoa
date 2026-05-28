@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 @class SentryObjCMechanismContext;
 
@@ -8,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
  * The mechanism by which an exception was generated and handled.
  */
 @interface SentryObjCMechanism : NSObject
+SENTRY_NO_INIT
 
 /**
  * A unique identifier of this mechanism determining rendering and processing

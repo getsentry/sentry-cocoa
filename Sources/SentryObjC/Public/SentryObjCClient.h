@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 @class SentryObjCOptions;
 @class SentryObjCEvent;
@@ -12,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
  * The Sentry client is responsible for capturing events and sending them to Sentry.
  */
 @interface SentryObjCClient : NSObject
+SENTRY_NO_INIT
 
 /**
  * Initializes a @c SentryObjCClient. Pass in an options object.
@@ -109,8 +115,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Disables the client and calls flush with the configured shutdown time interval.
 - (void)close;
-
-- (instancetype)init NS_UNAVAILABLE;
 
 @end
 

@@ -45,6 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param category The category string for the breadcrumb.
  */
 - (instancetype)initWithLevel:(SentryObjCLevel)level category:(NSString *)category;
+- (instancetype)init;
 
 @end
 

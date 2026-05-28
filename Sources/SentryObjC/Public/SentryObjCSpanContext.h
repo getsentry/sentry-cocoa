@@ -1,7 +1,9 @@
 #import <Foundation/Foundation.h>
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
 #    import "SentryObjCSampleDecision.h"
 #else
+#    import <SentryObjC/SentryObjCDefines.h>
 #    import <SentryObjC/SentryObjCSampleDecision.h>
 #endif
 
@@ -15,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Contains trace, span, and parent identifiers, the operation name, and the sampling decision.
  */
 @interface SentryObjCSpanContext : NSObject
+SENTRY_NO_INIT
 
 /// Determines which trace the span belongs to.
 @property (nonatomic, readonly, strong) SentryObjCId *traceId;

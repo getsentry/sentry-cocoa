@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 @class SentryObjCId;
 
@@ -9,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
  * This data is propagated between services via the @c baggage HTTP header.
  */
 @interface SentryObjCTraceContext : NSObject
+SENTRY_NO_INIT
 
 /**
  * UUID V4 encoded as a hexadecimal sequence with no dashes (e.g.

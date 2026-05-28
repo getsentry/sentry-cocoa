@@ -1,8 +1,10 @@
 #import <Foundation/Foundation.h>
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
 #    import "SentryObjCSampleDecision.h"
 #    import "SentryObjCSpanStatus.h"
 #else
+#    import <SentryObjC/SentryObjCDefines.h>
 #    import <SentryObjC/SentryObjCSampleDecision.h>
 #    import <SentryObjC/SentryObjCSpanStatus.h>
 #endif
@@ -20,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A span tracks a unit of work and can contain child spans.
  */
 @interface SentryObjCSpan : NSObject
+SENTRY_NO_INIT
 
 /// Determines which trace the span belongs to.
 @property (nonatomic, strong) SentryObjCId *traceId;

@@ -6,6 +6,18 @@
 
 @implementation SentryObjCBreadcrumbTests
 
+- (void)testInit_whenDefault_shouldSetDefaults
+{
+    // -- Act --
+    SentryObjCBreadcrumb *crumb = [[SentryObjCBreadcrumb alloc] init];
+
+    // -- Assert --
+    XCTAssertNotNil(crumb);
+    XCTAssertEqual(crumb.level, SentryObjCLevelInfo);
+    XCTAssertEqualObjects(crumb.category, @"default");
+    XCTAssertNotNil(crumb.timestamp);
+}
+
 - (void)testInit_whenLevelAndCategory_shouldSetBoth
 {
     // -- Arrange --

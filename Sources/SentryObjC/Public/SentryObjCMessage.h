@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -8,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see https://develop.sentry.dev/sdk/event-payloads/message/
  */
 @interface SentryObjCMessage : NSObject
+SENTRY_NO_INIT
 
 /**
  * The fully formatted message. If missing, Sentry will try to interpolate the message. It must not

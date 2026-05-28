@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -9,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
  * including strings, booleans, integers, doubles, and their array variants.
  */
 @interface SentryObjCAttributeContent : NSObject
+SENTRY_NO_INIT
 
 /**
  * The type identifier for this attribute content.

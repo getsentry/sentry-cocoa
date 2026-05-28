@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @see https://develop.sentry.dev/sdk/telemetry/attributes/#units
  */
 @interface SentryObjCUnit : NSObject
+SENTRY_NO_INIT
 
 /// The string representation of the unit.
 @property (nonatomic, readonly, copy) NSString *rawValue;

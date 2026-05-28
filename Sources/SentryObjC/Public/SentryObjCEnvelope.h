@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 @class SentryObjCId;
 @class SentryObjCEnvelopeHeader;
@@ -11,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
  * or sessions. It consists of a header and a list of envelope items.
  */
 @interface SentryObjCEnvelope : NSObject
+SENTRY_NO_INIT
 
 /// The envelope header containing metadata such as the event ID and trace context.
 @property (nonatomic, readonly, strong) SentryObjCEnvelopeHeader *header;

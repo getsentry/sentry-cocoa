@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 @class SentryObjCEvent;
 
@@ -9,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
  * and associated header metadata.
  */
 @interface SentryObjCEnvelopeItem : NSObject
+SENTRY_NO_INIT
 
 /// The envelope payload.
 @property (nonatomic, readonly, strong, nullable) NSData *data;

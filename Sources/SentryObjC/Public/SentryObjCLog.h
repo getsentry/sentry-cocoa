@@ -1,7 +1,9 @@
 #import <Foundation/Foundation.h>
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
 #    import "SentryObjCLogLevel.h"
 #else
+#    import <SentryObjC/SentryObjCDefines.h>
 #    import <SentryObjC/SentryObjCLogLevel.h>
 #endif
 
@@ -17,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Use the @c options.beforeSendLog callback to modify or filter log data.
  */
 @interface SentryObjCLog : NSObject
+SENTRY_NO_INIT
 
 /// The timestamp when the log event occurred.
 @property (nonatomic, strong) NSDate *timestamp;

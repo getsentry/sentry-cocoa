@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
  * measurement values in the UI.
  */
 @interface SentryObjCMeasurementUnit : NSObject
+SENTRY_NO_INIT
 
 /**
  * The @c NSString representation of the measurement unit.

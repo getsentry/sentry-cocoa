@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 @class SentryObjCMechanism;
 @class SentryObjCStacktrace;
@@ -9,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Represents a single exception in a Sentry event.
  */
 @interface SentryObjCException : NSObject
+SENTRY_NO_INIT
 
 /// The name of the exception.
 @property (nonatomic, copy, nullable) NSString *value;

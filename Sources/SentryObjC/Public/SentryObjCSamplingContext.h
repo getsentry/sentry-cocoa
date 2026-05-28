@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 @class SentryObjCTransactionContext;
 
@@ -9,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Contains the transaction context and optional custom sampling data.
  */
 @interface SentryObjCSamplingContext : NSObject
+SENTRY_NO_INIT
 
 /// The context of the transaction being sampled.
 @property (nonatomic, readonly, strong) SentryObjCTransactionContext *transactionContext;

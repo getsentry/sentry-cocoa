@@ -1,7 +1,9 @@
 #import <Foundation/Foundation.h>
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
 #    import "SentryObjCFeedbackSource.h"
 #else
+#    import <SentryObjC/SentryObjCDefines.h>
 #    import <SentryObjC/SentryObjCFeedbackSource.h>
 #endif
 
@@ -12,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Represents a user feedback submission containing a message and optional contact information.
 @interface SentryObjCFeedback : NSObject
+SENTRY_NO_INIT
 
 /// The main feedback message content.
 @property (nonatomic, readonly, copy) NSString *message;

@@ -17,6 +17,10 @@ import Foundation
         self.wrapped = Breadcrumb(level: level.underlying, category: category)
     }
 
+    @objc public override init() {
+        self.wrapped = Breadcrumb()
+    }
+
     @objc public var level: SentryObjCLevel {
         get { SentryObjCLevel(wrapped.level) }
         set { wrapped.level = newValue.underlying }

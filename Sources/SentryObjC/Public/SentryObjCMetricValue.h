@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -10,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
  * integers and distributions remain doubles.
  */
 @interface SentryObjCMetricValue : NSObject
+SENTRY_NO_INIT
 
 /// Creates a counter metric value with incrementing integer values (e.g., request counts).
 + (instancetype)counter:(NSUInteger)value;

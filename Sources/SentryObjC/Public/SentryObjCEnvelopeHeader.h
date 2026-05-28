@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 @class SentryObjCId;
 @class SentryObjCTraceContext;
@@ -10,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
  * such as the event identifier and trace context.
  */
 @interface SentryObjCEnvelopeHeader : NSObject
+SENTRY_NO_INIT
 
 /**
  * The event identifier, if available.

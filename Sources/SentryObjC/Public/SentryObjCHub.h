@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 @class SentryObjCClient;
 @class SentryObjCEvent;
@@ -14,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// The hub is the central manager for SDK configuration, error capture, and scope management.
 @interface SentryObjCHub : NSObject
+SENTRY_NO_INIT
 
 /**
  * Initializes a @c SentryObjCHub with the given client and scope.
@@ -227,8 +233,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Calls flush with @c shutdownTimeInterval.
 - (void)close;
-
-- (instancetype)init NS_UNAVAILABLE;
 
 @end
 

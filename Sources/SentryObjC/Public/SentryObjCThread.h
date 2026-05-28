@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 @class SentryObjCStacktrace;
 
@@ -8,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Represents a thread of the event.
  */
 @interface SentryObjCThread : NSObject
+SENTRY_NO_INIT
 
 /**
  * Number of the thread.

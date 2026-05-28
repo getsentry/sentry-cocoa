@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 @class SentryObjCId;
 @class SentryObjCSpanId;
@@ -14,8 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Use the @c options.beforeSendMetric callback to modify or filter metric data.
  */
 @interface SentryObjCMetric : NSObject
-
-- (instancetype)init NS_UNAVAILABLE;
+SENTRY_NO_INIT
 
 /// The timestamp when the metric was recorded.
 @property (nonatomic, strong) NSDate *timestamp;

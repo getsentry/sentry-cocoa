@@ -1,8 +1,10 @@
 #import <Foundation/Foundation.h>
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCAttachmentType.h"
+#    import "SentryObjCDefines.h"
 #else
 #    import <SentryObjC/SentryObjCAttachmentType.h>
+#    import <SentryObjC/SentryObjCDefines.h>
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -11,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
  * You can use an attachment to store additional files alongside an event.
  */
 @interface SentryObjCAttachment : NSObject
+SENTRY_NO_INIT
 
 /// The data of the attachment.
 @property (nonatomic, readonly, strong, nullable) NSData *data;

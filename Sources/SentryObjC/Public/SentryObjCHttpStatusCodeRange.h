@@ -1,4 +1,9 @@
 #import <Foundation/Foundation.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCDefines.h"
+#else
+#    import <SentryObjC/SentryObjCDefines.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -6,6 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
  * An HTTP status code range.
  */
 @interface SentryObjCHttpStatusCodeRange : NSObject
+SENTRY_NO_INIT
 
 /// The minimum HTTP status code in the range (inclusive).
 @property (nonatomic, readonly) NSInteger min;

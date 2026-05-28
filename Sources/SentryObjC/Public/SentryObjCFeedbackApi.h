@@ -11,6 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// API for interacting with the User Feedback feature.
 @interface SentryObjCFeedbackApi : NSObject
+SENTRY_NO_INIT
 
 /**
  * Show the feedback widget button.
