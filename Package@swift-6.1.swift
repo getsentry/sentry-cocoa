@@ -49,7 +49,7 @@ var targets: [Target] = [
     ),
     // .binaryTarget(
     //     name: "SentryObjC-Dynamic",
-    //     url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.13.0/SentryObjC-Dynamic.xcframework.zip",
+    //     url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.15.0/SentryObjC-Dynamic.xcframework.zip",
     //     checksum: "0000000000000000000000000000000000000000000000000000000000000000" //SentryObjC-Dynamic
     // ),
     .target(
