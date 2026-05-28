@@ -505,13 +505,6 @@
     {
       "kind": "ObjCMethodDecl",
       "name": "init",
-      "parent": "SentryObjCMetric",
-      "returnType": "instancetype _Nonnull",
-      "instance": true
-    },
-    {
-      "kind": "ObjCMethodDecl",
-      "name": "init",
       "parent": "SentryObjCMetricValue",
       "returnType": "instancetype _Nonnull",
       "instance": true
@@ -814,6 +807,13 @@
       "kind": "ObjCMethodDecl",
       "name": "new",
       "parent": "SentryObjCMessage",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCMetric",
       "returnType": "instancetype _Nonnull",
       "instance": false
     },
