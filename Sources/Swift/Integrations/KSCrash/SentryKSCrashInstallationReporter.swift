@@ -1,6 +1,6 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
-@_implementationOnly import KSCrashInstallations
+import KSCrashInstallations
 
 /**
  * Crash installation reporter that wires the KSCrash filter pipeline to Sentry.

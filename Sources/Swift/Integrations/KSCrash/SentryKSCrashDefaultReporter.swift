@@ -2,7 +2,7 @@
 @_implementationOnly import _SentryPrivate
 import Darwin
 import Foundation
-@_implementationOnly import KSCrashRecording
+import KSCrashRecording
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit

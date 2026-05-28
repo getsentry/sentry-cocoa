@@ -1,5 +1,5 @@
 @_implementationOnly import _SentryPrivate
-@_implementationOnly import KSCrashRecording
+import KSCrashRecording
 
 // MARK: - C Callback
 

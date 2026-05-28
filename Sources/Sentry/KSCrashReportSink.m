@@ -1,5 +1,4 @@
 #import "KSCrashReportSink.h"
-#import "KSCrashReportConverter.h"
 #import "SentryClient.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
@@ -62,9 +61,8 @@ static const NSTimeInterval SENTRY_APP_START_CRASH_FLUSH_DURATION = 5.0;
                 NSStringFromClass([report class]));
             continue;
         }
-        NSDictionary *dict = ((KSCrashReportDictionary *)report).value;
         KSCrashReportConverter *reportConverter =
-            [[KSCrashReportConverter alloc] initWithReport:dict inAppLogic:self.inAppLogic];
+            [[KSCrashReportConverter alloc] initWithReport:(KSCrashReportDictionary *)report inAppLogic:self.inAppLogic];
         if (nil != [SentrySDKInternal.currentHub getClient]) {
             SentryEvent *event = [reportConverter convertReportToEvent];
             if (nil != event) {

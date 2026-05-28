@@ -1,4 +1,3 @@
-#import "KSCrashReportConverter.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentrySwift.h"
