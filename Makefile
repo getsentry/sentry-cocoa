@@ -568,6 +568,7 @@ test-ios:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run macOS tests
@@ -590,6 +591,7 @@ test-macos:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run Catalyst tests
@@ -611,6 +613,7 @@ test-catalyst:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run tvOS tests
@@ -633,6 +636,7 @@ test-tvos:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run visionOS tests
@@ -655,6 +659,7 @@ test-visionos:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 # Note: test-watchos target is not available because watchOS does not support XCTest.
