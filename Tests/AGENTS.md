@@ -8,9 +8,9 @@ Test classes follow naming pattern `<SourceFile>Tests`. Default to iOS (fastest)
 
 ```bash
 make test-ios                                                  # all iOS tests
-make test-ios ONLY_TESTING=SentryHttpTransportTests             # single class
-make test-ios ONLY_TESTING=SentryHttpTransportTests,SentryHubTests  # multiple
-make test-ios ONLY_TESTING=SentryHttpTransportTests/testFlush_WhenNoInternet  # single method
+make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests  # single class
+make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests,SentryTests/SentryHubTests  # multiple
+make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests/testFlush_WhenNoInternet  # single method
 make test                                                      # all platforms
 make test-ui-critical                                          # important UI tests
 ```
