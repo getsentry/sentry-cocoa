@@ -53606,6 +53606,50 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKC15extendAppLaunchyyFZ",
+            "moduleName": "Sentry",
+            "name": "extendAppLaunch",
+            "printedName": "extendAppLaunch()",
+            "static": true,
+            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)extendAppLaunch"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKC23finishExtendedAppLaunchyyFZ",
+            "moduleName": "Sentry",
+            "name": "finishExtendedAppLaunch",
+            "printedName": "finishExtendedAppLaunch()",
+            "static": true,
+            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)finishExtendedAppLaunch"
+          },
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "kind": "TypeNominal",

@@ -35,6 +35,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     private let framesTracker: SentryFramesTracker
     private let enablePreWarmedAppStartTracing: Bool
     private let reportingStrategy: AppStartReportingStrategy
+    let extendedAppLaunchManager: SentryExtendedAppLaunchManager
 
     private var previousAppState: SentryAppState?
     private var appStartTraceId: SentryId?
@@ -58,14 +59,16 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         enableStandaloneAppStartTracing: Bool,
         dateProvider: SentryCurrentDateProvider,
         sysctlWrapper: SentrySysctl,
-        appStartInfoProvider: AppStartInfoProvider
+        appStartInfoProvider: AppStartInfoProvider,
+        extendedAppLaunchManager: SentryExtendedAppLaunchManager
     ) {
         self.dispatchQueue = dispatchQueueWrapper
         self.appStateManager = appStateManager
         self.framesTracker = framesTracker
         self.enablePreWarmedAppStartTracing = enablePreWarmedAppStartTracing
+        self.extendedAppLaunchManager = extendedAppLaunchManager
         self.reportingStrategy = enableStandaloneAppStartTracing
-            ? StandaloneTransactionStrategy()
+            ? StandaloneTransactionStrategy(extendedAppLaunchManager: extendedAppLaunchManager)
             : AttachToTransactionStrategy()
         self.previousAppState = appStateManager.loadPreviousAppState()
         self.dateProvider = dateProvider
@@ -75,7 +78,9 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
 
         super.init()
 
-        framesTracker.addListener(self)
+        if !enableStandaloneAppStartTracing {
+            framesTracker.addListener(self)
+        }
     }
 
     deinit {
@@ -104,6 +109,12 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
             object: nil
         )
 
+        // Standalone app starts rely on didFinishLaunchingNotification to trigger the
+        // measurement. If the SDK is initialized after that notification has already been 
+        // posted, the notification is never received and no app start is
+        // measured. 
+        // There is no reliable way to detect if the notification was already posted.
+        // UIApplication.applicationState may be .active in SwiftUI apps during App.init(),
         if reportingStrategy is StandaloneTransactionStrategy {
             let traceId = SentryId()
             appStartTraceId = traceId
@@ -134,7 +145,9 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
             object: nil
         )
 
-        framesTracker.removeListener(self)
+        if !(reportingStrategy is StandaloneTransactionStrategy) {
+            framesTracker.removeListener(self)
+        }
         SentryAppStartMeasurementProvider.setAppStartTrace(nil)
 
         #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
@@ -304,6 +317,9 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
     @objc
     private func didFinishLaunching() {
         didFinishLaunchingTimestamp = dateProvider.date()
+        if reportingStrategy is StandaloneTransactionStrategy {
+            buildAppStartMeasurement(didFinishLaunchingTimestamp)
+        }
     }
 
     @objc

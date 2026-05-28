@@ -44,7 +44,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
 
         let result = sentryBuildStandaloneAppStartSpans(tracer, appStartMeasurement)
 
-        XCTAssertEqual(result.count, 5, "Standalone uses unified app.start op regardless of type")
+        XCTAssertEqual(result.count, 4, "Standalone uses unified app.start op regardless of type, no Initial Frame Render")
     }
 
     func testSentryBuildAppStartSpans_appStartMeasurementIsNotColdOrWarm_shouldNotReturnAnySpans() {
@@ -255,8 +255,9 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         // Act
         let result = sentryBuildStandaloneAppStartSpans(tracer, appStartMeasurement)
 
-        // Assert — no intermediate "Cold Start" span, all 5 children parent to tracer
-        XCTAssertEqual(result.count, 5, "Number of spans do not match")
+        // Assert — no intermediate "Cold Start" span, no "Initial Frame Render" (standalone
+        // ends at didFinishLaunching), all 4 children parent to tracer
+        XCTAssertEqual(result.count, 4, "Number of spans do not match")
         assertSpan(
             span: result[0],
             expectedTraceId: tracer.traceId.sentryIdString,
@@ -297,16 +298,6 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_600),
             expectedSampled: tracer.sampled
         )
-        assertSpan(
-            span: result[4],
-            expectedTraceId: tracer.traceId.sentryIdString,
-            expectedParentSpanId: tracer.spanId.sentrySpanIdString,
-            expectedOperation: "app.start",
-            expectedDescription: "Initial Frame Render",
-            expectedStartTimestamp: Date(timeIntervalSince1970: 1_600),
-            expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
-            expectedSampled: tracer.sampled
-        )
     }
 
     func testBuildStandaloneAppStartSpans_whenPrewarmed_shouldNotIncludeGroupingSpan() {
@@ -328,8 +319,9 @@ class SentryBuildAppStartSpansTests: XCTestCase {
         // Act
         let result = sentryBuildStandaloneAppStartSpans(tracer, appStartMeasurement)
 
-        // Assert — no grouping span, no pre-runtime spans, all 3 children parent to tracer
-        XCTAssertEqual(result.count, 3, "Number of spans do not match")
+        // Assert — no grouping span, no pre-runtime spans, no "Initial Frame Render"
+        // (standalone ends at didFinishLaunching), all 2 children parent to tracer
+        XCTAssertEqual(result.count, 2, "Number of spans do not match")
         assertSpan(
             span: result[0],
             expectedTraceId: tracer.traceId.sentryIdString,
@@ -348,16 +340,6 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedDescription: "Application Init",
             expectedStartTimestamp: Date(timeIntervalSince1970: 1_500),
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_600),
-            expectedSampled: tracer.sampled
-        )
-        assertSpan(
-            span: result[2],
-            expectedTraceId: tracer.traceId.sentryIdString,
-            expectedParentSpanId: tracer.spanId.sentrySpanIdString,
-            expectedOperation: "app.start",
-            expectedDescription: "Initial Frame Render",
-            expectedStartTimestamp: Date(timeIntervalSince1970: 1_600),
-            expectedEndTimestamp: Date(timeIntervalSince1970: 1_935),
             expectedSampled: tracer.sampled
         )
     }

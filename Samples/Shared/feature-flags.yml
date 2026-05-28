@@ -125,6 +125,9 @@ schemeTemplates:
         - variable: "--io.sentry.performance.sessionTrackingIntervalMillis"
           value:
           isEnabled: false
+        - variable: "--io.sentry.performance.extend-app-launch-delay"
+          value: 3
+          isEnabled: false
 
         # scope/user
         - variable: "--io.sentry.scope.user.username"
