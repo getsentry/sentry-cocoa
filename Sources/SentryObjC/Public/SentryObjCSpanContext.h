@@ -1,5 +1,9 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCSampleDecision.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCSampleDecision.h"
+#else
+#    import <SentryObjC/SentryObjCSampleDecision.h>
+#endif
 
 @class SentryObjCId;
 @class SentryObjCSpanId;

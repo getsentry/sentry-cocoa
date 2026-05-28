@@ -1,5 +1,9 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCLevel.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCLevel.h"
+#else
+#    import <SentryObjC/SentryObjCLevel.h>
+#endif
 
 @class SentryObjCBreadcrumb;
 @class SentryObjCDebugMeta;

@@ -1,5 +1,9 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCReplayQuality.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCReplayQuality.h"
+#else
+#    import <SentryObjC/SentryObjCReplayQuality.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

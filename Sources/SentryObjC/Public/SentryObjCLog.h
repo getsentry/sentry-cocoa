@@ -1,5 +1,9 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCLogLevel.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCLogLevel.h"
+#else
+#    import <SentryObjC/SentryObjCLogLevel.h>
+#endif
 
 @class SentryObjCId;
 @class SentryObjCSpanId;

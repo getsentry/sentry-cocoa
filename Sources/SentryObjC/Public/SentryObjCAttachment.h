@@ -1,5 +1,9 @@
 #import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCAttachmentType.h>
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCAttachmentType.h"
+#else
+#    import <SentryObjC/SentryObjCAttachmentType.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
