@@ -898,6 +898,25 @@
     XCTAssertNotNil(options.initialScope);
 }
 
+- (void)testInitialScope_whenSetBlock_shouldNotRetainOptions
+{
+    // -- Arrange --
+    __weak SentryObjCOptions *weakOptions;
+
+    @autoreleasepool {
+        SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+        weakOptions = options;
+
+        // -- Act --
+        options.initialScope = ^SentryObjCScope *(SentryObjCScope *scope) { return scope; };
+
+        // -- Assert --
+        XCTAssertNotNil(weakOptions);
+    }
+
+    XCTAssertNil(weakOptions);
+}
+
 #pragma mark - Weak/optional object properties
 
 - (void)testUrlSessionDelegate_whenSetNil_shouldReturnNil

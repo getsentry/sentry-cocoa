@@ -242,8 +242,9 @@ import Foundation
 
     @objc public var initialScope: ((SentryObjCScope) -> SentryObjCScope) = { return $0 } {
         didSet {
+            let initialScope = initialScope
             wrapped.initialScope = { scope in
-                let result = self.initialScope(SentryObjCScope(scope))
+                let result = initialScope(SentryObjCScope(scope))
                 return result.wrapped
             }
         }
