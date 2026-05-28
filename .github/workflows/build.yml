@@ -116,15 +116,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
-      # sample projects. The Package.swift references binary targets, which in release branch commits points
-      # to non-existent download URLs. This creates chicken-egg failures when building these sample apps for
-      # a release commit build. When building these sample apps for a release commit, xcodebuild tries to
-      # resolve all SPM dependencies, including the binary targets pointing to these non-existent URLs.  The
-      # sample projects don't use SPM for including Sentry. Only the DistributionSample uses local SPM.
-      # Therefore, we only keep the local DistributionSample reference in the Package.swift as a workaround.
-      - name: Only keep distribution lib and target in Package.swift
-        if: matrix.scheme == 'DistributionSample'
+      # Some sample projects use local SPM references. xcodebuild resolves SPM dependencies for the
+      # workspace, so Package.swift binary targets can be resolved even when building another scheme.
+      # On release branches these binary target URLs point to artifacts that do not exist yet, causing
+      # release commit builds to fail before the artifacts are published.
+      - name: Remove binary targets from Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
       - name: Setup Xcode
