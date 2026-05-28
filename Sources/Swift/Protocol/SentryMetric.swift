@@ -65,7 +65,7 @@ public struct SentryMetric {
     ///   - value: The numeric value of the metric
     ///   - unit: The unit of measurement for the metric value (optional)
     ///   - attributes: A dictionary of structured attributes to add to the metric
-    @_spi(Private) public init(
+    internal init(
         timestamp: Date,
         traceId: SentryId,
         name: String,
@@ -93,11 +93,11 @@ extension SentryMetric: Encodable {
         case unit
         case attributes
     }
-    
+
     /// Encodes the metric to the given encoder.
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
+
         try container.encode(timestamp, forKey: .timestamp)
         try container.encode(traceId.sentryIdString, forKey: .traceId)
         try container.encodeIfPresent(spanId?.sentrySpanIdString, forKey: .spanId)

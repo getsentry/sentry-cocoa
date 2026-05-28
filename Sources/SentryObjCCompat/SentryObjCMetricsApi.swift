@@ -14,7 +14,7 @@ import Foundation
     }
 
     @objc public func count(key: String, value: UInt, attributes: [String: SentryObjCAttributeContent]) {
-        api.count(key: key, value: value, attributes: attributes.mapValues { $0.toAttributeContent() })
+        api.count(key: key, value: value, attributes: mapAttributes(attributes))
     }
 
     @objc public func count(key: String, value: UInt) {
@@ -26,7 +26,7 @@ import Foundation
     }
 
     @objc public func distribution(key: String, value: Double, unit: SentryObjCUnit?, attributes: [String: SentryObjCAttributeContent]) {
-        api.distribution(key: key, value: value, unit: unit?.toSentryUnit(), attributes: attributes.mapValues { $0.toAttributeContent() })
+        api.distribution(key: key, value: value, unit: unit?.toSentryUnit(), attributes: mapAttributes(attributes))
     }
 
     @objc public func distribution(key: String, value: Double, unit: SentryObjCUnit?) {
@@ -38,7 +38,7 @@ import Foundation
     }
 
     @objc public func gauge(key: String, value: Double, unit: SentryObjCUnit?, attributes: [String: SentryObjCAttributeContent]) {
-        api.gauge(key: key, value: value, unit: unit?.toSentryUnit(), attributes: attributes.mapValues { $0.toAttributeContent() })
+        api.gauge(key: key, value: value, unit: unit?.toSentryUnit(), attributes: mapAttributes(attributes))
     }
 
     @objc public func gauge(key: String, value: Double, unit: SentryObjCUnit?) {
@@ -49,6 +49,10 @@ import Foundation
         api.gauge(key: key, value: value, unit: nil, attributes: [:])
     }
 
+    private func mapAttributes(_ attributes: [String: SentryObjCAttributeContent]) -> [String: any SentryAttributeValue] {
+        attributes.mapValues { $0.toAttributeContent().asAttributeValue }
+    }
+
     // MARK: - Testing
 
     /// Test-only initializer. Do not use in production code.
@@ -57,6 +61,22 @@ import Foundation
             preconditionFailure("testApi must conform to SentryMetricsApiProtocol")
         }
         self.init(api)
+    }
+}
+
+private extension SentryAttributeContent {
+    var asAttributeValue: any SentryAttributeValue {
+        switch self {
+        case .string(let v): return v
+        case .boolean(let v): return v
+        case .integer(let v): return v
+        case .double(let v): return v
+        case .stringArray(let v): return v
+        case .booleanArray(let v): return v
+        case .integerArray(let v): return v
+        case .doubleArray(let v): return v
+        @unknown default: return String(describing: self)
+        }
     }
 }
 

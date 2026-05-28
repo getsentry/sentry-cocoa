@@ -45,7 +45,7 @@ public enum SentryAttributeContent: Equatable, Hashable {
             return SentryAttributeType.doubleArray.rawValue
         }
     }
-    
+
     // This type is used to encode array types as "array" regardless of element type.
     // This is what Relay expects for array types: https://develop.sentry.dev/sdk/telemetry/attributes/
     static let genericArrayType: String = "array"
@@ -66,7 +66,7 @@ extension SentryAttributeContent: Encodable {
     /// - Throws: An error if encoding fails.
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
+
         try container.encode(typeForEncoding, forKey: .type)
 
         switch self {
@@ -88,7 +88,7 @@ extension SentryAttributeContent: Encodable {
             try container.encode(value, forKey: .value)
         }
     }
-    
+
     private var typeForEncoding: String {
         switch self {
         case .string(_), .boolean(_), .integer(_), .double(_):
@@ -218,13 +218,6 @@ extension SentryAttributeContent: ExpressibleByIntegerLiteral {
     /// - Parameter value: The integer literal value.
     public init(integerLiteral value: IntegerLiteralType) {
         self = .integer(value)
-    }
-}
-
-extension SentryAttributeContent: SentryAttributeValue {
-    /// Returns self since `SentryAttributeContent` is already the canonical representation.
-    public var asSentryAttributeContent: SentryAttributeContent {
-        return self
     }
 }
 // swiftlint:enable missing_docs

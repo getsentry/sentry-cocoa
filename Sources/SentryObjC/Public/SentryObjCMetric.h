@@ -15,6 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryObjCMetric : NSObject
 
+- (instancetype)init NS_UNAVAILABLE;
+
 /// The timestamp when the metric was recorded.
 @property (nonatomic, strong) NSDate *timestamp;
 

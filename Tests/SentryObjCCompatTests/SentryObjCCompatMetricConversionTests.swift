@@ -58,7 +58,14 @@ final class SentryObjCCompatMetricConversionTests: XCTestCase {
 
     func testMetricWrapping_whenModified_shouldUpdateWrapped() {
         // -- Arrange --
-        let objcMetric = SentryObjCMetric()
+        let objcMetric = SentryObjCMetric(SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "",
+            value: .counter(0),
+            unit: nil,
+            attributes: [:]
+        ))
         let newTimestamp = Date(timeIntervalSince1970: 456)
 
         // -- Act --

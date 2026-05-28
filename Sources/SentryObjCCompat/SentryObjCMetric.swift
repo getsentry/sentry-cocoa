@@ -13,17 +13,6 @@ import Foundation
         self.wrapped = wrapped
     }
 
-    @objc public override init() {
-        self.wrapped = SentryMetric(
-            timestamp: Date(),
-            traceId: SentryId(),
-            name: "",
-            value: .counter(0),
-            unit: nil,
-            attributes: [:]
-        )
-    }
-
     @objc public var timestamp: Date {
         get { wrapped.timestamp }
         set { wrapped.timestamp = newValue }
