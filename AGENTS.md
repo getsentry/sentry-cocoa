@@ -117,7 +117,7 @@ make analyze
 make build-ios
 
 # 4. Test (targeted — see Tests/AGENTS.md for ONLY_TESTING usage)
-make test-ios ONLY_TESTING=<AffectedTestClass>
+make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests
 
 # 5. If the public API surface changed (Swift/ObjC public headers, @objc/public symbols)
 make generate-public-api  # regenerates sdk_api.json; commit any diff
