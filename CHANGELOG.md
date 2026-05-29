@@ -12,6 +12,7 @@
   - Replace your dependency on `Sentry` with `SentryObjC` (SPM product or xcframework)
   - Change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`
   - Rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
+- Add feedback form presentation APIs (#7873)
 
 ### Fixes
 
@@ -33,10 +34,6 @@
 ### Features
 
 - Add standalone app start tracing as an experimental option (#7660), enable it via `options.experimental.enableStandaloneAppStartTracing = true`
-
-### Features
-
-- Add feedback form presentation APIs (#7873)
 
 ### Fixes
 
