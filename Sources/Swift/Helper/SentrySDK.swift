@@ -448,6 +448,55 @@ import Foundation
         SentrySDKInternal.reportFullyDisplayed()
     }
     
+    // MARK: - Extended App Launch
+
+    #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
+    /// Extends the app launch measurement beyond the default end point.
+    ///
+    /// Call this method after `start(options:)` but before didFinishLaunching notification is posted
+    /// so the SDK doesn't finish the app start transaction automatically.
+    ///
+    /// For UIKit apps this should be called before UIApplication.application(_:didFinishLaunchingWithOptions:)
+    /// finishes:
+    /// ```swift
+    /// func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    ///     SentrySDK.start(configureOptions: { options in
+    ///         ...
+    ///         options.experimental.enableStandaloneAppStartTracing = true
+    ///     })
+    ///     SentrySDK.extendAppLaunch()
+    ///     return true
+    /// }
+    /// ```
+    /// For SwiftUI apps, you can call `extendAppLaunch()` in the constructor of your `App`
+    /// ```swift
+    /// @main
+    /// struct SwiftUIApp: App {
+    ///     init() {
+    ///         SentrySDK.start(configureOptions: { options in
+    ///             ...
+    ///             options.experimental.enableStandaloneAppStartTracing = true
+    ///         })
+    ///         SentrySDK.extendAppLaunch()
+    ///     }
+    /// }
+    /// ```
+    /// Later, call `finishExtendedAppLaunch()` to mark the app as fully launched.
+    ///
+    /// - Note: This only has an effect when Standalone App Start tracing is enabled.
+    @objc public static func extendAppLaunch() {
+        SentryDependencyContainer.sharedInstance().extendedAppLaunchManager.extend()
+    }
+
+    /// Finishes a previously extended app launch and sends the app start transaction.
+    ///
+    /// If ``extendAppLaunch()`` was not called, or the extended launch was already
+    /// finished, this method does nothing.
+    @objc public static func finishExtendedAppLaunch() {
+        SentryDependencyContainer.sharedInstance().extendedAppLaunchManager.finish()
+    }
+    #endif
+
     // MARK: - App Hang Tracking
     
     /// Pauses sending detected app hangs to Sentry.

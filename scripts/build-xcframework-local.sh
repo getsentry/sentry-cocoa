@@ -101,3 +101,13 @@ if [ "$variants" = "WithoutUIKitWithARM64eOnly" ] || [ "$variants" = "AllVariant
     mv Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip
     end_group
 fi
+
+if [ "$variants" = "SentryObjCOnly" ] || [ "$variants" = "AllVariants" ]; then
+    begin_group "SentryObjC-Dynamic"
+    ./scripts/build-xcframework-variant.sh "SentryObjC" "-Dynamic" "mh_dylib" "" "$sdks" ""
+    ./scripts/validate-xcframework-format.sh "SentryObjC-Dynamic.xcframework"
+    ./scripts/validate-xcframework-architectures.sh --xcframework "SentryObjC-Dynamic.xcframework"
+    ./scripts/compress-xcframework.sh "$signed" SentryObjC-Dynamic
+    mv SentryObjC-Dynamic.xcframework.zip XCFrameworkBuildPath/SentryObjC-Dynamic.xcframework.zip
+    end_group
+fi

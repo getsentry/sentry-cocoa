@@ -33,6 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             removeAppData()
         }
 
+        SentrySDKWrapper.spanCaptureHandler = { LaunchVCTransactionCapture.shared.capture($0) }
         SentrySDKWrapper.shared.startSentry()
         SampleAppDebugMenu.shared.display()
         

@@ -96,7 +96,8 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
                 enableStandaloneAppStartTracing: enableStandaloneAppStartTracing,
                 dateProvider: SentryDependencyContainer.sharedInstance().dateProvider,
                 sysctlWrapper: SentryDependencyContainer.sharedInstance().sysctlWrapper,
-                appStartInfoProvider: appStartInfoProvider
+                appStartInfoProvider: appStartInfoProvider,
+                extendedAppLaunchManager: SentryDependencyContainer.sharedInstance().extendedAppLaunchManager
             )
             return sut
         }
@@ -273,15 +274,15 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
     
     func testAppLaunches_MaximumAppStartDuration_NoAppStart() {
         let processStartTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-180)
-        startApp(processStartTimeStamp: processStartTime)
-        
+        startApp(processStartTimeStamp: processStartTime, callDisplayLink: true)
+
         assertNoAppStartUp()
     }
-    
+
     func testAppLaunches_OSAlmostPrewarmedProcess_AppStartUp() {
         let processStartTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-179)
         startApp(processStartTimeStamp: processStartTime, callDisplayLink: true)
-        
+
         assertValidStart(type: .cold, expectedDuration: 179.45)
     }
     
@@ -361,12 +362,18 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         XCTAssertNil(SentryAppStartMeasurementProvider.appStartTraceId())
     }
 
-    func testMaxDurationExceeded_whenStandalone_shouldClearAppStartTraceId() {
+    func testLongDuration_whenStandalone_shouldNotDropAppStart() throws {
+        fixture.options.tracesSampleRate = 1
+        let client = TestClient(options: fixture.options)
+        let hub = TestHub(client: client, andScope: Scope())
+        SentrySDKInternal.setCurrentHub(hub)
+
         fixture.enableStandaloneAppStartTracing = true
         let processStartTime = SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(-180)
         startApp(processStartTimeStamp: processStartTime, callDisplayLink: true)
 
-        assertNoAppStartUp()
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        XCTAssertEqual(serialized["transaction"] as? String, "App Start")
         XCTAssertNil(SentryAppStartMeasurementProvider.appStartTraceId())
     }
 
@@ -405,13 +412,14 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
         // The global static must not be set — standalone bypasses it.
         XCTAssertNil(SentrySDKInternal.getAppStartMeasurement())
 
-        // Verify the transaction contains app start child spans (standalone = no grouping span).
+        // Verify the transaction contains app start child spans (standalone = no grouping span,
+        // no "Initial Frame Render" since standalone ends at didFinishLaunching).
         let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
-        XCTAssertEqual(spans.count, 5)
+        XCTAssertEqual(spans.count, 4)
 
         let descriptions = spans.compactMap { $0["description"] as? String }
         XCTAssertTrue(descriptions.contains("Pre Runtime Init"))
-        XCTAssertTrue(descriptions.contains("Initial Frame Render"))
+        XCTAssertTrue(descriptions.contains("Application Init"))
 
         // Verify the app start vitals are set as span data.
         let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])

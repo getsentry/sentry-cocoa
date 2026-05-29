@@ -82,6 +82,22 @@
         "identifier" : "8431EECF29B27B1100D8DC56",
         "name" : "SentryProfilerTests"
       }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "D4B67CFB2FC5E6F20022BC67",
+        "name" : "SentryObjCTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "D4711CB02FC6E96D00508994",
+        "name" : "SentryObjCCompatTests"
+      }
     }
   ],
   "version" : 1

@@ -275,13 +275,20 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             enableStandaloneAppStartTracing: options.experimental.enableStandaloneAppStartTracing,
             dateProvider: dateProvider,
             sysctlWrapper: sysctlWrapper,
-            appStartInfoProvider: appStartInfoProvider
+            appStartInfoProvider: appStartInfoProvider,
+            extendedAppLaunchManager: extendedAppLaunchManager
         )
     }
     
     private var _appStartInfoProvider: AppStartInfoProvider?
     lazy var appStartInfoProvider: AppStartInfoProvider = getLazyVar(\._appStartInfoProvider) {
         SentryAppStartTrackerHelper()
+    }
+
+    private var _extendedAppLaunchManager: SentryExtendedAppLaunchManager?
+    var extendedAppLaunchManager: SentryExtendedAppLaunchManager {
+        get { getLazyVar(\._extendedAppLaunchManager) { SentryExtendedAppLaunchManager() } }
+        set { _extendedAppLaunchManager = newValue }
     }
 #endif
     

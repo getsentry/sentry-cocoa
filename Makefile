@@ -227,6 +227,43 @@ build-signed-xcframework:
 build-xcframework-sample:
 	xcodebuild -project "Samples/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
 
+## Build SentryObjC framework for iOS Simulator
+#
+# Builds the SentryObjC framework target for iOS Simulator.
+# This is the Objective-C wrapper framework that provides a stable ABI for ObjC++ consumers.
+.PHONY: build-framework-objc
+build-framework-objc:
+	@echo "--> Building SentryObjC for iOS Simulator"
+	set -o pipefail && xcodebuild build \
+		-project Sentry.xcodeproj \
+		-scheme SentryObjC \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		-configuration Release \
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+
+## Build SentryObjC XCFramework locally for one or more SDKs
+#
+# Builds SentryObjC as a dynamic framework via the standard xcframework pipeline.
+# Output lands in XCFrameworkBuildPath/.
+#
+# SDKS accepts either an SDK preset (iOSOnly, macOSOnly, macCatalystOnly,
+# AllSDKs) or a comma-separated list of SDK names. Required — no default,
+# to keep local iteration fast.
+#
+# Examples:
+#   make build-sentryobjc-xcframework-local SDKS=iphonesimulator
+#   make build-sentryobjc-xcframework-local SDKS=iphoneos,iphonesimulator
+#   make build-sentryobjc-xcframework-local SDKS=iOSOnly
+.PHONY: build-sentryobjc-xcframework-local
+build-sentryobjc-xcframework-local:
+	@if [ -z "$(SDKS)" ]; then \
+		echo "error: SDKS is required."; \
+		echo "       example: make $@ SDKS=iphonesimulator"; \
+		exit 1; \
+	fi
+	@echo "--> Creating SentryObjC xcframeworks (SDKs: $(SDKS))"
+	./scripts/build-xcframework-local.sh "$(SDKS)" SentryObjCOnly
+
 # ============================================================================
 # SAMPLE APPS
 # ============================================================================
@@ -238,6 +275,7 @@ build-xcframework-sample:
 build-samples: \
 	build-sample-DistributionSample \
 	build-sample-iOS-ObjectiveC \
+	build-sample-iOS-ObjectiveCpp-NoModules \
 	build-sample-iOS-Swift \
 	build-sample-iOS-Swift6 \
 	build-sample-iOS-SwiftUI \
@@ -332,9 +370,8 @@ build-sample-visionOS-SwiftUI-SPM:
 
 ## Build the iOS-ObjectiveCpp-NoModules sample app
 #
-# Builds the ObjC++ without-modules sample that reproduces #4543.
-# This target is expected to FAIL until the pure ObjC SDK wrapper (#6342)
-# is implemented. Use it to verify the fix.
+# Builds the ObjC++ without-modules sample that uses SentryObjC (#6342).
+# Uses #import <SentryObjC/SentryObjC.h> for ObjC++ without -fmodules.
 .PHONY: build-sample-iOS-ObjectiveCpp-NoModules
 build-sample-iOS-ObjectiveCpp-NoModules:
 	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
@@ -550,12 +587,14 @@ test: test-ios test-macos test-catalyst test-tvos test-visionos
 # Runs unit tests for iOS Simulator.
 # Outputs logs and uses xcbeautify for formatted output.
 #
-# Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
 # Examples:
 #   make test-ios
-#   make test-ios ONLY_TESTING=SentryHttpTransportTests
-#   make test-ios ONLY_TESTING=SentryHttpTransportTests,SentryHubTests
-#   make test-ios ONLY_TESTING=SentryHttpTransportTests/testFlush_WhenNoInternet
+#   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests,SentryTests/SentryHubTests
+#   make test-ios ONLY_TESTING=SentryTests/SentryHttpTransportTests/testFlush_WhenNoInternet
+#   make test-ios TEST_SCHEME=SentryObjCTests
 .PHONY: test-ios
 test-ios:
 	@echo "--> Running iOS tests"
@@ -566,6 +605,7 @@ test-ios:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run macOS tests
@@ -573,10 +613,12 @@ test-ios:
 # Runs unit tests for macOS.
 # Outputs logs and uses xcbeautify for formatted output.
 #
-# Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
 # Examples:
 #   make test-macos
-#   make test-macos ONLY_TESTING=SentryHttpTransportTests
+#   make test-macos ONLY_TESTING=SentryTests/SentryHttpTransportTests
+#   make test-macos TEST_SCHEME=SentryObjCTests
 .PHONY: test-macos
 test-macos:
 	@echo "--> Running macOS tests"
@@ -586,6 +628,7 @@ test-macos:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run Catalyst tests
@@ -593,10 +636,11 @@ test-macos:
 # Runs unit tests for Mac Catalyst.
 # Outputs logs and uses xcbeautify for formatted output.
 #
-# Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
 # Examples:
 #   make test-catalyst
-#   make test-catalyst ONLY_TESTING=SentryHttpTransportTests
+#   make test-catalyst ONLY_TESTING=SentryTests/SentryHttpTransportTests
 .PHONY: test-catalyst
 test-catalyst:
 	@echo "--> Running Catalyst tests"
@@ -606,6 +650,7 @@ test-catalyst:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run tvOS tests
@@ -613,10 +658,11 @@ test-catalyst:
 # Runs unit tests for tvOS Simulator.
 # Outputs logs and uses xcbeautify for formatted output.
 #
-# Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
 # Examples:
 #   make test-tvos
-#   make test-tvos ONLY_TESTING=SentryHttpTransportTests
+#   make test-tvos ONLY_TESTING=SentryTests/SentryHttpTransportTests
 .PHONY: test-tvos
 test-tvos:
 	@echo "--> Running tvOS tests"
@@ -627,6 +673,7 @@ test-tvos:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run visionOS tests
@@ -634,10 +681,11 @@ test-tvos:
 # Runs unit tests for visionOS Simulator.
 # Outputs logs and uses xcbeautify for formatted output.
 #
-# Optional: ONLY_TESTING=ClassName to run specific test class(es)
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Optional: TEST_SCHEME=SchemeName to override the default Xcode scheme (default: Sentry)
 # Examples:
 #   make test-visionos
-#   make test-visionos ONLY_TESTING=SentryHttpTransportTests
+#   make test-visionos ONLY_TESTING=SentryTests/SentryHttpTransportTests
 .PHONY: test-visionos
 test-visionos:
 	@echo "--> Running visionOS tests"
@@ -648,6 +696,7 @@ test-visionos:
 		--ref $(GIT-REF) \
 		--command test \
 		--configuration Test \
+		$(if $(TEST_SCHEME),--scheme "$(TEST_SCHEME)") \
 		--only-testing "$(ONLY_TESTING)"
 
 # Note: test-watchos target is not available because watchOS does not support XCTest.
@@ -1166,7 +1215,7 @@ help:
 		echo "📖 Or: make help name=<command>      (e.g., make help name=build-ios)"; \
 		echo ""; \
 	fi
- 
+
 .PHONY: help-% help-target
 help-%:
 	@target="$*"; \

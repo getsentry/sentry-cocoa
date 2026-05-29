@@ -517,8 +517,8 @@ SentryCrash is part of the main SDK targets. Use the same build commands as the 
 
 Run SentryCrash-related tests with the same pattern as other SDK tests. Examples:
 
-- `make test-ios ONLY_TESTING=SentryCrashInstallationTests,SentryCrashWrapperTests`
-- `make test-ios ONLY_TESTING=SentryCrashMonitor_NSException_Tests,SentryCrashMonitor_Signal_Tests`
+- `make test-ios ONLY_TESTING=SentryTests/SentryCrashInstallationTests,SentryTests/SentryCrashWrapperTests`
+- `make test-ios ONLY_TESTING=SentryTests/SentryCrashMonitor_NSException_Tests,SentryTests/SentryCrashMonitor_Signal_Tests`
 
 See AGENTS.md (Testing Instructions) for the convention: test class names follow `<SourceFile>Tests`. The test server is **not** required for most SentryCrash tests; it is only needed for the small set of network integration tests that use the `Sentry_TestServer` xctestplan. See [develop-docs/TEST.md](TEST.md) for general testing practices.
 
