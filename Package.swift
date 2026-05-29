@@ -18,6 +18,7 @@ var products: [Product] = [
     .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e", targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
     .library(name: "SentrySwiftUI", targets: ["Sentry", "SentrySwiftUI", "SentryCppHelper"]),
     .library(name: "SentryDistribution", targets: ["SentryDistribution"])
+    // .library(name: "SentryObjC-Dynamic", targets: ["SentryObjC-Dynamic"])
 ]
 
 var targets: [Target] = [
@@ -46,6 +47,11 @@ var targets: [Target] = [
         url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.15.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
         checksum: "c310e95a56109646433460c4ad230332fe0b30b408fd2ce07390a5cec621a3df" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
+    // .binaryTarget(
+    //     name: "SentryObjC-Dynamic",
+    //     url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.15.0/SentryObjC-Dynamic.xcframework.zip",
+    //     checksum: "0000000000000000000000000000000000000000000000000000000000000000" //SentryObjC-Dynamic
+    // ),
     .target(
         name: "SentrySwiftUI",
         dependencies: ["Sentry"],
@@ -96,7 +102,19 @@ targets += [
         name: "SentryObjCInternal",
         dependencies: ["SentrySwift"],
         path: "Sources",
-        exclude: ["Sentry/SentryDummyPublicEmptyClass.m", "Sentry/SentryDummyPrivateEmptyClass.m", "Swift", "SentrySwiftUI", "Resources", "Configuration", "SentryCppHelper", "SentryDistribution", "SentryDistributionTests"],
+        exclude: [
+            "Sentry/SentryDummyPublicEmptyClass.m",
+            "Sentry/SentryDummyPrivateEmptyClass.m",
+            "Swift",
+            "SentrySwiftUI",
+            "Resources",
+            "Configuration",
+            "SentryCppHelper",
+            "SentryDistribution",
+            "SentryDistributionTests",
+            "SentryObjC",
+            "SentryObjCCompat"
+        ],
         cSettings: [
             .headerSearchPath("Sentry"),
             .headerSearchPath("SentryCrash/Recording"),
@@ -106,6 +124,25 @@ targets += [
             .headerSearchPath("SentryCrash/Reporting/Filters"),
             .headerSearchPath("SentryCrash/Reporting/Filters/Tools")])
 ]
+
+// BEGIN:OBJC_WRAPPER
+products.append(.library(name: "SentryObjC", targets: ["SentryObjC"]))
+targets += [
+    .target(
+        name: "SentryObjCCompat",
+        dependencies: ["SentryObjCInternal"],
+        path: "Sources/SentryObjCCompat"),
+    .target(
+        name: "SentryObjC",
+        dependencies: ["SentryObjCCompat"],
+        path: "Sources/SentryObjC",
+        publicHeadersPath: "Public",
+        cSettings: [
+            .headerSearchPath("Public")
+        ]
+    )
+]
+// END:OBJC_WRAPPER
 
 let package = Package(
     name: "Sentry",

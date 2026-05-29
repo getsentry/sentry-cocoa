@@ -93,11 +93,11 @@ extension SentryMetric: Encodable {
         case unit
         case attributes
     }
-    
+
     /// Encodes the metric to the given encoder.
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
+
         try container.encode(timestamp, forKey: .timestamp)
         try container.encode(traceId.sentryIdString, forKey: .traceId)
         try container.encodeIfPresent(spanId?.sentrySpanIdString, forKey: .spanId)
