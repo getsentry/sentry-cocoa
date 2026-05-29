@@ -28,7 +28,7 @@ struct FeedbackScreen: View {
             }
             .buttonStyle(.borderedProminent)
 
-            Text("This screen demonstrates presenting SentryUserFeedbackFormView with a SwiftUI sheet, the convenience API, and the feedback widget in a SwiftUI app.")
+            Text("This screen demonstrates presenting SentrySDK.FeedbackFormView with a SwiftUI sheet, the convenience API, and the feedback widget in a SwiftUI app.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -37,7 +37,7 @@ struct FeedbackScreen: View {
         .padding()
         .navigationTitle("Feedback")
         .sheet(isPresented: $isFeedbackFormPresented) {
-            SentryUserFeedbackFormView(config: SentryUserFeedbackConfiguration())
+            SentrySDK.FeedbackFormView(config: SentryUserFeedbackConfiguration())
         }
     }
 }

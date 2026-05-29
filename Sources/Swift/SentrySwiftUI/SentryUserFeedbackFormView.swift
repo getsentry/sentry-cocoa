@@ -27,4 +27,10 @@ public struct SentryUserFeedbackFormView: UIViewControllerRepresentable {
     // swiftlint:disable:next missing_docs
     public func updateUIViewController(_ uiViewController: SentryUserFeedbackFormController, context: Context) { }
 }
+
+/// SwiftUI aliases for Sentry SDK feedback APIs.
+public extension SentrySDK {
+    /// A SwiftUI view that displays the Sentry user feedback form.
+    typealias FeedbackFormView = SentryUserFeedbackFormView
+}
 #endif
