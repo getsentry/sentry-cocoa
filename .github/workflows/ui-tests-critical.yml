@@ -42,7 +42,7 @@ jobs:
   run-tests:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_critical_for_prs == 'true'
     needs: files-changed
-    name: Test ${{matrix.name}} V4 # Up the version with every change to keep track of flaky tests
+    name: Test ${{matrix.name}} V4 on ${{matrix.runner_provider}} # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_critical_tests_ios_swiftui_envelope
@@ -51,9 +51,11 @@ jobs:
       files_suffix: _${{matrix.platform.xcode}}
       xcode_version: ${{matrix.platform.xcode}}
       platform: ${{matrix.platform.platform}}
+      runner_provider: ${{matrix.runner_provider}}
     strategy:
       fail-fast: false
       matrix:
+        runner_provider: ["cirrus", "bitrise"]
         include:
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
@@ -79,10 +81,11 @@ jobs:
   run-swiftui-crash-test:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_critical_for_prs == 'true'
     needs: files-changed
-    name: Run SwiftUI Crash Test
-    runs-on:
-      - "ghcr.io/cirruslabs/macos-runner:sequoia,runner_concurrency_group=${{ github.run_id }}"
-      - "runner_group_id:10"
+    name: Run SwiftUI Crash Test on ${{matrix.runner_provider}}
+    runs-on: ${{ matrix.runner_provider == 'bitrise' && 'BITRISE_MACOS_RUNNER_PLACEHOLDER' || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
+    strategy:
+      matrix:
+        runner_provider: ["cirrus", "bitrise"]
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6

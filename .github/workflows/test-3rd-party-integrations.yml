@@ -50,13 +50,14 @@ jobs:
   # We only build the Static variant since 3rd-party integrations only use the "Sentry" product.
   # Intentionally skipped on release branches.
   build-xcframeworks:
-    name: Build XCFrameworks
+    name: Build XCFrameworks on ${{matrix.runner_provider}}
     needs: files-changed
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
-    runs-on:
-      - "ghcr.io/cirruslabs/macos-runner:sequoia,runner_concurrency_group=${{ github.run_id }}"
-      - "runner_group_id:10"
+    runs-on: ${{ matrix.runner_provider == 'bitrise' && 'BITRISE_MACOS_RUNNER_PLACEHOLDER' || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     timeout-minutes: 30
+    strategy:
+      matrix:
+        runner_provider: ["cirrus", "bitrise"]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Setup Xcode
@@ -74,16 +75,15 @@ jobs:
 
   # SPM tests for all 3rd-party integrations
   test-integrations-spm:
-    name: SPM Tests | ${{matrix.integration_dir}}
+    name: SPM Tests | ${{matrix.integration_dir}} on ${{matrix.runner_provider}}
     needs: [files-changed, build-xcframeworks]
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
-    runs-on:
-      - "ghcr.io/cirruslabs/macos-runner:sequoia,runner_concurrency_group=${{ github.run_id }}"
-      - "runner_group_id:10"
+    runs-on: ${{ matrix.runner_provider == 'bitrise' && 'BITRISE_MACOS_RUNNER_PLACEHOLDER' || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
+        runner_provider: ["cirrus", "bitrise"]
         include:
           - integration_dir: SentrySwiftLog
           - integration_dir: SentrySwiftyBeaver

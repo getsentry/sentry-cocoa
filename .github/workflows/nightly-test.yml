@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   unit-tests:
-    name: Unit ${{matrix.name}}
+    name: Unit ${{matrix.name}} on ${{matrix.runner_provider}}
     uses: ./.github/workflows/unit-test-common.yml
     secrets: inherit
     with:
@@ -31,9 +31,11 @@ jobs:
       timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device}}
       scheme: "Sentry"
+      runner_provider: ${{matrix.runner_provider}}
     strategy:
       fail-fast: false
       matrix:
+        runner_provider: ["cirrus", "bitrise"]
         # Additional devices and platforms not covered by the regular CI matrix in test.yml.
         include:
           - name: iOS 26 iPad Sentry

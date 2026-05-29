@@ -25,6 +25,12 @@ on:
         default: false
         type: boolean
 
+      runner_provider:
+        description: "CI runner provider: cirrus (default) or bitrise"
+        required: false
+        default: "cirrus"
+        type: string
+
       xcode:
         description: the Xcode version to use for the job
         required: true
@@ -57,7 +63,7 @@ on:
 jobs:
   unit-tests:
     name: Unit ${{inputs.name}}
-    runs-on: ${{ fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.runs-on, github.run_id)) }}
+    runs-on: ${{ inputs.runner_provider == 'bitrise' && 'BITRISE_MACOS_RUNNER_PLACEHOLDER' || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.runs-on, github.run_id)) }}
     timeout-minutes: ${{inputs.timeout}}
     if: ${{!inputs.should_skip}}
     steps:
@@ -213,7 +219,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: steps.build_tests.outcome == 'failure'
         with:
-          name: derived-data-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: derived-data-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
@@ -221,7 +227,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: raw-output-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
             raw-build-output.log
             raw-build-for-testing-output.log
@@ -231,7 +237,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: crash-logs-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
@@ -239,7 +245,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: result-bundle-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: result-bundle-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
             results.xcresult
             flaky-results.xcresult
@@ -248,7 +254,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ (failure() || cancelled()) && inputs.scheme == 'Sentry' && steps.collect_sentrytests_metadata.outcome == 'success' }}
         with:
-          name: sentrytests-metadata-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: sentrytests-metadata-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           if-no-files-found: error
           path: |
             sentrytests-metadata/**
@@ -290,7 +296,7 @@ jobs:
           report_type: test_results
           verbose: true
           name: sentry-cocoa-unit-tests
-          flags: unittests-${{ inputs.platform }}-${{ inputs.xcode }}-${{ steps.resolve-test-destination.outputs.TEST_OS }}, unittests
+          flags: unittests-${{ inputs.platform }}-${{ inputs.xcode }}-${{ steps.resolve-test-destination.outputs.TEST_OS }}-${{ inputs.runner_provider }}, unittests
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -300,4 +306,4 @@ jobs:
         uses: ./.github/actions/capture-screenshot
         if: failure()
         with:
-          suffix: unit-tests-${{ inputs.platform }}-xcode-${{ inputs.xcode }}-os-${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          suffix: unit-tests-${{ inputs.runner_provider }}-${{ inputs.platform }}-xcode-${{ inputs.xcode }}-os-${{ steps.resolve-test-destination.outputs.TEST_OS }}

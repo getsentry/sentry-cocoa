@@ -152,21 +152,19 @@ jobs:
   # of a bug solely on a specific OS version is minimal.
   unit-tests-with-test-server:
     name: Unit with Test Server ${{matrix.name}}
-    runs-on: ${{matrix.runs-on}}
+    runs-on: ${{ matrix.runner_provider == 'bitrise' && 'BITRISE_MACOS_RUNNER_PLACEHOLDER' || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     timeout-minutes: 20
     needs: build-test-server
 
     strategy:
       fail-fast: false
       matrix:
+        runner_provider: ["cirrus", "bitrise"]
         include:
           # Running the tests with simulators is incredibly flaky. Our assumption is that simulators might have difficulties
           # with communicating with the test server in CI.
           # We are going to add these back in https://github.com/getsentry/sentry-cocoa/issues/6361
           - name: macOS 15
-            runs-on:
-              - "ghcr.io/cirruslabs/macos-runner:sequoia,runner_concurrency_group=${{ github.run_id }}"
-              - "runner_group_id:10"
             platform: "macOS"
             xcode: "16"
 
@@ -228,7 +226,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: steps.build_tests.outcome == 'failure'
         with:
-          name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{ env.RUNNER_PROVIDER }}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
@@ -236,7 +234,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{ env.RUNNER_PROVIDER }}
           path: |
             raw-build-output.log
             raw-build-for-testing-output.log
@@ -246,7 +244,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{ env.RUNNER_PROVIDER }}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
@@ -275,9 +273,11 @@ jobs:
       timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device || ''}}
       scheme: "Sentry"
+      runner_provider: ${{matrix.runner_provider}}
     strategy:
       fail-fast: false
       matrix:
+        runner_provider: ["cirrus", "bitrise"]
         # Can't run tests on watchOS because XCTest is not available
         include:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.

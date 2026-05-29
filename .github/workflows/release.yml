@@ -297,7 +297,7 @@ jobs:
         if: failure()
 
   duplication-tests:
-    name: Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests
+    name: Test Sentry Duplication V4 on ${{matrix.runner_provider}}
     uses: ./.github/workflows/ui-tests-common.yml
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
@@ -310,6 +310,10 @@ jobs:
       macos_version: macos-15
       needs_xcframework: true
       platform: macOS
+      runner_provider: ${{matrix.runner_provider}}
+    strategy:
+      matrix:
+        runner_provider: ["cirrus", "bitrise"]
 
   app-metrics:
     name: Collect App Metrics

@@ -47,6 +47,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        runner_provider: ["cirrus", "bitrise"]
         job_id:
           - ios_objc
           - tvos_swift
@@ -67,6 +68,7 @@ jobs:
       codecov_test_analytics: true
       files_suffix: _${{matrix.target}}_
       platform: ${{matrix.platform}}
+      runner_provider: ${{matrix.runner_provider}}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -83,6 +85,10 @@ jobs:
       macos_version: "sequoia"
       files_suffix: _swiftui_
       platform: "iOS"
+      runner_provider: ${{matrix.runner_provider}}
+    strategy:
+      matrix:
+        runner_provider: ["cirrus", "bitrise"]
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -94,6 +100,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        runner_provider: ["cirrus", "bitrise"]
         job_id:
           - ios_17
           - ios_18
@@ -128,6 +135,7 @@ jobs:
       test-destination-os: ${{matrix.test_destination_os}}
       platform: ${{matrix.platform}}
       device: ${{matrix.device}}
+      runner_provider: ${{matrix.runner_provider}}
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -144,6 +152,10 @@ jobs:
       codecov_test_analytics: true
       platform: iOS
       files_suffix: _swift6_
+      runner_provider: ${{matrix.runner_provider}}
+    strategy:
+      matrix:
+        runner_provider: ["cirrus", "bitrise"]
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 

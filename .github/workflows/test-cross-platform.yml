@@ -35,15 +35,16 @@ jobs:
           filters: .github/file-filters.yml
 
   test-react-native:
-    name: React Native Installation
+    name: React Native Installation on ${{matrix.runner_provider}}
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_test_cross_platform_for_prs == 'true'
     needs: files-changed
-    runs-on:
-      - "ghcr.io/cirruslabs/macos-runner:sequoia,runner_concurrency_group=${{ github.run_id }}"
-      - "runner_group_id:10"
+    runs-on: ${{ matrix.runner_provider == 'bitrise' && 'BITRISE_MACOS_RUNNER_PLACEHOLDER' || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     # This job can take a while to run, so we set a timeout.
     timeout-minutes: 30
+    strategy:
+      matrix:
+        runner_provider: ["cirrus", "bitrise"]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
