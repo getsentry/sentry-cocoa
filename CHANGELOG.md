@@ -7,7 +7,7 @@
 
 ### Features
 
-- Add SentryObjC wrapper SDK — a pure Objective-C interface for projects that cannot enable Clang modules (e.g., ObjC++ with `-fmodules=NO`). Ships as `SentryObjC-Dynamic.xcframework.zip` and as a compile-from-source SPM product. (#6342)
+- Add SentryObjC wrapper SDK — a pure Objective-C interface for projects that cannot enable Clang modules (e.g., ObjC++ with `-fmodules=NO`). Ships as `SentryObjC-Dynamic.xcframework.zip` and as a compile-from-source SPM product. (#7919)
   Steps to migrate:
   - Replace your dependency on `Sentry` with `SentryObjC` (SPM product or xcframework)
   - Change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`
