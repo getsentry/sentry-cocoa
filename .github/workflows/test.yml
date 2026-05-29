@@ -152,6 +152,7 @@ jobs:
   # of a bug solely on a specific OS version is minimal.
   unit-tests-with-test-server:
     name: Unit with Test Server ${{matrix.name}}
+    continue-on-error: ${{ matrix.runner_provider == 'bitrise' }}
     runs-on: ${{ matrix.runner_provider == 'bitrise' && 'BITRISE_MACOS_RUNNER_PLACEHOLDER' || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     timeout-minutes: 20
     needs: build-test-server

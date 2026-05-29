@@ -64,6 +64,7 @@ jobs:
   unit-tests:
     name: Unit ${{inputs.name}}
     runs-on: ${{ inputs.runner_provider == 'bitrise' && 'BITRISE_MACOS_RUNNER_PLACEHOLDER' || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.runs-on, github.run_id)) }}
+    continue-on-error: ${{ inputs.runner_provider == 'bitrise' }}
     timeout-minutes: ${{inputs.timeout}}
     if: ${{!inputs.should_skip}}
     steps:
