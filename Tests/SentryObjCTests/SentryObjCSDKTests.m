@@ -36,6 +36,60 @@
     [SentryObjCSDK startWithOptions:options];
 }
 
+- (void)testStartWithOptions_shouldSetObjCSdkNameOnEvent
+{
+    // -- Arrange --
+    [SentryObjCSDK close];
+    __block NSDictionary<NSString *, id> *capturedSdk = nil;
+
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+    options.dsn = @"https://key@sentry.io/123";
+    options.enableCrashHandler = NO;
+    options.beforeSend = ^SentryObjCEvent *_Nullable(SentryObjCEvent *event)
+    {
+        capturedSdk = event.sdk;
+        return event;
+    };
+
+    // -- Act --
+    [SentryObjCSDK startWithOptions:options];
+    [SentryObjCSDK captureEvent:[[SentryObjCEvent alloc] init]];
+
+    // -- Assert --
+    XCTAssertEqualObjects(capturedSdk[@"name"], @"sentry.cocoa.objc");
+}
+
+- (void)testStartWithConfigureOptions_shouldSetObjCSdkNameOnEvent
+{
+    // -- Arrange --
+    [SentryObjCSDK close];
+    __block NSDictionary<NSString *, id> *capturedSdk = nil;
+
+    // -- Act --
+    [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
+        options.dsn = @"https://key@sentry.io/123";
+        options.enableCrashHandler = NO;
+        options.beforeSend = ^SentryObjCEvent *_Nullable(SentryObjCEvent *event)
+        {
+            capturedSdk = event.sdk;
+            return event;
+        };
+    }];
+    [SentryObjCSDK captureEvent:[[SentryObjCEvent alloc] init]];
+
+    // -- Assert --
+    XCTAssertEqualObjects(capturedSdk[@"name"], @"sentry.cocoa.objc");
+}
+
+- (void)testClose_shouldRestoreBaseSdkName
+{
+    // -- Act --
+    [SentryObjCSDK close];
+
+    // -- Assert --
+    XCTAssertEqualObjects([SentryObjCPrivateSDKOnly getSdkName], @"sentry.cocoa");
+}
+
 - (void)testIsEnabled_whenStarted_shouldReturnTrue
 {
     // -- Arrange & Act --

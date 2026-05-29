@@ -34,10 +34,12 @@ import Foundation
     #endif
 
     @objc public static func start(options: SentryObjCOptions) {
+        SentryObjCSDKTracking.markStartedThroughObjCWrapper()
         SentrySDK.start(options: options.wrapped)
     }
 
     @objc public static func start(configureOptions: @escaping (SentryObjCOptions) -> Void) {
+        SentryObjCSDKTracking.markStartedThroughObjCWrapper()
         SentrySDK.start { options in
             configureOptions(SentryObjCOptions(options))
         }
@@ -232,6 +234,7 @@ import Foundation
 
     @objc public static func close() {
         SentrySDK.close()
+        SentryObjCSDKTracking.markClosedThroughObjCWrapper()
     }
 
     #if !(os(watchOS) || os(tvOS) || os(visionOS))
