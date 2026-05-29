@@ -798,18 +798,20 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
             BOOL isStandalone = [self isStandaloneAppStartTransaction];
             NSNumber *durationMs = @(appStartMeasurement.duration * 1000);
 
-            if (!isStandalone) {
-                [self setMeasurement:legacyType value:durationMs];
-            } else {
-                [self setDataValue:durationMs forKey:vitalsType];
-                [self setDataValue:durationMs forKey:SentrySpanDataKeyAppVitalsStartValue];
-            }
-
             NSString *appStartType = appStartMeasurement.isPreWarmed
                 ? [NSString stringWithFormat:@"%@.prewarmed", appContextType]
                 : appContextType;
             if (isStandalone) {
+                [self setDataValue:durationMs forKey:vitalsType];
+                [self setDataValue:durationMs forKey:SentrySpanDataKeyAppVitalsStartValue];
                 [self setDataValue:appStartType forKey:SentrySpanDataKeyAppVitalsStartType];
+                [self setDataValue:@(appStartMeasurement.isPreWarmed)
+                            forKey:SentrySpanDataKeyAppVitalsStartPrewarmed];
+                [self setDataValue:[SentryAppStartMeasurementProvider consumeAppStartScreen]
+                            forKey:SentrySpanDataKeyAppVitalsStartScreen];
+                [self setDataValue:@"launch" forKey:SentrySpanDataKeyAppVitalsStartReason];
+            } else {
+                [self setMeasurement:legacyType value:durationMs];
             }
             NSMutableDictionary *context =
                 [[NSMutableDictionary alloc] initWithDictionary:[transaction context] ?: @{ }];
