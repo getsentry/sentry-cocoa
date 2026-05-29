@@ -197,23 +197,70 @@ public class SentryFramesTracker: NSObject {
         return .init(delayDuration: result.delayDuration, framesContributingToDelayCount: result.framesContributingToDelayCount)
     }
 
+    // The add/remove pair below is shaped so the dispatched closures never
+    // strongly capture `listener`. They capture only value-typed identity
+    // (`ObjectIdentifier`) and, for `addListener`, a pre-built `WeakReference`
+    // instance (whose refcount is independent of the listener's). The
+    // closures are bridged through `dispatchAsyncOnMainQueueIfNotMainThread`,
+    // and any strong capture of `listener` would trigger
+    // `swift_unknownObjectRetain` on a mid-dealloc object if a caller invoked
+    // `removeListener(self)` from inside its own `deinit` on a background
+    // thread. Under iOS 26's hardened ARC, that retain is fatal
+    // (`EXC_BREAKPOINT`). The `deinit`-from-background-thread shape is the
+    // documented motivating crash; applying the same capture pattern to
+    // `addListener` keeps the two methods consistent and forestalls
+    // accidental regressions (an `addListener(self)` from `init` on a
+    // background thread isn't a hardened-ARC trap shape per se, but the
+    // capture-cost is identical and the symmetry is easier to maintain).
+    //
+    // Identity comparison via `ObjectIdentifier` is safe across the hop:
+    // `existing.value` is loaded through `objc_loadWeak`, so for any listener
+    // whose memory has been freed the slot reads as `nil` and the early
+    // `return true` drops it without computing any identifier. We therefore
+    // never call `ObjectIdentifier(live)` on a freed pointer. The captured
+    // `targetIdentity` survives across the hop, but it can only match a
+    // *live* `existing` — which is precisely the identity semantic `===`
+    // would have provided synchronously. See the `listeners` property
+    // comment above for the parallel `objc_loadWeak`-safety argument that
+    // justifies `WeakReference` over `NSHashTable`.
+    //
+    // `[weak self]` is defense in depth — the tracker typically outlives
+    // every listener, so strong capture would only extend its lifetime by
+    // one main-queue trip. Weak capture matches the pattern in
+    // `SentryUIDeviceWrapper.start`.
+    //
+    // See `testAddAndRemoveListener_DoNotRetainListenerAcrossMainQueueHop`
+    // for the deterministic structural assertion of this invariant.
+
     @objc public func addListener(_ listener: SentryFramesTrackerListener) {
-        dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
-            // Drop zeroed refs and any existing entry for this listener to avoid
-            // duplicate registrations, then append a fresh ref.
-            self.listeners.removeAll { ref in
-                guard let existing = ref.value else { return true }
-                return existing === listener
+        let targetIdentity = ObjectIdentifier(listener)
+        // Build the weak wrapper out here so the closure's capture list
+        // contains only `ref` (whose retain count is independent of the
+        // listener's), never `listener` itself. Without this hoist, the
+        // closure body's `WeakReference(value: listener)` call would force
+        // the closure to capture `listener` strongly.
+        let ref = WeakReference(value: listener)
+        dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
+            guard let self else { return }
+            // Drop zeroed refs and any existing entry for this listener to
+            // avoid duplicate registrations, then append the pre-built ref.
+            self.listeners.removeAll { existing in
+                guard let live = existing.value else { return true }
+                return ObjectIdentifier(live) == targetIdentity
             }
-            self.listeners.append(WeakReference(value: listener))
+            self.listeners.append(ref)
         }
     }
 
     @objc public func removeListener(_ listener: SentryFramesTrackerListener) {
-        dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread {
-            self.listeners.removeAll { ref in
-                guard let existing = ref.value else { return true }
-                return existing === listener
+        // No pre-built `WeakReference` here — `removeListener` only filters by
+        // identity, it never appends, so the closure has nothing it would need
+        // to construct from `listener`.
+        let targetIdentity = ObjectIdentifier(listener)
+        dispatchQueueWrapper.dispatchAsyncOnMainQueueIfNotMainThread { [weak self] in
+            self?.listeners.removeAll { existing in
+                guard let live = existing.value else { return true }
+                return ObjectIdentifier(live) == targetIdentity
             }
         }
     }

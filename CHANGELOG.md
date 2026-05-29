@@ -13,6 +13,10 @@
   - Change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`
   - Rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
 
+### Fixes
+
+- Fix crash in `SentryFramesTracker.add/removeListener` when called from a listener's own `init` / `deinit` on a background thread, observed on iOS 26 (#7943)
+
 ## 9.15.0
 
 ### Features
