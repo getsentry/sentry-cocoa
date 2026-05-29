@@ -541,7 +541,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif
 
-#if TARGET_OS_OSX && SENTRY_OBJC_HAS_UIKIT
+#if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
 
 /**
  * When enabled, the SDK reports uncaught NSExceptions via @c NSSetUncaughtExceptionHandler.

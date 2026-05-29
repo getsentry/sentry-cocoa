@@ -961,6 +961,22 @@
 
 #endif
 
+#if TARGET_OS_OSX && !SENTRY_NO_UI_FRAMEWORK
+
+- (void)testEnableUncaughtNSExceptionReporting_whenSetToYes_shouldReturnYes
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.enableUncaughtNSExceptionReporting = YES;
+
+    // -- Assert --
+    XCTAssertTrue(options.enableUncaughtNSExceptionReporting);
+}
+
+#endif
+
 #if (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION) && SENTRY_OBJC_HAS_UIKIT
 
 - (void)testEnableUIViewControllerTracing_whenSetToYes_shouldReturnYes
