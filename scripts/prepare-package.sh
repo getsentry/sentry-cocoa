@@ -19,7 +19,7 @@ OPTIONS:
     --remove-duplicate true|false    Strip duplicate variant targets (default: false)
     --change-path true|false         Swap binary URLs for local paths (default: false)
     --remove-binary-targets true|false
-                                     Keep only SentryDistribution (default: false)
+                                     Remove binary targets and keep source-backed products (default: false)
     -h, --help                       Show this help message
 
 EXAMPLES:
@@ -150,7 +150,8 @@ for PACKAGE_FILE in "${PACKAGE_FILES[@]}"; do
     # Remove all binary targets.
     sed -i '' '/^[[:space:]]*\.binaryTarget(/,/^[[:space:]]*),\{0,1\}$/d' "$PACKAGE_FILE"
 
-    # Keep only the SentryDistribution library in the products array.
+    # Keep only source-backed products in the products array. Additional source products can be
+    # appended later in the file, such as SentrySPM and SentryObjC.
     sed -i '' '/^var products: \[Product\] = \[/,/^]/c\
 var products: [Product] = [\
     .library(name: "SentryDistribution", targets: ["SentryDistribution"]),\

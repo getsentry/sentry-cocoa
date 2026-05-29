@@ -143,7 +143,7 @@ jobs:
           fi
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@bccf2e31636835cf0874589931c4116687171386 # v6.4.0
+        uses: mikepenz/action-junit-report@3a81627bfac62268172037048872e8ebd4207e6d # v6.4.1
         if: always()
         with:
           report_paths: build/reports/*junit.xml
@@ -153,9 +153,10 @@ jobs:
 
       - name: Codecov test analytics
         if: ${{ !cancelled() && inputs.codecov_test_analytics }}
-        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # pin@v1.2.1
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # pin@v6.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: test_results
           verbose: true
           name: sentry-cocoa-unit-tests
           flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}, ui-tests

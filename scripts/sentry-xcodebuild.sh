@@ -41,13 +41,14 @@ OPTIONS:
     -D, --derived-data <path>        Derived data path
     -s, --scheme <scheme>            Test scheme (default: Sentry)
     -t, --test-plan <plan>           Test plan name (default: empty)
-    --only-testing <tests>           Comma-separated test classes (default: empty, runs all tests)
+    --only-testing <tests>           Comma-separated test selectors.
+                                      Each selector must be Target/Class or Target/Class/testMethod.
     -R, --result-bundle <path>       Result bundle path (default: results.xcresult)
 
 EXAMPLES:
     $(basename "$0") -p iOS -c test
     $(basename "$0") -p macOS -c build -C Release
-    $(basename "$0") -p iOS -c test --only-testing SentryTests
+    $(basename "$0") -p iOS -c test --only-testing SentryTests/SentrySDKTests
 
 EOF
     exit 1
@@ -220,7 +221,13 @@ ONLY_TESTING_ARGS=()
 if [ -n "$ONLY_TESTING" ]; then
     IFS=',' read -ra TEST_ARRAY <<< "$ONLY_TESTING"
     for test in "${TEST_ARRAY[@]}"; do
-        ONLY_TESTING_ARGS+=("-only-testing:SentryTests/$test")
+        if [[ ! "$test" =~ ^[^/[:space:]]+/[^/[:space:]]+(/[^/[:space:]]+)?$ ]]; then
+            log_error "Invalid --only-testing value: $test"
+            log_error "Use Target/Class or Target/Class/testMethod, for example SentryTests/SentrySDKTests."
+            exit 1
+        fi
+
+        ONLY_TESTING_ARGS+=("-only-testing:$test")
     done
 fi
 

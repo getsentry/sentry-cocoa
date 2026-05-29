@@ -8,6 +8,7 @@ import UIKit
 
 public struct SentrySDKWrapper {
     public static let shared = SentrySDKWrapper()
+    public static var spanCaptureHandler: ((Span) -> Void)?
 
 #if !os(macOS) && !os(tvOS) && !os(watchOS)
     public let feedbackButton = {
@@ -25,12 +26,26 @@ public struct SentrySDKWrapper {
             print("SentrySDK already enabled, closing it")
             SentrySDK.close()
         }
+        
+#if os(iOS) || os(tvOS) || os(visionOS)
+        if let delay = SentrySDKOverrides.Performance.extendAppLaunchDelay.floatValue {
+            SentrySDK.extendAppLaunch()
+        }
+#endif // os(iOS) || os(tvOS) || os(visionOS))
 
         if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
             print("[Sentry] lastRunStatus before start: \(SentrySDK.lastRunStatus)")
             SentrySDK.start(configureOptions: configureSentryOptions(options:))
             print("[Sentry] lastRunStatus after start: \(SentrySDK.lastRunStatus)")
         }
+
+#if os(iOS) || os(tvOS) || os(visionOS)
+        if let delay = SentrySDKOverrides.Performance.extendAppLaunchDelay.floatValue {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(delay)) {
+                SentrySDK.finishExtendedAppLaunch()
+            }
+        }
+#endif // os(iOS) || os(tvOS) || os(visionOS))
     }
 
     func configureSentryOptions(options: Options) {
@@ -43,9 +58,10 @@ public struct SentrySDKWrapper {
             guard !SentrySDKOverrides.Events.rejectAll.boolValue else { return nil }
             return $0
         }
-        options.beforeSendSpan = {
+        options.beforeSendSpan = { span in
             guard !SentrySDKOverrides.Other.rejectAllSpans.boolValue else { return nil }
-            return $0
+            SentrySDKWrapper.spanCaptureHandler?(span)
+            return span
         }
         options.beforeCaptureScreenshot = { _ in !SentrySDKOverrides.Other.rejectScreenshots.boolValue }
         options.beforeCaptureViewHierarchy = { _ in !SentrySDKOverrides.Other.rejectViewHierarchy.boolValue }

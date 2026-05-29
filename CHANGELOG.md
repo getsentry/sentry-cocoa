@@ -2,9 +2,31 @@
 
 ## Unreleased
 
+> [!IMPORTANT]
+> The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
+
+### Features
+
+- Add SentryObjC wrapper SDK — a pure Objective-C interface for projects that cannot enable Clang modules (e.g., ObjC++ with `-fmodules=NO`). Ships as `SentryObjC-Dynamic.xcframework.zip` and as a compile-from-source SPM product. (#7918)
+  Steps to migrate:
+  - Replace your dependency on `Sentry` with `SentryObjC` (SPM product or xcframework)
+  - Change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`
+  - Rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
+
 ### Fixes
 
 - Fix crash in `SentryFramesTracker.add/removeListener` when called from a listener's own `init` / `deinit` on a background thread, observed on iOS 26 (#7943)
+
+## 9.15.0
+
+### Features
+
+- Add `SentrySDK.extendAppLaunch()` and `SentrySDK.finishExtendedAppLaunch()` to extend standalone app start spans beyond the default end point (e.g. include initial data loading). Call `extendAppLaunch()` after `SentrySDK.start(options:)` and before the app start transaction is created, then call `finishExtendedAppLaunch()` when your app is fully ready. Requires `options.experimental.enableStandaloneAppStartTracing = true`. (#7936)
+- Skip max app start duration limit for standalone app start tracing (#7949)
+
+### Fixes
+
+- Fix UIViewController transactions lost during launch profiling (#7920)
 
 ## 9.14.0
 
