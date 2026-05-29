@@ -105,12 +105,7 @@ Samples/watchOS-Swift/watchOS-Swift.xcodeproj
 TestSamples/SwiftUICrashTest/SwiftUICrashTest.xcodeproj
 TestSamples/SwiftUITestSample/SwiftUITestSample.xcodeproj
 
-Sentry.xcframework*
-Sentry-Dynamic.xcframework*
-Sentry-Dynamic-WithARM64e.xcframework*
-SentrySwiftUI.xcframework*
-Sentry-WithoutUIKitOrAppKit.xcframework*
-Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework*
+*.xcframework*
 
 current_package_diff.patch
 
@@ -144,3 +139,6 @@ agents.lock
 
 # GSD planning artifacts
 .planning/
+
+# Temporary files created by the API build process
+sdk_api_objccompat.json
