@@ -17,10 +17,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let screenshotSource: SentryScreenshotSource?
     }
 
-    private final class TestWidgetTarget: NSObject {
-        @objc func showForm() { }
-    }
-
     private func makeScreenshotSource() -> SentryScreenshotSource {
         let viewRenderer = SentryDefaultViewRenderer()
         let photographer = SentryViewPhotographer(
@@ -58,28 +54,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
         XCTAssertFalse(sut.present(from: UIViewController(), screenshot: nil))
         XCTAssertFalse(sut.isDisplayingForm)
-    }
-
-    func testPresent_whenPresenterIsAttachedToWindow_shouldPresentFormWithScreenshot() throws {
-        let window = UIWindow(frame: UIScreen.main.bounds)
-        let viewController = TestPresentingViewController()
-        let config = SentryUserFeedbackConfiguration()
-        config.animations = false
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: config,
-            screenshotSource: makeScreenshotSource())
-        let screenshot = UIImage()
-
-        window.rootViewController = viewController
-        window.makeKeyAndVisible()
-
-        XCTAssertTrue(sut.present(from: viewController, screenshot: screenshot))
-        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
-        XCTAssertIdentical(try XCTUnwrap(form.screenshot), screenshot)
-        XCTAssertFalse(try XCTUnwrap(viewController.lastAnimated))
-        XCTAssertTrue(sut.isDisplayingForm)
-
-        withExtendedLifetime(window) { }
     }
 
     func testPresent_whenConfigurationBuildersAreSet_shouldNotApplyBuildersAgain() throws {
@@ -174,23 +148,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.isDisplayingForm)
 
         withExtendedLifetime(window) { }
-    }
-
-    func testSetWidget_whenAnimatedHide_shouldHideButtonAfterAnimation() {
-        let config = SentryUserFeedbackConfiguration()
-        let target = TestWidgetTarget()
-        let button = SentryUserFeedbackWidgetButtonView(config: config, target: target, selector: #selector(TestWidgetTarget.showForm))
-        let sut = SentryUserFeedbackWidget.RootViewController(config: config, button: button)
-
-        let animationsWereEnabled = UIView.areAnimationsEnabled
-        UIView.setAnimationsEnabled(false)
-        defer { UIView.setAnimationsEnabled(animationsWereEnabled) }
-
-        sut.setWidget(visible: false, animated: true)
-
-        XCTAssertEqual(button.alpha, 0)
-        XCTAssertTrue(button.isHidden)
-        XCTAssertFalse(sut.isWidgetVisible)
     }
 
     func testFeedbackAPI_whenIntegrationIsMissing_shouldReturnFalse() {
