@@ -28,15 +28,12 @@ import UIKit
     /// window scene presenter, or first available key-window presenter.
     ///
     /// - Parameter image: An optional image to attach to the feedback form.
-    /// - Returns: `true` if presentation was requested, or `false` if feedback isn't configured,
-    /// no presenter is available, or the presenter can't currently present.
     /// - Important: Call this method from the main thread.
     /// - warning: This is an experimental feature and may still have bugs.
     @available(iOSApplicationExtension, unavailable)
-    @discardableResult
     @objc(showWithImage:)
-    public func show(image: UIImage? = nil) -> Bool {
-        return Self.getIntegration()?.driver.showForm(screenshot: image) ?? false
+    public func show(image: UIImage? = nil) {
+        Self.getIntegration()?.driver.showForm(screenshot: image)
     }
 
     @available(iOSApplicationExtension, unavailable)

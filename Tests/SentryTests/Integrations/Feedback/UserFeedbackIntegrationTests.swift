@@ -150,16 +150,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
-    func testFeedbackAPI_whenIntegrationIsMissing_shouldReturnFalse() {
-        let previousHub = SentrySDKInternal.currentHub()
-        SentrySDKInternal.setCurrentHub(TestHub(client: nil, andScope: nil))
-        defer { SentrySDKInternal.setCurrentHub(previousHub) }
-
-        let sut = SentryFeedbackAPI()
-
-        XCTAssertFalse(sut.show())
-    }
-
     // MARK: - Helper Types
 
     private final class TestPresentingViewController: UIViewController {

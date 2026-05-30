@@ -38140,9 +38140,8 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
+                "name": "Void",
+                "printedName": "()"
               },
               {
                 "children": [
@@ -38162,14 +38161,13 @@
             ],
             "declAttributes": [
               "Available",
-              "DiscardableResult",
               "Final",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A11FeedbackAPIC4show5imageSbSo7UIImageCSg_tF",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC4show5imageySo7UIImageCSg_tF",
             "moduleName": "Sentry",
             "name": "show",
             "objc_name": "showWithImage:",
