@@ -14,7 +14,7 @@ final class FeedbackViewController: UIViewController {
     }
 
     @IBAction private func presentController(_: UIButton) {
-        let form = SentryUserFeedbackFormController(config: SentryUserFeedbackConfiguration())
+        let form = SentrySDK.FeedbackForm(config: SentryUserFeedbackConfiguration())
         present(form, animated: true)
     }
 
