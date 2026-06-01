@@ -101,25 +101,17 @@ jobs:
         run: ./scripts/build-xcframework-slice.sh "$MATRIX_SDK" "$INPUT_NAME" "$INPUT_SUFFIX" "$INPUT_MACHO_TYPE" "$INPUT_CONFIG_SUFFIX"
         shell: bash
 
-      # Targets that depend on Sentry also build Sentry.framework as a byproduct.
-      # Remove it to avoid downstream assembly tasks from tripping on extra files.
+      # SentrySwiftUI depends on Sentry, which gets built as a byproduct.
+      # Remove it — consumers link Sentry separately.
+      # SentryObjC is NOT included here: it embeds its dependencies inside
+      # the framework bundle and needs them to stay.
       - name: Remove Sentry.framework byproduct
-        if: inputs.name == 'SentrySwiftUI' || inputs.name == 'SentryObjC'
+        if: inputs.name == 'SentrySwiftUI'
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
         run: |
           find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "Sentry.framework" -print0 | xargs -t0 rm -rf
           find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "Sentry.framework.dSYM" -print0 | xargs -t0 rm -rf
-        shell: bash
-
-      # SentryObjC depends on SentryObjCCompat, which gets built as a byproduct.
-      - name: Remove SentryObjCCompat.framework byproduct
-        if: inputs.name == 'SentryObjC'
-        env:
-          GITHUB_WORKSPACE: ${{ github.workspace }}
-        run: |
-          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCCompat.framework" -print0 | xargs -t0 rm -rf
-          find "$GITHUB_WORKSPACE/XCFrameworkBuildPath/archive" -name "SentryObjCCompat.framework.dSYM" -print0 | xargs -t0 rm -rf
         shell: bash
 
       # the upload action broke symlinks in the mac sdk slice's xcarchive
