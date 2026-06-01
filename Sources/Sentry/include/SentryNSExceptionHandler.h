@@ -11,7 +11,7 @@ FOUNDATION_EXPORT NSErrorDomain const SentryNSExceptionErrorDomain;
  * code 0). Returns @c nil and sets @p error on exception; otherwise returns
  * whatever the block returns.
  */
-FOUNDATION_EXPORT id _Nullable SentryTryCatch(id _Nullable (NS_NOESCAPE ^block)(void),
-    NSError *_Nullable *_Nullable error);
+FOUNDATION_EXPORT id _Nullable SentryTryCatch(
+    id _Nullable(NS_NOESCAPE ^ block)(void), NSError *_Nullable *_Nullable error);
 
 NS_ASSUME_NONNULL_END
