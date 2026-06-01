@@ -332,6 +332,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_500),
             expectedSampled: tracer.sampled
         )
+        XCTAssertEqual("warm", result[0].data["app.vitals.start.type"] as? String)
         assertSpan(
             span: result[1],
             expectedTraceId: tracer.traceId.sentryIdString,
@@ -342,6 +343,7 @@ class SentryBuildAppStartSpansTests: XCTestCase {
             expectedEndTimestamp: Date(timeIntervalSince1970: 1_600),
             expectedSampled: tracer.sampled
         )
+        XCTAssertEqual("warm", result[1].data["app.vitals.start.type"] as? String)
     }
 
     func testSentryBuildAppStartSpans_appStartMeasurementIsPreWarmed_shouldIncludePreRuntimeSpans() {

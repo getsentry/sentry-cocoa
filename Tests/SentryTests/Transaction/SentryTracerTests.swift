@@ -1106,7 +1106,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(measurements?["app.vitals.start.cold.value"], "Should not have app start measurement")
     }
 
-    func testFinish_whenStandalonePrewarmedColdAppStart_shouldReportColdPrewarmedTypeAndPrewarmedYes() throws {
+    func testFinish_whenStandalonePrewarmedColdAppStart_shouldReportColdTypeAndPrewarmedYes() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold, preWarmed: true)
 
         let context = TransactionContext(name: "App Start", nameSource: .component, operation: fixture.appStartOperation, origin: SentryTraceOriginAutoAppStart)
@@ -1123,11 +1123,11 @@ class SentryTracerTests: XCTestCase {
         let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
         let contexts = serializedTransaction["contexts"] as? [String: [String: Any]]
         let appContext = contexts?["app"] as? [String: String]
-        XCTAssertEqual("cold.prewarmed", appContext?["start_type"])
+        XCTAssertEqual("cold", appContext?["start_type"])
 
         let extra = serializedTransaction["extra"] as? [String: Any]
         let startType = try XCTUnwrap(extra?["app.vitals.start.type"] as? String)
-        XCTAssertEqual("cold.prewarmed", startType)
+        XCTAssertEqual("cold", startType)
 
         let prewarmed = try XCTUnwrap(extra?["app.vitals.start.prewarmed"] as? NSNumber)
         XCTAssertTrue(prewarmed.boolValue)
@@ -1166,7 +1166,7 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual("launch", reason)
     }
 
-    func testFinish_whenStandalonePrewarmedWarmAppStart_shouldReportWarmPrewarmedTypeAndPrewarmedYes() throws {
+    func testFinish_whenStandalonePrewarmedWarmAppStart_shouldReportWarmTypeAndPrewarmedYes() throws {
         let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm, preWarmed: true)
 
         let context = TransactionContext(name: "App Start", nameSource: .component, operation: fixture.appStartOperation, origin: SentryTraceOriginAutoAppStart)
@@ -1183,11 +1183,11 @@ class SentryTracerTests: XCTestCase {
         let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
         let contexts = serializedTransaction["contexts"] as? [String: [String: Any]]
         let appContext = contexts?["app"] as? [String: String]
-        XCTAssertEqual("warm.prewarmed", appContext?["start_type"])
+        XCTAssertEqual("warm", appContext?["start_type"])
 
         let extra = serializedTransaction["extra"] as? [String: Any]
         let startType = try XCTUnwrap(extra?["app.vitals.start.type"] as? String)
-        XCTAssertEqual("warm.prewarmed", startType)
+        XCTAssertEqual("warm", startType)
 
         let prewarmed = try XCTUnwrap(extra?["app.vitals.start.prewarmed"] as? NSNumber)
         XCTAssertTrue(prewarmed.boolValue)

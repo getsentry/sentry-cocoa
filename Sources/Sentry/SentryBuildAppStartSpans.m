@@ -70,7 +70,7 @@ sentryBuildAppStartSpansInternal(SentryTracer *tracer,
     if (appStartMeasurement.type == SentryAppStartTypeCold
         || appStartMeasurement.type == SentryAppStartTypeWarm) {
         NSString *base = appStartMeasurement.type == SentryAppStartTypeCold ? @"cold" : @"warm";
-        startType = appStartMeasurement.isPreWarmed
+        startType = (!isStandalone && appStartMeasurement.isPreWarmed)
             ? [NSString stringWithFormat:@"%@.prewarmed", base]
             : base;
     }
