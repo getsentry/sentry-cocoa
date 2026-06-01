@@ -40,7 +40,7 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_test_cross_platform_for_prs == 'true'
     needs: files-changed
-    runs-on: ${{ matrix.runner_provider == 'bitrise' && 'BITRISE_MACOS_RUNNER_PLACEHOLDER' || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
+    runs-on: ${{ matrix.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', 'sequoia')) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     # This job can take a while to run, so we set a timeout.
     timeout-minutes: 30
     strategy:

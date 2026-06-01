@@ -153,7 +153,7 @@ jobs:
   unit-tests-with-test-server:
     name: Unit with Test Server ${{matrix.name}}
     continue-on-error: ${{ matrix.runner_provider == 'bitrise' }}
-    runs-on: ${{ matrix.runner_provider == 'bitrise' && 'BITRISE_MACOS_RUNNER_PLACEHOLDER' || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
+    runs-on: ${{ matrix.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', 'sequoia')) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     timeout-minutes: 20
     needs: build-test-server
 
