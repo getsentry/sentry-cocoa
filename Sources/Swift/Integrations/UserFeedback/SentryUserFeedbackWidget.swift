@@ -19,10 +19,6 @@ final class SentryUserFeedbackWidget {
 
     private var window: Window?
 
-    var isVisible: Bool {
-        return rootVC.isWidgetVisible
-    }
-
     let config: SentryUserFeedbackConfiguration
     weak var delegate: (any SentryUserFeedbackWidgetDelegate)?
 
@@ -87,7 +83,7 @@ final class SentryUserFeedbackWidget {
         }
     }
 
-    final class RootViewController: UIViewController, UIAdaptivePresentationControllerDelegate {
+    final class RootViewController: UIViewController {
         let defaultWidgetSpacing: CGFloat = 8
         private(set) var isWidgetVisible = true
         weak var button: SentryUserFeedbackWidgetButtonView?

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add feedback form presentation APIs (#7873)
+
+## 9.16.0-alpha.2
+
 > [!IMPORTANT]
 > The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
 
@@ -12,7 +16,24 @@
   - Replace your dependency on `Sentry` with `SentryObjC` (SPM product or xcframework)
   - Change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`
   - Rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
-- Add feedback form presentation APIs (#7873)
+
+### Fixes
+
+- Fix crash in `SentryFramesTracker.add/removeListener` when called from a listener's own `init` / `deinit` on a background thread, observed on iOS 26 (#7943)
+- Report only `cold` or `warm` as `start_type` for standalone app starts, removing the `.prewarmed` suffix per sentry-conventions (#7968)
+
+## 9.16.0-alpha.1
+
+> [!IMPORTANT]
+> The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
+
+### Features
+
+- Add SentryObjC wrapper SDK — a pure Objective-C interface for projects that cannot enable Clang modules (e.g., ObjC++ with `-fmodules=NO`). Ships as `SentryObjC-Dynamic.xcframework.zip` and as a compile-from-source SPM product. (#7918)
+  Steps to migrate:
+  - Replace your dependency on `Sentry` with `SentryObjC` (SPM product or xcframework)
+  - Change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`
+  - Rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
 
 ### Fixes
 

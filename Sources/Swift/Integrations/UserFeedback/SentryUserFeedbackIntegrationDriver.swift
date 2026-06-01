@@ -79,7 +79,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         showForm(screenshot: nil)
     }
 
-    var isDisplayingForm: Bool {
+    var displayingForm: Bool {
         return activeForm != nil
     }
 }
@@ -92,31 +92,35 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
     }
 }
 
+// MARK: SentryUserFeedbackFormDelegate
+@available(iOSApplicationExtension, unavailable)
+extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
+    func userFeedbackFormDidClose(_ form: SentryUserFeedbackFormController) {
+        activeForm = nil
+        widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
+    }
+}
+
 // MARK: Private
 @available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver {
-    @discardableResult
-    func showForm(screenshot: UIImage? = nil) -> Bool {
+    func showForm(screenshot: UIImage? = nil) {
         guard let presenter = presenter else {
             SentrySDKLog.debug("Cannot show feedback form — no presenter available")
-            return false
+            return
         }
 
         guard activeForm == nil else {
             SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
-            return false
+            return
         }
 
         let formConfig = SentryFeedbackFormConfig(userFeedbackConfiguration: configuration)
         let form = SentryUserFeedbackFormController(config: formConfig, image: screenshot)
-        form.onDidClose = { [weak self] in
-            guard let self = self else { return }
-            self.widget?.rootVC.setWidget(visible: true, animated: self.configuration.animations)
-        }
+        form.delegate = self
         activeForm = form
         widget?.rootVC.setWidget(visible: false, animated: formConfig.animations)
         presenter.present(form, animated: formConfig.animations)
-        return true
     }
 
     func validate(_ config: SentryUserFeedbackWidgetConfiguration) {
@@ -154,7 +158,7 @@ extension SentryUserFeedbackIntegrationDriver {
     }
 
     @objc func handleShakeGesture() {
-        guard !isDisplayingForm else {
+        guard !displayingForm else {
             SentrySDKLog.debug("Shake gesture ignored — feedback form is already displayed")
             return
         }

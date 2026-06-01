@@ -19,6 +19,14 @@ class SentryFeedbackTests: XCTestCase {
         }
     }
 
+    private final class TestFormDelegate: NSObject, SentryUserFeedbackFormDelegate {
+        private(set) var closeCalls = 0
+
+        func userFeedbackFormDidClose(_ form: SentryUserFeedbackFormController) {
+            closeCalls += 1
+        }
+    }
+
     func testFeedbackFormConfigDefaults_shouldMatchLegacyFormDefaults() {
         let sut = SentryFeedbackFormConfig()
         let legacy = SentryUserFeedbackFormConfiguration()
@@ -123,11 +131,11 @@ class SentryFeedbackTests: XCTestCase {
 
     func testFormLifecycle_whenPresentationDismisses_shouldCallCloseOnce() {
         let config = SentryFeedbackFormConfig()
+        let delegate = TestFormDelegate()
         var closeCalls = 0
-        var internalCloseCalls = 0
         config.onFormClose = { closeCalls += 1 }
         let sut = SentryUserFeedbackFormController(config: config)
-        sut.onDidClose = { internalCloseCalls += 1 }
+        sut.delegate = delegate
         let presentationController = UIPresentationController(presentedViewController: sut, presenting: nil)
 
         sut.beginAppearanceTransition(true, animated: false)
@@ -136,7 +144,27 @@ class SentryFeedbackTests: XCTestCase {
         sut.presentationControllerDidDismiss(presentationController)
 
         XCTAssertEqual(closeCalls, 1)
-        XCTAssertEqual(internalCloseCalls, 1)
+        XCTAssertEqual(delegate.closeCalls, 1)
+    }
+
+    func testFormLifecycle_whenSameFormIsPresentedAgain_shouldCallHooksAgain() {
+        let config = SentryFeedbackFormConfig()
+        var openCalls = 0
+        var closeCalls = 0
+        config.onFormOpen = { openCalls += 1 }
+        config.onFormClose = { closeCalls += 1 }
+        let sut = SentryUserFeedbackFormController(config: config)
+        let presentationController = UIPresentationController(presentedViewController: sut, presenting: nil)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.presentationControllerDidDismiss(presentationController)
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.presentationControllerDidDismiss(presentationController)
+
+        XCTAssertEqual(openCalls, 2)
+        XCTAssertEqual(closeCalls, 2)
     }
 
     func testSubmitFeedback_whenValid_shouldCallSubmitSuccess() {

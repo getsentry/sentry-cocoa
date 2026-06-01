@@ -47,13 +47,14 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertNil(integration)
     }
 
-    func testShowForm_whenNoPresenterAvailable_shouldReturnFalse() {
+    func testShowForm_whenNoPresenterAvailable_shouldNotPresentForm() {
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: SentryUserFeedbackConfiguration(),
             screenshotSource: makeScreenshotSource())
 
-        XCTAssertFalse(sut.showForm(screenshot: nil))
-        XCTAssertFalse(sut.isDisplayingForm)
+        sut.showForm(screenshot: nil)
+
+        XCTAssertFalse(sut.displayingForm)
     }
 
     func testShowForm_whenConfigurationBuildersAreSet_shouldNotApplyBuildersAgain() throws {
@@ -81,7 +82,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
         XCTAssertEqual(configureFormCalls, 1)
         XCTAssertEqual(configureThemeCalls, 1)
-        XCTAssertTrue(sut.showForm(screenshot: nil))
+        sut.showForm(screenshot: nil)
         let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
         XCTAssertEqual(configureFormCalls, 1)
         XCTAssertEqual(configureThemeCalls, 1)
@@ -91,7 +92,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
-    func testShowForm_whenFormAlreadyPresented_shouldReturnFalse() {
+    func testShowForm_whenFormAlreadyPresented_shouldNotPresentAgain() {
         let window = UIWindow(frame: UIScreen.main.bounds)
         let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
@@ -103,8 +104,10 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         window.rootViewController = viewController
         window.makeKeyAndVisible()
 
-        XCTAssertTrue(sut.showForm(screenshot: nil))
-        XCTAssertFalse(sut.showForm(screenshot: nil))
+        sut.showForm(screenshot: nil)
+        sut.showForm(screenshot: nil)
+
+        XCTAssertEqual(viewController.presentCallCount, 1)
 
         withExtendedLifetime(window) { }
     }
@@ -121,7 +124,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         window.rootViewController = viewController
         window.makeKeyAndVisible()
 
-        XCTAssertTrue(sut.showForm(screenshot: nil))
+        sut.showForm(screenshot: nil)
         let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
         let presentationController = UIPresentationController(
             presentedViewController: form,
@@ -132,7 +135,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         form.endAppearanceTransition()
         form.presentationControllerDidDismiss(presentationController)
 
-        XCTAssertFalse(sut.isDisplayingForm)
+        XCTAssertFalse(sut.displayingForm)
 
         withExtendedLifetime(window) { }
     }
@@ -147,7 +150,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let widgetHost = try XCTUnwrap(sut.presenter as? SentryUserFeedbackWidget.RootViewController)
 
         XCTAssertTrue(widgetHost.isWidgetVisible)
-        XCTAssertTrue(sut.showForm(screenshot: nil))
+        sut.showForm(screenshot: nil)
         XCTAssertFalse(widgetHost.isWidgetVisible)
 
         let form = try XCTUnwrap(widgetHost.presentedViewController as? SentryUserFeedbackFormController)
@@ -161,6 +164,17 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         form.presentationControllerDidDismiss(presentationController)
 
         XCTAssertTrue(widgetHost.isWidgetVisible)
+    }
+
+    func testFeedbackFormPresenter_whenKeyWindowPresenterAvailable_shouldReturnPresenter() throws {
+        let viewController = UIViewController()
+        let window = try makeKeyWindow(rootViewController: viewController)
+
+        let presenter = try XCTUnwrap(SentryFeedbackFormPresenter.presentingViewController())
+
+        XCTAssertIdentical(presenter, viewController)
+
+        withExtendedLifetime(window) { }
     }
 
     func testShowWithConfig_whenKeyWindowPresenterAvailable_shouldPresentForm() throws {
@@ -204,12 +218,14 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     private final class TestPresentingViewController: UIViewController {
         private(set) var lastPresentedViewController: UIViewController?
         private(set) var lastAnimated: Bool?
+        private(set) var presentCallCount = 0
 
         override func present(
             _ viewControllerToPresent: UIViewController,
             animated flag: Bool,
             completion: (() -> Void)? = nil
         ) {
+            presentCallCount += 1
             lastPresentedViewController = viewControllerToPresent
             lastAnimated = flag
             completion?()
