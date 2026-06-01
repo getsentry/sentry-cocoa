@@ -6,6 +6,12 @@ struct FeedbackScreen: View {
     @State private var isFeedbackFormPresented = false
     @State private var isFeedbackWidgetVisible = true
 
+    private let feedbackFormConfig: SentrySDK.FeedbackFormConfig = {
+        let config = SentrySDK.FeedbackFormConfig()
+        config.formTitle = "Report a Problem"
+        return config
+    }()
+
     var body: some View {
         VStack(spacing: 16) {
             Button("Present Form (.sheet)") {
@@ -14,7 +20,7 @@ struct FeedbackScreen: View {
             .buttonStyle(.borderedProminent)
 
             Button("Present Form (Convenience API)") {
-                SentrySDK.feedback.show()
+                SentrySDK.feedback.show(config: feedbackFormConfig)
             }
             .buttonStyle(.borderedProminent)
 
@@ -37,7 +43,8 @@ struct FeedbackScreen: View {
         .padding()
         .navigationTitle("Feedback")
         .sheet(isPresented: $isFeedbackFormPresented) {
-            SentrySDK.FeedbackFormView(config: SentryUserFeedbackConfiguration())
+            SentrySDK.FeedbackFormView(config: feedbackFormConfig)
         }
     }
+
 }

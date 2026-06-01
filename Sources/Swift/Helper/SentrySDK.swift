@@ -349,6 +349,9 @@ import Foundation
     /// A UIKit view controller that displays the Sentry user feedback form.
     public typealias FeedbackForm = SentryUserFeedbackFormController
 
+    /// Configuration for a manually presented Sentry user feedback form.
+    public typealias FeedbackFormConfig = SentryFeedbackFormConfig
+
     /// The API for capturing user feedback.
     ///
     /// Use this to programmatically show the feedback form or access feedback-related functionality.

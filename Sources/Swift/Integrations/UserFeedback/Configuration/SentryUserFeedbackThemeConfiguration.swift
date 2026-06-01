@@ -55,13 +55,17 @@ public final class SentryUserFeedbackThemeConfiguration: NSObject {
      * Foreground text color of the widget and form.
      * - note: Default light mode: `rgb(43, 34, 51)`; dark mode: `rgb(235, 230, 239)`
      */
-    public var foreground = UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor(red: 235 / 255, green: 230 / 255, blue: 239 / 255, alpha: 1) : UIColor(red: 43 / 255, green: 34 / 255, blue: 51 / 255, alpha: 1)
+    public var foreground = UIColor { traits in
+        traits.userInterfaceStyle == .dark ? UIColor(red: 235 / 255, green: 230 / 255, blue: 239 / 255, alpha: 1) : UIColor(red: 43 / 255, green: 34 / 255, blue: 51 / 255, alpha: 1)
+    }
     
     /**
      * Background color of the widget and form.
      * - note: Default light mode: `rgb(255, 255, 255)`; dark mode: `rgb(41, 35, 47)`
      */
-    public var background = UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor(red: 41 / 255, green: 35 / 255, blue: 47 / 255, alpha: 1) : UIColor.white
+    public var background = UIColor { traits in
+        traits.userInterfaceStyle == .dark ? UIColor(red: 41 / 255, green: 35 / 255, blue: 47 / 255, alpha: 1) : UIColor.white
+    }
     
     /**
      * Foreground color for the form submit button.
@@ -91,7 +95,9 @@ public final class SentryUserFeedbackThemeConfiguration: NSObject {
      * Color used for error-related components (such as text color when there's an error submitting feedback).
      * - note: Default light mode: `rgb(223, 51, 56)`; dark mode: `rgb(245, 84, 89)`
      */
-    public var errorColor = UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor(red: 245 / 255, green: 84 / 255, blue: 89 / 255, alpha: 1) : UIColor(red: 223 / 255, green: 51 / 255, blue: 56 / 255, alpha: 1)
+    public var errorColor = UIColor { traits in
+        traits.userInterfaceStyle == .dark ? UIColor(red: 245 / 255, green: 84 / 255, blue: 89 / 255, alpha: 1) : UIColor(red: 223 / 255, green: 51 / 255, blue: 56 / 255, alpha: 1)
+    }
     
     @objc public final class SentryFormElementOutlineStyle: NSObject {
         /**
@@ -137,7 +143,9 @@ public final class SentryUserFeedbackThemeConfiguration: NSObject {
     /**
      * Background color to use for text inputs in the feedback form.
      */
-    public var inputForeground: UIColor = UIScreen.main.traitCollection.userInterfaceStyle == .dark ? UIColor.lightText : UIColor.darkText
+    public var inputForeground: UIColor = UIColor { traits in
+        traits.userInterfaceStyle == .dark ? UIColor.lightText : UIColor.darkText
+    }
 }
 
 #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK

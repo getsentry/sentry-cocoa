@@ -47,16 +47,16 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertNil(integration)
     }
 
-    func testPresent_whenPresenterIsNotAttachedToWindow_shouldReturnFalse() {
+    func testShowForm_whenNoPresenterAvailable_shouldReturnFalse() {
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: SentryUserFeedbackConfiguration(),
             screenshotSource: makeScreenshotSource())
 
-        XCTAssertFalse(sut.present(from: UIViewController(), screenshot: nil))
+        XCTAssertFalse(sut.showForm(screenshot: nil))
         XCTAssertFalse(sut.isDisplayingForm)
     }
 
-    func testPresent_whenConfigurationBuildersAreSet_shouldNotApplyBuildersAgain() throws {
+    func testShowForm_whenConfigurationBuildersAreSet_shouldNotApplyBuildersAgain() throws {
         let window = UIWindow(frame: UIScreen.main.bounds)
         let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
@@ -71,6 +71,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             configureThemeCalls += 1
             $0.background = .red
         }
+        addCustomButton(to: viewController, configuration: config)
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: config,
             screenshotSource: makeScreenshotSource())
@@ -80,28 +81,30 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
         XCTAssertEqual(configureFormCalls, 1)
         XCTAssertEqual(configureThemeCalls, 1)
-        XCTAssertTrue(sut.present(from: viewController, screenshot: nil))
+        XCTAssertTrue(sut.showForm(screenshot: nil))
         let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
         XCTAssertEqual(configureFormCalls, 1)
         XCTAssertEqual(configureThemeCalls, 1)
-        XCTAssertEqual(form.config.formConfig.formTitle, "Custom title")
+        XCTAssertEqual(form.config.formTitle, "Custom title")
         XCTAssertEqual(form.config.theme.background, .red)
 
         withExtendedLifetime(window) { }
     }
 
-    func testPresent_whenFormAlreadyPresented_shouldReturnFalse() {
+    func testShowForm_whenFormAlreadyPresented_shouldReturnFalse() {
         let window = UIWindow(frame: UIScreen.main.bounds)
         let viewController = TestPresentingViewController()
+        let config = SentryUserFeedbackConfiguration()
+        addCustomButton(to: viewController, configuration: config)
         let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: SentryUserFeedbackConfiguration(),
+            configuration: config,
             screenshotSource: makeScreenshotSource())
 
         window.rootViewController = viewController
         window.makeKeyAndVisible()
 
-        XCTAssertTrue(sut.present(from: viewController, screenshot: nil))
-        XCTAssertFalse(sut.present(from: viewController, screenshot: nil))
+        XCTAssertTrue(sut.showForm(screenshot: nil))
+        XCTAssertFalse(sut.showForm(screenshot: nil))
 
         withExtendedLifetime(window) { }
     }
@@ -109,32 +112,8 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     func testPresentationControllerDidDismiss_whenFormWasPresented_shouldClearActiveForm() throws {
         let window = UIWindow(frame: UIScreen.main.bounds)
         let viewController = TestPresentingViewController()
-        let sut = SentryUserFeedbackIntegrationDriver(
-            configuration: SentryUserFeedbackConfiguration(),
-            screenshotSource: makeScreenshotSource())
-
-        window.rootViewController = viewController
-        window.makeKeyAndVisible()
-
-        XCTAssertTrue(sut.present(from: viewController, screenshot: nil))
-        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
-        let presentationController = UIPresentationController(
-            presentedViewController: form,
-            presenting: viewController
-        )
-
-        sut.presentationControllerDidDismiss(presentationController)
-
-        XCTAssertFalse(sut.isDisplayingForm)
-
-        withExtendedLifetime(window) { }
-    }
-
-    func testUninstall_whenDisplayingForm_shouldClearActiveForm() {
-        let window = UIWindow(frame: UIScreen.main.bounds)
-        let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
-        config.animations = false
+        addCustomButton(to: viewController, configuration: config)
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: config,
             screenshotSource: makeScreenshotSource())
@@ -142,15 +121,85 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         window.rootViewController = viewController
         window.makeKeyAndVisible()
 
-        XCTAssertTrue(sut.present(from: viewController, screenshot: nil))
-        sut.uninstall()
+        XCTAssertTrue(sut.showForm(screenshot: nil))
+        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+        let presentationController = UIPresentationController(
+            presentedViewController: form,
+            presenting: viewController
+        )
+
+        form.beginAppearanceTransition(true, animated: false)
+        form.endAppearanceTransition()
+        form.presentationControllerDidDismiss(presentationController)
 
         XCTAssertFalse(sut.isDisplayingForm)
 
         withExtendedLifetime(window) { }
     }
 
+    func testShowForm_whenWidgetIsPresenter_shouldHideWidgetUntilFormCloses() throws {
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource())
+        sut.showWidget()
+        let widgetHost = try XCTUnwrap(sut.presenter as? SentryUserFeedbackWidget.RootViewController)
+
+        XCTAssertTrue(widgetHost.isWidgetVisible)
+        XCTAssertTrue(sut.showForm(screenshot: nil))
+        XCTAssertFalse(widgetHost.isWidgetVisible)
+
+        let form = try XCTUnwrap(widgetHost.presentedViewController as? SentryUserFeedbackFormController)
+        let presentationController = UIPresentationController(
+            presentedViewController: form,
+            presenting: widgetHost
+        )
+
+        form.beginAppearanceTransition(true, animated: false)
+        form.endAppearanceTransition()
+        form.presentationControllerDidDismiss(presentationController)
+
+        XCTAssertTrue(widgetHost.isWidgetVisible)
+    }
+
+    func testShowWithConfig_whenKeyWindowPresenterAvailable_shouldPresentForm() throws {
+        let viewController = TestPresentingViewController()
+        let window = try makeKeyWindow(rootViewController: viewController)
+        let config = SentryFeedbackFormConfig()
+        config.animations = false
+        config.formTitle = "Manual feedback"
+
+        SentrySDK.feedback.show(config: config)
+
+        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+        XCTAssertEqual(form.config.formTitle, "Manual feedback")
+        XCTAssertEqual(viewController.lastAnimated, false)
+
+        withExtendedLifetime(window) { }
+    }
+
     // MARK: - Helper Types
+
+    private func addCustomButton(to viewController: UIViewController, configuration: SentryUserFeedbackConfiguration) {
+        let customButton = UIButton()
+        configuration.customButton = customButton
+        viewController.view.addSubview(customButton)
+    }
+
+    private func makeKeyWindow(rootViewController: UIViewController) throws -> UIWindow {
+        guard let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive }) else {
+            throw XCTSkip("No foreground-active window scene available")
+        }
+
+        let window = UIWindow(windowScene: windowScene)
+        window.rootViewController = rootViewController
+        window.makeKeyAndVisible()
+        rootViewController.loadViewIfNeeded()
+        return window
+    }
 
     private final class TestPresentingViewController: UIViewController {
         private(set) var lastPresentedViewController: UIViewController?

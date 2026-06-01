@@ -23,17 +23,31 @@ import UIKit
     }
 
     /// Show the feedback form using the best available presenter.
-    ///
-    /// The SDK shows the form from the configured custom button host, widget host, foreground
-    /// window scene presenter, or first available key-window presenter.
-    ///
-    /// - Parameter image: An optional image to attach to the feedback form.
+    /// - Parameter config: The configuration for this feedback form instance.
     /// - Important: Call this method from the main thread.
     /// - warning: This is an experimental feature and may still have bugs.
     @available(iOSApplicationExtension, unavailable)
-    @objc(showWithImage:)
-    public func show(image: UIImage? = nil) {
-        Self.getIntegration()?.driver.showForm(screenshot: image)
+    @objc(showWithConfig:)
+    public func show(config: SentryFeedbackFormConfig) {
+        show(config: config, image: nil)
+    }
+
+    /// Show the feedback form using the best available presenter.
+    /// - Parameters:
+    ///   - config: The configuration for this feedback form instance.
+    ///   - image: An optional image to attach to the feedback form.
+    /// - Important: Call this method from the main thread.
+    /// - warning: This is an experimental feature and may still have bugs.
+    @available(iOSApplicationExtension, unavailable)
+    @objc(showWithConfig:image:)
+    public func show(config: SentryFeedbackFormConfig, image: UIImage?) {
+        guard let presenter = SentryFeedbackFormPresenter.presentingViewController() else {
+            SentrySDKLog.debug("Cannot show feedback form — no presenter available")
+            return
+        }
+
+        let form = SentryUserFeedbackFormController(config: config, image: image)
+        presenter.present(form, animated: config.animations)
     }
 
     @available(iOSApplicationExtension, unavailable)

@@ -12,7 +12,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
 
 @objcMembers
 @_spi(Private) public class SentryUserFeedbackFormViewModel: NSObject {
-    let config: SentryUserFeedbackConfiguration
+    let config: SentryFeedbackFormConfig
     unowned let controller: SentryUserFeedbackFormController
     weak var delegate: SentryUserFeedbackFormViewModelDelegate?
     let screenshot: UIImage?
@@ -24,7 +24,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
         return formatter
     }()
     
-    init(config: SentryUserFeedbackConfiguration, controller: SentryUserFeedbackFormController, screenshot: UIImage?) {
+    init(config: SentryFeedbackFormConfig, controller: SentryUserFeedbackFormController, screenshot: UIImage?) {
         self.config = config
         self.controller = controller
         self.screenshot = screenshot
@@ -36,7 +36,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
     
     lazy var formTitleLabel = {
         let label = UILabel(frame: .zero)
-        label.text = config.formConfig.formTitle
+        label.text = config.formTitle
         label.font = config.theme.headerFont
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
         label.adjustsFontForContentSizeCategory = true
@@ -57,19 +57,19 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
     
     lazy var fullNameLabel = {
         let label = UILabel(frame: .zero)
-        label.text = config.formConfig.nameLabelContents
+        label.text = config.nameLabelContents
         return label
     }()
     
     lazy var fullNameTextField = {
         let field = UITextField(frame: .zero)
-        field.placeholder = config.formConfig.namePlaceholder
-        field.accessibilityLabel = config.formConfig.nameTextFieldAccessibilityLabel
+        field.placeholder = config.namePlaceholder
+        field.accessibilityLabel = config.nameTextFieldAccessibilityLabel
         field.accessibilityIdentifier = "io.sentry.feedback.form.name"
         field.delegate = controller
         field.autocapitalizationType = .words
         field.returnKeyType = .done
-        if config.formConfig.useSentryUser {
+        if config.useSentryUser {
             field.text = sentry_getCurrentUser()?.name
         }
         return field
@@ -77,20 +77,20 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
     
     lazy var emailLabel = {
         let label = UILabel(frame: .zero)
-        label.text = config.formConfig.emailLabelContents
+        label.text = config.emailLabelContents
         return label
     }()
     
     lazy var emailTextField = {
         let field = UITextField(frame: .zero)
-        field.placeholder = config.formConfig.emailPlaceholder
-        field.accessibilityLabel = config.formConfig.emailTextFieldAccessibilityLabel
+        field.placeholder = config.emailPlaceholder
+        field.accessibilityLabel = config.emailTextFieldAccessibilityLabel
         field.accessibilityIdentifier = "io.sentry.feedback.form.email"
         field.delegate = controller
         field.keyboardType = .emailAddress
         field.autocapitalizationType = .none
         field.returnKeyType = .done
-        if config.formConfig.useSentryUser {
+        if config.useSentryUser {
             field.text = sentry_getCurrentUser()?.email
         }
         return field
@@ -98,13 +98,13 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
     
     lazy var messageLabel = {
         let label = UILabel(frame: .zero)
-        label.text = config.formConfig.messageLabelContents
+        label.text = config.messageLabelContents
         return label
     }()
     
     lazy var messageTextViewPlaceholder = {
         let label = UILabel(frame: .zero)
-        label.text = config.formConfig.messagePlaceholder
+        label.text = config.messagePlaceholder
         label.font = config.theme.font
         label.numberOfLines = 0
         label.textColor = .placeholderText
@@ -118,7 +118,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
         let textView = UITextView(frame: .zero)
         textView.font = config.theme.font
         textView.adjustsFontForContentSizeCategory = true
-        textView.accessibilityLabel = config.formConfig.messageTextViewAccessibilityLabel
+        textView.accessibilityLabel = config.messageTextViewAccessibilityLabel
         textView.delegate = controller
         textView.accessibilityIdentifier = "io.sentry.feedback.form.message"
         return textView
@@ -138,8 +138,8 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
     
     lazy var removeScreenshotButton = {
         let button = UIButton(frame: .zero)
-        button.setTitle(config.formConfig.removeScreenshotButtonLabel, for: .normal)
-        button.accessibilityLabel = config.formConfig.removeScreenshotButtonAccessibilityLabel
+        button.setTitle(config.removeScreenshotButtonLabel, for: .normal)
+        button.accessibilityLabel = config.removeScreenshotButtonAccessibilityLabel
         button.addTarget(self, action: #selector(removeScreenshotTapped), for: .touchUpInside)
         button.accessibilityIdentifier = "io.sentry.feedback.form.remove-screenshot"
         return button
@@ -147,8 +147,8 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
     
     lazy var submitButton = {
         let button = UIButton(frame: .zero)
-        button.setTitle(config.formConfig.submitButtonLabel, for: .normal)
-        button.accessibilityLabel = config.formConfig.submitButtonAccessibilityLabel
+        button.setTitle(config.submitButtonLabel, for: .normal)
+        button.accessibilityLabel = config.submitButtonAccessibilityLabel
         button.backgroundColor = config.theme.submitBackground
         button.setTitleColor(config.theme.submitForeground, for: .normal)
         button.addTarget(self, action: #selector(submitFeedback), for: .touchUpInside)
@@ -158,8 +158,8 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
     
     lazy var cancelButton = {
         let button = UIButton(frame: .zero)
-        button.setTitle(config.formConfig.cancelButtonLabel, for: .normal)
-        button.accessibilityLabel = config.formConfig.cancelButtonAccessibilityLabel
+        button.setTitle(config.cancelButtonLabel, for: .normal)
+        button.accessibilityLabel = config.cancelButtonAccessibilityLabel
         button.accessibilityIdentifier = "io.sentry.feedback.form.cancel"
         button.addTarget(self, action: #selector(cancel), for: .touchUpInside)
         return button
@@ -173,7 +173,7 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
     
     lazy var stack = {
         let headerStack = UIStackView(arrangedSubviews: [self.formTitleLabel])
-        if self.config.formConfig.showBranding {
+        if self.config.showBranding {
             headerStack.addArrangedSubview(self.sentryLogoView)
         }
         
@@ -187,12 +187,12 @@ protocol SentryUserFeedbackFormViewModelDelegate: NSObjectProtocol {
         inputStack.axis = .vertical
         inputStack.spacing = config.theme.font.xHeight
         
-        if self.config.formConfig.showName {
+        if self.config.showName {
             inputStack.addArrangedSubview(self.fullNameLabel)
             inputStack.addArrangedSubview(self.fullNameTextField)
         }
         
-        if self.config.formConfig.showEmail {
+        if self.config.showEmail {
             inputStack.addArrangedSubview(self.emailLabel)
             inputStack.addArrangedSubview(self.emailTextField)
         }
@@ -399,16 +399,16 @@ extension SentryUserFeedbackFormViewModel {
         
         if let name = fullNameTextField.textOrNil {
             hint.append("for \(name)")
-        } else if config.formConfig.isNameRequired {
-            missing.append(config.formConfig.nameLabel.lowercased())
+        } else if config.isNameRequired {
+            missing.append(config.nameLabel.lowercased())
         } else {
             hint.append("with no name")
         }
         
         if let email = emailTextField.textOrNil {
             hint.append("at \(email)")
-        } else if config.formConfig.isEmailRequired {
-            missing.append(config.formConfig.emailLabel.lowercased())
+        } else if config.isEmailRequired {
+            missing.append(config.emailLabel.lowercased())
         } else if fullNameTextField.hasText {
             hint.append("with no email address")
         } else {
@@ -429,11 +429,11 @@ extension SentryUserFeedbackFormViewModel {
         if let message = messageTextView.textOrNil {
             hint.append("with message: \(message)")
         } else {
-            missing.append(config.formConfig.messageLabel.lowercased())
+            missing.append(config.messageLabel.lowercased())
         }
         
         guard missing.isEmpty else {
-            let localizedError = InputError.buildDescriptionFor(missingFields: missing, validationErrorMessage: config.formConfig.validationErrorMessage)
+            let localizedError = InputError.buildDescriptionFor(missingFields: missing, validationErrorMessage: config.validationErrorMessage)
             let result = SentryUserFeedbackFormValidation.failure(InputError.validationError(missingFields: missing, localizedError: localizedError))
             return result
         }

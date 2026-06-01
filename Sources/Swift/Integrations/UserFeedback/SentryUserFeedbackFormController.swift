@@ -7,8 +7,9 @@ import UIKit
 /// A view controller that displays the Sentry user feedback form.
 @available(iOSApplicationExtension, unavailable)
 public final class SentryUserFeedbackFormController: UIViewController {
-    let config: SentryUserFeedbackConfiguration
+    let config: SentryFeedbackFormConfig
     let screenshot: UIImage?
+    var onDidClose: (() -> Void)?
     private var didOpenForm = false
     private var didCloseForm = false
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
@@ -16,7 +17,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
     /// Creates a feedback form controller with the specified configuration.
     /// - Parameter config: The configuration for this feedback form instance.
     @objc(initWithConfig:)
-    public convenience init(config: SentryUserFeedbackConfiguration) {
+    public convenience init(config: SentryFeedbackFormConfig) {
         self.init(config: config, image: nil)
     }
 
@@ -25,10 +26,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
     ///   - config: The configuration for this feedback form instance.
     ///   - image: An optional image to attach to the feedback form.
     @objc(initWithConfig:image:)
-    public convenience init(config: SentryUserFeedbackConfiguration, image: UIImage?) {
-        config.configureForm?(config.formConfig)
-        config.configureTheme?(config.theme)
-        config.configureDarkTheme?(config.darkTheme)
+    public convenience init(config: SentryFeedbackFormConfig, image: UIImage?) {
         self.init(preparedConfig: config, image: image)
     }
 
@@ -40,6 +38,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
 
     override public func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        presentationController?.delegate = self
         notifyFormDidOpen()
     }
 
@@ -51,7 +50,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
         }
     }
 
-    init(preparedConfig config: SentryUserFeedbackConfiguration, image: UIImage?) {
+    init(preparedConfig config: SentryFeedbackFormConfig, image: UIImage?) {
         self.config = config
         self.screenshot = image
         super.init(nibName: nil, bundle: nil)
@@ -74,7 +73,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
 
     /// Creates a feedback form controller from a decoder.
     public required init?(coder: NSCoder) {
-        self.config = SentryUserFeedbackConfiguration()
+        self.config = SentryFeedbackFormConfig()
         self.screenshot = nil
         super.init(coder: coder)
         commonInit()
@@ -121,18 +120,15 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
             func presentAlert(message: String, errorCode: Int, info: [String: Any]) {
                 let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default))
-                present(alert, animated: config.animations) {
-                    if let block = self.config.onSubmitError {
-                        // we use NSError here instead of Swift.Error because NSError automatically bridges to Swift.Error, but the same is not true in the other direction if you want to include a userInfo dictionary. Using Swift.Error would require additional implementation for this to work with ObjC consumers.
-                        block(NSError(domain: "io.sentry.error", code: errorCode, userInfo: info))
-                    }
-                }
+                // we use NSError here instead of Swift.Error because NSError automatically bridges to Swift.Error, but the same is not true in the other direction if you want to include a userInfo dictionary. Using Swift.Error would require additional implementation for this to work with ObjC consumers.
+                config.onSubmitError?(NSError(domain: "io.sentry.error", code: errorCode, userInfo: info))
+                present(alert, animated: config.animations)
             }
 
             guard case let SentryUserFeedbackFormViewModel.InputError.validationError(missing, _) = error,
                 let errorDescription = error.errorDescription else {
                 SentrySDKLog.warning("Unexpected error type.")
-                presentAlert(message: config.formConfig.unexpectedErrorText, errorCode: 2, info: [NSLocalizedDescriptionKey: "Client error: ."])
+                presentAlert(message: config.unexpectedErrorText, errorCode: 2, info: [NSLocalizedDescriptionKey: "Client error: ."])
                 return
             }
 
@@ -165,6 +161,15 @@ extension SentryUserFeedbackFormController {
         guard didOpenForm, !didCloseForm else { return }
         didCloseForm = true
         config.onFormClose?()
+        onDidClose?()
+    }
+}
+
+// MARK: UIAdaptivePresentationControllerDelegate
+extension SentryUserFeedbackFormController: UIAdaptivePresentationControllerDelegate {
+    /// Notifies feedback lifecycle callbacks when the user dismisses the form interactively.
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        notifyFormDidClose()
     }
 }
 
@@ -206,20 +211,20 @@ struct ViewControllerWrapper: UIViewControllerRepresentable {
 
 @available(iOS 17.0, *)
 #Preview {
-    SentryUserFeedbackFormController(config: .init())
+    SentryUserFeedbackFormController(config: SentryFeedbackFormConfig())
 }
 
 @available(iOS 17.0, *)
 #Preview {
     ViewControllerWrapper(
-        viewController: SentryUserFeedbackFormController(config: .init()))
+        viewController: SentryUserFeedbackFormController(config: SentryFeedbackFormConfig()))
     .preferredColorScheme(.dark).colorScheme(.dark)
 }
 
 @available(iOS 17.0, *)
 #Preview {
     ViewControllerWrapper(
-        viewController: SentryUserFeedbackFormController(config: .init()))
+        viewController: SentryUserFeedbackFormController(config: SentryFeedbackFormConfig()))
     .dynamicTypeSize(.accessibility5)
 }
 #endif // DEBUG && swift(>=5.10)

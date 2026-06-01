@@ -9,14 +9,165 @@ class SentryFeedbackTests: XCTestCase {
     private typealias FeedbackTestCase = (config: FeedbackTestCaseConfiguration, shouldValidate: Bool, expectedSubmitButtonAccessibilityHint: String)
     
     private class Fixture {
-        let config: SentryUserFeedbackConfiguration
+        let config: SentryFeedbackFormConfig
         let testCaseConfig: FeedbackTestCaseConfiguration
         lazy var controller = SentryUserFeedbackFormController(config: config, image: self.testCaseConfig.includeScreenshot ? UIImage() : nil)
 
-        init(config: SentryUserFeedbackConfiguration, testCaseConfig: FeedbackTestCaseConfiguration) {
+        init(config: SentryFeedbackFormConfig, testCaseConfig: FeedbackTestCaseConfiguration) {
             self.config = config
             self.testCaseConfig = testCaseConfig
         }
+    }
+
+    func testFeedbackFormConfigDefaults_shouldMatchLegacyFormDefaults() {
+        let sut = SentryFeedbackFormConfig()
+        let legacy = SentryUserFeedbackFormConfiguration()
+
+        XCTAssertEqual(sut.formTitle, legacy.formTitle)
+        XCTAssertEqual(sut.showName, legacy.showName)
+        XCTAssertEqual(sut.showEmail, legacy.showEmail)
+        XCTAssertEqual(sut.isNameRequired, legacy.isNameRequired)
+        XCTAssertEqual(sut.isEmailRequired, legacy.isEmailRequired)
+        XCTAssertEqual(sut.nameLabel, legacy.nameLabel)
+        XCTAssertEqual(sut.emailLabel, legacy.emailLabel)
+        XCTAssertEqual(sut.messageLabel, legacy.messageLabel)
+        XCTAssertEqual(sut.namePlaceholder, legacy.namePlaceholder)
+        XCTAssertEqual(sut.emailPlaceholder, legacy.emailPlaceholder)
+        XCTAssertEqual(sut.messagePlaceholder, legacy.messagePlaceholder)
+        XCTAssertEqual(sut.submitButtonLabel, legacy.submitButtonLabel)
+        XCTAssertEqual(sut.cancelButtonLabel, legacy.cancelButtonLabel)
+        XCTAssertEqual(sut.showBranding, legacy.showBranding)
+        XCTAssertEqual(sut.useSentryUser, legacy.useSentryUser)
+    }
+
+    func testFeedbackFormConfig_whenCreatedFromPreparedLegacyConfig_shouldMapValues() {
+        let legacy = SentryUserFeedbackConfiguration()
+        legacy.animations = false
+        var didOpen = false
+        var didClose = false
+        var didSubmit = false
+        var didFail = false
+        let dynamicBackground = UIColor { _ in .purple }
+        legacy.onFormOpen = { didOpen = true }
+        legacy.onFormClose = { didClose = true }
+        legacy.onSubmitSuccess = { _ in didSubmit = true }
+        legacy.onSubmitError = { _ in didFail = true }
+        legacy.configureForm = { form in
+            form.formTitle = "Custom title"
+            form.showName = false
+            form.showEmail = false
+            form.isNameRequired = true
+            form.isEmailRequired = true
+            form.nameLabel = "Custom name"
+            form.emailLabel = "Custom email"
+            form.messageLabel = "Custom message"
+            form.namePlaceholder = "Name placeholder"
+            form.emailPlaceholder = "Email placeholder"
+            form.messagePlaceholder = "Message placeholder"
+            form.submitButtonLabel = "Submit"
+            form.cancelButtonLabel = "Dismiss"
+            form.showBranding = false
+            form.useSentryUser = false
+        }
+        legacy.configureTheme = { theme in
+            theme.background = dynamicBackground
+        }
+
+        legacy.configureForm?(legacy.formConfig)
+        legacy.configureTheme?(legacy.theme)
+
+        let sut = SentryFeedbackFormConfig(userFeedbackConfiguration: legacy)
+
+        XCTAssertFalse(sut.animations)
+        XCTAssertEqual(sut.formTitle, "Custom title")
+        XCTAssertFalse(sut.showName)
+        XCTAssertFalse(sut.showEmail)
+        XCTAssertTrue(sut.isNameRequired)
+        XCTAssertTrue(sut.isEmailRequired)
+        XCTAssertEqual(sut.nameLabel, "Custom name")
+        XCTAssertEqual(sut.emailLabel, "Custom email")
+        XCTAssertEqual(sut.messageLabel, "Custom message")
+        XCTAssertEqual(sut.namePlaceholder, "Name placeholder")
+        XCTAssertEqual(sut.emailPlaceholder, "Email placeholder")
+        XCTAssertEqual(sut.messagePlaceholder, "Message placeholder")
+        XCTAssertEqual(sut.submitButtonLabel, "Submit")
+        XCTAssertEqual(sut.cancelButtonLabel, "Dismiss")
+        XCTAssertFalse(sut.showBranding)
+        XCTAssertFalse(sut.useSentryUser)
+        XCTAssertIdentical(sut.theme.background, dynamicBackground)
+
+        sut.onFormOpen?()
+        sut.onFormClose?()
+        sut.onSubmitSuccess?([:])
+        sut.onSubmitError?(NSError(domain: "io.sentry.test", code: 0))
+
+        XCTAssertTrue(didOpen)
+        XCTAssertTrue(didClose)
+        XCTAssertTrue(didSubmit)
+        XCTAssertTrue(didFail)
+    }
+
+    func testFormLifecycle_whenFormAppears_shouldCallOpenOnce() {
+        let config = SentryFeedbackFormConfig()
+        var openCalls = 0
+        config.onFormOpen = { openCalls += 1 }
+        let sut = SentryUserFeedbackFormController(config: config)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+
+        XCTAssertEqual(openCalls, 1)
+    }
+
+    func testFormLifecycle_whenPresentationDismisses_shouldCallCloseOnce() {
+        let config = SentryFeedbackFormConfig()
+        var closeCalls = 0
+        var internalCloseCalls = 0
+        config.onFormClose = { closeCalls += 1 }
+        let sut = SentryUserFeedbackFormController(config: config)
+        sut.onDidClose = { internalCloseCalls += 1 }
+        let presentationController = UIPresentationController(presentedViewController: sut, presenting: nil)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.presentationControllerDidDismiss(presentationController)
+        sut.presentationControllerDidDismiss(presentationController)
+
+        XCTAssertEqual(closeCalls, 1)
+        XCTAssertEqual(internalCloseCalls, 1)
+    }
+
+    func testSubmitFeedback_whenValid_shouldCallSubmitSuccess() {
+        let config = SentryFeedbackFormConfig()
+        var submittedData: [String: Any]?
+        config.onSubmitSuccess = { submittedData = $0 }
+        let sut = SentryUserFeedbackFormController(config: config)
+
+        sut.viewModel.messageTextView.text = "It broke"
+        sut.submitFeedback()
+
+        XCTAssertEqual(submittedData?["message"] as? String, "It broke")
+    }
+
+    func testSubmitFeedback_whenInvalid_shouldCallSubmitErrorAndNotClose() throws {
+        let config = SentryFeedbackFormConfig()
+        var submitErrors = [NSError]()
+        var closeCalls = 0
+        config.onSubmitError = { error in
+            submitErrors.append(error as NSError)
+        }
+        config.onFormClose = { closeCalls += 1 }
+        let sut = SentryUserFeedbackFormController(config: config)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.submitFeedback()
+
+        let error = try XCTUnwrap(submitErrors.first)
+        XCTAssertEqual(error.code, 1)
+        XCTAssertEqual(closeCalls, 0)
     }
     
     func testSerializeWithAllFields() throws {
@@ -175,11 +326,9 @@ class SentryFeedbackTests: XCTestCase {
     
     func testSubmitButtonAccessibilityHint() throws {
         for input in inputCombinations {
-            let config = SentryUserFeedbackConfiguration()
-            config.configureForm = {
-                $0.isNameRequired = input.config.requiresName
-                $0.isEmailRequired = input.config.requiresEmail
-            }
+            let config = SentryFeedbackFormConfig()
+            config.isNameRequired = input.config.requiresName
+            config.isEmailRequired = input.config.requiresEmail
             let fixture = Fixture(config: config, testCaseConfig: input.config)
             let viewModel = fixture.controller.viewModel
             viewModel.fullNameTextField.text = input.config.nameInput
