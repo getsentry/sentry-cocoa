@@ -10,13 +10,15 @@ import KSCrashInstallations
  */
 final class SentryKSCrashInstallationReporter: CrashInstallation {
     private let inAppLogic: SentryInAppLogic
+    private let reportSink: KSCrashReportSink
 
     init(inAppLogic: SentryInAppLogic) {
         self.inAppLogic = inAppLogic
+        self.reportSink = KSCrashReportSink(inAppLogic: inAppLogic)
         super.init()
     }
 
     override func sink() -> any CrashReportFilter {
-        KSCrashReportSink(inAppLogic: inAppLogic)
+        reportSink
     }
 }

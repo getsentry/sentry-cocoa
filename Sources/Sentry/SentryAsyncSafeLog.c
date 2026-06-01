@@ -26,6 +26,7 @@
 //
 
 #include "SentryAsyncSafeLog.h"
+#include "KSDebug.h"
 #include "SentryCrashDebug.h"
 #include "SentryInternalCDefines.h"
 
@@ -103,7 +104,7 @@ writeToLog(const char *const str)
     // change console-based logging
     if (!g_checkedIsDebugging) {
         g_checkedIsDebugging = true;
-        g_isDebugging = sentrycrashdebug_isBeingTraced();
+        g_isDebugging = ksdebug_isBeingTraced();
     }
     if (g_isDebugging) {
         fprintf(stdout, "%s", str);
