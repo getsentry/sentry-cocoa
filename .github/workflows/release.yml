@@ -307,7 +307,7 @@ jobs:
     with:
       fastlane_command: duplication_test
       xcode_version: "16"
-      macos_version: macos-15
+      macos_version: sequoia
       needs_xcframework: true
       platform: macOS
       runner_provider: ${{matrix.runner_provider}}
