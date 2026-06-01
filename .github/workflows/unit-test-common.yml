@@ -85,7 +85,9 @@ jobs:
 
       - name: Install Ruby (Bitrise)
         if: inputs.runner_provider == 'bitrise'
-        run: rbenv install -s
+        run: |
+          brew upgrade ruby-build
+          rbenv install -s
 
       - name: Setup Ruby
         if: inputs.runner_provider != 'bitrise'
