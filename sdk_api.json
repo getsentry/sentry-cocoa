@@ -38140,9 +38140,33 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "SentryUserFeedbackConfiguration",
+                "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "Void",
                 "printedName": "()"
-              },
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC4show6configyAA0a4UserB13ConfigurationC_tF",
+            "moduleName": "Sentry",
+            "name": "show",
+            "objc_name": "showWithConfig:",
+            "printedName": "show(config:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)showWithConfig:"
+          },
+          {
+            "children": [
               {
                 "children": [
                   {
@@ -38157,6 +38181,17 @@
                 "name": "Optional",
                 "printedName": "UIKit.UIImage?",
                 "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryUserFeedbackConfiguration",
+                "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
@@ -38167,12 +38202,12 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A11FeedbackAPIC4show5imageySo7UIImageCSg_tF",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC4show6config5imageyAA0a4UserB13ConfigurationC_So7UIImageCSgtF",
             "moduleName": "Sentry",
             "name": "show",
-            "objc_name": "showWithImage:",
-            "printedName": "show(image:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)showWithImage:"
+            "objc_name": "showWithConfig:image:",
+            "printedName": "show(config:image:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)showWithConfig:image:"
           },
           {
             "children": [
@@ -64230,6 +64265,37 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "UIPresentationController",
+                "printedName": "UIKit.UIPresentationController",
+                "usr": "c:objc(cs)UIPresentationController"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Final",
+              "ObjC",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC012presentationE10DidDismissyySo014UIPresentationE0CF",
+            "moduleName": "Sentry",
+            "name": "presentationControllerDidDismiss",
+            "objc_name": "presentationControllerDidDismiss:",
+            "printedName": "presentationControllerDidDismiss(_:)",
+            "usr": "c:@CM@Sentry@objc(cs)SentryUserFeedbackFormController(im)presentationControllerDidDismiss:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "UITextField",
                 "printedName": "UIKit.UITextField",
                 "usr": "c:objc(cs)UITextField"
@@ -64505,6 +64571,12 @@
             "name": "UIActivityItemsConfigurationProviding",
             "printedName": "UIActivityItemsConfigurationProviding",
             "usr": "c:objc(pl)UIActivityItemsConfigurationProviding"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UIAdaptivePresentationControllerDelegate",
+            "printedName": "UIAdaptivePresentationControllerDelegate",
+            "usr": "c:objc(pl)UIAdaptivePresentationControllerDelegate"
           },
           {
             "kind": "Conformance",
