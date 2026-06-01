@@ -18,7 +18,7 @@ jobs:
   hello-world:
     name: Hello World Tahoe
     runs-on: 
-      group: tahoe
+      labels: [bitrise_pool_name:test]
     steps:
       - name: Hello World
         run: echo "Hello, World! Running on ${{ matrix.os }}"
