@@ -16,9 +16,12 @@ concurrency:
 
 jobs:
   hello-world:
-    name: Hello World Tahoe
+    name: Hello World ${{ matrix.os }}
     runs-on: 
-      labels: [bitrise_pool_name:test]
+      labels: ["bitrise_pool_name:${{matrix.os}}"]
+    strategy:
+      matrix:
+        os: [sonoma, sequoia, tahoe]
     steps:
       - name: Hello World
         run: echo "Hello, World! Running on ${{ matrix.os }}"
