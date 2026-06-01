@@ -79,6 +79,9 @@ class SentryFeedbackTests: XCTestCase {
         }
         legacy.configureTheme = { theme in
             theme.background = dynamicBackground
+            theme.outlineStyle.color = .purple
+            theme.outlineStyle.cornerRadius = 10
+            theme.outlineStyle.outlineWidth = 4
         }
 
         legacy.configureForm?(legacy.formConfig)
@@ -103,6 +106,10 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertFalse(sut.showBranding)
         XCTAssertFalse(sut.useSentryUser)
         XCTAssertIdentical(sut.theme.background, dynamicBackground)
+        XCTAssertIdentical(sut.theme.outlineStyle, sut.theme.defaultOutlineStyle)
+        XCTAssertEqual(sut.theme.outlineStyle.color, .purple)
+        XCTAssertEqual(sut.theme.outlineStyle.cornerRadius, 10)
+        XCTAssertEqual(sut.theme.outlineStyle.outlineWidth, 4)
 
         sut.onFormOpen?()
         sut.onFormClose?()

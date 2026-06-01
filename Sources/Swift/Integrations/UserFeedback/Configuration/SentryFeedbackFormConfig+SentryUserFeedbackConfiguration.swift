@@ -57,13 +57,26 @@ extension SentryFeedbackFormConfig {
         theme.buttonForeground = sourceTheme.buttonForeground
         theme.buttonBackground = sourceTheme.buttonBackground
         theme.errorColor = sourceTheme.errorColor
-        if sourceTheme.outlineStyle == sourceTheme.defaultOutlineStyle {
-            theme.outlineStyle = theme.defaultOutlineStyle
-        } else {
-            theme.outlineStyle = sourceTheme.outlineStyle
-        }
+        copyOutlineStyle(sourceTheme)
         theme.inputBackground = sourceTheme.inputBackground
         theme.inputForeground = sourceTheme.inputForeground
+    }
+
+    private func copyOutlineStyle(_ sourceTheme: SentryUserFeedbackThemeConfiguration) {
+        let sourceOutlineStyle = sourceTheme.outlineStyle
+
+        if sourceOutlineStyle === sourceTheme.defaultOutlineStyle {
+            theme.defaultOutlineStyle.color = sourceOutlineStyle.color
+            theme.defaultOutlineStyle.cornerRadius = sourceOutlineStyle.cornerRadius
+            theme.defaultOutlineStyle.outlineWidth = sourceOutlineStyle.outlineWidth
+            theme.outlineStyle = theme.defaultOutlineStyle
+        } else {
+            theme.outlineStyle = SentryUserFeedbackThemeConfiguration.SentryFormElementOutlineStyle(
+                color: sourceOutlineStyle.color,
+                cornerRadius: sourceOutlineStyle.cornerRadius,
+                outlineWidth: sourceOutlineStyle.outlineWidth
+            )
+        }
     }
 }
 
