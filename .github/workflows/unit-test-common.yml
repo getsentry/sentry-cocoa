@@ -83,11 +83,15 @@ jobs:
           device: ${{ inputs.device }}
           platform: ${{ inputs.platform }}
 
+      - name: Install Ruby (Bitrise)
+        if: inputs.runner_provider == 'bitrise'
+        run: rbenv install -s
+
       - name: Setup Ruby
+        if: inputs.runner_provider != 'bitrise'
         uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
         with:
           bundler-cache: true
-          self-hosted: ${{ inputs.runner_provider == 'bitrise' }}
 
       - name: Install Slather
         run: gem install slather

@@ -74,11 +74,15 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Install Ruby (Bitrise)
+        if: inputs.runner_provider == 'bitrise'
+        run: rbenv install -s
+
       - name: Setup Ruby
+        if: inputs.runner_provider != 'bitrise'
         uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
         with:
           bundler-cache: true
-          self-hosted: ${{ inputs.runner_provider == 'bitrise' }}
 
       - name: Setup Xcode
         id: setup-xcode
