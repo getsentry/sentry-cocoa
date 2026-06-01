@@ -112,7 +112,9 @@ jobs:
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
 
       - name: Boot simulator
-        run: ./scripts/ci-boot-simulator.sh
+        env:
+          OS_VERSION: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+        run: ./scripts/ci-boot-simulator.sh --device "iPhone 16 Pro" --os-version "$OS_VERSION"
 
       - name: Run SwiftUI Crash Test
         run: |
