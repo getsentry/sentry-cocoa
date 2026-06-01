@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add feedback form presentation APIs (#7873)
+
 ## 9.16.0-alpha.2
 
 > [!IMPORTANT]
@@ -30,7 +34,6 @@
   - Replace your dependency on `Sentry` with `SentryObjC` (SPM product or xcframework)
   - Change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`
   - Rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
-- Add feedback form presentation APIs (#7873)
 
 ### Fixes
 
