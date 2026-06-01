@@ -166,6 +166,8 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertTrue(widgetHost.isWidgetVisible)
     }
 
+    // MARK: - SentryFeedbackFormPresenter tests
+
     func testFeedbackFormPresenter_whenKeyWindowPresenterAvailable_shouldReturnPresenter() throws {
         let viewController = UIViewController()
         let window = try makeKeyWindow(rootViewController: viewController)
