@@ -47,6 +47,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
     override public func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         resetFormLifecycleIfNeeded()
+        presentationController?.delegate = self
         notifyFormDidOpen()
     }
 
@@ -165,6 +166,14 @@ extension SentryUserFeedbackFormController {
         didCloseForm = true
         config.onFormClose?()
         delegate?.userFeedbackFormDidClose(self)
+    }
+}
+
+// MARK: UIAdaptivePresentationControllerDelegate
+extension SentryUserFeedbackFormController: UIAdaptivePresentationControllerDelegate {
+    /// Notifies feedback lifecycle callbacks when the user dismisses the form interactively.
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        notifyFormDidClose()
     }
 }
 
