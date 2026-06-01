@@ -26,6 +26,19 @@ import UIKit
     ///
     /// The SDK shows the form from the key-window presenter in a foreground-active scene.
     ///
+    /// - Parameter config: The configuration for this feedback form instance.
+    /// - Important: Call this method from the main thread.
+    /// - warning: This is an experimental feature and may still have bugs.
+    @available(iOSApplicationExtension, unavailable)
+    @objc(showWithConfig:)
+    public func show(config: SentryUserFeedbackConfiguration) {
+        show(config: config, image: nil)
+    }
+
+    /// Show the feedback form using the best available presenter.
+    ///
+    /// The SDK shows the form from the key-window presenter in a foreground-active scene.
+    ///
     /// - Parameters:
     ///   - config: The configuration for this feedback form instance.
     ///   - image: An optional image to attach to the feedback form.
