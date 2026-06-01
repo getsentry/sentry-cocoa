@@ -99,7 +99,8 @@ search_issues  → check for new/regressed issues
 - **Avoid redundant `cd`** — do not prefix every command with `cd <path> &&`. Change directory once if needed, then verify with `pwd`
 - **Wildcard permissions** — many commands are pre-approved with wildcards (e.g., `git add:*`). Flags like `-C` change the command prefix (`git -C path add` ≠ `git add`), triggering a confirmation prompt. Avoid `-C` when you can change directory instead
 - **Prefer small, focused commands** over one massive pipeline. Break complex operations into multiple steps
-- **JSON processing** — always use `jq`; do not shell out to `node` or `python` for JSON parsing
+- **JSON tasks** — always use `jq`; do not shell out to `node` or `python` for JSON parsing
+- **YAML tasks** — always use `yq`; do not shell out to `node` or `python` for YAML parsing
 - **GitHub** — prefer `gh` CLI over web scraping when interacting with GitHub.com
 
 ## Verification Loop
