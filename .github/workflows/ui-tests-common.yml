@@ -79,6 +79,7 @@ jobs:
         run: |
           brew upgrade ruby-build
           rbenv install -s
+          bundle install
 
       - name: Setup Ruby
         if: inputs.runner_provider != 'bitrise'
