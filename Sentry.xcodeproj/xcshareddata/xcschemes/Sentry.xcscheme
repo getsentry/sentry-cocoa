@@ -3,7 +3,7 @@
    LastUpgradeVersion = "1400"
    version = "1.7">
    <BuildAction
-      parallelizeBuildables = "YES"
+      parallelizeBuildables = "NO"
       buildImplicitDependencies = "YES">
       <BuildActionEntries>
          <BuildActionEntry
@@ -54,6 +54,9 @@
          </TestPlanReference>
          <TestPlanReference
             reference = "container:Plans/Sentry_Flaky.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Plans/SentryObjC_Base.xctestplan">
          </TestPlanReference>
       </TestPlans>
       <Testables>

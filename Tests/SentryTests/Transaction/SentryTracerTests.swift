@@ -1106,6 +1106,126 @@ class SentryTracerTests: XCTestCase {
         XCTAssertNil(measurements?["app.vitals.start.cold.value"], "Should not have app start measurement")
     }
 
+    func testFinish_whenStandalonePrewarmedColdAppStart_shouldReportColdTypeAndPrewarmedYes() throws {
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold, preWarmed: true)
+
+        let context = TransactionContext(name: "App Start", nameSource: .component, operation: fixture.appStartOperation, origin: SentryTraceOriginAutoAppStart)
+        let sut = fixture.hub.startTransaction(
+            with: context,
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: SentryTracerConfiguration(block: {
+                $0.appStartMeasurement = appStartMeasurement
+            })
+        )
+        sut.finish()
+
+        let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
+        let contexts = serializedTransaction["contexts"] as? [String: [String: Any]]
+        let appContext = contexts?["app"] as? [String: String]
+        XCTAssertEqual("cold", appContext?["start_type"])
+
+        let extra = serializedTransaction["extra"] as? [String: Any]
+        let startType = try XCTUnwrap(extra?["app.vitals.start.type"] as? String)
+        XCTAssertEqual("cold", startType)
+
+        let prewarmed = try XCTUnwrap(extra?["app.vitals.start.prewarmed"] as? NSNumber)
+        XCTAssertTrue(prewarmed.boolValue)
+
+        let reason = try XCTUnwrap(extra?["app.vitals.start.reason"] as? String)
+        XCTAssertEqual("launch", reason)
+    }
+    
+    func testFinish_whenStandaloneNotPrewarmedColdAppStart_shouldReportColdTypeAndPrewarmedNo() throws {
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .cold, preWarmed: false)
+
+        let context = TransactionContext(name: "App Start", nameSource: .component, operation: fixture.appStartOperation, origin: SentryTraceOriginAutoAppStart)
+        let sut = fixture.hub.startTransaction(
+            with: context,
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: SentryTracerConfiguration(block: {
+                $0.appStartMeasurement = appStartMeasurement
+            })
+        )
+        sut.finish()
+
+        let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
+        let contexts = serializedTransaction["contexts"] as? [String: [String: Any]]
+        let appContext = contexts?["app"] as? [String: String]
+        XCTAssertEqual("cold", appContext?["start_type"])
+
+        let extra = serializedTransaction["extra"] as? [String: Any]
+        let startType = try XCTUnwrap(extra?["app.vitals.start.type"] as? String)
+        XCTAssertEqual("cold", startType)
+
+        let prewarmed = try XCTUnwrap(extra?["app.vitals.start.prewarmed"] as? NSNumber)
+        XCTAssertFalse(prewarmed.boolValue)
+
+        let reason = try XCTUnwrap(extra?["app.vitals.start.reason"] as? String)
+        XCTAssertEqual("launch", reason)
+    }
+
+    func testFinish_whenStandalonePrewarmedWarmAppStart_shouldReportWarmTypeAndPrewarmedYes() throws {
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm, preWarmed: true)
+
+        let context = TransactionContext(name: "App Start", nameSource: .component, operation: fixture.appStartOperation, origin: SentryTraceOriginAutoAppStart)
+        let sut = fixture.hub.startTransaction(
+            with: context,
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: SentryTracerConfiguration(block: {
+                $0.appStartMeasurement = appStartMeasurement
+            })
+        )
+        sut.finish()
+
+        let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
+        let contexts = serializedTransaction["contexts"] as? [String: [String: Any]]
+        let appContext = contexts?["app"] as? [String: String]
+        XCTAssertEqual("warm", appContext?["start_type"])
+
+        let extra = serializedTransaction["extra"] as? [String: Any]
+        let startType = try XCTUnwrap(extra?["app.vitals.start.type"] as? String)
+        XCTAssertEqual("warm", startType)
+
+        let prewarmed = try XCTUnwrap(extra?["app.vitals.start.prewarmed"] as? NSNumber)
+        XCTAssertTrue(prewarmed.boolValue)
+
+        let reason = try XCTUnwrap(extra?["app.vitals.start.reason"] as? String)
+        XCTAssertEqual("launch", reason)
+    }
+    
+    func testFinish_whenStandaloneNotPrewarmedWarmAppStart_shouldReportWarmTypeAndPrewarmedNo() throws {
+        let appStartMeasurement = fixture.getAppStartMeasurement(type: .warm, preWarmed: false)
+
+        let context = TransactionContext(name: "App Start", nameSource: .component, operation: fixture.appStartOperation, origin: SentryTraceOriginAutoAppStart)
+        let sut = fixture.hub.startTransaction(
+            with: context,
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: SentryTracerConfiguration(block: {
+                $0.appStartMeasurement = appStartMeasurement
+            })
+        )
+        sut.finish()
+
+        let serializedTransaction = try XCTUnwrap(fixture.hub.capturedEventsWithScopes.first).event.serialize()
+        let contexts = serializedTransaction["contexts"] as? [String: [String: Any]]
+        let appContext = contexts?["app"] as? [String: String]
+        XCTAssertEqual("warm", appContext?["start_type"])
+
+        let extra = serializedTransaction["extra"] as? [String: Any]
+        let startType = try XCTUnwrap(extra?["app.vitals.start.type"] as? String)
+        XCTAssertEqual("warm", startType)
+
+        let prewarmed = try XCTUnwrap(extra?["app.vitals.start.prewarmed"] as? NSNumber)
+        XCTAssertFalse(prewarmed.boolValue)
+
+        let reason = try XCTUnwrap(extra?["app.vitals.start.reason"] as? String)
+        XCTAssertEqual("launch", reason)
+    }
+
 #endif // os(iOS) || os(tvOS)
     
     func testMeasurementOnChildSpan_SetTwice_OverwritesMeasurement() throws {
