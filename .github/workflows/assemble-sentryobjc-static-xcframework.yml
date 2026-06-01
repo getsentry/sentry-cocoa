@@ -1,0 +1,100 @@
+name: Assemble SentryObjC Static XCFramework
+
+on:
+  workflow_call:
+    inputs:
+      signed:
+        description: |-
+          Whether the assembled XCFramework should be signed.
+        required: false
+        type: boolean
+        default: false
+
+      sdks:
+        description: |-
+          Comma-separated list of SDKs whose slices to assemble.
+        required: false
+        type: string
+        default: "iphoneos,iphonesimulator,macosx,maccatalyst,appletvos,appletvsimulator,watchos,watchsimulator,xros,xrsimulator"
+
+      release-version:
+        description: |-
+          For release workflows, the version to inject into the SDK.
+        required: false
+        type: string
+
+jobs:
+  assemble-sentryobjc-static-xcframework:
+    name: SentryObjC-Static
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
+        if: ${{ inputs.signed }}
+        with:
+          bundler-cache: true
+
+      - name: Download Fastlane Certificate
+        if: ${{ inputs.signed }}
+        run: bundle exec fastlane prepare_xcframework_signing
+        env:
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+
+      - name: Download all SentryObjC slices
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: sentryobjc-slice-*
+          path: sentryobjc-slices
+
+      - name: Unzip slices
+        env:
+          SDKS: ${{ inputs.sdks }}
+        run: |
+          IFS=',' read -r -a sdk_list <<< "$SDKS"
+          mkdir -p XCFrameworkBuildPath/lib/SentryObjC
+          for sdk in "${sdk_list[@]}"; do
+            unzip -o "sentryobjc-slices/sentryobjc-slice-$sdk/SentryObjC-slice-$sdk.zip" \
+              -d "XCFrameworkBuildPath/lib/SentryObjC/$sdk"
+          done
+
+      - name: Assemble XCFramework
+        env:
+          SDKS: ${{ inputs.sdks }}
+        run: |
+          ./scripts/assemble-xcframework-sentryobjc.sh \
+            --sdks "$SDKS" \
+            --lib-path-template "XCFrameworkBuildPath/lib/SentryObjC/SDK_NAME/libSentryObjC.a" \
+            --headers "Sources/SentryObjC/Public" \
+            --output-name "SentryObjC-Static"
+
+      - name: Validate XCFramework
+        run: |
+          ./scripts/validate-xcframework-format.sh "SentryObjC-Static.xcframework"
+          ./scripts/validate-xcframework-architectures.sh --xcframework "SentryObjC-Static.xcframework"
+
+      - name: Compress XCFramework
+        env:
+          SIGNED: ${{ inputs.signed }}
+        run: |
+          if [ "$SIGNED" = "true" ]; then
+            ./scripts/compress-xcframework.sh --sign "SentryObjC-Static"
+          else
+            ./scripts/compress-xcframework.sh --not-signed "SentryObjC-Static"
+          fi
+
+      - name: Upload XCFramework
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          overwrite: true
+          name: xcframework-${{ github.sha }}-sentryobjc-static
+          if-no-files-found: error
+          path: SentryObjC-Static.xcframework.zip
+
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: failure()

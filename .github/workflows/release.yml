@@ -115,6 +115,26 @@ jobs:
       matrix:
         variant: ${{ fromJson(needs.setup-matrix.outputs.variants) }}
 
+  build-sentryobjc-static-slices:
+    name: Build SentryObjC Static Slices
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    needs: [files-changed, setup-matrix]
+    uses: ./.github/workflows/build-sentryobjc-static-slices.yml
+    with:
+      release-version: ${{ github.event.inputs.version }}
+      sdk-list: ${{ needs.setup-matrix.outputs.sdk-list-array }}
+
+  assemble-sentryobjc-static-xcframework:
+    name: Assemble SentryObjC Static XCFramework
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    needs: [files-changed, build-sentryobjc-static-slices, setup-matrix]
+    uses: ./.github/workflows/assemble-sentryobjc-static-xcframework.yml
+    secrets: inherit
+    with:
+      signed: ${{ github.event_name != 'pull_request' }}
+      release-version: ${{ github.event.inputs.version }}
+      sdks: ${{ needs.setup-matrix.outputs.sdk-list-string }}
+
   validate-xcframework:
     name: Validate XCFramework
     runs-on: macos-15
@@ -451,6 +471,8 @@ jobs:
         files-changed,
         build-xcframework-variant-slices,
         assemble-xcframework-variant,
+        build-sentryobjc-static-slices,
+        assemble-sentryobjc-static-xcframework,
         validate-xcframework,
         validate-spm,
         validate-spm-dynamic,
