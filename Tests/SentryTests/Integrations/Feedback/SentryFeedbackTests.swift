@@ -18,6 +18,69 @@ class SentryFeedbackTests: XCTestCase {
             self.testCaseConfig = testCaseConfig
         }
     }
+
+    func testFormLifecycle_whenFormAppears_shouldCallOpenOnce() {
+        let config = SentryUserFeedbackConfiguration()
+        var openCalls = 0
+        config.onFormOpen = { openCalls += 1 }
+        let sut = SentryUserFeedbackFormController(config: config)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+
+        XCTAssertEqual(openCalls, 1)
+    }
+
+    func testFormLifecycle_whenPresentationDismisses_shouldCallCloseOnce() {
+        let config = SentryUserFeedbackConfiguration()
+        var closeCalls = 0
+        var internalCloseCalls = 0
+        config.onFormClose = { closeCalls += 1 }
+        let sut = SentryUserFeedbackFormController(config: config)
+        sut.onDidClose = { internalCloseCalls += 1 }
+        let presentationController = UIPresentationController(presentedViewController: sut, presenting: nil)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.presentationControllerDidDismiss(presentationController)
+        sut.presentationControllerDidDismiss(presentationController)
+
+        XCTAssertEqual(closeCalls, 1)
+        XCTAssertEqual(internalCloseCalls, 1)
+    }
+
+    func testSubmitFeedback_whenValid_shouldCallSubmitSuccess() {
+        let config = SentryUserFeedbackConfiguration()
+        var submittedData: [String: Any]?
+        config.onSubmitSuccess = { submittedData = $0 }
+        let sut = SentryUserFeedbackFormController(config: config)
+
+        sut.viewModel.messageTextView.text = "It broke"
+        sut.submitFeedback()
+
+        XCTAssertEqual(submittedData?["message"] as? String, "It broke")
+    }
+
+    func testSubmitFeedback_whenInvalid_shouldCallSubmitErrorAndNotClose() throws {
+        let config = SentryUserFeedbackConfiguration()
+        var submitErrors = [NSError]()
+        var closeCalls = 0
+        config.onSubmitError = { error in
+            submitErrors.append(error as NSError)
+        }
+        config.onFormClose = { closeCalls += 1 }
+        let sut = SentryUserFeedbackFormController(config: config)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.submitFeedback()
+
+        let error = try XCTUnwrap(submitErrors.first)
+        XCTAssertEqual(error.code, 1)
+        XCTAssertEqual(closeCalls, 0)
+    }
     
     func testSerializeWithAllFields() throws {
         let attachment = Attachment(data: Data(), filename: "screenshot.png", contentType: "image/png")

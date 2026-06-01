@@ -63,12 +63,6 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         NotificationCenter.default.removeObserver(self)
     }
 
-    func uninstall() {
-        let form = activeForm
-        activeForm = nil
-        form?.dismiss(animated: configuration.animations)
-    }
-
     func showWidget() {
         if widget == nil {
             widget = SentryUserFeedbackWidget(config: configuration, delegate: self)
@@ -98,15 +92,6 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
     }
 }
 
-// MARK: UIAdaptivePresentationControllerDelegate
-@available(iOSApplicationExtension, unavailable)
-extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerDelegate {
-    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        guard presentationController.presentedViewController === activeForm else { return }
-        activeForm = nil
-    }
-}
-
 // MARK: Private
 @available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver {
@@ -117,48 +102,20 @@ extension SentryUserFeedbackIntegrationDriver {
             return false
         }
 
-        return present(from: presenter, screenshot: screenshot)
-    }
-
-    @discardableResult
-    func present(from presenter: UIViewController, screenshot: UIImage?) -> Bool {
         guard activeForm == nil else {
             SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
             return false
         }
 
-        guard canPresentForm(from: presenter) else {
-            return false
-        }
-
         let form = SentryUserFeedbackFormController(preparedConfig: configuration, image: screenshot)
+        form.onDidClose = { [weak self] in
+            guard let self = self else { return }
+            self.activeForm = nil
+            self.widget?.rootVC.setWidget(visible: true, animated: self.configuration.animations)
+        }
         activeForm = form
+        widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
         presenter.present(form, animated: configuration.animations)
-        form.presentationController?.delegate = self
-        return true
-    }
-
-    private func canPresentForm(from viewController: UIViewController) -> Bool {
-        guard !(viewController is SentryUserFeedbackFormController) else {
-            SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
-            return false
-        }
-
-        guard viewController.viewIfLoaded?.window != nil else {
-            SentrySDKLog.debug("Cannot show feedback form — presenter is not attached to a window")
-            return false
-        }
-
-        guard viewController.presentedViewController == nil else {
-            SentrySDKLog.debug("Cannot show feedback form — presenter is already presenting another view controller")
-            return false
-        }
-
-        guard !viewController.isBeingPresented && !viewController.isBeingDismissed else {
-            SentrySDKLog.debug("Cannot show feedback form — presenter is transitioning")
-            return false
-        }
-
         return true
     }
 
@@ -215,58 +172,10 @@ extension SentryUserFeedbackIntegrationDriver {
 
     var presenter: UIViewController? {
         if let customButton = configuration.customButton {
-            return presentingViewController(from: customButton.controller)
+            return customButton.controller
         }
 
-        if let widgetHost = widget?.rootVC {
-            return widgetHost
-        }
-
-        return fallbackPresenter
-    }
-
-    /// Finds a view controller suitable for automatic presentation by preferring the key
-    /// window in a foreground-active scene and falling back to the first key-window found.
-    private var fallbackPresenter: UIViewController? {
-        var firstKeyWindowPresenter: UIViewController?
-
-        for scene in UIApplication.shared.connectedScenes {
-            guard let windowScene = scene as? UIWindowScene,
-                let presenter = keyWindowPresenter(in: windowScene) else {
-                continue
-            }
-
-            if windowScene.activationState == .foregroundActive {
-                return presenter
-            }
-
-            if firstKeyWindowPresenter == nil {
-                firstKeyWindowPresenter = presenter
-            }
-        }
-
-        return firstKeyWindowPresenter
-    }
-
-    /// Finds the view controller that should present the feedback form for the key window in
-    /// the given scene. If the root view controller is already presenting another controller,
-    /// this returns the top-most presented controller that is not currently being dismissed.
-    private func keyWindowPresenter(in windowScene: UIWindowScene) -> UIViewController? {
-        let rootViewController = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController
-        return presentingViewController(from: rootViewController)
-    }
-
-    /// Resolves the view controller best suited for presenting the feedback form by walking
-    /// through any view controllers already presented by the starting view controller.
-    private func presentingViewController(from viewController: UIViewController?) -> UIViewController? {
-        guard let viewController = viewController else { return nil }
-
-        if let presentedViewController = viewController.presentedViewController,
-            !presentedViewController.isBeingDismissed {
-            return presentingViewController(from: presentedViewController)
-        }
-
-        return viewController
+        return widget?.rootVC
     }
 }
 

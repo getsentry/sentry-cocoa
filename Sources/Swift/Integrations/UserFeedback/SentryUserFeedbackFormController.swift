@@ -9,6 +9,7 @@ import UIKit
 public final class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
     let screenshot: UIImage?
+    var onDidClose: (() -> Void)?
     private var didOpenForm = false
     private var didCloseForm = false
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
@@ -40,6 +41,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
 
     override public func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        presentationController?.delegate = self
         notifyFormDidOpen()
     }
 
@@ -121,12 +123,9 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
             func presentAlert(message: String, errorCode: Int, info: [String: Any]) {
                 let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default))
-                present(alert, animated: config.animations) {
-                    if let block = self.config.onSubmitError {
-                        // we use NSError here instead of Swift.Error because NSError automatically bridges to Swift.Error, but the same is not true in the other direction if you want to include a userInfo dictionary. Using Swift.Error would require additional implementation for this to work with ObjC consumers.
-                        block(NSError(domain: "io.sentry.error", code: errorCode, userInfo: info))
-                    }
-                }
+                // we use NSError here instead of Swift.Error because NSError automatically bridges to Swift.Error, but the same is not true in the other direction if you want to include a userInfo dictionary. Using Swift.Error would require additional implementation for this to work with ObjC consumers.
+                config.onSubmitError?(NSError(domain: "io.sentry.error", code: errorCode, userInfo: info))
+                present(alert, animated: config.animations)
             }
 
             guard case let SentryUserFeedbackFormViewModel.InputError.validationError(missing, _) = error,
@@ -165,6 +164,15 @@ extension SentryUserFeedbackFormController {
         guard didOpenForm, !didCloseForm else { return }
         didCloseForm = true
         config.onFormClose?()
+        onDidClose?()
+    }
+}
+
+// MARK: UIAdaptivePresentationControllerDelegate
+extension SentryUserFeedbackFormController: UIAdaptivePresentationControllerDelegate {
+    /// Notifies feedback lifecycle callbacks when the user dismisses the form interactively.
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        notifyFormDidClose()
     }
 }
 

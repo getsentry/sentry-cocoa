@@ -14,7 +14,7 @@ struct FeedbackScreen: View {
             .buttonStyle(.borderedProminent)
 
             Button("Present Form (Convenience API)") {
-                SentrySDK.feedback.show()
+                SentrySDK.feedback.show(config: SentryUserFeedbackConfiguration())
             }
             .buttonStyle(.borderedProminent)
 

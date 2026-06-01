@@ -19,7 +19,7 @@ final class FeedbackViewController: UIViewController {
     }
 
     @IBAction private func presentFallback(_: UIButton) {
-        SentrySDK.feedback.show()
+        SentrySDK.feedback.show(config: SentryUserFeedbackConfiguration())
     }
 
     @IBAction private func toggleWidget(_: UIButton) {
