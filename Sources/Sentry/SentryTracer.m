@@ -798,7 +798,7 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
             BOOL isStandalone = [self isStandaloneAppStartTransaction];
             NSNumber *durationMs = @(appStartMeasurement.duration * 1000);
 
-            NSString *appStartType = appStartMeasurement.isPreWarmed
+            NSString *appStartType = (!isStandalone && appStartMeasurement.isPreWarmed)
                 ? [NSString stringWithFormat:@"%@.prewarmed", appContextType]
                 : appContextType;
             if (isStandalone) {
