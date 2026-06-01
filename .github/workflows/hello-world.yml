@@ -1,0 +1,23 @@
+name: Hello World
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+# Concurrency configuration:
+# - Test workflow for Bitrise runners. Cancel in-progress runs on new pushes
+#   since only the latest result matters.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  hello-world:
+    name: Hello World
+    runs-on: [bitrise_pool_name:sonoma]
+    steps:
+      - name: Hello World
+        run: echo "Hello, World!"
