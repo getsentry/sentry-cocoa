@@ -4,12 +4,17 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
+@available(iOSApplicationExtension, unavailable)
+protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
+    func userFeedbackFormDidClose(_ form: SentryUserFeedbackFormController)
+}
+
 /// A view controller that displays the Sentry user feedback form.
 @available(iOSApplicationExtension, unavailable)
 public final class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
     let screenshot: UIImage?
-    var onDidClose: (() -> Void)?
+    weak var delegate: SentryUserFeedbackFormDelegate?
     private var didOpenForm = false
     private var didCloseForm = false
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
@@ -41,6 +46,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
 
     override public func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        resetFormLifecycleIfNeeded()
         presentationController?.delegate = self
         notifyFormDidOpen()
     }
@@ -48,9 +54,9 @@ public final class SentryUserFeedbackFormController: UIViewController {
     override public func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
 
-        if isBeingDismissed || navigationController?.isBeingDismissed == true || isMovingFromParent {
-            notifyFormDidClose()
-        }
+        guard presentedViewController == nil else { return }
+        guard isBeingDismissed || isMovingFromParent else { return }
+        notifyFormDidClose()
     }
 
     init(preparedConfig config: SentryUserFeedbackConfiguration, image: UIImage?) {
@@ -74,12 +80,9 @@ public final class SentryUserFeedbackFormController: UIViewController {
         nc.addObserver(self, selector: #selector(hidKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
-    /// Creates a feedback form controller from a decoder.
+    /// Unavailable. Use `init(config:)` or `init(config:image:)` instead.
     public required init?(coder: NSCoder) {
-        self.config = SentryUserFeedbackConfiguration()
-        self.screenshot = nil
-        super.init(coder: coder)
-        commonInit()
+        fatalError("init(coder:) has not been implemented")
     }
 }
 
@@ -154,6 +157,12 @@ extension SentryUserFeedbackFormController {
         dismiss(animated: config.animations, completion: completion)
     }
 
+    private func resetFormLifecycleIfNeeded() {
+        guard didCloseForm else { return }
+        didOpenForm = false
+        didCloseForm = false
+    }
+
     private func notifyFormDidOpen() {
         guard !didOpenForm else { return }
         didOpenForm = true
@@ -164,7 +173,7 @@ extension SentryUserFeedbackFormController {
         guard didOpenForm, !didCloseForm else { return }
         didCloseForm = true
         config.onFormClose?()
-        onDidClose?()
+        delegate?.userFeedbackFormDidClose(self)
     }
 }
 

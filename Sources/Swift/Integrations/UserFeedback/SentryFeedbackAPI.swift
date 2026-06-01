@@ -11,7 +11,7 @@ import UIKit
     /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
     @available(iOSApplicationExtension, unavailable)
     @objc public func showWidget() {
-        Self.getIntegration()?.driver.showWidget()
+        getIntegration()?.driver.showWidget()
     }
 
     /// Hide the feedback widget button.
@@ -19,7 +19,7 @@ import UIKit
     /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
     @available(iOSApplicationExtension, unavailable)
     @objc public func hideWidget() {
-        Self.getIntegration()?.driver.hideWidget()
+        getIntegration()?.driver.hideWidget()
     }
 
     /// Show the feedback form using the best available presenter.
@@ -44,7 +44,7 @@ import UIKit
     }
 
     @available(iOSApplicationExtension, unavailable)
-    static func getIntegration() -> UserFeedbackIntegration<SentryDependencyContainer>? {
+    private func getIntegration() -> UserFeedbackIntegration<SentryDependencyContainer>? {
         SentrySDKInternal.currentHub().getInstalledIntegration(UserFeedbackIntegration<SentryDependencyContainer>.self) as? UserFeedbackIntegration<SentryDependencyContainer>
     }
 }
