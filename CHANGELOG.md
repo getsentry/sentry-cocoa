@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Fix reporting arbitrary Objective-C object throws via the C++ exception monitor (#7983)
+- Fix reporting arbitrary Objective-C object throws via the C++ exception monitor (#7984)
 
 ## 9.16.0-alpha.2
 
