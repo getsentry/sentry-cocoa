@@ -151,7 +151,7 @@ jobs:
   # We don't run this matrix for all different OS versions, because the chances
   # of a bug solely on a specific OS version is minimal.
   unit-tests-with-test-server:
-    name: Unit with Test Server ${{matrix.name}}
+    name: Unit with Test Server ${{matrix.name}} on ${{matrix.runner_provider}}
     continue-on-error: ${{ matrix.runner_provider == 'bitrise' }}
     runs-on: ${{ matrix.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', 'sequoia')) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     timeout-minutes: 20
@@ -260,7 +260,7 @@ jobs:
           suffix: ${{ matrix.platform }}-xcode-${{ matrix.xcode }}
 
   unit-tests:
-    name: Unit ${{matrix.name}}
+    name: Unit ${{matrix.name}} on ${{matrix.runner_provider}}
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
     secrets: inherit
