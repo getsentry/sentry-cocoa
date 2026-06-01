@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Report only `cold` or `warm` as `start_type` for standalone app starts, removing the `.prewarmed` suffix per sentry-conventions (#7968)
+
 ## 9.16.0-alpha.1
 
 > [!IMPORTANT]
@@ -16,7 +22,6 @@
 ### Fixes
 
 - Fix crash in `SentryFramesTracker.add/removeListener` when called from a listener's own `init` / `deinit` on a background thread, observed on iOS 26 (#7943)
-- Report only `cold` or `warm` as `start_type` for standalone app starts, removing the `.prewarmed` suffix per sentry-conventions (#7968)
 
 ## 9.15.0
 
