@@ -121,7 +121,7 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
                 block(feedback.dataDictionary())
             }
             SentrySDK.capture(feedback: feedback)
-            dismissForm()
+            dismiss(animated: config.animations)
         case .failure(let error):
             func presentAlert(message: String, errorCode: Int, info: [String: Any]) {
                 let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
@@ -143,20 +143,12 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
     }
 
     func cancel() {
-        dismissForm()
+        dismiss(animated: config.animations)
     }
 }
 
 // MARK: Form lifecycle
 extension SentryUserFeedbackFormController {
-    private func dismissForm() {
-        let completion: () -> Void = { [weak self] in
-            self?.notifyFormDidClose()
-        }
-
-        dismiss(animated: config.animations, completion: completion)
-    }
-
     private func resetFormLifecycleIfNeeded() {
         guard didCloseForm else { return }
         didOpenForm = false
