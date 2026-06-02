@@ -51,15 +51,15 @@ jobs:
           pattern: sentryobjc-slice-*
           path: sentryobjc-slices
 
-      - name: Unzip slices
+      - name: Arrange slices
         env:
           SDKS: ${{ inputs.sdks }}
         run: |
           IFS=',' read -r -a sdk_list <<< "$SDKS"
-          mkdir -p XCFrameworkBuildPath/lib/SentryObjC
           for sdk in "${sdk_list[@]}"; do
-            unzip -o "sentryobjc-slices/sentryobjc-slice-$sdk/SentryObjC-slice-$sdk.zip" \
-              -d "XCFrameworkBuildPath/lib/SentryObjC/$sdk"
+            mkdir -p "XCFrameworkBuildPath/lib/SentryObjC/$sdk"
+            cp "sentryobjc-slices/sentryobjc-slice-$sdk/libSentryObjC.a" \
+              "XCFrameworkBuildPath/lib/SentryObjC/$sdk/libSentryObjC.a"
           done
 
       - name: Assemble XCFramework

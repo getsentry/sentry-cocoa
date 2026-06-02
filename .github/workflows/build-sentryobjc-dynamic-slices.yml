@@ -33,13 +33,13 @@ jobs:
           name: sentryobjc-slice-${{ matrix.sdk }}
           path: sentryobjc-slices
 
-      - name: Unzip static slice
+      - name: Arrange static slice
         env:
           SDK: ${{ matrix.sdk }}
         run: |
-          mkdir -p XCFrameworkBuildPath/lib/SentryObjC/$SDK
-          unzip -o "sentryobjc-slices/SentryObjC-slice-$SDK.zip" \
-            -d "XCFrameworkBuildPath/lib/SentryObjC/$SDK"
+          mkdir -p "XCFrameworkBuildPath/lib/SentryObjC/$SDK"
+          cp "sentryobjc-slices/libSentryObjC.a" \
+            "XCFrameworkBuildPath/lib/SentryObjC/$SDK/libSentryObjC.a"
 
       - name: Build SentryObjC dynamic framework for ${{ matrix.sdk }}
         env:
@@ -51,20 +51,12 @@ jobs:
             --headers "Sources/SentryObjC/Public" \
             --output-dir XCFrameworkBuildPath
 
-      - name: Zip dynamic framework
-        env:
-          SDK: ${{ matrix.sdk }}
-        run: |
-          ditto -c -k -X --rsrc \
-            XCFrameworkBuildPath/framework/SentryObjC/$SDK \
-            SentryObjC-dynamic-slice-$SDK.zip
-
       - name: Upload slice
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: sentryobjc-dynamic-slice-${{ matrix.sdk }}
           if-no-files-found: error
-          path: SentryObjC-dynamic-slice-${{ matrix.sdk }}.zip
+          path: XCFrameworkBuildPath/framework/SentryObjC/${{ matrix.sdk }}/SentryObjC.framework
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics

@@ -51,15 +51,15 @@ jobs:
           pattern: sentryobjc-dynamic-slice-*
           path: sentryobjc-dynamic-slices
 
-      - name: Unzip slices
+      - name: Arrange slices
         env:
           SDKS: ${{ inputs.sdks }}
         run: |
           IFS=',' read -r -a sdk_list <<< "$SDKS"
-          mkdir -p XCFrameworkBuildPath/framework/SentryObjC
           for sdk in "${sdk_list[@]}"; do
-            unzip -o "sentryobjc-dynamic-slices/sentryobjc-dynamic-slice-$sdk/SentryObjC-dynamic-slice-$sdk.zip" \
-              -d "XCFrameworkBuildPath/framework/SentryObjC/$sdk"
+            mkdir -p "XCFrameworkBuildPath/framework/SentryObjC/$sdk"
+            cp -R "sentryobjc-dynamic-slices/sentryobjc-dynamic-slice-$sdk/SentryObjC.framework" \
+              "XCFrameworkBuildPath/framework/SentryObjC/$sdk/SentryObjC.framework"
           done
 
       - name: Assemble XCFramework

@@ -61,20 +61,12 @@ jobs:
             --sdk "$SDK" \
             --output-dir XCFrameworkBuildPath
 
-      - name: Zip static library
-        env:
-          SDK: ${{ matrix.sdk }}
-        run: |
-          ditto -c -k -X --rsrc \
-            XCFrameworkBuildPath/lib/SentryObjC/$SDK \
-            SentryObjC-slice-$SDK.zip
-
       - name: Upload slice
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: sentryobjc-slice-${{ matrix.sdk }}
           if-no-files-found: error
-          path: SentryObjC-slice-${{ matrix.sdk }}.zip
+          path: XCFrameworkBuildPath/lib/SentryObjC/${{ matrix.sdk }}/libSentryObjC.a
 
       - name: Upload build log if failed
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
