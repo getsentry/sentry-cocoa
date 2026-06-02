@@ -232,19 +232,13 @@ build-xcframework-sample:
 # Builds SentryObjC as a static xcframework via SPM archive + libtool.
 # Output lands in SentryObjC-Static.xcframework.
 #
-# SDKS is a comma-separated list of SDK names. Required — no default,
-# to keep local iteration fast.
+# SDKS is a comma-separated list of SDK names. Defaults to all SDKS.
 #
 # Examples:
 #   make build-xcframework-sentryobjc-static SDKS=iphonesimulator
 #   make build-xcframework-sentryobjc-static SDKS=iphoneos,iphonesimulator
 .PHONY: build-xcframework-sentryobjc-static
 build-xcframework-sentryobjc-static:
-	@if [ -z "$(SDKS)" ]; then \
-		echo "error: SDKS is required."; \
-		echo "       example: make $@ SDKS=iphonesimulator"; \
-		exit 1; \
-	fi
 	@echo "--> Creating SentryObjC-Static xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)"
 
@@ -253,19 +247,13 @@ build-xcframework-sentryobjc-static:
 # Builds SentryObjC as a dynamic xcframework via SPM archive + swiftc relink.
 # Output lands in SentryObjC-Dynamic.xcframework.
 #
-# SDKS is a comma-separated list of SDK names. Required — no default,
-# to keep local iteration fast.
+# SDKS is a comma-separated list of SDK names. Defaults to all SDKS.
 #
 # Examples:
 #   make build-xcframework-sentryobjc-dynamic SDKS=iphonesimulator
 #   make build-xcframework-sentryobjc-dynamic SDKS=iphoneos,iphonesimulator
 .PHONY: build-xcframework-sentryobjc-dynamic
 build-xcframework-sentryobjc-dynamic:
-	@if [ -z "$(SDKS)" ]; then \
-		echo "error: SDKS is required."; \
-		echo "       example: make $@ SDKS=iphonesimulator"; \
-		exit 1; \
-	fi
 	@echo "--> Creating SentryObjC-Dynamic xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant dynamic
 
