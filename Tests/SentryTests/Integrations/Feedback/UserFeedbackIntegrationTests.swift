@@ -7,6 +7,11 @@ import UIKit
 
 final class UserFeedbackIntegrationTests: XCTestCase {
 
+    override func tearDown() {
+        super.tearDown()
+        clearTestState()
+    }
+
     static private var optionsWithFeedback: Options {
         let options = Options()
         options.configureUserFeedback = { _ in }
@@ -45,6 +50,55 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     func testInitializerFailsWhenFeedbackNotConfigured() {
         let integration = UserFeedbackIntegration(with: Options(), dependencies: TestDependencies(screenshotSource: nil))
         XCTAssertNil(integration)
+    }
+
+    func testGlobalConfigurationOrDefault_whenGlobalFeedbackConfigured_shouldUsePreparedDriverConfiguration() throws {
+        let options = Options()
+        var configureFormCalls = 0
+        options.configureUserFeedback = { config in
+            config.configureForm = {
+                configureFormCalls += 1
+                $0.formTitle = "Global title"
+            }
+        }
+        SentrySDK.setStart(with: options)
+        let integration = try XCTUnwrap(UserFeedbackIntegration<SentryDependencyContainer>(
+            with: options,
+            dependencies: SentryDependencyContainer.sharedInstance()))
+        SentrySDKInternal.currentHub().addInstalledIntegration(
+            integration,
+            name: UserFeedbackIntegration<SentryDependencyContainer>.name)
+
+        XCTAssertEqual(configureFormCalls, 1)
+        let sut = SentryUserFeedbackFormController.globalConfigurationOrDefault()
+
+        XCTAssertIdentical(sut, integration.driver.configuration)
+        XCTAssertEqual(configureFormCalls, 1)
+        XCTAssertEqual(sut.formConfig.formTitle, "Global title")
+    }
+
+    func testGlobalConfigurationOrDefault_whenGlobalFeedbackNotConfigured_shouldPrepareDefaultConfiguration() {
+        clearTestState()
+        let defaultConfig = SentryUserFeedbackConfiguration()
+        var configureFormCalls = 0
+        var configureThemeCalls = 0
+        defaultConfig.configureForm = {
+            configureFormCalls += 1
+            $0.formTitle = "Prepared default title"
+        }
+        defaultConfig.configureTheme = {
+            configureThemeCalls += 1
+            $0.background = .red
+        }
+
+        let sut = SentryUserFeedbackFormController.globalConfigurationOrDefault(
+            defaultConfiguration: defaultConfig)
+
+        XCTAssertIdentical(sut, defaultConfig)
+        XCTAssertEqual(configureFormCalls, 1)
+        XCTAssertEqual(configureThemeCalls, 1)
+        XCTAssertEqual(sut.formConfig.formTitle, "Prepared default title")
+        XCTAssertEqual(sut.theme.background, .red)
     }
 
     func testShowForm_whenNoPresenterAvailable_shouldNotPresentForm() {

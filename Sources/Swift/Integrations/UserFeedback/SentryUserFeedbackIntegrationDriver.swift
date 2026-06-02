@@ -110,16 +110,7 @@ extension SentryUserFeedbackIntegrationDriver {
             return
         }
 
-        guard activeForm == nil else {
-            SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
-            return
-        }
-
-        let form = SentryUserFeedbackFormController(preparedConfig: configuration, image: screenshot)
-        form.delegate = self
-        activeForm = form
-        widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
-        presenter.present(form, animated: configuration.animations)
+        showForm(from: presenter, screenshot: screenshot)
     }
 
     func validate(_ config: SentryUserFeedbackWidgetConfiguration) {
@@ -167,6 +158,19 @@ extension SentryUserFeedbackIntegrationDriver {
     @objc func userCapturedScreenshot() {
         stopObservingScreenshots()
         showForm(screenshot: screenshotSource.appScreenshots().first)
+    }
+
+    func showForm(from presenter: UIViewController, screenshot: UIImage?) {
+        guard activeForm == nil else {
+            SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
+            return
+        }
+
+        let form = SentryUserFeedbackFormController(preparedConfig: configuration, image: screenshot)
+        form.delegate = self
+        activeForm = form
+        widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
+        presenter.present(form, animated: configuration.animations)
     }
 
     func stopObservingScreenshots() {

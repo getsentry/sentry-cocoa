@@ -7,21 +7,17 @@ import UIKit
 /// Use this view from a SwiftUI presentation container, such as `.sheet`.
 @available(iOSApplicationExtension, unavailable)
 public struct SentryUserFeedbackFormView: UIViewControllerRepresentable {
-    private let config: SentryUserFeedbackConfiguration
     private let image: UIImage?
 
-    /// Creates a feedback form with the specified configuration and image attachment.
-    /// - Parameters:
-    ///   - config: The configuration for this feedback form instance.
-    ///   - image: An optional image to attach to the feedback form.
-    public init(config: SentryUserFeedbackConfiguration, image: UIImage? = nil) {
-        self.config = config
+    /// Creates a feedback form using the global configuration from `SentryOptions.configureUserFeedback`.
+    /// - Parameter image: An optional image to attach to the feedback form.
+    public init(image: UIImage? = nil) {
         self.image = image
     }
 
     // swiftlint:disable:next missing_docs
     public func makeUIViewController(context: Context) -> SentryUserFeedbackFormController {
-        return SentryUserFeedbackFormController(config: config, image: image)
+        return SentryUserFeedbackFormController(image: image)
     }
 
     // swiftlint:disable:next missing_docs

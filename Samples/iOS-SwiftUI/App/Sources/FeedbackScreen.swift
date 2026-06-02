@@ -14,7 +14,7 @@ struct FeedbackScreen: View {
             .buttonStyle(.borderedProminent)
 
             Button("Present Form (Convenience API)") {
-                SentrySDK.feedback.show(config: SentryUserFeedbackConfiguration())
+                SentrySDK.feedback.show()
             }
             .buttonStyle(.borderedProminent)
 
@@ -37,7 +37,7 @@ struct FeedbackScreen: View {
         .padding()
         .navigationTitle("Feedback")
         .sheet(isPresented: $isFeedbackFormPresented) {
-            SentrySDK.FeedbackFormView(config: SentryUserFeedbackConfiguration())
+            SentrySDK.FeedbackFormView()
         }
     }
 }

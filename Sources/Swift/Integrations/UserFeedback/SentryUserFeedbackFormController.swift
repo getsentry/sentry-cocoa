@@ -2,6 +2,7 @@
 
 import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+@_implementationOnly import _SentryPrivate
 import UIKit
 
 @available(iOSApplicationExtension, unavailable)
@@ -19,23 +20,35 @@ public final class SentryUserFeedbackFormController: UIViewController {
     private var didCloseForm = false
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
 
-    /// Creates a feedback form controller with the specified configuration.
-    /// - Parameter config: The configuration for this feedback form instance.
-    @objc(initWithConfig:)
-    public convenience init(config: SentryUserFeedbackConfiguration) {
-        self.init(config: config, image: nil)
+    /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback`.
+    @objc public convenience init() {
+        self.init(image: nil)
     }
 
-    /// Creates a feedback form controller with the specified configuration and image attachment.
-    /// - Parameters:
-    ///   - config: The configuration for this feedback form instance.
-    ///   - image: An optional image to attach to the feedback form.
-    @objc(initWithConfig:image:)
-    public convenience init(config: SentryUserFeedbackConfiguration, image: UIImage?) {
+    /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback` and image attachment.
+    /// - Parameter image: An optional image to attach to the feedback form.
+    @objc(initWithImage:)
+    public convenience init(image: UIImage?) {
+        self.init(preparedConfig: Self.globalConfigurationOrDefault(), image: image)
+    }
+
+    static func globalConfigurationOrDefault(
+        defaultConfiguration: @autoclosure () -> SentryUserFeedbackConfiguration = SentryUserFeedbackConfiguration()
+    ) -> SentryUserFeedbackConfiguration {
+        guard let integration = SentrySDKInternal.currentHub().getInstalledIntegration(UserFeedbackIntegration<SentryDependencyContainer>.self)
+            as? UserFeedbackIntegration<SentryDependencyContainer> else {
+            SentrySDKLog.debug("Using default feedback configuration because user feedback is not configured in SentryOptions")
+            let config = defaultConfiguration()
+            prepare(config)
+            return config
+        }
+        return integration.driver.configuration
+    }
+
+    private static func prepare(_ config: SentryUserFeedbackConfiguration) {
         config.configureForm?(config.formConfig)
         config.configureTheme?(config.theme)
         config.configureDarkTheme?(config.darkTheme)
-        self.init(preparedConfig: config, image: image)
     }
 
     override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -80,16 +93,16 @@ public final class SentryUserFeedbackFormController: UIViewController {
         nc.addObserver(self, selector: #selector(hidKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
-    /// Unavailable. Use `init(config:)` or `init(config:image:)` instead.
-    @available(*, unavailable, message: "Use init(config:) or init(config:image:) instead.")
+    /// Unavailable. Use `init()` or `init(image:)` instead.
+    @available(*, unavailable, message: "Use init() or init(image:) instead.")
     override public init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        fatalError("Use init(config:) or init(config:image:) instead.")
+        fatalError("Use init() or init(image:) instead.")
     }
 
-    /// Unavailable. Use `init(config:)` or `init(config:image:)` instead.
-    @available(*, unavailable, message: "Use init(config:) or init(config:image:) instead.")
+    /// Unavailable. Use `init()` or `init(image:)` instead.
+    @available(*, unavailable, message: "Use init() or init(image:) instead.")
     public required init?(coder: NSCoder) {
-        fatalError("Use init(config:) or init(config:image:) instead.")
+        fatalError("Use init() or init(image:) instead.")
     }
 }
 
@@ -222,20 +235,20 @@ struct ViewControllerWrapper: UIViewControllerRepresentable {
 
 @available(iOS 17.0, *)
 #Preview {
-    SentryUserFeedbackFormController(config: .init())
+    SentryUserFeedbackFormController()
 }
 
 @available(iOS 17.0, *)
 #Preview {
     ViewControllerWrapper(
-        viewController: SentryUserFeedbackFormController(config: .init()))
+        viewController: SentryUserFeedbackFormController())
     .preferredColorScheme(.dark).colorScheme(.dark)
 }
 
 @available(iOS 17.0, *)
 #Preview {
     ViewControllerWrapper(
-        viewController: SentryUserFeedbackFormController(config: .init()))
+        viewController: SentryUserFeedbackFormController())
     .dynamicTypeSize(.accessibility5)
 }
 #endif // DEBUG && swift(>=5.10)

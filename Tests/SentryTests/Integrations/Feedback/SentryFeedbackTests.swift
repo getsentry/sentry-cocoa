@@ -11,9 +11,12 @@ class SentryFeedbackTests: XCTestCase {
     private class Fixture {
         let config: SentryUserFeedbackConfiguration
         let testCaseConfig: FeedbackTestCaseConfiguration
-        lazy var controller = SentryUserFeedbackFormController(config: config, image: self.testCaseConfig.includeScreenshot ? UIImage() : nil)
+        lazy var controller = SentryUserFeedbackFormController(preparedConfig: config, image: self.testCaseConfig.includeScreenshot ? UIImage() : nil)
 
         init(config: SentryUserFeedbackConfiguration, testCaseConfig: FeedbackTestCaseConfiguration) {
+            config.configureForm?(config.formConfig)
+            config.configureTheme?(config.theme)
+            config.configureDarkTheme?(config.darkTheme)
             self.config = config
             self.testCaseConfig = testCaseConfig
         }
@@ -31,7 +34,7 @@ class SentryFeedbackTests: XCTestCase {
         let config = SentryUserFeedbackConfiguration()
         var openCalls = 0
         config.onFormOpen = { openCalls += 1 }
-        let sut = SentryUserFeedbackFormController(config: config)
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, image: nil)
 
         sut.beginAppearanceTransition(true, animated: false)
         sut.endAppearanceTransition()
@@ -46,7 +49,7 @@ class SentryFeedbackTests: XCTestCase {
         let delegate = TestFormDelegate()
         var closeCalls = 0
         config.onFormClose = { closeCalls += 1 }
-        let sut = SentryUserFeedbackFormController(config: config)
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, image: nil)
         sut.delegate = delegate
         let presentationController = UIPresentationController(presentedViewController: sut, presenting: nil)
 
@@ -65,7 +68,7 @@ class SentryFeedbackTests: XCTestCase {
         var closeCalls = 0
         config.onFormOpen = { openCalls += 1 }
         config.onFormClose = { closeCalls += 1 }
-        let sut = SentryUserFeedbackFormController(config: config)
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, image: nil)
         let presentationController = UIPresentationController(presentedViewController: sut, presenting: nil)
 
         sut.beginAppearanceTransition(true, animated: false)
@@ -83,7 +86,7 @@ class SentryFeedbackTests: XCTestCase {
         let config = SentryUserFeedbackConfiguration()
         var submittedData: [String: Any]?
         config.onSubmitSuccess = { submittedData = $0 }
-        let sut = SentryUserFeedbackFormController(config: config)
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, image: nil)
 
         sut.viewModel.messageTextView.text = "It broke"
         sut.submitFeedback()
@@ -99,7 +102,7 @@ class SentryFeedbackTests: XCTestCase {
             submitErrors.append(error as NSError)
         }
         config.onFormClose = { closeCalls += 1 }
-        let sut = SentryUserFeedbackFormController(config: config)
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, image: nil)
 
         sut.beginAppearanceTransition(true, animated: false)
         sut.endAppearanceTransition()
