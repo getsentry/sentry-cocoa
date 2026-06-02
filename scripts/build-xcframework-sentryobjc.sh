@@ -50,6 +50,11 @@ fi
 
 rm -rf "$OUTPUT_DIR/archive/SentryObjC" "$OUTPUT_DIR/DerivedData" "$OUTPUT_DIR/lib/SentryObjC"
 
+PACKAGE_FILE="$PACKAGE_PATH/Package.swift"
+cp "$PACKAGE_FILE" "$PACKAGE_FILE.bak"
+trap 'mv "$PACKAGE_FILE.bak" "$PACKAGE_FILE"' EXIT
+"$SCRIPT_DIR/prepare-package.sh" --package-file "$PACKAGE_FILE" --strip-binary-targets true
+
 IFS=',' read -r -a sdk_list <<< "$SDKS"
 
 for sdk in "${sdk_list[@]}"; do

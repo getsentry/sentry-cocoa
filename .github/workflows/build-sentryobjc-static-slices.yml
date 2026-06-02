@@ -50,6 +50,9 @@ jobs:
           VERSION: ${{ env.VERSION }}
         run: ./scripts/bump-version.sh --version "$VERSION"
 
+      - name: Strip binary targets from Package.swift
+        run: ./scripts/prepare-package.sh --strip-binary-targets true
+
       - name: Build SentryObjC static library for ${{ matrix.sdk }}
         env:
           SDK: ${{ matrix.sdk }}
