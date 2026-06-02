@@ -12,11 +12,8 @@
 extern "C" {
 #endif
 
-// Type alias — typedef (not #define) so Swift can see SentryCrashThread.
-typedef KSThread SentryCrashThread;
-
 // Function aliases — static inline so Swift can call them (macros are invisible to Swift).
-static inline SentryCrashThread
+static inline KSThread
 sentrycrashthread_self(void)
 {
     return ksthread_self();

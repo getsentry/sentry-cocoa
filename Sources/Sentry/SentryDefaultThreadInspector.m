@@ -20,7 +20,7 @@
 @end
 
 typedef struct {
-    SentryCrashThread thread;
+    KSThread thread;
     SentryCrashStackEntry stackEntries[MAX_STACKTRACE_LENGTH];
     int stackLength;
 } SentryThreadInfo;
@@ -30,7 +30,7 @@ typedef struct {
 // If asyncUnsafeSymbolicate is `true` the stack will be symbolicated but the function is no longer
 // async-signal-safe.
 unsigned int
-getStackEntriesFromThread(SentryCrashThread thread, SentryCrashMachineContext *context,
+getStackEntriesFromThread(KSThread thread, SentryCrashMachineContext *context,
     SentryCrashStackEntry *buffer, unsigned int maxEntries)
 {
     sentrycrashmc_getContextForThread(thread, context, NO);
@@ -86,13 +86,13 @@ getStackEntriesFromThread(SentryCrashThread thread, SentryCrashMachineContext *c
     NSMutableArray<SentryThread *> *threads = [[NSMutableArray alloc] init];
 
     SentryCrashMC_NEW_CONTEXT(context);
-    SentryCrashThread currentThread = sentrycrashthread_self();
+    KSThread currentThread = sentrycrashthread_self();
 
     [self.machineContextWrapper fillContextForCurrentThread:context];
     int threadCount = [self.machineContextWrapper getThreadCount:context];
 
     for (int i = 0; i < threadCount; i++) {
-        SentryCrashThread thread = [self.machineContextWrapper getThread:context withIndex:i];
+        KSThread thread = [self.machineContextWrapper getThread:context withIndex:i];
         SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@(i)];
 
         sentryThread.isMain =
@@ -131,7 +131,7 @@ getStackEntriesFromThread(SentryCrashThread thread, SentryCrashMachineContext *c
 
     @synchronized(self) {
         SentryCrashMC_NEW_CONTEXT(context);
-        SentryCrashThread currentThread = sentrycrashthread_self();
+        KSThread currentThread = sentrycrashthread_self();
 
         thread_act_array_t suspendedThreads = NULL;
         mach_msg_type_number_t numSuspendedThreads = 0;
@@ -198,7 +198,7 @@ getStackEntriesFromThread(SentryCrashThread thread, SentryCrashMachineContext *c
     return threads;
 }
 
-- (nullable NSString *)getThreadName:(SentryCrashThread)thread
+- (nullable NSString *)getThreadName:(KSThread)thread
 {
     int bufferLength = 128;
     char buffer[bufferLength];

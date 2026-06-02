@@ -128,7 +128,7 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(true, options?.enableAutoSessionTracking)
 
         var expectedIntegrations = [
-            "KSCrashIntegration",
+            "CrashIntegration",
             "SentryAutoBreadcrumbTrackingIntegration",
             "SentryAutoSessionTrackingIntegration",
             "SentryMetricsIntegration",

@@ -41,7 +41,7 @@ SENTRY_NO_INIT
  * the same as the application that includes Sentry. In this case the full stacktrace is returned
  * without skipping frames.
  */
-- (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
+- (SentryStacktrace *)buildStacktraceForThread:(KSThread)thread
                                        context:(SentryCrashMachineContext *)context;
 
 - (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries

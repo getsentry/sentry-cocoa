@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [SentryStacktraceBuilder buildStacktraceFromFrames:frames];
 }
 
-- (SentryStacktrace *)buildStacktraceForThread:(SentryCrashThread)thread
+- (SentryStacktrace *)buildStacktraceForThread:(KSThread)thread
                                        context:(SentryCrashMachineContext *)context
 {
     sentrycrashmc_getContextForThread(thread, context, NO);

@@ -272,15 +272,15 @@ class SentryDefaultThreadInspectorTests: XCTestCase {
 
 private class TestSentryStacktraceBuilder: SentryStacktraceBuilder {
     
-    var stackTraces = [SentryCrashThread: SentryStacktrace]()
+    var stackTraces = [KSThread: SentryStacktrace]()
 
-    override func buildStacktrace(forThread thread: SentryCrashThread, context: UnsafeMutablePointer<SentryCrashMachineContext>) -> SentryStacktrace {
+    override func buildStacktrace(forThread thread: KSThread, context: UnsafeMutablePointer<SentryCrashMachineContext>) -> SentryStacktrace {
         return stackTraces[thread] ?? SentryStacktrace(frames: [], registers: [:])
     }
 }
 
 private struct ThreadInfo {
-    var threadId: SentryCrashThread
+    var threadId: KSThread
     var name: String
 }
 
@@ -296,13 +296,13 @@ private class TestMachineContextWrapper: NSObject, SentryCrashMachineContextWrap
     }
     
     var mockThreads: [ThreadInfo]?
-    func getThread(_ context: UnsafeMutablePointer<SentryCrashMachineContext>, with index: Int32) -> SentryCrashThread {
+    func getThread(_ context: UnsafeMutablePointer<SentryCrashMachineContext>, with index: Int32) -> KSThread {
         mockThreads?[Int(index)].threadId ?? 0
     }
     
     var threadName: String = ""
     var getThreadNameSucceeds = true
-    func getThreadName(_ thread: SentryCrashThread, andBuffer buffer: UnsafeMutablePointer<Int8>, andBufLength bufLength: Int32) -> Bool {
+    func getThreadName(_ thread: KSThread, andBuffer buffer: UnsafeMutablePointer<Int8>, andBufLength bufLength: Int32) -> Bool {
         if let mocks = mockThreads, let index = mocks.firstIndex(where: { $0.threadId == thread }) {
             strcpy(buffer, mocks[index].name)
             return true
@@ -319,8 +319,8 @@ private class TestMachineContextWrapper: NSObject, SentryCrashMachineContextWrap
         }
     }
     
-    var mainThread: SentryCrashThread?
-    func isMainThread(_ thread: SentryCrashThread) -> Bool {
+    var mainThread: KSThread?
+    func isMainThread(_ thread: KSThread) -> Bool {
         return thread == mainThread
     }
 }

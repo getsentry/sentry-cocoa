@@ -16,7 +16,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-SentryCrashThread mainThreadID;
+KSThread mainThreadID;
 
 @implementation SentryCrashDefaultMachineContextWrapper
 
@@ -35,20 +35,20 @@ SentryCrashThread mainThreadID;
     return sentrycrashmc_getThreadCount(context);
 }
 
-- (SentryCrashThread)getThread:(SentryCrashMachineContext *)context withIndex:(int)index
+- (KSThread)getThread:(SentryCrashMachineContext *)context withIndex:(int)index
 {
-    SentryCrashThread thread = sentrycrashmc_getThreadAtIndex(context, index);
+    KSThread thread = sentrycrashmc_getThreadAtIndex(context, index);
     return thread;
 }
 
-- (BOOL)getThreadName:(const SentryCrashThread)thread
+- (BOOL)getThreadName:(const KSThread)thread
             andBuffer:(char *const)buffer
          andBufLength:(int)bufLength;
 {
     return sentrycrashthread_getThreadName(thread, buffer, bufLength) == true;
 }
 
-- (BOOL)isMainThread:(SentryCrashThread)thread
+- (BOOL)isMainThread:(KSThread)thread
 {
     return thread == mainThreadID;
 }

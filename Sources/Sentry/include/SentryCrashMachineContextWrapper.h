@@ -12,13 +12,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (int)getThreadCount:(SentryCrashMachineContext *)context;
 
-- (SentryCrashThread)getThread:(SentryCrashMachineContext *)context withIndex:(int)index;
+- (KSThread)getThread:(SentryCrashMachineContext *)context withIndex:(int)index;
 
-- (BOOL)getThreadName:(const SentryCrashThread)thread
+- (BOOL)getThreadName:(const KSThread)thread
             andBuffer:(char *const)buffer
          andBufLength:(int)bufLength;
 
-- (BOOL)isMainThread:(SentryCrashThread)thread;
+- (BOOL)isMainThread:(KSThread)thread;
 
 @end
 

@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         _data = [[NSMutableDictionary alloc] init];
 
-        SentryCrashThread currentThread = sentrycrashthread_self();
+        KSThread currentThread = sentrycrashthread_self();
         _data[SPAN_DATA_THREAD_ID] = @(currentThread);
 
         if ([NSThread isMainThread]) {

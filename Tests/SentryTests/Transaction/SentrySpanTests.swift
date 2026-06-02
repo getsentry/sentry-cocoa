@@ -221,7 +221,7 @@ class SentrySpanTests: XCTestCase {
         let expect = expectation(description: "Thread must be called.")
         
         var spanData: [String: Any]?
-        var threadId: SentryCrashThread?
+        var threadId: KSThread?
         let threadName = "test-thread-name"
         Thread.detachNewThread {
             Thread.current.name = threadName
@@ -243,7 +243,7 @@ class SentrySpanTests: XCTestCase {
         let expect = expectation(description: "Thread must be called.")
         
         var spanData: [String: Any]?
-        var threadId: SentryCrashThread?
+        var threadId: KSThread?
         Thread.detachNewThread {
             Thread.current.name = ""
             

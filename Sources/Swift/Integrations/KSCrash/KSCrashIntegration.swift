@@ -86,13 +86,31 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
         enableSigtermReporting = false
         #endif
 
-        let config = SentryKSCrashConfigurationFactory.configuration(
-            withInstallPath: options.cacheDirectoryPath,
-            monitors: .productionSafeMinimal,
-            enableSigTermMonitoring: enableSigtermReporting,
-            enableSwapCxaThrow: options.experimental.enableUnhandledCPPExceptionsV2,
-            persistTracesOnCrash: options.enablePersistingTracesWhenCrashing
-        )
+        let config = KSCrashConfiguration()
+        config.installPath = options.cacheDirectoryPath
+        config.monitors = .productionSafeMinimal
+        config.enableSigTermMonitoring = enableSigtermReporting
+        config.enableSwapCxaThrow = options.experimental.enableUnhandledCPPExceptionsV2
+
+        config.isWritingReportCallback = { (plan, writer) in
+            if plan.pointee.crashedDuringExceptionHandling {
+                return
+            }
+
+            if let json = sentryKSCrash_getScopeJSON() {
+                writer.pointee.addJSONElement(writer, "sentry_sdk_scope", json, false)
+            }
+        }
+
+        if options.enablePersistingTracesWhenCrashing {
+            config.willWriteReportCallback = { (plan, _) in
+                if plan.pointee.crashedDuringExceptionHandling || plan.pointee.requiresAsyncSafety {
+                    return
+                }
+
+                sentry_finishAndSaveTransaction()
+            }
+        }
 
         do {
             try installation?.install(with: config)
