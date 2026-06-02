@@ -13,6 +13,24 @@ import Foundation
         self.wrapped = wrapped
     }
 
+    @objc public init(
+        timestamp: Date,
+        traceId: SentryObjCId,
+        name: String,
+        value: SentryObjCMetricValue,
+        unit: SentryObjCUnit?,
+        attributes: [String: SentryObjCAttributeContent]
+    ) {
+        self.wrapped = SentryMetric(
+            timestamp: timestamp,
+            traceId: traceId.wrapped,
+            name: name,
+            value: value.toMetricValue(),
+            unit: unit?.toSentryUnit(),
+            attributes: attributes.mapValues { $0.toAttributeContent() }
+        )
+    }
+
     @objc public var timestamp: Date {
         get { wrapped.timestamp }
         set { wrapped.timestamp = newValue }

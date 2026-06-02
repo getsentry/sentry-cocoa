@@ -21,6 +21,27 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryObjCMetric : NSObject
 SENTRY_NO_INIT
 
+/**
+ * Creates a new metric with the given parameters.
+ * @param timestamp The timestamp when the metric was recorded.
+ * @param traceId The trace ID to associate this metric with distributed tracing.
+ * @param name The name of the metric (e.g., "api.response_time", "db.query.duration").
+ * @param value The numeric value of the metric. Counters use integer values, distributions and
+ * gauges use double values.
+ * @param unit The unit of measurement for the metric value (optional). Examples: "millisecond",
+ * "byte", "connection", "request". This helps provide context for the metric value when viewing in
+ * Sentry.
+ * @param attributes A dictionary of structured attributes added to the metric. Attributes provide
+ * additional context and can be used
+ */
+- (instancetype)initWithTimestamp:(NSDate *)timestamp
+                          traceId:(SentryObjCId *)traceId
+                             name:(NSString *)name
+                            value:(SentryObjCMetricValue *)value
+                             unit:(nullable SentryObjCUnit *)unit
+                       attributes:
+                           (NSDictionary<NSString *, SentryObjCAttributeContent *> *)attributes;
+
 /// The timestamp when the metric was recorded.
 @property (nonatomic, strong) NSDate *timestamp;
 

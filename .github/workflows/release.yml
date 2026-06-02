@@ -115,21 +115,55 @@ jobs:
       matrix:
         variant: ${{ fromJson(needs.setup-matrix.outputs.variants) }}
 
+  build-sentryobjc-static-slices:
+    name: Build SentryObjC Static Slices
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    needs: [files-changed, setup-matrix]
+    uses: ./.github/workflows/build-sentryobjc-static-slices.yml
+    with:
+      release-version: ${{ github.event.inputs.version }}
+      sdk-list: ${{ needs.setup-matrix.outputs.sdk-list-array }}
+
+  assemble-sentryobjc-static-xcframework:
+    name: Assemble SentryObjC Static XCFramework
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    needs: [files-changed, build-sentryobjc-static-slices, setup-matrix]
+    uses: ./.github/workflows/assemble-sentryobjc-static-xcframework.yml
+    secrets: inherit
+    with:
+      signed: ${{ github.event_name != 'pull_request' }}
+      release-version: ${{ github.event.inputs.version }}
+      sdks: ${{ needs.setup-matrix.outputs.sdk-list-string }}
+
+  assemble-sentryobjc-dynamic-xcframework:
+    name: Assemble SentryObjC Dynamic XCFramework
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    needs: [files-changed, build-sentryobjc-static-slices, setup-matrix]
+    uses: ./.github/workflows/assemble-sentryobjc-dynamic-xcframework.yml
+    secrets: inherit
+    with:
+      signed: ${{ github.event_name != 'pull_request' }}
+      release-version: ${{ github.event.inputs.version }}
+      sdks: ${{ needs.setup-matrix.outputs.sdk-list-string }}
+
   validate-xcframework:
     name: Validate XCFramework
     runs-on: macos-15
-    needs: [files-changed, assemble-xcframework-variant]
+    needs:
+      [
+        files-changed,
+        assemble-xcframework-variant,
+        assemble-sentryobjc-static-xcframework,
+        assemble-sentryobjc-dynamic-xcframework,
+      ]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          pattern: xcframework-${{github.sha}}-sentry-static
-          path: XCFrameworkBuildPath/
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        with:
-          pattern: xcframework-${{github.sha}}-sentry-swiftui
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
           path: XCFrameworkBuildPath/
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
@@ -138,6 +172,22 @@ jobs:
       - name: Unzip all XCFrameworks
         run: |
           find XCFrameworkBuildPath -name "*.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
+      - name: Validate all XCFrameworks
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          found=0
+          while IFS= read -r -d '' xcframework; do
+            found=1
+            ./scripts/validate-xcframework-format.sh "$xcframework"
+            ./scripts/validate-xcframework-architectures.sh --xcframework "$xcframework"
+          done < <(find XCFrameworkBuildPath -name "*.xcframework" -type d -print0)
+
+          if [ "$found" -eq 0 ]; then
+            echo "No XCFrameworks found to validate." >&2
+            exit 1
+          fi
       - name: Strip expectedSignature attributes from XCFramework project
         if: ${{ github.event_name == 'pull_request' }}
         run: make strip-xcframework-expected-signature
@@ -400,6 +450,8 @@ jobs:
         swift-build,
         duplication-tests,
         app-metrics,
+        assemble-sentryobjc-static-xcframework,
+        assemble-sentryobjc-dynamic-xcframework,
       ]
     if: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
@@ -455,6 +507,9 @@ jobs:
         files-changed,
         build-xcframework-variant-slices,
         assemble-xcframework-variant,
+        build-sentryobjc-static-slices,
+        assemble-sentryobjc-static-xcframework,
+        assemble-sentryobjc-dynamic-xcframework,
         validate-xcframework,
         validate-spm,
         validate-spm-dynamic,

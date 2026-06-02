@@ -1,0 +1,81 @@
+name: Build SentryObjC Static Slice
+
+on:
+  workflow_call:
+    inputs:
+      sdk-list:
+        description: |-
+          JSON array of Apple platform SDK names to build slices for.
+          E.g. '["iphoneos", "iphonesimulator", "macosx"]'
+        required: false
+        default: '["iphoneos", "iphonesimulator", "macosx", "maccatalyst", "appletvos", "appletvsimulator", "watchos", "watchsimulator", "xros", "xrsimulator"]'
+        type: string
+
+      release-version:
+        description: |-
+          For release workflows, the version to inject into the SDK.
+        required: false
+        type: string
+
+jobs:
+  build-sentryobjc-static-slice:
+    name: ${{ matrix.sdk }}
+    runs-on: macos-26
+
+    strategy:
+      matrix:
+        sdk: ${{ fromJson(inputs.sdk-list) }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+
+      - name: Get version
+        id: get-version
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          RELEASE_VERSION: ${{ inputs.release-version }}
+        run: |
+          if [ -n "$RELEASE_VERSION" ]; then
+            echo "VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+          else
+            echo "VERSION=$(grep MARKETING_VERSION Sources/Configuration/Versioning.xcconfig | cut -d ' ' -f 3)+$GITHUB_SHA" >> $GITHUB_ENV
+          fi
+
+      - name: Bump version
+        env:
+          VERSION: ${{ env.VERSION }}
+        run: ./scripts/bump-version.sh --version "$VERSION"
+
+      - name: Strip binary targets from Package.swift
+        run: ./scripts/prepare-package.sh --strip-binary-targets true
+
+      - name: Build SentryObjC static library for ${{ matrix.sdk }}
+        env:
+          SDK: ${{ matrix.sdk }}
+        run: |
+          ./scripts/build-static-library-sentryobjc.sh \
+            --sdk "$SDK" \
+            --output-dir XCFrameworkBuildPath
+
+      - name: Upload slice
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: sentryobjc-slice-${{ matrix.sdk }}
+          if-no-files-found: error
+          path: XCFrameworkBuildPath/lib/SentryObjC/${{ matrix.sdk }}/libSentryObjC.a
+
+      - name: Upload build log if failed
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-sentryobjc-${{ matrix.sdk }}
+          path: |
+            XCFrameworkBuildPath/archive/SentryObjC/${{ matrix.sdk }}.log
+
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: failure()

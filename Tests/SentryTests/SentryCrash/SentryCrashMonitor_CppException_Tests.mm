@@ -43,6 +43,7 @@ mockTerminationHandler(void)
     if (api != NULL) {
         api->setEnabled(false);
     }
+    sentrycrashcm_resetState();
     sentrycrashcm_setEventCallback(NULL);
     capturedExceptionContextCrashReason = NULL;
     capturedCrashType = (SentryCrashMonitorType)0;
@@ -179,6 +180,24 @@ mockHandleExceptionHandler(struct SentryCrash_MonitorContext *context)
         terminateCalled, "Original terminate handler should be called for ObjC exceptions.");
     XCTAssertNotEqual(capturedCrashType, SentryCrashMonitorTypeCPPException,
         "NSException subclass should NOT be handled by C++ exception handler.");
+}
+
+- (void)testTerminateWithArbitraryObjectiveCObject_HandledByCppHandler
+{
+    // Arrange
+    sentrycrashcm_setEventCallback(mockHandleExceptionHandler);
+    api->setEnabled(true);
+
+    // Act
+    @try {
+        @throw @"Objective-C object exception";
+    } @catch (...) {
+        std::get_terminate()();
+    }
+
+    // Assert
+    XCTAssertEqual(capturedCrashType, SentryCrashMonitorTypeCPPException,
+        "Arbitrary Objective-C object throws are not handled by NSSetUncaughtExceptionHandler.");
 }
 
 - (void)testCallHandler_shouldCaptureExceptionDescription

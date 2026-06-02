@@ -37,6 +37,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setAppStartTraceId:(nullable SentryId *)traceId;
 
 /**
+ * Returns the app start trace ID without clearing it.
+ */
++ (nullable SentryId *)appStartTraceId;
+
+/**
  * Atomically reads and clears the app start trace ID. Use this when a consumer
  * should only receive the trace ID once (e.g., @c SentryPerformanceTracker).
  */
@@ -50,7 +55,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSString *)consumeAppStartScreen;
 
 #    if SENTRY_TEST || SENTRY_TEST_CI
-+ (nullable SentryId *)appStartTraceId;
 + (void)reset;
 #    endif
 
