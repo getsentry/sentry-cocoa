@@ -63,16 +63,15 @@ class SentryExtendedAppLaunchTests: XCTestCase {
         XCTAssertTrue(manager.isExtendRequested)
     }
 
-    func testExtend_returnsSpan() {
+    func testExtend_returnsSpan() throws {
         _ = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()
 
-        let span = manager.extend()
+        let span = try XCTUnwrap(manager.extend())
 
-        XCTAssertNotNil(span)
-        XCTAssertEqual(span?.operation, SentrySpanOperationAppStart)
-        XCTAssertEqual(span?.spanDescription, "Extended App Start")
-        XCTAssertFalse(span?.isFinished ?? true)
+        XCTAssertEqual(span.operation, SentrySpanOperationAppStart)
+        XCTAssertEqual(span.spanDescription, "Extended App Start")
+        XCTAssertFalse(span.isFinished)
     }
 
     func testExtend_beforeSDKStart_returnsNil() {
@@ -256,27 +255,26 @@ class SentryExtendedAppLaunchTests: XCTestCase {
     func testExtend_returnedSpan_canAddChildSpans() throws {
         _ = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()
-        let span = manager.extend()
+        let span = try XCTUnwrap(manager.extend())
 
-        let child = span?.startChild(operation: "app.init", description: "fetch remote config")
-        XCTAssertNotNil(child)
-        XCTAssertFalse(child?.isFinished ?? true)
+        let child = span.startChild(operation: "app.init", description: "fetch remote config")
+        XCTAssertFalse(child.isFinished)
 
-        child?.finish()
-        XCTAssertTrue(child?.isFinished ?? false)
+        child.finish()
+        XCTAssertTrue(child.isFinished)
     }
 
     func testExtend_childSpansIncludedInTransaction() throws {
         let hub = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()
-        let span = manager.extend()
+        let span = try XCTUnwrap(manager.extend())
 
         let measurement = createMeasurement(type: .cold, duration: 0.5)
         StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
 
-        let child = span?.startChild(operation: "app.init", description: "fetch remote config")
-        child?.finish()
-        span?.finish()
+        let child = span.startChild(operation: "app.init", description: "fetch remote config")
+        child.finish()
+        span.finish()
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
@@ -291,13 +289,13 @@ class SentryExtendedAppLaunchTests: XCTestCase {
     func testExtend_finishingReturnedSpan_capturesTransaction() throws {
         let hub = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()
-        let span = manager.extend()
+        let span = try XCTUnwrap(manager.extend())
 
         let measurement = createMeasurement(type: .cold, duration: 0.5)
         StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
         XCTAssertTrue(hub.capturedTransactionsWithScope.invocations.isEmpty, "Precondition")
 
-        span?.finish()
+        span.finish()
 
         XCTAssertEqual(hub.capturedTransactionsWithScope.invocations.count, 1,
             "Finishing the returned span should capture the transaction")
@@ -308,9 +306,9 @@ class SentryExtendedAppLaunchTests: XCTestCase {
     func testExtend_spanFinishedBeforeReport_waitsForMeasurement() throws {
         let hub = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()
-        let span = manager.extend()
+        let span = try XCTUnwrap(manager.extend())
 
-        span?.finish()
+        span.finish()
 
         XCTAssertTrue(hub.capturedTransactionsWithScope.invocations.isEmpty,
             "Transaction must not be captured before the app start measurement is available")
