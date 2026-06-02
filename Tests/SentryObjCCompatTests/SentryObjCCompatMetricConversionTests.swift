@@ -56,6 +56,60 @@ final class SentryObjCCompatMetricConversionTests: XCTestCase {
         XCTAssertNotNil(objcMetric.spanId)
     }
 
+    func testMetricPublicInit_shouldCreateWrappedMetric() {
+        // -- Arrange --
+        let timestamp = Date(timeIntervalSince1970: 789)
+        let traceId = SentryObjCId()
+        let value = SentryObjCMetricValue.distribution(42.5)
+        let unit = SentryObjCUnit.millisecond
+        let attributes: [String: SentryObjCAttributeContent] = [
+            "source": .string("swift"),
+            "count": .integer(3)
+        ]
+
+        // -- Act --
+        let metric = SentryObjCMetric(
+            timestamp: timestamp,
+            traceId: traceId,
+            name: "api.latency",
+            value: value,
+            unit: unit,
+            attributes: attributes
+        )
+
+        // -- Assert --
+        XCTAssertEqual(metric.timestamp, timestamp)
+        XCTAssertEqual(metric.name, "api.latency")
+        XCTAssertTrue(metric.value.isDistribution)
+        XCTAssertEqual(metric.value.distributionValue, 42.5, accuracy: 0.001)
+        XCTAssertEqual(metric.unit?.rawValue, "millisecond")
+        XCTAssertEqual(metric.attributes.count, 2)
+
+        XCTAssertEqual(metric.wrapped.timestamp, timestamp)
+        XCTAssertEqual(metric.wrapped.name, "api.latency")
+        XCTAssertEqual(metric.wrapped.value, .distribution(42.5))
+        XCTAssertEqual(metric.wrapped.unit?.rawValue, "millisecond")
+        XCTAssertEqual(metric.wrapped.attributes.count, 2)
+    }
+
+    func testMetricPublicInit_whenNilUnit_shouldCreateWithNilUnit() {
+        // -- Act --
+        let metric = SentryObjCMetric(
+            timestamp: Date(),
+            traceId: SentryObjCId(),
+            name: "events",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Assert --
+        XCTAssertNil(metric.unit)
+        XCTAssertNil(metric.wrapped.unit)
+        XCTAssertTrue(metric.value.isCounter)
+        XCTAssertEqual(metric.value.counterValue, 1)
+    }
+
     func testMetricWrapping_whenModified_shouldUpdateWrapped() {
         // -- Arrange --
         let objcMetric = SentryObjCMetric(SentryMetric(

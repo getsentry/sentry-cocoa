@@ -65,7 +65,7 @@ public struct SentryMetric {
     ///   - value: The numeric value of the metric
     ///   - unit: The unit of measurement for the metric value (optional)
     ///   - attributes: A dictionary of structured attributes to add to the metric
-    internal init(
+    @_spi(Private) public init(
         timestamp: Date,
         traceId: SentryId,
         name: String,
