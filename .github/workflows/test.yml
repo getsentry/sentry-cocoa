@@ -267,6 +267,7 @@ jobs:
     with:
       name: ${{matrix.name}}
       runs-on: ${{ matrix.runs-on }}
+      timeout: ${{matrix.timeout || 20}}
       should_skip: ${{ (github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true') || (matrix.runner_provider == 'cirrus' && matrix.runs-on == 'sonoma') }}
       runner_provider: ${{matrix.runner_provider}}
       xcode: ${{matrix.xcode}}
@@ -289,6 +290,7 @@ jobs:
             test-destination-os: "17.5"
             platform: "iOS"
             device: "iPhone 15 Pro"
+            timeout: 30
 
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.
