@@ -74,6 +74,15 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - uses: actions/cache@v4
+        name: Cache Ruby
+        with:
+          path: |
+            ~/.rbenv/versions
+            ~/.rbenv/cache
+          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}
+
       - name: Install Ruby (Bitrise)
         if: inputs.runner_provider == 'bitrise'
         run: |

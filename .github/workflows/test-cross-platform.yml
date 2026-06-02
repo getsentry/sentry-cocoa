@@ -112,6 +112,14 @@ jobs:
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         run: sed -i '' "s/parallelizable = \"YES\"/parallelizable = \"NO\"/" RNSentryCocoaTester.xcodeproj/xcshareddata/xcschemes/RNSentryCocoaTester.xcscheme
 
+      - uses: actions/cache@v4
+        name: Cache Ruby
+        with:
+          path: |
+            ~/.rbenv/versions
+            ~/.rbenv/cache
+          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('sentry-react-native/.ruby-version') }}
+
       - name: Install Ruby (Bitrise)
         if: matrix.runner_provider == 'bitrise'
         working-directory: sentry-react-native

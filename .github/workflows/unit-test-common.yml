@@ -83,6 +83,14 @@ jobs:
           device: ${{ inputs.device }}
           platform: ${{ inputs.platform }}
 
+      - uses: actions/cache@v4
+        name: Cache Ruby
+        with:
+          path: |
+            ~/.rbenv/versions
+            ~/.rbenv/cache
+          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}
+
       - name: Install Ruby (Bitrise)
         if: inputs.runner_provider == 'bitrise'
         run: |
