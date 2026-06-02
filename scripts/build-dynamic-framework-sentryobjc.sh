@@ -17,6 +17,7 @@ STATIC_LIB=""
 HEADERS_DIR=""
 OUTPUT_DIR="XCFrameworkBuildPath"
 FRAMEWORK_NAME="SentryObjC"
+VERSION=""
 
 usage() {
     log_notice "Usage: $0"
@@ -24,6 +25,7 @@ usage() {
     log_notice "  --static-lib <path>       Path to libSentryObjC.a (required)"
     log_notice "  --headers <path>          Path to public headers directory (required)"
     log_notice "  --output-dir <path>       Output directory (default: XCFrameworkBuildPath)"
+    log_notice "  --version <semver>        Version string for the framework (default: 0.0.0)"
     exit 1
 }
 
@@ -33,6 +35,7 @@ while [[ $# -gt 0 ]]; do
         --static-lib)  STATIC_LIB="$2";  shift 2 ;;
         --headers)     HEADERS_DIR="$2";  shift 2 ;;
         --output-dir)  OUTPUT_DIR="$2";   shift 2 ;;
+        --version)     VERSION="$2";      shift 2 ;;
         -h|--help)     usage ;;
         *)             log_error "Unknown argument: $1"; usage ;;
     esac
@@ -58,6 +61,12 @@ if [ ! -d "$HEADERS_DIR" ]; then
     log_error "Headers directory not found: $HEADERS_DIR"
     exit 1
 fi
+
+if [ -z "$VERSION" ]; then
+    VERSION="0.0.0"
+fi
+BUNDLE_SHORT_VERSION="${VERSION%%+*}"
+BUNDLE_VERSION="${BUNDLE_SHORT_VERSION%%-*}"
 
 SYSTEM_LIBS=( z c++ )
 REQUIRED_FRAMEWORKS=( Foundation CoreData CoreGraphics QuartzCore )
@@ -136,9 +145,9 @@ cat > "$resources_dir/Info.plist" <<EOF
   <key>CFBundlePackageType</key>
   <string>FMWK</string>
   <key>CFBundleShortVersionString</key>
-  <string>1.0</string>
+  <string>$BUNDLE_SHORT_VERSION</string>
   <key>CFBundleVersion</key>
-  <string>1</string>
+  <string>$BUNDLE_VERSION</string>
 </dict>
 </plist>
 EOF
@@ -174,8 +183,8 @@ linker_flags=()
 linker_flags+=( -Xlinker -install_name -Xlinker "@rpath/$FRAMEWORK_NAME.framework/$FRAMEWORK_NAME" )
 linker_flags+=( -Xlinker -rpath -Xlinker "@executable_path/Frameworks" )
 linker_flags+=( -Xlinker -force_load -Xlinker "$STATIC_LIB" )
-linker_flags+=( -Xlinker -compatibility_version -Xlinker 1.0.0 )
-linker_flags+=( -Xlinker -current_version -Xlinker 1.0.0 )
+linker_flags+=( -Xlinker -compatibility_version -Xlinker "$BUNDLE_VERSION" )
+linker_flags+=( -Xlinker -current_version -Xlinker "$BUNDLE_VERSION" )
 if [ "$SDK" = "maccatalyst" ]; then
     linker_flags+=( -Xlinker -F -Xlinker "$catalyst_fw_path" )
 fi

@@ -37,6 +37,7 @@
 #include <cxxabi.h>
 #include <dlfcn.h>
 #include <exception>
+#include <objc/runtime.h>
 #include <ptrauth.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -116,6 +117,35 @@ isObjCException(const std::type_info *tinfo)
         == ptrauth_strip(objc_vtable, ptrauth_key_cxx_vtable_pointer);
 }
 
+struct objc_typeinfo {
+    const void *vtable;
+    const char *name;
+    Class cls;
+};
+
+static Class
+objcExceptionClass(const std::type_info *tinfo)
+{
+    if (!isObjCException(tinfo)) {
+        return Nil;
+    }
+
+    return reinterpret_cast<const objc_typeinfo *>(tinfo)->cls;
+}
+
+static bool
+isNSException(const std::type_info *tinfo)
+{
+    for (Class currentClass = objcExceptionClass(tinfo); currentClass != Nil;
+        currentClass = class_getSuperclass(currentClass)) {
+        const char *className = class_getName(currentClass);
+        if (className != NULL && strcmp(className, "NSException") == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // ============================================================================
 #pragma mark - Callbacks -
 // ============================================================================
@@ -125,8 +155,8 @@ captureStackTrace(void *, std::type_info *tinfo, void (*)(void *)) KEEP_FUNCTION
 {
     SENTRY_ASYNC_SAFE_LOG_TRACE("Entering captureStackTrace");
 
-    // We handle ObjC exceptions (NSException and subclasses) in SentryCrashMonitor_NSException.
-    if (isObjCException(tinfo)) {
+    // We handle NSException and subclasses in SentryCrashMonitor_NSException.
+    if (isNSException(tinfo)) {
         return;
     }
 
@@ -209,14 +239,16 @@ CPPExceptionTerminate(void)
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped c++ exception");
 
     bool isObjCExc = false;
+    bool isNSExceptionExc = false;
     const char *name = NULL;
     std::type_info *tinfo = __cxxabiv1::__cxa_current_exception_type();
     if (tinfo != NULL) {
         name = tinfo->name();
         isObjCExc = isObjCException(tinfo);
+        isNSExceptionExc = isNSException(tinfo);
     }
 
-    if (!isObjCExc) {
+    if (!isNSExceptionExc) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         // The cxa_throw hook reenters only from other threads. Edge case:
@@ -235,6 +267,11 @@ CPPExceptionTerminate(void)
         if (currException == NULL) {
             SENTRY_ASYNC_SAFE_LOG_DEBUG("Terminate without exception.");
             sentrycrashsc_initSelfThread(&g_stackCursor, 0);
+        } else if (isObjCExc) {
+            // Objective-C object throws that are not NSException won't be handled by
+            // NSSetUncaughtExceptionHandler. Report them via the C++ monitor, but don't rethrow
+            // through the C++ catch list while discovering a C++-style description.
+            description = NULL;
         } else {
 
             // When we reach this point, the stack has already been unwound and the original stack
@@ -300,7 +337,7 @@ CPPExceptionTerminate(void)
         sentrycrashcm_handleException(crashContext);
         sentrycrashmc_resumeEnvironment(threads, numThreads);
     } else {
-        SENTRY_ASYNC_SAFE_LOG_DEBUG("Detected ObjC exception. Letting the current "
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Detected NSException. Letting the current "
                                     "NSException handler deal with it.");
     }
 

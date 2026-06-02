@@ -59,14 +59,20 @@ jobs:
       - name: Convert static slices to dynamic frameworks
         env:
           SDKS: ${{ inputs.sdks }}
+          RELEASE_VERSION: ${{ inputs.release-version }}
         run: |
           IFS=',' read -r -a sdk_list <<< "$SDKS"
+          version_args=()
+          if [ -n "$RELEASE_VERSION" ]; then
+            version_args=(--version "$RELEASE_VERSION")
+          fi
           for sdk in "${sdk_list[@]}"; do
             ./scripts/build-dynamic-framework-sentryobjc.sh \
               --sdk "$sdk" \
               --static-lib "sentryobjc-slices/sentryobjc-slice-$sdk/libSentryObjC.a" \
               --headers "Sources/SentryObjC/Public" \
-              --output-dir XCFrameworkBuildPath
+              --output-dir XCFrameworkBuildPath \
+              "${version_args[@]}"
           done
 
       - name: Assemble XCFramework
