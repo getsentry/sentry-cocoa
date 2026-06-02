@@ -117,7 +117,6 @@ jobs:
         run: |
           brew upgrade ruby-build
           rbenv install 3.3.10
-          bundle install
 
       - name: Setup Ruby
         if: matrix.runner_provider != 'bitrise'
