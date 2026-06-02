@@ -56,6 +56,10 @@ case "$VARIANT" in
     *) log_error "Unknown variant: $VARIANT (expected static, dynamic, or both)"; exit 1 ;;
 esac
 
+if [ -z "$SDKS" ] || [ "$SDKS" = "AllSDKs" ]; then
+    SDKS="iphoneos,iphonesimulator,macosx,maccatalyst,appletvos,appletvsimulator,watchos,watchsimulator,xros,xrsimulator"
+fi
+
 rm -rf "$OUTPUT_DIR/archive/SentryObjC" "$OUTPUT_DIR/DerivedData" "$OUTPUT_DIR/lib/SentryObjC" "$OUTPUT_DIR/framework/SentryObjC"
 
 PACKAGE_FILES=()

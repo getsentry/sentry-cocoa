@@ -193,7 +193,8 @@ done
 read -r -a arch_targets <<< "$(arch_targets_for_sdk "$SDK")"
 dummy_swift="$(mktemp /tmp/SentryObjC_dummy_XXXXXX.swift)"
 echo "" > "$dummy_swift"
-trap 'rm -f "$dummy_swift" /tmp/SentryObjC_"${SDK}"_*' EXIT
+# shellcheck disable=SC2064
+trap "rm -f '$dummy_swift' /tmp/SentryObjC_${SDK}_*" EXIT
 
 arch_binaries=()
 for target in "${arch_targets[@]}"; do
