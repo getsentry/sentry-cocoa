@@ -87,6 +87,16 @@ class SentryScopeSwiftTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
     }
+
+    private func serializeFeatureFlags(from scope: Scope) -> [String: Any]? {
+        let context = scope.serialize()["context"] as? [String: Any]
+        return context?["flags"] as? [String: Any]
+    }
+
+    private func serializeFeatureFlagValues(from scope: Scope) throws -> [[String: Any]] {
+        let featureFlags = try XCTUnwrap(serializeFeatureFlags(from: scope))
+        return try XCTUnwrap(featureFlags["values"] as? [[String: Any]])
+    }
     
     func testSerialize() throws {
         let scope = fixture.scope
@@ -156,6 +166,82 @@ class SentryScopeSwiftTests: XCTestCase {
 
         XCTAssertEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), snapshot)
         XCTAssertNotEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
+    }
+
+    func testInitWithScope_whenFeatureFlagsChanged_shouldNotShareFutureMutations() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 3)
+        scope.addFeatureFlag(withName: "first", result: true)
+
+        // -- Act --
+        let cloned = Scope(scope: scope)
+        cloned.addFeatureFlag(withName: "second", result: false)
+
+        // -- Assert --
+        let originalValues = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(originalValues.count, 1)
+        XCTAssertEqual(originalValues.element(at: 0)?["flag"] as? String, "first")
+
+        let clonedValues = try serializeFeatureFlagValues(from: cloned)
+        XCTAssertEqual(clonedValues.count, 2)
+        XCTAssertEqual(clonedValues.element(at: 0)?["flag"] as? String, "first")
+        XCTAssertEqual(clonedValues.element(at: 1)?["flag"] as? String, "second")
+    }
+
+    func testFeatureFlags_whenUpdatingExistingFlag_shouldRefreshAsNewest() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 3)
+        scope.addFeatureFlag(withName: "first", result: false)
+        scope.addFeatureFlag(withName: "second", result: true)
+
+        // -- Act --
+        scope.addFeatureFlag(withName: "first", result: true)
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(values.count, 2)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "second")
+        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
+        XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "first")
+        XCTAssertEqual(values.element(at: 1)?["result"] as? Bool, true)
+    }
+
+    func testFeatureFlags_whenOverflow_shouldDropOldestFlag() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 2)
+        scope.addFeatureFlag(withName: "first", result: true)
+        scope.addFeatureFlag(withName: "second", result: true)
+
+        // -- Act --
+        scope.addFeatureFlag(withName: "third", result: false)
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(values.count, 2)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "second")
+        XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "third")
+    }
+
+    func testFeatureFlags_whenMaxFeatureFlagsIsZero_shouldStoreNothing() {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 0)
+
+        // -- Act --
+        scope.addFeatureFlag(withName: "first", result: true)
+
+        // -- Assert --
+        XCTAssertNil(serializeFeatureFlags(from: scope))
+    }
+
+    func testFeatureFlags_whenMaxFeatureFlagsIsNegative_shouldStoreNothing() {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: -1)
+
+        // -- Act --
+        scope.addFeatureFlag(withName: "first", result: true)
+
+        // -- Assert --
+        XCTAssertNil(serializeFeatureFlags(from: scope))
     }
 
     func testApplyToEvent() {
@@ -364,6 +450,18 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(0, scope.attachments.count)
         XCTAssertEqual(0, scope.attributes.count)
     }
+
+    func testClear_whenScopeHasFeatureFlags_shouldClearFeatureFlags() {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: fixture.maxBreadcrumbs)
+        scope.addFeatureFlag(withName: "first", result: true)
+
+        // -- Act --
+        scope.clear()
+
+        // -- Assert --
+        XCTAssertNil(serializeFeatureFlags(from: scope))
+    }
     
     func testAttachmentsIsACopy() {
         let scope = fixture.scope
@@ -410,6 +508,8 @@ class SentryScopeSwiftTests: XCTestCase {
             
             scope.setContext(value: ["some": "value"], key: key)
             scope.removeContext(key: key)
+
+            scope.addFeatureFlag(withName: key, result: true)
             
             scope.setExtra(value: 1, key: key)
             scope.removeExtra(key: key)

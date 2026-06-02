@@ -409,6 +409,63 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(span.data.count, 2, "Only expected thread.name and thread.id in data.")
         XCTAssertNil(span.data[fixture.extraKey])
     }
+
+    func testFeatureFlags_whenSerializingEmptySpanBuffer_shouldReturnEmptyDictionary() {
+        // -- Arrange --
+        let span = fixture.getSutWithTracer()
+
+        // -- Act --
+        let actual = span.serializeFeatureFlags()
+
+        // -- Assert --
+        XCTAssertTrue(actual.isEmpty)
+    }
+
+    func testFeatureFlags_whenAddingToSpan_shouldSerializeAsSpanData() throws {
+        // -- Arrange --
+        let span = fixture.getSutWithTracer()
+
+        // -- Act --
+        span.addFeatureFlag(withName: "checkout", result: true)
+
+        // -- Assert --
+        let actual = span.serializeFeatureFlags()
+        XCTAssertEqual(actual.count, 1)
+        XCTAssertEqual(try XCTUnwrap(actual["flag.evaluation.checkout"] as? Bool), true)
+    }
+
+    func testFeatureFlags_whenAddingMoreThanSpanLimit_shouldRejectNewFlags() {
+        // -- Arrange --
+        let span = fixture.getSutWithTracer()
+
+        // -- Act --
+        for index in 0..<11 {
+            span.addFeatureFlag(withName: "flag-\(index)", result: true)
+        }
+
+        // -- Assert --
+        let actual = span.serializeFeatureFlags()
+        XCTAssertEqual(actual.count, 10)
+        XCTAssertNil(actual["flag.evaluation.flag-10"])
+    }
+
+    func testFeatureFlags_whenSpanLimitReached_shouldUpdateExistingFlags() throws {
+        // -- Arrange --
+        let span = fixture.getSutWithTracer()
+        for index in 0..<10 {
+            span.addFeatureFlag(withName: "flag-\(index)", result: true)
+        }
+        span.addFeatureFlag(withName: "rejected", result: true)
+
+        // -- Act --
+        span.addFeatureFlag(withName: "flag-0", result: false)
+
+        // -- Assert --
+        let actual = span.serializeFeatureFlags()
+        XCTAssertEqual(actual.count, 10)
+        XCTAssertEqual(try XCTUnwrap(actual["flag.evaluation.flag-0"] as? Bool), false)
+        XCTAssertNil(actual["flag.evaluation.rejected"])
+    }
     
     func testAddAndRemoveTags() {
         let span = fixture.getSut()

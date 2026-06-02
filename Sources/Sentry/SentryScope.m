@@ -17,6 +17,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSInteger const defaultMaxFeatureFlags = 100;
+
 @interface SentryScope ()
 
 @property (atomic) NSUInteger maxBreadcrumbs;
@@ -29,6 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
 
 @property (atomic, strong) NSMutableDictionary<NSString *, id> *attributesDictionary;
+
+@property (atomic) NSInteger maxFeatureFlags;
+@property (atomic, strong) SentryFeatureFlagBuffer *featureFlagBuffer;
 
 @end
 
@@ -47,8 +52,11 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if (self = [super init]) {
         _maxBreadcrumbs = MAX(0, maxBreadcrumbs);
+        _maxFeatureFlags = defaultMaxFeatureFlags;
         _currentBreadcrumbIndex = 0;
         _breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:_maxBreadcrumbs];
+        _featureFlagBuffer =
+            [SentryFeatureFlagBuffer scopeBufferWithMaxSize:defaultMaxFeatureFlags];
         self.tagDictionary = [[NSMutableDictionary alloc] init];
         self.extraDictionary = [[NSMutableDictionary alloc] init];
         self.contextDictionary = [[NSMutableDictionary alloc] init];
@@ -64,6 +72,16 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
+                       maxFeatureFlags:(NSInteger)maxFeatureFlags
+{
+    if (self = [self initWithMaxBreadcrumbs:maxBreadcrumbs]) {
+        _maxFeatureFlags = maxFeatureFlags;
+        _featureFlagBuffer = [SentryFeatureFlagBuffer scopeBufferWithMaxSize:maxFeatureFlags];
+    }
+    return self;
+}
+
 - (instancetype)init
 {
     return [self initWithMaxBreadcrumbs:defaultMaxBreadcrumbs];
@@ -71,7 +89,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithScope:(SentryScope *)scope
 {
-    if (self = [self init]) {
+    if (self = [self initWithMaxBreadcrumbs:scope.maxBreadcrumbs
+                            maxFeatureFlags:scope.maxFeatureFlags]) {
         [_extraDictionary addEntriesFromDictionary:[scope extras]];
         [_tagDictionary addEntriesFromDictionary:[scope tags]];
         [_contextDictionary addEntriesFromDictionary:[scope context]];
@@ -82,6 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
         [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
+        self.featureFlagBuffer = [scope.featureFlagBuffer copyBuffer];
 
         self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
@@ -210,6 +230,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_attributesDictionary) {
         [_attributesDictionary removeAllObjects];
     }
+    [self.featureFlagBuffer removeAll];
 
     self.userObject = nil;
     self.distString = nil;
@@ -493,6 +514,11 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result
+{
+    [self.featureFlagBuffer addBooleanValue:result forName:name];
+}
+
 - (void)setAttributeValue:(id)value forKey:(NSString *)key
 {
     if (key == nil || key.length == 0) {
@@ -541,7 +567,12 @@ NS_ASSUME_NONNULL_BEGIN
     traceContext = [self buildTraceContext:span];
     serializedData[@"traceContext"] = traceContext;
 
-    NSDictionary *context = [self context];
+    NSMutableDictionary *context = [self context].mutableCopy;
+    NSDictionary<NSString *, id> *_Nullable featureFlags =
+        [self.featureFlagBuffer serializeForContext];
+    if (featureFlags.count > 0) {
+        context[@"flags"] = featureFlags;
+    }
     if (context.count > 0) {
         [serializedData setValue:context forKey:@"context"];
     }

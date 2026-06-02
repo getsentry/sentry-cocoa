@@ -57,9 +57,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic, strong) NSMutableDictionary<NSString *, NSString *> *tagDictionary;
 
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
+                       maxFeatureFlags:(NSInteger)maxFeatureFlags;
+
 - (nullable SentryEvent *)applyToEvent:(SentryEvent *_Nullable)event
                          maxBreadcrumb:(NSUInteger)maxBreadcrumbs
     NS_SWIFT_NAME(applyTo(event:maxBreadcrumbs:));
+
+- (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result;
 
 - (void)applyToSession:(SentrySession *)session NS_SWIFT_NAME(applyTo(session:));
 
