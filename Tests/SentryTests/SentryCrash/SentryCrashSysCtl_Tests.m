@@ -242,8 +242,9 @@
     // that include the output from SENTRY_STRERROR_R(errno).
 
     NSString *logFile = [self.tempPath stringByAppendingPathComponent:@"async.log"];
-    int result = sentry_asyncLogSetFileName(logFile.UTF8String, true);
-    XCTAssertEqual(result, 0, @"Should set log file name");
+    //    int result = sentry_asyncLogSetFileName(logFile.UTF8String, true);
+    int result = kslog_setLogFilename(logFile.UTF8String, true);
+    XCTAssertEqual(result, true, @"Should set log file name");
 
     // -- Act --
     // Call sysctl functions with invalid parameters to trigger error handling paths
@@ -370,8 +371,8 @@
     // that include the output from SENTRY_STRERROR_R(errno).
 
     NSString *logFile = [self.tempPath stringByAppendingPathComponent:@"async.log"];
-    int result = sentry_asyncLogSetFileName(logFile.UTF8String, true);
-    XCTAssertEqual(result, 0, @"Should set log file name");
+    int result = kslog_setLogFilename(logFile.UTF8String, true);
+    XCTAssertEqual(result, true, @"Should set log file name");
 
     // -- Act --
     // Call sysctl functions with invalid parameters to trigger error handling paths

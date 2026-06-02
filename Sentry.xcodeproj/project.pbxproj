@@ -2493,6 +2493,16 @@
 				FA2111C32F22CE8C00DFFABE /* Swift */,
 			);
 			name = Sentry;
+			packageProductDependencies = (
+				3C5262172FC04B5300BE8085 /* BootTimeMonitor */,
+				3C5262192FC04B5300BE8085 /* DemangleFilter */,
+				3C52621B2FC04B5300BE8085 /* DiscSpaceMonitor */,
+				3C52621D2FC04B5300BE8085 /* Filters */,
+				3C52621F2FC04B5300BE8085 /* Installations */,
+				3C5262212FC04B5300BE8085 /* Recording */,
+				3C5262232FC04B5300BE8085 /* Reporting */,
+				3C5262252FC04B5300BE8085 /* Sinks */,
+			);
 			productName = "Sentry-iOS";
 			productReference = 63AA759B1EB8AEF500D153DE /* Sentry.framework */;
 			productType = "com.apple.product-type.framework";

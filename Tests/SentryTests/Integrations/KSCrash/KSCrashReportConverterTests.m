@@ -2,6 +2,7 @@
 #import "SentryException.h"
 #import "SentrySwift.h"
 #import <XCTest/XCTest.h>
+@import KSCrashRecording;
 @import Sentry;
 
 @interface KSCrashReportConverterTests : XCTestCase
@@ -41,8 +42,9 @@
 - (void)test_nsexception_setsExceptionType
 {
     SentryInAppLogic *logic = [[SentryInAppLogic alloc] initWithInAppIncludes:@[]];
-    KSCrashReportConverter *sut =
-        [[KSCrashReportConverter alloc] initWithReport:[self nsexceptionReport] inAppLogic:logic];
+    KSCrashReportConverter *sut = [[KSCrashReportConverter alloc]
+        initWithReport:[KSCrashReportDictionary reportWithValue:[self nsexceptionReport]]
+            inAppLogic:logic];
     SentryEvent *event = [sut convertReportToEvent];
     XCTAssertEqualObjects(event.exceptions.firstObject.type, @"NSInvalidArgumentException");
 }
@@ -50,8 +52,9 @@
 - (void)test_nsexception_setsEnvironmentFromScope
 {
     SentryInAppLogic *logic = [[SentryInAppLogic alloc] initWithInAppIncludes:@[]];
-    KSCrashReportConverter *sut =
-        [[KSCrashReportConverter alloc] initWithReport:[self nsexceptionReport] inAppLogic:logic];
+    KSCrashReportConverter *sut = [[KSCrashReportConverter alloc]
+        initWithReport:[KSCrashReportDictionary reportWithValue:[self nsexceptionReport]]
+            inAppLogic:logic];
     SentryEvent *event = [sut convertReportToEvent];
     XCTAssertEqualObjects(event.environment, @"production");
 }
@@ -59,8 +62,9 @@
 - (void)test_nsexception_setsTagsFromScope
 {
     SentryInAppLogic *logic = [[SentryInAppLogic alloc] initWithInAppIncludes:@[]];
-    KSCrashReportConverter *sut =
-        [[KSCrashReportConverter alloc] initWithReport:[self nsexceptionReport] inAppLogic:logic];
+    KSCrashReportConverter *sut = [[KSCrashReportConverter alloc]
+        initWithReport:[KSCrashReportDictionary reportWithValue:[self nsexceptionReport]]
+            inAppLogic:logic];
     SentryEvent *event = [sut convertReportToEvent];
     XCTAssertEqualObjects(event.tags[@"key"], @"value");
 }
@@ -83,8 +87,9 @@
         @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
     };
     SentryInAppLogic *logic = [[SentryInAppLogic alloc] initWithInAppIncludes:@[]];
-    KSCrashReportConverter *sut = [[KSCrashReportConverter alloc] initWithReport:reportWithoutScope
-                                                                      inAppLogic:logic];
+    KSCrashReportConverter *sut = [[KSCrashReportConverter alloc]
+        initWithReport:[KSCrashReportDictionary reportWithValue:reportWithoutScope]
+            inAppLogic:logic];
     SentryEvent *event = [sut convertReportToEvent];
     XCTAssertNil(event.environment);
 }

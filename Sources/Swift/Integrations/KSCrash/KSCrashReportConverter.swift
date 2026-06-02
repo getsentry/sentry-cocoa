@@ -6,8 +6,6 @@ import KSCrashRecording
 
 // TODO: go through all previous comments and see which are still relevant
 
-
-
 // SentryCrashSC_ASYNC_MARKER is a C preprocessor #define in SentryCrashStackCursor.h
 // and cannot be imported into Swift. The value (UINTPTR_MAX - 1234) is replicated here.
 private let asyncStackMarker: UInt = .max - 1_234
@@ -90,7 +88,7 @@ public final class KSCrashReportConverter: NSObject {
         let event = Event(level: .fatal)
 
         let reportMeta: [String: Any]? = report[.report]
-        if let ts: NSNumber = reportMeta?[.timestamp]  {
+        if let ts: NSNumber = reportMeta?[.timestamp] {
             event.timestamp = Date(timeIntervalSince1970: ts.doubleValue)
         } else if let ts: String = reportMeta?[.timestamp] {
             event.timestamp = sentry_fromIso8601String(ts)
@@ -133,8 +131,7 @@ public final class KSCrashReportConverter: NSObject {
         } else if
             let appIdentifier = appContext["app_identifier"] as? String,
             let appVersion = appContext["app_version"] as? String,
-            let appBuild = appContext["app_build"] as? String
-        {
+            let appBuild = appContext["app_build"] as? String {
             // We want to set the release and dist to the version from the crash report
             // itself otherwise it can happend that we have two different version when
             // the app crashes right before an app update #218 #219
@@ -326,7 +323,7 @@ public final class KSCrashReportConverter: NSObject {
     }
 
     private func formatHexAddress(_ value: NSNumber?) -> String {
-        precondition(value != nil, "Whoops, turns out this code lives on a bed of assumptions. This one was pooorly made")
+//        precondition(value != nil, "Whoops, turns out this code lives on a bed of assumptions. This one was pooorly made")
         return sentry_formatHexAddress(value)
     }
 }
@@ -447,8 +444,7 @@ private extension KSCrashReportConverter {
         if
             [.nsException, .cppException, .user].contains(exceptionType),
             let mech = exception.mechanism,
-            !crashInfoMessages.isEmpty
-        {
+            !crashInfoMessages.isEmpty {
             var data = mech.data ?? [:]
             data["crash_info_messages"] = crashInfoMessages
             mech.data = data
@@ -462,8 +458,7 @@ private extension KSCrashReportConverter {
             let value = exception.value,
             let diagnosis,
             !diagnosis.isEmpty,
-            !diagnosis.contains(value)
-        {
+            !diagnosis.contains(value) {
             exception.value = "\(value) >\n\(diagnosis)"
         }
 

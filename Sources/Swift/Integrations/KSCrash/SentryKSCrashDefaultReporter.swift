@@ -49,12 +49,14 @@ public final class SentryKSCrashDefaultReporter: NSObject, SentryCrashReporter {
 
     @objc
     public func startBinaryImageCache() {
-        // KSCrash manages binary image caching automatically; this is a no-op.
+        // TODO: eventually, we'd upstream changes to KSCrash and rely on their bic
+        sentrycrashbic_startCache()
     }
 
     @objc
     public func stopBinaryImageCache() {
-        // KSCrash manages binary image caching automatically; this is a no-op.
+        // TODO: eventually, we'd upstream changes to KSCrash and rely on their bic
+        sentrycrashbic_stopCache()
     }
 
     @objc

@@ -53,7 +53,7 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
     // MARK: - SwiftIntegration
 
     static var name: String {
-        "KSCrashIntegration"
+        "CrashIntegration"
     }
 
     func uninstall() {

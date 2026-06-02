@@ -117,7 +117,7 @@ final class KSCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testName() {
-        XCTAssertEqual("KSCrashIntegration", KSCrashIntegration<MockKSCrashDependencies>.name)
+        XCTAssertEqual("CrashIntegration", KSCrashIntegration<MockKSCrashDependencies>.name)
     }
 
     // MARK: - Scope
@@ -331,6 +331,10 @@ class MockKSCrashDependencies: KSCrashIntegrationProvider {
 
     var appStateManager: SentryAppStateManager {
         SentryDependencyContainer.sharedInstance().appStateManager
+    }
+
+    func getCrashInstallationReporter(_ options: Options) -> SentryKSCrashInstallationReporter {
+        SentryKSCrashInstallationReporter(inAppLogic: SentryInAppLogic(inAppIncludes: options.inAppIncludes))
     }
 
     func getKSCrashIntegrationSessionHandler(_ options: Options) -> SentryKSCrashIntegrationSessionHandler? {

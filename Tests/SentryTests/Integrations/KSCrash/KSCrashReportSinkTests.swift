@@ -1,5 +1,5 @@
-@_implementationOnly import _SentryPrivate
 import KSCrashRecording
+@_spi(Private) @testable import Sentry
 import XCTest
 
 final class KSCrashReportSinkTests: XCTestCase {
