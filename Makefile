@@ -250,11 +250,10 @@ build-xcframework-sentryobjc-static:
 
 ## Build SentryObjC-Dynamic XCFramework locally for one or more SDKs
 #
-# Builds SentryObjC as a dynamic xcframework via the standard xcframework pipeline.
-# Output lands in XCFrameworkBuildPath/.
+# Builds SentryObjC as a dynamic xcframework via SPM archive + swiftc relink.
+# Output lands in SentryObjC-Dynamic.xcframework.
 #
-# SDKS accepts either an SDK preset (iOSOnly, macOSOnly, macCatalystOnly,
-# AllSDKs) or a comma-separated list of SDK names. Required — no default,
+# SDKS is a comma-separated list of SDK names. Required — no default,
 # to keep local iteration fast.
 #
 # Examples:
@@ -268,7 +267,7 @@ build-xcframework-sentryobjc-dynamic:
 		exit 1; \
 	fi
 	@echo "--> Creating SentryObjC-Dynamic xcframework (SDKs: $(SDKS))"
-	./scripts/build-xcframework-local.sh "$(SDKS)" SentryObjCDynamicOnly
+	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant dynamic
 
 # ============================================================================
 # SAMPLE APPS

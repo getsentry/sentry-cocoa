@@ -13,26 +13,31 @@ source "$SCRIPT_DIR/ci-utils.sh"
 
 SDKS=""
 LIB_PATH_TEMPLATE=""
+FRAMEWORK_PATH_TEMPLATE=""
 HEADERS_DIR=""
 OUTPUT_NAME="SentryObjC-Static"
 
 usage() {
     log_notice "Usage: $0"
-    log_notice "  --sdks <list>               Comma-separated SDKs (required)"
-    log_notice "  --lib-path-template <path>  Path template with SDK_NAME placeholder (required)"
-    log_notice "  --headers <path>            Public headers directory (required)"
-    log_notice "  --output-name <name>        Output xcframework name (default: SentryObjC-Static)"
+    log_notice "  --sdks <list>                     Comma-separated SDKs (required)"
+    log_notice "  --lib-path-template <path>        Static library path template with SDK_NAME placeholder"
+    log_notice "  --framework-path-template <path>  Framework path template with SDK_NAME placeholder"
+    log_notice "  --headers <path>                  Public headers directory (required with --lib-path-template)"
+    log_notice "  --output-name <name>              Output xcframework name (default: SentryObjC-Static)"
+    log_notice ""
+    log_notice "Provide either --lib-path-template (static) or --framework-path-template (dynamic)."
     exit 1
 }
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --sdks)               SDKS="$2";               shift 2 ;;
-        --lib-path-template)  LIB_PATH_TEMPLATE="$2";  shift 2 ;;
-        --headers)            HEADERS_DIR="$2";         shift 2 ;;
-        --output-name)        OUTPUT_NAME="$2";         shift 2 ;;
-        -h|--help)            usage ;;
-        *)                    log_error "Unknown argument: $1"; usage ;;
+        --sdks)                    SDKS="$2";                    shift 2 ;;
+        --lib-path-template)       LIB_PATH_TEMPLATE="$2";       shift 2 ;;
+        --framework-path-template) FRAMEWORK_PATH_TEMPLATE="$2"; shift 2 ;;
+        --headers)                 HEADERS_DIR="$2";              shift 2 ;;
+        --output-name)             OUTPUT_NAME="$2";              shift 2 ;;
+        -h|--help)                 usage ;;
+        *)                         log_error "Unknown argument: $1"; usage ;;
     esac
 done
 
@@ -40,16 +45,19 @@ if [ -z "$SDKS" ]; then
     log_error "Error: --sdks is required"
     usage
 fi
-if [ -z "$LIB_PATH_TEMPLATE" ]; then
-    log_error "Error: --lib-path-template is required"
+if [ -z "$LIB_PATH_TEMPLATE" ] && [ -z "$FRAMEWORK_PATH_TEMPLATE" ]; then
+    log_error "Error: --lib-path-template or --framework-path-template is required"
     usage
 fi
-if [ -z "$HEADERS_DIR" ]; then
-    log_error "Error: --headers is required"
+if [ -n "$LIB_PATH_TEMPLATE" ] && [ -n "$FRAMEWORK_PATH_TEMPLATE" ]; then
+    log_error "Error: provide only one of --lib-path-template or --framework-path-template"
     usage
 fi
-
-if [ ! -d "$HEADERS_DIR" ]; then
+if [ -n "$LIB_PATH_TEMPLATE" ] && [ -z "$HEADERS_DIR" ]; then
+    log_error "Error: --headers is required with --lib-path-template"
+    usage
+fi
+if [ -n "$HEADERS_DIR" ] && [ ! -d "$HEADERS_DIR" ]; then
     log_error "Headers directory not found: $HEADERS_DIR"
     exit 1
 fi
@@ -61,17 +69,31 @@ rm -rf "$xcframework_path"
 
 create_args=( -create-xcframework )
 
-begin_group "Collecting library slices"
-for sdk in "${sdk_list[@]}"; do
-    lib_path="${LIB_PATH_TEMPLATE//SDK_NAME/$sdk}"
-    if [ ! -f "$lib_path" ]; then
-        log_error "Static library not found: $lib_path"
-        exit 1
-    fi
-    log_info "  $sdk: $lib_path"
-    create_args+=( -library "$lib_path" -headers "$HEADERS_DIR" )
-done
-end_group
+if [ -n "$LIB_PATH_TEMPLATE" ]; then
+    begin_group "Collecting static library slices"
+    for sdk in "${sdk_list[@]}"; do
+        lib_path="${LIB_PATH_TEMPLATE//SDK_NAME/$sdk}"
+        if [ ! -f "$lib_path" ]; then
+            log_error "Static library not found: $lib_path"
+            exit 1
+        fi
+        log_info "  $sdk: $lib_path"
+        create_args+=( -library "$lib_path" -headers "$HEADERS_DIR" )
+    done
+    end_group
+else
+    begin_group "Collecting framework slices"
+    for sdk in "${sdk_list[@]}"; do
+        fw_path="${FRAMEWORK_PATH_TEMPLATE//SDK_NAME/$sdk}"
+        if [ ! -d "$fw_path" ]; then
+            log_error "Framework not found: $fw_path"
+            exit 1
+        fi
+        log_info "  $sdk: $fw_path"
+        create_args+=( -framework "$fw_path" )
+    done
+    end_group
+fi
 
 create_args+=( -output "$xcframework_path" )
 

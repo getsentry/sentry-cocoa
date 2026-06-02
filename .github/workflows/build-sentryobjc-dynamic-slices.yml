@@ -1,0 +1,71 @@
+name: Build SentryObjC Dynamic Slice
+
+on:
+  workflow_call:
+    inputs:
+      sdk-list:
+        description: |-
+          JSON array of Apple platform SDK names to build slices for.
+          E.g. '["iphoneos", "iphonesimulator", "macosx"]'
+        required: false
+        default: '["iphoneos", "iphonesimulator", "macosx", "maccatalyst", "appletvos", "appletvsimulator", "watchos", "watchsimulator", "xros", "xrsimulator"]'
+        type: string
+
+jobs:
+  build-sentryobjc-dynamic-slice:
+    name: ${{ matrix.sdk }}
+    runs-on: macos-15
+
+    strategy:
+      matrix:
+        sdk: ${{ fromJson(inputs.sdk-list) }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "16"
+
+      - name: Download static slice for ${{ matrix.sdk }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: sentryobjc-slice-${{ matrix.sdk }}
+          path: sentryobjc-slices
+
+      - name: Unzip static slice
+        env:
+          SDK: ${{ matrix.sdk }}
+        run: |
+          mkdir -p XCFrameworkBuildPath/lib/SentryObjC/$SDK
+          unzip -o "sentryobjc-slices/SentryObjC-slice-$SDK.zip" \
+            -d "XCFrameworkBuildPath/lib/SentryObjC/$SDK"
+
+      - name: Build SentryObjC dynamic framework for ${{ matrix.sdk }}
+        env:
+          SDK: ${{ matrix.sdk }}
+        run: |
+          ./scripts/build-dynamic-framework-sentryobjc.sh \
+            --sdk "$SDK" \
+            --static-lib "XCFrameworkBuildPath/lib/SentryObjC/$SDK/libSentryObjC.a" \
+            --headers "Sources/SentryObjC/Public" \
+            --output-dir XCFrameworkBuildPath
+
+      - name: Zip dynamic framework
+        env:
+          SDK: ${{ matrix.sdk }}
+        run: |
+          ditto -c -k -X --rsrc \
+            XCFrameworkBuildPath/framework/SentryObjC/$SDK \
+            SentryObjC-dynamic-slice-$SDK.zip
+
+      - name: Upload slice
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: sentryobjc-dynamic-slice-${{ matrix.sdk }}
+          if-no-files-found: error
+          path: SentryObjC-dynamic-slice-${{ matrix.sdk }}.zip
+
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: failure()

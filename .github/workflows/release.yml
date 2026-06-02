@@ -135,6 +135,25 @@ jobs:
       release-version: ${{ github.event.inputs.version }}
       sdks: ${{ needs.setup-matrix.outputs.sdk-list-string }}
 
+  build-sentryobjc-dynamic-slices:
+    name: Build SentryObjC Dynamic Slices
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    needs: [files-changed, build-sentryobjc-static-slices, setup-matrix]
+    uses: ./.github/workflows/build-sentryobjc-dynamic-slices.yml
+    with:
+      sdk-list: ${{ needs.setup-matrix.outputs.sdk-list-array }}
+
+  assemble-sentryobjc-dynamic-xcframework:
+    name: Assemble SentryObjC Dynamic XCFramework
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
+    needs: [files-changed, build-sentryobjc-dynamic-slices, setup-matrix]
+    uses: ./.github/workflows/assemble-sentryobjc-dynamic-xcframework.yml
+    secrets: inherit
+    with:
+      signed: ${{ github.event_name != 'pull_request' }}
+      release-version: ${{ github.event.inputs.version }}
+      sdks: ${{ needs.setup-matrix.outputs.sdk-list-string }}
+
   validate-xcframework:
     name: Validate XCFramework
     runs-on: macos-15
@@ -473,6 +492,8 @@ jobs:
         assemble-xcframework-variant,
         build-sentryobjc-static-slices,
         assemble-sentryobjc-static-xcframework,
+        build-sentryobjc-dynamic-slices,
+        assemble-sentryobjc-dynamic-xcframework,
         validate-xcframework,
         validate-spm,
         validate-spm-dynamic,

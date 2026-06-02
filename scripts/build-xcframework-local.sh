@@ -115,7 +115,7 @@ fi
 
 if [ "$variants" = "SentryObjCDynamicOnly" ] || [ "$variants" = "AllVariants" ]; then
     begin_group "SentryObjC-Dynamic"
-    ./scripts/build-xcframework-variant.sh "SentryObjC" "-Dynamic" "mh_dylib" "" "$sdks" ""
+    ./scripts/build-xcframework-sentryobjc.sh --sdks "$sdks" --output-dir XCFrameworkBuildPath --variant dynamic
     ./scripts/validate-xcframework-format.sh "SentryObjC-Dynamic.xcframework"
     ./scripts/validate-xcframework-architectures.sh --xcframework "SentryObjC-Dynamic.xcframework"
     ./scripts/compress-xcframework.sh "$signed" SentryObjC-Dynamic

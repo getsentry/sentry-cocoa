@@ -16,6 +16,7 @@ OUTPUT_DIR="XCFrameworkBuildPath"
 SDKS="iphoneos,iphonesimulator,macosx,maccatalyst,appletvos,appletvsimulator,watchos,watchsimulator,xros,xrsimulator"
 PACKAGE_PATH=""
 CONFIGURATION="Release"
+VARIANT="static"
 
 usage() {
     log_notice "Usage: $0"
@@ -23,6 +24,7 @@ usage() {
     log_notice "  --configuration <name>    Xcode configuration (default: Release)"
     log_notice "  --sdks <list>             Comma-separated SDKs (default: all Apple SDKs)"
     log_notice "  --package-path <path>     Swift Package root (default: repo root)"
+    log_notice "  --variant <type>          static, dynamic, or both (default: static)"
     exit 1
 }
 
@@ -32,6 +34,7 @@ while [[ $# -gt 0 ]]; do
         --configuration)   CONFIGURATION="$2";  shift 2 ;;
         --sdks)            SDKS="$2";           shift 2 ;;
         --package-path)    PACKAGE_PATH="$2";   shift 2 ;;
+        --variant)         VARIANT="$2";        shift 2 ;;
         -h|--help)         usage ;;
         *)                 log_error "Unknown argument: $1"; usage ;;
     esac
@@ -48,7 +51,12 @@ if [ ! -d "$HEADERS_DIR" ]; then
     exit 1
 fi
 
-rm -rf "$OUTPUT_DIR/archive/SentryObjC" "$OUTPUT_DIR/DerivedData" "$OUTPUT_DIR/lib/SentryObjC"
+case "$VARIANT" in
+    static|dynamic|both) ;;
+    *) log_error "Unknown variant: $VARIANT (expected static, dynamic, or both)"; exit 1 ;;
+esac
+
+rm -rf "$OUTPUT_DIR/archive/SentryObjC" "$OUTPUT_DIR/DerivedData" "$OUTPUT_DIR/lib/SentryObjC" "$OUTPUT_DIR/framework/SentryObjC"
 
 PACKAGE_FILE="$PACKAGE_PATH/Package.swift"
 cp "$PACKAGE_FILE" "$PACKAGE_FILE.bak"
@@ -65,10 +73,27 @@ for sdk in "${sdk_list[@]}"; do
         --configuration "$CONFIGURATION"
 done
 
-"$SCRIPT_DIR/assemble-xcframework-sentryobjc.sh" \
-    --sdks "$SDKS" \
-    --lib-path-template "$OUTPUT_DIR/lib/SentryObjC/SDK_NAME/libSentryObjC.a" \
-    --headers "$HEADERS_DIR" \
-    --output-name "SentryObjC-Static"
+if [ "$VARIANT" = "static" ] || [ "$VARIANT" = "both" ]; then
+    "$SCRIPT_DIR/assemble-xcframework-sentryobjc.sh" \
+        --sdks "$SDKS" \
+        --lib-path-template "$OUTPUT_DIR/lib/SentryObjC/SDK_NAME/libSentryObjC.a" \
+        --headers "$HEADERS_DIR" \
+        --output-name "SentryObjC-Static"
+    log_info "Done: SentryObjC-Static.xcframework"
+fi
 
-log_info "Done: SentryObjC-Static.xcframework"
+if [ "$VARIANT" = "dynamic" ] || [ "$VARIANT" = "both" ]; then
+    for sdk in "${sdk_list[@]}"; do
+        "$SCRIPT_DIR/build-dynamic-framework-sentryobjc.sh" \
+            --sdk "$sdk" \
+            --static-lib "$OUTPUT_DIR/lib/SentryObjC/$sdk/libSentryObjC.a" \
+            --headers "$HEADERS_DIR" \
+            --output-dir "$OUTPUT_DIR"
+    done
+
+    "$SCRIPT_DIR/assemble-xcframework-sentryobjc.sh" \
+        --sdks "$SDKS" \
+        --framework-path-template "$OUTPUT_DIR/framework/SentryObjC/SDK_NAME/SentryObjC.framework" \
+        --output-name "SentryObjC-Dynamic"
+    log_info "Done: SentryObjC-Dynamic.xcframework"
+fi
