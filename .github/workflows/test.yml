@@ -267,24 +267,31 @@ jobs:
     with:
       name: ${{matrix.name}}
       runs-on: ${{ matrix.runs-on }}
-      should_skip: ${{ (github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true') || (matrix.runner_provider == 'cirrus' && matrix.runs-on == 'sonoma') }}
-      xcode: ${{matrix.xcode}}
-      platform: ${{matrix.platform}}
-      test-destination-os: ${{matrix.test-destination-os}}
       timeout: ${{matrix.timeout || 20}}
+      should_skip: ${{github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
+      runner_provider: ${{matrix.runner_provider}}
+      xcode: ${{matrix.xcode}}
+      test-destination-os: ${{matrix.test-destination-os}}
+      platform: ${{matrix.platform}}
       device: ${{matrix.device || ''}}
       scheme: "Sentry"
-      runner_provider: ${{matrix.runner_provider}}
     strategy:
       fail-fast: false
       matrix:
-        runner_provider: ["cirrus", "bitrise"]
         # Can't run tests on watchOS because XCTest is not available
+        # Each entry specifies runner_provider explicitly because include-only
+        # matrices are the only way to get correct expansion in GitHub Actions.
         include:
-          # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
-
           # iOS 17
           - name: iOS 17 Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "16"
+            test-destination-os: "17.5"
+            platform: "iOS"
+            device: "iPhone 15 Pro"
+          - name: iOS 17 Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             test-destination-os: "17.5"
@@ -293,6 +300,14 @@ jobs:
 
           # iOS 18
           - name: iOS 18 Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "16"
+            test-destination-os: ""
+            platform: "iOS"
+            device: ""
+          - name: iOS 18 Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             test-destination-os: ""
@@ -301,18 +316,30 @@ jobs:
 
           # iOS 26
           - name: iOS 26 Sentry
+            runner_provider: cirrus
+            runs-on: tahoe
+            xcode: "26"
+            test-destination-os: ""
+            platform: "iOS"
+            device: ""
+          - name: iOS 26 Sentry
+            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             test-destination-os: ""
             platform: "iOS"
             device: ""
 
-          # We don't run the unit tests on macOS 13 cause we run them on all on GH actions available iOS versions.
-          # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 15 is minimal.
-          # We are running tests on macOS 15 and later, as there were OS-internal changes introduced in succeeding versions.
-
           # macOS 15 pinned to Xcode 16.2 to preserve coverage from the retired macOS 14 runner.
           - name: macOS 15 Compat Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "16.2"
+            test-destination-os: ""
+            platform: "macOS"
+            device: ""
+          - name: macOS 15 Compat Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16.2"
             test-destination-os: ""
@@ -321,6 +348,7 @@ jobs:
 
           # macOS 14 — Bitrise only (sonoma pool still available)
           - name: macOS 14 Sentry
+            runner_provider: bitrise
             runs-on: sonoma
             xcode: "16"
             test-destination-os: ""
@@ -329,6 +357,14 @@ jobs:
 
           # macOS 15
           - name: macOS 15 Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "16"
+            test-destination-os: ""
+            platform: "macOS"
+            device: ""
+          - name: macOS 15 Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             test-destination-os: ""
@@ -337,16 +373,30 @@ jobs:
 
           # macOS 26
           - name: macOS 26 Sentry
+            runner_provider: cirrus
+            runs-on: tahoe
+            xcode: "26"
+            test-destination-os: ""
+            platform: "macOS"
+            device: ""
+          - name: macOS 26 Sentry
+            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             test-destination-os: ""
             platform: "macOS"
             device: ""
 
-          # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
-          # on an older iOS or macOS version is low.
-          # In addition we run Catalyst with Xcode 16.2 on macOS 15, preserving coverage from the retired macOS 14 runner.
+          # Catalyst 15 Compat — Xcode 16.2 on macOS 15, preserving coverage from the retired macOS 14 runner.
           - name: Catalyst 15 Compat Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "16.2"
+            test-destination-os: ""
+            platform: "Catalyst"
+            device: ""
+          - name: Catalyst 15 Compat Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16.2"
             test-destination-os: ""
@@ -355,13 +405,23 @@ jobs:
 
           # Catalyst 14 — Bitrise only (sonoma pool still available)
           - name: Catalyst 14 Sentry
+            runner_provider: bitrise
             runs-on: sonoma
             xcode: "16"
             test-destination-os: ""
             platform: "Catalyst"
             device: ""
 
+          # Catalyst 15
           - name: Catalyst 15 Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "16"
+            test-destination-os: ""
+            platform: "Catalyst"
+            device: ""
+          - name: Catalyst 15 Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             test-destination-os: ""
@@ -370,12 +430,16 @@ jobs:
 
           ## We don't run unit tests on macCatalyst 26 yet because of https://github.com/getsentry/sentry-cocoa/issues/6165.
 
-          # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
-          # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.
-          # We are running tests on tvOS 17 and latest, as there were OS-internal changes introduced in succeeding versions.
-
           # tvOS 17
           - name: tvOS 17 Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "16"
+            test-destination-os: "17.5"
+            platform: "tvOS"
+            device: ""
+          - name: tvOS 17 Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             test-destination-os: "17.5"
@@ -384,6 +448,14 @@ jobs:
 
           # tvOS 18
           - name: tvOS 18 Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "16"
+            test-destination-os: ""
+            platform: "tvOS"
+            device: ""
+          - name: tvOS 18 Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             test-destination-os: ""
@@ -392,6 +464,14 @@ jobs:
 
           # tvOS 26
           - name: tvOS 26 Sentry
+            runner_provider: cirrus
+            runs-on: tahoe
+            xcode: "26"
+            test-destination-os: ""
+            platform: "tvOS"
+            device: "Apple TV"
+          - name: tvOS 26 Sentry
+            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             test-destination-os: ""
@@ -400,6 +480,15 @@ jobs:
 
           # visionOS 26
           - name: visionOS 26 Sentry
+            runner_provider: cirrus
+            runs-on: tahoe
+            xcode: "26"
+            test-destination-os: ""
+            platform: "visionOS"
+            device: ""
+            timeout: 30
+          - name: visionOS 26 Sentry
+            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             test-destination-os: ""
