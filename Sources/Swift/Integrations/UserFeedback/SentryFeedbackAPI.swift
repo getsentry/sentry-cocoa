@@ -4,12 +4,12 @@
 import UIKit
 
 /// API for interacting with the feature User Feedback
+@available(iOSApplicationExtension, unavailable, message: "Sentry User Feedback UI cannot be used from app extensions.")
 @objc public final class SentryFeedbackAPI: NSObject {
 
     /// Show the feedback widget button.
     /// - warning: This is an experimental feature and may still have bugs.
     /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
-    @available(iOSApplicationExtension, unavailable)
     @objc public func showWidget() {
         getIntegration()?.driver.showWidget()
     }
@@ -17,7 +17,6 @@ import UIKit
     /// Hide the feedback widget button.
     /// - warning: This is an experimental feature and may still have bugs.
     /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
-    @available(iOSApplicationExtension, unavailable)
     @objc public func hideWidget() {
         getIntegration()?.driver.hideWidget()
     }
@@ -29,7 +28,6 @@ import UIKit
     /// - Parameter config: The configuration for this feedback form instance.
     /// - Important: Call this method from the main thread.
     /// - warning: This is an experimental feature and may still have bugs.
-    @available(iOSApplicationExtension, unavailable)
     @objc(showWithConfig:)
     public func show(config: SentryUserFeedbackConfiguration) {
         show(config: config, image: nil)
@@ -44,7 +42,6 @@ import UIKit
     ///   - image: An optional image to attach to the feedback form.
     /// - Important: Call this method from the main thread.
     /// - warning: This is an experimental feature and may still have bugs.
-    @available(iOSApplicationExtension, unavailable)
     @objc(showWithConfig:image:)
     public func show(config: SentryUserFeedbackConfiguration, image: UIImage? = nil) {
         guard let presenter = SentryFeedbackFormPresenter.presentingViewController() else {
@@ -56,7 +53,6 @@ import UIKit
         presenter.present(form, animated: config.animations)
     }
 
-    @available(iOSApplicationExtension, unavailable)
     private func getIntegration() -> UserFeedbackIntegration<SentryDependencyContainer>? {
         SentrySDKInternal.currentHub().getInstalledIntegration(UserFeedbackIntegration<SentryDependencyContainer>.self) as? UserFeedbackIntegration<SentryDependencyContainer>
     }
