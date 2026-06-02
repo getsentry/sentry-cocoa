@@ -20,6 +20,20 @@
         options.sessionReplay.onErrorSampleRate = 1;
     }];
 
+    SentryObjCLogger *logger = [SentryObjCSDK logger];
+
+    // Plain string log
+    [logger debug:@"App launched"];
+
+    // Format string — values captured as structured template attributes
+    NSString *username = @"John";
+    NSInteger itemCount = 42;
+    [logger infoWithFormat:@"User %@ processed %ld items", username, (long)itemCount];
+
+    // Format string with extra attributes
+    [logger debugWithAttributes:@{ @"source" : @"appLaunch" }
+                         format:@"Startup completed in %.2f seconds", 1.234];
+
     return YES;
 }
 
