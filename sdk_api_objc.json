@@ -754,6 +754,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "beforeSendLog",
+    "parent": "SentryObjCOptions",
+    "returnType": "SentryObjCLog * _Nullable (^ _Nullable)(SentryObjCLog * _Nonnull)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "beforeSendMetric",
+    "parent": "SentryObjCOptions",
+    "returnType": "SentryObjCMetric * _Nullable (^ _Nullable)(SentryObjCMetric * _Nonnull)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "beforeSendSpan",
     "parent": "SentryObjCOptions",
     "returnType": "SentryObjCSpan * _Nullable (^ _Nullable)(SentryObjCSpan * _Nonnull)",
@@ -2903,6 +2917,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "initWithTimestamp:traceId:name:value:unit:attributes:",
+    "parent": "SentryObjCMetric",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "initWithTraceId:spanId:parentId:operation:sampled:",
     "parent": "SentryObjCSpanContext",
     "returnType": "instancetype _Nonnull",
@@ -3334,6 +3355,13 @@
     "parent": "SentryObjCRequest",
     "returnType": "NSString * _Nullable",
     "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "metrics",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCMetricsApi * _Nonnull",
+    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
@@ -4240,6 +4268,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "serialize",
+    "parent": "SentryObjCScope",
+    "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "serverName",
     "parent": "SentryObjCEvent",
     "returnType": "NSString * _Nullable",
@@ -4360,6 +4395,20 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setBeforeSend:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setBeforeSendLog:",
+    "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setBeforeSendMetric:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
@@ -5619,6 +5668,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setSpan:",
+    "parent": "SentryObjCScope",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setSpanDescription:",
     "parent": "SentryObjCSpan",
     "returnType": "void",
@@ -6071,6 +6127,13 @@
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCSpan * _Nullable",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "span",
+    "parent": "SentryObjCScope",
+    "returnType": "SentryObjCSpan * _Nullable",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -6909,6 +6972,18 @@
     "name": "beforeSend",
     "parent": "SentryObjCOptions",
     "type": "SentryObjCEvent * _Nullable (^ _Nullable)(SentryObjCEvent * _Nonnull)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "beforeSendLog",
+    "parent": "SentryObjCOptions",
+    "type": "SentryObjCLog * _Nullable (^ _Nullable)(SentryObjCLog * _Nonnull)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "beforeSendMetric",
+    "parent": "SentryObjCOptions",
+    "type": "SentryObjCMetric * _Nullable (^ _Nullable)(SentryObjCMetric * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -7926,6 +8001,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "metrics",
+    "parent": "SentryObjCSDK",
+    "type": "SentryObjCMetricsApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "microsecond",
     "parent": "SentryObjCMeasurementUnit",
     "type": "SentryObjCMeasurementUnit * _Nonnull"
@@ -8504,6 +8585,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "span",
     "parent": "SentryObjCSDK",
+    "type": "SentryObjCSpan * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "span",
+    "parent": "SentryObjCScope",
     "type": "SentryObjCSpan * _Nullable"
   },
   {

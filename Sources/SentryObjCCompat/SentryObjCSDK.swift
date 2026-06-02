@@ -27,6 +27,10 @@ import Foundation
         SentryObjCLogger(SentrySDK.logger)
     }
 
+    @objc public static var metrics: SentryObjCMetricsApi {
+        SentryObjCMetricsApi(SentrySDK.metrics)
+    }
+
     #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     @objc public static var feedback: SentryObjCFeedbackApi {
         SentryObjCFeedbackApi(SentrySDK.feedback)

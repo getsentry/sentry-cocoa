@@ -110,6 +110,15 @@ import Foundation
         wrapped.clearAttachments()
     }
 
+    @objc public var span: SentryObjCSpan? {
+        get { wrapped.span.map { SentryObjCSpan($0) } }
+        set { wrapped.span = newValue?.wrapped }
+    }
+
+    @objc public func serialize() -> [String: Any] {
+        wrapped.serialize()
+    }
+
     @objc public func clear() {
         wrapped.clear()
     }

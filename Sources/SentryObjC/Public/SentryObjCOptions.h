@@ -14,6 +14,8 @@
 @class SentryObjCEvent;
 @class SentryObjCExperimentalOptions;
 @class SentryObjCHttpStatusCodeRange;
+@class SentryObjCLog;
+@class SentryObjCMetric;
 @class SentryObjCReplayOptions;
 @class SentryObjCSamplingContext;
 @class SentryObjCScope;
@@ -119,6 +121,15 @@ NS_ASSUME_NONNULL_BEGIN
 /// This block can be used to modify the breadcrumb before it will be serialized and sent.
 @property (nonatomic, copy, nullable) SentryObjCBreadcrumb *_Nullable (^beforeBreadcrumb)
     (SentryObjCBreadcrumb *);
+
+/// This block can be used to modify or drop a log before it will be sent. Return @c nil to drop the
+/// log.
+@property (nonatomic, copy, nullable) SentryObjCLog *_Nullable (^beforeSendLog)(SentryObjCLog *);
+
+/// This block can be used to modify or drop a metric before it will be sent. Return @c nil to drop
+/// the metric.
+@property (nonatomic, copy, nullable) SentryObjCMetric *_Nullable (^beforeSendMetric)
+    (SentryObjCMetric *);
 
 /**
  * You can use this callback to decide if the SDK should capture a screenshot or not.

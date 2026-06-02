@@ -746,6 +746,62 @@
     XCTAssertNil(options.beforeBreadcrumb);
 }
 
+- (void)testBeforeSendLog_whenSetBlock_shouldReturnNotNil
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.beforeSendLog = ^SentryObjCLog *_Nullable(SentryObjCLog *log) { return log; };
+
+    // -- Assert --
+    XCTAssertNotNil(options.beforeSendLog);
+}
+
+- (void)testBeforeSendLog_whenSetNil_shouldReturnNil
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+    options.beforeSendLog = ^SentryObjCLog *_Nullable(SentryObjCLog *log) { return log; };
+
+    // -- Act --
+    options.beforeSendLog = nil;
+
+    // -- Assert --
+    XCTAssertNil(options.beforeSendLog);
+}
+
+- (void)testBeforeSendMetric_whenSetBlock_shouldReturnNotNil
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+
+    // -- Act --
+    options.beforeSendMetric = ^SentryObjCMetric *_Nullable(SentryObjCMetric *metric)
+    {
+        return metric;
+    };
+
+    // -- Assert --
+    XCTAssertNotNil(options.beforeSendMetric);
+}
+
+- (void)testBeforeSendMetric_whenSetNil_shouldReturnNil
+{
+    // -- Arrange --
+    SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
+    options.beforeSendMetric = ^SentryObjCMetric *_Nullable(SentryObjCMetric *metric)
+    {
+        return metric;
+    };
+
+    // -- Act --
+    options.beforeSendMetric = nil;
+
+    // -- Assert --
+    XCTAssertNil(options.beforeSendMetric);
+}
+
 - (void)testBeforeCaptureScreenshot_whenSetBlock_shouldReturnNotNil
 {
     // -- Arrange --
