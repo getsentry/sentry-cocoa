@@ -19,10 +19,14 @@ final class SentryExtendedAppLaunchManager {
 
     @discardableResult
     func extend() -> (any Span)? {
-        let (timestamp, config): (Date?, SentryTracerConfiguration?) = lock.synchronized {
+        let (timestamp, config, existing): (Date?, SentryTracerConfiguration?, (any Span)?) = lock.synchronized {
             if appStartCreated {
                 SentrySDKLog.warning("extendAppLaunch() called after the app start transaction was already created. The app launch cannot be extended.")
-                return (nil, nil)
+                return (nil, nil, nil)
+            }
+            guard extendedSpan == nil else {
+                SentrySDKLog.debug("extendAppLaunch() already called, returning existing span")
+                return (nil, nil, extendedSpan)
             }
             SentrySDKLog.debug("Extending app launch")
             extendRequested = true
@@ -32,8 +36,10 @@ final class SentryExtendedAppLaunchManager {
                 c.waitForChildren = true
             })
             self.tracerConfiguration = c
-            return (extendTimestamp, c)
+            return (extendTimestamp, c, nil)
         }
+
+        if let existing { return existing }
 
         guard let timestamp, let config else { return nil }
 
@@ -63,6 +69,7 @@ final class SentryExtendedAppLaunchManager {
         }
 
         if shouldFinishTracer {
+            SentrySDKLog.debug("App start measurement was already set, finishing tracer")
             newTracer.finish()
         }
 
@@ -77,10 +84,14 @@ final class SentryExtendedAppLaunchManager {
     }
 
     func setAppStartMeasurement(_ measurement: SentryAppStartMeasurement) {
+        SentrySDKLog.debug("Setting app start measurement on extended launch tracer")
         let tracerToFinish: (any Span)? = lock.synchronized {
             tracerConfiguration?.appStartMeasurement = measurement
             SentryAppStartMeasurementProvider.markAsRead()
             return tracer
+        }
+        if tracerToFinish != nil {
+            SentrySDKLog.debug("Finishing extended app launch tracer after measurement set")
         }
         tracerToFinish?.finish()
     }
