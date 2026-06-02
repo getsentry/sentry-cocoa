@@ -20,12 +20,16 @@ OPTIONS:
     --change-path true|false         Swap binary URLs for local paths (default: false)
     --remove-binary-targets true|false
                                      Remove binary targets and keep source-backed products (default: false)
+    --strip-binary-targets true|false
+                                     Remove only .binaryTarget blocks and their product entries,
+                                     keeping all source-backed targets intact (default: false)
     -h, --help                       Show this help message
 
 EXAMPLES:
     $(basename "$0") --is-pr true
     $(basename "$0") --package-file Package.swift --change-path true
     $(basename "$0") --remove-binary-targets true
+    $(basename "$0") --strip-binary-targets true
 
 EOF
     exit 1
@@ -57,6 +61,7 @@ IS_PR="false"
 REMOVE_DUPLICATE="false"
 CHANGE_PATH="false"
 REMOVE_BINARY_TARGETS="false"
+STRIP_BINARY_TARGETS="false"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -83,6 +88,11 @@ while [[ $# -gt 0 ]]; do
     --remove-binary-targets)
       [[ $# -lt 2 ]] && { log_error "Missing value for $1"; exit 1; }
       REMOVE_BINARY_TARGETS="$2"
+      shift 2
+      ;;
+    --strip-binary-targets)
+      [[ $# -lt 2 ]] && { log_error "Missing value for $1"; exit 1; }
+      STRIP_BINARY_TARGETS="$2"
       shift 2
       ;;
     -h|--help)
@@ -116,6 +126,7 @@ log_info "  Is PR:                $IS_PR"
 log_info "  Remove duplicate:     $REMOVE_DUPLICATE"
 log_info "  Change path:          $CHANGE_PATH"
 log_info "  Remove binary targets: $REMOVE_BINARY_TARGETS"
+log_info "  Strip binary targets:  $STRIP_BINARY_TARGETS"
 
 for PACKAGE_FILE in "${PACKAGE_FILES[@]}"; do
   if is_enabled "$IS_PR"; then
@@ -170,6 +181,11 @@ var targets: [Target] = [\
     sed -i '' '/^    dependencies: \[/,/^    ],/c\
     dependencies: [],\
 ' "$PACKAGE_FILE"
+  fi
+
+  if is_enabled "$STRIP_BINARY_TARGETS"; then
+    sed -i '' '/BEGIN:BINARY_PRODUCTS/,/END:BINARY_PRODUCTS/d' "$PACKAGE_FILE"
+    sed -i '' '/BEGIN:BINARY_TARGETS/,/END:BINARY_TARGETS/d' "$PACKAGE_FILE"
   fi
 
   begin_group "$PACKAGE_FILE (after prepare-package.sh)"
