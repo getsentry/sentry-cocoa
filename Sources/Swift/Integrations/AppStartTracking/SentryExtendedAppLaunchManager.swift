@@ -47,7 +47,8 @@ final class SentryExtendedAppLaunchManager {
             return nil
         }
 
-        let newTracer = StandaloneTransactionStrategy.createTracer(configuration: config)
+        let traceId = SentryAppStartMeasurementProvider.appStartTraceId() ?? SentryId()
+        let newTracer = StandaloneTransactionStrategy.createTracer(traceId: traceId, configuration: config)
 
         let child = newTracer.startChild(
             operation: SentrySpanOperationAppStart,
