@@ -292,6 +292,14 @@ jobs:
             device: "iPhone 15 Pro"
             timeout: 30
 
+          # iOS 18
+          - name: iOS 18 Sentry
+            runs-on: sequoia
+            xcode: "16"
+            test-destination-os: ""
+            platform: "iOS"
+            device: ""
+
   # This check validates that either all unit tests passed or were skipped, which allows us
   # to make unit tests a required check with only running the unit tests when required.
   # So, we don't have to run unit tests, for example, for Changelog or ReadMe changes.
