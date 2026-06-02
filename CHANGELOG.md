@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.16.0-alpha.3
 
 > [!IMPORTANT]
 > The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
