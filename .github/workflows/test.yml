@@ -279,7 +279,7 @@ jobs:
       fail-fast: false
       matrix:
         runner_provider: [cirrus, bitrise]
-        platforms: [iOS, macOS, tvOS, visionOS, Catalyst]
+        platform: [iOS, macOS, tvOS, visionOS, Catalyst]
 
         # Can't run tests on watchOS because XCTest is not available
         include:
