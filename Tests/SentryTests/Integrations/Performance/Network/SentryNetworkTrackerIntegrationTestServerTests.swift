@@ -12,7 +12,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     func testGetRequest_SpanCreatedAndBaggageHeaderAdded() throws {
         try ensureTestServerIsRunning()
 
-        let testBaggageURL = try XCTUnwrap(URL(string: "http://localhost:8081/echo-baggage-header"))
+        let testBaggageURL = try XCTUnwrap(URL(string: "http://localhost:8080/echo-baggage-header"))
 
         startSDK()
 
@@ -53,7 +53,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     func testGetRequest_CompareSentryTraceHeader() throws {
         try ensureTestServerIsRunning()
 
-        let testTraceURL = try XCTUnwrap(URL(string: "http://localhost:8081/echo-sentry-trace"))
+        let testTraceURL = try XCTUnwrap(URL(string: "http://localhost:8080/echo-sentry-trace"))
 
         startSDK()
 
@@ -88,7 +88,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     func testGetCaptureFailedRequestsEnabled() throws {
         try ensureTestServerIsRunning()
 
-        let clientErrorTraceURL = try XCTUnwrap(URL(string: "http://localhost:8081/http-client-error"))
+        let clientErrorTraceURL = try XCTUnwrap(URL(string: "http://localhost:8080/http-client-error"))
 
         let expect = expectation(description: "Request completed")
         expect.expectedFulfillmentCount = 2
@@ -138,7 +138,7 @@ class SentryNetworkTrackerIntegrationTestServerTests: XCTestCase {
     // If a XCTestExpectation times out, the test would fail.
     // swiftlint:disable avoid_dispatch_groups_in_tests
     private func ensureTestServerIsRunning() throws {
-        let testUrl = try XCTUnwrap(URL(string: "http://localhost:8081/"))
+        let testUrl = try XCTUnwrap(URL(string: "http://localhost:8080/"))
 
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let attempts = 20

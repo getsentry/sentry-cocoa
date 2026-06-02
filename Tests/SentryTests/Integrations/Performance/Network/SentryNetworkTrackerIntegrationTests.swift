@@ -7,7 +7,7 @@ import XCTest
 class SentryNetworkTrackerIntegrationTests: XCTestCase {
     
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryNetworkTrackerIntegrationTests")
-    private static let testBaggageURL = URL(string: "http://localhost:8081/echo-baggage-header")!
+    private static let testBaggageURL = URL(string: "http://localhost:8080/echo-baggage-header")!
     private static let transactionName = "TestTransaction"
     private static let transactionOperation = "Test"
     
