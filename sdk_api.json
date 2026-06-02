@@ -38139,35 +38139,6 @@
           {
             "children": [
               {
-                "kind": "TypeNominal",
-                "name": "SentryUserFeedbackConfiguration",
-                "printedName": "Sentry.SentryUserFeedbackConfiguration",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declAttributes": [
-              "Available",
-              "Final",
-              "ObjC"
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "kind": "Function",
-            "mangledName": "$s6Sentry0A11FeedbackAPIC4show6configyAA0a4UserB13ConfigurationC_tF",
-            "moduleName": "Sentry",
-            "name": "show",
-            "objc_name": "showWithConfig:",
-            "printedName": "show(config:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)showWithConfig:"
-          },
-          {
-            "children": [
-              {
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -38184,30 +38155,22 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "SentryUserFeedbackConfiguration",
-                "printedName": "Sentry.SentryUserFeedbackConfiguration",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
-              },
-              {
-                "kind": "TypeNominal",
                 "name": "Void",
                 "printedName": "()"
               }
             ],
             "declAttributes": [
               "Available",
-              "Final",
-              "ObjC"
+              "Final"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A11FeedbackAPIC4show6config5imageyAA0a4UserB13ConfigurationC_So7UIImageCSgtF",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC4show5imageySo7UIImageCSg_tF",
             "moduleName": "Sentry",
             "name": "show",
-            "objc_name": "showWithConfig:image:",
-            "printedName": "show(config:image:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryFeedbackAPI(im)showWithConfig:image:"
+            "printedName": "show(image:)",
+            "usr": "s:6Sentry0A11FeedbackAPIC4show5imageySo7UIImageCSg_tF"
           },
           {
             "children": [
@@ -64150,53 +64113,6 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "NSCoder",
-                "printedName": "Foundation.NSCoder",
-                "usr": "c:objc(cs)NSCoder"
-              },
-              {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryUserFeedbackFormController",
-                    "printedName": "Sentry.SentryUserFeedbackFormController",
-                    "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController"
-                  }
-                ],
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Sentry.SentryUserFeedbackFormController?",
-                "usr": "s:Sq"
-              }
-            ],
-            "declAttributes": [
-              "Custom",
-              "Dynamic",
-              "ObjC",
-              "Preconcurrency",
-              "Required"
-            ],
-            "declKind": "Constructor",
-            "init_kind": "Designated",
-            "kind": "Constructor",
-            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC5coderACSgSo7NSCoderC_tcfc",
-            "moduleName": "Sentry",
-            "name": "init",
-            "objc_name": "initWithCoder:",
-            "overriding": true,
-            "printedName": "init(coder:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController(im)initWithCoder:"
-          },
-          {
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryUserFeedbackConfiguration",
-                "printedName": "Sentry.SentryUserFeedbackConfiguration",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
-              },
-              {
-                "kind": "TypeNominal",
                 "name": "SentryUserFeedbackFormController",
                 "printedName": "Sentry.SentryUserFeedbackFormController",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController"
@@ -64204,18 +64120,18 @@
             ],
             "declAttributes": [
               "Custom",
-              "ObjC",
+              "NonObjC",
               "Preconcurrency"
             ],
             "declKind": "Constructor",
             "init_kind": "Convenience",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC6configAcA0abC13ConfigurationC_tcfc",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerCACycfc",
             "moduleName": "Sentry",
             "name": "init",
-            "objc_name": "initWithConfig:",
-            "printedName": "init(config:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController(im)initWithConfig:"
+            "overriding": true,
+            "printedName": "init()",
+            "usr": "s:6Sentry0A26UserFeedbackFormControllerCACycfc"
           },
           {
             "children": [
@@ -64235,12 +64151,6 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "SentryUserFeedbackConfiguration",
-                "printedName": "Sentry.SentryUserFeedbackConfiguration",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
-              },
-              {
-                "kind": "TypeNominal",
                 "name": "SentryUserFeedbackFormController",
                 "printedName": "Sentry.SentryUserFeedbackFormController",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController"
@@ -64248,18 +64158,16 @@
             ],
             "declAttributes": [
               "Custom",
-              "ObjC",
               "Preconcurrency"
             ],
             "declKind": "Constructor",
             "init_kind": "Convenience",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC6config5imageAcA0abC13ConfigurationC_So7UIImageCSgtcfc",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC5imageACSo7UIImageCSg_tcfc",
             "moduleName": "Sentry",
             "name": "init",
-            "objc_name": "initWithConfig:image:",
-            "printedName": "init(config:image:)",
-            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController(im)initWithConfig:image:"
+            "printedName": "init(image:)",
+            "usr": "s:6Sentry0A26UserFeedbackFormControllerC5imageACSo7UIImageCSg_tcfc"
           },
           {
             "children": [
@@ -64661,6 +64569,7 @@
         ],
         "declKind": "Class",
         "hasMissingDesignatedInitializers": true,
+        "inheritsConvenienceInitializers": true,
         "kind": "TypeDecl",
         "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC",
         "moduleName": "Sentry",
@@ -64695,12 +64604,6 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "SentryUserFeedbackConfiguration",
-                "printedName": "Sentry.SentryUserFeedbackConfiguration",
-                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
-              },
-              {
-                "kind": "TypeNominal",
                 "name": "SentryUserFeedbackFormView",
                 "printedName": "Sentry.SentryUserFeedbackFormView",
                 "usr": "s:6Sentry0A20UserFeedbackFormViewV"
@@ -64713,11 +64616,11 @@
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry0A20UserFeedbackFormViewV6config5imageAcA0abC13ConfigurationC_So7UIImageCSgtcfc",
+            "mangledName": "$s6Sentry0A20UserFeedbackFormViewV5imageACSo7UIImageCSg_tcfc",
             "moduleName": "Sentry",
             "name": "init",
-            "printedName": "init(config:image:)",
-            "usr": "s:6Sentry0A20UserFeedbackFormViewV6config5imageAcA0abC13ConfigurationC_So7UIImageCSgtcfc"
+            "printedName": "init(image:)",
+            "usr": "s:6Sentry0A20UserFeedbackFormViewV5imageACSo7UIImageCSg_tcfc"
           },
           {
             "children": [
