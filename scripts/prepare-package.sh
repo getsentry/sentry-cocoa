@@ -184,24 +184,8 @@ var targets: [Target] = [\
   fi
 
   if is_enabled "$STRIP_BINARY_TARGETS"; then
-    # Remove .binaryTarget blocks (both active and commented-out).
-    sed -i '' '/^[[:space:]]*\.binaryTarget(/,/^[[:space:]]*),\{0,1\}$/d' "$PACKAGE_FILE"
-    sed -i '' '/^[[:space:]]*\/\/[[:space:]]*\.binaryTarget(/,/^[[:space:]]*\/\/[[:space:]]*),\{0,1\}$/d' "$PACKAGE_FILE"
-
-    # Remove product entries that reference binary target names.
-    # These are .library lines whose targets list only contains binary target names.
-    sed -i '' '/\.library(name: "Sentry-Dynamic-WithARM64e"/d' "$PACKAGE_FILE"
-    sed -i '' '/\.library(name: "Sentry-Dynamic"/d' "$PACKAGE_FILE"
-    sed -i '' '/\.library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e"/d' "$PACKAGE_FILE"
-    sed -i '' '/\.library(name: "Sentry-WithoutUIKitOrAppKit"/d' "$PACKAGE_FILE"
-    sed -i '' '/\.library(name: "SentryObjC-Dynamic"/d' "$PACKAGE_FILE"
-
-    # The "Sentry" product references the "Sentry" binary target + "SentryCppHelper".
-    # Remove it since "Sentry" as a binary target is gone.
-    sed -i '' '/\.library(name: "Sentry", targets: \["Sentry"/d' "$PACKAGE_FILE"
-
-    # The "SentrySwiftUI" product depends on the "Sentry" binary target.
-    sed -i '' '/\.library(name: "SentrySwiftUI"/d' "$PACKAGE_FILE"
+    sed -i '' '/BEGIN:BINARY_PRODUCTS/,/END:BINARY_PRODUCTS/d' "$PACKAGE_FILE"
+    sed -i '' '/BEGIN:BINARY_TARGETS/,/END:BINARY_TARGETS/d' "$PACKAGE_FILE"
   fi
 
   begin_group "$PACKAGE_FILE (after prepare-package.sh)"
