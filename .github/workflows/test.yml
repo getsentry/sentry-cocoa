@@ -319,6 +319,15 @@ jobs:
             platform: "macOS"
             device: ""
 
+          # macOS 14 — Bitrise only (sonoma pool still available)
+          - name: macOS 14 Sentry
+            runner_provider: "bitrise"
+            runs-on: sonoma
+            xcode: "16"
+            test-destination-os: ""
+            platform: "macOS"
+            device: ""
+
           # macOS 15
           - name: macOS 15 Sentry
             runs-on: sequoia
@@ -341,6 +350,15 @@ jobs:
           - name: Catalyst 15 Compat Sentry
             runs-on: sequoia
             xcode: "16.2"
+            test-destination-os: ""
+            platform: "Catalyst"
+            device: ""
+
+          # Catalyst 14 — Bitrise only (sonoma pool still available)
+          - name: Catalyst 14 Sentry
+            runner_provider: "bitrise"
+            runs-on: sonoma
+            xcode: "16"
             test-destination-os: ""
             platform: "Catalyst"
             device: ""
