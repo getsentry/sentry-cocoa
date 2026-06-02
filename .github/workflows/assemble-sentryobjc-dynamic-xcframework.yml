@@ -30,6 +30,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
         if: ${{ inputs.signed }}
@@ -45,21 +50,23 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
 
-      - name: Download all SentryObjC dynamic slices
+      - name: Download all SentryObjC static slices
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          pattern: sentryobjc-dynamic-slice-*
-          path: sentryobjc-dynamic-slices
+          pattern: sentryobjc-slice-*
+          path: sentryobjc-slices
 
-      - name: Arrange slices
+      - name: Convert static slices to dynamic frameworks
         env:
           SDKS: ${{ inputs.sdks }}
         run: |
           IFS=',' read -r -a sdk_list <<< "$SDKS"
           for sdk in "${sdk_list[@]}"; do
-            mkdir -p "XCFrameworkBuildPath/framework/SentryObjC/$sdk"
-            cp -R "sentryobjc-dynamic-slices/sentryobjc-dynamic-slice-$sdk/SentryObjC.framework" \
-              "XCFrameworkBuildPath/framework/SentryObjC/$sdk/SentryObjC.framework"
+            ./scripts/build-dynamic-framework-sentryobjc.sh \
+              --sdk "$sdk" \
+              --static-lib "sentryobjc-slices/sentryobjc-slice-$sdk/libSentryObjC.a" \
+              --headers "Sources/SentryObjC/Public" \
+              --output-dir XCFrameworkBuildPath
           done
 
       - name: Assemble XCFramework
