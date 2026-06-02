@@ -19,31 +19,33 @@ final class SentryExtendedAppLaunchManager {
 
     @discardableResult
     func extend() -> (any Span)? {
-        let timestamp: Date? = lock.synchronized {
+        let (timestamp, config): (Date?, SentryTracerConfiguration?) = lock.synchronized {
             if appStartCreated {
                 SentrySDKLog.warning("extendAppLaunch() called after the app start transaction was already created. The app launch cannot be extended.")
-                return nil
+                return (nil, nil)
             }
             SentrySDKLog.debug("Extending app launch")
             extendRequested = true
             extendTimestamp = Date()
-            return extendTimestamp
+
+            let c = SentryTracerConfiguration(block: { c in
+                c.waitForChildren = true
+            })
+            self.tracerConfiguration = c
+            return (extendTimestamp, c)
         }
 
-        guard let timestamp else { return nil }
+        guard let timestamp, let config else { return nil }
 
         guard SentrySDK.isEnabled else {
             SentrySDKLog.warning("extendAppLaunch() called before starting the SDK. Call SentrySDK.start(options:) first.")
             lock.synchronized {
                 extendRequested = false
                 extendTimestamp = nil
+                tracerConfiguration = nil
             }
             return nil
         }
-
-        let config = SentryTracerConfiguration(block: { c in
-            c.waitForChildren = true
-        })
 
         let newTracer = StandaloneTransactionStrategy.createTracer(configuration: config)
 
@@ -53,10 +55,14 @@ final class SentryExtendedAppLaunchManager {
         )
         child.startTimestamp = timestamp
 
-        lock.synchronized {
+        let shouldFinishTracer: Bool = lock.synchronized {
             self.tracer = newTracer
-            self.tracerConfiguration = config
             self.extendedSpan = child
+            return config.appStartMeasurement != nil
+        }
+
+        if shouldFinishTracer {
+            newTracer.finish()
         }
 
         return child
@@ -78,10 +84,10 @@ final class SentryExtendedAppLaunchManager {
         tracerToFinish?.finish()
     }
 
-    /// Returns `true` if the tracer was already created by `extend()`;
+    /// Returns `true` if `extend()` was called and reserved the tracer;
     /// `false` if the caller should create and finish its own tracer.
     func isTracerAlreadyCreated() -> Bool {
-        lock.synchronized { tracer != nil }
+        lock.synchronized { tracerConfiguration != nil }
     }
 
     func finish() {
