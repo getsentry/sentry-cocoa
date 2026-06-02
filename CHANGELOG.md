@@ -21,6 +21,11 @@
 - Fix crash in `SentryFramesTracker.add/removeListener` when called from a listener's own `init` / `deinit` on a background thread, observed on iOS 26 (#7943)
 - Report only `cold` or `warm` as `start_type` for standalone app starts, removing the `.prewarmed` suffix per sentry-conventions (#7968)
 - Fix reporting arbitrary Objective-C object throws via the C++ exception monitor (#7984)
+## Unreleased
+
+### Features
+
+- `SentrySDK.extendAppLaunch()` now returns the extended app launch span, allowing users to add child spans for granular breakdown of the app start period (#7985)
 
 ## 9.16.0-alpha.2
 
