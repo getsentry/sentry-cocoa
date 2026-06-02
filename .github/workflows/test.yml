@@ -278,7 +278,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner_provider: ["cirrus", "bitrise"]
+        runner_provider: [cirrus, bitrise]
         # Can't run tests on watchOS because XCTest is not available
         include:
           # We are running tests on iOS 17 and later, as there were OS-internal changes introduced in succeeding versions.
