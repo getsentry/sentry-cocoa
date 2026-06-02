@@ -2,7 +2,14 @@
 
 ## Unreleased
 
-- Add feedback form presentation APIs (#7873)
+- Add managed user feedback form presentation APIs (#7873)
+
+  Apps using the managed User Feedback integration can now present the form directly:
+  - Use `SentrySDK.feedback.show()` or `SentrySDK.feedback.show(image:)` to let the SDK pick the best presenter.
+  - In UIKit, present `SentrySDK.FeedbackForm()` or `SentrySDK.FeedbackForm(image:)` yourself.
+  - In SwiftUI, use `SentrySDK.FeedbackFormView()` or `SentrySDK.FeedbackFormView(image:)` from a presentation container such as `.sheet`.
+
+  These APIs use the global `SentryOptions.configureUserFeedback` configuration.
 
 ## 9.16.0-alpha.3
 
