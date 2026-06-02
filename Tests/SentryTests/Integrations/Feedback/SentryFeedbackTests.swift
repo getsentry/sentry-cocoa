@@ -116,22 +116,24 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(submittedData?["message"] as? String, "It broke")
     }
 
-    func testSubmitFeedback_whenInvalid_shouldCallSubmitErrorAndNotClose() throws {
+    func testSubmitFeedback_whenInvalid_shouldPresentErrorAndNotClose() throws {
         let config = SentryUserFeedbackConfiguration()
-        var submitErrors = [NSError]()
+        config.animations = false
         var closeCalls = 0
-        config.onSubmitError = { error in
-            submitErrors.append(error as NSError)
-        }
         config.onFormClose = { closeCalls += 1 }
         let sut = SentryUserFeedbackFormController(preparedConfig: config, image: nil)
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        window.rootViewController = sut
+        window.makeKeyAndVisible()
+        defer {
+            sut.presentedViewController?.dismiss(animated: false)
+            window.isHidden = true
+        }
 
-        sut.beginAppearanceTransition(true, animated: false)
-        sut.endAppearanceTransition()
         sut.submitFeedback()
 
-        let error = try XCTUnwrap(submitErrors.first)
-        XCTAssertEqual(error.code, 1)
+        let alert = try XCTUnwrap(sut.presentedViewController as? UIAlertController)
+        XCTAssertEqual(alert.title, "Error")
         XCTAssertEqual(closeCalls, 0)
     }
     

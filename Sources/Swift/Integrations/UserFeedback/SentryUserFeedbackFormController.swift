@@ -161,9 +161,10 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
             func presentAlert(message: String, errorCode: Int, info: [String: Any]) {
                 let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default))
-                // we use NSError here instead of Swift.Error because NSError automatically bridges to Swift.Error, but the same is not true in the other direction if you want to include a userInfo dictionary. Using Swift.Error would require additional implementation for this to work with ObjC consumers.
-                config.onSubmitError?(NSError(domain: "io.sentry.error", code: errorCode, userInfo: info))
-                present(alert, animated: config.animations)
+                present(alert, animated: config.animations) { [config] in
+                    // we use NSError here instead of Swift.Error because NSError automatically bridges to Swift.Error, but the same is not true in the other direction if you want to include a userInfo dictionary. Using Swift.Error would require additional implementation for this to work with ObjC consumers.
+                    config.onSubmitError?(NSError(domain: "io.sentry.error", code: errorCode, userInfo: info))
+                }
             }
 
             guard case let SentryUserFeedbackFormViewModel.InputError.validationError(missing, _) = error,
