@@ -23,6 +23,11 @@ struct AttachToTransactionStrategy: AppStartReportingStrategy {
 /// configuration. The existing tracer pipeline then handles span building, measurements, context,
 /// debug images, and profiling.
 struct StandaloneTransactionStrategy: AppStartReportingStrategy {
+
+    private enum Constants {
+        static let appStartTransactionName = "App Start"
+    }
+
     let extendedAppLaunchManager: SentryExtendedAppLaunchManager
 
     static func createTracer(
@@ -30,7 +35,7 @@ struct StandaloneTransactionStrategy: AppStartReportingStrategy {
         configuration: SentryTracerConfiguration
     ) -> any Span {
         let context = TransactionContext(
-            name: "App Start",
+            name: Constants.appStartTransactionName,
             rawNameSource: SentryTransactionNameSource.component.rawValue,
             operation: SentrySpanOperationAppStart,
             origin: SentryTraceOriginAutoAppStart,
