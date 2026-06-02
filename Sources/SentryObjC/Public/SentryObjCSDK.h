@@ -15,6 +15,7 @@
 @class SentryObjCFeedbackApi;
 @class SentryObjCId;
 @class SentryObjCLogger;
+@class SentryObjCMetricsApi;
 @class SentryObjCOptions;
 @class SentryObjCReplayApi;
 @class SentryObjCScope;
@@ -38,6 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// API to access Sentry logs.
 @property (class, nonatomic, readonly) SentryObjCLogger *logger;
+
+/// API to record metrics (counters, distributions, gauges).
+@property (class, nonatomic, readonly) SentryObjCMetricsApi *metrics;
 
 /**
  * Returns the crash status of the last program execution.

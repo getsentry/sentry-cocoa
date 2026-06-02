@@ -117,6 +117,15 @@
     XCTAssertNotNil(logger);
 }
 
+- (void)testMetrics_shouldReturnMetricsApi
+{
+    // -- Arrange & Act --
+    SentryObjCMetricsApi *metrics = SentryObjCSDK.metrics;
+
+    // -- Assert --
+    XCTAssertNotNil(metrics);
+}
+
 #pragma mark - Capture Event
 
 - (void)testCaptureEvent_shouldReturnNonEmptyId

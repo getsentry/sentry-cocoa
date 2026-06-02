@@ -7,6 +7,7 @@
 
 @class SentryObjCAttachment;
 @class SentryObjCBreadcrumb;
+@class SentryObjCSpan;
 @class SentryObjCUser;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -109,6 +110,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Clears all attachments in the scope.
 - (void)clearAttachments;
+
+/// The current Span or Transaction bound to the scope.
+@property (nullable, nonatomic, strong) SentryObjCSpan *span;
+
+/// Serializes the scope to a dictionary.
+- (NSDictionary<NSString *, id> *)serialize;
 
 /// Clears the current scope.
 - (void)clear;

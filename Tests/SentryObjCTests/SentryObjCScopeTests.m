@@ -315,6 +315,76 @@
     XCTAssertNil(scope.attributes[@"attrKey"]);
 }
 
+- (void)testSpan_whenDefault_shouldBeNil
+{
+    // -- Arrange --
+    SentryObjCScope *scope = [[SentryObjCScope alloc] init];
+
+    // -- Assert --
+    XCTAssertNil(scope.span);
+}
+
+- (void)testSpan_whenSetToNil_shouldReturnNil
+{
+    // -- Arrange --
+    SentryObjCScope *scope = [[SentryObjCScope alloc] init];
+
+    // -- Act --
+    scope.span = nil;
+
+    // -- Assert --
+    XCTAssertNil(scope.span);
+}
+
+- (void)testSpan_whenSetToSpan_shouldReturnSpan
+{
+    // -- Arrange --
+    [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
+        options.dsn = @"https://key@sentry.io/123";
+        options.enableCrashHandler = NO;
+        options.tracesSampleRate = @1.0;
+    }];
+    SentryObjCSpan *transaction = [SentryObjCSDK startTransactionWithName:@"test" operation:@"op"];
+    SentryObjCScope *scope = [[SentryObjCScope alloc] init];
+
+    // -- Act --
+    scope.span = transaction;
+
+    // -- Assert --
+    XCTAssertNotNil(scope.span);
+
+    // -- Cleanup --
+    [transaction finish];
+    [SentryObjCSDK close];
+}
+
+- (void)testSerialize_whenDefault_shouldReturnDictionary
+{
+    // -- Arrange --
+    SentryObjCScope *scope = [[SentryObjCScope alloc] init];
+
+    // -- Act --
+    NSDictionary<NSString *, id> *result = [scope serialize];
+
+    // -- Assert --
+    XCTAssertNotNil(result);
+}
+
+- (void)testSerialize_whenTagsSet_shouldIncludeTagsInResult
+{
+    // -- Arrange --
+    SentryObjCScope *scope = [[SentryObjCScope alloc] init];
+    [scope setTagValue:@"val" forKey:@"key"];
+
+    // -- Act --
+    NSDictionary<NSString *, id> *result = [scope serialize];
+
+    // -- Assert --
+    XCTAssertNotNil(result);
+    NSDictionary *tags = result[@"tags"];
+    XCTAssertEqualObjects(tags[@"key"], @"val");
+}
+
 - (void)testClear_whenCalled_shouldNotCrash
 {
     // -- Arrange --

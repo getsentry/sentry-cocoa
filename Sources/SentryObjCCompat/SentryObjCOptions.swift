@@ -135,6 +135,32 @@ import Foundation
         }
     }
 
+    @objc public var beforeSendLog: ((SentryObjCLog) -> SentryObjCLog?)? {
+        didSet {
+            if let beforeSendLog = beforeSendLog {
+                wrapped.beforeSendLog = { log in
+                    guard let result = beforeSendLog(SentryObjCLog(log)) else { return nil }
+                    return result.wrapped
+                }
+            } else {
+                wrapped.beforeSendLog = nil
+            }
+        }
+    }
+
+    @objc public var beforeSendMetric: ((SentryObjCMetric) -> SentryObjCMetric?)? {
+        didSet {
+            if let beforeSendMetric = beforeSendMetric {
+                wrapped.beforeSendMetric = { metric in
+                    guard let result = beforeSendMetric(SentryObjCMetric(metric)) else { return nil }
+                    return result.wrapped
+                }
+            } else {
+                wrapped.beforeSendMetric = nil
+            }
+        }
+    }
+
     @objc public var beforeCaptureScreenshot: ((SentryObjCEvent) -> Bool)? {
         didSet {
             if let beforeCaptureScreenshot = beforeCaptureScreenshot {
