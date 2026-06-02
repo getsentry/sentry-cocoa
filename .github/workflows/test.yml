@@ -267,7 +267,7 @@ jobs:
     with:
       name: ${{matrix.name}}
       runs-on: ${{ matrix.runs-on }}
-      should_skip: ${{github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
+      should_skip: ${{ (github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true') || (matrix.runner_provider == 'cirrus' && matrix.runs-on == 'sonoma') }}
       xcode: ${{matrix.xcode}}
       platform: ${{matrix.platform}}
       test-destination-os: ${{matrix.test-destination-os}}
@@ -321,7 +321,6 @@ jobs:
 
           # macOS 14 — Bitrise only (sonoma pool still available)
           - name: macOS 14 Sentry
-            runner_provider: "bitrise"
             runs-on: sonoma
             xcode: "16"
             test-destination-os: ""
@@ -356,7 +355,6 @@ jobs:
 
           # Catalyst 14 — Bitrise only (sonoma pool still available)
           - name: Catalyst 14 Sentry
-            runner_provider: "bitrise"
             runs-on: sonoma
             xcode: "16"
             test-destination-os: ""
