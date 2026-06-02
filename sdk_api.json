@@ -53560,19 +53560,29 @@
           {
             "children": [
               {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Span",
+                    "printedName": "any Sentry.Span",
+                    "usr": "c:objc(pl)SentrySpan"
+                  }
+                ],
                 "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
+                "name": "Optional",
+                "printedName": "(any Sentry.Span)?",
+                "usr": "s:Sq"
               }
             ],
             "declAttributes": [
+              "DiscardableResult",
               "Final",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC15extendAppLaunchyyFZ",
+            "mangledName": "$s6Sentry0A3SDKC15extendAppLaunchSo0A4Span_pSgyFZ",
             "moduleName": "Sentry",
             "name": "extendAppLaunch",
             "printedName": "extendAppLaunch()",

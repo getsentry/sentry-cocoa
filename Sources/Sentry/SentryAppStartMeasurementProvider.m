@@ -138,7 +138,6 @@ static NSString *_Nullable appStartScreen;
     }
 }
 
-#    if SENTRY_TEST || SENTRY_TEST_CI
 + (nullable SentryId *)appStartTraceId
 {
     @synchronized(appStartMeasurementLock) {
@@ -146,6 +145,7 @@ static NSString *_Nullable appStartScreen;
     }
 }
 
+#    if SENTRY_TEST || SENTRY_TEST_CI
 + (void)reset
 {
     @synchronized(appStartMeasurementLock) {

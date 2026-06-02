@@ -15,6 +15,7 @@
   - Replace your dependency on the target `Sentry` or `SentrySPM` with `SentryObjC` (or `SentryObjC-Static` / `SentryObjC-Dynamic` if you want to use the precompiled binary targets).
   - Change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`
   - Rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
+- `SentrySDK.extendAppLaunch()` now returns the extended app launch span, allowing users to add child spans for granular breakdown of the app start period (#7985)
 
 ### Fixes
 
