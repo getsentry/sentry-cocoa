@@ -427,6 +427,8 @@ jobs:
         swift-build,
         duplication-tests,
         app-metrics,
+        assemble-sentryobjc-static-xcframework,
+        assemble-sentryobjc-dynamic-xcframework,
       ]
     if: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
