@@ -392,18 +392,6 @@ jobs:
             xcode: "16"
             platform: "Catalyst"
 
-          # Catalyst 26
-          - name: Catalyst 26 Sentry
-            runner_provider: cirrus
-            runs-on: tahoe
-            xcode: "26"
-            platform: "Catalyst"
-          - name: Catalyst 26 Sentry
-            runner_provider: bitrise
-            runs-on: tahoe
-            xcode: "26"
-            platform: "Catalyst"
-
           ## We don't run unit tests on macCatalyst 26 yet because of https://github.com/getsentry/sentry-cocoa/issues/6165.
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
