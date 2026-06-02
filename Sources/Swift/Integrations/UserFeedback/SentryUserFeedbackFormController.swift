@@ -21,13 +21,12 @@ public final class SentryUserFeedbackFormController: UIViewController {
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
 
     /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback`.
-    @objc public convenience init() {
+    @nonobjc public convenience init() {
         self.init(image: nil)
     }
 
     /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback` and image attachment.
     /// - Parameter image: An optional image to attach to the feedback form.
-    @objc(initWithImage:)
     public convenience init(image: UIImage?) {
         self.init(preparedConfig: Self.globalConfigurationOrDefault(), image: image)
     }

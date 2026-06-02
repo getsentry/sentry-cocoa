@@ -27,24 +27,11 @@ import UIKit
     /// The SDK shows the form from the key-window presenter in a foreground-active scene.
     ///
     /// The form uses the global configuration from `SentryOptions.configureUserFeedback`.
-    /// - Important: Call this method from the main thread.
-    /// - warning: This is an experimental feature and may still have bugs.
-    @available(iOSApplicationExtension, unavailable)
-    @objc public func show() {
-        show(image: nil)
-    }
-
-    /// Show the feedback form using the best available presenter.
-    ///
-    /// The SDK shows the form from the key-window presenter in a foreground-active scene.
-    ///
-    /// The form uses the global configuration from `SentryOptions.configureUserFeedback`.
     /// - Parameter image: An optional image to attach to the feedback form.
     /// - Important: Call this method from the main thread.
     /// - warning: This is an experimental feature and may still have bugs.
     @available(iOSApplicationExtension, unavailable)
-    @objc(showWithImage:)
-    public func show(image: UIImage?) {
+    public func show(image: UIImage? = nil) {
         guard let presenter = SentryFeedbackFormPresenter.presentingViewController() else {
             SentrySDKLog.debug("Cannot show feedback form — no presenter available")
             return
