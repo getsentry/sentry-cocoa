@@ -30,6 +30,10 @@ class SentryFeedbackTests: XCTestCase {
         }
     }
 
+    private final class DismissingParentViewController: UIViewController {
+        override var isBeingDismissed: Bool { true }
+    }
+
     func testFormLifecycle_whenFormAppears_shouldCallOpenOnce() {
         let config = SentryUserFeedbackConfiguration()
         var openCalls = 0
@@ -60,6 +64,24 @@ class SentryFeedbackTests: XCTestCase {
 
         XCTAssertEqual(closeCalls, 1)
         XCTAssertEqual(delegate.closeCalls, 1)
+    }
+
+    func testFormLifecycle_whenPresentingParentDismisses_shouldCallCloseOnce() {
+        let config = SentryUserFeedbackConfiguration()
+        var closeCalls = 0
+        config.onFormClose = { closeCalls += 1 }
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, image: nil)
+        let parent = DismissingParentViewController()
+        parent.addChild(sut)
+        parent.view.addSubview(sut.view)
+        sut.didMove(toParent: parent)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.beginAppearanceTransition(false, animated: false)
+        sut.endAppearanceTransition()
+
+        XCTAssertEqual(closeCalls, 1)
     }
 
     func testFormLifecycle_whenSameFormIsPresentedAgain_shouldCallHooksAgain() {

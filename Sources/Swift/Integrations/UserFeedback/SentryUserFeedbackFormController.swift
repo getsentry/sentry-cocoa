@@ -67,8 +67,24 @@ public final class SentryUserFeedbackFormController: UIViewController {
         super.viewDidDisappear(animated)
 
         guard presentedViewController == nil else { return }
-        guard isBeingDismissed || isMovingFromParent else { return }
+        guard isBeingDismissedOrRemovedFromHierarchy else { return }
         notifyFormDidClose()
+    }
+
+    private var isBeingDismissedOrRemovedFromHierarchy: Bool {
+        if isBeingDismissed || isMovingFromParent {
+            return true
+        }
+
+        var ancestor = parent
+        while let viewController = ancestor {
+            if viewController.isBeingDismissed || viewController.isMovingFromParent {
+                return true
+            }
+            ancestor = viewController.parent
+        }
+
+        return false
     }
 
     init(preparedConfig config: SentryUserFeedbackConfiguration, image: UIImage?) {
