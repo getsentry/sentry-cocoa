@@ -38,10 +38,9 @@ public struct SentrySDKWrapper {
             let appStartSpan = SentrySDK.extendAppLaunch()
 
             let configSpan = appStartSpan?.startChild(operation: "app.init", description: "load configuration")
-            configSpan?.finish()
 
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(delay) / 2) {
-                appStartSpan?.finish()
+                configSpan?.finish()
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(delay)) {
