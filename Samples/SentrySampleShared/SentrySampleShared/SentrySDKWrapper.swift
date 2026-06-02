@@ -27,12 +27,6 @@ public struct SentrySDKWrapper {
             SentrySDK.close()
         }
         
-#if os(iOS) || os(tvOS) || os(visionOS)
-        if let delay = SentrySDKOverrides.Performance.extendAppLaunchDelay.floatValue {
-            SentrySDK.extendAppLaunch()
-        }
-#endif // os(iOS) || os(tvOS) || os(visionOS))
-
         if !SentrySDKOverrides.Special.skipSDKInit.boolValue {
             print("[Sentry] lastRunStatus before start: \(SentrySDK.lastRunStatus)")
             SentrySDK.start(configureOptions: configureSentryOptions(options:))
@@ -41,8 +35,17 @@ public struct SentrySDKWrapper {
 
 #if os(iOS) || os(tvOS) || os(visionOS)
         if let delay = SentrySDKOverrides.Performance.extendAppLaunchDelay.floatValue {
+            let appStartSpan = SentrySDK.extendAppLaunch()
+
+            let configSpan = appStartSpan?.startChild(operation: "app.init", description: "load configuration")
+            configSpan?.finish()
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(delay) / 2) {
+                appStartSpan?.finish()
+            }
+
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(delay)) {
-                SentrySDK.finishExtendedAppLaunch()
+                appStartSpan?.finish()
             }
         }
 #endif // os(iOS) || os(tvOS) || os(visionOS))

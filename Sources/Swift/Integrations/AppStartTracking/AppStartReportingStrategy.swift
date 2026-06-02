@@ -25,40 +25,49 @@ struct AttachToTransactionStrategy: AppStartReportingStrategy {
 struct StandaloneTransactionStrategy: AppStartReportingStrategy {
     let extendedAppLaunchManager: SentryExtendedAppLaunchManager
 
+    static func createTracer(
+        traceId: SentryId = SentryId(),
+        configuration: SentryTracerConfiguration
+    ) -> any Span {
+        let context = TransactionContext(
+            name: "App Start",
+            rawNameSource: SentryTransactionNameSource.component.rawValue,
+            operation: SentrySpanOperationAppStart,
+            origin: SentryTraceOriginAutoAppStart,
+            trace: traceId
+        )
+
+        let hub = SentrySDKInternal.currentHub()
+        return hub.startTransaction(
+            with: context,
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: configuration
+        )
+    }
+
     func report(_ measurement: SentryAppStartMeasurement, traceId: SentryId) {
         guard SentrySDK.isEnabled else {
             SentrySDKLog.warning("SDK is not enabled, dropping standalone app start transaction")
             return
         }
 
-        let operation = SentrySpanOperationAppStart
-        let name = "App Start"
+        defer {
+            extendedAppLaunchManager.markAppStartCreated()
+        }
 
-        let context = TransactionContext(
-            name: name,
-            rawNameSource: SentryTransactionNameSource.component.rawValue,
-            operation: operation,
-            origin: SentryTraceOriginAutoAppStart,
-            trace: traceId
-        )
+        if extendedAppLaunchManager.isTracerAlreadyCreated() {
+            extendedAppLaunchManager.setAppStartMeasurement(measurement)
+            return
+        }
 
         let configuration = SentryTracerConfiguration(block: { config in
             config.appStartMeasurement = measurement
             SentryAppStartMeasurementProvider.markAsRead()
         })
 
-        let hub = SentrySDKInternal.currentHub()
-        let tracer = hub.startTransaction(
-            with: context,
-            bindToScope: false,
-            customSamplingContext: [:],
-            configuration: configuration
-        )
-
-        extendedAppLaunchManager.markAppStartCreated()
-        if !extendedAppLaunchManager.storeTracerIfExtendRequested(tracer) {
-            tracer.finish()
-        }
+        let tracer = Self.createTracer(traceId: traceId, configuration: configuration)
+        tracer.finish()
     }
 
     func shouldSkipMaxAppStartDurationLimit() -> Bool {

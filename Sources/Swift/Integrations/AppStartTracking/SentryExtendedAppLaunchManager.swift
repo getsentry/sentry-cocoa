@@ -9,22 +9,57 @@ final class SentryExtendedAppLaunchManager {
     private var extendRequested = false
     private var extendTimestamp: Date?
     private var tracer: (any Span)?
+    private var tracerConfiguration: SentryTracerConfiguration?
+    private var extendedSpan: (any Span)?
     private var appStartCreated = false
 
     var isExtendRequested: Bool {
         lock.synchronized { extendRequested }
     }
 
-    func extend() {
-        lock.synchronized {
+    @discardableResult
+    func extend() -> (any Span)? {
+        let timestamp: Date? = lock.synchronized {
             if appStartCreated {
                 SentrySDKLog.warning("extendAppLaunch() called after the app start transaction was already created. The app launch cannot be extended.")
-                return
+                return nil
             }
             SentrySDKLog.debug("Extending app launch")
             extendRequested = true
             extendTimestamp = Date()
+            return extendTimestamp
         }
+
+        guard let timestamp else { return nil }
+
+        guard SentrySDK.isEnabled else {
+            SentrySDKLog.warning("extendAppLaunch() called before starting the SDK. Call SentrySDK.start(options:) first.")
+            lock.synchronized {
+                extendRequested = false
+                extendTimestamp = nil
+            }
+            return nil
+        }
+
+        let config = SentryTracerConfiguration(block: { c in
+            c.waitForChildren = true
+        })
+
+        let newTracer = StandaloneTransactionStrategy.createTracer(configuration: config)
+
+        let child = newTracer.startChild(
+            operation: SentrySpanOperationAppStart,
+            description: "Extended App Start"
+        )
+        child.startTimestamp = timestamp
+
+        lock.synchronized {
+            self.tracer = newTracer
+            self.tracerConfiguration = config
+            self.extendedSpan = child
+        }
+
+        return child
     }
 
     func markAppStartCreated() {
@@ -34,50 +69,43 @@ final class SentryExtendedAppLaunchManager {
         }
     }
 
-    /// Atomically checks if an extend was requested and stores the tracer if so.
-    /// Returns `true` if the tracer was stored; `false` if caller should finish it.
-    func storeTracerIfExtendRequested(_ tracer: any Span) -> Bool {
-        lock.synchronized {
-            guard extendRequested else {
-                SentrySDKLog.debug("storeTracerIfExtendRequested() called but no extend was requested")
-                return false
-            }
-            SentrySDKLog.debug("Storing tracer for extended app launch")
-            self.tracer = tracer
-            return true
+    func setAppStartMeasurement(_ measurement: SentryAppStartMeasurement) {
+        let tracerToFinish: (any Span)? = lock.synchronized {
+            tracerConfiguration?.appStartMeasurement = measurement
+            SentryAppStartMeasurementProvider.markAsRead()
+            return tracer
         }
+        tracerToFinish?.finish()
+    }
+
+    /// Returns `true` if the tracer was already created by `extend()`;
+    /// `false` if the caller should create and finish its own tracer.
+    func isTracerAlreadyCreated() -> Bool {
+        lock.synchronized { tracer != nil }
     }
 
     func finish() {
-        let (tracerToFinish, startTimestamp, wasAppStartCreated) = lock.synchronized { () -> (Span?, Date?, Bool) in
-            let created = appStartCreated
+        let spanToFinish: (any Span)? = lock.synchronized {
             defer {
-                tracer = nil
-                extendTimestamp = nil
+                extendedSpan = nil
                 extendRequested = false
-                appStartCreated = true
+                extendTimestamp = nil
             }
-            guard let t = tracer, let ts = extendTimestamp else {
-                return (nil, nil, created)
+            guard extendedSpan != nil else {
+                if appStartCreated {
+                    SentrySDKLog.warning("finishExtendedAppLaunch() called but the app start transaction was already completed. Call extendAppLaunch() before the app start transaction finishes.")
+                } else {
+                    SentrySDKLog.warning("finishExtendedAppLaunch() called but there is no extended app launch in progress.")
+                }
+                return nil
             }
-            return (t as Span?, ts as Date?, created)
+            return extendedSpan
         }
 
-        guard let tracerToFinish, let startTimestamp else {
-            if wasAppStartCreated {
-                SentrySDKLog.warning("finishExtendedAppLaunch() called but the app start transaction was already completed. Call extendAppLaunch() before the app start transaction finishes.")
-            } else {
-                SentrySDKLog.warning("finishExtendedAppLaunch() called but there is no extended app launch in progress.")
-            }
-            return
-        }
+        guard let spanToFinish else { return }
 
         SentrySDKLog.debug("Finishing extended app launch")
-        let child = tracerToFinish.startChild(operation: SentrySpanOperationAppStart, description: "Extended App Start")
-        child.startTimestamp = startTimestamp
-        child.finish()
-
-        tracerToFinish.finish()
+        spanToFinish.finish()
     }
 
     func reset() {
@@ -85,6 +113,8 @@ final class SentryExtendedAppLaunchManager {
             extendRequested = false
             extendTimestamp = nil
             tracer = nil
+            tracerConfiguration = nil
+            extendedSpan = nil
             appStartCreated = false
         }
     }

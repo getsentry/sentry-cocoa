@@ -382,7 +382,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
 
         XCTAssertTrue(hub.capturedTransactionsWithScope.invocations.isEmpty,
-            "report() should store the tracer via storeTracerIfExtendRequested and not finish it")
+            "report() should set the measurement on the existing tracer and not finish it")
 
         manager.finish()
         XCTAssertEqual(hub.capturedTransactionsWithScope.invocations.count, 1,
