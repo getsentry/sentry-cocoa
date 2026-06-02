@@ -14,7 +14,7 @@ on:
 jobs:
   build-sentryobjc-dynamic-slice:
     name: ${{ matrix.sdk }}
-    runs-on: macos-15
+    runs-on: macos-26
 
     strategy:
       matrix:
@@ -25,7 +25,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
 
       - name: Download static slice for ${{ matrix.sdk }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8

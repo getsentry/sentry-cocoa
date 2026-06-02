@@ -20,7 +20,7 @@ on:
 jobs:
   build-sentryobjc-static-slice:
     name: ${{ matrix.sdk }}
-    runs-on: macos-15
+    runs-on: macos-26
 
     strategy:
       matrix:
@@ -31,7 +31,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
 
       - name: Get version
         id: get-version
