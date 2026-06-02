@@ -149,18 +149,21 @@ jobs:
   validate-xcframework:
     name: Validate XCFramework
     runs-on: macos-15
-    needs: [files-changed, assemble-xcframework-variant]
+    needs:
+      [
+        files-changed,
+        assemble-xcframework-variant,
+        assemble-sentryobjc-static-xcframework,
+        assemble-sentryobjc-dynamic-xcframework,
+      ]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          pattern: xcframework-${{github.sha}}-sentry-static
-          path: XCFrameworkBuildPath/
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        with:
-          pattern: xcframework-${{github.sha}}-sentry-swiftui
+          pattern: xcframework-${{github.sha}}-*
+          merge-multiple: true
           path: XCFrameworkBuildPath/
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
@@ -169,6 +172,22 @@ jobs:
       - name: Unzip all XCFrameworks
         run: |
           find XCFrameworkBuildPath -name "*.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
+      - name: Validate all XCFrameworks
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          found=0
+          while IFS= read -r -d '' xcframework; do
+            found=1
+            ./scripts/validate-xcframework-format.sh "$xcframework"
+            ./scripts/validate-xcframework-architectures.sh --xcframework "$xcframework"
+          done < <(find XCFrameworkBuildPath -name "*.xcframework" -type d -print0)
+
+          if [ "$found" -eq 0 ]; then
+            echo "No XCFrameworks found to validate." >&2
+            exit 1
+          fi
       - name: Strip expectedSignature attributes from XCFramework project
         if: ${{ github.event_name == 'pull_request' }}
         run: make strip-xcframework-expected-signature
