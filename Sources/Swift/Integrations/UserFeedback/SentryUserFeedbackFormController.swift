@@ -81,8 +81,15 @@ public final class SentryUserFeedbackFormController: UIViewController {
     }
 
     /// Unavailable. Use `init(config:)` or `init(config:image:)` instead.
+    @available(*, unavailable, message: "Use init(config:) or init(config:image:) instead.")
+    override public init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        fatalError("Use init(config:) or init(config:image:) instead.")
+    }
+
+    /// Unavailable. Use `init(config:)` or `init(config:image:)` instead.
+    @available(*, unavailable, message: "Use init(config:) or init(config:image:) instead.")
     public required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        fatalError("Use init(config:) or init(config:image:) instead.")
     }
 }
 
