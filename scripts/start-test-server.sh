@@ -31,7 +31,7 @@ log_info "Making test server executable"
 chmod +x ./test-server-exec
 
 log_info "Start the test server in the background"
-./test-server-exec &
+./test-server-exec serve --port 8081 &
 
 log_info "Waiting up to 20 seconds for the test server to respond"
 
