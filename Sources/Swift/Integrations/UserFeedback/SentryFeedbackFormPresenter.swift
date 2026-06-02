@@ -6,56 +6,33 @@ import UIKit
 
 @available(iOSApplicationExtension, unavailable)
 enum SentryFeedbackFormPresenter {
-    /// Finds a view controller suitable for automatic presentation by using the key
-    /// window in a foreground-active scene.
+    /// Finds a view controller suitable for automatic presentation by reusing the SDK's
+    /// active-window and relevant-view-controller lookup.
     static func presentingViewController() -> UIViewController? {
-        for case let windowScene as UIWindowScene in UIApplication.shared.connectedScenes
-            where windowScene.activationState == .foregroundActive {
-            if let viewController = keyWindowViewController(
-                in: windowScene,
-                resolving: { window in topMostPresentedViewController(from: window.rootViewController) }
-            ) {
-                return viewController
-            }
+        guard let viewControllers = SentryDependencyContainer.sharedInstance().application()?.internal_relevantViewControllers() else {
+            return nil
         }
 
-        return nil
+        return viewControllers.first(where: canPresentForm(from:))
     }
 
-    /// Finds the view controller that should present the feedback form for the key window in
-    /// the given scene.
-    private static func keyWindowViewController(
-        in windowScene: UIWindowScene,
-        resolving resolveViewController: (UIWindow) -> UIViewController?
-    ) -> UIViewController? {
-        for window in windowScene.windows where window.isKeyWindow {
-            guard let viewController = resolveViewController(window) else {
-                continue
-            }
-            return viewController
-        }
-        return nil
-    }
-
-    /// Resolves the view controller best suited for presenting the feedback form by walking
-    /// through any view controllers already presented by the starting view controller.
-    private static func topMostPresentedViewController(from viewController: UIViewController?) -> UIViewController? {
-        var currentViewController = viewController
-        while let presentedViewController = currentViewController?.presentedViewController {
-            currentViewController = presentedViewController
+    private static func canPresentForm(from viewController: UIViewController) -> Bool {
+        guard viewController.presentedViewController == nil else {
+            SentrySDKLog.debug("Cannot show feedback form — presenter is already presenting another view controller")
+            return false
         }
 
-        guard currentViewController?.isBeingDismissed != true else {
+        guard !viewController.isBeingDismissed else {
             SentrySDKLog.debug("Cannot show feedback form — presenter is being dismissed")
-            return nil
+            return false
         }
 
-        guard currentViewController?.isBeingPresented != true else {
+        guard !viewController.isBeingPresented else {
             SentrySDKLog.debug("Cannot show feedback form — presenter is being presented")
-            return nil
+            return false
         }
 
-        return currentViewController
+        return true
     }
 }
 

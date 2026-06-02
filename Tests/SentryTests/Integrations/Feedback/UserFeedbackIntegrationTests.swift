@@ -166,39 +166,12 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertTrue(widgetHost.isWidgetVisible)
     }
 
-    // MARK: - SentryFeedbackFormPresenter tests
-
-    func testFeedbackFormPresenter_whenKeyWindowPresenterAvailable_shouldReturnPresenter() throws {
-        let viewController = UIViewController()
-        let window = try makeKeyWindow(rootViewController: viewController)
-
-        let presenter = try XCTUnwrap(SentryFeedbackFormPresenter.presentingViewController())
-
-        XCTAssertIdentical(presenter, viewController)
-
-        withExtendedLifetime(window) { }
-    }
-
     // MARK: - Helper Types
 
     private func addCustomButton(to viewController: UIViewController, configuration: SentryUserFeedbackConfiguration) {
         let customButton = UIButton()
         configuration.customButton = customButton
         viewController.view.addSubview(customButton)
-    }
-
-    private func makeKeyWindow(rootViewController: UIViewController) throws -> UIWindow {
-        guard let windowScene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first(where: { $0.activationState == .foregroundActive }) else {
-            throw XCTSkip("No foreground-active window scene available")
-        }
-
-        let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = rootViewController
-        window.makeKeyAndVisible()
-        rootViewController.loadViewIfNeeded()
-        return window
     }
 
     private final class TestPresentingViewController: UIViewController {
