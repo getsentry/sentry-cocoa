@@ -96,6 +96,7 @@ if is_macos_layout "$SDK"; then
     ln -sfh A "$FW_DIR/Versions/Current"
     ln -sfh Versions/Current/Headers "$FW_DIR/Headers"
     ln -sfh Versions/Current/Modules "$FW_DIR/Modules"
+    ln -sfh Versions/Current/Resources "$FW_DIR/Resources"
     ln -sfh "Versions/Current/$FRAMEWORK_NAME" "$FW_DIR/$FRAMEWORK_NAME"
     modules_dir="$versioned/Modules"
     binary_path="$versioned/$FRAMEWORK_NAME"

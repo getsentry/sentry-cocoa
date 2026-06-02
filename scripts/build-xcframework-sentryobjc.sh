@@ -58,10 +58,17 @@ esac
 
 rm -rf "$OUTPUT_DIR/archive/SentryObjC" "$OUTPUT_DIR/DerivedData" "$OUTPUT_DIR/lib/SentryObjC" "$OUTPUT_DIR/framework/SentryObjC"
 
-PACKAGE_FILE="$PACKAGE_PATH/Package.swift"
-cp "$PACKAGE_FILE" "$PACKAGE_FILE.bak"
-trap 'mv "$PACKAGE_FILE.bak" "$PACKAGE_FILE"' EXIT
-"$SCRIPT_DIR/prepare-package.sh" --package-file "$PACKAGE_FILE" --strip-binary-targets true
+PACKAGE_FILES=()
+for f in "$PACKAGE_PATH"/Package.swift "$PACKAGE_PATH"/Package@swift-*.swift; do
+    [ -f "$f" ] && PACKAGE_FILES+=("$f")
+done
+
+for f in "${PACKAGE_FILES[@]}"; do
+    cp "$f" "$f.bak"
+done
+trap 'for f in "${PACKAGE_FILES[@]}"; do mv "$f.bak" "$f"; done' EXIT
+
+"$SCRIPT_DIR/prepare-package.sh" --strip-binary-targets true
 
 IFS=',' read -r -a sdk_list <<< "$SDKS"
 

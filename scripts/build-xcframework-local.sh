@@ -103,7 +103,17 @@ if [ "$variants" = "WithoutUIKitWithARM64eOnly" ] || [ "$variants" = "AllVariant
     end_group
 fi
 
-if [ "$variants" = "SentryObjCStaticOnly" ] || [ "$variants" = "AllVariants" ]; then
+if [ "$variants" = "AllVariants" ]; then
+    begin_group "SentryObjC-Static + SentryObjC-Dynamic"
+    ./scripts/build-xcframework-sentryobjc.sh --sdks "$sdks" --output-dir XCFrameworkBuildPath --variant both
+    for name in SentryObjC-Static SentryObjC-Dynamic; do
+        ./scripts/validate-xcframework-format.sh "$name.xcframework"
+        ./scripts/validate-xcframework-architectures.sh --xcframework "$name.xcframework"
+        ./scripts/compress-xcframework.sh "$signed" "$name"
+        mv "$name.xcframework.zip" XCFrameworkBuildPath/"$name.xcframework.zip"
+    done
+    end_group
+elif [ "$variants" = "SentryObjCStaticOnly" ]; then
     begin_group "SentryObjC-Static"
     ./scripts/build-xcframework-sentryobjc.sh --sdks "$sdks" --output-dir XCFrameworkBuildPath
     ./scripts/validate-xcframework-format.sh "SentryObjC-Static.xcframework"
@@ -111,9 +121,7 @@ if [ "$variants" = "SentryObjCStaticOnly" ] || [ "$variants" = "AllVariants" ]; 
     ./scripts/compress-xcframework.sh "$signed" SentryObjC-Static
     mv SentryObjC-Static.xcframework.zip XCFrameworkBuildPath/SentryObjC-Static.xcframework.zip
     end_group
-fi
-
-if [ "$variants" = "SentryObjCDynamicOnly" ] || [ "$variants" = "AllVariants" ]; then
+elif [ "$variants" = "SentryObjCDynamicOnly" ]; then
     begin_group "SentryObjC-Dynamic"
     ./scripts/build-xcframework-sentryobjc.sh --sdks "$sdks" --output-dir XCFrameworkBuildPath --variant dynamic
     ./scripts/validate-xcframework-format.sh "SentryObjC-Dynamic.xcframework"
