@@ -114,9 +114,11 @@ jobs:
 
       - name: Install Ruby (Bitrise)
         if: matrix.runner_provider == 'bitrise'
+        working-directory: sentry-react-native
         run: |
           brew upgrade ruby-build
-          rbenv install 3.3.10
+          rbenv install -s
+          bundle install
 
       - name: Setup Ruby
         if: matrix.runner_provider != 'bitrise'
