@@ -35,22 +35,42 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner_provider: ["cirrus", "bitrise"]
         # Additional devices and platforms not covered by the regular CI matrix in test.yml.
         include:
           - name: iOS 26 iPad Sentry
+            runner_provider: cirrus
+            runs-on: tahoe
+            xcode: "26"
+            platform: "iOS"
+            device: "iPad Pro 13-inch (M5)"
+          - name: iOS 26 iPad Sentry
+            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "iOS"
             device: "iPad Pro 13-inch (M5)"
 
           - name: watchOS 26 Sentry
+            runner_provider: cirrus
+            runs-on: tahoe
+            xcode: "26"
+            platform: "watchOS"
+            timeout: 30
+          - name: watchOS 26 Sentry
+            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "watchOS"
             timeout: 30
 
           - name: visionOS 2.5 Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "26"
+            platform: "visionOS"
+            timeout: 30
+          - name: visionOS 2.5 Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "26"
             platform: "visionOS"
