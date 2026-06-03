@@ -11,7 +11,7 @@ usage() {
 Usage: $(basename "$0")
 
 Start the test server (./test-server-exec) in the background and wait
-up to 20 seconds for it to respond on http://localhost:8080.
+up to 20 seconds for it to respond on http://localhost:8081.
 
 EOF
     exit 1
@@ -22,7 +22,7 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
 fi
 
 is_server_running() {
-    curl -s http://localhost:8080/echo-baggage-header > /dev/null 2>&1
+    curl -s http://localhost:8081/echo-baggage-header > /dev/null 2>&1
 }
 
 begin_group "Starting test server"
@@ -31,7 +31,7 @@ log_info "Making test server executable"
 chmod +x ./test-server-exec
 
 log_info "Start the test server in the background"
-./test-server-exec &
+./test-server-exec serve --port 8081 &
 
 log_info "Waiting up to 20 seconds for the test server to respond"
 
@@ -60,7 +60,7 @@ done
 end_group
 
 if [ "$server_started" = true ]; then
-    log_info "Test server successfully started and is responding at http://localhost:8080"
+    log_info "Test server successfully started and is responding at http://localhost:8081"
 else
     log_error "Test server failed to start or is not responding after 20 seconds"
     exit 1
