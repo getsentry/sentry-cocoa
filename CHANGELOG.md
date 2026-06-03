@@ -16,6 +16,11 @@
   - Change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`
   - Rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
 - `SentrySDK.extendAppLaunch()` now returns the extended app launch span, allowing users to add child spans for granular breakdown of the app start period (#7985)
+- Add format-string logging to `SentryObjCLogger` with automatic message template extraction (#7996)
+
+  ```objc
+  [SentryObjCSDK.logger infoWithFormat:@"User %@ processed %d items", userName, count];
+  ```
 
 ### Fixes
 
