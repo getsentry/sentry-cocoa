@@ -148,7 +148,6 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
         if !(reportingStrategy is StandaloneTransactionStrategy) {
             framesTracker.removeListener(self)
         }
-        SentryAppStartMeasurementProvider.setAppStartTrace(nil)
 
         #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
         isRunning = false
