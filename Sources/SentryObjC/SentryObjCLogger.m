@@ -169,6 +169,15 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
             }
             break;
         }
+        case 'D': {
+            paramValue = @(va_arg(args, int));
+            break;
+        }
+        case 'O':
+        case 'U': {
+            paramValue = @(va_arg(args, unsigned int));
+            break;
+        }
         case 'c': {
             paramValue = [NSString stringWithFormat:@"%c", (char)va_arg(args, int)];
             break;
@@ -177,9 +186,28 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
             paramValue = [NSString stringWithFormat:@"%C", (unichar)va_arg(args, int)];
             break;
         }
+        case 'S': {
+            const unichar *s = va_arg(args, const unichar *);
+            if (s) {
+                NSUInteger len = 0;
+                while (s[len] != 0)
+                    len++;
+                paramValue = [NSString stringWithCharacters:s length:len];
+            } else {
+                paramValue = @"(null)";
+            }
+            break;
+        }
         case 's': {
             const char *s = va_arg(args, const char *);
-            paramValue = s ? [NSString stringWithUTF8String:s] : @"(null)";
+            if (s) {
+                NSString *str = [NSString stringWithUTF8String:s];
+                paramValue = str
+                    ?: [NSString stringWithCString:s encoding:NSASCIIStringEncoding]
+                    ?: @"(invalid encoding)";
+            } else {
+                paramValue = @"(null)";
+            }
             break;
         }
         case 'p': {

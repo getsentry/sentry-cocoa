@@ -418,6 +418,265 @@
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @"hello");
 }
 
+#pragma mark - format: legacy Apple specifiers
+
+- (void)testDebugWithFormat_withLegacyD_shouldExtractIntParameter
+{
+    // -- Act --
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat"
+    [SentryObjCSDK.logger debugWithFormat:@"Value: %D", 99];
+#pragma clang diagnostic pop
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @99);
+}
+
+- (void)testDebugWithFormat_withLegacyO_shouldExtractUnsignedIntParameter
+{
+    // -- Act --
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat"
+    [SentryObjCSDK.logger debugWithFormat:@"Octal: %O", 255u];
+#pragma clang diagnostic pop
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @255);
+}
+
+- (void)testDebugWithFormat_withLegacyU_shouldExtractUnsignedIntParameter
+{
+    // -- Act --
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat"
+    [SentryObjCSDK.logger debugWithFormat:@"Unsigned: %U", 1024u];
+#pragma clang diagnostic pop
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @1024);
+}
+
+#pragma mark - format: unichar specifiers
+
+- (void)testDebugWithFormat_withUnicharString_shouldExtractStringParameter
+{
+    // -- Arrange --
+    const unichar chars[] = { 'H', 'i', 0 };
+
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Greeting: %S", chars];
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Greeting: Hi");
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @"Hi");
+}
+
+- (void)testDebugWithFormat_withUnicharChar_shouldExtractStringParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Char: %C", (unichar)0x2603];
+
+    // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.parameter.0"].type, @"string");
+    XCTAssertNotNil(self.capturedLog.attributes[@"sentry.message.parameter.0"].value);
+}
+
+#pragma mark - format: additional integer specifiers
+
+- (void)testDebugWithFormat_withUppercaseHex_shouldExtractParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Hex: %X", 255u];
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @255);
+}
+
+- (void)testDebugWithFormat_withOctal_shouldExtractParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Octal: %o", 8u];
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @8);
+}
+
+- (void)testDebugWithFormat_withISpecifier_shouldExtractIntParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Value: %i", 42];
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @42);
+}
+
+- (void)testDebugWithFormat_withUnsignedLongLong_shouldExtractParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Big: %llu", (unsigned long long)999999999999ULL];
+
+    // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @999999999999ULL);
+}
+
+- (void)testDebugWithFormat_withPtrdiffT_shouldExtractParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Diff: %td", (ptrdiff_t)42];
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @42);
+}
+
+- (void)testDebugWithFormat_withQuad_shouldExtractLongLongParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Quad: %qd", (long long)123456789LL];
+
+    // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @123456789LL);
+}
+
+- (void)testDebugWithFormat_withShort_shouldExtractParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Short: %hd", (short)42];
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @42);
+}
+
+- (void)testDebugWithFormat_withCharAsInt_shouldExtractParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Char: %hhd", (char)65];
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @65);
+}
+
+#pragma mark - format: additional float specifiers
+
+- (void)testDebugWithFormat_withScientific_shouldExtractDoubleParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Sci: %e", 1234.5];
+
+    // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @1234.5);
+}
+
+- (void)testDebugWithFormat_withUpperScientific_shouldExtractDoubleParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Sci: %E", 1234.5];
+
+    // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @1234.5);
+}
+
+- (void)testDebugWithFormat_withShortestFloat_shouldExtractDoubleParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Val: %g", 3.14];
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @3.14);
+}
+
+- (void)testDebugWithFormat_withUpperShortestFloat_shouldExtractDoubleParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Val: %G", 3.14];
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @3.14);
+}
+
+- (void)testDebugWithFormat_withHexFloat_shouldExtractDoubleParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Hex: %a", 3.14];
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @3.14);
+}
+
+- (void)testDebugWithFormat_withUpperHexFloat_shouldExtractDoubleParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Hex: %A", 3.14];
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @3.14);
+}
+
+- (void)testDebugWithFormat_withLongDouble_shouldExtractParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"LongD: %Lf", (long double)2.718];
+
+    // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.parameter.0"].type, @"double");
+    XCTAssertNotNil(self.capturedLog.attributes[@"sentry.message.parameter.0"].value);
+}
+
+#pragma mark - format: dynamic precision
+
+- (void)testDebugWithFormat_withDynamicPrecision_shouldOnlyCaptureValueParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Val: %.*f", 2, 3.14159];
+
+    // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @3.14159);
+    XCTAssertNil(self.capturedLog.attributes[@"sentry.message.parameter.1"]);
+}
+
+#pragma mark - format: C string edge cases
+
+- (void)testDebugWithFormat_withNilCString_shouldUseNullPlaceholder
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Value: %s", (const char *)NULL];
+
+    // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @"(null)");
+}
+
+- (void)testDebugWithFormat_withInvalidUTF8CString_shouldNotSkipParameter
+{
+    // -- Arrange --
+    const char invalidUTF8[] = { 'H', 'i', (char)0xFF, (char)0xFE, '\0' };
+
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"%s then %d", invalidUTF8, 42];
+
+    // -- Assert --
+    XCTAssertNotNil(self.capturedLog.attributes[@"sentry.message.parameter.0"].value);
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.1"].value, @42);
+}
+
+#pragma mark - format: nil unichar string
+
+- (void)testDebugWithFormat_withNilUnicharString_shouldUseNullPlaceholder
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Value: %S", (const unichar *)NULL];
+
+    // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @"(null)");
+}
+
 #pragma mark - logs disabled
 
 - (void)testLoggerMethod_whenLogsDisabled_shouldNotCrash
