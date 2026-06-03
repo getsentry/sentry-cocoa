@@ -158,7 +158,7 @@ jobs:
     # unpublished artifacts on release branches.
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     strategy:
       fail-fast: false
       matrix:
@@ -172,7 +172,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
       - run: make init-ci-build
       - run: make xcode-ci
       - run: |
