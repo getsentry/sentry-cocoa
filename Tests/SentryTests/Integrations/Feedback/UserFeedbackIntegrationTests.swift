@@ -106,7 +106,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             configuration: SentryUserFeedbackConfiguration(),
             screenshotSource: makeScreenshotSource())
 
-        sut.showForm(screenshot: nil)
+        sut.showForm()
 
         XCTAssertFalse(sut.displayingForm)
     }
@@ -136,7 +136,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
         XCTAssertEqual(configureFormCalls, 1)
         XCTAssertEqual(configureThemeCalls, 1)
-        sut.showForm(screenshot: nil)
+        sut.showForm(from: viewController, screenshot: nil)
         let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
         XCTAssertEqual(configureFormCalls, 1)
         XCTAssertEqual(configureThemeCalls, 1)
@@ -158,8 +158,8 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         window.rootViewController = viewController
         window.makeKeyAndVisible()
 
-        sut.showForm(screenshot: nil)
-        sut.showForm(screenshot: nil)
+        sut.showForm(from: viewController, screenshot: nil)
+        sut.showForm(from: viewController, screenshot: nil)
 
         XCTAssertEqual(viewController.presentCallCount, 1)
 
@@ -178,7 +178,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         window.rootViewController = viewController
         window.makeKeyAndVisible()
 
-        sut.showForm(screenshot: nil)
+        sut.showForm(from: viewController, screenshot: nil)
         let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
         let presentationController = UIPresentationController(
             presentedViewController: form,
@@ -201,10 +201,10 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             configuration: config,
             screenshotSource: makeScreenshotSource())
         sut.showWidget()
-        let widgetHost = try XCTUnwrap(sut.presenter as? SentryUserFeedbackWidget.RootViewController)
+        let widgetHost = try XCTUnwrap(widgetHost(for: sut))
 
         XCTAssertTrue(widgetHost.isWidgetVisible)
-        sut.showForm(screenshot: nil)
+        sut.showForm()
         XCTAssertFalse(widgetHost.isWidgetVisible)
 
         let form = try XCTUnwrap(widgetHost.presentedViewController as? SentryUserFeedbackFormController)
@@ -221,6 +221,14 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     // MARK: - Helper Types
+
+    private func widgetHost(for driver: SentryUserFeedbackIntegrationDriver) -> SentryUserFeedbackWidget.RootViewController? {
+        let widget = Mirror(reflecting: driver)
+            .children
+            .first { $0.label == "widget" }?
+            .value as? SentryUserFeedbackWidget
+        return widget?.rootVC
+    }
 
     private func addCustomButton(to viewController: UIViewController, configuration: SentryUserFeedbackConfiguration) {
         let customButton = UIButton()

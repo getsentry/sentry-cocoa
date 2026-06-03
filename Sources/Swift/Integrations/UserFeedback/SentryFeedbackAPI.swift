@@ -32,13 +32,13 @@ import UIKit
     /// - warning: This is an experimental feature and may still have bugs.
     @available(iOSApplicationExtension, unavailable)
     public func show(image: UIImage? = nil) {
-        guard let presenter = SentryFeedbackFormPresenter.presentingViewController() else {
-            SentrySDKLog.debug("Cannot show feedback form — no presenter available")
+        guard let driver = getIntegration()?.driver else {
+            SentrySDKLog.debug("Cannot show feedback form — user feedback is not configured")
             return
         }
 
-        guard let driver = getIntegration()?.driver else {
-            SentrySDKLog.debug("Cannot show feedback form — user feedback is not configured")
+        guard let presenter = SentryFeedbackFormPresenter.presentingViewController() else {
+            SentrySDKLog.debug("Cannot show feedback form — no presenter available")
             return
         }
 
