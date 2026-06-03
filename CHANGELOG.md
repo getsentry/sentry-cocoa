@@ -2,14 +2,6 @@
 
 ## Unreleased
 
-- Add managed user feedback form presentation APIs (#7873)
-
-  Apps using the managed User Feedback integration can now present the form directly:
-  - Use `SentrySDK.feedback.show()` or `SentrySDK.feedback.show(image:)` to let the SDK pick the best presenter.
-  - In UIKit, present `SentrySDK.FeedbackForm()` or `SentrySDK.FeedbackForm(image:)` yourself.
-  - In SwiftUI, use `SentrySDK.FeedbackFormView()` or `SentrySDK.FeedbackFormView(image:)` from a presentation container such as `.sheet`.
-
-  These APIs use the global `SentryOptions.configureUserFeedback` configuration.
 > [!IMPORTANT]
 > The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
 
@@ -24,6 +16,14 @@
   - Change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`
   - Rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
 - `SentrySDK.extendAppLaunch()` now returns the extended app launch span, allowing users to add child spans for granular breakdown of the app start period (#7985)
+- Add managed user feedback form presentation APIs (#7873)
+
+  Apps using the managed User Feedback integration can now present the form directly:
+  - Use `SentrySDK.feedback.show()` or `SentrySDK.feedback.show(image:)` to let the SDK pick the best presenter.
+  - In UIKit, present `SentrySDK.FeedbackForm()` or `SentrySDK.FeedbackForm(image:)` yourself.
+  - In SwiftUI, use `SentrySDK.FeedbackFormView()` or `SentrySDK.FeedbackFormView(image:)` from a presentation container such as `.sheet`.
+
+  These APIs use the global `SentryOptions.configureUserFeedback` configuration.
 
 ### Fixes
 
