@@ -15,6 +15,25 @@ func sentry_finishAndSaveTransaction() {
     span.tracer?.finishForCrash()
 }
 
+// This is horrible and exists purely to glue things together...
+// We would change this in the final product
+internal final class ScopeJSON {
+    static var lock: NSLock = .init()
+    static private var json: String?
+
+    static func set(json: String) {
+        lock.withLock {
+            self.json = json
+        }
+    }
+
+    static func get() -> String? {
+        lock.withLock {
+            self.json
+        }
+    }
+}
+
 // MARK: - Dependency Provider
 
 /// Provides dependencies for `KSCrashIntegration`.
@@ -97,7 +116,7 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
                 return
             }
 
-            if let json = sentryKSCrash_getScopeJSON() {
+            if let json = ScopeJSON.get() {
                 writer.pointee.addJSONElement(writer, "sentry_sdk_scope", json, false)
             }
         }

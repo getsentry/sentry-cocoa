@@ -2,7 +2,7 @@
 import Foundation
 
 /// Observes `SentryScope` changes and serializes the current scope state to a JSON
-/// string that KSCrash can embed in crash reports via `sentryKSCrash_setScopeJSON`.
+/// string that KSCrash can embed in crash reports via `ScopeJSON`.
 ///
 /// Breadcrumbs are stored in a fixed-capacity ring buffer that automatically evicts
 /// the oldest entry when full.
@@ -125,7 +125,7 @@ final class SentryKSCrashScopeObserver: NSObject, SentryScopeObserver {
         guard let data = try? JSONSerialization.data(withJSONObject: scope),
               let json = String(data: data, encoding: .utf8) else { return }
 
-        sentryKSCrash_setScopeJSON(json)
+        ScopeJSON.set(json: json)
     }
 
     // swiftlint:disable:next function_body_length

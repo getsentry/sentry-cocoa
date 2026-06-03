@@ -147,9 +147,8 @@ final class SentryKSCrashScopeObserverTests: XCTestCase {
     // MARK: - Helper
 
     private func storedScopeDict() throws -> [String: Any]? {
-        guard let cStr = sentryKSCrash_getScopeJSON(),
-              let data = String(cString: cStr).data(using: .utf8)
-        else { return nil }
+        guard let data = ScopeJSON.get()?.data(using: .utf8) else { return nil }
+
         return try JSONSerialization.jsonObject(with: data) as? [String: Any]
     }
 }
