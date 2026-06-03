@@ -85,6 +85,7 @@ jobs:
           echo "<FAKE WITHOUT UIKIT OR APPKIT ZIP>" > XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit.xcframework.zip
           echo "<FAKE WITHOUT UIKIT OR APPKIT WITH ARM64E ZIP>" > XCFrameworkBuildPath/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip
           echo "<FAKE SENTRYOBJC DYNAMIC ZIP>" > XCFrameworkBuildPath/SentryObjC-Dynamic.xcframework.zip
+          echo "<FAKE SENTRYOBJC STATIC ZIP>" > XCFrameworkBuildPath/SentryObjC-Static.xcframework.zip
 
       - name: Bump version
         run: ./scripts/bump.sh ${{ steps.generate-version-number.outputs.OLD_VERSION }} ${{ steps.generate-version-number.outputs.NEW_VERSION }}
@@ -101,6 +102,7 @@ jobs:
             --without-uikit-or-appkit-checksum "c647afe93889063325b5dfcabf43101749f6a8f37008cca858833ed280d2a84e" \
             --without-uikit-or-appkit-with-arm64e-checksum "af5af7edc8e107fe04b905bd23524fdc93914fce8e1bd72ccf281408efff9a47" \
             --sentryobjc-dynamic-checksum "cf74ef3cb789b9cabbd3c366bf717a4f6811ce3ac8b97bc78bb0e210593e4c82" \
+            --sentryobjc-static-checksum "75efb1ba6f25d0f666d07474cf3e35bb56688bb938d04ba48bd42a986f8810a1" \
             --last-release-runid "${{ github.run_id }}"
 
   # This check validates that either version-bump-util passed or was skipped, which allows us
