@@ -131,7 +131,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: ${{ matrix.scheme == 'iOS-ObjectiveC-Static' && '26' || '16' }}
       - run: make init-ci-build
       - run: make xcode-ci
 
