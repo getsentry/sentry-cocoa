@@ -24,10 +24,7 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
     va_end(bodyArgs);
 
     const char *fmt = [format UTF8String];
-    const char *segmentStart = fmt;
-    NSMutableString *templateStr = [NSMutableString string];
     NSMutableArray *parameters = [NSMutableArray array];
-    int paramIndex = 0;
 
     while (*fmt) {
         if (*fmt != '%') {
@@ -35,21 +32,10 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
             continue;
         }
 
-        if (fmt > segmentStart) {
-            NSString *segment = [[NSString alloc] initWithBytes:segmentStart
-                                                         length:(NSUInteger)(fmt - segmentStart)
-                                                       encoding:NSUTF8StringEncoding];
-            if (segment) {
-                [templateStr appendString:segment];
-            }
-        }
-
         fmt++;
 
         if (*fmt == '%') {
-            [templateStr appendString:@"%"];
             fmt++;
-            segmentStart = fmt;
             continue;
         }
 
@@ -206,26 +192,13 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
         }
 
         if (paramValue) {
-            [templateStr appendFormat:@"{%d}", paramIndex];
             [parameters addObject:paramValue];
-            paramIndex++;
-        }
-
-        segmentStart = fmt;
-    }
-
-    if (fmt > segmentStart) {
-        NSString *segment = [[NSString alloc] initWithBytes:segmentStart
-                                                     length:(NSUInteger)(fmt - segmentStart)
-                                                   encoding:NSUTF8StringEncoding];
-        if (segment) {
-            [templateStr appendString:segment];
         }
     }
 
     NSMutableDictionary<NSString *, id> *attrs = [NSMutableDictionary dictionary];
     if (parameters.count > 0) {
-        attrs[@"sentry.message.template"] = [templateStr copy];
+        attrs[@"sentry.message.template"] = format;
         for (NSUInteger i = 0; i < parameters.count; i++) {
             attrs[[NSString stringWithFormat:@"sentry.message.parameter.%lu", (unsigned long)i]]
                 = parameters[i];

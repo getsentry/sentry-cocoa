@@ -142,7 +142,7 @@
     XCTAssertEqual(self.capturedLog.level, SentryObjCLogLevelTrace);
     XCTAssertEqualObjects(self.capturedLog.body, @"Trace msg");
     XCTAssertEqualObjects(
-        self.capturedLog.attributes[@"sentry.message.template"].value, @"Trace {0}");
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Trace %@");
 }
 
 - (void)testDebugWithFormat_shouldCaptureAtDebugLevel
@@ -205,7 +205,7 @@
     // -- Assert --
     XCTAssertEqualObjects(self.capturedLog.body, @"User John processed 42 items");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.template"].value,
-        @"User {0} processed {1} items");
+        @"User %@ processed %d items");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @"John");
     XCTAssertEqualObjects(
@@ -234,7 +234,7 @@
     // -- Assert --
     XCTAssertEqualObjects(self.capturedLog.body, @"100% complete with 5 items");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.template"].value,
-        @"100% complete with {0} items");
+        @"100%% complete with %d items");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @5);
 }
 
@@ -262,7 +262,7 @@
     // -- Assert --
     XCTAssertEqualObjects(self.capturedLog.body, @"42 99 123456789");
     XCTAssertEqualObjects(
-        self.capturedLog.attributes[@"sentry.message.template"].value, @"{0} {1} {2}");
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"%d %ld %lld");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @42);
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.1"].value, @99);
     XCTAssertEqualObjects(
@@ -379,7 +379,7 @@
     // -- Assert --
     XCTAssertEqualObjects(self.capturedLog.body, @"User Alice (id=42) scored 95.5% on 19/20 tests");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.template"].value,
-        @"User {0} (id={1}) scored {2}% on {3}/{4} tests");
+        @"User %@ (id=%ld) scored %.1f%% on %d/%d tests");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @"Alice");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.1"].value, @42);
@@ -401,7 +401,7 @@
     // -- Assert --
     XCTAssertEqualObjects(self.capturedLog.body, @"Count: 42");
     XCTAssertEqualObjects(
-        self.capturedLog.attributes[@"sentry.message.template"].value, @"Count: {0}");
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Count: %d");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @42);
     XCTAssertEqualObjects(self.capturedLog.attributes[@"source"].value, @"test");
 }
