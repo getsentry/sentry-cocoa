@@ -20,7 +20,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
     }
     
     func testInstructionAddress() {
-        var cursor = SentryCrashStackCursor()
+        var cursor = KSStackCursor()
         cursor.stackEntry.address = 2_412_813_376
         
         let frame = sut.mapStackEntry(with: cursor)
@@ -37,7 +37,7 @@ class SentryCrashStackEntryMapperTests: XCTestCase {
                                                                                      size: image.size,
                                                                                      uuid: image.uuid)
 
-        var cursor = SentryCrashStackCursor()
+        var cursor = KSStackCursor()
         cursor.stackEntry.address = 2_488_998_950
 
         let frame = sut.mapStackEntry(with: cursor)

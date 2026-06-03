@@ -1,6 +1,6 @@
-#import "SentryCrashMachineContext.h"
+#import "KSMachineContext.h"
 #import "SentryCrashStackCursor.h"
-#include "SentryCrashThread.h"
+#import "SentryCrashThread.h"
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
@@ -42,7 +42,7 @@ SENTRY_NO_INIT
  * without skipping frames.
  */
 - (SentryStacktrace *)buildStacktraceForThread:(KSThread)thread
-                                       context:(SentryCrashMachineContext *)context;
+                                       context:(KSMachineContext *)context;
 
 - (SentryStacktrace *)buildStackTraceFromStackEntries:(SentryCrashStackEntry *)entries
                                                amount:(unsigned int)amount;

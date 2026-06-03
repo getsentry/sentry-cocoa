@@ -1,15 +1,41 @@
 #import "SentryDefaultThreadInspector.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashStackCursor.h"
-#include "SentryCrashStackCursor_MachineContext.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryFrame.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentrySwift.h"
 #import "SentryThread.h"
+#include <mach/mach.h>
 #include <pthread.h>
 #include <string.h>
+
+// Sentry-specific: suspend only when thread count is within limit.
+// KSCrash has no equivalent, so we implement it inline.
+static inline void
+mc_suspendEnvironment_upToMaxSupportedThreads(thread_act_array_t *suspendedThreads,
+    mach_msg_type_number_t *numSuspendedThreads, mach_msg_type_number_t maxSupportedThreads)
+{
+    // Get the count first without suspending.
+    mach_port_t task = mach_task_self();
+    thread_act_array_t threads = NULL;
+    mach_msg_type_number_t count = 0;
+    if (task_threads(task, &threads, &count) != KERN_SUCCESS) {
+        *suspendedThreads = NULL;
+        *numSuspendedThreads = 0;
+        return;
+    }
+    // Deallocate the temporary list — we just needed the count.
+    vm_deallocate(task, (vm_address_t)threads, count * sizeof(thread_t));
+
+    if (count > maxSupportedThreads) {
+        *suspendedThreads = NULL;
+        *numSuspendedThreads = 0;
+        return;
+    }
+    ksmc_suspendEnvironment(suspendedThreads, numSuspendedThreads);
+}
 
 @interface SentryDefaultThreadInspector ()
 
@@ -21,7 +47,7 @@
 
 typedef struct {
     KSThread thread;
-    SentryCrashStackEntry stackEntries[MAX_STACKTRACE_LENGTH];
+    SentryCrashStackEntry stackEntries[KSSC_STACK_OVERFLOW_THRESHOLD];
     int stackLength;
 } SentryThreadInfo;
 
@@ -30,13 +56,13 @@ typedef struct {
 // If asyncUnsafeSymbolicate is `true` the stack will be symbolicated but the function is no longer
 // async-signal-safe.
 unsigned int
-getStackEntriesFromThread(KSThread thread, SentryCrashMachineContext *context,
+getStackEntriesFromThread(KSThread thread, KSMachineContext *context,
     SentryCrashStackEntry *buffer, unsigned int maxEntries)
 {
-    sentrycrashmc_getContextForThread(thread, context, NO);
-    SentryCrashStackCursor stackCursor;
+    ksmc_getContextForThread(thread, context, NO);
+    KSStackCursor stackCursor;
 
-    sentrycrashsc_initWithMachineContext(&stackCursor, MAX_STACKTRACE_LENGTH, context);
+    kssc_initWithMachineContext(&stackCursor, KSSC_STACK_OVERFLOW_THRESHOLD, context);
 
     unsigned int entries = 0;
     while (stackCursor.advanceCursor(&stackCursor)) {
@@ -85,14 +111,14 @@ getStackEntriesFromThread(KSThread thread, SentryCrashMachineContext *context,
 {
     NSMutableArray<SentryThread *> *threads = [[NSMutableArray alloc] init];
 
-    SentryCrashMC_NEW_CONTEXT(context);
+    KSMachineContext context = {0};
     KSThread currentThread = sentrycrashthread_self();
 
-    [self.machineContextWrapper fillContextForCurrentThread:context];
-    int threadCount = [self.machineContextWrapper getThreadCount:context];
+    [self.machineContextWrapper fillContextForCurrentThread:&context];
+    int threadCount = [self.machineContextWrapper getThreadCount:&context];
 
     for (int i = 0; i < threadCount; i++) {
-        KSThread thread = [self.machineContextWrapper getThread:context withIndex:i];
+        KSThread thread = [self.machineContextWrapper getThread:&context withIndex:i];
         SentryThread *sentryThread = [[SentryThread alloc] initWithThreadId:@(i)];
 
         sentryThread.isMain =
@@ -130,7 +156,7 @@ getStackEntriesFromThread(KSThread thread, SentryCrashMachineContext *context,
     NSMutableArray<SentryThread *> *threads = [[NSMutableArray alloc] init];
 
     @synchronized(self) {
-        SentryCrashMC_NEW_CONTEXT(context);
+        KSMachineContext context = {0};
         KSThread currentThread = sentrycrashthread_self();
 
         thread_act_array_t suspendedThreads = NULL;
@@ -139,7 +165,7 @@ getStackEntriesFromThread(KSThread thread, SentryCrashMachineContext *context,
         // SentryThreadInspector is crashing when there is too many threads.
         // We add a limit of 70 threads because in test with up to 100 threads it seems fine.
         // We are giving it an extra safety margin.
-        sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(
+        mc_suspendEnvironment_upToMaxSupportedThreads(
             &suspendedThreads, &numSuspendedThreads, 70);
         // DANGER: Do not try to allocate memory in the heap or call Objective-C code in this
         // section Doing so when the threads are suspended may lead to deadlocks or crashes.
@@ -154,8 +180,8 @@ getStackEntriesFromThread(KSThread thread, SentryCrashMachineContext *context,
 
         for (int i = 0; i < numSuspendedThreads; i++) {
             if (suspendedThreads[i] != currentThread) {
-                int numberOfEntries = getStackEntriesFromThread(suspendedThreads[i], context,
-                    threadsInfos[i].stackEntries, MAX_STACKTRACE_LENGTH);
+                int numberOfEntries = getStackEntriesFromThread(suspendedThreads[i], &context,
+                    threadsInfos[i].stackEntries, KSSC_STACK_OVERFLOW_THRESHOLD);
                 threadsInfos[i].stackLength = numberOfEntries;
             } else {
                 // We can't use 'getStackEntriesFromThread' to retrieve stack frames from the
@@ -166,7 +192,7 @@ getStackEntriesFromThread(KSThread thread, SentryCrashMachineContext *context,
             threadsInfos[i].thread = suspendedThreads[i];
         }
 
-        sentrycrashmc_resumeEnvironment(suspendedThreads, numSuspendedThreads);
+        ksmc_resumeEnvironment(&suspendedThreads, &numSuspendedThreads);
         // DANGER END: You may call Objective-C code again or allocate memory.
 
         for (int i = 0; i < numSuspendedThreads; i++) {

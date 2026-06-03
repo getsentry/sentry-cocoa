@@ -45,7 +45,7 @@ void sentrycrashcm_cppexception_callOriginalTerminationHandler(void);
 
 /** For testing.
  */
-SentryCrashStackCursor sentrycrashcm_cppexception_getStackCursor(void);
+KSStackCursor sentrycrashcm_cppexception_getStackCursor(void);
 
 #ifdef __cplusplus
 }

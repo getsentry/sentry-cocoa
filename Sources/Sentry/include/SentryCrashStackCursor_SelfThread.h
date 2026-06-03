@@ -6,6 +6,7 @@
 #ifndef SentryCrashStackCursor_SelfThread_h
 #define SentryCrashStackCursor_SelfThread_h
 
+#include "KSStackCursor.h"
 #include "SentryCrashStackCursor.h"
 
 #ifdef __cplusplus
@@ -18,7 +19,7 @@ extern "C" {
  *
  * @param skipEntries The number of stack entries to skip.
  */
-void sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries);
+void sentrycrashsc_initSelfThread(KSStackCursor *cursor, int skipEntries);
 
 #ifdef __cplusplus
 }

@@ -1,6 +1,5 @@
 #import "SentryStacktraceBuilder.h"
 #import "SentryCrashStackCursor.h"
-#import "SentryCrashStackCursor_MachineContext.h"
 #import "SentryCrashStackCursor_SelfThread.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryFrame.h"
@@ -68,18 +67,18 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (SentryStacktrace *)buildStacktraceForThread:(KSThread)thread
-                                       context:(SentryCrashMachineContext *)context
+                                       context:(KSMachineContext *)context
 {
-    sentrycrashmc_getContextForThread(thread, context, NO);
-    SentryCrashStackCursor stackCursor;
-    sentrycrashsc_initWithMachineContext(&stackCursor, MAX_STACKTRACE_LENGTH, context);
+    ksmc_getContextForThread(thread, context, NO);
+    KSStackCursor stackCursor;
+    kssc_initWithMachineContext(&stackCursor, KSSC_STACK_OVERFLOW_THRESHOLD, context);
 
     return [self retrieveStacktraceFromCursor:stackCursor];
 }
 
 - (SentryStacktrace *)buildStacktraceForCurrentThread
 {
-    SentryCrashStackCursor stackCursor;
+    KSStackCursor stackCursor;
     // We don't need to skip any frames, because we filter out non sentry frames below.
     NSInteger framesToSkip = 0;
     sentrycrashsc_initSelfThread(&stackCursor, (int)framesToSkip);
@@ -90,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable SentryStacktrace *)buildStacktraceForCurrentThreadAsyncUnsafe
 {
     SENTRY_LOG_DEBUG(@"Building async-unsafe stack trace...");
-    SentryCrashStackCursor stackCursor;
+    KSStackCursor stackCursor;
     sentrycrashsc_initSelfThread(&stackCursor, 0);
     return [self retrieveStacktraceFromCursor:stackCursor];
 }

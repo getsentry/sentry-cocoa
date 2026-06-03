@@ -4,7 +4,7 @@ import XCTest
 final class SentryKSCrashScopeObserverTests: XCTestCase {
 
     override func tearDown() {
-        sentryKSCrash_setScopeJSON(nil)
+        ScopeJSON.set(json: nil)
         super.tearDown()
     }
 

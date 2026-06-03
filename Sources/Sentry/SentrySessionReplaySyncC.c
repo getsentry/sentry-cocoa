@@ -1,6 +1,6 @@
 #include "SentrySessionReplaySyncC.h"
 #include "SentryAsyncSafeLog.h"
-#include <SentryCrashFileUtils.h>
+#include "KSFileUtils.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
@@ -63,14 +63,14 @@ sentrySessionReplaySync_writeInfo(void)
         return;
     }
 
-    if (!sentrycrashfu_writeBytesToFD(
+    if (!ksfu_writeBytesToFD(
             fd, (char *)&crashReplay.segmentId, sizeof(crashReplay.segmentId))) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Error writing replay info for crash.");
         close(fd);
         return;
     }
 
-    if (!sentrycrashfu_writeBytesToFD(
+    if (!ksfu_writeBytesToFD(
             fd, (char *)&crashReplay.lastSegmentEnd, sizeof(crashReplay.lastSegmentEnd))) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Error writing replay info for crash.");
         close(fd);
@@ -94,13 +94,13 @@ sentrySessionReplaySync_readInfo(SentryCrashReplay *output, const char *const pa
     unsigned int segmentId = 0;
     double lastSegmentEnd = 0;
 
-    if (!sentrycrashfu_readBytesFromFD(fd, (char *)&segmentId, sizeof(segmentId))) {
+    if (!ksfu_readBytesFromFD(fd, (char *)&segmentId, sizeof(segmentId))) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Error reading segmentId from replay info crash file.");
         close(fd);
         return false;
     }
 
-    if (!sentrycrashfu_readBytesFromFD(fd, (char *)&lastSegmentEnd, sizeof(lastSegmentEnd))) {
+    if (!ksfu_readBytesFromFD(fd, (char *)&lastSegmentEnd, sizeof(lastSegmentEnd))) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Error reading lastSegmentEnd from replay info crash file.");
         close(fd);
         return false;

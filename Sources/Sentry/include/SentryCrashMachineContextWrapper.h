@@ -1,4 +1,4 @@
-#import "SentryCrashMachineContext.h"
+#import "KSMachineContext.h"
 #import "SentryCrashThread.h"
 #import <Foundation/Foundation.h>
 
@@ -8,11 +8,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol SentryCrashMachineContextWrapper <NSObject>
 
-- (void)fillContextForCurrentThread:(SentryCrashMachineContext *)context;
+- (void)fillContextForCurrentThread:(KSMachineContext *)context;
 
-- (int)getThreadCount:(SentryCrashMachineContext *)context;
+- (int)getThreadCount:(KSMachineContext *)context;
 
-- (KSThread)getThread:(SentryCrashMachineContext *)context withIndex:(int)index;
+- (KSThread)getThread:(KSMachineContext *)context withIndex:(int)index;
 
 - (BOOL)getThreadName:(const KSThread)thread
             andBuffer:(char *const)buffer

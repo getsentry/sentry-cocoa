@@ -2,8 +2,7 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryCrashFileUtils.h"
-#    import "SentryCrashJSONCodec.h"
+#    import "KSJSONCodec.h"
 #    import "SentryLogC.h"
 #    import "SentrySwift.h"
 #    import <UIKit/UIKit.h>
@@ -12,8 +11,8 @@ static int
 writeJSONDataToFile(const char *const data, const int length, void *const userData)
 {
     const int fd = *((int *)userData);
-    const bool success = sentrycrashfu_writeBytesToFD(fd, data, length);
-    return success ? SentryCrashJSON_OK : SentryCrashJSON_ERROR_CANNOT_ADD_DATA;
+    const bool success = ksfu_writeBytesToFD(fd, data, length);
+    return success ? KSJSON_OK : KSJSON_ERROR_CANNOT_ADD_DATA;
 }
 
 static int
@@ -21,7 +20,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 {
     NSMutableData *memory = ((__bridge NSMutableData *)userData);
     [memory appendBytes:data length:length];
-    return SentryCrashJSON_OK;
+    return KSJSON_OK;
 }
 
 @implementation SentryViewHierarchyProviderHelper
@@ -63,26 +62,26 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 }
 
 #    define tryJson(code)                                                                          \
-        if ((result = (code)) != SentryCrashJSON_OK)                                               \
+        if ((result = (code)) != KSJSON_OK)                                               \
             return result;
 
 + (BOOL)processViewHierarchy:(NSArray<UIView *> *)windows
     reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
-                      addFunction:(SentryCrashJSONAddDataFunc)addJSONDataFunc
+                      addFunction:(KSJSONAddDataFunc)addJSONDataFunc
                          userData:(void *const)userData
 {
 
-    __block SentryCrashJSONEncodeContext JSONContext;
-    sentrycrashjson_beginEncode(&JSONContext, NO, addJSONDataFunc, userData);
+    __block KSJSONEncodeContext JSONContext;
+    ksjson_beginEncode(&JSONContext, NO, addJSONDataFunc, userData);
 
     SENTRY_LOG_DEBUG(@"Processing view hierarchy.");
 
     int (^serializeJson)(void) = ^int() {
         int result;
-        tryJson(sentrycrashjson_beginObject(&JSONContext, NULL));
-        tryJson(sentrycrashjson_addStringElement(
-            &JSONContext, "rendering_system", "UIKIT", SentryCrashJSON_SIZE_AUTOMATIC));
-        tryJson(sentrycrashjson_beginArray(&JSONContext, "windows"));
+        tryJson(ksjson_beginObject(&JSONContext, NULL));
+        tryJson(ksjson_addStringElement(
+            &JSONContext, "rendering_system", "UIKIT", KSJSON_SIZE_AUTOMATIC));
+        tryJson(ksjson_beginArray(&JSONContext, "windows"));
 
         for (UIView *window in windows) {
             tryJson([self viewHierarchyFromView:window
@@ -90,64 +89,64 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
                   reportAccessibilityIdentifier:reportAccessibilityIdentifier]);
         }
 
-        tryJson(sentrycrashjson_endContainer(&JSONContext));
+        tryJson(ksjson_endContainer(&JSONContext));
 
-        result = sentrycrashjson_endEncode(&JSONContext);
+        result = ksjson_endEncode(&JSONContext);
         return result;
     };
 
     int result = serializeJson();
-    if (result != SentryCrashJSON_OK) {
+    if (result != KSJSON_OK) {
         SENTRY_LOG_DEBUG(
-            @"Could not create view hierarchy json: %s", sentrycrashjson_stringForError(result));
+            @"Could not create view hierarchy json: %s", ksjson_stringForError(result));
         return NO;
     }
     return YES;
 }
 
 + (int)viewHierarchyFromView:(UIView *)view
-                      intoContext:(SentryCrashJSONEncodeContext *)context
+                      intoContext:(KSJSONEncodeContext *)context
     reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
 {
     SENTRY_LOG_DEBUG(@"Processing view hierarchy of view: %@", view);
 
     int result = 0;
-    tryJson(sentrycrashjson_beginObject(context, NULL));
+    tryJson(ksjson_beginObject(context, NULL));
     const char *viewClassName = [[SwiftDescriptor getObjectClassName:view] UTF8String];
-    tryJson(sentrycrashjson_addStringElement(
-        context, "type", viewClassName, SentryCrashJSON_SIZE_AUTOMATIC));
+    tryJson(ksjson_addStringElement(
+        context, "type", viewClassName, KSJSON_SIZE_AUTOMATIC));
 
     if (reportAccessibilityIdentifier && view.accessibilityIdentifier
         && view.accessibilityIdentifier.length != 0) {
-        tryJson(sentrycrashjson_addStringElement(context, "identifier",
-            view.accessibilityIdentifier.UTF8String, SentryCrashJSON_SIZE_AUTOMATIC));
+        tryJson(ksjson_addStringElement(context, "identifier",
+            view.accessibilityIdentifier.UTF8String, KSJSON_SIZE_AUTOMATIC));
     }
 
-    tryJson(sentrycrashjson_addFloatingPointElement(context, "width", view.frame.size.width));
-    tryJson(sentrycrashjson_addFloatingPointElement(context, "height", view.frame.size.height));
-    tryJson(sentrycrashjson_addFloatingPointElement(context, "x", view.frame.origin.x));
-    tryJson(sentrycrashjson_addFloatingPointElement(context, "y", view.frame.origin.y));
-    tryJson(sentrycrashjson_addFloatingPointElement(context, "alpha", view.alpha));
-    tryJson(sentrycrashjson_addBooleanElement(context, "visible", !view.hidden));
+    tryJson(ksjson_addFloatingPointElement(context, "width", view.frame.size.width));
+    tryJson(ksjson_addFloatingPointElement(context, "height", view.frame.size.height));
+    tryJson(ksjson_addFloatingPointElement(context, "x", view.frame.origin.x));
+    tryJson(ksjson_addFloatingPointElement(context, "y", view.frame.origin.y));
+    tryJson(ksjson_addFloatingPointElement(context, "alpha", view.alpha));
+    tryJson(ksjson_addBooleanElement(context, "visible", !view.hidden));
 
     if ([view.nextResponder isKindOfClass:[UIViewController class]]) {
         UIViewController *vc = (UIViewController *)view.nextResponder;
         if (vc.view == view) {
             const char *viewControllerClassName =
                 [[SwiftDescriptor getViewControllerClassName:vc] UTF8String];
-            tryJson(sentrycrashjson_addStringElement(context, "view_controller",
-                viewControllerClassName, SentryCrashJSON_SIZE_AUTOMATIC));
+            tryJson(ksjson_addStringElement(context, "view_controller",
+                viewControllerClassName, KSJSON_SIZE_AUTOMATIC));
         }
     }
 
-    tryJson(sentrycrashjson_beginArray(context, "children"));
+    tryJson(ksjson_beginArray(context, "children"));
     for (UIView *child in view.subviews) {
         tryJson([self viewHierarchyFromView:child
                                 intoContext:context
               reportAccessibilityIdentifier:reportAccessibilityIdentifier]);
     }
-    tryJson(sentrycrashjson_endContainer(context));
-    tryJson(sentrycrashjson_endContainer(context));
+    tryJson(ksjson_endContainer(context));
+    tryJson(ksjson_endContainer(context));
     return result;
 }
 

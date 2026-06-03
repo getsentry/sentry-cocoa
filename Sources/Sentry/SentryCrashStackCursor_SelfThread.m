@@ -24,7 +24,7 @@ sentrycrashsc_setSwiftAsyncStitching(bool enabled)
 }
 
 void
-sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
+sentrycrashsc_initSelfThread(KSStackCursor *cursor, int skipEntries)
 {
     SelfThreadContext *context = (SelfThreadContext *)cursor->context;
 

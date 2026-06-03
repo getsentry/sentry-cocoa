@@ -1,6 +1,6 @@
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashDynamicLinker.h"
-#import "SentryCrashMachineContext.h"
+#import "KSMachineContext.h"
 #import "SentryCrashMachineContextWrapper.h"
 #import "SentryCrashStackCursor.h"
 #import "SentryCrashStackCursor_SelfThread.h"
@@ -25,19 +25,19 @@ KSThread mainThreadID;
     mainThreadID = pthread_mach_thread_np(pthread_self());
 }
 
-- (void)fillContextForCurrentThread:(SentryCrashMachineContext *)context
+- (void)fillContextForCurrentThread:(KSMachineContext *)context
 {
-    sentrycrashmc_getContextForThread(sentrycrashthread_self(), context, YES);
+    ksmc_getContextForThread(sentrycrashthread_self(), context, YES);
 }
 
-- (int)getThreadCount:(SentryCrashMachineContext *)context
+- (int)getThreadCount:(KSMachineContext *)context
 {
-    return sentrycrashmc_getThreadCount(context);
+    return ksmc_getThreadCount(context);
 }
 
-- (KSThread)getThread:(SentryCrashMachineContext *)context withIndex:(int)index
+- (KSThread)getThread:(KSMachineContext *)context withIndex:(int)index
 {
-    KSThread thread = sentrycrashmc_getThreadAtIndex(context, index);
+    KSThread thread = ksmc_getThreadAtIndex(context, index);
     return thread;
 }
 

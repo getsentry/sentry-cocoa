@@ -1,8 +1,7 @@
 #import <XCTest/XCTest.h>
 
-#import "SentryCrashMachineContext.h"
-#import "SentryCrashMachineContext_Apple.h"
-#import "SentryCrashStackCursor_MachineContext.h"
+#import "KSMachineContext.h"
+#import "KSMachineContext_Apple.h"
 #import "TestThread.h"
 #import <mach/mach.h>
 #if defined(__arm64__)
@@ -30,14 +29,14 @@
     TestFrameEntry lastFrame = { 0 };
     TestFrameEntry firstFrame = { .previous = &lastFrame, .returnAddress = frameReturnAddress };
 
-    SentryCrashMachineContext machineContext = { 0 };
+    KSMachineContext machineContext = { 0 };
     arm_thread_state64_set_pc_fptr(machineContext.machineContext.__ss, NULL);
     arm_thread_state64_set_lr_fptr(
         machineContext.machineContext.__ss, (void (*)(void))linkRegisterAddress);
     arm_thread_state64_set_fp(machineContext.machineContext.__ss, &firstFrame);
 
-    SentryCrashStackCursor cursor;
-    sentrycrashsc_initWithMachineContext(&cursor, 10, &machineContext);
+    KSStackCursor cursor;
+    kssc_initWithMachineContext(&cursor, 10, &machineContext);
 
     // -- Act / Assert --
     XCTAssertTrue(cursor.advanceCursor(&cursor), @"PC=0 should still emit the null frame");
@@ -62,15 +61,15 @@
     XCTAssertTrue(kr == KERN_SUCCESS, @"Thread suspension failed");
 
     // Get context for a non-crashed thread
-    SentryCrashMC_NEW_CONTEXT(machineContext);
-    bool result = sentrycrashmc_getContextForThread(thread.thread, machineContext, NO);
+    KSMachineContext machineContext = { 0 };
+    bool result = ksmc_getContextForThread(thread.thread, &machineContext, NO);
 
     XCTAssertTrue(result, @"Failed to get context for thread");
     XCTAssertFalse(
-        sentrycrashmc_isCrashedContext(machineContext), @"Should not be marked as crashed context");
+        ksmc_isCrashedContext(&machineContext), @"Should not be marked as crashed context");
 
     // For non-crashed contexts, thread list should not be populated (will be 0)
-    int threadCount = sentrycrashmc_getThreadCount(machineContext);
+    int threadCount = ksmc_getThreadCount(&machineContext);
     XCTAssertEqual(
         threadCount, 0, @"Thread count should be 0 for non-crashed context, got %d", threadCount);
 
@@ -89,21 +88,21 @@
     XCTAssertTrue(kr == KERN_SUCCESS, @"Thread suspension failed");
 
     // Get context for the crashed thread
-    SentryCrashMC_NEW_CONTEXT(machineContext);
-    bool result = sentrycrashmc_getContextForThread(firstThread.thread, machineContext, YES);
+    KSMachineContext machineContext = {0};
+    bool result = ksmc_getContextForThread(firstThread.thread, &machineContext, YES);
 
     XCTAssertTrue(result, @"Failed to get context for thread");
 
     // Verify that thread list includes all our test threads
-    int threadCount = sentrycrashmc_getThreadCount(machineContext);
+    int threadCount = ksmc_getThreadCount(&machineContext);
     XCTAssertTrue(threadCount >= numberOfThreads,
         @"Thread count should include all test threads, got %d", threadCount);
-    XCTAssertTrue(threadCount <= SENTRY_CRASH_MAX_THREADS,
-        @"Thread count should not exceed maximum of SENTRY_CRASH_MAX_THREADS, got %d", threadCount);
+    XCTAssertTrue(threadCount <= MAX_CAPTURED_THREADS,
+        @"Thread count should not exceed maximum of MAX_CAPTURED_THREADS, got %d", threadCount);
 
     // Verify that all our threads are in the list
     for (TestThread *thread in threads) {
-        int threadIndex = sentrycrashmc_indexOfThread(machineContext, thread.thread);
+        int threadIndex = ksmc_indexOfThread(&machineContext, thread.thread);
         XCTAssertTrue(threadIndex >= 0, @"Thread should be found in the list");
     }
 
@@ -114,29 +113,29 @@
 
 - (void)testGetContextForThread_WithMoreThan100Threads_IncludesCallingThread
 {
-    NSInteger numberOfThreads = SENTRY_CRASH_MAX_THREADS + 1;
+    NSInteger numberOfThreads = MAX_CAPTURED_THREADS + 1;
     NSArray<TestThread *> *threads = [self createThreads:numberOfThreads];
 
     // Suspend the last thread and get its context
-    TestThread *callingThread = threads[SENTRY_CRASH_MAX_THREADS];
+    TestThread *callingThread = threads[MAX_CAPTURED_THREADS];
     kern_return_t kr = thread_suspend(callingThread.thread);
     XCTAssertTrue(kr == KERN_SUCCESS, @"Thread suspension failed");
 
     // Get context for the crashed thread
-    SentryCrashMC_NEW_CONTEXT(machineContext);
-    bool result = sentrycrashmc_getContextForThread(callingThread.thread, machineContext, YES);
+    KSMachineContext machineContext = {0};
+    bool result = ksmc_getContextForThread(callingThread.thread, &machineContext, YES);
 
     XCTAssertTrue(result, @"Failed to get context for thread");
 
     // Verify that thread list includes all our test threads
-    int threadCount = sentrycrashmc_getThreadCount(machineContext);
-    XCTAssertTrue(threadCount >= SENTRY_CRASH_MAX_THREADS,
+    int threadCount = ksmc_getThreadCount(&machineContext);
+    XCTAssertTrue(threadCount >= MAX_CAPTURED_THREADS,
         @"Thread count should include all test threads, got %d", threadCount);
-    XCTAssertTrue(threadCount <= SENTRY_CRASH_MAX_THREADS,
-        @"Thread count should not exceed maximum of SENTRY_CRASH_MAX_THREADS, got %d", threadCount);
+    XCTAssertTrue(threadCount <= MAX_CAPTURED_THREADS,
+        @"Thread count should not exceed maximum of MAX_CAPTURED_THREADS, got %d", threadCount);
 
     // Verify that our crashed thread is in the list
-    int threadIndex = sentrycrashmc_indexOfThread(machineContext, callingThread.thread);
+    int threadIndex = ksmc_indexOfThread(&machineContext, callingThread.thread);
     XCTAssertTrue(threadIndex >= 0, @"Thread should be found in the list");
 
     // Clean up

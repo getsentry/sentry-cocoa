@@ -36,10 +36,6 @@ typedef struct {
 /** A special marker frame to denote a chained async stacktrace (Sentry-specific). */
 #define SentryCrashSC_ASYNC_MARKER (UINTPTR_MAX - 1234)
 
-// Function aliases
-#define sentrycrashsc_initCursor kssc_initCursor
-#define sentrycrashsc_resetCursor kssc_resetCursor
-
 #ifdef __cplusplus
 }
 #endif

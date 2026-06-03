@@ -18,10 +18,10 @@ func sentry_finishAndSaveTransaction() {
 // This is horrible and exists purely to glue things together...
 // We would change this in the final product
 internal final class ScopeJSON {
-    static var lock: NSLock = .init()
+    static private var lock: NSLock = .init()
     static private var json: String?
 
-    static func set(json: String) {
+    static func set(json: String?) {
         lock.withLock {
             self.json = json
         }
