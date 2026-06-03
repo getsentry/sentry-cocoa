@@ -150,10 +150,12 @@ for PACKAGE_FILE in "${PACKAGE_FILES[@]}"; do
     sed -i '' 's/checksum: ".*" \/\/Sentry-Dynamic/path: "Sentry-Dynamic.xcframework.zip"/g' "$PACKAGE_FILE"
     sed -i '' 's/checksum: ".*" \/\/Sentry-WithoutUIKitOrAppKit-WithARM64e/path: "Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip"/g' "$PACKAGE_FILE"
     sed -i '' 's/checksum: ".*" \/\/Sentry-WithoutUIKitOrAppKit/path: "Sentry-WithoutUIKitOrAppKit.xcframework.zip"/g' "$PACKAGE_FILE"
+    sed -i '' 's/checksum: ".*" \/\/SentryObjC-Dynamic/path: "SentryObjC-Dynamic.xcframework.zip"/g' "$PACKAGE_FILE"
+    sed -i '' 's/checksum: ".*" \/\/SentryObjC-Static/path: "SentryObjC-Static.xcframework.zip"/g' "$PACKAGE_FILE"
 
     # Clean up orphaned commas and fix syntax.
     sed -i '' '/^[[:space:]]*,$/d' "$PACKAGE_FILE"
-    sed -i '' 's/name: "Sentry\(-.*\)\?"$/name: "Sentry\1",/g' "$PACKAGE_FILE"
+    sed -i '' 's/name: "Sentry[^"]*"$/&,/g' "$PACKAGE_FILE"
     sed -i '' 's/platforms: \[\.iOS(\.v11), \.macOS(\.v10_13), \.tvOS(\.v11), \.watchOS(\.v4)\]$/platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v11), .watchOS(.v4)],/g' "$PACKAGE_FILE"
   fi
 

@@ -152,6 +152,47 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
+  build-sample-binary:
+    name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
+    # These samples depend on SentryObjC binary targets whose URLs point to
+    # unpublished artifacts on release branches.
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
+    needs: files-changed
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - scheme: iOS-ObjectiveC-Dynamic
+            config: Debug
+          - scheme: iOS-ObjectiveC-Static
+            config: Debug
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+      - run: make init-ci-build
+      - run: make xcode-ci
+      - run: |
+          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace Sentry.xcworkspace \
+            -scheme '${{matrix.scheme}}' \
+            -configuration '${{matrix.config}}' \
+            CODE_SIGNING_ALLOWED="NO" \
+            build 2>&1 | tee raw-build-output.log | xcbeautify --preserve-unbeautified
+      - name: Archiving Raw Build Logs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-scheme-${{matrix.scheme}}
+          path: |
+            raw-build-output.log
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: ${{ failure() || cancelled() }}
+
   build-sample-spm:
     name: Sample SPM ${{ matrix.name }}
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
@@ -601,6 +642,7 @@ jobs:
         files-changed,
         ios-swift-release,
         build-sample,
+        build-sample-binary,
         build-sample-spm,
         check-macOS-CLI-Xcode-no-UI-framework,
         build-distribution,
