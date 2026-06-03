@@ -125,6 +125,7 @@ jobs:
       # On release branches these binary target URLs point to artifacts that do not exist yet, causing
       # release commit builds to fail before the artifacts are published.
       - name: Remove binary targets from Package.swift
+        if: ${{ matrix.scheme != 'iOS-ObjectiveC-Dynamic' && matrix.scheme != 'iOS-ObjectiveC-Static' }}
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
       - name: Setup Xcode
