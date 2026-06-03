@@ -11,7 +11,7 @@
 
 - (IBAction)captureError:(id)sender
 {
-    NSError *error = [NSError errorWithDomain:@"iOS-ObjectiveC-Dynamic" code:1 userInfo:nil];
+    NSError *error = [NSError errorWithDomain:@"iOS-ObjectiveC-Static" code:1 userInfo:nil];
     [SentryObjCSDK captureError:error];
 }
 
