@@ -28,6 +28,9 @@
 
 ## 9.16.0
 
+> [!WARNING]
+> The `SentryObjC-Static` SPM binary target in this release has an incorrect checksum and resolving dependencies might fail, but the release artifacts are not affected.
+
 > [!IMPORTANT]
 > The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
 
