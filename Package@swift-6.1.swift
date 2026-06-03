@@ -59,7 +59,7 @@ var targets: [Target] = [
     .binaryTarget(
         name: "SentryObjC-Static",
         url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.16.0-alpha.3/SentryObjC-Static.xcframework.zip",
-        checksum: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" //SentryObjC-Static
+        checksum: "a98f93041d6e923bf2d6c87d0fd2126ee98712dda811ca93574bc77f31074e9a" //SentryObjC-Static
     ),
     .target(
         name: "SentrySwiftUI",
