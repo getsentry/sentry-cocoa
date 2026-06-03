@@ -385,8 +385,9 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
     NSMutableDictionary *attrs;
     SentryObjCParseFormatString(format, args, &body, &attrs);
     va_end(args);
-    [attrs addEntriesFromDictionary:attributes];
-    [self trace:body attributes:attrs];
+    NSMutableDictionary *merged = [attributes mutableCopy];
+    [merged addEntriesFromDictionary:attrs];
+    [self trace:body attributes:merged];
 }
 
 // MARK: - Debug
@@ -411,8 +412,9 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
     NSMutableDictionary *attrs;
     SentryObjCParseFormatString(format, args, &body, &attrs);
     va_end(args);
-    [attrs addEntriesFromDictionary:attributes];
-    [self debug:body attributes:attrs];
+    NSMutableDictionary *merged = [attributes mutableCopy];
+    [merged addEntriesFromDictionary:attrs];
+    [self debug:body attributes:merged];
 }
 
 // MARK: - Info
@@ -436,8 +438,9 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
     NSMutableDictionary *attrs;
     SentryObjCParseFormatString(format, args, &body, &attrs);
     va_end(args);
-    [attrs addEntriesFromDictionary:attributes];
-    [self info:body attributes:attrs];
+    NSMutableDictionary *merged = [attributes mutableCopy];
+    [merged addEntriesFromDictionary:attrs];
+    [self info:body attributes:merged];
 }
 
 // MARK: - Warn
@@ -461,8 +464,9 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
     NSMutableDictionary *attrs;
     SentryObjCParseFormatString(format, args, &body, &attrs);
     va_end(args);
-    [attrs addEntriesFromDictionary:attributes];
-    [self warn:body attributes:attrs];
+    NSMutableDictionary *merged = [attributes mutableCopy];
+    [merged addEntriesFromDictionary:attrs];
+    [self warn:body attributes:merged];
 }
 
 // MARK: - Error
@@ -487,8 +491,9 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
     NSMutableDictionary *attrs;
     SentryObjCParseFormatString(format, args, &body, &attrs);
     va_end(args);
-    [attrs addEntriesFromDictionary:attributes];
-    [self error:body attributes:attrs];
+    NSMutableDictionary *merged = [attributes mutableCopy];
+    [merged addEntriesFromDictionary:attrs];
+    [self error:body attributes:merged];
 }
 
 // MARK: - Fatal
@@ -513,8 +518,9 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
     NSMutableDictionary *attrs;
     SentryObjCParseFormatString(format, args, &body, &attrs);
     va_end(args);
-    [attrs addEntriesFromDictionary:attributes];
-    [self fatal:body attributes:attrs];
+    NSMutableDictionary *merged = [attributes mutableCopy];
+    [merged addEntriesFromDictionary:attrs];
+    [self fatal:body attributes:merged];
 }
 
 @end

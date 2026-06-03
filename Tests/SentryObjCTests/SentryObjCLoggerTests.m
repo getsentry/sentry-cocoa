@@ -699,6 +699,33 @@
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @"(null)");
 }
 
+#pragma mark - format: SDK attributes take precedence over user attributes
+
+- (void)testDebugWithAttributesFormat_whenUserOverridesTemplate_shouldKeepSDKTemplate
+{
+    // -- Arrange --
+    NSDictionary *userAttrs = @{ @"sentry.message.template" : @"user-override" };
+
+    // -- Act --
+    [SentryObjCSDK.logger debugWithAttributes:userAttrs format:@"Count: %d", 42];
+
+    // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Count: %d");
+}
+
+- (void)testDebugWithAttributesFormat_whenUserOverridesParameter_shouldKeepSDKParameter
+{
+    // -- Arrange --
+    NSDictionary *userAttrs = @{ @"sentry.message.parameter.0" : @"user-override" };
+
+    // -- Act --
+    [SentryObjCSDK.logger debugWithAttributes:userAttrs format:@"Value: %d", 42];
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @42);
+}
+
 #pragma mark - logs disabled
 
 - (void)testLoggerMethod_whenLogsDisabled_shouldNotCrash
