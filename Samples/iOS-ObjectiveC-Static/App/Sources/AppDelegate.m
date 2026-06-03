@@ -1,5 +1,5 @@
 #import "AppDelegate.h"
-@import SentryObjC;
+#import <SentryObjC.h>
 
 @implementation AppDelegate
 
