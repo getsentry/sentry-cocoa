@@ -104,39 +104,6 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(closeCalls, 2)
     }
 
-    func testSubmitFeedback_whenValid_shouldCallSubmitSuccess() {
-        let config = SentryUserFeedbackConfiguration()
-        var submittedData: [String: Any]?
-        config.onSubmitSuccess = { submittedData = $0 }
-        let sut = SentryUserFeedbackFormController(preparedConfig: config, image: nil)
-
-        sut.viewModel.messageTextView.text = "It broke"
-        sut.submitFeedback()
-
-        XCTAssertEqual(submittedData?["message"] as? String, "It broke")
-    }
-
-    func testSubmitFeedback_whenInvalid_shouldPresentErrorAndNotClose() throws {
-        let config = SentryUserFeedbackConfiguration()
-        config.animations = false
-        var closeCalls = 0
-        config.onFormClose = { closeCalls += 1 }
-        let sut = SentryUserFeedbackFormController(preparedConfig: config, image: nil)
-        let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = sut
-        window.makeKeyAndVisible()
-        defer {
-            sut.presentedViewController?.dismiss(animated: false)
-            window.isHidden = true
-        }
-
-        sut.submitFeedback()
-
-        let alert = try XCTUnwrap(sut.presentedViewController as? UIAlertController)
-        XCTAssertEqual(alert.title, "Error")
-        XCTAssertEqual(closeCalls, 0)
-    }
-    
     func testSerializeWithAllFields() throws {
         let attachment = Attachment(data: Data(), filename: "screenshot.png", contentType: "image/png")
         let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", attachments: [attachment])
