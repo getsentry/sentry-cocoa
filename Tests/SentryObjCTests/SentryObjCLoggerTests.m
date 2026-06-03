@@ -558,6 +558,28 @@
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @65);
 }
 
+#pragma mark - format: intmax_t / uintmax_t specifiers
+
+- (void)testDebugWithFormat_withIntmaxT_shouldExtractParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Max: %jd", (intmax_t)9876543210LL];
+
+    // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @9876543210LL);
+}
+
+- (void)testDebugWithFormat_withUintmaxT_shouldExtractParameter
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"UMax: %ju", (uintmax_t)9876543210ULL];
+
+    // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @9876543210ULL);
+}
+
 #pragma mark - format: additional float specifiers
 
 - (void)testDebugWithFormat_withScientific_shouldExtractDoubleParameter

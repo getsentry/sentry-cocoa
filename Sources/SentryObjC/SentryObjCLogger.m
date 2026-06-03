@@ -1,14 +1,73 @@
 #import "SentryObjCLogger.h"
+#import <stdint.h>
+
+// ──────────────────────────────────────────────────────────────────────────────
+// NSString format string parser
+//
+// Reference: Apple "String Format Specifiers"
+// https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Strings/Articles/formatSpecifiers.html
+//
+// NSString follows the IEEE printf specification plus %@ for Objective-C
+// objects. Positional specifiers (n$, e.g. %1$@ %2$s) are supported by
+// NSString but are NOT handled by this parserm because C's va_list is a
+// forward-only cursor and va_arg consumes the next argument sequentially
+// with no way to rewind, skip, or index.
+//
+// Positional specifiers reference arguments in arbitrary order
+// (e.g. %2$@ before %1$d), so supporting them would require a two-pass
+// approach: first scan the entire format string to build a type map for
+// every positional index, then consume va_arg sequentially using that map.
+// This is significant complexity for a feature rarely used outside localized
+// strings, which are not typical for structured log messages. NS_FORMAT_FUNCTION
+// on our public API ensures the compiler validates format strings at the
+// call site regardless.
+//
+// Table 1 — Format specifiers
+// ┌────────┬────────────────────────────────────────────────────────────────┐
+// │  %@    │ Objective-C object (descriptionWithLocale: or description)     │
+// │  %%    │ Literal '%' character                                          │
+// │  %d %D │ Signed 32-bit integer (int)                                    │
+// │  %u %U │ Unsigned 32-bit integer (unsigned int)                         │
+// │  %x    │ Unsigned 32-bit integer, hex lowercase a-f                     │
+// │  %X    │ Unsigned 32-bit integer, hex uppercase A-F                     │
+// │  %o %O │ Unsigned 32-bit integer, octal                                 │
+// │  %f    │ 64-bit floating-point (double)                                 │
+// │  %F    │ 64-bit floating-point (double), decimal notation               │
+// │  %e    │ 64-bit floating-point (double), scientific lowercase e         │
+// │  %E    │ 64-bit floating-point (double), scientific uppercase E         │
+// │  %g    │ 64-bit floating-point (double), shorter of %e or %f            │
+// │  %G    │ 64-bit floating-point (double), shorter of %E or %f            │
+// │  %a    │ 64-bit floating-point (double), hex with lowercase p exponent  │
+// │  %A    │ 64-bit floating-point (double), hex with uppercase P exponent  │
+// │  %c    │ 8-bit unsigned character (unsigned char)                       │
+// │  %C    │ 16-bit UTF-16 code unit (unichar)                              │
+// │  %s    │ Null-terminated array of 8-bit unsigned characters             │
+// │  %S    │ Null-terminated array of 16-bit UTF-16 code units              │
+// │  %p    │ Void pointer (void *), hex with leading 0x                     │
+// └────────┴────────────────────────────────────────────────────────────────┘
+//
+// Table 2 — Length modifiers
+// ┌────────┬────────────────────────────────────────────────────────────────┐
+// │  h     │ short / unsigned short (applies to d, o, u, x, X)              │
+// │  hh    │ signed char / unsigned char (applies to d, o, u, x, X)         │
+// │  l     │ long / unsigned long (applies to d, o, u, x, X)                │
+// │  ll, q │ long long / unsigned long long (applies to d, o, u, x, X)      │
+// │  z     │ size_t (applies to d, o, u, x, X)                              │
+// │  t     │ ptrdiff_t (applies to d, o, u, x, X)                           │
+// │  j     │ intmax_t / uintmax_t (applies to d, o, u, x, X)                │
+// │  L     │ long double (applies to a, A, e, E, f, F, g, G)                │
+// └────────┴────────────────────────────────────────────────────────────────┘
 
 typedef NS_ENUM(NSInteger, SentryObjCLengthModifier) {
     SentryObjCLenNone,
-    SentryObjCLenH,
-    SentryObjCLenHH,
-    SentryObjCLenL,
-    SentryObjCLenLL,
-    SentryObjCLenZ,
-    SentryObjCLenT,
-    SentryObjCLenBigL
+    SentryObjCLenH, // h  — short / unsigned short
+    SentryObjCLenHH, // hh — signed char / unsigned char
+    SentryObjCLenL, // l  — long / unsigned long
+    SentryObjCLenLL, // ll, q — long long / unsigned long long
+    SentryObjCLenZ, // z  — size_t
+    SentryObjCLenT, // t  — ptrdiff_t
+    SentryObjCLenJ, // j  — intmax_t / uintmax_t
+    SentryObjCLenBigL // L  — long double
 };
 
 // Parses an NSString format string, extracts typed parameter values from args,
@@ -32,20 +91,21 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
             continue;
         }
 
-        fmt++;
+        fmt++; // skip '%'
 
+        // %% — literal '%' character
         if (*fmt == '%') {
             fmt++;
             continue;
         }
 
-        // Skip flags
+        // Flags: '-' left-justify, '+' sign, '0' zero-pad, ' ' space, '#' alternate, '\'' grouping
         while (*fmt == '-' || *fmt == '+' || *fmt == '0' || *fmt == ' ' || *fmt == '#'
             || *fmt == '\'') {
             fmt++;
         }
 
-        // Width (* consumes an int arg)
+        // Width — literal digits or '*' (consumes an int arg from va_list)
         if (*fmt == '*') {
             (void)va_arg(args, int);
             fmt++;
@@ -55,7 +115,7 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
             }
         }
 
-        // Precision
+        // Precision — '.' followed by digits or '*' (consumes an int arg from va_list)
         if (*fmt == '.') {
             fmt++;
             if (*fmt == '*') {
@@ -68,39 +128,51 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
             }
         }
 
-        // Length modifier
+        // Length modifier (Table 2)
         SentryObjCLengthModifier lengthMod = SentryObjCLenNone;
         if (*fmt == 'h') {
             fmt++;
             if (*fmt == 'h') {
+                // hh — signed char / unsigned char
                 lengthMod = SentryObjCLenHH;
                 fmt++;
             } else {
+                // h — short / unsigned short
                 lengthMod = SentryObjCLenH;
             }
         } else if (*fmt == 'l') {
             fmt++;
             if (*fmt == 'l') {
+                // ll — long long / unsigned long long
                 lengthMod = SentryObjCLenLL;
                 fmt++;
             } else {
+                // l — long / unsigned long
                 lengthMod = SentryObjCLenL;
             }
         } else if (*fmt == 'q') {
+            // q — synonym for ll (long long / unsigned long long)
             lengthMod = SentryObjCLenLL;
             fmt++;
         } else if (*fmt == 'z') {
+            // z — size_t
             lengthMod = SentryObjCLenZ;
             fmt++;
         } else if (*fmt == 't') {
+            // t — ptrdiff_t
             lengthMod = SentryObjCLenT;
             fmt++;
+        } else if (*fmt == 'j') {
+            // j — intmax_t / uintmax_t
+            lengthMod = SentryObjCLenJ;
+            fmt++;
         } else if (*fmt == 'L') {
+            // L — long double (applies to a, A, e, E, f, F, g, G)
             lengthMod = SentryObjCLenBigL;
             fmt++;
         }
 
-        // Conversion specifier — extract typed arg
+        // Conversion specifier (Table 1) — extract typed arg from va_list
         char spec = *fmt;
         if (spec)
             fmt++;
@@ -108,11 +180,17 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
         id paramValue = nil;
 
         switch (spec) {
+
+        // %@ — Objective-C object, printed via descriptionWithLocale: or description.
+        //       Also works with CFTypeRef objects (CFCopyDescription).
         case '@': {
             id obj = va_arg(args, id);
             paramValue = obj ?: @"(null)";
             break;
         }
+
+        // %d, %i — Signed 32-bit integer (int). With length modifiers:
+        //   %ld → long, %lld → long long, %zd → ssize_t, %td → ptrdiff_t, %jd → intmax_t
         case 'd':
         case 'i': {
             switch (lengthMod) {
@@ -128,12 +206,23 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
             case SentryObjCLenT:
                 paramValue = @((long long)va_arg(args, ptrdiff_t));
                 break;
+            case SentryObjCLenJ:
+                paramValue = @((long long)va_arg(args, intmax_t));
+                break;
             default:
                 paramValue = @(va_arg(args, int));
                 break;
             }
             break;
         }
+
+        // %u — Unsigned 32-bit integer (unsigned int).
+        // %x — Unsigned 32-bit integer, hex with lowercase a-f.
+        // %X — Unsigned 32-bit integer, hex with uppercase A-F.
+        // %o — Unsigned 32-bit integer, octal.
+        // With length modifiers:
+        //   %lu → unsigned long, %llu → unsigned long long, %zu → size_t,
+        //   %tu → ptrdiff_t (unsigned), %ju → uintmax_t
         case 'u':
         case 'x':
         case 'X':
@@ -148,12 +237,28 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
             case SentryObjCLenZ:
                 paramValue = @((unsigned long long)va_arg(args, size_t));
                 break;
+            case SentryObjCLenT:
+                paramValue = @((unsigned long long)va_arg(args, ptrdiff_t));
+                break;
+            case SentryObjCLenJ:
+                paramValue = @((unsigned long long)va_arg(args, uintmax_t));
+                break;
             default:
                 paramValue = @(va_arg(args, unsigned int));
                 break;
             }
             break;
         }
+
+        // %f — 64-bit floating-point (double).
+        // %F — 64-bit floating-point (double), decimal notation.
+        // %e — 64-bit floating-point (double), scientific notation with lowercase e.
+        // %E — 64-bit floating-point (double), scientific notation with uppercase E.
+        // %g — 64-bit floating-point (double), shorter of %e or %f.
+        // %G — 64-bit floating-point (double), shorter of %E or %f.
+        // %a — 64-bit floating-point (double), hex with lowercase p exponent.
+        // %A — 64-bit floating-point (double), hex with uppercase P exponent.
+        // With length modifier L: long double (truncated to double for storage).
         case 'f':
         case 'F':
         case 'e':
@@ -169,23 +274,36 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
             }
             break;
         }
+
+        // %D — Legacy Apple specifier: signed 32-bit integer (int), equivalent to %d.
         case 'D': {
             paramValue = @(va_arg(args, int));
             break;
         }
+
+        // %O — Legacy Apple specifier: unsigned 32-bit integer (unsigned int), octal.
+        //       Equivalent to %o.
+        // %U — Legacy Apple specifier: unsigned 32-bit integer (unsigned int).
+        //       Equivalent to %u.
         case 'O':
         case 'U': {
             paramValue = @(va_arg(args, unsigned int));
             break;
         }
+
+        // %c — 8-bit unsigned character (unsigned char), promoted to int via va_arg.
         case 'c': {
             paramValue = [NSString stringWithFormat:@"%c", (char)va_arg(args, int)];
             break;
         }
+
+        // %C — 16-bit UTF-16 code unit (unichar), promoted to int via va_arg.
         case 'C': {
             paramValue = [NSString stringWithFormat:@"%C", (unichar)va_arg(args, int)];
             break;
         }
+
+        // %S — Null-terminated array of 16-bit UTF-16 code units.
         case 'S': {
             const unichar *s = va_arg(args, const unichar *);
             if (s) {
@@ -198,6 +316,10 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
             }
             break;
         }
+
+        // %s — Null-terminated array of 8-bit unsigned characters.
+        //       Interpreted in system default encoding by NSString; we attempt
+        //       UTF-8 first, then ASCII, to avoid nil on invalid byte sequences.
         case 's': {
             const char *s = va_arg(args, const char *);
             if (s) {
@@ -210,11 +332,14 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
             }
             break;
         }
+
+        // %p — Void pointer (void *), printed in hex with leading 0x and lowercase a-f.
         case 'p': {
             void *ptr = va_arg(args, void *);
             paramValue = [NSString stringWithFormat:@"%p", ptr];
             break;
         }
+
         default:
             break;
         }
