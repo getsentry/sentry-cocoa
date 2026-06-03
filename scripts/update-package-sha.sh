@@ -28,6 +28,7 @@ ZIPS_AND_MARKERS=(
     "Sentry-WithoutUIKitOrAppKit.xcframework.zip|Sentry-WithoutUIKitOrAppKit"
     "Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip|Sentry-WithoutUIKitOrAppKit-WithARM64e"
     "SentryObjC-Dynamic.xcframework.zip|SentryObjC-Dynamic"
+    "SentryObjC-Static.xcframework.zip|SentryObjC-Static"
 )
 
 os=$(uname)
