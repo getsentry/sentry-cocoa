@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.16.1
 
 > [!NOTE]
 > No documented changes. This is the same as 9.16.0, re-released to fix the SentryObjC-Static SPM checksum.
