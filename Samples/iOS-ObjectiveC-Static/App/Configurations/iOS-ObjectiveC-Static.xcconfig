@@ -1,7 +1,7 @@
 #include "../../../Shared/Config/_Common.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-ObjectiveC-Dynamic
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-ObjectiveC-Static
 INFOPLIST_FILE = App/Configurations/Info.plist
-CODE_SIGN_ENTITLEMENTS = App/Configurations/iOS-ObjectiveC-Dynamic.entitlements
+CODE_SIGN_ENTITLEMENTS = App/Configurations/iOS-ObjectiveC-Static.entitlements
 
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator
