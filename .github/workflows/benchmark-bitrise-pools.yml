@@ -41,10 +41,12 @@ jobs:
           sync
           RESULT=$(dd if=/dev/zero of=test_write_seq bs=1m count=1024 2>&1)
           echo "$RESULT"
-          SPEED=$(echo "$RESULT" | tail -1 | grep -oE '[0-9.]+ [a-zA-Z]+/sec' || echo "N/A")
-          echo "speed=$SPEED" >> "$GITHUB_OUTPUT"
+          BPS=$(echo "$RESULT" | tail -1 | grep -oE '[0-9]+ bytes' | grep -oE '[0-9]+' || echo "0")
+          SECS=$(echo "$RESULT" | tail -1 | grep -oE '[0-9.]+ secs' | grep -oE '[0-9.]+' || echo "0")
+          MBS=$(python3 -c "bps=$BPS; secs=$SECS; print(f'{bps/secs/1_000_000:.1f}') if secs > 0 else print('N/A')")
+          echo "speed=${MBS} MB/s" >> "$GITHUB_OUTPUT"
           echo "### Sequential Write" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **1GB sequential write:** $SPEED" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **1GB sequential write:** ${MBS} MB/s" >> "$GITHUB_STEP_SUMMARY"
           rm -f test_write_seq
 
       - name: Benchmark Sequential Read (1GB)
@@ -55,28 +57,33 @@ jobs:
           purge 2>/dev/null || true
           RESULT=$(dd if=test_read_seq of=/dev/null bs=1m 2>&1)
           echo "$RESULT"
-          SPEED=$(echo "$RESULT" | tail -1 | grep -oE '[0-9.]+ [a-zA-Z]+/sec' || echo "N/A")
-          echo "speed=$SPEED" >> "$GITHUB_OUTPUT"
+          BPS=$(echo "$RESULT" | tail -1 | grep -oE '[0-9]+ bytes' | grep -oE '[0-9]+' || echo "0")
+          SECS=$(echo "$RESULT" | tail -1 | grep -oE '[0-9.]+ secs' | grep -oE '[0-9.]+' || echo "0")
+          MBS=$(python3 -c "bps=$BPS; secs=$SECS; print(f'{bps/secs/1_000_000:.1f}') if secs > 0 else print('N/A')")
+          echo "speed=${MBS} MB/s" >> "$GITHUB_OUTPUT"
           echo "### Sequential Read" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **1GB sequential read:** $SPEED" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **1GB sequential read:** ${MBS} MB/s" >> "$GITHUB_STEP_SUMMARY"
           rm -f test_read_seq
 
       - name: Benchmark Random Write (4K blocks)
         id: rand_write
         run: |
+          TOTAL_BYTES=$((4096 * 10000))
           START=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
           dd if=/dev/urandom of=test_write_rand bs=4096 count=10000 2>&1
           END=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
           ELAPSED_MS=$(python3 -c "print(round(($END - $START) / 1_000_000, 1))")
+          MBS=$(python3 -c "print(round($TOTAL_BYTES / (($END - $START) / 1e9) / 1_000_000, 1))")
           IOPS=$(python3 -c "print(round(10000 / ($END - $START) * 1e9, 1))")
-          echo "result=${ELAPSED_MS}ms (~${IOPS} IOPS)" >> "$GITHUB_OUTPUT"
+          echo "result=${MBS} MB/s (~${IOPS} IOPS)" >> "$GITHUB_OUTPUT"
           echo "### Random Write (4K)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **10K x 4K random writes:** ${ELAPSED_MS}ms (~${IOPS} IOPS)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **10K x 4K random writes:** ${MBS} MB/s (~${IOPS} IOPS)" >> "$GITHUB_STEP_SUMMARY"
           rm -f test_write_rand
 
       - name: Benchmark Random Read (4K blocks)
         id: rand_read
         run: |
+          TOTAL_BYTES=$((4096 * 10000))
           dd if=/dev/urandom of=test_read_rand bs=4096 count=10000 2>/dev/null
           sync
           purge 2>/dev/null || true
@@ -84,15 +91,17 @@ jobs:
           dd if=test_read_rand of=/dev/null bs=4096 2>&1
           END=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
           ELAPSED_MS=$(python3 -c "print(round(($END - $START) / 1_000_000, 1))")
+          MBS=$(python3 -c "print(round($TOTAL_BYTES / (($END - $START) / 1e9) / 1_000_000, 1))")
           IOPS=$(python3 -c "print(round(10000 / ($END - $START) * 1e9, 1))")
-          echo "result=${ELAPSED_MS}ms (~${IOPS} IOPS)" >> "$GITHUB_OUTPUT"
+          echo "result=${MBS} MB/s (~${IOPS} IOPS)" >> "$GITHUB_OUTPUT"
           echo "### Random Read (4K)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **10K x 4K random reads:** ${ELAPSED_MS}ms (~${IOPS} IOPS)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **10K x 4K random reads:** ${MBS} MB/s (~${IOPS} IOPS)" >> "$GITHUB_STEP_SUMMARY"
           rm -f test_read_rand
 
       - name: Benchmark Mixed Workload (simulated build IO)
         id: mixed
         run: |
+          TOTAL_BYTES=$((32768 * 500))
           mkdir -p io_bench
           START=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
           for i in $(seq 1 500); do
@@ -104,9 +113,10 @@ jobs:
           done
           END=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
           ELAPSED_MS=$(python3 -c "print(round(($END - $START) / 1_000_000, 1))")
-          echo "result=${ELAPSED_MS}ms" >> "$GITHUB_OUTPUT"
+          MBS=$(python3 -c "print(round($TOTAL_BYTES * 2 / (($END - $START) / 1e9) / 1_000_000, 1))")
+          echo "result=${MBS} MB/s (${ELAPSED_MS}ms)" >> "$GITHUB_OUTPUT"
           echo "### Mixed Workload (simulated build)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **500 files x 32K write+read:** ${ELAPSED_MS}ms" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **500 files x 32K write+read:** ${MBS} MB/s (${ELAPSED_MS}ms)" >> "$GITHUB_STEP_SUMMARY"
           rm -rf io_bench
 
       - name: Save results
