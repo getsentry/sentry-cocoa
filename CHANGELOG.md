@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Support creating envelope items from attachments via SentryObjC ([#8001](https://github.com/getsentry/sentry-cocoa/pull/8001))
+
 ## 9.16.1
 
 > [!NOTE]
@@ -10,7 +16,7 @@
 
 ### Features
 
-- Add SentryObjC wrapper SDK — a pure Objective-C interface for projects that cannot enable Clang modules (e.g., ObjC++ with `-fmodules=NO`). (#7918)
+- Add SentryObjC — a pure Objective-C interface for projects that cannot enable Clang modules (e.g., ObjC++ with `-fmodules=NO`). (#7918)
 
   Ships as a compile-from-source SPM product `SentryObjC`, a static pre-compiled framework `SentryObjC-Static.xcframework.zip` and a dynamic pre-compiled framework `SentryObjC-Dynamic.xcframework.zip`.
 
