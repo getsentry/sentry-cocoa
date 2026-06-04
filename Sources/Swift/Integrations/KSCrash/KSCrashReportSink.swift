@@ -35,10 +35,11 @@ final class KSCrashReportSink: NSObject, CrashReportFilter {
                 SentrySDKLog.warning("KSCrashReportSink: skipping non-dictionary report of type \(type(of: report))")
                 continue
             }
+            let reportIDHex = (dictReport.value["report"] as? [String: Any])?["id"] as? String
             let reportConverter = KSCrashReportConverter(report: dictReport, inAppLogic: inAppLogic)
             if SentrySDKInternal.currentHub().getClient() != nil {
                 if let event = reportConverter.convertReportToEvent() {
-                    handleConvertedEvent(event, report: report, sentReports: &sentReports)
+                    handleConvertedEvent(event, report: report, reportIDHex: reportIDHex, sentReports: &sentReports)
                 }
             } else {
                 SentrySDKLog.error(
@@ -52,9 +53,25 @@ final class KSCrashReportSink: NSObject, CrashReportFilter {
         onCompletion?(sentReports, nil)
     }
 
-    private func handleConvertedEvent(_ event: Event, report: any CrashReport, sentReports: inout [any CrashReport]) {
+    private func handleConvertedEvent(
+        _ event: Event,
+        report: any CrashReport,
+        reportIDHex: String?,
+        sentReports: inout [any CrashReport]
+    ) {
         sentReports.append(report)
         let scope = Scope(scope: SentrySDKInternal.currentHub().scope)
+
+        if let reportIDHex {
+            for attachment in SentryCrashAttachmentsStorage.attachments(for: reportIDHex) {
+                scope.addAttachment(attachment)
+            }
+        }
+
         SentrySDKInternal.captureFatalEvent(event, with: scope)
+
+        if let reportIDHex {
+            SentryCrashAttachmentsStorage.cleanup(for: reportIDHex)
+        }
     }
 }
