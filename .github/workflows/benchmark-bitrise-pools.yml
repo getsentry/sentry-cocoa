@@ -1,0 +1,88 @@
+name: Benchmark Bitrise Pools
+
+on:
+  workflow_dispatch:
+
+jobs:
+  benchmark-disk-io:
+    name: Disk IO - ${{ matrix.pool }}
+    runs-on: ${{ fromJSON(format('["bitrise_pool_name:{0}"]', matrix.pool)) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        pool: ["tahoe-xl", "tahoe", "sequoia"]
+    steps:
+      - name: System Info
+        run: |
+          echo "## System Info" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Pool:** ${{ matrix.pool }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Runner:** $(hostname)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **OS:** $(sw_vers -productName) $(sw_vers -productVersion)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **CPU:** $(sysctl -n machdep.cpu.brand_string)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Cores:** $(sysctl -n hw.ncpu)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Memory:** $(( $(sysctl -n hw.memsize) / 1073741824 )) GB" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Disk:** $(diskutil info / | grep 'Total Size' || df -h / | tail -1)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Benchmark Sequential Write (1GB)
+        run: |
+          echo "### Sequential Write" >> "$GITHUB_STEP_SUMMARY"
+          sync
+          RESULT=$(dd if=/dev/zero of=test_write_seq bs=1m count=1024 2>&1)
+          echo "$RESULT"
+          SPEED=$(echo "$RESULT" | tail -1 | grep -oE '[0-9.]+ [a-zA-Z]+/sec' || echo "parse error")
+          echo "- **1GB sequential write:** $SPEED" >> "$GITHUB_STEP_SUMMARY"
+          rm -f test_write_seq
+
+      - name: Benchmark Sequential Read (1GB)
+        run: |
+          echo "### Sequential Read" >> "$GITHUB_STEP_SUMMARY"
+          dd if=/dev/zero of=test_read_seq bs=1m count=1024 2>/dev/null
+          sync
+          purge 2>/dev/null || true
+          RESULT=$(dd if=test_read_seq of=/dev/null bs=1m 2>&1)
+          echo "$RESULT"
+          SPEED=$(echo "$RESULT" | tail -1 | grep -oE '[0-9.]+ [a-zA-Z]+/sec' || echo "parse error")
+          echo "- **1GB sequential read:** $SPEED" >> "$GITHUB_STEP_SUMMARY"
+          rm -f test_read_seq
+
+      - name: Benchmark Random Write (4K blocks)
+        run: |
+          echo "### Random Write (4K)" >> "$GITHUB_STEP_SUMMARY"
+          START=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
+          dd if=/dev/urandom of=test_write_rand bs=4096 count=10000 2>&1
+          END=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
+          ELAPSED_MS=$(python3 -c "print(($END - $START) / 1_000_000)")
+          IOPS=$(python3 -c "print(round(10000 / ($END - $START) * 1e9, 1))")
+          echo "- **10K x 4K random writes:** ${ELAPSED_MS}ms (~${IOPS} IOPS)" >> "$GITHUB_STEP_SUMMARY"
+          rm -f test_write_rand
+
+      - name: Benchmark Random Read (4K blocks)
+        run: |
+          echo "### Random Read (4K)" >> "$GITHUB_STEP_SUMMARY"
+          dd if=/dev/urandom of=test_read_rand bs=4096 count=10000 2>/dev/null
+          sync
+          purge 2>/dev/null || true
+          START=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
+          dd if=test_read_rand of=/dev/null bs=4096 2>&1
+          END=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
+          ELAPSED_MS=$(python3 -c "print(($END - $START) / 1_000_000)")
+          IOPS=$(python3 -c "print(round(10000 / ($END - $START) * 1e9, 1))")
+          echo "- **10K x 4K random reads:** ${ELAPSED_MS}ms (~${IOPS} IOPS)" >> "$GITHUB_STEP_SUMMARY"
+          rm -f test_read_rand
+
+      - name: Benchmark Mixed Workload (simulated build IO)
+        run: |
+          echo "### Mixed Workload (simulated build)" >> "$GITHUB_STEP_SUMMARY"
+          mkdir -p io_bench
+          START=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
+          for i in $(seq 1 500); do
+            dd if=/dev/urandom of=io_bench/file_$i bs=32768 count=1 2>/dev/null
+          done
+          sync
+          for i in $(seq 1 500); do
+            cat io_bench/file_$i > /dev/null
+          done
+          END=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
+          ELAPSED_MS=$(python3 -c "print(round(($END - $START) / 1_000_000, 1))")
+          echo "- **500 files x 32K write+read:** ${ELAPSED_MS}ms" >> "$GITHUB_STEP_SUMMARY"
+          rm -rf io_bench
