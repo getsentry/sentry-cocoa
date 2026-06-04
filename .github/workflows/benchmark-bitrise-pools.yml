@@ -10,6 +10,7 @@ jobs:
   benchmark-ipsw:
     name: IPSW - ${{ matrix.provider }}/${{ matrix.pool }}
     runs-on: ${{ matrix.provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', matrix.pool)) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', matrix.pool, github.run_id)) }}
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -61,51 +62,27 @@ jobs:
           echo "RAM_DEV=$RAM_DEV" >> "$GITHUB_ENV"
           echo "- RAM disk (16GB) at /Volumes/RAMDisk" >> "$GITHUB_STEP_SUMMARY"
 
-      # Helper script shared by all mount benchmarks
-      - name: Create mount helper
-        run: |
-          cat > mount_bench.sh <<'SCRIPT'
-          #!/bin/bash
-          set -euo pipefail
-          IPSW_PATH="$1"
-          PEM_DB="$2"
-          MOUNT_POINT="$3"
-
-          START=$(python3 -c "import time; print(time.time())")
-          ipsw mount sys "$IPSW_PATH" --pem-db "$PEM_DB" --mount-point "$MOUNT_POINT" &
-          IPSW_PID=$!
-
-          for i in $(seq 1 180); do
-            if mount | grep -q "$MOUNT_POINT"; then
-              break
-            fi
-            sleep 1
-          done
-          END=$(python3 -c "import time; print(time.time())")
-
-          if ! mount | grep -q "$MOUNT_POINT"; then
-            kill $IPSW_PID 2>/dev/null || true
-            echo "MOUNT_SECS=N/A"
-            echo "IPSW_PID=$IPSW_PID"
-            echo "MOUNTED=false"
-            exit 0
-          fi
-
-          echo "MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")"
-          echo "IPSW_PID=$IPSW_PID"
-          echo "MOUNTED=true"
-          SCRIPT
-          chmod +x mount_bench.sh
-
       # ---------- Test 1: disk → disk (baseline) ----------
       - name: "Test 1: Mount from disk, extract to disk"
         id: disk_disk
+        timeout-minutes: 10
         run: |
           echo "### Test 1: Disk → Disk (baseline)" >> "$GITHUB_STEP_SUMMARY"
           MOUNT_POINT=$(mktemp -d)/mnt && mkdir -p "$MOUNT_POINT"
           purge 2>/dev/null || true
 
-          eval "$(./mount_bench.sh restore.ipsw fcs-keys.json "$MOUNT_POINT")"
+          START=$(python3 -c "import time; print(time.time())")
+          ipsw mount sys restore.ipsw --pem-db fcs-keys.json --mount-point "$MOUNT_POINT" &
+          IPSW_PID=$!
+
+          MOUNTED=false
+          for i in $(seq 1 180); do
+            if mount | grep -q "$MOUNT_POINT"; then MOUNTED=true; break; fi
+            if ! kill -0 $IPSW_PID 2>/dev/null; then break; fi
+            sleep 1
+          done
+          END=$(python3 -c "import time; print(time.time())")
+          MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
           echo "- **Mount:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
           echo "mount=${MOUNT_SECS}" >> "$GITHUB_OUTPUT"
 
@@ -119,6 +96,7 @@ jobs:
             echo "extract=${EXTRACT_SECS}" >> "$GITHUB_OUTPUT"
             rm -rf "$EXTRACT_DIR"
           else
+            echo "- Mount failed" >> "$GITHUB_STEP_SUMMARY"
             echo "extract=N/A" >> "$GITHUB_OUTPUT"
           fi
 
@@ -128,6 +106,7 @@ jobs:
       # ---------- Test 2: RAM → disk ----------
       - name: "Test 2: Mount from RAM, extract to disk"
         id: ram_disk
+        timeout-minutes: 10
         run: |
           echo "### Test 2: RAM → Disk" >> "$GITHUB_STEP_SUMMARY"
           cp restore.ipsw /Volumes/RAMDisk/restore.ipsw
@@ -135,7 +114,18 @@ jobs:
           MOUNT_POINT=$(mktemp -d)/mnt && mkdir -p "$MOUNT_POINT"
           purge 2>/dev/null || true
 
-          eval "$(./mount_bench.sh /Volumes/RAMDisk/restore.ipsw /Volumes/RAMDisk/fcs-keys.json "$MOUNT_POINT")"
+          START=$(python3 -c "import time; print(time.time())")
+          ipsw mount sys /Volumes/RAMDisk/restore.ipsw --pem-db /Volumes/RAMDisk/fcs-keys.json --mount-point "$MOUNT_POINT" &
+          IPSW_PID=$!
+
+          MOUNTED=false
+          for i in $(seq 1 180); do
+            if mount | grep -q "$MOUNT_POINT"; then MOUNTED=true; break; fi
+            if ! kill -0 $IPSW_PID 2>/dev/null; then break; fi
+            sleep 1
+          done
+          END=$(python3 -c "import time; print(time.time())")
+          MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
           echo "- **Mount:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
           echo "mount=${MOUNT_SECS}" >> "$GITHUB_OUTPUT"
 
@@ -149,6 +139,7 @@ jobs:
             echo "extract=${EXTRACT_SECS}" >> "$GITHUB_OUTPUT"
             rm -rf "$EXTRACT_DIR"
           else
+            echo "- Mount failed" >> "$GITHUB_STEP_SUMMARY"
             echo "extract=N/A" >> "$GITHUB_OUTPUT"
           fi
 
@@ -159,6 +150,7 @@ jobs:
       # ---------- Test 3: RAM → RAM ----------
       - name: "Test 3: Mount from RAM, extract to RAM"
         id: ram_ram
+        timeout-minutes: 10
         run: |
           echo "### Test 3: RAM → RAM (zero disk I/O)" >> "$GITHUB_STEP_SUMMARY"
           cp restore.ipsw /Volumes/RAMDisk/restore.ipsw
@@ -166,7 +158,18 @@ jobs:
           MOUNT_POINT=$(mktemp -d)/mnt && mkdir -p "$MOUNT_POINT"
           purge 2>/dev/null || true
 
-          eval "$(./mount_bench.sh /Volumes/RAMDisk/restore.ipsw /Volumes/RAMDisk/fcs-keys.json "$MOUNT_POINT")"
+          START=$(python3 -c "import time; print(time.time())")
+          ipsw mount sys /Volumes/RAMDisk/restore.ipsw --pem-db /Volumes/RAMDisk/fcs-keys.json --mount-point "$MOUNT_POINT" &
+          IPSW_PID=$!
+
+          MOUNTED=false
+          for i in $(seq 1 180); do
+            if mount | grep -q "$MOUNT_POINT"; then MOUNTED=true; break; fi
+            if ! kill -0 $IPSW_PID 2>/dev/null; then break; fi
+            sleep 1
+          done
+          END=$(python3 -c "import time; print(time.time())")
+          MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
           echo "- **Mount:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
           echo "mount=${MOUNT_SECS}" >> "$GITHUB_OUTPUT"
 
@@ -179,6 +182,7 @@ jobs:
             echo "extract=${EXTRACT_SECS}" >> "$GITHUB_OUTPUT"
             rm -rf /Volumes/RAMDisk/extracted
           else
+            echo "- Mount failed" >> "$GITHUB_STEP_SUMMARY"
             echo "extract=N/A" >> "$GITHUB_OUTPUT"
           fi
 
@@ -189,10 +193,10 @@ jobs:
       # ---------- Test 4: pre-extract DMG to RAM, then mount ----------
       - name: "Test 4: Pre-extract DMG to RAM, then mount"
         id: preextract_ram
+        timeout-minutes: 10
         run: |
           echo "### Test 4: Pre-extract DMG to RAM → Mount" >> "$GITHUB_STEP_SUMMARY"
 
-          # Unzip the IPSW to RAM disk so ipsw reads the extracted DMG from RAM
           START_UNZIP=$(python3 -c "import time; print(time.time())")
           unzip -o restore.ipsw -d /Volumes/RAMDisk/ipsw_contents
           END_UNZIP=$(python3 -c "import time; print(time.time())")
@@ -203,12 +207,22 @@ jobs:
           MOUNT_POINT=$(mktemp -d)/mnt && mkdir -p "$MOUNT_POINT"
           purge 2>/dev/null || true
 
-          # Mount from the pre-extracted IPSW directory on RAM
-          eval "$(./mount_bench.sh /Volumes/RAMDisk/ipsw_contents /Volumes/RAMDisk/fcs-keys.json "$MOUNT_POINT")" || true
-          echo "- **Mount:** ${MOUNT_SECS:-N/A}s" >> "$GITHUB_STEP_SUMMARY"
-          echo "mount=${MOUNT_SECS:-N/A}" >> "$GITHUB_OUTPUT"
+          START=$(python3 -c "import time; print(time.time())")
+          ipsw mount sys /Volumes/RAMDisk/ipsw_contents --pem-db /Volumes/RAMDisk/fcs-keys.json --mount-point "$MOUNT_POINT" &
+          IPSW_PID=$!
 
-          if [ "${MOUNTED:-false}" = "true" ]; then
+          MOUNTED=false
+          for i in $(seq 1 180); do
+            if mount | grep -q "$MOUNT_POINT"; then MOUNTED=true; break; fi
+            if ! kill -0 $IPSW_PID 2>/dev/null; then break; fi
+            sleep 1
+          done
+          END=$(python3 -c "import time; print(time.time())")
+          MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
+          echo "- **Mount:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+          echo "mount=${MOUNT_SECS}" >> "$GITHUB_OUTPUT"
+
+          if [ "$MOUNTED" = "true" ]; then
             START=$(python3 -c "import time; print(time.time())")
             cp -R "$MOUNT_POINT"/ /Volumes/RAMDisk/extracted/ 2>/dev/null || true
             END=$(python3 -c "import time; print(time.time())")
@@ -217,18 +231,25 @@ jobs:
             echo "extract=${EXTRACT_SECS}" >> "$GITHUB_OUTPUT"
             rm -rf /Volumes/RAMDisk/extracted
           else
+            echo "- Mount failed" >> "$GITHUB_STEP_SUMMARY"
             echo "extract=N/A" >> "$GITHUB_OUTPUT"
           fi
 
-          kill ${IPSW_PID:-0} 2>/dev/null || true; wait ${IPSW_PID:-0} 2>/dev/null || true
+          kill $IPSW_PID 2>/dev/null || true; wait $IPSW_PID 2>/dev/null || true
           hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
           rm -rf /Volumes/RAMDisk/ipsw_contents /Volumes/RAMDisk/fcs-keys.json
 
       - name: Cleanup
         if: always()
         run: |
+          # Kill any lingering ipsw processes
+          pkill -f "ipsw mount" 2>/dev/null || true
+          # Detach any leftover mounts
+          mount | grep "/tmp/" | awk '{print $3}' | while read mp; do
+            hdiutil detach "$mp" 2>/dev/null || true
+          done
           hdiutil detach "$RAM_DEV" 2>/dev/null || true
-          rm -f restore.ipsw fcs-keys.json mount_bench.sh
+          rm -f restore.ipsw fcs-keys.json
 
       - name: Save results
         if: always()
