@@ -35,102 +35,74 @@ jobs:
           echo "- **Memory:** $(( $(sysctl -n hw.memsize) / 1073741824 )) GB" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Disk:** $(diskutil info / | grep 'Total Size' || df -h / | tail -1)" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Benchmark Sequential Write (1GB)
-        id: seq_write
-        run: |
-          sync
-          RESULT=$(dd if=/dev/zero of=test_write_seq bs=1m count=1024 2>&1)
-          echo "$RESULT"
-          BPS=$(echo "$RESULT" | tail -1 | grep -oE '[0-9]+ bytes' | grep -oE '[0-9]+' || echo "0")
-          SECS=$(echo "$RESULT" | tail -1 | grep -oE '[0-9.]+ secs' | grep -oE '[0-9.]+' || echo "0")
-          MBS=$(python3 -c "bps=$BPS; secs=$SECS; print(f'{bps/secs/1_000_000:.1f}') if secs > 0 else print('N/A')")
-          echo "speed=${MBS} MB/s" >> "$GITHUB_OUTPUT"
-          echo "### Sequential Write" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **1GB sequential write:** ${MBS} MB/s" >> "$GITHUB_STEP_SUMMARY"
-          rm -f test_write_seq
+      - name: Install fio
+        run: brew install fio
 
-      - name: Benchmark Sequential Read (1GB)
-        id: seq_read
+      - name: Run fio benchmarks
+        id: fio
         run: |
-          dd if=/dev/zero of=test_read_seq bs=1m count=1024 2>/dev/null
-          sync
-          purge 2>/dev/null || true
-          RESULT=$(dd if=test_read_seq of=/dev/null bs=1m 2>&1)
-          echo "$RESULT"
-          BPS=$(echo "$RESULT" | tail -1 | grep -oE '[0-9]+ bytes' | grep -oE '[0-9]+' || echo "0")
-          SECS=$(echo "$RESULT" | tail -1 | grep -oE '[0-9.]+ secs' | grep -oE '[0-9.]+' || echo "0")
-          MBS=$(python3 -c "bps=$BPS; secs=$SECS; print(f'{bps/secs/1_000_000:.1f}') if secs > 0 else print('N/A')")
-          echo "speed=${MBS} MB/s" >> "$GITHUB_OUTPUT"
-          echo "### Sequential Read" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **1GB sequential read:** ${MBS} MB/s" >> "$GITHUB_STEP_SUMMARY"
-          rm -f test_read_seq
+          fio --name=seq_write --rw=write --bs=1m --size=1G --numjobs=1 --ioengine=posixaio --direct=1 --runtime=30 --time_based --group_reporting \
+              --name=seq_read  --rw=read  --bs=1m --size=1G --numjobs=1 --ioengine=posixaio --direct=1 --runtime=30 --time_based --group_reporting \
+              --name=rand_write --rw=randwrite --bs=4k --size=256M --numjobs=1 --ioengine=posixaio --direct=1 --runtime=30 --time_based --group_reporting \
+              --name=rand_read  --rw=randread  --bs=4k --size=256M --numjobs=1 --ioengine=posixaio --direct=1 --runtime=30 --time_based --group_reporting \
+              --output-format=json --output=fio-results.json
+          cat fio-results.json
 
-      - name: Benchmark Random Write (4K blocks)
-        id: rand_write
+      - name: Parse results
+        id: parse
         run: |
-          TOTAL_BYTES=$((4096 * 10000))
-          START=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
-          dd if=/dev/urandom of=test_write_rand bs=4096 count=10000 2>&1
-          END=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
-          ELAPSED_MS=$(python3 -c "print(round(($END - $START) / 1_000_000, 1))")
-          MBS=$(python3 -c "print(round($TOTAL_BYTES / (($END - $START) / 1e9) / 1_000_000, 1))")
-          IOPS=$(python3 -c "print(round(10000 / ($END - $START) * 1e9, 1))")
-          echo "result=${MBS} MB/s (~${IOPS} IOPS)" >> "$GITHUB_OUTPUT"
-          echo "### Random Write (4K)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **10K x 4K random writes:** ${MBS} MB/s (~${IOPS} IOPS)" >> "$GITHUB_STEP_SUMMARY"
-          rm -f test_write_rand
+          python3 <<'PYEOF'
+          import json, os
 
-      - name: Benchmark Random Read (4K blocks)
-        id: rand_read
-        run: |
-          TOTAL_BYTES=$((4096 * 10000))
-          dd if=/dev/urandom of=test_read_rand bs=4096 count=10000 2>/dev/null
-          sync
-          purge 2>/dev/null || true
-          START=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
-          dd if=test_read_rand of=/dev/null bs=4096 2>&1
-          END=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
-          ELAPSED_MS=$(python3 -c "print(round(($END - $START) / 1_000_000, 1))")
-          MBS=$(python3 -c "print(round($TOTAL_BYTES / (($END - $START) / 1e9) / 1_000_000, 1))")
-          IOPS=$(python3 -c "print(round(10000 / ($END - $START) * 1e9, 1))")
-          echo "result=${MBS} MB/s (~${IOPS} IOPS)" >> "$GITHUB_OUTPUT"
-          echo "### Random Read (4K)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **10K x 4K random reads:** ${MBS} MB/s (~${IOPS} IOPS)" >> "$GITHUB_STEP_SUMMARY"
-          rm -f test_read_rand
+          with open("fio-results.json") as f:
+              data = json.load(f)
 
-      - name: Benchmark Mixed Workload (simulated build IO)
-        id: mixed
-        run: |
-          TOTAL_BYTES=$((32768 * 500))
-          mkdir -p io_bench
-          START=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
-          for i in $(seq 1 500); do
-            dd if=/dev/urandom of=io_bench/file_$i bs=32768 count=1 2>/dev/null
-          done
-          sync
-          for i in $(seq 1 500); do
-            cat io_bench/file_$i > /dev/null
-          done
-          END=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
-          ELAPSED_MS=$(python3 -c "print(round(($END - $START) / 1_000_000, 1))")
-          MBS=$(python3 -c "print(round($TOTAL_BYTES * 2 / (($END - $START) / 1e9) / 1_000_000, 1))")
-          echo "result=${MBS} MB/s (${ELAPSED_MS}ms)" >> "$GITHUB_OUTPUT"
-          echo "### Mixed Workload (simulated build)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **500 files x 32K write+read:** ${MBS} MB/s (${ELAPSED_MS}ms)" >> "$GITHUB_STEP_SUMMARY"
-          rm -rf io_bench
+          results = {}
+          for job in data["jobs"]:
+              name = job["jobname"]
+              if "write" in name:
+                  bw = job["write"]["bw"]       # KB/s
+                  iops = job["write"]["iops"]
+              else:
+                  bw = job["read"]["bw"]
+                  iops = job["read"]["iops"]
+              results[name] = {"mb_s": round(bw / 1024, 1), "iops": round(iops, 1)}
+
+          sw = results["seq_write"]
+          sr = results["seq_read"]
+          rw = results["rand_write"]
+          rr = results["rand_read"]
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"seq_write={sw['mb_s']} MB/s\n")
+              out.write(f"seq_read={sr['mb_s']} MB/s\n")
+              out.write(f"rand_write={rw['mb_s']} MB/s ({rw['iops']} IOPS)\n")
+              out.write(f"rand_read={rr['mb_s']} MB/s ({rr['iops']} IOPS)\n")
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write("## fio Benchmark Results\n\n")
+              summary.write(f"| Test | Throughput | IOPS |\n")
+              summary.write(f"|------|-----------|------|\n")
+              for name, r in results.items():
+                  summary.write(f"| {name} | {r['mb_s']} MB/s | {r['iops']} |\n")
+          PYEOF
 
       - name: Save results
         run: |
           mkdir -p results
-          cat > results/${{ matrix.provider }}-${{ matrix.pool }}.csv <<CSV
-          ${{ matrix.provider }},${{ matrix.pool }},${{ steps.seq_write.outputs.speed }},${{ steps.seq_read.outputs.speed }},${{ steps.rand_write.outputs.result }},${{ steps.rand_read.outputs.result }},${{ steps.mixed.outputs.result }}
-          CSV
+          echo "${{ matrix.provider }},${{ matrix.pool }},${{ steps.parse.outputs.seq_write }},${{ steps.parse.outputs.seq_read }},${{ steps.parse.outputs.rand_write }},${{ steps.parse.outputs.rand_read }}" > results/${{ matrix.provider }}-${{ matrix.pool }}.csv
 
       - name: Upload results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: bench-${{ matrix.provider }}-${{ matrix.pool }}
           path: results/
+
+      - name: Upload raw fio output
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: fio-raw-${{ matrix.provider }}-${{ matrix.pool }}
+          path: fio-results.json
 
   summary:
     name: Results Summary
@@ -146,14 +118,14 @@ jobs:
 
       - name: Build comparison table
         run: |
-          echo "## Disk IO Benchmark Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Disk IO Benchmark Results (fio)" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Provider | Pool | Seq Write | Seq Read | Rand Write (4K) | Rand Read (4K) | Mixed (500 files) |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|----------|------|-----------|----------|-----------------|----------------|-------------------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Provider | Pool | Seq Write | Seq Read | Rand Write (4K) | Rand Read (4K) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|----------|------|-----------|----------|-----------------|----------------|" >> "$GITHUB_STEP_SUMMARY"
           for f in *.csv; do
             [ -f "$f" ] || continue
-            while IFS=, read -r provider pool seq_w seq_r rand_w rand_r mixed; do
-              echo "| $provider | $pool | $seq_w | $seq_r | $rand_w | $rand_r | $mixed |" >> "$GITHUB_STEP_SUMMARY"
+            while IFS=, read -r provider pool seq_w seq_r rand_w rand_r; do
+              echo "| $provider | $pool | $seq_w | $seq_r | $rand_w | $rand_r |" >> "$GITHUB_STEP_SUMMARY"
             done < "$f"
           done
           echo "" >> "$GITHUB_STEP_SUMMARY"
