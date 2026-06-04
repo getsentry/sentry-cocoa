@@ -40,6 +40,7 @@ class SentryScreenshotIntegrationTests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        SentryCrashAttachmentsStorage.screenshotCallback = nil
         clearTestState()
     }
 
@@ -49,27 +50,27 @@ class SentryScreenshotIntegrationTests: XCTestCase {
             $0.attachScreenshot = false
         }
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 0)
-        XCTAssertFalse(sentrycrash_hasSaveScreenshotCallback())
+        XCTAssertNil(SentryCrashAttachmentsStorage.screenshotCallback)
     }
-    
+
     func test_attachScreenshot_enabled() {
         SentrySDK.start {
             $0.removeAllIntegrations()
             $0.attachScreenshot = true
         }
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 1)
-        XCTAssertTrue(sentrycrash_hasSaveScreenshotCallback())
+        XCTAssertNotNil(SentryCrashAttachmentsStorage.screenshotCallback)
     }
-    
+
     func test_uninstall() {
         SentrySDK.start {
             $0.removeAllIntegrations()
             $0.attachScreenshot = true
         }
         SentrySDK.close()
-        
+
         XCTAssertNil(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors)
-        XCTAssertFalse(sentrycrash_hasSaveScreenshotCallback())
+        XCTAssertNil(SentryCrashAttachmentsStorage.screenshotCallback)
     }
     
     func test_attachScreenShot_withError() throws {

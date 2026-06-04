@@ -34,16 +34,14 @@ final class SentryViewHierarchyIntegration<Dependencies: SentryViewHierarchyInte
         viewHierarchyProvider.reportAccessibilityIdentifier = options.reportAccessibilityIdentifier
         client.addAttachmentProcessor(self)
 
-        sentrycrash_setSaveViewHierarchy { path in
-            guard let path = path else { return }
-            let reportPath = String(cString: path)
-            let filePath = (reportPath as NSString).appendingPathComponent("view-hierarchy.json")
+        SentryCrashAttachmentsStorage.viewHierarchyCallback = { dirPath in
+            let filePath = (dirPath as NSString).appendingPathComponent("view-hierarchy.json")
             SentryDependencyContainer.sharedInstance().viewHierarchyProvider?.saveViewHierarchy(filePath)
         }
     }
 
     func uninstall() {
-        sentrycrash_setSaveViewHierarchy(nil)
+        SentryCrashAttachmentsStorage.viewHierarchyCallback = nil
         client?.removeAttachmentProcessor(self)
     }
 

@@ -33,16 +33,14 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
         }
 
         globalScreenshotSource = screenshotSource
-        sentrycrash_setSaveScreenshots { path in
-            guard let path = path else { return }
-            let reportPath = String(cString: path)
-            globalScreenshotSource?.saveScreenShots(reportPath)
+        SentryCrashAttachmentsStorage.screenshotCallback = { path in
+            globalScreenshotSource?.saveScreenShots(path)
         }
     }
 
     func uninstall() {
         globalScreenshotSource = nil
-        sentrycrash_setSaveScreenshots(nil)
+        SentryCrashAttachmentsStorage.screenshotCallback = nil
         client?.removeAttachmentProcessor(self)
     }
 

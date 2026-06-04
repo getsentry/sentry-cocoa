@@ -36,6 +36,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
 
     override func tearDown() {
         super.tearDown()
+        SentryCrashAttachmentsStorage.viewHierarchyCallback = nil
         clearTestState()
     }
 
@@ -49,7 +50,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
 
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 0)
-        XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
+        XCTAssertNil(SentryCrashAttachmentsStorage.viewHierarchyCallback)
     }
 
     func test_attachViewHierarchy_enabled() {
@@ -62,7 +63,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
 
         XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 1)
-        XCTAssertTrue(sentrycrash_hasSaveViewHierarchyCallback())
+        XCTAssertNotNil(SentryCrashAttachmentsStorage.viewHierarchyCallback)
     }
 
     func test_uninstall() {
@@ -72,7 +73,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
         }
         SentrySDK.close()
         XCTAssertNil(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors)
-        XCTAssertFalse(sentrycrash_hasSaveViewHierarchyCallback())
+        XCTAssertNil(SentryCrashAttachmentsStorage.viewHierarchyCallback)
     }
 
     func test_integrationAddFileName() {
