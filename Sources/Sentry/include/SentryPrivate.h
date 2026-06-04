@@ -6,7 +6,6 @@
 // public interfaces here
 #import "SentryANRStoppedResultInternal.h"
 #import "SentryANRTrackerInternalDelegate.h"
-#import "SentryAttachmentCallback.h"
 #import "SentryClient+Private.h"
 #import "SentryCrashAsync.h"
 #import "SentryCrashBinaryImageCache.h"
