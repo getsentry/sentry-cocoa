@@ -4,7 +4,6 @@
 #import "SentryCrashMachineContextWrapper.h"
 #import "SentryCrashStackCursor.h"
 #import "SentryCrashStackCursor_SelfThread.h"
-#import "SentryCrashThread.h"
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
 #import "SentryStacktrace.h"
@@ -27,7 +26,7 @@ KSThread mainThreadID;
 
 - (void)fillContextForCurrentThread:(KSMachineContext *)context
 {
-    ksmc_getContextForThread(sentrycrashthread_self(), context, YES);
+    ksmc_getContextForThread(ksthread_self(), context, YES);
 }
 
 - (int)getThreadCount:(KSMachineContext *)context
@@ -45,7 +44,7 @@ KSThread mainThreadID;
             andBuffer:(char *const)buffer
          andBufLength:(int)bufLength;
 {
-    return sentrycrashthread_getThreadName(thread, buffer, bufLength) == true;
+    return ksthread_getThreadName(thread, buffer, bufLength) == true;
 }
 
 - (BOOL)isMainThread:(KSThread)thread

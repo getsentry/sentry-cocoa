@@ -112,7 +112,7 @@ getStackEntriesFromThread(KSThread thread, KSMachineContext *context,
     NSMutableArray<SentryThread *> *threads = [[NSMutableArray alloc] init];
 
     KSMachineContext context = {0};
-    KSThread currentThread = sentrycrashthread_self();
+    KSThread currentThread = ksthread_self();
 
     [self.machineContextWrapper fillContextForCurrentThread:&context];
     int threadCount = [self.machineContextWrapper getThreadCount:&context];
@@ -157,7 +157,7 @@ getStackEntriesFromThread(KSThread thread, KSMachineContext *context,
 
     @synchronized(self) {
         KSMachineContext context = {0};
-        KSThread currentThread = sentrycrashthread_self();
+        KSThread currentThread = ksthread_self();
 
         thread_act_array_t suspendedThreads = NULL;
         mach_msg_type_number_t numSuspendedThreads = 0;

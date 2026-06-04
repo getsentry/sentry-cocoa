@@ -1,6 +1,5 @@
 #import "KSMachineContext.h"
 #import "SentryCrashStackCursor.h"
-#import "SentryCrashThread.h"
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 

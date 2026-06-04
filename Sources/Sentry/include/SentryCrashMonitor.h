@@ -32,7 +32,6 @@
 #define HDR_SentryCrashMonitor_h
 
 #include "SentryCrashMonitorType.h"
-#include "SentryCrashThread.h"
 
 #include <mach/mach.h>
 #include <stdbool.h>

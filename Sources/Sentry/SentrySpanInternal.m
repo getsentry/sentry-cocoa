@@ -1,5 +1,4 @@
 #import "SentryBaggage.h"
-#import "SentryCrashThread.h"
 #import "SentryDefaultThreadInspector.h"
 #import "SentryFrame.h"
 #import "SentryInternalDefines.h"
@@ -55,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.startTimestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         _data = [[NSMutableDictionary alloc] init];
 
-        KSThread currentThread = sentrycrashthread_self();
+        KSThread currentThread = ksthread_self();
         _data[SPAN_DATA_THREAD_ID] = @(currentThread);
 
         if ([NSThread isMainThread]) {

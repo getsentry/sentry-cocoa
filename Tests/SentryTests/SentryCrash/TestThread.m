@@ -26,13 +26,13 @@
 //
 
 #import "TestThread.h"
-#import "SentryCrashThread.h"
+#import "KSThread.h"
 
 @implementation TestThread
 
 - (void)main
 {
-    self.thread = (thread_t)sentrycrashthread_self();
+    self.thread = (thread_t)ksthread_self();
     [NSNotificationCenter.defaultCenter postNotificationName:@"io.sentry.test.TestThread.main"
                                                       object:self.notificationObject];
     while (!self.isCancelled) {

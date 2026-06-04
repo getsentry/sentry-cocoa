@@ -213,7 +213,7 @@ class SentrySpanTests: XCTestCase {
         let span = fixture.getSut()
         XCTAssertEqual("main", try XCTUnwrap(span.data["thread.name"] as? String))
         
-        let threadId = sentrycrashthread_self()
+        let threadId = ksthread_self()
         XCTAssertEqual(NSNumber(value: threadId), try XCTUnwrap(span.data["thread.id"] as? NSNumber))
     }
     
@@ -228,7 +228,7 @@ class SentrySpanTests: XCTestCase {
             
             let span = self.fixture.getSut()
             spanData = span.data
-            threadId = sentrycrashthread_self()
+            threadId = ksthread_self()
             
             expect.fulfill()
         }
@@ -249,7 +249,7 @@ class SentrySpanTests: XCTestCase {
             
             let span = self.fixture.getSut()
             spanData = span.data
-            threadId = sentrycrashthread_self()
+            threadId = ksthread_self()
             
             expect.fulfill()
         }

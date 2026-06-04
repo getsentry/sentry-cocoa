@@ -1,6 +1,6 @@
-#import "SentryCrashThread.h"
 #import "SentryDefines.h"
 #import "SentryOptionsObjC.h"
+#import "KSThread.h"
 #import <Foundation/Foundation.h>
 
 @class SentryStacktrace;
