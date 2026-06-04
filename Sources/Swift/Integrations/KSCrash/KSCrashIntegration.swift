@@ -141,7 +141,6 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
 
             // Best-effort — mirrors original SentryCrash which always ran these after writing
             // the report, even from signal context. App is already dying; acceptable to risk it.
-            // Read basePath from static storage — cannot capture local variables into a C function pointer.
             guard let base = SentryCrashAttachmentsStorage.basePath else { return }
             let reportIDHex = String(format: "%016llx", UInt64(bitPattern: reportID))
             let dirPath = (base as NSString).appendingPathComponent(reportIDHex)
