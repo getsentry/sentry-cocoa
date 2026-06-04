@@ -85,7 +85,7 @@ class SentryViewHierarchyIntegrationTests: XCTestCase {
             SentrySDK.close()
         }
 
-        saveViewHierarchy("/test/path")
+        SentryCrashAttachmentsStorage.viewHierarchyCallback?("/test/path")
         XCTAssertEqual("/test/path/view-hierarchy.json", fixture.viewHierarchyProvider.saveFilePathUsed)
     }
 

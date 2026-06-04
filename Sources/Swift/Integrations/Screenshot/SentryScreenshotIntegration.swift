@@ -53,8 +53,8 @@ final class SentryScreenshotIntegration<Dependencies: ScreenshotIntegrationProvi
     func processAttachments(_ attachments: [Attachment], for event: Event) -> [Attachment] {
         // We don't take screenshots if there is no exception/error.
         // We don't take screenshots if the event is a metric kit event.
-        // Screenshots are added via an alternate codepath for crashes, see
-        // sentrycrash_setSaveScreenshots in SentryCrashC.c
+        // Screenshots are added via an alternate codepath for crashes through
+        // SentryCrashAttachmentsStorage.screenshotCallback and KSCrashIntegration.didWriteReportCallback.
         if (event.exceptions == nil && event.error == nil) || event.isFatalEvent {
             return attachments
         }
