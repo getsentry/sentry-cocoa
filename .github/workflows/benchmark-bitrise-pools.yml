@@ -7,8 +7,8 @@ on:
       - itay/test_ssd
 
 jobs:
-  benchmark-disk-io:
-    name: Disk IO - ${{ matrix.provider }}/${{ matrix.pool }}
+  benchmark-ipsw:
+    name: IPSW - ${{ matrix.provider }}/${{ matrix.pool }}
     runs-on: ${{ matrix.provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', matrix.pool)) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', matrix.pool, github.run_id)) }}
     strategy:
       fail-fast: false
@@ -22,6 +22,9 @@ jobs:
             pool: sequoia
           - provider: cirrus
             pool: sequoia
+    env:
+      IPSW_URL: "https://updates.cdn-apple.com/2026SpringSeed/fullrestores/122-80408/E0561061-40BA-40E4-97A9-9AE82AA91393/Apple_Vision_Pro_26.6_23O5728e_Restore.ipsw"
+      FCS_KEYS_URL: "https://raw.githubusercontent.com/getsentry/symx/main/symx/ipsw/data/fcs-keys.json"
     steps:
       - name: System Info
         run: |
@@ -35,234 +38,214 @@ jobs:
           echo "- **Memory:** $(( $(sysctl -n hw.memsize) / 1073741824 )) GB" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Disk:** $(diskutil info / | grep 'Total Size' || df -h / | tail -1)" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Install fio
-        run: brew install fio
-
-      - name: Run fio benchmarks
-        id: fio
-        run: |
-          cat > bench.fio <<'FIOEOF'
-          [global]
-          ioengine=posixaio
-          direct=1
-          runtime=30
-          time_based
-          numjobs=1
-          group_reporting
-
-          [seq_write]
-          rw=write
-          bs=1m
-          size=1G
-          stonewall
-
-          [seq_read]
-          rw=read
-          bs=1m
-          size=1G
-          stonewall
-
-          [rand_write]
-          rw=randwrite
-          bs=4k
-          size=256M
-          stonewall
-
-          [rand_read]
-          rw=randread
-          bs=4k
-          size=256M
-          stonewall
-          FIOEOF
-          fio bench.fio --output-format=json --output=fio-results.json
-          cat fio-results.json
-
-      - name: Parse results
-        id: parse
-        run: |
-          python3 <<'PYEOF'
-          import json, os
-
-          with open("fio-results.json") as f:
-              data = json.load(f)
-
-          results = {}
-          for job in data["jobs"]:
-              name = job["jobname"]
-              if "write" in name:
-                  bw = job["write"]["bw"]       # KB/s
-                  iops = job["write"]["iops"]
-              else:
-                  bw = job["read"]["bw"]
-                  iops = job["read"]["iops"]
-              results[name] = {"mb_s": round(bw / 1024, 1), "iops": round(iops, 1)}
-
-          sw = results["seq_write"]
-          sr = results["seq_read"]
-          rw = results["rand_write"]
-          rr = results["rand_read"]
-
-          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"seq_write={sw['mb_s']} MB/s\n")
-              out.write(f"seq_read={sr['mb_s']} MB/s\n")
-              out.write(f"rand_write={rw['mb_s']} MB/s ({rw['iops']} IOPS)\n")
-              out.write(f"rand_read={rr['mb_s']} MB/s ({rr['iops']} IOPS)\n")
-
-          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
-              summary.write("## fio Benchmark Results\n\n")
-              summary.write(f"| Test | Throughput | IOPS |\n")
-              summary.write(f"|------|-----------|------|\n")
-              for name, r in results.items():
-                  summary.write(f"| {name} | {r['mb_s']} MB/s | {r['iops']} |\n")
-          PYEOF
-
       - name: Install ipsw CLI
         run: brew install blacktop/tap/ipsw
 
       - name: Download IPSW and FCS keys
         run: |
           echo "### IPSW Download" >> "$GITHUB_STEP_SUMMARY"
-          IPSW_URL="https://updates.cdn-apple.com/2026SpringSeed/fullrestores/122-80408/E0561061-40BA-40E4-97A9-9AE82AA91393/Apple_Vision_Pro_26.6_23O5728e_Restore.ipsw"
           START=$(python3 -c "import time; print(time.time())")
           curl -fSL -o restore.ipsw "$IPSW_URL"
           END=$(python3 -c "import time; print(time.time())")
           DL_SECS=$(python3 -c "print(round($END - $START, 2))")
-          IPSW_SIZE=$(stat -f%z restore.ipsw)
-          IPSW_SIZE_MB=$(python3 -c "print(round($IPSW_SIZE / 1_000_000, 1))")
+          IPSW_SIZE_MB=$(python3 -c "import os; print(round(os.path.getsize('restore.ipsw') / 1_000_000, 1))")
           echo "- **Size:** ${IPSW_SIZE_MB} MB" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Download time:** ${DL_SECS}s" >> "$GITHUB_STEP_SUMMARY"
-          curl -fSL -o fcs-keys.json "https://raw.githubusercontent.com/getsentry/symx/main/symx/ipsw/data/fcs-keys.json"
+          curl -fSL -o fcs-keys.json "$FCS_KEYS_URL"
 
-      - name: Benchmark IPSW mount to disk
-        id: ipsw_mount
+      - name: Create RAM disk
         run: |
-          echo "### IPSW Mount to Disk" >> "$GITHUB_STEP_SUMMARY"
-          MOUNT_POINT=$(mktemp -d)/mnt
-          mkdir -p "$MOUNT_POINT"
-
-          purge 2>/dev/null || true
-          START=$(python3 -c "import time; print(time.time())")
-          ipsw mount sys restore.ipsw --pem-db fcs-keys.json --mount-point "$MOUNT_POINT" &
-          IPSW_PID=$!
-
-          # Wait for the mount to appear (timeout 120s)
-          for i in $(seq 1 120); do
-            if mount | grep -q "$MOUNT_POINT"; then
-              break
-            fi
-            sleep 1
-          done
-          END=$(python3 -c "import time; print(time.time())")
-          MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
-          echo "- **Mount time:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
-
-          if ! mount | grep -q "$MOUNT_POINT"; then
-            echo "- Mount failed (timeout)" >> "$GITHUB_STEP_SUMMARY"
-            kill $IPSW_PID 2>/dev/null || true
-            echo "disk_mount=N/A" >> "$GITHUB_OUTPUT"
-            echo "disk_extract=N/A" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          # Benchmark: copy all files out to disk
-          EXTRACT_DIR=$(mktemp -d)
-          START=$(python3 -c "import time; print(time.time())")
-          cp -R "$MOUNT_POINT"/ "$EXTRACT_DIR"/ 2>/dev/null || true
-          END=$(python3 -c "import time; print(time.time())")
-          EXTRACT_SECS=$(python3 -c "print(round($END - $START, 2))")
-          echo "- **Extract to disk:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
-
-          echo "disk_mount=${MOUNT_SECS}s" >> "$GITHUB_OUTPUT"
-          echo "disk_extract=${EXTRACT_SECS}s" >> "$GITHUB_OUTPUT"
-
-          kill $IPSW_PID 2>/dev/null || true
-          wait $IPSW_PID 2>/dev/null || true
-          hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
-          rm -rf "$EXTRACT_DIR"
-
-      - name: Benchmark IPSW mount from RAM disk
-        id: ipsw_ram
-        run: |
-          echo "### IPSW Mount from RAM Disk" >> "$GITHUB_STEP_SUMMARY"
-
-          # Create a 16GB RAM disk and copy the IPSW + keys there
-          # so the entire read/decrypt pipeline runs from RAM
           RAM_DEV=$(hdiutil attach -nomount ram://$((16 * 1024 * 2048)))
           RAM_DEV=$(echo "$RAM_DEV" | xargs)
           diskutil erasevolume HFS+ RAMDisk "$RAM_DEV"
-          echo "- RAM disk created at $RAM_DEV (/Volumes/RAMDisk)" >> "$GITHUB_STEP_SUMMARY"
+          echo "RAM_DEV=$RAM_DEV" >> "$GITHUB_ENV"
+          echo "- RAM disk (16GB) at /Volumes/RAMDisk" >> "$GITHUB_STEP_SUMMARY"
 
-          START_COPY=$(python3 -c "import time; print(time.time())")
-          cp restore.ipsw /Volumes/RAMDisk/restore.ipsw
-          cp fcs-keys.json /Volumes/RAMDisk/fcs-keys.json
-          END_COPY=$(python3 -c "import time; print(time.time())")
-          COPY_SECS=$(python3 -c "print(round($END_COPY - $START_COPY, 2))")
-          echo "- **Copy IPSW to RAM:** ${COPY_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+      # Helper script shared by all mount benchmarks
+      - name: Create mount helper
+        run: |
+          cat > mount_bench.sh <<'SCRIPT'
+          #!/bin/bash
+          set -euo pipefail
+          IPSW_PATH="$1"
+          PEM_DB="$2"
+          MOUNT_POINT="$3"
 
-          MOUNT_POINT=$(mktemp -d)/mnt
-          mkdir -p "$MOUNT_POINT"
-
-          purge 2>/dev/null || true
           START=$(python3 -c "import time; print(time.time())")
-          ipsw mount sys /Volumes/RAMDisk/restore.ipsw --pem-db /Volumes/RAMDisk/fcs-keys.json --mount-point "$MOUNT_POINT" &
+          ipsw mount sys "$IPSW_PATH" --pem-db "$PEM_DB" --mount-point "$MOUNT_POINT" &
           IPSW_PID=$!
 
-          # Wait for the mount to appear (timeout 120s)
-          for i in $(seq 1 120); do
+          for i in $(seq 1 180); do
             if mount | grep -q "$MOUNT_POINT"; then
               break
             fi
             sleep 1
           done
           END=$(python3 -c "import time; print(time.time())")
-          MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
-          echo "- **Mount time (from RAM):** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
 
           if ! mount | grep -q "$MOUNT_POINT"; then
-            echo "- Mount failed (timeout)" >> "$GITHUB_STEP_SUMMARY"
             kill $IPSW_PID 2>/dev/null || true
-            echo "ram_mount=N/A" >> "$GITHUB_OUTPUT"
-            echo "ram_extract=N/A" >> "$GITHUB_OUTPUT"
-            hdiutil detach "$RAM_DEV" 2>/dev/null || true
+            echo "MOUNT_SECS=N/A"
+            echo "IPSW_PID=$IPSW_PID"
+            echo "MOUNTED=false"
             exit 0
           fi
 
-          # Benchmark: extract files to RAM disk too (no disk I/O at all)
-          START=$(python3 -c "import time; print(time.time())")
-          cp -R "$MOUNT_POINT"/ /Volumes/RAMDisk/extracted/ 2>/dev/null || true
-          END=$(python3 -c "import time; print(time.time())")
-          EXTRACT_SECS=$(python3 -c "print(round($END - $START, 2))")
-          echo "- **Extract to RAM:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+          echo "MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")"
+          echo "IPSW_PID=$IPSW_PID"
+          echo "MOUNTED=true"
+          SCRIPT
+          chmod +x mount_bench.sh
 
-          echo "ram_mount=${MOUNT_SECS}s" >> "$GITHUB_OUTPUT"
-          echo "ram_extract=${EXTRACT_SECS}s" >> "$GITHUB_OUTPUT"
+      # ---------- Test 1: disk → disk (baseline) ----------
+      - name: "Test 1: Mount from disk, extract to disk"
+        id: disk_disk
+        run: |
+          echo "### Test 1: Disk → Disk (baseline)" >> "$GITHUB_STEP_SUMMARY"
+          MOUNT_POINT=$(mktemp -d)/mnt && mkdir -p "$MOUNT_POINT"
+          purge 2>/dev/null || true
 
-          kill $IPSW_PID 2>/dev/null || true
-          wait $IPSW_PID 2>/dev/null || true
+          eval "$(./mount_bench.sh restore.ipsw fcs-keys.json "$MOUNT_POINT")"
+          echo "- **Mount:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+          echo "mount=${MOUNT_SECS}" >> "$GITHUB_OUTPUT"
+
+          if [ "$MOUNTED" = "true" ]; then
+            EXTRACT_DIR=$(mktemp -d)
+            START=$(python3 -c "import time; print(time.time())")
+            cp -R "$MOUNT_POINT"/ "$EXTRACT_DIR"/ 2>/dev/null || true
+            END=$(python3 -c "import time; print(time.time())")
+            EXTRACT_SECS=$(python3 -c "print(round($END - $START, 2))")
+            echo "- **Extract:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+            echo "extract=${EXTRACT_SECS}" >> "$GITHUB_OUTPUT"
+            rm -rf "$EXTRACT_DIR"
+          else
+            echo "extract=N/A" >> "$GITHUB_OUTPUT"
+          fi
+
+          kill $IPSW_PID 2>/dev/null || true; wait $IPSW_PID 2>/dev/null || true
           hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
+
+      # ---------- Test 2: RAM → disk ----------
+      - name: "Test 2: Mount from RAM, extract to disk"
+        id: ram_disk
+        run: |
+          echo "### Test 2: RAM → Disk" >> "$GITHUB_STEP_SUMMARY"
+          cp restore.ipsw /Volumes/RAMDisk/restore.ipsw
+          cp fcs-keys.json /Volumes/RAMDisk/fcs-keys.json
+          MOUNT_POINT=$(mktemp -d)/mnt && mkdir -p "$MOUNT_POINT"
+          purge 2>/dev/null || true
+
+          eval "$(./mount_bench.sh /Volumes/RAMDisk/restore.ipsw /Volumes/RAMDisk/fcs-keys.json "$MOUNT_POINT")"
+          echo "- **Mount:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+          echo "mount=${MOUNT_SECS}" >> "$GITHUB_OUTPUT"
+
+          if [ "$MOUNTED" = "true" ]; then
+            EXTRACT_DIR=$(mktemp -d)
+            START=$(python3 -c "import time; print(time.time())")
+            cp -R "$MOUNT_POINT"/ "$EXTRACT_DIR"/ 2>/dev/null || true
+            END=$(python3 -c "import time; print(time.time())")
+            EXTRACT_SECS=$(python3 -c "print(round($END - $START, 2))")
+            echo "- **Extract:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+            echo "extract=${EXTRACT_SECS}" >> "$GITHUB_OUTPUT"
+            rm -rf "$EXTRACT_DIR"
+          else
+            echo "extract=N/A" >> "$GITHUB_OUTPUT"
+          fi
+
+          kill $IPSW_PID 2>/dev/null || true; wait $IPSW_PID 2>/dev/null || true
+          hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
+          rm -f /Volumes/RAMDisk/restore.ipsw /Volumes/RAMDisk/fcs-keys.json
+
+      # ---------- Test 3: RAM → RAM ----------
+      - name: "Test 3: Mount from RAM, extract to RAM"
+        id: ram_ram
+        run: |
+          echo "### Test 3: RAM → RAM (zero disk I/O)" >> "$GITHUB_STEP_SUMMARY"
+          cp restore.ipsw /Volumes/RAMDisk/restore.ipsw
+          cp fcs-keys.json /Volumes/RAMDisk/fcs-keys.json
+          MOUNT_POINT=$(mktemp -d)/mnt && mkdir -p "$MOUNT_POINT"
+          purge 2>/dev/null || true
+
+          eval "$(./mount_bench.sh /Volumes/RAMDisk/restore.ipsw /Volumes/RAMDisk/fcs-keys.json "$MOUNT_POINT")"
+          echo "- **Mount:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+          echo "mount=${MOUNT_SECS}" >> "$GITHUB_OUTPUT"
+
+          if [ "$MOUNTED" = "true" ]; then
+            START=$(python3 -c "import time; print(time.time())")
+            cp -R "$MOUNT_POINT"/ /Volumes/RAMDisk/extracted/ 2>/dev/null || true
+            END=$(python3 -c "import time; print(time.time())")
+            EXTRACT_SECS=$(python3 -c "print(round($END - $START, 2))")
+            echo "- **Extract:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+            echo "extract=${EXTRACT_SECS}" >> "$GITHUB_OUTPUT"
+            rm -rf /Volumes/RAMDisk/extracted
+          else
+            echo "extract=N/A" >> "$GITHUB_OUTPUT"
+          fi
+
+          kill $IPSW_PID 2>/dev/null || true; wait $IPSW_PID 2>/dev/null || true
+          hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
+          rm -f /Volumes/RAMDisk/restore.ipsw /Volumes/RAMDisk/fcs-keys.json
+
+      # ---------- Test 4: pre-extract DMG to RAM, then mount ----------
+      - name: "Test 4: Pre-extract DMG to RAM, then mount"
+        id: preextract_ram
+        run: |
+          echo "### Test 4: Pre-extract DMG to RAM → Mount" >> "$GITHUB_STEP_SUMMARY"
+
+          # Unzip the IPSW to RAM disk so ipsw reads the extracted DMG from RAM
+          START_UNZIP=$(python3 -c "import time; print(time.time())")
+          unzip -o restore.ipsw -d /Volumes/RAMDisk/ipsw_contents
+          END_UNZIP=$(python3 -c "import time; print(time.time())")
+          UNZIP_SECS=$(python3 -c "print(round($END_UNZIP - $START_UNZIP, 2))")
+          echo "- **Unzip to RAM:** ${UNZIP_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+
+          cp fcs-keys.json /Volumes/RAMDisk/fcs-keys.json
+          MOUNT_POINT=$(mktemp -d)/mnt && mkdir -p "$MOUNT_POINT"
+          purge 2>/dev/null || true
+
+          # Mount from the pre-extracted IPSW directory on RAM
+          eval "$(./mount_bench.sh /Volumes/RAMDisk/ipsw_contents /Volumes/RAMDisk/fcs-keys.json "$MOUNT_POINT")" || true
+          echo "- **Mount:** ${MOUNT_SECS:-N/A}s" >> "$GITHUB_STEP_SUMMARY"
+          echo "mount=${MOUNT_SECS:-N/A}" >> "$GITHUB_OUTPUT"
+
+          if [ "${MOUNTED:-false}" = "true" ]; then
+            START=$(python3 -c "import time; print(time.time())")
+            cp -R "$MOUNT_POINT"/ /Volumes/RAMDisk/extracted/ 2>/dev/null || true
+            END=$(python3 -c "import time; print(time.time())")
+            EXTRACT_SECS=$(python3 -c "print(round($END - $START, 2))")
+            echo "- **Extract to RAM:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+            echo "extract=${EXTRACT_SECS}" >> "$GITHUB_OUTPUT"
+            rm -rf /Volumes/RAMDisk/extracted
+          else
+            echo "extract=N/A" >> "$GITHUB_OUTPUT"
+          fi
+
+          kill ${IPSW_PID:-0} 2>/dev/null || true; wait ${IPSW_PID:-0} 2>/dev/null || true
+          hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
+          rm -rf /Volumes/RAMDisk/ipsw_contents /Volumes/RAMDisk/fcs-keys.json
+
+      - name: Cleanup
+        if: always()
+        run: |
           hdiutil detach "$RAM_DEV" 2>/dev/null || true
-          rm -f restore.ipsw fcs-keys.json
+          rm -f restore.ipsw fcs-keys.json mount_bench.sh
 
       - name: Save results
+        if: always()
         run: |
           mkdir -p results
-          echo "${{ matrix.provider }},${{ matrix.pool }},${{ steps.parse.outputs.seq_write }},${{ steps.parse.outputs.seq_read }},${{ steps.parse.outputs.rand_write }},${{ steps.parse.outputs.rand_read }},${{ steps.ipsw_mount.outputs.disk_mount }},${{ steps.ipsw_mount.outputs.disk_extract }},${{ steps.ipsw_ram.outputs.ram_mount }},${{ steps.ipsw_ram.outputs.ram_extract }}" > results/${{ matrix.provider }}-${{ matrix.pool }}.csv
+          echo "${{ matrix.provider }},${{ matrix.pool }},${{ steps.disk_disk.outputs.mount }},${{ steps.disk_disk.outputs.extract }},${{ steps.ram_disk.outputs.mount }},${{ steps.ram_disk.outputs.extract }},${{ steps.ram_ram.outputs.mount }},${{ steps.ram_ram.outputs.extract }},${{ steps.preextract_ram.outputs.mount }},${{ steps.preextract_ram.outputs.extract }}" > results/${{ matrix.provider }}-${{ matrix.pool }}.csv
 
       - name: Upload results
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: bench-${{ matrix.provider }}-${{ matrix.pool }}
           path: results/
 
-      - name: Upload raw fio output
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: fio-raw-${{ matrix.provider }}-${{ matrix.pool }}
-          path: fio-results.json
-
   summary:
     name: Results Summary
-    needs: benchmark-disk-io
+    needs: benchmark-ipsw
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -274,16 +257,22 @@ jobs:
 
       - name: Build comparison table
         run: |
-          echo "## Disk IO Benchmark Results (fio)" >> "$GITHUB_STEP_SUMMARY"
+          echo "## IPSW Mount Benchmark Results" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Provider | Pool | Seq Write | Seq Read | Rand Write (4K) | Rand Read (4K) | IPSW Mount (disk) | IPSW Extract (disk) | IPSW Mount (RAM) | IPSW Extract (RAM) |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|----------|------|-----------|----------|-----------------|----------------|-------------------|---------------------|------------------|---------------------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Provider | Pool | Disk→Disk Mount | Disk→Disk Extract | RAM→Disk Mount | RAM→Disk Extract | RAM→RAM Mount | RAM→RAM Extract | Pre-extract Mount | Pre-extract Extract |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|----------|------|-----------------|-------------------|----------------|------------------|---------------|-----------------|-------------------|---------------------|" >> "$GITHUB_STEP_SUMMARY"
           for f in *.csv; do
             [ -f "$f" ] || continue
-            while IFS=, read -r provider pool seq_w seq_r rand_w rand_r disk_mount disk_extract ram_mount ram_extract; do
-              echo "| $provider | $pool | $seq_w | $seq_r | $rand_w | $rand_r | $disk_mount | $disk_extract | $ram_mount | $ram_extract |" >> "$GITHUB_STEP_SUMMARY"
+            while IFS=, read -r provider pool dd_m dd_e rd_m rd_e rr_m rr_e pe_m pe_e; do
+              echo "| $provider | $pool | $dd_m | $dd_e | $rd_m | $rd_e | $rr_m | $rr_e | $pe_m | $pe_e |" >> "$GITHUB_STEP_SUMMARY"
             done < "$f"
           done
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### What each test measures" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Disk→Disk**: Baseline — read IPSW from disk, extract to disk" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **RAM→Disk**: IPSW in RAM, extract to disk — isolates disk write speed" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **RAM→RAM**: Everything in RAM — isolates CPU (decrypt/decompress)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Pre-extract**: Unzip IPSW to RAM first, then mount — tests if pre-extracted DMG mounts faster" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "---" >> "$GITHUB_STEP_SUMMARY"
           echo "_Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}_" >> "$GITHUB_STEP_SUMMARY"
