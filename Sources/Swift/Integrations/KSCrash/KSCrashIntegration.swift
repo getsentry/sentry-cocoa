@@ -105,6 +105,10 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
         enableSigtermReporting = false
         #endif
 
+        let attachmentsBasePath = (options.cacheDirectoryPath as NSString)
+            .appendingPathComponent("Attachments")
+        SentryCrashAttachmentsStorage.basePath = attachmentsBasePath
+
         let config = KSCrashConfiguration()
         config.installPath = options.cacheDirectoryPath
         config.monitors = .productionSafeMinimal
@@ -129,6 +133,22 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
 
                 sentry_finishAndSaveTransaction()
             }
+        }
+
+        config.didWriteReportCallback = { plan, reportID in
+            // Double-fault: we're crashing inside the crash handler; do as little as possible.
+            guard !plan.pointee.crashedDuringExceptionHandling else { return }
+
+            // Best-effort — mirrors original SentryCrash which always ran these after writing
+            // the report, even from signal context. App is already dying; acceptable to risk it.
+            // Read basePath from static storage — cannot capture local variables into a C function pointer.
+            guard let base = SentryCrashAttachmentsStorage.basePath else { return }
+            let reportIDHex = String(format: "%016llx", UInt64(bitPattern: reportID))
+            let dirPath = (base as NSString).appendingPathComponent(reportIDHex)
+            try? FileManager.default.createDirectory(atPath: dirPath, withIntermediateDirectories: true)
+
+            SentryCrashAttachmentsStorage.screenshotCallback?(dirPath)
+            SentryCrashAttachmentsStorage.viewHierarchyCallback?(dirPath)
         }
 
         do {

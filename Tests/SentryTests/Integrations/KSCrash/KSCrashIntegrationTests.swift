@@ -95,6 +95,8 @@ final class KSCrashIntegrationTests: NotificationCenterTestCase {
         fixture.client.fileManager.deleteAppState()
         fixture.client.fileManager.deleteAppHangEvent()
 
+        SentryCrashAttachmentsStorage.basePath = nil
+
         clearTestState()
     }
 
@@ -243,6 +245,15 @@ final class KSCrashIntegrationTests: NotificationCenterTestCase {
         fixture.options.enablePersistingTracesWhenCrashing = false
         let sut = try fixture.getSut()
         XCTAssertNotNil(sut)
+    }
+
+    // MARK: - Attachments
+
+    func test_startCrashHandler_setsAttachmentsBasePath() throws {
+        _ = try fixture.getSut()
+        let expectedBase = (fixture.options.cacheDirectoryPath as NSString)
+            .appendingPathComponent("Attachments")
+        XCTAssertEqual(SentryCrashAttachmentsStorage.basePath, expectedBase)
     }
 
     // MARK: - Private helpers
