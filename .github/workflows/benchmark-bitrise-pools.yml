@@ -116,7 +116,10 @@ jobs:
                   summary.write(f"| {name} | {r['mb_s']} MB/s | {r['iops']} |\n")
           PYEOF
 
-      - name: Download IPSW
+      - name: Install ipsw CLI
+        run: brew install blacktop/tap/ipsw
+
+      - name: Download IPSW and FCS keys
         run: |
           echo "### IPSW Download" >> "$GITHUB_STEP_SUMMARY"
           IPSW_URL="https://updates.cdn-apple.com/2026SpringSeed/fullrestores/122-80408/E0561061-40BA-40E4-97A9-9AE82AA91393/Apple_Vision_Pro_26.6_23O5728e_Restore.ipsw"
@@ -128,83 +131,92 @@ jobs:
           IPSW_SIZE_MB=$(python3 -c "print(round($IPSW_SIZE / 1_000_000, 1))")
           echo "- **Size:** ${IPSW_SIZE_MB} MB" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Download time:** ${DL_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+          curl -fSL -o fcs-keys.json "https://raw.githubusercontent.com/getsentry/symx/main/symx/ipsw/data/fcs-keys.json"
 
-      - name: Benchmark IPSW extract and mount
+      - name: Benchmark IPSW mount to disk
         id: ipsw_mount
         run: |
-          echo "### IPSW Extract & Mount Benchmark" >> "$GITHUB_STEP_SUMMARY"
+          echo "### IPSW Mount to Disk" >> "$GITHUB_STEP_SUMMARY"
+          MOUNT_POINT=$(mktemp -d)/mnt
+          mkdir -p "$MOUNT_POINT"
 
-          # Benchmark: unzip the IPSW
-          START_UNZIP=$(python3 -c "import time; print(time.time())")
-          unzip -o restore.ipsw -d ipsw_contents
-          END_UNZIP=$(python3 -c "import time; print(time.time())")
-          UNZIP_SECS=$(python3 -c "print(round($END_UNZIP - $START_UNZIP, 2))")
-          echo "- **Unzip IPSW:** ${UNZIP_SECS}s" >> "$GITHUB_STEP_SUMMARY"
-
-          # Find the largest DMG inside the IPSW
-          LARGEST_DMG=$(find ipsw_contents -name '*.dmg' -exec stat -f '%z %N' {} + | sort -rn | head -1 | awk '{print $2}')
-          if [ -z "$LARGEST_DMG" ]; then
-            echo "- No DMG found in IPSW" >> "$GITHUB_STEP_SUMMARY"
-            echo "mount=N/A" >> "$GITHUB_OUTPUT"
-            echo "read=N/A" >> "$GITHUB_OUTPUT"
-            echo "extract=N/A" >> "$GITHUB_OUTPUT"
-            echo "total=${UNZIP_SECS}s" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          DMG_SIZE=$(stat -f%z "$LARGEST_DMG")
-          DMG_SIZE_MB=$(python3 -c "print(round($DMG_SIZE / 1_000_000, 1))")
-          echo "- **Largest DMG:** $(basename "$LARGEST_DMG") (${DMG_SIZE_MB} MB)" >> "$GITHUB_STEP_SUMMARY"
-
-          # Benchmark: mount the DMG
           purge 2>/dev/null || true
-          START_MOUNT=$(python3 -c "import time; print(time.time())")
-          MOUNT_OUTPUT=$(hdiutil attach "$LARGEST_DMG" -noverify -readonly 2>&1) || true
-          END_MOUNT=$(python3 -c "import time; print(time.time())")
-          MOUNT_SECS=$(python3 -c "print(round($END_MOUNT - $START_MOUNT, 2))")
-          MOUNT_POINT=$(echo "$MOUNT_OUTPUT" | grep '/Volumes/' | awk -F'\t' '{print $NF}' | head -1)
-          echo "- **Mount DMG:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+          START=$(python3 -c "import time; print(time.time())")
+          ipsw mount sys restore.ipsw --pem-db fcs-keys.json --mount-point "$MOUNT_POINT" 2>&1 || true
+          END=$(python3 -c "import time; print(time.time())")
+          MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
+          echo "- **Mount time:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
 
-          if [ -z "$MOUNT_POINT" ]; then
-            echo "- Mount failed, skipping read/extract" >> "$GITHUB_STEP_SUMMARY"
-            TOTAL_SECS=$(python3 -c "print(round($UNZIP_SECS + $MOUNT_SECS, 2))")
-            echo "mount=${MOUNT_SECS}s" >> "$GITHUB_OUTPUT"
-            echo "read=N/A" >> "$GITHUB_OUTPUT"
-            echo "extract=N/A" >> "$GITHUB_OUTPUT"
-            echo "total=${TOTAL_SECS}s" >> "$GITHUB_OUTPUT"
+          if ! mount | grep -q "$MOUNT_POINT"; then
+            echo "- Mount failed" >> "$GITHUB_STEP_SUMMARY"
+            echo "disk_mount=N/A" >> "$GITHUB_OUTPUT"
+            echo "disk_extract=N/A" >> "$GITHUB_OUTPUT"
+            echo "ram_mount=N/A" >> "$GITHUB_OUTPUT"
+            echo "ram_extract=N/A" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # Benchmark: read all files from mounted DMG
-          START_READ=$(python3 -c "import time; print(time.time())")
-          find "$MOUNT_POINT" -type f -exec cat {} + > /dev/null 2>&1 || true
-          END_READ=$(python3 -c "import time; print(time.time())")
-          READ_SECS=$(python3 -c "print(round($END_READ - $START_READ, 2))")
-          echo "- **Read all files:** ${READ_SECS}s" >> "$GITHUB_STEP_SUMMARY"
-
-          # Benchmark: copy all files out
+          # Benchmark: copy all files out to disk
           EXTRACT_DIR=$(mktemp -d)
-          purge 2>/dev/null || true
-          START_EXTRACT=$(python3 -c "import time; print(time.time())")
+          START=$(python3 -c "import time; print(time.time())")
           cp -R "$MOUNT_POINT"/ "$EXTRACT_DIR"/ 2>/dev/null || true
-          END_EXTRACT=$(python3 -c "import time; print(time.time())")
-          EXTRACT_SECS=$(python3 -c "print(round($END_EXTRACT - $START_EXTRACT, 2))")
-          echo "- **Extract (copy out):** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+          END=$(python3 -c "import time; print(time.time())")
+          EXTRACT_SECS=$(python3 -c "print(round($END - $START, 2))")
+          echo "- **Extract to disk:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
 
-          TOTAL_SECS=$(python3 -c "print(round($UNZIP_SECS + $MOUNT_SECS + $READ_SECS + $EXTRACT_SECS, 2))")
-          echo "- **Total (unzip+mount+read+extract):** ${TOTAL_SECS}s" >> "$GITHUB_STEP_SUMMARY"
-
-          echo "mount=${MOUNT_SECS}s" >> "$GITHUB_OUTPUT"
-          echo "read=${READ_SECS}s" >> "$GITHUB_OUTPUT"
-          echo "extract=${EXTRACT_SECS}s" >> "$GITHUB_OUTPUT"
-          echo "total=${TOTAL_SECS}s" >> "$GITHUB_OUTPUT"
+          echo "disk_mount=${MOUNT_SECS}s" >> "$GITHUB_OUTPUT"
+          echo "disk_extract=${EXTRACT_SECS}s" >> "$GITHUB_OUTPUT"
 
           hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
-          rm -rf "$EXTRACT_DIR" ipsw_contents restore.ipsw
+          rm -rf "$EXTRACT_DIR"
+
+      - name: Benchmark IPSW mount to RAM disk
+        id: ipsw_ram
+        run: |
+          echo "### IPSW Mount to RAM Disk" >> "$GITHUB_STEP_SUMMARY"
+
+          # Create a 16GB RAM disk
+          RAM_DEV=$(hdiutil attach -nomount ram://$((16 * 1024 * 2048)))
+          RAM_DEV=$(echo "$RAM_DEV" | xargs)
+          diskutil erasevolume HFS+ RAMDisk "$RAM_DEV"
+          echo "- RAM disk created at $RAM_DEV (/Volumes/RAMDisk)" >> "$GITHUB_STEP_SUMMARY"
+
+          MOUNT_POINT=$(mktemp -d)/mnt
+          mkdir -p "$MOUNT_POINT"
+
+          purge 2>/dev/null || true
+          START=$(python3 -c "import time; print(time.time())")
+          ipsw mount sys restore.ipsw --pem-db fcs-keys.json --mount-point "$MOUNT_POINT" 2>&1 || true
+          END=$(python3 -c "import time; print(time.time())")
+          MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
+          echo "- **Mount time:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+
+          if ! mount | grep -q "$MOUNT_POINT"; then
+            echo "- Mount failed" >> "$GITHUB_STEP_SUMMARY"
+            echo "ram_mount=N/A" >> "$GITHUB_OUTPUT"
+            echo "ram_extract=N/A" >> "$GITHUB_OUTPUT"
+            hdiutil detach "$RAM_DEV" 2>/dev/null || true
+            exit 0
+          fi
+
+          # Benchmark: copy all files out to RAM disk
+          START=$(python3 -c "import time; print(time.time())")
+          cp -R "$MOUNT_POINT"/ /Volumes/RAMDisk/extracted/ 2>/dev/null || true
+          END=$(python3 -c "import time; print(time.time())")
+          EXTRACT_SECS=$(python3 -c "print(round($END - $START, 2))")
+          echo "- **Extract to RAM disk:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "ram_mount=${MOUNT_SECS}s" >> "$GITHUB_OUTPUT"
+          echo "ram_extract=${EXTRACT_SECS}s" >> "$GITHUB_OUTPUT"
+
+          hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
+          hdiutil detach "$RAM_DEV" 2>/dev/null || true
+          rm -f restore.ipsw fcs-keys.json
 
       - name: Save results
         run: |
           mkdir -p results
-          echo "${{ matrix.provider }},${{ matrix.pool }},${{ steps.parse.outputs.seq_write }},${{ steps.parse.outputs.seq_read }},${{ steps.parse.outputs.rand_write }},${{ steps.parse.outputs.rand_read }},${{ steps.ipsw_mount.outputs.mount }},${{ steps.ipsw_mount.outputs.read }},${{ steps.ipsw_mount.outputs.extract }},${{ steps.ipsw_mount.outputs.total }}" > results/${{ matrix.provider }}-${{ matrix.pool }}.csv
+          echo "${{ matrix.provider }},${{ matrix.pool }},${{ steps.parse.outputs.seq_write }},${{ steps.parse.outputs.seq_read }},${{ steps.parse.outputs.rand_write }},${{ steps.parse.outputs.rand_read }},${{ steps.ipsw_mount.outputs.disk_mount }},${{ steps.ipsw_mount.outputs.disk_extract }},${{ steps.ipsw_ram.outputs.ram_mount }},${{ steps.ipsw_ram.outputs.ram_extract }}" > results/${{ matrix.provider }}-${{ matrix.pool }}.csv
 
       - name: Upload results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -234,12 +246,12 @@ jobs:
         run: |
           echo "## Disk IO Benchmark Results (fio)" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Provider | Pool | Seq Write | Seq Read | Rand Write (4K) | Rand Read (4K) | IPSW Mount | IPSW Read | IPSW Extract | IPSW Total |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|----------|------|-----------|----------|-----------------|----------------|------------|-----------|--------------|------------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Provider | Pool | Seq Write | Seq Read | Rand Write (4K) | Rand Read (4K) | IPSW Mount (disk) | IPSW Extract (disk) | IPSW Mount (RAM) | IPSW Extract (RAM) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|----------|------|-----------|----------|-----------------|----------------|-------------------|---------------------|------------------|---------------------|" >> "$GITHUB_STEP_SUMMARY"
           for f in *.csv; do
             [ -f "$f" ] || continue
-            while IFS=, read -r provider pool seq_w seq_r rand_w rand_r ipsw_mount ipsw_read ipsw_extract ipsw_total; do
-              echo "| $provider | $pool | $seq_w | $seq_r | $rand_w | $rand_r | $ipsw_mount | $ipsw_read | $ipsw_extract | $ipsw_total |" >> "$GITHUB_STEP_SUMMARY"
+            while IFS=, read -r provider pool seq_w seq_r rand_w rand_r disk_mount disk_extract ram_mount ram_extract; do
+              echo "| $provider | $pool | $seq_w | $seq_r | $rand_w | $rand_r | $disk_mount | $disk_extract | $ram_mount | $ram_extract |" >> "$GITHUB_STEP_SUMMARY"
             done < "$f"
           done
           echo "" >> "$GITHUB_STEP_SUMMARY"
