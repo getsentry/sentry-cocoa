@@ -129,6 +129,7 @@ make test-sample-iOS-Swift-ui  # if UI behavior changed
 ```
 
 - **Public API regeneration is mandatory** for any PR that adds, removes, or renames `public` Swift symbols, `@objc` properties/methods, or ObjC public headers. The `api-stability` CI check diffs `sdk_api.json` against the committed file and fails the PR otherwise. Run `make generate-public-api` and commit the resulting `sdk_api.json` (and `sdk_api_sentryswiftui.json` if it changes) in the same PR. The script auto-locates Xcode 16 if it isn't the active toolchain.
+- **SentryObjC wrapper** — any new public API must also be exposed in the ObjC wrapper SDK (`SentryObjC` / `SentryObjCCompat`). See [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md) for the wrapper pattern: add a header in `Sources/SentryObjC/Public/` and a wrapper in `Sources/SentryObjCCompat/`.
 
 ### Platform Decision Tree
 
