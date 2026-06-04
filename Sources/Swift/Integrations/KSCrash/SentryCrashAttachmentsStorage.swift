@@ -4,11 +4,11 @@ import Foundation
 
 enum SentryCrashAttachmentsStorage {
     // Set by KSCrashIntegration at install time.
-    static var basePath: String?
+    nonisolated(unsafe) static var basePath: String?
 
     // Set by SentryScreenshotIntegration / SentryViewHierarchyIntegration.
-    static var screenshotCallback: ((String) -> Void)?
-    static var viewHierarchyCallback: ((String) -> Void)?
+    nonisolated(unsafe) static var screenshotCallback: ((String) -> Void)?
+    nonisolated(unsafe) static var viewHierarchyCallback: ((String) -> Void)?
 
     static func attachmentsDirectory(for reportIDHex: String) -> URL? {
         guard let base = basePath else { return nil }
