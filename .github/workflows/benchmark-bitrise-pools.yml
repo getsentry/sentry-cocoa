@@ -116,10 +116,69 @@ jobs:
                   summary.write(f"| {name} | {r['mb_s']} MB/s | {r['iops']} |\n")
           PYEOF
 
+      - name: Benchmark IPSW-style mount
+        id: ipsw_mount
+        run: |
+          echo "### IPSW-style Mount Benchmark" >> "$GITHUB_STEP_SUMMARY"
+
+          # Create a 2GB DMG with random content to simulate an IPSW inner image
+          DMG_DIR=$(mktemp -d)
+          dd if=/dev/urandom of="$DMG_DIR/payload" bs=1m count=512 2>/dev/null
+          mkdir -p "$DMG_DIR/symbols"
+          for i in $(seq 1 200); do
+            dd if=/dev/urandom of="$DMG_DIR/symbols/sym_$i.dylib" bs=32768 count=10 2>/dev/null
+          done
+
+          # Create compressed DMG (like IPSW inner images)
+          START_CREATE=$(python3 -c "import time; print(time.time())")
+          hdiutil create -srcfolder "$DMG_DIR" -format UDBZ -o test_ipsw.dmg 2>&1
+          END_CREATE=$(python3 -c "import time; print(time.time())")
+          DMG_SIZE=$(stat -f%z test_ipsw.dmg)
+          DMG_SIZE_MB=$(python3 -c "print(round($DMG_SIZE / 1_000_000, 1))")
+          CREATE_SECS=$(python3 -c "print(round($END_CREATE - $START_CREATE, 2))")
+          echo "- DMG size: ${DMG_SIZE_MB} MB (created in ${CREATE_SECS}s)" >> "$GITHUB_STEP_SUMMARY"
+          rm -rf "$DMG_DIR"
+
+          # Benchmark: mount the compressed DMG
+          purge 2>/dev/null || true
+          START_MOUNT=$(python3 -c "import time; print(time.time())")
+          MOUNT_OUTPUT=$(hdiutil attach test_ipsw.dmg -noverify -readonly 2>&1)
+          END_MOUNT=$(python3 -c "import time; print(time.time())")
+          MOUNT_SECS=$(python3 -c "print(round($END_MOUNT - $START_MOUNT, 2))")
+          MOUNT_POINT=$(echo "$MOUNT_OUTPUT" | tail -1 | awk '{print $NF}')
+          echo "- **Mount time:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+
+          # Benchmark: read all files from mounted DMG (simulates extraction)
+          START_READ=$(python3 -c "import time; print(time.time())")
+          find "$MOUNT_POINT" -type f -exec cat {} + > /dev/null 2>&1
+          END_READ=$(python3 -c "import time; print(time.time())")
+          READ_SECS=$(python3 -c "print(round($END_READ - $START_READ, 2))")
+          echo "- **Read all files:** ${READ_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+
+          # Benchmark: copy all files out (simulates IPSW extraction to disk)
+          EXTRACT_DIR=$(mktemp -d)
+          purge 2>/dev/null || true
+          START_EXTRACT=$(python3 -c "import time; print(time.time())")
+          cp -R "$MOUNT_POINT"/ "$EXTRACT_DIR"/
+          END_EXTRACT=$(python3 -c "import time; print(time.time())")
+          EXTRACT_SECS=$(python3 -c "print(round($END_EXTRACT - $START_EXTRACT, 2))")
+          echo "- **Extract (copy out):** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+
+          TOTAL_SECS=$(python3 -c "print(round($MOUNT_SECS + $READ_SECS + $EXTRACT_SECS, 2))")
+          echo "- **Total (mount+read+extract):** ${TOTAL_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "mount=${MOUNT_SECS}s" >> "$GITHUB_OUTPUT"
+          echo "read=${READ_SECS}s" >> "$GITHUB_OUTPUT"
+          echo "extract=${EXTRACT_SECS}s" >> "$GITHUB_OUTPUT"
+          echo "total=${TOTAL_SECS}s" >> "$GITHUB_OUTPUT"
+
+          hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
+          rm -rf "$EXTRACT_DIR" test_ipsw.dmg
+
       - name: Save results
         run: |
           mkdir -p results
-          echo "${{ matrix.provider }},${{ matrix.pool }},${{ steps.parse.outputs.seq_write }},${{ steps.parse.outputs.seq_read }},${{ steps.parse.outputs.rand_write }},${{ steps.parse.outputs.rand_read }}" > results/${{ matrix.provider }}-${{ matrix.pool }}.csv
+          echo "${{ matrix.provider }},${{ matrix.pool }},${{ steps.parse.outputs.seq_write }},${{ steps.parse.outputs.seq_read }},${{ steps.parse.outputs.rand_write }},${{ steps.parse.outputs.rand_read }},${{ steps.ipsw_mount.outputs.mount }},${{ steps.ipsw_mount.outputs.read }},${{ steps.ipsw_mount.outputs.extract }},${{ steps.ipsw_mount.outputs.total }}" > results/${{ matrix.provider }}-${{ matrix.pool }}.csv
 
       - name: Upload results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -149,12 +208,12 @@ jobs:
         run: |
           echo "## Disk IO Benchmark Results (fio)" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Provider | Pool | Seq Write | Seq Read | Rand Write (4K) | Rand Read (4K) |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|----------|------|-----------|----------|-----------------|----------------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Provider | Pool | Seq Write | Seq Read | Rand Write (4K) | Rand Read (4K) | IPSW Mount | IPSW Read | IPSW Extract | IPSW Total |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|----------|------|-----------|----------|-----------------|----------------|------------|-----------|--------------|------------|" >> "$GITHUB_STEP_SUMMARY"
           for f in *.csv; do
             [ -f "$f" ] || continue
-            while IFS=, read -r provider pool seq_w seq_r rand_w rand_r; do
-              echo "| $provider | $pool | $seq_w | $seq_r | $rand_w | $rand_r |" >> "$GITHUB_STEP_SUMMARY"
+            while IFS=, read -r provider pool seq_w seq_r rand_w rand_r ipsw_mount ipsw_read ipsw_extract ipsw_total; do
+              echo "| $provider | $pool | $seq_w | $seq_r | $rand_w | $rand_r | $ipsw_mount | $ipsw_read | $ipsw_extract | $ipsw_total |" >> "$GITHUB_STEP_SUMMARY"
             done < "$f"
           done
           echo "" >> "$GITHUB_STEP_SUMMARY"
