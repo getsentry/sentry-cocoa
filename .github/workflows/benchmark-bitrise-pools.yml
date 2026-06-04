@@ -41,11 +41,40 @@ jobs:
       - name: Run fio benchmarks
         id: fio
         run: |
-          fio --name=seq_write --rw=write --bs=1m --size=1G --numjobs=1 --ioengine=posixaio --direct=1 --runtime=30 --time_based --group_reporting \
-              --name=seq_read  --rw=read  --bs=1m --size=1G --numjobs=1 --ioengine=posixaio --direct=1 --runtime=30 --time_based --group_reporting \
-              --name=rand_write --rw=randwrite --bs=4k --size=256M --numjobs=1 --ioengine=posixaio --direct=1 --runtime=30 --time_based --group_reporting \
-              --name=rand_read  --rw=randread  --bs=4k --size=256M --numjobs=1 --ioengine=posixaio --direct=1 --runtime=30 --time_based --group_reporting \
-              --output-format=json --output=fio-results.json
+          cat > bench.fio <<'FIOEOF'
+          [global]
+          ioengine=posixaio
+          direct=1
+          runtime=30
+          time_based
+          numjobs=1
+          group_reporting
+
+          [seq_write]
+          rw=write
+          bs=1m
+          size=1G
+          stonewall
+
+          [seq_read]
+          rw=read
+          bs=1m
+          size=1G
+          stonewall
+
+          [rand_write]
+          rw=randwrite
+          bs=4k
+          size=256M
+          stonewall
+
+          [rand_read]
+          rw=randread
+          bs=4k
+          size=256M
+          stonewall
+          FIOEOF
+          fio bench.fio --output-format=json --output=fio-results.json
           cat fio-results.json
 
       - name: Parse results
