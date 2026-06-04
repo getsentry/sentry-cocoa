@@ -72,21 +72,13 @@ jobs:
           purge 2>/dev/null || true
 
           START=$(python3 -c "import time; print(time.time())")
-          ipsw mount sys restore.ipsw --pem-db fcs-keys.json --mount-point "$MOUNT_POINT" &
-          IPSW_PID=$!
-
-          MOUNTED=false
-          for i in $(seq 1 180); do
-            if mount | grep -q "$MOUNT_POINT"; then MOUNTED=true; break; fi
-            if ! kill -0 $IPSW_PID 2>/dev/null; then break; fi
-            sleep 1
-          done
+          ipsw mount sys restore.ipsw --pem-db fcs-keys.json --mount-point "$MOUNT_POINT" --detach
           END=$(python3 -c "import time; print(time.time())")
           MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
           echo "- **Mount:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
           echo "mount=${MOUNT_SECS}" >> "$GITHUB_OUTPUT"
 
-          if [ "$MOUNTED" = "true" ]; then
+          if mount | grep -q "$MOUNT_POINT"; then
             EXTRACT_DIR=$(mktemp -d)
             START=$(python3 -c "import time; print(time.time())")
             cp -R "$MOUNT_POINT"/ "$EXTRACT_DIR"/ 2>/dev/null || true
@@ -95,13 +87,11 @@ jobs:
             echo "- **Extract:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
             echo "extract=${EXTRACT_SECS}" >> "$GITHUB_OUTPUT"
             rm -rf "$EXTRACT_DIR"
+            hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
           else
             echo "- Mount failed" >> "$GITHUB_STEP_SUMMARY"
             echo "extract=N/A" >> "$GITHUB_OUTPUT"
           fi
-
-          kill $IPSW_PID 2>/dev/null || true; wait $IPSW_PID 2>/dev/null || true
-          hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
 
       # ---------- Test 2: RAM → disk ----------
       - name: "Test 2: Mount from RAM, extract to disk"
@@ -115,21 +105,13 @@ jobs:
           purge 2>/dev/null || true
 
           START=$(python3 -c "import time; print(time.time())")
-          ipsw mount sys /Volumes/RAMDisk/restore.ipsw --pem-db /Volumes/RAMDisk/fcs-keys.json --mount-point "$MOUNT_POINT" &
-          IPSW_PID=$!
-
-          MOUNTED=false
-          for i in $(seq 1 180); do
-            if mount | grep -q "$MOUNT_POINT"; then MOUNTED=true; break; fi
-            if ! kill -0 $IPSW_PID 2>/dev/null; then break; fi
-            sleep 1
-          done
+          ipsw mount sys /Volumes/RAMDisk/restore.ipsw --pem-db /Volumes/RAMDisk/fcs-keys.json --mount-point "$MOUNT_POINT" --detach
           END=$(python3 -c "import time; print(time.time())")
           MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
           echo "- **Mount:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
           echo "mount=${MOUNT_SECS}" >> "$GITHUB_OUTPUT"
 
-          if [ "$MOUNTED" = "true" ]; then
+          if mount | grep -q "$MOUNT_POINT"; then
             EXTRACT_DIR=$(mktemp -d)
             START=$(python3 -c "import time; print(time.time())")
             cp -R "$MOUNT_POINT"/ "$EXTRACT_DIR"/ 2>/dev/null || true
@@ -138,13 +120,11 @@ jobs:
             echo "- **Extract:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
             echo "extract=${EXTRACT_SECS}" >> "$GITHUB_OUTPUT"
             rm -rf "$EXTRACT_DIR"
+            hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
           else
             echo "- Mount failed" >> "$GITHUB_STEP_SUMMARY"
             echo "extract=N/A" >> "$GITHUB_OUTPUT"
           fi
-
-          kill $IPSW_PID 2>/dev/null || true; wait $IPSW_PID 2>/dev/null || true
-          hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
           rm -f /Volumes/RAMDisk/restore.ipsw /Volumes/RAMDisk/fcs-keys.json
 
       # ---------- Test 3: RAM → RAM ----------
@@ -159,21 +139,13 @@ jobs:
           purge 2>/dev/null || true
 
           START=$(python3 -c "import time; print(time.time())")
-          ipsw mount sys /Volumes/RAMDisk/restore.ipsw --pem-db /Volumes/RAMDisk/fcs-keys.json --mount-point "$MOUNT_POINT" &
-          IPSW_PID=$!
-
-          MOUNTED=false
-          for i in $(seq 1 180); do
-            if mount | grep -q "$MOUNT_POINT"; then MOUNTED=true; break; fi
-            if ! kill -0 $IPSW_PID 2>/dev/null; then break; fi
-            sleep 1
-          done
+          ipsw mount sys /Volumes/RAMDisk/restore.ipsw --pem-db /Volumes/RAMDisk/fcs-keys.json --mount-point "$MOUNT_POINT" --detach
           END=$(python3 -c "import time; print(time.time())")
           MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
           echo "- **Mount:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
           echo "mount=${MOUNT_SECS}" >> "$GITHUB_OUTPUT"
 
-          if [ "$MOUNTED" = "true" ]; then
+          if mount | grep -q "$MOUNT_POINT"; then
             START=$(python3 -c "import time; print(time.time())")
             cp -R "$MOUNT_POINT"/ /Volumes/RAMDisk/extracted/ 2>/dev/null || true
             END=$(python3 -c "import time; print(time.time())")
@@ -181,48 +153,57 @@ jobs:
             echo "- **Extract:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
             echo "extract=${EXTRACT_SECS}" >> "$GITHUB_OUTPUT"
             rm -rf /Volumes/RAMDisk/extracted
+            hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
           else
             echo "- Mount failed" >> "$GITHUB_STEP_SUMMARY"
             echo "extract=N/A" >> "$GITHUB_OUTPUT"
           fi
-
-          kill $IPSW_PID 2>/dev/null || true; wait $IPSW_PID 2>/dev/null || true
-          hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
           rm -f /Volumes/RAMDisk/restore.ipsw /Volumes/RAMDisk/fcs-keys.json
 
-      # ---------- Test 4: pre-extract DMG to RAM, then mount ----------
-      - name: "Test 4: Pre-extract DMG to RAM, then mount"
+      # ---------- Test 4: pre-decrypt AEA on RAM, then mount plain DMG ----------
+      - name: "Test 4: Pre-decrypt AEA to RAM, mount plain DMG"
         id: preextract_ram
         timeout-minutes: 10
         run: |
-          echo "### Test 4: Pre-extract DMG to RAM → Mount" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Test 4: Pre-decrypt AEA to RAM → Mount plain DMG" >> "$GITHUB_STEP_SUMMARY"
 
+          # Extract the .dmg.aea from the IPSW zip to RAM
           START_UNZIP=$(python3 -c "import time; print(time.time())")
-          unzip -o restore.ipsw -d /Volumes/RAMDisk/ipsw_contents
+          unzip -o restore.ipsw '*.dmg.aea' -d /Volumes/RAMDisk/ipsw_aea
           END_UNZIP=$(python3 -c "import time; print(time.time())")
           UNZIP_SECS=$(python3 -c "print(round($END_UNZIP - $START_UNZIP, 2))")
-          echo "- **Unzip to RAM:** ${UNZIP_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Unzip AEA to RAM:** ${UNZIP_SECS}s" >> "$GITHUB_STEP_SUMMARY"
 
-          cp fcs-keys.json /Volumes/RAMDisk/fcs-keys.json
+          # Find the largest .dmg.aea (the system image)
+          AEA_FILE=$(find /Volumes/RAMDisk/ipsw_aea -name '*.dmg.aea' -exec stat -f '%z %N' {} + | sort -rn | head -1 | awk '{print $2}')
+          if [ -z "$AEA_FILE" ]; then
+            echo "- No .dmg.aea found" >> "$GITHUB_STEP_SUMMARY"
+            echo "mount=N/A" >> "$GITHUB_OUTPUT"
+            echo "extract=N/A" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          AEA_SIZE_MB=$(python3 -c "import os; print(round(os.path.getsize('$AEA_FILE') / 1_000_000, 1))")
+          echo "- **AEA file:** $(basename "$AEA_FILE") (${AEA_SIZE_MB} MB)" >> "$GITHUB_STEP_SUMMARY"
+
+          # Decrypt AEA → plain DMG on RAM disk
+          DMG_FILE="/Volumes/RAMDisk/system.dmg"
+          START_DECRYPT=$(python3 -c "import time; print(time.time())")
+          ipsw fw aea --pem-db fcs-keys.json --output "$DMG_FILE" "$AEA_FILE"
+          END_DECRYPT=$(python3 -c "import time; print(time.time())")
+          DECRYPT_SECS=$(python3 -c "print(round($END_DECRYPT - $START_DECRYPT, 2))")
+          echo "- **Decrypt AEA:** ${DECRYPT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+
+          # Mount the plain DMG
           MOUNT_POINT=$(mktemp -d)/mnt && mkdir -p "$MOUNT_POINT"
           purge 2>/dev/null || true
-
           START=$(python3 -c "import time; print(time.time())")
-          ipsw mount sys /Volumes/RAMDisk/ipsw_contents --pem-db /Volumes/RAMDisk/fcs-keys.json --mount-point "$MOUNT_POINT" &
-          IPSW_PID=$!
-
-          MOUNTED=false
-          for i in $(seq 1 180); do
-            if mount | grep -q "$MOUNT_POINT"; then MOUNTED=true; break; fi
-            if ! kill -0 $IPSW_PID 2>/dev/null; then break; fi
-            sleep 1
-          done
+          hdiutil attach "$DMG_FILE" -noverify -readonly -mountpoint "$MOUNT_POINT" 2>&1 || true
           END=$(python3 -c "import time; print(time.time())")
           MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
-          echo "- **Mount:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Mount plain DMG:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
           echo "mount=${MOUNT_SECS}" >> "$GITHUB_OUTPUT"
 
-          if [ "$MOUNTED" = "true" ]; then
+          if mount | grep -q "$MOUNT_POINT"; then
             START=$(python3 -c "import time; print(time.time())")
             cp -R "$MOUNT_POINT"/ /Volumes/RAMDisk/extracted/ 2>/dev/null || true
             END=$(python3 -c "import time; print(time.time())")
@@ -230,21 +211,17 @@ jobs:
             echo "- **Extract to RAM:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
             echo "extract=${EXTRACT_SECS}" >> "$GITHUB_OUTPUT"
             rm -rf /Volumes/RAMDisk/extracted
+            hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
           else
             echo "- Mount failed" >> "$GITHUB_STEP_SUMMARY"
             echo "extract=N/A" >> "$GITHUB_OUTPUT"
           fi
-
-          kill $IPSW_PID 2>/dev/null || true; wait $IPSW_PID 2>/dev/null || true
-          hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
-          rm -rf /Volumes/RAMDisk/ipsw_contents /Volumes/RAMDisk/fcs-keys.json
+          rm -rf /Volumes/RAMDisk/ipsw_aea /Volumes/RAMDisk/system.dmg /Volumes/RAMDisk/fcs-keys.json
 
       - name: Cleanup
         if: always()
         run: |
-          # Kill any lingering ipsw processes
           pkill -f "ipsw mount" 2>/dev/null || true
-          # Detach any leftover mounts
           mount | grep "/tmp/" | awk '{print $3}' | while read mp; do
             hdiutil detach "$mp" 2>/dev/null || true
           done
@@ -280,7 +257,7 @@ jobs:
         run: |
           echo "## IPSW Mount Benchmark Results" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Provider | Pool | Disk→Disk Mount | Disk→Disk Extract | RAM→Disk Mount | RAM→Disk Extract | RAM→RAM Mount | RAM→RAM Extract | Pre-extract Mount | Pre-extract Extract |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Provider | Pool | Disk→Disk Mount | Disk→Disk Extract | RAM→Disk Mount | RAM→Disk Extract | RAM→RAM Mount | RAM→RAM Extract | Pre-decrypt Mount | Pre-decrypt Extract |" >> "$GITHUB_STEP_SUMMARY"
           echo "|----------|------|-----------------|-------------------|----------------|------------------|---------------|-----------------|-------------------|---------------------|" >> "$GITHUB_STEP_SUMMARY"
           for f in *.csv; do
             [ -f "$f" ] || continue
@@ -293,7 +270,7 @@ jobs:
           echo "- **Disk→Disk**: Baseline — read IPSW from disk, extract to disk" >> "$GITHUB_STEP_SUMMARY"
           echo "- **RAM→Disk**: IPSW in RAM, extract to disk — isolates disk write speed" >> "$GITHUB_STEP_SUMMARY"
           echo "- **RAM→RAM**: Everything in RAM — isolates CPU (decrypt/decompress)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Pre-extract**: Unzip IPSW to RAM first, then mount — tests if pre-extracted DMG mounts faster" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Pre-decrypt**: Decrypt AEA to plain DMG on RAM, then mount with hdiutil — skips ipsw decrypt overhead at mount time" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "---" >> "$GITHUB_STEP_SUMMARY"
           echo "_Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}_" >> "$GITHUB_STEP_SUMMARY"
