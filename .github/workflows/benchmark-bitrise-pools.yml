@@ -142,17 +142,25 @@ jobs:
 
           purge 2>/dev/null || true
           START=$(python3 -c "import time; print(time.time())")
-          ipsw mount sys restore.ipsw --pem-db fcs-keys.json --mount-point "$MOUNT_POINT" 2>&1 || true
+          ipsw mount sys restore.ipsw --pem-db fcs-keys.json --mount-point "$MOUNT_POINT" &
+          IPSW_PID=$!
+
+          # Wait for the mount to appear (timeout 120s)
+          for i in $(seq 1 120); do
+            if mount | grep -q "$MOUNT_POINT"; then
+              break
+            fi
+            sleep 1
+          done
           END=$(python3 -c "import time; print(time.time())")
           MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
           echo "- **Mount time:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
 
           if ! mount | grep -q "$MOUNT_POINT"; then
-            echo "- Mount failed" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Mount failed (timeout)" >> "$GITHUB_STEP_SUMMARY"
+            kill $IPSW_PID 2>/dev/null || true
             echo "disk_mount=N/A" >> "$GITHUB_OUTPUT"
             echo "disk_extract=N/A" >> "$GITHUB_OUTPUT"
-            echo "ram_mount=N/A" >> "$GITHUB_OUTPUT"
-            echo "ram_extract=N/A" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -167,6 +175,8 @@ jobs:
           echo "disk_mount=${MOUNT_SECS}s" >> "$GITHUB_OUTPUT"
           echo "disk_extract=${EXTRACT_SECS}s" >> "$GITHUB_OUTPUT"
 
+          kill $IPSW_PID 2>/dev/null || true
+          wait $IPSW_PID 2>/dev/null || true
           hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
           rm -rf "$EXTRACT_DIR"
 
@@ -186,13 +196,23 @@ jobs:
 
           purge 2>/dev/null || true
           START=$(python3 -c "import time; print(time.time())")
-          ipsw mount sys restore.ipsw --pem-db fcs-keys.json --mount-point "$MOUNT_POINT" 2>&1 || true
+          ipsw mount sys restore.ipsw --pem-db fcs-keys.json --mount-point "$MOUNT_POINT" &
+          IPSW_PID=$!
+
+          # Wait for the mount to appear (timeout 120s)
+          for i in $(seq 1 120); do
+            if mount | grep -q "$MOUNT_POINT"; then
+              break
+            fi
+            sleep 1
+          done
           END=$(python3 -c "import time; print(time.time())")
           MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
           echo "- **Mount time:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
 
           if ! mount | grep -q "$MOUNT_POINT"; then
-            echo "- Mount failed" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Mount failed (timeout)" >> "$GITHUB_STEP_SUMMARY"
+            kill $IPSW_PID 2>/dev/null || true
             echo "ram_mount=N/A" >> "$GITHUB_OUTPUT"
             echo "ram_extract=N/A" >> "$GITHUB_OUTPUT"
             hdiutil detach "$RAM_DEV" 2>/dev/null || true
@@ -209,6 +229,8 @@ jobs:
           echo "ram_mount=${MOUNT_SECS}s" >> "$GITHUB_OUTPUT"
           echo "ram_extract=${EXTRACT_SECS}s" >> "$GITHUB_OUTPUT"
 
+          kill $IPSW_PID 2>/dev/null || true
+          wait $IPSW_PID 2>/dev/null || true
           hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
           hdiutil detach "$RAM_DEV" 2>/dev/null || true
           rm -f restore.ipsw fcs-keys.json
