@@ -88,7 +88,7 @@
     XCTAssertTrue(kr == KERN_SUCCESS, @"Thread suspension failed");
 
     // Get context for the crashed thread
-    KSMachineContext machineContext = {0};
+    KSMachineContext machineContext = { 0 };
     bool result = ksmc_getContextForThread(firstThread.thread, &machineContext, YES);
 
     XCTAssertTrue(result, @"Failed to get context for thread");
@@ -122,7 +122,7 @@
     XCTAssertTrue(kr == KERN_SUCCESS, @"Thread suspension failed");
 
     // Get context for the crashed thread
-    KSMachineContext machineContext = {0};
+    KSMachineContext machineContext = { 0 };
     bool result = ksmc_getContextForThread(callingThread.thread, &machineContext, YES);
 
     XCTAssertTrue(result, @"Failed to get context for thread");

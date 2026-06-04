@@ -4,154 +4,47 @@
 
 **Goal:** Wire crash-time screenshot and view-hierarchy saving through KSCrash's `didWriteReportCallback`, and load those saved files as attachments on the next launch when the crash event is sent.
 
-**Architecture:** `KSCrashIntegration` sets `config.didWriteReportCallback` to invoke the registered attachment callbacks (stored in `SentryAttachmentCallback.c`) after each crash report is written, saving files to `<installPath>/Attachments/<reportIDHex>/`. This is a **best-effort, always-on** attempt — mirroring the original SentryCrash behaviour which ran the callbacks unconditionally after writing the report, even in signal-handler context ("since the app is already in a crash state we don't mind if this approach crashes"). On the next launch, `KSCrashReportSink` reads the report ID out of each crash report dictionary, loads any files in the corresponding directory, attaches them to the copied scope, and cleans up after capture.
+**Architecture:** `SentryCrashAttachmentsStorage` holds Swift closures registered by `SentryScreenshotIntegration` and `SentryViewHierarchyIntegration`. `KSCrashIntegration` sets `config.didWriteReportCallback` — already a Swift closure — to construct the per-report attachment directory and invoke those closures directly, with no C bridge needed. On the next launch, `KSCrashReportSink` reads the report ID out of each crash report dictionary, loads any files in the corresponding directory, attaches them to the copied scope, and cleans up. This is a **best-effort, always-on** attempt mirroring original SentryCrash: "since the app is already in a crash state we don't mind if this approach crashes."
 
-**Tech Stack:** Swift, Objective-C/C, XCTest, KSCrash v2 (`KSCrashConfiguration.didWriteReportCallback`, `KSCrash_ExceptionHandlingPlan`)
+**Tech Stack:** Swift, XCTest, KSCrash v2 (`KSCrashConfiguration.didWriteReportCallback`, `KSCrash_ExceptionHandlingPlan`)
 
 ---
 
 ## Background
 
-`SentryScreenshotIntegration` and `SentryViewHierarchyIntegration` each register a `SaveAttachmentCallback` via `sentrycrash_setSaveScreenshots` / `sentrycrash_setSaveViewHierarchy`. Those callbacks are stored in globals in `SentryAttachmentCallback.c`, but nothing ever calls them. The upstream KSCrash v2 `didWriteReportCallback` is the correct replacement hook.
+`SentryScreenshotIntegration` and `SentryViewHierarchyIntegration` currently call `sentrycrash_setSaveScreenshots` / `sentrycrash_setSaveViewHierarchy` to register C function-pointer callbacks stored in `SentryAttachmentCallback.c` globals. Nothing ever calls those globals — the whole mechanism was stubbed out when migrating to upstream KSCrash v2.
 
-The callback only receives `(plan, reportID: int64_t)`, not a path. We derive the path ourselves using the `installPath` captured at install time, stored in a module-level global `SentryCrashAttachmentsStorage.basePath`.
+`KSCrashConfiguration.didWriteReportCallback` is a Swift closure (`NS_SWIFT_UNAVAILABLE` on the C typedef forces the ObjC property to bridge to a Swift closure). It fires after the crash report is written with `(plan, reportID)`. Since it's already Swift, there is no reason to go through C at all — store the callbacks as Swift closures and invoke them directly.
 
-The original SentryCrash always attempted to save attachments after writing the report, even in signal-handler context, with an explicit comment: "since the app is already in a crash state we don't mind if this approach crashes." We preserve that best-effort behaviour — the only case we skip is `crashedDuringExceptionHandling`, where a second crash during exception handling means we should do as little as possible.
+No new C/ObjC code is added. The existing `SentryAttachmentCallback.c` stubs are left in place (already dead) and can be removed in a follow-up.
+
+The only guard applied is `crashedDuringExceptionHandling` (we're in a double-fault; do as little as possible). `requiresAsyncSafety` is intentionally **not** guarded — original SentryCrash always ran these callbacks after writing, even from signal context.
 
 ---
 
 ## File Map
 
-| Action | Path |
-|--------|------|
-| Modify | `Sources/Sentry/SentryAttachmentCallback.c` |
-| Modify | `Sources/Sentry/include/SentryAttachmentCallback.h` |
-| Modify | `Sources/Sentry/include/SentryCrashC.h` |
-| Create | `Sources/Swift/Integrations/KSCrash/SentryCrashAttachmentsStorage.swift` |
-| Modify | `Sources/Swift/Integrations/KSCrash/KSCrashIntegration.swift` |
-| Modify | `Sources/Swift/Integrations/KSCrash/KSCrashReportSink.swift` |
-| Modify | `Tests/SentryTests/Integrations/KSCrash/KSCrashReportSinkTests.swift` |
-| Modify | `Tests/SentryTests/Integrations/KSCrash/KSCrashIntegrationTests.swift` |
-| Modify | `Tests/SentryTests/Integrations/Screenshot/SentryScreenshotIntegrationTests.swift` |
+| Action | Path                                                                                     |
+| ------ | ---------------------------------------------------------------------------------------- |
+| Create | `Sources/Swift/Integrations/KSCrash/SentryCrashAttachmentsStorage.swift`                 |
+| Modify | `Sources/Swift/Integrations/Screenshot/SentryScreenshotIntegration.swift`                |
+| Modify | `Sources/Swift/Integrations/ViewHierarchy/SentryViewHierarchyIntegration.swift`          |
+| Modify | `Sources/Swift/Integrations/KSCrash/KSCrashIntegration.swift`                            |
+| Modify | `Sources/Swift/Integrations/KSCrash/KSCrashReportSink.swift`                             |
+| Modify | `Tests/SentryTests/Integrations/Screenshot/SentryScreenshotIntegrationTests.swift`       |
+| Modify | `Tests/SentryTests/Integrations/ViewHierarchy/SentryViewHierarchyIntegrationTests.swift` |
+| Modify | `Tests/SentryTests/Integrations/KSCrash/KSCrashIntegrationTests.swift`                   |
+| Modify | `Tests/SentryTests/Integrations/KSCrash/KSCrashReportSinkTests.swift`                    |
 
 ---
 
-## Task 1: Add `sentrycrash_invokeAttachmentCallbacks` C function
+## Task 1: Create `SentryCrashAttachmentsStorage`
+
+This enum is the single source of truth for crash-time attachment state: the install-time base path and the per-integration Swift closures.
 
 **Files:**
-- Modify: `Sources/Sentry/include/SentryAttachmentCallback.h`
-- Modify: `Sources/Sentry/include/SentryCrashC.h`
-- Modify: `Sources/Sentry/SentryAttachmentCallback.c`
-- Test: `Tests/SentryTests/Integrations/Screenshot/SentryScreenshotIntegrationTests.swift`
 
-- [ ] **Step 1: Write failing tests**
-
-  Add to `SentryScreenshotIntegrationTests` (inside the `#if os(iOS) || os(tvOS)` guard):
-
-  ```swift
-  func test_invokeAttachmentCallbacks_callsBothCallbacks() {
-      var screenshotPath: String?
-      var viewHierarchyPath: String?
-
-      sentrycrash_setSaveScreenshots { path in
-          screenshotPath = path.map { String(cString: $0) }
-      }
-      sentrycrash_setSaveViewHierarchy { path in
-          viewHierarchyPath = path.map { String(cString: $0) }
-      }
-      defer {
-          sentrycrash_setSaveScreenshots(nil)
-          sentrycrash_setSaveViewHierarchy(nil)
-      }
-
-      sentrycrash_invokeAttachmentCallbacks("/tmp/test-dir")
-
-      XCTAssertEqual(screenshotPath, "/tmp/test-dir")
-      XCTAssertEqual(viewHierarchyPath, "/tmp/test-dir")
-  }
-
-  func test_invokeAttachmentCallbacks_nilCallbacks_doesNotCrash() {
-      sentrycrash_setSaveScreenshots(nil)
-      sentrycrash_setSaveViewHierarchy(nil)
-      // Should not crash
-      sentrycrash_invokeAttachmentCallbacks("/tmp/test-dir")
-  }
-  ```
-
-- [ ] **Step 2: Run tests to verify they fail**
-
-  ```bash
-  make test-ios ONLY_TESTING=SentryTests/SentryScreenshotIntegrationTests/test_invokeAttachmentCallbacks_callsBothCallbacks
-  ```
-  Expected: FAIL — `sentrycrash_invokeAttachmentCallbacks` undeclared
-
-- [ ] **Step 3: Declare in `SentryAttachmentCallback.h`**
-
-  Add after the existing `sentrycrash_hasSaveViewHierarchyCallback` declaration:
-
-  ```c
-  /** Invoke both screenshot and view-hierarchy callbacks (if registered) with the given directory.
-   *
-   * @param directoryPath The directory where attachments should be saved.
-   */
-  void sentrycrash_invokeAttachmentCallbacks(const char *directoryPath);
-  ```
-
-- [ ] **Step 4: Declare in `SentryCrashC.h`**
-
-  Add after the existing `sentrycrash_hasSaveViewHierarchyCallback` declaration (around line 234):
-
-  ```c
-  /** Invoke both screenshot and view-hierarchy callbacks (if registered) with the given directory.
-   *
-   * @param directoryPath The directory where attachments should be saved.
-   */
-  void sentrycrash_invokeAttachmentCallbacks(const char *directoryPath);
-  ```
-
-- [ ] **Step 5: Implement in `SentryAttachmentCallback.c`**
-
-  Add after `sentrycrash_hasSaveViewHierarchyCallback`:
-
-  ```c
-  void
-  sentrycrash_invokeAttachmentCallbacks(const char *directoryPath)
-  {
-      if (g_saveScreenshots != NULL) {
-          g_saveScreenshots(directoryPath);
-      }
-      if (g_saveViewHierarchy != NULL) {
-          g_saveViewHierarchy(directoryPath);
-      }
-  }
-  ```
-
-- [ ] **Step 6: Run tests to verify they pass**
-
-  ```bash
-  make test-ios ONLY_TESTING=SentryTests/SentryScreenshotIntegrationTests/test_invokeAttachmentCallbacks_callsBothCallbacks
-  make test-ios ONLY_TESTING=SentryTests/SentryScreenshotIntegrationTests/test_invokeAttachmentCallbacks_nilCallbacks_doesNotCrash
-  ```
-  Expected: PASS
-
-- [ ] **Step 7: Commit**
-
-  ```bash
-  git add Sources/Sentry/SentryAttachmentCallback.c \
-          Sources/Sentry/include/SentryAttachmentCallback.h \
-          Sources/Sentry/include/SentryCrashC.h \
-          Tests/SentryTests/Integrations/Screenshot/SentryScreenshotIntegrationTests.swift
-  git commit -m "ref: add sentrycrash_invokeAttachmentCallbacks C helper"
-  ```
-
----
-
-## Task 2: Add `SentryCrashAttachmentsStorage` helper
-
-**Files:**
 - Create: `Sources/Swift/Integrations/KSCrash/SentryCrashAttachmentsStorage.swift`
-
-No dedicated test file needed — this is tested implicitly through the `KSCrashReportSink` tests in Task 4.
 
 - [ ] **Step 1: Create the file**
 
@@ -161,7 +54,12 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
   import Foundation
 
   enum SentryCrashAttachmentsStorage {
+      // Set by KSCrashIntegration at install time.
       static var basePath: String?
+
+      // Set by SentryScreenshotIntegration / SentryViewHierarchyIntegration.
+      static var screenshotCallback: ((String) -> Void)?
+      static var viewHierarchyCallback: ((String) -> Void)?
 
       static func attachmentsDirectory(for reportIDHex: String) -> URL? {
           guard let base = basePath else { return nil }
@@ -176,20 +74,21 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
 
           return files.compactMap { url in
               let name = url.lastPathComponent
-              let contentType: String
-              let attachmentType: SentryAttachmentType
-
               switch url.pathExtension {
               case "png":
-                  contentType = "image/png"
-                  attachmentType = .eventAttachment
+                  return Attachment(path: url.path, filename: name, contentType: "image/png")
               case "json":
-                  contentType = "application/json"
-                  attachmentType = name == "view-hierarchy.json" ? .viewHierarchy : .eventAttachment
+                  let attachmentType: SentryAttachmentType = name == "view-hierarchy.json"
+                      ? .viewHierarchy : .eventAttachment
+                  return Attachment(
+                      path: url.path,
+                      filename: name,
+                      contentType: "application/json",
+                      attachmentType: attachmentType
+                  )
               default:
                   return nil
               }
-              return Attachment(path: url.path, filename: name, contentType: contentType, attachmentType: attachmentType)
           }
       }
 
@@ -200,7 +99,7 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
   }
   ```
 
-- [ ] **Step 2: Build to confirm it compiles**
+- [ ] **Step 2: Build to verify it compiles**
 
   ```bash
   make build-ios
@@ -211,7 +110,146 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
 
   ```bash
   git add Sources/Swift/Integrations/KSCrash/SentryCrashAttachmentsStorage.swift
-  git commit -m "ref: add SentryCrashAttachmentsStorage for crash-time attachment paths"
+  git commit -m "ref: add SentryCrashAttachmentsStorage for crash-time attachment state"
+  ```
+
+---
+
+## Task 2: Switch integrations to Swift closures
+
+Replace the C callback registration in `SentryScreenshotIntegration` and `SentryViewHierarchyIntegration` with Swift closure storage in `SentryCrashAttachmentsStorage`. Update their tests, which currently assert on `sentrycrash_hasSaveScreenshotCallback()` / `sentrycrash_hasSaveViewHierarchyCallback()`, to assert on the Swift storage instead.
+
+**Files:**
+
+- Modify: `Sources/Swift/Integrations/Screenshot/SentryScreenshotIntegration.swift`
+- Modify: `Sources/Swift/Integrations/ViewHierarchy/SentryViewHierarchyIntegration.swift`
+- Modify: `Tests/SentryTests/Integrations/Screenshot/SentryScreenshotIntegrationTests.swift`
+- Modify: `Tests/SentryTests/Integrations/ViewHierarchy/SentryViewHierarchyIntegrationTests.swift`
+
+- [ ] **Step 1: Write failing tests for `SentryScreenshotIntegration`**
+
+  In `SentryScreenshotIntegrationTests`, replace the three `sentrycrash_hasSaveScreenshotCallback()` assertions:
+
+  ```swift
+  func test_attachScreenshot_disabled() {
+      SentrySDK.start {
+          $0.removeAllIntegrations()
+          $0.attachScreenshot = false
+      }
+      XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 0)
+      XCTAssertNil(SentryCrashAttachmentsStorage.screenshotCallback)
+  }
+
+  func test_attachScreenshot_enabled() {
+      SentrySDK.start {
+          $0.removeAllIntegrations()
+          $0.attachScreenshot = true
+      }
+      XCTAssertEqual(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors.count, 1)
+      XCTAssertNotNil(SentryCrashAttachmentsStorage.screenshotCallback)
+  }
+
+  func test_uninstall() {
+      SentrySDK.start {
+          $0.removeAllIntegrations()
+          $0.attachScreenshot = true
+      }
+      SentrySDK.close()
+      XCTAssertNil(SentrySDKInternal.currentHub().getClient()?.attachmentProcessors)
+      XCTAssertNil(SentryCrashAttachmentsStorage.screenshotCallback)
+  }
+  ```
+
+- [ ] **Step 2: Run tests to verify they fail**
+
+  ```bash
+  make test-ios ONLY_TESTING=SentryTests/SentryScreenshotIntegrationTests/test_attachScreenshot_disabled
+  ```
+  Expected: FAIL — `SentryCrashAttachmentsStorage.screenshotCallback` is always nil
+
+- [ ] **Step 3: Update `SentryScreenshotIntegration`**
+
+  Replace the `sentrycrash_setSaveScreenshots` call in `init` and `uninstall`:
+
+  ```swift
+  // In init, replace:
+  //   globalScreenshotSource = screenshotSource
+  //   sentrycrash_setSaveScreenshots { path in
+  //       guard let path = path else { return }
+  //       let reportPath = String(cString: path)
+  //       globalScreenshotSource?.saveScreenShots(reportPath)
+  //   }
+  // With:
+  globalScreenshotSource = screenshotSource
+  SentryCrashAttachmentsStorage.screenshotCallback = { path in
+      globalScreenshotSource?.saveScreenShots(path)
+  }
+
+  // In uninstall, replace:
+  //   globalScreenshotSource = nil
+  //   sentrycrash_setSaveScreenshots(nil)
+  // With:
+  globalScreenshotSource = nil
+  SentryCrashAttachmentsStorage.screenshotCallback = nil
+  ```
+
+- [ ] **Step 4: Run screenshot tests to verify they pass**
+
+  ```bash
+  make test-ios ONLY_TESTING=SentryTests/SentryScreenshotIntegrationTests
+  ```
+  Expected: All PASS
+
+- [ ] **Step 5: Write failing tests for `SentryViewHierarchyIntegration`**
+
+  In `SentryViewHierarchyIntegrationTests`, replace `sentrycrash_hasSaveViewHierarchyCallback()` assertions with `SentryCrashAttachmentsStorage.viewHierarchyCallback != nil` / `== nil` checks — same pattern as Step 1 above.
+
+- [ ] **Step 6: Run those tests to verify they fail**
+
+  ```bash
+  make test-ios ONLY_TESTING=SentryTests/SentryViewHierarchyIntegrationTests
+  ```
+  Expected: FAIL on the callback-presence assertions
+
+- [ ] **Step 7: Update `SentryViewHierarchyIntegration`**
+
+  Replace the `sentrycrash_setSaveViewHierarchy` call in `init` and `uninstall`:
+
+  ```swift
+  // In init, replace:
+  //   sentrycrash_setSaveViewHierarchy { path in
+  //       guard let path = path else { return }
+  //       let reportPath = String(cString: path)
+  //       let filePath = (reportPath as NSString).appendingPathComponent("view-hierarchy.json")
+  //       SentryDependencyContainer.sharedInstance().viewHierarchyProvider?.saveViewHierarchy(filePath)
+  //   }
+  // With:
+  SentryCrashAttachmentsStorage.viewHierarchyCallback = { dirPath in
+      let filePath = (dirPath as NSString).appendingPathComponent("view-hierarchy.json")
+      SentryDependencyContainer.sharedInstance().viewHierarchyProvider?.saveViewHierarchy(filePath)
+  }
+
+  // In uninstall, replace:
+  //   sentrycrash_setSaveViewHierarchy(nil)
+  // With:
+  SentryCrashAttachmentsStorage.viewHierarchyCallback = nil
+  ```
+
+- [ ] **Step 8: Run view-hierarchy tests to verify they pass**
+
+  ```bash
+  make test-ios ONLY_TESTING=SentryTests/SentryViewHierarchyIntegrationTests
+  ```
+  Expected: All PASS
+
+- [ ] **Step 9: Commit**
+
+  ```bash
+  git add Sources/Swift/Integrations/Screenshot/SentryScreenshotIntegration.swift \
+          Sources/Swift/Integrations/ViewHierarchy/SentryViewHierarchyIntegration.swift \
+          Tests/SentryTests/Integrations/Screenshot/SentryScreenshotIntegrationTests.swift \
+          Tests/SentryTests/Integrations/ViewHierarchy/SentryViewHierarchyIntegrationTests.swift
+  git commit -m "ref: replace C attachment callbacks with Swift closures in integrations"
   ```
 
 ---
@@ -219,57 +257,51 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
 ## Task 3: Wire `didWriteReportCallback` in `KSCrashIntegration`
 
 **Files:**
+
 - Modify: `Sources/Swift/Integrations/KSCrash/KSCrashIntegration.swift`
-- Test: `Tests/SentryTests/Integrations/KSCrash/KSCrashIntegrationTests.swift`
+- Modify: `Tests/SentryTests/Integrations/KSCrash/KSCrashIntegrationTests.swift`
 
 - [ ] **Step 1: Write a failing test**
 
-  Add to `KSCrashIntegrationTests`:
+  Add to `KSCrashIntegrationTests` (and add `SentryCrashAttachmentsStorage.basePath = nil` to `tearDown`):
 
   ```swift
   func test_startCrashHandler_setsAttachmentsBasePath() throws {
       _ = try fixture.getSut()
-      // The basePath should be set to <cacheDirectoryPath>/Attachments
       let expectedBase = (fixture.options.cacheDirectoryPath as NSString)
           .appendingPathComponent("Attachments")
       XCTAssertEqual(SentryCrashAttachmentsStorage.basePath, expectedBase)
   }
   ```
 
-  Also add a `tearDown` entry to reset `SentryCrashAttachmentsStorage.basePath = nil` in the test class's `tearDown`.
-
 - [ ] **Step 2: Run test to verify it fails**
 
   ```bash
   make test-ios ONLY_TESTING=SentryTests/KSCrashIntegrationTests/test_startCrashHandler_setsAttachmentsBasePath
   ```
-  Expected: FAIL — `SentryCrashAttachmentsStorage.basePath` is nil
+  Expected: FAIL — `basePath` is nil
 
-- [ ] **Step 3: Set `basePath` and add `didWriteReportCallback` in `KSCrashIntegration.startCrashHandler`**
+- [ ] **Step 3: Add `basePath` assignment and `didWriteReportCallback` in `startCrashHandler`**
 
-  In `startCrashHandler`, after `let config = KSCrashConfiguration()` and `config.installPath = options.cacheDirectoryPath`, add:
+  In `startCrashHandler`, after `config.installPath = options.cacheDirectoryPath`, add:
 
   ```swift
-  // Store the attachments base path so KSCrashReportSink can find them on next launch.
   let attachmentsBasePath = (options.cacheDirectoryPath as NSString)
       .appendingPathComponent("Attachments")
   SentryCrashAttachmentsStorage.basePath = attachmentsBasePath
 
   config.didWriteReportCallback = { plan, reportID in
-      // Skip if we crashed while handling another exception — we're already in
-      // an unstable state and should do as little as possible.
+      // Double-fault: we're crashing inside the crash handler; do as little as possible.
       guard !plan.pointee.crashedDuringExceptionHandling else { return }
 
-      // Best-effort: mirrors original SentryCrash behaviour which always ran these
-      // callbacks after writing the report, even from signal context ("since the app
-      // is already in a crash state we don't mind if this approach crashes").
+      // Best-effort — mirrors original SentryCrash which always ran these after writing
+      // the report, even from signal context. App is already dying; acceptable to risk it.
       let reportIDHex = String(format: "%016llx", UInt64(bitPattern: reportID))
       let dirPath = (attachmentsBasePath as NSString).appendingPathComponent(reportIDHex)
+      try? FileManager.default.createDirectory(atPath: dirPath, withIntermediateDirectories: true)
 
-      try? FileManager.default.createDirectory(
-          atPath: dirPath, withIntermediateDirectories: true
-      )
-      sentrycrash_invokeAttachmentCallbacks(dirPath)
+      SentryCrashAttachmentsStorage.screenshotCallback?(dirPath)
+      SentryCrashAttachmentsStorage.viewHierarchyCallback?(dirPath)
   }
   ```
 
@@ -280,7 +312,7 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
   ```
   Expected: PASS
 
-- [ ] **Step 5: Run existing integration tests to check for regressions**
+- [ ] **Step 5: Run all integration tests**
 
   ```bash
   make test-ios ONLY_TESTING=SentryTests/KSCrashIntegrationTests
@@ -292,7 +324,7 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
   ```bash
   git add Sources/Swift/Integrations/KSCrash/KSCrashIntegration.swift \
           Tests/SentryTests/Integrations/KSCrash/KSCrashIntegrationTests.swift
-  git commit -m "ref: wire didWriteReportCallback to save crash-time attachments"
+  git commit -m "ref: wire didWriteReportCallback to invoke Swift attachment closures"
   ```
 
 ---
@@ -300,6 +332,7 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
 ## Task 4: Load saved attachments in `KSCrashReportSink`
 
 **Files:**
+
 - Modify: `Sources/Swift/Integrations/KSCrash/KSCrashReportSink.swift`
 - Modify: `Tests/SentryTests/Integrations/KSCrash/KSCrashReportSinkTests.swift`
 
@@ -310,56 +343,47 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
   ```swift
   func test_filterReports_loadsAndAttachesSavedFiles() throws {
       // -- Arrange --
-      // Create a temp attachments directory as if didWriteReportCallback had run.
       let reportIDHex = "000000000000abcd"
       let tempBase = FileManager.default.temporaryDirectory
           .appendingPathComponent("SentryAttachmentTest-\(UUID().uuidString)")
       let attachDir = tempBase.appendingPathComponent(reportIDHex)
       try FileManager.default.createDirectory(at: attachDir, withIntermediateDirectories: true)
+      defer { try? FileManager.default.removeItem(at: tempBase) }
 
-      let screenshotData = Data([0x89, 0x50, 0x4E, 0x47]) // PNG magic bytes
-      try screenshotData.write(to: attachDir.appendingPathComponent("screenshot.png"))
-      let jsonData = Data("{\"windows\":[]}".utf8)
-      try jsonData.write(to: attachDir.appendingPathComponent("view-hierarchy.json"))
+      try Data([0x89, 0x50, 0x4E, 0x47])
+          .write(to: attachDir.appendingPathComponent("screenshot.png"))
+      try Data("{\"windows\":[]}".utf8)
+          .write(to: attachDir.appendingPathComponent("view-hierarchy.json"))
 
       SentryCrashAttachmentsStorage.basePath = tempBase.path
-      defer {
-          SentryCrashAttachmentsStorage.basePath = nil
-          try? FileManager.default.removeItem(at: tempBase)
-      }
+      defer { SentryCrashAttachmentsStorage.basePath = nil }
 
-      // Build a minimal crash report dictionary that contains the report ID.
-      let reportDict: [String: Any] = [
+      // Minimal crash report dictionary carrying the report ID.
+      let report = CrashReportDictionary.report(withValue: [
           "report": ["id": reportIDHex]
-      ]
-      let report = CrashReportDictionary.report(withValue: reportDict)
+      ])
 
-      // Wire up a real SDK client so captureFatalEvent doesn't bail early.
+      // Wire up the SDK so captureFatalEvent doesn't bail.
       let options = Options()
       options.dsn = TestConstants.dsnAsString(username: "KSCrashReportSinkTests")
       let client = TestClient(options: options)
       SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
       defer { SentrySDKInternal.setCurrentHub(nil) }
 
-      let logic = SentryInAppLogic(inAppIncludes: [])
-      let sink = KSCrashReportSink(inAppLogic: logic)
-      let expectation = expectation(description: "completion")
+      let sink = KSCrashReportSink(inAppLogic: SentryInAppLogic(inAppIncludes: []))
+      let done = expectation(description: "completion")
 
       // -- Act --
-      sink.filterReports([report]) { _, _ in expectation.fulfill() }
-      wait(for: [expectation], timeout: 2.0)
+      sink.filterReports([report]) { _, _ in done.fulfill() }
+      wait(for: [done], timeout: 2.0)
 
       // -- Assert --
-      let capturedEvent = client.capturedEvents.first
-      XCTAssertNotNil(capturedEvent, "Expected a fatal event to be captured")
-
       let attachmentNames = (client.capturedEnvelopes.first?.items ?? [])
           .filter { $0.header.type == "attachment" }
           .compactMap { $0.header.filename }
-      XCTAssertTrue(attachmentNames.contains("screenshot.png"), "Expected screenshot.png attachment")
-      XCTAssertTrue(attachmentNames.contains("view-hierarchy.json"), "Expected view-hierarchy.json attachment")
+      XCTAssertTrue(attachmentNames.contains("screenshot.png"))
+      XCTAssertTrue(attachmentNames.contains("view-hierarchy.json"))
 
-      // -- Cleanup check --
       XCTAssertFalse(
           FileManager.default.fileExists(atPath: attachDir.path),
           "Attachments directory should be deleted after capture"
@@ -367,18 +391,18 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
   }
   ```
 
-  > Note: `TestClient`, `TestHub`, `TestConstants`, and `SentrySDKInternal.setCurrentHub` follow the patterns already used in `KSCrashIntegrationTests.swift`. If `setCurrentHub` isn't public, check how `KSCrashIntegrationTests` sets up the global hub and replicate that pattern.
+  > Note: `TestClient`, `TestHub`, `TestConstants`, and `SentrySDKInternal.setCurrentHub` follow patterns in `KSCrashIntegrationTests.swift`. If `setCurrentHub` isn't directly available, check how that test file binds the hub and replicate it.
 
 - [ ] **Step 2: Run test to verify it fails**
 
   ```bash
   make test-ios ONLY_TESTING=SentryTests/KSCrashReportSinkTests/test_filterReports_loadsAndAttachesSavedFiles
   ```
-  Expected: FAIL — no attachments are loaded yet
+  Expected: FAIL — no attachments loaded yet
 
-- [ ] **Step 3: Extract report ID from the crash report in `KSCrashReportSink.sendReports`**
+- [ ] **Step 3: Extract report ID in `sendReports` and pass to `handleConvertedEvent`**
 
-  In `sendReports`, change the `for report in reports` loop to extract the report ID before calling `handleConvertedEvent`:
+  In `sendReports`, extract the report ID from each `CrashReportDictionary` before converting:
 
   ```swift
   for report in reports {
@@ -403,9 +427,9 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
   }
   ```
 
-- [ ] **Step 4: Update `handleConvertedEvent` signature and body**
+- [ ] **Step 4: Update `handleConvertedEvent` to load and attach saved files**
 
-  Replace the existing `handleConvertedEvent` method:
+  Replace the existing `handleConvertedEvent`:
 
   ```swift
   private func handleConvertedEvent(
@@ -418,8 +442,7 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
       let scope = Scope(scope: SentrySDKInternal.currentHub().scope)
 
       if let reportIDHex {
-          let savedAttachments = SentryCrashAttachmentsStorage.attachments(for: reportIDHex)
-          for attachment in savedAttachments {
+          for attachment in SentryCrashAttachmentsStorage.attachments(for: reportIDHex) {
               scope.addAttachment(attachment)
           }
           SentryCrashAttachmentsStorage.cleanup(for: reportIDHex)
@@ -436,23 +459,17 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
   ```
   Expected: PASS
 
-- [ ] **Step 6: Run all KSCrash sink and integration tests**
+- [ ] **Step 6: Run full KSCrash test suites**
 
   ```bash
   make test-ios ONLY_TESTING=SentryTests/KSCrashReportSinkTests
   make test-ios ONLY_TESTING=SentryTests/KSCrashIntegrationTests
-  ```
-  Expected: All PASS
-
-- [ ] **Step 7: Run screenshot integration tests**
-
-  ```bash
   make test-ios ONLY_TESTING=SentryTests/SentryScreenshotIntegrationTests
   make test-ios ONLY_TESTING=SentryTests/SentryViewHierarchyIntegrationTests
   ```
   Expected: All PASS
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 7: Commit**
 
   ```bash
   git add Sources/Swift/Integrations/KSCrash/KSCrashReportSink.swift \
@@ -465,17 +482,20 @@ No dedicated test file needed — this is tested implicitly through the `KSCrash
 ## Self-Review
 
 **Spec coverage:**
-- `sentrycrash_invokeAttachmentCallbacks` declared and implemented — Task 1 ✓
-- Storage helper for path management — Task 2 ✓
-- `didWriteReportCallback` wired to save screenshots and view hierarchy at crash time — Task 3 ✓
-- Attachments loaded and added to crash event on next launch, then cleaned up — Task 4 ✓
+
+- Swift closure storage for screenshot and view-hierarchy callbacks — Task 1 ✓
+- `SentryScreenshotIntegration` and `SentryViewHierarchyIntegration` register/clear Swift closures — Task 2 ✓
+- `didWriteReportCallback` invokes Swift closures, no C bridge — Task 3 ✓
+- Attachments loaded and added to crash event on next launch, cleaned up after — Task 4 ✓
 - Best-effort always-on, guarded only on `crashedDuringExceptionHandling` — Task 3 ✓
+- Zero new C/ObjC code — existing `SentryAttachmentCallback.c` stubs untouched ✓
 
-**No-ops removed:** The stubs in `SentryAttachmentCallback.c` now actually call through; the `sentrycrash_setSaveScreenshots` / `sentrycrash_setSaveViewHierarchy` integration code in `SentryScreenshotIntegration` and `SentryViewHierarchyIntegration` is unchanged and correct.
+**No-ops removed:** `sentrycrash_setSaveScreenshots` / `sentrycrash_setSaveViewHierarchy` calls are removed from both integrations. Their C stubs in `SentryAttachmentCallback.c` become fully dead and can be deleted in a follow-up.
 
-**Placeholder scan:** No TBDs, no vague steps, all code blocks present.
+**Placeholder scan:** No TBDs, all steps have concrete code.
 
 **Type consistency:**
-- `SentryCrashAttachmentsStorage.attachments(for:)` returns `[Attachment]` — consistent with `scope.addAttachment` which takes `Attachment`.
-- `SentryCrashAttachmentsStorage.cleanup(for:)` called after `captureFatalEvent` (all attachments already enrolled in envelope before cleanup).
-- `sentrycrash_invokeAttachmentCallbacks` takes `const char *` — consistent with `SaveAttachmentCallback` typedef.
+
+- `SentryCrashAttachmentsStorage.screenshotCallback` and `viewHierarchyCallback` are both `((String) -> Void)?` — matches usage in `KSCrashIntegration` (passes `String`) and in integrations (receives `String`).
+- `SentryCrashAttachmentsStorage.attachments(for:)` returns `[Attachment]` — matches `scope.addAttachment(_ attachment: Attachment)`.
+- `cleanup(for:)` is called before `captureFatalEvent` returns, so files exist when the envelope is built.

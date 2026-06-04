@@ -28,8 +28,8 @@
 #import <XCTest/XCTest.h>
 
 #import "FileBasedTestCase.h"
-#import "SentryAsyncSafeLog.h"
 #import "KSSysCtl.h"
+#import "SentryAsyncSafeLog.h"
 
 // TODO: these are all now testing KSCrash and can probably be removed
 
@@ -257,8 +257,8 @@
     XCTAssertEqual(uint64Result, 0, @"Should return 0 when sysctlbyname fails");
 
     char stringBuffer[100] = { 0 };
-    int stringResult = kssysctl_stringForName(
-        "invalid.sysctl.name", stringBuffer, sizeof(stringBuffer));
+    int stringResult
+        = kssysctl_stringForName("invalid.sysctl.name", stringBuffer, sizeof(stringBuffer));
     XCTAssertEqual(stringResult, 0, @"Should return 0 when sysctlbyname fails");
 
     // Test functions that use CHECK_SYSCTL_CMD macro with invalid commands
@@ -394,8 +394,7 @@
 
     // Test kssysctl_getMacAddress with invalid interface name
     unsigned char macAddress[6] = { 0 };
-    bool macSuccess
-        = kssysctl_getMacAddress("nonexistent_interface_xyz", (char *)macAddress);
+    bool macSuccess = kssysctl_getMacAddress("nonexistent_interface_xyz", (char *)macAddress);
     // This will fail because the interface doesn't exist, and the function should handle it
     // gracefully with SENTRY_STRERROR_R if sysctl fails
     XCTAssertFalse(macSuccess, @"Should return false when interface doesn't exist");

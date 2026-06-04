@@ -1,7 +1,7 @@
 #import "SentrySysctlObjC.h"
+#import "KSSysCtl.h"
 #import "SentrySwift.h"
 #import "SentryTime.h"
-#import "KSSysCtl.h"
 #include <stdio.h>
 #include <time.h>
 

@@ -1,6 +1,6 @@
 #import "SentryCrashDefaultMachineContextWrapper.h"
-#import "SentryCrashDynamicLinker.h"
 #import "KSMachineContext.h"
+#import "SentryCrashDynamicLinker.h"
 #import "SentryCrashMachineContextWrapper.h"
 #import "SentryCrashStackCursor.h"
 #import "SentryCrashStackCursor_SelfThread.h"

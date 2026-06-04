@@ -1,6 +1,6 @@
 #include "SentrySessionReplaySyncC.h"
-#include "SentryAsyncSafeLog.h"
 #include "KSFileUtils.h"
+#include "SentryAsyncSafeLog.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
@@ -63,8 +63,7 @@ sentrySessionReplaySync_writeInfo(void)
         return;
     }
 
-    if (!ksfu_writeBytesToFD(
-            fd, (char *)&crashReplay.segmentId, sizeof(crashReplay.segmentId))) {
+    if (!ksfu_writeBytesToFD(fd, (char *)&crashReplay.segmentId, sizeof(crashReplay.segmentId))) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Error writing replay info for crash.");
         close(fd);
         return;

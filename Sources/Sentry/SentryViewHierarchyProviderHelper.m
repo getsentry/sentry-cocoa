@@ -62,7 +62,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 }
 
 #    define tryJson(code)                                                                          \
-        if ((result = (code)) != KSJSON_OK)                                               \
+        if ((result = (code)) != KSJSON_OK)                                                        \
             return result;
 
 + (BOOL)processViewHierarchy:(NSArray<UIView *> *)windows
@@ -113,13 +113,12 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     int result = 0;
     tryJson(ksjson_beginObject(context, NULL));
     const char *viewClassName = [[SwiftDescriptor getObjectClassName:view] UTF8String];
-    tryJson(ksjson_addStringElement(
-        context, "type", viewClassName, KSJSON_SIZE_AUTOMATIC));
+    tryJson(ksjson_addStringElement(context, "type", viewClassName, KSJSON_SIZE_AUTOMATIC));
 
     if (reportAccessibilityIdentifier && view.accessibilityIdentifier
         && view.accessibilityIdentifier.length != 0) {
-        tryJson(ksjson_addStringElement(context, "identifier",
-            view.accessibilityIdentifier.UTF8String, KSJSON_SIZE_AUTOMATIC));
+        tryJson(ksjson_addStringElement(
+            context, "identifier", view.accessibilityIdentifier.UTF8String, KSJSON_SIZE_AUTOMATIC));
     }
 
     tryJson(ksjson_addFloatingPointElement(context, "width", view.frame.size.width));
@@ -134,8 +133,8 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
         if (vc.view == view) {
             const char *viewControllerClassName =
                 [[SwiftDescriptor getViewControllerClassName:vc] UTF8String];
-            tryJson(ksjson_addStringElement(context, "view_controller",
-                viewControllerClassName, KSJSON_SIZE_AUTOMATIC));
+            tryJson(ksjson_addStringElement(
+                context, "view_controller", viewControllerClassName, KSJSON_SIZE_AUTOMATIC));
         }
     }
 
