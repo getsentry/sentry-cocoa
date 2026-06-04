@@ -180,23 +180,31 @@ jobs:
           hdiutil detach "$MOUNT_POINT" 2>/dev/null || true
           rm -rf "$EXTRACT_DIR"
 
-      - name: Benchmark IPSW mount to RAM disk
+      - name: Benchmark IPSW mount from RAM disk
         id: ipsw_ram
         run: |
-          echo "### IPSW Mount to RAM Disk" >> "$GITHUB_STEP_SUMMARY"
+          echo "### IPSW Mount from RAM Disk" >> "$GITHUB_STEP_SUMMARY"
 
-          # Create a 16GB RAM disk
+          # Create a 16GB RAM disk and copy the IPSW + keys there
+          # so the entire read/decrypt pipeline runs from RAM
           RAM_DEV=$(hdiutil attach -nomount ram://$((16 * 1024 * 2048)))
           RAM_DEV=$(echo "$RAM_DEV" | xargs)
           diskutil erasevolume HFS+ RAMDisk "$RAM_DEV"
           echo "- RAM disk created at $RAM_DEV (/Volumes/RAMDisk)" >> "$GITHUB_STEP_SUMMARY"
+
+          START_COPY=$(python3 -c "import time; print(time.time())")
+          cp restore.ipsw /Volumes/RAMDisk/restore.ipsw
+          cp fcs-keys.json /Volumes/RAMDisk/fcs-keys.json
+          END_COPY=$(python3 -c "import time; print(time.time())")
+          COPY_SECS=$(python3 -c "print(round($END_COPY - $START_COPY, 2))")
+          echo "- **Copy IPSW to RAM:** ${COPY_SECS}s" >> "$GITHUB_STEP_SUMMARY"
 
           MOUNT_POINT=$(mktemp -d)/mnt
           mkdir -p "$MOUNT_POINT"
 
           purge 2>/dev/null || true
           START=$(python3 -c "import time; print(time.time())")
-          ipsw mount sys restore.ipsw --pem-db fcs-keys.json --mount-point "$MOUNT_POINT" &
+          ipsw mount sys /Volumes/RAMDisk/restore.ipsw --pem-db /Volumes/RAMDisk/fcs-keys.json --mount-point "$MOUNT_POINT" &
           IPSW_PID=$!
 
           # Wait for the mount to appear (timeout 120s)
@@ -208,7 +216,7 @@ jobs:
           done
           END=$(python3 -c "import time; print(time.time())")
           MOUNT_SECS=$(python3 -c "print(round($END - $START, 2))")
-          echo "- **Mount time:** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Mount time (from RAM):** ${MOUNT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
 
           if ! mount | grep -q "$MOUNT_POINT"; then
             echo "- Mount failed (timeout)" >> "$GITHUB_STEP_SUMMARY"
@@ -219,12 +227,12 @@ jobs:
             exit 0
           fi
 
-          # Benchmark: copy all files out to RAM disk
+          # Benchmark: extract files to RAM disk too (no disk I/O at all)
           START=$(python3 -c "import time; print(time.time())")
           cp -R "$MOUNT_POINT"/ /Volumes/RAMDisk/extracted/ 2>/dev/null || true
           END=$(python3 -c "import time; print(time.time())")
           EXTRACT_SECS=$(python3 -c "print(round($END - $START, 2))")
-          echo "- **Extract to RAM disk:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Extract to RAM:** ${EXTRACT_SECS}s" >> "$GITHUB_STEP_SUMMARY"
 
           echo "ram_mount=${MOUNT_SECS}s" >> "$GITHUB_OUTPUT"
           echo "ram_extract=${EXTRACT_SECS}s" >> "$GITHUB_OUTPUT"
