@@ -159,6 +159,37 @@
     XCTAssertGreaterThan(item.data.length, 0u);
 }
 
+- (void)testItemInitWithAttachment_shouldSetTypeAndData
+{
+    // -- Arrange --
+    NSData *data = [@"payload" dataUsingEncoding:NSUTF8StringEncoding];
+    SentryObjCAttachment *attachment = [[SentryObjCAttachment alloc] initWithData:data
+                                                                         filename:@"log.txt"];
+
+    // -- Act --
+    SentryObjCEnvelopeItem *item = [[SentryObjCEnvelopeItem alloc] initWithAttachment:attachment
+                                                                    maxAttachmentSize:1024];
+
+    // -- Assert --
+    XCTAssertEqualObjects(item.type, @"attachment");
+    XCTAssertEqualObjects(item.data, data);
+}
+
+- (void)testItemInitWithAttachment_whenPayloadExceedsMaxSize_shouldReturnNil
+{
+    // -- Arrange --
+    NSData *data = [@"payload that is too big" dataUsingEncoding:NSUTF8StringEncoding];
+    SentryObjCAttachment *attachment = [[SentryObjCAttachment alloc] initWithData:data
+                                                                         filename:@"log.txt"];
+
+    // -- Act --
+    SentryObjCEnvelopeItem *item = [[SentryObjCEnvelopeItem alloc] initWithAttachment:attachment
+                                                                    maxAttachmentSize:1];
+
+    // -- Assert --
+    XCTAssertNil(item);
+}
+
 #pragma mark - SentryObjCEnvelope
 
 - (void)testEnvelopeInitWithHeaderAndItems_shouldSetHeaderAndItems
