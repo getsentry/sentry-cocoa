@@ -2,6 +2,9 @@ name: Benchmark Bitrise Pools
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - itay/test_ssd
 
 jobs:
   benchmark-disk-io:
