@@ -8,16 +8,25 @@ on:
 
 jobs:
   benchmark-disk-io:
-    name: Disk IO - ${{ matrix.pool }}
-    runs-on: ${{ fromJSON(format('["bitrise_pool_name:{0}"]', matrix.pool)) }}
+    name: Disk IO - ${{ matrix.provider }}/${{ matrix.pool }}
+    runs-on: ${{ matrix.provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', matrix.pool)) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', matrix.pool, github.run_id)) }}
     strategy:
       fail-fast: false
       matrix:
-        pool: ["tahoe-xl", "tahoe", "sequoia"]
+        include:
+          - provider: bitrise
+            pool: tahoe-xl
+          - provider: bitrise
+            pool: tahoe
+          - provider: bitrise
+            pool: sequoia
+          - provider: cirrus
+            pool: sequoia
     steps:
       - name: System Info
         run: |
           echo "## System Info" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Provider:** ${{ matrix.provider }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Pool:** ${{ matrix.pool }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Runner:** $(hostname)" >> "$GITHUB_STEP_SUMMARY"
           echo "- **OS:** $(sw_vers -productName) $(sw_vers -productVersion)" >> "$GITHUB_STEP_SUMMARY"
@@ -27,55 +36,63 @@ jobs:
           echo "- **Disk:** $(diskutil info / | grep 'Total Size' || df -h / | tail -1)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Benchmark Sequential Write (1GB)
+        id: seq_write
         run: |
-          echo "### Sequential Write" >> "$GITHUB_STEP_SUMMARY"
           sync
           RESULT=$(dd if=/dev/zero of=test_write_seq bs=1m count=1024 2>&1)
           echo "$RESULT"
-          SPEED=$(echo "$RESULT" | tail -1 | grep -oE '[0-9.]+ [a-zA-Z]+/sec' || echo "parse error")
+          SPEED=$(echo "$RESULT" | tail -1 | grep -oE '[0-9.]+ [a-zA-Z]+/sec' || echo "N/A")
+          echo "speed=$SPEED" >> "$GITHUB_OUTPUT"
+          echo "### Sequential Write" >> "$GITHUB_STEP_SUMMARY"
           echo "- **1GB sequential write:** $SPEED" >> "$GITHUB_STEP_SUMMARY"
           rm -f test_write_seq
 
       - name: Benchmark Sequential Read (1GB)
+        id: seq_read
         run: |
-          echo "### Sequential Read" >> "$GITHUB_STEP_SUMMARY"
           dd if=/dev/zero of=test_read_seq bs=1m count=1024 2>/dev/null
           sync
           purge 2>/dev/null || true
           RESULT=$(dd if=test_read_seq of=/dev/null bs=1m 2>&1)
           echo "$RESULT"
-          SPEED=$(echo "$RESULT" | tail -1 | grep -oE '[0-9.]+ [a-zA-Z]+/sec' || echo "parse error")
+          SPEED=$(echo "$RESULT" | tail -1 | grep -oE '[0-9.]+ [a-zA-Z]+/sec' || echo "N/A")
+          echo "speed=$SPEED" >> "$GITHUB_OUTPUT"
+          echo "### Sequential Read" >> "$GITHUB_STEP_SUMMARY"
           echo "- **1GB sequential read:** $SPEED" >> "$GITHUB_STEP_SUMMARY"
           rm -f test_read_seq
 
       - name: Benchmark Random Write (4K blocks)
+        id: rand_write
         run: |
-          echo "### Random Write (4K)" >> "$GITHUB_STEP_SUMMARY"
           START=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
           dd if=/dev/urandom of=test_write_rand bs=4096 count=10000 2>&1
           END=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
-          ELAPSED_MS=$(python3 -c "print(($END - $START) / 1_000_000)")
+          ELAPSED_MS=$(python3 -c "print(round(($END - $START) / 1_000_000, 1))")
           IOPS=$(python3 -c "print(round(10000 / ($END - $START) * 1e9, 1))")
+          echo "result=${ELAPSED_MS}ms (~${IOPS} IOPS)" >> "$GITHUB_OUTPUT"
+          echo "### Random Write (4K)" >> "$GITHUB_STEP_SUMMARY"
           echo "- **10K x 4K random writes:** ${ELAPSED_MS}ms (~${IOPS} IOPS)" >> "$GITHUB_STEP_SUMMARY"
           rm -f test_write_rand
 
       - name: Benchmark Random Read (4K blocks)
+        id: rand_read
         run: |
-          echo "### Random Read (4K)" >> "$GITHUB_STEP_SUMMARY"
           dd if=/dev/urandom of=test_read_rand bs=4096 count=10000 2>/dev/null
           sync
           purge 2>/dev/null || true
           START=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
           dd if=test_read_rand of=/dev/null bs=4096 2>&1
           END=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
-          ELAPSED_MS=$(python3 -c "print(($END - $START) / 1_000_000)")
+          ELAPSED_MS=$(python3 -c "print(round(($END - $START) / 1_000_000, 1))")
           IOPS=$(python3 -c "print(round(10000 / ($END - $START) * 1e9, 1))")
+          echo "result=${ELAPSED_MS}ms (~${IOPS} IOPS)" >> "$GITHUB_OUTPUT"
+          echo "### Random Read (4K)" >> "$GITHUB_STEP_SUMMARY"
           echo "- **10K x 4K random reads:** ${ELAPSED_MS}ms (~${IOPS} IOPS)" >> "$GITHUB_STEP_SUMMARY"
           rm -f test_read_rand
 
       - name: Benchmark Mixed Workload (simulated build IO)
+        id: mixed
         run: |
-          echo "### Mixed Workload (simulated build)" >> "$GITHUB_STEP_SUMMARY"
           mkdir -p io_bench
           START=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
           for i in $(seq 1 500); do
@@ -87,5 +104,48 @@ jobs:
           done
           END=$(date +%s%N 2>/dev/null || python3 -c "import time; print(int(time.time()*1e9))")
           ELAPSED_MS=$(python3 -c "print(round(($END - $START) / 1_000_000, 1))")
+          echo "result=${ELAPSED_MS}ms" >> "$GITHUB_OUTPUT"
+          echo "### Mixed Workload (simulated build)" >> "$GITHUB_STEP_SUMMARY"
           echo "- **500 files x 32K write+read:** ${ELAPSED_MS}ms" >> "$GITHUB_STEP_SUMMARY"
           rm -rf io_bench
+
+      - name: Save results
+        run: |
+          mkdir -p results
+          cat > results/${{ matrix.provider }}-${{ matrix.pool }}.csv <<CSV
+          ${{ matrix.provider }},${{ matrix.pool }},${{ steps.seq_write.outputs.speed }},${{ steps.seq_read.outputs.speed }},${{ steps.rand_write.outputs.result }},${{ steps.rand_read.outputs.result }},${{ steps.mixed.outputs.result }}
+          CSV
+
+      - name: Upload results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: bench-${{ matrix.provider }}-${{ matrix.pool }}
+          path: results/
+
+  summary:
+    name: Results Summary
+    needs: benchmark-disk-io
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all results
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: bench-*
+          merge-multiple: true
+
+      - name: Build comparison table
+        run: |
+          echo "## Disk IO Benchmark Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Provider | Pool | Seq Write | Seq Read | Rand Write (4K) | Rand Read (4K) | Mixed (500 files) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|----------|------|-----------|----------|-----------------|----------------|-------------------|" >> "$GITHUB_STEP_SUMMARY"
+          for f in *.csv; do
+            [ -f "$f" ] || continue
+            while IFS=, read -r provider pool seq_w seq_r rand_w rand_r mixed; do
+              echo "| $provider | $pool | $seq_w | $seq_r | $rand_w | $rand_r | $mixed |" >> "$GITHUB_STEP_SUMMARY"
+            done < "$f"
+          done
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "---" >> "$GITHUB_STEP_SUMMARY"
+          echo "_Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}_" >> "$GITHUB_STEP_SUMMARY"
