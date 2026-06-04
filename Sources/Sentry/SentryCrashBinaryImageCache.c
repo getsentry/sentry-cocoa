@@ -167,13 +167,27 @@ sentrycrashbic_iterateOverImages(sentrycrashbic_imageIteratorCallback callback, 
     }
 }
 
-/** Check if dyld should be added to the binary image cache. */
+/** Check if dyld should be added to the binary image cache.
+ *
+ * Since Apple no longer includes dyld in the images listed by _dyld_image_count and related
+ * functions, we need to check if dyld is already present in our cache before adding it.
+ *
+ * @return true if dyld is not found in the loaded images and should be added to the cache,
+ *         false if dyld is already present in the loaded images.
+ */
 static bool
 shouldAddDyld(void)
 {
+    // dyld is different from libdyld.dylib; the latter contains the public API
+    // (like dlopen, dlsym, dlclose) while the former is the actual dynamic
+    // linker executable that handles runtime library loading and symbol resolution
     return sentrycrashdl_imageNamed("/usr/lib/dyld", false) == UINT32_MAX;
 }
 
+// Since Apple no longer includes dyld in the images listed `_dyld_image_count` and related
+// functions we manually include it in the cache.
+// Note: This bypasses addImage() because dladdr() returns NULL for dyld, so we
+// need to use sentrycrashdl_getBinaryImageForHeader() directly with a hardcoded filename.
 static void
 addDyldImage(void)
 {
@@ -224,6 +238,14 @@ sentrycrashbic_startCache(void)
         return;
     }
 
+    // During a call to _dyld_register_func_for_add_image() the callback func is called for every
+    // existing image.
+    // This must be done on a background thread to not block app launch due to the extensive use of
+    // locks in the image added callback. The main culprit is the calls to `dladdr`. The downside of
+    // doing this async is if there is a crash very shortly after app launch we might not have
+    // recorded all the load addresses of images yet. We think this is an acceptible tradeoff to not
+    // block app launch, since it's always possible to crash early in app launch before Sentry can
+    // capture the crash.
 #if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
     startCacheImpl();
 #else
@@ -234,7 +256,8 @@ sentrycrashbic_startCache(void)
 void
 sentrycrashbic_stopCache(void)
 {
-    // Intentionally left running.
+    // Intentionally left running. Once bootstrapped, the canonical C cache keeps tracking loaded
+    // images so crashes can still be symbolicated even if higher-level consumers temporarily stop.
 }
 
 #if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
