@@ -843,6 +843,21 @@
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @42);
 }
 
+#pragma mark - format: trailing percent
+
+- (void)testDebugWithFormat_withTrailingPercent_shouldNotCrash
+{
+    // -- Act --
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat"
+    [SentryObjCSDK.logger debugWithFormat:@"Progress: 50%"];
+#pragma clang diagnostic pop
+
+    // -- Assert --
+    XCTAssertNotNil(self.capturedLog.body);
+    XCTAssertNil(self.capturedLog.attributes[@"sentry.message.template"]);
+}
+
 #pragma mark - logs disabled
 
 - (void)testLoggerMethod_whenLogsDisabled_shouldNotCrash

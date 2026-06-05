@@ -174,8 +174,9 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
 
         // Conversion specifier (Table 1) — extract typed arg from va_list
         char spec = *fmt;
-        if (spec)
-            fmt++;
+        if (!spec)
+            break; // trailing '%' with no specifier
+        fmt++;
 
         id paramValue = nil;
 
