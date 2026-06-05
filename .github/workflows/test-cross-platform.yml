@@ -35,15 +35,17 @@ jobs:
           filters: .github/file-filters.yml
 
   test-react-native:
-    name: React Native Installation
+    name: React Native Installation on ${{matrix.runner_provider}}
+    continue-on-error: ${{ matrix.runner_provider == 'bitrise' }}
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_test_cross_platform_for_prs == 'true'
     needs: files-changed
-    runs-on:
-      - "ghcr.io/cirruslabs/macos-runner:sequoia,runner_concurrency_group=${{ github.run_id }}"
-      - "runner_group_id:10"
+    runs-on: ${{ matrix.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', 'sequoia')) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     # This job can take a while to run, so we set a timeout.
     timeout-minutes: 30
+    strategy:
+      matrix:
+        runner_provider: ["cirrus", "bitrise"]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
@@ -110,7 +112,23 @@ jobs:
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         run: sed -i '' "s/parallelizable = \"YES\"/parallelizable = \"NO\"/" RNSentryCocoaTester.xcodeproj/xcshareddata/xcschemes/RNSentryCocoaTester.xcscheme
 
+      - uses: actions/cache@v4
+        name: Cache Ruby
+        with:
+          path: |
+            ~/.rbenv/versions
+            ~/.rbenv/cache
+          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('sentry-react-native/.ruby-version') }}
+
+      - name: Install Ruby (Bitrise)
+        if: matrix.runner_provider == 'bitrise'
+        working-directory: sentry-react-native
+        run: |
+          brew upgrade ruby-build
+          rbenv install -s
+
       - name: Setup Ruby
+        if: matrix.runner_provider != 'bitrise'
         # We use the same ruby version used by Cirrus to install fastlane and other tools
         # see: https://github.com/cirruslabs/macos-image-templates/blob/9115ef25530497999073cdf0f5497a4d142e3256/templates/xcode.pkr.hcl#L235
         uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0

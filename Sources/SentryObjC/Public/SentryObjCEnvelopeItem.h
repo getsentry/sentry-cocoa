@@ -5,6 +5,7 @@
 #    import <SentryObjC/SentryObjCDefines.h>
 #endif
 
+@class SentryObjCAttachment;
 @class SentryObjCEvent;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -49,6 +50,14 @@ SENTRY_NO_INIT
  * @param event The event to serialize into the envelope item.
  */
 - (instancetype)initWithEvent:(SentryObjCEvent *)event;
+
+/**
+ * Initializes an envelope item from an attachment.
+ * @param attachment The attachment to serialize into the envelope item.
+ * @param maxAttachmentSize The maximum allowed size in bytes for the attachment payload.
+ */
+- (nullable instancetype)initWithAttachment:(SentryObjCAttachment *)attachment
+                          maxAttachmentSize:(NSUInteger)maxAttachmentSize;
 
 @end
 

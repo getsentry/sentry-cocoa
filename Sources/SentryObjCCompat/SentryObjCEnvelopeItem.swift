@@ -34,6 +34,13 @@ import Foundation
         self.wrapped = SentryEnvelopeItem(event: event.wrapped)
     }
 
+    @objc public init?(attachment: SentryObjCAttachment, maxAttachmentSize: UInt) {
+        guard let item = SentryEnvelopeItem(attachment: attachment.wrapped, maxAttachmentSize: maxAttachmentSize) else {
+            return nil
+        }
+        self.wrapped = item
+    }
+
     @objc public var data: Data? {
         wrapped.data
     }

@@ -1,0 +1,11 @@
+#include "../../../Shared/Config/_Common.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.sentry.iOS-ObjectiveC-Static
+INFOPLIST_FILE = App/Configurations/Info.plist
+CODE_SIGN_ENTITLEMENTS = App/Configurations/iOS-ObjectiveC-Static.entitlements
+
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator
+
+// The SentryObjC-Static xcframework bundles C++ code (profiler, crash
+// reporter). Pure ObjC targets don't auto-link libc++.
+OTHER_LDFLAGS = $(inherited) -lc++
