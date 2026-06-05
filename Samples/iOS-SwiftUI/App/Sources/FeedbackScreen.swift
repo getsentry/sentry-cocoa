@@ -3,13 +3,19 @@ import SentrySwiftUI
 import SwiftUI
 
 struct FeedbackScreen: View {
-    @State private var isFeedbackFormPresented = false
+    @State private var isFeedbackModifierPresented = false
+    @State private var isFeedbackFormViewPresented = false
     @State private var isFeedbackWidgetVisible = true
 
     var body: some View {
         VStack(spacing: 16) {
-            Button("Present Form (.sheet)") {
-                isFeedbackFormPresented = true
+            Button("Present Form (View Modifier)") {
+                isFeedbackModifierPresented = true
+            }
+            .buttonStyle(.borderedProminent)
+
+            Button("Present Form (Form View)") {
+                isFeedbackFormViewPresented = true
             }
             .buttonStyle(.borderedProminent)
 
@@ -28,7 +34,7 @@ struct FeedbackScreen: View {
             }
             .buttonStyle(.borderedProminent)
 
-            Text("This screen demonstrates presenting SentrySDK.FeedbackFormView with a SwiftUI sheet, the convenience API, and the feedback widget in a SwiftUI app.")
+            Text("This screen demonstrates presenting feedback with the SwiftUI view modifier, the form view, the convenience API, and the feedback widget in a SwiftUI app.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -36,7 +42,8 @@ struct FeedbackScreen: View {
         }
         .padding()
         .navigationTitle("Feedback")
-        .sheet(isPresented: $isFeedbackFormPresented) {
+        .sentryFeedback(isPresented: $isFeedbackModifierPresented)
+        .sheet(isPresented: $isFeedbackFormViewPresented) {
             SentrySDK.FeedbackFormView()
         }
     }

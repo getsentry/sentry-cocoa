@@ -17,11 +17,22 @@ public struct SentryUserFeedbackFormView: UIViewControllerRepresentable {
 
     // swiftlint:disable:next missing_docs
     public func makeUIViewController(context: Context) -> SentryUserFeedbackFormController {
-        return SentryUserFeedbackFormController(image: image)
+        let controller = SentryUserFeedbackFormController(image: image)
+        // SwiftUI sheets keep the hosting controller's view visible behind the wrapped view controller's
+        // bottom safe area. Match that parent background to the form after SwiftUI attaches the controller.
+        controller.didMoveToParent = { controller in
+            updateParentBackgroundColor(for: controller)
+        }
+        return controller
     }
 
     // swiftlint:disable:next missing_docs
     public func updateUIViewController(_ uiViewController: SentryUserFeedbackFormController, context: Context) { }
+
+    private func updateParentBackgroundColor(for controller: SentryUserFeedbackFormController) {
+        guard let parent = controller.parent else { return }
+        parent.view.backgroundColor = controller.view.backgroundColor
+    }
 }
 
 /// SwiftUI aliases for Sentry SDK feedback APIs.

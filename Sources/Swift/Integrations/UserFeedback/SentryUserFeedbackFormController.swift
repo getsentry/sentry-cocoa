@@ -16,6 +16,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
     let screenshot: UIImage?
     weak var delegate: SentryUserFeedbackFormDelegate?
+    var didMoveToParent: ((SentryUserFeedbackFormController) -> Void)?
     private var didOpenForm = false
     private var didCloseForm = false
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
@@ -69,6 +70,11 @@ public final class SentryUserFeedbackFormController: UIViewController {
         guard presentedViewController == nil else { return }
         guard isBeingDismissedOrRemovedFromHierarchy else { return }
         notifyFormDidClose()
+    }
+
+    override public func didMove(toParent parent: UIViewController?) {
+        super.didMove(toParent: parent)
+        didMoveToParent?(self)
     }
 
     private var isBeingDismissedOrRemovedFromHierarchy: Bool {
