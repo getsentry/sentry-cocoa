@@ -69,7 +69,7 @@ class SentryExtendedAppLaunchTests: XCTestCase {
 
         let span = try XCTUnwrap(manager.extend())
 
-        XCTAssertEqual(span.operation, SentrySpanOperationAppStart)
+        XCTAssertEqual(span.operation, "app.start.extended_app_start")
         XCTAssertEqual(span.spanDescription, "Extended App Start")
         XCTAssertFalse(span.isFinished)
     }
@@ -151,7 +151,7 @@ class SentryExtendedAppLaunchTests: XCTestCase {
         XCTAssertEqual(extendedSpans.count, 1)
 
         let extendedSpan = try XCTUnwrap(extendedSpans.first)
-        XCTAssertEqual(extendedSpan["op"] as? String, "app.start")
+        XCTAssertEqual(extendedSpan["op"] as? String, "app.start.extended_app_start")
     }
 
     func testFinishExtendedAppLaunch_extendedSpanStartsAtExtendCallTime() throws {

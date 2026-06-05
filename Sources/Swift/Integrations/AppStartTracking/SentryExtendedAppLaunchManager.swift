@@ -3,6 +3,10 @@
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 final class SentryExtendedAppLaunchManager {
+    
+    enum Constants {
+        static let extendedOperation = "\(SentrySpanOperationAppStart).extended_app_start"
+    }
 
     private let lock = NSLock()
 
@@ -57,7 +61,7 @@ final class SentryExtendedAppLaunchManager {
         let newTracer = StandaloneTransactionStrategy.createTracer(traceId: traceId, configuration: config)
 
         let child = newTracer.startChild(
-            operation: SentrySpanOperationAppStart,
+            operation: Constants.extendedOperation,
             description: "Extended App Start"
         )
         child.startTimestamp = timestamp
