@@ -153,6 +153,8 @@
     // -- Assert --
     XCTAssertEqual(self.capturedLog.level, SentryObjCLogLevelDebug);
     XCTAssertEqualObjects(self.capturedLog.body, @"Debug msg");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Debug %@");
 }
 
 - (void)testInfoWithFormat_shouldCaptureAtInfoLevel
@@ -163,6 +165,8 @@
     // -- Assert --
     XCTAssertEqual(self.capturedLog.level, SentryObjCLogLevelInfo);
     XCTAssertEqualObjects(self.capturedLog.body, @"Info msg");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Info %@");
 }
 
 - (void)testWarnWithFormat_shouldCaptureAtWarnLevel
@@ -173,6 +177,8 @@
     // -- Assert --
     XCTAssertEqual(self.capturedLog.level, SentryObjCLogLevelWarn);
     XCTAssertEqualObjects(self.capturedLog.body, @"Warn msg");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Warn %@");
 }
 
 - (void)testErrorWithFormat_shouldCaptureAtErrorLevel
@@ -183,6 +189,8 @@
     // -- Assert --
     XCTAssertEqual(self.capturedLog.level, SentryObjCLogLevelError);
     XCTAssertEqualObjects(self.capturedLog.body, @"Error msg");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Error %@");
 }
 
 - (void)testFatalWithFormat_shouldCaptureAtFatalLevel
@@ -193,6 +201,8 @@
     // -- Assert --
     XCTAssertEqual(self.capturedLog.level, SentryObjCLogLevelFatal);
     XCTAssertEqualObjects(self.capturedLog.body, @"Fatal msg");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Fatal %@");
 }
 
 #pragma mark - format: body and template
@@ -249,6 +259,8 @@
     // -- Assert --
     XCTAssertEqualObjects(self.capturedLog.body, @"Value: (null)");
     XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Value: %@");
+    XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @"(null)");
 }
 
@@ -275,6 +287,8 @@
     [SentryObjCSDK.logger debugWithFormat:@"%u %x", 42u, 255u];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"42 ff");
+    XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.template"].value, @"%u %x");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @42);
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.1"].value, @255);
 }
@@ -287,6 +301,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Value: %f", 3.14];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Value: 3.140000");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Value: %f");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].type, @"double");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @3.14);
@@ -298,7 +315,23 @@
     [SentryObjCSDK.logger debugWithFormat:@"Score: %.2f", 95.5];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Score: 95.50");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Score: %.2f");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @95.5);
+}
+
+- (void)testDebugWithFormat_withPrecisionRounding_shouldPreserveRealValue
+{
+    // -- Act --
+    [SentryObjCSDK.logger debugWithFormat:@"Score: %.2f", 95.555];
+
+    // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Score: 95.56");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Score: %.2f");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @95.555);
 }
 
 #pragma mark - format: string specifiers
@@ -310,6 +343,8 @@
 
     // -- Assert --
     XCTAssertEqualObjects(self.capturedLog.body, @"Hello world");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Hello %s");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].type, @"string");
     XCTAssertEqualObjects(
@@ -323,6 +358,8 @@
 
     // -- Assert --
     XCTAssertEqualObjects(self.capturedLog.body, @"Char: A");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Char: %c");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].type, @"string");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @"A");
@@ -340,6 +377,8 @@
 
     // -- Assert --
     XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Ptr: %p");
+    XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].type, @"string");
     XCTAssertNotNil(self.capturedLog.attributes[@"sentry.message.parameter.0"].value);
 }
@@ -352,7 +391,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Size: %zu", (size_t)1024];
 
     // -- Assert --
-    XCTAssertNotNil(self.capturedLog.attributes[@"sentry.message.parameter.0"]);
+    XCTAssertEqualObjects(self.capturedLog.body, @"Size: 1024");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Size: %zu");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @1024);
 }
 
@@ -364,6 +405,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Val: %*d", 10, 42];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Val:         42");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Val: %*d");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @42);
     XCTAssertNil(self.capturedLog.attributes[@"sentry.message.parameter.1"]);
 }
@@ -413,6 +457,9 @@
 
     // -- Assert --
     XCTAssertEqual(self.capturedLog.level, SentryObjCLogLevelTrace);
+    XCTAssertEqualObjects(self.capturedLog.body, @"Msg: hello");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Msg: %@");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"key"].value, @"val");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @"hello");
@@ -429,6 +476,9 @@
 #pragma clang diagnostic pop
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Value: 99");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Value: %D");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @99);
 }
 
@@ -441,6 +491,9 @@
 #pragma clang diagnostic pop
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Octal: 377");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Octal: %O");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @255);
 }
 
@@ -453,6 +506,9 @@
 #pragma clang diagnostic pop
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Unsigned: 1024");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Unsigned: %U");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @1024);
 }
 
@@ -468,6 +524,8 @@
 
     // -- Assert --
     XCTAssertEqualObjects(self.capturedLog.body, @"Greeting: Hi");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Greeting: %S");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @"Hi");
 }
 
@@ -477,6 +535,8 @@
     [SentryObjCSDK.logger debugWithFormat:@"Char: %C", (unichar)0x2603];
 
     // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Char: %C");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].type, @"string");
     XCTAssertNotNil(self.capturedLog.attributes[@"sentry.message.parameter.0"].value);
@@ -490,6 +550,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Hex: %X", 255u];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Hex: FF");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Hex: %X");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @255);
 }
 
@@ -499,6 +562,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Octal: %o", 8u];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Octal: 10");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Octal: %o");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @8);
 }
 
@@ -508,6 +574,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Value: %i", 42];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Value: 42");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Value: %i");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @42);
 }
 
@@ -517,6 +586,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Big: %llu", (unsigned long long)999999999999ULL];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Big: 999999999999");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Big: %llu");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @999999999999ULL);
 }
@@ -527,6 +599,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Diff: %td", (ptrdiff_t)42];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Diff: 42");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Diff: %td");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @42);
 }
 
@@ -536,6 +611,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Quad: %qd", (long long)123456789LL];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Quad: 123456789");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Quad: %qd");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @123456789LL);
 }
@@ -546,6 +624,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Short: %hd", (short)42];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Short: 42");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Short: %hd");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @42);
 }
 
@@ -555,6 +636,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Char: %hhd", (char)65];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Char: 65");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Char: %hhd");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @65);
 }
 
@@ -566,6 +650,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Max: %jd", (intmax_t)9876543210LL];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Max: 9876543210");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Max: %jd");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @9876543210LL);
 }
@@ -576,6 +663,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"UMax: %ju", (uintmax_t)9876543210ULL];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"UMax: 9876543210");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"UMax: %ju");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @9876543210ULL);
 }
@@ -588,6 +678,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Sci: %e", 1234.5];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Sci: 1.234500e+03");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Sci: %e");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @1234.5);
 }
@@ -598,6 +691,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Sci: %E", 1234.5];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Sci: 1.234500E+03");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Sci: %E");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @1234.5);
 }
@@ -608,6 +704,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Val: %g", 3.14];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Val: 3.14");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Val: %g");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @3.14);
 }
 
@@ -617,6 +716,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Val: %G", 3.14];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Val: 3.14");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Val: %G");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @3.14);
 }
 
@@ -626,6 +728,8 @@
     [SentryObjCSDK.logger debugWithFormat:@"Hex: %a", 3.14];
 
     // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Hex: %a");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @3.14);
 }
 
@@ -635,6 +739,8 @@
     [SentryObjCSDK.logger debugWithFormat:@"Hex: %A", 3.14];
 
     // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Hex: %A");
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @3.14);
 }
 
@@ -644,6 +750,8 @@
     [SentryObjCSDK.logger debugWithFormat:@"LongD: %Lf", (long double)2.718];
 
     // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"LongD: %Lf");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].type, @"double");
     XCTAssertNotNil(self.capturedLog.attributes[@"sentry.message.parameter.0"].value);
@@ -657,6 +765,9 @@
     [SentryObjCSDK.logger debugWithFormat:@"Val: %.*f", 2, 3.14159];
 
     // -- Assert --
+    XCTAssertEqualObjects(self.capturedLog.body, @"Val: 3.14");
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Val: %.*f");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @3.14159);
     XCTAssertNil(self.capturedLog.attributes[@"sentry.message.parameter.1"]);
@@ -671,6 +782,8 @@
 
     // -- Assert --
     XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Value: %s");
+    XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @"(null)");
 }
 
@@ -683,6 +796,8 @@
     [SentryObjCSDK.logger debugWithFormat:@"%s then %d", invalidUTF8, 42];
 
     // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"%s then %d");
     XCTAssertNotNil(self.capturedLog.attributes[@"sentry.message.parameter.0"].value);
     XCTAssertEqualObjects(self.capturedLog.attributes[@"sentry.message.parameter.1"].value, @42);
 }
@@ -695,6 +810,8 @@
     [SentryObjCSDK.logger debugWithFormat:@"Value: %S", (const unichar *)NULL];
 
     // -- Assert --
+    XCTAssertEqualObjects(
+        self.capturedLog.attributes[@"sentry.message.template"].value, @"Value: %S");
     XCTAssertEqualObjects(
         self.capturedLog.attributes[@"sentry.message.parameter.0"].value, @"(null)");
 }

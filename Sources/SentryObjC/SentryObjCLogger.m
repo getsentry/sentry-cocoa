@@ -9,7 +9,7 @@
 //
 // NSString follows the IEEE printf specification plus %@ for Objective-C
 // objects. Positional specifiers (n$, e.g. %1$@ %2$s) are supported by
-// NSString but are NOT handled by this parserm because C's va_list is a
+// NSString but are NOT handled by this parser because C's va_list is a
 // forward-only cursor and va_arg consumes the next argument sequentially
 // with no way to rewind, skip, or index.
 //
@@ -341,6 +341,10 @@ SentryObjCParseFormatString(NSString *format, va_list args, NSString *__autorele
         }
 
         default:
+            // Best-effort: consume a pointer-sized argument to keep va_list
+            // in sync if an unhandled specifier consumes one. On arm64 Apple
+            // platforms all basic promoted types fit in an 8-byte register slot.
+            (void)va_arg(args, void *);
             break;
         }
 
