@@ -2595,6 +2595,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "initWithAttachment:maxAttachmentSize:",
+    "parent": "SentryObjCEnvelopeItem",
+    "returnType": "instancetype _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "initWithBoolean:",
     "parent": "SentryObjCAttribute",
     "returnType": "instancetype _Nonnull",

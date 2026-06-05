@@ -2,6 +2,41 @@
 
 ## Unreleased
 
+### Features
+
+- Support creating envelope items from attachments via SentryObjC (#8001)
+
+## 9.16.1
+
+> [!NOTE]
+> No documented changes. This is the same as 9.16.0, re-released to fix the SentryObjC-Static SPM checksum.
+
+> [!IMPORTANT]
+> The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
+
+### Features
+
+- Add SentryObjC wrapper SDK — a pure Objective-C interface for projects that cannot enable Clang modules (e.g., ObjC++ with `-fmodules=NO`). (#7918)
+
+  Ships as a compile-from-source SPM product `SentryObjC`, a static pre-compiled framework `SentryObjC-Static.xcframework.zip` and a dynamic pre-compiled framework `SentryObjC-Dynamic.xcframework.zip`.
+
+  Steps to migrate:
+  - Replace your dependency on the target `Sentry` or `SentrySPM` with `SentryObjC` (or `SentryObjC-Static` / `SentryObjC-Dynamic` if you want to use the precompiled binary targets).
+  - Change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`
+  - Rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
+- `SentrySDK.extendAppLaunch()` now returns the extended app launch span, allowing users to add child spans for granular breakdown of the app start period (#7985)
+
+### Fixes
+
+- Fix crash in `SentryFramesTracker.add/removeListener` when called from a listener's own `init` / `deinit` on a background thread, observed on iOS 26 (#7943)
+- Report only `cold` or `warm` as `start_type` for standalone app starts, removing the `.prewarmed` suffix per sentry-conventions (#7968)
+- Fix reporting arbitrary Objective-C object throws via the C++ exception monitor (#7984)
+
+## 9.16.0
+
+> [!WARNING]
+> The `SentryObjC-Static` SPM binary target in this release has an incorrect checksum and resolving dependencies might fail, but the release artifacts are not affected.
+
 > [!IMPORTANT]
 > The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
 

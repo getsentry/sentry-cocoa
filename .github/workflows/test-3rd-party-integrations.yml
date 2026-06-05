@@ -50,13 +50,15 @@ jobs:
   # We only build the Static variant since 3rd-party integrations only use the "Sentry" product.
   # Intentionally skipped on release branches.
   build-xcframeworks:
-    name: Build XCFrameworks
+    name: Build XCFrameworks on ${{matrix.runner_provider}}
+    continue-on-error: ${{ matrix.runner_provider == 'bitrise' }}
     needs: files-changed
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
-    runs-on:
-      - "ghcr.io/cirruslabs/macos-runner:sequoia,runner_concurrency_group=${{ github.run_id }}"
-      - "runner_group_id:10"
+    runs-on: ${{ matrix.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', 'sequoia')) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     timeout-minutes: 30
+    strategy:
+      matrix:
+        runner_provider: ["cirrus", "bitrise"]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Setup Xcode
@@ -68,27 +70,28 @@ jobs:
       - name: Upload XCFrameworks
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: xcframeworks-for-3rd-party-integration-tests
+          name: xcframeworks-for-3rd-party-integration-tests-${{ matrix.runner_provider }}
           path: "XCFrameworkBuildPath/*.xcframework.zip"
           retention-days: 1
 
   # SPM tests for all 3rd-party integrations
   test-integrations-spm:
-    name: SPM Tests | ${{matrix.integration_dir}}
+    name: SPM Tests | ${{matrix.integration_dir}} on ${{matrix.runner_provider}}
+    continue-on-error: ${{ matrix.runner_provider == 'bitrise' }}
     needs: [files-changed, build-xcframeworks]
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_3rd_party_integrations_tests_for_prs == 'true')
-    runs-on:
-      - "ghcr.io/cirruslabs/macos-runner:sequoia,runner_concurrency_group=${{ github.run_id }}"
-      - "runner_group_id:10"
+    runs-on: ${{ matrix.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', 'sequoia')) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - integration_dir: SentrySwiftLog
-          - integration_dir: SentrySwiftyBeaver
-          - integration_dir: SentryCocoaLumberjack
-          - integration_dir: SentryPulse
+        runner_provider: ["cirrus", "bitrise"]
+        integration_dir: [
+          "SentrySwiftLog",
+          "SentrySwiftyBeaver",
+          "SentryCocoaLumberjack",
+          "SentryPulse",
+        ]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Setup Xcode
@@ -98,7 +101,7 @@ jobs:
       - name: Download XCFrameworks
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          name: xcframeworks-for-3rd-party-integration-tests
+          name: xcframeworks-for-3rd-party-integration-tests-${{ matrix.runner_provider }}
       - name: Modify Package.swift to use local xcframeworks
         run: ./scripts/prepare-package.sh --package-file Package.swift --is-pr true --remove-duplicate true --change-path true
       - name: Use local sentry-cocoa
@@ -112,7 +115,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-${{matrix.integration_dir}}-integration
+          name: raw-output-${{matrix.integration_dir}}-${{matrix.runner_provider}}-integration
           path: |
             3rd-party-integrations/${{matrix.integration_dir}}/.build/**/*.log
       - name: Run CI Diagnostics
