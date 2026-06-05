@@ -5,6 +5,11 @@
 ### Features
 
 - Support creating envelope items from attachments via SentryObjC (#8001)
+- Add format-string logging to `SentryObjCLogger` with automatic message template extraction (#7996)
+
+  ```objc
+  [SentryObjCSDK.logger infoWithFormat:@"User %@ processed %d items", userName, count];
+  ```
 
 ## 9.16.1
 
