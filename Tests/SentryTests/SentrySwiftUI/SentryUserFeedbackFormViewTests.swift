@@ -15,12 +15,12 @@ final class SentryUserFeedbackFormViewTests: XCTestCase {
         assertIsFeedbackModifier(modifiedText)
     }
 
-    func testSentryFeedback_whenImagePassed_shouldReturnFeedbackModifier() {
+    func testSentryFeedback_whenScreenshotPassed_shouldReturnFeedbackModifier() {
         // -- Arrange --
         let text = Text("Hello, World!")
 
         // -- Act --
-        let modifiedText = text.sentryFeedback(isPresented: .constant(false), image: nil)
+        let modifiedText = text.sentryFeedback(isPresented: .constant(false), screenshot: nil)
 
         // -- Assert --
         assertIsFeedbackModifier(modifiedText)

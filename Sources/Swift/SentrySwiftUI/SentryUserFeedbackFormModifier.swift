@@ -5,11 +5,11 @@ import UIKit
 @available(iOSApplicationExtension, unavailable)
 struct SentryUserFeedbackFormModifier: ViewModifier {
     @Binding var isPresented: Bool
-    let image: UIImage?
+    let screenshot: UIImage?
 
     func body(content: Content) -> some View {
         return content.sheet(isPresented: $isPresented) {
-            SentrySDK.FeedbackFormView(image: image)
+            SentrySDK.FeedbackFormView(screenshot: screenshot)
         }
     }
 }
@@ -20,11 +20,11 @@ public extension View {
     ///
     /// - Parameters:
     ///   - isPresented: A binding that controls whether the feedback form is presented.
-    ///   - image: An optional image to attach to the feedback form.
+    ///   - screenshot: An optional screenshot to attach to the feedback form.
     /// - Returns: A view that presents the feedback form when `isPresented` is `true`.
     @available(iOSApplicationExtension, unavailable)
-    func sentryFeedback(isPresented: Binding<Bool>, image: UIImage? = nil) -> some View {
-        return modifier(SentryUserFeedbackFormModifier(isPresented: isPresented, image: image))
+    func sentryFeedback(isPresented: Binding<Bool>, screenshot: UIImage? = nil) -> some View {
+        return modifier(SentryUserFeedbackFormModifier(isPresented: isPresented, screenshot: screenshot))
     }
 }
 #endif

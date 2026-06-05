@@ -23,13 +23,13 @@ public final class SentryUserFeedbackFormController: UIViewController {
 
     /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback`.
     @nonobjc public convenience init() {
-        self.init(image: nil)
+        self.init(screenshot: nil)
     }
 
-    /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback` and image attachment.
-    /// - Parameter image: An optional image to attach to the feedback form.
-    public convenience init(image: UIImage?) {
-        self.init(preparedConfig: Self.globalConfigurationOrDefault(), image: image)
+    /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback` and screenshot attachment.
+    /// - Parameter screenshot: An optional screenshot to attach to the feedback form.
+    public convenience init(screenshot: UIImage?) {
+        self.init(preparedConfig: Self.globalConfigurationOrDefault(), screenshot: screenshot)
     }
 
     static func globalConfigurationOrDefault(
@@ -93,9 +93,9 @@ public final class SentryUserFeedbackFormController: UIViewController {
         return false
     }
 
-    init(preparedConfig config: SentryUserFeedbackConfiguration, image: UIImage?) {
+    init(preparedConfig config: SentryUserFeedbackConfiguration, screenshot: UIImage?) {
         self.config = config
-        self.screenshot = image
+        self.screenshot = screenshot
         super.init(nibName: nil, bundle: nil)
         commonInit()
     }
@@ -114,16 +114,16 @@ public final class SentryUserFeedbackFormController: UIViewController {
         nc.addObserver(self, selector: #selector(hidKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
-    /// Unavailable. Use `init()` or `init(image:)` instead.
-    @available(*, unavailable, message: "Use init() or init(image:) instead.")
+    /// Unavailable. Use `init()` or `init(screenshot:)` instead.
+    @available(*, unavailable, message: "Use init() or init(screenshot:) instead.")
     override public init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        fatalError("Use init() or init(image:) instead.")
+        fatalError("Use init() or init(screenshot:) instead.")
     }
 
-    /// Unavailable. Use `init()` or `init(image:)` instead.
-    @available(*, unavailable, message: "Use init() or init(image:) instead.")
+    /// Unavailable. Use `init()` or `init(screenshot:)` instead.
+    @available(*, unavailable, message: "Use init() or init(screenshot:) instead.")
     public required init?(coder: NSCoder) {
-        fatalError("Use init() or init(image:) instead.")
+        fatalError("Use init() or init(screenshot:) instead.")
     }
 }
 

@@ -13,6 +13,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
     private var widget: SentryUserFeedbackWidget?
     private weak var activeForm: SentryUserFeedbackFormController?
+    private var shouldRestoreWidgetOnFormClose = false
     let screenshotSource: SentryScreenshotSource
     weak var customButton: UIButton?
 
@@ -97,7 +98,11 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
     func userFeedbackFormDidClose(_ form: SentryUserFeedbackFormController) {
         activeForm = nil
-        widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
+        let shouldRestoreWidget = shouldRestoreWidgetOnFormClose
+        shouldRestoreWidgetOnFormClose = false
+        if shouldRestoreWidget {
+            widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
+        }
     }
 }
 
@@ -110,9 +115,10 @@ extension SentryUserFeedbackIntegrationDriver {
             return
         }
 
-        let form = SentryUserFeedbackFormController(preparedConfig: configuration, image: screenshot)
+        let form = SentryUserFeedbackFormController(preparedConfig: configuration, screenshot: screenshot)
         form.delegate = self
         activeForm = form
+        shouldRestoreWidgetOnFormClose = widget?.rootVC.isWidgetVisible == true
         widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
         presenter.present(form, animated: configuration.animations)
     }

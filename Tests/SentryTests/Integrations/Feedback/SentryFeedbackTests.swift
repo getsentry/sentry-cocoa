@@ -11,7 +11,7 @@ class SentryFeedbackTests: XCTestCase {
     private class Fixture {
         let config: SentryUserFeedbackConfiguration
         let testCaseConfig: FeedbackTestCaseConfiguration
-        lazy var controller = SentryUserFeedbackFormController(preparedConfig: config, image: self.testCaseConfig.includeScreenshot ? UIImage() : nil)
+        lazy var controller = SentryUserFeedbackFormController(preparedConfig: config, screenshot: self.testCaseConfig.includeScreenshot ? UIImage() : nil)
 
         init(config: SentryUserFeedbackConfiguration, testCaseConfig: FeedbackTestCaseConfiguration) {
             config.configureForm?(config.formConfig)
@@ -38,7 +38,7 @@ class SentryFeedbackTests: XCTestCase {
         let config = SentryUserFeedbackConfiguration()
         var openCalls = 0
         config.onFormOpen = { openCalls += 1 }
-        let sut = SentryUserFeedbackFormController(preparedConfig: config, image: nil)
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
 
         sut.beginAppearanceTransition(true, animated: false)
         sut.endAppearanceTransition()
@@ -53,7 +53,7 @@ class SentryFeedbackTests: XCTestCase {
         let delegate = TestFormDelegate()
         var closeCalls = 0
         config.onFormClose = { closeCalls += 1 }
-        let sut = SentryUserFeedbackFormController(preparedConfig: config, image: nil)
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
         sut.delegate = delegate
         let presentationController = UIPresentationController(presentedViewController: sut, presenting: nil)
 
@@ -70,7 +70,7 @@ class SentryFeedbackTests: XCTestCase {
         let config = SentryUserFeedbackConfiguration()
         var closeCalls = 0
         config.onFormClose = { closeCalls += 1 }
-        let sut = SentryUserFeedbackFormController(preparedConfig: config, image: nil)
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
         let parent = DismissingParentViewController()
         parent.addChild(sut)
         parent.view.addSubview(sut.view)
@@ -90,7 +90,7 @@ class SentryFeedbackTests: XCTestCase {
         var closeCalls = 0
         config.onFormOpen = { openCalls += 1 }
         config.onFormClose = { closeCalls += 1 }
-        let sut = SentryUserFeedbackFormController(preparedConfig: config, image: nil)
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
         let presentationController = UIPresentationController(presentedViewController: sut, presenting: nil)
 
         sut.beginAppearanceTransition(true, animated: false)

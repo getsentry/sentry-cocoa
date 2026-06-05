@@ -220,6 +220,33 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertTrue(widgetHost.isWidgetVisible)
     }
 
+    func testShowForm_whenWidgetWasHidden_shouldKeepWidgetHiddenAfterFormCloses() throws {
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource())
+        sut.showWidget()
+        sut.hideWidget()
+        let widgetHost = try XCTUnwrap(widgetHost(for: sut))
+
+        XCTAssertFalse(widgetHost.isWidgetVisible)
+        sut.showForm()
+        XCTAssertFalse(widgetHost.isWidgetVisible)
+
+        let form = try XCTUnwrap(widgetHost.presentedViewController as? SentryUserFeedbackFormController)
+        let presentationController = UIPresentationController(
+            presentedViewController: form,
+            presenting: widgetHost
+        )
+
+        form.beginAppearanceTransition(true, animated: false)
+        form.endAppearanceTransition()
+        form.presentationControllerDidDismiss(presentationController)
+
+        XCTAssertFalse(widgetHost.isWidgetVisible)
+    }
+
     // MARK: - Helper Types
 
     private func widgetHost(for driver: SentryUserFeedbackIntegrationDriver) -> SentryUserFeedbackWidget.RootViewController? {

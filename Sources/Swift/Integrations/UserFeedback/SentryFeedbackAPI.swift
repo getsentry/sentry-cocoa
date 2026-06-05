@@ -27,11 +27,11 @@ import UIKit
     /// The SDK shows the form from the key-window presenter in a foreground-active scene.
     ///
     /// The form uses the global configuration from `SentryOptions.configureUserFeedback`.
-    /// - Parameter image: An optional image to attach to the feedback form.
+    /// - Parameter screenshot: An optional screenshot to attach to the feedback form.
     /// - Important: Call this method from the main thread.
     /// - warning: This is an experimental feature and may still have bugs.
     @available(iOSApplicationExtension, unavailable)
-    public func show(image: UIImage? = nil) {
+    public func show(screenshot: UIImage? = nil) {
         guard let driver = getIntegration()?.driver else {
             SentrySDKLog.debug("Cannot show feedback form — user feedback is not configured")
             return
@@ -42,7 +42,7 @@ import UIKit
             return
         }
 
-        driver.showForm(from: presenter, screenshot: image)
+        driver.showForm(from: presenter, screenshot: screenshot)
     }
 
     @available(iOSApplicationExtension, unavailable)

@@ -38166,11 +38166,11 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A11FeedbackAPIC4show5imageySo7UIImageCSg_tF",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC4show10screenshotySo7UIImageCSg_tF",
             "moduleName": "Sentry",
             "name": "show",
-            "printedName": "show(image:)",
-            "usr": "s:6Sentry0A11FeedbackAPIC4show5imageySo7UIImageCSg_tF"
+            "printedName": "show(screenshot:)",
+            "usr": "s:6Sentry0A11FeedbackAPIC4show10screenshotySo7UIImageCSg_tF"
           },
           {
             "children": [
@@ -64173,11 +64173,51 @@
             "declKind": "Constructor",
             "init_kind": "Convenience",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC5imageACSo7UIImageCSg_tcfc",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC10screenshotACSo7UIImageCSg_tcfc",
             "moduleName": "Sentry",
             "name": "init",
-            "printedName": "init(image:)",
-            "usr": "s:6Sentry0A26UserFeedbackFormControllerC5imageACSo7UIImageCSg_tcfc"
+            "printedName": "init(screenshot:)",
+            "usr": "s:6Sentry0A26UserFeedbackFormControllerC10screenshotACSo7UIImageCSg_tcfc"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UIViewController",
+                    "printedName": "UIKit.UIViewController",
+                    "usr": "c:objc(cs)UIViewController"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "UIKit.UIViewController?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Final",
+              "ObjC",
+              "Override",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC7didMove8toParentySo06UIViewE0CSg_tF",
+            "moduleName": "Sentry",
+            "name": "didMove",
+            "objc_name": "didMoveToParentViewController:",
+            "overriding": true,
+            "printedName": "didMove(toParent:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController(im)didMoveToParentViewController:"
           },
           {
             "children": [
@@ -64626,11 +64666,11 @@
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry0A20UserFeedbackFormViewV5imageACSo7UIImageCSg_tcfc",
+            "mangledName": "$s6Sentry0A20UserFeedbackFormViewV10screenshotACSo7UIImageCSg_tcfc",
             "moduleName": "Sentry",
             "name": "init",
-            "printedName": "init(image:)",
-            "usr": "s:6Sentry0A20UserFeedbackFormViewV5imageACSo7UIImageCSg_tcfc"
+            "printedName": "init(screenshot:)",
+            "usr": "s:6Sentry0A20UserFeedbackFormViewV10screenshotACSo7UIImageCSg_tcfc"
           },
           {
             "children": [
@@ -75064,6 +75104,67 @@
       },
       {
         "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Binding",
+                "printedName": "SwiftUI.Binding<Swift.Bool>",
+                "usr": "s:7SwiftUI7BindingV"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UIImage",
+                    "printedName": "UIKit.UIImage",
+                    "usr": "c:objc(cs)UIImage"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "UIKit.UIImage?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Custom",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "genericSig": "<Self where Self : SwiftUI.View>",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s7SwiftUI4ViewP6SentryE14sentryFeedback11isPresented10screenshotQrAA7BindingVySbG_So7UIImageCSgtF",
+            "moduleName": "Sentry",
+            "name": "sentryFeedback",
+            "printedName": "sentryFeedback(isPresented:screenshot:)",
+            "usr": "s:7SwiftUI4ViewP6SentryE14sentryFeedback11isPresented10screenshotQrAA7BindingVySbG_So7UIImageCSgtF"
+          },
           {
             "children": [
               {
