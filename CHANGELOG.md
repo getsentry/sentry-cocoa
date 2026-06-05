@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Support creating envelope items from attachments via SentryObjC (#8001)
+
 ## 9.16.1
 
 > [!NOTE]
