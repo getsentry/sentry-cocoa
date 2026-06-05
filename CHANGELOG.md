@@ -10,6 +10,12 @@
   ```objc
   [SentryObjCSDK.logger infoWithFormat:@"User %@ processed %d items", userName, count];
   ```
+- Standalone app start sub-spans operations have been renamed for better clarity (#8003):
+  - Pre Runtime Init: app.start	-> app.start.pre_runtime_init
+  - Runtime Init to Pre Main Initializers: app.start -> app.start.runtime_init
+  - UIKit Init: app.start -> app.start.uikit_init
+  - Application Init: app.start -> app.start.application_init
+  - Extended App Start: app.start -> app.start.extended_app_start
 
 ## 9.16.1
 
