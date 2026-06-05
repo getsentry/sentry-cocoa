@@ -56,6 +56,11 @@ on:
         required: false
         default: false
         type: boolean
+      runner_provider:
+        description: "CI runner provider: cirrus (default) or bitrise"
+        required: false
+        default: "cirrus"
+        type: string
     secrets:
       CODECOV_TOKEN:
         required: true
@@ -64,11 +69,29 @@ jobs:
   common-ui-tests:
     if: ${{ !inputs.should_skip }}
     name: UI Tests Common
-    runs-on: ${{ fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.macos_version, github.run_id)) }}
+    runs-on: ${{ inputs.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', inputs.macos_version)) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.macos_version, github.run_id)) }}
+    continue-on-error: ${{ inputs.runner_provider == 'bitrise' }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - uses: actions/cache@v4
+        name: Cache Ruby
+        with:
+          path: |
+            ~/.rbenv/versions
+            ~/.rbenv/cache
+          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}
+
+      - name: Install Ruby (Bitrise)
+        if: inputs.runner_provider == 'bitrise'
+        run: |
+          brew upgrade ruby-build
+          rbenv install -s
+          bundle install
+
       - name: Setup Ruby
+        if: inputs.runner_provider != 'bitrise'
         uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
         with:
           bundler-cache: true
@@ -159,13 +182,13 @@ jobs:
           report_type: test_results
           verbose: true
           name: sentry-cocoa-unit-tests
-          flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}, ui-tests
+          flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}-${{ inputs.runner_provider }}, ui-tests
 
       - name: Upload Result Bundle
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() }}
         with:
-          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}-${{ inputs.runner_provider }}
           path: |
             fastlane/test_results/**/*.xcresult
 
@@ -173,7 +196,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() }}
         with:
-          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_crash_logs
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_crash_logs-${{ inputs.runner_provider }}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
@@ -181,7 +204,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_raw_output
+          name: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}_raw_output-${{ inputs.runner_provider }}
           path: |
             ~/Library/Logs/scan/*.log
             ./fastlane/test_output/**
@@ -190,7 +213,7 @@ jobs:
         uses: ./.github/actions/capture-screenshot
         if: failure()
         with:
-          suffix: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}
+          suffix: ${{ inputs.fastlane_command }}${{ inputs.files_suffix }}-${{ inputs.runner_provider }}
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics

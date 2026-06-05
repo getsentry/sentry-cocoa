@@ -202,7 +202,12 @@ jobs:
   validate-spm:
     name: Validate SPM Static
     runs-on: macos-15
-    needs: [files-changed, assemble-xcframework-variant]
+    needs: [
+      files-changed,
+      assemble-xcframework-variant,
+      assemble-sentryobjc-static-xcframework,
+      assemble-sentryobjc-dynamic-xcframework,
+    ]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
@@ -239,7 +244,12 @@ jobs:
   validate-spm-dynamic:
     name: Validate SPM Dynamic
     runs-on: macos-15
-    needs: [files-changed, assemble-xcframework-variant]
+    needs: [
+      files-changed,
+      assemble-xcframework-variant,
+      assemble-sentryobjc-static-xcframework,
+      assemble-sentryobjc-dynamic-xcframework,
+    ]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
@@ -276,7 +286,12 @@ jobs:
   swift-build:
     name: Build Swift Static
     runs-on: macos-15
-    needs: [files-changed, assemble-xcframework-variant]
+    needs: [
+      files-changed,
+      assemble-xcframework-variant,
+      assemble-sentryobjc-static-xcframework,
+      assemble-sentryobjc-dynamic-xcframework,
+    ]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
@@ -312,7 +327,12 @@ jobs:
   validate-spm-visionos:
     name: Validate SPM Static visionOS
     runs-on: macos-15
-    needs: [files-changed, assemble-xcframework-variant]
+    needs: [
+      files-changed,
+      assemble-xcframework-variant,
+      assemble-sentryobjc-static-xcframework,
+      assemble-sentryobjc-dynamic-xcframework,
+    ]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
@@ -347,7 +367,7 @@ jobs:
         if: failure()
 
   duplication-tests:
-    name: Test Sentry Duplication V4 # Up the version with every change to keep track of flaky tests
+    name: Test Sentry Duplication V4 on ${{matrix.runner_provider}}
     uses: ./.github/workflows/ui-tests-common.yml
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
@@ -357,9 +377,13 @@ jobs:
     with:
       fastlane_command: duplication_test
       xcode_version: "16"
-      macos_version: macos-15
+      macos_version: sequoia
       needs_xcframework: true
       platform: macOS
+      runner_provider: ${{matrix.runner_provider}}
+    strategy:
+      matrix:
+        runner_provider: ["cirrus", "bitrise"]
 
   app-metrics:
     name: Collect App Metrics

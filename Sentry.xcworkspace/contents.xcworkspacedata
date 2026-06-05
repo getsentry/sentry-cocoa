@@ -41,6 +41,12 @@
          location = "group:Samples/iOS-ObjectiveC/iOS-ObjectiveC.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:Samples/iOS-ObjectiveC-Dynamic/iOS-ObjectiveC-Dynamic.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:Samples/iOS-ObjectiveC-Static/iOS-ObjectiveC-Static.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.xcodeproj">
       </FileRef>
       <FileRef

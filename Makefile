@@ -268,6 +268,8 @@ build-xcframework-sentryobjc-dynamic:
 build-samples: \
 	build-sample-DistributionSample \
 	build-sample-iOS-ObjectiveC \
+	build-sample-iOS-ObjectiveC-Dynamic \
+	build-sample-iOS-ObjectiveC-Static \
 	build-sample-iOS-ObjectiveCpp-NoModules \
 	build-sample-iOS-Swift \
 	build-sample-iOS-Swift6 \
@@ -437,6 +439,32 @@ build-sample-iOS-ObjectiveC:
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveC \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS-ObjectiveC-Dynamic sample app
+#
+# Builds the iOS-ObjectiveC-Dynamic sample app for the iOS Simulator.
+# This sample uses the pre-built SentryObjC-Dynamic xcframework via SPM.
+.PHONY: build-sample-iOS-ObjectiveC-Dynamic
+build-sample-iOS-ObjectiveC-Dynamic:
+	xcodegen --spec Samples/iOS-ObjectiveC-Dynamic/iOS-ObjectiveC-Dynamic.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/iOS-ObjectiveC-Dynamic/iOS-ObjectiveC-Dynamic.xcodeproj" \
+		-scheme iOS-ObjectiveC-Dynamic \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS-ObjectiveC-Static sample app
+#
+# Builds the iOS-ObjectiveC-Static sample app for the iOS Simulator.
+# This sample uses the pre-built SentryObjC-Static xcframework via SPM.
+.PHONY: build-sample-iOS-ObjectiveC-Static
+build-sample-iOS-ObjectiveC-Static:
+	xcodegen --spec Samples/iOS-ObjectiveC-Static/iOS-ObjectiveC-Static.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/iOS-ObjectiveC-Static/iOS-ObjectiveC-Static.xcodeproj" \
+		-scheme iOS-ObjectiveC-Static \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 
@@ -1000,6 +1028,8 @@ xcode-ci: xcode-ci-SentrySampleShared \
 	xcode-ci-SPM \
 	xcode-ci-SessionReplay-CameraTest \
 	xcode-ci-iOS-ObjectiveC \
+	xcode-ci-iOS-ObjectiveC-Dynamic \
+	xcode-ci-iOS-ObjectiveC-Static \
 	xcode-ci-iOS-ObjectiveCpp-NoModules \
 	xcode-ci-iOS-Swift \
 	xcode-ci-iOS-Swift6 \
@@ -1035,6 +1065,14 @@ xcode-ci-SessionReplay-CameraTest: xcode-ci-SentrySampleShared
 .PHONY: xcode-ci-iOS-ObjectiveC
 xcode-ci-iOS-ObjectiveC: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
+
+.PHONY: xcode-ci-iOS-ObjectiveC-Dynamic
+xcode-ci-iOS-ObjectiveC-Dynamic:
+	xcodegen --spec Samples/iOS-ObjectiveC-Dynamic/iOS-ObjectiveC-Dynamic.yml
+
+.PHONY: xcode-ci-iOS-ObjectiveC-Static
+xcode-ci-iOS-ObjectiveC-Static:
+	xcodegen --spec Samples/iOS-ObjectiveC-Static/iOS-ObjectiveC-Static.yml
 
 .PHONY: xcode-ci-iOS-ObjectiveCpp-NoModules
 xcode-ci-iOS-ObjectiveCpp-NoModules:
