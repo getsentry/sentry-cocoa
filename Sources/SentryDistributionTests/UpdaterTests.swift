@@ -22,7 +22,12 @@ import Testing
 }
 
 @Test func testSuccessfullUpdateRequest() async throws {
-  let params = CheckForUpdateParams(accessToken: "token", organization: "org", project: "project")
+  let params = CheckForUpdateParams(
+    accessToken: "token",
+    organization: "org",
+    project: "project",
+    // App id override is provided so this test can run with `swift test`
+    appIdOverride: "")
   let configuration = URLSessionConfiguration.default
   configuration.protocolClasses = [MockURLProtocol.self]
   let session = URLSession(configuration: configuration)
