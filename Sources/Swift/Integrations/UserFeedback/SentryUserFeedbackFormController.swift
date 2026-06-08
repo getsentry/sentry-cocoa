@@ -7,18 +7,31 @@ import UIKit
 
 @available(iOSApplicationExtension, unavailable)
 protocol SentryUserFeedbackFormDelegate: NSObjectProtocol {
+    func userFeedbackFormWillOpen(_ form: SentryUserFeedbackFormController)
     func userFeedbackFormDidClose(_ form: SentryUserFeedbackFormController)
 }
 
+extension SentryUserFeedbackFormDelegate {
+    func userFeedbackFormWillOpen(_ form: SentryUserFeedbackFormController) { }
+}
+
 /// A view controller that displays the Sentry user feedback form.
+///
+/// If the managed User Feedback integration is installed, the SDK temporarily hides the feedback widget while this
+/// controller is visible.
 @available(iOSApplicationExtension, unavailable)
 public final class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
     let screenshot: UIImage?
     weak var delegate: SentryUserFeedbackFormDelegate?
     var didMoveToParent: ((SentryUserFeedbackFormController) -> Void)?
-    private var didOpenForm = false
-    private var didCloseForm = false
+    private enum FormLifecycleState {
+        case idle
+        case willOpen
+        case didOpen
+        case didClose
+    }
+    private var formLifecycleState: FormLifecycleState = .idle
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
 
     /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback`.
@@ -30,19 +43,24 @@ public final class SentryUserFeedbackFormController: UIViewController {
     /// - Parameter screenshot: An optional screenshot to attach to the feedback form.
     public convenience init(screenshot: UIImage?) {
         self.init(preparedConfig: Self.globalConfigurationOrDefault(), screenshot: screenshot)
+        delegate = Self.installedFeedbackIntegration()?.driver
     }
 
     static func globalConfigurationOrDefault(
         defaultConfiguration: @autoclosure () -> SentryUserFeedbackConfiguration = SentryUserFeedbackConfiguration()
     ) -> SentryUserFeedbackConfiguration {
-        guard let integration = SentrySDKInternal.currentHub().getInstalledIntegration(UserFeedbackIntegration<SentryDependencyContainer>.self)
-            as? UserFeedbackIntegration<SentryDependencyContainer> else {
+        guard let integration = installedFeedbackIntegration() else {
             SentrySDKLog.debug("Using default feedback configuration because user feedback is not configured in SentryOptions")
             let config = defaultConfiguration()
             prepare(config)
             return config
         }
         return integration.driver.configuration
+    }
+
+    private static func installedFeedbackIntegration() -> UserFeedbackIntegration<SentryDependencyContainer>? {
+        return SentrySDKInternal.currentHub().getInstalledIntegration(UserFeedbackIntegration<SentryDependencyContainer>.self)
+            as? UserFeedbackIntegration<SentryDependencyContainer>
     }
 
     private static func prepare(_ config: SentryUserFeedbackConfiguration) {
@@ -55,6 +73,12 @@ public final class SentryUserFeedbackFormController: UIViewController {
         config.theme.updateDefaultFonts()
         config.recalculateScaleFactors()
         viewModel.updateLayout()
+    }
+
+    override public func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        resetFormLifecycleIfNeeded()
+        notifyFormWillOpen()
     }
 
     override public func viewDidAppear(_ animated: Bool) {
@@ -192,22 +216,38 @@ extension SentryUserFeedbackFormController: SentryUserFeedbackFormViewModelDeleg
 // MARK: Form lifecycle
 extension SentryUserFeedbackFormController {
     private func resetFormLifecycleIfNeeded() {
-        guard didCloseForm else { return }
-        didOpenForm = false
-        didCloseForm = false
+        guard case .didClose = formLifecycleState else { return }
+        formLifecycleState = .idle
+    }
+
+    private func notifyFormWillOpen() {
+        guard case .idle = formLifecycleState else { return }
+        formLifecycleState = .willOpen
+        delegate?.userFeedbackFormWillOpen(self)
     }
 
     private func notifyFormDidOpen() {
-        guard !didOpenForm else { return }
-        didOpenForm = true
+        if case .idle = formLifecycleState {
+            notifyFormWillOpen()
+        }
+
+        guard case .willOpen = formLifecycleState else { return }
+        formLifecycleState = .didOpen
         config.onFormOpen?()
     }
 
     private func notifyFormDidClose() {
-        guard didOpenForm, !didCloseForm else { return }
-        didCloseForm = true
-        config.onFormClose?()
-        delegate?.userFeedbackFormDidClose(self)
+        switch formLifecycleState {
+        case .willOpen:
+            formLifecycleState = .didClose
+            delegate?.userFeedbackFormDidClose(self)
+        case .didOpen:
+            formLifecycleState = .didClose
+            config.onFormClose?()
+            delegate?.userFeedbackFormDidClose(self)
+        case .idle, .didClose:
+            return
+        }
     }
 }
 

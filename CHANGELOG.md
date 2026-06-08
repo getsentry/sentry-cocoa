@@ -5,6 +5,11 @@
 ### Features
 
 - Support creating envelope items from attachments via SentryObjC (#8001)
+- Add format-string logging to `SentryObjCLogger` with automatic message template extraction (#7996)
+
+  ```objc
+  [SentryObjCSDK.logger infoWithFormat:@"User %@ processed %d items", userName, count];
+  ```
 - Add managed user feedback form presentation APIs (#7873)
 
   Apps using the managed User Feedback integration can now present the form directly:
@@ -12,12 +17,8 @@
   - In UIKit, present the `SentrySDK.FeedbackForm()` view controller yourself.
   - In SwiftUI, use `.sentryFeedback(isPresented:)`, or present `SentrySDK.FeedbackFormView()` from a container such as `.sheet`.
 
-  These APIs use the global `SentryOptions.configureUserFeedback` configuration.
-- Add format-string logging to `SentryObjCLogger` with automatic message template extraction (#7996)
-
-  ```objc
-  [SentryObjCSDK.logger infoWithFormat:@"User %@ processed %d items", userName, count];
-  ```
+  These APIs use the global `SentryOptions.configureUserFeedback` configuration and temporarily hide the managed widget
+  while the form is open, when possible.
 
 ## 9.16.1
 

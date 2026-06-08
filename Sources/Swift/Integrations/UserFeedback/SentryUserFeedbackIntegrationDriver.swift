@@ -83,6 +83,12 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
     var displayingForm: Bool {
         return activeForm != nil
     }
+
+    private func trackFormPresentation(_ form: SentryUserFeedbackFormController) {
+        activeForm = form
+        shouldRestoreWidgetOnFormClose = widget?.rootVC.isWidgetVisible == true
+        widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
+    }
 }
 
 // MARK: SentryUserFeedbackWidgetDelegate
@@ -96,7 +102,21 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
 // MARK: SentryUserFeedbackFormDelegate
 @available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
+    func userFeedbackFormWillOpen(_ form: SentryUserFeedbackFormController) {
+        if let activeForm = activeForm {
+            guard activeForm === form else {
+                SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
+                return
+            }
+            return
+        }
+
+        trackFormPresentation(form)
+    }
+
     func userFeedbackFormDidClose(_ form: SentryUserFeedbackFormController) {
+        guard activeForm === form else { return }
+
         activeForm = nil
         let shouldRestoreWidget = shouldRestoreWidgetOnFormClose
         shouldRestoreWidgetOnFormClose = false
@@ -117,9 +137,7 @@ extension SentryUserFeedbackIntegrationDriver {
 
         let form = SentryUserFeedbackFormController(preparedConfig: configuration, screenshot: screenshot)
         form.delegate = self
-        activeForm = form
-        shouldRestoreWidgetOnFormClose = widget?.rootVC.isWidgetVisible == true
-        widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
+        trackFormPresentation(form)
         presenter.present(form, animated: configuration.animations)
     }
 }

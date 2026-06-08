@@ -247,7 +247,69 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertFalse(widgetHost.isWidgetVisible)
     }
 
+    func testFeedbackFormController_whenPresentedDirectly_shouldHideWidgetUntilFormCloses() throws {
+        let integration = try installFeedbackIntegration {
+            $0.animations = false
+        }
+        integration.driver.showWidget()
+        let widgetHost = try XCTUnwrap(widgetHost(for: integration.driver))
+        let sut = SentryUserFeedbackFormController()
+
+        XCTAssertTrue(widgetHost.isWidgetVisible)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        XCTAssertFalse(widgetHost.isWidgetVisible)
+        sut.endAppearanceTransition()
+
+        let presentationController = UIPresentationController(
+            presentedViewController: sut,
+            presenting: nil
+        )
+        sut.presentationControllerDidDismiss(presentationController)
+
+        XCTAssertTrue(widgetHost.isWidgetVisible)
+    }
+
+    func testFeedbackFormController_whenWidgetWasHiddenBeforeDirectPresentation_shouldKeepWidgetHiddenAfterFormCloses() throws {
+        let integration = try installFeedbackIntegration {
+            $0.animations = false
+        }
+        integration.driver.showWidget()
+        integration.driver.hideWidget()
+        let widgetHost = try XCTUnwrap(widgetHost(for: integration.driver))
+        let sut = SentryUserFeedbackFormController()
+
+        XCTAssertFalse(widgetHost.isWidgetVisible)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        XCTAssertFalse(widgetHost.isWidgetVisible)
+        sut.endAppearanceTransition()
+
+        let presentationController = UIPresentationController(
+            presentedViewController: sut,
+            presenting: nil
+        )
+        sut.presentationControllerDidDismiss(presentationController)
+
+        XCTAssertFalse(widgetHost.isWidgetVisible)
+    }
+
     // MARK: - Helper Types
+
+    private func installFeedbackIntegration(
+        configure: @escaping (SentryUserFeedbackConfiguration) -> Void = { _ in }
+    ) throws -> UserFeedbackIntegration<SentryDependencyContainer> {
+        let options = Options()
+        options.configureUserFeedback = configure
+        SentrySDK.setStart(with: options)
+        let integration = try XCTUnwrap(UserFeedbackIntegration<SentryDependencyContainer>(
+            with: options,
+            dependencies: SentryDependencyContainer.sharedInstance()))
+        SentrySDKInternal.currentHub().addInstalledIntegration(
+            integration,
+            name: UserFeedbackIntegration<SentryDependencyContainer>.name)
+        return integration
+    }
 
     private func widgetHost(for driver: SentryUserFeedbackIntegrationDriver) -> SentryUserFeedbackWidget.RootViewController? {
         let widget = Mirror(reflecting: driver)
