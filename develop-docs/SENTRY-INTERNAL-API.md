@@ -1,4 +1,4 @@
-# SentrySD c.internal — Structured Hybrid SDK API
+# SentrySDK.internal — Structured Hybrid SDK API
 
 **Date:** 2026-06-08
 **Issue:** [#7881](https://github.com/getsentry/sentry-cocoa/issues/7881)
