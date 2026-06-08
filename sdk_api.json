@@ -64447,6 +64447,38 @@
             "overriding": true,
             "printedName": "viewDidDisappear(_:)",
             "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController(im)viewDidDisappear:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Final",
+              "ObjC",
+              "Override",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC14viewWillAppearyySbF",
+            "moduleName": "Sentry",
+            "name": "viewWillAppear",
+            "objc_name": "viewWillAppear:",
+            "overriding": true,
+            "printedName": "viewWillAppear(_:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController(im)viewWillAppear:"
           }
         ],
         "conformances": [
