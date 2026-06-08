@@ -11,7 +11,7 @@ class ViewLifecycleUITests: BaseUITest {
         super.setUp()
         launchApp(args: [
             SentrySDKOverrides.Performance.disableTimeToFullDisplayTracing.rawValue,
-            SentrySDKOverrides.Performance.disableANRTracking.rawValue
+            SentrySDKOverrides.AppHangs.disableTracking.rawValue
         ])
     }
 

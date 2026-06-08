@@ -58,9 +58,9 @@ private extension MacOSSwiftUITests {
     ) throws {
         app.launchArguments.append(contentsOf: [
             // these help avoid other profiles that'd be taken automatically, that interfere with the checking we do for the assertions later in the tests
-            SentrySDKOverrides.Other.disableSwizzling.rawValue,
-            SentrySDKOverrides.Performance.disablePerformanceTracing.rawValue,
-            SentrySDKOverrides.Performance.disableUIVCTracing.rawValue,
+            SentrySDKOverrides.Swizzling.disable.rawValue,
+            SentrySDKOverrides.Performance.disableAutoTracing.rawValue,
+            SentrySDKOverrides.UIViewControllerTracing.disable.rawValue,
 
             // sets a marker function to run in a load command that the launch profile should detect
             SentrySDKOverrides.Profiling.slowLoadMethod.rawValue,

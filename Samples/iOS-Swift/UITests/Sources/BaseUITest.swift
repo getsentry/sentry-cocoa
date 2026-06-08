@@ -34,7 +34,7 @@ extension BaseUITest {
     func newAppSession() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["--io.sentry.ui-test.test-name"] = name
-        app.launchArguments.append(SentrySDKOverrides.Other.disableSpotlight.rawValue)
+        app.launchArguments.append(SentrySDKOverrides.Spotlight.disable.rawValue)
         return app
     }
     
