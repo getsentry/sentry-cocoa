@@ -13,6 +13,11 @@
   - In SwiftUI, use `.sentryFeedback(isPresented:)`, or present `SentrySDK.FeedbackFormView()` from a container such as `.sheet`.
 
   These APIs use the global `SentryOptions.configureUserFeedback` configuration.
+- Add format-string logging to `SentryObjCLogger` with automatic message template extraction (#7996)
+
+  ```objc
+  [SentryObjCSDK.logger infoWithFormat:@"User %@ processed %d items", userName, count];
+  ```
 
 ## 9.16.1
 
