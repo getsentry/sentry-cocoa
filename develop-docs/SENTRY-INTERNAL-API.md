@@ -78,6 +78,7 @@ Direct methods (no natural integration group):
 | `installationID: String`                     | `PrivateSentrySDKOnly.installationID`                          |
 | `options: Options`                           | `PrivateSentrySDKOnly.options`                                 |
 | `options(fromDictionary:) throws -> Options` | `PrivateSentrySDKOnly.optionsWithDictionary:didFailWithError:` |
+| `debugImages: [DebugMeta]`                   | `PrivateSentrySDKOnly.getDebugImages`                          |
 
 Sub-object accessors:
 
@@ -94,16 +95,20 @@ Sub-object accessors:
 
 ### `SentrySDK.internal.replay` — `SentryInternalReplayApi`
 
-| Method                                               | Replaces                                         |
-| ---------------------------------------------------- | ------------------------------------------------ |
-| `configure(breadcrumbConverter:screenshotProvider:)` | `configureSessionReplayWith:screenshotProvider:` |
-| `capture()`                                          | `captureReplay`                                  |
-| `replayId: String?`                                  | `getReplayId`                                    |
-| `addIgnoreClasses(_:)`                               | `addReplayIgnoreClasses:`                        |
-| `addRedactClasses(_:)`                               | `addReplayRedactClasses:`                        |
-| `setIgnoreContainerClass(_:)`                        | `setIgnoreContainerClass:`                       |
-| `setRedactContainerClass(_:)`                        | `setRedactContainerClass:`                       |
-| `setTags(_:)`                                        | `setReplayTags:`                                 |
+| Method                                               | Replaces                                            |
+| ---------------------------------------------------- | --------------------------------------------------- |
+| `configure(breadcrumbConverter:screenshotProvider:)` | `configureSessionReplayWith:screenshotProvider:`    |
+| `capture() -> Bool`                                  | `captureReplay` + `getReplayIntegration` (see note) |
+| `replayId: String?`                                  | `getReplayId`                                       |
+| `addIgnoreClasses(_:)`                               | `addReplayIgnoreClasses:`                           |
+| `addRedactClasses(_:)`                               | `addReplayRedactClasses:`                           |
+| `setIgnoreContainerClass(_:)`                        | `setIgnoreContainerClass:`                          |
+| `setRedactContainerClass(_:)`                        | `setRedactContainerClass:`                          |
+| `setTags(_:)`                                        | `setReplayTags:`                                    |
+
+> **Note on `capture() -> Bool`:** React Native currently works around `captureReplay` being `void` by dynamically calling `getReplayIntegration` via `performSelector:` to access the integration's `captureReplay` which returns `BOOL`. The new API makes `capture()` return `Bool` directly, eliminating both the void limitation and the dynamic dispatch hack. `getReplayIntegration` is intentionally not exposed — callers should not need the integration object.
+
+> **Note on `debugImages`:** Flutter calls `PrivateSentrySDKOnly.getDebugImages()` to retrieve debug meta images for symbolication. This method is not declared in the current `PrivateSentrySDKOnly.h` header (it's available via `@_spi(Private)`) but is a real call site that needs a home. It lives directly on `.internal` rather than in a sub-object since it doesn't belong to any integration group.
 
 ### `SentrySDK.internal.profiling` — `SentryInternalProfilingApi`
 
@@ -388,7 +393,7 @@ import Sentry
 SentrySDK.internal.setSdkName("sentry.cocoa.react-native", version: "6.0.0")
 SentrySDK.internal.appStart.hybridSDKMode = true
 let frames = SentrySDK.internal.performance.currentScreenFrames
-SentrySDK.internal.replay.capture()
+let success = SentrySDK.internal.replay.capture()
 ```
 
 ### ObjC (hybrid SDK via SentryObjC wrapper)
@@ -400,13 +405,15 @@ SentrySDK.internal.replay.capture()
 PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = YES;
 SentryScreenFrames *frames = PrivateSentrySDKOnly.currentScreenFrames;
 [PrivateSentrySDKOnly captureReplay];
+// Workaround to get BOOL result:
+id integration = [PrivateSentrySDKOnly performSelector:@selector(getReplayIntegration)];
 
 // After
 #import <SentryObjC/SentryObjC.h>
 [[SentryObjCSDK internal] setSdkName:@"sentry.cocoa.react-native" version:@"6.0.0"];
 [SentryObjCSDK internal].appStart.hybridSDKMode = YES;
 SentryObjCScreenFrames *frames = [SentryObjCSDK internal].performance.currentScreenFrames;
-[[[SentryObjCSDK internal] replay] capture];
+BOOL success = [[[SentryObjCSDK internal] replay] capture];
 ```
 
 ## Public API Surface Impact
