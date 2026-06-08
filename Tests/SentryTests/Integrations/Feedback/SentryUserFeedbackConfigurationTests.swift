@@ -94,6 +94,72 @@ final class SentryUserFeedbackConfigurationTests: XCTestCase {
         XCTAssertEqual(sut.theme.background, .red)
     }
 
+    func testConfigurationForPresentation_whenLocalLabelsSet_shouldDeriveAccessibilityLabelsFromLocalLabels() {
+        let sut = SentryUserFeedbackConfiguration()
+
+        let result = sut.configurationForPresentation { config in
+            config.configureForm = { form in
+                form.submitButtonLabel = "Send Feedback"
+                form.cancelButtonLabel = "Close Feedback"
+                form.removeScreenshotButtonLabel = "Delete screenshot"
+                form.messagePlaceholder = "Describe feedback"
+                form.namePlaceholder = "Your full name"
+            }
+        }
+
+        XCTAssertEqual(result.formConfig.submitButtonAccessibilityLabel, "Send Feedback")
+        XCTAssertEqual(result.formConfig.cancelButtonAccessibilityLabel, "Close Feedback")
+        XCTAssertEqual(result.formConfig.removeScreenshotButtonAccessibilityLabel, "Delete screenshot")
+        XCTAssertEqual(result.formConfig.messageTextViewAccessibilityLabel, "Describe feedback")
+        XCTAssertEqual(result.formConfig.nameTextFieldAccessibilityLabel, "Your full name")
+    }
+
+    func testConfigurationForPresentation_whenLocalForegroundSet_shouldDeriveButtonForegroundFromLocalForeground() {
+        let sut = SentryUserFeedbackConfiguration()
+        sut.theme.foreground = .red
+
+        let result = sut.configurationForPresentation { config in
+            config.configureTheme = { theme in
+                theme.foreground = .blue
+            }
+        }
+
+        XCTAssertEqual(result.theme.foreground, .blue)
+        XCTAssertEqual(result.theme.buttonForeground, .blue)
+        XCTAssertEqual(sut.theme.foreground, .red)
+        XCTAssertEqual(sut.theme.buttonForeground, .red)
+    }
+
+    func testConfigurationForPresentation_whenDefaultOutlineStyleCopied_shouldKeepDefaultOutlineStyle() {
+        let sut = SentryUserFeedbackConfiguration()
+
+        let result = sut.configurationForPresentation { config in
+            config.configureTheme = { theme in
+                theme.background = .blue
+            }
+        }
+
+        XCTAssertTrue(result.theme.usesDefaultOutlineStyle)
+        XCTAssertIdentical(result.theme.outlineStyle, result.theme.defaultOutlineStyle)
+    }
+
+    func testConfigurationForPresentation_whenDefaultOutlineStyleValuesChanged_shouldPreserveValuesAndDefaultIdentity() {
+        let sut = SentryUserFeedbackConfiguration()
+        sut.theme.outlineStyle.color = .red
+        sut.theme.outlineStyle.cornerRadius = 9
+        sut.theme.outlineStyle.outlineWidth = 2
+
+        let result = sut.configurationForPresentation { config in
+            config.tags = ["source": "local"]
+        }
+
+        XCTAssertTrue(result.theme.usesDefaultOutlineStyle)
+        XCTAssertIdentical(result.theme.outlineStyle, result.theme.defaultOutlineStyle)
+        XCTAssertEqual(result.theme.outlineStyle.color, .red)
+        XCTAssertEqual(result.theme.outlineStyle.cornerRadius, 9)
+        XCTAssertEqual(result.theme.outlineStyle.outlineWidth, 2)
+    }
+
     func testConfigurationForPresentation_whenGlobalOnlyFieldsAreSet_shouldIgnoreThem() {
         let button = UIButton()
         let sut = SentryUserFeedbackConfiguration()

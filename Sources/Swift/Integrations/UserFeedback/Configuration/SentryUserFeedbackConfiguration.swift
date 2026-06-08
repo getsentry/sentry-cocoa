@@ -207,24 +207,24 @@ extension SentryUserFeedbackFormConfiguration {
         copy.formTitle = formTitle
         copy.messageLabel = messageLabel
         copy.messagePlaceholder = messagePlaceholder
-        copy.messageTextViewAccessibilityLabel = messageTextViewAccessibilityLabel
+        copy.messageTextViewAccessibilityLabelOverride = messageTextViewAccessibilityLabelOverride
         copy.isRequiredLabel = isRequiredLabel
         copy.removeScreenshotButtonLabel = removeScreenshotButtonLabel
-        copy.removeScreenshotButtonAccessibilityLabel = removeScreenshotButtonAccessibilityLabel
+        copy.removeScreenshotButtonAccessibilityLabelOverride = removeScreenshotButtonAccessibilityLabelOverride
         copy.isNameRequired = isNameRequired
         copy.showName = showName
         copy.nameLabel = nameLabel
         copy.namePlaceholder = namePlaceholder
-        copy.nameTextFieldAccessibilityLabel = nameTextFieldAccessibilityLabel
+        copy.nameTextFieldAccessibilityLabelOverride = nameTextFieldAccessibilityLabelOverride
         copy.isEmailRequired = isEmailRequired
         copy.showEmail = showEmail
         copy.emailLabel = emailLabel
         copy.emailPlaceholder = emailPlaceholder
-        copy.emailTextFieldAccessibilityLabel = emailTextFieldAccessibilityLabel
+        copy.emailTextFieldAccessibilityLabelOverride = emailTextFieldAccessibilityLabelOverride
         copy.submitButtonLabel = submitButtonLabel
-        copy.submitButtonAccessibilityLabel = submitButtonAccessibilityLabel
+        copy.submitButtonAccessibilityLabelOverride = submitButtonAccessibilityLabelOverride
         copy.cancelButtonLabel = cancelButtonLabel
-        copy.cancelButtonAccessibilityLabel = cancelButtonAccessibilityLabel
+        copy.cancelButtonAccessibilityLabelOverride = cancelButtonAccessibilityLabelOverride
         copy.unexpectedErrorText = unexpectedErrorText
         copy.validationErrorMessage = validationErrorMessage
         return copy
@@ -239,13 +239,19 @@ extension SentryUserFeedbackThemeConfiguration {
         copy.background = background
         copy.submitForeground = submitForeground
         copy.submitBackground = submitBackground
-        copy.buttonForeground = buttonForeground
+        copy.buttonForegroundOverride = buttonForegroundOverride
         copy.buttonBackground = buttonBackground
         copy.errorColor = errorColor
-        copy.outlineStyle = SentryFormElementOutlineStyle(
-            color: outlineStyle.color,
-            cornerRadius: outlineStyle.cornerRadius,
-            outlineWidth: outlineStyle.outlineWidth)
+        if usesDefaultOutlineStyle {
+            copy.defaultOutlineStyle.color = defaultOutlineStyle.color
+            copy.defaultOutlineStyle.cornerRadius = defaultOutlineStyle.cornerRadius
+            copy.defaultOutlineStyle.outlineWidth = defaultOutlineStyle.outlineWidth
+        } else {
+            copy.outlineStyle = SentryFormElementOutlineStyle(
+                color: outlineStyle.color,
+                cornerRadius: outlineStyle.cornerRadius,
+                outlineWidth: outlineStyle.outlineWidth)
+        }
         copy.inputBackground = inputBackground
         copy.inputForeground = inputForeground
         return copy

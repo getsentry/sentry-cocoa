@@ -36,7 +36,9 @@ public final class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var messageLabel: String = "Description"
     
-    lazy var messageLabelContents = fullLabelText(labelText: messageLabel, required: true)
+    var messageLabelContents: String {
+        fullLabelText(labelText: messageLabel, required: true)
+    }
     
     /**
      * The placeholder for the feedback description input field.
@@ -44,7 +46,11 @@ public final class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var messagePlaceholder: String = "What's the bug? What did you expect?"
     
-    public lazy var messageTextViewAccessibilityLabel: String = messagePlaceholder
+    @nonobjc var messageTextViewAccessibilityLabelOverride: String?
+    public var messageTextViewAccessibilityLabel: String {
+        get { messageTextViewAccessibilityLabelOverride ?? messagePlaceholder }
+        set { messageTextViewAccessibilityLabelOverride = newValue }
+    }
     
     /**
      * The label shown next to an input field that is required.
@@ -61,7 +67,11 @@ public final class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var removeScreenshotButtonLabel: String = "Remove screenshot"
     
-    public lazy var removeScreenshotButtonAccessibilityLabel = removeScreenshotButtonLabel
+    @nonobjc var removeScreenshotButtonAccessibilityLabelOverride: String?
+    public var removeScreenshotButtonAccessibilityLabel: String {
+        get { removeScreenshotButtonAccessibilityLabelOverride ?? removeScreenshotButtonLabel }
+        set { removeScreenshotButtonAccessibilityLabelOverride = newValue }
+    }
     
     // MARK: Name
     
@@ -85,7 +95,9 @@ public final class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var nameLabel: String = "Name"
     
-    lazy var nameLabelContents = fullLabelText(labelText: nameLabel, required: isNameRequired)
+    var nameLabelContents: String {
+        fullLabelText(labelText: nameLabel, required: isNameRequired)
+    }
     
     /**
      * The placeholder for the name input field.
@@ -94,7 +106,11 @@ public final class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var namePlaceholder: String = "Your Name"
     
-    public lazy var nameTextFieldAccessibilityLabel = namePlaceholder
+    @nonobjc var nameTextFieldAccessibilityLabelOverride: String?
+    public var nameTextFieldAccessibilityLabel: String {
+        get { nameTextFieldAccessibilityLabelOverride ?? namePlaceholder }
+        set { nameTextFieldAccessibilityLabelOverride = newValue }
+    }
     
     // MARK: Email
     
@@ -117,7 +133,9 @@ public final class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var emailLabel: String = "Email"
     
-    lazy var emailLabelContents = fullLabelText(labelText: emailLabel, required: isEmailRequired)
+    var emailLabelContents: String {
+        fullLabelText(labelText: emailLabel, required: isEmailRequired)
+    }
     
     /**
      * The placeholder for the email input field.
@@ -125,7 +143,11 @@ public final class SentryUserFeedbackFormConfiguration: NSObject {
      */
     public var emailPlaceholder: String = "your.email@example.org"
     
-    public lazy var emailTextFieldAccessibilityLabel = "Your email address"
+    @nonobjc var emailTextFieldAccessibilityLabelOverride: String?
+    public var emailTextFieldAccessibilityLabel: String {
+        get { emailTextFieldAccessibilityLabelOverride ?? "Your email address" }
+        set { emailTextFieldAccessibilityLabelOverride = newValue }
+    }
     
     // MARK: Buttons
     
@@ -139,7 +161,11 @@ public final class SentryUserFeedbackFormConfiguration: NSObject {
      * The accessibility label of the form's "Submit" button.
      * - note: Default: `submitButtonLabel` value
      */
-    public lazy var submitButtonAccessibilityLabel: String = submitButtonLabel
+    @nonobjc var submitButtonAccessibilityLabelOverride: String?
+    public var submitButtonAccessibilityLabel: String {
+        get { submitButtonAccessibilityLabelOverride ?? submitButtonLabel }
+        set { submitButtonAccessibilityLabelOverride = newValue }
+    }
     
     /**
      * The label of cancel buttons used in the feedback form.
@@ -151,7 +177,11 @@ public final class SentryUserFeedbackFormConfiguration: NSObject {
      * The accessibility label of the form's "Cancel" button.
      * - note: Default: `cancelButtonLabel` value
      */
-    public lazy var cancelButtonAccessibilityLabel: String = cancelButtonLabel
+    @nonobjc var cancelButtonAccessibilityLabelOverride: String?
+    public var cancelButtonAccessibilityLabel: String {
+        get { cancelButtonAccessibilityLabelOverride ?? cancelButtonLabel }
+        set { cancelButtonAccessibilityLabelOverride = newValue }
+    }
     
     func fullLabelText(labelText: String, required: Bool) -> String {
         required ? labelText + " " + isRequiredLabel : labelText
