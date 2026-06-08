@@ -198,8 +198,9 @@ Each sub-object is a plain Swift class (no `NSObject`, no `@objc`):
 /// or be removed in any minor release without prior deprecation.
 ///
 /// App developers: prefer the standard `SentrySDK` API surface instead.
+@_implementationOnly import _SentryPrivate
+
 public final class SentryInternalApi {
-    @_implementationOnly import _SentryPrivate
 
     #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
     public let replay = SentryInternalReplayApi()
@@ -222,8 +223,7 @@ public final class SentryInternalApi {
 // Sources/Swift/HybridSDK/SentryInternalReplayApi.swift
 
 public final class SentryInternalReplayApi {
-    public func capture() {
-        // Same internal call as PrivateSentrySDKOnly.captureReplay
+    public func capture() -> Bool {
         SentrySessionReplayIntegration.captureReplay()
     }
 
