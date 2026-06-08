@@ -20,7 +20,9 @@ struct FeedbackScreen: View {
             .buttonStyle(.borderedProminent)
 
             Button("Present Form (Convenience API)") {
-                SentrySDK.feedback.show()
+                SentrySDK.feedback.show { config in
+                    config.tags = ["presentation": "swiftui-convenience-api"]
+                }
             }
             .buttonStyle(.borderedProminent)
 
@@ -42,9 +44,16 @@ struct FeedbackScreen: View {
         }
         .padding()
         .navigationTitle("Feedback")
-        .sentryFeedback(isPresented: $isFeedbackModifierPresented)
+        .sentryFeedback(isPresented: $isFeedbackModifierPresented) { config in
+            config.tags = ["presentation": "swiftui-modifier"]
+        }
         .sheet(isPresented: $isFeedbackFormViewPresented) {
-            SentrySDK.FeedbackFormView()
+            SentrySDK.FeedbackFormView { config in
+                config.configureForm = { form in
+                    form.submitButtonLabel = "Send Feedback"
+                }
+                config.tags = ["presentation": "swiftui-form-view"]
+            }
         }
     }
 }

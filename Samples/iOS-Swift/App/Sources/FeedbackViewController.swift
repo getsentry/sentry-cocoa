@@ -14,12 +14,20 @@ final class FeedbackViewController: UIViewController {
     }
 
     @IBAction private func presentController(_: UIButton) {
-        let form = SentrySDK.FeedbackForm()
+        let form = SentrySDK.FeedbackForm { config in
+            config.configureForm = { form in
+                form.formTitle = "Report Feedback"
+                form.submitButtonLabel = "Send Feedback"
+            }
+            config.tags = ["presentation": "uikit-controller"]
+        }
         present(form, animated: true)
     }
 
     @IBAction private func presentFallback(_: UIButton) {
-        SentrySDK.feedback.show()
+        SentrySDK.feedback.show { config in
+            config.tags = ["presentation": "convenience-api"]
+        }
     }
 
     @IBAction private func toggleWidget(_: UIButton) {

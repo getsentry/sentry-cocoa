@@ -680,7 +680,7 @@
     
     /// A block that configures the user feedback feature.
     @available(iOSApplicationExtension, unavailable)
-    @objc public var configureUserFeedback: ((SentryUserFeedbackConfiguration) -> Void)? {
+    @objc public var configureUserFeedback: SentryUserFeedbackConfigurationCallback? {
         didSet {
             let config = SentryUserFeedbackConfiguration()
             configureUserFeedback?(config)

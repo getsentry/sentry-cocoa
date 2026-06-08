@@ -2,6 +2,9 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
+/// Callback used to configure a user feedback presentation.
+public typealias SentryUserFeedbackConfigurationCallback = (SentryUserFeedbackConfiguration) -> Void
+
 /**
  * The settings to use for how the user feedback form is presented, what data is required and how
  * it's submitted, and some auxiliary hooks to customize the workflow.
@@ -150,6 +153,103 @@ public final class SentryUserFeedbackConfiguration: NSObject {
     let padding: CGFloat = 16
     let spacing: CGFloat = 8
     let margin: CGFloat = 32
+}
+
+extension SentryUserFeedbackConfiguration {
+    func applyConfigurationBuilders() {
+        configureForm?(formConfig)
+        configureTheme?(theme)
+        configureDarkTheme?(darkTheme)
+    }
+
+    func configurationForPresentation(
+        configure: SentryUserFeedbackConfigurationCallback?
+    ) -> SentryUserFeedbackConfiguration {
+        guard let configure = configure else {
+            return self
+        }
+
+        let copy = copyForPresentation()
+        configure(copy)
+        copy.resetGlobalOnlyOptionsForPresentation()
+        copy.applyConfigurationBuilders()
+        return copy
+    }
+
+    func copyForPresentation() -> SentryUserFeedbackConfiguration {
+        let copy = SentryUserFeedbackConfiguration()
+        copy.animations = animations
+        copy.formConfig = formConfig.copyForPresentation()
+        copy.tags = tags
+        copy.onFormOpen = onFormOpen
+        copy.onFormClose = onFormClose
+        copy.onSubmitSuccess = onSubmitSuccess
+        copy.onSubmitError = onSubmitError
+        copy.theme = theme.copyForPresentation()
+        copy.darkTheme = darkTheme.copyForPresentation()
+        return copy
+    }
+
+    func resetGlobalOnlyOptionsForPresentation() {
+        configureWidget = nil
+        widgetConfig = SentryUserFeedbackWidgetConfiguration()
+        useShakeGesture = false
+        showFormForScreenshots = false
+        customButton = nil
+    }
+}
+
+extension SentryUserFeedbackFormConfiguration {
+    func copyForPresentation() -> SentryUserFeedbackFormConfiguration {
+        let copy = SentryUserFeedbackFormConfiguration()
+        copy.useSentryUser = useSentryUser
+        copy.showBranding = showBranding
+        copy.formTitle = formTitle
+        copy.messageLabel = messageLabel
+        copy.messagePlaceholder = messagePlaceholder
+        copy.messageTextViewAccessibilityLabel = messageTextViewAccessibilityLabel
+        copy.isRequiredLabel = isRequiredLabel
+        copy.removeScreenshotButtonLabel = removeScreenshotButtonLabel
+        copy.removeScreenshotButtonAccessibilityLabel = removeScreenshotButtonAccessibilityLabel
+        copy.isNameRequired = isNameRequired
+        copy.showName = showName
+        copy.nameLabel = nameLabel
+        copy.namePlaceholder = namePlaceholder
+        copy.nameTextFieldAccessibilityLabel = nameTextFieldAccessibilityLabel
+        copy.isEmailRequired = isEmailRequired
+        copy.showEmail = showEmail
+        copy.emailLabel = emailLabel
+        copy.emailPlaceholder = emailPlaceholder
+        copy.emailTextFieldAccessibilityLabel = emailTextFieldAccessibilityLabel
+        copy.submitButtonLabel = submitButtonLabel
+        copy.submitButtonAccessibilityLabel = submitButtonAccessibilityLabel
+        copy.cancelButtonLabel = cancelButtonLabel
+        copy.cancelButtonAccessibilityLabel = cancelButtonAccessibilityLabel
+        copy.unexpectedErrorText = unexpectedErrorText
+        copy.validationErrorMessage = validationErrorMessage
+        return copy
+    }
+}
+
+extension SentryUserFeedbackThemeConfiguration {
+    func copyForPresentation() -> SentryUserFeedbackThemeConfiguration {
+        let copy = SentryUserFeedbackThemeConfiguration()
+        copy.fontFamily = fontFamily
+        copy.foreground = foreground
+        copy.background = background
+        copy.submitForeground = submitForeground
+        copy.submitBackground = submitBackground
+        copy.buttonForeground = buttonForeground
+        copy.buttonBackground = buttonBackground
+        copy.errorColor = errorColor
+        copy.outlineStyle = SentryFormElementOutlineStyle(
+            color: outlineStyle.color,
+            cornerRadius: outlineStyle.cornerRadius,
+            outlineWidth: outlineStyle.outlineWidth)
+        copy.inputBackground = inputBackground
+        copy.inputForeground = inputForeground
+        return copy
+    }
 }
 
 #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK

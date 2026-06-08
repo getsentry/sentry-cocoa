@@ -26,6 +26,46 @@ final class SentryUserFeedbackFormViewTests: XCTestCase {
         assertIsFeedbackModifier(modifiedText)
     }
 
+    func testFeedbackFormView_whenConfigurePassed_shouldStoreConfiguration() {
+        // -- Arrange --
+        var configureCalls = 0
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormView { _ in
+            configureCalls += 1
+        }
+        sut.configure?(SentryUserFeedbackConfiguration())
+
+        // -- Assert --
+        XCTAssertEqual(configureCalls, 1)
+    }
+
+    func testFeedbackFormModifier_whenConfigurePassed_shouldStoreConfiguration() {
+        // -- Arrange --
+        var configureCalls = 0
+
+        // -- Act --
+        let sut = SentryUserFeedbackFormModifier(
+            isPresented: .constant(false),
+            screenshot: nil,
+            configure: { _ in configureCalls += 1 })
+        sut.configure?(SentryUserFeedbackConfiguration())
+
+        // -- Assert --
+        XCTAssertEqual(configureCalls, 1)
+    }
+
+    func testSentryFeedback_whenConfigurePassed_shouldReturnFeedbackModifier() {
+        // -- Arrange --
+        let text = Text("Hello, World!")
+
+        // -- Act --
+        let modifiedText = text.sentryFeedback(isPresented: .constant(false)) { _ in }
+
+        // -- Assert --
+        assertIsFeedbackModifier(modifiedText)
+    }
+
     private func assertIsFeedbackModifier(_ view: some View) {
         let typeDescription = String(describing: view)
         let candidates = [
