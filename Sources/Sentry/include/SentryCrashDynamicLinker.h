@@ -86,17 +86,6 @@ bool sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr,
  */
 uint32_t sentrycrashdl_imageNamed(const char *const imageName, bool exactMatch);
 
-/** Get the UUID of a loaded binary image with the specified name.
- *
- * @param imageName The image name to look for.
- *
- * @param exactMatch If true, look for an exact match instead of a partial one.
- *
- * @return A pointer to the binary (16 byte) UUID of the image, or NULL if it
- *         wasn't found.
- */
-const uint8_t *sentrycrashdl_imageUUID(const char *const imageName, bool exactMatch);
-
 void sentrycrashdl_getCrashInfo(uint64_t address, SentryCrashBinaryImage *buffer);
 
 void sentrycrashdl_initialize(void);
