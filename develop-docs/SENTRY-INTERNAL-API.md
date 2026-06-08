@@ -28,6 +28,29 @@ Hybrid SDKs (React Native, Flutter, .NET, Unity) consume `PrivateSentrySDKOnly`,
 - Wrapping types already available in the public API (e.g., `SentrySDK.replay` for end users).
 - Changing the internal SDK architecture. The new types call the same internal code that `PrivateSentrySDKOnly` does today.
 
+## Eliminating Internal Header Imports
+
+Beyond replacing `PrivateSentrySDKOnly`, this API also eliminates the need for hybrid SDKs to import other internal headers:
+
+### `SentryOptionsInternal.h`
+
+Unity imports this solely for `+initWithDict:didFailWithError:`, which creates `SentryOptions` from a dictionary passed across the C#→ObjC bridge. This is already mapped to `.internal.options(fromDictionary:)` / `[[… internal] optionsFromDictionary:error:]`.
+
+### `Sentry-Swift.h`
+
+Unity imports this to access `SentryId` and `SentrySpanId` types, which are Swift classes only available to ObjC through the auto-generated bridging header. The Unity code even documents the workaround: _"This is a workaround to deal with SentryId living inside the Swift header."_ It uses `NSClassFromString()` to load these types dynamically.
+
+With the new API, `SentryObjCInternalApi.setTrace:spanId:` accepts `SentryObjCId *` and `SentryObjCSpanId *` parameters — types that already exist in the `SentryObjC` public headers. Unity imports `<SentryObjC/SentryObjC.h>` instead, which provides both the internal API and the ID types.
+
+### Result
+
+After migration, hybrid SDKs need only one import:
+
+- **Swift:** `import Sentry`
+- **ObjC:** `#import <SentryObjC/SentryObjC.h>`
+
+No more `PrivateSentrySDKOnly.h`, `SentryOptionsInternal.h`, or `Sentry-Swift.h`.
+
 ## Architecture
 
 ```
@@ -236,6 +259,8 @@ Following the two-target architecture from [SENTRY-OBJC.md](SENTRY-OBJC.md):
 #import <Foundation/Foundation.h>
 #import <SentryObjC/SentryObjCDefines.h>
 
+@class SentryObjCId;
+@class SentryObjCSpanId;
 @class SentryObjCInternalReplayApi;
 @class SentryObjCInternalEnvelopeApi;
 // ... other forward declarations ...
@@ -259,6 +284,7 @@ Following the two-target architecture from [SENTRY-OBJC.md](SENTRY-OBJC.md):
 - (void)setSdkName:(NSString *)name version:(NSString *)version;
 - (NSString *)sdkName;
 - (NSString *)sdkVersionString;
+- (void)setTrace:(SentryObjCId *)traceId spanId:(SentryObjCSpanId *)spanId;
 
 @end
 ```
@@ -401,19 +427,26 @@ let success = SentrySDK.internal.replay.capture()
 ```objc
 // Before
 #import <Sentry/PrivateSentrySDKOnly.h>
+#import <Sentry/SentryOptionsInternal.h>  // Unity only
+#import <Sentry/Sentry-Swift.h>           // Unity only (workaround for SentryId)
 [PrivateSentrySDKOnly setSdkName:@"sentry.cocoa.react-native" andVersionString:@"6.0.0"];
 PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = YES;
 SentryScreenFrames *frames = PrivateSentrySDKOnly.currentScreenFrames;
 [PrivateSentrySDKOnly captureReplay];
-// Workaround to get BOOL result:
-id integration = [PrivateSentrySDKOnly performSelector:@selector(getReplayIntegration)];
+// Unity workaround for SentryId living in Swift header:
+Class SentryIdClass = NSClassFromString(@"SentryId");
+id traceId = [[SentryIdClass alloc] initWithUUIDString:traceString];
 
-// After
+// After — single import, no internal headers
 #import <SentryObjC/SentryObjC.h>
 [[SentryObjCSDK internal] setSdkName:@"sentry.cocoa.react-native" version:@"6.0.0"];
 [SentryObjCSDK internal].appStart.hybridSDKMode = YES;
 SentryObjCScreenFrames *frames = [SentryObjCSDK internal].performance.currentScreenFrames;
 BOOL success = [[[SentryObjCSDK internal] replay] capture];
+// Typed ID parameters — no NSClassFromString, no Sentry-Swift.h
+SentryObjCId *traceId = [[SentryObjCId alloc] initWithUUIDString:traceString];
+SentryObjCSpanId *spanId = [[SentryObjCSpanId alloc] initWithValue:spanString];
+[[SentryObjCSDK internal] setTrace:traceId spanId:spanId];
 ```
 
 ## Public API Surface Impact
