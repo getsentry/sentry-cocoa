@@ -112,7 +112,7 @@ jobs:
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         run: sed -i '' "s/parallelizable = \"YES\"/parallelizable = \"NO\"/" RNSentryCocoaTester.xcodeproj/xcshareddata/xcschemes/RNSentryCocoaTester.xcscheme
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         name: Cache Ruby
         with:
           path: |
