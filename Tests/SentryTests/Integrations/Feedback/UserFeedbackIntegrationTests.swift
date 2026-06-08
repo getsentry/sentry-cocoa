@@ -166,6 +166,24 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
+    func testShowForm_whenPresenterDoesNotShowForm_shouldKeepWidgetVisible() throws {
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource())
+        sut.showWidget()
+        let widgetHost = try XCTUnwrap(widgetHost(for: sut))
+        let presenter = DroppingPresentingViewController()
+
+        XCTAssertTrue(widgetHost.isWidgetVisible)
+
+        sut.showForm(from: presenter, screenshot: nil)
+
+        XCTAssertEqual(presenter.presentCallCount, 1)
+        XCTAssertTrue(widgetHost.isWidgetVisible)
+    }
+
     func testPresentationControllerDidDismiss_whenFormWasPresented_shouldClearActiveForm() throws {
         let window = UIWindow(frame: UIScreen.main.bounds)
         let viewController = TestPresentingViewController()
@@ -205,15 +223,15 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
         XCTAssertTrue(widgetHost.isWidgetVisible)
         sut.showForm()
-        XCTAssertFalse(widgetHost.isWidgetVisible)
 
         let form = try XCTUnwrap(widgetHost.presentedViewController as? SentryUserFeedbackFormController)
+        form.beginAppearanceTransition(true, animated: false)
+        XCTAssertFalse(widgetHost.isWidgetVisible)
         let presentationController = UIPresentationController(
             presentedViewController: form,
             presenting: widgetHost
         )
 
-        form.beginAppearanceTransition(true, animated: false)
         form.endAppearanceTransition()
         form.presentationControllerDidDismiss(presentationController)
 
@@ -235,12 +253,13 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertFalse(widgetHost.isWidgetVisible)
 
         let form = try XCTUnwrap(widgetHost.presentedViewController as? SentryUserFeedbackFormController)
+        form.beginAppearanceTransition(true, animated: false)
+        XCTAssertFalse(widgetHost.isWidgetVisible)
         let presentationController = UIPresentationController(
             presentedViewController: form,
             presenting: widgetHost
         )
 
-        form.beginAppearanceTransition(true, animated: false)
         form.endAppearanceTransition()
         form.presentationControllerDidDismiss(presentationController)
 
@@ -337,6 +356,18 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             presentCallCount += 1
             lastPresentedViewController = viewControllerToPresent
             completion?()
+        }
+    }
+
+    private final class DroppingPresentingViewController: UIViewController {
+        private(set) var presentCallCount = 0
+
+        override func present(
+            _ viewControllerToPresent: UIViewController,
+            animated _: Bool,
+            completion: (() -> Void)? = nil
+        ) {
+            presentCallCount += 1
         }
     }
 }
