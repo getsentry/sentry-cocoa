@@ -23,6 +23,7 @@ In order of importance:
 - **C/C++ code** (SentryCrash) — buffer overflows, null pointer dereferences, signal safety
 - **Session Replay** — privacy-sensitive; verify redaction/masking logic
 - **Envelope serialization** — correct byte ordering, length prefixes, JSON encoding
+- **SentryObjC wrapper** — any new public API must also be exposed in `SentryObjC` / `SentryObjCCompat`; see [`develop-docs/SENTRY-OBJC.md`](develop-docs/SENTRY-OBJC.md) for the wrapper pattern and naming convention
 
 ## Conventions to Enforce
 
