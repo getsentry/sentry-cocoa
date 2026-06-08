@@ -289,9 +289,9 @@ jobs:
         with:
           version: "26"
 
-      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace . \
             -scheme SentryDistribution \
             -sdk iphoneos \
             -destination 'generic/platform=iphoneos' \
@@ -317,9 +317,9 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
-      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace . \
             -scheme SentrySPM \
             -sdk watchos \
             -destination 'generic/platform=watchOS' \
@@ -327,6 +327,7 @@ jobs:
         shell: sh
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace . \
             -scheme SentrySPM \
             -sdk iphoneos \
             -destination 'generic/platform=iphoneos' \

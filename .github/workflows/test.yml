@@ -134,8 +134,7 @@ jobs:
           OS_VERSION: "18.5"
           PLATFORM: "iOS"
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
-      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
-      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
+      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild test -workspace . -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
         shell: sh
       - name: Upload Distribution Test Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
