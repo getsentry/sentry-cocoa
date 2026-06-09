@@ -79,15 +79,16 @@ jobs:
         name: Cache Ruby
         with:
           path: |
-            ~/.rbenv/versions
-            ~/.rbenv/cache
-          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}
+            ~/.asdf/installs/ruby
+          key: ruby-asdf-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}
 
       - name: Install Ruby (Bitrise)
         if: inputs.runner_provider == 'bitrise'
         run: |
-          brew upgrade ruby-build
-          rbenv install -s
+          asdf plugin add ruby || true
+          asdf plugin update ruby
+          asdf install ruby $(cat .ruby-version)
+          asdf global ruby $(cat .ruby-version)
           bundle install
 
       - name: Setup Ruby

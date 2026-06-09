@@ -116,16 +116,17 @@ jobs:
         name: Cache Ruby
         with:
           path: |
-            ~/.rbenv/versions
-            ~/.rbenv/cache
-          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('sentry-react-native/.ruby-version') }}
+            ~/.asdf/installs/ruby
+          key: ruby-asdf-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('sentry-react-native/.ruby-version') }}
 
       - name: Install Ruby (Bitrise)
         if: matrix.runner_provider == 'bitrise'
         working-directory: sentry-react-native
         run: |
-          brew upgrade ruby-build
-          rbenv install -s
+          asdf plugin add ruby || true
+          asdf plugin update ruby
+          asdf install ruby $(cat .ruby-version)
+          asdf global ruby $(cat .ruby-version)
 
       - name: Setup Ruby
         if: matrix.runner_provider != 'bitrise'
