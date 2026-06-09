@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (SentryStacktrace *)retrieveStacktraceFromCursor:(SentryCrashStackCursor)stackCursor
+- (SentryStacktrace *)retrieveStacktraceFromCursor:(KSStackCursor)stackCursor
 {
     NSMutableArray<SentryFrame *> *frames = [NSMutableArray array];
     SentryFrame *frame = nil;

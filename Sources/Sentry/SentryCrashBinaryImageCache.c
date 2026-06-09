@@ -194,10 +194,6 @@ addDyldImage(void)
     SentryCrashBinaryImageCacheState *cache = currentCache();
     const struct mach_header *header = sentryDyldHeader;
 
-    if (header == NULL) {
-        return;
-    }
-
     uint32_t idx = atomic_fetch_add_explicit(&cache->nextIndex, 1, memory_order_relaxed);
     if (idx >= MAX_DYLD_IMAGES) {
         logImageLimitReached(cache);

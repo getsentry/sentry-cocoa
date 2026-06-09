@@ -1,4 +1,5 @@
 #import "SentryDefaultThreadInspector.h"
+#import "SentryAsyncSafeLog.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashStackCursor.h"
 #import "SentryCrashStackEntryMapper.h"
@@ -9,7 +10,6 @@
 #import "SentryThread.h"
 #include <mach/mach.h>
 #include <pthread.h>
-#include <string.h>
 
 // Sentry-specific: suspend only when thread count is within limit.
 // KSCrash has no equivalent, so we implement it inline.
@@ -19,21 +19,20 @@ mc_suspendEnvironment_upToMaxSupportedThreads(thread_act_array_t *suspendedThrea
 {
     // Get the count first without suspending.
     mach_port_t task = mach_task_self();
-    thread_act_array_t threads = NULL;
-    mach_msg_type_number_t count = 0;
-    if (task_threads(task, &threads, &count) != KERN_SUCCESS) {
-        *suspendedThreads = NULL;
-        *numSuspendedThreads = 0;
-        return;
-    }
-    // Deallocate the temporary list — we just needed the count.
-    vm_deallocate(task, (vm_address_t)threads, count * sizeof(thread_t));
 
-    if (count > maxSupportedThreads) {
-        *suspendedThreads = NULL;
-        *numSuspendedThreads = 0;
+    kern_return_t kr;
+    if ((kr = task_threads(task, suspendedThreads, numSuspendedThreads)) != KERN_SUCCESS) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("task_threads: %s", mach_error_string(kr));
         return;
     }
+
+    if (*numSuspendedThreads > maxSupportedThreads) {
+        *numSuspendedThreads = 0;
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Too many threads to suspend. Aborting operation.");
+        return;
+    }
+
+    // TODO: this call replicates half of the above code... not ideal, potential to add upstream?
     ksmc_suspendEnvironment(suspendedThreads, numSuspendedThreads);
 }
 

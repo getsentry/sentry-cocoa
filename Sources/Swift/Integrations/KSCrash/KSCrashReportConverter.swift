@@ -6,10 +6,6 @@ import KSCrashRecording
 
 // TODO: go through all previous comments and see which are still relevant
 
-// SentryCrashSC_ASYNC_MARKER is a C preprocessor #define in SentryCrashStackCursor.h
-// and cannot be imported into Swift. The value (UINTPTR_MAX - 1234) is replicated here.
-private let asyncStackMarker: UInt = .max - 1_234
-
 private extension [String: Any] {
     subscript<T>(_ field: CrashField, _ type: T.Type = T.self) -> T? {
         self[field.rawValue] as? T
@@ -270,7 +266,7 @@ public final class KSCrashReportConverter: NSObject {
 
         // TODO: I don't love this.
         for i in 0..<rawFrames.count {
-            if rawFrames[i].uintValue(.instructionAddr) == asyncStackMarker {
+            if rawFrames[i].uintValue(.instructionAddr) == SentryCrashSC_ASYNC_MARKER {
                 lastFrame?.stackStart = NSNumber(value: true)
                 continue
             }

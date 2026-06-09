@@ -17,7 +17,7 @@ SENTRY_NO_INIT
  * @param stackCursor An with @c SentryCrash initialized @c stackCursor. You can use for example
  * @c sentrycrashsc_initSelfThread.
  */
-- (SentryFrame *)mapStackEntryWithCursor:(SentryCrashStackCursor)stackCursor;
+- (SentryFrame *)mapStackEntryWithCursor:(KSStackCursor)stackCursor;
 
 /**
  * Maps a @c SentryCrashStackEntry to @c SentryFrame.
