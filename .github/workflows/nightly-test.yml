@@ -72,7 +72,7 @@ jobs:
           - name: visionOS 2.5 Sentry
             runner_provider: bitrise
             runs-on: sequoia
-            xcode: "26"
+            xcode: "16"
             platform: "visionOS"
             timeout: 30
 
