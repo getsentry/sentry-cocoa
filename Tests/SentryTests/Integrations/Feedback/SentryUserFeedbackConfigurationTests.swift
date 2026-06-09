@@ -160,6 +160,7 @@ final class SentryUserFeedbackConfigurationTests: XCTestCase {
         XCTAssertEqual(result.theme.outlineStyle.outlineWidth, 2)
     }
 
+    @available(*, deprecated, message: "Testing deprecated widget configuration")
     func testConfigurationForPresentation_whenGlobalOnlyFieldsAreSet_shouldIgnoreThem() {
         let button = UIButton()
         let sut = SentryUserFeedbackConfiguration()

@@ -74,30 +74,30 @@
 
         if (@available(iOS 13.0, *)) {
             options.configureUserFeedback = ^(SentryUserFeedbackConfiguration *_Nonnull config) {
+                BOOL shouldConfigureDeprecatedWidget =
+                    [args containsObject:@"--io.sentry.feedback.no-auto-inject-widget"];
                 UIOffset layoutOffset = UIOffsetMake(25, 75);
-                if ([args containsObject:@"--io.sentry.feedback.all-defaults"]) {
-                    config.configureWidget = ^(SentryUserFeedbackWidgetConfiguration *widget) {
+                if (shouldConfigureDeprecatedWidget) {
+                    config.configureWidget = ^(
+                        SentryUserFeedbackWidgetConfiguration *_Nonnull widget) {
+                        widget.autoInject = NO;
                         widget.layoutUIOffset = layoutOffset;
+                        if (![args containsObject:@"--io.sentry.feedback.all-defaults"]) {
+                            widget.labelText = @"Report Jank";
+                            if ([args containsObject:@"--io.sentry.feedback.no-widget-text"]) {
+                                widget.labelText = nil;
+                            }
+                            if ([args containsObject:@"--io.sentry.feedback.no-widget-icon"]) {
+                                widget.showIcon = NO;
+                            }
+                        }
                     };
+                }
+                if ([args containsObject:@"--io.sentry.feedback.all-defaults"]) {
                     return;
                 }
                 config.useShakeGesture = YES;
                 config.showFormForScreenshots = YES;
-                config.configureWidget = ^(SentryUserFeedbackWidgetConfiguration *_Nonnull widget) {
-                    if ([args containsObject:@"--io.sentry.feedback.no-auto-inject-widget"]) {
-                        widget.autoInject = NO;
-                    } else {
-                        widget.labelText = @"Report Jank";
-                        widget.layoutUIOffset = layoutOffset;
-                    }
-
-                    if ([args containsObject:@"--io.sentry.feedback.no-widget-text"]) {
-                        widget.labelText = nil;
-                    }
-                    if ([args containsObject:@"--io.sentry.feedback.no-widget-icon"]) {
-                        widget.showIcon = NO;
-                    }
-                };
                 config.configureForm = ^(SentryUserFeedbackFormConfiguration *_Nonnull uiForm) {
                     uiForm.formTitle = @"Jank Report";
                     uiForm.submitButtonLabel = @"Report that jank";

@@ -21,6 +21,7 @@ public extension View {
     ///
     /// Per-presentation configuration only affects the displayed form. Widget, custom button,
     /// screenshot trigger, and shake gesture settings are global and ignored for individual presentations.
+    /// - warning: This is an experimental feature and may still have bugs.
     /// - Parameters:
     ///   - isPresented: A binding that controls whether the feedback form is presented.
     ///   - screenshot: An optional screenshot to attach to the feedback form.

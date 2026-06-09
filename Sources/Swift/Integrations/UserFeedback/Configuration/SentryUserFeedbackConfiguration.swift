@@ -8,6 +8,9 @@ public typealias SentryUserFeedbackConfigurationCallback = (SentryUserFeedbackCo
 /**
  * The settings to use for how the user feedback form is presented, what data is required and how
  * it's submitted, and some auxiliary hooks to customize the workflow.
+ *
+ * Use this to customize the form shown by `SentrySDK.feedback.show()`,
+ * `SentrySDK.FeedbackForm`, or `sentryFeedback(isPresented:)`.
  */
 @objcMembers
 public final class SentryUserFeedbackConfiguration: NSObject {
@@ -19,19 +22,31 @@ public final class SentryUserFeedbackConfiguration: NSObject {
     
     /**
      * Configuration settings specific to the managed widget that displays the UI form.
-     * - note: Default: `nil` to use the default widget settings.
+     * - note: Default: `nil`. Set this only to configure the managed widget; unspecified widget values use the default widget settings.
+     * - deprecated: The managed widget is deprecated and will be removed in v10. Present the
+     * feedback form from your own UI instead.
      */
-    public var configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)?
-    
+    public var configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)? {
+        // Only the setter is deprecated to avoid warnings when compiling the SDK.
+        @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10. Present the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:) instead.")
+        set {
+            _configureWidget = newValue
+        }
+        get {
+            _configureWidget
+        }
+    }
+    var _configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)?
+
     lazy var widgetConfig = SentryUserFeedbackWidgetConfiguration()
-    
+
     /**
      * Use a shake gesture to display the form.
      * - note: Default: `false`
      * - note: Setting this to true does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.configureWidget` config builder.
      */
     public var useShakeGesture: Bool = false
-    
+
     /**
      * Any time a user takes a screenshot, bring up the form with the screenshot attached.
      * - note: Default: `false`
@@ -48,6 +63,7 @@ public final class SentryUserFeedbackConfiguration: NSObject {
 
     /**
      * Configuration settings specific to the managed UI form to gather user input.
+     * - note: Used when the form is shown with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, `sentryFeedback(isPresented:)`, the widget, or a custom button.
      * - note: Default: `nil`
      */
     public var configureForm: ((SentryUserFeedbackFormConfiguration) -> Void)?
@@ -191,7 +207,7 @@ extension SentryUserFeedbackConfiguration {
     }
 
     func resetGlobalOnlyOptionsForPresentation() {
-        configureWidget = nil
+        _configureWidget = nil
         widgetConfig = SentryUserFeedbackWidgetConfiguration()
         useShakeGesture = false
         showFormForScreenshots = false

@@ -19,6 +19,8 @@ extension SentryUserFeedbackFormDelegate {
 ///
 /// If the managed User Feedback integration is installed, the SDK temporarily hides the feedback widget while this
 /// controller is visible.
+///
+/// - warning: This is an experimental feature and may still have bugs.
 @available(iOSApplicationExtension, unavailable)
 public final class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
@@ -35,6 +37,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
 
     /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback`.
+    /// - warning: This is an experimental feature and may still have bugs.
     @nonobjc public convenience init() {
         self.init(screenshot: nil, configure: nil)
     }
@@ -46,6 +49,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
     /// - Parameters:
     ///   - screenshot: An optional screenshot to attach to the feedback form.
     ///   - configure: A closure to customize this feedback form presentation.
+    /// - warning: This is an experimental feature and may still have bugs.
     @nonobjc public convenience init(
         screenshot: UIImage? = nil,
         configure: SentryUserFeedbackConfigurationCallback? = nil

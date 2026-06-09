@@ -16,14 +16,20 @@ SENTRY_NO_INIT
 /**
  * Show the feedback widget button.
  * @warning This is an experimental feature and may still have bugs.
+ * @deprecated The Sentry-managed User Feedback widget is deprecated and will be removed in v10.
  */
-- (void)showWidget NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
+- (void)showWidget NS_EXTENSION_UNAVAILABLE("Not available in app extensions.")
+    __attribute__((deprecated("The Sentry-managed User Feedback widget is deprecated and will be "
+                              "removed in v10.")));
 
 /**
  * Hide the feedback widget button.
  * @warning This is an experimental feature and may still have bugs.
+ * @deprecated The Sentry-managed User Feedback widget is deprecated and will be removed in v10.
  */
-- (void)hideWidget NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
+- (void)hideWidget NS_EXTENSION_UNAVAILABLE("Not available in app extensions.")
+    __attribute__((deprecated("The Sentry-managed User Feedback widget is deprecated and will be "
+                              "removed in v10.")));
 
 @end
 

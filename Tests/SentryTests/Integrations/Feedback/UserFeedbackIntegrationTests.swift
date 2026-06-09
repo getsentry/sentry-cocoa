@@ -35,6 +35,61 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertEqual(UserFeedbackIntegration<TestDependencies>.name, "SentryUserFeedbackIntegration")
     }
 
+    @available(*, deprecated, message: "Testing deprecated widget configuration")
+    func testWidgetAccessibilityLabel_whenLabelTextChangedBeforeAccess_shouldUseUpdatedLabelText() {
+        let sut = SentryUserFeedbackWidgetConfiguration()
+
+        sut.labelText = "Send Feedback"
+
+        XCTAssertEqual(sut.widgetAccessibilityLabel, "Send Feedback")
+    }
+
+    @available(*, deprecated, message: "Testing deprecated widget configuration")
+    func testWidgetAccessibilityLabel_whenExplicitlySetToNil_shouldRemainNil() {
+        let sut = SentryUserFeedbackWidgetConfiguration()
+
+        sut.widgetAccessibilityLabel = nil
+
+        XCTAssertNil(sut.widgetAccessibilityLabel)
+    }
+
+    @available(*, deprecated, message: "Testing deprecated widget configuration")
+    func testWidgetConfiguration_whenDeprecatedPropertiesAreSet_shouldRoundTripValues() {
+        let sut = SentryUserFeedbackWidgetConfiguration()
+        let layoutOffset = UIOffset(horizontal: 10, vertical: 20)
+        let windowLevel = UIWindow.Level.alert + 1
+
+        sut.autoInject = false
+        sut.labelText = "Send Feedback"
+        sut.showIcon = false
+        sut.widgetAccessibilityLabel = "Feedback Button"
+        sut.windowLevel = windowLevel
+        sut.location = [.top, .leading]
+        sut.layoutUIOffset = layoutOffset
+
+        XCTAssertFalse(sut.autoInject)
+        XCTAssertEqual(sut.labelText, "Send Feedback")
+        XCTAssertFalse(sut.showIcon)
+        XCTAssertEqual(sut.widgetAccessibilityLabel, "Feedback Button")
+        XCTAssertEqual(sut.windowLevel, windowLevel)
+        XCTAssertEqual(sut.location, [.top, .leading])
+        XCTAssertEqual(sut.layoutUIOffset.horizontal, layoutOffset.horizontal)
+        XCTAssertEqual(sut.layoutUIOffset.vertical, layoutOffset.vertical)
+    }
+
+    @available(*, deprecated, message: "Testing deprecated widget configuration")
+    func testConfigureWidget_whenSet_shouldStoreBuilder() throws {
+        let sut = SentryUserFeedbackConfiguration()
+        let widgetConfig = SentryUserFeedbackWidgetConfiguration()
+
+        sut.configureWidget = { config in
+            config.autoInject = false
+        }
+        try XCTUnwrap(sut.configureWidget)(widgetConfig)
+
+        XCTAssertFalse(widgetConfig.autoInject)
+    }
+
     func testInitializerFailsWhenNoScreenshotSource() {
         let integration = UserFeedbackIntegration(with: Self.optionsWithFeedback, dependencies: TestDependencies(screenshotSource: nil))
         XCTAssertNil(integration)

@@ -30,10 +30,25 @@ class UserFeedbackUITests: BaseUITest {
 }
 
 extension UserFeedbackUITests {
+    private func launchAppWithDeprecatedWidget(args: [String] = [], env: [String: String] = [:]) {
+        var launchArguments = args
+        if !launchArguments.contains(SentrySDKOverrides.Feedback.disableAutoInject.rawValue) {
+            launchArguments.append(SentrySDKOverrides.Feedback.disableAutoInject.rawValue)
+        }
+        launchApp(args: launchArguments, env: env)
+        showDeprecatedWidget()
+    }
+
+    private func showDeprecatedWidget() {
+        extrasAreaTabBarButton.tap()
+        app.buttons["io.sentry.ui-test.button.show-widget"].tap()
+        XCTAssertTrue(widgetButton.waitForExistence(timeout: 1))
+    }
+
     // MARK: Tests ensuring correct appearance
     
     func testUIElementsWithDefaults() {
-        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue])
+        launchAppWithDeprecatedWidget(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue])
         // widget button text
         XCTAssertTrue(app.otherElements["Report a Bug"].exists)
         
@@ -60,7 +75,7 @@ extension UserFeedbackUITests {
     }
     
     func testUIElementsWithCustomizations() {
-        launchApp()
+        launchAppWithDeprecatedWidget()
         
         // widget button text
         XCTAssertTrue(app.otherElements["Report Jank"].exists)
@@ -88,7 +103,7 @@ extension UserFeedbackUITests {
     }
     
     func testPrefilledUserInformation() throws {
-        launchApp(args: [
+        launchAppWithDeprecatedWidget(args: [
             SentrySDKOverrides.Feedback.allDefaults.rawValue
         ], env: [
             SentrySDKOverrides.Scope.userFullName.rawValue: "ui test user",
@@ -101,7 +116,7 @@ extension UserFeedbackUITests {
     }
     
     func testNoPrefilledUserInformation() throws {
-        launchApp(args: [
+        launchAppWithDeprecatedWidget(args: [
             SentrySDKOverrides.Feedback.noUserInjection.rawValue
         ], env: [
             SentrySDKOverrides.Scope.userFullName.rawValue: "ui test user",
@@ -118,7 +133,7 @@ extension UserFeedbackUITests {
     // MARK: Tests validating happy path / successful submission
 
     func testSubmitFullyFilledCustomForm() throws {
-        launchApp(args: [
+        launchAppWithDeprecatedWidget(args: [
             SentrySDKOverrides.Feedback.noUserInjection.rawValue
         ])
 
@@ -158,7 +173,7 @@ extension UserFeedbackUITests {
         let testName = "Andrew"
         let testContactEmail = "andrew.mcknight@sentry.io"
         
-        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
+        launchAppWithDeprecatedWidget(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
             SentrySDKOverrides.Scope.userFullName.rawValue: testName,
             SentrySDKOverrides.Scope.userEmail.rawValue: testContactEmail
         ])
@@ -246,7 +261,7 @@ extension UserFeedbackUITests {
         let testName = "Andrew"
         let testContactEmail = "andrew.mcknight@sentry.io"
         
-        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
+        launchAppWithDeprecatedWidget(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
             SentrySDKOverrides.Scope.userFullName.rawValue: testName,
             SentrySDKOverrides.Scope.userEmail.rawValue: testContactEmail
         ])
@@ -275,7 +290,7 @@ extension UserFeedbackUITests {
         let testName = "Andrew"
         let testContactEmail = "andrew.mcknight@sentry.io"
         
-        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
+        launchAppWithDeprecatedWidget(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
             SentrySDKOverrides.Scope.userFullName.rawValue: testName,
             SentrySDKOverrides.Scope.userEmail.rawValue: testContactEmail
         ])
@@ -313,7 +328,7 @@ extension UserFeedbackUITests {
         let testName = "Andrew"
         let testContactEmail = "andrew.mcknight@sentry.io"
         
-        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
+        launchAppWithDeprecatedWidget(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
             SentrySDKOverrides.Scope.userFullName.rawValue: testName,
             SentrySDKOverrides.Scope.userEmail.rawValue: testContactEmail
         ])
@@ -353,7 +368,7 @@ extension UserFeedbackUITests {
         let testMessage = "UITest user feedback"
         fillInFields(testMessage)
         
-        submit()
+        submit(waitingForWidget: false)
         
         try assertEnvelopeContents(testMessage, attachments: true)
     }
@@ -369,7 +384,7 @@ extension UserFeedbackUITests {
         let testMessage = "UITest user feedback"
         fillInFields(testMessage)
         
-        submit()
+        submit(waitingForWidget: false)
         
         try assertEnvelopeContents(testMessage)
     }
@@ -377,7 +392,7 @@ extension UserFeedbackUITests {
     // MARK: Tests validating error cases
     
     func testSubmitWithNoFieldsFilledDefault() throws {
-        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue])
+        launchAppWithDeprecatedWidget(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
         try assertHookMarkersNotExist()
@@ -397,7 +412,7 @@ extension UserFeedbackUITests {
     }
     
     func testSubmitWithNoFieldsFilledEmailAndMessageRequired() throws {
-        launchApp(args: [
+        launchAppWithDeprecatedWidget(args: [
             SentrySDKOverrides.Feedback.requireEmail.rawValue,
             SentrySDKOverrides.Feedback.noUserInjection.rawValue
         ])
@@ -424,7 +439,7 @@ extension UserFeedbackUITests {
     }
     
     func testSubmitWithNoFieldsFilledAllRequired() throws {
-        launchApp(args: [
+        launchAppWithDeprecatedWidget(args: [
             SentrySDKOverrides.Feedback.requireEmail.rawValue,
             SentrySDKOverrides.Feedback.requireName.rawValue,
             SentrySDKOverrides.Feedback.noUserInjection.rawValue
@@ -451,7 +466,7 @@ extension UserFeedbackUITests {
     }
     
     func testSubmitOnlyWithOptionalFieldsFilled() throws {
-        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue])
+        launchAppWithDeprecatedWidget(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
         try assertHookMarkersNotExist()
@@ -473,7 +488,7 @@ extension UserFeedbackUITests {
         let testName = "Andrew"
         let testContactEmail = "andrew.mcknight@sentry.io"
         
-        launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
+        launchAppWithDeprecatedWidget(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
             SentrySDKOverrides.Scope.userFullName.rawValue: testName,
             SentrySDKOverrides.Scope.userEmail.rawValue: testContactEmail
         ])
@@ -592,13 +607,15 @@ extension UserFeedbackUITests {
 
 // MARK: Form hook test helpers
 extension UserFeedbackUITests {
-    func submit(expectingError: Bool = false, usingCustomButton: Bool = false) {
+    func submit(expectingError: Bool = false, usingCustomButton: Bool = false, waitingForWidget: Bool = true) {
         sendButton.tap()
         if !expectingError {
             if usingCustomButton {
                 customButton.waitForExistence("Form should have been dismissed and custom button should be visible again.")
-            } else {
+            } else if waitingForWidget {
                 widgetButton.waitForExistence("Form should have been dismissed and widget button should be visible again.")
+            } else {
+                XCTAssertFalse(sendButton.waitForExistence(timeout: 1))
             }
         }
     }
