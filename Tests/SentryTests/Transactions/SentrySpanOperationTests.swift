@@ -57,4 +57,16 @@ class SentrySpanOperationTests: XCTestCase {
     func testUIActionClick_shouldBeExpectedValue() {
         XCTAssertEqual(SentrySpanOperationUiActionClick, "ui.action.click")
     }
+
+    func testAppStart_shouldBeExpectedValue() {
+        XCTAssertEqual(SentrySpanOperationAppStart, "app.start")
+    }
+
+    func testAppStartCold_shouldBeExpectedValue() {
+        XCTAssertEqual(SentrySpanOperationAppStartCold, "app.start.cold")
+    }
+
+    func testAppStartWarm_shouldBeExpectedValue() {
+        XCTAssertEqual(SentrySpanOperationAppStartWarm, "app.start.warm")
+    }
 }
