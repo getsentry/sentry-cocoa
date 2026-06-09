@@ -22,7 +22,7 @@
 - Add per-form feedback configuration (#8018)
 
   Managed feedback presentation APIs now accept a configuration closure, so apps can customize a single
-  form without changing the global `SentryOptions.configureUserFeedback` settings:
+  form on top of the global `SentryOptions.configureUserFeedback` settings without mutating them:
 
   ```swift
   SentrySDK.feedback.show { config in
