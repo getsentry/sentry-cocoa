@@ -22,10 +22,29 @@ _Bad software is everywhere, and we're tired of it. Sentry is on a mission to he
 
 # Installation
 
-SPM is the recommended way to include Sentry into your project. We also provide pre-built XCFrameworks on [our GitHub Releases page](https://github.com/getsentry/sentry-cocoa/releases).
+SPM is the recommended way to include Sentry into your project. For the full step-by-step guide (Xcode versions, manual integration, hybrid setups), see the [Apple install docs](https://docs.sentry.io/platforms/apple/install/).
+
+### Swift Package Manager (Xcode)
+
+1. In Xcode, open **File → Add Package Dependencies…**.
+2. Enter the package URL: `https://github.com/getsentry/sentry-cocoa.git`.
+3. Pick **Up to Next Major Version** and confirm.
+4. Add the `Sentry` product to your app target.
+
+### Swift Package Manager (`Package.swift`)
+
+```swift
+.package(url: "https://github.com/getsentry/sentry-cocoa.git", from: "8.0.0"),
+```
+
+then add `"Sentry"` to your target's `dependencies`.
+
+### Pre-built XCFrameworks
+
+Download `Sentry.xcframework.zip` (and the dynamic / static variants as needed) from the [GitHub Releases page](https://github.com/getsentry/sentry-cocoa/releases) and drag it into your project's **Frameworks, Libraries, and Embedded Content** section.
 
 > [!WARNING]
-> CocoaPods support has been deprecated and will no longer receive updates after June 2026. Please migrate to SPM or XCFrameworks. See [CocoaPods read-only change](https://blog.cocoapods.org/CocoaPods-Support-Plans/).
+> CocoaPods support has been deprecated and will no longer receive updates after June 2026. Please migrate to SPM or XCFrameworks. See [CocoaPods read-only change](https://blog.cocoapods.org/CocoaPods-Support-Plans/) and [the migration guide](https://docs.sentry.io/platforms/apple/install/cocoapods/).
 
 # Initialization
 
