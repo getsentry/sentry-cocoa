@@ -7,17 +7,27 @@ import UIKit
 /// Use this view from a SwiftUI presentation container, such as `.sheet`.
 @available(iOSApplicationExtension, unavailable)
 public struct SentryUserFeedbackFormView: UIViewControllerRepresentable {
-    private let screenshot: UIImage?
+    let screenshot: UIImage?
+    let configure: SentryUserFeedbackConfigurationCallback?
 
-    /// Creates a feedback form using the global configuration from `SentryOptions.configureUserFeedback`.
-    /// - Parameter screenshot: An optional screenshot to attach to the feedback form.
-    public init(screenshot: UIImage? = nil) {
+    /// Creates a feedback form using the global configuration and an optional form-specific configuration.
+    ///
+    /// Per-presentation configuration only affects the displayed form. Widget, custom button,
+    /// screenshot trigger, and shake gesture settings are global and ignored for individual presentations.
+    /// - Parameters:
+    ///   - screenshot: An optional screenshot to attach to the feedback form.
+    ///   - configure: A closure to customize this feedback form presentation.
+    public init(
+        screenshot: UIImage? = nil,
+        configure: SentryUserFeedbackConfigurationCallback? = nil
+    ) {
         self.screenshot = screenshot
+        self.configure = configure
     }
 
     // swiftlint:disable:next missing_docs
     public func makeUIViewController(context: Context) -> SentryUserFeedbackFormController {
-        let controller = SentryUserFeedbackFormController(screenshot: screenshot)
+        let controller = SentryUserFeedbackFormController(screenshot: screenshot, configure: configure)
         // SwiftUI sheets keep the hosting controller's view visible behind the wrapped view controller's
         // bottom safe area. Match that parent background to the form after SwiftUI attaches the controller.
         controller.didMoveToParent = { controller in

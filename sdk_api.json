@@ -1433,6 +1433,42 @@
       {
         "children": [
           {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryUserFeedbackConfiguration",
+                "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+              }
+            ],
+            "kind": "TypeFunc",
+            "name": "Function",
+            "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+          }
+        ],
+        "declKind": "TypeAlias",
+        "kind": "TypeAlias",
+        "mangledName": "$s6Sentry0A33UserFeedbackConfigurationCallbacka",
+        "moduleName": "Sentry",
+        "name": "SentryUserFeedbackConfigurationCallback",
+        "printedName": "SentryUserFeedbackConfigurationCallback",
+        "usr": "s:6Sentry0A33UserFeedbackConfigurationCallbacka"
+      },
+      {
+        "children": [
+          {
             "kind": "TypeNominal",
             "name": "__NSConstantString_tag",
             "printedName": "__ObjC.__NSConstantString_tag",
@@ -21786,30 +21822,37 @@
                           {
                             "children": [
                               {
-                                "kind": "TypeNominal",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "Void",
+                                    "printedName": "()"
+                                  }
+                                ],
+                                "kind": "TypeNameAlias",
                                 "name": "Void",
-                                "printedName": "()"
+                                "printedName": "Swift.Void"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryUserFeedbackConfiguration",
+                                "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
                               }
                             ],
-                            "kind": "TypeNameAlias",
-                            "name": "Void",
-                            "printedName": "Swift.Void"
-                          },
-                          {
-                            "kind": "TypeNominal",
-                            "name": "SentryUserFeedbackConfiguration",
-                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
-                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                            "kind": "TypeFunc",
+                            "name": "Function",
+                            "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
                           }
                         ],
-                        "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                        "kind": "TypeNameAlias",
+                        "name": "SentryUserFeedbackConfigurationCallback",
+                        "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
                       }
                     ],
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "((Sentry.SentryUserFeedbackConfiguration) -> Swift.Void)?",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
                     "usr": "s:Sq"
                   }
                 ],
@@ -21835,30 +21878,37 @@
                           {
                             "children": [
                               {
-                                "kind": "TypeNominal",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "Void",
+                                    "printedName": "()"
+                                  }
+                                ],
+                                "kind": "TypeNameAlias",
                                 "name": "Void",
-                                "printedName": "()"
+                                "printedName": "Swift.Void"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryUserFeedbackConfiguration",
+                                "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
                               }
                             ],
-                            "kind": "TypeNameAlias",
-                            "name": "Void",
-                            "printedName": "Swift.Void"
-                          },
-                          {
-                            "kind": "TypeNominal",
-                            "name": "SentryUserFeedbackConfiguration",
-                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
-                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                            "kind": "TypeFunc",
+                            "name": "Function",
+                            "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
                           }
                         ],
-                        "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                        "kind": "TypeNameAlias",
+                        "name": "SentryUserFeedbackConfigurationCallback",
+                        "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
                       }
                     ],
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "((Sentry.SentryUserFeedbackConfiguration) -> Swift.Void)?",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
                     "usr": "s:Sq"
                   },
                   {
@@ -21889,30 +21939,37 @@
                       {
                         "children": [
                           {
-                            "kind": "TypeNominal",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
                             "name": "Void",
-                            "printedName": "()"
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
                           }
                         ],
-                        "kind": "TypeNameAlias",
-                        "name": "Void",
-                        "printedName": "Swift.Void"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "SentryUserFeedbackConfiguration",
-                        "printedName": "Sentry.SentryUserFeedbackConfiguration",
-                        "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
                       }
                     ],
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                    "kind": "TypeNameAlias",
+                    "name": "SentryUserFeedbackConfigurationCallback",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
                   }
                 ],
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "((Sentry.SentryUserFeedbackConfiguration) -> Swift.Void)?",
+                "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
                 "usr": "s:Sq"
               }
             ],
@@ -38141,6 +38198,47 @@
               {
                 "children": [
                   {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "Void",
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "SentryUserFeedbackConfigurationCallback",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
+                "usr": "s:Sq"
+              },
+              {
+                "children": [
+                  {
                     "kind": "TypeNominal",
                     "name": "UIImage",
                     "printedName": "UIKit.UIImage",
@@ -38166,11 +38264,11 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A11FeedbackAPIC4show10screenshotySo7UIImageCSg_tF",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC4show10screenshot9configureySo7UIImageCSg_yAA0a4UserB13ConfigurationCcSgtF",
             "moduleName": "Sentry",
             "name": "show",
-            "printedName": "show(screenshot:)",
-            "usr": "s:6Sentry0A11FeedbackAPIC4show10screenshotySo7UIImageCSg_tF"
+            "printedName": "show(screenshot:configure:)",
+            "usr": "s:6Sentry0A11FeedbackAPIC4show10screenshot9configureySo7UIImageCSg_yAA0a4UserB13ConfigurationCcSgtF"
           },
           {
             "children": [
@@ -64148,12 +64246,54 @@
               {
                 "children": [
                   {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "Void",
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "SentryUserFeedbackConfigurationCallback",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
+                "usr": "s:Sq"
+              },
+              {
+                "children": [
+                  {
                     "kind": "TypeNominal",
                     "name": "UIImage",
                     "printedName": "UIKit.UIImage",
                     "usr": "c:objc(cs)UIImage"
                   }
                 ],
+                "hasDefaultArg": true,
                 "kind": "TypeNominal",
                 "name": "Optional",
                 "printedName": "UIKit.UIImage?",
@@ -64168,16 +64308,17 @@
             ],
             "declAttributes": [
               "Custom",
+              "NonObjC",
               "Preconcurrency"
             ],
             "declKind": "Constructor",
             "init_kind": "Convenience",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC10screenshotACSo7UIImageCSg_tcfc",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC10screenshot9configureACSo7UIImageCSg_yAA0abC13ConfigurationCcSgtcfc",
             "moduleName": "Sentry",
             "name": "init",
-            "printedName": "init(screenshot:)",
-            "usr": "s:6Sentry0A26UserFeedbackFormControllerC10screenshotACSo7UIImageCSg_tcfc"
+            "printedName": "init(screenshot:configure:)",
+            "usr": "s:6Sentry0A26UserFeedbackFormControllerC10screenshot9configureACSo7UIImageCSg_yAA0abC13ConfigurationCcSgtcfc"
           },
           {
             "children": [
@@ -64672,6 +64813,47 @@
               {
                 "children": [
                   {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "Void",
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "SentryUserFeedbackConfigurationCallback",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
+                "usr": "s:Sq"
+              },
+              {
+                "children": [
+                  {
                     "kind": "TypeNominal",
                     "name": "UIImage",
                     "printedName": "UIKit.UIImage",
@@ -64698,11 +64880,11 @@
             "declKind": "Constructor",
             "init_kind": "Designated",
             "kind": "Constructor",
-            "mangledName": "$s6Sentry0A20UserFeedbackFormViewV10screenshotACSo7UIImageCSg_tcfc",
+            "mangledName": "$s6Sentry0A20UserFeedbackFormViewV10screenshot9configureACSo7UIImageCSg_yAA0abC13ConfigurationCcSgtcfc",
             "moduleName": "Sentry",
             "name": "init",
-            "printedName": "init(screenshot:)",
-            "usr": "s:6Sentry0A20UserFeedbackFormViewV10screenshotACSo7UIImageCSg_tcfc"
+            "printedName": "init(screenshot:configure:)",
+            "usr": "s:6Sentry0A20UserFeedbackFormViewV10screenshot9configureACSo7UIImageCSg_yAA0abC13ConfigurationCcSgtcfc"
           },
           {
             "children": [
@@ -75168,6 +75350,47 @@
               {
                 "children": [
                   {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "Void",
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "SentryUserFeedbackConfigurationCallback",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
+                "usr": "s:Sq"
+              },
+              {
+                "children": [
+                  {
                     "kind": "TypeNominal",
                     "name": "UIImage",
                     "printedName": "UIKit.UIImage",
@@ -75191,11 +75414,11 @@
             "genericSig": "<Self where Self : SwiftUI.View>",
             "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s7SwiftUI4ViewP6SentryE14sentryFeedback11isPresented10screenshotQrAA7BindingVySbG_So7UIImageCSgtF",
+            "mangledName": "$s7SwiftUI4ViewP6SentryE14sentryFeedback11isPresented10screenshot9configureQrAA7BindingVySbG_So7UIImageCSgyAD0d4UserF13ConfigurationCcSgtF",
             "moduleName": "Sentry",
             "name": "sentryFeedback",
-            "printedName": "sentryFeedback(isPresented:screenshot:)",
-            "usr": "s:7SwiftUI4ViewP6SentryE14sentryFeedback11isPresented10screenshotQrAA7BindingVySbG_So7UIImageCSgtF"
+            "printedName": "sentryFeedback(isPresented:screenshot:configure:)",
+            "usr": "s:7SwiftUI4ViewP6SentryE14sentryFeedback11isPresented10screenshot9configureQrAA7BindingVySbG_So7UIImageCSgyAD0d4UserF13ConfigurationCcSgtF"
           },
           {
             "children": [
