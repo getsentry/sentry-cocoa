@@ -51,6 +51,12 @@ class SentryExtendedAppLaunchTests: XCTestCase {
         return hub
     }
 
+    // MARK: - Constants
+
+    func testExtendedOperation_shouldBeExpectedValue() {
+        XCTAssertEqual(SentryExtendedAppLaunchManager.Constants.extendedOperation, "app.start.extended_app_start")
+    }
+
     // MARK: - SentryExtendedAppLaunchManager
 
     func testExtend_setsFlag() {
