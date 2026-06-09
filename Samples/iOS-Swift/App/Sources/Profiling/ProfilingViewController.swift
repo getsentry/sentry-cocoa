@@ -63,7 +63,7 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     }
 
     @IBAction func tracesSampleRateEdited(_ sender: UITextField) {
-        var sampleRate = SentrySDKOverrides.Tracing.sampleRate
+        var sampleRate = SentrySDKOverrides.Performance.sampleRate
         sampleRate.floatValue = getSampleRateOverride(field: sender)
     }
 
@@ -79,7 +79,7 @@ class ProfilingViewController: UIViewController, UITextFieldDelegate {
     @IBAction func defineTracesSampleRateToggled(_ sender: UISwitch) {
         tracesSampleRateField.isEnabled = sender.isOn
 
-        var sampleRate = SentrySDKOverrides.Tracing.sampleRate
+        var sampleRate = SentrySDKOverrides.Performance.sampleRate
         sampleRate.floatValue = getSampleRateOverride(field: tracesSampleRateField)
     }
 
