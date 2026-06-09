@@ -4,8 +4,6 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-var displayingForm = false
-
 protocol SentryUserFeedbackWidgetDelegate: NSObjectProtocol {
     func showForm()
 }
@@ -33,7 +31,7 @@ final class SentryUserFeedbackWidget {
          *
          * Both UIKit and SwiftUI apps can have connected UIScenes. Here's how we then try to tell the difference:
          * - If there is no connected UIScene but there is already a UIApplicationDelegate by the time this integration is being installed, then we are either in a UIKit app, or inside a SwiftUI app that for whatever reason delays the call to SentrySDK.start until there is a connected scene. In either case, we'll just grab the first connected UIScene and proceed.
-         * - Otherwise, we're either in a SwiftUI app that _does_ call SentrySDK.start at the recommended time (SwiftUIApp.init), or there is a more complicated initialization procedure in a UIKit app that we can't automatically detect, and the app will need to call SentrySDK.feedback.showWidget() at the appropriate time, the same as how SwiftUI apps must currently do once they've connected a UIScene to their UIApplicationDelegateAdaptor.
+         * - Otherwise, we're either in a SwiftUI app that _does_ call SentrySDK.start at the recommended time (SwiftUIApp.init), or there is a more complicated initialization procedure in a UIKit app that we can't automatically detect, and the app will need to call SentrySDK.feedback.showWidget() at the appropriate time, the same as how SwiftUI apps must currently do once they've connected a UIScene to their UIApplicationDelegateAdaptor. The managed widget is deprecated; prefer presenting the feedback form from your own UI.
          */
         let window: Window
         if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
@@ -70,7 +68,8 @@ final class SentryUserFeedbackWidget {
         }
         
         override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-            guard !displayingForm else {
+            // Only let the overlay window intercept all touches when it owns the presented form.
+            if rootViewController?.presentedViewController != nil {
                 return super.hitTest(point, with: event)
             }
             
@@ -84,8 +83,9 @@ final class SentryUserFeedbackWidget {
         }
     }
 
-    final class RootViewController: UIViewController, UIAdaptivePresentationControllerDelegate {
+    final class RootViewController: UIViewController {
         let defaultWidgetSpacing: CGFloat = 8
+        private(set) var isWidgetVisible = true
         weak var button: SentryUserFeedbackWidgetButtonView?
         init(config: SentryUserFeedbackConfiguration, button: SentryUserFeedbackWidgetButtonView) {
             self.button = button
@@ -119,11 +119,19 @@ final class SentryUserFeedbackWidget {
         }
 
         func setWidget(visible: Bool, animated: Bool) {
-            if animated {
+            isWidgetVisible = visible
+            if visible {
+                button?.isHidden = false
+            }
+            if animated && UIView.areAnimationsEnabled {
                 UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
                     self.button?.alpha = visible ? 1 : 0
+                } completion: { [weak self] _ in
+                    guard self?.isWidgetVisible == visible else { return }
+                    self?.button?.isHidden = !visible
                 }
             } else {
+                button?.alpha = visible ? 1 : 0
                 button?.isHidden = !visible
             }
         }

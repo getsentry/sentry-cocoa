@@ -679,8 +679,12 @@
     @_spi(Private) @objc public var userFeedbackConfiguration: SentryUserFeedbackConfiguration?
     
     /// A block that configures the user feedback feature.
+    ///
+    /// Use this to customize the form shown by `SentrySDK.feedback.show()`,
+    /// `SentrySDK.FeedbackForm`, or `sentryFeedback(isPresented:)`. Configure the deprecated
+    /// managed widget only via `SentryUserFeedbackConfiguration.configureWidget`.
     @available(iOSApplicationExtension, unavailable)
-    @objc public var configureUserFeedback: ((SentryUserFeedbackConfiguration) -> Void)? {
+    @objc public var configureUserFeedback: SentryUserFeedbackConfigurationCallback? {
         didSet {
             let config = SentryUserFeedbackConfiguration()
             configureUserFeedback?(config)

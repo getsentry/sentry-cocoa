@@ -9,26 +9,101 @@ class SentryFeedbackTests: XCTestCase {
     private typealias FeedbackTestCase = (config: FeedbackTestCaseConfiguration, shouldValidate: Bool, expectedSubmitButtonAccessibilityHint: String)
     
     private class Fixture {
-        class TestFormDelegate: NSObject, SentryUserFeedbackFormDelegate {
-            func finished(with feedback: Sentry.SentryFeedback?) {
-                // no-op
-            }
-        }
         let config: SentryUserFeedbackConfiguration
         let testCaseConfig: FeedbackTestCaseConfiguration
-        let formDelegate = TestFormDelegate()
-        lazy var controller = {
-            let controller = SentryUserFeedbackFormController(config: config, delegate: formDelegate, screenshot: self.testCaseConfig.includeScreenshot ? UIImage() : nil)
-            config.configureForm?(config.formConfig) // this is needed to actually get the configured test photo picker into the controller. usually done by the driver
-            return controller
-        }()
-                
+        lazy var controller = SentryUserFeedbackFormController(preparedConfig: config, screenshot: self.testCaseConfig.includeScreenshot ? UIImage() : nil)
+
         init(config: SentryUserFeedbackConfiguration, testCaseConfig: FeedbackTestCaseConfiguration) {
+            config.configureForm?(config.formConfig)
+            config.configureTheme?(config.theme)
+            config.configureDarkTheme?(config.darkTheme)
             self.config = config
             self.testCaseConfig = testCaseConfig
         }
     }
-    
+
+    private final class TestFormDelegate: NSObject, SentryUserFeedbackFormDelegate {
+        private(set) var closeCalls = 0
+
+        func userFeedbackFormDidClose(_ form: SentryUserFeedbackFormController) {
+            closeCalls += 1
+        }
+    }
+
+    private final class DismissingParentViewController: UIViewController {
+        override var isBeingDismissed: Bool { true }
+    }
+
+    func testFormLifecycle_whenFormAppears_shouldCallOpenOnce() {
+        let config = SentryUserFeedbackConfiguration()
+        var openCalls = 0
+        config.onFormOpen = { openCalls += 1 }
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+
+        XCTAssertEqual(openCalls, 1)
+    }
+
+    func testFormLifecycle_whenPresentationDismisses_shouldCallCloseOnce() {
+        let config = SentryUserFeedbackConfiguration()
+        let delegate = TestFormDelegate()
+        var closeCalls = 0
+        config.onFormClose = { closeCalls += 1 }
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        sut.delegate = delegate
+        let presentationController = UIPresentationController(presentedViewController: sut, presenting: nil)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.presentationControllerDidDismiss(presentationController)
+        sut.presentationControllerDidDismiss(presentationController)
+
+        XCTAssertEqual(closeCalls, 1)
+        XCTAssertEqual(delegate.closeCalls, 1)
+    }
+
+    func testFormLifecycle_whenPresentingParentDismisses_shouldCallCloseOnce() {
+        let config = SentryUserFeedbackConfiguration()
+        var closeCalls = 0
+        config.onFormClose = { closeCalls += 1 }
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let parent = DismissingParentViewController()
+        parent.addChild(sut)
+        parent.view.addSubview(sut.view)
+        sut.didMove(toParent: parent)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.beginAppearanceTransition(false, animated: false)
+        sut.endAppearanceTransition()
+
+        XCTAssertEqual(closeCalls, 1)
+    }
+
+    func testFormLifecycle_whenSameFormIsPresentedAgain_shouldCallHooksAgain() {
+        let config = SentryUserFeedbackConfiguration()
+        var openCalls = 0
+        var closeCalls = 0
+        config.onFormOpen = { openCalls += 1 }
+        config.onFormClose = { closeCalls += 1 }
+        let sut = SentryUserFeedbackFormController(preparedConfig: config, screenshot: nil)
+        let presentationController = UIPresentationController(presentedViewController: sut, presenting: nil)
+
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.presentationControllerDidDismiss(presentationController)
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
+        sut.presentationControllerDidDismiss(presentationController)
+
+        XCTAssertEqual(openCalls, 2)
+        XCTAssertEqual(closeCalls, 2)
+    }
+
     func testSerializeWithAllFields() throws {
         let attachment = Attachment(data: Data(), filename: "screenshot.png", contentType: "image/png")
         let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", attachments: [attachment])

@@ -1,7 +1,16 @@
 @testable import SentryDistribution
 import Testing
 
-@Test func testBinaryParserGetsCorrectUUID() throws {
+// Distribution is only supported on iOS and the binary parser
+// does not support non-iOS apps.
+@Test("Binary Parser", .enabled(if: {
+    #if os(iOS)
+    return true
+    #else
+    return false
+    #endif
+}()))
+func testBinaryParserGetsCorrectUUID() throws {
   let uuid = BinaryParser.getMainBinaryUUID { _, ptr in
     let mutable = UnsafeMutableRawPointer(mutating: ptr)
     for i in 0..<16 {

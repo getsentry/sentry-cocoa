@@ -6,33 +6,26 @@ import UIKit
 
 /**
  * An integration managing a workflow for end users to report feedback via Sentry.
- * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
+ * - note: The managed widget is deprecated and will be removed in v10; prefer presenting the form from your own UI.
  */
 @available(iOSApplicationExtension, unavailable)
 final class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
     private var widget: SentryUserFeedbackWidget?
-    fileprivate let callback: (SentryFeedback) -> Void
+    private weak var activeForm: SentryUserFeedbackFormController?
+    private var shouldRestoreWidgetOnFormClose = false
     let screenshotSource: SentryScreenshotSource
     weak var customButton: UIButton?
 
-    init(configuration: SentryUserFeedbackConfiguration, screenshotSource: SentryScreenshotSource, callback: @escaping (SentryFeedback) -> Void) {
+    init(configuration: SentryUserFeedbackConfiguration, screenshotSource: SentryScreenshotSource) {
         self.configuration = configuration
-        self.callback = callback
         self.screenshotSource = screenshotSource
         super.init()
 
-        if let uiFormConfigBuilder = configuration.configureForm {
-            uiFormConfigBuilder(configuration.formConfig)
-        }
-        if let themeOverrideBuilder = configuration.configureTheme {
-            themeOverrideBuilder(configuration.theme)
-        }
-        if let darkThemeOverrideBuilder = configuration.configureDarkTheme {
-            darkThemeOverrideBuilder(configuration.darkTheme)
-        }
+        configuration.applyConfigurationBuilders()
 
         if let customButton = configuration.customButton {
+            self.customButton = customButton
             customButton.addTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
         } else if let widgetConfigBuilder = configuration.configureWidget {
             widgetConfigBuilder(configuration.widgetConfig)
@@ -41,7 +34,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
             /*
              * We cannot currently automatically inject a widget into a SwiftUI application, because at the recommended time to start the Sentry SDK (SwiftUIApp.init) there is nowhere to put a UIWindow overlay. SwiftUI apps must currently declare a UIApplicationDelegateAdaptor that returns a UISceneConfiguration, which we can then extract a connected UIScene from into which we can inject a UIWindow.
              *
-             * At the time this integration is being installed, if there is no UIApplicationDelegate and no connected UIScene, it is very likely we are in a SwiftUI app, but it's possible we could instead be in a UIKit app that has some nonstandard launch procedure or doesn't call SentrySDK.start in a place we expect/recommend, in which case they will need to manually display the widget when they're ready by calling SentrySDK.feedback.showWidget.
+             * At the time this integration is being installed, if there is no UIApplicationDelegate and no connected UIScene, it is very likely we are in a SwiftUI app, but it's possible we could instead be in a UIKit app that has some nonstandard launch procedure or doesn't call SentrySDK.start in a place we expect/recommend, in which case they will need to manually display the widget when they're ready by calling SentrySDK.feedback.showWidget. The managed widget is deprecated; prefer presenting the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:).
              */
             if UIApplication.shared.connectedScenes.isEmpty && UIApplication.shared.delegate == nil {
                 observeShakeGesture()
@@ -76,24 +69,16 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
     }
 
     @objc func showForm(sender: UIButton) {
-        presenter?.present(SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: nil), animated: configuration.animations) {
-            self.configuration.onFormOpen?()
-        }
+        showForm(screenshot: nil)
     }
-}
 
-// MARK: SentryUserFeedbackFormDelegate
-@available(iOSApplicationExtension, unavailable)
-extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
-    func finished(with feedback: SentryFeedback?) {
-        if let feedback = feedback {
-            callback(feedback)
-        }
-        presenter?.dismiss(animated: configuration.animations) {
-            self.configuration.onFormClose?()
-        }
-        widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
-        displayingForm = false
+    var displayingForm: Bool {
+        return activeForm != nil
+    }
+
+    private func hideWidgetForFormPresentation(_ form: SentryUserFeedbackFormController) {
+        shouldRestoreWidgetOnFormClose = widget?.rootVC.isWidgetVisible == true
+        widget?.rootVC.setWidget(visible: false, animated: form.config.animations)
     }
 }
 
@@ -105,31 +90,65 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
     }
 }
 
-// MARK: UIAdaptivePresentationControllerDelegate
+// MARK: SentryUserFeedbackFormDelegate
 @available(iOSApplicationExtension, unavailable)
-extension SentryUserFeedbackIntegrationDriver: UIAdaptivePresentationControllerDelegate {
-    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
-        displayingForm = false
-        configuration.onFormClose?()
+extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
+    func userFeedbackFormWillOpen(_ form: SentryUserFeedbackFormController) {
+        if let activeForm = activeForm {
+            guard activeForm === form else {
+                SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
+                return
+            }
+        } else {
+            activeForm = form
+        }
+
+        hideWidgetForFormPresentation(form)
+    }
+
+    func userFeedbackFormDidClose(_ form: SentryUserFeedbackFormController) {
+        guard activeForm === form else { return }
+
+        activeForm = nil
+        let shouldRestoreWidget = shouldRestoreWidgetOnFormClose
+        shouldRestoreWidgetOnFormClose = false
+        if shouldRestoreWidget {
+            widget?.rootVC.setWidget(visible: true, animated: form.config.animations)
+        }
+    }
+}
+
+// MARK: Internal
+@available(iOSApplicationExtension, unavailable)
+extension SentryUserFeedbackIntegrationDriver {
+    func showForm(
+        from presenter: UIViewController,
+        screenshot: UIImage?,
+        configure: SentryUserFeedbackConfigurationCallback? = nil
+    ) {
+        guard activeForm == nil else {
+            SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
+            return
+        }
+
+        let formConfig = configuration.configurationForPresentation(configure: configure)
+        let form = SentryUserFeedbackFormController(preparedConfig: formConfig, screenshot: screenshot)
+        form.delegate = self
+        activeForm = form
+        presenter.present(form, animated: formConfig.animations)
     }
 }
 
 // MARK: Private
 @available(iOSApplicationExtension, unavailable)
 private extension SentryUserFeedbackIntegrationDriver {
-    func showForm(screenshot: UIImage?) {
+    func showForm(screenshot: UIImage? = nil) {
         guard let presenter = presenter else {
             SentrySDKLog.debug("Cannot show feedback form — no presenter available")
             return
         }
-        let form = SentryUserFeedbackFormController(config: configuration, delegate: self, screenshot: screenshot)
-        form.presentationController?.delegate = self
-        widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
-        displayingForm = true
-        presenter.present(form, animated: configuration.animations) {
-            self.configuration.onFormOpen?()
-        }
+
+        showForm(from: presenter, screenshot: screenshot)
     }
 
     func validate(_ config: SentryUserFeedbackWidgetConfiguration) {
@@ -187,7 +206,7 @@ private extension SentryUserFeedbackIntegrationDriver {
         if let customButton = configuration.customButton {
             return customButton.controller
         }
-        
+
         return widget?.rootVC
     }
 }

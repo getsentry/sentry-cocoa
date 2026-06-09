@@ -10,12 +10,39 @@
   ```objc
   [SentryObjCSDK.logger infoWithFormat:@"User %@ processed %d items", userName, count];
   ```
+- Add managed user feedback form presentation APIs (#7873)
+
+  Apps using the managed User Feedback integration can now present the form directly:
+  - Use `SentrySDK.feedback.show()` to let the SDK pick the best presenter.
+  - In UIKit, present the `SentrySDK.FeedbackForm()` view controller yourself.
+  - In SwiftUI, use `.sentryFeedback(isPresented:)`, or present `SentrySDK.FeedbackFormView()` from a container such as `.sheet`.
+
+  These APIs use the global `SentryOptions.configureUserFeedback` configuration and temporarily hide the managed widget
+  while the form is open, when possible.
+- Add per-form feedback configuration (#8018)
+
+  Managed feedback presentation APIs now accept a configuration closure, so apps can customize a single
+  form on top of the global `SentryOptions.configureUserFeedback` settings without mutating them:
+
+  ```swift
+  SentrySDK.feedback.show { config in
+      config.configureForm = { form in
+          form.formTitle = "Report a Bug"
+          form.submitButtonLabel = "Send Report"
+      }
+      config.tags = ["screen": "settings"]
+  }
+  ```
 - Standalone app start sub-spans operations have been renamed for better clarity (#8003):
   - Pre Runtime Init: app.start	-> app.start.pre_runtime_init
   - Runtime Init to Pre Main Initializers: app.start -> app.start.runtime_init
   - UIKit Init: app.start -> app.start.uikit_init
   - Application Init: app.start -> app.start.application_init
   - Extended App Start: app.start -> app.start.extended_app_start
+
+### Deprecations
+
+- Deprecate the managed User Feedback widget/FAB. It will be removed in v10. Present the feedback form from your own UI with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, or `.sentryFeedback(isPresented:)` instead. (#8022)
 
 ## 9.16.1
 

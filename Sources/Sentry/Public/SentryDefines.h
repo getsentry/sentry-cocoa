@@ -200,7 +200,8 @@ typedef NS_ENUM(NSInteger, SentryTransactionNameSource); // This is a forward de
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
 /**
- * Block used to configure the user feedback widget, form, behaviors and submission data.
+ * Block used to configure the user feedback form, deprecated widget, presentation behaviors and
+ * submission data.
  */
 typedef void (^SentryUserFeedbackConfigurationBlock)(
     SentryUserFeedbackConfiguration *_Nonnull configuration);
