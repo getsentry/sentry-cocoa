@@ -62,7 +62,6 @@ NS_ASSUME_NONNULL_BEGIN
  * Default is nil.
  */
 @property (nonatomic, strong, nullable) SentryAppStartMeasurement *appStartMeasurement;
-
 #endif // SENTRY_HAS_UIKIT
 
 + (SentryTracerConfiguration *)configurationWithBlock:
