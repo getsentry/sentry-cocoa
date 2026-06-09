@@ -343,7 +343,10 @@ extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
 
     func configureFeedbackWidget(config: SentryUserFeedbackWidgetConfiguration) {
-        config.autoInject = !SentrySDKOverrides.Feedback.disableAutoInject.boolValue
+        config.autoInject = false
+        config.layoutUIOffset = layoutOffset
+
+        guard !SentrySDKOverrides.Feedback.allDefaults.boolValue else { return }
 
         if Locale.current.languageCode == "ar" { // arabic
             config.labelText = "﷽"
@@ -356,7 +359,6 @@ extension SentrySDKWrapper {
         } else {
             config.labelText = "Report Jank"
         }
-        config.layoutUIOffset = layoutOffset
 
         if SentrySDKOverrides.Feedback.noWidgetText.boolValue {
             config.labelText = nil
@@ -408,9 +410,10 @@ extension SentrySDKWrapper {
     }
 
     func configureFeedback(config: SentryUserFeedbackConfiguration) {
+        let shouldConfigureDeprecatedWidget = SentrySDKOverrides.Feedback.disableAutoInject.boolValue
         guard !args.contains(SentrySDKOverrides.Feedback.allDefaults.rawValue) else {
-            config.configureWidget = { widget in
-                widget.layoutUIOffset = self.layoutOffset
+            if shouldConfigureDeprecatedWidget {
+                config.configureWidget = configureFeedbackWidget(config:)
             }
             configureHooks(config: config)
             return
@@ -419,7 +422,9 @@ extension SentrySDKWrapper {
         config.animations = !SentrySDKOverrides.Feedback.noAnimations.boolValue
         config.useShakeGesture = !SentrySDKOverrides.Feedback.noShakeGesture.boolValue
         config.showFormForScreenshots = !SentrySDKOverrides.Feedback.noScreenshots.boolValue
-        config.configureWidget = configureFeedbackWidget(config:)
+        if shouldConfigureDeprecatedWidget {
+            config.configureWidget = configureFeedbackWidget(config:)
+        }
         config.configureForm = configureFeedbackForm(config:)
         config.configureTheme = configureFeedbackTheme(config:)
         configureHooks(config: config)

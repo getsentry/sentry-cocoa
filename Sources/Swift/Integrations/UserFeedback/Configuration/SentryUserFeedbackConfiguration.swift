@@ -5,6 +5,9 @@ import UIKit
 /**
  * The settings to use for how the user feedback form is presented, what data is required and how
  * it's submitted, and some auxiliary hooks to customize the workflow.
+ *
+ * Use this to customize the form shown by `SentrySDK.feedback.show()`,
+ * `SentrySDK.FeedbackForm`, or `sentryFeedback(isPresented:)`.
  */
 @objcMembers
 public final class SentryUserFeedbackConfiguration: NSObject {
@@ -16,7 +19,7 @@ public final class SentryUserFeedbackConfiguration: NSObject {
     
     /**
      * Configuration settings specific to the managed widget that displays the UI form.
-     * - note: Default: `nil` to use the default widget settings.
+     * - note: Default: `nil`. Set this only to configure the managed widget; unspecified widget values use the default widget settings.
      * - deprecated: The managed widget is deprecated and will be removed in v10. Present the
      * feedback form from your own UI instead.
      */
@@ -37,14 +40,14 @@ public final class SentryUserFeedbackConfiguration: NSObject {
     /**
      * Use a shake gesture to display the form.
      * - note: Default: `false`
-     * - note: Setting this to true does not disable the widget. If you have enabled the deprecated widget, set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.configureWidget` config builder while migrating.
+     * - note: Setting this to true does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.configureWidget` config builder.
      */
     public var useShakeGesture: Bool = false
 
     /**
      * Any time a user takes a screenshot, bring up the form with the screenshot attached.
      * - note: Default: `false`
-     * - note: Setting this to true does not disable the widget. If you have enabled the deprecated widget, set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.configureWidget` config builder while migrating.
+     * - note: Setting this to true does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.configureWidget` config builder.
      */
     public var showFormForScreenshots: Bool = false
 
@@ -57,6 +60,7 @@ public final class SentryUserFeedbackConfiguration: NSObject {
 
     /**
      * Configuration settings specific to the managed UI form to gather user input.
+     * - note: Used when the form is shown with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, `sentryFeedback(isPresented:)`, the widget, or a custom button.
      * - note: Default: `nil`
      */
     public var configureForm: ((SentryUserFeedbackFormConfiguration) -> Void)?

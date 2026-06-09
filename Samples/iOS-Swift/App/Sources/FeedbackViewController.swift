@@ -4,7 +4,7 @@ import UIKit
 final class FeedbackViewController: UIViewController {
     @IBOutlet private weak var toggleWidgetButton: UIButton?
 
-    private var isFeedbackWidgetVisible = true
+    private var isFeedbackWidgetVisible = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,7 +33,7 @@ final class FeedbackViewController: UIViewController {
     }
 
     private func updateToggleWidgetButtonTitle() {
-        setTitle(isFeedbackWidgetVisible ? "Hide Widget" : "Show Widget", for: toggleWidgetButton)
+        setTitle(isFeedbackWidgetVisible ? "Hide Widget (Deprecated)" : "Show Widget (Deprecated)", for: toggleWidgetButton)
     }
 
     private func setTitle(_ title: String, for button: UIButton?) {

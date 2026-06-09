@@ -31,7 +31,7 @@ final class SentryUserFeedbackWidget {
          *
          * Both UIKit and SwiftUI apps can have connected UIScenes. Here's how we then try to tell the difference:
          * - If there is no connected UIScene but there is already a UIApplicationDelegate by the time this integration is being installed, then we are either in a UIKit app, or inside a SwiftUI app that for whatever reason delays the call to SentrySDK.start until there is a connected scene. In either case, we'll just grab the first connected UIScene and proceed.
-         * - Otherwise, we're either in a SwiftUI app that _does_ call SentrySDK.start at the recommended time (SwiftUIApp.init), or there is a more complicated initialization procedure in a UIKit app that we can't automatically detect. Since the widget is deprecated, apps should present the feedback form from their own UI instead.
+         * - Otherwise, we're either in a SwiftUI app that _does_ call SentrySDK.start at the recommended time (SwiftUIApp.init), or there is a more complicated initialization procedure in a UIKit app that we can't automatically detect, and the app will need to call SentrySDK.feedback.showWidget() at the appropriate time, the same as how SwiftUI apps must currently do once they've connected a UIScene to their UIApplicationDelegateAdaptor. The managed widget is deprecated; prefer presenting the feedback form from your own UI.
          */
         let window: Window
         if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {

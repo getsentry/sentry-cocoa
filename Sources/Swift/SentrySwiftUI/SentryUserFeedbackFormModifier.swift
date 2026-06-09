@@ -18,6 +18,7 @@ struct SentryUserFeedbackFormModifier: ViewModifier {
 public extension View {
     /// Presents the Sentry user feedback form using a SwiftUI sheet.
     ///
+    /// - warning: This is an experimental feature and may still have bugs.
     /// - Parameters:
     ///   - isPresented: A binding that controls whether the feedback form is presented.
     ///   - screenshot: An optional screenshot to attach to the feedback form.
