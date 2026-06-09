@@ -6,9 +6,13 @@ final class FeedbackUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments.append(contentsOf: [
             SentrySDKOverrides.Feedback.allDefaults.rawValue,
+            SentrySDKOverrides.Feedback.disableAutoInject.rawValue,
             SentrySDKOverrides.Profiling.disableAppStartProfiling.rawValue
         ])
         app.launch()
+
+        app.buttons["Feedback Screen"].tap()
+        app.buttons["Show Widget (Deprecated)"].tap()
 
         // ensure the widget button is displayed
         XCTAssertTrue(app.otherElements["Report a Bug"].exists)

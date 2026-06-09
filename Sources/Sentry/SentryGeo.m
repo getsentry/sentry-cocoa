@@ -6,6 +6,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryGeo
 
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary
+{
+    if (self = [super init]) {
+        id city = dictionary[@"city"];
+        if ([city isKindOfClass:[NSString class]]) {
+            self.city = city;
+        }
+
+        id countryCode = dictionary[@"country_code"];
+        if ([countryCode isKindOfClass:[NSString class]]) {
+            self.countryCode = countryCode;
+        }
+
+        id region = dictionary[@"region"];
+        if ([region isKindOfClass:[NSString class]]) {
+            self.region = region;
+        }
+    }
+    return self;
+}
+
 - (id)copyWithZone:(nullable NSZone *)zone
 {
     SentryGeo *copy = [[[self class] allocWithZone:zone] init];

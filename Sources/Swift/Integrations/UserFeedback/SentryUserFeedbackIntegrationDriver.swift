@@ -6,7 +6,7 @@ import UIKit
 
 /**
  * An integration managing a workflow for end users to report feedback via Sentry.
- * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
+ * - note: The managed widget is deprecated and will be removed in v10; prefer presenting the form from your own UI.
  */
 @available(iOSApplicationExtension, unavailable)
 final class SentryUserFeedbackIntegrationDriver: NSObject {
@@ -22,15 +22,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         self.screenshotSource = screenshotSource
         super.init()
 
-        if let uiFormConfigBuilder = configuration.configureForm {
-            uiFormConfigBuilder(configuration.formConfig)
-        }
-        if let themeOverrideBuilder = configuration.configureTheme {
-            themeOverrideBuilder(configuration.theme)
-        }
-        if let darkThemeOverrideBuilder = configuration.configureDarkTheme {
-            darkThemeOverrideBuilder(configuration.darkTheme)
-        }
+        configuration.applyConfigurationBuilders()
 
         if let customButton = configuration.customButton {
             self.customButton = customButton
@@ -42,7 +34,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
             /*
              * We cannot currently automatically inject a widget into a SwiftUI application, because at the recommended time to start the Sentry SDK (SwiftUIApp.init) there is nowhere to put a UIWindow overlay. SwiftUI apps must currently declare a UIApplicationDelegateAdaptor that returns a UISceneConfiguration, which we can then extract a connected UIScene from into which we can inject a UIWindow.
              *
-             * At the time this integration is being installed, if there is no UIApplicationDelegate and no connected UIScene, it is very likely we are in a SwiftUI app, but it's possible we could instead be in a UIKit app that has some nonstandard launch procedure or doesn't call SentrySDK.start in a place we expect/recommend, in which case they will need to manually display the widget when they're ready by calling SentrySDK.feedback.showWidget.
+             * At the time this integration is being installed, if there is no UIApplicationDelegate and no connected UIScene, it is very likely we are in a SwiftUI app, but it's possible we could instead be in a UIKit app that has some nonstandard launch procedure or doesn't call SentrySDK.start in a place we expect/recommend, in which case they will need to manually display the widget when they're ready by calling SentrySDK.feedback.showWidget. The managed widget is deprecated; prefer presenting the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:).
              */
             if UIApplication.shared.connectedScenes.isEmpty && UIApplication.shared.delegate == nil {
                 observeShakeGesture()
@@ -84,9 +76,9 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         return activeForm != nil
     }
 
-    private func hideWidgetForFormPresentation() {
+    private func hideWidgetForFormPresentation(_ form: SentryUserFeedbackFormController) {
         shouldRestoreWidgetOnFormClose = widget?.rootVC.isWidgetVisible == true
-        widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
+        widget?.rootVC.setWidget(visible: false, animated: form.config.animations)
     }
 }
 
@@ -111,7 +103,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
             activeForm = form
         }
 
-        hideWidgetForFormPresentation()
+        hideWidgetForFormPresentation(form)
     }
 
     func userFeedbackFormDidClose(_ form: SentryUserFeedbackFormController) {
@@ -121,7 +113,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
         let shouldRestoreWidget = shouldRestoreWidgetOnFormClose
         shouldRestoreWidgetOnFormClose = false
         if shouldRestoreWidget {
-            widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
+            widget?.rootVC.setWidget(visible: true, animated: form.config.animations)
         }
     }
 }
@@ -129,16 +121,21 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
 // MARK: Internal
 @available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver {
-    func showForm(from presenter: UIViewController, screenshot: UIImage?) {
+    func showForm(
+        from presenter: UIViewController,
+        screenshot: UIImage?,
+        configure: SentryUserFeedbackConfigurationCallback? = nil
+    ) {
         guard activeForm == nil else {
             SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
             return
         }
 
-        let form = SentryUserFeedbackFormController(preparedConfig: configuration, screenshot: screenshot)
+        let formConfig = configuration.configurationForPresentation(configure: configure)
+        let form = SentryUserFeedbackFormController(preparedConfig: formConfig, screenshot: screenshot)
         form.delegate = self
         activeForm = form
-        presenter.present(form, animated: configuration.animations)
+        presenter.present(form, animated: formConfig.animations)
     }
 }
 

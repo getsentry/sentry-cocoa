@@ -7,7 +7,7 @@ final class UIApplicationSwizzleTests: XCTestCase {
   func testSendEvent() {
     let app = XCUIApplication()
     app.launchArguments.append(contentsOf: [
-        SentrySDKOverrides.Other.disableSpotlight.rawValue
+        SentrySDKOverrides.Spotlight.disable.rawValue
     ])
     app.safelyLaunch()
     

@@ -9,7 +9,10 @@ import UIKit
     /// Show the feedback widget button.
     /// - warning: This is an experimental feature and may still have bugs.
     /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
+    /// - seealso: Present the feedback form from your own UI using `show(screenshot:)` or
+    /// `SentrySDK.FeedbackForm` instead.
     @available(iOSApplicationExtension, unavailable)
+    @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10. Present the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:) instead.")
     @objc public func showWidget() {
         getIntegration()?.driver.showWidget()
     }
@@ -17,21 +20,31 @@ import UIKit
     /// Hide the feedback widget button.
     /// - warning: This is an experimental feature and may still have bugs.
     /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
+    /// - seealso: Present the feedback form from your own UI using `show(screenshot:)` or
+    /// `SentrySDK.FeedbackForm` instead.
     @available(iOSApplicationExtension, unavailable)
+    @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10. Present the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:) instead.")
     @objc public func hideWidget() {
         getIntegration()?.driver.hideWidget()
     }
 
-    /// Show the feedback form using the best available presenter.
+    /// Show the feedback form using the best available presenter, screenshot attachment, and optional form-specific configuration.
     ///
-    /// The SDK shows the form from the key-window presenter in a foreground-active scene.
+    /// The SDK chooses a suitable presenter/window. Apps that need exact scene/window control
+    /// should manually present `SentrySDK.FeedbackForm`.
     ///
-    /// The form uses the global configuration from `SentryOptions.configureUserFeedback`.
-    /// - Parameter screenshot: An optional screenshot to attach to the feedback form.
+    /// Per-presentation configuration only affects the displayed form. Widget, custom button,
+    /// screenshot trigger, and shake gesture settings are global and ignored for individual presentations.
+    /// - Parameters:
+    ///   - screenshot: An optional screenshot to attach to the feedback form.
+    ///   - configure: A closure to customize this feedback form presentation.
     /// - Important: Call this method from the main thread.
     /// - warning: This is an experimental feature and may still have bugs.
     @available(iOSApplicationExtension, unavailable)
-    public func show(screenshot: UIImage? = nil) {
+    public func show(
+        screenshot: UIImage? = nil,
+        configure: SentryUserFeedbackConfigurationCallback? = nil
+    ) {
         guard let driver = getIntegration()?.driver else {
             SentrySDKLog.debug("Cannot show feedback form — user feedback is not configured")
             return
@@ -42,7 +55,7 @@ import UIKit
             return
         }
 
-        driver.showForm(from: presenter, screenshot: screenshot)
+        driver.showForm(from: presenter, screenshot: screenshot, configure: configure)
     }
 
     @available(iOSApplicationExtension, unavailable)

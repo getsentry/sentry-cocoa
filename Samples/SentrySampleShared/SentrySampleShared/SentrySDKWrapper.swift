@@ -34,7 +34,7 @@ public struct SentrySDKWrapper {
         }
 
 #if os(iOS) || os(tvOS) || os(visionOS)
-        if let delay = SentrySDKOverrides.Performance.extendAppLaunchDelay.floatValue {
+        if let delay = SentrySDKOverrides.AppStart.extendLaunchDelay.floatValue {
             let appStartSpan = SentrySDK.extendAppLaunch()
 
             let configSpan = appStartSpan?.startChild(operation: "app.init", description: "load configuration")
@@ -61,24 +61,24 @@ public struct SentrySDKWrapper {
             return $0
         }
         options.beforeSendSpan = { span in
-            guard !SentrySDKOverrides.Other.rejectAllSpans.boolValue else { return nil }
+            guard !SentrySDKOverrides.Spans.rejectAll.boolValue else { return nil }
             SentrySDKWrapper.spanCaptureHandler?(span)
             return span
         }
-        options.beforeCaptureScreenshot = { _ in !SentrySDKOverrides.Other.rejectScreenshots.boolValue }
-        options.beforeCaptureViewHierarchy = { _ in !SentrySDKOverrides.Other.rejectViewHierarchy.boolValue }
+        options.beforeCaptureScreenshot = { _ in !SentrySDKOverrides.Screenshot.rejectInBeforeCapture.boolValue }
+        options.beforeCaptureViewHierarchy = { _ in !SentrySDKOverrides.ViewHierarchy.rejectInBeforeCapture.boolValue }
         options.debug = !SentrySDKOverrides.Special.disableDebugMode.boolValue
 
 #if !os(macOS) && !os(watchOS) && !os(visionOS)
-        if #available(iOS 16.0, *), !SentrySDKOverrides.SessionReplay.disable.boolValue {
+        if #available(iOS 16.0, *), !SentrySDKOverrides.Replay.disable.boolValue {
             options.sessionReplay = SentryReplayOptions(
-                sessionSampleRate: SentrySDKOverrides.SessionReplay.sessionSampleRate.floatValue ?? 0,
-                onErrorSampleRate: SentrySDKOverrides.SessionReplay.onErrorSampleRate.floatValue ?? 1,
-                maskAllText: !SentrySDKOverrides.SessionReplay.disableMaskAllText.boolValue,
-                maskAllImages: !SentrySDKOverrides.SessionReplay.disableMaskAllImages.boolValue,
-                enableViewRendererV2: !SentrySDKOverrides.SessionReplay.disableViewRendererV2.boolValue,
+                sessionSampleRate: SentrySDKOverrides.Replay.sessionSampleRate.floatValue ?? 0,
+                onErrorSampleRate: SentrySDKOverrides.Replay.onErrorSampleRate.floatValue ?? 1,
+                maskAllText: !SentrySDKOverrides.Replay.disableMaskAllText.boolValue,
+                maskAllImages: !SentrySDKOverrides.Replay.disableMaskAllImages.boolValue,
+                enableViewRendererV2: !SentrySDKOverrides.Replay.disableViewRendererV2.boolValue,
                 // Disable the fast view rendering, because we noticed parts (like the tab bar) are not rendered correctly
-                enableFastViewRendering: SentrySDKOverrides.SessionReplay.enableFastViewRendering.boolValue
+                enableFastViewRendering: SentrySDKOverrides.Replay.enableFastViewRendering.boolValue
             )
             
             // Configure network detail capture for testing
@@ -104,34 +104,30 @@ public struct SentrySDKWrapper {
                 "access-control-allow-credentials"
             ]
             let defaultReplayQuality = options.sessionReplay.quality
-            options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.SessionReplay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
+            options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: (SentrySDKOverrides.Replay.quality.stringValue as? NSString)?.integerValue ?? defaultReplayQuality.rawValue) ?? defaultReplayQuality
+
+            options.experimental.enableReplayNetworkDetailsCapturing =
+                !SentrySDKOverrides.Replay.disableNetworkDetailsCapturing.boolValue
         }
 
 #endif // !os(macOS) && !os(watchOS) && !os(visionOS)
 
 #if !os(tvOS) && !os(watchOS)
-        if #available(iOS 15.0, macOS 12.0, *), !SentrySDKOverrides.Other.disableMetricKit.boolValue {
-            options.enableMetricKit = true
-            options.enableMetricKitRawPayload = !SentrySDKOverrides.Other.disableMetricKitRawPayloads.boolValue
+        if #available(iOS 15.0, macOS 12.0, *) {
+            options.enableMetricKit = !SentrySDKOverrides.MetricKit.disable.boolValue
+            options.enableMetricKitRawPayload =
+                options.enableMetricKit && !SentrySDKOverrides.MetricKit.disableRawPayloads.boolValue
         }
 #endif // !os(tvOS) && !os(watchOS)
 
-        options.tracesSampleRate = 1
-        if let sampleRate = SentrySDKOverrides.Tracing.sampleRate.floatValue {
-            options.tracesSampleRate = NSNumber(value: sampleRate)
-        }
-        if let samplerValue = SentrySDKOverrides.Tracing.samplerValue.floatValue {
-            options.tracesSampler = { _ in
-                return NSNumber(value: samplerValue)
-            }
-        }
+        configurePerformanceTracing(options)
 
 #if !os(tvOS) && !os(watchOS) && !os(visionOS)
         configureProfiling(options)
 #endif // !os(tvOS) && !os(watchOS) && !os(visionOS)
 
-        options.enableAutoSessionTracking = !SentrySDKOverrides.Performance.disableSessionTracking.boolValue
-        if let sessionTrackingIntervalMillis = SentrySDKOverrides.Performance.sessionTrackingIntervalMillis.stringValue {
+        options.enableAutoSessionTracking = !SentrySDKOverrides.Session.disableTracking.boolValue
+        if let sessionTrackingIntervalMillis = SentrySDKOverrides.Session.trackingIntervalMillis.stringValue {
             options.sessionTrackingIntervalMillis = UInt((sessionTrackingIntervalMillis as NSString).integerValue)
         }
 
@@ -139,41 +135,42 @@ public struct SentrySDKWrapper {
         options.add(inAppInclude: "iOS_External")
 
         // the benchmark test starts and stops a custom transaction using a UIButton, and automatic user interaction tracing stops the transaction that begins with that button press after the idle timeout elapses, stopping the profiler (only one profiler runs regardless of the number of concurrent transactions)
-        options.enableUserInteractionTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disableUITracing.boolValue
+        options.enableUserInteractionTracing = !isBenchmarking && !SentrySDKOverrides.UIEventTracking.disableTracing.boolValue
 
-        options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePrewarmedAppStartTracing.boolValue
-        options.experimental.enableStandaloneAppStartTracing = SentrySDKOverrides.Performance.enableStandaloneAppStartTracing.boolValue
-        options.enableUIViewControllerTracing = !SentrySDKOverrides.Performance.disableUIVCTracing.boolValue
+        options.enablePreWarmedAppStartTracing = !isBenchmarking && !SentrySDKOverrides.AppStart.disablePrewarmedTracing.boolValue
+        options.experimental.enableStandaloneAppStartTracing = SentrySDKOverrides.AppStart.enableStandaloneTracing.boolValue
+        options.enableUIViewControllerTracing = !SentrySDKOverrides.UIViewControllerTracing.disable.boolValue
 
         // -- Screenshot Options --
-        options.attachScreenshot = !SentrySDKOverrides.Other.disableAttachScreenshot.boolValue
+        options.attachScreenshot = !SentrySDKOverrides.Screenshot.disableAttachment.boolValue
         options.screenshot.enableViewRendererV2 = !SentrySDKOverrides.Screenshot.disableViewRendererV2.boolValue
         // The fast view renderer is opt-in, therefore it is assumed to be disabled by default.
         options.screenshot.enableFastViewRendering = SentrySDKOverrides.Screenshot.enableFastViewRendering.boolValue
         options.screenshot.maskAllImages = !SentrySDKOverrides.Screenshot.disableMaskAllImages.boolValue
         options.screenshot.maskAllText = !SentrySDKOverrides.Screenshot.disableMaskAllText.boolValue
 
-        options.attachViewHierarchy = !SentrySDKOverrides.Other.disableAttachViewHierarchy.boolValue
+        options.attachViewHierarchy = !SentrySDKOverrides.ViewHierarchy.disableAttachment.boolValue
 #endif // !os(macOS) && !os(watchOS)
 
         // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
-        options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.Performance.disableANRTracking.boolValue
+        options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.AppHangs.disableTracking.boolValue
 
         // UI tests generate false OOMs
-        options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.Performance.disableWatchdogTracking.boolValue
+        options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.WatchdogTerminations.disableTracking.boolValue
 
-        options.enableAutoPerformanceTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disablePerformanceTracing.boolValue
+        options.enableAutoPerformanceTracing = !isBenchmarking && !SentrySDKOverrides.Performance.disableAutoTracing.boolValue
 
-        options.enableNetworkTracking = !SentrySDKOverrides.Networking.disablePerformanceTracking.boolValue
-        options.enableCaptureFailedRequests = !SentrySDKOverrides.Networking.disableFailedRequestTracking.boolValue
-        options.enableNetworkBreadcrumbs = !SentrySDKOverrides.Networking.disableBreadcrumbs.boolValue
+        options.enableNetworkTracking = !SentrySDKOverrides.NetworkTracking.disablePerformanceTracking.boolValue
+        options.enableCaptureFailedRequests = !SentrySDKOverrides.NetworkTracking.disableFailedRequestTracking.boolValue
+        options.enableNetworkBreadcrumbs = !SentrySDKOverrides.NetworkTracking.disableBreadcrumbs.boolValue
 
-        options.enableFileIOTracing = !SentrySDKOverrides.Performance.disableFileIOTracing.boolValue
-        options.enableAutoBreadcrumbTracking = !SentrySDKOverrides.Other.disableBreadcrumbs.boolValue
-        options.enableCoreDataTracing = !SentrySDKOverrides.Performance.disableCoreDataTracing.boolValue
-        options.enableSwizzling = !SentrySDKOverrides.Other.disableSwizzling.boolValue
-        options.enableCrashHandler = !SentrySDKOverrides.Other.disableCrashHandling.boolValue
-        options.enablePersistingTracesWhenCrashing = true
+        options.enableFileIOTracing = !SentrySDKOverrides.FileIO.disableTracing.boolValue
+        options.enableAutoBreadcrumbTracking = !SentrySDKOverrides.Breadcrumbs.disableAutomatic.boolValue
+        options.enableCoreDataTracing = !SentrySDKOverrides.CoreData.disableTracing.boolValue
+        options.enableSwizzling = !SentrySDKOverrides.Swizzling.disable.boolValue
+        options.enableCrashHandler = !SentrySDKOverrides.Crash.disableHandler.boolValue
+        options.enablePersistingTracesWhenCrashing =
+            !SentrySDKOverrides.Crash.disablePersistingTracesWhenCrashing.boolValue
 
         options.onLastRunStatusDetermined = { status, crashEvent in
             let eventId = crashEvent?.eventId.sentryIdString ?? "nil"
@@ -183,9 +180,9 @@ public struct SentrySDKWrapper {
         options.failedRequestStatusCodes = [ HttpStatusCodeRange(min: 400, max: 599) ]
 
     #if targetEnvironment(simulator)
-        options.enableSpotlight = !SentrySDKOverrides.Other.disableSpotlight.boolValue
+        options.enableSpotlight = !SentrySDKOverrides.Spotlight.disable.boolValue
     #else
-        options.enableSpotlight = false
+        options.enableSpotlight = SentrySDKOverrides.Spotlight.enable.boolValue
     #endif // targetEnvironment(simulator)
 
         options.beforeBreadcrumb = { breadcrumb in
@@ -204,7 +201,7 @@ public struct SentrySDKWrapper {
 #endif // !os(macOS) && !os(tvOS) && !os(watchOS) && !os(visionOS)
 
         // Integration: Logs
-        options.enableLogs = true
+        options.enableLogs = !SentrySDKOverrides.Logs.disable.boolValue
 
         // Integration: Metrics
         options.enableMetrics = SentrySDKOverrides.Metrics.enable.boolValue
@@ -225,16 +222,35 @@ public struct SentrySDKWrapper {
         }
 
         // Experimental features
-        options.enableFileManagerSwizzling = !SentrySDKOverrides.Other.disableFileManagerSwizzling.boolValue
-        options.experimental.enableUnhandledCPPExceptionsV2 = true
-
+        options.enableFileManagerSwizzling = !SentrySDKOverrides.FileIO.disableFileManagerSwizzling.boolValue
+        options.experimental.enableUnhandledCPPExceptionsV2 =
+            !SentrySDKOverrides.Crash.disableUnhandledCPPExceptionsV2.boolValue
+        options.experimental.enableWatchdogTerminationsV2 =
+            !SentrySDKOverrides.WatchdogTerminations.disableV2.boolValue
 #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
-        options.enableUncaughtNSExceptionReporting = true
+        options.enableUncaughtNSExceptionReporting =
+            !SentrySDKOverrides.Crash.disableUncaughtNSExceptionReporting.boolValue
 #endif
     }
 
+    private func configurePerformanceTracing(_ options: Options) {
+        options.tracesSampleRate = 1
+        if let sampleRate = SentrySDKOverrides.Performance.sampleRate.floatValue {
+            options.tracesSampleRate = NSNumber(value: sampleRate)
+        }
+        if let samplerValue = SentrySDKOverrides.Performance.samplerValue.floatValue {
+            options.tracesSampler = { _ in
+                return NSNumber(value: samplerValue)
+            }
+        }
+        if SentrySDKOverrides.Performance.disableTracing.boolValue {
+            options.tracesSampleRate = 0
+            options.tracesSampler = nil
+        }
+    }
+
     func configureInitialScope(scope: Scope, options: Options) -> Scope {
-        if let environmentOverride = SentrySDKOverrides.Other.environment.stringValue {
+        if let environmentOverride = SentrySDKOverrides.Scope.environment.stringValue {
             scope.setEnvironment(environmentOverride)
         } else if isBenchmarking {
             scope.setEnvironment("benchmarking")
@@ -255,8 +271,8 @@ public struct SentrySDKWrapper {
         setTagsForConfiguredOverrides(scope: scope)
         injectGitInformation(scope: scope)
 
-        let user = User(userId: SentrySDKOverrides.Other.userID.stringValue ?? "1")
-        user.email = SentrySDKOverrides.Other.userEmail.stringValue ?? "tony@example.com"
+        let user = User(userId: SentrySDKOverrides.Scope.userID.stringValue ?? "1")
+        user.email = SentrySDKOverrides.Scope.userEmail.stringValue ?? "tony@example.com"
         user.username = username
         user.name = userFullName
         scope.setUser(user)
@@ -275,7 +291,7 @@ public struct SentrySDKWrapper {
     }
 
     var userFullName: String {
-        let name = SentrySDKOverrides.Other.userFullName.stringValue ?? NSFullUserName()
+        let name = SentrySDKOverrides.Scope.userFullName.stringValue ?? NSFullUserName()
         guard !name.isEmpty else {
             return "cocoa developer"
         }
@@ -283,7 +299,7 @@ public struct SentrySDKWrapper {
     }
 
     var username: String {
-        let username = SentrySDKOverrides.Other.username.stringValue ?? NSUserName()
+        let username = SentrySDKOverrides.Scope.username.stringValue ?? NSUserName()
         guard !username.isEmpty else {
             return (self.env["SIMULATOR_HOST_HOME"] as? NSString)?
                 .lastPathComponent ?? "cocoadev"
@@ -327,7 +343,10 @@ extension SentrySDKWrapper {
     var layoutOffset: UIOffset { UIOffset(horizontal: 25, vertical: 75) }
 
     func configureFeedbackWidget(config: SentryUserFeedbackWidgetConfiguration) {
-        config.autoInject = !SentrySDKOverrides.Feedback.disableAutoInject.boolValue
+        config.autoInject = false
+        config.layoutUIOffset = layoutOffset
+
+        guard !SentrySDKOverrides.Feedback.allDefaults.boolValue else { return }
 
         if Locale.current.languageCode == "ar" { // arabic
             config.labelText = "﷽"
@@ -340,7 +359,6 @@ extension SentrySDKWrapper {
         } else {
             config.labelText = "Report Jank"
         }
-        config.layoutUIOffset = layoutOffset
 
         if SentrySDKOverrides.Feedback.noWidgetText.boolValue {
             config.labelText = nil
@@ -392,9 +410,10 @@ extension SentrySDKWrapper {
     }
 
     func configureFeedback(config: SentryUserFeedbackConfiguration) {
+        let shouldConfigureDeprecatedWidget = SentrySDKOverrides.Feedback.disableAutoInject.boolValue
         guard !args.contains(SentrySDKOverrides.Feedback.allDefaults.rawValue) else {
-            config.configureWidget = { widget in
-                widget.layoutUIOffset = self.layoutOffset
+            if shouldConfigureDeprecatedWidget {
+                config.configureWidget = configureFeedbackWidget(config:)
             }
             configureHooks(config: config)
             return
@@ -403,7 +422,9 @@ extension SentrySDKWrapper {
         config.animations = !SentrySDKOverrides.Feedback.noAnimations.boolValue
         config.useShakeGesture = !SentrySDKOverrides.Feedback.noShakeGesture.boolValue
         config.showFormForScreenshots = !SentrySDKOverrides.Feedback.noScreenshots.boolValue
-        config.configureWidget = configureFeedbackWidget(config:)
+        if shouldConfigureDeprecatedWidget {
+            config.configureWidget = configureFeedbackWidget(config:)
+        }
         config.configureForm = configureFeedbackForm(config:)
         config.configureTheme = configureFeedbackTheme(config:)
         configureHooks(config: config)
@@ -546,7 +567,7 @@ extension SentrySDKWrapper {
     
     /// Whether or not profiling benchmarks are being run; this requires disabling certain other features for proper functionality.
     var isBenchmarking: Bool { args.contains("--io.sentry.test.benchmarking") }
-    var isUITest: Bool { env[SentrySDKOverrides.Other.environment.rawValue] == "ui-tests" }
+    var isUITest: Bool { env[SentrySDKOverrides.Scope.environment.rawValue] == "ui-tests" }
 }
 
 // MARK: Profiling configuration

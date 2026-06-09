@@ -19,6 +19,26 @@
 
   These APIs use the global `SentryOptions.configureUserFeedback` configuration and temporarily hide the managed widget
   while the form is open, when possible.
+- Add per-form feedback configuration (#8018)
+
+  Managed feedback presentation APIs now accept a configuration closure, so apps can customize a single
+  form on top of the global `SentryOptions.configureUserFeedback` settings without mutating them:
+
+  ```swift
+  SentrySDK.feedback.show { config in
+      config.configureForm = { form in
+          form.formTitle = "Report a Bug"
+          form.submitButtonLabel = "Send Report"
+      }
+      config.tags = ["screen": "settings"]
+  }
+  ```
+
+  The per-form configuration closure is also available from SentryObjC feedback presentation methods.
+
+### Deprecations
+
+- Deprecate the managed User Feedback widget/FAB. It will be removed in v10. Present the feedback form from your own UI with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, or `.sentryFeedback(isPresented:)` instead. (#8022)
 
 ## 9.16.1
 

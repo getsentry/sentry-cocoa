@@ -95,7 +95,7 @@
             }
             
             #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
-            if ProcessInfo.processInfo.arguments.contains("--io.sentry.other.base64-attachment-data") {
+            if ProcessInfo.processInfo.arguments.contains("--io.sentry.attachments.base64-data") {
                 data = attachmentData.base64EncodedString().data(using: .utf8)
             } else {
                 data = attachmentData
@@ -114,7 +114,7 @@
                 }
                 
                 #if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
-                if ProcessInfo.processInfo.arguments.contains("--io.sentry.other.base64-attachment-data") {
+                if ProcessInfo.processInfo.arguments.contains("--io.sentry.attachments.base64-data") {
                     let fileData = fileManager.contents(atPath: attachmentPath)
                     data = fileData?.base64EncodedString().data(using: .utf8)
                 } else {

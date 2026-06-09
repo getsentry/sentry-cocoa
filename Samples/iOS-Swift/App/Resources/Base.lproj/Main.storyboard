@@ -1308,7 +1308,7 @@
                                                                         <rect key="frame" x="0.0" y="0.0" width="100.66666666666667" height="26"/>
                                                                         <accessibility key="accessibilityConfiguration" identifier="io.sentry.ui-test.button.show-widget"/>
                                                                         <state key="normal" title="Button"/>
-                                                                        <buttonConfiguration key="configuration" style="plain" title="Show Widget">
+                                                                        <buttonConfiguration key="configuration" style="plain" title="Show Widget (Deprecated)">
                                                                             <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
                                                                         </buttonConfiguration>
                                                                         <connections>
@@ -1319,7 +1319,7 @@
                                                                         <rect key="frame" x="100.66666666666669" y="0.0" width="96" height="26"/>
                                                                         <accessibility key="accessibilityConfiguration" identifier="io.sentry.ui-test.button.hide-widget"/>
                                                                         <state key="normal" title="Button"/>
-                                                                        <buttonConfiguration key="configuration" style="plain" title="Hide Widget">
+                                                                        <buttonConfiguration key="configuration" style="plain" title="Hide Widget (Deprecated)">
                                                                             <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
                                                                         </buttonConfiguration>
                                                                         <connections>
@@ -1985,7 +1985,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fdb-btn-toggle">
                                         <rect key="frame" x="0.0" y="160" width="288" height="34.5"/>
                                         <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="filled" title="Hide Widget"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Show Widget (Deprecated)"/>
                                         <connections>
                                             <action selector="toggleWidget:" destination="fdb-vc-001" eventType="touchUpInside" id="fdb-act-toggle"/>
                                         </connections>

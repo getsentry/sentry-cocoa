@@ -1,5 +1,5 @@
 #import "SentryUser.h"
-#import "SentryGeo.h"
+#import "SentryGeo+Private.h"
 #import "SentryInternalDefines.h"
 #import "SentrySanitizerUtils.h"
 
@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
                 self.ipAddress = value;
             } else if ([key isEqualToString:@"data"] && isDictionary) {
                 self.data = value;
+            } else if ([key isEqualToString:@"geo"] && isDictionary) {
+                self.geo = [[SentryGeo alloc] initWithDictionary:value];
             } else {
                 unknown[key] = value;
             }

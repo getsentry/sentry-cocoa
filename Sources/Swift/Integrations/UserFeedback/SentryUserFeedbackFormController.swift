@@ -19,6 +19,8 @@ extension SentryUserFeedbackFormDelegate {
 ///
 /// If the managed User Feedback integration is installed, the SDK temporarily hides the feedback widget while this
 /// controller is visible.
+///
+/// - warning: This is an experimental feature and may still have bugs.
 @available(iOSApplicationExtension, unavailable)
 public final class SentryUserFeedbackFormController: UIViewController {
     let config: SentryUserFeedbackConfiguration
@@ -35,14 +37,25 @@ public final class SentryUserFeedbackFormController: UIViewController {
     lazy var viewModel = SentryUserFeedbackFormViewModel(config: config, controller: self, screenshot: screenshot)
 
     /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback`.
+    /// - warning: This is an experimental feature and may still have bugs.
     @nonobjc public convenience init() {
-        self.init(screenshot: nil)
+        self.init(screenshot: nil, configure: nil)
     }
 
-    /// Creates a feedback form controller using the global configuration from `SentryOptions.configureUserFeedback` and screenshot attachment.
-    /// - Parameter screenshot: An optional screenshot to attach to the feedback form.
-    public convenience init(screenshot: UIImage?) {
-        self.init(preparedConfig: Self.globalConfigurationOrDefault(), screenshot: screenshot)
+    /// Creates a feedback form controller using the global configuration and an optional form-specific configuration.
+    ///
+    /// Per-presentation configuration only affects the displayed form. Widget, custom button,
+    /// screenshot trigger, and shake gesture settings are global and ignored for individual presentations.
+    /// - Parameters:
+    ///   - screenshot: An optional screenshot to attach to the feedback form.
+    ///   - configure: A closure to customize this feedback form presentation.
+    /// - warning: This is an experimental feature and may still have bugs.
+    @nonobjc public convenience init(
+        screenshot: UIImage? = nil,
+        configure: SentryUserFeedbackConfigurationCallback? = nil
+    ) {
+        let config = Self.globalConfigurationOrDefault().configurationForPresentation(configure: configure)
+        self.init(preparedConfig: config, screenshot: screenshot)
         delegate = Self.installedFeedbackIntegration()?.driver
     }
 
@@ -52,7 +65,7 @@ public final class SentryUserFeedbackFormController: UIViewController {
         guard let integration = installedFeedbackIntegration() else {
             SentrySDKLog.debug("Using default feedback configuration because user feedback is not configured in SentryOptions")
             let config = defaultConfiguration()
-            prepare(config)
+            config.applyConfigurationBuilders()
             return config
         }
         return integration.driver.configuration
@@ -61,12 +74,6 @@ public final class SentryUserFeedbackFormController: UIViewController {
     private static func installedFeedbackIntegration() -> UserFeedbackIntegration<SentryDependencyContainer>? {
         return SentrySDKInternal.currentHub().getInstalledIntegration(UserFeedbackIntegration<SentryDependencyContainer>.self)
             as? UserFeedbackIntegration<SentryDependencyContainer>
-    }
-
-    private static func prepare(_ config: SentryUserFeedbackConfiguration) {
-        config.configureForm?(config.formConfig)
-        config.configureTheme?(config.theme)
-        config.configureDarkTheme?(config.darkTheme)
     }
 
     override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -138,16 +145,16 @@ public final class SentryUserFeedbackFormController: UIViewController {
         nc.addObserver(self, selector: #selector(hidKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
-    /// Unavailable. Use `init()` or `init(screenshot:)` instead.
-    @available(*, unavailable, message: "Use init() or init(screenshot:) instead.")
+    /// Unavailable. Use `init()` or `init(screenshot:configure:)` instead.
+    @available(*, unavailable, message: "Use init() or init(screenshot:configure:) instead.")
     override public init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        fatalError("Use init() or init(screenshot:) instead.")
+        fatalError("Use init() or init(screenshot:configure:) instead.")
     }
 
-    /// Unavailable. Use `init()` or `init(screenshot:)` instead.
-    @available(*, unavailable, message: "Use init() or init(screenshot:) instead.")
+    /// Unavailable. Use `init()` or `init(screenshot:configure:)` instead.
+    @available(*, unavailable, message: "Use init() or init(screenshot:configure:) instead.")
     public required init?(coder: NSCoder) {
-        fatalError("Use init() or init(screenshot:) instead.")
+        fatalError("Use init() or init(screenshot:configure:) instead.")
     }
 }
 

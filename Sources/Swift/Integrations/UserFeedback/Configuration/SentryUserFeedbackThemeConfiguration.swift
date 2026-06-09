@@ -79,7 +79,11 @@ public final class SentryUserFeedbackThemeConfiguration: NSObject {
      * Foreground color for the cancel and screenshot buttons.
      * - note: Default: Same as `foreground` for both dark and light modes
      */
-    public lazy var buttonForeground: UIColor = foreground
+    @nonobjc var buttonForegroundOverride: UIColor?
+    public var buttonForeground: UIColor {
+        get { buttonForegroundOverride ?? foreground }
+        set { buttonForegroundOverride = newValue }
+    }
     
     /**
      * Background color for the form cancel and screenshot buttons in light and dark modes.
@@ -129,6 +133,10 @@ public final class SentryUserFeedbackThemeConfiguration: NSObject {
      */
     public lazy var outlineStyle: SentryFormElementOutlineStyle = defaultOutlineStyle
     
+    @nonobjc var usesDefaultOutlineStyle: Bool {
+        outlineStyle == defaultOutlineStyle
+    }
+
     /**
      * Background color to use for text inputs in the feedback form.
      */

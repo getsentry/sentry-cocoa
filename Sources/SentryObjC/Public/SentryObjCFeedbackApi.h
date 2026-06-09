@@ -9,6 +9,7 @@
 
 @class UIImage;
 @class UIViewController;
+@class SentryObjCUserFeedbackConfiguration;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,6 +34,35 @@ SENTRY_NO_INIT
     NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
 
 /**
+ * Show the feedback form using the best available presenter and form-specific configuration.
+ * @param configure A block to customize this feedback form presentation.
+ * @note Per-presentation configuration only affects the displayed form. Widget, custom button,
+ * screenshot trigger, and shake gesture settings are global and ignored for individual
+ * presentations.
+ * @note This method must be called from the main thread.
+ * @warning This is an experimental feature and may still have bugs.
+ */
+- (void)showWithConfigure:
+    (nullable void (^)(SentryObjCUserFeedbackConfiguration *configuration))configure
+    NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
+
+/**
+ * Show the feedback form using the best available presenter, screenshot attachment, and
+ * form-specific configuration.
+ * @param screenshot An optional screenshot to attach to the feedback form.
+ * @param configure A block to customize this feedback form presentation.
+ * @note Per-presentation configuration only affects the displayed form. Widget, custom button,
+ * screenshot trigger, and shake gesture settings are global and ignored for individual
+ * presentations.
+ * @note This method must be called from the main thread.
+ * @warning This is an experimental feature and may still have bugs.
+ */
+- (void)showWithScreenshot:(nullable UIImage *)screenshot
+                 configure:(nullable void (^)(
+                               SentryObjCUserFeedbackConfiguration *configuration))configure
+    NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
+
+/**
  * Creates a feedback form view controller using the global User Feedback configuration.
  * @note Create and present this view controller from the main thread.
  * @warning This is an experimental feature and may still have bugs.
@@ -50,16 +80,54 @@ SENTRY_NO_INIT
     NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
 
 /**
- * Show the feedback widget button.
+ * Creates a feedback form view controller using the global User Feedback configuration and
+ * form-specific configuration.
+ * @param configure A block to customize this feedback form presentation.
+ * @note Per-presentation configuration only affects the displayed form. Widget, custom button,
+ * screenshot trigger, and shake gesture settings are global and ignored for individual
+ * presentations.
+ * @note Create and present this view controller from the main thread.
  * @warning This is an experimental feature and may still have bugs.
  */
-- (void)showWidget NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
+- (UIViewController *)formViewControllerWithConfigure:
+    (nullable void (^)(SentryObjCUserFeedbackConfiguration *configuration))configure
+    NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
+
+/**
+ * Creates a feedback form view controller using the global User Feedback configuration, screenshot
+ * attachment, and form-specific configuration.
+ * @param screenshot An optional screenshot to attach to the feedback form.
+ * @param configure A block to customize this feedback form presentation.
+ * @note Per-presentation configuration only affects the displayed form. Widget, custom button,
+ * screenshot trigger, and shake gesture settings are global and ignored for individual
+ * presentations.
+ * @note Create and present this view controller from the main thread.
+ * @warning This is an experimental feature and may still have bugs.
+ */
+- (UIViewController *)
+    formViewControllerWithScreenshot:(nullable UIImage *)screenshot
+                           configure:
+                               (nullable void (^)(
+                                   SentryObjCUserFeedbackConfiguration *configuration))configure
+    NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
+
+/**
+ * Show the feedback widget button.
+ * @warning This is an experimental feature and may still have bugs.
+ * @deprecated The Sentry-managed User Feedback widget is deprecated and will be removed in v10.
+ */
+- (void)showWidget NS_EXTENSION_UNAVAILABLE("Not available in app extensions.")
+    __attribute__((deprecated("The Sentry-managed User Feedback widget is deprecated and will be "
+                              "removed in v10.")));
 
 /**
  * Hide the feedback widget button.
  * @warning This is an experimental feature and may still have bugs.
+ * @deprecated The Sentry-managed User Feedback widget is deprecated and will be removed in v10.
  */
-- (void)hideWidget NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
+- (void)hideWidget NS_EXTENSION_UNAVAILABLE("Not available in app extensions.")
+    __attribute__((deprecated("The Sentry-managed User Feedback widget is deprecated and will be "
+                              "removed in v10.")));
 
 @end
 

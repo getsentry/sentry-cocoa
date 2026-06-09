@@ -2185,7 +2185,21 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "formViewControllerWithConfigure:",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "UIViewController * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "formViewControllerWithScreenshot:",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "UIViewController * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "formViewControllerWithScreenshot:configure:",
     "parent": "SentryObjCFeedbackApi",
     "returnType": "UIViewController * _Nonnull",
     "instance": true
@@ -6833,7 +6847,21 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "showWithConfigure:",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "showWithScreenshot:",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "showWithScreenshot:configure:",
     "parent": "SentryObjCFeedbackApi",
     "returnType": "void",
     "instance": true
