@@ -22,15 +22,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         self.screenshotSource = screenshotSource
         super.init()
 
-        if let uiFormConfigBuilder = configuration.configureForm {
-            uiFormConfigBuilder(configuration.formConfig)
-        }
-        if let themeOverrideBuilder = configuration.configureTheme {
-            themeOverrideBuilder(configuration.theme)
-        }
-        if let darkThemeOverrideBuilder = configuration.configureDarkTheme {
-            darkThemeOverrideBuilder(configuration.darkTheme)
-        }
+        configuration.applyConfigurationBuilders()
 
         if let customButton = configuration.customButton {
             self.customButton = customButton
@@ -84,9 +76,9 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         return activeForm != nil
     }
 
-    private func hideWidgetForFormPresentation() {
+    private func hideWidgetForFormPresentation(_ form: SentryUserFeedbackFormController) {
         shouldRestoreWidgetOnFormClose = widget?.rootVC.isWidgetVisible == true
-        widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
+        widget?.rootVC.setWidget(visible: false, animated: form.config.animations)
     }
 }
 
@@ -111,7 +103,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
             activeForm = form
         }
 
-        hideWidgetForFormPresentation()
+        hideWidgetForFormPresentation(form)
     }
 
     func userFeedbackFormDidClose(_ form: SentryUserFeedbackFormController) {
@@ -121,7 +113,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
         let shouldRestoreWidget = shouldRestoreWidgetOnFormClose
         shouldRestoreWidgetOnFormClose = false
         if shouldRestoreWidget {
-            widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
+            widget?.rootVC.setWidget(visible: true, animated: form.config.animations)
         }
     }
 }
@@ -129,16 +121,21 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
 // MARK: Internal
 @available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver {
-    func showForm(from presenter: UIViewController, screenshot: UIImage?) {
+    func showForm(
+        from presenter: UIViewController,
+        screenshot: UIImage?,
+        configure: SentryUserFeedbackConfigurationCallback? = nil
+    ) {
         guard activeForm == nil else {
             SentrySDKLog.debug("Cannot show feedback form — feedback form is already displayed")
             return
         }
 
-        let form = SentryUserFeedbackFormController(preparedConfig: configuration, screenshot: screenshot)
+        let formConfig = configuration.configurationForPresentation(configure: configure)
+        let form = SentryUserFeedbackFormController(preparedConfig: formConfig, screenshot: screenshot)
         form.delegate = self
         activeForm = form
-        presenter.present(form, animated: configuration.animations)
+        presenter.present(form, animated: formConfig.animations)
     }
 }
 

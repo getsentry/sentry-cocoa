@@ -334,9 +334,11 @@ import Foundation
     /// Captures user feedback that was manually gathered and sends it to Sentry.
     /// - warning: This is an experimental feature and may still have bugs.
     /// - parameter feedback: The feedback to send to Sentry.
-    /// - note: If you'd prefer not to have to build the UI required to gather the feedback from the user,
-    /// see `SentryOptions.configureUserFeedback` to customize a fully managed integration. See
-    /// https://docs.sentry.io/platforms/apple/user-feedback/ for more information.
+    /// - note: If you'd prefer not to build the UI required to gather the feedback from the user,
+    /// configure the managed form with `SentryOptions.configureUserFeedback` and present it with
+    /// `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, or SwiftUI's
+    /// `sentryFeedback(isPresented:)`. See https://docs.sentry.io/platforms/apple/user-feedback/
+    /// for more information.
     @objc(captureFeedback:)
     public static func capture(feedback: SentryFeedback) {
       SentrySDKInternal.captureSerializedFeedback(

@@ -156,6 +156,90 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.theme.background, .red)
     }
 
+    func testFeedbackForm_whenNoLocalConfiguration_shouldUseGlobalConfiguration() throws {
+        let integration = try installFeedbackIntegration { config in
+            config.configureForm = { $0.formTitle = "Global title" }
+        }
+
+        let sut = SentryUserFeedbackFormController()
+
+        XCTAssertIdentical(sut.config, integration.driver.configuration)
+        XCTAssertEqual(sut.config.formConfig.formTitle, "Global title")
+    }
+
+    func testFeedbackForm_whenLocalConfigurationIsSet_shouldApplyToCurrentFormOnly() throws {
+        let integration = try installFeedbackIntegration { config in
+            config.animations = true
+            config.tags = ["source": "global"]
+            config.configureForm = { $0.formTitle = "Global title" }
+            config.configureTheme = { $0.background = .red }
+        }
+
+        let sut = SentryUserFeedbackFormController { config in
+            config.animations = false
+            config.tags = ["source": "local"]
+            config.configureForm = { $0.formTitle = "Local title" }
+            config.configureTheme = { $0.background = .blue }
+        }
+
+        XCTAssertNotIdentical(sut.config, integration.driver.configuration)
+        XCTAssertFalse(sut.config.animations)
+        XCTAssertEqual(try XCTUnwrap(sut.config.tags?["source"] as? String), "local")
+        XCTAssertEqual(sut.config.formConfig.formTitle, "Local title")
+        XCTAssertEqual(sut.config.theme.background, .blue)
+        XCTAssertTrue(integration.driver.configuration.animations)
+        XCTAssertEqual(try XCTUnwrap(integration.driver.configuration.tags?["source"] as? String), "global")
+        XCTAssertEqual(integration.driver.configuration.formConfig.formTitle, "Global title")
+        XCTAssertEqual(integration.driver.configuration.theme.background, .red)
+    }
+
+    func testFeedbackForm_whenScreenshotAndLocalConfigurationAreSet_shouldPreserveBoth() {
+        let screenshot = UIImage()
+
+        let sut = SentryUserFeedbackFormController(screenshot: screenshot) { config in
+            config.configureForm = { $0.formTitle = "Screenshot title" }
+        }
+
+        XCTAssertIdentical(sut.screenshot, screenshot)
+        XCTAssertEqual(sut.config.formConfig.formTitle, "Screenshot title")
+    }
+
+    func testFeedbackForm_whenLocalConfigurationSetAndFeedbackIntegrationNotConfigured_shouldUseDefaults() {
+        clearTestState()
+
+        let sut = SentryUserFeedbackFormController { config in
+            config.configureForm = { $0.formTitle = "Default local title" }
+        }
+
+        XCTAssertEqual(sut.config.formConfig.formTitle, "Default local title")
+    }
+
+    func testShowForm_whenLocalConfigurationIsSet_shouldApplyToCurrentFormOnly() throws {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let viewController = TestPresentingViewController()
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        config.configureForm = { $0.formTitle = "Global title" }
+        addCustomButton(to: viewController, configuration: config)
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource())
+
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+
+        sut.showForm(from: viewController, screenshot: nil) { config in
+            config.configureForm = { $0.formTitle = "Local title" }
+            config.tags = ["source": "driver"]
+        }
+        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+        XCTAssertEqual(form.config.formConfig.formTitle, "Local title")
+        XCTAssertEqual(try XCTUnwrap(form.config.tags?["source"] as? String), "driver")
+        XCTAssertEqual(config.formConfig.formTitle, "Global title")
+
+        withExtendedLifetime(window) { }
+    }
+
     func testShowForm_whenNoPresenterAvailable_shouldNotPresentForm() {
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: SentryUserFeedbackConfiguration(),
@@ -368,7 +452,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertFalse(widgetHost.isWidgetVisible)
     }
 
-    // MARK: - Helper Types
+    // MARK: - Helpers
 
     private func installFeedbackIntegration(
         configure: @escaping (SentryUserFeedbackConfiguration) -> Void = { _ in }
