@@ -12,16 +12,43 @@ class SentryUserTests: XCTestCase {
             "data": [
                 "fixture-key": "fixture-value"
             ],
+            "geo": [
+                "city": "San Francisco",
+                "country_code": "US",
+                "region": "California"
+            ],
             "foo": "bar" // Unknown
         ]
         let user = PrivateSentrySDKOnly.user(with: dict)
-        
+
         XCTAssertEqual(user.userId, "fixture-id")
         XCTAssertEqual(user.email, "fixture-email")
         XCTAssertEqual(user.username, "fixture-username")
         XCTAssertEqual(user.ipAddress, "fixture-ip_address")
         XCTAssertEqual(user.data?["fixture-key"] as? String, "fixture-value")
+        XCTAssertEqual(user.geo?.city, "San Francisco")
+        XCTAssertEqual(user.geo?.countryCode, "US")
+        XCTAssertEqual(user.geo?.region, "California")
         XCTAssertEqual(user.value(forKey: "unknown") as? NSDictionary, ["foo": "bar"])
+    }
+
+    func testInitWithDictionary_GeoRoundTrip() {
+        let dict: [AnyHashable: Any] = [
+            "id": "user-1",
+            "geo": [
+                "city": "San Francisco",
+                "country_code": "US",
+                "region": "California"
+            ]
+        ]
+        let user = PrivateSentrySDKOnly.user(with: dict)
+        let serialized = user.serialize()
+
+        let geo = serialized["geo"] as? [String: Any]
+        XCTAssertEqual(geo?["city"] as? String, "San Francisco")
+        XCTAssertEqual(geo?["country_code"] as? String, "US")
+        XCTAssertEqual(geo?["region"] as? String, "California")
+        XCTAssertNil(serialized["unknown"])
     }
     
     func testSerializationWithAllProperties() throws {
