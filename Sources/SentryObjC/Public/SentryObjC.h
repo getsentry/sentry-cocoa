@@ -135,10 +135,18 @@
 #    import "SentryObjCExperimentalOptions.h"
 #    import "SentryObjCOptions.h"
 #    import "SentryObjCReplayOptions.h"
+#    import "SentryObjCUserFeedbackConfiguration.h"
+#    import "SentryObjCUserFeedbackFormConfiguration.h"
+#    import "SentryObjCUserFeedbackFormElementOutlineStyle.h"
+#    import "SentryObjCUserFeedbackThemeConfiguration.h"
 #else
 #    import <SentryObjC/SentryObjCExperimentalOptions.h>
 #    import <SentryObjC/SentryObjCOptions.h>
 #    import <SentryObjC/SentryObjCReplayOptions.h>
+#    import <SentryObjC/SentryObjCUserFeedbackConfiguration.h>
+#    import <SentryObjC/SentryObjCUserFeedbackFormConfiguration.h>
+#    import <SentryObjC/SentryObjCUserFeedbackFormElementOutlineStyle.h>
+#    import <SentryObjC/SentryObjCUserFeedbackThemeConfiguration.h>
 #endif
 
 // --- API surfaces ---

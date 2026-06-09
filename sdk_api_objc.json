@@ -592,6 +592,30 @@
     "has_inner": true
   },
   {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCUserFeedbackConfiguration",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCUserFeedbackFormConfiguration",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCUserFeedbackFormElementOutlineStyle",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCUserFeedbackThemeConfiguration",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
     "kind": "ObjCMethodDecl",
     "name": "addAttachment:",
     "parent": "SentryObjCScope",
@@ -632,6 +656,13 @@
     "parent": "SentryObjCPrivateSDKOnly",
     "returnType": "void",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "animations",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "BOOL",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -715,6 +746,13 @@
     "name": "attributes",
     "parent": "SentryObjCScope",
     "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "background",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "UIColor * _Nonnull",
     "instance": true
   },
   {
@@ -838,6 +876,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "buttonBackground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "UIColor * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "buttonForeground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "UIColor * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "byte",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -854,6 +906,20 @@
     "kind": "ObjCMethodDecl",
     "name": "cacheDirectoryPath",
     "parent": "SentryObjCOptions",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "cancelButtonAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "cancelButtonLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "NSString * _Nonnull",
     "instance": true
   },
@@ -1181,9 +1247,23 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "color",
+    "parent": "SentryObjCUserFeedbackFormElementOutlineStyle",
+    "returnType": "UIColor * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "columnNumber",
     "parent": "SentryObjCFrame",
     "returnType": "NSNumber * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "configureForm",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void (^ _Nullable)(SentryObjCUserFeedbackFormConfiguration * _Nonnull)",
     "instance": true
   },
   {
@@ -1199,6 +1279,20 @@
     "parent": "SentryObjCSDK",
     "returnType": "void",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "configureTheme",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void (^ _Nullable)(SentryObjCUserFeedbackThemeConfiguration * _Nonnull)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "configureUserFeedback",
+    "parent": "SentryObjCOptions",
+    "returnType": "void (^ _Nullable)(SentryObjCUserFeedbackConfiguration * _Nonnull)",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -1226,6 +1320,13 @@
     "name": "cookies",
     "parent": "SentryObjCRequest",
     "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "cornerRadius",
+    "parent": "SentryObjCUserFeedbackFormElementOutlineStyle",
+    "returnType": "CGFloat",
     "instance": true
   },
   {
@@ -1296,6 +1397,13 @@
     "name": "current",
     "parent": "SentryObjCThread",
     "returnType": "NSNumber * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "customButton",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "UIButton * _Nullable",
     "instance": true
   },
   {
@@ -1506,6 +1614,27 @@
     "name": "email",
     "parent": "SentryObjCUser",
     "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "emailLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "emailPlaceholder",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "emailTextFieldAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
@@ -1846,6 +1975,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "errorColor",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "UIColor * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "eventId",
     "parent": "SentryObjCEnvelopeHeader",
     "returnType": "SentryObjCId * _Nullable",
@@ -2014,9 +2150,30 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "fontFamily",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "forNextAppLaunch",
     "parent": "SentryObjCTransactionContext",
     "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "foreground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "UIColor * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "formTitle",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
@@ -2609,6 +2766,34 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCUserFeedbackFormElementOutlineStyle",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "initWithAttachment:maxAttachmentSize:",
     "parent": "SentryObjCEnvelopeItem",
     "returnType": "instancetype _Nullable",
@@ -2632,6 +2817,13 @@
     "kind": "ObjCMethodDecl",
     "name": "initWithClient:andScope:",
     "parent": "SentryObjCHub",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "initWithColor:cornerRadius:outlineWidth:",
+    "parent": "SentryObjCUserFeedbackFormElementOutlineStyle",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -3057,6 +3249,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "inputBackground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "UIColor * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "inputForeground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "UIColor * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "installationID",
     "parent": "SentryObjCPrivateSDKOnly",
     "returnType": "NSString * _Nonnull",
@@ -3106,6 +3312,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "isEmailRequired",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "isEnabled",
     "parent": "SentryObjCClient",
     "returnType": "BOOL",
@@ -3144,6 +3357,20 @@
     "name": "isMain",
     "parent": "SentryObjCThread",
     "returnType": "NSNumber * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "isNameRequired",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "isRequiredLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
@@ -3365,6 +3592,27 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "messageLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "messagePlaceholder",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "messageTextViewAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "meta",
     "parent": "SentryObjCMechanism",
     "returnType": "SentryObjCMechanismContext * _Nullable",
@@ -3491,9 +3739,30 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "nameLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "namePlaceholder",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "nameSource",
     "parent": "SentryObjCTransactionContext",
     "returnType": "SentryObjCTransactionNameSource",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "nameTextFieldAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
@@ -3764,9 +4033,37 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "onFormClose",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void (^ _Nullable)(void)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "onFormOpen",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void (^ _Nullable)(void)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "onLastRunStatusDetermined",
     "parent": "SentryObjCOptions",
     "returnType": "void (^ _Nullable)(SentryObjCLastRunStatus, SentryObjCEvent * _Nullable)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "onSubmitError",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void (^ _Nullable)(NSError * _Nonnull)",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "onSubmitSuccess",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void (^ _Nullable)(NSDictionary<NSString *,id> * _Nonnull)",
     "instance": true
   },
   {
@@ -3823,6 +4120,20 @@
     "name": "origin",
     "parent": "SentryObjCSpanContext",
     "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "outlineStyle",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "SentryObjCUserFeedbackFormElementOutlineStyle * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "outlineWidth",
+    "parent": "SentryObjCUserFeedbackFormElementOutlineStyle",
+    "returnType": "CGFloat",
     "instance": true
   },
   {
@@ -4079,6 +4390,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "removeScreenshotButtonAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "removeScreenshotButtonLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "removeTagForKey:",
     "parent": "SentryObjCScope",
     "returnType": "void",
@@ -4324,6 +4649,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setAnimations:",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setAppHangTimeoutInterval:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -4389,6 +4721,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setAttributes:",
     "parent": "SentryObjCMetric",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setBackground:",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
     "returnType": "void",
     "instance": true
   },
@@ -4464,8 +4803,36 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setButtonBackground:",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setButtonForeground:",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setCacheDirectoryPath:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setCancelButtonAccessibilityLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setCancelButtonLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "void",
     "instance": true
   },
@@ -4499,8 +4866,36 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setColor:",
+    "parent": "SentryObjCUserFeedbackFormElementOutlineStyle",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setColumnNumber:",
     "parent": "SentryObjCFrame",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setConfigureForm:",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setConfigureTheme:",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setConfigureUserFeedback:",
+    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -4534,6 +4929,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setCornerRadius:",
+    "parent": "SentryObjCUserFeedbackFormElementOutlineStyle",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setCountryCode:",
     "parent": "SentryObjCGeo",
     "returnType": "void",
@@ -4550,6 +4952,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setCurrent:",
     "parent": "SentryObjCThread",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setCustomButton:",
+    "parent": "SentryObjCUserFeedbackConfiguration",
     "returnType": "void",
     "instance": true
   },
@@ -4655,6 +5064,27 @@
     "kind": "ObjCMethodDecl",
     "name": "setEmail:",
     "parent": "SentryObjCUser",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEmailLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEmailPlaceholder:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setEmailTextFieldAccessibilityLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "void",
     "instance": true
   },
@@ -4933,6 +5363,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setErrorColor:",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEventId:",
     "parent": "SentryObjCEvent",
     "returnType": "void",
@@ -5010,8 +5447,29 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setFontFamily:",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setForNextAppLaunch:",
     "parent": "SentryObjCTransactionContext",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setForeground:",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setFormTitle:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "void",
     "instance": true
   },
@@ -5115,6 +5573,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setInputBackground:",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setInputForeground:",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setInstructionAddress:",
     "parent": "SentryObjCFrame",
     "returnType": "void",
@@ -5129,8 +5601,29 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setIsEmailRequired:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setIsMain:",
     "parent": "SentryObjCThread",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setIsNameRequired:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setIsRequiredLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "void",
     "instance": true
   },
@@ -5276,6 +5769,27 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setMessageLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setMessagePlaceholder:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setMessageTextViewAccessibilityLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setMeta:",
     "parent": "SentryObjCMechanism",
     "returnType": "void",
@@ -5332,6 +5846,27 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setNameLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setNamePlaceholder:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setNameTextFieldAccessibilityLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setNetworkCaptureBodies:",
     "parent": "SentryObjCReplayOptions",
     "returnType": "void",
@@ -5367,8 +5902,36 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setOnFormClose:",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setOnFormOpen:",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setOnLastRunStatusDetermined:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setOnSubmitError:",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setOnSubmitSuccess:",
+    "parent": "SentryObjCUserFeedbackConfiguration",
     "returnType": "void",
     "instance": true
   },
@@ -5411,6 +5974,20 @@
     "kind": "ObjCMethodDecl",
     "name": "setOrigin:",
     "parent": "SentryObjCSpanContext",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setOutlineStyle:",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setOutlineWidth:",
+    "parent": "SentryObjCUserFeedbackFormElementOutlineStyle",
     "returnType": "void",
     "instance": true
   },
@@ -5530,6 +6107,20 @@
     "kind": "ObjCMethodDecl",
     "name": "setReleaseName:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setRemoveScreenshotButtonAccessibilityLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setRemoveScreenshotButtonLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "void",
     "instance": true
   },
@@ -5668,6 +6259,34 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setShowBranding:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setShowEmail:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setShowFormForScreenshots:",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setShowName:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setShutdownTimeInterval:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -5787,6 +6406,34 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setSubmitBackground:",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setSubmitButtonAccessibilityLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setSubmitButtonLabel:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setSubmitForeground:",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setSwiftAsyncStacktraces:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -5838,6 +6485,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setTags:",
     "parent": "SentryObjCScope",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setTags:",
+    "parent": "SentryObjCUserFeedbackConfiguration",
     "returnType": "void",
     "instance": true
   },
@@ -5990,6 +6644,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setUnexpectedErrorText:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setUnit:",
     "parent": "SentryObjCMetric",
     "returnType": "void",
@@ -6020,6 +6681,20 @@
     "kind": "ObjCMethodDecl",
     "name": "setUrlSessionDelegate:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setUseSentryUser:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setUseShakeGesture:",
+    "parent": "SentryObjCUserFeedbackConfiguration",
     "returnType": "void",
     "instance": true
   },
@@ -6067,6 +6742,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setValidationErrorMessage:",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setValue:",
     "parent": "SentryObjCException",
     "returnType": "void",
@@ -6102,6 +6784,27 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "showBranding",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "showEmail",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "showFormForScreenshots",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "showMaskPreview",
     "parent": "SentryObjCReplayApi",
     "returnType": "void",
@@ -6112,6 +6815,13 @@
     "name": "showMaskPreview:",
     "parent": "SentryObjCReplayApi",
     "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "showName",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "BOOL",
     "instance": true
   },
   {
@@ -6459,6 +7169,34 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "submitBackground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "UIColor * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "submitButtonAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "submitButtonLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "submitForeground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "returnType": "UIColor * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "swiftAsyncStacktraces",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -6504,6 +7242,13 @@
     "name": "tags",
     "parent": "SentryObjCSpan",
     "returnType": "NSDictionary<NSString *,NSString *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "tags",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "NSDictionary<NSString *,id> * _Nullable",
     "instance": true
   },
   {
@@ -6767,6 +7512,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "unexpectedErrorText",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "unit",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "NSString * _Nonnull",
@@ -6816,6 +7568,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "useSentryUser",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "useShakeGesture",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "user",
     "parent": "SentryObjCEvent",
     "returnType": "SentryObjCUser * _Nullable",
@@ -6840,6 +7606,13 @@
     "name": "username",
     "parent": "SentryObjCUser",
     "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "validationErrorMessage",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "NSString * _Nonnull (^ _Nonnull)(BOOL)",
     "instance": true
   },
   {
@@ -6911,6 +7684,12 @@
     "parent": "SentryObjCUnit",
     "returnType": "SentryObjCUnit * _Nonnull",
     "instance": false
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "animations",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -6986,6 +7765,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "background",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "type": "UIColor * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "beforeBreadcrumb",
     "parent": "SentryObjCOptions",
     "type": "SentryObjCBreadcrumb * _Nullable (^ _Nullable)(SentryObjCBreadcrumb * _Nonnull)"
@@ -7058,6 +7843,18 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "buttonBackground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "type": "UIColor * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "buttonForeground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "type": "UIColor * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "byte",
     "parent": "SentryObjCMeasurementUnit",
     "type": "SentryObjCMeasurementUnit * _Nonnull"
@@ -7072,6 +7869,18 @@
     "kind": "ObjCPropertyDecl",
     "name": "cacheDirectoryPath",
     "parent": "SentryObjCOptions",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "cancelButtonAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "cancelButtonLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "type": "NSString * _Nonnull"
   },
   {
@@ -7100,9 +7909,33 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "color",
+    "parent": "SentryObjCUserFeedbackFormElementOutlineStyle",
+    "type": "UIColor * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "columnNumber",
     "parent": "SentryObjCFrame",
     "type": "NSNumber * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "configureForm",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "type": "void (^ _Nullable)(SentryObjCUserFeedbackFormConfiguration * _Nonnull)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "configureTheme",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "type": "void (^ _Nullable)(SentryObjCUserFeedbackThemeConfiguration * _Nonnull)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "configureUserFeedback",
+    "parent": "SentryObjCOptions",
+    "type": "void (^ _Nullable)(SentryObjCUserFeedbackConfiguration * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -7127,6 +7960,12 @@
     "name": "cookies",
     "parent": "SentryObjCRequest",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "cornerRadius",
+    "parent": "SentryObjCUserFeedbackFormElementOutlineStyle",
+    "type": "CGFloat"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -7157,6 +7996,12 @@
     "name": "current",
     "parent": "SentryObjCThread",
     "type": "NSNumber * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "customButton",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "type": "UIButton * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -7289,6 +8134,24 @@
     "name": "email",
     "parent": "SentryObjCUser",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "emailLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "emailPlaceholder",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "emailTextFieldAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -7538,6 +8401,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "errorColor",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "type": "UIColor * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "eventId",
     "parent": "SentryObjCEnvelopeHeader",
     "type": "SentryObjCId * _Nullable"
@@ -7634,9 +8503,27 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "fontFamily",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "forNextAppLaunch",
     "parent": "SentryObjCTransactionContext",
     "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "foreground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "type": "UIColor * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "formTitle",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -7784,6 +8671,18 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "inputBackground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "type": "UIColor * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "inputForeground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "type": "UIColor * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "installationID",
     "parent": "SentryObjCPrivateSDKOnly",
     "type": "NSString * _Nonnull"
@@ -7810,6 +8709,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "isDistribution",
     "parent": "SentryObjCMetricValue",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "isEmailRequired",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
     "type": "BOOL"
   },
   {
@@ -7841,6 +8746,18 @@
     "name": "isMain",
     "parent": "SentryObjCThread",
     "type": "NSNumber * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "isNameRequired",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "isRequiredLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8024,6 +8941,24 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "messageLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "messagePlaceholder",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "messageTextViewAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "meta",
     "parent": "SentryObjCMechanism",
     "type": "SentryObjCMechanismContext * _Nullable"
@@ -8132,9 +9067,27 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "nameLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "namePlaceholder",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "nameSource",
     "parent": "SentryObjCTransactionContext",
     "type": "SentryObjCTransactionNameSource"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "nameTextFieldAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8186,9 +9139,33 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "onFormClose",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "type": "void (^ _Nullable)(void)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "onFormOpen",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "type": "void (^ _Nullable)(void)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "onLastRunStatusDetermined",
     "parent": "SentryObjCOptions",
     "type": "void (^ _Nullable)(SentryObjCLastRunStatus, SentryObjCEvent * _Nullable)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "onSubmitError",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "type": "void (^ _Nullable)(NSError * _Nonnull)"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "onSubmitSuccess",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "type": "void (^ _Nullable)(NSDictionary<NSString *,id> * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8237,6 +9214,18 @@
     "name": "origin",
     "parent": "SentryObjCSpanContext",
     "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "outlineStyle",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "type": "SentryObjCUserFeedbackFormElementOutlineStyle * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "outlineWidth",
+    "parent": "SentryObjCUserFeedbackFormElementOutlineStyle",
+    "type": "CGFloat"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8420,6 +9409,18 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "removeScreenshotButtonAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "removeScreenshotButtonLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "replay",
     "parent": "SentryObjCSDK",
     "type": "SentryObjCReplayApi * _Nonnull"
@@ -8594,6 +9595,30 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "showBranding",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "showEmail",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "showFormForScreenshots",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "showName",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "shutdownTimeInterval",
     "parent": "SentryObjCOptions",
     "type": "NSTimeInterval"
@@ -8726,6 +9751,30 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "submitBackground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "type": "UIColor * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "submitButtonAccessibilityLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "submitButtonLabel",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "submitForeground",
+    "parent": "SentryObjCUserFeedbackThemeConfiguration",
+    "type": "UIColor * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "swiftAsyncStacktraces",
     "parent": "SentryObjCOptions",
     "type": "BOOL"
@@ -8765,6 +9814,12 @@
     "name": "tags",
     "parent": "SentryObjCSpan",
     "type": "NSDictionary<NSString *,NSString *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "tags",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "type": "NSDictionary<NSString *,id> * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8972,6 +10027,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "unexpectedErrorText",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "unit",
     "parent": "SentryObjCMeasurementUnit",
     "type": "NSString * _Nonnull"
@@ -9008,6 +10069,18 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "useSentryUser",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "useShakeGesture",
+    "parent": "SentryObjCUserFeedbackConfiguration",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "user",
     "parent": "SentryObjCEvent",
     "type": "SentryObjCUser * _Nullable"
@@ -9023,6 +10096,12 @@
     "name": "username",
     "parent": "SentryObjCUser",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "validationErrorMessage",
+    "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "type": "NSString * _Nonnull (^ _Nonnull)(BOOL)"
   },
   {
     "kind": "ObjCPropertyDecl",

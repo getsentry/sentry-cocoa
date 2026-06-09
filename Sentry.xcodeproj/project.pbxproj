@@ -1369,6 +1369,10 @@
 				Public/SentryObjCTransactionNameSource.h,
 				Public/SentryObjCUnit.h,
 				Public/SentryObjCUser.h,
+				Public/SentryObjCUserFeedbackConfiguration.h,
+				Public/SentryObjCUserFeedbackFormConfiguration.h,
+				Public/SentryObjCUserFeedbackFormElementOutlineStyle.h,
+				Public/SentryObjCUserFeedbackThemeConfiguration.h,
 			);
 			target = 6ECCF11F627ECB41E3A0C7E3 /* SentryObjC */;
 		};
