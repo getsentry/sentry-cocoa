@@ -39,6 +39,12 @@ Last updated: 2026-06-09
 
 ---
 
+## TL;DR — V3 at a Glance
+
+V3 replaces V1/V2 with a single **event-driven** hang detector built on `CFRunLoopObserver` + `DispatchSemaphore`. It has **zero overhead when the app is healthy** (no polling threads). A background queue waits on the semaphore with escalating timeouts: hitch noted at ~25ms, stack trace sampling starts at ~250ms, app hang reported at ~2s. Only **fully-blocking hangs** (one run loop iteration > threshold) are reported — V2's "non-fully-blocking" category is dropped. Stack traces are **sampled every ~250ms** by suspending only the main thread (not all threads), then aggregated client-side into a representative trace with a confidence metric. Fatal hangs are **incrementally persisted** to disk so duration is recoverable on next launch (±250ms). Works on **all Apple platforms**; watchOS gets timing-only detection (no stack traces). Opt-in via `options.experimental.appHangs.enableV3`.
+
+---
+
 ## V3 Design Spec
 
 V3 replaces both V1 and V2 with a unified, event-driven detection mechanism based on CFRunLoop observers. The prototype lives in `Sources/Swift/HangTracker.swift`.
