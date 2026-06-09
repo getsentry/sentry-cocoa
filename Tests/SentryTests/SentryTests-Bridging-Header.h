@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentryGeo+Private.h"
 
 #import "SentryLaunchProfiling+Tests.h"
 
