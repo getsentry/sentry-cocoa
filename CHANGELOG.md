@@ -46,7 +46,7 @@
 
 ### Fixes
 
-- App start duration on the Vitals dashboard now reflects the extended app launch time when using `extendAppLaunch()` (#TBD)
+- App start duration on the Vitals dashboard now reflects the extended app launch time when using `extendAppLaunch()` (#8028)
 
 ## 9.16.1
 
