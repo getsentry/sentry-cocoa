@@ -32,7 +32,7 @@ jobs:
     outputs:
       run_build_for_prs: ${{ steps.changes.outputs.run_build_for_prs }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
@@ -50,7 +50,7 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
       # sample projects. The Package.swift references binary targets, which in release branch commits points
       # to non-existent download URLs. This creates chicken-egg failures when building these sample apps for
@@ -115,7 +115,7 @@ jobs:
             config: Debug
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       # Some sample projects use local SPM references. xcodebuild resolves SPM dependencies for the
       # workspace, so Package.swift binary targets can be resolved even when building another scheme.
       # On release branches these binary target URLs point to artifacts that do not exist yet, causing
@@ -168,7 +168,7 @@ jobs:
           - scheme: iOS-ObjectiveC-Static
             config: Debug
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
@@ -215,7 +215,7 @@ jobs:
             make-target: build-sample-visionOS-SwiftUI-SPM
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Setup Xcode
         id: setup-xcode
@@ -249,7 +249,7 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
@@ -283,15 +283,15 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
 
-      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace . \
             -scheme SentryDistribution \
             -sdk iphoneos \
             -destination 'generic/platform=iphoneos' \
@@ -312,14 +312,14 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
-      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace . \
             -scheme SentrySPM \
             -sdk watchos \
             -destination 'generic/platform=watchOS' \
@@ -327,6 +327,7 @@ jobs:
         shell: sh
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace . \
             -scheme SentrySPM \
             -sdk iphoneos \
             -destination 'generic/platform=iphoneos' \
@@ -352,7 +353,7 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -393,7 +394,7 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -434,7 +435,7 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -475,7 +476,7 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -516,7 +517,7 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -554,7 +555,7 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -596,7 +597,7 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       # If the SentryAsyncSafeLog doesn't contain the SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR this fails.
       - name: Async Safe Log Level is Error
         run: grep -c "SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR" Sources/Sentry/SentryAsyncSafeLog.h
