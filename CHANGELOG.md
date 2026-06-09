@@ -20,6 +20,10 @@
   These APIs use the global `SentryOptions.configureUserFeedback` configuration and temporarily hide the managed widget
   while the form is open, when possible.
 
+### Deprecations
+
+- Deprecate the managed User Feedback widget/FAB. It will be removed in v10. Present the feedback form from your own UI with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, or `.sentryFeedback(isPresented:)` instead. If you currently use the auto-injected widget, disable auto-injection while migrating to the direct presentation APIs. (#8022)
+
 ## 9.16.1
 
 > [!NOTE]
