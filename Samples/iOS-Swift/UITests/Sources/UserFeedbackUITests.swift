@@ -23,7 +23,7 @@ class UserFeedbackUITests: BaseUITest {
             SentrySDKOverrides.Special.disableEverything.rawValue,
             
             // write base64-encoded data into the envelope file for attachments instead of raw bytes, specifically for images. this way the entire envelope contents can be more easily passed as a string through the text field in the app to this process for validation.
-            SentrySDKOverrides.Other.base64AttachmentData.rawValue
+            SentrySDKOverrides.Attachments.base64Data.rawValue
         ])
         continueAfterFailure = true
     }
@@ -91,8 +91,8 @@ extension UserFeedbackUITests {
         launchApp(args: [
             SentrySDKOverrides.Feedback.allDefaults.rawValue
         ], env: [
-            SentrySDKOverrides.Other.userFullName.rawValue: "ui test user",
-            SentrySDKOverrides.Other.userEmail.rawValue: "ui-testing@sentry.io"
+            SentrySDKOverrides.Scope.userFullName.rawValue: "ui test user",
+            SentrySDKOverrides.Scope.userEmail.rawValue: "ui-testing@sentry.io"
         ])
         
         widgetButton.tap()
@@ -104,8 +104,8 @@ extension UserFeedbackUITests {
         launchApp(args: [
             SentrySDKOverrides.Feedback.noUserInjection.rawValue
         ], env: [
-            SentrySDKOverrides.Other.userFullName.rawValue: "ui test user",
-            SentrySDKOverrides.Other.userEmail.rawValue: "ui-testing@sentry.io"
+            SentrySDKOverrides.Scope.userFullName.rawValue: "ui test user",
+            SentrySDKOverrides.Scope.userEmail.rawValue: "ui-testing@sentry.io"
         ])
         
         widgetButton.tap()
@@ -159,8 +159,8 @@ extension UserFeedbackUITests {
         let testContactEmail = "andrew.mcknight@sentry.io"
         
         launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
-            SentrySDKOverrides.Other.userFullName.rawValue: testName,
-            SentrySDKOverrides.Other.userEmail.rawValue: testContactEmail
+            SentrySDKOverrides.Scope.userFullName.rawValue: testName,
+            SentrySDKOverrides.Scope.userEmail.rawValue: testContactEmail
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -247,8 +247,8 @@ extension UserFeedbackUITests {
         let testContactEmail = "andrew.mcknight@sentry.io"
         
         launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
-            SentrySDKOverrides.Other.userFullName.rawValue: testName,
-            SentrySDKOverrides.Other.userEmail.rawValue: testContactEmail
+            SentrySDKOverrides.Scope.userFullName.rawValue: testName,
+            SentrySDKOverrides.Scope.userEmail.rawValue: testContactEmail
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -276,8 +276,8 @@ extension UserFeedbackUITests {
         let testContactEmail = "andrew.mcknight@sentry.io"
         
         launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
-            SentrySDKOverrides.Other.userFullName.rawValue: testName,
-            SentrySDKOverrides.Other.userEmail.rawValue: testContactEmail
+            SentrySDKOverrides.Scope.userFullName.rawValue: testName,
+            SentrySDKOverrides.Scope.userEmail.rawValue: testContactEmail
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -314,8 +314,8 @@ extension UserFeedbackUITests {
         let testContactEmail = "andrew.mcknight@sentry.io"
         
         launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
-            SentrySDKOverrides.Other.userFullName.rawValue: testName,
-            SentrySDKOverrides.Other.userEmail.rawValue: testContactEmail
+            SentrySDKOverrides.Scope.userFullName.rawValue: testName,
+            SentrySDKOverrides.Scope.userEmail.rawValue: testContactEmail
         ])
 
         try retrieveAppUnderTestApplicationSupportDirectory()
@@ -474,8 +474,8 @@ extension UserFeedbackUITests {
         let testContactEmail = "andrew.mcknight@sentry.io"
         
         launchApp(args: [SentrySDKOverrides.Feedback.allDefaults.rawValue], env: [
-            SentrySDKOverrides.Other.userFullName.rawValue: testName,
-            SentrySDKOverrides.Other.userEmail.rawValue: testContactEmail
+            SentrySDKOverrides.Scope.userFullName.rawValue: testName,
+            SentrySDKOverrides.Scope.userEmail.rawValue: testContactEmail
         ])
         
         try retrieveAppUnderTestApplicationSupportDirectory()

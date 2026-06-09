@@ -3,6 +3,63 @@ import XCTest
 
 class SentryGeoTests: XCTestCase {
     
+    func testInitWithDictionary_AllProperties() throws {
+        let dict: [String: Any] = [
+            "city": "San Francisco",
+            "country_code": "US",
+            "region": "California"
+        ]
+        let geo = try XCTUnwrap(Geo(dictionary: dict))
+
+        XCTAssertEqual(geo.city, "San Francisco")
+        XCTAssertEqual(geo.countryCode, "US")
+        XCTAssertEqual(geo.region, "California")
+    }
+
+    func testInitWithDictionary_PartialProperties() throws {
+        let geo = try XCTUnwrap(Geo(dictionary: ["city": "Berlin"]))
+
+        XCTAssertEqual(geo.city, "Berlin")
+        XCTAssertNil(geo.countryCode)
+        XCTAssertNil(geo.region)
+    }
+
+    func testInitWithDictionary_EmptyDict() throws {
+        let geo = try XCTUnwrap(Geo(dictionary: [:]))
+
+        XCTAssertNil(geo.city)
+        XCTAssertNil(geo.countryCode)
+        XCTAssertNil(geo.region)
+    }
+
+    func testInitWithDictionary_WrongTypes() throws {
+        let dict: [String: Any] = [
+            "city": 123,
+            "country_code": ["not", "a", "string"],
+            "region": true
+        ]
+        let geo = try XCTUnwrap(Geo(dictionary: dict))
+
+        XCTAssertNil(geo.city)
+        XCTAssertNil(geo.countryCode)
+        XCTAssertNil(geo.region)
+    }
+
+    func testInitWithDictionary_RoundTrip() throws {
+        let dict: [String: Any] = [
+            "city": "San Francisco",
+            "country_code": "US",
+            "region": "California"
+        ]
+        let geo = try XCTUnwrap(Geo(dictionary: dict))
+        let serialized = geo.serialize()
+
+        XCTAssertEqual(serialized["city"] as? String, "San Francisco")
+        XCTAssertEqual(serialized["country_code"] as? String, "US")
+        XCTAssertEqual(serialized["region"] as? String, "California")
+        XCTAssertEqual(serialized.count, 3)
+    }
+
     func testSerializationWithAllProperties() throws {
         let geo = try XCTUnwrap(TestData.geo.copy() as? Geo)
         let actual = geo.serialize()
