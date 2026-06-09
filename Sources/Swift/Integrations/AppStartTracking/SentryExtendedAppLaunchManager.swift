@@ -69,6 +69,7 @@ final class SentryExtendedAppLaunchManager {
         let shouldFinishTracer: Bool = lock.synchronized {
             self.tracer = newTracer
             self.extendedSpan = child
+            config.appStartMeasurement?.extendedAppStartSpan = child
             return config.appStartMeasurement != nil
         }
 
@@ -91,6 +92,7 @@ final class SentryExtendedAppLaunchManager {
         SentrySDKLog.debug("Setting app start measurement on extended launch tracer")
         let tracerToFinish: (any Span)? = lock.synchronized {
             tracerConfiguration?.appStartMeasurement = measurement
+            measurement.extendedAppStartSpan = extendedSpan
             SentryAppStartMeasurementProvider.markAsRead()
             return tracer
         }
