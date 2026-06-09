@@ -6,7 +6,7 @@ import UIKit
 
 /**
  * An integration managing a workflow for end users to report feedback via Sentry.
- * - note: The default method to show the feedback form is via a floating widget placed in the bottom trailing corner of the screen. See the configuration classes for alternative options.
+ * - note: The SDK still supports auto-injecting a floating widget in v9. The widget is deprecated and will be removed in v10; disable auto-injection while migrating to presenting the form from your own UI.
  */
 @available(iOSApplicationExtension, unavailable)
 final class SentryUserFeedbackIntegrationDriver: NSObject {
@@ -42,7 +42,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
             /*
              * We cannot currently automatically inject a widget into a SwiftUI application, because at the recommended time to start the Sentry SDK (SwiftUIApp.init) there is nowhere to put a UIWindow overlay. SwiftUI apps must currently declare a UIApplicationDelegateAdaptor that returns a UISceneConfiguration, which we can then extract a connected UIScene from into which we can inject a UIWindow.
              *
-             * At the time this integration is being installed, if there is no UIApplicationDelegate and no connected UIScene, it is very likely we are in a SwiftUI app, but it's possible we could instead be in a UIKit app that has some nonstandard launch procedure or doesn't call SentrySDK.start in a place we expect/recommend, in which case they will need to manually display the widget when they're ready by calling SentrySDK.feedback.showWidget.
+             * At the time this integration is being installed, if there is no UIApplicationDelegate and no connected UIScene, it is very likely we are in a SwiftUI app, but it's possible we could instead be in a UIKit app that has some nonstandard launch procedure or doesn't call SentrySDK.start in a place we expect/recommend. In that case, present the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:).
              */
             if UIApplication.shared.connectedScenes.isEmpty && UIApplication.shared.delegate == nil {
                 observeShakeGesture()

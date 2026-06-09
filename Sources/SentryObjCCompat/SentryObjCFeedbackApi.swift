@@ -16,11 +16,13 @@ import Foundation
     }
 
     @available(iOSApplicationExtension, unavailable)
+    @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10.")
     @objc public func showWidget() {
         wrapped.showWidget()
     }
 
     @available(iOSApplicationExtension, unavailable)
+    @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10.")
     @objc public func hideWidget() {
         wrapped.hideWidget()
     }

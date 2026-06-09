@@ -38124,10 +38124,12 @@
             ],
             "declAttributes": [
               "Available",
+              "Available",
               "Final",
               "ObjC"
             ],
             "declKind": "Func",
+            "deprecated": true,
             "funcSelfKind": "NonMutating",
             "kind": "Function",
             "mangledName": "$s6Sentry0A11FeedbackAPIC10hideWidgetyyF",
@@ -38182,10 +38184,12 @@
             ],
             "declAttributes": [
               "Available",
+              "Available",
               "Final",
               "ObjC"
             ],
             "declKind": "Func",
+            "deprecated": true,
             "funcSelfKind": "NonMutating",
             "kind": "Function",
             "mangledName": "$s6Sentry0A11FeedbackAPIC10showWidgetyyF",
@@ -60845,7 +60849,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC15configureWidgetyAA0abcfD0CcSgvg",
                 "moduleName": "Sentry",
@@ -60896,15 +60899,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC15configureWidgetyAA0abcfD0CcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setConfigureWidget:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration(im)setConfigureWidget:"
               }
@@ -60946,12 +60951,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasInitialValue",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC15configureWidgetyAA0abcfD0CcSgvp",
             "moduleName": "Sentry",
@@ -66318,7 +66320,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC10autoInjectSbvg",
                 "moduleName": "Sentry",
@@ -66342,15 +66343,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC10autoInjectSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setAutoInject:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setAutoInject:"
               }
@@ -66365,11 +66368,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC10autoInjectSbvp",
             "moduleName": "Sentry",
@@ -66433,10 +66434,12 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC9labelTextSSSgvs",
                 "moduleName": "Sentry",
@@ -66491,7 +66494,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC14layoutUIOffsetSo0G0Vvg",
                 "moduleName": "Sentry",
@@ -66515,15 +66517,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC14layoutUIOffsetSo0G0Vvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setLayoutUIOffset:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setLayoutUIOffset:"
               }
@@ -66538,11 +66542,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC14layoutUIOffsetSo0G0Vvp",
             "moduleName": "Sentry",
@@ -66567,7 +66569,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8locationSo21NSDirectionalRectEdgeVvg",
                 "moduleName": "Sentry",
@@ -66591,15 +66592,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8locationSo21NSDirectionalRectEdgeVvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setLocation:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setLocation:"
               }
@@ -66614,11 +66617,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8locationSo21NSDirectionalRectEdgeVvp",
             "moduleName": "Sentry",
@@ -66643,7 +66644,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8showIconSbvg",
                 "moduleName": "Sentry",
@@ -66667,15 +66667,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8showIconSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setShowIcon:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setShowIcon:"
               }
@@ -66690,11 +66692,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8showIconSbvp",
             "moduleName": "Sentry",
@@ -66758,10 +66758,12 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC24widgetAccessibilityLabelSSSgvs",
                 "moduleName": "Sentry",
@@ -66816,7 +66818,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC11windowLevelSo08UIWindowG0avg",
                 "moduleName": "Sentry",
@@ -66840,15 +66841,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC11windowLevelSo08UIWindowG0avs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setWindowLevel:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setWindowLevel:"
               }
@@ -66863,11 +66866,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC11windowLevelSo08UIWindowG0avp",
             "moduleName": "Sentry",

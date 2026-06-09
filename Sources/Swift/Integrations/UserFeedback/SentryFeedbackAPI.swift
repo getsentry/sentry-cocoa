@@ -8,16 +8,20 @@ import UIKit
 
     /// Show the feedback widget button.
     /// - warning: This is an experimental feature and may still have bugs.
-    /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
+    /// - seealso: Present the feedback form from your own UI using `show(screenshot:)` or
+    /// `SentrySDK.FeedbackForm` instead.
     @available(iOSApplicationExtension, unavailable)
+    @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10. Present the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:) instead.")
     @objc public func showWidget() {
         getIntegration()?.driver.showWidget()
     }
 
     /// Hide the feedback widget button.
     /// - warning: This is an experimental feature and may still have bugs.
-    /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
+    /// - seealso: If you currently use the auto-injected widget, disable auto-injection while
+    /// migrating to presenting the feedback form from your own UI.
     @available(iOSApplicationExtension, unavailable)
+    @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10. Present the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:) instead.")
     @objc public func hideWidget() {
         getIntegration()?.driver.hideWidget()
     }
