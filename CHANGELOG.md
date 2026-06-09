@@ -10,6 +10,15 @@
   ```objc
   [SentryObjCSDK.logger infoWithFormat:@"User %@ processed %d items", userName, count];
   ```
+- Add managed user feedback form presentation APIs (#7873)
+
+  Apps using the managed User Feedback integration can now present the form directly:
+  - Use `SentrySDK.feedback.show()` to let the SDK pick the best presenter.
+  - In UIKit, present the `SentrySDK.FeedbackForm()` view controller yourself.
+  - In SwiftUI, use `.sentryFeedback(isPresented:)`, or present `SentrySDK.FeedbackFormView()` from a container such as `.sheet`.
+
+  These APIs use the global `SentryOptions.configureUserFeedback` configuration and temporarily hide the managed widget
+  while the form is open, when possible.
 
 ## 9.16.1
 

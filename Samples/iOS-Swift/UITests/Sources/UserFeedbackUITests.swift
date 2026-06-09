@@ -296,6 +296,7 @@ extension UserFeedbackUITests {
         try assertOnlyHookMarkersExist(names: [.onFormClose])
         
         // displaying the form again ensures the widget button still works afterwards; also assert that the fields are in their default state to ensure the entered data is not persisted between displays
+        XCTAssertTrue(widgetButton.waitForExistence(timeout: 1))
         widgetButton.tap()
         
         XCTAssertEqual(try XCTUnwrap(nameField.value as? String), testName)

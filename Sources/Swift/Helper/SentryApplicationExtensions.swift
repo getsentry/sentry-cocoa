@@ -91,13 +91,13 @@ extension SentryApplication {
         var result: [String]?
         Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
             guard let self else { return }
-            let viewControllers = self.relevantviewControllers() ?? []
+            let viewControllers = self.internal_relevantViewControllers() ?? []
             result = viewControllers.map { SwiftDescriptor.getViewControllerClassName($0) }
         }, timeout: 0.01)
         return result
     }
     
-    private func relevantviewControllers() -> [UIViewController]? {
+    func internal_relevantViewControllers() -> [UIViewController]? {
         let windows = getWindows()
         guard !(windows?.isEmpty ?? true) else { return nil }
         
