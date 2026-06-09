@@ -2021,6 +2021,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "formViewController",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "UIViewController * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "formViewControllerWithScreenshot:",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "UIViewController * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "formatted",
     "parent": "SentryObjCMessage",
     "returnType": "NSString * _Nonnull",
@@ -6081,6 +6095,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "show",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "showMaskPreview",
     "parent": "SentryObjCReplayApi",
     "returnType": "void",
@@ -6096,6 +6117,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "showWidget",
+    "parent": "SentryObjCFeedbackApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "showWithScreenshot:",
     "parent": "SentryObjCFeedbackApi",
     "returnType": "void",
     "instance": true
