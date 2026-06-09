@@ -10,19 +10,17 @@
   ```objc
   [SentryObjCSDK.logger infoWithFormat:@"User %@ processed %d items", userName, count];
   ```
-- Add managed user feedback form presentation APIs (#7873)
+- Add direct presentation APIs for the managed User Feedback form (#7873, #8018, #8027)
 
-  Apps using the managed User Feedback integration can now present the form directly:
+  Apps can now present the feedback form from their own UI:
   - Use `SentrySDK.feedback.show()` to let the SDK pick the best presenter.
-  - In UIKit, present the `SentrySDK.FeedbackForm()` view controller yourself.
-  - In SwiftUI, use `.sentryFeedback(isPresented:)`, or present `SentrySDK.FeedbackFormView()` from a container such as `.sheet`.
+  - In UIKit, present `SentrySDK.FeedbackForm()` yourself.
+  - In SwiftUI, use `.sentryFeedback(isPresented:)` or present `SentrySDK.FeedbackFormView()`
+    from a container such as `.sheet`.
 
-  These APIs use the global `SentryOptions.configureUserFeedback` configuration and temporarily hide the managed widget
-  while the form is open, when possible.
-- Add per-form feedback configuration (#8018)
-
-  Managed feedback presentation APIs now accept a configuration closure, so apps can customize a single
-  form on top of the global `SentryOptions.configureUserFeedback` settings without mutating them:
+  These APIs use the global `SentryOptions.configureUserFeedback` configuration by default and
+  temporarily hide the managed widget while the form is open, when possible. You can also pass a
+  per-form configuration closure to customize a single presentation without mutating global options:
 
   ```swift
   SentrySDK.feedback.show { config in
@@ -34,7 +32,7 @@
   }
   ```
 
-  The per-form configuration closure is also available from SentryObjC feedback presentation methods.
+  SentryObjC includes matching feedback presentation methods with per-form configuration support.
 
 ### Deprecations
 
