@@ -13,7 +13,7 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
 
     private let scopeObserver: SentryKSCrashScopeObserver
     private let crashReporter: SentryCrashReporter
-    private let installation: SentryKSCrashInstallationReporter?
+    private let installation: SentryKSCrashInstallationReporter
 
     // MARK: - Initialization
 
@@ -78,13 +78,16 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
         config.enableSigTermMonitoring = enableSigtermReporting
         config.enableSwapCxaThrow = options.experimental.enableUnhandledCPPExceptionsV2
 
-        config.isWritingReportCallback = { plan, writer in
+        // According to the KSCrash documentation, when using the `-[KSCrashInstallation installWithConfiguration:]
+        // installation method, this config field is ignored - instead, we can use
+        // `-[KSCrashInstallation setIsWritingReportCallback:] method to install this callback.
+        installation.isWritingReportCallback = { plan, writer in
             if plan.pointee.crashedDuringExceptionHandling {
                 return
             }
 
             if let json = ScopeJSON.get() {
-                writer.pointee.addJSONElement(writer, "sentry_sdk_scope", json, false)
+                writer.pointee.addJSONElement(writer, CrashField.sentrySDKScope.rawValue, json, false)
             }
         }
 
@@ -128,7 +131,7 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
         let config = buildKSCrashConfig(for: options)
 
         do {
-            try installation?.install(with: config)
+            try installation.install(with: config)
         } catch {
             SentrySDKLog.debug("KSCrash Installation failed: \(error)")
         }
@@ -165,7 +168,7 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
         // This is a pragmatic and not the most optimal place for this logic.
         dependencies.getKSCrashIntegrationSessionHandler(options)?.endCurrentSessionIfRequired()
 
-        installation?.sendAllReports(completion: nil)
+        installation.sendAllReports(completion: nil)
     }
 
     // MARK: - Scope Configuration
