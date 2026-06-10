@@ -91,6 +91,11 @@ else
         fi
         log_info "  $sdk: $fw_path"
         create_args+=( -framework "$fw_path" )
+        dsym_path="${fw_path}.dSYM"
+        if [ -d "$dsym_path" ]; then
+            log_info "  dSYM: $dsym_path"
+            create_args+=( -debug-symbols "$dsym_path" )
+        fi
     done
     end_group
 fi
