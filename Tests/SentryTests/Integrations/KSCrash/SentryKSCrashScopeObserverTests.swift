@@ -4,7 +4,7 @@ import XCTest
 final class SentryKSCrashScopeObserverTests: XCTestCase {
 
     override func tearDown() {
-        ScopeJSON.set(json: nil)
+        ScopeJSON.clear()
         super.tearDown()
     }
 
@@ -142,6 +142,65 @@ final class SentryKSCrashScopeObserverTests: XCTestCase {
 
         let context = try storedScopeDict()?["context"] as? [String: [String: Any]]
         XCTAssertEqual(context?["device"]?["model"] as? String, "iPhone")
+    }
+
+    func test_emptyTags_omittedFromJSON() throws {
+        let sut = SentryKSCrashScopeObserver(maxBreadcrumbs: 1)
+        sut.setTags(["env": "prod"])
+        sut.setTags([:])
+        XCTAssertNil(try storedScopeDict()?["tags"])
+    }
+
+    func test_emptyExtras_omittedFromJSON() throws {
+        let sut = SentryKSCrashScopeObserver(maxBreadcrumbs: 1)
+        sut.setExtras(["key": "val"])
+        sut.setExtras([:])
+        XCTAssertNil(try storedScopeDict()?["extra"])
+    }
+
+    func test_emptyContext_omittedFromJSON() throws {
+        let sut = SentryKSCrashScopeObserver(maxBreadcrumbs: 1)
+        sut.setContext(["device": ["model": "iPhone"]])
+        sut.setContext([:])
+        XCTAssertNil(try storedScopeDict()?["context"])
+    }
+
+    func test_emptyTraceContext_omittedFromJSON() throws {
+        let sut = SentryKSCrashScopeObserver(maxBreadcrumbs: 1)
+        sut.setTraceContext(["trace_id": "abc"])
+        sut.setTraceContext([:])
+        XCTAssertNil(try storedScopeDict()?["trace_context"])
+    }
+
+    func test_emptyFingerprint_omittedFromJSON() throws {
+        let sut = SentryKSCrashScopeObserver(maxBreadcrumbs: 1)
+        sut.setFingerprint(["a", "b"])
+        sut.setFingerprint([])
+        XCTAssertNil(try storedScopeDict()?["fingerprint"])
+    }
+
+    func test_nilDist_omittedFromJSON() throws {
+        let sut = SentryKSCrashScopeObserver(maxBreadcrumbs: 1)
+        sut.setDist("v1")
+        sut.setDist(nil)
+        XCTAssertNil(try storedScopeDict()?["dist"])
+    }
+
+    func test_nilEnvironment_omittedFromJSON() throws {
+        let sut = SentryKSCrashScopeObserver(maxBreadcrumbs: 1)
+        sut.setEnvironment("prod")
+        sut.setEnvironment(nil)
+        XCTAssertNil(try storedScopeDict()?["environment"])
+    }
+
+    func test_unrelatedFieldUpdate_preservesOtherFields() throws {
+        let sut = SentryKSCrashScopeObserver(maxBreadcrumbs: 1)
+        sut.setUser(User(userId: "u1"))
+        sut.setDist("v2")
+
+        let json = try storedScopeDict()
+        XCTAssertEqual(json?["dist"] as? String, "v2")
+        XCTAssertEqual((json?["user"] as? [String: Any])?["id"] as? String, "u1")
     }
 
     // MARK: - Helper

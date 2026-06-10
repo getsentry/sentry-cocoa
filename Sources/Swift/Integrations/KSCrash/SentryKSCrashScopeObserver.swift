@@ -1,84 +1,54 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-/// Observes `SentryScope` changes and serializes the current scope state to a JSON
-/// string that KSCrash can embed in crash reports via `ScopeJSON`.
+/// Observes `SentryScope` changes and forwards pre-serialized JSON fragments to
+/// `ScopeJSON`, which assembles them into the crash report's scope JSON on demand.
 ///
-/// Breadcrumbs are stored in a fixed-capacity ring buffer that automatically evicts
-/// the oldest entry when full.
-///
-/// Thread-safety note: `SentryScope` copies mutable collections before passing them
-/// to observers, so the values received here are already immutable snapshots and no
-/// additional locking is required on the Swift side.
+/// This class is stateless: each callback serializes only its own argument and
+/// delegates storage and assembly to `ScopeJSON`. Thread safety is handled there.
 final class SentryKSCrashScopeObserver: NSObject, SentryScopeObserver {
 
-    private let maxBreadcrumbs: Int
-    /// Ring buffer: each slot holds an already-serialized breadcrumb dictionary.
-    private var breadcrumbs: [[String: Any]?]
-    /// Index of the *next write* slot (also the oldest slot when the buffer is full).
-    private var breadcrumbIndex = 0
-
-    private var user: User?
-    private var dist: String?
-    private var environment: String?
-    private var tags: [String: String]?
-    private var extras: [String: Any]?
-    private var context: [String: [String: Any]]?
-    private var traceContext: [String: Any]?
-    private var fingerprint: [String]?
-    private var level: SentryLevel = .none
-
     @objc init(maxBreadcrumbs: Int) {
-        self.maxBreadcrumbs = max(1, maxBreadcrumbs)
-        self.breadcrumbs = [[String: Any]?](repeating: nil, count: self.maxBreadcrumbs)
         super.init()
+        ScopeJSON.configureBreadcrumbs(max: max(1, maxBreadcrumbs))
     }
 
     // MARK: - SentryScopeObserver
 
     func setUser(_ user: User?) {
-        self.user = user
-        flush()
+        ScopeJSON.setUser(jsonValue(user?.serialize()))
     }
 
     func setTags(_ tags: [String: String]?) {
-        self.tags = tags
-        flush()
+        ScopeJSON.setTags(jsonValue(tags))
     }
 
     func setExtras(_ extras: [String: Any]?) {
-        self.extras = extras
-        flush()
+        ScopeJSON.setExtras(jsonValue(extras))
     }
 
     func setContext(_ context: [String: [String: Any]]?) {
-        self.context = context
-        flush()
+        ScopeJSON.setContext(jsonValue(context))
     }
 
     func setTraceContext(_ traceContext: [String: Any]?) {
-        self.traceContext = traceContext
-        flush()
+        ScopeJSON.setTraceContext(jsonValue(traceContext))
     }
 
     func setDist(_ dist: String?) {
-        self.dist = dist
-        flush()
+        ScopeJSON.setDist(dist.flatMap { serialize($0) })
     }
 
     func setEnvironment(_ environment: String?) {
-        self.environment = environment
-        flush()
+        ScopeJSON.setEnvironment(environment.flatMap { serialize($0) })
     }
 
     func setFingerprint(_ fingerprint: [String]?) {
-        self.fingerprint = fingerprint
-        flush()
+        ScopeJSON.setFingerprint(jsonValue(fingerprint))
     }
 
     func setLevel(_ level: SentryLevel) {
-        self.level = level
-        flush()
+        ScopeJSON.setLevel(level == .none ? nil : serialize(level.description))
     }
 
     func setAttributes(_ attributes: [String: Any]?) {
@@ -86,88 +56,42 @@ final class SentryKSCrashScopeObserver: NSObject, SentryScopeObserver {
     }
 
     func addSerializedBreadcrumb(_ serializedBreadcrumb: [String: Any]) {
-        breadcrumbs[breadcrumbIndex] = serializedBreadcrumb
-        breadcrumbIndex = (breadcrumbIndex + 1) % maxBreadcrumbs
-        flush()
+        guard let data = try? JSONSerialization.data(withJSONObject: serializedBreadcrumb),
+              let json = String(data: data, encoding: .utf8) else { return }
+        ScopeJSON.addBreadcrumb(json)
     }
 
     func clearBreadcrumbs() {
-        breadcrumbs = [[String: Any]?](repeating: nil, count: maxBreadcrumbs)
-        breadcrumbIndex = 0
-        flush()
+        ScopeJSON.clearBreadcrumbs()
     }
 
     func clear() {
-        user = nil
-        dist = nil
-        environment = nil
-        tags = nil
-        extras = nil
-        context = nil
-        traceContext = nil
-        fingerprint = nil
-        level = .none
-        breadcrumbs = [[String: Any]?](repeating: nil, count: maxBreadcrumbs)
-        breadcrumbIndex = 0
-        flush()
+        ScopeJSON.clear()
     }
 
     // MARK: - Private
 
-    private func flush() {
-        var scope = buildScopeDictionary()
-
-        let orderedCrumbs = orderedBreadcrumbs()
-        if !orderedCrumbs.isEmpty {
-            scope["breadcrumbs"] = orderedCrumbs
-        }
-
-        guard let data = try? JSONSerialization.data(withJSONObject: scope),
-              let json = String(data: data, encoding: .utf8) else { return }
-
-        ScopeJSON.set(json: json)
+    /// Serializes an object to a compact JSON value string, returning `nil` if the
+    /// object is `nil`, empty, or un-serializable.
+    private func jsonValue(_ object: Any?) -> String? {
+        guard let object else { return nil }
+        // Treat empty collections as nil so we don't write empty JSON objects.
+        if let dict = object as? [String: Any], dict.isEmpty { return nil }
+        if let arr = object as? [Any], arr.isEmpty { return nil }
+        guard let data = try? JSONSerialization.data(withJSONObject: object),
+              let json = String(data: data, encoding: .utf8) else { return nil }
+        return json
     }
 
-    // swiftlint:disable:next function_body_length
-    private func buildScopeDictionary() -> [String: Any] {
-        var scope: [String: Any] = [:]
-
-        if let user = user {
-            scope["user"] = user.serialize()
-        }
-        if let dist = dist {
-            scope["dist"] = dist
-        }
-        if let environment = environment {
-            scope["environment"] = environment
-        }
-        if let tags = tags, !tags.isEmpty {
-            scope["tags"] = tags
-        }
-        if let extras = extras, !extras.isEmpty {
-            scope["extra"] = extras
-        }
-        if let context = context, !context.isEmpty {
-            scope["context"] = context
-        }
-        if let traceContext = traceContext {
-            scope["trace_context"] = traceContext
-        }
-        if let fingerprint = fingerprint, !fingerprint.isEmpty {
-            scope["fingerprint"] = fingerprint
-        }
-        if level != .none {
-            scope["level"] = level.description
-        }
-
-        return scope
+    private func serialize(_ value: Any) -> String? {
+        guard let data = try? JSONSerialization.data(withJSONObject: value),
+              let json = String(data: data, encoding: .utf8) else { return nil }
+        return json
     }
 
-    /// Returns breadcrumbs in insertion order (oldest first) by reading the ring
-    /// buffer starting from the oldest slot.
-    private func orderedBreadcrumbs() -> [[String: Any]] {
-        (0..<maxBreadcrumbs).compactMap { i in
-            breadcrumbs[(breadcrumbIndex + i) % maxBreadcrumbs]
-        }
+    private func serialize(_ value: String) -> String? {
+        guard let data = try? JSONSerialization.data(withJSONObject: value, options: .fragmentsAllowed),
+              let json = String(data: data, encoding: .utf8) else { return nil }
+        return json
     }
 }
