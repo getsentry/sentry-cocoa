@@ -42,7 +42,7 @@
 
 ### Fixes
 
-- Silence retroactive conformance warning for `SentryLevel: CustomStringConvertible` (#8032)
+- Silence retroactive conformance warning for `SentryLevel: CustomStringConvertible` when building with SPM from source (#8032)
 
 ### Deprecations
 
