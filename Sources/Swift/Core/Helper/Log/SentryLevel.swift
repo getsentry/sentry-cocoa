@@ -3,11 +3,17 @@ import Foundation
 
 private let levelNames = ["none", "debug", "info", "warning", "error", "fatal"]
 
-extension SentryLevel: @retroactive CustomStringConvertible {
+#if SWIFT_PACKAGE
+extension SentryLevel: @retroactive CustomStringConvertible {}
+#else
+extension SentryLevel: CustomStringConvertible {}
+#endif
+
+extension SentryLevel {
     public var description: String {
         return levelNames[Int(self.rawValue)]
     }
-    
+
     static func fromName(_ name: String?) -> SentryLevel {
         guard let name = name, let index = levelNames.firstIndex(of: name) else { return .error }
         return SentryLevel(rawValue: UInt(index)) ?? .error
