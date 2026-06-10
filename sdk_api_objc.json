@@ -605,6 +605,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCUserFeedbackFormController",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCUserFeedbackFormElementOutlineStyle",
     "super": "NSObject",
     "has_inner": true
@@ -2178,34 +2184,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "formViewController",
-    "parent": "SentryObjCFeedbackApi",
-    "returnType": "UIViewController * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "formViewControllerWithConfigure:",
-    "parent": "SentryObjCFeedbackApi",
-    "returnType": "UIViewController * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "formViewControllerWithScreenshot:",
-    "parent": "SentryObjCFeedbackApi",
-    "returnType": "UIViewController * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "formViewControllerWithScreenshot:configure:",
-    "parent": "SentryObjCFeedbackApi",
-    "returnType": "UIViewController * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "formatted",
     "parent": "SentryObjCMessage",
     "returnType": "NSString * _Nonnull",
@@ -2789,6 +2767,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCUserFeedbackFormController",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -4021,6 +4006,13 @@
     "kind": "ObjCMethodDecl",
     "name": "new",
     "parent": "SentryObjCUnit",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCUserFeedbackFormController",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
@@ -7687,6 +7679,34 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "viewController",
+    "parent": "SentryObjCUserFeedbackFormController",
+    "returnType": "UIViewController * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "viewControllerWithConfigure:",
+    "parent": "SentryObjCUserFeedbackFormController",
+    "returnType": "UIViewController * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "viewControllerWithScreenshot:",
+    "parent": "SentryObjCUserFeedbackFormController",
+    "returnType": "UIViewController * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "viewControllerWithScreenshot:configure:",
+    "parent": "SentryObjCUserFeedbackFormController",
+    "returnType": "UIViewController * _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "warn:",
     "parent": "SentryObjCLogger",
     "returnType": "void",
@@ -10177,6 +10197,11 @@
     "kind": "TypedefDecl",
     "name": "SentryObjCAttachmentType",
     "type": "enum SentryObjCAttachmentType"
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryObjCFeedbackForm",
+    "type": "SentryObjCUserFeedbackFormController"
   },
   {
     "kind": "TypedefDecl",

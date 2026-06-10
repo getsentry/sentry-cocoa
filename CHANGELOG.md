@@ -32,7 +32,7 @@
   }
   ```
 
-  SentryObjC includes matching feedback presentation methods with per-form configuration support.
+  SentryObjC includes matching feedback presentation methods and a form controller factory with per-form configuration support.
 
 ### Deprecations
 

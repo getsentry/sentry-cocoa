@@ -137,6 +137,7 @@
 #    import "SentryObjCReplayOptions.h"
 #    import "SentryObjCUserFeedbackConfiguration.h"
 #    import "SentryObjCUserFeedbackFormConfiguration.h"
+#    import "SentryObjCUserFeedbackFormController.h"
 #    import "SentryObjCUserFeedbackFormElementOutlineStyle.h"
 #    import "SentryObjCUserFeedbackThemeConfiguration.h"
 #else
@@ -145,6 +146,7 @@
 #    import <SentryObjC/SentryObjCReplayOptions.h>
 #    import <SentryObjC/SentryObjCUserFeedbackConfiguration.h>
 #    import <SentryObjC/SentryObjCUserFeedbackFormConfiguration.h>
+#    import <SentryObjC/SentryObjCUserFeedbackFormController.h>
 #    import <SentryObjC/SentryObjCUserFeedbackFormElementOutlineStyle.h>
 #    import <SentryObjC/SentryObjCUserFeedbackThemeConfiguration.h>
 #endif

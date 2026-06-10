@@ -40,32 +40,6 @@ import UIKit
     }
 
     @available(iOSApplicationExtension, unavailable)
-    @objc public func formViewController() -> UIViewController {
-        SentryUserFeedbackFormController(screenshot: nil)
-    }
-
-    @available(iOSApplicationExtension, unavailable)
-    @objc(formViewControllerWithScreenshot:)
-    public func formViewController(screenshot: UIImage?) -> UIViewController {
-        SentryUserFeedbackFormController(screenshot: screenshot)
-    }
-
-    @available(iOSApplicationExtension, unavailable)
-    @objc(formViewControllerWithConfigure:)
-    public func formViewController(configure: ((SentryObjCUserFeedbackConfiguration) -> Void)?) -> UIViewController {
-        SentryUserFeedbackFormController(configure: wrappedConfigure(configure))
-    }
-
-    @available(iOSApplicationExtension, unavailable)
-    @objc(formViewControllerWithScreenshot:configure:)
-    public func formViewController(
-        screenshot: UIImage?,
-        configure: ((SentryObjCUserFeedbackConfiguration) -> Void)?
-    ) -> UIViewController {
-        SentryUserFeedbackFormController(screenshot: screenshot, configure: wrappedConfigure(configure))
-    }
-
-    @available(iOSApplicationExtension, unavailable)
     @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10.")
     @objc public func showWidget() {
         wrapped.showWidget()
