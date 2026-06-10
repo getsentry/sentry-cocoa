@@ -14,7 +14,7 @@
 // Sentry-specific: suspend only when thread count is within limit.
 // KSCrash has no equivalent, so we implement it inline.
 static inline void
-mc_suspendEnvironment_upToMaxSupportedThreads(thread_act_array_t *suspendedThreads,
+sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(thread_act_array_t *suspendedThreads,
     mach_msg_type_number_t *numSuspendedThreads, mach_msg_type_number_t maxSupportedThreads)
 {
     // Get the count first without suspending.
@@ -164,7 +164,8 @@ getStackEntriesFromThread(KSThread thread, KSMachineContext *context, SentryCras
         // SentryThreadInspector is crashing when there is too many threads.
         // We add a limit of 70 threads because in test with up to 100 threads it seems fine.
         // We are giving it an extra safety margin.
-        mc_suspendEnvironment_upToMaxSupportedThreads(&suspendedThreads, &numSuspendedThreads, 70);
+        sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(
+            &suspendedThreads, &numSuspendedThreads, 70);
         // DANGER: Do not try to allocate memory in the heap or call Objective-C code in this
         // section Doing so when the threads are suspended may lead to deadlocks or crashes.
 

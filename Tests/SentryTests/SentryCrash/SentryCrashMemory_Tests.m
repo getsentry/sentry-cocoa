@@ -40,7 +40,7 @@
     char buff[100];
     char buff2[100] = { 1, 2, 3, 4, 5 };
 
-    bool result = sentrycrashmem_copySafely(buff2, buff, sizeof(buff));
+    bool result = ksmem_copySafely(buff2, buff, sizeof(buff));
     XCTAssertTrue(result, @"");
     int memCmpResult = memcmp(buff, buff2, sizeof(buff));
     XCTAssertEqual(memCmpResult, 0, @"");
@@ -51,7 +51,7 @@
     char buff[100];
     char *buff2 = NULL;
 
-    bool result = sentrycrashmem_copySafely(buff2, buff, sizeof(buff));
+    bool result = ksmem_copySafely(buff2, buff, sizeof(buff));
     XCTAssertFalse(result, @"");
 }
 
@@ -60,7 +60,7 @@
     char buff[100];
     char *buff2 = (char *)-1;
 
-    bool result = sentrycrashmem_copySafely(buff2, buff, sizeof(buff));
+    bool result = ksmem_copySafely(buff2, buff, sizeof(buff));
     XCTAssertFalse(result, @"");
 }
 
@@ -69,7 +69,7 @@
     char buff[1000];
     char buff2[5] = { 1, 2, 3, 4, 5 };
 
-    int copied = sentrycrashmem_copyMaxPossible(buff2, buff, sizeof(buff));
+    int copied = ksmem_copyMaxPossible(buff2, buff, sizeof(buff));
     XCTAssertTrue(copied >= 5, @"");
     int memCmpResult = memcmp(buff, buff2, sizeof(buff2));
     XCTAssertEqual(memCmpResult, 0, @"");
@@ -80,7 +80,7 @@
     char buff[1000];
     char *buff2 = NULL;
 
-    int copied = sentrycrashmem_copyMaxPossible(buff2, buff, sizeof(buff));
+    int copied = ksmem_copyMaxPossible(buff2, buff, sizeof(buff));
     XCTAssertTrue(copied == 0, @"");
 }
 
@@ -89,7 +89,7 @@
     char buff[1000];
     char *buff2 = (char *)-1;
 
-    int copied = sentrycrashmem_copyMaxPossible(buff2, buff, sizeof(buff));
+    int copied = ksmem_copyMaxPossible(buff2, buff, sizeof(buff));
     XCTAssertTrue(copied == 0, @"");
 }
 

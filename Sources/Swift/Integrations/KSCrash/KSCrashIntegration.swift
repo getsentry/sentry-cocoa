@@ -1,20 +1,6 @@
 @_implementationOnly import _SentryPrivate
 import KSCrashRecording
 
-// MARK: - C Callback
-
-/// Finishes and saves the active transaction so it can be attached to the crash event.
-/// Called from the KSCrash willWriteReportCallback (ObjC/C context).
-@_cdecl("sentry_finishAndSaveTransaction")
-func sentry_finishAndSaveTransaction() {
-    let scope = SentrySDKInternal.currentHub().scope as Scope
-    guard let span = scope.getCastedInternalSpan() else {
-        SentrySDKLog.debug("No span found in current scope, skipping transaction finish and save")
-        return
-    }
-    span.tracer?.finishForCrash()
-}
-
 // This is horrible and exists purely to glue things together...
 // We would change this in the final product
 internal final class ScopeJSON {
@@ -97,7 +83,7 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
 
     // MARK: - Crash Handler
 
-    private func startCrashHandler(options: Options, dependencies: Dependencies) {
+    private func buildKSCrashConfig(for options: Options) -> KSCrashConfiguration {
         let enableSigtermReporting: Bool
         #if !os(watchOS)
         enableSigtermReporting = options.enableSigtermReporting
@@ -105,17 +91,13 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
         enableSigtermReporting = false
         #endif
 
-        let attachmentsBasePath = (options.cacheDirectoryPath as NSString)
-            .appendingPathComponent("Attachments")
-        SentryCrashAttachmentsStorage.basePath = attachmentsBasePath
-
         let config = KSCrashConfiguration()
         config.installPath = options.cacheDirectoryPath
         config.monitors = .productionSafeMinimal
         config.enableSigTermMonitoring = enableSigtermReporting
         config.enableSwapCxaThrow = options.experimental.enableUnhandledCPPExceptionsV2
 
-        config.isWritingReportCallback = { (plan, writer) in
+        config.isWritingReportCallback = { plan, writer in
             if plan.pointee.crashedDuringExceptionHandling {
                 return
             }
@@ -131,7 +113,11 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
                     return
                 }
 
-                sentry_finishAndSaveTransaction()
+                guard let span = SentrySDKInternal.currentHub().scope.getCastedInternalSpan() else {
+                    SentrySDKLog.debug("No span found in current scope, skipping transaction finish and save")
+                    return
+                }
+                span.tracer?.finishForCrash()
             }
         }
 
@@ -149,6 +135,16 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
             SentryCrashAttachmentsStorage.screenshotCallback?(dirPath)
             SentryCrashAttachmentsStorage.viewHierarchyCallback?(dirPath)
         }
+
+        return config
+    }
+
+    private func startCrashHandler(options: Options, dependencies: Dependencies) {
+        let attachmentsBasePath = (options.cacheDirectoryPath as NSString)
+            .appendingPathComponent("Attachments")
+        SentryCrashAttachmentsStorage.basePath = attachmentsBasePath
+
+        let config = buildKSCrashConfig(for: options)
 
         do {
             try installation?.install(with: config)
@@ -201,7 +197,6 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
 
             var userInfo = outerScope.serialize()
 
-            // TODO: this comment is now outdated - update it to ensure accuracy before pushing
             // KSCrashReportConverter.convertReportToEvent needs the release name and
             // the dist of the Options in the UserInfo. When SentryCrash records a
             // crash it writes the UserInfo into SentryCrashField_User of the report.

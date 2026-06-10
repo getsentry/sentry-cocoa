@@ -14,7 +14,7 @@
 extern "C" {
 #    define restrict
 /** Allow importing C99 headers that use the restrict keyword, which isn't valid in C++ */
-#    include "SentryCrashMemory.h"
+#    include "KSMemory.h"
 #    undef restrict
 }
 #    include <cassert>
@@ -86,7 +86,7 @@ namespace profiling {
         bool reachedEndOfStack = false;
         while (depth < maxDepth) {
             const auto frame = reinterpret_cast<StackFrame *>(current);
-            if (!sentrycrashmem_isMemoryReadable(frame, sizeof(StackFrame))) {
+            if (!ksmem_isMemoryReadable(frame, sizeof(StackFrame))) {
                 break;
             }
             if (LIKELY(skip == 0)) {

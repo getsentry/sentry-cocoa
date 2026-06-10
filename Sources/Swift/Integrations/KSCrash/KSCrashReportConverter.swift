@@ -6,6 +6,12 @@ import KSCrashRecording
 
 // TODO: go through all previous comments and see which are still relevant
 
+// MARK: - Report Helpers
+// These extensions are all to make the Report Converter code a little more idiomatic and nice to read
+extension CrashField {
+    static let sentrySDKScope = CrashField(rawValue: "sentry_sdk_scope")
+}
+
 private extension [String: Any] {
     subscript<T>(_ field: CrashField, _ type: T.Type = T.self) -> T? {
         self[field.rawValue] as? T
@@ -26,6 +32,7 @@ private extension ExceptionType {
     static let unknown = ExceptionType(rawValue: "Unknown Exception")
 }
 
+// MARK: - Report Converter
 @objc @_spi(Private)
 public final class KSCrashReportConverter: NSObject {
     private let report: CrashReportDictionary
@@ -48,10 +55,10 @@ public final class KSCrashReportConverter: NSObject {
         // userContext so downstream code can access scope fields directly.
         // TODO: determine if this is needed... seems like downstream is actually just this class
         var userSection: [String: Any] = report[.user] ?? [:]
-        if let scope = userSection["sentry_sdk_scope"] as? [String: Any] {
+        if let scope: [String: Any] = userSection[.sentrySDKScope] {
             userSection.merge(scope) { _, new in new }
         }
-        userSection.removeValue(forKey: "sentry_sdk_scope")
+        userSection.removeValue(forKey: CrashField.sentrySDKScope.rawValue)
         self.userContext = userSection
 
         // Prefer recrash_report data when present.
