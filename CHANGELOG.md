@@ -42,7 +42,7 @@
 
 ### Fixes
 
-- Silence retroactive conformance warning for `SentryLevel: CustomStringConvertible` (#PRNUM)
+- Silence retroactive conformance warning for `SentryLevel: CustomStringConvertible` (#8032)
 
 ### Deprecations
 
