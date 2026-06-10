@@ -61,12 +61,41 @@ jobs:
             --sdk "$SDK" \
             --output-dir XCFrameworkBuildPath
 
-      - name: Upload slice
+      # Build the dynamic framework on the same runner so dsymutil can
+      # access the .o files from the archive step above. Running this in a
+      # separate job (the previous approach) meant the object files were gone
+      # and dsymutil produced an empty dSYM.
+      - name: Build SentryObjC dynamic framework for ${{ matrix.sdk }}
+        env:
+          SDK: ${{ matrix.sdk }}
+          RELEASE_VERSION: ${{ inputs.release-version }}
+        run: |
+          version_args=()
+          if [ -n "$RELEASE_VERSION" ]; then
+            version_args=(--version "$RELEASE_VERSION")
+          fi
+          ./scripts/build-dynamic-framework-sentryobjc.sh \
+            --sdk "$SDK" \
+            --static-lib "XCFrameworkBuildPath/lib/SentryObjC/$SDK/libSentryObjC.a" \
+            --headers "Sources/SentryObjC/Public" \
+            --output-dir XCFrameworkBuildPath \
+            "${version_args[@]}"
+
+      - name: Upload static slice
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: sentryobjc-slice-${{ matrix.sdk }}
           if-no-files-found: error
           path: XCFrameworkBuildPath/lib/SentryObjC/${{ matrix.sdk }}/libSentryObjC.a
+
+      - name: Upload dynamic framework slice
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: sentryobjc-dynamic-slice-${{ matrix.sdk }}
+          if-no-files-found: error
+          path: |
+            XCFrameworkBuildPath/framework/SentryObjC/${{ matrix.sdk }}/SentryObjC.framework
+            XCFrameworkBuildPath/framework/SentryObjC/${{ matrix.sdk }}/SentryObjC.framework.dSYM
 
       - name: Upload build log if failed
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
