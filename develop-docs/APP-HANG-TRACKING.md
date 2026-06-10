@@ -28,7 +28,7 @@ Last updated: 2026-06-09
 | Duration measurement   | No                              | Yes (min/max range)                   | Yes (precise, continuous)                                                     |
 | Stack trace capture    | At detection (~2s in)           | At detection (~2s in)                 | Sampled every ~250ms from samplingThreshold onward                            |
 | Stack trace quality    | Single snapshot, may miss cause | Single snapshot, may miss cause       | Multiple samples with confidence metric                                       |
-| Overhead when healthy  | Dispatch to main queue per tick | FramesTracker query per tick          | None (event-driven)                                                           |
+| Overhead when healthy  | Dispatch to main queue per tick | FramesTracker query per tick          | Low (event-driven: observer callback + semaphore + dispatch per iteration)    |
 | Dependencies           | DispatchQueue, Thread           | DispatchQueue, Thread, FramesTracker  | CFRunLoop, DispatchQueue                                                      |
 | Platform support       | All                             | iOS, tvOS, visionOS (UIKit)           | All (stack traces on all except watchOS)                                      |
 | Suspension handling    | Wall-clock delta check          | Wall-clock delta check                | Wall-clock delta check per semaphore timeout                                  |
@@ -41,7 +41,7 @@ Last updated: 2026-06-09
 
 ## TL;DR — V3 at a Glance
 
-V3 replaces V1/V2 with a single **event-driven** hang detector built on `CFRunLoopObserver` + `DispatchSemaphore`. It has **minimal overhead when the app is healthy** (no polling threads). A background queue waits on the semaphore with escalating timeouts: hitch noted at ~25ms, stack trace sampling starts at ~250ms, app hang reported at ~2s. Only **fully-blocking hangs** (one run loop iteration > threshold) are reported — V2's "non-fully-blocking" category is dropped. Stack traces are **sampled every ~250ms** by suspending only the main thread (not all threads), then aggregated client-side into a representative trace with a confidence metric. Fatal hangs are **incrementally persisted** to disk so duration is recoverable on next launch (±250ms). Works on **all Apple platforms**; watchOS gets timing-only detection (no stack traces). Opt-in via `options.experimental.appHangs.enableV3`.
+V3 replaces V1/V2 with a single **event-driven** hang detector built on `CFRunLoopObserver` + `DispatchSemaphore`. It has **low overhead when the app is healthy** (no polling threads, but the run loop observer callback and semaphore/dispatch per iteration have a small cost that needs benchmarking). A background queue waits on the semaphore with escalating timeouts: hitch noted at ~25ms, stack trace sampling starts at ~250ms, app hang reported at ~2s. Only **fully-blocking hangs** (one run loop iteration > threshold) are reported — V2's "non-fully-blocking" category is dropped. Stack traces are **sampled every ~250ms** by suspending only the main thread (not all threads), then aggregated client-side into a representative trace with a confidence metric. Fatal hangs are **incrementally persisted** to disk so duration is recoverable on next launch (±250ms). Works on **all Apple platforms**; watchOS gets timing-only detection (no stack traces). Opt-in via `options.experimental.appHangs.enableV3`.
 
 ---
 
@@ -156,6 +156,8 @@ V3 does not report hangs that occur while the app is backgrounded. Background fi
    - V3 hangs are fully-blocking (single run loop iteration). The main thread cannot process the background transition during the hang because it's stuck in the same call. The blocking call's actual duration includes the background time.
    - Subtracting background time adds complexity and can produce misleading durations (e.g., a 10s hang that happened to span a background transition reported as 3s).
 
+   Note: the app can be suspended mid-run-loop-iteration (e.g., the OS suspends the process while backgrounded). This is handled by the [Suspension Detection](#suspension-detection) mechanism, which discards the hang if the semaphore wait took significantly longer than expected. Duration subtraction could be made configurable in the future if needed, but is not planned for the initial V3 release.
+
 The hang tracker itself (`HangTracker.swift`) remains agnostic to app state and reports all run loop timing to observers. Background filtering is the integration layer's responsibility, keeping the tracker reusable for other consumers (e.g., watchdog termination detection) that may want background hangs.
 
 ### Suspension Detection
@@ -248,7 +250,7 @@ All V3 hang tracking options live under a tree-structured namespace: `options.ex
 
 - `enableAppHangTracking`: **keep as-is.** Controls whether any hang tracking is enabled (V1/V2/V3). V3 only activates when both `enableAppHangTracking` and `experimental.appHangs.enableV3` are true.
 - `appHangTimeoutInterval`: **keep as-is.** When V3 is enabled, its value is used as the default for `experimental.appHangs.appHangThreshold` if the latter is not explicitly set. Explicit V3 setting takes precedence.
-- `enableReportNonFullyBlockingAppHangs`: **deprecate.** V3 does not have a non-fully-blocking category. The option becomes a no-op when V3 is active. Mark `@available(*, deprecated, message: "V3 hang tracking only reports fully-blocking hangs.")`. Remove in the next major version.
+- `enableReportNonFullyBlockingAppHangs`: **deprecate.** V3 does not have a non-fully-blocking category. The option becomes a no-op when V3 is active. Mark `@available(*, deprecated, message: "V3 hang tracking only reports fully-blocking hangs.")`. Remove in v10.
 
 #### Mutual Exclusivity
 
@@ -269,6 +271,8 @@ When V3 is enabled, it wins unconditionally on all platforms. The V1/V2 trackers
 ### Stack Trace Capture Strategy
 
 Stack traces are captured on the background queue during semaphore timeouts. V3 suspends only the main thread (not all threads), unlike V2 which suspends all threads (up to 70) via `sentrycrashmc_suspendEnvironment`.
+
+**SentryCrash dependency:** The current stack trace capture path uses `SentryCrash` APIs (`sentrycrashmc_suspendEnvironment`, machine context reading). Since the SDK is migrating away from `SentryCrash`, V3's single-thread suspend path (`thread_suspend` / `thread_get_state` / `vm_read_overwrite` / `thread_resume`) should be implemented directly in the Sentry layer (e.g., in `Sources/Swift/` or `Sources/Sentry/`) without depending on `SentryCrash`. The Mach APIs used are standard kernel interfaces and do not require the SentryCrash framework. The binary image lookup for symbolication can use `dyld` APIs directly. This aligns with the broader effort to decouple from `SentryCrash`.
 
 **Per-sample capture steps:**
 
@@ -348,13 +352,13 @@ mechanism.data: {
 
 The event contains a **single** stack trace: the representative one selected by the aggregation algorithm. This stack trace is attached as the event's exception stack trace, identical in format to V2. Raw samples are not sent. The `sample_groups` metadata in `mechanism.data` provides attribution context (which top-frame addresses were seen and how often) without transmitting full stack traces for each sample.
 
-**Backend dependency:** The `sample_groups`, `confidence`, `samples_total`, and `representative_count` fields in `mechanism.data` are new payload additions. The Sentry backend (relay, event processing, issue grouping, UI) needs to support these fields for the full V3 experience. Until the backend is updated:
+**Backend compatibility:** The `sample_groups`, `confidence`, `samples_total`, and `representative_count` fields in `mechanism.data` are new payload additions. No backend or frontend changes are required:
 
-- The representative stack trace still works for issue grouping and display (same as V2)
-- The new fields are stored as opaque mechanism data and appear in the raw event JSON
-- The confidence metric and sample breakdown are not surfaced in the UI
+- **Relay** treats `mechanism.data` as a free-form `Object<Value>` (max depth 5, max bytes 2048). Arbitrary keys pass through without validation — events are not dropped or rejected.
+- **Frontend** already renders `mechanism.data` as pills (key-value tags) in the exception mechanism display. Scalar fields (`samples_total`, `representative_count`, `confidence`) appear automatically. The `sample_groups` array is not rendered as a pill (the renderer skips object values) but is visible in the raw event JSON.
+- The representative stack trace works for issue grouping and display identically to V2.
 
-Backend work should be coordinated with the SDK release. At minimum, the issue detail UI should display the confidence metric and sample group breakdown when present.
+No coordination with backend/frontend teams is needed for the initial V3 release. A future UI enhancement could render the `sample_groups` breakdown more richly, but this is optional and independent of the SDK work.
 
 ### Performance Impact
 
@@ -543,7 +547,7 @@ sequenceDiagram
 **When to write:**
 
 1. **First write.** When elapsed time crosses `appHangThreshold` (e.g., 2s). The event includes the scope, context, all stack trace samples collected since `samplingThreshold`, and aggregation metadata.
-2. **Subsequent writes.** After each new stack trace sample (every `samplingInterval`, ~250ms). Each write overwrites the previous file with an updated event containing all samples and a refreshed `lastSampleTime`.
+2. **Subsequent writes.** After each new stack trace sample (every `samplingInterval`, ~250ms). Each write overwrites the previous file with an updated event containing all samples and a refreshed `lastSampleTime`. **On platforms without stack trace capture (watchOS):** the `waitForHang` loop still fires semaphore timeouts at `samplingInterval`. Each timeout updates `last_sample_time` and overwrites the persisted event, even though no stack trace is captured. This ensures fatal hang duration recovery works on all platforms.
 3. **On hang end.** Delete the file and send the event through the normal capture path with the final precise duration.
 
 **What is persisted:**
@@ -613,7 +617,7 @@ The fatal event message uses this estimated duration:
 
 #### Disk I/O Considerations
 
-Writing ~10–20 KB of JSON every 250ms during a hang is negligible on modern flash storage. The write happens on the background queue, not the main thread. The app is already unresponsive (hanging), so any minor I/O contention does not affect user experience.
+Writing ~10–20 KB of JSON every 250ms during a hang is negligible on modern flash storage. The write happens on the background queue, not the main thread. The app is already unresponsive (hanging), so any minor I/O contention does not affect user experience. Writes must be **atomic** (write to a temporary file, then `rename`) to avoid partial files if the app is terminated mid-write.
 
 For very long hangs (minutes), the file grows as `sample_groups` accumulates entries. With `maxSamples = 40` (ring buffer), the sample data is bounded regardless of hang duration. Once the ring buffer is full, existing samples are evicted, and the file size stabilizes.
 
