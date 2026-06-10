@@ -51,6 +51,12 @@ class SentryExtendedAppLaunchTests: XCTestCase {
         return hub
     }
 
+    // MARK: - Constants
+
+    func testExtendedOperation_shouldBeExpectedValue() {
+        XCTAssertEqual(SentryExtendedAppLaunchManager.Constants.extendedOperation, "app.start.extended_app_start")
+    }
+
     // MARK: - SentryExtendedAppLaunchManager
 
     func testExtend_setsFlag() {
@@ -69,7 +75,7 @@ class SentryExtendedAppLaunchTests: XCTestCase {
 
         let span = try XCTUnwrap(manager.extend())
 
-        XCTAssertEqual(span.operation, SentrySpanOperationAppStart)
+        XCTAssertEqual(span.operation, "app.start.extended_app_start")
         XCTAssertEqual(span.spanDescription, "Extended App Start")
         XCTAssertFalse(span.isFinished)
     }
@@ -151,7 +157,7 @@ class SentryExtendedAppLaunchTests: XCTestCase {
         XCTAssertEqual(extendedSpans.count, 1)
 
         let extendedSpan = try XCTUnwrap(extendedSpans.first)
-        XCTAssertEqual(extendedSpan["op"] as? String, "app.start")
+        XCTAssertEqual(extendedSpan["op"] as? String, "app.start.extended_app_start")
     }
 
     func testFinishExtendedAppLaunch_extendedSpanStartsAtExtendCallTime() throws {
@@ -340,6 +346,110 @@ class SentryExtendedAppLaunchTests: XCTestCase {
 
         XCTAssertEqual(hub.capturedTransactionsWithScope.invocations.count, 1,
             "Transaction should be captured once measurement arrives")
+    }
+    // MARK: - Effective App Start Duration
+
+    func testEffectiveDuration_withoutExtendedEnd_returnsMeasurementDuration() {
+        let measurement = createMeasurement(type: .cold, duration: 0.5)
+
+        XCTAssertEqual(measurement.effectiveDuration, 0.5, accuracy: 0.001)
+    }
+
+    func testEffectiveDuration_withFinishedSpan_returnsExtendedDuration() {
+        _ = setUpIntegrationHub()
+        let measurement = createMeasurement(type: .cold, duration: 0.5)
+
+        let dateProvider = SentryDependencyContainer.sharedInstance().dateProvider as! TestCurrentDateProvider
+        let hub = SentrySDKInternal.currentHub()
+        let tracer = hub.startTransaction(
+            with: TransactionContext(name: "test", operation: "test"),
+            bindToScope: false,
+            customSamplingContext: [:],
+            configuration: SentryTracerConfiguration()
+        )
+        let span = tracer.startChild(operation: "app.start", description: "Extended App Start")
+        measurement.extendedAppStartSpan = span
+
+        dateProvider.setDate(date: measurement.appStartTimestamp.addingTimeInterval(2.0))
+        span.finish()
+
+        XCTAssertEqual(measurement.effectiveDuration, 2.0, accuracy: 0.001)
+    }
+
+    func testEffectiveAppStartDuration_withFinishedExtendedSpan_returnsExtendedDuration() throws {
+        let hub = setUpIntegrationHub()
+        let manager = SentryExtendedAppLaunchManager()
+        let span = try XCTUnwrap(manager.extend())
+
+        let measurement = createMeasurement(type: .cold, duration: 0.5)
+        StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
+
+        let dateProvider = try XCTUnwrap(SentryDependencyContainer.sharedInstance().dateProvider as? TestCurrentDateProvider)
+        dateProvider.setDate(date: measurement.appStartTimestamp.addingTimeInterval(2.0))
+        span.finish()
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
+        let startValue = try XCTUnwrap(extra["app.vitals.start.value"] as? NSNumber)
+
+        XCTAssertEqual(startValue.doubleValue, 2_000, accuracy: 1)
+    }
+
+    func testEffectiveAppStartDuration_withChildSpan_reflectsChildFinishTime() throws {
+        let hub = setUpIntegrationHub()
+        let manager = SentryExtendedAppLaunchManager()
+        let span = try XCTUnwrap(manager.extend())
+
+        let measurement = createMeasurement(type: .cold, duration: 0.5)
+        StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
+
+        let dateProvider = try XCTUnwrap(SentryDependencyContainer.sharedInstance().dateProvider as? TestCurrentDateProvider)
+        let child = span.startChild(operation: "app.init", description: "fetch config")
+        dateProvider.setDate(date: measurement.appStartTimestamp.addingTimeInterval(1.5))
+        child.finish()
+        dateProvider.setDate(date: measurement.appStartTimestamp.addingTimeInterval(3.0))
+        span.finish()
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
+        let startValue = try XCTUnwrap(extra["app.vitals.start.value"] as? NSNumber)
+
+        XCTAssertEqual(startValue.doubleValue, 3_000, accuracy: 1)
+    }
+
+    func testEffectiveAppStartDuration_finishViaManager_reflectsExtendedDuration() throws {
+        let hub = setUpIntegrationHub()
+        let manager = SentryExtendedAppLaunchManager()
+        manager.extend()
+
+        let measurement = createMeasurement(type: .cold, duration: 0.5)
+        StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
+
+        let dateProvider = try XCTUnwrap(SentryDependencyContainer.sharedInstance().dateProvider as? TestCurrentDateProvider)
+        dateProvider.setDate(date: measurement.appStartTimestamp.addingTimeInterval(1.0))
+        manager.finish()
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
+        let startValue = try XCTUnwrap(extra["app.vitals.start.value"] as? NSNumber)
+        let coldValue = try XCTUnwrap(extra["app.vitals.start.cold.value"] as? NSNumber)
+
+        XCTAssertEqual(startValue.doubleValue, 1_000, accuracy: 1)
+        XCTAssertEqual(coldValue.doubleValue, 1_000, accuracy: 1)
+    }
+
+    func testEffectiveAppStartDuration_nonExtended_usesMeasurementDuration() throws {
+        let hub = setUpIntegrationHub()
+        let manager = SentryExtendedAppLaunchManager()
+
+        let measurement = createMeasurement(type: .cold, duration: 0.5)
+        StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
+
+        let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
+        let extra = try XCTUnwrap(serialized["extra"] as? [String: Any])
+        let startValue = try XCTUnwrap(extra["app.vitals.start.value"] as? NSNumber)
+
+        XCTAssertEqual(startValue.doubleValue, 0.5 * 1_000, accuracy: 1)
     }
 }
 
