@@ -44,6 +44,10 @@
 
 - Deprecate the managed User Feedback widget/FAB. It will be removed in v10. Present the feedback form from your own UI with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, or `.sentryFeedback(isPresented:)` instead. (#8022)
 
+### Fixes
+
+- App start duration on the Vitals dashboard now reflects the extended app launch time when using `extendAppLaunch()` (#8028)
+
 ## 9.16.1
 
 > [!NOTE]
