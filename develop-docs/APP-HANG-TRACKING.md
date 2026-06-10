@@ -41,7 +41,7 @@ Last updated: 2026-06-09
 
 ## TL;DR — V3 at a Glance
 
-V3 replaces V1/V2 with a single **event-driven** hang detector built on `CFRunLoopObserver` + `DispatchSemaphore`. It has **zero overhead when the app is healthy** (no polling threads). A background queue waits on the semaphore with escalating timeouts: hitch noted at ~25ms, stack trace sampling starts at ~250ms, app hang reported at ~2s. Only **fully-blocking hangs** (one run loop iteration > threshold) are reported — V2's "non-fully-blocking" category is dropped. Stack traces are **sampled every ~250ms** by suspending only the main thread (not all threads), then aggregated client-side into a representative trace with a confidence metric. Fatal hangs are **incrementally persisted** to disk so duration is recoverable on next launch (±250ms). Works on **all Apple platforms**; watchOS gets timing-only detection (no stack traces). Opt-in via `options.experimental.appHangs.enableV3`.
+V3 replaces V1/V2 with a single **event-driven** hang detector built on `CFRunLoopObserver` + `DispatchSemaphore`. It has **minimal overhead when the app is healthy** (no polling threads). A background queue waits on the semaphore with escalating timeouts: hitch noted at ~25ms, stack trace sampling starts at ~250ms, app hang reported at ~2s. Only **fully-blocking hangs** (one run loop iteration > threshold) are reported — V2's "non-fully-blocking" category is dropped. Stack traces are **sampled every ~250ms** by suspending only the main thread (not all threads), then aggregated client-side into a representative trace with a confidence metric. Fatal hangs are **incrementally persisted** to disk so duration is recoverable on next launch (±250ms). Works on **all Apple platforms**; watchOS gets timing-only detection (no stack traces). Opt-in via `options.experimental.appHangs.enableV3`.
 
 ---
 
@@ -59,7 +59,7 @@ Uses `CFRunLoopObserver` to directly measure main run loop busy time:
 4. On timeout: re-wait (the main thread is still busy)
 5. On `beforeWaiting`: signal the semaphore → the run loop iteration is over
 
-This approach is event-driven and has zero overhead during healthy run loop iterations. No polling threads, no dispatched probe blocks, no frame tracker queries.
+This approach is event-driven and has minimal overhead during healthy run loop iterations. No polling threads, no dispatched probe blocks, no frame tracker queries.
 
 The `waitForHang` loop already provides periodic wake-ups on the background queue during a hang. Each timeout is an opportunity to capture a stack trace. No additional timer or sampling infrastructure is needed.
 
