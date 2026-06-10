@@ -1,9 +1,10 @@
-#import "SentryAppStartMeasurement.h"
+#import "SentryAppStartMeasurement+Private.h"
 
 #if SENTRY_UIKIT_AVAILABLE
 
 #    import "SentryDateUtils.h"
 #    import "SentryLogC.h"
+#    import "SentrySpanProtocol.h"
 
 @implementation SentryAppStartTypeToString
 + (NSString *)convert:(SentryAppStartType)type
@@ -31,6 +32,15 @@
     NSDate *_moduleInitializationTimestamp;
     NSDate *_sdkStartTimestamp;
     NSDate *_didFinishLaunchingTimestamp;
+}
+
+- (NSTimeInterval)effectiveDuration
+{
+    NSDate *extendedEnd = self.extendedAppStartSpan.timestamp;
+    if (extendedEnd != nil) {
+        return [extendedEnd timeIntervalSinceDate:_appStartTimestamp];
+    }
+    return _duration;
 }
 #    endif // SENTRY_HAS_UIKIT
 

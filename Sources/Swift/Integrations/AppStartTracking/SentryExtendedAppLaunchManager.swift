@@ -3,6 +3,10 @@
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 final class SentryExtendedAppLaunchManager {
+    
+    enum Constants {
+        static let extendedOperation = "\(SentrySpanOperationAppStart).extended_app_start"
+    }
 
     private let lock = NSLock()
 
@@ -57,7 +61,7 @@ final class SentryExtendedAppLaunchManager {
         let newTracer = StandaloneTransactionStrategy.createTracer(traceId: traceId, configuration: config)
 
         let child = newTracer.startChild(
-            operation: SentrySpanOperationAppStart,
+            operation: Constants.extendedOperation,
             description: "Extended App Start"
         )
         child.startTimestamp = timestamp
@@ -65,6 +69,7 @@ final class SentryExtendedAppLaunchManager {
         let shouldFinishTracer: Bool = lock.synchronized {
             self.tracer = newTracer
             self.extendedSpan = child
+            config.appStartMeasurement?.extendedAppStartSpan = child
             return config.appStartMeasurement != nil
         }
 
@@ -87,6 +92,7 @@ final class SentryExtendedAppLaunchManager {
         SentrySDKLog.debug("Setting app start measurement on extended launch tracer")
         let tracerToFinish: (any Span)? = lock.synchronized {
             tracerConfiguration?.appStartMeasurement = measurement
+            measurement.extendedAppStartSpan = extendedSpan
             SentryAppStartMeasurementProvider.markAsRead()
             return tracer
         }
