@@ -41,8 +41,14 @@ import UIKit
     }
 
     @objc public var configureForm: ((SentryObjCUserFeedbackFormConfiguration) -> Void)? {
-        didSet {
-            if let configureForm = configureForm {
+        get {
+            guard let configureForm = wrapped.configureForm else { return nil }
+            return { configuration in
+                configureForm(configuration.wrapped)
+            }
+        }
+        set {
+            if let configureForm = newValue {
                 wrapped.configureForm = { configuration in
                     configureForm(SentryObjCUserFeedbackFormConfiguration(configuration))
                 }
@@ -58,26 +64,29 @@ import UIKit
     }
 
     @objc public var onFormOpen: (() -> Void)? {
-        didSet {
-            wrapped.onFormOpen = onFormOpen
-        }
+        get { wrapped.onFormOpen }
+        set { wrapped.onFormOpen = newValue }
     }
 
     @objc public var onFormClose: (() -> Void)? {
-        didSet {
-            wrapped.onFormClose = onFormClose
-        }
+        get { wrapped.onFormClose }
+        set { wrapped.onFormClose = newValue }
     }
 
     @objc public var onSubmitSuccess: (([String: Any]) -> Void)? {
-        didSet {
-            wrapped.onSubmitSuccess = onSubmitSuccess
-        }
+        get { wrapped.onSubmitSuccess }
+        set { wrapped.onSubmitSuccess = newValue }
     }
 
     @objc public var onSubmitError: ((NSError) -> Void)? {
-        didSet {
-            if let onSubmitError = onSubmitError {
+        get {
+            guard let onSubmitError = wrapped.onSubmitError else { return nil }
+            return { error in
+                onSubmitError(error)
+            }
+        }
+        set {
+            if let onSubmitError = newValue {
                 wrapped.onSubmitError = { error in
                     onSubmitError(error as NSError)
                 }
@@ -88,8 +97,14 @@ import UIKit
     }
 
     @objc public var configureTheme: ((SentryObjCUserFeedbackThemeConfiguration) -> Void)? {
-        didSet {
-            if let configureTheme = configureTheme {
+        get {
+            guard let configureTheme = wrapped.configureTheme else { return nil }
+            return { configuration in
+                configureTheme(configuration.wrapped)
+            }
+        }
+        set {
+            if let configureTheme = newValue {
                 wrapped.configureTheme = { configuration in
                     configureTheme(SentryObjCUserFeedbackThemeConfiguration(configuration))
                 }
