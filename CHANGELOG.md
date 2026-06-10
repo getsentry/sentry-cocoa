@@ -32,7 +32,7 @@
   }
   ```
 
-  SentryObjC includes matching feedback presentation methods and a form controller factory with per-form configuration support.
+  SentryObjC includes matching feedback presentation methods and a form view controller with individual configuration support.
 
 - Standalone app start sub-spans operations have been renamed for better clarity (#8003):
   - Pre Runtime Init: app.start	-> app.start.pre_runtime_init
