@@ -288,6 +288,8 @@ Stack traces are captured on the background queue during semaphore timeouts. V3 
 
 **Safety consideration:** Suspending only the main thread means other threads continue running during frame walking. This should be safe because `vm_read_overwrite()` reads from the target thread's stack memory, which is not being modified while the target thread is suspended. However, this needs validation. See open questions in Performance Impact.
 
+**Lock ordering constraint:** The `thread_suspend()` / `thread_resume()` window must not overlap with holding any lock that the main thread might also acquire. If the main thread is holding such a lock at the moment of suspension, any subsequent attempt to acquire that lock on the background queue would deadlock. In the current `HangTracker` design, the wrapper's stack trace capture runs inside the observer callback, which is already inside `observersLock.synchronized`. The main thread only acquires `observersLock` briefly when adding/removing observers, not during run loop iteration processing, so contention is unlikely. The wrapper must not introduce additional locks that violate this constraint. See [Comparison to KSCrash — Lock-Then-Suspend Ordering](#lock-then-suspend-ordering) for the prior art.
+
 ### Client-Side Sample Aggregation
 
 When the hang ends (or crosses `appHangThreshold`), the SDK aggregates collected samples client-side before building the event.
@@ -498,6 +500,7 @@ The same persistence logic (incremental disk writes, fatal hang recovery) runs o
 - Background queue is serial, guaranteeing sequential callback delivery
 - `weak self` captures in closures prevent retain cycles and use-after-free
 - Stack trace sample buffer: written on the background queue only, read when building the event (also on background queue)
+- **Lock ordering constraint for `SentryANRTrackerV3`:** The wrapper must not hold any lock shared with the main thread across the `thread_suspend` / `thread_resume` window. The main thread acquires `observersLock` only when adding/removing observers (not during run loop iteration processing). The wrapper's stack trace capture runs inside the observer callback on the background queue, which already holds `observersLock`. No additional lock that the main thread might hold should be introduced in the suspend/resume path. See [Comparison to KSCrash — Lock-Then-Suspend Ordering](#lock-then-suspend-ordering) for context.
 
 ### Fatal Hang Persistence
 
@@ -907,3 +910,56 @@ The main thread is **guaranteed to still be hanging** during capture because all
 #### Thread Safety Model
 
 Same as V1: `@synchronized(threadLock)` for state, `@synchronized(self.listeners)` for listener management. Uses local `BOOL` variables instead of atomics (all on the detector thread).
+
+---
+
+## Comparison to KSCrash Watchdog Monitor
+
+KSCrash's `KSCrashMonitor_Watchdog.c` implements a hang detector using the same core pattern as V3 — a `CFRunLoopObserver` on the main run loop watching `afterWaiting` / `beforeWaiting` transitions. This section documents the architectural differences and why V3 does not adopt KSCrash's approach.
+
+### KSCrash Architecture
+
+KSCrash uses a **dedicated watchdog thread running its own `CFRunLoop`** with a repeating `CFRunLoopTimer`:
+
+1. `afterWaiting` on the main run loop → stores `enterTime` (atomic uint64, uptime nanoseconds), creates a repeating timer on the watchdog thread (fires every 250ms)
+2. Timer fires on watchdog thread → reads `enterTime`, computes elapsed time. If `>= threshold`, transitions to hang state
+3. `beforeWaiting` on the main run loop → invalidates the timer, finalizes any active hang
+
+The timer is created and destroyed on every run loop iteration (created on `afterWaiting`, invalidated on `beforeWaiting`).
+
+### Key Differences
+
+| Aspect               | KSCrash Watchdog                                            | V3                                                            |
+| -------------------- | ----------------------------------------------------------- | ------------------------------------------------------------- |
+| Escalation mechanism | `CFRunLoopTimer` on a watchdog `CFRunLoop`                  | `DispatchSemaphore` timeout loop on a serial background queue |
+| Threshold            | Single (250ms)                                              | Tiered (25ms hitch → 250ms sampling → 2s hang)                |
+| Stack trace capture  | Once at detection, suspends all threads                     | Sampled every 250ms, main thread only                         |
+| Persistence          | Full JSON report once + 24-byte mmap'd binary sidecar       | Full JSON overwrite per sample                                |
+| Thread safety        | `os_unfair_lock` + `_Atomic uint64_t` for `enterTime`       | Observers lock + serial background queue                      |
+| Suspension detection | Not implemented                                             | Wall-clock delta check (`actualWait > expectedWait * 3.0`)    |
+| Timer lifecycle      | Created per `afterWaiting`, invalidated per `beforeWaiting` | Semaphore created per run loop iteration                      |
+
+### Timer vs Semaphore Decision
+
+Both approaches wake a background thread periodically during a hang, so the per-wake cost is comparable:
+
+- **`CFRunLoopTimer`** fires via the kernel's timer coalescing infrastructure. The OS can batch it with other timers to reduce wakeups. However, it requires a full `CFRunLoop` on the watchdog thread, which checks all sources/timers/observers on each iteration even when only one timer exists.
+- **`DispatchSemaphore`** wait is a direct kernel wait (`semaphore_timedwait` Mach trap). Lighter per-wakeup than a run loop iteration, but the OS cannot coalesce it with other timers — each timeout is an independent kernel wakeup.
+
+In practice, the difference is negligible. Both wake a thread every ~250ms during a hang, do a small amount of work, then go back to sleep. The dominant cost is the wakeup itself, not whether it came from a timer or semaphore timeout.
+
+The semaphore has a structural advantage for V3: tiered escalation (25ms → 250ms) maps naturally to changing the wait timeout. With a timer, changing the interval requires invalidating and recreating it. V3 retains the semaphore approach.
+
+### Stack Trace Capture: All Threads vs Main Thread Only
+
+KSCrash suspends **all threads** via `ksmc_suspendEnvironment()` (`task_threads()` + `thread_suspend()` on each) and captures stack traces for every thread. V3 suspends **only the main thread** via a single `thread_suspend()` call and captures only the main thread's stack trace.
+
+KSCrash does not document whether the all-thread suspend is a safety requirement for frame walking or simply a consequence of needing all threads' stacks. V3's single-thread suspend means other threads continue running during the main thread's frame walk. Whether this poses a risk (e.g., another thread modifying memory that the frame walker reads) is an open question that needs validation. See [Open Design Questions](#open-design-questions).
+
+### Lock-Then-Suspend Ordering
+
+KSCrash acquires its `os_unfair_lock` **before** calling `ksmc_suspendEnvironment()` in `populateReportForCurrentHang`. This ensures that if the main thread is currently inside a lock-protected section, the watchdog thread blocks on the lock until the main thread releases it. Only then does it suspend. If the order were reversed — suspend first, then acquire the lock — and the main thread happened to be holding the same lock, the result would be a deadlock: the main thread is suspended and can never release the lock, and the watchdog thread waits on it forever.
+
+V3's `HangTracker` prototype has one shared lock between the main thread and background queue: `observersLock`, which protects the `observers` dictionary. The main thread holds it when adding/removing observers. The background queue holds it when notifying observers after a semaphore timeout.
+
+In the current prototype, this is not a problem because `thread_suspend()` is not called yet. When `SentryANRTrackerV3` adds stack trace capture inside the `waitForHang` callback, the suspend/resume must complete **before** the wrapper acquires any lock that the main thread might also hold. The current `HangTracker` flow already satisfies this: the observer callback runs inside `observersLock.synchronized`, and the wrapper's stack trace capture would run inside that callback (i.e., the lock is already held by the background queue, not by the main thread). However, the wrapper must not introduce any new lock that is held across the `thread_suspend` / `thread_resume` window and also acquired by the main thread. See [HangTracker Thread Safety Model](#hangtracker-thread-safety-model) for the full constraint.
