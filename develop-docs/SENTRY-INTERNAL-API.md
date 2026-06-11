@@ -108,6 +108,7 @@ Direct methods (no natural integration group):
 | `options: Options`                           | `PrivateSentrySDKOnly.options`                                 |
 | `options(fromDictionary:) throws -> Options` | `PrivateSentrySDKOnly.optionsWithDictionary:didFailWithError:` |
 | `debugImages: [DebugMeta]`                   | `PrivateSentrySDKOnly.getDebugImages`                          |
+| `debugImages(forAddresses:) -> [DebugMeta]`  | `SentryBinaryImageCache.imageByAddress:` (see note)            |
 
 Sub-object accessors:
 
@@ -139,6 +140,8 @@ Sub-object accessors:
 > **Note on `capture() -> Bool`:** React Native currently works around `captureReplay` being `void` by dynamically calling `getReplayIntegration` via `performSelector:` to access the integration's `captureReplay` which returns `BOOL`. The new API makes `capture()` return `Bool` directly, eliminating both the void limitation and the dynamic dispatch hack. `getReplayIntegration` is intentionally not exposed — callers should not need the integration object.
 
 > **Note on `debugImages`:** Flutter calls `PrivateSentrySDKOnly.getDebugImages()` to retrieve debug meta images for symbolication. This method is not declared in the current `PrivateSentrySDKOnly.h` header (it's available via `@_spi(Private)`) but is a real call site that needs a home. It lives directly on `.internal` rather than in a sub-object since it doesn't belong to any integration group.
+>
+> **Note on `debugImages(forAddresses:)`:** Godot currently bypasses the public API and accesses `SentryBinaryImageCache.imageByAddress(_:)` directly to look up debug images by raw `UInt64` addresses. The existing `SentryDebugImageProvider.getDebugImagesForImageAddressesFromCache(imageAddresses:)` only accepts hex `String` addresses, forcing C++/ObjC++ callers to do unnecessary string conversion. The new `debugImages(forAddresses:)` accepts `[UInt64]` directly, delegates to the binary image cache, and returns `[DebugMeta]` — eliminating the need to import internal types.
 
 ### `SentrySDK.internal.profiling` — `SentryInternalProfilingApi`
 
