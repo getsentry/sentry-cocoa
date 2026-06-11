@@ -1,6 +1,12 @@
 {
   "only_in_headers": [
     {
+      "kind": "ObjCInterfaceDecl",
+      "name": "SentryObjCInternalProfilingApi",
+      "super": "NSObject",
+      "has_inner": true
+    },
+    {
       "kind": "ObjCMethodDecl",
       "name": "attachmentType",
       "parent": "SentryObjCAttachment",
@@ -23,6 +29,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "collectBetween:and:forTraceId:",
+      "parent": "SentryObjCInternalProfilingApi",
+      "returnType": "NSDictionary<NSString *,id> * _Nullable",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "counter:",
       "parent": "SentryObjCMetricValue",
       "returnType": "instancetype _Nonnull",
@@ -33,6 +46,13 @@
       "name": "diagnosticLevel",
       "parent": "SentryObjCOptions",
       "returnType": "SentryObjCLevel",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "discardForTraceId:",
+      "parent": "SentryObjCInternalProfilingApi",
+      "returnType": "void",
       "instance": true
     },
     {
@@ -180,6 +200,13 @@
       "name": "source",
       "parent": "SentryObjCFeedback",
       "returnType": "SentryObjCFeedbackSource",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "startForTraceId:",
+      "parent": "SentryObjCInternalProfilingApi",
+      "returnType": "uint64_t",
       "instance": true
     },
     {
@@ -393,6 +420,69 @@
     {
       "kind": "ObjCMethodDecl",
       "name": "init",
+      "parent": "SentryObjCInternalApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
+      "parent": "SentryObjCInternalAppStartApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
+      "parent": "SentryObjCInternalEnvelopeApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
+      "parent": "SentryObjCInternalPerformanceApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
+      "parent": "SentryObjCInternalReplayApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
+      "parent": "SentryObjCInternalScreenApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
+      "parent": "SentryObjCInternalScreenshotApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
+      "parent": "SentryObjCInternalSwizzleApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
+      "parent": "SentryObjCInternalViewHierarchyApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
       "parent": "SentryObjCPrivateSDKOnly",
       "returnType": "instancetype _Nonnull",
       "instance": true
@@ -487,6 +577,62 @@
       "parent": "SentryObjCTransactionContext",
       "returnType": "enum SentryObjCTransactionNameSource",
       "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCInternalAppStartApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCInternalEnvelopeApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCInternalPerformanceApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCInternalReplayApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCInternalScreenApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCInternalScreenshotApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCInternalSwizzleApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCInternalViewHierarchyApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
     },
     {
       "kind": "ObjCMethodDecl",

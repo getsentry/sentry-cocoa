@@ -163,6 +163,39 @@
 #    import <SentryObjC/SentryObjCEnvelopeItem.h>
 #endif
 
+// --- Internal API (hybrid SDK structured API) ---
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCInternalApi.h"
+#    import "SentryObjCInternalAppStartApi.h"
+#    import "SentryObjCInternalEnvelopeApi.h"
+#    import "SentryObjCInternalProfilingApi.h"
+#    import "SentryObjCInternalSwizzleApi.h"
+#    if SENTRY_OBJC_HAS_UIKIT
+#        import "SentryObjCInternalPerformanceApi.h"
+#        import "SentryObjCInternalScreenApi.h"
+#        import "SentryObjCInternalScreenshotApi.h"
+#        import "SentryObjCInternalViewHierarchyApi.h"
+#    endif
+#    if SENTRY_OBJC_REPLAY_SUPPORTED
+#        import "SentryObjCInternalReplayApi.h"
+#    endif
+#else
+#    import <SentryObjC/SentryObjCInternalApi.h>
+#    import <SentryObjC/SentryObjCInternalAppStartApi.h>
+#    import <SentryObjC/SentryObjCInternalEnvelopeApi.h>
+#    import <SentryObjC/SentryObjCInternalProfilingApi.h>
+#    import <SentryObjC/SentryObjCInternalSwizzleApi.h>
+#    if SENTRY_OBJC_HAS_UIKIT
+#        import <SentryObjC/SentryObjCInternalPerformanceApi.h>
+#        import <SentryObjC/SentryObjCInternalScreenApi.h>
+#        import <SentryObjC/SentryObjCInternalScreenshotApi.h>
+#        import <SentryObjC/SentryObjCInternalViewHierarchyApi.h>
+#    endif
+#    if SENTRY_OBJC_REPLAY_SUPPORTED
+#        import <SentryObjC/SentryObjCInternalReplayApi.h>
+#    endif
+#endif
+
 // --- Entry points ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCClient.h"

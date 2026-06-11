@@ -28,6 +28,7 @@
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySessionReplaySyncC.h"
+#import "SentrySwizzle.h"
 #import "SentrySwizzleWrapperHelper.h"
 #import "SentryTime.h"
 #import "SentryTracer.h"
