@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix missing `_OBJC_CLASS_$_` symbols in x86_64 slice of SentryObjC dynamic framework (#8034)
+
 ## 9.17.0
 
 ### Features
