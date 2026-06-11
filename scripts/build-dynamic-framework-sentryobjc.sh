@@ -228,6 +228,13 @@ else
     cp "${arch_binaries[0]}" "$binary_path"
 fi
 
+dsym_path="$OUTPUT_DIR/framework/$FRAMEWORK_NAME/$SDK/$FRAMEWORK_NAME.framework.dSYM"
+log_info "  Generating dSYM: $dsym_path"
+xcrun dsymutil "$binary_path" -o "$dsym_path"
+
+log_info "  Stripping debug symbols from binary"
+xcrun strip -x "$binary_path"
+
 end_group
 
 log_info "Dynamic slice $SDK built: $FW_DIR"

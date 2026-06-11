@@ -6,15 +6,16 @@ internal import Sentry
 #endif
 import Foundation
 
+// See Box.swift for why resilient value types are boxed in ObjC wrapper classes.
 @objc(SentryObjCMetricValue) public final class SentryObjCMetricValue: NSObject {
-    private let metricValue: SentryMetricValue
+    private let metricValue: Box<SentryMetricValue>
 
     internal init(_ metricValue: SentryMetricValue) {
-        self.metricValue = metricValue
+        self.metricValue = Box(metricValue)
     }
 
     internal func toMetricValue() -> SentryMetricValue {
-        metricValue
+        metricValue.value
     }
 
     @objc public static func counter(_ value: UInt) -> SentryObjCMetricValue {
@@ -30,32 +31,32 @@ import Foundation
     }
 
     @objc public var isCounter: Bool {
-        if case .counter = metricValue { return true }
+        if case .counter = metricValue.value { return true }
         return false
     }
 
     @objc public var isGauge: Bool {
-        if case .gauge = metricValue { return true }
+        if case .gauge = metricValue.value { return true }
         return false
     }
 
     @objc public var isDistribution: Bool {
-        if case .distribution = metricValue { return true }
+        if case .distribution = metricValue.value { return true }
         return false
     }
 
     @objc public var counterValue: UInt {
-        if case .counter(let v) = metricValue { return v }
+        if case .counter(let v) = metricValue.value { return v }
         return 0
     }
 
     @objc public var gaugeValue: Double {
-        if case .gauge(let v) = metricValue { return v }
+        if case .gauge(let v) = metricValue.value { return v }
         return 0
     }
 
     @objc public var distributionValue: Double {
-        if case .distribution(let v) = metricValue { return v }
+        if case .distribution(let v) = metricValue.value { return v }
         return 0
     }
 }
