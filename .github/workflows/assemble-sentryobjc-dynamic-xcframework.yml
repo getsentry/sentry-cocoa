@@ -88,6 +88,7 @@ jobs:
         run: |
           ./scripts/validate-xcframework-format.sh "SentryObjC-Dynamic.xcframework"
           ./scripts/validate-xcframework-architectures.sh --xcframework "SentryObjC-Dynamic.xcframework"
+          ./scripts/validate-xcframework-symbols.sh --xcframework "SentryObjC-Dynamic.xcframework"
 
       - name: Compress XCFramework
         env:
