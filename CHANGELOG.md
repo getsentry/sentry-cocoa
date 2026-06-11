@@ -10,6 +10,7 @@
   ```objc
   [SentryObjCSDK.logger infoWithFormat:@"User %@ processed %d items", userName, count];
   ```
+- Add structured API for Sentry Hybrid SDKs (#8044)
 
 ## 9.16.1
 
