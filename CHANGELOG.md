@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.17.0
 
 ### Features
 
@@ -40,9 +40,17 @@
   - Application Init: app.start -> app.start.application_init
   - Extended App Start: app.start -> app.start.extended_app_start
 
+### Fixes
+
+- Silence retroactive conformance warning for `SentryLevel: CustomStringConvertible` when building with SPM from source (#8032)
+
 ### Deprecations
 
 - Deprecate the managed User Feedback widget/FAB. It will be removed in v10. Present the feedback form from your own UI with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, or `.sentryFeedback(isPresented:)` instead. (#8022)
+
+### Fixes
+
+- App start duration on the Vitals dashboard now reflects the extended app launch time when using `extendAppLaunch()` (#8028)
 
 ## 9.16.1
 

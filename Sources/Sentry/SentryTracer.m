@@ -30,7 +30,7 @@
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryAppStartMeasurement.h"
+#    import "SentryAppStartMeasurement+Private.h"
 #    import "SentryAppStartMeasurementProvider.h"
 #    import "SentryBuildAppStartSpans.h"
 #endif // SENTRY_HAS_UIKIT
@@ -796,7 +796,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
 
         if (vitalsType != nil && appContextType != nil) {
             BOOL isStandalone = [self isStandaloneAppStartTransaction];
-            NSNumber *durationMs = @(appStartMeasurement.duration * 1000);
+            NSTimeInterval duration = isStandalone ? appStartMeasurement.effectiveDuration
+                                                   : appStartMeasurement.duration;
+            NSNumber *durationMs = @(duration * 1000);
 
             NSString *appStartType = (!isStandalone && appStartMeasurement.isPreWarmed)
                 ? [NSString stringWithFormat:@"%@.prewarmed", appContextType]
