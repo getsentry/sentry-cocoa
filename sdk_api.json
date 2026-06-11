@@ -54737,6 +54737,57 @@
                 "accessorKind": "get",
                 "children": [
                   {
+                    "kind": "TypeNominal",
+                    "name": "UInt",
+                    "printedName": "Swift.UInt",
+                    "usr": "s:Su"
+                  }
+                ],
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A3SDKC15sdkVersionMajorSuvgZ",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)sdkVersionMajor"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UInt",
+                "printedName": "Swift.UInt",
+                "usr": "s:Su"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A3SDKC15sdkVersionMajorSuvpZ",
+            "moduleName": "Sentry",
+            "name": "sdkVersionMajor",
+            "printedName": "sdkVersionMajor",
+            "static": true,
+            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cpy)sdkVersionMajor"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -76048,6 +76099,24 @@
         "name": "SentryErrorDomain",
         "printedName": "SentryErrorDomain",
         "usr": "c:@SentryErrorDomain"
+      },
+      {
+        "children": [
+          {
+            "kind": "TypeNominal",
+            "name": "Int",
+            "printedName": "Swift.Int",
+            "usr": "s:Si"
+          }
+        ],
+        "declKind": "Var",
+        "hasStorage": true,
+        "isLet": true,
+        "kind": "Var",
+        "moduleName": "Sentry",
+        "name": "SentrySDKVersionMajor",
+        "printedName": "SentrySDKVersionMajor",
+        "usr": "c:@SentrySDKVersionMajor"
       },
       {
         "children": [
