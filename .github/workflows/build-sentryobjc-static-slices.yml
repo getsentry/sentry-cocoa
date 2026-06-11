@@ -88,14 +88,22 @@ jobs:
           if-no-files-found: error
           path: XCFrameworkBuildPath/lib/SentryObjC/${{ matrix.sdk }}/libSentryObjC.a
 
+      # Tar preserves macOS framework symlinks that actions/upload-artifact
+      # would otherwise flatten.
+      - name: Package dynamic framework slice
+        env:
+          SDK: ${{ matrix.sdk }}
+        run: |
+          tar -czf "XCFrameworkBuildPath/sentryobjc-dynamic-$SDK.tar.gz" \
+            -C "XCFrameworkBuildPath/framework/SentryObjC/$SDK" \
+            SentryObjC.framework SentryObjC.framework.dSYM
+
       - name: Upload dynamic framework slice
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: sentryobjc-dynamic-slice-${{ matrix.sdk }}
           if-no-files-found: error
-          path: |
-            XCFrameworkBuildPath/framework/SentryObjC/${{ matrix.sdk }}/SentryObjC.framework
-            XCFrameworkBuildPath/framework/SentryObjC/${{ matrix.sdk }}/SentryObjC.framework.dSYM
+          path: XCFrameworkBuildPath/sentryobjc-dynamic-${{ matrix.sdk }}.tar.gz
 
       - name: Upload build log if failed
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

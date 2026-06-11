@@ -59,6 +59,16 @@ jobs:
           pattern: sentryobjc-dynamic-slice-*
           path: sentryobjc-dynamic-slices
 
+      - name: Extract dynamic framework slices
+        env:
+          SDKS: ${{ inputs.sdks }}
+        run: |
+          IFS=',' read -r -a sdk_list <<< "$SDKS"
+          for sdk in "${sdk_list[@]}"; do
+            tar -xzf "sentryobjc-dynamic-slices/sentryobjc-dynamic-slice-$sdk/sentryobjc-dynamic-$sdk.tar.gz" \
+              -C "sentryobjc-dynamic-slices/sentryobjc-dynamic-slice-$sdk"
+          done
+
       - name: Assemble XCFramework
         env:
           SDKS: ${{ inputs.sdks }}
