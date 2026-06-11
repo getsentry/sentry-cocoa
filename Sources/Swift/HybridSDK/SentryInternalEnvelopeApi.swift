@@ -12,17 +12,21 @@ import Foundation
 
     /// Stores an envelope synchronously to disk.
     public func store(_ envelope: SentryEnvelope) {
-        PrivateSentrySDKOnly.store(envelope)
+        SentrySDKInternal.currentHub().perform(
+            NSSelectorFromString("storeEnvelope:"), with: envelope
+        )
     }
 
     /// Captures an envelope, sending it to Sentry.
     public func capture(_ envelope: SentryEnvelope) {
-        PrivateSentrySDKOnly.capture(envelope)
+        SentrySDKInternal.currentHub().perform(
+            NSSelectorFromString("captureEnvelope:"), with: envelope
+        )
     }
 
     /// Deserializes an envelope from raw data.
     /// - Returns: The deserialized envelope, or `nil` if the data is invalid.
     public func deserialize(from data: Data) -> SentryEnvelope? {
-        PrivateSentrySDKOnly.envelope(with: data)
+        SentrySerializationSwift.envelope(with: data)
     }
 }

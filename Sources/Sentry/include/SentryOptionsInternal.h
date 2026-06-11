@@ -1,3 +1,4 @@
+#import "SentryOptionsObjC.h"
 #import <Foundation/Foundation.h>
 
 @class SentryOptions;
@@ -8,6 +9,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable SentryOptions *)initWithDict:(NSDictionary<NSString *, id> *)options
                         didFailWithError:(NSError *_Nullable *_Nullable)error;
+
++ (nullable SentryOptionsObjC *)optionsFromDict:(NSDictionary<NSString *, id> *)options
+                                          error:(NSError *_Nullable *_Nullable)error
+    NS_SWIFT_NAME(options(fromDict:));
 
 @end
 

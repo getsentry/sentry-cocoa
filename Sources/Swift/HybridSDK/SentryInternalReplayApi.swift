@@ -21,8 +21,8 @@ import UIKit
         breadcrumbConverter: SentryReplayBreadcrumbConverter?,
         screenshotProvider: SentryViewScreenshotProvider?
     ) {
-        PrivateSentrySDKOnly.configureSessionReplay(
-            with: breadcrumbConverter,
+        getReplayIntegration()?.configureReplayWith(
+            breadcrumbConverter,
             screenshotProvider: screenshotProvider
         )
     }

@@ -94,13 +94,21 @@ import Foundation
 
     /// The current SDK options, or default options if no client is configured.
     public var options: Options {
-        PrivateSentrySDKOnly.options
+        // swiftlint:disable:next force_cast
+        SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options ?? Options()
     }
 
     /// Creates `Options` from a dictionary representation.
     /// - Throws: An error if the dictionary contains invalid option values.
     public func options(fromDictionary dictionary: [String: Any]) throws -> Options {
-        try PrivateSentrySDKOnly.options(with: dictionary)
+        guard let result = try SentryOptionsInternal.options(fromDict: dictionary) as? Options else {
+            throw NSError(
+                domain: "sentry",
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "Failed to create options from dictionary"]
+            )
+        }
+        return result
     }
 
     /// Retrieves all debug images currently loaded by the process.

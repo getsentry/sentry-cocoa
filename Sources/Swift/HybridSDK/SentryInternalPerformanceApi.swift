@@ -27,7 +27,7 @@ import UIKit
 
     /// The current screen frame counters.
     public var currentScreenFrames: SentryScreenFrames {
-        PrivateSentrySDKOnly.currentScreenFrames
+        SentryDependencyContainer.sharedInstance().framesTracker.currentFrames()
     }
 }
 #endif

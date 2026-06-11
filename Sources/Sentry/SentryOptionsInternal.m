@@ -8,6 +8,12 @@
 + (nullable SentryOptions *)initWithDict:(NSDictionary<NSString *, id> *)options
                         didFailWithError:(NSError *_Nullable *_Nullable)error
 {
+    return (SentryOptions *)[self optionsFromDict:options error:error];
+}
+
++ (nullable SentryOptionsObjC *)optionsFromDict:(NSDictionary<NSString *, id> *)options
+                                          error:(NSError *_Nullable *_Nullable)error
+{
     SentryOptions *sentryOptions = [[SentryOptions alloc] init];
     if (![SentryOptionsInternal validateOptions:options
                                   sentryOptions:sentryOptions
@@ -19,7 +25,7 @@
         }
         return nil;
     }
-    return sentryOptions;
+    return (SentryOptionsObjC *)sentryOptions;
 }
 
 /**
