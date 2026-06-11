@@ -145,7 +145,18 @@ import UIKit
             SentrySDKLog.debug("[Session Replay] Releasing frames until date: \(date)")
             while let first = self._frames.first, first.time < date {
                 self._frames.removeFirst()
-                self.replaceRetainedFrame(first)
+                // Retain the released frame so the next segment can still render the screen
+                // state at its window start; delete the previously retained frame's file once
+                // it is replaced.
+                let frameToRemove = self.retainedFrameLock.synchronized { () -> SentryReplayFrame? in
+                    let previousFrame = self.retainedFrameBeforeCurrentFrames
+                    self.retainedFrameBeforeCurrentFrames = first
+                    guard previousFrame?.imagePath != first.imagePath else { return nil }
+                    return previousFrame
+                }
+                if let frameToRemove = frameToRemove {
+                    self.removeFrameFile(frameToRemove)
+                }
             }
             SentrySDKLog.debug("[Session Replay] Frames released, remaining frames count: \(self._frames.count)")
         }
@@ -178,7 +189,23 @@ import UIKit
 
         // Note: In previous implementations this method was wrapped by a sync call to the processing queue.
         // As this method is already called from the processing queue, we must remove the sync call.
-        let videoFrames = self.videoFramesForRendering(beginning: beginning, end: end)
+        guard end > beginning else { return [] }
+
+        // Select the frames in the half-open window [beginning, end). When captures were skipped,
+        // hold the last frame captured before the window at the window start so the segment still
+        // begins with the correct screen state.
+        var videoFrames = _frames.filter { $0.time >= beginning && $0.time < end }
+        if let firstFrame = videoFrames.first {
+            if firstFrame.time > beginning {
+                let frameToHold = frameBefore(beginning) ?? firstFrame
+                videoFrames.insert(SentryReplayFrame(imagePath: frameToHold.imagePath, time: beginning, screenName: frameToHold.screenName), at: 0)
+            }
+        } else if let previousFrame = frameBefore(beginning) {
+            videoFrames = [SentryReplayFrame(imagePath: previousFrame.imagePath, time: beginning, screenName: previousFrame.screenName)]
+        } else {
+            return []
+        }
+
         var frameCount = 0
 
         var videos = [SentryVideoInfo]()
@@ -237,23 +264,6 @@ import UIKit
         return videos
     }
 
-    private func videoFramesForRendering(beginning: Date, end: Date) -> [SentryReplayFrame] {
-        guard end > beginning else { return [] }
-
-        var videoFrames = self._frames.filter { $0.time >= beginning && $0.time < end }
-        guard let firstFrame = videoFrames.first else {
-            guard let previousFrame = frameBefore(beginning) else { return [] }
-            return [frame(previousFrame, movedTo: beginning)]
-        }
-
-        if firstFrame.time > beginning {
-            let frameToHold = frameBefore(beginning) ?? firstFrame
-            videoFrames.insert(frame(frameToHold, movedTo: beginning), at: 0)
-        }
-
-        return videoFrames
-    }
-
     private func frameBefore(_ date: Date) -> SentryReplayFrame? {
         let retainedFrame = retainedFrameLock.synchronized {
             retainedFrameBeforeCurrentFrames
@@ -263,23 +273,6 @@ import UIKit
         guard let retained = retainedFrame else { return currentFrame }
         guard let current = currentFrame else { return retained }
         return retained.time > current.time ? retained : current
-    }
-
-    private func frame(_ frame: SentryReplayFrame, movedTo time: Date) -> SentryReplayFrame {
-        return SentryReplayFrame(imagePath: frame.imagePath, time: time, screenName: frame.screenName)
-    }
-
-    private func replaceRetainedFrame(_ frame: SentryReplayFrame) {
-        let frameToRemove = retainedFrameLock.synchronized { () -> SentryReplayFrame? in
-            let previousFrame = retainedFrameBeforeCurrentFrames
-            retainedFrameBeforeCurrentFrames = frame
-            guard previousFrame?.imagePath != frame.imagePath else { return nil }
-            return previousFrame
-        }
-
-        if let frameToRemove = frameToRemove {
-            removeFrameFile(frameToRemove)
-        }
     }
 
     private func removeFrameFile(_ frame: SentryReplayFrame) {
