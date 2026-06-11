@@ -5,6 +5,9 @@
 ### Features
 
 - Add SentryObjC User Feedback presentation APIs and a feedback form factory returning `UIViewController` instances. (#8027)
+### Fixes
+
+- Hop to the main thread when reading `UIApplication.applicationState` during `SentrySDK.start` so calling start from a background thread (or non-main actor) no longer emits a `-[UIApplication applicationState] must be used from main thread only` runtime warning (#PRPENDING)
 
 ## 9.17.1
 

@@ -37,8 +37,12 @@ final class TestSentryUIApplication: SentryApplication {
     }
 
     private var _underlyingAppState: UIApplication.State = .active
+    private(set) var unsafeApplicationStateReadOnMainThread: Bool?
     var unsafeApplicationState: UIApplication.State {
-        get { _underlyingAppState }
+        get {
+            unsafeApplicationStateReadOnMainThread = Thread.isMainThread
+            return _underlyingAppState
+        }
         set { _underlyingAppState = newValue }
     }
 
