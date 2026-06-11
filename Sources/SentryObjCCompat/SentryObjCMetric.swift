@@ -6,11 +6,17 @@
 #endif
 import Foundation
 
+// See Box.swift for why resilient value types are boxed in ObjC wrapper classes.
 @objc(SentryObjCMetric) public final class SentryObjCMetric: NSObject {
-    internal var wrapped: SentryMetric
+    private var wrapped: Box<SentryMetric>
 
     internal init(_ wrapped: SentryMetric) {
-        self.wrapped = wrapped
+        self.wrapped = Box(wrapped)
+    }
+
+    internal var metric: SentryMetric {
+        get { wrapped.value }
+        set { wrapped = Box(newValue) }
     }
 
     @objc public init(
@@ -21,49 +27,49 @@ import Foundation
         unit: SentryObjCUnit?,
         attributes: [String: SentryObjCAttributeContent]
     ) {
-        self.wrapped = SentryMetric(
+        self.wrapped = Box(SentryMetric(
             timestamp: timestamp,
             traceId: traceId.wrapped,
             name: name,
             value: value.toMetricValue(),
             unit: unit?.toSentryUnit(),
             attributes: attributes.mapValues { $0.toAttributeContent() }
-        )
+        ))
     }
 
     @objc public var timestamp: Date {
-        get { wrapped.timestamp }
-        set { wrapped.timestamp = newValue }
+        get { metric.timestamp }
+        set { metric.timestamp = newValue }
     }
 
     @objc public var name: String {
-        get { wrapped.name }
-        set { wrapped.name = newValue }
+        get { metric.name }
+        set { metric.name = newValue }
     }
 
     @objc public var traceId: SentryObjCId {
-        get { SentryObjCId(wrapped.traceId) }
-        set { wrapped.traceId = newValue.wrapped }
+        get { SentryObjCId(metric.traceId) }
+        set { metric.traceId = newValue.wrapped }
     }
 
     @objc public var spanId: SentryObjCSpanId? {
-        get { wrapped.spanId.map { SentryObjCSpanId($0) } }
-        set { wrapped.spanId = newValue?.wrapped }
+        get { metric.spanId.map { SentryObjCSpanId($0) } }
+        set { metric.spanId = newValue?.wrapped }
     }
 
     @objc public var value: SentryObjCMetricValue {
-        get { SentryObjCMetricValue(wrapped.value) }
-        set { wrapped.value = newValue.toMetricValue() }
+        get { SentryObjCMetricValue(metric.value) }
+        set { metric.value = newValue.toMetricValue() }
     }
 
     @objc public var unit: SentryObjCUnit? {
-        get { wrapped.unit.map { SentryObjCUnit($0) } }
-        set { wrapped.unit = newValue?.toSentryUnit() }
+        get { metric.unit.map { SentryObjCUnit($0) } }
+        set { metric.unit = newValue?.toSentryUnit() }
     }
 
     @objc public var attributes: [String: SentryObjCAttributeContent] {
-        get { wrapped.attributes.mapValues { SentryObjCAttributeContent($0) } }
-        set { wrapped.attributes = newValue.mapValues { $0.toAttributeContent() } }
+        get { metric.attributes.mapValues { SentryObjCAttributeContent($0) } }
+        set { metric.attributes = newValue.mapValues { $0.toAttributeContent() } }
     }
 }
 
