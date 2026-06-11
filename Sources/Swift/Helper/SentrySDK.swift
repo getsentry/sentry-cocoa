@@ -18,6 +18,14 @@ import Foundation
         return SentrySDKInternal.isEnabled
     }
 
+    #if SDK_V10
+    /// The major version of the SDK.
+    @objc public static let sdkVersionMajor: UInt = 10
+    #else
+    /// The major version of the SDK.
+    @objc public static let sdkVersionMajor: UInt = 9
+    #endif
+
     #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
     /// API to control session replay
     @objc public static var replay: SentryReplayApi {

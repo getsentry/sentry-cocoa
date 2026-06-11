@@ -186,6 +186,12 @@ typedef BOOL (^SentryShouldQueueEvent)(
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
     SentrySamplingContext *_Nonnull samplingContext);
 
+#if SDK_V10
+static NSUInteger const SentrySDKVersionMajor = 10;
+#else
+static NSUInteger const SentrySDKVersionMajor = 9;
+#endif
+
 static NSUInteger const defaultMaxBreadcrumbs = 100;
 
 static NSString *_Nonnull const kSentryTrueString = @"true";
