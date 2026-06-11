@@ -3,14 +3,7 @@
 /// These units help Sentry display metric values in a human-readable format.
 /// Use the predefined cases for common units, or `.generic("custom")` for custom units.
 ///
-/// `@frozen` is safe because SentrySwift always ships in the same binary as SentryObjCCompat;
-/// the layout is never consumed across independent framework boundaries. Without it, the Swift
-/// compiler treats this enum as resilient on x86_64 under `-enable-library-evolution`, which
-/// prevents it from emitting a static `_OBJC_CLASS_$_` symbol for the ObjC wrapper class,
-/// causing linker failures.
-///
 /// - SeeAlso: https://develop.sentry.dev/sdk/telemetry/attributes/#units
-@frozen
 public enum SentryUnit: Equatable {
     // MARK: - Duration Units
 

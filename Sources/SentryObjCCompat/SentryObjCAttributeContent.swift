@@ -59,6 +59,7 @@ import Foundation
         case .booleanArray: return "boolean[]"
         case .integerArray: return "integer[]"
         case .doubleArray: return "double[]"
+        @unknown default: return "unknown"
         }
     }
 
@@ -72,6 +73,7 @@ import Foundation
         case .booleanArray(let v): return v
         case .integerArray(let v): return v
         case .doubleArray(let v): return v
+        @unknown default: return NSNull()
         }
     }
 }
