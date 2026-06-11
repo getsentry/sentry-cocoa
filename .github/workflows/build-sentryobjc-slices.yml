@@ -1,4 +1,4 @@
-name: Build SentryObjC Static Slice
+name: Build SentryObjC Slice
 
 on:
   workflow_call:
