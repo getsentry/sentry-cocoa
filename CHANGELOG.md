@@ -1,12 +1,11 @@
 # Changelog
 
-<<<<<<< fix/replay-video-assembly
 ## Unreleased
 
 ### Fixes
 
 - Session replay video assembly: drop empty video segments, avoid duplicating frames at segment boundaries, and keep video timing stable when captured frames are skipped or unreadable (#8041)
-=======
+
 ## 9.17.1
 
 ### Fixes
@@ -15,7 +14,6 @@
 - Fix missing `_OBJC_CLASS_$_` symbols in x86_64 slice of SentryObjC dynamic framework (#8037)
 - Mark feedback form aliases and conformances unavailable in app extensions (#8040)
 - Silence retroactive conformance warning for `SentryLevel: CustomStringConvertible` when building with SPM from source (#8032)
->>>>>>> main
 
 ## 9.17.0
 
