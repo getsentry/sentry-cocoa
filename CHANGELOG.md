@@ -8,6 +8,10 @@
 
 ## 9.17.0
 
+### Fixes
+
+- Ship dSYMs in SentryObjC-Dynamic.xcframework artifacts (#8035)
+
 ### Features
 
 - Support creating envelope items from attachments via SentryObjC (#8001)
