@@ -110,6 +110,12 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
         guard activeForm === form else { return }
 
         activeForm = nil
+        // userCapturedScreenshot() removes the screenshot observer before
+        // presenting the form so that holding the form open doesn't keep
+        // re-presenting it. Re-register the observer after the form closes
+        // so that the next screenshot still triggers the feedback flow
+        // (regression for #7641). observeScreenshots() is idempotent.
+        observeScreenshots()
         let shouldRestoreWidget = shouldRestoreWidgetOnFormClose
         shouldRestoreWidgetOnFormClose = false
         if shouldRestoreWidget {
@@ -171,9 +177,12 @@ private extension SentryUserFeedbackIntegrationDriver {
     }
 
     func observeScreenshots() {
-        if configuration.showFormForScreenshots {
-            NotificationCenter.default.addObserver(self, selector: #selector(userCapturedScreenshot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
-        }
+        guard configuration.showFormForScreenshots else { return }
+        // Remove first so re-registering after a form dismissal can't end up
+        // attaching two observers and presenting the form twice for a single
+        // screenshot.
+        stopObservingScreenshots()
+        NotificationCenter.default.addObserver(self, selector: #selector(userCapturedScreenshot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
     }
 
     func observeShakeGesture() {

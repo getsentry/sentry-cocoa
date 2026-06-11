@@ -351,6 +351,97 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
+    // Regression test for #7641 — `showFormForScreenshots = true` only worked
+    // on the first screenshot. After the form was dismissed, subsequent
+    // screenshots no longer triggered the feedback flow because
+    // userCapturedScreenshot() removed the notification observer and nothing
+    // re-registered it on form close.
+    func testScreenshotTrigger_afterFormDismissal_stillPresentsForm() throws {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let viewController = TestPresentingViewController()
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        config.showFormForScreenshots = true
+        addCustomButton(to: viewController, configuration: config)
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource())
+
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+
+        // 1) First screenshot — form is presented.
+        NotificationCenter.default.post(
+            name: UIApplication.userDidTakeScreenshotNotification,
+            object: nil
+        )
+        XCTAssertEqual(viewController.presentCallCount, 1)
+        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+
+        // 2) Dismiss the form (mirrors the user swiping it down / submitting it).
+        let presentationController = UIPresentationController(
+            presentedViewController: form,
+            presenting: viewController
+        )
+        form.beginAppearanceTransition(true, animated: false)
+        form.endAppearanceTransition()
+        form.presentationControllerDidDismiss(presentationController)
+        XCTAssertFalse(sut.displayingForm)
+
+        // 3) Second screenshot — form must be presented again. Before the fix
+        //    this call count stayed at 1 because the observer had been removed.
+        NotificationCenter.default.post(
+            name: UIApplication.userDidTakeScreenshotNotification,
+            object: nil
+        )
+        XCTAssertEqual(viewController.presentCallCount, 2)
+
+        withExtendedLifetime(window) { }
+    }
+
+    // Guard against the re-register code accidentally attaching two observers
+    // and presenting the form twice for a single screenshot.
+    func testScreenshotTrigger_afterFormDismissal_presentsFormOnlyOncePerScreenshot() throws {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let viewController = TestPresentingViewController()
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        config.showFormForScreenshots = true
+        addCustomButton(to: viewController, configuration: config)
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource())
+
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+
+        // Trigger, dismiss, trigger, dismiss — then verify a single screenshot
+        // yields a single present call (not two).
+        for _ in 0..<2 {
+            NotificationCenter.default.post(
+                name: UIApplication.userDidTakeScreenshotNotification,
+                object: nil
+            )
+            let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+            let presentationController = UIPresentationController(
+                presentedViewController: form,
+                presenting: viewController
+            )
+            form.beginAppearanceTransition(true, animated: false)
+            form.endAppearanceTransition()
+            form.presentationControllerDidDismiss(presentationController)
+        }
+        let countBefore = viewController.presentCallCount
+
+        NotificationCenter.default.post(
+            name: UIApplication.userDidTakeScreenshotNotification,
+            object: nil
+        )
+        XCTAssertEqual(viewController.presentCallCount, countBefore + 1)
+
+        withExtendedLifetime(window) { }
+    }
+
     func testShowForm_whenWidgetIsPresenter_shouldHideWidgetUntilFormCloses() throws {
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
