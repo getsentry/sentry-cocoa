@@ -252,11 +252,14 @@ public final class SentryInternalApi {
 
 public final class SentryInternalReplayApi {
     public func capture() -> Bool {
-        SentrySessionReplayIntegration.captureReplay()
+        guard let integration = SentrySDK.currentHub().installedIntegration(
+            of: SentrySessionReplayIntegration.self
+        ) else { return false }
+        return integration.captureReplay()
     }
 
     public var replayId: String? {
-        SentrySessionReplayIntegration.getReplayId()
+        SentrySDK.currentHub().scope.replayId
     }
 
     // ... other methods ...
