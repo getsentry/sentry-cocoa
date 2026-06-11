@@ -6,15 +6,18 @@ internal import Sentry
 #endif
 import Foundation
 
+// Stored property must be pointer-sized so the compiler emits a static _OBJC_CLASS_$_ symbol
+// on x86_64 under -enable-library-evolution. Without boxing, the resilient enum layout forces
+// runtime class realization, which drops the linker symbol.
 @objc(SentryObjCAttributeContent) public final class SentryObjCAttributeContent: NSObject {
-    private let content: SentryAttributeContent
+    private let content: Box<SentryAttributeContent>
 
     internal init(_ content: SentryAttributeContent) {
-        self.content = content
+        self.content = Box(content)
     }
 
     internal func toAttributeContent() -> SentryAttributeContent {
-        content
+        content.value
     }
 
     @objc public static func string(_ value: String) -> SentryObjCAttributeContent {
@@ -50,7 +53,7 @@ import Foundation
     }
 
     @objc public var type: String {
-        switch content {
+        switch content.value {
         case .string: return "string"
         case .boolean: return "boolean"
         case .integer: return "integer"
@@ -64,7 +67,7 @@ import Foundation
     }
 
     @objc public var value: Any {
-        switch content {
+        switch content.value {
         case .string(let v): return v
         case .boolean(let v): return v
         case .integer(let v): return v
