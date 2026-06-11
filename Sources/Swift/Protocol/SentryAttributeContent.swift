@@ -15,6 +15,13 @@ internal enum SentryAttributeType: String {
 /// `SentryAttributeContent` provides a strongly-typed enum for representing various attribute types
 /// including strings, booleans, integers, doubles, and their array variants. This enum conforms to
 /// `Equatable`, `Hashable`, and `Encodable` for use in structured data contexts.
+///
+/// `@frozen` is safe because SentrySwift always ships in the same binary as SentryObjCCompat;
+/// the layout is never consumed across independent framework boundaries. Without it, the Swift
+/// compiler treats this enum as resilient on x86_64 under `-enable-library-evolution`, which
+/// prevents it from emitting a static `_OBJC_CLASS_$_` symbol for the ObjC wrapper class,
+/// causing linker failures.
+@frozen
 public enum SentryAttributeContent: Equatable, Hashable {
     case string(String)
     case boolean(Bool)

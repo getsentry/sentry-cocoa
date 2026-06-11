@@ -22,6 +22,12 @@
 ///     return modified
 /// }
 /// ```
+/// `@frozen` is safe because SentrySwift always ships in the same binary as SentryObjCCompat;
+/// the layout is never consumed across independent framework boundaries. Without it, the Swift
+/// compiler treats this enum as resilient on x86_64 under `-enable-library-evolution`, which
+/// prevents it from emitting a static `_OBJC_CLASS_$_` symbol for the ObjC wrapper class,
+/// causing linker failures.
+@frozen
 public enum SentryMetricValue: Equatable, Hashable {
     /// Incrementing integer values that only increase (e.g., request counts)
     case counter(_ value: UInt)

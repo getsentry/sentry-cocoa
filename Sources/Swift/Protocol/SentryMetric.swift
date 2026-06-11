@@ -1,6 +1,13 @@
 /// A metric entry that captures metric data with associated attribute metadata.
 ///
 /// Use the `options.beforeSendMetric` callback to modify or filter metric data.
+///
+/// `@frozen` is safe because SentrySwift always ships in the same binary as SentryObjCCompat;
+/// the layout is never consumed across independent framework boundaries. Without it, the Swift
+/// compiler treats this struct as resilient on x86_64 under `-enable-library-evolution`, which
+/// prevents it from emitting a static `_OBJC_CLASS_$_` symbol for the ObjC wrapper class,
+/// causing linker failures.
+@frozen
 public struct SentryMetric {
     /// A typed value of the metric
     public typealias Value = SentryMetricValue
