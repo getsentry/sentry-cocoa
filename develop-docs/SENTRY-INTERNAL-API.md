@@ -36,6 +36,12 @@ Beyond replacing `PrivateSentrySDKOnly`, this API also eliminates the need for h
 
 Unity imports this solely for `+initWithDict:didFailWithError:`, which creates `SentryOptions` from a dictionary passed across the C#→ObjC bridge. This is already mapped to `.internal.options(fromDictionary:)` / `[[… internal] optionsFromDictionary:error:]`.
 
+### `SentrySwizzle.h`
+
+React Native imports this for the `SentrySwizzleInstanceMethod` macro to swizzle `viewDidAppear:` on `RNSScreen` for frame tracking. The macro API is tightly coupled to the internal implementation (factory blocks, `SentrySwizzleInfo`, IMP casting).
+
+With the new API, `SentrySDK.internal.swizzle.instanceMethod(_:in:mode:key:factory:)` / `[[[SentryObjCSDK internal] swizzle] swizzleInstanceMethod:inClass:newImpFactory:mode:key:]` wraps the same underlying `SentrySwizzle` mechanism behind a stable method call. Hybrid SDKs no longer need the header search path or macro definitions.
+
 ### `Sentry-Swift.h`
 
 Unity imports this to access `SentryId` and `SentrySpanId` types, which are Swift classes only available to ObjC through the auto-generated bridging header. The Unity code even documents the workaround: _"This is a workaround to deal with SentryId living inside the Swift header."_ It uses `NSClassFromString()` to load these types dynamically.
@@ -49,7 +55,7 @@ After migration, hybrid SDKs need only one import:
 - **Swift:** `import Sentry`
 - **ObjC:** `#import <SentryObjC/SentryObjC.h>`
 
-No more `PrivateSentrySDKOnly.h`, `SentryOptionsInternal.h`, or `Sentry-Swift.h`.
+No more `PrivateSentrySDKOnly.h`, `SentryOptionsInternal.h`, `Sentry-Swift.h`, or `SentrySwizzle.h`.
 
 ## Architecture
 
@@ -115,6 +121,7 @@ Sub-object accessors:
 | `viewHierarchy` | `SentryInternalViewHierarchyApi` | `SENTRY_UIKIT_AVAILABLE`            |
 | `envelope`      | `SentryInternalEnvelopeApi`      | none                                |
 | `screen`        | `SentryInternalScreenApi`        | `SENTRY_UIKIT_AVAILABLE`            |
+| `swizzle`       | `SentryInternalSwizzleApi`       | none                                |
 
 ### `SentrySDK.internal.replay` — `SentryInternalReplayApi`
 
@@ -184,6 +191,26 @@ Sub-object accessors:
 | ---------------- | ------------------- |
 | `setCurrent(_:)` | `setCurrentScreen:` |
 
+### `SentrySDK.internal.swizzle` — `SentryInternalSwizzleApi`
+
+Replaces direct import of `SentrySwizzle.h` and its macro-based API (`SentrySwizzleInstanceMethod`, `SentrySWReturnType`, etc.).
+
+| Method                                           | Replaces                            |
+| ------------------------------------------------ | ----------------------------------- |
+| `instanceMethod(_:in:mode:key:factory:) -> Bool` | `SentrySwizzleInstanceMethod` macro |
+
+The factory block receives a closure that returns the original `IMP`. The caller returns a new block (cast to `id`) that becomes the replacement implementation. This matches the underlying `SentrySwizzle` factory pattern but without requiring the header or macro definitions.
+
+**Mode enum** (`SentryInternalSwizzleApi.Mode`):
+
+| Case                           | Behavior                                                           |
+| ------------------------------ | ------------------------------------------------------------------ |
+| `.always`                      | Swizzle every time, even if already swizzled                       |
+| `.oncePerClass`                | Swizzle only once per class (recommended default)                  |
+| `.oncePerClassAndSuperclasses` | Swizzle only if neither this class nor any superclass was swizzled |
+
+> **Why not expose a simplified "before/after hook" API?** The factory-based API preserves full flexibility (custom argument handling, conditional forwarding, return value modification) at the cost of the caller doing IMP casting. A convenience wrapper could be added later if multiple hybrid SDKs converge on a simpler pattern.
+
 ## Swift Implementation Pattern
 
 Each sub-object is a plain Swift class (no `NSObject`, no `@objc`):
@@ -207,6 +234,7 @@ public final class SentryInternalApi {
     #endif
 
     public let envelope = SentryInternalEnvelopeApi()
+    public let swizzle = SentryInternalSwizzleApi()
 
     // ... other sub-objects ...
 
@@ -232,6 +260,49 @@ public final class SentryInternalReplayApi {
     }
 
     // ... other methods ...
+}
+```
+
+```swift
+// Sources/Swift/HybridSDK/SentryInternalSwizzleApi.swift
+
+public final class SentryInternalSwizzleApi {
+
+    public enum Mode {
+        case always
+        case oncePerClass
+        case oncePerClassAndSuperclasses
+    }
+
+    /// Swizzles an instance method, replacing it with a new implementation
+    /// created by the factory block.
+    ///
+    /// The factory block receives a closure that returns the original `IMP`.
+    /// Return a block whose signature matches the swizzled method
+    /// (first two implicit parameters are `self` and `_cmd`).
+    @discardableResult
+    public func instanceMethod(
+        _ selector: Selector,
+        in cls: AnyClass,
+        mode: Mode = .oncePerClass,
+        key: UnsafeRawPointer,
+        factory: @escaping (_ getOriginalImplementation: @escaping () -> IMP) -> Any
+    ) -> Bool {
+        let swizzleMode: SentrySwizzleMode = switch mode {
+        case .always: .always
+        case .oncePerClass: .oncePerClass
+        case .oncePerClassAndSuperclasses: .oncePerClassAndSuperclasses
+        }
+        return SentrySwizzle.swizzleInstanceMethod(
+            selector,
+            in: cls,
+            newImpFactory: { swizzleInfo in
+                factory { swizzleInfo!.getOriginalImplementation() }
+            },
+            mode: swizzleMode,
+            key: key
+        )
+    }
 }
 ```
 
@@ -263,6 +334,7 @@ Following the two-target architecture from [SENTRY-OBJC.md](SENTRY-OBJC.md):
 @class SentryObjCSpanId;
 @class SentryObjCInternalReplayApi;
 @class SentryObjCInternalEnvelopeApi;
+@class SentryObjCInternalSwizzleApi;
 // ... other forward declarations ...
 
 /// APIs intended for Sentry hybrid SDKs (React Native, Flutter, .NET, Unity).
@@ -279,6 +351,7 @@ Following the two-target architecture from [SENTRY-OBJC.md](SENTRY-OBJC.md):
 #endif
 
 @property (nonatomic, readonly) SentryObjCInternalEnvelopeApi *envelope;
+@property (nonatomic, readonly) SentryObjCInternalSwizzleApi *swizzle;
 
 // ... direct methods ...
 - (void)setSdkName:(NSString *)name version:(NSString *)version;
@@ -321,6 +394,32 @@ extension SentryObjCSDK {
 }
 ```
 
+**Swizzle header** (`Sources/SentryObjC/Public/SentryObjCInternalSwizzleApi.h`):
+
+```objc
+#import <Foundation/Foundation.h>
+
+typedef NS_ENUM(NSUInteger, SentryObjCSwizzleMode) {
+    SentryObjCSwizzleModeAlways = 0,
+    SentryObjCSwizzleModeOncePerClass = 1,
+    SentryObjCSwizzleModeOncePerClassAndSuperclasses = 2
+};
+
+/// Stable swizzling API for hybrid SDKs.
+/// Replaces direct import of SentrySwizzle.h and its macro-based API.
+@interface SentryObjCInternalSwizzleApi : NSObject
+
+/// Swizzle an instance method. The factory block receives a block that
+/// returns the original IMP; return a new block matching the method signature.
+- (BOOL)swizzleInstanceMethod:(SEL _Nonnull)selector
+                      inClass:(Class _Nonnull)cls
+                newImpFactory:(id _Nonnull (^_Nonnull)(IMP _Nonnull (^_Nonnull)(void)))factoryBlock
+                         mode:(SentryObjCSwizzleMode)mode
+                          key:(const void *_Nonnull)key;
+
+@end
+```
+
 Each sub-object follows the same header + wrapper pair pattern. See [SENTRY-OBJC.md](SENTRY-OBJC.md) for the full wrapper conventions.
 
 ## Deprecation Strategy
@@ -349,8 +448,9 @@ All methods on `PrivateSentrySDKOnly` receive deprecation annotations pointing t
 | `SentryInternalViewHierarchyApi` | `SentryObjCInternalViewHierarchyApi.h` | `SentryObjCInternalViewHierarchyApi.swift` | iOS, tvOS  |
 | `SentryInternalEnvelopeApi`      | `SentryObjCInternalEnvelopeApi.h`      | `SentryObjCInternalEnvelopeApi.swift`      | all        |
 | `SentryInternalScreenApi`        | `SentryObjCInternalScreenApi.h`        | `SentryObjCInternalScreenApi.swift`        | iOS, tvOS  |
+| `SentryInternalSwizzleApi`       | `SentryObjCInternalSwizzleApi.h`       | `SentryObjCInternalSwizzleApi.swift`       | all        |
 
-**Total:** 9 Swift types + 9 ObjC headers + 9 ObjC wrappers = 27 new files.
+**Total:** 10 Swift types + 10 ObjC headers + 10 ObjC wrappers = 30 new files.
 
 ## File Layout
 
@@ -366,7 +466,8 @@ Sources/
 │       ├── SentryInternalScreenshotApi.swift
 │       ├── SentryInternalViewHierarchyApi.swift
 │       ├── SentryInternalEnvelopeApi.swift
-│       └── SentryInternalScreenApi.swift
+│       ├── SentryInternalScreenApi.swift
+│       └── SentryInternalSwizzleApi.swift
 ├── Swift/Helper/
 │   └── SentrySDK+Internal.swift              # extension adding .internal
 ├── SentryObjC/Public/
@@ -378,7 +479,8 @@ Sources/
 │   ├── SentryObjCInternalScreenshotApi.h
 │   ├── SentryObjCInternalViewHierarchyApi.h
 │   ├── SentryObjCInternalEnvelopeApi.h
-│   └── SentryObjCInternalScreenApi.h
+│   ├── SentryObjCInternalScreenApi.h
+│   └── SentryObjCInternalSwizzleApi.h
 ├── SentryObjCCompat/
 │   ├── SentryObjCInternalApi.swift
 │   ├── SentryObjCInternalReplayApi.swift
@@ -389,6 +491,7 @@ Sources/
 │   ├── SentryObjCInternalViewHierarchyApi.swift
 │   ├── SentryObjCInternalEnvelopeApi.swift
 │   ├── SentryObjCInternalScreenApi.swift
+│   ├── SentryObjCInternalSwizzleApi.swift
 │   └── SentryObjCSDK+Internal.swift
 ```
 
@@ -449,10 +552,57 @@ SentryObjCSpanId *spanId = [[SentryObjCSpanId alloc] initWithValue:spanString];
 [[SentryObjCSDK internal] setTrace:traceId spanId:spanId];
 ```
 
+### ObjC — Swizzle migration (React Native)
+
+```objc
+// Before — requires internal header search path
+#if __has_include(<Sentry/SentrySwizzle.h>)
+#    import <Sentry/SentrySwizzle.h>
+#else
+#    import "SentrySwizzle.h"
+#endif
+
++ (void)swizzleViewDidAppear
+{
+    Class rnsscreenclass = NSClassFromString(@"RNSScreen");
+    if (rnsscreenclass == nil) { return; }
+
+    SEL selector = NSSelectorFromString(@"viewDidAppear:");
+    SentrySwizzleInstanceMethod(rnsscreenclass, selector, SentrySWReturnType(void),
+        SentrySWArguments(BOOL animated), SentrySWReplacement({
+            [[[RNSentryDependencyContainer sharedInstance] framesTrackerListener] startListening];
+            SentrySWCallOriginal(animated);
+        }),
+        SentrySwizzleModeOncePerClass, (void *)selector);
+}
+
+// After — single import, no internal headers, no macros
+#import <SentryObjC/SentryObjC.h>
+
++ (void)swizzleViewDidAppear
+{
+    Class rnsscreenclass = NSClassFromString(@"RNSScreen");
+    if (rnsscreenclass == nil) { return; }
+
+    SEL selector = NSSelectorFromString(@"viewDidAppear:");
+    [[[SentryObjCSDK internal] swizzle]
+        swizzleInstanceMethod:selector
+        inClass:rnsscreenclass
+        newImpFactory:^id(IMP (^getOriginal)(void)) {
+            return ^void(__unsafe_unretained id self, BOOL animated) {
+                [[[RNSentryDependencyContainer sharedInstance] framesTrackerListener] startListening];
+                ((void (*)(id, SEL, BOOL))getOriginal())(self, selector, animated);
+            };
+        }
+        mode:SentryObjCSwizzleModeOncePerClass
+        key:(void *)selector];
+}
+```
+
 ## Public API Surface Impact
 
-- `sdk_api.json` gains ~50 new public symbols (9 types + their methods/properties).
-- `sdk_api_objc.json` gains ~50 new symbols (9 ObjC types + methods).
+- `sdk_api.json` gains ~55 new public symbols (10 types + their methods/properties).
+- `sdk_api_objc.json` gains ~55 new symbols (10 ObjC types + methods + `SentryObjCSwizzleMode` enum).
 - `PrivateSentrySDKOnly` methods gain `deprecated` annotations (no removal, no ABI break).
 - `make generate-public-api` must be run and committed.
 
