@@ -52,6 +52,7 @@ public struct SentryUserFeedbackFormView: UIViewControllerRepresentable {
 public extension SentrySDK {
     /// A SwiftUI view that displays the Sentry user feedback form.
     /// - warning: This is an experimental feature and may still have bugs.
+    @available(iOSApplicationExtension, unavailable)
     typealias FeedbackFormView = SentryUserFeedbackFormView
 }
 #endif

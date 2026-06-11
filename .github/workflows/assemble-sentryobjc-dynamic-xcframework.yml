@@ -50,29 +50,23 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
 
-      - name: Download all SentryObjC static slices
+      # Dynamic framework slices (with dSYMs) are built in the static slice
+      # job so that dsymutil runs while the .o files from xcodebuild archive
+      # are still on disk.
+      - name: Download all SentryObjC dynamic framework slices
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          pattern: sentryobjc-slice-*
-          path: sentryobjc-slices
+          pattern: sentryobjc-dynamic-slice-*
+          path: sentryobjc-dynamic-slices
 
-      - name: Convert static slices to dynamic frameworks
+      - name: Extract dynamic framework slices
         env:
           SDKS: ${{ inputs.sdks }}
-          RELEASE_VERSION: ${{ inputs.release-version }}
         run: |
           IFS=',' read -r -a sdk_list <<< "$SDKS"
-          version_args=()
-          if [ -n "$RELEASE_VERSION" ]; then
-            version_args=(--version "$RELEASE_VERSION")
-          fi
           for sdk in "${sdk_list[@]}"; do
-            ./scripts/build-dynamic-framework-sentryobjc.sh \
-              --sdk "$sdk" \
-              --static-lib "sentryobjc-slices/sentryobjc-slice-$sdk/libSentryObjC.a" \
-              --headers "Sources/SentryObjC/Public" \
-              --output-dir XCFrameworkBuildPath \
-              "${version_args[@]}"
+            tar -xzf "sentryobjc-dynamic-slices/sentryobjc-dynamic-slice-$sdk/sentryobjc-dynamic-$sdk.tar.gz" \
+              -C "sentryobjc-dynamic-slices/sentryobjc-dynamic-slice-$sdk"
           done
 
       - name: Assemble XCFramework
@@ -81,7 +75,7 @@ jobs:
         run: |
           ./scripts/assemble-xcframework-sentryobjc.sh \
             --sdks "$SDKS" \
-            --framework-path-template "XCFrameworkBuildPath/framework/SentryObjC/SDK_NAME/SentryObjC.framework" \
+            --framework-path-template "sentryobjc-dynamic-slices/sentryobjc-dynamic-slice-SDK_NAME/SentryObjC.framework" \
             --output-name "SentryObjC-Dynamic"
 
       - name: Validate XCFramework

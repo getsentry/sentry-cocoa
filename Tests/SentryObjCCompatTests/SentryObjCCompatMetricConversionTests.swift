@@ -85,11 +85,11 @@ final class SentryObjCCompatMetricConversionTests: XCTestCase {
         XCTAssertEqual(metric.unit?.rawValue, "millisecond")
         XCTAssertEqual(metric.attributes.count, 2)
 
-        XCTAssertEqual(metric.wrapped.timestamp, timestamp)
-        XCTAssertEqual(metric.wrapped.name, "api.latency")
-        XCTAssertEqual(metric.wrapped.value, .distribution(42.5))
-        XCTAssertEqual(metric.wrapped.unit?.rawValue, "millisecond")
-        XCTAssertEqual(metric.wrapped.attributes.count, 2)
+        XCTAssertEqual(metric.metric.timestamp, timestamp)
+        XCTAssertEqual(metric.metric.name, "api.latency")
+        XCTAssertEqual(metric.metric.value, .distribution(42.5))
+        XCTAssertEqual(metric.metric.unit?.rawValue, "millisecond")
+        XCTAssertEqual(metric.metric.attributes.count, 2)
     }
 
     func testMetricPublicInit_whenNilUnit_shouldCreateWithNilUnit() {
@@ -105,7 +105,7 @@ final class SentryObjCCompatMetricConversionTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNil(metric.unit)
-        XCTAssertNil(metric.wrapped.unit)
+        XCTAssertNil(metric.metric.unit)
         XCTAssertTrue(metric.value.isCounter)
         XCTAssertEqual(metric.value.counterValue, 1)
     }
@@ -128,9 +128,9 @@ final class SentryObjCCompatMetricConversionTests: XCTestCase {
         objcMetric.value = SentryObjCMetricValue.gauge(5.5)
 
         // -- Assert --
-        XCTAssertEqual(objcMetric.wrapped.timestamp, newTimestamp)
-        XCTAssertEqual(objcMetric.wrapped.name, "updated.metric")
-        XCTAssertEqual(objcMetric.wrapped.value, .gauge(5.5))
+        XCTAssertEqual(objcMetric.metric.timestamp, newTimestamp)
+        XCTAssertEqual(objcMetric.metric.name, "updated.metric")
+        XCTAssertEqual(objcMetric.metric.value, .gauge(5.5))
     }
 
     // MARK: - SentryObjCMetricValue conversions

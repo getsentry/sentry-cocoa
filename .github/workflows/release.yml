@@ -115,11 +115,11 @@ jobs:
       matrix:
         variant: ${{ fromJson(needs.setup-matrix.outputs.variants) }}
 
-  build-sentryobjc-static-slices:
-    name: Build SentryObjC Static Slices
+  build-sentryobjc-slices:
+    name: Build SentryObjC Slices
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     needs: [files-changed, setup-matrix]
-    uses: ./.github/workflows/build-sentryobjc-static-slices.yml
+    uses: ./.github/workflows/build-sentryobjc-slices.yml
     with:
       release-version: ${{ github.event.inputs.version }}
       sdk-list: ${{ needs.setup-matrix.outputs.sdk-list-array }}
@@ -127,7 +127,7 @@ jobs:
   assemble-sentryobjc-static-xcframework:
     name: Assemble SentryObjC Static XCFramework
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
-    needs: [files-changed, build-sentryobjc-static-slices, setup-matrix]
+    needs: [files-changed, build-sentryobjc-slices, setup-matrix]
     uses: ./.github/workflows/assemble-sentryobjc-static-xcframework.yml
     secrets: inherit
     with:
@@ -138,7 +138,7 @@ jobs:
   assemble-sentryobjc-dynamic-xcframework:
     name: Assemble SentryObjC Dynamic XCFramework
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
-    needs: [files-changed, build-sentryobjc-static-slices, setup-matrix]
+    needs: [files-changed, build-sentryobjc-slices, setup-matrix]
     uses: ./.github/workflows/assemble-sentryobjc-dynamic-xcframework.yml
     secrets: inherit
     with:
@@ -528,7 +528,7 @@ jobs:
         files-changed,
         build-xcframework-variant-slices,
         assemble-xcframework-variant,
-        build-sentryobjc-static-slices,
+        build-sentryobjc-slices,
         assemble-sentryobjc-static-xcframework,
         assemble-sentryobjc-dynamic-xcframework,
         validate-xcframework,
