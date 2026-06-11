@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.17.0
 
 ### Features
 
@@ -40,6 +40,10 @@
   - UIKit Init: app.start -> app.start.uikit_init
   - Application Init: app.start -> app.start.application_init
   - Extended App Start: app.start -> app.start.extended_app_start
+
+### Fixes
+
+- Silence retroactive conformance warning for `SentryLevel: CustomStringConvertible` when building with SPM from source (#8032)
 
 ### Deprecations
 
