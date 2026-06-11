@@ -116,7 +116,7 @@ Sub-object accessors:
 | --------------- | -------------------------------- | ----------------------------------- |
 | `replay`        | `SentryInternalReplayApi`        | `SENTRY_TARGET_REPLAY_SUPPORTED`    |
 | `profiling`     | `SentryInternalProfilingApi`     | `SENTRY_TARGET_PROFILING_SUPPORTED` |
-| `appStart`      | `SentryInternalAppStartApi`      | `SENTRY_UIKIT_AVAILABLE`            |
+| `appStart`      | `SentryInternalAppStartApi`      | none                                |
 | `performance`   | `SentryInternalPerformanceApi`   | `SENTRY_UIKIT_AVAILABLE`            |
 | `screenshot`    | `SentryInternalScreenshotApi`    | `SENTRY_UIKIT_AVAILABLE`            |
 | `viewHierarchy` | `SentryInternalViewHierarchyApi` | `SENTRY_UIKIT_AVAILABLE`            |
@@ -284,6 +284,7 @@ public final class SentryInternalSwizzleApi {
     /// created by the factory block.
     ///
     /// The factory block receives a closure that returns the original `IMP`.
+    /// The caller must cast it to the correct function signature.
     /// Return a block whose signature matches the swizzled method
     /// (first two implicit parameters are `self` and `_cmd`).
     @discardableResult
@@ -303,7 +304,15 @@ public final class SentryInternalSwizzleApi {
             selector,
             in: cls,
             newImpFactory: { swizzleInfo in
-                factory { swizzleInfo!.getOriginalImplementation() }
+                factory {
+                    // SentrySwizzleOriginalIMP is void(*)(void), a type-erased
+                    // function pointer. Cast to IMP for the public API; the
+                    // caller casts again to the actual method signature.
+                    unsafeBitCast(
+                        swizzleInfo!.getOriginalImplementation(),
+                        to: IMP.self
+                    )
+                }
             },
             mode: swizzleMode,
             key: key
@@ -448,7 +457,7 @@ All methods on `PrivateSentrySDKOnly` receive deprecation annotations pointing t
 | `SentryInternalApi`              | `SentryObjCInternalApi.h`              | `SentryObjCInternalApi.swift`              | all        |
 | `SentryInternalReplayApi`        | `SentryObjCInternalReplayApi.h`        | `SentryObjCInternalReplayApi.swift`        | iOS, tvOS  |
 | `SentryInternalProfilingApi`     | `SentryObjCInternalProfilingApi.h`     | `SentryObjCInternalProfilingApi.swift`     | iOS, macOS |
-| `SentryInternalAppStartApi`      | `SentryObjCInternalAppStartApi.h`      | `SentryObjCInternalAppStartApi.swift`      | iOS, tvOS  |
+| `SentryInternalAppStartApi`      | `SentryObjCInternalAppStartApi.h`      | `SentryObjCInternalAppStartApi.swift`      | all        |
 | `SentryInternalPerformanceApi`   | `SentryObjCInternalPerformanceApi.h`   | `SentryObjCInternalPerformanceApi.swift`   | iOS, tvOS  |
 | `SentryInternalScreenshotApi`    | `SentryObjCInternalScreenshotApi.h`    | `SentryObjCInternalScreenshotApi.swift`    | iOS, tvOS  |
 | `SentryInternalViewHierarchyApi` | `SentryObjCInternalViewHierarchyApi.h` | `SentryObjCInternalViewHierarchyApi.swift` | iOS, tvOS  |
