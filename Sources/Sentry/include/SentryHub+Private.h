@@ -85,8 +85,9 @@ NS_ASSUME_NONNULL_BEGIN
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
 - (void)saveCrashTransaction:(SentryTransaction *)transaction;
 
-- (void)storeEnvelope:(SentryEnvelope *)envelope;
-- (void)captureEnvelope:(SentryEnvelope *)envelope;
+- (void)storeEnvelope:(SENTRY_SWIFT_MIGRATION_ID(SentryEnvelope))envelope NS_SWIFT_NAME(store(_:));
+- (void)captureEnvelope:(SENTRY_SWIFT_MIGRATION_ID(SentryEnvelope))envelope
+    NS_SWIFT_NAME(capture(_:));
 
 - (nullable SENTRY_SWIFT_MIGRATION_ID(
     id<SentryIntegrationProtocol>))getInstalledIntegration:(Class)integrationClass;
