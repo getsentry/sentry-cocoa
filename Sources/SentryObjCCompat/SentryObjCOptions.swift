@@ -153,7 +153,7 @@ import Foundation
             if let beforeSendMetric = beforeSendMetric {
                 wrapped.beforeSendMetric = { metric in
                     guard let result = beforeSendMetric(SentryObjCMetric(metric)) else { return nil }
-                    return result.wrapped
+                    return result.metric
                 }
             } else {
                 wrapped.beforeSendMetric = nil

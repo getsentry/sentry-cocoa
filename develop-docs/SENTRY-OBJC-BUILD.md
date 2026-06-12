@@ -39,11 +39,12 @@ scripts/assemble-xcframework-sentryobjc.sh
 Same scripts, but the per-SDK builds run as **parallel GitHub Actions jobs**:
 
 ```
-build-sentryobjc-static-slices (parallel per SDK)
+build-sentryobjc-slices (parallel per SDK)
   ├─ iphoneos:        build-static-library-sentryobjc.sh → upload libSentryObjC.a
-  ├─ iphonesimulator: build-static-library-sentryobjc.sh → upload libSentryObjC.a
-  ├─ macosx:          build-static-library-sentryobjc.sh → upload libSentryObjC.a
-  ├─ maccatalyst:     build-static-library-sentryobjc.sh → upload libSentryObjC.a
+  │                   build-dynamic-framework-sentryobjc.sh → upload SentryObjC.framework + dSYM
+  ├─ iphonesimulator: (same)
+  ├─ macosx:          (same)
+  ├─ maccatalyst:     (same)
   └─ ...
 
 assemble-sentryobjc-static-xcframework (single job, depends on all slices)
@@ -52,9 +53,8 @@ assemble-sentryobjc-static-xcframework (single job, depends on all slices)
   → validate + sign + compress
   → upload SentryObjC-Static.xcframework.zip
 
-assemble-sentryobjc-dynamic-xcframework (single job, depends on all static slices)
-  → download all libSentryObjC.a artifacts
-  → build-dynamic-framework-sentryobjc.sh per SDK (re-links .a → .framework)
+assemble-sentryobjc-dynamic-xcframework (single job, depends on all slices)
+  → download all SentryObjC.framework artifacts
   → assemble-xcframework-sentryobjc.sh
   → validate + sign + compress
   → upload SentryObjC-Dynamic.xcframework.zip
@@ -71,11 +71,11 @@ assemble-sentryobjc-dynamic-xcframework (single job, depends on all static slice
 
 ## Workflows
 
-| Workflow                                      | Purpose                                                                                                             |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `build-sentryobjc-static-slices.yml`          | CI: runs `build-static-library-sentryobjc.sh` per SDK in parallel                                                   |
-| `assemble-sentryobjc-static-xcframework.yml`  | CI: downloads static slices, runs `assemble-xcframework-sentryobjc.sh`, validates, signs, uploads                   |
-| `assemble-sentryobjc-dynamic-xcframework.yml` | CI: downloads static slices, re-links each as a dynamic framework, assembles xcframework, validates, signs, uploads |
+| Workflow                                      | Purpose                                                                                            |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `build-sentryobjc-slices.yml`                 | CI: builds static + dynamic framework per SDK in parallel                                          |
+| `assemble-sentryobjc-static-xcframework.yml`  | CI: downloads static slices, runs `assemble-xcframework-sentryobjc.sh`, validates, signs, uploads  |
+| `assemble-sentryobjc-dynamic-xcframework.yml` | CI: downloads pre-built dynamic framework slices, assembles xcframework, validates, signs, uploads |
 
 ## How it works
 
