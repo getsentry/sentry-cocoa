@@ -123,7 +123,10 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    NSURL *url = [[sessionTask currentRequest] URL];
+    // Snapshot currentRequest once — the property is volatile and can return a freed
+    // object if the task completes on another thread between repeated accesses.
+    NSURLRequest *currentRequest = sessionTask.currentRequest;
+    NSURL *url = currentRequest.URL;
 
     if (url == nil) {
         return;
@@ -167,14 +170,13 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
         if (currentSpan != nil) {
             span = currentSpan;
-            netSpan = [span startChildWithOperation:SentrySpanOperationNetworkRequestOperation
-                                        description:[NSString stringWithFormat:@"%@ %@",
-                                                        sessionTask.currentRequest.HTTPMethod,
-                                                        safeUrl.sanitizedUrl]];
+            netSpan =
+                [span startChildWithOperation:SentrySpanOperationNetworkRequestOperation
+                                  description:[NSString stringWithFormat:@"%@ %@",
+                                                  currentRequest.HTTPMethod, safeUrl.sanitizedUrl]];
             netSpan.origin = SentryTraceOriginAutoHttpNSURLSession;
 
-            [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod
-                           forKey:@"http.request.method"];
+            [netSpan setDataValue:currentRequest.HTTPMethod forKey:@"http.request.method"];
             [netSpan setDataValue:safeUrl.sanitizedUrl forKey:@"url"];
             [netSpan setDataValue:@"fetch" forKey:@"type"];
 

@@ -15,40 +15,40 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
     tracePropagationTargets:(NSArray *_Nullable)tracePropagationTargets
                   toRequest:(NSURLSessionTask *)sessionTask
 {
-    if (![SentryTracePropagation sessionTaskRequiresPropagation:sessionTask
-                                        tracePropagationTargets:tracePropagationTargets]) {
-        SENTRY_LOG_DEBUG(@"Not adding trace_id and baggage headers for %@",
-            sessionTask.currentRequest.URL.absoluteString);
+    // Snapshot currentRequest once — the property is volatile and can become a zombie
+    // between repeated accesses if the task completes on another thread.
+    NSURLRequest *request = sessionTask.currentRequest;
+    if (request == nil) {
+        return;
+    }
+
+    if (![SentryTracePropagation isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, request.URL)
+                                   withTargets:tracePropagationTargets ?: @[]]) {
+        SENTRY_LOG_DEBUG(
+            @"Not adding trace_id and baggage headers for %@", request.URL.absoluteString);
         return;
     }
     NSString *baggageHeader = @"";
 
     if (baggage != nil) {
-        NSString *_Nullable rawHeader = SENTRY_UNWRAP_NULLABLE(
-            NSString, sessionTask.currentRequest.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]);
+        NSString *_Nullable rawHeader
+            = SENTRY_UNWRAP_NULLABLE(NSString, request.allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]);
         NSDictionary *originalBaggage = [SentryBaggageSerialization decode:rawHeader ?: @""];
         if (originalBaggage[@"sentry-trace_id"] == nil) {
             baggageHeader = [baggage toHTTPHeaderWithOriginalBaggage:originalBaggage];
         }
     }
 
-    // First we check if the current request is mutable, so we could easily add a new
-    // header. Otherwise we try to change the current request for a new one with the extra
-    // header.
-    if ([sessionTask.currentRequest isKindOfClass:[NSMutableURLRequest class]]) {
-        NSMutableURLRequest *currentRequest = (NSMutableURLRequest *)sessionTask.currentRequest;
-        [SentryTracePropagation addHeaderFieldsToRequest:currentRequest
+    if ([request isKindOfClass:[NSMutableURLRequest class]]) {
+        NSMutableURLRequest *mutableRequest = (NSMutableURLRequest *)request;
+        [SentryTracePropagation addHeaderFieldsToRequest:mutableRequest
                                              traceHeader:traceHeader
                                            baggageHeader:baggageHeader
                                     propagateTraceparent:propagateTraceparent];
     } else {
-        // Even though NSURLSessionTask doesn't have 'setCurrentRequest', some subclasses
-        // do. For those subclasses we replace the currentRequest with a mutable one with
-        // the additional trace header. Since NSURLSessionTask is a public class and can be
-        // overridden, we believe this is not considered a private api.
         SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
         if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
-            NSMutableURLRequest *newRequest = [sessionTask.currentRequest mutableCopy];
+            NSMutableURLRequest *newRequest = [request mutableCopy];
             [SentryTracePropagation addHeaderFieldsToRequest:newRequest
                                                  traceHeader:traceHeader
                                                baggageHeader:baggageHeader
