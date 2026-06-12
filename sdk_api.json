@@ -76104,24 +76104,6 @@
         "children": [
           {
             "kind": "TypeNominal",
-            "name": "Int",
-            "printedName": "Swift.Int",
-            "usr": "s:Si"
-          }
-        ],
-        "declKind": "Var",
-        "hasStorage": true,
-        "isLet": true,
-        "kind": "Var",
-        "moduleName": "Sentry",
-        "name": "SentrySDKVersionMajor",
-        "printedName": "SentrySDKVersionMajor",
-        "usr": "c:@SentrySDKVersionMajor"
-      },
-      {
-        "children": [
-          {
-            "kind": "TypeNominal",
             "name": "Double",
             "printedName": "Swift.Double",
             "usr": "s:Sd"
