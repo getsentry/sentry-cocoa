@@ -21,7 +21,8 @@ import UIKit
         breadcrumbConverter: SentryReplayBreadcrumbConverter?,
         screenshotProvider: SentryViewScreenshotProvider?
     ) {
-        getReplayIntegration()?.configureReplayWith(
+        guard let integration = getReplayIntegration() else { return }
+        integration.configureReplayWith(
             breadcrumbConverter,
             screenshotProvider: screenshotProvider
         )
