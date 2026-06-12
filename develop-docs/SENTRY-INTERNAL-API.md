@@ -17,8 +17,8 @@ Hybrid SDKs (React Native, Flutter, .NET, Unity) consume `PrivateSentrySDKOnly`,
 ## Design Goals
 
 1. **Structured, namespaced API.** Group methods by integration area with sub-objects: `SentrySDK.internal.replay`, `SentrySDK.internal.profiling`, etc.
-2. **Pure Swift.** The `SentrySDK.internal` API is Swift-only. No `@objc` annotations, no `NSObject` inheritance on the internal API types. Objective-C consumers use the ObjC wrapper SDK (`SentryObjCSDK.internal`).
-3. **Always available.** `SentrySDK.internal` is a static property that works before and after `SentrySDK.start()`. Sub-object methods that require a running SDK return nil or no-op, matching current `PrivateSentrySDKOnly` behavior.
+2. **Pure Swift with `@_spi(Private)`.** The `SentrySDK.internal` API is Swift-only. No `@objc` annotations, no `NSObject` inheritance on the internal API types. All types are marked `@_spi(Private)` to restrict visibility to consumers that explicitly opt in via `@_spi(Private) import Sentry`. Objective-C consumers use the ObjC wrapper SDK (`SentryObjCSDK.internal`).
+3. **Always available.** `SentrySDK.internal` is a lazy `var` property (protected by `NSRecursiveLock`) that works before and after `SentrySDK.start()`. It is reset on SDK close via `resetInternalApi()`. Sub-object methods that require a running SDK return nil or no-op, matching current `PrivateSentrySDKOnly` behavior.
 4. **Deprecate, don't remove.** `PrivateSentrySDKOnly` gets deprecation annotations but keeps its own implementation for at least one major version. It does not delegate to the new types (since they're pure Swift and it's ObjC).
 5. **Single PR.** All sub-objects and deprecations ship in one PR.
 
@@ -62,10 +62,10 @@ No more `PrivateSentrySDKOnly.h`, `SentryOptionsInternal.h`, `Sentry-Swift.h`, o
 ```
 Swift consumers:    SentrySDK.internal.replay.capture()
                           |
-                    SentryInternalApi (pure Swift)
+                    SentryInternalApi (@_spi(Private), pure Swift)
                           |
-                    SentryInternalReplayApi, etc. (pure Swift)
-                          |
+                    SentryInternalReplayApi, etc. (@_spi(Private), pure Swift)
+                          |  (dependency injection via provider protocols)
                     SDK internals (SentryDependencyContainer, SentryHub, etc.)
 
 ObjC consumers:     [[SentryObjCSDK internal] replay].capture
@@ -93,28 +93,17 @@ Direct methods (no natural integration group):
 
 | Method                                       | Replaces                                                       |
 | -------------------------------------------- | -------------------------------------------------------------- |
-| `userWithDictionary(_:) -> User`             | `PrivateSentrySDKOnly.userWithDictionary:`                     |
-| `breadcrumbWithDictionary(_:) -> Breadcrumb` | `PrivateSentrySDKOnly.breadcrumbWithDictionary:`               |
 | `setTrace(_:spanId:)`                        | `PrivateSentrySDKOnly.setTrace:spanId:`                        |
 | `setLogOutput(_:)`                           | `PrivateSentrySDKOnly.setLogOutput:`                           |
 | `ignoreNextSignal(_:)`                       | `PrivateSentrySDKOnly.ignoreNextSignal:`                       |
-| `setSdkName(_:version:)`                     | `PrivateSentrySDKOnly.setSdkName:andVersionString:`            |
-| `setSdkName(_:)`                             | `PrivateSentrySDKOnly.setSdkName:`                             |
-| `sdkName: String`                            | `PrivateSentrySDKOnly.getSdkName`                              |
-| `sdkVersionString: String`                   | `PrivateSentrySDKOnly.getSdkVersionString`                     |
-| `addSdkPackage(name:version:)`               | `PrivateSentrySDKOnly.addSdkPackage:version:`                  |
-| `extraContext: [String: Any]`                | `PrivateSentrySDKOnly.getExtraContext`                         |
-| `installationID: String`                     | `PrivateSentrySDKOnly.installationID`                          |
 | `options: Options`                           | `PrivateSentrySDKOnly.options`                                 |
 | `options(fromDictionary:) throws -> Options` | `PrivateSentrySDKOnly.optionsWithDictionary:didFailWithError:` |
-| `debugImages: [DebugMeta]`                   | `PrivateSentrySDKOnly.getDebugImages`                          |
-| `debugImages(forAddresses:) -> [DebugMeta]`  | `SentryBinaryImageCache.imageByAddress:` (see note)            |
 
 Sub-object accessors:
 
 | Property        | Type                             | Platform guard                      |
 | --------------- | -------------------------------- | ----------------------------------- |
-| `replay`        | `SentryInternalReplayApi`        | `SENTRY_TARGET_REPLAY_SUPPORTED`    |
+| `replay`        | `SentryInternalReplayApi`        | `SENTRY_UIKIT_AVAILABLE`            |
 | `profiling`     | `SentryInternalProfilingApi`     | `SENTRY_TARGET_PROFILING_SUPPORTED` |
 | `appStart`      | `SentryInternalAppStartApi`      | none                                |
 | `performance`   | `SentryInternalPerformanceApi`   | `SENTRY_UIKIT_AVAILABLE`            |
@@ -123,6 +112,10 @@ Sub-object accessors:
 | `envelope`      | `SentryInternalEnvelopeApi`      | none                                |
 | `screen`        | `SentryInternalScreenApi`        | `SENTRY_UIKIT_AVAILABLE`            |
 | `swizzle`       | `SentryInternalSwizzleApi`       | none                                |
+| `sdk`           | `SentryInternalSdkApi`           | none                                |
+| `debug`         | `SentryInternalDebugApi`         | none                                |
+| `breadcrumbs`   | `SentryInternalBreadcrumbApi`    | none                                |
+| `user`          | `SentryInternalUserApi`          | none                                |
 
 ### `SentrySDK.internal.replay` — `SentryInternalReplayApi`
 
@@ -139,10 +132,6 @@ Sub-object accessors:
 
 > **Note on `capture() -> Bool`:** React Native currently works around `captureReplay` being `void` by dynamically calling `getReplayIntegration` via `performSelector:` to access the integration's `captureReplay` which returns `BOOL`. The new API makes `capture()` return `Bool` directly, eliminating both the void limitation and the dynamic dispatch hack. `getReplayIntegration` is intentionally not exposed — callers should not need the integration object.
 
-> **Note on `debugImages`:** Flutter calls `PrivateSentrySDKOnly.getDebugImages()` to retrieve debug meta images for symbolication. This method is not declared in the current `PrivateSentrySDKOnly.h` header (it's available via `@_spi(Private)`) but is a real call site that needs a home. It lives directly on `.internal` rather than in a sub-object since it doesn't belong to any integration group.
->
-> **Note on `debugImages(forAddresses:)`:** Godot currently bypasses the public API and accesses `SentryBinaryImageCache.imageByAddress(_:)` directly to look up debug images by raw `UInt64` addresses. The existing `SentryDebugImageProvider.getDebugImagesForImageAddressesFromCache(imageAddresses:)` only accepts hex `String` addresses, forcing C++/ObjC++ callers to do unnecessary string conversion. The new `debugImages(forAddresses:)` accepts `[UInt64]` directly, delegates to the binary image cache, and returns `[DebugMeta]` — eliminating the need to import internal types.
-
 ### `SentrySDK.internal.profiling` — `SentryInternalProfilingApi`
 
 | Method                                        | Replaces                              |
@@ -153,12 +142,12 @@ Sub-object accessors:
 
 ### `SentrySDK.internal.appStart` — `SentryInternalAppStartApi`
 
-| Method                                                            | Replaces                           |
-| ----------------------------------------------------------------- | ---------------------------------- |
-| `hybridSDKMode: Bool`                                             | `appStartMeasurementHybridSDKMode` |
-| `measurement: SentryAppStartMeasurement?`                         | `appStartMeasurement`              |
-| `measurementWithSpans: [String: Any]?`                            | `appStartMeasurementWithSpans`     |
-| `onMeasurementAvailable: ((SentryAppStartMeasurement?) -> Void)?` | `onAppStartMeasurementAvailable`   |
+| Method                                                            | Replaces                           | Platform guard           |
+| ----------------------------------------------------------------- | ---------------------------------- | ------------------------ |
+| `hybridSDKMode: Bool`                                             | `appStartMeasurementHybridSDKMode` | none                     |
+| `measurementWithSpans: [String: Any]?`                            | `appStartMeasurementWithSpans`     | none                     |
+| `measurement: SentryAppStartMeasurement?`                         | `appStartMeasurement`              | `SENTRY_UIKIT_AVAILABLE` |
+| `onMeasurementAvailable: ((SentryAppStartMeasurement?) -> Void)?` | `onAppStartMeasurementAvailable`   | `SENTRY_UIKIT_AVAILABLE` |
 
 ### `SentrySDK.internal.performance` — `SentryInternalPerformanceApi`
 
@@ -214,55 +203,100 @@ The factory block receives a closure that returns the original `IMP`. The caller
 
 > **Why not expose a simplified "before/after hook" API?** The factory-based API preserves full flexibility (custom argument handling, conditional forwarding, return value modification) at the cost of the caller doing IMP casting. A convenience wrapper could be added later if multiple hybrid SDKs converge on a simpler pattern.
 
+### `SentrySDK.internal.sdk` — `SentryInternalSdkApi`
+
+| Method                        | Replaces                                            |
+| ----------------------------- | --------------------------------------------------- |
+| `name: String`                | `PrivateSentrySDKOnly.getSdkName` / `.setSdkName:`  |
+| `versionString: String`       | `PrivateSentrySDKOnly.getSdkVersionString`          |
+| `setName(_:version:)`         | `PrivateSentrySDKOnly.setSdkName:andVersionString:` |
+| `addPackage(name:version:)`   | `PrivateSentrySDKOnly.addSdkPackage:version:`       |
+| `extraContext: [String: Any]` | `PrivateSentrySDKOnly.getExtraContext`              |
+| `installationID: String`      | `PrivateSentrySDKOnly.installationID`               |
+
+`name` and `versionString` are read-write properties — the getter and setter replace both the get/set static methods.
+
+### `SentrySDK.internal.debug` — `SentryInternalDebugApi`
+
+| Method                                 | Replaces                                            |
+| -------------------------------------- | --------------------------------------------------- |
+| `images: [DebugMeta]`                  | `PrivateSentrySDKOnly.getDebugImages`               |
+| `images(forAddresses:) -> [DebugMeta]` | `SentryBinaryImageCache.imageByAddress:` (see note) |
+
+> **Note on `images`:** Flutter calls `PrivateSentrySDKOnly.getDebugImages()` to retrieve debug meta images for symbolication. This method is not declared in the current `PrivateSentrySDKOnly.h` header (it's available via `@_spi(Private)`) but is a real call site that needs a home.
+>
+> **Note on `images(forAddresses:)`:** Godot currently bypasses the public API and accesses `SentryBinaryImageCache.imageByAddress(_:)` directly to look up debug images by raw `UInt64` addresses. The existing `SentryDebugImageProvider.getDebugImagesForImageAddressesFromCache(imageAddresses:)` only accepts hex `String` addresses, forcing C++/ObjC++ callers to do unnecessary string conversion. The new `images(forAddresses:)` accepts `[UInt64]` directly, delegates to the binary image cache, and returns `[DebugMeta]` — eliminating the need to import internal types.
+
+### `SentrySDK.internal.breadcrumbs` — `SentryInternalBreadcrumbApi`
+
+| Method                             | Replaces                                         |
+| ---------------------------------- | ------------------------------------------------ |
+| `fromDictionary(_:) -> Breadcrumb` | `PrivateSentrySDKOnly.breadcrumbWithDictionary:` |
+
+### `SentrySDK.internal.user` — `SentryInternalUserApi`
+
+| Method                       | Replaces                                   |
+| ---------------------------- | ------------------------------------------ |
+| `fromDictionary(_:) -> User` | `PrivateSentrySDKOnly.userWithDictionary:` |
+
 ## Swift Implementation Pattern
 
-Each sub-object is a plain Swift class (no `NSObject`, no `@objc`):
+Each sub-object is a plain Swift class marked `@_spi(Private)` (no `NSObject`, no `@objc`). Dependencies are injected via provider protocols conforming to `SentryDependencyContainer`, making the sub-objects testable in isolation:
 
 ```swift
 // Sources/Swift/HybridSDK/SentryInternalApi.swift
 
-/// APIs intended for Sentry hybrid SDKs (React Native, Flutter, .NET, Unity).
-///
-/// These methods are public for consumption by wrapper SDKs that bridge
-/// between native and managed runtimes. They may change, be renamed,
-/// or be removed in any minor release without prior deprecation.
-///
-/// App developers: prefer the standard `SentrySDK` API surface instead.
 @_implementationOnly import _SentryPrivate
 
-public final class SentryInternalApi {
+@_spi(Private) public final class SentryInternalApi {
+
+    private let container: SentryDependencyContainer
 
     #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
-    public let replay = SentryInternalReplayApi()
+    public let replay: SentryInternalReplayApi
+    public let performance: SentryInternalPerformanceApi
+    public let screenshot: SentryInternalScreenshotApi
+    public let viewHierarchy: SentryInternalViewHierarchyApi
+    public let screen: SentryInternalScreenApi
     #endif
 
-    public let envelope = SentryInternalEnvelopeApi()
+    #if SENTRY_TARGET_PROFILING_SUPPORTED
+    public let profiling = SentryInternalProfilingApi()
+    #endif
+
+    public let appStart = SentryInternalAppStartApi()
+    public let envelope: SentryInternalEnvelopeApi
     public let swizzle = SentryInternalSwizzleApi()
+    public let sdk: SentryInternalSdkApi
+    public let debug: SentryInternalDebugApi
+    public let breadcrumbs = SentryInternalBreadcrumbApi()
+    public let user = SentryInternalUserApi()
 
-    // ... other sub-objects ...
-
-    public func setSdkName(_ name: String, version: String) {
-        SentryMeta.sdkName = name
-        SentryMeta.versionString = version
-    }
-
-    // ... direct methods ...
+    // ... direct methods (setTrace, setLogOutput, ignoreNextSignal, options) ...
 }
 ```
 
 ```swift
 // Sources/Swift/HybridSDK/SentryInternalReplayApi.swift
 
-public final class SentryInternalReplayApi {
+@_spi(Private) public final class SentryInternalReplayApi {
+
+    private let hubProvider: any HubProvider
+
+    internal init(provider: any HubProvider) {
+        self.hubProvider = provider
+    }
+
+    @discardableResult
     public func capture() -> Bool {
-        guard let integration = SentrySDK.currentHub().installedIntegration(
+        guard let integration = hubProvider.hub.installedIntegration(
             of: SentrySessionReplayIntegration.self
         ) else { return false }
         return integration.captureReplay()
     }
 
     public var replayId: String? {
-        SentrySDK.currentHub().scope.replayId
+        hubProvider.hub.scope.replayId
     }
 
     // ... other methods ...
@@ -272,7 +306,7 @@ public final class SentryInternalReplayApi {
 ```swift
 // Sources/Swift/HybridSDK/SentryInternalSwizzleApi.swift
 
-public final class SentryInternalSwizzleApi {
+@_spi(Private) public final class SentryInternalSwizzleApi {
 
     public enum Mode {
         case always
@@ -280,13 +314,6 @@ public final class SentryInternalSwizzleApi {
         case oncePerClassAndSuperclasses
     }
 
-    /// Swizzles an instance method, replacing it with a new implementation
-    /// created by the factory block.
-    ///
-    /// The factory block receives a closure that returns the original `IMP`.
-    /// The caller must cast it to the correct function signature.
-    /// Return a block whose signature matches the swizzled method
-    /// (first two implicit parameters are `self` and `_cmd`).
     @discardableResult
     public func instanceMethod(
         _ selector: Selector,
@@ -305,9 +332,6 @@ public final class SentryInternalSwizzleApi {
             in: cls,
             newImpFactory: { swizzleInfo in
                 factory {
-                    // SentrySwizzleOriginalIMP is void(*)(void), a type-erased
-                    // function pointer. Cast to IMP for the public API; the
-                    // caller casts again to the actual method signature.
                     unsafeBitCast(
                         swizzleInfo!.getOriginalImplementation(),
                         to: IMP.self
@@ -321,17 +345,18 @@ public final class SentryInternalSwizzleApi {
 }
 ```
 
-The `SentrySDK` extension:
+The `SentrySDK` extension uses a lazy singleton protected by a lock, allowing reset on SDK close:
 
 ```swift
 // Sources/Swift/Helper/SentrySDK+Internal.swift
 
 extension SentrySDK {
-    /// APIs for hybrid SDKs (React Native, Flutter, .NET, Unity).
-    ///
-    /// These APIs may change in any minor release without deprecation.
-    /// App developers should use the standard `SentrySDK` API instead.
-    public static let `internal` = SentryInternalApi()
+    @_spi(Private) public static var `internal`: SentryInternalApi {
+        // Lazy singleton protected by NSRecursiveLock.
+        // resetInternalApi() tears it down on SDK close.
+    }
+
+    static func resetInternalApi() { ... }
 }
 ```
 
@@ -347,32 +372,45 @@ Following the two-target architecture from [SENTRY-OBJC.md](SENTRY-OBJC.md):
 
 @class SentryObjCId;
 @class SentryObjCSpanId;
+@class SentryObjCOptions;
 @class SentryObjCInternalReplayApi;
+@class SentryObjCInternalPerformanceApi;
+@class SentryObjCInternalScreenshotApi;
+@class SentryObjCInternalViewHierarchyApi;
+@class SentryObjCInternalScreenApi;
+@class SentryObjCInternalProfilingApi;
+@class SentryObjCInternalAppStartApi;
 @class SentryObjCInternalEnvelopeApi;
 @class SentryObjCInternalSwizzleApi;
-// ... other forward declarations ...
+@class SentryObjCInternalSdkApi;
+@class SentryObjCInternalDebugApi;
+@class SentryObjCInternalBreadcrumbApi;
+@class SentryObjCInternalUserApi;
 
-/// APIs intended for Sentry hybrid SDKs (React Native, Flutter, .NET, Unity).
-///
-/// These methods are public for consumption by wrapper SDKs that bridge
-/// between native and managed runtimes. They may change, be renamed,
-/// or be removed in any minor release without prior deprecation.
-///
-/// App developers: prefer the standard @c SentryObjCSDK API surface instead.
 @interface SentryObjCInternalApi : NSObject
 
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 @property (nonatomic, readonly) SentryObjCInternalReplayApi *replay;
+@property (nonatomic, readonly) SentryObjCInternalPerformanceApi *performance;
+@property (nonatomic, readonly) SentryObjCInternalScreenshotApi *screenshot;
+@property (nonatomic, readonly) SentryObjCInternalViewHierarchyApi *viewHierarchy;
+@property (nonatomic, readonly) SentryObjCInternalScreenApi *screen;
 #endif
 
+@property (nonatomic, readonly) SentryObjCInternalAppStartApi *appStart;
 @property (nonatomic, readonly) SentryObjCInternalEnvelopeApi *envelope;
 @property (nonatomic, readonly) SentryObjCInternalSwizzleApi *swizzle;
+@property (nonatomic, readonly) SentryObjCInternalSdkApi *sdk;
+@property (nonatomic, readonly) SentryObjCInternalDebugApi *debug;
+@property (nonatomic, readonly) SentryObjCInternalBreadcrumbApi *breadcrumbs;
+@property (nonatomic, readonly) SentryObjCInternalUserApi *user;
 
-// ... direct methods ...
-- (void)setSdkName:(NSString *)name version:(NSString *)version;
-- (NSString *)sdkName;
-- (NSString *)sdkVersionString;
 - (void)setTrace:(SentryObjCId *)traceId spanId:(SentryObjCSpanId *)spanId;
+- (void)setLogOutput:(void (^)(NSString *))output;
+- (void)ignoreNextSignal:(int)signum;
+@property (nonatomic, readonly) SentryObjCOptions *options;
+- (nullable SentryObjCOptions *)optionsFromDictionary:(NSDictionary<NSString *, id> *)dictionary
+                                                error:(NSError **)error;
 
 @end
 ```
@@ -387,17 +425,24 @@ Following the two-target architecture from [SENTRY-OBJC.md](SENTRY-OBJC.md):
     @objc public var replay: SentryObjCInternalReplayApi {
         SentryObjCInternalReplayApi(wrapped.replay)
     }
+    @objc public var performance: SentryObjCInternalPerformanceApi {
+        SentryObjCInternalPerformanceApi(wrapped.performance)
+    }
+    // ... screenshot, viewHierarchy, screen follow same pattern ...
     #endif
 
-    @objc public var envelope: SentryObjCInternalEnvelopeApi {
-        SentryObjCInternalEnvelopeApi(wrapped.envelope)
-    }
+    @objc public var appStart: SentryObjCInternalAppStartApi { ... }
+    @objc public var envelope: SentryObjCInternalEnvelopeApi { ... }
+    @objc public var swizzle: SentryObjCInternalSwizzleApi { ... }
+    @objc public var sdk: SentryObjCInternalSdkApi { ... }
+    @objc public var debug: SentryObjCInternalDebugApi { ... }
+    @objc public var breadcrumbs: SentryObjCInternalBreadcrumbApi { ... }
+    @objc public var user: SentryObjCInternalUserApi { ... }
 
-    @objc public func setSdkName(_ name: String, version: String) {
-        wrapped.setSdkName(name, version: version)
-    }
-
-    // ... other delegating methods ...
+    @objc public func setTrace(_ traceId: SentryObjCId, spanId: SentryObjCSpanId) { ... }
+    @objc public func setLogOutput(_ output: @escaping (String) -> Void) { ... }
+    @objc public func ignoreNextSignal(_ signum: Int32) { ... }
+    // ...
 }
 ```
 
@@ -439,13 +484,16 @@ Each sub-object follows the same header + wrapper pair pattern. See [SENTRY-OBJC
 
 ## Deprecation Strategy
 
-All methods on `PrivateSentrySDKOnly` receive deprecation annotations pointing to the new API:
+Both `PrivateSentrySDKOnly` (Swift) and `SentryObjCPrivateSDKOnly` (ObjC wrapper) receive deprecation annotations. The entire `SentryObjCPrivateSDKOnly` class is deprecated, and each method has an individual annotation pointing to the new API path:
 
 ```objc
-// PrivateSentrySDKOnly.h
-+ (void)captureReplay
-    __attribute__((deprecated("Use SentrySDK.internal.replay.capture() (Swift) "
-                              "or [[SentryObjCSDK internal].replay capture] (ObjC)")));
+// SentryObjCPrivateSDKOnly.h — class-level deprecation
+DEPRECATED_MSG_ATTRIBUTE("Use SentryObjCSDK.internal instead")
+@interface SentryObjCPrivateSDKOnly : NSObject
+
+// Per-method deprecation (e.g. for sdk name)
++ (void)setSdkName:(NSString *)name andVersionString:(NSString *)version
+    DEPRECATED_MSG_ATTRIBUTE("Use SentryObjCSDK.internal.sdk.setName:version:");
 ```
 
 `PrivateSentrySDKOnly` retains its own implementation (does not delegate to the new Swift types). Both paths call the same SDK internals independently. Removal happens in the next major version.
@@ -464,8 +512,12 @@ All methods on `PrivateSentrySDKOnly` receive deprecation annotations pointing t
 | `SentryInternalEnvelopeApi`      | `SentryObjCInternalEnvelopeApi.h`      | `SentryObjCInternalEnvelopeApi.swift`      | all        |
 | `SentryInternalScreenApi`        | `SentryObjCInternalScreenApi.h`        | `SentryObjCInternalScreenApi.swift`        | iOS, tvOS  |
 | `SentryInternalSwizzleApi`       | `SentryObjCInternalSwizzleApi.h`       | `SentryObjCInternalSwizzleApi.swift`       | all        |
+| `SentryInternalSdkApi`           | `SentryObjCInternalSdkApi.h`           | `SentryObjCInternalSdkApi.swift`           | all        |
+| `SentryInternalDebugApi`         | `SentryObjCInternalDebugApi.h`         | `SentryObjCInternalDebugApi.swift`         | all        |
+| `SentryInternalBreadcrumbApi`    | `SentryObjCInternalBreadcrumbApi.h`    | `SentryObjCInternalBreadcrumbApi.swift`    | all        |
+| `SentryInternalUserApi`          | `SentryObjCInternalUserApi.h`          | `SentryObjCInternalUserApi.swift`          | all        |
 
-**Total:** 10 Swift types + 10 ObjC headers + 10 ObjC wrappers = 30 new files.
+**Total:** 14 Swift types + 14 ObjC headers + 14 ObjC wrappers = 42 new files.
 
 ## File Layout
 
@@ -482,7 +534,11 @@ Sources/
 │       ├── SentryInternalViewHierarchyApi.swift
 │       ├── SentryInternalEnvelopeApi.swift
 │       ├── SentryInternalScreenApi.swift
-│       └── SentryInternalSwizzleApi.swift
+│       ├── SentryInternalSwizzleApi.swift
+│       ├── SentryInternalSdkApi.swift
+│       ├── SentryInternalDebugApi.swift
+│       ├── SentryInternalBreadcrumbApi.swift
+│       └── SentryInternalUserApi.swift
 ├── Swift/Helper/
 │   └── SentrySDK+Internal.swift              # extension adding .internal
 ├── SentryObjC/Public/
@@ -495,7 +551,11 @@ Sources/
 │   ├── SentryObjCInternalViewHierarchyApi.h
 │   ├── SentryObjCInternalEnvelopeApi.h
 │   ├── SentryObjCInternalScreenApi.h
-│   └── SentryObjCInternalSwizzleApi.h
+│   ├── SentryObjCInternalSwizzleApi.h
+│   ├── SentryObjCInternalSdkApi.h
+│   ├── SentryObjCInternalDebugApi.h
+│   ├── SentryObjCInternalBreadcrumbApi.h
+│   └── SentryObjCInternalUserApi.h
 ├── SentryObjCCompat/
 │   ├── SentryObjCInternalApi.swift
 │   ├── SentryObjCInternalReplayApi.swift
@@ -507,6 +567,10 @@ Sources/
 │   ├── SentryObjCInternalEnvelopeApi.swift
 │   ├── SentryObjCInternalScreenApi.swift
 │   ├── SentryObjCInternalSwizzleApi.swift
+│   ├── SentryObjCInternalSdkApi.swift
+│   ├── SentryObjCInternalDebugApi.swift
+│   ├── SentryObjCInternalBreadcrumbApi.swift
+│   ├── SentryObjCInternalUserApi.swift
 │   └── SentryObjCSDK+Internal.swift
 ```
 
@@ -534,7 +598,7 @@ PrivateSentrySDKOnly.captureReplay()
 
 // After
 import Sentry
-SentrySDK.internal.setSdkName("sentry.cocoa.react-native", version: "6.0.0")
+SentrySDK.internal.sdk.setName("sentry.cocoa.react-native", version: "6.0.0")
 SentrySDK.internal.appStart.hybridSDKMode = true
 let frames = SentrySDK.internal.performance.currentScreenFrames
 let success = SentrySDK.internal.replay.capture()
@@ -557,7 +621,7 @@ id traceId = [[SentryIdClass alloc] initWithUUIDString:traceString];
 
 // After — single import, no internal headers
 #import <SentryObjC/SentryObjC.h>
-[[SentryObjCSDK internal] setSdkName:@"sentry.cocoa.react-native" version:@"6.0.0"];
+[[[SentryObjCSDK internal] sdk] setName:@"sentry.cocoa.react-native" version:@"6.0.0"];
 [SentryObjCSDK internal].appStart.hybridSDKMode = YES;
 SentryObjCScreenFrames *frames = [SentryObjCSDK internal].performance.currentScreenFrames;
 BOOL success = [[[SentryObjCSDK internal] replay] capture];
@@ -616,9 +680,9 @@ SentryObjCSpanId *spanId = [[SentryObjCSpanId alloc] initWithValue:spanString];
 
 ## Public API Surface Impact
 
-- `sdk_api.json` gains ~55 new public symbols (10 types + their methods/properties).
-- `sdk_api_objc.json` gains ~55 new symbols (10 ObjC types + methods + `SentryObjCSwizzleMode` enum).
-- `PrivateSentrySDKOnly` methods gain `deprecated` annotations (no removal, no ABI break).
+- `sdk_api.json` gains ~75 new public symbols (14 types + their methods/properties).
+- `sdk_api_objc.json` gains ~75 new symbols (14 ObjC types + methods + `SentryObjCSwizzleMode` enum).
+- `PrivateSentrySDKOnly` / `SentryObjCPrivateSDKOnly` gain `deprecated` annotations (no removal, no ABI break).
 - `make generate-public-api` must be run and committed.
 
 ## Testing
@@ -631,4 +695,4 @@ SentryObjCSpanId *spanId = [[SentryObjCSpanId alloc] initWithValue:spanString];
 
 1. **`SentryObjCSDK.internal` naming in ObjC.** `internal` is not a reserved word in ObjC, so no conflict. But should we verify no collision with Apple's runtime selectors?
 2. **Thread safety.** `PrivateSentrySDKOnly` methods are individually thread-safe via internal SDK locks. The new types delegate to the same internals, inheriting the same guarantees. Should we add `@Sendable` annotations to callback parameters?
-3. **`SentryInternalApi` as singleton vs. value.** Currently proposed as `static let` (singleton). If the SDK is closed and re-started, the sub-objects still point to the same instances. This matches current `PrivateSentrySDKOnly` behavior (static methods, no instance state) but worth confirming.
+3. ~~**`SentryInternalApi` as singleton vs. value.**~~ **Resolved:** implemented as a lazy `var` protected by `NSRecursiveLock`, with `resetInternalApi()` called on SDK close. This allows sub-objects to be recreated with fresh dependencies when the SDK restarts.
