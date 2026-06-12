@@ -239,264 +239,25 @@ The factory block receives a closure that returns the original `IMP`. The caller
 | ---------------------------- | ------------------------------------------ |
 | `fromDictionary(_:) -> User` | `PrivateSentrySDKOnly.userWithDictionary:` |
 
-## Swift Implementation Pattern
+## Implementation Conventions
 
-Each sub-object is a plain Swift class marked `@_spi(Private)` (no `NSObject`, no `@objc`). Dependencies are injected via provider protocols conforming to `SentryDependencyContainer`, making the sub-objects testable in isolation:
+**Swift types** (`Sources/Swift/HybridSDK/`):
 
-```swift
-// Sources/Swift/HybridSDK/SentryInternalApi.swift
+- All types are `@_spi(Private) public final class` — no `NSObject`, no `@objc`.
+- Dependencies are injected via provider protocols (e.g., `HubProvider`, `DebugImageProvider`) backed by `SentryDependencyContainer`, making sub-objects testable in isolation.
+- `SentrySDK.internal` is a lazy `var` on `SentrySDK` protected by `NSRecursiveLock`, reset on SDK close via `resetInternalApi()`.
 
-@_implementationOnly import _SentryPrivate
+**ObjC wrappers** (`Sources/SentryObjC/Public/` headers + `Sources/SentryObjCCompat/` wrappers):
 
-@_spi(Private) public final class SentryInternalApi {
-
-    private let container: SentryDependencyContainer
-
-    #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
-    public let replay: SentryInternalReplayApi
-    public let performance: SentryInternalPerformanceApi
-    public let screenshot: SentryInternalScreenshotApi
-    public let viewHierarchy: SentryInternalViewHierarchyApi
-    public let screen: SentryInternalScreenApi
-    #endif
-
-    #if SENTRY_TARGET_PROFILING_SUPPORTED
-    public let profiling = SentryInternalProfilingApi()
-    #endif
-
-    public let appStart = SentryInternalAppStartApi()
-    public let envelope: SentryInternalEnvelopeApi
-    public let swizzle = SentryInternalSwizzleApi()
-    public let sdk: SentryInternalSdkApi
-    public let debug: SentryInternalDebugApi
-    public let breadcrumbs = SentryInternalBreadcrumbApi()
-    public let user = SentryInternalUserApi()
-
-    // ... direct methods (setTrace, setLogOutput, ignoreNextSignal, options) ...
-}
-```
-
-```swift
-// Sources/Swift/HybridSDK/SentryInternalReplayApi.swift
-
-@_spi(Private) public final class SentryInternalReplayApi {
-
-    private let hubProvider: any HubProvider
-
-    internal init(provider: any HubProvider) {
-        self.hubProvider = provider
-    }
-
-    @discardableResult
-    public func capture() -> Bool {
-        guard let integration = hubProvider.hub.installedIntegration(
-            of: SentrySessionReplayIntegration.self
-        ) else { return false }
-        return integration.captureReplay()
-    }
-
-    public var replayId: String? {
-        hubProvider.hub.scope.replayId
-    }
-
-    // ... other methods ...
-}
-```
-
-```swift
-// Sources/Swift/HybridSDK/SentryInternalSwizzleApi.swift
-
-@_spi(Private) public final class SentryInternalSwizzleApi {
-
-    public enum Mode {
-        case always
-        case oncePerClass
-        case oncePerClassAndSuperclasses
-    }
-
-    @discardableResult
-    public func instanceMethod(
-        _ selector: Selector,
-        in cls: AnyClass,
-        mode: Mode = .oncePerClass,
-        key: UnsafeRawPointer,
-        factory: @escaping (_ getOriginalImplementation: @escaping () -> IMP) -> Any
-    ) -> Bool {
-        let swizzleMode: SentrySwizzleMode = switch mode {
-        case .always: .always
-        case .oncePerClass: .oncePerClass
-        case .oncePerClassAndSuperclasses: .oncePerClassAndSuperclasses
-        }
-        return SentrySwizzle.swizzleInstanceMethod(
-            selector,
-            in: cls,
-            newImpFactory: { swizzleInfo in
-                factory {
-                    unsafeBitCast(
-                        swizzleInfo!.getOriginalImplementation(),
-                        to: IMP.self
-                    )
-                }
-            },
-            mode: swizzleMode,
-            key: key
-        )
-    }
-}
-```
-
-The `SentrySDK` extension uses a lazy singleton protected by a lock, allowing reset on SDK close:
-
-```swift
-// Sources/Swift/Helper/SentrySDK+Internal.swift
-
-extension SentrySDK {
-    @_spi(Private) public static var `internal`: SentryInternalApi {
-        // Lazy singleton protected by NSRecursiveLock.
-        // resetInternalApi() tears it down on SDK close.
-    }
-
-    static func resetInternalApi() { ... }
-}
-```
-
-## ObjC Wrapper Pattern
-
-Following the two-target architecture from [SENTRY-OBJC.md](SENTRY-OBJC.md):
-
-**Header** (`Sources/SentryObjC/Public/SentryObjCInternalApi.h`):
-
-```objc
-#import <Foundation/Foundation.h>
-#import <SentryObjC/SentryObjCDefines.h>
-
-@class SentryObjCId;
-@class SentryObjCSpanId;
-@class SentryObjCOptions;
-@class SentryObjCInternalReplayApi;
-@class SentryObjCInternalPerformanceApi;
-@class SentryObjCInternalScreenshotApi;
-@class SentryObjCInternalViewHierarchyApi;
-@class SentryObjCInternalScreenApi;
-@class SentryObjCInternalProfilingApi;
-@class SentryObjCInternalAppStartApi;
-@class SentryObjCInternalEnvelopeApi;
-@class SentryObjCInternalSwizzleApi;
-@class SentryObjCInternalSdkApi;
-@class SentryObjCInternalDebugApi;
-@class SentryObjCInternalBreadcrumbApi;
-@class SentryObjCInternalUserApi;
-
-@interface SentryObjCInternalApi : NSObject
-
-#if SENTRY_OBJC_REPLAY_SUPPORTED
-@property (nonatomic, readonly) SentryObjCInternalReplayApi *replay;
-@property (nonatomic, readonly) SentryObjCInternalPerformanceApi *performance;
-@property (nonatomic, readonly) SentryObjCInternalScreenshotApi *screenshot;
-@property (nonatomic, readonly) SentryObjCInternalViewHierarchyApi *viewHierarchy;
-@property (nonatomic, readonly) SentryObjCInternalScreenApi *screen;
-#endif
-
-@property (nonatomic, readonly) SentryObjCInternalAppStartApi *appStart;
-@property (nonatomic, readonly) SentryObjCInternalEnvelopeApi *envelope;
-@property (nonatomic, readonly) SentryObjCInternalSwizzleApi *swizzle;
-@property (nonatomic, readonly) SentryObjCInternalSdkApi *sdk;
-@property (nonatomic, readonly) SentryObjCInternalDebugApi *debug;
-@property (nonatomic, readonly) SentryObjCInternalBreadcrumbApi *breadcrumbs;
-@property (nonatomic, readonly) SentryObjCInternalUserApi *user;
-
-- (void)setTrace:(SentryObjCId *)traceId spanId:(SentryObjCSpanId *)spanId;
-- (void)setLogOutput:(void (^)(NSString *))output;
-- (void)ignoreNextSignal:(int)signum;
-@property (nonatomic, readonly) SentryObjCOptions *options;
-- (nullable SentryObjCOptions *)optionsFromDictionary:(NSDictionary<NSString *, id> *)dictionary
-                                                error:(NSError **)error;
-
-@end
-```
-
-**Wrapper** (`Sources/SentryObjCCompat/SentryObjCInternalApi.swift`):
-
-```swift
-@objc(SentryObjCInternalApi) public final class SentryObjCInternalApi: NSObject {
-    internal let wrapped = SentrySDK.`internal`
-
-    #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
-    @objc public var replay: SentryObjCInternalReplayApi {
-        SentryObjCInternalReplayApi(wrapped.replay)
-    }
-    @objc public var performance: SentryObjCInternalPerformanceApi {
-        SentryObjCInternalPerformanceApi(wrapped.performance)
-    }
-    // ... screenshot, viewHierarchy, screen follow same pattern ...
-    #endif
-
-    @objc public var appStart: SentryObjCInternalAppStartApi { ... }
-    @objc public var envelope: SentryObjCInternalEnvelopeApi { ... }
-    @objc public var swizzle: SentryObjCInternalSwizzleApi { ... }
-    @objc public var sdk: SentryObjCInternalSdkApi { ... }
-    @objc public var debug: SentryObjCInternalDebugApi { ... }
-    @objc public var breadcrumbs: SentryObjCInternalBreadcrumbApi { ... }
-    @objc public var user: SentryObjCInternalUserApi { ... }
-
-    @objc public func setTrace(_ traceId: SentryObjCId, spanId: SentryObjCSpanId) { ... }
-    @objc public func setLogOutput(_ output: @escaping (String) -> Void) { ... }
-    @objc public func ignoreNextSignal(_ signum: Int32) { ... }
-    // ...
-}
-```
-
-**SentryObjCSDK extension** (`Sources/SentryObjCCompat/SentryObjCSDK+Internal.swift`):
-
-```swift
-extension SentryObjCSDK {
-    @objc public static let `internal` = SentryObjCInternalApi()
-}
-```
-
-**Swizzle header** (`Sources/SentryObjC/Public/SentryObjCInternalSwizzleApi.h`):
-
-```objc
-#import <Foundation/Foundation.h>
-
-typedef NS_ENUM(NSUInteger, SentryObjCSwizzleMode) {
-    SentryObjCSwizzleModeAlways = 0,
-    SentryObjCSwizzleModeOncePerClass = 1,
-    SentryObjCSwizzleModeOncePerClassAndSuperclasses = 2
-};
-
-/// Stable swizzling API for hybrid SDKs.
-/// Replaces direct import of SentrySwizzle.h and its macro-based API.
-@interface SentryObjCInternalSwizzleApi : NSObject
-
-/// Swizzle an instance method. The factory block receives a block that
-/// returns the original IMP; return a new block matching the method signature.
-- (BOOL)swizzleInstanceMethod:(SEL _Nonnull)selector
-                      inClass:(Class _Nonnull)cls
-                newImpFactory:(id _Nonnull (^_Nonnull)(IMP _Nonnull (^_Nonnull)(void)))factoryBlock
-                         mode:(SentryObjCSwizzleMode)mode
-                          key:(const void *_Nonnull)key;
-
-@end
-```
-
-Each sub-object follows the same header + wrapper pair pattern. See [SENTRY-OBJC.md](SENTRY-OBJC.md) for the full wrapper conventions.
+- Follow the two-target architecture from [SENTRY-OBJC.md](SENTRY-OBJC.md): pure ObjC header in `SentryObjC`, Swift `@objc` wrapper in `SentryObjCCompat`.
+- Each wrapper holds a reference to the corresponding Swift type and delegates all calls.
+- `SentryObjCSDK.internal` is a `static let` on the ObjC SDK class.
+- UIKit-dependent sub-objects are guarded by `SENTRY_OBJC_REPLAY_SUPPORTED` in headers and `canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))` in Swift.
+- The swizzle wrapper introduces `SentryObjCSwizzleMode` (`NS_ENUM`) mapping to `SentryInternalSwizzleApi.Mode`.
 
 ## Deprecation Strategy
 
-Both `PrivateSentrySDKOnly` (Swift) and `SentryObjCPrivateSDKOnly` (ObjC wrapper) receive deprecation annotations. The entire `SentryObjCPrivateSDKOnly` class is deprecated, and each method has an individual annotation pointing to the new API path:
-
-```objc
-// SentryObjCPrivateSDKOnly.h — class-level deprecation
-DEPRECATED_MSG_ATTRIBUTE("Use SentryObjCSDK.internal instead")
-@interface SentryObjCPrivateSDKOnly : NSObject
-
-// Per-method deprecation (e.g. for sdk name)
-+ (void)setSdkName:(NSString *)name andVersionString:(NSString *)version
-    DEPRECATED_MSG_ATTRIBUTE("Use SentryObjCSDK.internal.sdk.setName:version:");
-```
-
-`PrivateSentrySDKOnly` retains its own implementation (does not delegate to the new Swift types). Both paths call the same SDK internals independently. Removal happens in the next major version.
+Both `PrivateSentrySDKOnly` (Swift) and `SentryObjCPrivateSDKOnly` (ObjC wrapper) receive deprecation annotations — class-level and per-method — pointing to the new API path. Both retain their own implementations (they do not delegate to the new Swift types). All three paths call the same SDK internals independently. Removal happens in the next major version.
 
 ## Type Inventory
 
@@ -519,70 +280,7 @@ DEPRECATED_MSG_ATTRIBUTE("Use SentryObjCSDK.internal instead")
 
 **Total:** 14 Swift types + 14 ObjC headers + 14 ObjC wrappers = 42 new files.
 
-## File Layout
-
-```
-Sources/
-├── Swift/
-│   └── HybridSDK/
-│       ├── SentryInternalApi.swift
-│       ├── SentryInternalReplayApi.swift
-│       ├── SentryInternalProfilingApi.swift
-│       ├── SentryInternalAppStartApi.swift
-│       ├── SentryInternalPerformanceApi.swift
-│       ├── SentryInternalScreenshotApi.swift
-│       ├── SentryInternalViewHierarchyApi.swift
-│       ├── SentryInternalEnvelopeApi.swift
-│       ├── SentryInternalScreenApi.swift
-│       ├── SentryInternalSwizzleApi.swift
-│       ├── SentryInternalSdkApi.swift
-│       ├── SentryInternalDebugApi.swift
-│       ├── SentryInternalBreadcrumbApi.swift
-│       └── SentryInternalUserApi.swift
-├── Swift/Helper/
-│   └── SentrySDK+Internal.swift              # extension adding .internal
-├── SentryObjC/Public/
-│   ├── SentryObjCInternalApi.h
-│   ├── SentryObjCInternalReplayApi.h
-│   ├── SentryObjCInternalProfilingApi.h
-│   ├── SentryObjCInternalAppStartApi.h
-│   ├── SentryObjCInternalPerformanceApi.h
-│   ├── SentryObjCInternalScreenshotApi.h
-│   ├── SentryObjCInternalViewHierarchyApi.h
-│   ├── SentryObjCInternalEnvelopeApi.h
-│   ├── SentryObjCInternalScreenApi.h
-│   ├── SentryObjCInternalSwizzleApi.h
-│   ├── SentryObjCInternalSdkApi.h
-│   ├── SentryObjCInternalDebugApi.h
-│   ├── SentryObjCInternalBreadcrumbApi.h
-│   └── SentryObjCInternalUserApi.h
-├── SentryObjCCompat/
-│   ├── SentryObjCInternalApi.swift
-│   ├── SentryObjCInternalReplayApi.swift
-│   ├── SentryObjCInternalProfilingApi.swift
-│   ├── SentryObjCInternalAppStartApi.swift
-│   ├── SentryObjCInternalPerformanceApi.swift
-│   ├── SentryObjCInternalScreenshotApi.swift
-│   ├── SentryObjCInternalViewHierarchyApi.swift
-│   ├── SentryObjCInternalEnvelopeApi.swift
-│   ├── SentryObjCInternalScreenApi.swift
-│   ├── SentryObjCInternalSwizzleApi.swift
-│   ├── SentryObjCInternalSdkApi.swift
-│   ├── SentryObjCInternalDebugApi.swift
-│   ├── SentryObjCInternalBreadcrumbApi.swift
-│   ├── SentryObjCInternalUserApi.swift
-│   └── SentryObjCSDK+Internal.swift
-```
-
-## Documentation
-
-Every type and method carries a headerdoc/docstring with this preamble:
-
-> APIs intended for Sentry hybrid SDKs (React Native, Flutter, .NET, Unity).
-> These methods are public for consumption by wrapper SDKs that bridge between native and managed runtimes. They may change, be renamed, or be removed in any minor release without prior deprecation.
-> App developers: prefer the standard `SentrySDK` API surface instead.
-
-Individual methods carry per-method documentation explaining parameters and behavior, ported from the existing `PrivateSentrySDKOnly` headerdocs.
+Swift types live in `Sources/Swift/HybridSDK/`, the entry point extension in `Sources/Swift/Helper/SentrySDK+Internal.swift`, ObjC headers in `Sources/SentryObjC/Public/`, and ObjC wrappers in `Sources/SentryObjCCompat/`.
 
 ## Call-Site Migration Examples
 
@@ -631,53 +329,6 @@ SentryObjCSpanId *spanId = [[SentryObjCSpanId alloc] initWithValue:spanString];
 [[SentryObjCSDK internal] setTrace:traceId spanId:spanId];
 ```
 
-### ObjC — Swizzle migration (React Native)
-
-```objc
-// Before — requires internal header search path
-#if __has_include(<Sentry/SentrySwizzle.h>)
-#    import <Sentry/SentrySwizzle.h>
-#else
-#    import "SentrySwizzle.h"
-#endif
-
-+ (void)swizzleViewDidAppear
-{
-    Class rnsscreenclass = NSClassFromString(@"RNSScreen");
-    if (rnsscreenclass == nil) { return; }
-
-    SEL selector = NSSelectorFromString(@"viewDidAppear:");
-    SentrySwizzleInstanceMethod(rnsscreenclass, selector, SentrySWReturnType(void),
-        SentrySWArguments(BOOL animated), SentrySWReplacement({
-            [[[RNSentryDependencyContainer sharedInstance] framesTrackerListener] startListening];
-            SentrySWCallOriginal(animated);
-        }),
-        SentrySwizzleModeOncePerClass, (void *)selector);
-}
-
-// After — single import, no internal headers, no macros
-#import <SentryObjC/SentryObjC.h>
-
-+ (void)swizzleViewDidAppear
-{
-    Class rnsscreenclass = NSClassFromString(@"RNSScreen");
-    if (rnsscreenclass == nil) { return; }
-
-    SEL selector = NSSelectorFromString(@"viewDidAppear:");
-    [[[SentryObjCSDK internal] swizzle]
-        swizzleInstanceMethod:selector
-        inClass:rnsscreenclass
-        newImpFactory:^id(IMP (^getOriginal)(void)) {
-            return ^void(__unsafe_unretained id self, BOOL animated) {
-                [[[RNSentryDependencyContainer sharedInstance] framesTrackerListener] startListening];
-                ((void (*)(id, SEL, BOOL))getOriginal())(self, selector, animated);
-            };
-        }
-        mode:SentryObjCSwizzleModeOncePerClass
-        key:(void *)selector];
-}
-```
-
 ## Public API Surface Impact
 
 - `sdk_api.json` gains ~75 new public symbols (14 types + their methods/properties).
@@ -695,4 +346,3 @@ SentryObjCSpanId *spanId = [[SentryObjCSpanId alloc] initWithValue:spanString];
 
 1. **`SentryObjCSDK.internal` naming in ObjC.** `internal` is not a reserved word in ObjC, so no conflict. But should we verify no collision with Apple's runtime selectors?
 2. **Thread safety.** `PrivateSentrySDKOnly` methods are individually thread-safe via internal SDK locks. The new types delegate to the same internals, inheriting the same guarantees. Should we add `@Sendable` annotations to callback parameters?
-3. ~~**`SentryInternalApi` as singleton vs. value.**~~ **Resolved:** implemented as a lazy `var` protected by `NSRecursiveLock`, with `resetInternalApi()` called on SDK close. This allows sub-objects to be recreated with fresh dependencies when the SDK restarts.
