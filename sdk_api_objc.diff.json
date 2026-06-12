@@ -99,6 +99,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "installationID",
+      "parent": "SentryObjCPrivateSDKOnly",
+      "returnType": "DEPRECATED_MSG_ATTRIBUTE NSString *",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "integer:",
       "parent": "SentryObjCAttributeContent",
       "returnType": "instancetype _Nonnull",
@@ -248,6 +255,12 @@
       "name": "diagnosticLevel",
       "parent": "SentryObjCOptions",
       "type": "SentryObjCLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "installationID",
+      "parent": "SentryObjCPrivateSDKOnly",
+      "type": "DEPRECATED_MSG_ATTRIBUTE NSString *"
     },
     {
       "kind": "ObjCPropertyDecl",
@@ -572,6 +585,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "installationID",
+      "parent": "SentryObjCPrivateSDKOnly",
+      "returnType": "NSString * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "integer:",
       "parent": "SentryObjCAttributeContent",
       "returnType": "SentryObjCAttributeContent * _Nonnull",
@@ -791,6 +811,12 @@
       "name": "diagnosticLevel",
       "parent": "SentryObjCOptions",
       "type": "enum SentryObjCLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "installationID",
+      "parent": "SentryObjCPrivateSDKOnly",
+      "type": "NSString * _Nonnull"
     },
     {
       "kind": "ObjCPropertyDecl",
