@@ -170,38 +170,30 @@
 #    import "SentryObjCInternalBreadcrumbApi.h"
 #    import "SentryObjCInternalDebugApi.h"
 #    import "SentryObjCInternalEnvelopeApi.h"
+#    import "SentryObjCInternalPerformanceApi.h"
 #    import "SentryObjCInternalProfilingApi.h"
+#    import "SentryObjCInternalReplayApi.h"
+#    import "SentryObjCInternalScreenApi.h"
+#    import "SentryObjCInternalScreenshotApi.h"
 #    import "SentryObjCInternalSdkApi.h"
 #    import "SentryObjCInternalSwizzleApi.h"
 #    import "SentryObjCInternalUserApi.h"
-#    if SENTRY_OBJC_HAS_UIKIT
-#        import "SentryObjCInternalPerformanceApi.h"
-#        import "SentryObjCInternalScreenApi.h"
-#        import "SentryObjCInternalScreenshotApi.h"
-#        import "SentryObjCInternalViewHierarchyApi.h"
-#    endif
-#    if SENTRY_OBJC_REPLAY_SUPPORTED
-#        import "SentryObjCInternalReplayApi.h"
-#    endif
+#    import "SentryObjCInternalViewHierarchyApi.h"
 #else
 #    import <SentryObjC/SentryObjCInternalApi.h>
 #    import <SentryObjC/SentryObjCInternalAppStartApi.h>
 #    import <SentryObjC/SentryObjCInternalBreadcrumbApi.h>
 #    import <SentryObjC/SentryObjCInternalDebugApi.h>
 #    import <SentryObjC/SentryObjCInternalEnvelopeApi.h>
+#    import <SentryObjC/SentryObjCInternalPerformanceApi.h>
 #    import <SentryObjC/SentryObjCInternalProfilingApi.h>
+#    import <SentryObjC/SentryObjCInternalReplayApi.h>
+#    import <SentryObjC/SentryObjCInternalScreenApi.h>
+#    import <SentryObjC/SentryObjCInternalScreenshotApi.h>
 #    import <SentryObjC/SentryObjCInternalSdkApi.h>
 #    import <SentryObjC/SentryObjCInternalSwizzleApi.h>
 #    import <SentryObjC/SentryObjCInternalUserApi.h>
-#    if SENTRY_OBJC_HAS_UIKIT
-#        import <SentryObjC/SentryObjCInternalPerformanceApi.h>
-#        import <SentryObjC/SentryObjCInternalScreenApi.h>
-#        import <SentryObjC/SentryObjCInternalScreenshotApi.h>
-#        import <SentryObjC/SentryObjCInternalViewHierarchyApi.h>
-#    endif
-#    if SENTRY_OBJC_REPLAY_SUPPORTED
-#        import <SentryObjC/SentryObjCInternalReplayApi.h>
-#    endif
+#    import <SentryObjC/SentryObjCInternalViewHierarchyApi.h>
 #endif
 
 // --- Entry points ---
