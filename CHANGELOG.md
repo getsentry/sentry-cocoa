@@ -7,6 +7,7 @@
 - Ship dSYMs in SentryObjC-Dynamic.xcframework artifacts (#8036)
 - Fix missing `_OBJC_CLASS_$_` symbols in x86_64 slice of SentryObjC dynamic framework (#8037)
 - Mark feedback form aliases and conformances unavailable in app extensions (#8040)
+- Keep User Feedback shake and screenshot triggers working without the managed widget presenter (#8023)
 - Silence retroactive conformance warning for `SentryLevel: CustomStringConvertible` when building with SPM from source (#8032)
 
 ## 9.17.0
