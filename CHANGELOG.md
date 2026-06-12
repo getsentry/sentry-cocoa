@@ -25,17 +25,19 @@
   ```objc
   [SentryObjCSDK.logger infoWithFormat:@"User %@ processed %d items", userName, count];
   ```
-- Add direct presentation APIs for the managed User Feedback form (#7873, #8018, #8027)
+- Add managed user feedback form presentation APIs (#7873)
 
-  Apps can now present the feedback form from their own UI:
+  Apps using the managed User Feedback integration can now present the form directly:
   - Use `SentrySDK.feedback.show()` to let the SDK pick the best presenter.
-  - In UIKit, present `SentrySDK.FeedbackForm()` yourself.
-  - In SwiftUI, use `.sentryFeedback(isPresented:)` or present `SentrySDK.FeedbackFormView()`
-    from a container such as `.sheet`.
+  - In UIKit, present the `SentrySDK.FeedbackForm()` view controller yourself.
+  - In SwiftUI, use `.sentryFeedback(isPresented:)`, or present `SentrySDK.FeedbackFormView()` from a container such as `.sheet`.
 
-  These APIs use the global `SentryOptions.configureUserFeedback` configuration by default and
-  temporarily hide the managed widget while the form is open, when possible. You can also pass a
-  per-form configuration closure to customize a single presentation without mutating global options:
+  These APIs use the global `SentryOptions.configureUserFeedback` configuration and temporarily hide the managed widget
+  while the form is open, when possible.
+- Add per-form feedback configuration (#8018)
+
+  Managed feedback presentation APIs now accept a configuration closure, so apps can customize a single
+  form on top of the global `SentryOptions.configureUserFeedback` settings without mutating them:
 
   ```swift
   SentrySDK.feedback.show { config in
@@ -46,7 +48,6 @@
       config.tags = ["screen": "settings"]
   }
   ```
-
 - Standalone app start sub-spans operations have been renamed for better clarity (#8003):
   - Pre Runtime Init: app.start	-> app.start.pre_runtime_init
   - Runtime Init to Pre Main Initializers: app.start -> app.start.runtime_init
