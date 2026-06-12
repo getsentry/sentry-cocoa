@@ -167,9 +167,13 @@
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCInternalApi.h"
 #    import "SentryObjCInternalAppStartApi.h"
+#    import "SentryObjCInternalBreadcrumbApi.h"
+#    import "SentryObjCInternalDebugApi.h"
 #    import "SentryObjCInternalEnvelopeApi.h"
 #    import "SentryObjCInternalProfilingApi.h"
+#    import "SentryObjCInternalSdkApi.h"
 #    import "SentryObjCInternalSwizzleApi.h"
+#    import "SentryObjCInternalUserApi.h"
 #    if SENTRY_OBJC_HAS_UIKIT
 #        import "SentryObjCInternalPerformanceApi.h"
 #        import "SentryObjCInternalScreenApi.h"
@@ -182,9 +186,13 @@
 #else
 #    import <SentryObjC/SentryObjCInternalApi.h>
 #    import <SentryObjC/SentryObjCInternalAppStartApi.h>
+#    import <SentryObjC/SentryObjCInternalBreadcrumbApi.h>
+#    import <SentryObjC/SentryObjCInternalDebugApi.h>
 #    import <SentryObjC/SentryObjCInternalEnvelopeApi.h>
 #    import <SentryObjC/SentryObjCInternalProfilingApi.h>
+#    import <SentryObjC/SentryObjCInternalSdkApi.h>
 #    import <SentryObjC/SentryObjCInternalSwizzleApi.h>
+#    import <SentryObjC/SentryObjCInternalUserApi.h>
 #    if SENTRY_OBJC_HAS_UIKIT
 #        import <SentryObjC/SentryObjCInternalPerformanceApi.h>
 #        import <SentryObjC/SentryObjCInternalScreenApi.h>

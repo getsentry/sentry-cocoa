@@ -43,6 +43,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// API to record metrics (counters, distributions, gauges).
 @property (class, nonatomic, readonly) SentryObjCMetricsApi *metrics;
 
+/// API to access internal SDK features for hybrid SDKs (React Native, Flutter, .NET, Unity).
+@property (class, nonatomic, readonly) SentryObjCInternalApi *internal;
+
 /**
  * Returns the crash status of the last program execution.
  *

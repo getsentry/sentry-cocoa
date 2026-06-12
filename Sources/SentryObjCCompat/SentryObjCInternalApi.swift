@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(SentryObjCInternalApi) public final class SentryObjCInternalApi: NSObject {
-    internal let wrapped = SentrySDK.`internal`
+    internal let wrapped = SentrySDK.internal
 
     #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
     @objc public var replay: SentryObjCInternalReplayApi {
@@ -29,7 +29,7 @@ import Foundation
     @objc public var screen: SentryObjCInternalScreenApi {
         SentryObjCInternalScreenApi(wrapped.screen)
     }
-    #endif
+    #endif // canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
 
     @objc public var appStart: SentryObjCInternalAppStartApi {
         SentryObjCInternalAppStartApi(wrapped.appStart)
@@ -43,12 +43,20 @@ import Foundation
         SentryObjCInternalSwizzleApi(wrapped.swizzle)
     }
 
-    @objc public func userWithDictionary(_ dictionary: [String: Any]) -> SentryObjCUser {
-        SentryObjCUser(wrapped.userWithDictionary(dictionary))
+    @objc public var sdk: SentryObjCInternalSdkApi {
+        SentryObjCInternalSdkApi(wrapped.sdk)
     }
 
-    @objc public func breadcrumbWithDictionary(_ dictionary: [String: Any]) -> SentryObjCBreadcrumb {
-        SentryObjCBreadcrumb(wrapped.breadcrumbWithDictionary(dictionary))
+    @objc public var debug: SentryObjCInternalDebugApi {
+        SentryObjCInternalDebugApi(wrapped.debug)
+    }
+
+    @objc public var breadcrumbs: SentryObjCInternalBreadcrumbApi {
+        SentryObjCInternalBreadcrumbApi(wrapped.breadcrumbs)
+    }
+
+    @objc public var user: SentryObjCInternalUserApi {
+        SentryObjCInternalUserApi(wrapped.user)
     }
 
     @objc public func setTrace(_ traceId: SentryObjCId, spanId: SentryObjCSpanId) {
@@ -63,35 +71,6 @@ import Foundation
         wrapped.ignoreNextSignal(signum)
     }
 
-    @objc public func setSdkName(_ name: String, version: String) {
-        wrapped.setSdkName(name, version: version)
-    }
-
-    @objc(setSdkName:)
-    public func setSdkNameOnly(_ name: String) {
-        wrapped.setSdkName(name)
-    }
-
-    @objc public var sdkName: String {
-        wrapped.sdkName
-    }
-
-    @objc public var sdkVersionString: String {
-        wrapped.sdkVersionString
-    }
-
-    @objc public func addSdkPackageName(_ name: String, version: String) {
-        wrapped.addSdkPackage(name: name, version: version)
-    }
-
-    @objc public var extraContext: [String: Any] {
-        wrapped.extraContext
-    }
-
-    @objc public var installationID: String {
-        wrapped.installationID
-    }
-
     @objc public var options: SentryObjCOptions {
         SentryObjCOptions(wrapped.options)
     }
@@ -99,15 +78,6 @@ import Foundation
     @objc public func optionsFromDictionary(_ dictionary: [String: Any]) throws -> SentryObjCOptions {
         let options = try wrapped.options(fromDictionary: dictionary)
         return SentryObjCOptions(options)
-    }
-
-    @objc public var debugImages: [SentryObjCDebugMeta] {
-        wrapped.debugImages.map { SentryObjCDebugMeta($0) }
-    }
-
-    @objc public func debugImagesForAddresses(_ addresses: [NSNumber]) -> [SentryObjCDebugMeta] {
-        let uint64Addresses = addresses.map { $0.uint64Value }
-        return wrapped.debugImages(forAddresses: uint64Addresses).map { SentryObjCDebugMeta($0) }
     }
 }
 // swiftlint:enable missing_docs
