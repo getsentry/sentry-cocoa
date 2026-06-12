@@ -54,7 +54,6 @@ public final class KSCrashReportConverter: NSObject {
 
         // KSCrash writes scope as report["user"]["sentry_sdk_scope"]. Flatten it into
         // userContext so downstream code can access scope fields directly.
-        // TODO: determine if this is needed... seems like downstream is actually just this class
         var userSection: [String: Any] = report[.user] ?? [:]
         if let scope: [String: Any] = userSection[.sentrySDKScope] {
             userSection.merge(scope) { _, new in new }

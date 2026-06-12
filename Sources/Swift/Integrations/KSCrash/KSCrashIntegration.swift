@@ -81,7 +81,7 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
         // According to the KSCrash documentation, when using the `-[KSCrashInstallation installWithConfiguration:]
         // installation method, this config field is ignored - instead, we can use
         // `-[KSCrashInstallation setIsWritingReportCallback:] method to install this callback.
-        installation.isWritingReportCallback = { plan, writer in
+        config.isWritingReportCallback = { plan, writer in
             if plan.pointee.crashedDuringExceptionHandling {
                 return
             }
@@ -186,7 +186,10 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
         kslog_setLogFilename(logPath, true)
 
         do {
-            try installation.install(with: config)
+            try KSCrash.shared.install(with: config)
+            KSCrash.shared.reportStore?.sink = KSCrashReportSink(inAppLogic: .init(inAppIncludes: options.inAppIncludes))
+
+//            try installation.install(with: config)
         } catch {
             SentrySDKLog.debug("KSCrash Installation failed: \(error)")
         }
