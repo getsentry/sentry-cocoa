@@ -79,6 +79,37 @@ final class Buffer<Storage: StorageProtocol, Item: ItemProtocol> {
 - Always use explicit capture lists when capturing `self` to prevent retain cycles
 - Prefer `[weak self]` with `guard let self` for closures stored by the SDK
 
+## ObjC/Swift Interop in `_SentryPrivate`
+
+The `_SentryPrivate` module exposes private ObjC headers to Swift via `SentryPrivate.h`. Dependency direction: `SentrySwift` → `_SentryPrivate` (not the reverse). This means **`_SentryPrivate` headers cannot resolve Swift-defined types**.
+
+### The SPM Trap
+
+When an ObjC header in `_SentryPrivate` references a Swift class (e.g., `SentryEnvelope *`), methods using that type are **silently dropped** in SPM builds. The Xcode project build works because all code shares one module, but SPM separates targets.
+
+**Symptoms:** `has no member 'foo'` or `missing argument label` errors only in SPM / CI, never locally in Xcode.
+
+### Fix: `SENTRY_SWIFT_MIGRATION_ID` + `NS_SWIFT_NAME`
+
+Use `SENTRY_SWIFT_MIGRATION_ID(TypeName)` (expands to `id`) to erase the Swift type, making the method visible in SPM. Add `NS_SWIFT_NAME(...)` to preserve the auto-translated Swift name (auto-translation differs between `TypeName *` and `id`):
+
+```objc
+// Wrong — invisible to Swift in SPM when SentryEnvelope is a Swift class
+- (void)storeEnvelope:(SentryEnvelope *)envelope;
+
+// Correct — visible everywhere
+- (void)storeEnvelope:(SENTRY_SWIFT_MIGRATION_ID(SentryEnvelope))envelope NS_SWIFT_NAME(store(_:));
+```
+
+See `SentryHub+SwiftPrivate.h` for the established pattern with `captureReplayEvent:` and session listener methods.
+
+### Checklist for New Methods in Private ObjC Headers
+
+- [ ] Does any parameter or return type name a Swift class? Check `Sources/Swift/` for the type definition
+- [ ] If yes, use `SENTRY_SWIFT_MIGRATION_ID(TypeName)` for the parameter type
+- [ ] Add explicit `NS_SWIFT_NAME(...)` to control the Swift-visible name
+- [ ] Verify with `swift build` (SPM), not just `make build-ios` (Xcode)
+
 ## Public API Surface
 
 - **Backward compatibility** — do not remove or rename public symbols; deprecate first

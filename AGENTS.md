@@ -141,6 +141,7 @@ make test-sample-iOS-Swift-ui  # if UI behavior changed
 | `SentryCrash` / C code                                       | `make build-ios` + `make build-macos`                                                                                | `make test-ios`                              |
 | `SentrySwiftUI`                                              | `make build-ios`                                                                                                     | `make test-ios`                              |
 | Build system / `Package.swift`                               | All platforms                                                                                                        | `make test`                                  |
+| ObjC private headers calling Swift types                     | `make build-ios` + `swift build` (SPM)                                                                               | `make test-ios`                              |
 | Cross-platform concern                                       | All platforms (`make build-ios`, `make build-macos`, `make build-tvos`, `make build-watchos`, `make build-visionos`) | `make test`                                  |
 
 Ensure no new issues from: static analysis, thread/address/UB sanitizers, or cross-platform dependants (React Native, Flutter, .NET, Unity).
