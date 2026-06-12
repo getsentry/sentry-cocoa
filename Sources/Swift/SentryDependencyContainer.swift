@@ -67,6 +67,8 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     
     // MARK: Public
 
+    @objc public var startOptions: Options?
+
     @objc public static func sharedInstance() -> SentryDependencyContainer {
         instanceLock.synchronized {
             return instance
@@ -322,7 +324,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     @objc public lazy var screenshotSource: SentryScreenshotSource? = getOptionalLazyVar(\._screenshotSource) {
         // The options could be null here, but this is a general issue in the dependency
         // container and will be fixed in a future refactoring.
-        guard let options = SentrySDKInternal.options else {
+        guard let options = Self.sharedInstance().startOptions else {
             return nil
         }
         
@@ -360,7 +362,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     private var _appStateManager: SentryAppStateManager?
     @objc public lazy var appStateManager = getLazyVar(\._appStateManager) {
-        let release = SentrySDKInternal.options?.releaseName
+        let release = Self.sharedInstance().startOptions?.releaseName
         return SentryAppStateManager(
             releaseName: release,
             crashWrapper: crashWrapper,
@@ -369,7 +371,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
     private var _crashReporter: SentryCrashSwift?
     @objc public lazy var crashReporter = getLazyVar(\._crashReporter) {
-        SentryCrashSwift(with: SentrySDKInternal.options?.cacheDirectoryPath)
+        SentryCrashSwift(with: Self.sharedInstance().startOptions?.cacheDirectoryPath)
     }
     
     private var anrTracker: SentryANRTracker?

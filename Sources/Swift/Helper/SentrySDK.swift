@@ -573,11 +573,11 @@ import Foundation
 
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static var startOption: Options? {
-        SentrySDKInternal.options
+        SentryDependencyContainer.sharedInstance().startOptions
     }
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static func setStart(with option: Options?) {
-        SentrySDKInternal.setStart(with: option)
+        SentryDependencyContainer.sharedInstance().startOptions = option
     }
 }
 

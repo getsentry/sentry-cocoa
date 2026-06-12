@@ -53,8 +53,6 @@ static BOOL _detectedStartUpCrash;
  * where a consumer could start the SDK, then call @c +[close] and then start again, and we want to
  * reenable the integrations.
  */
-static SentryOptions *_Nullable _startOptions;
-static NSObject *_startOptionsLock;
 static NSUInteger startInvocations;
 static NSDate *_Nullable startTimestamp = nil;
 
@@ -63,7 +61,6 @@ static NSDate *_Nullable startTimestamp = nil;
     if (self == [SentrySDKInternal class]) {
         sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
         currentHubLock = [[NSObject alloc] init];
-        _startOptionsLock = [[NSObject alloc] init];
         startInvocations = 0;
         _detectedStartUpCrash = NO;
     }
@@ -81,9 +78,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (nullable SentryOptions *)options
 {
-    @synchronized(_startOptionsLock) {
-        return _startOptions;
-    }
+    return SentryDependencyContainer.sharedInstance.startOptions;
 }
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
@@ -104,12 +99,9 @@ static NSDate *_Nullable startTimestamp = nil;
     }
 }
 
-/** Internal, only needed for testing. */
 + (void)setStartOptions:(nullable SentryOptions *)options
 {
-    @synchronized(_startOptionsLock) {
-        _startOptions = options;
-    }
+    SentryDependencyContainer.sharedInstance.startOptions = options;
 }
 
 + (nullable id<SentrySpan>)span
