@@ -290,6 +290,7 @@ run_release_for_prs: &run_release_for_prs
   - "scripts/ci-utils.sh"
   - "scripts/build-xcframework-slice.sh"
   - "scripts/build-xcframework-local.sh"
+  - "scripts/validate-xcframework-symbols.sh"
   - "scripts/assemble-xcframework.sh"
   - "scripts/build-xcframework-sentryobjc.sh"
   - "scripts/build-static-library-sentryobjc.sh"

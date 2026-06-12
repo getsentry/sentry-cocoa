@@ -1000,6 +1000,19 @@ strip-xcframework-expected-signature:
 # VALIDATION
 # ============================================================================
 
+## Validate XCFramework symbol consistency across architectures
+#
+# Checks that exported ObjC class symbols are identical across all architectures
+# within each fat binary. Catches resilient value type drift that causes
+# x86_64-specific linker failures.
+#
+# Usage:
+#   make validate-xcframework-symbols XCFRAMEWORK=SentryObjC-Dynamic.xcframework
+.PHONY: validate-xcframework-symbols
+validate-xcframework-symbols:
+	@echo "--> Validating XCFramework symbol consistency"
+	./scripts/validate-xcframework-symbols.sh --xcframework "$(XCFRAMEWORK)"
+
 ## Lint CocoaPods podspec
 #
 # Validates the CocoaPods podspec file.

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add SentryObjC User Feedback presentation APIs and a feedback form factory returning `UIViewController` instances. (#8027)
+
 ### Fixes
 
 - Session replay video assembly: drop empty video segments, avoid duplicating frames at segment boundaries, and keep video timing stable when captured frames are skipped or unreadable (#8041)
