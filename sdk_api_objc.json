@@ -3309,7 +3309,7 @@
     "kind": "ObjCMethodDecl",
     "name": "installationID",
     "parent": "SentryObjCPrivateSDKOnly",
-    "returnType": "NSString * _Nonnull",
+    "returnType": "DEPRECATED_MSG_ATTRIBUTE NSString *",
     "instance": false
   },
   {
@@ -8286,7 +8286,7 @@
     "kind": "ObjCPropertyDecl",
     "name": "installationID",
     "parent": "SentryObjCPrivateSDKOnly",
-    "type": "NSString * _Nonnull"
+    "type": "DEPRECATED_MSG_ATTRIBUTE NSString *"
   },
   {
     "kind": "ObjCPropertyDecl",

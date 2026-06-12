@@ -1,6 +1,9 @@
 @import SentryObjC;
 @import XCTest;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 @interface SentryObjCPrivateSDKOnlyTests : XCTestCase
 @end
 
@@ -255,3 +258,5 @@
 }
 
 @end
+
+#pragma clang diagnostic pop

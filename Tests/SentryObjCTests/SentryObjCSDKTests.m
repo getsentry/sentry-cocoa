@@ -87,7 +87,10 @@
     [SentryObjCSDK close];
 
     // -- Assert --
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqualObjects([SentryObjCPrivateSDKOnly getSdkName], @"sentry.cocoa");
+#pragma clang diagnostic pop
 }
 
 - (void)testIsEnabled_whenStarted_shouldReturnTrue
