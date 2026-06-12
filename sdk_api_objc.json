@@ -5681,6 +5681,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setName:",
+    "parent": "SentryObjCInternalSdkApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setName:",
     "parent": "SentryObjCMetric",
     "returnType": "void",
     "instance": true
@@ -5702,13 +5709,6 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setName:version:",
-    "parent": "SentryObjCInternalSdkApi",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setNameOnly:",
     "parent": "SentryObjCInternalSdkApi",
     "returnType": "void",
     "instance": true
@@ -6487,6 +6487,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setVars:",
     "parent": "SentryObjCFrame",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setVersionString:",
+    "parent": "SentryObjCInternalSdkApi",
     "returnType": "void",
     "instance": true
   },
