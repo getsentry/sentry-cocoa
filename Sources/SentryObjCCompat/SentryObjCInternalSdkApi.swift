@@ -14,20 +14,17 @@ import Foundation
     }
 
     @objc public var name: String {
-        wrapped.name
+        get { wrapped.name }
+        set { wrapped.name = newValue }
     }
 
     @objc public var versionString: String {
-        wrapped.versionString
+        get { wrapped.versionString }
+        set { wrapped.versionString = newValue }
     }
 
     @objc public func setName(_ name: String, version: String) {
         wrapped.setName(name, version: version)
-    }
-
-    @objc(setNameOnly:)
-    public func setNameOnly(_ name: String) {
-        wrapped.setName(name)
     }
 
     @objc public func addPackageName(_ name: String, version: String) {

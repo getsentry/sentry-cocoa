@@ -12,23 +12,20 @@ import Foundation
 
     /// The current SDK name.
     public var name: String {
-        SentryMeta.sdkName
+        get { SentryMeta.sdkName }
+        set { SentryMeta.sdkName = newValue }
     }
 
     /// The current SDK version string.
     public var versionString: String {
-        SentryMeta.versionString
+        get { SentryMeta.versionString }
+        set { SentryMeta.versionString = newValue }
     }
 
-    /// Overrides the SDK name and version string.
+    /// Overrides the SDK name and version string in one call.
     public func setName(_ name: String, version: String) {
         SentryMeta.sdkName = name
         SentryMeta.versionString = version
-    }
-
-    /// Overrides the SDK name only.
-    public func setName(_ name: String) {
-        SentryMeta.sdkName = name
     }
 
     /// Adds a package to the SDK's package list.
