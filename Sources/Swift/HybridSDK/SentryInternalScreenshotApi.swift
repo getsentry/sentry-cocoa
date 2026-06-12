@@ -14,10 +14,16 @@ import UIKit
 /// App developers: prefer the standard `SentrySDK` API surface instead.
 @_spi(Private) public final class SentryInternalScreenshotApi {
 
+    private let screenshotSource: SentryScreenshotSource?
+
+    init(provider: any ScreenshotIntegrationProvider) {
+        self.screenshotSource = provider.screenshotSource
+    }
+
     /// Captures screenshots of the current application windows.
     /// - Returns: An array of PNG screenshot data, or `nil` if unavailable.
     public func capture() -> [Data]? {
-        PrivateSentrySDKOnly.captureScreenshots()
+        screenshotSource?.appScreenshotsData()
     }
 }
 #endif

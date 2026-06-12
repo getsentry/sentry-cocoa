@@ -14,10 +14,16 @@ import UIKit
 /// App developers: prefer the standard `SentrySDK` API surface instead.
 @_spi(Private) public final class SentryInternalViewHierarchyApi {
 
+    private let viewHierarchyProvider: SentryViewHierarchyProvider?
+
+    init(provider: any ViewHierarchyProviderProvider) {
+        self.viewHierarchyProvider = provider.viewHierarchyProvider
+    }
+
     /// Captures the current view hierarchy.
     /// - Returns: JSON data representing the view hierarchy, or `nil` if unavailable.
     public func capture() -> Data? {
-        PrivateSentrySDKOnly.captureViewHierarchy()
+        viewHierarchyProvider?.appViewHierarchy()
     }
 }
 #endif

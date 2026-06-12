@@ -477,6 +477,11 @@ protocol ViewHierarchyProviderProvider {
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
 #endif
 
+protocol ExtraContextProviderProvider {
+    var extraContextProvider: SentryExtraContextProvider { get }
+}
+extension SentryDependencyContainer: ExtraContextProviderProvider { }
+
 protocol NotificationCenterProvider {
     var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
 }

@@ -13,14 +13,14 @@ import Foundation
 
     // MARK: - Sub-object Accessors
 
-    private let hubProvider: any HubProvider
+    private let clientProvider: any ClientProvider
 
     #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
     public let replay: SentryInternalReplayApi
     public let performance: SentryInternalPerformanceApi
-    public let screenshot = SentryInternalScreenshotApi()
-    public let viewHierarchy = SentryInternalViewHierarchyApi()
-    public let screen = SentryInternalScreenApi()
+    public let screenshot: SentryInternalScreenshotApi
+    public let viewHierarchy: SentryInternalViewHierarchyApi
+    public let screen: SentryInternalScreenApi
     #endif
 
     #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -30,19 +30,23 @@ import Foundation
     public let appStart = SentryInternalAppStartApi()
     public let envelope: SentryInternalEnvelopeApi
     public let swizzle = SentryInternalSwizzleApi()
-    public let sdk = SentryInternalSdkApi()
+    public let sdk: SentryInternalSdkApi
     public let debug: SentryInternalDebugApi
     public let breadcrumbs = SentryInternalBreadcrumbApi()
     public let user = SentryInternalUserApi()
 
     init() {
         let container = SentryDependencyContainer.sharedInstance()
-        self.hubProvider = container
+        self.clientProvider = container
         self.debug = SentryInternalDebugApi(provider: container)
         self.envelope = SentryInternalEnvelopeApi(provider: container)
+        self.sdk = SentryInternalSdkApi(provider: container)
         #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
         self.performance = SentryInternalPerformanceApi(provider: container)
         self.replay = SentryInternalReplayApi(provider: container)
+        self.screenshot = SentryInternalScreenshotApi(provider: container)
+        self.viewHierarchy = SentryInternalViewHierarchyApi(provider: container)
+        self.screen = SentryInternalScreenApi(provider: container)
         #endif
     }
 
@@ -55,18 +59,18 @@ import Foundation
 
     /// Sets a custom log output handler for intercepting SDK log messages.
     public func setLogOutput(_ output: @escaping (String) -> Void) {
-        PrivateSentrySDKOnly.setLogOutput(output)
+        SentrySDKLog.setOutput(output)
     }
 
     /// Tells the crash reporter to ignore the next occurrence of the given
     /// signal on the calling thread.
     public func ignoreNextSignal(_ signum: Int32) {
-        PrivateSentrySDKOnly.ignoreNextSignal(signum)
+        sentrycrash_ignore_next_signal(signum)
     }
 
     /// The current SDK options, or default options if no client is configured.
     public var options: Options {
-        hubProvider.hub.getClient()?.getOptions() as? Options ?? Options()
+        clientProvider.client?.getOptions() as? Options ?? Options()
     }
 
     /// Creates `Options` from a dictionary representation.

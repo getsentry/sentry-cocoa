@@ -44,32 +44,36 @@ import UIKit
 
     /// The current replay ID, or `nil` if no replay session is active.
     public var replayId: String? {
-        PrivateSentrySDKOnly.getReplayId()
+        var result: String?
+        hubProvider.hub.configureScope { scope in
+            result = scope.replayId
+        }
+        return result
     }
 
     /// Adds classes whose views should be ignored during replay recording.
     public func addIgnoreClasses(_ classes: [AnyClass]) {
-        PrivateSentrySDKOnly.addReplayIgnoreClasses(classes)
+        getReplayIntegration()?.viewPhotographer.addIgnoreClasses(classes: classes)
     }
 
     /// Adds classes whose views should be redacted during replay recording.
     public func addRedactClasses(_ classes: [AnyClass]) {
-        PrivateSentrySDKOnly.addReplayRedactClasses(classes)
+        getReplayIntegration()?.viewPhotographer.addRedactClasses(classes: classes)
     }
 
     /// Sets the container class used to determine which views to ignore.
     public func setIgnoreContainerClass(_ containerClass: AnyClass) {
-        PrivateSentrySDKOnly.setIgnoreContainerClass(containerClass)
+        getReplayIntegration()?.viewPhotographer.setIgnoreContainerClass(containerClass)
     }
 
     /// Sets the container class used to determine which views to redact.
     public func setRedactContainerClass(_ containerClass: AnyClass) {
-        PrivateSentrySDKOnly.setRedactContainerClass(containerClass)
+        getReplayIntegration()?.viewPhotographer.setRedactContainerClass(containerClass)
     }
 
     /// Sets custom tags on the replay session.
     public func setTags(_ tags: [String: Any]) {
-        PrivateSentrySDKOnly.setReplayTags(tags)
+        getReplayIntegration()?.setReplayTags(tags)
     }
 
     // MARK: - Private

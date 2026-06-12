@@ -14,9 +14,17 @@ import UIKit
 /// App developers: prefer the standard `SentrySDK` API surface instead.
 @_spi(Private) public final class SentryInternalScreenApi {
 
+    private let hubProvider: any HubProvider
+
+    init(provider: any HubProvider) {
+        self.hubProvider = provider
+    }
+
     /// Sets the name of the current screen on the scope.
     public func setCurrent(_ screenName: String?) {
-        PrivateSentrySDKOnly.setCurrentScreen(screenName)
+        hubProvider.hub.configureScope { scope in
+            scope.currentScreen = screenName
+        }
     }
 }
 #endif

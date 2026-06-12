@@ -28,7 +28,7 @@ import UIKit
 
     /// Whether the frames tracker is currently running.
     public var isFramesTrackingRunning: Bool {
-        PrivateSentrySDKOnly.isFramesTrackingRunning
+        framesTracker.isRunning
     }
 
     /// The current screen frame counters.
