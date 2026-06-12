@@ -2,6 +2,7 @@
 #import "NoARCCrash.h"
 
 @import Sentry;
+@import SentryObjC;
 @import SentrySampleShared;
 
 @interface ViewController ()
@@ -45,6 +46,25 @@
         initWithString:@"https://sentry-brand.storage.googleapis.com/sentry-logo-black.png"];
     NSURLSessionDataTask *task = [session dataTaskWithURL:url];
     [task resume];
+}
+
+- (IBAction)showFeedbackForm:(id)sender
+{
+    [SentryObjCSDK.feedback show];
+}
+
+- (IBAction)presentFeedbackForm:(id)sender
+{
+    UIViewController *feedbackForm = [SentryObjCFeedbackForm
+        viewControllerWithConfigure:^(SentryObjCUserFeedbackConfiguration *configuration) {
+            configuration.tags = @ { @"presentation" : @"manual" };
+            configuration.configureForm
+                = ^(SentryObjCUserFeedbackFormConfiguration *formConfiguration) {
+                      formConfiguration.formTitle = @"Manual Feedback";
+                      formConfiguration.submitButtonLabel = @"Send Manual Feedback";
+                  };
+        }];
+    [self presentViewController:feedbackForm animated:YES completion:nil];
 }
 
 - (IBAction)addBreadcrumb:(id)sender

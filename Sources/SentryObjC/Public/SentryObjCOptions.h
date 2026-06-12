@@ -20,6 +20,7 @@
 @class SentryObjCSamplingContext;
 @class SentryObjCScope;
 @class SentryObjCSpan;
+@class SentryObjCUserFeedbackConfiguration;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -257,6 +258,17 @@ NS_ASSUME_NONNULL_BEGIN
  * @note The default simply returns the passed in scope.
  */
 @property (nonatomic, copy) SentryObjCScope * (^initialScope)(SentryObjCScope *);
+
+#if TARGET_OS_IOS && SENTRY_OBJC_HAS_UIKIT
+
+/**
+ * A block that configures the user feedback feature.
+ */
+@property (nonatomic, copy, nullable) void (^configureUserFeedback)
+    (SentryObjCUserFeedbackConfiguration *configuration)
+        NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
+
+#endif
 
 /**
  * When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and
