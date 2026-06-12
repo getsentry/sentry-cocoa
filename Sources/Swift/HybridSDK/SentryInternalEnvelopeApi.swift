@@ -10,18 +10,20 @@ import Foundation
 /// App developers: prefer the standard `SentrySDK` API surface instead.
 @_spi(Private) public final class SentryInternalEnvelopeApi {
 
+    private let hubProvider: any HubProvider
+
+    init(provider: any HubProvider) {
+        self.hubProvider = provider
+    }
+
     /// Stores an envelope synchronously to disk.
     public func store(_ envelope: SentryEnvelope) {
-        SentrySDKInternal.currentHub().perform(
-            NSSelectorFromString("storeEnvelope:"), with: envelope
-        )
+        hubProvider.hub.store(envelope)
     }
 
     /// Captures an envelope, sending it to Sentry.
     public func capture(_ envelope: SentryEnvelope) {
-        SentrySDKInternal.currentHub().perform(
-            NSSelectorFromString("captureEnvelope:"), with: envelope
-        )
+        hubProvider.hub.capture(envelope)
     }
 
     /// Deserializes an envelope from raw data.

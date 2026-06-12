@@ -14,6 +14,12 @@ import UIKit
 /// App developers: prefer the standard `SentrySDK` API surface instead.
 @_spi(Private) public final class SentryInternalPerformanceApi {
 
+    private let framesTracker: SentryFramesTracker
+
+    init(provider: any FramesTrackingProvider) {
+        self.framesTracker = provider.framesTracker
+    }
+
     /// Enables frame tracking measurements in hybrid SDK mode.
     public var framesTrackingHybridSDKMode: Bool {
         get { PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode }
@@ -27,7 +33,7 @@ import UIKit
 
     /// The current screen frame counters.
     public var currentScreenFrames: SentryScreenFrames {
-        SentryDependencyContainer.sharedInstance().framesTracker.currentFrames()
+        framesTracker.currentFrames()
     }
 }
 #endif

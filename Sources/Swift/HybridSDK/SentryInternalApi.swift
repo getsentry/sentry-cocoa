@@ -13,9 +13,11 @@ import Foundation
 
     // MARK: - Sub-object Accessors
 
+    private let hubProvider: any HubProvider
+
     #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
-    public let replay = SentryInternalReplayApi()
-    public let performance = SentryInternalPerformanceApi()
+    public let replay: SentryInternalReplayApi
+    public let performance: SentryInternalPerformanceApi
     public let screenshot = SentryInternalScreenshotApi()
     public let viewHierarchy = SentryInternalViewHierarchyApi()
     public let screen = SentryInternalScreenApi()
@@ -26,12 +28,23 @@ import Foundation
     #endif
 
     public let appStart = SentryInternalAppStartApi()
-    public let envelope = SentryInternalEnvelopeApi()
+    public let envelope: SentryInternalEnvelopeApi
     public let swizzle = SentryInternalSwizzleApi()
     public let sdk = SentryInternalSdkApi()
-    public let debug = SentryInternalDebugApi()
+    public let debug: SentryInternalDebugApi
     public let breadcrumbs = SentryInternalBreadcrumbApi()
     public let user = SentryInternalUserApi()
+
+    init() {
+        let container = SentryDependencyContainer.sharedInstance()
+        self.hubProvider = container
+        self.debug = SentryInternalDebugApi(provider: container)
+        self.envelope = SentryInternalEnvelopeApi(provider: container)
+        #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
+        self.performance = SentryInternalPerformanceApi(provider: container)
+        self.replay = SentryInternalReplayApi(provider: container)
+        #endif
+    }
 
     // MARK: - Direct Methods
 
@@ -53,8 +66,7 @@ import Foundation
 
     /// The current SDK options, or default options if no client is configured.
     public var options: Options {
-        // swiftlint:disable:next force_cast
-        SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options ?? Options()
+        hubProvider.hub.getClient()?.getOptions() as? Options ?? Options()
     }
 
     /// Creates `Options` from a dictionary representation.

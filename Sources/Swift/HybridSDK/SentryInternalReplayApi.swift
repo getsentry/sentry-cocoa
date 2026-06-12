@@ -14,6 +14,12 @@ import UIKit
 /// App developers: prefer the standard `SentrySDK` API surface instead.
 @_spi(Private) public final class SentryInternalReplayApi {
 
+    private let hubProvider: any HubProvider
+
+    init(provider: any HubProvider) {
+        self.hubProvider = provider
+    }
+
     /// Configures session replay with a different breadcrumb converter
     /// and/or screenshot provider.
     /// Passing nil keeps the previous value.
@@ -69,7 +75,7 @@ import UIKit
     // MARK: - Private
 
     private func getReplayIntegration() -> SentrySessionReplayIntegration? {
-        let integrations = SentrySDKInternal.currentHub().installedIntegrations
+        let integrations = hubProvider.hub.installedIntegrations
         for integration in integrations {
             if let replay = integration as? SentrySessionReplayIntegration {
                 return replay
