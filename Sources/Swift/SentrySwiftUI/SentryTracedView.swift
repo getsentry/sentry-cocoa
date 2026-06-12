@@ -20,7 +20,7 @@ class SentryTraceViewModel {
     init(name: String, nameSource: SentryTransactionNameSource, waitForFullDisplay: Bool?) {
         self.name = name
         self.nameSource = nameSource
-        self.waitForFullDisplay = waitForFullDisplay ?? SentrySDK.startOption?.enableTimeToFullDisplayTracing ?? false
+        self.waitForFullDisplay = waitForFullDisplay ?? SentrySDKInternal.options?.enableTimeToFullDisplayTracing ?? false
     }
     
     func startSpan() -> SpanId? {

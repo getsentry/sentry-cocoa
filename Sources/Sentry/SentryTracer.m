@@ -409,8 +409,8 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
                 _traceContext = [[SentryTraceContext alloc] initWithTracer:self
                                                                      scope:_hub.scope
                                                                    options:_hub.client.options
-                        ?: SentrySDK.startOption]; // We should remove static classes and always
-                                                   // inject dependencies.
+                        ?: SentrySDKInternal.options]; // We should remove static classes and
+                                                       // always inject dependencies.
             }
         }
     }

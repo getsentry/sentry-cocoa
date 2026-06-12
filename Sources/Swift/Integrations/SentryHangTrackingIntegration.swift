@@ -162,7 +162,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
         let scope = SentrySDKInternal.currentHub().scope
         scope.applyTo(event: event, maxBreadcrumbs: options.maxBreadcrumbs)
         addAppState(to: event)
-        apply(options: SentrySDK.startOption, toEvent: event)
+        apply(options: SentrySDKInternal.options, toEvent: event)
         fileManager.storeAppHang(event)
         #else
         SentrySDK.capture(event: event)

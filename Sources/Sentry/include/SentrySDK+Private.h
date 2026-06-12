@@ -65,6 +65,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, nullable, readonly, class) SentryOptions *options;
 
++ (void)setStartOptions:(nullable SentryOptions *)options NS_SWIFT_NAME(setStart(with:));
+
 /**
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
  */
