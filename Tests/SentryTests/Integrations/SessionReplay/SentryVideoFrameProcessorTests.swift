@@ -812,11 +812,10 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
 
-        // Create mixed frames (valid and invalid)
         let mixedFrames = [
-            SentryReplayFrame(imagePath: try fixture.createTestImage(), time: Date(), screenName: "Valid1"),
-            SentryReplayFrame(imagePath: "/non/existent/path.png", time: Date(), screenName: "Invalid"),
-            SentryReplayFrame(imagePath: try fixture.createTestImage(), time: Date(), screenName: "Valid2")
+            SentryReplayFrame(imagePath: try fixture.createTestImage(), time: Date(timeIntervalSinceReferenceDate: 0), screenName: "Valid1"),
+            SentryReplayFrame(imagePath: "/non/existent/path.png", time: Date(timeIntervalSinceReferenceDate: 1), screenName: "Invalid"),
+            SentryReplayFrame(imagePath: try fixture.createTestImage(), time: Date(timeIntervalSinceReferenceDate: 2), screenName: "Valid2")
         ]
 
         let sutWithMixedFrames = SentryVideoFrameProcessor(
@@ -833,9 +832,10 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
         sutWithMixedFrames.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
 
-        // Should process valid frames and skip invalid ones
         XCTAssertEqual(sutWithMixedFrames.frameIndex, 3)
-        XCTAssertEqual(sutWithMixedFrames.usedFrames.count, 2) // Only valid frames
+        // 3 used frames: Valid1 at t=0, gap-fill (holding Valid1) at t=1, Valid2 at t=2
+        XCTAssertEqual(sutWithMixedFrames.usedFrames.count, 3)
+        XCTAssertEqual(sutWithMixedFrames.usedFrames.compactMap(\.screenName), ["Valid1", "Valid1", "Valid2"])
     }
 }
 
