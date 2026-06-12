@@ -6,6 +6,7 @@
 #endif
 import Foundation
 
+@available(*, deprecated, message: "Use SentryObjCSDK.internal instead")
 @objc(SentryObjCPrivateSDKOnly) public final class SentryObjCPrivateSDKOnly: NSObject {
 
     // swiftlint:disable:next todo
