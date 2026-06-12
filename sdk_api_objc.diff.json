@@ -128,6 +128,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCFeedbackForm",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "onCrashedLastRun",
       "parent": "SentryObjCOptions",
       "returnType": "void (^ _Nullable)(SentryObjCEvent * _Nonnull)",

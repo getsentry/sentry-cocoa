@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add SentryObjC User Feedback presentation APIs and a feedback form factory returning `UIViewController` instances. (#8027)
+
 ## 9.17.1
 
 ### Fixes
