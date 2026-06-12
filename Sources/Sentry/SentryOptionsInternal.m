@@ -51,7 +51,7 @@
         }
     }
 
-    if (options[@"dsn"] != [NSNull null]) {
+    if (options[@"dsn"] != nil && options[@"dsn"] != [NSNull null]) {
         NSString *dsn = @"";
         if (nil != options[@"dsn"] && [options[@"dsn"] isKindOfClass:[NSString class]]) {
             dsn = options[@"dsn"];
@@ -61,6 +61,7 @@
         if (sentryOptions.parsedDsn == nil) {
             return NO;
         }
+        sentryOptions.dsn = dsn;
     }
 
     if ([options[@"release"] isKindOfClass:[NSString class]]) {

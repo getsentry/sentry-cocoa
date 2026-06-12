@@ -46,6 +46,7 @@ class TestCleanup: NSObject {
         #endif // os(iOS) || os(tvOS) || os(visionOS)
         
         SentryDependencyContainer.reset()
+        SentrySDK.resetInternalApi()
         SentryPerformanceTracker.shared.clear()
 
 #if os(iOS) || os(tvOS) || os(visionOS)

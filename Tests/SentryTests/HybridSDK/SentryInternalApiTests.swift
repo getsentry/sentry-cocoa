@@ -6,6 +6,14 @@ class SentryInternalApiTests: XCTestCase {
 
     private var sut: SentryInternalApi { SentrySDK.internal }
 
+    override func setUp() {
+        super.setUp()
+        SentrySDK.start {
+            $0.dsn = TestConstants.dsnForTestCase(type: SentryInternalApiTests.self)
+            $0.removeAllIntegrations()
+        }
+    }
+
     override func tearDown() {
         super.tearDown()
         clearTestState()
@@ -47,6 +55,9 @@ class SentryInternalApiTests: XCTestCase {
     }
 
     func testOptions_whenNoClient_shouldReturnDefaults() {
+        // -- Arrange --
+        SentrySDKInternal.setCurrentHub(TestHub(client: nil, andScope: nil))
+
         // -- Act --
         let result = sut.options
 

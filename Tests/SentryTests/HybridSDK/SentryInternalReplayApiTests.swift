@@ -9,6 +9,14 @@ class SentryInternalReplayApiTests: XCTestCase {
 
     private var sut: SentryInternalReplayApi { SentrySDK.internal.replay }
 
+    override func setUp() {
+        super.setUp()
+        SentrySDK.start {
+            $0.dsn = TestConstants.dsnForTestCase(type: SentryInternalReplayApiTests.self)
+            $0.removeAllIntegrations()
+        }
+    }
+
     override func tearDown() {
         super.tearDown()
         clearTestState()

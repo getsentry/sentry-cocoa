@@ -8,6 +8,14 @@ class SentryInternalPerformanceApiTests: XCTestCase {
 
     private var sut: SentryInternalPerformanceApi { SentrySDK.internal.performance }
 
+    override func setUp() {
+        super.setUp()
+        SentrySDK.start {
+            $0.dsn = TestConstants.dsnForTestCase(type: SentryInternalPerformanceApiTests.self)
+            $0.removeAllIntegrations()
+        }
+    }
+
     override func tearDown() {
         super.tearDown()
         clearTestState()

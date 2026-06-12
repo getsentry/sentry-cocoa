@@ -7,7 +7,7 @@
 import Foundation
 
 @objc(SentryObjCInternalApi) public final class SentryObjCInternalApi: NSObject {
-    internal let wrapped = SentrySDK.internal
+    internal var wrapped: SentryInternalApi { SentrySDK.internal }
 
     #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
     @objc public var replay: SentryObjCInternalReplayApi {

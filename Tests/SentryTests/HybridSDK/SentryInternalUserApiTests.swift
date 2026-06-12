@@ -6,6 +6,14 @@ class SentryInternalUserApiTests: XCTestCase {
 
     private var sut: SentryInternalUserApi { SentrySDK.internal.user }
 
+    override func setUp() {
+        super.setUp()
+        SentrySDK.start {
+            $0.dsn = TestConstants.dsnForTestCase(type: SentryInternalUserApiTests.self)
+            $0.removeAllIntegrations()
+        }
+    }
+
     override func tearDown() {
         super.tearDown()
         clearTestState()

@@ -6,6 +6,14 @@ class SentryInternalBreadcrumbApiTests: XCTestCase {
 
     private var sut: SentryInternalBreadcrumbApi { SentrySDK.internal.breadcrumbs }
 
+    override func setUp() {
+        super.setUp()
+        SentrySDK.start {
+            $0.dsn = TestConstants.dsnForTestCase(type: SentryInternalBreadcrumbApiTests.self)
+            $0.removeAllIntegrations()
+        }
+    }
+
     override func tearDown() {
         super.tearDown()
         clearTestState()

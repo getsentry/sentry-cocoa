@@ -7,8 +7,13 @@ class SentryInternalSdkApiTests: XCTestCase {
     private var sut: SentryInternalSdkApi { SentrySDK.internal.sdk }
 
     override func setUp() {
+        super.setUp()
         SentrySdkPackage.resetPackageManager()
         SentryExtraPackages.clear()
+        SentrySDK.start {
+            $0.dsn = TestConstants.dsnForTestCase(type: SentryInternalSdkApiTests.self)
+            $0.removeAllIntegrations()
+        }
     }
 
     override func tearDown() {

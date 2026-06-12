@@ -4,13 +4,6 @@ import XCTest
 
 class SentryInternalDebugApiTests: XCTestCase {
 
-    private var sut: SentryInternalDebugApi { SentrySDK.internal.debug }
-
-    override func tearDown() {
-        super.tearDown()
-        clearTestState()
-    }
-
     // MARK: - images
 
     func testImages_whenProviderHasImages_shouldReturnThem() {
@@ -25,7 +18,10 @@ class SentryInternalDebugApiTests: XCTestCase {
 
         let debugImageProvider = TestDebugImageProvider()
         debugImageProvider.debugImages = [image]
-        SentryDependencyContainer.sharedInstance().debugImageProvider = debugImageProvider
+
+        let sut = SentryInternalDebugApi(provider: MockDebugProvider(
+            debugImageProvider: debugImageProvider
+        ))
 
         // -- Act --
         let images = sut.images
@@ -45,7 +41,10 @@ class SentryInternalDebugApiTests: XCTestCase {
         // -- Arrange --
         let debugImageProvider = TestDebugImageProvider()
         debugImageProvider.debugImages = []
-        SentryDependencyContainer.sharedInstance().debugImageProvider = debugImageProvider
+
+        let sut = SentryInternalDebugApi(provider: MockDebugProvider(
+            debugImageProvider: debugImageProvider
+        ))
 
         // -- Act --
         let images = sut.images
@@ -56,19 +55,40 @@ class SentryInternalDebugApiTests: XCTestCase {
 
     // MARK: - images(forAddresses:)
 
+    func testImagesForAddresses_whenEmptyAddresses_shouldReturnEmpty() {
+        // -- Arrange --
+        let sut = SentryInternalDebugApi(provider: MockDebugProvider())
+
+        // -- Act --
+        let result = sut.images(forAddresses: [])
+
+        // -- Assert --
+        XCTAssertTrue(result.isEmpty)
+    }
+
     func testImagesForAddresses_whenNoMatch_shouldReturnEmpty() {
+        // -- Arrange --
+        let sut = SentryInternalDebugApi(provider: MockDebugProvider())
+
         // -- Act --
         let result = sut.images(forAddresses: [0xDEAD])
 
         // -- Assert --
         XCTAssertTrue(result.isEmpty)
     }
+}
 
-    func testImagesForAddresses_whenEmptyAddresses_shouldReturnEmpty() {
-        // -- Act --
-        let result = sut.images(forAddresses: [])
+// MARK: - Mock
 
-        // -- Assert --
-        XCTAssertTrue(result.isEmpty)
+private struct MockDebugProvider: DebugImageProvider, BinaryImageCacheProvider {
+    var debugImageProvider: SentryDebugImageProvider
+    var binaryImageCache: SentryBinaryImageCache
+
+    init(
+        debugImageProvider: SentryDebugImageProvider = SentryDebugImageProvider(),
+        binaryImageCache: SentryBinaryImageCache = SentryBinaryImageCache()
+    ) {
+        self.debugImageProvider = debugImageProvider
+        self.binaryImageCache = binaryImageCache
     }
 }
