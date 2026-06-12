@@ -591,6 +591,61 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(tracer.measurements[name]?.value, NSNumber(value: duration), file: file, line: line)
         XCTAssertEqual(tracer.measurements[name]?.unit?.unit, "millisecond", file: file, line: line)
     }
+
+    // MARK: - Weak span safety in finishCallback (issue #8012)
+
+    func testFinishCallback_ConcurrentTracerFinish_DoesNotCrash() throws {
+        for _ in 0..<10 {
+            let sut = fixture.getSut(name: "UIViewController", waitForFullDisplay: true)
+            let tracer = try fixture.getTracer()
+
+            fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
+            XCTAssertTrue(sut.start(for: tracer))
+
+            fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 8))
+            sut.reportInitialDisplay()
+            fixture.displayLinkWrapper.normalFrame()
+
+            fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 9))
+            sut.reportFullyDisplayed()
+            fixture.displayLinkWrapper.normalFrame()
+
+            let queue = DispatchQueue(label: "ttd-finish-race", attributes: [.concurrent, .initiallyInactive])
+            let expectation = expectation(description: "concurrent finish")
+            expectation.expectedFulfillmentCount = 2
+            expectation.assertForOverFulfill = true
+
+            queue.async {
+                let child = tracer.startChild(operation: "test.op")
+                child.finish()
+                expectation.fulfill()
+            }
+            queue.async {
+                tracer.finish()
+                expectation.fulfill()
+            }
+
+            queue.activate()
+            wait(for: [expectation], timeout: 5.0)
+
+            XCTAssertTrue(tracer.isFinished)
+        }
+    }
+
+    func testFinishCallback_SpansAlreadyNil_DoesNotCrash() throws {
+        let sut = fixture.getSut(name: "UIViewController", waitForFullDisplay: false)
+        let tracer = try fixture.getTracer()
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
+        XCTAssertTrue(sut.start(for: tracer))
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 8))
+        sut.reportInitialDisplay()
+        fixture.displayLinkWrapper.normalFrame()
+
+        tracer.finish()
+        XCTAssertTrue(tracer.isFinished)
+    }
 }
 
 #endif // os(iOS) || os(tvOS)
