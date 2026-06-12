@@ -53,15 +53,15 @@
     [SentryObjCSDK.feedback show];
 }
 
-- (IBAction)presentFeedbackFormController:(id)sender
+- (IBAction)presentFeedbackForm:(id)sender
 {
     UIViewController *feedbackForm = [SentryObjCFeedbackForm
         viewControllerWithConfigure:^(SentryObjCUserFeedbackConfiguration *configuration) {
-            configuration.tags = @ { @"presentation" : @"controller" };
+            configuration.tags = @ { @"presentation" : @"manual" };
             configuration.configureForm
                 = ^(SentryObjCUserFeedbackFormConfiguration *formConfiguration) {
-                      formConfiguration.formTitle = @"Controller Feedback";
-                      formConfiguration.submitButtonLabel = @"Send Controller Feedback";
+                      formConfiguration.formTitle = @"Manual Feedback";
+                      formConfiguration.submitButtonLabel = @"Send Manual Feedback";
                   };
         }];
     [self presentViewController:feedbackForm animated:YES completion:nil];

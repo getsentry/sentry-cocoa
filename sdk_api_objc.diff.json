@@ -129,7 +129,7 @@
     {
       "kind": "ObjCMethodDecl",
       "name": "new",
-      "parent": "SentryObjCUserFeedbackFormController",
+      "parent": "SentryObjCFeedbackForm",
       "returnType": "instancetype _Nonnull",
       "instance": false
     },
@@ -317,11 +317,6 @@
       "name": "status",
       "parent": "SentryObjCSpan",
       "type": "SentryObjCSpanStatus"
-    },
-    {
-      "kind": "TypedefDecl",
-      "name": "SentryObjCFeedbackForm",
-      "type": "SentryObjCUserFeedbackFormController"
     }
   ],
   "only_in_compat": [

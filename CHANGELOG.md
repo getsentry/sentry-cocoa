@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add SentryObjC User Feedback presentation APIs and a feedback form factory returning `UIViewController` instances. (#8027)
+
 ## 9.17.1
 
 ### Fixes
@@ -40,8 +46,6 @@
       config.tags = ["screen": "settings"]
   }
   ```
-
-  SentryObjC includes matching feedback presentation methods and a form view controller with individual configuration support.
 
 - Standalone app start sub-spans operations have been renamed for better clarity (#8003):
   - Pre Runtime Init: app.start	-> app.start.pre_runtime_init

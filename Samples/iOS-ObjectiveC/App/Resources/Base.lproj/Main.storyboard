@@ -58,10 +58,10 @@
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fbk-prs-ctl">
                                         <rect key="frame" x="0.0" y="120" width="398" height="30"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="Present Feedback Controller"/>
-                                        <state key="normal" title="Present Feedback Controller"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="Present Feedback Form"/>
+                                        <state key="normal" title="Present Feedback Form"/>
                                         <connections>
-                                            <action selector="presentFeedbackFormController:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fbk-prs-act"/>
+                                            <action selector="presentFeedbackForm:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fbk-prs-act"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G9Q-jA-9Nd">

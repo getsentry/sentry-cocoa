@@ -6,10 +6,10 @@
 #if TARGET_OS_IOS
 @import UIKit;
 
-@interface SentryObjCUserFeedbackFormControllerTests : XCTestCase
+@interface SentryObjCFeedbackFormTests : XCTestCase
 @end
 
-@implementation SentryObjCUserFeedbackFormControllerTests
+@implementation SentryObjCFeedbackFormTests
 
 - (void)testViewController_shouldReturnUIViewController
 {
@@ -28,7 +28,7 @@
 
     // -- Act --
     UIViewController *viewController =
-        [SentryObjCUserFeedbackFormController viewControllerWithScreenshot:screenshot];
+        [SentryObjCFeedbackForm viewControllerWithScreenshot:screenshot];
 
     // -- Assert --
     XCTAssertNotNil(viewController);
@@ -41,7 +41,7 @@
     __block BOOL configureCalled = NO;
 
     // -- Act --
-    UIViewController *viewController = [SentryObjCUserFeedbackFormController
+    UIViewController *viewController = [SentryObjCFeedbackForm
         viewControllerWithConfigure:^(SentryObjCUserFeedbackConfiguration *configuration) {
             configureCalled = YES;
             configuration.animations = NO;
@@ -60,7 +60,7 @@
     __block BOOL configureCalled = NO;
 
     // -- Act --
-    UIViewController *viewController = [SentryObjCUserFeedbackFormController
+    UIViewController *viewController = [SentryObjCFeedbackForm
         viewControllerWithScreenshot:screenshot
                            configure:^(SentryObjCUserFeedbackConfiguration *configuration) {
                                configureCalled = YES;

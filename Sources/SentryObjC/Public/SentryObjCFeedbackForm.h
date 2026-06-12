@@ -13,8 +13,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Factory for creating User Feedback form view controllers.
-@interface SentryObjCUserFeedbackFormController : NSObject
+/// Factory namespace for creating User Feedback form view controllers.
+///
+/// This type is not a view controller. It only creates @c UIViewController instances for callers to
+/// present from their own UI.
+@interface SentryObjCFeedbackForm : NSObject
 SENTRY_NO_INIT
 
 /**
@@ -65,9 +68,6 @@ SENTRY_NO_INIT
     NS_EXTENSION_UNAVAILABLE("Not available in app extensions.");
 
 @end
-
-/// Convenience alias matching the Swift SDK's FeedbackForm naming.
-typedef SentryObjCUserFeedbackFormController SentryObjCFeedbackForm;
 
 NS_ASSUME_NONNULL_END
 

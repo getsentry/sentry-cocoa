@@ -9,7 +9,7 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-@objc(SentryObjCUserFeedbackFormController) public final class SentryObjCUserFeedbackFormController: NSObject {
+@objc(SentryObjCFeedbackForm) public final class SentryObjCFeedbackForm: NSObject {
     @available(iOSApplicationExtension, unavailable)
     @objc public static func viewController() -> UIViewController {
         SentryUserFeedbackFormController()
@@ -23,7 +23,9 @@ import UIKit
 
     @available(iOSApplicationExtension, unavailable)
     @objc(viewControllerWithConfigure:)
-    public static func viewController(configure: ((SentryObjCUserFeedbackConfiguration) -> Void)?) -> UIViewController {
+    public static func viewController(
+        configure: ((SentryObjCUserFeedbackConfiguration) -> Void)?
+    ) -> UIViewController {
         SentryUserFeedbackFormController(configure: wrappedConfigure(configure))
     }
 

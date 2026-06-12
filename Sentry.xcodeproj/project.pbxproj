@@ -1327,6 +1327,7 @@
 				Public/SentryObjCExperimentalOptions.h,
 				Public/SentryObjCFeedback.h,
 				Public/SentryObjCFeedbackApi.h,
+				Public/SentryObjCFeedbackForm.h,
 				Public/SentryObjCFeedbackSource.h,
 				Public/SentryObjCFrame.h,
 				Public/SentryObjCGeo.h,
@@ -1371,7 +1372,6 @@
 				Public/SentryObjCUser.h,
 				Public/SentryObjCUserFeedbackConfiguration.h,
 				Public/SentryObjCUserFeedbackFormConfiguration.h,
-				Public/SentryObjCUserFeedbackFormController.h,
 				Public/SentryObjCUserFeedbackFormElementOutlineStyle.h,
 				Public/SentryObjCUserFeedbackThemeConfiguration.h,
 			);

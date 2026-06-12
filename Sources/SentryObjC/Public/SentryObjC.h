@@ -137,7 +137,6 @@
 #    import "SentryObjCReplayOptions.h"
 #    import "SentryObjCUserFeedbackConfiguration.h"
 #    import "SentryObjCUserFeedbackFormConfiguration.h"
-#    import "SentryObjCUserFeedbackFormController.h"
 #    import "SentryObjCUserFeedbackFormElementOutlineStyle.h"
 #    import "SentryObjCUserFeedbackThemeConfiguration.h"
 #else
@@ -146,7 +145,6 @@
 #    import <SentryObjC/SentryObjCReplayOptions.h>
 #    import <SentryObjC/SentryObjCUserFeedbackConfiguration.h>
 #    import <SentryObjC/SentryObjCUserFeedbackFormConfiguration.h>
-#    import <SentryObjC/SentryObjCUserFeedbackFormController.h>
 #    import <SentryObjC/SentryObjCUserFeedbackFormElementOutlineStyle.h>
 #    import <SentryObjC/SentryObjCUserFeedbackThemeConfiguration.h>
 #endif
@@ -154,10 +152,12 @@
 // --- API surfaces ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCFeedbackApi.h"
+#    import "SentryObjCFeedbackForm.h"
 #    import "SentryObjCMetricsApi.h"
 #    import "SentryObjCReplayApi.h"
 #else
 #    import <SentryObjC/SentryObjCFeedbackApi.h>
+#    import <SentryObjC/SentryObjCFeedbackForm.h>
 #    import <SentryObjC/SentryObjCMetricsApi.h>
 #    import <SentryObjC/SentryObjCReplayApi.h>
 #endif
