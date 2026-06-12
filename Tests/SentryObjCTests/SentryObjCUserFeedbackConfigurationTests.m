@@ -22,7 +22,10 @@
     config.animations = NO;
     config.useShakeGesture = YES;
     config.showFormForScreenshots = YES;
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     config.customButton = button;
+#    pragma clang diagnostic pop
     config.tags = @{ @"feature" : @"feedback" };
 
     // -- Assert --
