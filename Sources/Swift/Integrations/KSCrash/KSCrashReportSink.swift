@@ -30,48 +30,50 @@ final class KSCrashReportSink: NSObject, CrashReportFilter {
 
     private func sendReports(_ reports: [any CrashReport], onCompletion: (([any CrashReport]?, (any Error)?) -> Void)?) {
         var sentReports: [any CrashReport] = []
+
         for report in reports {
             guard let dictReport = report as? CrashReportDictionary else {
                 SentrySDKLog.warning("KSCrashReportSink: skipping non-dictionary report of type \(type(of: report))")
                 continue
             }
-            let reportIDHex = (dictReport.value["report"] as? [String: Any])?["id"] as? String
-            let reportConverter = KSCrashReportConverter(report: dictReport, inAppLogic: inAppLogic)
-            if SentrySDKInternal.currentHub().getClient() != nil {
-                if let event = reportConverter.convertReportToEvent() {
-                    handleConvertedEvent(event, report: report, reportIDHex: reportIDHex, sentReports: &sentReports)
-                }
-            } else {
+
+            guard SentrySDKInternal.currentHub().getClient() != nil else {
                 SentrySDKLog.error(
                     "Crash reports were found but no [SentrySDK.currentHub getClient] is set. " +
                     "Cannot send crash reports to Sentry. This is probably a misconfiguration, " +
                     "make sure you set the client with [SentrySDK.currentHub bindClient] before " +
                     "calling startCrashHandlerWithError:."
                 )
+
+                continue
             }
+
+            let converter = KSCrashReportConverter(report: dictReport, inAppLogic: inAppLogic)
+
+            guard let event = converter.convertReportToEvent() else {
+                continue
+            }
+
+            handleConvertedEvent(event, report: dictReport, sentReports: &sentReports)
         }
+
         onCompletion?(sentReports, nil)
     }
 
     private func handleConvertedEvent(
         _ event: Event,
-        report: any CrashReport,
-        reportIDHex: String?,
+        report: CrashReportDictionary,
         sentReports: inout [any CrashReport]
     ) {
         sentReports.append(report)
-        let scope = Scope(scope: SentrySDKInternal.currentHub().scope)
+        let scope = SentrySDKInternal.currentHub().scope
 
-        if let reportIDHex {
-            for attachment in SentryCrashAttachmentsStorage.attachments(for: reportIDHex) {
-                scope.addAttachment(attachment)
+        if let attachments = report.value["attachments"] as? [String] {
+            for attachment in attachments {
+                scope.addCrashReportAttachment(inPath: attachment)
             }
         }
 
         SentrySDKInternal.captureFatalEvent(event, with: scope)
-
-        if let reportIDHex {
-            SentryCrashAttachmentsStorage.cleanup(for: reportIDHex)
-        }
     }
 }

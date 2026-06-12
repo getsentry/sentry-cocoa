@@ -63,7 +63,6 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
     }
 
     // MARK: - Crash Handler
-
     private func buildKSCrashConfig(for options: Options) -> KSCrashConfiguration {
         let enableSigtermReporting: Bool
         #if !os(watchOS)
@@ -74,6 +73,7 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
 
         let config = KSCrashConfiguration()
         config.installPath = options.cacheDirectoryPath
+        config.reportStoreConfiguration.reportsPath = (options.cacheDirectoryPath as NSString).appendingPathComponent("Reports")
         config.monitors = .productionSafeMinimal
         config.enableSigTermMonitoring = enableSigtermReporting
         config.enableSwapCxaThrow = options.experimental.enableUnhandledCPPExceptionsV2
@@ -105,6 +105,14 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
             }
         }
 
+        // Store the effective reports path and app name as static state so the @convention(c)
+        // callback can access them without capturing locals. Mirrors the defaults KSCrash applies
+        // at install time: installPath + "/Reports" (KSCRS_DEFAULT_REPORTS_FOLDER), appName = CFBundleName.
+        SentryCrashAttachmentsStorage.reportsPath = (options.cacheDirectoryPath as NSString).appendingPathComponent("Reports")
+        SentryCrashAttachmentsStorage.appName = config.reportStoreConfiguration.appName
+            ?? Bundle.main.infoDictionary?["CFBundleName"] as? String
+            ?? "Unknown"
+
         config.didWriteReportCallback = { plan, reportID in
             // Double-fault: we're crashing inside the crash handler; do as little as possible.
             guard !plan.pointee.crashedDuringExceptionHandling else { return }
@@ -112,12 +120,55 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
             // Best-effort — mirrors original SentryCrash which always ran these after writing
             // the report, even from signal context. App is already dying; acceptable to risk it.
             guard let base = SentryCrashAttachmentsStorage.basePath else { return }
+            // TODO: this is the internal report ID and we can't use this later as a lookup...  see if we can get the report and find the UUID and use that instead?
             let reportIDHex = String(format: "%016llx", UInt64(bitPattern: reportID))
             let dirPath = (base as NSString).appendingPathComponent(reportIDHex)
             try? FileManager.default.createDirectory(atPath: dirPath, withIntermediateDirectories: true)
 
             SentryCrashAttachmentsStorage.screenshotCallback?(dirPath)
             SentryCrashAttachmentsStorage.viewHierarchyCallback?(dirPath)
+
+            print("WHATS UP WE OUT HERE FR FR")
+
+            // HACK: The report ID provided here isn't in the report - it _is_ in the report path
+            // but when the sink sees reports - it only see's the dictionary value...
+            // Here, we can't edit the report directly via KSCrash without having to duplicate the report
+            // So... using the report ID and knowing the path KSCrash uses to write reports...
+            // look it up, deseralize it, edit it, reseralize it, write it to disk.
+            // This is brittle - if KSCrash changes their pathing... this is cooked.
+            // We should look for a way to better write items to a report post-report writing
+            // TODO: This is currently disabled as any report being written by this is being rejected on next launch as it's unable to be json decoded by KSCrash (it is RFC 8259 compliant according to other JSON validators
+//            guard
+//                let reportsPath = SentryCrashAttachmentsStorage.reportsPath,
+//                let appName = SentryCrashAttachmentsStorage.appName
+//            else { return }
+//
+//            let reportPath = (reportsPath as NSString).appendingPathComponent("\(appName)-report-\(reportIDHex).json")
+////
+//            guard
+//                FileManager.default.fileExists(atPath: reportPath),
+//                let data = try? Data(contentsOf: URL(fileURLWithPath: reportPath)),
+//                var report = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+//                let files = try? FileManager.default.contentsOfDirectory(atPath: dirPath),
+//                !files.isEmpty
+//            else {
+//                return
+//            }
+//
+//            let attachments = files.map { "\(dirPath)/\($0)" }
+//            report[CrashField.attachments.rawValue] = attachments
+////
+//            guard
+//                let seralized = try? JSONSerialization.data(withJSONObject: report, options: [])
+//            else {
+//                return
+//            }
+//
+//            do {
+//                try seralized.write(to: URL(fileURLWithPath: reportPath))
+//            } catch {
+//                print("ERROR: \(error)")
+//            }
         }
 
         return config
@@ -129,6 +180,10 @@ final class KSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: NSObje
         SentryCrashAttachmentsStorage.basePath = attachmentsBasePath
 
         let config = buildKSCrashConfig(for: options)
+
+        let logPath = (NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString)
+              .appendingPathComponent("kscrash-debug.log")
+        kslog_setLogFilename(logPath, true)
 
         do {
             try installation.install(with: config)

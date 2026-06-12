@@ -5,6 +5,8 @@ import Foundation
 enum SentryCrashAttachmentsStorage {
     // Set by KSCrashIntegration at install time.
     nonisolated(unsafe) static var basePath: String?
+    nonisolated(unsafe) static var reportsPath: String?
+    nonisolated(unsafe) static var appName: String?
 
     // Set by SentryScreenshotIntegration / SentryViewHierarchyIntegration.
     nonisolated(unsafe) static var screenshotCallback: ((String) -> Void)?

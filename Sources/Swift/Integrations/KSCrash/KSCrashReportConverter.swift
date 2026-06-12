@@ -10,6 +10,7 @@ import KSCrashRecording
 // These extensions are all to make the Report Converter code a little more idiomatic and nice to read
 extension CrashField {
     static let sentrySDKScope = CrashField(rawValue: "sentry_sdk_scope")
+    static let attachments = CrashField(rawValue: "attachments")
 }
 
 private extension [String: Any] {
