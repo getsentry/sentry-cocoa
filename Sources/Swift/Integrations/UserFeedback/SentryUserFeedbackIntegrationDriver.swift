@@ -110,12 +110,6 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
         guard activeForm === form else { return }
 
         activeForm = nil
-        // userCapturedScreenshot() removes the screenshot observer before
-        // presenting the form so that holding the form open doesn't keep
-        // re-presenting it. Re-register the observer after the form closes
-        // so that the next screenshot still triggers the feedback flow
-        // (regression for #7641). observeScreenshots() is idempotent.
-        observeScreenshots()
         let shouldRestoreWidget = shouldRestoreWidgetOnFormClose
         shouldRestoreWidgetOnFormClose = false
         if shouldRestoreWidget {
@@ -203,7 +197,10 @@ private extension SentryUserFeedbackIntegrationDriver {
     }
 
     @objc func userCapturedScreenshot() {
-        stopObservingScreenshots()
+        guard !displayingForm else {
+            SentrySDKLog.debug("Screenshot ignored — feedback form is already displayed")
+            return
+        }
         showForm(screenshot: screenshotSource.appScreenshots().first)
     }
 
