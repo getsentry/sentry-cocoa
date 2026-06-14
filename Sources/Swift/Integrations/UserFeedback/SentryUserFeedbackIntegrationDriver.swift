@@ -171,12 +171,9 @@ private extension SentryUserFeedbackIntegrationDriver {
     }
 
     func observeScreenshots() {
-        guard configuration.showFormForScreenshots else { return }
-        // Remove first so re-registering after a form dismissal can't end up
-        // attaching two observers and presenting the form twice for a single
-        // screenshot.
-        stopObservingScreenshots()
-        NotificationCenter.default.addObserver(self, selector: #selector(userCapturedScreenshot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+        if configuration.showFormForScreenshots {
+            NotificationCenter.default.addObserver(self, selector: #selector(userCapturedScreenshot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+        }
     }
 
     func observeShakeGesture() {
