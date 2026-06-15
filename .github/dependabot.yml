@@ -20,3 +20,19 @@ updates:
     labels:
       - "ready-to-merge"
       - "dependencies"
+
+  - package-ecosystem: "swift"
+    directory: "/test-server"
+    schedule:
+      interval: weekly
+    labels:
+      - "ready-to-merge"
+      - "dependencies"
+
+  - package-ecosystem: "swift"
+    directory: "/Samples/macOS-CLI"
+    schedule:
+      interval: weekly
+    labels:
+      - "ready-to-merge"
+      - "dependencies"

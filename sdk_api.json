@@ -61512,7 +61512,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC12customButtonSo8UIButtonCSgvg",
                 "moduleName": "Sentry",
@@ -61544,15 +61543,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC12customButtonSo8UIButtonCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setCustomButton:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration(im)setCustomButton:"
               }
@@ -61575,12 +61576,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasInitialValue",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC12customButtonSo8UIButtonCSgvp",
             "moduleName": "Sentry",

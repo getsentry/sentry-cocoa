@@ -100,7 +100,7 @@ jobs:
 
       - name: Setup Ruby
         if: inputs.runner_provider != 'bitrise'
-        uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
+        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
         with:
           bundler-cache: true
 
@@ -286,7 +286,7 @@ jobs:
       # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
       - name: Push code coverage to codecov
         id: codecov_1
-        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # pin@v6.0.1
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # pin@v7.0.0
         if: ${{ contains(inputs.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
@@ -298,7 +298,7 @@ jobs:
       # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
       - name: Push code coverage to codecov
         id: codecov_2
-        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # pin@v6.0.1
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # pin@v7.0.0
         if: ${{ steps.codecov_1.outcome == 'failure' && contains(inputs.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -307,7 +307,7 @@ jobs:
 
       - name: Codecov test analytics
         if: ${{ !cancelled() && !contains(github.ref, 'release') && github.event.schedule == '' }}
-        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # pin@v6.0.1
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # pin@v7.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           report_type: test_results
