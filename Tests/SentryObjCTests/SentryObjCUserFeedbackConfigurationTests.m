@@ -16,13 +16,13 @@
     // -- Arrange --
     SentryObjCUserFeedbackConfiguration *config =
         [[SentryObjCUserFeedbackConfiguration alloc] init];
-    UIButton *button = [[UIButton alloc] init];
 
     // -- Act --
     config.animations = NO;
     config.useShakeGesture = YES;
     config.showFormForScreenshots = YES;
 #    if !SDK_V10
+    UIButton *button = [[UIButton alloc] init];
 #        pragma clang diagnostic push
 #        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     config.customButton = button;
