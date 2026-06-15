@@ -9,6 +9,7 @@
 ### Fixes
 
 - Session replay video assembly: drop empty video segments, avoid duplicating frames at segment boundaries, and keep video timing stable when captured frames are skipped or unreadable (#8041)
+- Show feedback form from shake or screenshot without widget (#8050)
 
 ### Deprecations
 
