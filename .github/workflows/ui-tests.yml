@@ -65,12 +65,9 @@ jobs:
       xcode_version: "16"
       build_with_make: true
       macos_version: "sequoia"
-      codecov_test_analytics: true
       files_suffix: _${{matrix.target}}_
       platform: ${{matrix.platform}}
       runner_provider: ${{matrix.runner_provider}}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ui-tests-swift-ui:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
@@ -80,7 +77,6 @@ jobs:
     with:
       fastlane_command: ui_tests_ios_swiftui
       build_with_make: true
-      codecov_test_analytics: true
       xcode_version: "16"
       macos_version: "sequoia"
       files_suffix: _swiftui_
@@ -89,8 +85,6 @@ jobs:
     strategy:
       matrix:
         runner_provider: ["cirrus", "bitrise"]
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ui-tests-swift:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
@@ -130,14 +124,11 @@ jobs:
       files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
       build_with_make: true
       macos_version: ${{matrix.runs_on}}
-      codecov_test_analytics: true
       xcode_version: ${{ matrix.xcode}}
       test-destination-os: ${{matrix.test_destination_os}}
       platform: ${{matrix.platform}}
       device: ${{matrix.device}}
       runner_provider: ${{matrix.runner_provider}}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   ui-tests-swift6:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
@@ -149,15 +140,12 @@ jobs:
       xcode_version: "16"
       build_with_make: true
       macos_version: "sequoia"
-      codecov_test_analytics: true
       platform: iOS
       files_suffix: _swift6_
       runner_provider: ${{matrix.runner_provider}}
     strategy:
       matrix:
         runner_provider: ["cirrus", "bitrise"]
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   # This check validates that either UI tests passed or were skipped, which allows us
   # to make UI tests a required check with only running the UI tests when required.

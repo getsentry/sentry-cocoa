@@ -60,7 +60,6 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "fastlane/**"
   - "Makefile"
   - "Brewfile*"
-  - ".codecov.yml"
 
 run_api_stability_for_prs: &run_api_stability_for_prs
   - "Sources/**"
