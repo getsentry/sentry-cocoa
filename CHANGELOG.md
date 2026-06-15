@@ -2,9 +2,22 @@
 
 ## Unreleased
 
+### Features
+
+- Add SentryObjC User Feedback presentation APIs and a feedback form factory returning `UIViewController` instances. (#8027)
+
+### Deprecations
+
+- Deprecate the managed User Feedback custom button. It will be removed in v10. Present the feedback form from your own UI with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, or `.sentryFeedback(isPresented:)` instead. (#8052)
+
+## 9.17.1
+
 ### Fixes
 
+- Ship dSYMs in SentryObjC-Dynamic.xcframework artifacts (#8036)
 - Fix missing `_OBJC_CLASS_$_` symbols in x86_64 slice of SentryObjC dynamic framework (#8037)
+- Mark feedback form aliases and conformances unavailable in app extensions (#8040)
+- Silence retroactive conformance warning for `SentryLevel: CustomStringConvertible` when building with SPM from source (#8032)
 
 ## 9.17.0
 
@@ -45,10 +58,6 @@
   - UIKit Init: app.start -> app.start.uikit_init
   - Application Init: app.start -> app.start.application_init
   - Extended App Start: app.start -> app.start.extended_app_start
-
-### Fixes
-
-- Silence retroactive conformance warning for `SentryLevel: CustomStringConvertible` when building with SPM from source (#8032)
 
 ### Deprecations
 

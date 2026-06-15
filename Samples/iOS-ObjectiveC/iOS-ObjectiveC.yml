@@ -59,6 +59,8 @@ targets:
     dependencies:
       - target: Sentry/Sentry
       - target: Sentry/SentrySwiftUI
+      - target: Sentry/SentryObjC
+      - target: Sentry/SentryObjCCompat
       - target: SentrySampleShared/SentrySampleShared
     configFiles:
       Debug: App/Configurations/iOS-ObjectiveC.xcconfig

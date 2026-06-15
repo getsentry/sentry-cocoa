@@ -54293,6 +54293,9 @@
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController"
               }
             ],
+            "declAttributes": [
+              "Available"
+            ],
             "declKind": "TypeAlias",
             "kind": "TypeAlias",
             "mangledName": "$s6Sentry0A3SDKC12FeedbackForma",
@@ -54309,6 +54312,9 @@
                 "printedName": "Sentry.SentryUserFeedbackFormView",
                 "usr": "s:6Sentry0A20UserFeedbackFormViewV"
               }
+            ],
+            "declAttributes": [
+              "Available"
             ],
             "declKind": "TypeAlias",
             "isFromExtension": true,
@@ -61084,7 +61090,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC12customButtonSo8UIButtonCSgvg",
                 "moduleName": "Sentry",
@@ -61116,15 +61121,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC12customButtonSo8UIButtonCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setCustomButton:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration(im)setCustomButton:"
               }
@@ -61147,12 +61154,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasInitialValue",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC12customButtonSo8UIButtonCSgvp",
             "moduleName": "Sentry",

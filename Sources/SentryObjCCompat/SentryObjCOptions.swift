@@ -276,6 +276,28 @@ import Foundation
         }
     }
 
+    #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+
+    @objc public var configureUserFeedback: ((SentryObjCUserFeedbackConfiguration) -> Void)? {
+        get {
+            guard let configureUserFeedback = wrapped.configureUserFeedback else { return nil }
+            return { configuration in
+                configureUserFeedback(configuration.wrapped)
+            }
+        }
+        set {
+            if let configureUserFeedback = newValue {
+                wrapped.configureUserFeedback = { configuration in
+                    configureUserFeedback(SentryObjCUserFeedbackConfiguration(configuration))
+                }
+            } else {
+                wrapped.configureUserFeedback = nil
+            }
+        }
+    }
+
+    #endif
+
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
     @objc public var enableUIViewControllerTracing: Bool {

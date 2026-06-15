@@ -259,6 +259,7 @@ extension SentryUserFeedbackFormController {
 }
 
 // MARK: UIAdaptivePresentationControllerDelegate
+@available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackFormController: UIAdaptivePresentationControllerDelegate {
     /// Notifies feedback lifecycle callbacks when the user dismisses the form interactively.
     public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
@@ -267,6 +268,7 @@ extension SentryUserFeedbackFormController: UIAdaptivePresentationControllerDele
 }
 
 // MARK: UITextFieldDelegate
+@available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackFormController: UITextFieldDelegate {
     /// Handles the return key for feedback form text fields.
     public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -281,6 +283,7 @@ extension SentryUserFeedbackFormController: UITextFieldDelegate {
 }
 
 // MARK: UITextViewDelegate
+@available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackFormController: UITextViewDelegate {
     /// Updates validation state when the feedback message changes.
     public func textViewDidChange(_ textView: UITextView) {
