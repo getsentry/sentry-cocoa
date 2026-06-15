@@ -204,16 +204,16 @@ The factory block receives a closure that returns the original `IMP`. The caller
 
 ### `SentrySDK.internal.sdk` — `SentryInternalSdkApi`
 
-| Method                        | Replaced                                            |
-| ----------------------------- | --------------------------------------------------- |
-| `name: String`                | `PrivateSentrySDKOnly.getSdkName` / `.setSdkName:`  |
-| `versionString: String`       | `PrivateSentrySDKOnly.getSdkVersionString`          |
-| `setName(_:version:)`         | `PrivateSentrySDKOnly.setSdkName:andVersionString:` |
-| `addPackage(name:version:)`   | `PrivateSentrySDKOnly.addSdkPackage:version:`       |
-| `extraContext: [String: Any]` | `PrivateSentrySDKOnly.getExtraContext`              |
-| `installationID: String`      | `PrivateSentrySDKOnly.installationID`               |
-| `installedIntegrationNames: Set<String>` | `PrivateSentrySDKOnly.options.integrations` (see note) |
-| `trimmedInstalledIntegrationNames: [String]` | (none — see note) |
+| Method                                       | Replaced                                               |
+| -------------------------------------------- | ------------------------------------------------------ |
+| `name: String`                               | `PrivateSentrySDKOnly.getSdkName` / `.setSdkName:`     |
+| `versionString: String`                      | `PrivateSentrySDKOnly.getSdkVersionString`             |
+| `setName(_:version:)`                        | `PrivateSentrySDKOnly.setSdkName:andVersionString:`    |
+| `addPackage(name:version:)`                  | `PrivateSentrySDKOnly.addSdkPackage:version:`          |
+| `extraContext: [String: Any]`                | `PrivateSentrySDKOnly.getExtraContext`                 |
+| `installationID: String`                     | `PrivateSentrySDKOnly.installationID`                  |
+| `installedIntegrationNames: Set<String>`     | `PrivateSentrySDKOnly.options.integrations` (see note) |
+| `trimmedInstalledIntegrationNames: [String]` | (none — see note)                                      |
 
 `name` and `versionString` are read-write properties — the getter and setter replace both the get/set static methods.
 
