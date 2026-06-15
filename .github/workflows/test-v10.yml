@@ -31,6 +31,53 @@ jobs:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
 
+  build-test-server:
+    name: Build test server
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Cache for Test Server
+        id: cache_test_server
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: ./test-server/.build
+          key: test-server-${{ hashFiles('./test-server') }}-arm64
+          restore-keys: |
+            test-server-${{ hashFiles('./test-server') }}-arm64
+            test-server-
+
+      - name: Build Test Server
+        if: steps.cache_test_server.outputs.cache-hit != 'true'
+        working-directory: test-server
+        run: >-
+          swift build -c release --arch arm64 2>&1 | tee test-server-build.log
+
+      - name: Copy Test Server Binary
+        working-directory: test-server
+        run: >-
+          cp $(swift build --show-bin-path -c release --arch arm64)/Run test-server-exec
+
+      - name: Archiving DerivedData
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: test-server
+          path: |
+            ./test-server/test-server-exec
+
+      - name: Archiving Raw Test Logs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: test-server-build-log
+          path: |
+            test-server-build.log
+
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: failure()
+
   test-v10:
     name: Test V10 ${{ matrix.platform }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
@@ -98,11 +145,99 @@ jobs:
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
 
+  test-v10-with-test-server:
+    name: Test V10 with Test Server
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
+    needs: build-test-server
+    runs-on: macos-26
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: test-server
+
+      - name: Start Test Server
+        run: ./scripts/start-test-server.sh
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: macOS
+
+      - name: Build tests
+        id: build_tests
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+        run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform macOS \
+            --os "${OS_VERSION}" \
+            --ref "${REF_NAME}" \
+            --command build-for-testing \
+            --configuration TestV10 \
+            --scheme SentryV10 \
+            --test-plan Sentry_TestServer
+
+      - name: Run tests
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
+        run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --platform macOS \
+            --os "${OS_VERSION}" \
+            --ref "${REF_NAME}" \
+            --command test-without-building \
+            --configuration TestV10 \
+            --scheme SentryV10 \
+            --test-plan Sentry_TestServer
+
+      - name: Archiving DerivedData Logs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: steps.build_tests.outcome == 'failure'
+        with:
+          name: derived-data-v10-test-server
+          path: |
+            /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
+
+      - name: Archiving Raw Logs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-output-v10-test-server
+          path: |
+            raw-build-output.log
+            raw-build-for-testing-output.log
+            raw-test-output.log
+
+      - name: Archiving Crash Logs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: crash-logs-v10-test-server
+          path: |
+            ~/Library/Logs/DiagnosticReports/**
+
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: ${{ failure() || cancelled() }}
+
   test-v10-required-check:
     needs:
       [
         files-changed,
+        build-test-server,
         test-v10,
+        test-v10-with-test-server,
         ready-to-merge-gate,
       ]
     name: Test V10
