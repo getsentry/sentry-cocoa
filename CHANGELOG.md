@@ -10,6 +10,10 @@
 
 - Keep the User Feedback screenshot trigger active after form dismissal. (#8048)
 
+### Deprecations
+
+- Deprecate the managed User Feedback custom button. It will be removed in v10. Present the feedback form from your own UI with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, or `.sentryFeedback(isPresented:)` instead. (#8052)
+
 ## 9.17.1
 
 ### Fixes
