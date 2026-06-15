@@ -65,6 +65,8 @@ class SentryVideoFrameProcessor {
 
     // swiftlint:disable function_body_length cyclomatic_complexity
     func processFrames(videoWriterInput: AVAssetWriterInput, onCompletion: @escaping (Result<SentryRenderVideoResult, Error>) -> Void) {
+        guard !isFinished else { return }
+
         // Use the recommended loop pattern for AVAssetWriterInput
         // See https://developer.apple.com/documentation/avfoundation/avassetwriterinput/requestmediadatawhenready(on:using:)#Discussion
         // This could lead to an infinite loop if we don't make sure to mark the input as finished when the video is finished either by the end of the frames or by an error.
@@ -72,6 +74,7 @@ class SentryVideoFrameProcessor {
             SentrySDKLog.debug("[Session Replay] Video writer input is ready, status: \(videoWriter.status)")
             guard videoWriter.status == .writing else {
                 SentrySDKLog.error("[Session Replay] Video writer is not writing anymore, cancelling the writing session, reason: \(videoWriter.error?.localizedDescription ?? "Unknown error")")
+                isFinished = true
                 videoWriter.inputs.forEach { $0.markAsFinished() }
                 videoWriter.cancelWriting()
                 return onCompletion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
@@ -157,6 +160,7 @@ class SentryVideoFrameProcessor {
             return false
         case .failure:
             SentrySDKLog.error("[Session Replay] Failed to append image to pixel buffer, cancelling the writing session, reason: \(String(describing: videoWriter.error))")
+            isFinished = true
             videoWriter.inputs.forEach { $0.markAsFinished() }
             videoWriter.cancelWriting()
             throw videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo
@@ -204,14 +208,15 @@ class SentryVideoFrameProcessor {
     }
 
     func finishVideo(frameIndex: Int, onCompletion completion: @escaping (Result<SentryRenderVideoResult, Error>) -> Void) {
+        guard !isFinished else { return }; isFinished = true
+
         // Note: This method is expected to be called from the asset worker queue and *not* the processing queue.
         SentrySDKLog.info("[Session Replay] Finishing video with output file URL: \(outputFileURL), used frames count: \(usedFrames.count), video height: \(videoHeight), video width: \(videoWidth)")
         videoWriter.inputs.forEach { $0.markAsFinished() }
         videoWriter.finishWriting { [weak self] in
             guard let self = self else {
                 SentrySDKLog.warning("[Session Replay] On-demand replay is deallocated, completing writing session without output video info")
-                let videoResult = SentryRenderVideoResult(info: nil, finalFrameIndex: frameIndex)
-                return completion(.success(videoResult))
+                return completion(.success(SentryRenderVideoResult(info: nil, finalFrameIndex: frameIndex)))
             }
             SentrySDKLog.debug("[Session Replay] Finished video writing, status: \(self.videoWriter.status)")
 

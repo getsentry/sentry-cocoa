@@ -28,6 +28,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         var errorOverride: Error?
         var cancelWritingCalled = false
         var finishWritingCalled = false
+        var finishWritingInvocations = Invocations<Void>()
         var trackedInputs: [AVAssetWriterInput] = []
 
         override var status: AVAssetWriter.Status {
@@ -44,6 +45,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
         override func finishWriting(completionHandler: @escaping () -> Void) {
             finishWritingCalled = true
+            finishWritingInvocations.record(Void())
             completionHandler()
         }
 
@@ -63,6 +65,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         
         override func finishWriting(completionHandler: @escaping () -> Void) {
             finishWritingCalled = true
+            finishWritingInvocations.record(Void())
             if shouldExecuteCompletionImmediately {
                 completionHandler()
             } else {
@@ -355,6 +358,31 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         XCTAssertTrue(fixture.videoWriter.finishWritingCalled)
         XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
         XCTAssertEqual(completionInvocations.count, 1)
+    }
+
+    func testProcessFrames_WhenCalledAgainWhileFinishing_ShouldFinishOnce() throws {
+        let videoWriter = try XCTUnwrap(DelayedTestAVAssetWriter(url: fixture.outputFileURL, fileType: .mp4))
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        videoWriter.add(videoWriterInput)
+        let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
+        let sut = SentryVideoFrameProcessor(
+            videoFrames: fixture.videoFrames,
+            videoWriter: videoWriter,
+            currentPixelBuffer: fixture.currentPixelBuffer,
+            outputFileURL: fixture.outputFileURL,
+            videoHeight: fixture.videoHeight,
+            videoWidth: fixture.videoWidth,
+            frameRate: fixture.frameRate,
+            initialFrameIndex: fixture.initialFrameIndex,
+            initialImageSize: fixture.initialImageSize
+        )
+
+        sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
+        sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
+
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
+        XCTAssertEqual(videoWriter.finishWritingInvocations.count, 1)
+        XCTAssertEqual(completionInvocations.count, 0)
     }
 
     func testProcessFrames_WhenImageSizeChanges_ShouldFinishVideo() {
