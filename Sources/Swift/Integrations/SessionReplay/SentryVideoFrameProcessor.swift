@@ -228,7 +228,7 @@ class SentryVideoFrameProcessor {
                 SentrySDKLog.debug("[Session Replay] Finish writing video was completed, creating video info from file attributes.")
                 guard !self.usedFrames.isEmpty else {
                     SentrySDKLog.debug("[Session Replay] Finished video writing without appended frames, completing with no video info")
-                    self.removeOutputFile()
+                    removeReplayFile(at: self.outputFileURL)
                     let videoResult = SentryRenderVideoResult(info: nil, finalFrameIndex: frameIndex)
                     return completion(.success(videoResult))
                 }
@@ -286,19 +286,6 @@ class SentryVideoFrameProcessor {
             fileSize: fileSize,
             screens: usedFrames.compactMap({ $0.screenName })
         )
-    }
-}
-
-private extension SentryVideoFrameProcessor {
-    func removeOutputFile() {
-        guard FileManager.default.fileExists(atPath: outputFileURL.path) else { return }
-
-        do {
-            try FileManager.default.removeItem(at: outputFileURL)
-            SentrySDKLog.debug("[Session Replay] Removed empty replay video at url: \(outputFileURL.path)")
-        } catch {
-            SentrySDKLog.warning("[Session Replay] Could not delete empty replay video at url: \(outputFileURL.path), reason: \(error)")
-        }
     }
 }
 

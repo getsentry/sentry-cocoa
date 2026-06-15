@@ -9,6 +9,17 @@ import CoreMedia
 import Foundation
 import UIKit
 
+func removeReplayFile(at fileURL: URL) {
+    guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
+
+    do {
+        try FileManager.default.removeItem(at: fileURL)
+        SentrySDKLog.debug("[Session Replay] Removed replay file at: \(fileURL.path)")
+    } catch {
+        SentrySDKLog.warning("[Session Replay] Could not delete replay file at: \(fileURL.path), reason: \(error)")
+    }
+}
+
 // swiftlint:disable type_body_length
 @objcMembers
 @_spi(Private) public class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
@@ -53,7 +64,7 @@ import UIKit
             return frame
         }
         if let retainedFrame = retainedFrame {
-            removeFrameFile(retainedFrame)
+            removeReplayFile(at: URL(fileURLWithPath: retainedFrame.imagePath))
         }
     }
         
@@ -155,7 +166,7 @@ import UIKit
                     return previousFrame
                 }
                 if let frameToRemove = frameToRemove {
-                    self.removeFrameFile(frameToRemove)
+                    removeReplayFile(at: URL(fileURLWithPath: frameToRemove.imagePath))
                 }
             }
             SentrySDKLog.debug("[Session Replay] Frames released, remaining frames count: \(self._frames.count)")
@@ -273,16 +284,6 @@ import UIKit
         guard let retained = retainedFrame else { return currentFrame }
         guard let current = currentFrame else { return retained }
         return retained.time > current.time ? retained : current
-    }
-
-    private func removeFrameFile(_ frame: SentryReplayFrame) {
-        let fileUrl = URL(fileURLWithPath: frame.imagePath)
-        do {
-            try FileManager.default.removeItem(at: fileUrl)
-            SentrySDKLog.debug("[Session Replay] Removed frame at url: \(fileUrl.path)")
-        } catch {
-            SentrySDKLog.error("[Session Replay] Failed to remove frame at: \(fileUrl.path), reason: \(error), ignoring error")
-        }
     }
 
     // swiftlint:disable function_body_length cyclomatic_complexity
