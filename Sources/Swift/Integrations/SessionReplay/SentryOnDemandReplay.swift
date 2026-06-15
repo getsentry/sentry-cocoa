@@ -58,6 +58,8 @@ func removeReplayFile(at fileURL: URL) {
     }
 
     deinit {
+        // Clean shutdown removes the retained file. If the app crashes, the file stays
+        // in the replay folder and is loaded during crash recovery on the next launch.
         let retainedFrame = retainedFrameLock.synchronized {
             let frame = retainedFrameBeforeCurrentFrames
             retainedFrameBeforeCurrentFrames = nil
