@@ -1771,8 +1771,7 @@ class SentryHubTests: XCTestCase {
                 breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
                 touchTracker: nil,
                 dateProvider: TestCurrentDateProvider(),
-                delegate: MockReplayDelegate(),
-                displayLinkWrapper: TestDisplayLinkWrapper()
+                delegate: MockReplayDelegate()
             )
         }
     }

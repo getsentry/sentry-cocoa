@@ -35,6 +35,16 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private var replayRecovery: SessionReplayRecovery?
     private var backgroundForegroundObserver: SentrySessionReplayBackgroundForegroundObserver?
 
+    /// Guards `isApplicationStatePaused`, which is written by `pause`/`resume` (application
+    /// lifecycle, usually the main thread) and read from the reachability queue in
+    /// `connectivityChanged`.
+    private let applicationStateLock = NSLock()
+    private var _isApplicationStatePaused = false
+    private var isApplicationStatePaused: Bool {
+        get { applicationStateLock.synchronized { _isApplicationStatePaused } }
+        set { applicationStateLock.synchronized { _isApplicationStatePaused = newValue } }
+    }
+
     /// Getter to get the current application at runtime
     ///
     /// When initializing the Sentry SDK from ``SwiftUI/App.init`` the ``UIKit/UIApplication.shared`` returns `nil`, therefore we need to
@@ -296,7 +306,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         let newSessionReplay = SentrySessionReplay(
             replayOptions: replayOptions, replayFolderPath: sessionDocs, screenshotProvider: screenshotProvider,
             replayMaker: replayMaker, breadcrumbConverter: breadcrumbConverter, touchTracker: touchTracker,
-            dateProvider: dateProvider, delegate: self, displayLinkWrapper: SentryDisplayLinkWrapper())
+            dateProvider: dateProvider, delegate: self)
 
         self.sessionReplay = newSessionReplay
         newSessionReplay.start(rootView: rootView, fullSession: fullSession)
@@ -361,11 +371,13 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     @objc public func pause() {
         SentrySDKLog.debug("[Session Replay] Pausing session")
+        isApplicationStatePaused = true
         sessionReplay?.pause()
     }
     
     @objc public func resume() {
         SentrySDKLog.debug("[Session Replay] Resuming session")
+        isApplicationStatePaused = false
         sessionReplay?.resume()
     }
 
@@ -480,7 +492,11 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     // MARK: - SentryReachabilityObserver
     public func connectivityChanged(_ connected: Bool, typeDescription: String) {
         SentrySDKLog.debug("[Session Replay] Connectivity changed to: \(connected ? "connected" : "disconnected"), type: \(typeDescription)")
-        if connected { sessionReplay?.resume() } else { sessionReplay?.pauseSessionMode() }
+        if connected {
+            sessionReplay?.resumeSessionMode(restartCaptureScheduler: !isApplicationStatePaused)
+        } else {
+            sessionReplay?.pauseSessionMode()
+        }
     }
     
     // MARK: - Test only

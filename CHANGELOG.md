@@ -15,6 +15,10 @@
 
 - Add SentryObjC User Feedback presentation APIs and a feedback form factory returning `UIViewController` instances. (#8027)
 
+### Improvements
+
+- Reduce Session Replay capture stutters by scheduling screenshots after run loop UI work instead of from display refresh callbacks (#7851)
+
 ### Fixes
 
 - Show feedback form from shake or screenshot without widget (#8050)
