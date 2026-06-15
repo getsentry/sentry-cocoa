@@ -82,10 +82,13 @@ class SentryVideoFrameProcessor {
                 if let videoEnd = videoEnd, let videoStart = videoStart {
                     let elapsed = max(0, videoEnd.timeIntervalSince(videoStart))
                     let targetFrameIndex = max(0, Int(ceil(elapsed * Double(frameRate) - Self.frameIndexEpsilon)))
-                    guard handleAppendResult(
-                        appendLastFrame(untilFrameIndex: targetFrameIndex, videoWriterInput: videoWriterInput),
-                        onCompletion: onCompletion
-                    ) else { return }
+                    do {
+                        guard try shouldContinueProcessing(
+                            after: appendLastFrame(untilFrameIndex: targetFrameIndex, videoWriterInput: videoWriterInput)
+                        ) else { return }
+                    } catch {
+                        return onCompletion(.failure(error))
+                    }
                 }
 
                 SentrySDKLog.debug("[Session Replay] No more frames available to process, finishing the video")
@@ -98,10 +101,13 @@ class SentryVideoFrameProcessor {
                     if let videoStart = videoStart {
                         let elapsed = max(0, frame.time.timeIntervalSince(videoStart))
                         let targetFrameIndex = max(0, Int(floor(elapsed * Double(frameRate) + Self.frameIndexEpsilon)))
-                        guard handleAppendResult(
-                            appendLastFrame(untilFrameIndex: targetFrameIndex, videoWriterInput: videoWriterInput),
-                            onCompletion: onCompletion
-                        ) else { return }
+                        do {
+                            guard try shouldContinueProcessing(
+                                after: appendLastFrame(untilFrameIndex: targetFrameIndex, videoWriterInput: videoWriterInput)
+                            ) else { return }
+                        } catch {
+                            return onCompletion(.failure(error))
+                        }
                     }
                 } else {
                     SentrySDKLog.warning("[Session Replay] Could not load initial replay frame image, skipping frame.")
@@ -113,10 +119,13 @@ class SentryVideoFrameProcessor {
             if let videoStart = videoStart {
                 let elapsed = max(0, frame.time.timeIntervalSince(videoStart))
                 let targetFrameIndex = max(0, Int(floor(elapsed * Double(frameRate) + Self.frameIndexEpsilon)))
-                guard handleAppendResult(
-                    appendLastFrame(untilFrameIndex: targetFrameIndex, videoWriterInput: videoWriterInput),
-                    onCompletion: onCompletion
-                ) else { return }
+                do {
+                    guard try shouldContinueProcessing(
+                        after: appendLastFrame(untilFrameIndex: targetFrameIndex, videoWriterInput: videoWriterInput)
+                    ) else { return }
+                } catch {
+                    return onCompletion(.failure(error))
+                }
             }
 
             SentrySDKLog.debug("[Session Replay] Image at index \(frameIndex) is ready, size: \(image.size)")
@@ -127,20 +136,20 @@ class SentryVideoFrameProcessor {
             }
             lastImageSize = image.size
 
-            guard handleAppendResult(
-                append(image: image, forFrame: frame, videoWriterInput: videoWriterInput),
-                onCompletion: onCompletion
-            ) else { return }
+            do {
+                guard try shouldContinueProcessing(
+                    after: append(image: image, forFrame: frame, videoWriterInput: videoWriterInput)
+                ) else { return }
+            } catch {
+                return onCompletion(.failure(error))
+            }
 
             frameIndex += 1
         }
     }
     // swiftlint:enable function_body_length cyclomatic_complexity
 
-    private func handleAppendResult(
-        _ result: AppendFrameResult,
-        onCompletion: @escaping (Result<SentryRenderVideoResult, Error>) -> Void
-    ) -> Bool {
+    private func shouldContinueProcessing(after result: AppendFrameResult) throws -> Bool {
         switch result {
         case .success:
             return true
@@ -150,8 +159,7 @@ class SentryVideoFrameProcessor {
             SentrySDKLog.error("[Session Replay] Failed to append image to pixel buffer, cancelling the writing session, reason: \(String(describing: videoWriter.error))")
             videoWriter.inputs.forEach { $0.markAsFinished() }
             videoWriter.cancelWriting()
-            onCompletion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
-            return false
+            throw videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo
         }
     }
 
