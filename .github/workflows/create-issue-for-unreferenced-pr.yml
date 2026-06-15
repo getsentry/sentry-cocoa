@@ -16,6 +16,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  issues: write
+  pull-requests: write
+
 jobs:
   check_for_issue_reference:
     runs-on: ubuntu-latest
@@ -61,7 +65,8 @@ jobs:
             const issueRegexGitHub = /(?:(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved):?\s*)?(#\d+|https:\/\/github\.com\/getsentry\/[\w-]+\/issues\/\d+)/i;
 
             // Regex for Linear issue references (e.g., ENG-123, resolves ENG-456)
-            const issueRegexLinear = /(?:(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s*)?[A-Z]+-\d+/i;
+            // Case-sensitive: Linear keys are always uppercase (COCOA-123, not iOS-16)
+            const issueRegexLinear = /(?:(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s*)?\b[A-Z]{2,}-\d+\b/;
 
             const contentToCheck = `${prTitle} ${prBody}`;
             const hasIssueReference = issueRegexGitHub.test(contentToCheck) || issueRegexLinear.test(contentToCheck);
