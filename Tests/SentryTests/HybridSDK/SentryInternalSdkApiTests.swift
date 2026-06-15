@@ -8,12 +8,15 @@ class SentryInternalSdkApiTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+        SentrySdkPackage.resetPackageManager()
+        SentryExtraPackages.clear()
         let container = SentryDependencyContainer.sharedInstance()
         sut = SentryInternalSdkApi(dependencies: container)
     }
 
     override func tearDown() {
         sut = nil
+        SentryExtraPackages.clear()
         super.tearDown()
     }
 
