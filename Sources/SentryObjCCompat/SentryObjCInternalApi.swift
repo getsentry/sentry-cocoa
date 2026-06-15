@@ -7,14 +7,14 @@ internal import Sentry
 import Foundation
 
 @objc(SentryObjCInternalApi) public final class SentryObjCInternalApi: NSObject {
-    private let wrapped: SentryInternalApi
+    private let wrapped: Box<SentryInternalApi>
 
     internal init(_ wrapped: SentryInternalApi) {
-        self.wrapped = wrapped
+        self.wrapped = Box(wrapped)
     }
 
     @objc public var sdk: SentryObjCInternalSdkApi {
-        SentryObjCInternalSdkApi(wrapped.sdk)
+        SentryObjCInternalSdkApi(wrapped.value.sdk)
     }
 }
 // swiftlint:enable missing_docs

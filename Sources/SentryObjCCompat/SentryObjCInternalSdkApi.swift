@@ -7,36 +7,36 @@ internal import Sentry
 import Foundation
 
 @objc(SentryObjCInternalSdkApi) public final class SentryObjCInternalSdkApi: NSObject {
-    internal let wrapped: SentryInternalSdkApi
+    internal let wrapped: Box<SentryInternalSdkApi>
 
     internal init(_ wrapped: SentryInternalSdkApi) {
-        self.wrapped = wrapped
+        self.wrapped = Box(wrapped)
     }
 
     @objc public var name: String {
-        get { wrapped.name }
-        set { wrapped.name = newValue }
+        get { wrapped.value.name }
+        set { wrapped.value.name = newValue }
     }
 
     @objc public var versionString: String {
-        get { wrapped.versionString }
-        set { wrapped.versionString = newValue }
+        get { wrapped.value.versionString }
+        set { wrapped.value.versionString = newValue }
     }
 
     @objc public func setName(_ name: String, version: String) {
-        wrapped.setName(name, version: version)
+        wrapped.value.setName(name, version: version)
     }
 
     @objc public func addPackageName(_ name: String, version: String) {
-        wrapped.addPackage(name: name, version: version)
+        wrapped.value.addPackage(name: name, version: version)
     }
 
     @objc public var extraContext: [String: Any] {
-        wrapped.extraContext
+        wrapped.value.extraContext
     }
 
     @objc public var installationID: String {
-        wrapped.installationID
+        wrapped.value.installationID
     }
 }
 // swiftlint:enable missing_docs
