@@ -12,19 +12,23 @@ final class SentrySessionReplayCaptureGuard {
         case animation
     }
 
-    func captureActivityReason(rootView: UIView) -> CaptureActivityReason? {
-        if containsActiveInteraction(in: rootView) {
+    func captureActivityReason(rootView: UIView, options: SentryRedactOptions) -> CaptureActivityReason? {
+        if containsActiveInteraction(in: rootView, options: options) {
             return .interaction
         }
 
-        if activeAnimationCount(in: rootView.layer, upTo: Self.activeAnimationThreshold) >= Self.activeAnimationThreshold {
+        if activeAnimationCount(in: rootView, options: options, upTo: Self.activeAnimationThreshold) >= Self.activeAnimationThreshold {
             return .animation
         }
 
         return nil
     }
 
-    private func containsActiveInteraction(in view: UIView) -> Bool {
+    private func containsActiveInteraction(in view: UIView, options: SentryRedactOptions) -> Bool {
+        guard !SentryViewSubtreeTraversal.isExcluded(view, options: options) else {
+            return false
+        }
+
         if let scrollView = view as? UIScrollView, scrollView.isDragging || scrollView.isDecelerating || scrollView.isTracking {
             return true
         }
@@ -37,15 +41,19 @@ final class SentrySessionReplayCaptureGuard {
             return true
         }
 
-        return view.subviews.contains { containsActiveInteraction(in: $0) }
+        return view.subviews.contains { containsActiveInteraction(in: $0, options: options) }
     }
 
-    private func activeAnimationCount(in layer: CALayer, upTo limit: Int) -> Int {
-        var count = layer.animationKeys()?.count ?? 0
+    private func activeAnimationCount(in view: UIView, options: SentryRedactOptions, upTo limit: Int) -> Int {
+        guard !SentryViewSubtreeTraversal.isExcluded(view, options: options) else {
+            return 0
+        }
+
+        var count = view.layer.animationKeys()?.count ?? 0
         guard count < limit else { return count }
 
-        for sublayer in layer.sublayers ?? [] {
-            count += activeAnimationCount(in: sublayer, upTo: limit - count)
+        for subview in view.subviews {
+            count += activeAnimationCount(in: subview, options: options, upTo: limit - count)
             if count >= limit {
                 return count
             }

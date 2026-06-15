@@ -41,6 +41,8 @@ class SentrySessionReplayTests: XCTestCase {
         override var isDragging: Bool { true }
     }
 
+    private class ExcludedActivityView: UIView {}
+
     private class CountingScrollView: UIScrollView {
         var interactionStateReadCount = 0
 
@@ -1338,6 +1340,26 @@ class SentrySessionReplayTests: XCTestCase {
         fixture.dateProvider.advance(by: 1.01)
         sut.captureFrameForTesting()
 
+        XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
+    }
+
+    func testNewFrame_whenActivityIsInExcludedSubview_shouldCapture() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let replayOptions = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+        replayOptions.excludedViewClasses = ["ExcludedActivityView"]
+        let sut = fixture.getSut(options: replayOptions)
+
+        let excludedView = ExcludedActivityView(frame: fixture.rootView.bounds)
+        excludedView.addSubview(DraggingScrollView(frame: excludedView.bounds))
+        fixture.rootView.addSubview(excludedView)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        // -- Act --
+        fixture.dateProvider.advance(by: 1)
+        sut.captureFrameForTesting()
+
+        // -- Assert --
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
     }
 

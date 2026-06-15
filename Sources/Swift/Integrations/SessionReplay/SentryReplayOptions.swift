@@ -185,9 +185,9 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: You should use the methods ``excludeViewTypeFromSubtreeTraversal(_:)`` and ``includeViewTypeInSubtreeTraversal(_:)``
      *         to add and remove view types, so you do not accidentally remove our defaults.
-     * - Note: The final set of excluded view types is computed by `SentryUIRedactBuilder` using the formula:
+     * - Note: The final set of excluded view types is computed by `SentryViewSubtreeTraversal` using the formula:
      *         **Default View Classes + Excluded View Classes - Included View Classes**
-     *         Default view classes are defined in `SentryUIRedactBuilder` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
+     *         Default view classes are defined in `SentryViewSubtreeTraversal` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
      */
     public var excludedViewClasses: Set<String>
 
@@ -203,9 +203,9 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *
      * - Note: You should use the methods ``excludeViewTypeFromSubtreeTraversal(_:)`` and ``includeViewTypeInSubtreeTraversal(_:)``
      *         to add and remove view types, so you do not accidentally remove our defaults.
-     * - Note: The final set of excluded view types is computed by `SentryUIRedactBuilder` using the formula:
+     * - Note: The final set of excluded view types is computed by `SentryViewSubtreeTraversal` using the formula:
      *         **Default View Classes + Excluded View Classes - Included View Classes**
-     *         Default view classes are defined in `SentryUIRedactBuilder` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
+     *         Default view classes are defined in `SentryViewSubtreeTraversal` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
      *         For example, you can use this to re-enable traversal for `CameraUI.ChromeSwiftUIView` on iOS 26+
      *         by calling ``includeViewTypeInSubtreeTraversal("CameraUI.ChromeSwiftUIView")``.
      * - Note: Included patterns use exact matching (not partial) to prevent accidental matches. For example,
@@ -223,7 +223,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *                      "MyViewSubclass", etc.
      *
      * - Note: This method adds the pattern to `excludedViewClasses`, which is then combined with
-     *         default excluded types (defined in `SentryUIRedactBuilder`) and filtered by `includedViewClasses`
+     *         default excluded types (defined in `SentryViewSubtreeTraversal`) and filtered by `includedViewClasses`
      *         to produce the final set.
      */
     public func excludeViewTypeFromSubtreeTraversal(_ viewType: String) {
@@ -238,7 +238,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *                      For example, "MyApp.MyView" will only match exactly "MyApp.MyView".
      *
      * - Note: This method adds the view type to `includedViewClasses`, which filters the combined set
-     *         of default excluded types (defined in `SentryUIRedactBuilder`) and `excludedViewClasses`.
+     *         of default excluded types (defined in `SentryViewSubtreeTraversal`) and `excludedViewClasses`.
      *         For example, you can use this to re-enable traversal for `CameraUI.ChromeSwiftUIView` on iOS 26+.
      * - Note: Included patterns use exact matching (not partial) to prevent accidental matches.
      */

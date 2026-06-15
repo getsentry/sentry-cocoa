@@ -315,7 +315,7 @@ import UIKit
 
         let captureActivityReason = isInteractiveRunLoopMode
             ? nil
-            : rootView.flatMap { captureGuard.captureActivityReason(rootView: $0) }
+            : rootView.flatMap { captureGuard.captureActivityReason(rootView: $0, options: replayOptions) }
         let isInteractionCapture = isInteractiveRunLoopMode || captureActivityReason == .interaction
 
         guard shouldCaptureScreenshot(at: now, usesAdaptiveBackoff: !isInteractionCapture) else {
