@@ -9,14 +9,28 @@ enum SentryFeedbackFormPresenter {
     /// Finds a view controller suitable for automatic presentation by reusing the SDK's
     /// active-window and relevant-view-controller lookup.
     static func presentingViewController() -> UIViewController? {
-        guard let viewControllers = SentryDependencyContainer.sharedInstance().application()?.internal_relevantViewControllers() else {
+        guard let application = SentryDependencyContainer.sharedInstance().application() else {
+            return nil
+        }
+        guard let viewControllers = application.internal_relevantViewControllers(windowFilter: canPresentFromWindow(_:)) else {
             return nil
         }
 
-        return viewControllers.first(where: canPresentForm(from:))
+        return viewControllers.first(where: canPresentFromController(_:))
     }
 
-    private static func canPresentForm(from viewController: UIViewController) -> Bool {
+    private static func canPresentFromWindow(_ window: UIWindow) -> Bool {
+        guard let role = window.windowScene?.session.role.rawValue else {
+            return true
+        }
+
+        // Compare raw values to avoid availability/deprecation warnings while supporting both
+        // UIWindowSceneSessionRoleExternalDisplayNonInteractive and its deprecated predecessor.
+        return role != "UIWindowSceneSessionRoleExternalDisplay"
+            && role != "UIWindowSceneSessionRoleExternalDisplayNonInteractive"
+    }
+
+    private static func canPresentFromController(_ viewController: UIViewController) -> Bool {
         guard viewController.presentedViewController == nil else {
             SentrySDKLog.debug("Cannot show feedback form — presenter is already presenting another view controller")
             return false

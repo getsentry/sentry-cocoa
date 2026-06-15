@@ -12,5 +12,19 @@ API_AVAILABLE(ios(13.0))
 
 @end
 
+API_AVAILABLE(ios(13.0))
+@interface MockUISceneSession : UISceneSession
+
+- (instancetype)initWithRole:(UISceneSessionRole)role;
+
+@end
+
+API_AVAILABLE(ios(13.0))
+@interface MockUIWindowScene : UIWindowScene
+
+- (instancetype)initWithSessionRole:(UISceneSessionRole)role;
+
+@end
+
 NS_ASSUME_NONNULL_END
 #endif

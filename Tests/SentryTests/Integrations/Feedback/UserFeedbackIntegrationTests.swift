@@ -253,6 +253,65 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.displayingForm)
     }
 
+    func testPresentingViewController_whenApplicationAndExternalDisplayWindows_shouldExcludeExternalDisplay() throws {
+        let applicationViewController = TestPresentingViewController()
+        let applicationWindow = TestWindowWithSceneRole(role: .windowApplication)
+        applicationWindow.rootViewController = applicationViewController
+        applicationWindow.makeKeyAndVisible()
+
+        let externalDisplayViewController = TestPresentingViewController()
+        let externalDisplayWindow = TestWindowWithSceneRole(role: Self.externalDisplayNonInteractiveSceneRole)
+        externalDisplayWindow.rootViewController = externalDisplayViewController
+        externalDisplayWindow.makeKeyAndVisible()
+
+        let deprecatedExternalDisplayViewController = TestPresentingViewController()
+        let deprecatedExternalDisplayWindow = TestWindowWithSceneRole(role: Self.deprecatedExternalDisplaySceneRole)
+        deprecatedExternalDisplayWindow.rootViewController = deprecatedExternalDisplayViewController
+        deprecatedExternalDisplayWindow.makeKeyAndVisible()
+
+        let application = TestSentryUIApplication()
+        application.windows = [externalDisplayWindow, deprecatedExternalDisplayWindow, applicationWindow]
+        SentryDependencyContainer.sharedInstance().applicationOverride = application
+
+        let presenter = try XCTUnwrap(SentryFeedbackFormPresenter.presentingViewController())
+
+        XCTAssertIdentical(presenter, applicationViewController)
+
+        withExtendedLifetime(applicationWindow) { }
+        withExtendedLifetime(externalDisplayWindow) { }
+        withExtendedLifetime(deprecatedExternalDisplayWindow) { }
+    }
+
+    func testPresentingViewController_whenOnlyExternalDisplayWindow_shouldReturnNil() {
+        let externalDisplayViewController = TestPresentingViewController()
+        let externalDisplayWindow = TestWindowWithSceneRole(role: Self.externalDisplayNonInteractiveSceneRole)
+        externalDisplayWindow.rootViewController = externalDisplayViewController
+        externalDisplayWindow.makeKeyAndVisible()
+
+        let application = TestSentryUIApplication()
+        application.windows = [externalDisplayWindow]
+        SentryDependencyContainer.sharedInstance().applicationOverride = application
+
+        XCTAssertNil(SentryFeedbackFormPresenter.presentingViewController())
+
+        withExtendedLifetime(externalDisplayWindow) { }
+    }
+
+    func testPresentingViewController_whenOnlyDeprecatedExternalDisplayWindow_shouldReturnNil() {
+        let externalDisplayViewController = TestPresentingViewController()
+        let externalDisplayWindow = TestWindowWithSceneRole(role: Self.deprecatedExternalDisplaySceneRole)
+        externalDisplayWindow.rootViewController = externalDisplayViewController
+        externalDisplayWindow.makeKeyAndVisible()
+
+        let application = TestSentryUIApplication()
+        application.windows = [externalDisplayWindow]
+        SentryDependencyContainer.sharedInstance().applicationOverride = application
+
+        XCTAssertNil(SentryFeedbackFormPresenter.presentingViewController())
+
+        withExtendedLifetime(externalDisplayWindow) { }
+    }
+
     func testShakeGesture_whenNoWidgetOrCustomButton_shouldUseFallbackPresenter() throws {
         let window = UIWindow(frame: UIScreen.main.bounds)
         let viewController = TestPresentingViewController()
@@ -537,6 +596,17 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         SentryDependencyContainer.sharedInstance().applicationOverride = application
     }
 
+    private static var externalDisplayNonInteractiveSceneRole: UISceneSession.Role {
+        if #available(iOS 16.0, *) {
+            return .windowExternalDisplayNonInteractive
+        }
+        return UISceneSession.Role(rawValue: "UIWindowSceneSessionRoleExternalDisplayNonInteractive")
+    }
+
+    private static let deprecatedExternalDisplaySceneRole = UISceneSession.Role(
+        rawValue: "UIWindowSceneSessionRoleExternalDisplay"
+    )
+
     private final class TestScreenshotSource: SentryScreenshotSource {
         private let screenshots: [UIImage]
 
@@ -550,6 +620,24 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
         override func appScreenshots() -> [UIImage] {
             return screenshots
+        }
+    }
+
+    private final class TestWindowWithSceneRole: UIWindow {
+        private var mockWindowScene: UIWindowScene?
+
+        init(role: UISceneSession.Role) {
+            self.mockWindowScene = MockUIWindowScene(sessionRole: role)
+            super.init(frame: UIScreen.main.bounds)
+        }
+
+        required init?(coder: NSCoder) {
+            return nil
+        }
+
+        override var windowScene: UIWindowScene? {
+            get { mockWindowScene }
+            set { mockWindowScene = newValue }
         }
     }
 

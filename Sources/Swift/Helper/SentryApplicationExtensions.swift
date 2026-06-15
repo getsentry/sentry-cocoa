@@ -97,13 +97,13 @@ extension SentryApplication {
         return result
     }
     
-    func internal_relevantViewControllers() -> [UIViewController]? {
-        let windows = getWindows()
+    func internal_relevantViewControllers(windowFilter: (UIWindow) -> Bool = { _ in true }) -> [UIViewController]? {
+        let windows = getWindows()?.filter(windowFilter)
         guard !(windows?.isEmpty ?? true) else { return nil }
         
         return windows?.compactMap { relevantViewControllerFromWindow($0) }.flatMap { $0 }
     }
-    
+
     private func relevantViewControllerFromWindow(_ window: UIWindow) -> [UIViewController]? {
         let viewController = window.rootViewController
         guard let viewController else { return nil }
