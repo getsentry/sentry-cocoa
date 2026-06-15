@@ -22,14 +22,20 @@
     config.animations = NO;
     config.useShakeGesture = YES;
     config.showFormForScreenshots = YES;
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     config.customButton = button;
+#    pragma clang diagnostic pop
     config.tags = @{ @"feature" : @"feedback" };
 
     // -- Assert --
     XCTAssertFalse(config.animations);
     XCTAssertTrue(config.useShakeGesture);
     XCTAssertTrue(config.showFormForScreenshots);
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqualObjects(config.customButton, button);
+#    pragma clang diagnostic pop
     XCTAssertEqualObjects([config.tags objectForKey:@"feature"], @"feedback");
 }
 

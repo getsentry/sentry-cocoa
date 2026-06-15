@@ -479,7 +479,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
     private func addCustomButton(to viewController: UIViewController, configuration: SentryUserFeedbackConfiguration) {
         let customButton = UIButton()
-        configuration.customButton = customButton
+        configuration._customButton = customButton
         viewController.view.addSubview(customButton)
     }
 
