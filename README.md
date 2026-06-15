@@ -14,7 +14,6 @@ _Bad software is everywhere, and we're tired of it. Sentry is on a mission to he
 # Official Sentry SDK for iOS / iPadOS / tvOS / macOS / watchOS <sup>(1)</sup> / visionOS
 
 [![Build](https://img.shields.io/github/actions/workflow/status/getsentry/sentry-cocoa/build.yml?branch=main)](https://github.com/getsentry/sentry-cocoa/actions/workflows/build.yml?query=branch%3Amain)
-[![codecov.io](https://codecov.io/gh/getsentry/sentry-cocoa/branch/master/graph/badge.svg)](https://codecov.io/gh/getsentry/sentry-cocoa)
 [![SwiftPM compatible](https://img.shields.io/badge/spm-compatible-brightgreen.svg?style=flat)](https://swift.org/package-manager)
 [![Swift Package Index](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fgetsentry%2Fsentry-cocoa%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/getsentry/sentry-cocoa)
 [![X Follow](https://img.shields.io/twitter/follow/sentry?label=sentry&style=social)](https://x.com/intent/follow?screen_name=sentry)

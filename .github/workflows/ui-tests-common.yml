@@ -31,11 +31,6 @@ on:
         required: false
         default: false
         type: boolean
-      codecov_test_analytics:
-        description: "Whether or not to push results to Codecov for analytics."
-        required: false
-        default: false
-        type: boolean
       test-destination-os:
         description: "Test destination OS"
         required: false
@@ -61,10 +56,6 @@ on:
         required: false
         default: "cirrus"
         type: string
-    secrets:
-      CODECOV_TOKEN:
-        required: true
-
 jobs:
   common-ui-tests:
     if: ${{ !inputs.should_skip }}
@@ -173,16 +164,6 @@ jobs:
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
-
-      - name: Codecov test analytics
-        if: ${{ !cancelled() && inputs.codecov_test_analytics }}
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # pin@v7.0.0
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          report_type: test_results
-          verbose: true
-          name: sentry-cocoa-unit-tests
-          flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}-${{ inputs.runner_provider }}, ui-tests
 
       - name: Upload Result Bundle
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
