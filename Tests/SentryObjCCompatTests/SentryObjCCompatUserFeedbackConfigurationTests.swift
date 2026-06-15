@@ -13,6 +13,7 @@ import XCTest
 
 final class SentryObjCCompatUserFeedbackConfigurationTests: XCTestCase {
 
+    @available(*, deprecated, message: "Testing deprecated custom button configuration")
     func testConfigureUserFeedback_whenSet_shouldConfigureWrappedOptions() throws {
         // -- Arrange --
         let options = SentryObjCOptions()

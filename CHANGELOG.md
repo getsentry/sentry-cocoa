@@ -9,6 +9,9 @@
 ### Fixes
 
 - Show feedback form from shake or screenshot without widget (#8050)
+### Deprecations
+
+- Deprecate the managed User Feedback custom button. It will be removed in v10. Present the feedback form from your own UI with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, or `.sentryFeedback(isPresented:)` instead. (#8052)
 
 ## 9.17.1
 
