@@ -82,6 +82,29 @@ class SentryUIApplicationTests: XCTestCase {
         XCTAssertEqual(sut.getWindows()?.count, 0)
     }
 
+    func testInternalRelevantViewControllers_whenWindowFilterProvided_shouldOnlyUseMatchingWindows() throws {
+        // -- Arrange --
+        let excludedViewController = UIViewController()
+        let excludedWindow = UIWindow()
+        excludedWindow.rootViewController = excludedViewController
+
+        let includedViewController = UIViewController()
+        let includedWindow = UIWindow()
+        includedWindow.rootViewController = includedViewController
+
+        let sut = TestSentryUIApplication()
+        sut.windows = [excludedWindow, includedWindow]
+
+        // -- Act --
+        let viewControllers = try XCTUnwrap(sut.internal_relevantViewControllers { window in
+            window === includedWindow
+        })
+
+        // -- Assert --
+        XCTAssertEqual(viewControllers.count, 1)
+        XCTAssertIdentical(viewControllers.first, includedViewController)
+    }
+
     private class TestUISceneDelegate: NSObject, UIWindowSceneDelegate {
         var window: UIWindow?
     }

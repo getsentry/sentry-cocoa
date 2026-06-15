@@ -9,6 +9,7 @@
 ### Fixes
 
 - Show feedback form from shake or screenshot without widget (#8050)
+- Prevent feedback form on external displays (#8071)
 
 ### Deprecations
 
