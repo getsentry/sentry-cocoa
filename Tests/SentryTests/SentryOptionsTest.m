@@ -510,8 +510,9 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertEqual(nil, options.beforeBreadcrumb);
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#if !SDK_V10
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)testOnCrashedLastRun
 {
     __block BOOL onCrashedLastRunCalled = NO;
@@ -539,7 +540,8 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
 
     XCTAssertNil(options.onCrashedLastRun);
 }
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
+#endif
 
 - (void)testOnLastRunStatus
 {
@@ -678,7 +680,9 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
         @"beforeSend" : [NSNull null],
         @"beforeSendLog" : [NSNull null],
         @"beforeBreadcrumb" : [NSNull null],
+#if !SDK_V10
         @"onCrashedLastRun" : [NSNull null],
+#endif
         @"integrations" : [NSNull null],
         @"sampleRate" : [NSNull null],
         @"enableAutoSessionTracking" : [NSNull null],
@@ -737,10 +741,12 @@ typedef SentryLog *_Nullable (^SentryBeforeSendLogCallback)(SentryLog *_Nonnull 
     XCTAssertTrue([[self getDefaultCacheDirectoryPath] isEqualToString:options.cacheDirectoryPath]);
     XCTAssertNil(options.beforeSend);
     XCTAssertNil(options.beforeBreadcrumb);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#if !SDK_V10
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertNil(options.onCrashedLastRun);
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
+#endif
     XCTAssertNil(options.onLastRunStatusDetermined);
     XCTAssertEqual(1.0, options.sampleRate.floatValue);
     XCTAssertEqual(YES, options.enableAutoSessionTracking);

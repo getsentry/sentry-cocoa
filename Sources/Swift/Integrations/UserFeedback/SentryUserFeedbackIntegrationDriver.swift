@@ -24,6 +24,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
 
         configuration.applyConfigurationBuilders()
 
+        #if !SDK_V10
         if let customButton = configuration.customButton {
             self.customButton = customButton
             customButton.addTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
@@ -45,6 +46,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
                 widget = SentryUserFeedbackWidget(config: configuration, delegate: self)
             }
         }
+        #endif
 
         observeScreenshots()
         observeShakeGesture()
@@ -203,9 +205,11 @@ private extension SentryUserFeedbackIntegrationDriver {
     }
 
     var presenter: UIViewController? {
-        if let customButton = configuration.customButton {
+        #if !SDK_V10
+        if let customButton = configuration._customButton {
             return customButton.controller
         }
+        #endif
 
         return widget?.rootVC
     }

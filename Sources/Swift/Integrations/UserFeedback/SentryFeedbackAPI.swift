@@ -6,6 +6,7 @@ import UIKit
 /// API for interacting with the feature User Feedback
 @objc public final class SentryFeedbackAPI: NSObject {
 
+    #if !SDK_V10
     /// Show the feedback widget button.
     /// - warning: This is an experimental feature and may still have bugs.
     /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
@@ -27,6 +28,7 @@ import UIKit
     @objc public func hideWidget() {
         getIntegration()?.driver.hideWidget()
     }
+    #endif
 
     /// Show the feedback form using the best available presenter, screenshot attachment, and optional form-specific configuration.
     ///

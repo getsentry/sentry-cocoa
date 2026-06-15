@@ -77,6 +77,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.layoutUIOffset.vertical, layoutOffset.vertical)
     }
 
+    #if !SDK_V10
     @available(*, deprecated, message: "Testing deprecated widget configuration")
     func testConfigureWidget_whenSet_shouldStoreBuilder() throws {
         let sut = SentryUserFeedbackConfiguration()
@@ -89,6 +90,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
         XCTAssertFalse(widgetConfig.autoInject)
     }
+    #endif
 
     func testInitializerFailsWhenNoScreenshotSource() {
         let integration = UserFeedbackIntegration(with: Self.optionsWithFeedback, dependencies: TestDependencies(screenshotSource: nil))
@@ -478,9 +480,11 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     private func addCustomButton(to viewController: UIViewController, configuration: SentryUserFeedbackConfiguration) {
+        #if !SDK_V10
         let customButton = UIButton()
         configuration._customButton = customButton
         viewController.view.addSubview(customButton)
+        #endif
     }
 
     private final class TestPresentingViewController: UIViewController {

@@ -16,7 +16,7 @@ class SentryFeedbackTests: XCTestCase {
         init(config: SentryUserFeedbackConfiguration, testCaseConfig: FeedbackTestCaseConfiguration) {
             config.configureForm?(config.formConfig)
             config.configureTheme?(config.theme)
-            config.configureDarkTheme?(config.darkTheme)
+            config._configureDarkTheme?(config.darkTheme)
             self.config = config
             self.testCaseConfig = testCaseConfig
         }

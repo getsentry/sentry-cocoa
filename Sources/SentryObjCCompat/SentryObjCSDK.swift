@@ -190,10 +190,12 @@ import Foundation
         }
     }
 
+#if !SDK_V10
     @available(*, deprecated, message: "Use lastRunStatus instead.")
     @objc public static var crashedLastRun: Bool {
         SentrySDK.crashedLastRun
     }
+#endif
 
     @objc public static var lastRunStatus: SentryObjCLastRunStatus {
         SentryObjCLastRunStatus(SentrySDK.lastRunStatus)
