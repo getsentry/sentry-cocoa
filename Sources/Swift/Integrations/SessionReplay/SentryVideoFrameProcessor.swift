@@ -84,7 +84,7 @@ class SentryVideoFrameProcessor {
                     let targetFrameIndex = max(0, Int(ceil(elapsed * Double(frameRate) - Self.frameIndexEpsilon)))
                     do {
                         guard try shouldContinueProcessing(
-                            after: appendLastFrame(untilFrameIndex: targetFrameIndex, videoWriterInput: videoWriterInput)
+                            after: repeatLastFrame(untilFrameIndex: targetFrameIndex, videoWriterInput: videoWriterInput)
                         ) else { return }
                     } catch {
                         return onCompletion(.failure(error))
@@ -103,7 +103,7 @@ class SentryVideoFrameProcessor {
                         let targetFrameIndex = max(0, Int(floor(elapsed * Double(frameRate) + Self.frameIndexEpsilon)))
                         do {
                             guard try shouldContinueProcessing(
-                                after: appendLastFrame(untilFrameIndex: targetFrameIndex, videoWriterInput: videoWriterInput)
+                                after: repeatLastFrame(untilFrameIndex: targetFrameIndex, videoWriterInput: videoWriterInput)
                             ) else { return }
                         } catch {
                             return onCompletion(.failure(error))
@@ -121,7 +121,7 @@ class SentryVideoFrameProcessor {
                 let targetFrameIndex = max(0, Int(floor(elapsed * Double(frameRate) + Self.frameIndexEpsilon)))
                 do {
                     guard try shouldContinueProcessing(
-                        after: appendLastFrame(untilFrameIndex: targetFrameIndex, videoWriterInput: videoWriterInput)
+                        after: repeatLastFrame(untilFrameIndex: targetFrameIndex, videoWriterInput: videoWriterInput)
                     ) else { return }
                 } catch {
                     return onCompletion(.failure(error))
@@ -163,7 +163,8 @@ class SentryVideoFrameProcessor {
         }
     }
 
-    private func appendLastFrame(untilFrameIndex targetFrameIndex: Int, videoWriterInput: AVAssetWriterInput) -> AppendFrameResult {
+    /// Repeats the most recently appended image until the output reaches `targetFrameIndex`.
+    private func repeatLastFrame(untilFrameIndex targetFrameIndex: Int, videoWriterInput: AVAssetWriterInput) -> AppendFrameResult {
         guard let lastAppendedImage = lastAppendedImage,
             let lastAppendedFrame = lastAppendedFrame
         else { return .success }
