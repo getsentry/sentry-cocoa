@@ -146,7 +146,12 @@ targets += [
     .target(
         name: "SentryObjCCompat",
         dependencies: ["SentryObjCInternal"],
-        path: "Sources/SentryObjCCompat"),
+        path: "Sources/SentryObjCCompat",
+        swiftSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"])),
+            .define("SDK_V10", .when(traits: ["V10"]))
+        ]
+    ),
     .target(
         name: "SentryObjC",
         dependencies: ["SentryObjCCompat"],
