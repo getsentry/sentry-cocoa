@@ -77,6 +77,8 @@ class SentryVideoFrameProcessor {
                 return onCompletion(.failure(videoWriter.error ?? SentryOnDemandReplayError.errorRenderingVideo))
             }
             guard frameIndex < videoFrames.count else {
+                // When rendering a bounded segment, keep the last captured frame on screen
+                // until `videoEnd`. Without bounds, finish at the last captured frame.
                 if let videoEnd = videoEnd, let videoStart = videoStart {
                     let elapsed = max(0, videoEnd.timeIntervalSince(videoStart))
                     let targetFrameIndex = max(0, Int(ceil(elapsed * Double(frameRate) - Self.frameIndexEpsilon)))
