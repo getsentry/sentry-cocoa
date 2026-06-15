@@ -375,6 +375,7 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
 
 run_v10_for_prs: &run_v10_for_prs
   - "Sources/**"
+  - "Tests/**"
 
   # GH Actions
   - ".github/workflows/build-v10.yml"
