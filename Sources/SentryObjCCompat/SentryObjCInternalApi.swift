@@ -16,5 +16,17 @@ import Foundation
     @objc public var sdk: SentryObjCInternalSdkApi {
         SentryObjCInternalSdkApi(wrapped.value.sdk)
     }
+
+    @objc public var debug: SentryObjCInternalDebugApi {
+        SentryObjCInternalDebugApi(wrapped.value.debug)
+    }
+
+    @objc public var breadcrumbs: SentryObjCInternalBreadcrumbApi {
+        SentryObjCInternalBreadcrumbApi(wrapped.value.breadcrumbs)
+    }
+
+    @objc public var user: SentryObjCInternalUserApi {
+        SentryObjCInternalUserApi(wrapped.value.user)
+    }
 }
 // swiftlint:enable missing_docs

@@ -14,8 +14,24 @@ public struct SentryInternalApi {
     /// SDK metadata and configuration.
     public let sdk: SentryInternalSdkApi
 
-    init(dependencies: SentryInternalSdkApi.Dependencies) {
+    /// Debug image access for symbolication.
+    public let debug: SentryInternalDebugApi
+
+    /// Breadcrumb creation from dictionary representation.
+    public let breadcrumbs: SentryInternalBreadcrumbApi
+
+    /// User creation from dictionary representation.
+    public let user: SentryInternalUserApi
+
+    init(dependencies: SentryInternalSdkApi.Dependencies
+        & SentryInternalDebugApi.Dependencies
+        & SentryInternalBreadcrumbApi.Dependencies
+        & SentryInternalUserApi.Dependencies
+    ) {
         self.sdk = SentryInternalSdkApi(dependencies: dependencies)
+        self.debug = SentryInternalDebugApi(provider: dependencies)
+        self.breadcrumbs = SentryInternalBreadcrumbApi(dependencies: dependencies)
+        self.user = SentryInternalUserApi(dependencies: dependencies)
     }
 }
 // swiftlint:enable missing_docs
