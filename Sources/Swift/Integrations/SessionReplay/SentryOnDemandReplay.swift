@@ -175,15 +175,9 @@ func removeReplayFile(at fileURL: URL) {
         }
     }
 
-    public var oldestFrameDate: Date? {
-        var oldestFrameDate: Date?
-        processingQueue.dispatchSync {
-            let retainedFrame = self.retainedFrameLock.synchronized {
-                self.retainedFrameBeforeCurrentFrames
-            }
-            oldestFrameDate = retainedFrame?.time ?? self._frames.first?.time
-        }
-        return oldestFrameDate
+    /// Used by replay recovery after `init(withContentFrom:)` loaded surviving frames from disk.
+    var oldestRecoveredFrameDate: Date? {
+        _frames.first?.time
     }
 
     public func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]) -> Void) {
