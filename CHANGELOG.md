@@ -10,6 +10,10 @@
 
 - Session replay video assembly: drop empty video segments, avoid duplicating frames at segment boundaries, and keep video timing stable when captured frames are skipped or unreadable (#8041)
 
+### Deprecations
+
+- Deprecate the managed User Feedback custom button. It will be removed in v10. Present the feedback form from your own UI with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, or `.sentryFeedback(isPresented:)` instead. (#8052)
+
 ## 9.17.1
 
 ### Fixes

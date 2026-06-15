@@ -27,7 +27,6 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * feedback form from your own UI instead.
      */
     public var configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)? {
-        // Only the setter is deprecated to avoid warnings when compiling the SDK.
         @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10. Present the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:) instead.")
         set {
             _configureWidget = newValue
@@ -54,12 +53,23 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      */
     public var showFormForScreenshots: Bool = false
 
+    @nonobjc var _customButton: UIButton?
+
     /**
      * Install a hook for the specified button to show the form when it is pressed.
      * - note: If this is set, `configureWidget` is ignored.
      * - note: Default: `nil`
+     * - deprecated: The custom User Feedback button configuration is deprecated and will be removed in v10. Add your own button action and call `SentrySDK.feedback.show()` instead.
      */
-    public var customButton: UIButton?
+    public var customButton: UIButton? {
+        get {
+            _customButton
+        }
+        @available(*, deprecated, message: "The custom User Feedback button configuration is deprecated and will be removed in v10. Add your own button action and call SentrySDK.feedback.show() instead.")
+        set {
+            _customButton = newValue
+        }
+    }
 
     /**
      * Configuration settings specific to the managed UI form to gather user input.
@@ -120,8 +130,6 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * - note: Default: `nil`
      */
     public var configureDarkTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)? {
-        // Only the setter is deprecated to avoid warnings when compiling the SDK. The getter is
-        // used from SentrySDK.init
         @available(*, deprecated, message: "Use dynamic UIColor instead of the dark theme.")
         set {
             _configureDarkTheme = newValue
@@ -211,7 +219,7 @@ extension SentryUserFeedbackConfiguration {
         widgetConfig = SentryUserFeedbackWidgetConfiguration()
         useShakeGesture = false
         showFormForScreenshots = false
-        customButton = nil
+        _customButton = nil
     }
 }
 
