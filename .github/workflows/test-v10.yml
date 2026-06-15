@@ -148,7 +148,7 @@ jobs:
   test-v10-with-test-server:
     name: Test V10 with Test Server
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
-    needs: build-test-server
+    needs: [files-changed, build-test-server]
     runs-on: macos-26
     timeout-minutes: 20
 
