@@ -840,7 +840,7 @@ test-ios-v10:
 		--ref $(GIT-REF) \
 		--command test \
 		--scheme SentryV10 \
-		--configuration DebugV10 \
+		--configuration TestV10 \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run macOS tests with SDK_V10 flag
@@ -860,7 +860,7 @@ test-macos-v10:
 		--ref $(GIT-REF) \
 		--command test \
 		--scheme SentryV10 \
-		--configuration DebugV10 \
+		--configuration TestV10 \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run Catalyst tests with SDK_V10 flag
@@ -880,7 +880,7 @@ test-catalyst-v10:
 		--ref $(GIT-REF) \
 		--command test \
 		--scheme SentryV10 \
-		--configuration DebugV10 \
+		--configuration TestV10 \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run tvOS tests with SDK_V10 flag
@@ -901,7 +901,7 @@ test-tvos-v10:
 		--ref $(GIT-REF) \
 		--command test \
 		--scheme SentryV10 \
-		--configuration DebugV10 \
+		--configuration TestV10 \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run visionOS tests with SDK_V10 flag
@@ -922,7 +922,7 @@ test-visionos-v10:
 		--ref $(GIT-REF) \
 		--command test \
 		--scheme SentryV10 \
-		--configuration DebugV10 \
+		--configuration TestV10 \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run test server in background

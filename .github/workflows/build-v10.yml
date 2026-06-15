@@ -1,0 +1,82 @@
+name: Build V10
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ready-to-merge-gate:
+    name: Ready-to-merge gate
+    uses: ./.github/workflows/ready-to-merge-workflow.yml
+
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    needs: ready-to-merge-gate
+    outputs:
+      run_v10_for_prs: ${{ steps.changes.outputs.run_v10_for_prs }}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
+  build-v10:
+    name: Build V10 ${{ matrix.platform }}
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: iOS
+            make-target: build-ios-v10
+          - platform: macOS
+            make-target: build-macos-v10
+          - platform: Catalyst
+            make-target: build-catalyst-v10
+          - platform: tvOS
+            make-target: build-tvos-v10
+          - platform: visionOS
+            make-target: build-visionos-v10
+          - platform: watchOS
+            make-target: build-watchos-v10
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+      - run: make ${{ matrix.make-target }}
+
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: ${{ failure() || cancelled() }}
+
+  build-v10-required-check:
+    needs:
+      [
+        files-changed,
+        build-v10,
+        ready-to-merge-gate,
+      ]
+    name: Build V10
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the V10 build jobs has failed." && exit 1
