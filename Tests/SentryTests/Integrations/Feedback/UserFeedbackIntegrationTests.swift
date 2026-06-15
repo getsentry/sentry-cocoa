@@ -351,13 +351,8 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
-    // Regression test for #7641 — `showFormForScreenshots = true` only worked
-    // on the first screenshot. Subsequent screenshots no longer triggered the
-    // feedback flow because the old implementation removed the notification
-    // observer on every present and never re-registered it. The fix guards
-    // `userCapturedScreenshot` on `displayingForm` instead of touching the
-    // observer at all, so a screenshot during an active form is ignored and
-    // a screenshot after dismissal still presents.
+    // Regression test for #7641: screenshots after dismissing the feedback form
+    // should still trigger a new form presentation.
     func testScreenshotTrigger_presentsExactlyOncePerScreenshotAcrossDismissal() throws {
         let window = UIWindow(frame: UIScreen.main.bounds)
         let viewController = TestPresentingViewController()
@@ -372,7 +367,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         window.rootViewController = viewController
         window.makeKeyAndVisible()
 
-        // 1) First screenshot — form presents once.
         NotificationCenter.default.post(
             name: UIApplication.userDidTakeScreenshotNotification,
             object: nil
@@ -380,15 +374,12 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertEqual(viewController.presentCallCount, 1)
         let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
 
-        // 2) Second screenshot while the form is still active — still only one
-        //    presentation (the displayingForm guard short-circuits).
         NotificationCenter.default.post(
             name: UIApplication.userDidTakeScreenshotNotification,
             object: nil
         )
         XCTAssertEqual(viewController.presentCallCount, 1)
 
-        // 3) Dismiss the form (mirrors the user swiping it down / submitting it).
         let presentationController = UIPresentationController(
             presentedViewController: form,
             presenting: viewController
@@ -398,9 +389,6 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         form.presentationControllerDidDismiss(presentationController)
         XCTAssertFalse(sut.displayingForm)
 
-        // 4) Third screenshot after dismissal — form presents a second time.
-        //    Before the fix this stayed at 1 because the observer had been
-        //    removed and never re-attached.
         NotificationCenter.default.post(
             name: UIApplication.userDidTakeScreenshotNotification,
             object: nil
@@ -408,6 +396,30 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertEqual(viewController.presentCallCount, 2)
 
         withExtendedLifetime(window) { }
+    }
+
+    func testDeinit_removesNotificationObservers() throws {
+        let notificationCenter = TestNSNotificationCenterWrapper()
+        let config = SentryUserFeedbackConfiguration()
+        config.showFormForScreenshots = true
+        config.useShakeGesture = true
+        var sut: SentryUserFeedbackIntegrationDriver? = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource(),
+            notificationCenter: notificationCenter)
+
+        XCTAssertNotNil(sut)
+        let observedNames = notificationCenter.addObserverWithObjectInvocations.invocations.map { $0.name }
+        XCTAssertTrue(observedNames.contains(UIApplication.userDidTakeScreenshotNotification))
+        XCTAssertTrue(observedNames.contains(.SentryShakeDetected))
+        XCTAssertEqual(notificationCenter.observerCount, 2)
+
+        sut = nil
+
+        XCTAssertEqual(notificationCenter.removeObserverWithNameAndObjectInvocations.count, 1)
+        let removal = try XCTUnwrap(notificationCenter.removeObserverWithNameAndObjectInvocations.first)
+        XCTAssertNil(removal.name)
+        XCTAssertNil(removal.object)
     }
 
     func testShowForm_whenWidgetIsPresenter_shouldHideWidgetUntilFormCloses() throws {

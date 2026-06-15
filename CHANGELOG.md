@@ -5,9 +5,10 @@
 ### Features
 
 - Add SentryObjC User Feedback presentation APIs and a feedback form factory returning `UIViewController` instances. (#8027)
+
 ### Fixes
 
-- Re-register the screenshot observer after the User Feedback form is dismissed, so `showFormForScreenshots = true` keeps triggering the form on subsequent screenshots instead of working only once per app launch (#8048)
+- Keep the User Feedback screenshot trigger active after form dismissal. (#8048)
 
 ## 9.17.1
 
