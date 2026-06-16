@@ -20,15 +20,20 @@ enum SentryFeedbackFormPresenter {
     }
 
     private static func canPresentFromWindow(_ window: UIWindow) -> Bool {
-        guard let role = window.windowScene?.session.role.rawValue else {
+        guard let role = window.windowScene?.session.role else {
             return true
         }
 
-        // Compare raw values to avoid availability/deprecation warnings while supporting both
-        // UIWindowSceneSessionRoleExternalDisplayNonInteractive and its deprecated predecessor.
-        return role != "UIWindowSceneSessionRoleExternalDisplay"
-            && role != "UIWindowSceneSessionRoleExternalDisplayNonInteractive"
+        if #available(iOS 16.0, *), role == .windowExternalDisplayNonInteractive {
+            return false
+        }
+
+        return role != deprecatedExternalDisplaySceneRole
     }
+
+    private static let deprecatedExternalDisplaySceneRole = UISceneSession.Role(
+        rawValue: "UIWindowSceneSessionRoleExternalDisplay"
+    )
 
     private static func canPresentFromController(_ viewController: UIViewController) -> Bool {
         guard viewController.presentedViewController == nil else {

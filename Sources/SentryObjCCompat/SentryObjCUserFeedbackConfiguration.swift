@@ -35,11 +35,13 @@ import UIKit
         set { wrapped.showFormForScreenshots = newValue }
     }
 
+#if !SDK_V10
     @objc public var customButton: UIButton? {
         get { wrapped.customButton }
         @available(*, deprecated, message: "The custom User Feedback button configuration is deprecated and will be removed in v10. Add your own button action and call [[SentryObjCSDK feedback] show] instead.")
         set { wrapped.customButton = newValue }
     }
+#endif
 
     @objc public var configureForm: ((SentryObjCUserFeedbackFormConfiguration) -> Void)? {
         get {
