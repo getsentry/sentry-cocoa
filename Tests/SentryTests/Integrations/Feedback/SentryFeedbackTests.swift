@@ -7,7 +7,7 @@ import XCTest
 class SentryFeedbackTests: XCTestCase {
     private typealias FeedbackTestCaseConfiguration = (requiresName: Bool, requiresEmail: Bool, nameInput: String?, emailInput: String?, messageInput: String?, includeScreenshot: Bool)
     private typealias FeedbackTestCase = (config: FeedbackTestCaseConfiguration, shouldValidate: Bool, expectedSubmitButtonAccessibilityHint: String)
-    
+
     private class Fixture {
         let config: SentryUserFeedbackConfiguration
         let testCaseConfig: FeedbackTestCaseConfiguration
@@ -16,7 +16,9 @@ class SentryFeedbackTests: XCTestCase {
         init(config: SentryUserFeedbackConfiguration, testCaseConfig: FeedbackTestCaseConfiguration) {
             config.configureForm?(config.formConfig)
             config.configureTheme?(config.theme)
+            #if !SDK_V10
             config._configureDarkTheme?(config.darkTheme)
+            #endif
             self.config = config
             self.testCaseConfig = testCaseConfig
         }
@@ -119,7 +121,7 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(attachments.first).filename, "screenshot.png")
         XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "image/png")
     }
-    
+
     func testSerializeCustomFeedback() throws {
         let attachment = Attachment(data: Data(), filename: "screenshot.png", contentType: "image/png")
         let sut = SentryFeedback(message: "Test feedback message", name: "Test feedback provider", email: "test-feedback-provider@sentry.io", source: .custom, attachments: [attachment])
@@ -135,7 +137,7 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(attachments.first).filename, "screenshot.png")
         XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "image/png")
     }
-    
+
     func testSerializeWithAssociatedEventID() throws {
         let eventID = SentryId()
         let attachment = Attachment(data: Data(), filename: "screenshot.png", contentType: "image/png")
@@ -153,7 +155,7 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(attachments.first).filename, "screenshot.png")
         XCTAssertEqual(try XCTUnwrap(attachments.first).contentType, "image/png")
     }
-    
+
     func testSerializeWithNoOptionalFields() throws {
         let sut = SentryFeedback(message: "Test feedback message", name: nil, email: nil)
 
@@ -183,7 +185,7 @@ class SentryFeedbackTests: XCTestCase {
         XCTAssertEqual(attachments[2].filename, "recording.mp4")
         XCTAssertEqual(attachments[2].contentType, "video/mp4")
     }
-        
+
     private let inputCombinations: [FeedbackTestCase] = [
         // base case: don't require name or email, don't input a name or email, don't input a message or screenshot
         (config: (requiresName: false, requiresEmail: false, nameInput: nil, emailInput: nil, messageInput: nil, includeScreenshot: false), shouldValidate: false, expectedSubmitButtonAccessibilityHint: "You must provide all required information before submitting. Please check the following field: description."),
@@ -257,7 +259,7 @@ class SentryFeedbackTests: XCTestCase {
         (config: (requiresName: true, requiresEmail: true, nameInput: "tester", emailInput: "test@email.value", messageInput: "Test message", includeScreenshot: false), shouldValidate: true, expectedSubmitButtonAccessibilityHint: "Will submit feedback for tester at test@email.value with message: Test message."),
         (config: (requiresName: true, requiresEmail: true, nameInput: "tester", emailInput: "test@email.value", messageInput: "Test message", includeScreenshot: true), shouldValidate: true, expectedSubmitButtonAccessibilityHint: "Will submit feedback for tester at test@email.value including attached screenshot with message: Test message.")
     ]
-    
+
     func testSubmitButtonAccessibilityHint() throws {
         for input in inputCombinations {
             let config = SentryUserFeedbackConfiguration()
@@ -285,7 +287,7 @@ class SentryFeedbackTests: XCTestCase {
 
         }
     }
-    
+
     func testFeedbackNotSubjectToSampling() throws {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryFeedbackTests")
@@ -316,7 +318,7 @@ class SentryFeedbackTests: XCTestCase {
         let hub = TestHub(client: client, andScope: nil)
 
         SentrySDKInternal.setCurrentHub(hub)
-        
+
         let feedback = SentryFeedback(
             message: "Test feedback message",
             name: "Test User",
@@ -325,14 +327,14 @@ class SentryFeedbackTests: XCTestCase {
         )
 
         SentrySDK.capture(feedback: feedback)
-        
+
         // Verify that the feedback was captured and sent despite the 0.0 sample rate
         let lastSentEventArguments = try XCTUnwrap(transportAdapter.sendEventWithTraceStateInvocations.last)
         let capturedFeedback = try XCTUnwrap(lastSentEventArguments.event)
 
         XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypes.feedback)
     }
-    
+
     func testFeedbackNotSubjectToBeforeSendFiltering() throws {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryFeedbackTests")
@@ -362,23 +364,23 @@ class SentryFeedbackTests: XCTestCase {
         )
         let hub = TestHub(client: client, andScope: nil)
         SentrySDKInternal.setCurrentHub(hub)
-        
+
         let feedback = SentryFeedback(
             message: "Test feedback message",
-            name: "Test User", 
+            name: "Test User",
             email: "test@example.com",
             source: .widget
         )
 
         SentrySDK.capture(feedback: feedback)
-        
+
         // Verify that the feedback was captured and sent despite beforeSend returning nil
         let lastSentEventArguments = try XCTUnwrap(transportAdapter.sendEventWithTraceStateInvocations.last)
         let capturedFeedback = try XCTUnwrap(lastSentEventArguments.event)
 
         XCTAssertEqual(capturedFeedback.type, SentryEnvelopeItemTypes.feedback)
     }
-    
+
     func testFeedbackWithSamplingAndBeforeSendFilteringCombined() throws {
         let options = Options()
         options.dsn = TestConstants.dsnAsString(username: "SentryFeedbackTests")
@@ -388,7 +390,7 @@ class SentryFeedbackTests: XCTestCase {
         let transport = TestTransport()
         let transportAdapter = TestTransportAdapter(transports: [transport], options: options)
         let dateProvider = TestCurrentDateProvider()
-        
+
         let client = SentryClientInternal(
             options: options,
             dateProvider: dateProvider,
@@ -413,10 +415,10 @@ class SentryFeedbackTests: XCTestCase {
         struct UserInfo {
             var email: String?
         }
-        
+
         let userInfo = UserInfo(email: nil)
         let emailString = String(userInfo.email ?? "newanonymous@example.com")
-        
+
         let feedback = SentryFeedback(
             message: "messageString",
             name: "nameString",
@@ -425,7 +427,7 @@ class SentryFeedbackTests: XCTestCase {
         )
 
         SentrySDK.capture(feedback: feedback)
-        
+
         // Verify that the feedback was captured and sent despite both sampling and beforeSend filtering
         let lastSentEventArguments = try XCTUnwrap(transportAdapter.sendEventWithTraceStateInvocations.last)
         let capturedFeedback = try XCTUnwrap(lastSentEventArguments.event)

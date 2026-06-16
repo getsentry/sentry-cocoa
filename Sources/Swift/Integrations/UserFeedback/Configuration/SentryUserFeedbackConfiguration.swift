@@ -142,8 +142,8 @@ public final class SentryUserFeedbackConfiguration: NSObject {
             _configureDarkTheme
         }
     }
-    #endif
     var _configureDarkTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)?
+    #endif
 
     lazy var darkTheme = SentryUserFeedbackThemeConfiguration()
 
