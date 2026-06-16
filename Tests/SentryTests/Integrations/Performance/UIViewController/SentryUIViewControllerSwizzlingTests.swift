@@ -7,6 +7,8 @@ import XCTest
 
 class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
+    private static let mockWindowScene: UIWindowScene = MockUIWindowScene()
+
     private class Fixture {
         let dispatchQueue = TestSentryDispatchQueueWrapper()
         let objcRuntimeWrapper = SentryTestObjCRuntimeWrapper()
@@ -14,6 +16,10 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         let processInfoWrapper = MockSentryProcessInfo()
         let performanceTracker = SentryUIViewControllerPerformanceTracker()
         var options: Options
+
+        func makeWindow() -> UIWindow {
+            UIWindow(windowScene: SentryUIViewControllerSwizzlingTests.mockWindowScene)
+        }
 
         init() {
             subClassFinder = TestSubClassFinder(dispatchQueue: dispatchQueue, objcRuntimeWrapper: objcRuntimeWrapper, swizzleClassNameExcludes: [])
@@ -39,7 +45,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
         }
         
         var delegate: MockApplication.MockApplicationDelegate {
-            let window = UIWindow()
+            let window = makeWindow()
             window.rootViewController = UIViewController()
             return MockApplication.MockApplicationDelegate(window)
         }
@@ -144,7 +150,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
 
     func testSwizzle_fromScene() {
         let swizzler = fixture.testableSut
-        let window = UIWindow()
+        let window = fixture.makeWindow()
         window.rootViewController = TestViewController()
         let mockWindowScene = ObjectWithWindowsProperty(resultOfWindows: [window])
         
@@ -224,8 +230,8 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     
     func testSwizzle_fromScene_invalidNotification_ObjectNotAnArray() {
         let swizzler = fixture.testableSut
-        
-        let window = UIWindow()
+
+        let window = fixture.makeWindow()
         window.rootViewController = TestViewController()
         let mockWindowScene = ObjectWithWindowsProperty(resultOfWindows: window)
         
@@ -269,7 +275,7 @@ class SentryUIViewControllerSwizzlingTests: XCTestCase {
     }
 
     func testSwizzle_fromApplication_noRootViewController_InWindow() {
-        let mockApplicationDelegate = MockApplication.MockApplicationDelegate(UIWindow())
+        let mockApplicationDelegate = MockApplication.MockApplicationDelegate(fixture.makeWindow())
         let mockApplication = MockApplication(mockApplicationDelegate)
         XCTAssertFalse(fixture.sut.swizzleRootViewControllerFromUIApplication(mockApplication))
     }

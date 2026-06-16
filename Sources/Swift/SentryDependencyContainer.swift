@@ -88,6 +88,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     
 #if SENTRY_TEST || SENTRY_TEST_CI
     var applicationOverride: SentryApplication?
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+    var windowFactoryOverride: SentryUserFeedbackWindowFactory?
+#endif
 #endif
     @objc public func application() -> SentryApplication? {
 #if SENTRY_TEST || SENTRY_TEST_CI
@@ -408,6 +411,16 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
+extension SentryDependencyContainer: WindowFactoryProvider {
+    var windowFactory: SentryUserFeedbackWindowFactory {
+#if SENTRY_TEST || SENTRY_TEST_CI
+        if let override = windowFactoryOverride {
+            return override
+        }
+#endif
+        return SentryUserFeedbackWidget.defaultWindowFactory
+    }
+}
 #endif
 
 protocol ClientProvider {
