@@ -121,6 +121,7 @@ final class SentryFeatureFlagBufferTests: XCTestCase {
         // -- Assert --
         let spanData = sut.serializeForSpanData()
         XCTAssertEqual(spanData.count, 2)
+        XCTAssertEqual(sut.allEvaluations.map(\.flag), ["first", "second"])
         XCTAssertEqual(try XCTUnwrap(spanData["flag.evaluation.first"] as? Bool), false)
         XCTAssertEqual(try XCTUnwrap(spanData["flag.evaluation.second"] as? Bool), true)
     }

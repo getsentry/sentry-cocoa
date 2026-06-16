@@ -170,12 +170,12 @@ class SentryScopeSwiftTests: XCTestCase {
 
     func testInitWithScope_whenFeatureFlagsChanged_shouldNotShareFutureMutations() throws {
         // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 3)
-        scope.addFeatureFlag(withName: "first", result: true)
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.addFeatureFlag(name: "first", result: true)
 
         // -- Act --
         let cloned = Scope(scope: scope)
-        cloned.addFeatureFlag(withName: "second", result: false)
+        cloned.addFeatureFlag(name: "second", result: false)
 
         // -- Assert --
         let originalValues = try serializeFeatureFlagValues(from: scope)
@@ -190,12 +190,12 @@ class SentryScopeSwiftTests: XCTestCase {
 
     func testFeatureFlags_whenUpdatingExistingFlag_shouldRefreshAsNewest() throws {
         // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 3)
-        scope.addFeatureFlag(withName: "first", result: false)
-        scope.addFeatureFlag(withName: "second", result: true)
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.addFeatureFlag(name: "first", result: false)
+        scope.addFeatureFlag(name: "second", result: true)
 
         // -- Act --
-        scope.addFeatureFlag(withName: "first", result: true)
+        scope.addFeatureFlag(name: "first", result: true)
 
         // -- Assert --
         let values = try serializeFeatureFlagValues(from: scope)
@@ -208,40 +208,19 @@ class SentryScopeSwiftTests: XCTestCase {
 
     func testFeatureFlags_whenOverflow_shouldDropOldestFlag() throws {
         // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 2)
-        scope.addFeatureFlag(withName: "first", result: true)
-        scope.addFeatureFlag(withName: "second", result: true)
+        let scope = Scope(maxBreadcrumbs: 5)
+        for index in 0..<100 {
+            scope.addFeatureFlag(name: "flag-\(index)", result: true)
+        }
 
         // -- Act --
-        scope.addFeatureFlag(withName: "third", result: false)
+        scope.addFeatureFlag(name: "flag-100", result: false)
 
         // -- Assert --
         let values = try serializeFeatureFlagValues(from: scope)
-        XCTAssertEqual(values.count, 2)
-        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "second")
-        XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "third")
-    }
-
-    func testFeatureFlags_whenMaxFeatureFlagsIsZero_shouldStoreNothing() {
-        // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: 0)
-
-        // -- Act --
-        scope.addFeatureFlag(withName: "first", result: true)
-
-        // -- Assert --
-        XCTAssertNil(serializeFeatureFlags(from: scope))
-    }
-
-    func testFeatureFlags_whenMaxFeatureFlagsIsNegative_shouldStoreNothing() {
-        // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 5, maxFeatureFlags: -1)
-
-        // -- Act --
-        scope.addFeatureFlag(withName: "first", result: true)
-
-        // -- Assert --
-        XCTAssertNil(serializeFeatureFlags(from: scope))
+        XCTAssertEqual(values.count, 100)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "flag-1")
+        XCTAssertEqual(values.element(at: 99)?["flag"] as? String, "flag-100")
     }
 
     func testApplyToEvent() {
@@ -258,6 +237,24 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual([fixture.breadcrumb], actual?.breadcrumbs)
         XCTAssertEqual(fixture.context["c"], actualContext?["c"])
         XCTAssertNotNil(actualContext?["trace"])
+    }
+
+    func testApplyToEvent_whenScopeHasFeatureFlags_shouldAddFlagsContext() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: fixture.maxBreadcrumbs)
+        scope.addFeatureFlag(name: "checkout", result: true)
+        let event = Event()
+
+        // -- Act --
+        let actual = try XCTUnwrap(scope.applyTo(event: event, maxBreadcrumbs: 10))
+
+        // -- Assert --
+        let context = try XCTUnwrap(actual.context)
+        let flags = try XCTUnwrap(context["flags"])
+        let values = try XCTUnwrap(flags["values"] as? [[String: Any]])
+        XCTAssertEqual(values.count, 1)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
+        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
     }
     
     func testApplyToEvent_EventWithTags() {
@@ -454,7 +451,7 @@ class SentryScopeSwiftTests: XCTestCase {
     func testClear_whenScopeHasFeatureFlags_shouldClearFeatureFlags() {
         // -- Arrange --
         let scope = Scope(maxBreadcrumbs: fixture.maxBreadcrumbs)
-        scope.addFeatureFlag(withName: "first", result: true)
+        scope.addFeatureFlag(name: "first", result: true)
 
         // -- Act --
         scope.clear()
@@ -509,7 +506,7 @@ class SentryScopeSwiftTests: XCTestCase {
             scope.setContext(value: ["some": "value"], key: key)
             scope.removeContext(key: key)
 
-            scope.addFeatureFlag(withName: key, result: true)
+            scope.addFeatureFlag(name: key, result: true)
             
             scope.setExtra(value: 1, key: key)
             scope.removeExtra(key: key)

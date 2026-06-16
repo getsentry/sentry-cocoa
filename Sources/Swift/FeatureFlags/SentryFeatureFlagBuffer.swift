@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs
 import Foundation
 
-@_spi(Private) @objc public final class SentryFeatureFlagBuffer: NSObject {
+final class SentryFeatureFlagBuffer {
     private let maxSize: Int
     private let overflowBehavior: SentryFeatureFlagBufferOverflowBehavior
     private let lock = NSLock()
@@ -17,15 +17,6 @@ import Foundation
         self.maxSize = maxSize
         self.overflowBehavior = overflowBehavior
         self.evaluations = evaluations
-        super.init()
-    }
-
-    @objc public static func scopeBuffer(maxSize: Int) -> SentryFeatureFlagBuffer {
-        return SentryFeatureFlagBuffer(maxSize: maxSize, overflowBehavior: .dropOldest)
-    }
-
-    @objc public static func spanBuffer(maxSize: Int) -> SentryFeatureFlagBuffer {
-        return SentryFeatureFlagBuffer(maxSize: maxSize, overflowBehavior: .rejectNew)
     }
 
     var allEvaluations: [SentryFeatureFlagEvaluation] {
@@ -46,8 +37,13 @@ import Foundation
 
             let evaluation = SentryFeatureFlagEvaluation(flag: name, result: value)
             if let existingIndex = evaluations.firstIndex(where: { $0.flag == name }) {
-                evaluations.remove(at: existingIndex)
-                evaluations.append(evaluation)
+                switch overflowBehavior {
+                case .dropOldest:
+                    evaluations.remove(at: existingIndex)
+                    evaluations.append(evaluation)
+                case .rejectNew:
+                    evaluations[existingIndex] = evaluation
+                }
                 return
             }
 
@@ -64,17 +60,13 @@ import Foundation
         }
     }
 
-    @objc public func addBooleanValue(_ value: Bool, forName name: String) {
-        add(name: name, value: .boolean(value))
-    }
-
-    @objc public func removeAll() {
+    func removeAll() {
         lock.synchronized {
             evaluations.removeAll()
         }
     }
 
-    @objc public func serializeForContext() -> [String: Any]? {
+    func serializeForContext() -> [String: Any]? {
         let values = allEvaluations.map { $0.serializeForContext() }
         guard !values.isEmpty else {
             return nil
@@ -82,13 +74,13 @@ import Foundation
         return ["values": values]
     }
 
-    @objc public func serializeForSpanData() -> [String: Any] {
+    func serializeForSpanData() -> [String: Any] {
         return allEvaluations.reduce(into: [String: Any]()) { result, evaluation in
             result[evaluation.spanDataKey] = evaluation.result.serializedValue
         }
     }
 
-    @objc public func copyBuffer() -> SentryFeatureFlagBuffer {
+    func copyBuffer() -> SentryFeatureFlagBuffer {
         return SentryFeatureFlagBuffer(
             maxSize: maxSize,
             overflowBehavior: overflowBehavior,

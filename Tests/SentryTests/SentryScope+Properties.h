@@ -20,7 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic, strong) NSArray<NSString *> *_Nullable fingerprintArray;
 @property (atomic) enum SentryLevel levelEnum;
 @property (atomic) NSInteger maxBreadcrumbs;
-@property (atomic) NSInteger maxFeatureFlags;
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
 
 @end

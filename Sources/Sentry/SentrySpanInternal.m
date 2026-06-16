@@ -24,15 +24,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSInteger const maxSpanFeatureFlags = 10;
-
 @interface SentrySpanInternal ()
 @end
 
 @implementation SentrySpanInternal {
     NSMutableDictionary<NSString *, id> *_data;
     NSMutableDictionary<NSString *, id> *_tags;
-    SentryFeatureFlagBuffer *_featureFlagBuffer;
     NSObject *_stateLock;
     BOOL _isFinished;
     uint64_t _startSystemTime;
@@ -79,7 +76,6 @@ static NSInteger const maxSpanFeatureFlags = 10;
 #endif // SENTRY_HAS_UIKIT
 
         _tags = [[NSMutableDictionary alloc] init];
-        _featureFlagBuffer = [SentryFeatureFlagBuffer spanBufferWithMaxSize:maxSpanFeatureFlags];
         _stateLock = [[NSObject alloc] init];
         _isFinished = NO;
 
@@ -201,16 +197,6 @@ static NSInteger const maxSpanFeatureFlags = 10;
     @synchronized(_data) {
         return [_data copy];
     }
-}
-
-- (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result
-{
-    [_featureFlagBuffer addBooleanValue:result forName:name];
-}
-
-- (NSDictionary<NSString *, id> *)serializeFeatureFlags
-{
-    return [_featureFlagBuffer serializeForSpanData];
 }
 
 - (void)setTagValue:(NSString *)value forKey:(NSString *)key
@@ -375,6 +361,8 @@ static NSInteger const maxSpanFeatureFlags = 10;
 
     @synchronized(_data) {
         NSMutableDictionary *data = _data.mutableCopy;
+        [data addEntriesFromDictionary:[SentryFeatureFlagObjCHelper
+                                           serializedSpanFeatureFlagDataFromSpan:self]];
 
         if (self.frames && self.frames.count > 0) {
             NSMutableArray *frames = [[NSMutableArray alloc] initWithCapacity:self.frames.count];

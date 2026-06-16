@@ -82,7 +82,6 @@
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentrySpanDataKey.h"
-#import "SentrySpanInternal+Private.h"
 #import "SentrySpanOperation.h"
 #import "SentrySysctlObjC.h"
 #import "SentryTimeToDisplayTracker.h"

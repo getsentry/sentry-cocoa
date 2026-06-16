@@ -9,7 +9,7 @@
 #import "SentryLogC.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
-#import "SentrySpanInternal+Private.h"
+#import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
@@ -17,7 +17,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSInteger const defaultMaxFeatureFlags = 100;
+static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
 @interface SentryScope ()
 
@@ -31,9 +31,6 @@ static NSInteger const defaultMaxFeatureFlags = 100;
 @property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
 
 @property (atomic, strong) NSMutableDictionary<NSString *, id> *attributesDictionary;
-
-@property (atomic) NSInteger maxFeatureFlags;
-@property (atomic, strong) SentryFeatureFlagBuffer *featureFlagBuffer;
 
 @end
 
@@ -52,11 +49,8 @@ static NSInteger const defaultMaxFeatureFlags = 100;
 {
     if (self = [super init]) {
         _maxBreadcrumbs = MAX(0, maxBreadcrumbs);
-        _maxFeatureFlags = defaultMaxFeatureFlags;
         _currentBreadcrumbIndex = 0;
         _breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:_maxBreadcrumbs];
-        _featureFlagBuffer =
-            [SentryFeatureFlagBuffer scopeBufferWithMaxSize:defaultMaxFeatureFlags];
         self.tagDictionary = [[NSMutableDictionary alloc] init];
         self.extraDictionary = [[NSMutableDictionary alloc] init];
         self.contextDictionary = [[NSMutableDictionary alloc] init];
@@ -72,16 +66,6 @@ static NSInteger const defaultMaxFeatureFlags = 100;
     return self;
 }
 
-- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
-                       maxFeatureFlags:(NSInteger)maxFeatureFlags
-{
-    if (self = [self initWithMaxBreadcrumbs:maxBreadcrumbs]) {
-        _maxFeatureFlags = maxFeatureFlags;
-        _featureFlagBuffer = [SentryFeatureFlagBuffer scopeBufferWithMaxSize:maxFeatureFlags];
-    }
-    return self;
-}
-
 - (instancetype)init
 {
     return [self initWithMaxBreadcrumbs:defaultMaxBreadcrumbs];
@@ -89,8 +73,7 @@ static NSInteger const defaultMaxFeatureFlags = 100;
 
 - (instancetype)initWithScope:(SentryScope *)scope
 {
-    if (self = [self initWithMaxBreadcrumbs:scope.maxBreadcrumbs
-                            maxFeatureFlags:scope.maxFeatureFlags]) {
+    if (self = [self initWithMaxBreadcrumbs:scope.maxBreadcrumbs]) {
         [_extraDictionary addEntriesFromDictionary:[scope extras]];
         [_tagDictionary addEntriesFromDictionary:[scope tags]];
         [_contextDictionary addEntriesFromDictionary:[scope context]];
@@ -101,7 +84,7 @@ static NSInteger const defaultMaxFeatureFlags = 100;
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
         [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
-        self.featureFlagBuffer = [scope.featureFlagBuffer copyBuffer];
+        [SentryFeatureFlagObjCHelper copyFeatureFlagsFromScope:scope toScope:self];
 
         self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
@@ -230,7 +213,7 @@ static NSInteger const defaultMaxFeatureFlags = 100;
     @synchronized(_attributesDictionary) {
         [_attributesDictionary removeAllObjects];
     }
-    [self.featureFlagBuffer removeAll];
+    [SentryFeatureFlagObjCHelper clearFeatureFlagsFromScope:self];
 
     self.userObject = nil;
     self.distString = nil;
@@ -514,11 +497,6 @@ static NSInteger const defaultMaxFeatureFlags = 100;
     }
 }
 
-- (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result
-{
-    [self.featureFlagBuffer addBooleanValue:result forName:name];
-}
-
 - (void)setAttributeValue:(id)value forKey:(NSString *)key
 {
     if (key == nil || key.length == 0) {
@@ -569,7 +547,7 @@ static NSInteger const defaultMaxFeatureFlags = 100;
 
     NSMutableDictionary *context = [self context].mutableCopy;
     NSDictionary<NSString *, id> *_Nullable featureFlags =
-        [self.featureFlagBuffer serializeForContext];
+        [SentryFeatureFlagObjCHelper serializedScopeFeatureFlagsFromScope:self];
     if (featureFlags.count > 0) {
         context[@"flags"] = featureFlags;
     }
@@ -710,6 +688,11 @@ static NSInteger const defaultMaxFeatureFlags = 100;
     }
 
     NSMutableDictionary *newContext = [self context].mutableCopy;
+    NSDictionary<NSString *, id> *_Nullable featureFlags =
+        [SentryFeatureFlagObjCHelper serializedScopeFeatureFlagsFromScope:self];
+    if (featureFlags.count > 0) {
+        newContext[@"flags"] = featureFlags;
+    }
     if (event.context != nil) {
         [SentryDictionary mergeEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(
                                                          NSString *, NSDictionary *, event.context)
@@ -767,7 +750,7 @@ static NSInteger const defaultMaxFeatureFlags = 100;
 {
     if (span != nil) {
         NSDictionary *dict = [SENTRY_UNWRAP_NULLABLE_VALUE(id<SentrySpan>, span) serialize];
-        if (dict[kSentrySpanStatusSerializationKey] != nil) {
+        if (dict[kSentryScopeSpanStatusSerializationKey] != nil) {
             return dict;
         }
 
@@ -778,7 +761,7 @@ static NSInteger const defaultMaxFeatureFlags = 100;
         // to any state other than undefined. Spans first have a default status of OK, but we don't
         // want to change this for the trace context status.
         NSMutableDictionary *mutableDict = [dict mutableCopy];
-        mutableDict[kSentrySpanStatusSerializationKey] = kSentrySpanStatusNameOk;
+        mutableDict[kSentryScopeSpanStatusSerializationKey] = kSentrySpanStatusNameOk;
         return mutableDict;
 
     } else {

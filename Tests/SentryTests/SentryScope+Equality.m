@@ -46,8 +46,6 @@
         return NO;
     if (self.maxBreadcrumbs != scope.maxBreadcrumbs)
         return NO;
-    if (self.maxFeatureFlags != scope.maxFeatureFlags)
-        return NO;
     NSDictionary *featureFlags = [self serialize][@"context"][@"flags"];
     NSDictionary *otherFeatureFlags = [scope serialize][@"context"][@"flags"];
     if (featureFlags != otherFeatureFlags && ![featureFlags isEqualToDictionary:otherFeatureFlags])
@@ -73,7 +71,6 @@
     hash = hash * 23 + [self.fingerprintArray hash];
     hash = hash * 23 + (NSUInteger)self.levelEnum;
     hash = hash * 23 + self.maxBreadcrumbs;
-    hash = hash * 23 + self.maxFeatureFlags;
     hash = hash * 23 + [[self serialize][@"context"][@"flags"] hash];
     hash = hash * 23 + [self.attachmentArray hash];
     hash = hash * 23 + [self.attributes hash];
