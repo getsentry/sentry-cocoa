@@ -17,24 +17,24 @@ XCODE_MAJOR_VERSION=$(echo "$XCODE_VERSION" | cut -d. -f1)
 if [[ "$XCODE_MAJOR_VERSION" != "16" ]]; then
     # Try to find an Xcode 16 installation
     XCODE_16_PATH=$(find /Applications -maxdepth 1 -type d -name "Xcode-16*" 2>/dev/null | head -n 1)
-    
+
     if [[ -n "$XCODE_16_PATH" ]]; then
         log_info "Xcode $XCODE_VERSION is currently selected, but found Xcode 16 at $XCODE_16_PATH"
         log_info "Using Xcode 16 for this script execution..."
         export DEVELOPER_DIR="$XCODE_16_PATH/Contents/Developer"
-        
+
         # Verify the Xcode 16 installation works
         # Read full output first to avoid broken pipe (SIGPIPE) error with pipefail
         XCODE_16_VERSION_OUTPUT=$(xcodebuild -version)
         XCODE_16_VERSION=$(echo "$XCODE_16_VERSION_OUTPUT" | awk 'NR==1 {print $2}')
         XCODE_16_MAJOR_VERSION=$(echo "$XCODE_16_VERSION" | cut -d. -f1)
-        
+
         if [[ "$XCODE_16_MAJOR_VERSION" != "16" ]]; then
             log_error "Found Xcode installation at $XCODE_16_PATH but it's version $XCODE_16_VERSION, not 16"
             end_group
             exit 1
         fi
-        
+
         log_info "Successfully using Xcode 16 ($XCODE_16_VERSION)"
     else
         log_error "Xcode 16 is required for running the update-api.sh script, because Xcode 26 doesn't include the ObjC public API, but Xcode $XCODE_VERSION is currently selected."
@@ -120,6 +120,12 @@ begin_group "Extract V10 Public API"
     --framework-path "./Sentry-Dynamic.xcframework/ios-arm64_arm64e"
 end_group
 
+begin_group "Extract SentryObjC V10 Public API"
+"$SCRIPT_DIR/extract-objc-api.sh" \
+    --output sdk_api_objc_v10.json \
+    --define SDK_V10=1
+end_group
+
 begin_group "Extract SentryObjCCompat V10 Public API"
 "$SCRIPT_DIR/extract-objc-compat-api.sh" \
     --output sdk_api_objccompat_v10.json \
@@ -128,7 +134,7 @@ end_group
 
 begin_group "Diff SentryObjC vs SentryObjCCompat (V10)"
 "$SCRIPT_DIR/generate-objc-compat-api-diff.sh" \
-    --headers sdk_api_objc.json \
+    --headers sdk_api_objc_v10.json \
     --compat sdk_api_objccompat_v10.json \
     --output sdk_api_objc_v10.diff.json
 end_group
