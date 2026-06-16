@@ -274,6 +274,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
+    #if !SDK_V10
     @available(*, deprecated, message: "Testing deprecated widget configuration")
     func testScreenshotTrigger_whenWidgetAutoInjectionDisabled_shouldUseFallbackPresenter() throws {
         let window = UIWindow(frame: UIScreen.main.bounds)
@@ -298,6 +299,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
         withExtendedLifetime(window) { }
     }
+    #endif
 
     func testShowForm_whenConfigurationBuildersAreSet_shouldNotApplyBuildersAgain() throws {
         let window = UIWindow(frame: UIScreen.main.bounds)
@@ -354,6 +356,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
+    #if !SDK_V10
     func testShowForm_whenPresenterDoesNotShowForm_shouldKeepWidgetVisible() throws {
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
@@ -371,6 +374,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertEqual(presenter.presentCallCount, 1)
         XCTAssertTrue(widgetHost.isWidgetVisible)
     }
+    #endif
 
     func testPresentationControllerDidDismiss_whenFormWasPresented_shouldClearActiveForm() throws {
         let window = UIWindow(frame: UIScreen.main.bounds)
@@ -400,6 +404,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
+    #if !SDK_V10
     func testShowForm_whenWidgetIsPresenter_shouldHideWidgetUntilFormCloses() throws {
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
@@ -500,6 +505,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
         XCTAssertFalse(widgetHost.isWidgetVisible)
     }
+    #endif
 
     // MARK: - Helpers
 
@@ -518,6 +524,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         return integration
     }
 
+    #if !SDK_V10
     private func widgetHost(for driver: SentryUserFeedbackIntegrationDriver) -> SentryUserFeedbackWidget.RootViewController? {
         let widget = Mirror(reflecting: driver)
             .children
@@ -525,6 +532,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             .value as? SentryUserFeedbackWidget
         return widget?.rootVC
     }
+    #endif
 
     private func addCustomButton(to viewController: UIViewController, configuration: SentryUserFeedbackConfiguration) {
         #if !SDK_V10
