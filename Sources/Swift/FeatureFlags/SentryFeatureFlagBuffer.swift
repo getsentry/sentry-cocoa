@@ -22,12 +22,11 @@ final class SentryFeatureFlagBuffer {
     }
 
     func add<Value: SentryFeatureFlagValue>(name: String, value: Value) {
-        let evaluation = SentryFeatureFlagEvaluation(flag: name, result: value.asSentryFeatureFlagValue)
         lock.synchronized {
             guard maxSize > 0 else {
                 return
             }
-
+            let evaluation = SentryFeatureFlagEvaluation(flag: name, result: value.asSentryFeatureFlagValue)
             if let existingIndex = evaluations.firstIndex(where: { $0.flag == evaluation.flag }) {
                 switch overflowBehavior {
                 case .dropOldest:
