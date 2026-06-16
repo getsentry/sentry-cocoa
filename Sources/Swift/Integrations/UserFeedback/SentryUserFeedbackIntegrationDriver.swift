@@ -81,6 +81,10 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         showForm(screenshot: nil)
     }
 
+    func showForm() {
+        showForm(screenshot: nil)
+    }
+
     var displayingForm: Bool {
         return activeForm != nil
     }
@@ -96,11 +100,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
 #if !SDK_V10
 // MARK: SentryUserFeedbackWidgetDelegate
 @available(iOSApplicationExtension, unavailable)
-extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {
-    func showForm() {
-        showForm(screenshot: nil)
-    }
-}
+extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {}
 #endif
 
 // MARK: SentryUserFeedbackFormDelegate
