@@ -387,6 +387,27 @@
     {
       "kind": "ObjCMethodDecl",
       "name": "init",
+      "parent": "SentryObjCInternalBreadcrumbApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
+      "parent": "SentryObjCInternalDebugApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
+      "parent": "SentryObjCInternalUserApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
       "parent": "SentryObjCPrivateSDKOnly",
       "returnType": "instancetype _Nonnull",
       "instance": true
@@ -481,6 +502,27 @@
       "parent": "SentryObjCTransactionContext",
       "returnType": "enum SentryObjCTransactionNameSource",
       "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCInternalBreadcrumbApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCInternalDebugApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCInternalUserApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
     },
     {
       "kind": "ObjCMethodDecl",

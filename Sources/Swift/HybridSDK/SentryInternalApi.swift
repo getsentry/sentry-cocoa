@@ -11,6 +11,11 @@ import Foundation
 /// App developers: prefer the standard `SentrySDK` API surface instead.
 public struct SentryInternalApi {
 
+    typealias Dependencies = SentryInternalSdkApi.Dependencies
+        & SentryInternalDebugApi.Dependencies
+        & SentryInternalBreadcrumbApi.Dependencies
+        & SentryInternalUserApi.Dependencies
+
     /// SDK metadata and configuration.
     public let sdk: SentryInternalSdkApi
 
@@ -23,11 +28,7 @@ public struct SentryInternalApi {
     /// User creation from dictionary representation.
     public let user: SentryInternalUserApi
 
-    init(dependencies: SentryInternalSdkApi.Dependencies
-        & SentryInternalDebugApi.Dependencies
-        & SentryInternalBreadcrumbApi.Dependencies
-        & SentryInternalUserApi.Dependencies
-    ) {
+    init(dependencies: Dependencies) {
         self.sdk = SentryInternalSdkApi(dependencies: dependencies)
         self.debug = SentryInternalDebugApi(provider: dependencies)
         self.breadcrumbs = SentryInternalBreadcrumbApi(dependencies: dependencies)
