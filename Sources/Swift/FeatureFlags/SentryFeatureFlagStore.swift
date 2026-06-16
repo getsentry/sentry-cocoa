@@ -15,7 +15,7 @@ public final class SentryFeatureFlagStorage: NSObject {
         super.init()
     }
 
-    @objc(scopeStorage)
+    @objc
     public static func scopeStorage() -> SentryFeatureFlagStorage {
         SentryFeatureFlagStorage(
             buffer: SentryFeatureFlagBuffer(
@@ -25,7 +25,7 @@ public final class SentryFeatureFlagStorage: NSObject {
         )
     }
 
-    @objc(spanStorage)
+    @objc
     public static func spanStorage() -> SentryFeatureFlagStorage {
         SentryFeatureFlagStorage(
             buffer: SentryFeatureFlagBuffer(
@@ -47,22 +47,22 @@ public final class SentryFeatureFlagStorage: NSObject {
         buffer.remove(name: name)
     }
 
-    @objc(removeAll)
+    @objc
     public func removeAll() {
         buffer.removeAll()
     }
 
-    @objc(copyStorage)
+    @objc
     public func copyStorage() -> SentryFeatureFlagStorage {
         SentryFeatureFlagStorage(buffer: buffer.copy())
     }
 
-    @objc(serializeForContext)
+    @objc
     public func serializeForContext() -> [String: Any]? {
         buffer.serializeForContext()
     }
 
-    @objc(serializeForSpanData)
+    @objc
     public func serializeForSpanData() -> [String: Any] {
         buffer.serializeForSpanData()
     }
