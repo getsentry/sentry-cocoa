@@ -15,17 +15,20 @@ source "$SCRIPT_DIR/ci-utils.sh"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 OUTPUT=""
+CONFIGURATION="Release"
 
 usage() {
     log_notice "Usage: $0"
-    log_notice "  --output <path>   Output JSON file path (required)"
+    log_notice "  --output <path>            Output JSON file path (required)"
+    log_notice "  --configuration <name>     Xcode build configuration (default: Release)"
     exit 1
 }
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --output) OUTPUT="$2"; shift 2 ;;
-        *)        usage ;;
+        --output)        OUTPUT="$2";        shift 2 ;;
+        --configuration) CONFIGURATION="$2"; shift 2 ;;
+        *)               usage ;;
     esac
 done
 
@@ -42,11 +45,11 @@ INTERMEDIATES_DIR="$TMP_DIR/intermediates"
 AST_JSON="$TMP_DIR/ast.json"
 
 # Step 1: Build SentryObjCCompat to generate the -Swift.h header.
-log_info "Building SentryObjCCompat framework"
+log_info "Building SentryObjCCompat framework (configuration: $CONFIGURATION)"
 xcodebuild build \
     -project "$PROJECT_ROOT/Sentry.xcodeproj" \
     -scheme SentryObjCCompat \
-    -configuration Release \
+    -configuration "$CONFIGURATION" \
     -sdk iphoneos \
     -arch arm64 \
     CODE_SIGNING_ALLOWED=NO \
@@ -56,7 +59,7 @@ xcodebuild build \
     >/dev/null 2>&1
 
 # Step 2: Locate the generated header.
-SWIFT_HEADER="$INTERMEDIATES_DIR/Sentry.build/Release-iphoneos/SentryObjCCompat.build/DerivedSources/SentryObjCCompat-Swift.h"
+SWIFT_HEADER="$INTERMEDIATES_DIR/Sentry.build/$CONFIGURATION-iphoneos/SentryObjCCompat.build/DerivedSources/SentryObjCCompat-Swift.h"
 if [ ! -f "$SWIFT_HEADER" ]; then
     log_error "SentryObjCCompat-Swift.h not found at expected path"
     log_error "looked in: $SWIFT_HEADER"

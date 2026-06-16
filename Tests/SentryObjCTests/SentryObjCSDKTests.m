@@ -507,17 +507,19 @@
 
 #pragma mark - Crash Status
 
+#if !SDK_V10
 - (void)testCrashedLastRun_shouldReturnValidBool
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     // -- Arrange & Act --
     BOOL crashed = SentryObjCSDK.crashedLastRun;
 
     // -- Assert --
     XCTAssertTrue(crashed || !crashed);
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 }
+#endif
 
 - (void)testLastRunStatus_shouldReturnValidStatus
 {

@@ -204,16 +204,22 @@ The factory block receives a closure that returns the original `IMP`. The caller
 
 ### `SentrySDK.internal.sdk` — `SentryInternalSdkApi`
 
-| Method                        | Replaced                                            |
-| ----------------------------- | --------------------------------------------------- |
-| `name: String`                | `PrivateSentrySDKOnly.getSdkName` / `.setSdkName:`  |
-| `versionString: String`       | `PrivateSentrySDKOnly.getSdkVersionString`          |
-| `setName(_:version:)`         | `PrivateSentrySDKOnly.setSdkName:andVersionString:` |
-| `addPackage(name:version:)`   | `PrivateSentrySDKOnly.addSdkPackage:version:`       |
-| `extraContext: [String: Any]` | `PrivateSentrySDKOnly.getExtraContext`              |
-| `installationID: String`      | `PrivateSentrySDKOnly.installationID`               |
+| Method                                       | Replaced                                               |
+| -------------------------------------------- | ------------------------------------------------------ |
+| `name: String`                               | `PrivateSentrySDKOnly.getSdkName` / `.setSdkName:`     |
+| `versionString: String`                      | `PrivateSentrySDKOnly.getSdkVersionString`             |
+| `setName(_:version:)`                        | `PrivateSentrySDKOnly.setSdkName:andVersionString:`    |
+| `addPackage(name:version:)`                  | `PrivateSentrySDKOnly.addSdkPackage:version:`          |
+| `extraContext: [String: Any]`                | `PrivateSentrySDKOnly.getExtraContext`                 |
+| `installationID: String`                     | `PrivateSentrySDKOnly.installationID`                  |
+| `installedIntegrationNames: Set<String>`     | `PrivateSentrySDKOnly.options.integrations` (see note) |
+| `trimmedInstalledIntegrationNames: [String]` | (none — see note)                                      |
 
 `name` and `versionString` are read-write properties — the getter and setter replace both the get/set static methods.
+
+> **Note on `installedIntegrationNames`:** Flutter and other hybrid SDKs previously read `PrivateSentrySDKOnly.options.integrations` to append native integration names to event `sdk` payloads. `Options.integrations` was removed in v9 ([#6492](https://github.com/getsentry/sentry-cocoa/pull/6492)); it held configured integration class names, not the runtime installed set. `installedIntegrationNames` returns the class names currently registered on `SentryHub` (e.g. `SentryANRTrackingIntegration`). Returns an empty set before `SentrySDK.start()` or after `SentrySDK.close()`.
+>
+> **Note on `trimmedInstalledIntegrationNames`:** The event `sdk.integrations` field uses shortened names (e.g. `ANRTracking` instead of `SentryANRTrackingIntegration`). Hybrid SDKs that enrich Dart/JS events with native integrations should prefer this property — it delegates to `SentryHub.trimmedInstalledIntegrationNames` and matches what `SentrySdkInfo` serializes.
 
 ### `SentrySDK.internal.debug` — `SentryInternalDebugApi`
 
@@ -299,6 +305,21 @@ SentrySDK.internal.sdk.setName("sentry.cocoa.react-native", version: "6.0.0")
 SentrySDK.internal.appStart.hybridSDKMode = true
 let frames = SentrySDK.internal.performance.currentScreenFrames
 let success = SentrySDK.internal.replay.capture()
+let integrations = SentrySDK.internal.sdk.trimmedInstalledIntegrationNames
+```
+
+### Flutter (hybrid SDK — native integrations on events)
+
+```swift
+// Before (v8) — Options.integrations removed in v9
+import Sentry
+let nativeIntegrations = PrivateSentrySDKOnly.options.integrations ?? []
+// appended to event.sdk["integrations"]
+
+// After
+import Sentry
+let nativeIntegrations = SentrySDK.internal.sdk.trimmedInstalledIntegrationNames
+// same payload shape as event.sdk["integrations"]
 ```
 
 ### ObjC (hybrid SDK via SentryObjC wrapper)
@@ -322,6 +343,8 @@ id traceId = [[SentryIdClass alloc] initWithUUIDString:traceString];
 [SentryObjCSDK internal].appStart.hybridSDKMode = YES;
 SentryObjCScreenFrames *frames = [SentryObjCSDK internal].performance.currentScreenFrames;
 BOOL success = [[[SentryObjCSDK internal] replay] capture];
+NSArray<NSString *> *integrations =
+    [[[SentryObjCSDK internal] sdk] trimmedInstalledIntegrationNames];
 // Typed ID parameters — no NSClassFromString, no Sentry-Swift.h
 SentryObjCId *traceId = [[SentryObjCId alloc] initWithUUIDString:traceString];
 SentryObjCSpanId *spanId = [[SentryObjCSpanId alloc] initWithValue:spanString];
