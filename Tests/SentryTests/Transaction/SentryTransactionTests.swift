@@ -151,20 +151,6 @@ class SentryTransactionTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(serializedTransactionExtra[fixture.testKey] as? String), fixture.testValue)
     }
 
-    func testSerialize_whenTraceHasFeatureFlag_shouldPreserveFlagInExtra() throws {
-        // -- Arrange --
-        let trace = fixture.getTrace()
-        trace.addFeatureFlag(name: "checkout", result: true)
-        let sut = Transaction(trace: trace, children: [])
-
-        // -- Act --
-        let serializedTransaction = sut.serialize()
-
-        // -- Assert --
-        let serializedTransactionExtra = try XCTUnwrap(serializedTransaction["extra"] as? [String: Any])
-        XCTAssertEqual(try XCTUnwrap(serializedTransactionExtra["flag.evaluation.checkout"] as? Bool), true)
-    }
-    
     func testSerialize_shouldPreserveExtraFromScope() throws {
         // given
         let scope = Scope()

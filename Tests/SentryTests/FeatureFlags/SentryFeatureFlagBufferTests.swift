@@ -170,11 +170,11 @@ final class SentryFeatureFlagBufferTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(spanData["flag.evaluation.second"] as? Bool), true)
     }
 
-    func testCopyBuffer_whenMutatingCopy_shouldNotMutateOriginal() {
+    func testCopy_whenMutatingCopy_shouldNotMutateOriginal() {
         // -- Arrange --
         let sut = SentryFeatureFlagBuffer(maxSize: 3, overflowBehavior: .dropOldest)
         sut.add(name: "first", value: true)
-        let copy = sut.copyBuffer()
+        let copy = sut.copy()
 
         // -- Act --
         copy.add(name: "second", value: false)

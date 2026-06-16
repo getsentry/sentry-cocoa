@@ -7,13 +7,9 @@ final class SentryFeatureFlagBuffer {
     private let lock = NSLock()
     private var evaluations: [SentryFeatureFlagEvaluation]
 
-    convenience init(maxSize: Int, overflowBehavior: SentryFeatureFlagBufferOverflowBehavior) {
-        self.init(maxSize: maxSize, overflowBehavior: overflowBehavior, evaluations: [])
-    }
-
-    private init(maxSize: Int,
-                 overflowBehavior: SentryFeatureFlagBufferOverflowBehavior,
-                 evaluations: [SentryFeatureFlagEvaluation]) {
+    init(maxSize: Int,
+         overflowBehavior: SentryFeatureFlagBufferOverflowBehavior,
+         evaluations: [SentryFeatureFlagEvaluation] = []) {
         self.maxSize = maxSize
         self.overflowBehavior = overflowBehavior
         self.evaluations = evaluations
@@ -26,17 +22,13 @@ final class SentryFeatureFlagBuffer {
     }
 
     func add<Value: SentryFeatureFlagValue>(name: String, value: Value) {
-        add(name: name, value: value.asSentryFeatureFlagValue)
-    }
-
-    func add(name: String, value: SentryFeatureFlagValueContent) {
+        let evaluation = SentryFeatureFlagEvaluation(flag: name, result: value.asSentryFeatureFlagValue)
         lock.synchronized {
             guard maxSize > 0 else {
                 return
             }
 
-            let evaluation = SentryFeatureFlagEvaluation(flag: name, result: value)
-            if let existingIndex = evaluations.firstIndex(where: { $0.flag == name }) {
+            if let existingIndex = evaluations.firstIndex(where: { $0.flag == evaluation.flag }) {
                 switch overflowBehavior {
                 case .dropOldest:
                     evaluations.remove(at: existingIndex)
@@ -86,7 +78,7 @@ final class SentryFeatureFlagBuffer {
         }
     }
 
-    func copyBuffer() -> SentryFeatureFlagBuffer {
+    func copy() -> SentryFeatureFlagBuffer {
         return SentryFeatureFlagBuffer(
             maxSize: maxSize,
             overflowBehavior: overflowBehavior,

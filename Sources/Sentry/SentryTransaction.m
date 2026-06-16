@@ -124,9 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
         serializedData[@"tags"] = traceTags;
     }
 
-    NSMutableDictionary<NSString *, id> *traceData =
-        [sentry_sanitize_dictionary(self.trace.data) mutableCopy];
-    [traceData addEntriesFromDictionary:[self.trace.featureFlagStorage serializeForSpanData]];
+    NSDictionary<NSString *, id> *traceData = sentry_sanitize_dictionary(self.trace.data);
 
     // Adding data from Trace to serializedData dictionary
     if (serializedData[@"extra"] != nil &&

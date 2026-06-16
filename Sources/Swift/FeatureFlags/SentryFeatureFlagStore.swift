@@ -2,7 +2,7 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
-private let defaultMaxScopeFeatureFlags = 100
+private let maxScopeFeatureFlags = 100
 private let maxSpanFeatureFlags = 10
 
 @_spi(Private)
@@ -19,7 +19,7 @@ public final class SentryFeatureFlagStorage: NSObject {
     public static func scopeStorage() -> SentryFeatureFlagStorage {
         SentryFeatureFlagStorage(
             buffer: SentryFeatureFlagBuffer(
-                maxSize: defaultMaxScopeFeatureFlags,
+                maxSize: maxScopeFeatureFlags,
                 overflowBehavior: .dropOldest
             )
         )
@@ -54,7 +54,7 @@ public final class SentryFeatureFlagStorage: NSObject {
 
     @objc(copyStorage)
     public func copyStorage() -> SentryFeatureFlagStorage {
-        SentryFeatureFlagStorage(buffer: buffer.copyBuffer())
+        SentryFeatureFlagStorage(buffer: buffer.copy())
     }
 
     @objc(serializeForContext)
@@ -65,44 +65,6 @@ public final class SentryFeatureFlagStorage: NSObject {
     @objc(serializeForSpanData)
     public func serializeForSpanData() -> [String: Any] {
         buffer.serializeForSpanData()
-    }
-}
-
-extension Scope {
-    @_spi(Private) public func addFeatureFlag(name: String, result: Bool) {
-        guard let storage = featureFlagStorage as? SentryFeatureFlagStorage else {
-            return
-        }
-        storage.addFeatureFlag(name: name, result: result)
-    }
-
-    @_spi(Private) public func removeFeatureFlag(name: String) {
-        guard let storage = featureFlagStorage as? SentryFeatureFlagStorage else {
-            return
-        }
-        storage.removeFeatureFlag(name: name)
-    }
-}
-
-extension Span {
-    @_spi(Private) public func addFeatureFlag(name: String, result: Bool) {
-        guard let span = self as? SentrySpanInternal else {
-            return
-        }
-        guard let storage = span.featureFlagStorage as? SentryFeatureFlagStorage else {
-            return
-        }
-        storage.addFeatureFlag(name: name, result: result)
-    }
-
-    @_spi(Private) public func removeFeatureFlag(name: String) {
-        guard let span = self as? SentrySpanInternal else {
-            return
-        }
-        guard let storage = span.featureFlagStorage as? SentryFeatureFlagStorage else {
-            return
-        }
-        storage.removeFeatureFlag(name: name)
     }
 }
 // swiftlint:enable missing_docs

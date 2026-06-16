@@ -267,24 +267,6 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNotNil(actualContext?["trace"])
     }
 
-    func testApplyToEvent_whenScopeHasFeatureFlags_shouldAddFlagsContext() throws {
-        // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: fixture.maxBreadcrumbs)
-        scope.addFeatureFlag(name: "checkout", result: true)
-        let event = Event()
-
-        // -- Act --
-        let actual = try XCTUnwrap(scope.applyTo(event: event, maxBreadcrumbs: 10))
-
-        // -- Assert --
-        let context = try XCTUnwrap(actual.context)
-        let flags = try XCTUnwrap(context["flags"])
-        let values = try XCTUnwrap(flags["values"] as? [[String: Any]])
-        XCTAssertEqual(values.count, 1)
-        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
-        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
-    }
-    
     func testApplyToEvent_EventWithTags() {
         let tags = NSMutableDictionary(dictionary: ["my": "tag"])
         let event = fixture.event

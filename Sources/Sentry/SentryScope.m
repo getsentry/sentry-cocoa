@@ -695,11 +695,6 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     }
 
     NSMutableDictionary *newContext = [self context].mutableCopy;
-    NSDictionary<NSString *, id> *_Nullable featureFlags =
-        [_featureFlagStorage serializeForContext];
-    if (featureFlags.count > 0) {
-        newContext[@"flags"] = featureFlags;
-    }
     if (event.context != nil) {
         [SentryDictionary mergeEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(
                                                          NSString *, NSDictionary *, event.context)
