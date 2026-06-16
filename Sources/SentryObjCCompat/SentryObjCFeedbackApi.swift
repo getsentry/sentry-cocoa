@@ -39,6 +39,7 @@ import UIKit
         wrapped.show(screenshot: screenshot, configure: wrappedConfigure(configure))
     }
 
+#if !SDK_V10
     @available(iOSApplicationExtension, unavailable)
     @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10.")
     @objc public func showWidget() {
@@ -50,6 +51,7 @@ import UIKit
     @objc public func hideWidget() {
         wrapped.hideWidget()
     }
+#endif
 
     private func wrappedConfigure(
         _ configure: ((SentryObjCUserFeedbackConfiguration) -> Void)?

@@ -60,7 +60,6 @@ run_unit_tests_for_prs: &run_unit_tests_for_prs
   - "fastlane/**"
   - "Makefile"
   - "Brewfile*"
-  - ".codecov.yml"
 
 run_api_stability_for_prs: &run_api_stability_for_prs
   - "Sources/**"
@@ -378,6 +377,32 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
 
   # Build configuration
   - "Makefile"
+
+run_v10_for_prs: &run_v10_for_prs
+  - "Sources/**"
+  - "Tests/**"
+
+  # GH Actions
+  - ".github/workflows/build-v10.yml"
+  - ".github/workflows/test-v10.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts & actions
+  - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
+  - "scripts/resolve-test-destination.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
+  - "scripts/sentry-xcodebuild.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "Sentry.xcworkspace/**"
+
+  # Build configuration
+  - "Makefile"
+  - "Sources/Configuration/**"
 
 run_build_for_prs: &run_build_for_prs
   - "Sources/**"

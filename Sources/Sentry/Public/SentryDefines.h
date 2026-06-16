@@ -163,10 +163,12 @@ typedef BOOL (^SentryBeforeCaptureScreenshotCallback)(SentryEvent *_Nonnull even
  */
 typedef BOOL (^SentryBeforeCaptureViewHierarchyCallback)(SentryEvent *_Nonnull event);
 
+#if !SDK_V10
 /**
  * A callback to be notified when the last program execution terminated with a crash.
  */
 typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event);
+#endif
 
 /**
  * Block can be used to determine if an event should be queued and stored
