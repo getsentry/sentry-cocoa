@@ -43,6 +43,10 @@ public final class SentryFeatureFlagStorage: NSObject {
         buffer.add(name: name, value: result)
     }
 
+    func removeFeatureFlag(name: String) {
+        buffer.remove(name: name)
+    }
+
     @objc(removeAll)
     public func removeAll() {
         buffer.removeAll()
@@ -71,14 +75,34 @@ extension Scope {
         }
         storage.addFeatureFlag(name: name, result: result)
     }
+
+    @_spi(Private) public func removeFeatureFlag(name: String) {
+        guard let storage = featureFlagStorage as? SentryFeatureFlagStorage else {
+            return
+        }
+        storage.removeFeatureFlag(name: name)
+    }
 }
 
 extension Span {
     @_spi(Private) public func addFeatureFlag(name: String, result: Bool) {
-        guard let storage = (self as? SentrySpanInternal)?.featureFlagStorage as? SentryFeatureFlagStorage else {
+        guard let span = self as? SentrySpanInternal else {
+            return
+        }
+        guard let storage = span.featureFlagStorage as? SentryFeatureFlagStorage else {
             return
         }
         storage.addFeatureFlag(name: name, result: result)
+    }
+
+    @_spi(Private) public func removeFeatureFlag(name: String) {
+        guard let span = self as? SentrySpanInternal else {
+            return
+        }
+        guard let storage = span.featureFlagStorage as? SentryFeatureFlagStorage else {
+            return
+        }
+        storage.removeFeatureFlag(name: name)
     }
 }
 // swiftlint:enable missing_docs

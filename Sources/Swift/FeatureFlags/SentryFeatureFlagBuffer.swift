@@ -60,6 +60,12 @@ final class SentryFeatureFlagBuffer {
         }
     }
 
+    func remove(name: String) {
+        lock.synchronized {
+            evaluations.removeAll { $0.flag == name }
+        }
+    }
+
     func removeAll() {
         lock.synchronized {
             evaluations.removeAll()

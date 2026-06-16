@@ -84,6 +84,19 @@ final class SentryFeatureFlagStorageTests: XCTestCase {
         XCTAssertEqual(copy.allEvaluations.map(\.flag), ["first", "second"])
     }
 
+    func testRemoveFeatureFlag_whenStorageHasFeatureFlag_shouldRemoveMatchingFlag() {
+        // -- Arrange --
+        let sut = SentryFeatureFlagStorage.scopeStorage()
+        sut.addFeatureFlag(name: "checkout", result: true)
+        sut.addFeatureFlag(name: "search", result: false)
+
+        // -- Act --
+        sut.removeFeatureFlag(name: "checkout")
+
+        // -- Assert --
+        XCTAssertEqual(sut.allEvaluations.map(\.flag), ["search"])
+    }
+
     func testRemoveAll_whenStorageHasFeatureFlags_shouldClearEvaluations() {
         // -- Arrange --
         let sut = SentryFeatureFlagStorage.scopeStorage()

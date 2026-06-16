@@ -433,6 +433,21 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(actual["flag.evaluation.checkout"] as? Bool), true)
     }
 
+    func testFeatureFlags_whenRemovingFromSpan_shouldOmitRemovedFlagData() throws {
+        // -- Arrange --
+        let span = fixture.getSutWithTracer()
+        span.addFeatureFlag(name: "checkout", result: true)
+        span.addFeatureFlag(name: "search", result: false)
+
+        // -- Act --
+        span.removeFeatureFlag(name: "checkout")
+
+        // -- Assert --
+        let actual = try XCTUnwrap(span.serialize()["data"] as? [String: Any])
+        XCTAssertNil(actual["flag.evaluation.checkout"])
+        XCTAssertEqual(try XCTUnwrap(actual["flag.evaluation.search"] as? Bool), false)
+    }
+
     func testFeatureFlags_whenAddingMoreThanSpanLimit_shouldRejectNewFlags() throws {
         // -- Arrange --
         let span = fixture.getSutWithTracer()
