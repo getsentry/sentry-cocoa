@@ -41,6 +41,10 @@ import Foundation
     @objc public var screenshot: SentryObjCInternalScreenshotApi {
         SentryObjCInternalScreenshotApi(wrapped.value.screenshot)
     }
+
+    @objc public var viewHierarchy: SentryObjCInternalViewHierarchyApi {
+        SentryObjCInternalViewHierarchyApi(wrapped.value.viewHierarchy)
+    }
 #endif
 }
 // swiftlint:enable missing_docs

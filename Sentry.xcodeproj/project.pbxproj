@@ -1340,6 +1340,7 @@
 				Public/SentryObjCInternalScreenshotApi.h,
 				Public/SentryObjCInternalSdkApi.h,
 				Public/SentryObjCInternalUserApi.h,
+				Public/SentryObjCInternalViewHierarchyApi.h,
 				Public/SentryObjCLastRunStatus.h,
 				Public/SentryObjCLevel.h,
 				Public/SentryObjCLog.h,

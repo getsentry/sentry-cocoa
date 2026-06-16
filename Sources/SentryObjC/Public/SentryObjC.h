@@ -172,6 +172,7 @@
 #    import "SentryObjCInternalScreenshotApi.h"
 #    import "SentryObjCInternalSdkApi.h"
 #    import "SentryObjCInternalUserApi.h"
+#    import "SentryObjCInternalViewHierarchyApi.h"
 #else
 #    import <SentryObjC/SentryObjCInternalApi.h>
 #    import <SentryObjC/SentryObjCInternalBreadcrumbApi.h>
@@ -181,6 +182,7 @@
 #    import <SentryObjC/SentryObjCInternalScreenshotApi.h>
 #    import <SentryObjC/SentryObjCInternalSdkApi.h>
 #    import <SentryObjC/SentryObjCInternalUserApi.h>
+#    import <SentryObjC/SentryObjCInternalViewHierarchyApi.h>
 #endif
 
 // --- Envelope types (SPI for hybrid SDKs) ---

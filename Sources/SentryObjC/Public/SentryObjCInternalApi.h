@@ -13,6 +13,7 @@
 #if SENTRY_OBJC_HAS_UIKIT
 @class SentryObjCInternalPerformanceApi;
 @class SentryObjCInternalScreenshotApi;
+@class SentryObjCInternalViewHierarchyApi;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -48,6 +49,9 @@ SENTRY_NO_INIT
 
 /// Screenshot capture.
 @property (nonatomic, readonly) SentryObjCInternalScreenshotApi *screenshot;
+
+/// View hierarchy capture.
+@property (nonatomic, readonly) SentryObjCInternalViewHierarchyApi *viewHierarchy;
 #endif
 
 @end
