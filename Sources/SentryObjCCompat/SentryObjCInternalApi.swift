@@ -37,6 +37,10 @@ import Foundation
     @objc public var performance: SentryObjCInternalPerformanceApi {
         SentryObjCInternalPerformanceApi(wrapped.value.performance)
     }
+
+    @objc public var screenshot: SentryObjCInternalScreenshotApi {
+        SentryObjCInternalScreenshotApi(wrapped.value.screenshot)
+    }
 #endif
 }
 // swiftlint:enable missing_docs
