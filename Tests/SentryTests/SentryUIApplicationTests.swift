@@ -4,7 +4,13 @@ import XCTest
 
 #if os(iOS) || os(tvOS)
 class SentryUIApplicationTests: XCTestCase {
-    
+
+    private static let mockWindowScene: UIWindowScene = MockUIWindowScene()
+
+    private func makeWindow() -> UIWindow {
+        UIWindow(windowScene: Self.mockWindowScene)
+    }
+
     override func tearDown() {
         super.tearDown()
         clearTestState()
@@ -19,14 +25,14 @@ class SentryUIApplicationTests: XCTestCase {
         let sut = TestSentryUIApplication()
         let delegate = TestApplicationDelegate()
         sut.appDelegate = delegate
-        sut.appDelegate?.window = UIWindow()
+        sut.appDelegate?.window = makeWindow()
 
         XCTAssertEqual(sut.getWindows()?.count, 1)
     }
 
     func test_applicationWithScenes() {
         let sceneDelegate = TestUISceneDelegate()
-        sceneDelegate.window = UIWindow()
+        sceneDelegate.window = makeWindow()
 
         let scene1 = MockUIScene()
         scene1.delegate = sceneDelegate
@@ -39,12 +45,12 @@ class SentryUIApplicationTests: XCTestCase {
 
     func test_applicationWithScenesAndDelegateWithWindow_Unique() {
         let sceneDelegate = TestUISceneDelegate()
-        sceneDelegate.window = UIWindow()
+        sceneDelegate.window = makeWindow()
         let scene1 = MockUIScene()
         scene1.delegate = sceneDelegate
 
         let delegate = TestApplicationDelegate()
-        delegate.window = UIWindow()
+        delegate.window = makeWindow()
 
         let sut = TestSentryUIApplication()
         sut.scenes = [scene1]
@@ -54,7 +60,7 @@ class SentryUIApplicationTests: XCTestCase {
     }
 
     func test_applicationWithScenesAndDelegateWithWindow_Same() {
-        let window = UIWindow()
+        let window = makeWindow()
         let sceneDelegate = TestUISceneDelegate()
         sceneDelegate.window = window
         let scene1 = MockUIScene()

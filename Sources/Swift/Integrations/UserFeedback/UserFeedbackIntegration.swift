@@ -6,7 +6,13 @@ protocol ScreenshotSourceProvider {
     var screenshotSource: SentryScreenshotSource? { get }
 }
 
-final class UserFeedbackIntegration<Dependencies: ScreenshotSourceProvider>: NSObject, SwiftIntegration {
+protocol WindowFactoryProvider {
+    var windowFactory: SentryUserFeedbackWindowFactory { get }
+}
+
+typealias UserFeedbackIntegrationProvider = ScreenshotSourceProvider & WindowFactoryProvider
+
+final class UserFeedbackIntegration<Dependencies: UserFeedbackIntegrationProvider>: NSObject, SwiftIntegration {
 
     let driver: SentryUserFeedbackIntegrationDriver
 
@@ -14,14 +20,14 @@ final class UserFeedbackIntegration<Dependencies: ScreenshotSourceProvider>: NSO
         guard let configuration = options.userFeedbackConfiguration else {
             return nil
         }
-        
+
         // The screenshot source is coupled to the options, but due to the dependency container being
         // tightly to the options anyways, it was decided to not pass it to the container.
         guard let screenshotSource = dependencies.screenshotSource else {
             return nil
         }
 
-        driver = SentryUserFeedbackIntegrationDriver(configuration: configuration, screenshotSource: screenshotSource)
+        driver = SentryUserFeedbackIntegrationDriver(configuration: configuration, screenshotSource: screenshotSource, windowFactory: dependencies.windowFactory)
     }
 
     func uninstall() { /* Empty on purpose. Nothing to uninstall. */ }

@@ -9,6 +9,7 @@
 ### Fixes
 
 - Keep the User Feedback screenshot trigger active after form dismissal. (#8048)
+- Show feedback form from shake or screenshot without widget (#8050)
 
 ### Deprecations
 

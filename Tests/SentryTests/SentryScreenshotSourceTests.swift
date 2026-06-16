@@ -39,7 +39,7 @@ class SentryScreenshotSourceTests: XCTestCase {
     
     func testappScreenshotsFromMainThread_IsMainThread() throws {
         // -- Arrange --
-        let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let testWindow = TestWindow(testFrame: CGRect(x: 0, y: 0, width: 10, height: 10))
         var isMainThread = false
         let onRenderCalledExpectation = self.expectation(description: "onDrawHierarchy called")
 
@@ -68,8 +68,8 @@ class SentryScreenshotSourceTests: XCTestCase {
     
     func test_Draw_Each_Window() throws {
         // -- Arrange --
-        let firstWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-        let secondWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let firstWindow = TestWindow(testFrame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let secondWindow = TestWindow(testFrame: CGRect(x: 0, y: 0, width: 10, height: 10))
 
         fixture.uiApplication.windows = [firstWindow, secondWindow]
 
@@ -85,7 +85,7 @@ class SentryScreenshotSourceTests: XCTestCase {
     }
     
     func test_image_size() throws {
-        let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let testWindow = TestWindow(testFrame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [testWindow]
         
         let data = self.fixture.sut.appScreenshotsData()
@@ -96,7 +96,7 @@ class SentryScreenshotSourceTests: XCTestCase {
     }
 
     func test_ZeroSizeScreenShot_GetsDiscarded() {
-        let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
+        let testWindow = TestWindow(testFrame: CGRect(x: 0, y: 0, width: 0, height: 0))
         fixture.uiApplication.windows = [testWindow]
 
         let data = self.fixture.sut.appScreenshotsData()
@@ -105,7 +105,7 @@ class SentryScreenshotSourceTests: XCTestCase {
     }
 
     func test_ZeroWidthScreenShot_GetsDiscarded() {
-        let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 0, height: 1_000))
+        let testWindow = TestWindow(testFrame: CGRect(x: 0, y: 0, width: 0, height: 1_000))
         fixture.uiApplication.windows = [testWindow]
 
         let data = self.fixture.sut.appScreenshotsData()
@@ -114,7 +114,7 @@ class SentryScreenshotSourceTests: XCTestCase {
     }
 
     func test_ZeroHeightScreenShot_GetsDiscarded() {
-        let testWindow = TestWindow(frame: CGRect(x: 0, y: 0, width: 1_000, height: 0))
+        let testWindow = TestWindow(testFrame: CGRect(x: 0, y: 0, width: 1_000, height: 0))
         fixture.uiApplication.windows = [testWindow]
 
         let data = self.fixture.sut.appScreenshotsData()
@@ -122,9 +122,18 @@ class SentryScreenshotSourceTests: XCTestCase {
         XCTAssertEqual(0, data.count, "No screenshot should be taken, cause the image has zero height.")
     }
 
+    private static let mockWindowScene: UIWindowScene = {
+        MockUIWindowScene()
+    }()
+
     private class TestWindow: UIWindow {
         var onDrawHierarchy: (() -> Void)?
-        
+
+        convenience init(testFrame frame: CGRect) {
+            self.init(windowScene: SentryScreenshotSourceTests.mockWindowScene)
+            self.frame = frame
+        }
+
         override func drawHierarchy(in rect: CGRect, afterScreenUpdates afterUpdates: Bool) -> Bool {
             onDrawHierarchy?()
             return true

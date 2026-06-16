@@ -4,6 +4,8 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
+typealias SentryUserFeedbackWindowFactory = (SentryUserFeedbackConfiguration) -> UIWindow
+
 protocol SentryUserFeedbackWidgetDelegate: NSObjectProtocol {
     func showForm()
 }
@@ -17,15 +19,12 @@ final class SentryUserFeedbackWidget {
 
     lazy var rootVC = RootViewController(config: config, button: button)
 
-    private var window: Window?
+    private var window: UIWindow?
 
     let config: SentryUserFeedbackConfiguration
     weak var delegate: (any SentryUserFeedbackWidgetDelegate)?
 
-    init(config: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackWidgetDelegate) {
-        self.config = config
-        self.delegate = delegate
-
+    static let defaultWindowFactory: SentryUserFeedbackWindowFactory = { config in
         /*
          * We must have a UIScene in order to display an overlaying UIWindow in a SwiftUI app, which is currently how we display the widget. SentryUserFeedbackIntegrationDriver won't try to initialize this class if there are no connected UIScenes _and_ there is no UIApplicationDelegate at the time the integration is being installed.
          *
@@ -33,12 +32,18 @@ final class SentryUserFeedbackWidget {
          * - If there is no connected UIScene but there is already a UIApplicationDelegate by the time this integration is being installed, then we are either in a UIKit app, or inside a SwiftUI app that for whatever reason delays the call to SentrySDK.start until there is a connected scene. In either case, we'll just grab the first connected UIScene and proceed.
          * - Otherwise, we're either in a SwiftUI app that _does_ call SentrySDK.start at the recommended time (SwiftUIApp.init), or there is a more complicated initialization procedure in a UIKit app that we can't automatically detect, and the app will need to call SentrySDK.feedback.showWidget() at the appropriate time, the same as how SwiftUI apps must currently do once they've connected a UIScene to their UIApplicationDelegateAdaptor. The managed widget is deprecated; prefer presenting the feedback form from your own UI.
          */
-        let window: Window
         if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-            window = SentryUserFeedbackWidget.Window(config: config, windowScene: scene)
+            return SentryUserFeedbackWidget.Window(config: config, windowScene: scene)
         } else {
-            window = SentryUserFeedbackWidget.Window(config: config)
+            return SentryUserFeedbackWidget.Window(config: config)
         }
+    }
+
+    init(config: SentryUserFeedbackConfiguration, delegate: any SentryUserFeedbackWidgetDelegate, windowFactory: @escaping SentryUserFeedbackWindowFactory = defaultWindowFactory) {
+        self.config = config
+        self.delegate = delegate
+
+        let window = windowFactory(config)
         window.rootViewController = rootVC
         window.isHidden = false
         self.window = window

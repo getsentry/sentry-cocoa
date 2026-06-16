@@ -17,6 +17,7 @@
 @class SentryObjCLogger;
 @class SentryObjCMetricsApi;
 @class SentryObjCOptions;
+@class SentryObjCInternalApi;
 @class SentryObjCReplayApi;
 @class SentryObjCScope;
 @class SentryObjCSpan;
@@ -43,6 +44,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// API to record metrics (counters, distributions, gauges).
 @property (class, nonatomic, readonly) SentryObjCMetricsApi *metrics;
 
+/// API to access internal SDK features for hybrid SDKs (React Native, Flutter, .NET, Unity).
+@property (class, nonatomic, readonly) SentryObjCInternalApi *internal;
+
 /**
  * Returns the crash status of the last program execution.
  *
@@ -59,12 +63,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (class, nonatomic, readonly) BOOL detectedStartUpCrash;
 
+#if !SDK_V10
 /**
  * Checks if the last program execution terminated with a crash.
  * @deprecated Use @c lastRunStatus instead.
  */
 @property (class, nonatomic, readonly) BOOL crashedLastRun
     __attribute__((deprecated("Use lastRunStatus instead.")));
+#endif
 
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 /// API to control session replay.

@@ -431,6 +431,36 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalBreadcrumbApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalDebugApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalSdkApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalUserApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCLog",
     "super": "NSObject",
     "has_inner": true
@@ -658,6 +688,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "addPackageName:version:",
+    "parent": "SentryObjCInternalSdkApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "addSdkPackage:version:",
     "parent": "SentryObjCPrivateSDKOnly",
     "returnType": "void",
@@ -878,6 +915,13 @@
     "name": "breadcrumbs",
     "parent": "SentryObjCEvent",
     "returnType": "NSArray<SentryObjCBreadcrumb *> * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "breadcrumbs",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalBreadcrumbApi * _Nonnull",
     "instance": true
   },
   {
@@ -1478,6 +1522,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "debug",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalDebugApi * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "debug",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
     "instance": true
@@ -2065,6 +2116,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "extraContext",
+    "parent": "SentryObjCInternalSdkApi",
+    "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "failedRequestStatusCodes",
     "parent": "SentryObjCOptions",
     "returnType": "NSArray<SentryObjCHttpStatusCodeRange *> * _Nonnull",
@@ -2201,6 +2259,20 @@
     "name": "frames",
     "parent": "SentryObjCStacktrace",
     "returnType": "NSArray<SentryObjCFrame *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "fromDictionary:",
+    "parent": "SentryObjCInternalBreadcrumbApi",
+    "returnType": "SentryObjCBreadcrumb * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "fromDictionary:",
+    "parent": "SentryObjCInternalUserApi",
+    "returnType": "SentryObjCUser * _Nonnull",
     "instance": true
   },
   {
@@ -2415,6 +2487,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "images",
+    "parent": "SentryObjCInternalDebugApi",
+    "returnType": "NSArray<SentryObjCDebugMeta *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "imagesForAddresses:",
+    "parent": "SentryObjCInternalDebugApi",
+    "returnType": "NSArray<SentryObjCDebugMeta *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "inApp",
     "parent": "SentryObjCFrame",
     "returnType": "NSNumber * _Nullable",
@@ -2585,6 +2671,20 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCId",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCInternalSdkApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -3263,6 +3363,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "installationID",
+    "parent": "SentryObjCInternalSdkApi",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "installationID",
     "parent": "SentryObjCPrivateSDKOnly",
     "returnType": "NSString * _Nonnull",
     "instance": false
@@ -3286,6 +3393,13 @@
     "name": "integerArray:",
     "parent": "SentryObjCAttributeContent",
     "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "internal",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCInternalApi * _Nonnull",
     "instance": false
   },
   {
@@ -3711,6 +3825,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "name",
+    "parent": "SentryObjCInternalSdkApi",
+    "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "name",
     "parent": "SentryObjCMetric",
     "returnType": "NSString * _Nonnull",
     "instance": true
@@ -3887,6 +4008,20 @@
     "kind": "ObjCMethodDecl",
     "name": "new",
     "parent": "SentryObjCHub",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCInternalSdkApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
@@ -4567,6 +4702,13 @@
     "name": "sdk",
     "parent": "SentryObjCEvent",
     "returnType": "NSDictionary<NSString *,id> * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "sdk",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalSdkApi * _Nonnull",
     "instance": true
   },
   {
@@ -5832,6 +5974,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setName:",
+    "parent": "SentryObjCInternalSdkApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setName:",
     "parent": "SentryObjCMetric",
     "returnType": "void",
     "instance": true
@@ -5847,6 +5996,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setName:",
     "parent": "SentryObjCUser",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setName:version:",
+    "parent": "SentryObjCInternalSdkApi",
     "returnType": "void",
     "instance": true
   },
@@ -6776,6 +6932,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setVersionString:",
+    "parent": "SentryObjCInternalSdkApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "severityNumber",
     "parent": "SentryObjCLog",
     "returnType": "NSNumber * _Nullable",
@@ -7609,6 +7772,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "user",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalUserApi * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "userId",
     "parent": "SentryObjCUser",
     "returnType": "NSString * _Nullable",
@@ -7675,6 +7845,13 @@
     "name": "vars",
     "parent": "SentryObjCFrame",
     "returnType": "NSDictionary<NSString *,id> * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "versionString",
+    "parent": "SentryObjCInternalSdkApi",
+    "returnType": "NSString * _Nonnull",
     "instance": true
   },
   {
@@ -7891,6 +8068,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "breadcrumbs",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalBreadcrumbApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "buttonBackground",
     "parent": "SentryObjCUserFeedbackThemeConfiguration",
     "type": "UIColor * _Nonnull"
@@ -8104,6 +8287,12 @@
     "name": "day",
     "parent": "SentryObjCUnit",
     "type": "SentryObjCUnit * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "debug",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalDebugApi * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8515,6 +8704,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "extraContext",
+    "parent": "SentryObjCInternalSdkApi",
+    "type": "NSDictionary<NSString *,id> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "failedRequestStatusCodes",
     "parent": "SentryObjCOptions",
     "type": "NSArray<SentryObjCHttpStatusCodeRange *> * _Nonnull"
@@ -8701,6 +8896,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "images",
+    "parent": "SentryObjCInternalDebugApi",
+    "type": "NSArray<SentryObjCDebugMeta *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "inApp",
     "parent": "SentryObjCFrame",
     "type": "NSNumber * _Nullable"
@@ -8732,6 +8933,12 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "installationID",
+    "parent": "SentryObjCInternalSdkApi",
+    "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "installationID",
     "parent": "SentryObjCPrivateSDKOnly",
     "type": "NSString * _Nonnull"
   },
@@ -8740,6 +8947,12 @@
     "name": "instructionAddress",
     "parent": "SentryObjCFrame",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "internal",
+    "parent": "SentryObjCSDK",
+    "type": "SentryObjCInternalApi * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -9088,6 +9301,12 @@
     "name": "name",
     "parent": "SentryObjCFeedback",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "name",
+    "parent": "SentryObjCInternalSdkApi",
+    "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -9568,6 +9787,12 @@
     "name": "sdk",
     "parent": "SentryObjCEvent",
     "type": "NSDictionary<NSString *,id> * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "sdk",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalSdkApi * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -10135,6 +10360,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "user",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalUserApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "userId",
     "parent": "SentryObjCUser",
     "type": "NSString * _Nullable"
@@ -10180,6 +10411,12 @@
     "name": "vars",
     "parent": "SentryObjCFrame",
     "type": "NSDictionary<NSString *,id> * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "versionString",
+    "parent": "SentryObjCInternalSdkApi",
+    "type": "NSString * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",

@@ -14,16 +14,19 @@ source "$SCRIPT_DIR/ci-utils.sh"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 OUTPUT=""
+DEFINES=()
 
 usage() {
     log_notice "Usage: $0"
-    log_notice "  --output <path>   Output JSON file path (required)"
+    log_notice "  --output <path>      Output JSON file path (required)"
+    log_notice "  --define <NAME=VAL>  Preprocessor define passed to clang (repeatable)"
     exit 1
 }
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         --output) OUTPUT="$2"; shift 2 ;;
+        --define) DEFINES+=("$2"); shift 2 ;;
         *)        usage ;;
     esac
 done
@@ -51,6 +54,11 @@ ln -s "$HEADERS_DIR" "$TMP_DIR/SentryObjC"
 SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
 
 # Step 1: Generate AST dump from umbrella header.
+DEFINE_FLAGS=()
+for d in ${DEFINES[@]+"${DEFINES[@]}"}; do
+    DEFINE_FLAGS+=("-D$d")
+done
+
 log_info "Generating clang AST from SentryObjC umbrella header"
 xcrun clang -x objective-c \
   -Xclang -ast-dump=json \
@@ -59,6 +67,7 @@ xcrun clang -x objective-c \
   -I "$TMP_DIR" \
   -I "$HEADERS_DIR" \
   -I "$SENTRY_HEADERS_DIR" \
+  ${DEFINE_FLAGS[@]+"${DEFINE_FLAGS[@]}"} \
   "$UMBRELLA_HEADER" \
   2>/dev/null > "$AST_JSON"
 
