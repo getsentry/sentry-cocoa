@@ -30,8 +30,8 @@ Keep all KSCrash work on a dedicated branch (`kscrash-*`) and merge back to `mai
 
 Ship both `SentryCrashIntegration` and `SentryKSCrashIntegration` on `main`. They are mutually exclusive at runtime — only one installs its crash handlers. Which one runs is controlled by two guards:
 
-1. **`#if SDK_V10` compiler flag** — `SentryKSCrashIntegration` is compiled into the binary only when building for V10.
-2. **`options.experimental.enableKSCrashIntegration`** — an opt-in flag (also gated behind `#if SDK_V10`) that must be `true` for `SentryKSCrashIntegration` to install. `SentryCrashIntegration` checks this flag and skips installation when the KSCrash path is active.
+1. `**#if SDK_V10` compiler flag** — `SentryKSCrashIntegration` is compiled into the binary only when building for V10.
+2. `**options.experimental.enableKSCrashIntegration`** — an opt-in flag (also gated behind `#if SDK_V10`) that must be `true` for `SentryKSCrashIntegration` to install. `SentryCrashIntegration` checks this flag and skips installation when the KSCrash path is active.
 
 **Pros**
 
@@ -44,6 +44,7 @@ Ship both `SentryCrashIntegration` and `SentryKSCrashIntegration` on `main`. The
 
 - Both integrations live in the codebase simultaneously for a period
 - `#if SDK_V10` guards add a small amount of conditional-compilation mental noise for developers
+- SPM users will checkout KSCrash as a dependency, whether it's used or not
 
 ---
 
