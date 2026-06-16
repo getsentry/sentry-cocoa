@@ -1332,6 +1332,8 @@
 				Public/SentryObjCHttpStatusCodeRange.h,
 				Public/SentryObjCHub.h,
 				Public/SentryObjCId.h,
+				Public/SentryObjCInternalApi.h,
+				Public/SentryObjCInternalSdkApi.h,
 				Public/SentryObjCLastRunStatus.h,
 				Public/SentryObjCLevel.h,
 				Public/SentryObjCLog.h,

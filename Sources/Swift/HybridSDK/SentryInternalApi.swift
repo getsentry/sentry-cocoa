@@ -1,0 +1,21 @@
+// swiftlint:disable missing_docs
+@_implementationOnly import _SentryPrivate
+import Foundation
+
+/// APIs intended for Sentry hybrid SDKs (React Native, Flutter, .NET, Unity).
+///
+/// These methods are public for consumption by wrapper SDKs that bridge
+/// between native and managed runtimes. They may change, be renamed,
+/// or be removed in any minor release without prior deprecation.
+///
+/// App developers: prefer the standard `SentrySDK` API surface instead.
+public struct SentryInternalApi {
+
+    /// SDK metadata and configuration.
+    public let sdk: SentryInternalSdkApi
+
+    init(dependencies: SentryInternalSdkApi.Dependencies) {
+        self.sdk = SentryInternalSdkApi(dependencies: dependencies)
+    }
+}
+// swiftlint:enable missing_docs
