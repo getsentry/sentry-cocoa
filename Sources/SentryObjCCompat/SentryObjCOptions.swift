@@ -135,6 +135,32 @@ import Foundation
         }
     }
 
+    @objc public var beforeSendLog: ((SentryObjCLog) -> SentryObjCLog?)? {
+        didSet {
+            if let beforeSendLog = beforeSendLog {
+                wrapped.beforeSendLog = { log in
+                    guard let result = beforeSendLog(SentryObjCLog(log)) else { return nil }
+                    return result.wrapped
+                }
+            } else {
+                wrapped.beforeSendLog = nil
+            }
+        }
+    }
+
+    @objc public var beforeSendMetric: ((SentryObjCMetric) -> SentryObjCMetric?)? {
+        didSet {
+            if let beforeSendMetric = beforeSendMetric {
+                wrapped.beforeSendMetric = { metric in
+                    guard let result = beforeSendMetric(SentryObjCMetric(metric)) else { return nil }
+                    return result.metric
+                }
+            } else {
+                wrapped.beforeSendMetric = nil
+            }
+        }
+    }
+
     @objc public var beforeCaptureScreenshot: ((SentryObjCEvent) -> Bool)? {
         didSet {
             if let beforeCaptureScreenshot = beforeCaptureScreenshot {
@@ -249,6 +275,28 @@ import Foundation
             }
         }
     }
+
+    #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+
+    @objc public var configureUserFeedback: ((SentryObjCUserFeedbackConfiguration) -> Void)? {
+        get {
+            guard let configureUserFeedback = wrapped.configureUserFeedback else { return nil }
+            return { configuration in
+                configureUserFeedback(configuration.wrapped)
+            }
+        }
+        set {
+            if let configureUserFeedback = newValue {
+                wrapped.configureUserFeedback = { configuration in
+                    configureUserFeedback(SentryObjCUserFeedbackConfiguration(configuration))
+                }
+            } else {
+                wrapped.configureUserFeedback = nil
+            }
+        }
+    }
+
+    #endif
 
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 

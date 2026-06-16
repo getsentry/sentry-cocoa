@@ -32,7 +32,7 @@ jobs:
     outputs:
       run_build_for_prs: ${{ steps.changes.outputs.run_build_for_prs }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
@@ -50,7 +50,7 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
       # sample projects. The Package.swift references binary targets, which in release branch commits points
       # to non-existent download URLs. This creates chicken-egg failures when building these sample apps for
@@ -66,7 +66,7 @@ jobs:
         with:
           version: "26"
       - name: Setup Ruby
-        uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
+        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
         with:
           bundler-cache: true
       - run: make init-ci-build
@@ -83,7 +83,7 @@ jobs:
     name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     strategy:
       fail-fast: false
       matrix:
@@ -115,7 +115,7 @@ jobs:
             config: Debug
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       # Some sample projects use local SPM references. xcodebuild resolves SPM dependencies for the
       # workspace, so Package.swift binary targets can be resolved even when building another scheme.
       # On release branches these binary target URLs point to artifacts that do not exist yet, causing
@@ -126,7 +126,7 @@ jobs:
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
       - run: make init-ci-build
       - run: make xcode-ci
 
@@ -148,6 +148,47 @@ jobs:
           path: |
             raw-build-output.log
 
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: ${{ failure() || cancelled() }}
+
+  build-sample-binary:
+    name: Sample ${{ matrix.scheme }} ${{ matrix.config }}
+    # These samples depend on SentryObjC binary targets whose URLs point to
+    # unpublished artifacts on release branches.
+    if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
+    needs: files-changed
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - scheme: iOS-ObjectiveC-Dynamic
+            config: Debug
+          - scheme: iOS-ObjectiveC-Static
+            config: Debug
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+      - run: make init-ci-build
+      - run: make xcode-ci
+      - run: |
+          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace Sentry.xcworkspace \
+            -scheme '${{matrix.scheme}}' \
+            -configuration '${{matrix.config}}' \
+            CODE_SIGNING_ALLOWED="NO" \
+            build 2>&1 | tee raw-build-output.log | xcbeautify --preserve-unbeautified
+      - name: Archiving Raw Build Logs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-scheme-${{matrix.scheme}}
+          path: |
+            raw-build-output.log
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
@@ -174,7 +215,7 @@ jobs:
             make-target: build-sample-visionOS-SwiftUI-SPM
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Setup Xcode
         id: setup-xcode
@@ -208,7 +249,7 @@ jobs:
     needs: files-changed
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
@@ -237,20 +278,20 @@ jobs:
 
   build-distribution:
     name: Build the distribution framework
-    runs-on: macos-15
+    runs-on: macos-26
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
 
-      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace . \
             -scheme SentryDistribution \
             -sdk iphoneos \
             -destination 'generic/platform=iphoneos' \
@@ -266,19 +307,19 @@ jobs:
 
   build-spm:
     name: Build with SPM
-    runs-on: macos-15
+    runs-on: macos-26
     # Don't run this on release branches, cause the SPM Package.swift points to the unreleased versions.
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
-      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
+          version: "26"
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace . \
             -scheme SentrySPM \
             -sdk watchos \
             -destination 'generic/platform=watchOS' \
@@ -286,6 +327,7 @@ jobs:
         shell: sh
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
+            -workspace . \
             -scheme SentrySPM \
             -sdk iphoneos \
             -destination 'generic/platform=iphoneos' \
@@ -309,14 +351,14 @@ jobs:
     name: Check no UIKit linkage (DebugWithoutUIKit)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
 
       - name: Resolve test destination
         id: resolve-test-destination
@@ -350,14 +392,14 @@ jobs:
     name: Check no UIKit linkage (ReleaseWithoutUIKit)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
 
       - name: Resolve test destination
         id: resolve-test-destination
@@ -391,14 +433,14 @@ jobs:
     name: Check UIKit linkage (Debug)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
 
       - name: Resolve test destination
         id: resolve-test-destination
@@ -432,14 +474,14 @@ jobs:
     name: Check UIKit linkage (Release)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
 
       - name: Resolve test destination
         id: resolve-test-destination
@@ -473,14 +515,14 @@ jobs:
     name: Check AppKit linkage (Release)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
 
       - name: Resolve test destination
         id: resolve-test-destination
@@ -511,14 +553,14 @@ jobs:
     name: Check no AppKit linkage (ReleaseWithoutUIKit)
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
 
       - name: Resolve test destination
         id: resolve-test-destination
@@ -553,9 +595,9 @@ jobs:
     name: Check compiling Async Safe Logs
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_build_for_prs == 'true'
     needs: files-changed
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       # If the SentryAsyncSafeLog doesn't contain the SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR this fails.
       - name: Async Safe Log Level is Error
         run: grep -c "SENTRY_ASYNC_SAFE_LOG_LEVEL SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR" Sources/Sentry/SentryAsyncSafeLog.h
@@ -569,7 +611,7 @@ jobs:
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
         with:
-          version: "16"
+          version: "26"
 
       - name: Resolve test destination
         id: resolve-test-destination
@@ -601,6 +643,7 @@ jobs:
         files-changed,
         ios-swift-release,
         build-sample,
+        build-sample-binary,
         build-sample-spm,
         check-macOS-CLI-Xcode-no-UI-framework,
         build-distribution,

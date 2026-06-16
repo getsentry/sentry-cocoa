@@ -2,9 +2,15 @@ import Foundation
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
+/// Callback used to configure a user feedback presentation.
+public typealias SentryUserFeedbackConfigurationCallback = (SentryUserFeedbackConfiguration) -> Void
+
 /**
  * The settings to use for how the user feedback form is presented, what data is required and how
  * it's submitted, and some auxiliary hooks to customize the workflow.
+ *
+ * Use this to customize the form shown by `SentrySDK.feedback.show()`,
+ * `SentrySDK.FeedbackForm`, or `sentryFeedback(isPresented:)`.
  */
 @objcMembers
 public final class SentryUserFeedbackConfiguration: NSObject {
@@ -16,19 +22,30 @@ public final class SentryUserFeedbackConfiguration: NSObject {
     
     /**
      * Configuration settings specific to the managed widget that displays the UI form.
-     * - note: Default: `nil` to use the default widget settings.
+     * - note: Default: `nil`. Set this only to configure the managed widget; unspecified widget values use the default widget settings.
+     * - deprecated: The managed widget is deprecated and will be removed in v10. Present the
+     * feedback form from your own UI instead.
      */
-    public var configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)?
-    
+    public var configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)? {
+        @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10. Present the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:) instead.")
+        set {
+            _configureWidget = newValue
+        }
+        get {
+            _configureWidget
+        }
+    }
+    var _configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)?
+
     lazy var widgetConfig = SentryUserFeedbackWidgetConfiguration()
-    
+
     /**
      * Use a shake gesture to display the form.
      * - note: Default: `false`
      * - note: Setting this to true does not disable the widget. In order to do so, you must set `SentryUserFeedbackWidgetConfiguration.autoInject` to `false` using the `SentryUserFeedbackConfiguration.configureWidget` config builder.
      */
     public var useShakeGesture: Bool = false
-    
+
     /**
      * Any time a user takes a screenshot, bring up the form with the screenshot attached.
      * - note: Default: `false`
@@ -36,15 +53,27 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      */
     public var showFormForScreenshots: Bool = false
 
+    @nonobjc var _customButton: UIButton?
+
     /**
      * Install a hook for the specified button to show the form when it is pressed.
      * - note: If this is set, `configureWidget` is ignored.
      * - note: Default: `nil`
+     * - deprecated: The custom User Feedback button configuration is deprecated and will be removed in v10. Add your own button action and call `SentrySDK.feedback.show()` instead.
      */
-    public var customButton: UIButton?
+    public var customButton: UIButton? {
+        get {
+            _customButton
+        }
+        @available(*, deprecated, message: "The custom User Feedback button configuration is deprecated and will be removed in v10. Add your own button action and call SentrySDK.feedback.show() instead.")
+        set {
+            _customButton = newValue
+        }
+    }
 
     /**
      * Configuration settings specific to the managed UI form to gather user input.
+     * - note: Used when the form is shown with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, `sentryFeedback(isPresented:)`, the widget, or a custom button.
      * - note: Default: `nil`
      */
     public var configureForm: ((SentryUserFeedbackFormConfiguration) -> Void)?
@@ -101,8 +130,6 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * - note: Default: `nil`
      */
     public var configureDarkTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)? {
-        // Only the setter is deprecated to avoid warnings when compiling the SDK. The getter is
-        // used from SentrySDK.init
         @available(*, deprecated, message: "Use dynamic UIColor instead of the dark theme.")
         set {
             _configureDarkTheme = newValue
@@ -150,6 +177,109 @@ public final class SentryUserFeedbackConfiguration: NSObject {
     let padding: CGFloat = 16
     let spacing: CGFloat = 8
     let margin: CGFloat = 32
+}
+
+extension SentryUserFeedbackConfiguration {
+    func applyConfigurationBuilders() {
+        configureForm?(formConfig)
+        configureTheme?(theme)
+        configureDarkTheme?(darkTheme)
+    }
+
+    func configurationForPresentation(
+        configure: SentryUserFeedbackConfigurationCallback?
+    ) -> SentryUserFeedbackConfiguration {
+        guard let configure = configure else {
+            return self
+        }
+
+        let copy = copyForPresentation()
+        configure(copy)
+        copy.resetGlobalOnlyOptionsForPresentation()
+        copy.applyConfigurationBuilders()
+        return copy
+    }
+
+    func copyForPresentation() -> SentryUserFeedbackConfiguration {
+        let copy = SentryUserFeedbackConfiguration()
+        copy.animations = animations
+        copy.formConfig = formConfig.copyForPresentation()
+        copy.tags = tags
+        copy.onFormOpen = onFormOpen
+        copy.onFormClose = onFormClose
+        copy.onSubmitSuccess = onSubmitSuccess
+        copy.onSubmitError = onSubmitError
+        copy.theme = theme.copyForPresentation()
+        copy.darkTheme = darkTheme.copyForPresentation()
+        return copy
+    }
+
+    func resetGlobalOnlyOptionsForPresentation() {
+        _configureWidget = nil
+        widgetConfig = SentryUserFeedbackWidgetConfiguration()
+        useShakeGesture = false
+        showFormForScreenshots = false
+        _customButton = nil
+    }
+}
+
+extension SentryUserFeedbackFormConfiguration {
+    func copyForPresentation() -> SentryUserFeedbackFormConfiguration {
+        let copy = SentryUserFeedbackFormConfiguration()
+        copy.useSentryUser = useSentryUser
+        copy.showBranding = showBranding
+        copy.formTitle = formTitle
+        copy.messageLabel = messageLabel
+        copy.messagePlaceholder = messagePlaceholder
+        copy.messageTextViewAccessibilityLabelOverride = messageTextViewAccessibilityLabelOverride
+        copy.isRequiredLabel = isRequiredLabel
+        copy.removeScreenshotButtonLabel = removeScreenshotButtonLabel
+        copy.removeScreenshotButtonAccessibilityLabelOverride = removeScreenshotButtonAccessibilityLabelOverride
+        copy.isNameRequired = isNameRequired
+        copy.showName = showName
+        copy.nameLabel = nameLabel
+        copy.namePlaceholder = namePlaceholder
+        copy.nameTextFieldAccessibilityLabelOverride = nameTextFieldAccessibilityLabelOverride
+        copy.isEmailRequired = isEmailRequired
+        copy.showEmail = showEmail
+        copy.emailLabel = emailLabel
+        copy.emailPlaceholder = emailPlaceholder
+        copy.emailTextFieldAccessibilityLabelOverride = emailTextFieldAccessibilityLabelOverride
+        copy.submitButtonLabel = submitButtonLabel
+        copy.submitButtonAccessibilityLabelOverride = submitButtonAccessibilityLabelOverride
+        copy.cancelButtonLabel = cancelButtonLabel
+        copy.cancelButtonAccessibilityLabelOverride = cancelButtonAccessibilityLabelOverride
+        copy.unexpectedErrorText = unexpectedErrorText
+        copy.validationErrorMessage = validationErrorMessage
+        return copy
+    }
+}
+
+extension SentryUserFeedbackThemeConfiguration {
+    func copyForPresentation() -> SentryUserFeedbackThemeConfiguration {
+        let copy = SentryUserFeedbackThemeConfiguration()
+        copy.fontFamily = fontFamily
+        copy.foreground = foreground
+        copy.background = background
+        copy.submitForeground = submitForeground
+        copy.submitBackground = submitBackground
+        copy.buttonForegroundOverride = buttonForegroundOverride
+        copy.buttonBackground = buttonBackground
+        copy.errorColor = errorColor
+        if usesDefaultOutlineStyle {
+            copy.defaultOutlineStyle.color = defaultOutlineStyle.color
+            copy.defaultOutlineStyle.cornerRadius = defaultOutlineStyle.cornerRadius
+            copy.defaultOutlineStyle.outlineWidth = defaultOutlineStyle.outlineWidth
+        } else {
+            copy.outlineStyle = SentryFormElementOutlineStyle(
+                color: outlineStyle.color,
+                cornerRadius: outlineStyle.cornerRadius,
+                outlineWidth: outlineStyle.outlineWidth)
+        }
+        copy.inputBackground = inputBackground
+        copy.inputForeground = inputForeground
+        return copy
+    }
 }
 
 #endif // os(iOS) && !SENTRY_NO_UI_FRAMEWORK

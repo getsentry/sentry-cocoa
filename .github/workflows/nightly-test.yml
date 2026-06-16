@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   unit-tests:
-    name: Unit ${{matrix.name}}
+    name: Unit ${{matrix.name}} on ${{matrix.runner_provider}}
     uses: ./.github/workflows/unit-test-common.yml
     secrets: inherit
     with:
@@ -31,26 +31,48 @@ jobs:
       timeout: ${{matrix.timeout || 20}}
       device: ${{matrix.device}}
       scheme: "Sentry"
+      runner_provider: ${{matrix.runner_provider}}
     strategy:
       fail-fast: false
       matrix:
         # Additional devices and platforms not covered by the regular CI matrix in test.yml.
         include:
           - name: iOS 26 iPad Sentry
+            runner_provider: cirrus
+            runs-on: tahoe
+            xcode: "26"
+            platform: "iOS"
+            device: "iPad Pro 13-inch (M5)"
+          - name: iOS 26 iPad Sentry
+            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "iOS"
             device: "iPad Pro 13-inch (M5)"
 
           - name: watchOS 26 Sentry
+            runner_provider: cirrus
+            runs-on: tahoe
+            xcode: "26"
+            platform: "watchOS"
+            timeout: 30
+          - name: watchOS 26 Sentry
+            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "watchOS"
             timeout: 30
 
           - name: visionOS 2.5 Sentry
+            runner_provider: cirrus
             runs-on: sequoia
             xcode: "26"
+            platform: "visionOS"
+            timeout: 30
+          - name: visionOS 2.5 Sentry
+            runner_provider: bitrise
+            runs-on: sequoia
+            xcode: "16"
             platform: "visionOS"
             timeout: 30
 

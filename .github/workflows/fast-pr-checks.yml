@@ -19,7 +19,7 @@ jobs:
       run_release_for_prs: ${{ steps.changes.outputs.run_release_for_prs }}
       run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
@@ -40,7 +40,7 @@ jobs:
       sdk-list: '["iphoneos"]'
 
   fast-unit-tests:
-    name: Fast Unit Tests (iOS 18)
+    name: Fast Unit Tests (iOS 18) on ${{matrix.runner_provider}}
     if: needs.files-changed.outputs.run_unit_tests_for_prs == 'true'
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
@@ -53,6 +53,10 @@ jobs:
       xcode: "16"
       platform: iOS
       scheme: Sentry
+      runner_provider: ${{matrix.runner_provider}}
+    strategy:
+      matrix:
+        runner_provider: ["cirrus", "bitrise"]
 
   sentrycrash-import-ratchet:
     name: SentryCrash Import Ratchet
@@ -60,7 +64,7 @@ jobs:
     needs: files-changed
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Check SentryCrash import count
         run: ./scripts/check-sentrycrash-imports.sh
 

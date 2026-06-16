@@ -93,8 +93,11 @@ sentryBuildAppStartSpansInternal(SentryTracer *tracer,
     }
 
     if (!appStartMeasurement.isPreWarmed) {
-        id<SentrySpan> premainSpan
-            = sentryBuildAppStartSpan(tracer, appStartSpanParentId, operation, @"Pre Runtime Init");
+        NSString *preMainOperation = isStandalone
+            ? [NSString stringWithFormat:@"%@.pre_runtime_init", operation]
+            : operation;
+        id<SentrySpan> premainSpan = sentryBuildAppStartSpan(
+            tracer, appStartSpanParentId, preMainOperation, @"Pre Runtime Init");
         [premainSpan setStartTimestamp:appStartMeasurement.appStartTimestamp];
         [premainSpan setTimestamp:appStartMeasurement.runtimeInitTimestamp];
         if (isStandalone && startType != nil) {
@@ -102,8 +105,10 @@ sentryBuildAppStartSpansInternal(SentryTracer *tracer,
         }
         [appStartSpans addObject:premainSpan];
 
-        id<SentrySpan> runtimeInitSpan = sentryBuildAppStartSpan(
-            tracer, appStartSpanParentId, operation, @"Runtime Init to Pre Main Initializers");
+        NSString *runtimeOperation
+            = isStandalone ? [NSString stringWithFormat:@"%@.runtime_init", operation] : operation;
+        id<SentrySpan> runtimeInitSpan = sentryBuildAppStartSpan(tracer, appStartSpanParentId,
+            runtimeOperation, @"Runtime Init to Pre Main Initializers");
         [runtimeInitSpan setStartTimestamp:appStartMeasurement.runtimeInitTimestamp];
         [runtimeInitSpan setTimestamp:appStartMeasurement.moduleInitializationTimestamp];
         if (isStandalone && startType != nil) {
@@ -112,8 +117,10 @@ sentryBuildAppStartSpansInternal(SentryTracer *tracer,
         [appStartSpans addObject:runtimeInitSpan];
     }
 
+    NSString *uikitOperation
+        = isStandalone ? [NSString stringWithFormat:@"%@.uikit_init", operation] : operation;
     id<SentrySpan> appInitSpan
-        = sentryBuildAppStartSpan(tracer, appStartSpanParentId, operation, @"UIKit Init");
+        = sentryBuildAppStartSpan(tracer, appStartSpanParentId, uikitOperation, @"UIKit Init");
     [appInitSpan setStartTimestamp:appStartMeasurement.moduleInitializationTimestamp];
     [appInitSpan setTimestamp:appStartMeasurement.sdkStartTimestamp];
     if (isStandalone && startType != nil) {
@@ -121,8 +128,10 @@ sentryBuildAppStartSpansInternal(SentryTracer *tracer,
     }
     [appStartSpans addObject:appInitSpan];
 
-    id<SentrySpan> didFinishLaunching
-        = sentryBuildAppStartSpan(tracer, appStartSpanParentId, operation, @"Application Init");
+    NSString *applicationOperation
+        = isStandalone ? [NSString stringWithFormat:@"%@.application_init", operation] : operation;
+    id<SentrySpan> didFinishLaunching = sentryBuildAppStartSpan(
+        tracer, appStartSpanParentId, applicationOperation, @"Application Init");
     [didFinishLaunching setStartTimestamp:appStartMeasurement.sdkStartTimestamp];
     [didFinishLaunching setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
     if (isStandalone && startType != nil) {

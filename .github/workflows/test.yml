@@ -38,7 +38,7 @@ jobs:
     outputs:
       run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
@@ -52,7 +52,7 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Cache for Test Server
         id: cache_test_server
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
@@ -108,7 +108,7 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -134,8 +134,7 @@ jobs:
           OS_VERSION: "18.5"
           PLATFORM: "iOS"
         run: ./scripts/ci-ensure-runtime-loaded.sh --os-version "$OS_VERSION" --platform "$PLATFORM"
-      - run: rm -r Sentry.xcodeproj && rm -r Sentry.xcworkspace
-      - run: set -o pipefail && NSUnbufferedIO=YES SKIP_BINARIES=1 xcodebuild test -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
+      - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild test -workspace . -scheme Sentry-Package -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro' | tee raw-test-output-distribution.log | xcbeautify --preserve-unbeautified
         shell: sh
       - name: Upload Distribution Test Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -151,27 +150,26 @@ jobs:
   # We don't run this matrix for all different OS versions, because the chances
   # of a bug solely on a specific OS version is minimal.
   unit-tests-with-test-server:
-    name: Unit with Test Server ${{matrix.name}}
-    runs-on: ${{matrix.runs-on}}
+    name: Unit with Test Server ${{matrix.name}} on ${{matrix.runner_provider}}
+    continue-on-error: ${{ matrix.runner_provider == 'bitrise' }}
+    runs-on: ${{ matrix.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', 'sequoia')) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     timeout-minutes: 20
     needs: build-test-server
 
     strategy:
       fail-fast: false
       matrix:
+        runner_provider: ["cirrus", "bitrise"]
         include:
           # Running the tests with simulators is incredibly flaky. Our assumption is that simulators might have difficulties
           # with communicating with the test server in CI.
           # We are going to add these back in https://github.com/getsentry/sentry-cocoa/issues/6361
           - name: macOS 15
-            runs-on:
-              - "ghcr.io/cirruslabs/macos-runner:sequoia,runner_concurrency_group=${{ github.run_id }}"
-              - "runner_group_id:10"
             platform: "macOS"
             xcode: "16"
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: test-server
@@ -188,11 +186,6 @@ jobs:
         uses: ./.github/actions/resolve-test-destination
         with:
           platform: ${{ matrix.platform }}
-
-      # Note: We don't install Slather or gather code coverage for this job because it only runs
-      # the SentryTestServerTests target, which contains minimal tests that don't significantly
-      # contribute to overall code coverage metrics. The main unit-tests job handles comprehensive
-      # code coverage reporting.
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
@@ -228,7 +221,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: steps.build_tests.outcome == 'failure'
         with:
-          name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          name: derived-data-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{ matrix.runner_provider }}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
@@ -236,7 +229,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          name: raw-output-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{ matrix.runner_provider }}
           path: |
             raw-build-output.log
             raw-build-for-testing-output.log
@@ -246,7 +239,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}
+          name: crash-logs-test-server-${{matrix.platform}}-xcode-${{matrix.xcode}}-${{ matrix.runner_provider }}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
@@ -261,18 +254,19 @@ jobs:
           suffix: ${{ matrix.platform }}-xcode-${{ matrix.xcode }}
 
   unit-tests:
-    name: Unit ${{matrix.name}}
+    name: Unit ${{matrix.name}} on ${{matrix.runner_provider}}
     needs: files-changed
     uses: ./.github/workflows/unit-test-common.yml
     secrets: inherit
     with:
       name: ${{matrix.name}}
       runs-on: ${{ matrix.runs-on }}
-      should_skip: ${{github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true'}}
-      xcode: ${{matrix.xcode}}
-      platform: ${{matrix.platform}}
-      test-destination-os: ${{matrix.test-destination-os}}
       timeout: ${{matrix.timeout || 20}}
+      should_skip: ${{ (github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true') || (matrix.runner_provider == 'cirrus' && matrix.runs-on == 'sonoma') }}
+      runner_provider: ${{matrix.runner_provider}}
+      xcode: ${{matrix.xcode}}
+      test-destination-os: ${{matrix.test-destination-os}}
+      platform: ${{matrix.platform}}
       device: ${{matrix.device || ''}}
       scheme: "Sentry"
     strategy:
@@ -284,6 +278,14 @@ jobs:
 
           # iOS 17
           - name: iOS 17 Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "16"
+            test-destination-os: "17.5"
+            platform: "iOS"
+            device: "iPhone 15 Pro"
+          - name: iOS 17 Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             test-destination-os: "17.5"
@@ -292,12 +294,24 @@ jobs:
 
           # iOS 18
           - name: iOS 18 Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "16"
+            platform: "iOS"
+          - name: iOS 18 Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             platform: "iOS"
 
           # iOS 26
           - name: iOS 26 Sentry
+            runner_provider: cirrus
+            runs-on: tahoe
+            xcode: "26"
+            platform: "iOS"
+          - name: iOS 26 Sentry
+            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "iOS"
@@ -306,33 +320,68 @@ jobs:
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 15 is minimal.
           # We are running tests on macOS 15 and later, as there were OS-internal changes introduced in succeeding versions.
 
-          # macOS 15 pinned to Xcode 16.2 to preserve coverage from the retired macOS 14 runner.
+          # macOS 15 pinned to Xcode 16.2 to preserve OS matrix coverage from the retired macOS 14 runner.
           - name: macOS 15 Compat Sentry
+            runner_provider: cirrus
             runs-on: sequoia
             xcode: "16.2"
             platform: "macOS"
 
+          # macOS 14 — Bitrise only (sonoma pool still available)
+          - name: macOS 14 Sentry
+            runner_provider: bitrise
+            runs-on: sonoma
+            xcode: "16"
+            platform: "macOS"
+
           # macOS 15
           - name: macOS 15 Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "16"
+            platform: "macOS"
+          - name: macOS 15 Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             platform: "macOS"
 
           # macOS 26
           - name: macOS 26 Sentry
+            runner_provider: cirrus
+            runs-on: tahoe
+            xcode: "26"
+            platform: "macOS"
+          - name: macOS 26 Sentry
+            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "macOS"
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
-          # In addition we run Catalyst with Xcode 16.2 on macOS 15, preserving coverage from the retired macOS 14 runner.
+          # In addition we run Catalyst with Xcode 16.2 on macOS 15, preserving OS matrix coverage from the retired macOS 14 runner.
           - name: Catalyst 15 Compat Sentry
+            runner_provider: cirrus
             runs-on: sequoia
             xcode: "16.2"
             platform: "Catalyst"
 
+          # Catalyst 14 — Bitrise only (sonoma pool still available)
+          - name: Catalyst 14 Sentry
+            runner_provider: bitrise
+            runs-on: sonoma
+            xcode: "16"
+            platform: "Catalyst"
+
+          # Catalyst 15
           - name: Catalyst 15 Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "16"
+            platform: "Catalyst"
+          - name: Catalyst 15 Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             platform: "Catalyst"
@@ -345,6 +394,7 @@ jobs:
 
           # tvOS 17
           - name: tvOS 17 Sentry
+            runner_provider: cirrus
             runs-on: sequoia
             xcode: "16"
             test-destination-os: "17.5"
@@ -352,12 +402,25 @@ jobs:
 
           # tvOS 18
           - name: tvOS 18 Sentry
+            runner_provider: cirrus
+            runs-on: sequoia
+            xcode: "16"
+            platform: "tvOS"
+          - name: tvOS 18 Sentry
+            runner_provider: bitrise
             runs-on: sequoia
             xcode: "16"
             platform: "tvOS"
 
           # tvOS 26
           - name: tvOS 26 Sentry
+            runner_provider: cirrus
+            runs-on: tahoe
+            xcode: "26"
+            platform: "tvOS"
+            device: "Apple TV"
+          - name: tvOS 26 Sentry
+            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "tvOS"
@@ -365,6 +428,13 @@ jobs:
 
           # visionOS 26
           - name: visionOS 26 Sentry
+            runner_provider: cirrus
+            runs-on: tahoe
+            xcode: "26"
+            platform: "visionOS"
+            timeout: 30
+          - name: visionOS 26 Sentry
+            runner_provider: bitrise
             runs-on: tahoe
             xcode: "26"
             platform: "visionOS"

@@ -1010,7 +1010,7 @@ class SentryTracerTests: XCTestCase {
             "UIKit Init",
             "Application Init"
         ])
-        XCTAssertEqual(Set(spanOperations), ["app.start"])
+        XCTAssertEqual(Set(spanOperations), ["app.start.pre_runtime_init", "app.start.runtime_init", "app.start.uikit_init", "app.start.application_init"])
     }
 
     func testFinish_whenBothConfigAndGlobalAppStartSet_shouldUseConfig() throws {

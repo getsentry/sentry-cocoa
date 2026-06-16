@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+#
+# This sample uses the pre-built SentryObjC-Static xcframework from
+# Package.swift. It validates that the binary target works end-to-end
+# via SPM in a plain Objective-C iOS app.
+
+name: iOS-ObjectiveC-Static
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+packages:
+  Sentry:
+    path: ../..
+options:
+  bundleIdPrefix: io.sentry
+targets:
+  iOS-ObjectiveC-Static:
+    type: application
+    platform: auto
+    deploymentTarget: "15.0"
+    sources:
+      # Sources
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      # Resources
+      - path: App/Resources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/SampleAssets.xcassets
+        group: App/Resources
+      # Configurations
+      - path: App/Configurations
+        type: group
+        group: App
+        buildPhase: none
+        excludes:
+          - "**/.gitkeep"
+      - path: ../Shared/Config
+        type: group
+        group: App/Configurations
+        buildPhase: none
+      - path: iOS-ObjectiveC-Static.yml
+        group: App/Configurations
+        buildPhase: none
+    dependencies:
+      - package: Sentry
+        product: SentryObjC-Static
+    configFiles:
+      Debug: App/Configurations/iOS-ObjectiveC-Static.xcconfig
+      Release: App/Configurations/iOS-ObjectiveC-Static.xcconfig
+schemes:
+  iOS-ObjectiveC-Static:
+    build:
+      targets:
+        iOS-ObjectiveC-Static: all
+    run:
+      config: Debug
+    archive:
+      config: Release

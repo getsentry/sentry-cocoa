@@ -336,8 +336,10 @@ class AppStartReportingStrategyTests: XCTestCase {
             "Application Init"
         ])
 
-        let operations = Set(spans.compactMap { $0["op"] as? String })
-        XCTAssertEqual(operations, ["app.start"])
+        XCTAssertEqual(spans[0]["op"] as? String, "app.start.pre_runtime_init")
+        XCTAssertEqual(spans[1]["op"] as? String, "app.start.runtime_init")
+        XCTAssertEqual(spans[2]["op"] as? String, "app.start.uikit_init")
+        XCTAssertEqual(spans[3]["op"] as? String, "app.start.application_init")
 
         let appStartInterval = appStart.timeIntervalSince1970
 
@@ -382,7 +384,7 @@ class AppStartReportingStrategyTests: XCTestCase {
         StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
 
         XCTAssertTrue(hub.capturedTransactionsWithScope.invocations.isEmpty,
-            "report() should store the tracer via storeTracerIfExtendRequested and not finish it")
+            "report() should set the measurement on the existing tracer and not finish it")
 
         manager.finish()
         XCTAssertEqual(hub.capturedTransactionsWithScope.invocations.count, 1,

@@ -2,6 +2,129 @@
 
 ## Unreleased
 
+### Features
+
+- Add SentryObjC User Feedback presentation APIs and a feedback form factory returning `UIViewController` instances. (#8027)
+
+### Fixes
+
+- Show feedback form from shake or screenshot without widget (#8050)
+
+### Deprecations
+
+- Deprecate the managed User Feedback custom button. It will be removed in v10. Present the feedback form from your own UI with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, or `.sentryFeedback(isPresented:)` instead. (#8052)
+
+## 9.17.1
+
+### Fixes
+
+- Ship dSYMs in SentryObjC-Dynamic.xcframework artifacts (#8036)
+- Fix missing `_OBJC_CLASS_$_` symbols in x86_64 slice of SentryObjC dynamic framework (#8037)
+- Mark feedback form aliases and conformances unavailable in app extensions (#8040)
+- Silence retroactive conformance warning for `SentryLevel: CustomStringConvertible` when building with SPM from source (#8032)
+
+## 9.17.0
+
+### Features
+
+- Support creating envelope items from attachments via SentryObjC (#8001)
+- Add format-string logging to `SentryObjCLogger` with automatic message template extraction (#7996)
+
+  ```objc
+  [SentryObjCSDK.logger infoWithFormat:@"User %@ processed %d items", userName, count];
+  ```
+- Add managed user feedback form presentation APIs (#7873)
+
+  Apps using the managed User Feedback integration can now present the form directly:
+  - Use `SentrySDK.feedback.show()` to let the SDK pick the best presenter.
+  - In UIKit, present the `SentrySDK.FeedbackForm()` view controller yourself.
+  - In SwiftUI, use `.sentryFeedback(isPresented:)`, or present `SentrySDK.FeedbackFormView()` from a container such as `.sheet`.
+
+  These APIs use the global `SentryOptions.configureUserFeedback` configuration and temporarily hide the managed widget
+  while the form is open, when possible.
+- Add per-form feedback configuration (#8018)
+
+  Managed feedback presentation APIs now accept a configuration closure, so apps can customize a single
+  form on top of the global `SentryOptions.configureUserFeedback` settings without mutating them:
+
+  ```swift
+  SentrySDK.feedback.show { config in
+      config.configureForm = { form in
+          form.formTitle = "Report a Bug"
+          form.submitButtonLabel = "Send Report"
+      }
+      config.tags = ["screen": "settings"]
+  }
+  ```
+- Standalone app start sub-spans operations have been renamed for better clarity (#8003):
+  - Pre Runtime Init: app.start	-> app.start.pre_runtime_init
+  - Runtime Init to Pre Main Initializers: app.start -> app.start.runtime_init
+  - UIKit Init: app.start -> app.start.uikit_init
+  - Application Init: app.start -> app.start.application_init
+  - Extended App Start: app.start -> app.start.extended_app_start
+
+### Deprecations
+
+- Deprecate the managed User Feedback widget/FAB. It will be removed in v10. Present the feedback form from your own UI with `SentrySDK.feedback.show()`, `SentrySDK.FeedbackForm`, or `.sentryFeedback(isPresented:)` instead. (#8022)
+
+### Fixes
+
+- App start duration on the Vitals dashboard now reflects the extended app launch time when using `extendAppLaunch()` (#8028)
+
+## 9.16.1
+
+> [!NOTE]
+> No documented changes. This is the same as 9.16.0, re-released to fix the SentryObjC-Static SPM checksum.
+
+> [!IMPORTANT]
+> The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
+
+### Features
+
+- Add SentryObjC wrapper SDK — a pure Objective-C interface for projects that cannot enable Clang modules (e.g., ObjC++ with `-fmodules=NO`). (#7918)
+
+  Ships as a compile-from-source SPM product `SentryObjC`, a static pre-compiled framework `SentryObjC-Static.xcframework.zip` and a dynamic pre-compiled framework `SentryObjC-Dynamic.xcframework.zip`.
+
+  Steps to migrate:
+  - Replace your dependency on the target `Sentry` or `SentrySPM` with `SentryObjC` (or `SentryObjC-Static` / `SentryObjC-Dynamic` if you want to use the precompiled binary targets).
+  - Change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`
+  - Rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
+- `SentrySDK.extendAppLaunch()` now returns the extended app launch span, allowing users to add child spans for granular breakdown of the app start period (#7985)
+
+### Fixes
+
+- Fix crash in `SentryFramesTracker.add/removeListener` when called from a listener's own `init` / `deinit` on a background thread, observed on iOS 26 (#7943)
+- Report only `cold` or `warm` as `start_type` for standalone app starts, removing the `.prewarmed` suffix per sentry-conventions (#7968)
+- Fix reporting arbitrary Objective-C object throws via the C++ exception monitor (#7984)
+
+## 9.16.0
+
+> [!WARNING]
+> The `SentryObjC-Static` SPM binary target in this release has an incorrect checksum and resolving dependencies might fail, but the release artifacts are not affected.
+
+> [!IMPORTANT]
+> The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
+
+### Features
+
+- Add SentryObjC wrapper SDK — a pure Objective-C interface for projects that cannot enable Clang modules (e.g., ObjC++ with `-fmodules=NO`). (#7918)
+
+  Ships as a compile-from-source SPM product `SentryObjC`, a static pre-compiled framework `SentryObjC-Static.xcframework.zip` and a dynamic pre-compiled framework `SentryObjC-Dynamic.xcframework.zip`.
+
+  Steps to migrate:
+  - Replace your dependency on the target `Sentry` or `SentrySPM` with `SentryObjC` (or `SentryObjC-Static` / `SentryObjC-Dynamic` if you want to use the precompiled binary targets).
+  - Change `#import <Sentry/Sentry.h>` to `#import <SentryObjC/SentryObjC.h>`
+  - Rename `Sentry`-prefixed types to `SentryObjC` (e.g., `SentrySDK` → `SentryObjCSDK`, `SentryOptions` → `SentryObjCOptions`).
+- `SentrySDK.extendAppLaunch()` now returns the extended app launch span, allowing users to add child spans for granular breakdown of the app start period (#7985)
+
+### Fixes
+
+- Fix crash in `SentryFramesTracker.add/removeListener` when called from a listener's own `init` / `deinit` on a background thread, observed on iOS 26 (#7943)
+- Report only `cold` or `warm` as `start_type` for standalone app starts, removing the `.prewarmed` suffix per sentry-conventions (#7968)
+- Fix reporting arbitrary Objective-C object throws via the C++ exception monitor (#7984)
+
+## 9.16.0-alpha.3
+
 > [!IMPORTANT]
 > The new SentryObjC SDK introduced in this release should be considered experimental and may be subject to breaking changes.
 

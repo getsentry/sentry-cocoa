@@ -25,6 +25,12 @@ on:
         default: false
         type: boolean
 
+      runner_provider:
+        description: "CI runner provider: cirrus (default) or bitrise"
+        required: false
+        default: "cirrus"
+        type: string
+
       xcode:
         description: the Xcode version to use for the job
         required: true
@@ -57,11 +63,12 @@ on:
 jobs:
   unit-tests:
     name: Unit ${{inputs.name}}
-    runs-on: ${{ fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.runs-on, github.run_id)) }}
+    runs-on: ${{ inputs.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', inputs.runs-on)) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.runs-on, github.run_id)) }}
+    continue-on-error: ${{ inputs.runner_provider == 'bitrise' }}
     timeout-minutes: ${{inputs.timeout}}
     if: ${{!inputs.should_skip}}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Setup Xcode
         id: setup-xcode
         uses: ./.github/actions/setup-xcode
@@ -76,13 +83,26 @@ jobs:
           device: ${{ inputs.device }}
           platform: ${{ inputs.platform }}
 
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        name: Cache Ruby
+        with:
+          path: |
+            ~/.rbenv/versions
+            ~/.rbenv/cache
+          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}
+
+      - name: Install Ruby (Bitrise)
+        if: inputs.runner_provider == 'bitrise'
+        run: |
+          brew upgrade ruby-build
+          rbenv install -s
+          bundle install
+
       - name: Setup Ruby
-        uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
+        if: inputs.runner_provider != 'bitrise'
+        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
         with:
           bundler-cache: true
-
-      - name: Install Slather
-        run: gem install slather
 
       - name: Ensure required runtime is loaded
         if: ${{ inputs.platform == 'iOS' || inputs.platform == 'tvOS' || inputs.platform == 'visionOS' }}
@@ -213,7 +233,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: steps.build_tests.outcome == 'failure'
         with:
-          name: derived-data-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: derived-data-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
             /Users/runner/Library/Developer/Xcode/DerivedData/**/Logs/**
 
@@ -221,7 +241,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-output-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: raw-output-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
             raw-build-output.log
             raw-build-for-testing-output.log
@@ -231,7 +251,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: crash-logs-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: crash-logs-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
             ~/Library/Logs/DiagnosticReports/**
 
@@ -239,7 +259,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: result-bundle-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: result-bundle-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           path: |
             results.xcresult
             flaky-results.xcresult
@@ -248,49 +268,10 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ (failure() || cancelled()) && inputs.scheme == 'Sentry' && steps.collect_sentrytests_metadata.outcome == 'success' }}
         with:
-          name: sentrytests-metadata-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
+          name: sentrytests-metadata-${{ inputs.runner_provider }}-${{inputs.platform}}-xcode-${{inputs.xcode}}-os-${{steps.resolve-test-destination.outputs.TEST_OS}}
           if-no-files-found: error
           path: |
             sentrytests-metadata/**
-
-      - name: Gather code coverage information via slather
-        run: slather coverage --configuration TestCI --scheme Sentry
-
-      # We can upload all coverage reports, because codecov merges them.
-      # See https://docs.codecov.io/docs/merging-reports
-      # Checkout .codecov.yml to see the config of Codecov
-      # We don't upload codecov for release branches, as we don't want a failing coverage check to block a release.
-      # We don't upload codecov for scheduled runs as CodeCov only accepts a limited amount of uploads per commit.
-      - name: Push code coverage to codecov
-        id: codecov_1
-        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # pin@v6.0.1
-        if: ${{ contains(inputs.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
-        with:
-          # Although public repos should not have to specify a token there seems to be a bug with the Codecov GH action, which can
-          # be solved by specifying the token, see https://github.com/codecov/codecov-action/issues/557#issuecomment-1224970469
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: false
-          verbose: true
-
-      # Sometimes codecov uploads etc can fail. Retry one time to rule out e.g. intermittent network failures.
-      - name: Push code coverage to codecov
-        id: codecov_2
-        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # pin@v6.0.1
-        if: ${{ steps.codecov_1.outcome == 'failure' && contains(inputs.platform, 'iOS') && !contains(github.ref, 'release') && github.event.schedule == '' }}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
-          verbose: true
-
-      - name: Codecov test analytics
-        if: ${{ !cancelled() && !contains(github.ref, 'release') && github.event.schedule == '' }}
-        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # pin@v6.0.1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          report_type: test_results
-          verbose: true
-          name: sentry-cocoa-unit-tests
-          flags: unittests-${{ inputs.platform }}-${{ inputs.xcode }}-${{ steps.resolve-test-destination.outputs.TEST_OS }}, unittests
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -300,4 +281,4 @@ jobs:
         uses: ./.github/actions/capture-screenshot
         if: failure()
         with:
-          suffix: unit-tests-${{ inputs.platform }}-xcode-${{ inputs.xcode }}-os-${{ steps.resolve-test-destination.outputs.TEST_OS }}
+          suffix: unit-tests-${{ inputs.runner_provider }}-${{ inputs.platform }}-xcode-${{ inputs.xcode }}-os-${{ steps.resolve-test-destination.outputs.TEST_OS }}

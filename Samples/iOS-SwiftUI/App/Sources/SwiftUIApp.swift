@@ -39,7 +39,6 @@ class MySceneDelegate: NSObject, UIWindowSceneDelegate, ObservableObject {
         }
 
         SampleAppDebugMenu.shared.display()
-        SentrySDK.feedback.showWidget()
         initializedSentry = true
     }
 }

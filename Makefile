@@ -202,6 +202,98 @@ build-watchos:
 		-configuration Debug \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
 
+## Build all platforms with SDK_V10 flag
+#
+# Convenience target that invokes all V10 platform build targets.
+.PHONY: build-v10
+build-v10: build-ios-v10 build-macos-v10 build-catalyst-v10 build-tvos-v10 build-visionos-v10 build-watchos-v10
+
+## Build iOS target with SDK_V10 flag
+#
+# Builds the Sentry SDK for iOS Simulator using the DebugV10 configuration.
+.PHONY: build-ios-v10
+build-ios-v10:
+	@echo "--> Building V10 for iOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform iOS \
+		--os $(IOS_SIMULATOR_OS) \
+		--device "$(IOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryV10 \
+		--configuration DebugV10
+
+## Build macOS target with SDK_V10 flag
+#
+# Builds the Sentry SDK for macOS using the DebugV10 configuration.
+.PHONY: build-macos-v10
+build-macos-v10:
+	@echo "--> Building V10 for macOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform macOS \
+		--os latest \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryV10 \
+		--configuration DebugV10
+
+## Build Catalyst target with SDK_V10 flag
+#
+# Builds the Sentry SDK for Mac Catalyst using the DebugV10 configuration.
+.PHONY: build-catalyst-v10
+build-catalyst-v10:
+	@echo "--> Building V10 for Catalyst"
+	./scripts/sentry-xcodebuild.sh \
+		--platform Catalyst \
+		--os latest \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryV10 \
+		--configuration DebugV10
+
+## Build tvOS target with SDK_V10 flag
+#
+# Builds the Sentry SDK for tvOS Simulator using the DebugV10 configuration.
+.PHONY: build-tvos-v10
+build-tvos-v10:
+	@echo "--> Building V10 for tvOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform tvOS \
+		--os $(TVOS_SIMULATOR_OS) \
+		--device "$(TVOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryV10 \
+		--configuration DebugV10
+
+## Build visionOS target with SDK_V10 flag
+#
+# Builds the Sentry SDK for visionOS Simulator using the DebugV10 configuration.
+.PHONY: build-visionos-v10
+build-visionos-v10:
+	@echo "--> Building V10 for visionOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform visionOS \
+		--os $(VISIONOS_SIMULATOR_OS) \
+		--device "$(VISIONOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme SentryV10 \
+		--configuration DebugV10
+
+## Build watchOS target with SDK_V10 flag
+#
+# Builds the Sentry SDK for watchOS Simulator using the DebugV10 configuration.
+.PHONY: build-watchos-v10
+build-watchos-v10:
+	@echo "--> Building V10 for watchOS"
+	set -o pipefail && NSUnbufferedIO=YES xcrun xcodebuild build \
+		-workspace Sentry.xcworkspace \
+		-scheme SentryV10 \
+		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
+		-configuration DebugV10 \
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
+
 ## Build XCFramework for distribution
 #
 # Creates Sentry XCFramework bundles for all platforms and variants.
@@ -232,19 +324,13 @@ build-xcframework-sample:
 # Builds SentryObjC as a static xcframework via SPM archive + libtool.
 # Output lands in SentryObjC-Static.xcframework.
 #
-# SDKS is a comma-separated list of SDK names. Required — no default,
-# to keep local iteration fast.
+# SDKS is a comma-separated list of SDK names. Defaults to all SDKS.
 #
 # Examples:
 #   make build-xcframework-sentryobjc-static SDKS=iphonesimulator
 #   make build-xcframework-sentryobjc-static SDKS=iphoneos,iphonesimulator
 .PHONY: build-xcframework-sentryobjc-static
 build-xcframework-sentryobjc-static:
-	@if [ -z "$(SDKS)" ]; then \
-		echo "error: SDKS is required."; \
-		echo "       example: make $@ SDKS=iphonesimulator"; \
-		exit 1; \
-	fi
 	@echo "--> Creating SentryObjC-Static xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)"
 
@@ -253,19 +339,13 @@ build-xcframework-sentryobjc-static:
 # Builds SentryObjC as a dynamic xcframework via SPM archive + swiftc relink.
 # Output lands in SentryObjC-Dynamic.xcframework.
 #
-# SDKS is a comma-separated list of SDK names. Required — no default,
-# to keep local iteration fast.
+# SDKS is a comma-separated list of SDK names. Defaults to all SDKS.
 #
 # Examples:
 #   make build-xcframework-sentryobjc-dynamic SDKS=iphonesimulator
 #   make build-xcframework-sentryobjc-dynamic SDKS=iphoneos,iphonesimulator
 .PHONY: build-xcframework-sentryobjc-dynamic
 build-xcframework-sentryobjc-dynamic:
-	@if [ -z "$(SDKS)" ]; then \
-		echo "error: SDKS is required."; \
-		echo "       example: make $@ SDKS=iphonesimulator"; \
-		exit 1; \
-	fi
 	@echo "--> Creating SentryObjC-Dynamic xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant dynamic
 
@@ -280,6 +360,8 @@ build-xcframework-sentryobjc-dynamic:
 build-samples: \
 	build-sample-DistributionSample \
 	build-sample-iOS-ObjectiveC \
+	build-sample-iOS-ObjectiveC-Dynamic \
+	build-sample-iOS-ObjectiveC-Static \
 	build-sample-iOS-ObjectiveCpp-NoModules \
 	build-sample-iOS-Swift \
 	build-sample-iOS-Swift6 \
@@ -449,6 +531,32 @@ build-sample-iOS-ObjectiveC:
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
 		-scheme iOS-ObjectiveC \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS-ObjectiveC-Dynamic sample app
+#
+# Builds the iOS-ObjectiveC-Dynamic sample app for the iOS Simulator.
+# This sample uses the pre-built SentryObjC-Dynamic xcframework via SPM.
+.PHONY: build-sample-iOS-ObjectiveC-Dynamic
+build-sample-iOS-ObjectiveC-Dynamic:
+	xcodegen --spec Samples/iOS-ObjectiveC-Dynamic/iOS-ObjectiveC-Dynamic.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/iOS-ObjectiveC-Dynamic/iOS-ObjectiveC-Dynamic.xcodeproj" \
+		-scheme iOS-ObjectiveC-Dynamic \
+		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
+		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
+
+## Build the iOS-ObjectiveC-Static sample app
+#
+# Builds the iOS-ObjectiveC-Static sample app for the iOS Simulator.
+# This sample uses the pre-built SentryObjC-Static xcframework via SPM.
+.PHONY: build-sample-iOS-ObjectiveC-Static
+build-sample-iOS-ObjectiveC-Static:
+	xcodegen --spec Samples/iOS-ObjectiveC-Static/iOS-ObjectiveC-Static.yml
+	set -o pipefail && xcodebuild \
+		-project "Samples/iOS-ObjectiveC-Static/iOS-ObjectiveC-Static.xcodeproj" \
+		-scheme iOS-ObjectiveC-Static \
 		-destination 'platform=iOS Simulator,OS=$(IOS_SIMULATOR_OS),name=$(IOS_DEVICE_NAME)' \
 		CODE_SIGNING_ALLOWED="NO" build | xcbeautify --preserve-unbeautified
 
@@ -706,6 +814,116 @@ test-visionos:
 
 # Note: test-watchos target is not available because watchOS does not support XCTest.
 # Tests cannot be run on watchOS as the XCTest framework is not available on that platform.
+
+## Run all platform tests with SDK_V10 flag
+#
+# Convenience target that invokes all V10 platform test targets.
+# Note: test-watchos-v10 is excluded as watchOS does not support XCTest.
+.PHONY: test-v10
+test-v10: test-ios-v10 test-macos-v10 test-catalyst-v10 test-tvos-v10 test-visionos-v10
+
+## Run iOS tests with SDK_V10 flag
+#
+# Runs unit tests for iOS Simulator using the SentryV10 scheme.
+#
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Examples:
+#   make test-ios-v10
+#   make test-ios-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
+.PHONY: test-ios-v10
+test-ios-v10:
+	@echo "--> Running V10 iOS tests"
+	./scripts/sentry-xcodebuild.sh \
+		--platform iOS \
+		--os $(IOS_SIMULATOR_OS) \
+		--device "$(IOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command test \
+		--scheme SentryV10 \
+		--configuration TestV10 \
+		--only-testing "$(ONLY_TESTING)"
+
+## Run macOS tests with SDK_V10 flag
+#
+# Runs unit tests for macOS using the SentryV10 scheme.
+#
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Examples:
+#   make test-macos-v10
+#   make test-macos-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
+.PHONY: test-macos-v10
+test-macos-v10:
+	@echo "--> Running V10 macOS tests"
+	./scripts/sentry-xcodebuild.sh \
+		--platform macOS \
+		--os latest \
+		--ref $(GIT-REF) \
+		--command test \
+		--scheme SentryV10 \
+		--configuration TestV10 \
+		--only-testing "$(ONLY_TESTING)"
+
+## Run Catalyst tests with SDK_V10 flag
+#
+# Runs unit tests for Mac Catalyst using the SentryV10 scheme.
+#
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Examples:
+#   make test-catalyst-v10
+#   make test-catalyst-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
+.PHONY: test-catalyst-v10
+test-catalyst-v10:
+	@echo "--> Running V10 Catalyst tests"
+	./scripts/sentry-xcodebuild.sh \
+		--platform Catalyst \
+		--os latest \
+		--ref $(GIT-REF) \
+		--command test \
+		--scheme SentryV10 \
+		--configuration TestV10 \
+		--only-testing "$(ONLY_TESTING)"
+
+## Run tvOS tests with SDK_V10 flag
+#
+# Runs unit tests for tvOS Simulator using the SentryV10 scheme.
+#
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Examples:
+#   make test-tvos-v10
+#   make test-tvos-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
+.PHONY: test-tvos-v10
+test-tvos-v10:
+	@echo "--> Running V10 tvOS tests"
+	./scripts/sentry-xcodebuild.sh \
+		--platform tvOS \
+		--os $(TVOS_SIMULATOR_OS) \
+		--device "$(TVOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command test \
+		--scheme SentryV10 \
+		--configuration TestV10 \
+		--only-testing "$(ONLY_TESTING)"
+
+## Run visionOS tests with SDK_V10 flag
+#
+# Runs unit tests for visionOS Simulator using the SentryV10 scheme.
+#
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Examples:
+#   make test-visionos-v10
+#   make test-visionos-v10 ONLY_TESTING=SentryTests/SentryHttpTransportTests
+.PHONY: test-visionos-v10
+test-visionos-v10:
+	@echo "--> Running V10 visionOS tests"
+	./scripts/sentry-xcodebuild.sh \
+		--platform visionOS \
+		--os $(VISIONOS_SIMULATOR_OS) \
+		--device "$(VISIONOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command test \
+		--scheme SentryV10 \
+		--configuration TestV10 \
+		--only-testing "$(ONLY_TESTING)"
 
 ## Run test server in background
 #
@@ -984,6 +1202,19 @@ strip-xcframework-expected-signature:
 # VALIDATION
 # ============================================================================
 
+## Validate XCFramework symbol consistency across architectures
+#
+# Checks that exported ObjC class symbols are identical across all architectures
+# within each fat binary. Catches resilient value type drift that causes
+# x86_64-specific linker failures.
+#
+# Usage:
+#   make validate-xcframework-symbols XCFRAMEWORK=SentryObjC-Dynamic.xcframework
+.PHONY: validate-xcframework-symbols
+validate-xcframework-symbols:
+	@echo "--> Validating XCFramework symbol consistency"
+	./scripts/validate-xcframework-symbols.sh --xcframework "$(XCFRAMEWORK)"
+
 ## Lint CocoaPods podspec
 #
 # Validates the CocoaPods podspec file.
@@ -1012,6 +1243,8 @@ xcode-ci: xcode-ci-SentrySampleShared \
 	xcode-ci-SPM \
 	xcode-ci-SessionReplay-CameraTest \
 	xcode-ci-iOS-ObjectiveC \
+	xcode-ci-iOS-ObjectiveC-Dynamic \
+	xcode-ci-iOS-ObjectiveC-Static \
 	xcode-ci-iOS-ObjectiveCpp-NoModules \
 	xcode-ci-iOS-Swift \
 	xcode-ci-iOS-Swift6 \
@@ -1047,6 +1280,14 @@ xcode-ci-SessionReplay-CameraTest: xcode-ci-SentrySampleShared
 .PHONY: xcode-ci-iOS-ObjectiveC
 xcode-ci-iOS-ObjectiveC: xcode-ci-SentrySampleShared
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
+
+.PHONY: xcode-ci-iOS-ObjectiveC-Dynamic
+xcode-ci-iOS-ObjectiveC-Dynamic:
+	xcodegen --spec Samples/iOS-ObjectiveC-Dynamic/iOS-ObjectiveC-Dynamic.yml
+
+.PHONY: xcode-ci-iOS-ObjectiveC-Static
+xcode-ci-iOS-ObjectiveC-Static:
+	xcodegen --spec Samples/iOS-ObjectiveC-Static/iOS-ObjectiveC-Static.yml
 
 .PHONY: xcode-ci-iOS-ObjectiveCpp-NoModules
 xcode-ci-iOS-ObjectiveCpp-NoModules:

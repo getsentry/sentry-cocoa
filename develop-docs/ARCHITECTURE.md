@@ -16,7 +16,7 @@ At the highest level, the SDK is composed of a few key components:
 - **Performance Tracking**: `SentryTracer`, `SentrySpan`, `SentryPerformanceTracker` for transaction monitoring
 - **App Start Tracking**: `SentryTimeToDisplayTracker` measures TTID/TTFD for UI performance; `SentryLaunchProfiling` manages profiling specifically for app launches
 - **Session Replay**: Recording and transmission of user sessions
-- **User Feedback**: Both code-based API to send feedback from users, and injectable UI to gather it from users
+- **User Feedback**: Both code-based API to send feedback from users, and managed UI to gather it from users
 - **Crash Reporting**: Originally forked from KSCrash and independently evolved since then
 
 ### Integrations

@@ -374,7 +374,6 @@ class SentryAppStartTrackerTests: NotificationCenterTestCase {
 
         let serialized = try XCTUnwrap(hub.capturedTransactionsWithScope.invocations.first?.transaction)
         XCTAssertEqual(serialized["transaction"] as? String, "App Start")
-        XCTAssertNil(SentryAppStartMeasurementProvider.appStartTraceId())
     }
 
     func testStart_whenStandaloneAppStartTracingAndSDKNotEnabled_shouldDropAppStart() {

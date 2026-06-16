@@ -21,9 +21,7 @@ final class UserFeedbackIntegration<Dependencies: ScreenshotSourceProvider>: NSO
             return nil
         }
 
-        driver = SentryUserFeedbackIntegrationDriver(configuration: configuration, screenshotSource: screenshotSource) { feedback in
-            SentrySDK.capture(feedback: feedback)
-        }
+        driver = SentryUserFeedbackIntegrationDriver(configuration: configuration, screenshotSource: screenshotSource)
     }
 
     func uninstall() { /* Empty on purpose. Nothing to uninstall. */ }

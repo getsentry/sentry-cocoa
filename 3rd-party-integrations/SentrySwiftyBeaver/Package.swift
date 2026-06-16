@@ -11,7 +11,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.16.0-alpha.2"),
+        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.17.1"),
         .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", from: "2.0.0")
     ],
     targets: [

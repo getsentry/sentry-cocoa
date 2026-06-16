@@ -1433,6 +1433,42 @@
       {
         "children": [
           {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryUserFeedbackConfiguration",
+                "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+              }
+            ],
+            "kind": "TypeFunc",
+            "name": "Function",
+            "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+          }
+        ],
+        "declKind": "TypeAlias",
+        "kind": "TypeAlias",
+        "mangledName": "$s6Sentry0A33UserFeedbackConfigurationCallbacka",
+        "moduleName": "Sentry",
+        "name": "SentryUserFeedbackConfigurationCallback",
+        "printedName": "SentryUserFeedbackConfigurationCallback",
+        "usr": "s:6Sentry0A33UserFeedbackConfigurationCallbacka"
+      },
+      {
+        "children": [
+          {
             "kind": "TypeNominal",
             "name": "__NSConstantString_tag",
             "printedName": "__ObjC.__NSConstantString_tag",
@@ -21786,30 +21822,37 @@
                           {
                             "children": [
                               {
-                                "kind": "TypeNominal",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "Void",
+                                    "printedName": "()"
+                                  }
+                                ],
+                                "kind": "TypeNameAlias",
                                 "name": "Void",
-                                "printedName": "()"
+                                "printedName": "Swift.Void"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryUserFeedbackConfiguration",
+                                "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
                               }
                             ],
-                            "kind": "TypeNameAlias",
-                            "name": "Void",
-                            "printedName": "Swift.Void"
-                          },
-                          {
-                            "kind": "TypeNominal",
-                            "name": "SentryUserFeedbackConfiguration",
-                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
-                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                            "kind": "TypeFunc",
+                            "name": "Function",
+                            "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
                           }
                         ],
-                        "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                        "kind": "TypeNameAlias",
+                        "name": "SentryUserFeedbackConfigurationCallback",
+                        "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
                       }
                     ],
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "((Sentry.SentryUserFeedbackConfiguration) -> Swift.Void)?",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
                     "usr": "s:Sq"
                   }
                 ],
@@ -21835,30 +21878,37 @@
                           {
                             "children": [
                               {
-                                "kind": "TypeNominal",
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "Void",
+                                    "printedName": "()"
+                                  }
+                                ],
+                                "kind": "TypeNameAlias",
                                 "name": "Void",
-                                "printedName": "()"
+                                "printedName": "Swift.Void"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryUserFeedbackConfiguration",
+                                "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
                               }
                             ],
-                            "kind": "TypeNameAlias",
-                            "name": "Void",
-                            "printedName": "Swift.Void"
-                          },
-                          {
-                            "kind": "TypeNominal",
-                            "name": "SentryUserFeedbackConfiguration",
-                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
-                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                            "kind": "TypeFunc",
+                            "name": "Function",
+                            "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
                           }
                         ],
-                        "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                        "kind": "TypeNameAlias",
+                        "name": "SentryUserFeedbackConfigurationCallback",
+                        "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
                       }
                     ],
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "((Sentry.SentryUserFeedbackConfiguration) -> Swift.Void)?",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
                     "usr": "s:Sq"
                   },
                   {
@@ -21889,30 +21939,37 @@
                       {
                         "children": [
                           {
-                            "kind": "TypeNominal",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
                             "name": "Void",
-                            "printedName": "()"
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
                           }
                         ],
-                        "kind": "TypeNameAlias",
-                        "name": "Void",
-                        "printedName": "Swift.Void"
-                      },
-                      {
-                        "kind": "TypeNominal",
-                        "name": "SentryUserFeedbackConfiguration",
-                        "printedName": "Sentry.SentryUserFeedbackConfiguration",
-                        "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
                       }
                     ],
-                    "kind": "TypeFunc",
-                    "name": "Function",
-                    "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                    "kind": "TypeNameAlias",
+                    "name": "SentryUserFeedbackConfigurationCallback",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
                   }
                 ],
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "((Sentry.SentryUserFeedbackConfiguration) -> Swift.Void)?",
+                "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
                 "usr": "s:Sq"
               }
             ],
@@ -38124,10 +38181,12 @@
             ],
             "declAttributes": [
               "Available",
+              "Available",
               "Final",
               "ObjC"
             ],
             "declKind": "Func",
+            "deprecated": true,
             "funcSelfKind": "NonMutating",
             "kind": "Function",
             "mangledName": "$s6Sentry0A11FeedbackAPIC10hideWidgetyyF",
@@ -38139,6 +38198,62 @@
           {
             "children": [
               {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "Void",
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "SentryUserFeedbackConfigurationCallback",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
+                "usr": "s:Sq"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UIImage",
+                    "printedName": "UIKit.UIImage",
+                    "usr": "c:objc(cs)UIImage"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "UIKit.UIImage?",
+                "usr": "s:Sq"
+              },
+              {
                 "kind": "TypeNominal",
                 "name": "Void",
                 "printedName": "()"
@@ -38146,10 +38261,33 @@
             ],
             "declAttributes": [
               "Available",
+              "Final"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11FeedbackAPIC4show10screenshot9configureySo7UIImageCSg_yAA0a4UserB13ConfigurationCcSgtF",
+            "moduleName": "Sentry",
+            "name": "show",
+            "printedName": "show(screenshot:configure:)",
+            "usr": "s:6Sentry0A11FeedbackAPIC4show10screenshot9configureySo7UIImageCSg_yAA0a4UserB13ConfigurationCcSgtF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Available",
               "Final",
               "ObjC"
             ],
             "declKind": "Func",
+            "deprecated": true,
             "funcSelfKind": "NonMutating",
             "kind": "Function",
             "mangledName": "$s6Sentry0A11FeedbackAPIC10showWidgetyyF",
@@ -53560,19 +53698,29 @@
           {
             "children": [
               {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Span",
+                    "printedName": "any Sentry.Span",
+                    "usr": "c:objc(pl)SentrySpan"
+                  }
+                ],
                 "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
+                "name": "Optional",
+                "printedName": "(any Sentry.Span)?",
+                "usr": "s:Sq"
               }
             ],
             "declAttributes": [
+              "DiscardableResult",
               "Final",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC15extendAppLaunchyyFZ",
+            "mangledName": "$s6Sentry0A3SDKC15extendAppLaunchSo0A4Span_pSgyFZ",
             "moduleName": "Sentry",
             "name": "extendAppLaunch",
             "printedName": "extendAppLaunch()",
@@ -54137,6 +54285,47 @@
             "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)stopProfiler"
           },
           {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryUserFeedbackFormController",
+                "printedName": "Sentry.SentryUserFeedbackFormController",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController"
+              }
+            ],
+            "declAttributes": [
+              "Available"
+            ],
+            "declKind": "TypeAlias",
+            "kind": "TypeAlias",
+            "mangledName": "$s6Sentry0A3SDKC12FeedbackForma",
+            "moduleName": "Sentry",
+            "name": "FeedbackForm",
+            "printedName": "FeedbackForm",
+            "usr": "s:6Sentry0A3SDKC12FeedbackForma"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryUserFeedbackFormView",
+                "printedName": "Sentry.SentryUserFeedbackFormView",
+                "usr": "s:6Sentry0A20UserFeedbackFormViewV"
+              }
+            ],
+            "declAttributes": [
+              "Available"
+            ],
+            "declKind": "TypeAlias",
+            "isFromExtension": true,
+            "kind": "TypeAlias",
+            "mangledName": "$s6Sentry0A3SDKC16FeedbackFormViewa",
+            "moduleName": "Sentry",
+            "name": "FeedbackFormView",
+            "printedName": "FeedbackFormView",
+            "usr": "s:6Sentry0A3SDKC16FeedbackFormViewa"
+          },
+          {
             "accessors": [
               {
                 "accessorKind": "get",
@@ -54268,6 +54457,7 @@
               }
             ],
             "declAttributes": [
+              "Available",
               "Final",
               "HasStorage",
               "ObjC"
@@ -60763,7 +60953,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC15configureWidgetyAA0abcfD0CcSgvg",
                 "moduleName": "Sentry",
@@ -60814,15 +61003,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC15configureWidgetyAA0abcfD0CcSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setConfigureWidget:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration(im)setConfigureWidget:"
               }
@@ -60864,12 +61055,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasInitialValue",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC15configureWidgetyAA0abcfD0CcSgvp",
             "moduleName": "Sentry",
@@ -60902,7 +61090,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC12customButtonSo8UIButtonCSgvg",
                 "moduleName": "Sentry",
@@ -60934,15 +61121,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC12customButtonSo8UIButtonCSgvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setCustomButton:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration(im)setCustomButton:"
               }
@@ -60965,12 +61154,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasInitialValue",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A25UserFeedbackConfigurationC12customButtonSo8UIButtonCSgvp",
             "moduleName": "Sentry",
@@ -64041,6 +64227,955 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "SentryUserFeedbackFormController",
+                "printedName": "Sentry.SentryUserFeedbackFormController",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "NonObjC",
+              "Preconcurrency"
+            ],
+            "declKind": "Constructor",
+            "init_kind": "Convenience",
+            "kind": "Constructor",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerCACycfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "overriding": true,
+            "printedName": "init()",
+            "usr": "s:6Sentry0A26UserFeedbackFormControllerCACycfc"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "Void",
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "SentryUserFeedbackConfigurationCallback",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
+                "usr": "s:Sq"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UIImage",
+                    "printedName": "UIKit.UIImage",
+                    "usr": "c:objc(cs)UIImage"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "UIKit.UIImage?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryUserFeedbackFormController",
+                "printedName": "Sentry.SentryUserFeedbackFormController",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "NonObjC",
+              "Preconcurrency"
+            ],
+            "declKind": "Constructor",
+            "init_kind": "Convenience",
+            "kind": "Constructor",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC10screenshot9configureACSo7UIImageCSg_yAA0abC13ConfigurationCcSgtcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "printedName": "init(screenshot:configure:)",
+            "usr": "s:6Sentry0A26UserFeedbackFormControllerC10screenshot9configureACSo7UIImageCSg_yAA0abC13ConfigurationCcSgtcfc"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UIViewController",
+                    "printedName": "UIKit.UIViewController",
+                    "usr": "c:objc(cs)UIViewController"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "UIKit.UIViewController?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Final",
+              "ObjC",
+              "Override",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC7didMove8toParentySo06UIViewE0CSg_tF",
+            "moduleName": "Sentry",
+            "name": "didMove",
+            "objc_name": "didMoveToParentViewController:",
+            "overriding": true,
+            "printedName": "didMove(toParent:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController(im)didMoveToParentViewController:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UIPresentationController",
+                "printedName": "UIKit.UIPresentationController",
+                "usr": "c:objc(cs)UIPresentationController"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Final",
+              "ObjC",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC012presentationE10DidDismissyySo014UIPresentationE0CF",
+            "moduleName": "Sentry",
+            "name": "presentationControllerDidDismiss",
+            "objc_name": "presentationControllerDidDismiss:",
+            "printedName": "presentationControllerDidDismiss(_:)",
+            "usr": "c:@CM@Sentry@objc(cs)SentryUserFeedbackFormController(im)presentationControllerDidDismiss:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UITextField",
+                "printedName": "UIKit.UITextField",
+                "usr": "c:objc(cs)UITextField"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Final",
+              "ObjC",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC27textFieldDidChangeSelectionyySo06UITextG0CF",
+            "moduleName": "Sentry",
+            "name": "textFieldDidChangeSelection",
+            "objc_name": "textFieldDidChangeSelection:",
+            "printedName": "textFieldDidChangeSelection(_:)",
+            "usr": "c:@CM@Sentry@objc(cs)SentryUserFeedbackFormController(im)textFieldDidChangeSelection:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "UITextField",
+                "printedName": "UIKit.UITextField",
+                "usr": "c:objc(cs)UITextField"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Final",
+              "ObjC",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC21textFieldShouldReturnySbSo06UITextG0CF",
+            "moduleName": "Sentry",
+            "name": "textFieldShouldReturn",
+            "objc_name": "textFieldShouldReturn:",
+            "printedName": "textFieldShouldReturn(_:)",
+            "usr": "c:@CM@Sentry@objc(cs)SentryUserFeedbackFormController(im)textFieldShouldReturn:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UITextView",
+                "printedName": "UIKit.UITextView",
+                "usr": "c:objc(cs)UITextView"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Final",
+              "ObjC",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC17textViewDidChangeyySo06UITextG0CF",
+            "moduleName": "Sentry",
+            "name": "textViewDidChange",
+            "objc_name": "textViewDidChange:",
+            "printedName": "textViewDidChange(_:)",
+            "usr": "c:@CM@Sentry@objc(cs)SentryUserFeedbackFormController(im)textViewDidChange:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UITraitCollection",
+                    "printedName": "UIKit.UITraitCollection",
+                    "usr": "c:objc(cs)UITraitCollection"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "UIKit.UITraitCollection?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Final",
+              "ObjC",
+              "Override",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC24traitCollectionDidChangeyySo07UITraitG0CSgF",
+            "moduleName": "Sentry",
+            "name": "traitCollectionDidChange",
+            "objc_name": "traitCollectionDidChange:",
+            "overriding": true,
+            "printedName": "traitCollectionDidChange(_:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController(im)traitCollectionDidChange:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Final",
+              "ObjC",
+              "Override",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC13viewDidAppearyySbF",
+            "moduleName": "Sentry",
+            "name": "viewDidAppear",
+            "objc_name": "viewDidAppear:",
+            "overriding": true,
+            "printedName": "viewDidAppear(_:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController(im)viewDidAppear:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Final",
+              "ObjC",
+              "Override",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC16viewDidDisappearyySbF",
+            "moduleName": "Sentry",
+            "name": "viewDidDisappear",
+            "objc_name": "viewDidDisappear:",
+            "overriding": true,
+            "printedName": "viewDidDisappear(_:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController(im)viewDidDisappear:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Final",
+              "ObjC",
+              "Override",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC14viewWillAppearyySbF",
+            "moduleName": "Sentry",
+            "name": "viewWillAppear",
+            "objc_name": "viewWillAppear:",
+            "overriding": true,
+            "printedName": "viewWillAppear(_:)",
+            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController(im)viewWillAppear:"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss7CVarArgP",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss28CustomDebugStringConvertibleP",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss23CustomStringConvertibleP",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "NSCoding",
+            "printedName": "NSCoding",
+            "usr": "c:objc(pl)NSCoding"
+          },
+          {
+            "kind": "Conformance",
+            "name": "NSExtensionRequestHandling",
+            "printedName": "NSExtensionRequestHandling",
+            "usr": "c:objc(pl)NSExtensionRequestHandling"
+          },
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8SendableP",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UIActivityItemsConfigurationProviding",
+            "printedName": "UIActivityItemsConfigurationProviding",
+            "usr": "c:objc(pl)UIActivityItemsConfigurationProviding"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UIAdaptivePresentationControllerDelegate",
+            "printedName": "UIAdaptivePresentationControllerDelegate",
+            "usr": "c:objc(pl)UIAdaptivePresentationControllerDelegate"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UIAppearanceContainer",
+            "printedName": "UIAppearanceContainer",
+            "usr": "c:objc(pl)UIAppearanceContainer"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UIContentContainer",
+            "printedName": "UIContentContainer",
+            "usr": "c:objc(pl)UIContentContainer"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UIFocusEnvironment",
+            "printedName": "UIFocusEnvironment",
+            "usr": "c:objc(pl)UIFocusEnvironment"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UIPasteConfigurationSupporting",
+            "printedName": "UIPasteConfigurationSupporting",
+            "usr": "c:objc(pl)UIPasteConfigurationSupporting"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UIResponderStandardEditActions",
+            "printedName": "UIResponderStandardEditActions",
+            "usr": "c:objc(pl)UIResponderStandardEditActions"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UIScrollViewDelegate",
+            "printedName": "UIScrollViewDelegate",
+            "usr": "c:objc(pl)UIScrollViewDelegate"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UIStateRestoring",
+            "printedName": "UIStateRestoring",
+            "usr": "c:objc(pl)UIStateRestoring"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UITextFieldDelegate",
+            "printedName": "UITextFieldDelegate",
+            "usr": "c:objc(pl)UITextFieldDelegate"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UITextViewDelegate",
+            "printedName": "UITextViewDelegate",
+            "usr": "c:objc(pl)UITextViewDelegate"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$s5UIKit23UITraitChangeObservableP",
+            "name": "UITraitChangeObservable",
+            "printedName": "UITraitChangeObservable",
+            "usr": "s:5UIKit23UITraitChangeObservableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UITraitEnvironment",
+            "printedName": "UITraitEnvironment",
+            "usr": "c:objc(pl)UITraitEnvironment"
+          },
+          {
+            "kind": "Conformance",
+            "name": "UIUserActivityRestoring",
+            "printedName": "UIUserActivityRestoring",
+            "usr": "c:objc(pl)UIUserActivityRestoring"
+          }
+        ],
+        "declAttributes": [
+          "Available",
+          "Custom",
+          "Final",
+          "ObjC",
+          "Preconcurrency"
+        ],
+        "declKind": "Class",
+        "hasMissingDesignatedInitializers": true,
+        "inheritsConvenienceInitializers": true,
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A26UserFeedbackFormControllerC",
+        "moduleName": "Sentry",
+        "name": "SentryUserFeedbackFormController",
+        "printedName": "SentryUserFeedbackFormController",
+        "superclassNames": [
+          "ObjectiveC.NSObject",
+          "UIKit.UIResponder",
+          "UIKit.UIViewController"
+        ],
+        "superclassUsr": "c:objc(cs)UIViewController",
+        "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "Void",
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "SentryUserFeedbackConfigurationCallback",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
+                "usr": "s:Sq"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UIImage",
+                    "printedName": "UIKit.UIImage",
+                    "usr": "c:objc(cs)UIImage"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "UIKit.UIImage?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryUserFeedbackFormView",
+                "printedName": "Sentry.SentryUserFeedbackFormView",
+                "usr": "s:6Sentry0A20UserFeedbackFormViewV"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Preconcurrency"
+            ],
+            "declKind": "Constructor",
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$s6Sentry0A20UserFeedbackFormViewV10screenshot9configureACSo7UIImageCSg_yAA0abC13ConfigurationCcSgtcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "printedName": "init(screenshot:configure:)",
+            "usr": "s:6Sentry0A20UserFeedbackFormViewV10screenshot9configureACSo7UIImageCSg_yAA0abC13ConfigurationCcSgtcfc"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryUserFeedbackFormView",
+                        "printedName": "Sentry.SentryUserFeedbackFormView",
+                        "usr": "s:6Sentry0A20UserFeedbackFormViewV"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "UIViewControllerRepresentableContext",
+                    "printedName": "SwiftUI.UIViewControllerRepresentableContext<Sentry.SentryUserFeedbackFormView>",
+                    "usr": "s:7SwiftUI36UIViewControllerRepresentableContextV"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Context",
+                "printedName": "Sentry.SentryUserFeedbackFormView.Context"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryUserFeedbackFormController",
+                "printedName": "Sentry.SentryUserFeedbackFormController",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A20UserFeedbackFormViewV20makeUIViewController7contextAA0abcdH0C7SwiftUI0gH20RepresentableContextVyACG_tF",
+            "moduleName": "Sentry",
+            "name": "makeUIViewController",
+            "printedName": "makeUIViewController(context:)",
+            "usr": "s:6Sentry0A20UserFeedbackFormViewV20makeUIViewController7contextAA0abcdH0C7SwiftUI0gH20RepresentableContextVyACG_tF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryUserFeedbackFormView",
+                        "printedName": "Sentry.SentryUserFeedbackFormView",
+                        "usr": "s:6Sentry0A20UserFeedbackFormViewV"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "UIViewControllerRepresentableContext",
+                    "printedName": "SwiftUI.UIViewControllerRepresentableContext<Sentry.SentryUserFeedbackFormView>",
+                    "usr": "s:7SwiftUI36UIViewControllerRepresentableContextV"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Context",
+                "printedName": "Sentry.SentryUserFeedbackFormView.Context"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryUserFeedbackFormController",
+                "printedName": "Sentry.SentryUserFeedbackFormController",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Custom",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A20UserFeedbackFormViewV22updateUIViewController_7contextyAA0abcdH0C_7SwiftUI0gH20RepresentableContextVyACGtF",
+            "moduleName": "Sentry",
+            "name": "updateUIViewController",
+            "printedName": "updateUIViewController(_:context:)",
+            "usr": "s:6Sentry0A20UserFeedbackFormViewV22updateUIViewController_7contextyAA0abcdH0C_7SwiftUI0gH20RepresentableContextVyACGtF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Never",
+                "printedName": "Swift.Never",
+                "usr": "s:s5NeverO"
+              }
+            ],
+            "declAttributes": [
+              "Available"
+            ],
+            "declKind": "TypeAlias",
+            "kind": "TypeAlias",
+            "mangledName": "$s6Sentry0A20UserFeedbackFormViewV4Bodya",
+            "moduleName": "Sentry",
+            "name": "Body",
+            "printedName": "Body",
+            "usr": "s:6Sentry0A20UserFeedbackFormViewV4Bodya"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              }
+            ],
+            "declAttributes": [
+              "Available"
+            ],
+            "declKind": "TypeAlias",
+            "kind": "TypeAlias",
+            "mangledName": "$s6Sentry0A20UserFeedbackFormViewV11Coordinatora",
+            "moduleName": "Sentry",
+            "name": "Coordinator",
+            "printedName": "Coordinator",
+            "usr": "s:6Sentry0A20UserFeedbackFormViewV11Coordinatora"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryUserFeedbackFormController",
+                "printedName": "Sentry.SentryUserFeedbackFormController",
+                "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController"
+              }
+            ],
+            "declAttributes": [
+              "Available"
+            ],
+            "declKind": "TypeAlias",
+            "kind": "TypeAlias",
+            "mangledName": "$s6Sentry0A20UserFeedbackFormViewV20UIViewControllerTypea",
+            "moduleName": "Sentry",
+            "name": "UIViewControllerType",
+            "printedName": "UIViewControllerType",
+            "usr": "s:6Sentry0A20UserFeedbackFormViewV20UIViewControllerTypea"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8SendableP",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "Void",
+                        "printedName": "Swift.Void"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Sentry.SentryUserFeedbackFormView.Coordinator"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "Coordinator",
+                "printedName": "Coordinator"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryUserFeedbackFormController",
+                        "printedName": "Sentry.SentryUserFeedbackFormController",
+                        "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackFormController"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "UIViewControllerType",
+                    "printedName": "Sentry.SentryUserFeedbackFormView.UIViewControllerType"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "UIViewControllerType",
+                "printedName": "UIViewControllerType"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$s7SwiftUI29UIViewControllerRepresentableP",
+            "name": "UIViewControllerRepresentable",
+            "printedName": "UIViewControllerRepresentable",
+            "usr": "s:7SwiftUI29UIViewControllerRepresentableP"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Never",
+                        "printedName": "Swift.Never",
+                        "usr": "s:s5NeverO"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Body",
+                    "printedName": "Sentry.SentryUserFeedbackFormView.Body"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "Body",
+                "printedName": "Body"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$s7SwiftUI4ViewP",
+            "name": "View",
+            "printedName": "View",
+            "usr": "s:7SwiftUI4ViewP"
+          }
+        ],
+        "declAttributes": [
+          "Available",
+          "Custom",
+          "Preconcurrency"
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A20UserFeedbackFormViewV",
+        "moduleName": "Sentry",
+        "name": "SentryUserFeedbackFormView",
+        "printedName": "SentryUserFeedbackFormView",
+        "usr": "s:6Sentry0A20UserFeedbackFormViewV"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "SentryUserFeedbackThemeConfiguration",
                 "printedName": "Sentry.SentryUserFeedbackThemeConfiguration",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackThemeConfiguration"
@@ -65371,7 +66506,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC10autoInjectSbvg",
                 "moduleName": "Sentry",
@@ -65395,15 +66529,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC10autoInjectSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setAutoInject:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setAutoInject:"
               }
@@ -65418,11 +66554,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC10autoInjectSbvp",
             "moduleName": "Sentry",
@@ -65486,10 +66620,12 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC9labelTextSSSgvs",
                 "moduleName": "Sentry",
@@ -65544,7 +66680,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC14layoutUIOffsetSo0G0Vvg",
                 "moduleName": "Sentry",
@@ -65568,15 +66703,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC14layoutUIOffsetSo0G0Vvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setLayoutUIOffset:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setLayoutUIOffset:"
               }
@@ -65591,11 +66728,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC14layoutUIOffsetSo0G0Vvp",
             "moduleName": "Sentry",
@@ -65620,7 +66755,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8locationSo21NSDirectionalRectEdgeVvg",
                 "moduleName": "Sentry",
@@ -65644,15 +66778,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8locationSo21NSDirectionalRectEdgeVvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setLocation:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setLocation:"
               }
@@ -65667,11 +66803,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8locationSo21NSDirectionalRectEdgeVvp",
             "moduleName": "Sentry",
@@ -65696,7 +66830,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8showIconSbvg",
                 "moduleName": "Sentry",
@@ -65720,15 +66853,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8showIconSbvs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setShowIcon:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setShowIcon:"
               }
@@ -65743,11 +66878,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC8showIconSbvp",
             "moduleName": "Sentry",
@@ -65811,10 +66944,12 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC24widgetAccessibilityLabelSSSgvs",
                 "moduleName": "Sentry",
@@ -65869,7 +67004,6 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC11windowLevelSo08UIWindowG0avg",
                 "moduleName": "Sentry",
@@ -65893,15 +67027,17 @@
                   }
                 ],
                 "declAttributes": [
+                  "Available",
                   "Final",
                   "ObjC"
                 ],
                 "declKind": "Accessor",
-                "implicit": true,
+                "deprecated": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC11windowLevelSo08UIWindowG0avs",
                 "moduleName": "Sentry",
                 "name": "Set",
+                "objc_name": "setWindowLevel:",
                 "printedName": "Set()",
                 "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackWidgetConfiguration(im)setWindowLevel:"
               }
@@ -65916,11 +67052,9 @@
             ],
             "declAttributes": [
               "Final",
-              "HasStorage",
               "ObjC"
             ],
             "declKind": "Var",
-            "hasStorage": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A31UserFeedbackWidgetConfigurationC11windowLevelSo08UIWindowG0avp",
             "moduleName": "Sentry",
@@ -74189,6 +75323,108 @@
       },
       {
         "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Binding",
+                "printedName": "SwiftUI.Binding<Swift.Bool>",
+                "usr": "s:7SwiftUI7BindingV"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "View",
+                    "printedName": "SwiftUI.View",
+                    "usr": "s:7SwiftUI4ViewP"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "OpaqueTypeArchetype",
+                "printedName": "some SwiftUI.View"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "Void",
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryUserFeedbackConfiguration",
+                            "printedName": "Sentry.SentryUserFeedbackConfiguration",
+                            "usr": "c:@M@Sentry@objc(cs)SentryUserFeedbackConfiguration"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryUserFeedbackConfiguration) -> Swift.Void"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "SentryUserFeedbackConfigurationCallback",
+                    "printedName": "Sentry.SentryUserFeedbackConfigurationCallback"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryUserFeedbackConfigurationCallback?",
+                "usr": "s:Sq"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UIImage",
+                    "printedName": "UIKit.UIImage",
+                    "usr": "c:objc(cs)UIImage"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "UIKit.UIImage?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "Custom",
+              "Preconcurrency"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "genericSig": "<Self where Self : SwiftUI.View>",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$s7SwiftUI4ViewP6SentryE14sentryFeedback11isPresented10screenshot9configureQrAA7BindingVySbG_So7UIImageCSgyAD0d4UserF13ConfigurationCcSgtF",
+            "moduleName": "Sentry",
+            "name": "sentryFeedback",
+            "printedName": "sentryFeedback(isPresented:screenshot:configure:)",
+            "usr": "s:7SwiftUI4ViewP6SentryE14sentryFeedback11isPresented10screenshot9configureQrAA7BindingVySbG_So7UIImageCSgyAD0d4UserF13ConfigurationCcSgtF"
+          },
           {
             "children": [
               {

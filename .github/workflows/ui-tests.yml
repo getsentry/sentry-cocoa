@@ -31,7 +31,7 @@ jobs:
     outputs:
       run_ui_tests_for_prs: ${{ steps.changes.outputs.run_ui_tests_for_prs }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
@@ -42,11 +42,12 @@ jobs:
   ui-tests:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
-    name: Test ${{matrix.name}} on Cirrus Labs V3 # Up the version with every change to keep track of flaky tests
+    name: Test ${{matrix.name}} on ${{matrix.runner_provider}} V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
       fail-fast: false
       matrix:
+        runner_provider: ["cirrus", "bitrise"]
         job_id:
           - ios_objc
           - tvos_swift
@@ -64,36 +65,36 @@ jobs:
       xcode_version: "16"
       build_with_make: true
       macos_version: "sequoia"
-      codecov_test_analytics: true
       files_suffix: _${{matrix.target}}_
       platform: ${{matrix.platform}}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      runner_provider: ${{matrix.runner_provider}}
 
   ui-tests-swift-ui:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
-    name: Test SwiftUI on Cirrus Labs V4 # Up the version with every change to keep track of flaky tests
+    name: Test SwiftUI on ${{matrix.runner_provider}} V5 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swiftui
       build_with_make: true
-      codecov_test_analytics: true
       xcode_version: "16"
       macos_version: "sequoia"
       files_suffix: _swiftui_
       platform: "iOS"
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      runner_provider: ${{matrix.runner_provider}}
+    strategy:
+      matrix:
+        runner_provider: ["cirrus", "bitrise"]
 
   ui-tests-swift:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
-    name: Test Swift ${{matrix.name}} V5 # Up the version with every change to keep track of flaky tests
+    name: Test Swift ${{matrix.name}} on ${{matrix.runner_provider}} V6 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     strategy:
       fail-fast: false
       matrix:
+        runner_provider: ["cirrus", "bitrise"]
         job_id:
           - ios_17
           - ios_18
@@ -123,29 +124,28 @@ jobs:
       files_suffix: _xcode_${{matrix.xcode}}-${{matrix.device}}
       build_with_make: true
       macos_version: ${{matrix.runs_on}}
-      codecov_test_analytics: true
       xcode_version: ${{ matrix.xcode}}
       test-destination-os: ${{matrix.test_destination_os}}
       platform: ${{matrix.platform}}
       device: ${{matrix.device}}
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      runner_provider: ${{matrix.runner_provider}}
 
   ui-tests-swift6:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
     needs: files-changed
-    name: Test iOS Swift6 on Cirrus Labs V3 # Up the version with every change to keep track of flaky tests
+    name: Test iOS Swift6 on ${{matrix.runner_provider}} V4 # Up the version with every change to keep track of flaky tests
     uses: ./.github/workflows/ui-tests-common.yml
     with:
       fastlane_command: ui_tests_ios_swift6
       xcode_version: "16"
       build_with_make: true
       macos_version: "sequoia"
-      codecov_test_analytics: true
       platform: iOS
       files_suffix: _swift6_
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      runner_provider: ${{matrix.runner_provider}}
+    strategy:
+      matrix:
+        runner_provider: ["cirrus", "bitrise"]
 
   # This check validates that either UI tests passed or were skipped, which allows us
   # to make UI tests a required check with only running the UI tests when required.

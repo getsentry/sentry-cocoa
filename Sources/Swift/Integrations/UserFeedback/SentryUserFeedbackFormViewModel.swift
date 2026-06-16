@@ -334,7 +334,7 @@ extension SentryUserFeedbackFormViewModel {
             $0.font = config.theme.font
             $0.adjustsFontForContentSizeCategory = true
             $0.textColor = config.theme.inputForeground
-            if config.theme.outlineStyle == config.theme.defaultOutlineStyle {
+            if config.theme.usesDefaultOutlineStyle {
                 $0.borderStyle = .roundedRect
             } else {
                 $0.layer.cornerRadius = config.theme.outlineStyle.cornerRadius

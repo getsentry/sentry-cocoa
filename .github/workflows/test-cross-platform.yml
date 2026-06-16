@@ -26,7 +26,7 @@ jobs:
     outputs:
       run_test_cross_platform_for_prs: ${{ steps.changes.outputs.run_test_cross_platform_for_prs }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
@@ -35,17 +35,19 @@ jobs:
           filters: .github/file-filters.yml
 
   test-react-native:
-    name: React Native Installation
+    name: React Native Installation on ${{matrix.runner_provider}}
+    continue-on-error: ${{ matrix.runner_provider == 'bitrise' }}
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_test_cross_platform_for_prs == 'true'
     needs: files-changed
-    runs-on:
-      - "ghcr.io/cirruslabs/macos-runner:sequoia,runner_concurrency_group=${{ github.run_id }}"
-      - "runner_group_id:10"
+    runs-on: ${{ matrix.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', 'sequoia')) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     # This job can take a while to run, so we set a timeout.
     timeout-minutes: 30
+    strategy:
+      matrix:
+        runner_provider: ["cirrus", "bitrise"]
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           repository: getsentry/sentry-cocoa
           path: sentry-cocoa
@@ -55,7 +57,7 @@ jobs:
         working-directory: sentry-cocoa
 
       - name: Clone Sentry React Native Repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           repository: getsentry/sentry-react-native
           path: sentry-react-native
@@ -110,10 +112,26 @@ jobs:
         working-directory: sentry-react-native/packages/core/RNSentryCocoaTester
         run: sed -i '' "s/parallelizable = \"YES\"/parallelizable = \"NO\"/" RNSentryCocoaTester.xcodeproj/xcshareddata/xcschemes/RNSentryCocoaTester.xcscheme
 
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        name: Cache Ruby
+        with:
+          path: |
+            ~/.rbenv/versions
+            ~/.rbenv/cache
+          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('sentry-react-native/.ruby-version') }}
+
+      - name: Install Ruby (Bitrise)
+        if: matrix.runner_provider == 'bitrise'
+        working-directory: sentry-react-native
+        run: |
+          brew upgrade ruby-build
+          rbenv install -s
+
       - name: Setup Ruby
+        if: matrix.runner_provider != 'bitrise'
         # We use the same ruby version used by Cirrus to install fastlane and other tools
         # see: https://github.com/cirruslabs/macos-image-templates/blob/9115ef25530497999073cdf0f5497a4d142e3256/templates/xcode.pkr.hcl#L235
-        uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
+        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
         with:
           ruby-version: "3.3.10"
 
