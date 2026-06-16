@@ -206,14 +206,15 @@ private extension SentryUserFeedbackIntegrationDriver {
     }
 
     var presenter: UIViewController? {
+        #if !SDK_V10
         if let customButton = configuration.customButton?.controller {
             return customButton
         }
-        #endif
 
         if let widgetRootViewController = widget?.rootVC {
             return widgetRootViewController
         }
+        #endif
 
         return SentryFeedbackFormPresenter.presentingViewController()
     }
