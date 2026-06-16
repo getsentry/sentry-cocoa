@@ -25,6 +25,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySpanInternal ()
+@property (nonatomic, strong) SentryFeatureFlagStorage *featureFlagStorage;
 @end
 
 @implementation SentrySpanInternal {

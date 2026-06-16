@@ -35,6 +35,10 @@ public final class SentryFeatureFlagStorage: NSObject {
         )
     }
 
+    var allEvaluations: [SentryFeatureFlagEvaluation] {
+        buffer.allEvaluations
+    }
+
     func addFeatureFlag<Value: SentryFeatureFlagValue>(name: String, result: Value) {
         buffer.add(name: name, value: result)
     }

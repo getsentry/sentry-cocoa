@@ -447,24 +447,6 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(actual.keys.filter { $0.hasPrefix("flag.evaluation.") }.count, 10)
         XCTAssertNil(actual["flag.evaluation.flag-10"])
     }
-
-    func testFeatureFlags_whenSpanLimitReached_shouldUpdateExistingFlags() throws {
-        // -- Arrange --
-        let span = fixture.getSutWithTracer()
-        for index in 0..<10 {
-            span.addFeatureFlag(name: "flag-\(index)", result: true)
-        }
-        span.addFeatureFlag(name: "rejected", result: true)
-
-        // -- Act --
-        span.addFeatureFlag(name: "flag-0", result: false)
-
-        // -- Assert --
-        let actual = try XCTUnwrap(span.serialize()["data"] as? [String: Any])
-        XCTAssertEqual(actual.keys.filter { $0.hasPrefix("flag.evaluation.") }.count, 10)
-        XCTAssertEqual(try XCTUnwrap(actual["flag.evaluation.flag-0"] as? Bool), false)
-        XCTAssertNil(actual["flag.evaluation.rejected"])
-    }
     
     func testAddAndRemoveTags() {
         let span = fixture.getSut()

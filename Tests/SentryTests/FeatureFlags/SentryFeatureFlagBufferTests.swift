@@ -4,6 +4,21 @@ import XCTest
 
 final class SentryFeatureFlagBufferTests: XCTestCase {
 
+    func testBuffer_whenAddingFeatureFlagValue_shouldSerializeConvertedValue() throws {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBuffer(maxSize: 3, overflowBehavior: .dropOldest)
+
+        // -- Act --
+        sut.add(name: "checkout", value: TestFeatureFlagValue(value: true))
+
+        // -- Assert --
+        let context = try XCTUnwrap(sut.serializeForContext())
+        let values = try XCTUnwrap(context["values"] as? [[String: Any]])
+        XCTAssertEqual(values.count, 1)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
+        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
+    }
+
     func testBoolValueConversion_whenValueIsBool_shouldReturnBooleanContent() {
         // -- Arrange --
         let value = true
@@ -138,5 +153,13 @@ final class SentryFeatureFlagBufferTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(sut.allEvaluations.map(\.flag), ["first"])
         XCTAssertEqual(copy.allEvaluations.map(\.flag), ["first", "second"])
+    }
+}
+
+private struct TestFeatureFlagValue: SentryFeatureFlagValue {
+    let value: Bool
+
+    var asSentryFeatureFlagValue: SentryFeatureFlagValueContent {
+        .boolean(value)
     }
 }
