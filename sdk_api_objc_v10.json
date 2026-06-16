@@ -1393,23 +1393,9 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "crashedLastRun",
-    "parent": "SentryObjCSDK",
-    "returnType": "BOOL",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "current",
     "parent": "SentryObjCThread",
     "returnType": "NSNumber * _Nullable",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "customButton",
-    "parent": "SentryObjCUserFeedbackConfiguration",
-    "returnType": "UIButton * _Nullable",
     "instance": true
   },
   {
@@ -2347,13 +2333,6 @@
     "kind": "ObjCMethodDecl",
     "name": "hideMaskPreview",
     "parent": "SentryObjCReplayApi",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "hideWidget",
-    "parent": "SentryObjCFeedbackApi",
     "returnType": "void",
     "instance": true
   },
@@ -4025,13 +4004,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "onCrashedLastRun",
-    "parent": "SentryObjCOptions",
-    "returnType": "void (^ _Nullable)(SentryObjCEvent * _Nonnull)",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "onErrorSampleRate",
     "parent": "SentryObjCReplayOptions",
     "returnType": "float",
@@ -4963,13 +4935,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setCustomButton:",
-    "parent": "SentryObjCUserFeedbackConfiguration",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setData:",
     "parent": "SentryObjCBreadcrumb",
     "returnType": "void",
@@ -5889,13 +5854,6 @@
     "kind": "ObjCMethodDecl",
     "name": "setNetworkResponseHeaders:",
     "parent": "SentryObjCReplayOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setOnCrashedLastRun:",
-    "parent": "SentryObjCOptions",
     "returnType": "void",
     "instance": true
   },
@@ -6828,13 +6786,6 @@
     "name": "showName",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "showWidget",
-    "parent": "SentryObjCFeedbackApi",
-    "returnType": "void",
     "instance": true
   },
   {
@@ -8035,21 +7986,9 @@
   },
   {
     "kind": "ObjCPropertyDecl",
-    "name": "crashedLastRun",
-    "parent": "SentryObjCSDK",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
     "name": "current",
     "parent": "SentryObjCThread",
     "type": "NSNumber * _Nullable"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "customButton",
-    "parent": "SentryObjCUserFeedbackConfiguration",
-    "type": "UIButton * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -9172,12 +9111,6 @@
     "name": "none",
     "parent": "SentryObjCMeasurementUnit",
     "type": "SentryObjCMeasurementUnit * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "onCrashedLastRun",
-    "parent": "SentryObjCOptions",
-    "type": "void (^ _Nullable)(SentryObjCEvent * _Nonnull)"
   },
   {
     "kind": "ObjCPropertyDecl",

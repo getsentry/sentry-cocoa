@@ -135,13 +135,6 @@
     },
     {
       "kind": "ObjCMethodDecl",
-      "name": "onCrashedLastRun",
-      "parent": "SentryObjCOptions",
-      "returnType": "void (^ _Nullable)(SentryObjCEvent * _Nonnull)",
-      "instance": true
-    },
-    {
-      "kind": "ObjCMethodDecl",
       "name": "onLastRunStatusDetermined",
       "parent": "SentryObjCOptions",
       "returnType": "void (^ _Nullable)(SentryObjCLastRunStatus, SentryObjCEvent * _Nullable)",
@@ -263,12 +256,6 @@
       "name": "nameSource",
       "parent": "SentryObjCTransactionContext",
       "type": "SentryObjCTransactionNameSource"
-    },
-    {
-      "kind": "ObjCPropertyDecl",
-      "name": "onCrashedLastRun",
-      "parent": "SentryObjCOptions",
-      "type": "void (^ _Nullable)(SentryObjCEvent * _Nonnull)"
     },
     {
       "kind": "ObjCPropertyDecl",
@@ -497,13 +484,6 @@
     },
     {
       "kind": "ObjCMethodDecl",
-      "name": "onCrashedLastRun",
-      "parent": "SentryObjCOptions",
-      "returnType": "SWIFT_DEPRECATED_MSG void (^)(SentryObjCEvent * _Nonnull)",
-      "instance": true
-    },
-    {
-      "kind": "ObjCMethodDecl",
       "name": "onLastRunStatusDetermined",
       "parent": "SentryObjCOptions",
       "returnType": "void (^ _Nullable)(enum SentryObjCLastRunStatus, SentryObjCEvent * _Nullable)",
@@ -625,12 +605,6 @@
       "name": "nameSource",
       "parent": "SentryObjCTransactionContext",
       "type": "enum SentryObjCTransactionNameSource"
-    },
-    {
-      "kind": "ObjCPropertyDecl",
-      "name": "onCrashedLastRun",
-      "parent": "SentryObjCOptions",
-      "type": "SWIFT_DEPRECATED_MSG void (^)(SentryObjCEvent * _Nonnull)"
     },
     {
       "kind": "ObjCPropertyDecl",

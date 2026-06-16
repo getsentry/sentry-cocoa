@@ -852,19 +852,20 @@
     XCTAssertNil(options.beforeCaptureViewHierarchy);
 }
 
+#if !SDK_V10
 - (void)testOnCrashedLastRun_whenSetBlock_shouldReturnNotNil
 {
     // -- Arrange --
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
     // -- Act --
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     options.onCrashedLastRun = ^(SentryObjCEvent *event) { };
 
     // -- Assert --
     XCTAssertNotNil(options.onCrashedLastRun);
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 }
 
 - (void)testOnCrashedLastRun_whenSetNil_shouldReturnNil
@@ -872,8 +873,8 @@
     // -- Arrange --
     SentryObjCOptions *options = [[SentryObjCOptions alloc] init];
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
     options.onCrashedLastRun = ^(SentryObjCEvent *event) { };
 
     // -- Act --
@@ -881,8 +882,9 @@
 
     // -- Assert --
     XCTAssertNil(options.onCrashedLastRun);
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 }
+#endif
 
 - (void)testOnLastRunStatusDetermined_whenSetBlock_shouldReturnNotNil
 {

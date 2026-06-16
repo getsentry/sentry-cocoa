@@ -11,11 +11,13 @@ import UIKit
 @available(iOSApplicationExtension, unavailable)
 final class SentryUserFeedbackIntegrationDriver: NSObject {
     let configuration: SentryUserFeedbackConfiguration
-    private var widget: SentryUserFeedbackWidget?
     private weak var activeForm: SentryUserFeedbackFormController?
-    private var shouldRestoreWidgetOnFormClose = false
     let screenshotSource: SentryScreenshotSource
+    #if !SDK_V10
+    private var widget: SentryUserFeedbackWidget?
+    private var shouldRestoreWidgetOnFormClose = false
     weak var customButton: UIButton?
+    #endif
 
     init(configuration: SentryUserFeedbackConfiguration, screenshotSource: SentryScreenshotSource) {
         self.configuration = configuration
@@ -24,6 +26,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
 
         configuration.applyConfigurationBuilders()
 
+        #if !SDK_V10
         if let customButton = configuration.customButton {
             self.customButton = customButton
             customButton.addTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
@@ -46,17 +49,21 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
                 widget = SentryUserFeedbackWidget(config: configuration, delegate: self)
             }
         }
+        #endif
 
         observeScreenshots()
         observeShakeGesture()
     }
 
     deinit {
+        #if !SDK_V10
         customButton?.removeTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
+        #endif
         SentryShakeDetector.disable()
         NotificationCenter.default.removeObserver(self)
     }
 
+    #if !SDK_V10
     func showWidget() {
         if widget == nil {
             widget = SentryUserFeedbackWidget(config: configuration, delegate: self)
@@ -68,6 +75,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
     func hideWidget() {
         widget?.rootVC.setWidget(visible: false, animated: configuration.animations)
     }
+    #endif
 
     @objc func showForm(sender: UIButton) {
         showForm(screenshot: nil)
@@ -77,12 +85,15 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         return activeForm != nil
     }
 
+    #if !SDK_V10
     private func hideWidgetForFormPresentation(_ form: SentryUserFeedbackFormController) {
         shouldRestoreWidgetOnFormClose = widget?.rootVC.isWidgetVisible == true
         widget?.rootVC.setWidget(visible: false, animated: form.config.animations)
     }
+    #endif
 }
 
+#if !SDK_V10
 // MARK: SentryUserFeedbackWidgetDelegate
 @available(iOSApplicationExtension, unavailable)
 extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate {
@@ -90,6 +101,7 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackWidgetDelegate 
         showForm(screenshot: nil)
     }
 }
+#endif
 
 // MARK: SentryUserFeedbackFormDelegate
 @available(iOSApplicationExtension, unavailable)
@@ -104,18 +116,22 @@ extension SentryUserFeedbackIntegrationDriver: SentryUserFeedbackFormDelegate {
             activeForm = form
         }
 
+        #if !SDK_V10
         hideWidgetForFormPresentation(form)
+        #endif
     }
 
     func userFeedbackFormDidClose(_ form: SentryUserFeedbackFormController) {
         guard activeForm === form else { return }
 
         activeForm = nil
+        #if !SDK_V10
         let shouldRestoreWidget = shouldRestoreWidgetOnFormClose
         shouldRestoreWidgetOnFormClose = false
         if shouldRestoreWidget {
             widget?.rootVC.setWidget(visible: true, animated: form.config.animations)
         }
+        #endif
     }
 }
 
@@ -152,6 +168,7 @@ private extension SentryUserFeedbackIntegrationDriver {
         showForm(from: presenter, screenshot: screenshot)
     }
 
+    #if !SDK_V10
     func validate(_ config: SentryUserFeedbackWidgetConfiguration) {
         let noOpposingHorizontals = config.location.contains(.trailing) && !config.location.contains(.leading)
         || !config.location.contains(.trailing) && config.location.contains(.leading)
@@ -170,6 +187,7 @@ private extension SentryUserFeedbackIntegrationDriver {
             SentrySDKLog.warning("Invalid widget location specified: \(config.location). Must specify either one edge or one corner of the screen rect to place the widget.")
         }
     }
+    #endif
 
     func observeScreenshots() {
         if configuration.showFormForScreenshots {
@@ -204,6 +222,7 @@ private extension SentryUserFeedbackIntegrationDriver {
     }
 
     var presenter: UIViewController? {
+        #if !SDK_V10
         if let customButton = configuration.customButton?.controller {
             return customButton
         }
@@ -211,6 +230,7 @@ private extension SentryUserFeedbackIntegrationDriver {
         if let widgetRootViewController = widget?.rootVC {
             return widgetRootViewController
         }
+        #endif
 
         return SentryFeedbackFormPresenter.presentingViewController()
     }

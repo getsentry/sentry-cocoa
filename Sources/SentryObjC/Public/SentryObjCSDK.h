@@ -63,12 +63,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (class, nonatomic, readonly) BOOL detectedStartUpCrash;
 
+#if !SDK_V10
 /**
  * Checks if the last program execution terminated with a crash.
  * @deprecated Use @c lastRunStatus instead.
  */
 @property (class, nonatomic, readonly) BOOL crashedLastRun
     __attribute__((deprecated("Use lastRunStatus instead.")));
+#endif
 
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 /// API to control session replay.

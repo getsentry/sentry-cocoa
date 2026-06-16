@@ -146,6 +146,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, copy, nullable) BOOL (^beforeCaptureViewHierarchy)(SentryObjCEvent *);
 
+#if !SDK_V10
 /**
  * A block called shortly after the initialization of the SDK when the last program execution
  * terminated with a crash.
@@ -155,6 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, copy, nullable) void (^onCrashedLastRun)(SentryObjCEvent *)
     __attribute__((deprecated("Use onLastRunStatusDetermined instead.")));
+#endif
 
 /**
  * A block called shortly after the initialization of the SDK when the crash status of the
