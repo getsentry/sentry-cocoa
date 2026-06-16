@@ -50,7 +50,12 @@ import UIKit
     private var didProcessRunLoopWork = false
     private var isCaptureSchedulerRunning = false
     private var nextCaptureActivityCheckAt: Date?
+    /// Segment end currently being rendered on the replay maker's background queue.
     private var pendingSegmentEnd: Date?
+    /// Pause timestamp to process after the current pending segment finishes rendering.
+    ///
+    /// This preserves the recording interval that ends at pause time without starting a second
+    /// segment render while `pendingSegmentEnd` is still in flight.
     private var pendingPauseSegmentEnd: Date?
     public var replayTags: [String: Any]?
 
