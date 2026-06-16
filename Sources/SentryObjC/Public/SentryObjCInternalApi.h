@@ -10,6 +10,9 @@
 @class SentryObjCInternalBreadcrumbApi;
 @class SentryObjCInternalUserApi;
 @class SentryObjCInternalEnvelopeApi;
+#if SENTRY_OBJC_HAS_UIKIT
+@class SentryObjCInternalPerformanceApi;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,6 +40,11 @@ SENTRY_NO_INIT
 
 /// Envelope store, capture, and deserialization.
 @property (nonatomic, readonly) SentryObjCInternalEnvelopeApi *envelope;
+
+#if SENTRY_OBJC_HAS_UIKIT
+/// Frame tracking performance metrics.
+@property (nonatomic, readonly) SentryObjCInternalPerformanceApi *performance;
+#endif
 
 @end
 
