@@ -14,6 +14,7 @@
 @class SentryObjCInternalPerformanceApi;
 @class SentryObjCInternalScreenshotApi;
 @class SentryObjCInternalViewHierarchyApi;
+@class SentryObjCInternalScreenApi;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -52,6 +53,9 @@ SENTRY_NO_INIT
 
 /// View hierarchy capture.
 @property (nonatomic, readonly) SentryObjCInternalViewHierarchyApi *viewHierarchy;
+
+/// Screen name tracking.
+@property (nonatomic, readonly) SentryObjCInternalScreenApi *screen;
 #endif
 
 @end

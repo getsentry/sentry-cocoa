@@ -435,6 +435,26 @@ extension SentryDependencyContainer: ClientProvider {
     }
 }
 
+protocol HubProvider {
+    func configureScope(_ callback: @escaping (Scope) -> Void)
+}
+
+protocol HubProviderProvider {
+    var hubProvider: HubProvider { get }
+}
+
+private struct DefaultHubProvider: HubProvider {
+    func configureScope(_ callback: @escaping (Scope) -> Void) {
+        SentrySDKInternal.currentHub().configureScope { scope in
+            callback(scope)
+        }
+    }
+}
+
+extension SentryDependencyContainer: HubProviderProvider {
+    var hubProvider: HubProvider { DefaultHubProvider() }
+}
+
 protocol DateProviderProvider {
     var dateProvider: SentryCurrentDateProvider { get }
 }
