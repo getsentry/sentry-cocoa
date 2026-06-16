@@ -598,6 +598,47 @@ protocol DebugImageProvider {
 }
 extension SentryDependencyContainer: DebugImageProvider { }
 
+protocol BinaryImageCacheProvider {
+    var binaryImageCache: SentryBinaryImageCache { get }
+}
+extension SentryDependencyContainer: BinaryImageCacheProvider { }
+
+protocol BreadcrumbDeserializer {
+    func breadcrumb(from dictionary: [String: Any]) -> Breadcrumb
+}
+
+struct DefaultBreadcrumbDeserializer: BreadcrumbDeserializer {
+    func breadcrumb(from dictionary: [String: Any]) -> Breadcrumb {
+        PrivateSentrySDKOnly.breadcrumb(with: dictionary)
+    }
+}
+
+protocol BreadcrumbDeserializerProvider {
+    var breadcrumbDeserializer: BreadcrumbDeserializer { get }
+}
+
+extension SentryDependencyContainer: BreadcrumbDeserializerProvider {
+    var breadcrumbDeserializer: BreadcrumbDeserializer { DefaultBreadcrumbDeserializer() }
+}
+
+protocol UserDeserializer {
+    func user(from dictionary: [String: Any]) -> User
+}
+
+struct DefaultUserDeserializer: UserDeserializer {
+    func user(from dictionary: [String: Any]) -> User {
+        PrivateSentrySDKOnly.user(with: dictionary)
+    }
+}
+
+protocol UserDeserializerProvider {
+    var userDeserializer: UserDeserializer { get }
+}
+
+extension SentryDependencyContainer: UserDeserializerProvider {
+    var userDeserializer: UserDeserializer { DefaultUserDeserializer() }
+}
+
 protocol ThreadInspectorProvider {
     var threadInspector: SentryThreadInspector { get }
 }

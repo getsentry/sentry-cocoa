@@ -6,6 +6,9 @@
 #endif
 
 @class SentryObjCInternalSdkApi;
+@class SentryObjCInternalDebugApi;
+@class SentryObjCInternalBreadcrumbApi;
+@class SentryObjCInternalUserApi;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,6 +24,15 @@ SENTRY_NO_INIT
 
 /// SDK metadata and configuration.
 @property (nonatomic, readonly) SentryObjCInternalSdkApi *sdk;
+
+/// Debug image access for symbolication.
+@property (nonatomic, readonly) SentryObjCInternalDebugApi *debug;
+
+/// Breadcrumb creation from dictionary representation.
+@property (nonatomic, readonly) SentryObjCInternalBreadcrumbApi *breadcrumbs;
+
+/// User creation from dictionary representation.
+@property (nonatomic, readonly) SentryObjCInternalUserApi *user;
 
 @end
 

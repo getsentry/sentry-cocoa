@@ -437,7 +437,25 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalBreadcrumbApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalDebugApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalSdkApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalUserApi",
     "super": "NSObject",
     "has_inner": true
   },
@@ -897,6 +915,13 @@
     "name": "breadcrumbs",
     "parent": "SentryObjCEvent",
     "returnType": "NSArray<SentryObjCBreadcrumb *> * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "breadcrumbs",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalBreadcrumbApi * _Nonnull",
     "instance": true
   },
   {
@@ -1493,6 +1518,13 @@
     "parent": "SentryObjCUnit",
     "returnType": "SentryObjCUnit * _Nonnull",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "debug",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalDebugApi * _Nonnull",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -2231,6 +2263,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "fromDictionary:",
+    "parent": "SentryObjCInternalBreadcrumbApi",
+    "returnType": "SentryObjCBreadcrumb * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "fromDictionary:",
+    "parent": "SentryObjCInternalUserApi",
+    "returnType": "SentryObjCUser * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "function",
     "parent": "SentryObjCFrame",
     "returnType": "NSString * _Nullable",
@@ -2437,6 +2483,20 @@
     "name": "imageVmAddress",
     "parent": "SentryObjCDebugMeta",
     "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "images",
+    "parent": "SentryObjCInternalDebugApi",
+    "returnType": "NSArray<SentryObjCDebugMeta *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "imagesForAddresses:",
+    "parent": "SentryObjCInternalDebugApi",
+    "returnType": "NSArray<SentryObjCDebugMeta *> * _Nonnull",
     "instance": true
   },
   {
@@ -7712,6 +7772,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "user",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalUserApi * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "userId",
     "parent": "SentryObjCUser",
     "returnType": "NSString * _Nullable",
@@ -8001,6 +8068,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "breadcrumbs",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalBreadcrumbApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "buttonBackground",
     "parent": "SentryObjCUserFeedbackThemeConfiguration",
     "type": "UIColor * _Nonnull"
@@ -8214,6 +8287,12 @@
     "name": "day",
     "parent": "SentryObjCUnit",
     "type": "SentryObjCUnit * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "debug",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalDebugApi * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8814,6 +8893,12 @@
     "name": "imageVmAddress",
     "parent": "SentryObjCDebugMeta",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "images",
+    "parent": "SentryObjCInternalDebugApi",
+    "type": "NSArray<SentryObjCDebugMeta *> * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -10272,6 +10357,12 @@
     "name": "user",
     "parent": "SentryObjCEvent",
     "type": "SentryObjCUser * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "user",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalUserApi * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",

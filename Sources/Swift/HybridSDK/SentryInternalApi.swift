@@ -11,11 +11,28 @@ import Foundation
 /// App developers: prefer the standard `SentrySDK` API surface instead.
 public struct SentryInternalApi {
 
+    typealias Dependencies = SentryInternalSdkApi.Dependencies
+        & SentryInternalDebugApi.Dependencies
+        & SentryInternalBreadcrumbApi.Dependencies
+        & SentryInternalUserApi.Dependencies
+
     /// SDK metadata and configuration.
     public let sdk: SentryInternalSdkApi
 
-    init(dependencies: SentryInternalSdkApi.Dependencies) {
+    /// Debug image access for symbolication.
+    public let debug: SentryInternalDebugApi
+
+    /// Breadcrumb creation from dictionary representation.
+    public let breadcrumbs: SentryInternalBreadcrumbApi
+
+    /// User creation from dictionary representation.
+    public let user: SentryInternalUserApi
+
+    init(dependencies: Dependencies) {
         self.sdk = SentryInternalSdkApi(dependencies: dependencies)
+        self.debug = SentryInternalDebugApi(provider: dependencies)
+        self.breadcrumbs = SentryInternalBreadcrumbApi(dependencies: dependencies)
+        self.user = SentryInternalUserApi(dependencies: dependencies)
     }
 }
 // swiftlint:enable missing_docs

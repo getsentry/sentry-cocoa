@@ -108,4 +108,34 @@ class SentryInternalApiIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertTrue(context.keys.contains("device"))
     }
+
+    // MARK: - breadcrumbs accessor
+
+    func testBreadcrumbs_shouldBeAccessible() {
+        // -- Act --
+        let breadcrumbs = SentrySDK.internal.breadcrumbs
+
+        // -- Assert --
+        XCTAssertNotNil(breadcrumbs)
+    }
+
+    // MARK: - user accessor
+
+    func testUser_shouldBeAccessible() {
+        // -- Act --
+        let user = SentrySDK.internal.user
+
+        // -- Assert --
+        XCTAssertNotNil(user)
+    }
+
+    // MARK: - debug accessor
+
+    func testDebug_shouldBeAccessible() {
+        // -- Act --
+        let debug = SentrySDK.internal.debug
+
+        // -- Assert --
+        XCTAssertNotNil(debug)
+    }
 }
