@@ -165,6 +165,7 @@
 // --- Internal API (hybrid SDK structured API) ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCInternalApi.h"
+#    import "SentryObjCInternalAppStartApi.h"
 #    import "SentryObjCInternalBreadcrumbApi.h"
 #    import "SentryObjCInternalDebugApi.h"
 #    import "SentryObjCInternalEnvelopeApi.h"
@@ -177,6 +178,7 @@
 #    import "SentryObjCInternalViewHierarchyApi.h"
 #else
 #    import <SentryObjC/SentryObjCInternalApi.h>
+#    import <SentryObjC/SentryObjCInternalAppStartApi.h>
 #    import <SentryObjC/SentryObjCInternalBreadcrumbApi.h>
 #    import <SentryObjC/SentryObjCInternalDebugApi.h>
 #    import <SentryObjC/SentryObjCInternalEnvelopeApi.h>
