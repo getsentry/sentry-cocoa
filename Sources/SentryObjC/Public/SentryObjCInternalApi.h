@@ -10,6 +10,7 @@
 @class SentryObjCInternalBreadcrumbApi;
 @class SentryObjCInternalUserApi;
 @class SentryObjCInternalEnvelopeApi;
+@class SentryObjCInternalSwizzleApi;
 #if SENTRY_OBJC_HAS_UIKIT
 @class SentryObjCInternalPerformanceApi;
 @class SentryObjCInternalScreenshotApi;
@@ -43,6 +44,9 @@ SENTRY_NO_INIT
 
 /// Envelope store, capture, and deserialization.
 @property (nonatomic, readonly) SentryObjCInternalEnvelopeApi *envelope;
+
+/// Method swizzling.
+@property (nonatomic, readonly) SentryObjCInternalSwizzleApi *swizzle;
 
 #if SENTRY_OBJC_HAS_UIKIT
 /// Frame tracking performance metrics.

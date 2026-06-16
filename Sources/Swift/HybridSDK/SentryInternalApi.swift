@@ -48,6 +48,9 @@ public struct SentryInternalApi {
     /// Envelope store, capture, and deserialization for hybrid SDKs.
     public let envelope: SentryInternalEnvelopeApi
 
+    /// Method swizzling for hybrid SDKs.
+    public let swizzle: SentryInternalSwizzleApi
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     /// Frame tracking metrics for hybrid SDKs.
     public let performance: SentryInternalPerformanceApi
@@ -70,6 +73,7 @@ public struct SentryInternalApi {
         self.breadcrumbs = SentryInternalBreadcrumbApi(dependencies: dependencies)
         self.user = SentryInternalUserApi(dependencies: dependencies)
         self.envelope = SentryInternalEnvelopeApi()
+        self.swizzle = SentryInternalSwizzleApi()
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         self.performance = SentryInternalPerformanceApi(dependencies: dependencies)
 #endif
