@@ -188,7 +188,9 @@ extension SentryUserFeedbackConfiguration {
     func applyConfigurationBuilders() {
         configureForm?(formConfig)
         configureTheme?(theme)
+        #if !SDK_V10
         _configureDarkTheme?(darkTheme)
+        #endif
     }
 
     func configurationForPresentation(
