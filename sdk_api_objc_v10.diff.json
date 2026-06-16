@@ -1,0 +1,684 @@
+{
+  "only_in_headers": [
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "attachmentType",
+      "parent": "SentryObjCAttachment",
+      "returnType": "SentryObjCAttachmentType",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "boolean:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "booleanArray:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "counter:",
+      "parent": "SentryObjCMetricValue",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "diagnosticLevel",
+      "parent": "SentryObjCOptions",
+      "returnType": "SentryObjCLevel",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "distribution:",
+      "parent": "SentryObjCMetricValue",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "double:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "doubleArray:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "empty",
+      "parent": "SentryObjCEnvelopeHeader",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "gauge:",
+      "parent": "SentryObjCMetricValue",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "getExtraContext",
+      "parent": "SentryObjCPrivateSDKOnly",
+      "returnType": "NSDictionary * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "integer:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "integerArray:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "lastRunStatus",
+      "parent": "SentryObjCSDK",
+      "returnType": "SentryObjCLastRunStatus",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "level",
+      "parent": "SentryObjCBreadcrumb",
+      "returnType": "SentryObjCLevel",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "level",
+      "parent": "SentryObjCEvent",
+      "returnType": "SentryObjCLevel",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "level",
+      "parent": "SentryObjCLog",
+      "returnType": "SentryObjCLogLevel",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "nameSource",
+      "parent": "SentryObjCTransactionContext",
+      "returnType": "SentryObjCTransactionNameSource",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "new",
+      "parent": "SentryObjCFeedbackForm",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "onCrashedLastRun",
+      "parent": "SentryObjCOptions",
+      "returnType": "void (^ _Nullable)(SentryObjCEvent * _Nonnull)",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "onLastRunStatusDetermined",
+      "parent": "SentryObjCOptions",
+      "returnType": "void (^ _Nullable)(SentryObjCLastRunStatus, SentryObjCEvent * _Nullable)",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "parentSampled",
+      "parent": "SentryObjCTransactionContext",
+      "returnType": "SentryObjCSampleDecision",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "quality",
+      "parent": "SentryObjCReplayOptions",
+      "returnType": "SentryObjCReplayQuality",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "sampled",
+      "parent": "SentryObjCSpan",
+      "returnType": "SentryObjCSampleDecision",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "sampled",
+      "parent": "SentryObjCSpanContext",
+      "returnType": "SentryObjCSampleDecision",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "sampled",
+      "parent": "SentryObjCTraceHeader",
+      "returnType": "SentryObjCSampleDecision",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "source",
+      "parent": "SentryObjCFeedback",
+      "returnType": "SentryObjCFeedbackSource",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "status",
+      "parent": "SentryObjCSpan",
+      "returnType": "SentryObjCSpanStatus",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "string:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "stringArray:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "attachmentType",
+      "parent": "SentryObjCAttachment",
+      "type": "SentryObjCAttachmentType"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "diagnosticLevel",
+      "parent": "SentryObjCOptions",
+      "type": "SentryObjCLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "lastRunStatus",
+      "parent": "SentryObjCSDK",
+      "type": "SentryObjCLastRunStatus"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "level",
+      "parent": "SentryObjCBreadcrumb",
+      "type": "SentryObjCLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "level",
+      "parent": "SentryObjCEvent",
+      "type": "SentryObjCLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "level",
+      "parent": "SentryObjCLog",
+      "type": "SentryObjCLogLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "module",
+      "parent": "SentryObjCException",
+      "type": "NSString * _Nullable"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "module",
+      "parent": "SentryObjCFrame",
+      "type": "NSString * _Nullable"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "nameSource",
+      "parent": "SentryObjCTransactionContext",
+      "type": "SentryObjCTransactionNameSource"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "onCrashedLastRun",
+      "parent": "SentryObjCOptions",
+      "type": "void (^ _Nullable)(SentryObjCEvent * _Nonnull)"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "onLastRunStatusDetermined",
+      "parent": "SentryObjCOptions",
+      "type": "void (^ _Nullable)(SentryObjCLastRunStatus, SentryObjCEvent * _Nullable)"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "parentSampled",
+      "parent": "SentryObjCTransactionContext",
+      "type": "SentryObjCSampleDecision"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "quality",
+      "parent": "SentryObjCReplayOptions",
+      "type": "SentryObjCReplayQuality"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "sampled",
+      "parent": "SentryObjCSpan",
+      "type": "SentryObjCSampleDecision"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "sampled",
+      "parent": "SentryObjCSpanContext",
+      "type": "SentryObjCSampleDecision"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "sampled",
+      "parent": "SentryObjCTraceHeader",
+      "type": "SentryObjCSampleDecision"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "source",
+      "parent": "SentryObjCFeedback",
+      "type": "SentryObjCFeedbackSource"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "status",
+      "parent": "SentryObjCSpan",
+      "type": "SentryObjCSpanStatus"
+    }
+  ],
+  "only_in_compat": [
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "attachmentType",
+      "parent": "SentryObjCAttachment",
+      "returnType": "enum SentryObjCAttachmentType",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "boolean:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "SentryObjCAttributeContent * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "booleanArray:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "SentryObjCAttributeContent * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "counter:",
+      "parent": "SentryObjCMetricValue",
+      "returnType": "SentryObjCMetricValue * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "diagnosticLevel",
+      "parent": "SentryObjCOptions",
+      "returnType": "enum SentryObjCLevel",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "distribution:",
+      "parent": "SentryObjCMetricValue",
+      "returnType": "SentryObjCMetricValue * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "double:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "SentryObjCAttributeContent * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "doubleArray:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "SentryObjCAttributeContent * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "empty",
+      "parent": "SentryObjCEnvelopeHeader",
+      "returnType": "SentryObjCEnvelopeHeader * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "gauge:",
+      "parent": "SentryObjCMetricValue",
+      "returnType": "SentryObjCMetricValue * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "getExtraContext",
+      "parent": "SentryObjCPrivateSDKOnly",
+      "returnType": "NSDictionary<NSString *,id> * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
+      "parent": "SentryObjCPrivateSDKOnly",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "init",
+      "parent": "SentryObjCSDK",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "initWithOperation:",
+      "parent": "SentryObjCTransactionContext",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "initWithOperation:sampled:",
+      "parent": "SentryObjCTransactionContext",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "initWithTestApi:",
+      "parent": "SentryObjCMetricsApi",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "initWithTraceId:spanId:parentId:operation:sampled:",
+      "parent": "SentryObjCTransactionContext",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "initWithTraceId:spanId:parentId:operation:spanDescription:sampled:",
+      "parent": "SentryObjCTransactionContext",
+      "returnType": "instancetype _Nonnull",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "integer:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "SentryObjCAttributeContent * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "integerArray:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "SentryObjCAttributeContent * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "lastRunStatus",
+      "parent": "SentryObjCSDK",
+      "returnType": "enum SentryObjCLastRunStatus",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "level",
+      "parent": "SentryObjCBreadcrumb",
+      "returnType": "enum SentryObjCLevel",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "level",
+      "parent": "SentryObjCEvent",
+      "returnType": "enum SentryObjCLevel",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "level",
+      "parent": "SentryObjCLog",
+      "returnType": "enum SentryObjCLogLevel",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "nameSource",
+      "parent": "SentryObjCTransactionContext",
+      "returnType": "enum SentryObjCTransactionNameSource",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "onCrashedLastRun",
+      "parent": "SentryObjCOptions",
+      "returnType": "SWIFT_DEPRECATED_MSG void (^)(SentryObjCEvent * _Nonnull)",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "onLastRunStatusDetermined",
+      "parent": "SentryObjCOptions",
+      "returnType": "void (^ _Nullable)(enum SentryObjCLastRunStatus, SentryObjCEvent * _Nullable)",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "parentSampled",
+      "parent": "SentryObjCTransactionContext",
+      "returnType": "enum SentryObjCSampleDecision",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "quality",
+      "parent": "SentryObjCReplayOptions",
+      "returnType": "enum SentryObjCReplayQuality",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "sampled",
+      "parent": "SentryObjCSpan",
+      "returnType": "enum SentryObjCSampleDecision",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "sampled",
+      "parent": "SentryObjCSpanContext",
+      "returnType": "enum SentryObjCSampleDecision",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "sampled",
+      "parent": "SentryObjCTraceHeader",
+      "returnType": "enum SentryObjCSampleDecision",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "source",
+      "parent": "SentryObjCFeedback",
+      "returnType": "enum SentryObjCFeedbackSource",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "status",
+      "parent": "SentryObjCSpan",
+      "returnType": "enum SentryObjCSpanStatus",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "string:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "SentryObjCAttributeContent * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "stringArray:",
+      "parent": "SentryObjCAttributeContent",
+      "returnType": "SentryObjCAttributeContent * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "attachmentType",
+      "parent": "SentryObjCAttachment",
+      "type": "enum SentryObjCAttachmentType"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "diagnosticLevel",
+      "parent": "SentryObjCOptions",
+      "type": "enum SentryObjCLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "lastRunStatus",
+      "parent": "SentryObjCSDK",
+      "type": "enum SentryObjCLastRunStatus"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "level",
+      "parent": "SentryObjCBreadcrumb",
+      "type": "enum SentryObjCLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "level",
+      "parent": "SentryObjCEvent",
+      "type": "enum SentryObjCLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "level",
+      "parent": "SentryObjCLog",
+      "type": "enum SentryObjCLogLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "module_",
+      "parent": "SentryObjCException",
+      "type": "NSString * _Nullable"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "module_",
+      "parent": "SentryObjCFrame",
+      "type": "NSString * _Nullable"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "nameSource",
+      "parent": "SentryObjCTransactionContext",
+      "type": "enum SentryObjCTransactionNameSource"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "onCrashedLastRun",
+      "parent": "SentryObjCOptions",
+      "type": "SWIFT_DEPRECATED_MSG void (^)(SentryObjCEvent * _Nonnull)"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "onLastRunStatusDetermined",
+      "parent": "SentryObjCOptions",
+      "type": "void (^ _Nullable)(enum SentryObjCLastRunStatus, SentryObjCEvent * _Nullable)"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "parentSampled",
+      "parent": "SentryObjCTransactionContext",
+      "type": "enum SentryObjCSampleDecision"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "quality",
+      "parent": "SentryObjCReplayOptions",
+      "type": "enum SentryObjCReplayQuality"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "sampled",
+      "parent": "SentryObjCSpan",
+      "type": "enum SentryObjCSampleDecision"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "sampled",
+      "parent": "SentryObjCSpanContext",
+      "type": "enum SentryObjCSampleDecision"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "sampled",
+      "parent": "SentryObjCTraceHeader",
+      "type": "enum SentryObjCSampleDecision"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "source",
+      "parent": "SentryObjCFeedback",
+      "type": "enum SentryObjCFeedbackSource"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "status",
+      "parent": "SentryObjCSpan",
+      "type": "enum SentryObjCSpanStatus"
+    }
+  ]
+}
