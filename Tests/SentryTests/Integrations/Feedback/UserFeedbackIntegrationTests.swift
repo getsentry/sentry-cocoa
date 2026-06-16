@@ -7,6 +7,19 @@ import UIKit
 
 final class UserFeedbackIntegrationTests: XCTestCase {
 
+    private static let mockWindowScene: UIWindowScene = MockUIWindowScene()
+
+    private func makeWindow() -> UIWindow {
+        let window = UIWindow(windowScene: Self.mockWindowScene)
+        window.frame = UIScreen.main.bounds
+        return window
+    }
+
+    private let mockWindowFactory: SentryUserFeedbackWindowFactory = { config in
+        let window = SentryUserFeedbackWidget.Window(config: config, windowScene: mockWindowScene)
+        return window
+    }
+
     override func tearDown() {
         super.tearDown()
         clearTestState()
@@ -18,8 +31,11 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         return options
     }
 
-    private struct TestDependencies: ScreenshotSourceProvider {
+    private struct TestDependencies: UserFeedbackIntegrationProvider {
         let screenshotSource: SentryScreenshotSource?
+        var windowFactory: SentryUserFeedbackWindowFactory {
+            SentryUserFeedbackWidget.defaultWindowFactory
+        }
     }
 
     private func makeScreenshotSource() -> SentryScreenshotSource {
@@ -219,7 +235,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testShowForm_whenLocalConfigurationIsSet_shouldApplyToCurrentFormOnly() throws {
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        let window = makeWindow()
         let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
@@ -262,7 +278,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testShakeGesture_whenNoWidgetOrCustomButton_shouldUseFallbackPresenter() throws {
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        let window = makeWindow()
         let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
@@ -285,7 +301,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 #if SDK_V10
         throw XCTSkip("Widget is not available in V10")
 #else
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        let window = makeWindow()
         let viewController = TestPresentingViewController()
         let screenshot = UIImage()
         let config = SentryUserFeedbackConfiguration()
@@ -310,7 +326,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testShowForm_whenConfigurationBuildersAreSet_shouldNotApplyBuildersAgain() throws {
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        let window = makeWindow()
         let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
@@ -345,7 +361,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testShowForm_whenFormAlreadyPresented_shouldNotPresentAgain() {
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        let window = makeWindow()
         let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
         addCustomButton(to: viewController, configuration: config)
@@ -372,7 +388,8 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         config.animations = false
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: config,
-            screenshotSource: makeScreenshotSource())
+            screenshotSource: makeScreenshotSource(),
+            windowFactory: mockWindowFactory)
         sut.showWidget()
         let widgetHost = try XCTUnwrap(widgetHost(for: sut))
         let presenter = DroppingPresentingViewController()
@@ -387,7 +404,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testPresentationControllerDidDismiss_whenFormWasPresented_shouldClearActiveForm() throws {
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        let window = makeWindow()
         let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
         addCustomButton(to: viewController, configuration: config)
@@ -422,7 +439,8 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         config.animations = false
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: config,
-            screenshotSource: makeScreenshotSource())
+            screenshotSource: makeScreenshotSource(),
+            windowFactory: mockWindowFactory)
         sut.showWidget()
         let widgetHost = try XCTUnwrap(widgetHost(for: sut))
 
@@ -452,7 +470,8 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         config.animations = false
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: config,
-            screenshotSource: makeScreenshotSource())
+            screenshotSource: makeScreenshotSource(),
+            windowFactory: mockWindowFactory)
         sut.showWidget()
         sut.hideWidget()
         let widgetHost = try XCTUnwrap(widgetHost(for: sut))
@@ -539,6 +558,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let options = Options()
         options.configureUserFeedback = configure
         SentrySDK.setStart(with: options)
+        SentryDependencyContainer.sharedInstance().windowFactoryOverride = mockWindowFactory
         let integration = try XCTUnwrap(UserFeedbackIntegration<SentryDependencyContainer>(
             with: options,
             dependencies: SentryDependencyContainer.sharedInstance()))

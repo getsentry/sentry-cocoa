@@ -6,6 +6,12 @@ import UIKit
 
 final class SentryShakeDetectorTests: XCTestCase {
 
+    private static let mockWindowScene: UIWindowScene = MockUIWindowScene()
+
+    private func makeWindow() -> UIWindow {
+        UIWindow(windowScene: Self.mockWindowScene)
+    }
+
     override func tearDown() {
         super.tearDown()
         SentryShakeDetector.disable()
@@ -16,7 +22,7 @@ final class SentryShakeDetectorTests: XCTestCase {
 
         SentryShakeDetector.enable()
 
-        let window = UIWindow()
+        let window = makeWindow()
         window.motionEnded(.motionShake, with: nil)
 
         wait(for: [expectation], timeout: 1.0)
@@ -29,7 +35,7 @@ final class SentryShakeDetectorTests: XCTestCase {
         let expectation = expectation(forNotification: .SentryShakeDetected, object: nil)
         expectation.isInverted = true
 
-        let window = UIWindow()
+        let window = makeWindow()
         window.motionEnded(.motionShake, with: nil)
 
         wait(for: [expectation], timeout: 0.5)
@@ -41,7 +47,7 @@ final class SentryShakeDetectorTests: XCTestCase {
         let expectation = expectation(forNotification: .SentryShakeDetected, object: nil)
         expectation.isInverted = true
 
-        let window = UIWindow()
+        let window = makeWindow()
         window.motionEnded(.none, with: nil)
 
         wait(for: [expectation], timeout: 0.5)
@@ -52,8 +58,7 @@ final class SentryShakeDetectorTests: XCTestCase {
         SentryShakeDetector.enable()
         SentryShakeDetector.enable()
 
-        // Just verify no crash; the swizzle-once guard handles repeated calls
-        let window = UIWindow()
+        let window = makeWindow()
         window.motionEnded(.motionShake, with: nil)
     }
 
@@ -71,7 +76,7 @@ final class SentryShakeDetectorTests: XCTestCase {
             notificationCount += 1
         }
 
-        let window = UIWindow()
+        let window = makeWindow()
         // Rapid shakes within the 1s cooldown
         window.motionEnded(.motionShake, with: nil)
         window.motionEnded(.motionShake, with: nil)
@@ -85,9 +90,7 @@ final class SentryShakeDetectorTests: XCTestCase {
     func testOriginalImplementation_shouldStillBeCalled() {
         SentryShakeDetector.enable()
 
-        // motionEnded should not crash — the original UIResponder implementation
-        // is called after our interceptor
-        let window = UIWindow()
+        let window = makeWindow()
         window.motionEnded(.motionShake, with: nil)
         window.motionEnded(.remoteControlBeginSeekingBackward, with: nil)
     }
