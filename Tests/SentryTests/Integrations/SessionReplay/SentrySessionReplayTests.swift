@@ -1289,6 +1289,32 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 2)
     }
 
+    func testNewFrame_whenInteractionStartsDuringAdaptiveBackoff_shouldCaptureAtFrameRate() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let options = SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1)
+        options.frameRate = 1
+        fixture.screenshotProvider.beforeComplete = {
+            fixture.dateProvider.advance(by: 0.06)
+        }
+        let sut = fixture.getSut(options: options)
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        fixture.dateProvider.advance(by: 1)
+        sut.captureFrameForTesting()
+        fixture.screenshotProvider.beforeComplete = nil
+
+        let scrollView = DraggingScrollView(frame: fixture.rootView.bounds)
+        fixture.rootView.addSubview(scrollView)
+
+        // -- Act --
+        fixture.dateProvider.advance(by: 1)
+        sut.captureFrameForTesting()
+
+        // -- Assert --
+        XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 2)
+    }
+
     func testNewFrame_whenScreenshotDeferredPastSegmentDuration_shouldPrepareSegment() throws {
         // -- Arrange --
         let fixture = Fixture()
