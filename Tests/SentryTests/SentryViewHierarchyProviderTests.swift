@@ -4,6 +4,8 @@ import XCTest
 
 #if os(iOS) || os(tvOS)
 class SentryViewHierarchyProviderTests: XCTestCase {
+    private static let mockWindowScene: UIWindowScene = MockUIWindowScene()
+
     private class Fixture {
         let uiApplication = TestSentryUIApplication()
 
@@ -14,6 +16,12 @@ class SentryViewHierarchyProviderTests: XCTestCase {
 
     private var fixture: Fixture!
 
+    private func makeWindow(frame: CGRect) -> UIWindow {
+        let window = UIWindow(windowScene: Self.mockWindowScene)
+        window.frame = frame
+        return window
+    }
+
     override func setUp() {
         super.setUp()
 
@@ -21,8 +29,8 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
 
     func test_Multiple_Window() throws {
-        let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
-        let secondWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let firstWindow = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let secondWindow = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
 
         fixture.uiApplication.windows = [firstWindow, secondWindow]
 
@@ -38,7 +46,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
 
     func test_ViewHierarchy_fetch() {
-        var window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        var window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
         fixture.uiApplication.windows = [window]
@@ -51,7 +59,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
 
         XCTAssertEqual(descriptions, "{\"rendering_system\":\"UIKIT\",\"windows\":[{\"type\":\"UIWindow\",\"identifier\":\"WindowId\",\"width\":10,\"height\":10,\"x\":0,\"y\":0,\"alpha\":1,\"visible\":false,\"children\":[]}]}")
 
-        window = UIWindow(frame: CGRect(x: 1, y: 2, width: 20, height: 30))
+        window = makeWindow(frame: CGRect(x: 1, y: 2, width: 20, height: 30))
         window.accessibilityIdentifier = "IdWindow"
 
         fixture.uiApplication.windows = [window]
@@ -67,7 +75,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
 
     func test_Window_with_children() throws {
-        let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let firstWindow = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         let childView = UIView(frame: CGRect(x: 1, y: 1, width: 8, height: 8))
         let secondChildView = UIView(frame: CGRect(x: 2, y: 2, width: 6, height: 6))
 
@@ -93,7 +101,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
 
     func test_ViewHierarchy_with_ViewController() throws {
-        let firstWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let firstWindow = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         let viewController = UIViewController()
         firstWindow.rootViewController = viewController
         firstWindow.addSubview(viewController.view)
@@ -116,7 +124,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
 
     func test_ViewHierarchy_save() throws {
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
         fixture.uiApplication.windows = [window]
@@ -130,7 +138,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
     
     func test_ViewHierarchy_save_noIdentifier() throws {
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
         fixture.uiApplication.windows = [window]
@@ -146,7 +154,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
     }
 
     func test_invalidFilePath() {
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
         fixture.uiApplication.windows = [window]
@@ -166,7 +174,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         // However, we cannot reliably trigger this error condition in tests without
         // exposing private implementation details or using function interposition,
         // which is not reliable for statically linked code.
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         window.accessibilityIdentifier = "WindowId"
 
         // Test that valid serialization works (inverse test)
@@ -176,7 +184,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
 
     func test_appViewHierarchyFromBackgroundTest() {
         let sut = TestSentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), applicationProvider: { self.fixture.uiApplication })
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [window]
 
         let ex = expectation(description: "Running on Main Thread")
@@ -195,7 +203,7 @@ class SentryViewHierarchyProviderTests: XCTestCase {
 
     func test_appViewHierarchy_usesMainThread() {
         let sut = TestSentryViewHierarchyProvider(dispatchQueueWrapper: SentryDispatchQueueWrapper(), applicationProvider: { self.fixture.uiApplication })
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
         fixture.uiApplication.windows = [window]
 
         let ex = expectation(description: "Running on background Thread")

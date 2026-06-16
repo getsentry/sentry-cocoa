@@ -414,11 +414,13 @@ final class SentryBreadcrumbTrackerTests: XCTestCase {
         sut.start(with: delegate)
         sut.startSwizzle()
 
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let mockScene: UIWindowScene = MockUIWindowScene()
+        let window = UIWindow(windowScene: mockScene)
+        window.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
         let viewController = UIViewController()
         viewController.title = "Window Test"
         window.rootViewController = viewController
-        window.makeKeyAndVisible() // Make window active so view hierarchy is established
+        window.makeKeyAndVisible()
         _ = viewController.view // Load view so it is in the window hierarchy
 
         viewController.viewDidAppear(false)

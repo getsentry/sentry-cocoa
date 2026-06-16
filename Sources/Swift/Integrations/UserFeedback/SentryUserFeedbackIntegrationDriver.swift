@@ -15,11 +15,13 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
     private weak var activeForm: SentryUserFeedbackFormController?
     private var shouldRestoreWidgetOnFormClose = false
     let screenshotSource: SentryScreenshotSource
+    let windowFactory: SentryUserFeedbackWindowFactory
     weak var customButton: UIButton?
 
-    init(configuration: SentryUserFeedbackConfiguration, screenshotSource: SentryScreenshotSource) {
+    init(configuration: SentryUserFeedbackConfiguration, screenshotSource: SentryScreenshotSource, windowFactory: @escaping SentryUserFeedbackWindowFactory = SentryUserFeedbackWidget.defaultWindowFactory) {
         self.configuration = configuration
         self.screenshotSource = screenshotSource
+        self.windowFactory = windowFactory
         super.init()
 
         configuration.applyConfigurationBuilders()
@@ -43,7 +45,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
             }
 
             if configuration.widgetConfig.autoInject {
-                widget = SentryUserFeedbackWidget(config: configuration, delegate: self)
+                widget = SentryUserFeedbackWidget(config: configuration, delegate: self, windowFactory: windowFactory)
             }
         }
 
@@ -59,7 +61,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
 
     func showWidget() {
         if widget == nil {
-            widget = SentryUserFeedbackWidget(config: configuration, delegate: self)
+            widget = SentryUserFeedbackWidget(config: configuration, delegate: self, windowFactory: windowFactory)
         }
 
         widget?.rootVC.setWidget(visible: true, animated: configuration.animations)
