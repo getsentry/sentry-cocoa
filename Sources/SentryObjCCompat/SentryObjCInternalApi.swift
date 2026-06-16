@@ -57,6 +57,10 @@ import Foundation
     @objc public var screen: SentryObjCInternalScreenApi {
         SentryObjCInternalScreenApi(wrapped.value.screen)
     }
+
+    @objc public var replay: SentryObjCInternalReplayApi {
+        SentryObjCInternalReplayApi(wrapped.value.replay)
+    }
 #endif
 }
 // swiftlint:enable missing_docs

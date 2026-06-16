@@ -18,6 +18,9 @@
 @class SentryObjCInternalViewHierarchyApi;
 @class SentryObjCInternalScreenApi;
 #endif
+#if SENTRY_OBJC_REPLAY_SUPPORTED
+@class SentryObjCInternalReplayApi;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -64,6 +67,11 @@ SENTRY_NO_INIT
 
 /// Screen name tracking.
 @property (nonatomic, readonly) SentryObjCInternalScreenApi *screen;
+#endif
+
+#if SENTRY_OBJC_REPLAY_SUPPORTED
+/// Session replay.
+@property (nonatomic, readonly) SentryObjCInternalReplayApi *replay;
 #endif
 
 @end

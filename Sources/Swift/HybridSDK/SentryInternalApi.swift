@@ -20,6 +20,7 @@ public struct SentryInternalApi {
         & SentryInternalScreenshotApi.Dependencies
         & SentryInternalViewHierarchyApi.Dependencies
         & SentryInternalScreenApi.Dependencies
+        & SentryInternalReplayApi.Dependencies
 #elseif os(visionOS) && !SENTRY_NO_UI_FRAMEWORK
     typealias Dependencies = SentryInternalSdkApi.Dependencies
         & SentryInternalDebugApi.Dependencies
@@ -68,6 +69,9 @@ public struct SentryInternalApi {
 
     /// Screen name tracking for hybrid SDKs.
     public let screen: SentryInternalScreenApi
+
+    /// Session replay for hybrid SDKs.
+    public let replay: SentryInternalReplayApi
 #endif
 
     init(dependencies: Dependencies) {
@@ -85,6 +89,7 @@ public struct SentryInternalApi {
         self.screenshot = SentryInternalScreenshotApi(dependencies: dependencies)
         self.viewHierarchy = SentryInternalViewHierarchyApi(dependencies: dependencies)
         self.screen = SentryInternalScreenApi(dependencies: dependencies)
+        self.replay = SentryInternalReplayApi(dependencies: dependencies)
 #endif
     }
 }
