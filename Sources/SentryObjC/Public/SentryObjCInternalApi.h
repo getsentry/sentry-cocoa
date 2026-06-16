@@ -9,6 +9,7 @@
 @class SentryObjCInternalDebugApi;
 @class SentryObjCInternalBreadcrumbApi;
 @class SentryObjCInternalUserApi;
+@class SentryObjCInternalEnvelopeApi;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,6 +34,9 @@ SENTRY_NO_INIT
 
 /// User creation from dictionary representation.
 @property (nonatomic, readonly) SentryObjCInternalUserApi *user;
+
+/// Envelope store, capture, and deserialization.
+@property (nonatomic, readonly) SentryObjCInternalEnvelopeApi *envelope;
 
 @end
 

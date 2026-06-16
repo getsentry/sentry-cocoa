@@ -28,11 +28,15 @@ public struct SentryInternalApi {
     /// User creation from dictionary representation.
     public let user: SentryInternalUserApi
 
+    /// Envelope store, capture, and deserialization for hybrid SDKs.
+    public let envelope: SentryInternalEnvelopeApi
+
     init(dependencies: Dependencies) {
         self.sdk = SentryInternalSdkApi(dependencies: dependencies)
         self.debug = SentryInternalDebugApi(provider: dependencies)
         self.breadcrumbs = SentryInternalBreadcrumbApi(dependencies: dependencies)
         self.user = SentryInternalUserApi(dependencies: dependencies)
+        self.envelope = SentryInternalEnvelopeApi()
     }
 }
 // swiftlint:enable missing_docs

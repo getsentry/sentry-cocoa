@@ -167,12 +167,14 @@
 #    import "SentryObjCInternalApi.h"
 #    import "SentryObjCInternalBreadcrumbApi.h"
 #    import "SentryObjCInternalDebugApi.h"
+#    import "SentryObjCInternalEnvelopeApi.h"
 #    import "SentryObjCInternalSdkApi.h"
 #    import "SentryObjCInternalUserApi.h"
 #else
 #    import <SentryObjC/SentryObjCInternalApi.h>
 #    import <SentryObjC/SentryObjCInternalBreadcrumbApi.h>
 #    import <SentryObjC/SentryObjCInternalDebugApi.h>
+#    import <SentryObjC/SentryObjCInternalEnvelopeApi.h>
 #    import <SentryObjC/SentryObjCInternalSdkApi.h>
 #    import <SentryObjC/SentryObjCInternalUserApi.h>
 #endif
