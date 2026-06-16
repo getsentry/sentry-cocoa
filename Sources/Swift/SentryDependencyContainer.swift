@@ -435,6 +435,47 @@ extension SentryDependencyContainer: ClientProvider {
     }
 }
 
+protocol Hub {
+    func configureScope(_ callback: @escaping (Scope) -> Void)
+    func storeEnvelope(_ envelope: SentryEnvelope)
+    func captureEnvelope(_ envelope: SentryEnvelope)
+}
+
+protocol HubProvider {
+    var hub: Hub { get }
+}
+
+/// DefaultHub is a temporary abstraction around the ``SentryHubInternal.h``
+private struct DefaultHub: Hub {
+    func configureScope(_ callback: @escaping (Scope) -> Void) {
+        SentrySDKInternal.currentHub().configureScope { scope in
+            callback(scope)
+        }
+    }
+
+    func storeEnvelope(_ envelope: SentryEnvelope) {
+        // swiftlint:disable:next todo
+        // TODO: Replace selector dispatch with direct calls once SentryHubInternal is fully migrated to Swift.
+        // SentryEnvelope is forward-declared in ObjC headers but defined in Swift, making ObjC methods
+        // that use it unavailable through the Swift importer. Selector dispatch is a workaround.
+        let hub = SentrySDKInternal.currentHub()
+        _ = hub.perform(NSSelectorFromString("storeEnvelope:"), with: envelope)
+    }
+
+    func captureEnvelope(_ envelope: SentryEnvelope) {
+        // swiftlint:disable:next todo
+        // TODO: Replace selector dispatch with direct calls once SentryHubInternal is fully migrated to Swift.
+        // SentryEnvelope is forward-declared in ObjC headers but defined in Swift, making ObjC methods
+        // that use it unavailable through the Swift importer. Selector dispatch is a workaround.
+        let hub = SentrySDKInternal.currentHub()
+        _ = hub.perform(NSSelectorFromString("captureEnvelope:"), with: envelope)
+    }
+}
+
+extension SentryDependencyContainer: HubProvider {
+    var hub: Hub { DefaultHub() }
+}
+
 protocol DateProviderProvider {
     var dateProvider: SentryCurrentDateProvider { get }
 }

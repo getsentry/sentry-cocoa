@@ -138,4 +138,5 @@ class SentryInternalApiIntegrationTests: XCTestCase {
         // -- Assert --
         XCTAssertNotNil(debug)
     }
+
 }

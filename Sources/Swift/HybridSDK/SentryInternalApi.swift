@@ -15,6 +15,7 @@ public struct SentryInternalApi {
         & SentryInternalDebugApi.Dependencies
         & SentryInternalBreadcrumbApi.Dependencies
         & SentryInternalUserApi.Dependencies
+        & SentryInternalEnvelopeApi.Dependencies
 
     /// SDK metadata and configuration.
     public let sdk: SentryInternalSdkApi
@@ -36,7 +37,7 @@ public struct SentryInternalApi {
         self.debug = SentryInternalDebugApi(provider: dependencies)
         self.breadcrumbs = SentryInternalBreadcrumbApi(dependencies: dependencies)
         self.user = SentryInternalUserApi(dependencies: dependencies)
-        self.envelope = SentryInternalEnvelopeApi()
+        self.envelope = SentryInternalEnvelopeApi(dependencies: dependencies)
     }
 }
 // swiftlint:enable missing_docs
