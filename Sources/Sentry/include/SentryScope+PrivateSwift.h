@@ -17,6 +17,7 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
 @property (atomic, strong) SentryUser *_Nullable userObject;
 
 @property (nonatomic, nullable, copy) NSString *currentScreen;
+@property (atomic, strong) SENTRY_SWIFT_MIGRATION_ID(SentryFeatureFlagStorage) featureFlagStorage;
 
 - (NSArray<SentryBreadcrumb *> *)breadcrumbs;
 

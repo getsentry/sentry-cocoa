@@ -57,6 +57,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         self.attachmentArray = [[NSMutableArray alloc] init];
         self.fingerprintArray = [[NSMutableArray alloc] init];
         self.attributesDictionary = [[NSMutableDictionary alloc] init];
+        self.featureFlagStorage = [SentryFeatureFlagStorage scopeStorage];
         _spanLock = [[NSObject alloc] init];
         _observersLock = [[NSObject alloc] init];
         _propagationContextLock = [[NSObject alloc] init];
@@ -84,7 +85,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
         [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
-        [SentryFeatureFlagObjCHelper copyFeatureFlagsFromScope:scope toScope:self];
+        self.featureFlagStorage = [scope.featureFlagStorage copyStorage];
 
         self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
@@ -213,7 +214,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     @synchronized(_attributesDictionary) {
         [_attributesDictionary removeAllObjects];
     }
-    [SentryFeatureFlagObjCHelper clearFeatureFlagsFromScope:self];
+    [self.featureFlagStorage removeAll];
 
     self.userObject = nil;
     self.distString = nil;
@@ -547,7 +548,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
     NSMutableDictionary *context = [self context].mutableCopy;
     NSDictionary<NSString *, id> *_Nullable featureFlags =
-        [SentryFeatureFlagObjCHelper serializedScopeFeatureFlagsFromScope:self];
+        [self.featureFlagStorage serializeForContext];
     if (featureFlags.count > 0) {
         context[@"flags"] = featureFlags;
     }
@@ -689,7 +690,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
     NSMutableDictionary *newContext = [self context].mutableCopy;
     NSDictionary<NSString *, id> *_Nullable featureFlags =
-        [SentryFeatureFlagObjCHelper serializedScopeFeatureFlagsFromScope:self];
+        [self.featureFlagStorage serializeForContext];
     if (featureFlags.count > 0) {
         newContext[@"flags"] = featureFlags;
     }

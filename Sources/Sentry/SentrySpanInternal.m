@@ -76,6 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
 
         _tags = [[NSMutableDictionary alloc] init];
+        self.featureFlagStorage = [SentryFeatureFlagStorage spanStorage];
         _stateLock = [[NSObject alloc] init];
         _isFinished = NO;
 
@@ -361,8 +362,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     @synchronized(_data) {
         NSMutableDictionary *data = _data.mutableCopy;
-        [data addEntriesFromDictionary:[SentryFeatureFlagObjCHelper
-                                           serializedSpanFeatureFlagDataFromSpan:self]];
+        [data addEntriesFromDictionary:[self.featureFlagStorage serializeForSpanData]];
 
         if (self.frames && self.frames.count > 0) {
             NSMutableArray *frames = [[NSMutableArray alloc] initWithCapacity:self.frames.count];
