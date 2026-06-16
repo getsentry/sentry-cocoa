@@ -38,6 +38,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
              * At the time this integration is being installed, if there is no UIApplicationDelegate and no connected UIScene, it is very likely we are in a SwiftUI app, but it's possible we could instead be in a UIKit app that has some nonstandard launch procedure or doesn't call SentrySDK.start in a place we expect/recommend, in which case they will need to manually display the widget when they're ready by calling SentrySDK.feedback.showWidget. The managed widget is deprecated; prefer presenting the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:).
              */
             if UIApplication.shared.connectedScenes.isEmpty && UIApplication.shared.delegate == nil {
+                observeScreenshots()
                 observeShakeGesture()
                 return
             }
@@ -205,13 +206,16 @@ private extension SentryUserFeedbackIntegrationDriver {
     }
 
     var presenter: UIViewController? {
-        #if !SDK_V10
-        if let customButton = configuration._customButton {
-            return customButton.controller
+        if let customButton = configuration.customButton?.controller {
+            return customButton
         }
         #endif
 
-        return widget?.rootVC
+        if let widgetRootViewController = widget?.rootVC {
+            return widgetRootViewController
+        }
+
+        return SentryFeedbackFormPresenter.presentingViewController()
     }
 }
 

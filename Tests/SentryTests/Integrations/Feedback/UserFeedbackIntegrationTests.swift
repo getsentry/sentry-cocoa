@@ -243,6 +243,9 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testShowForm_whenNoPresenterAvailable_shouldNotPresentForm() {
+        let application = TestSentryUIApplication()
+        application.windows = []
+        SentryDependencyContainer.sharedInstance().applicationOverride = application
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: SentryUserFeedbackConfiguration(),
             screenshotSource: makeScreenshotSource())
@@ -250,6 +253,50 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         sut.showForm()
 
         XCTAssertFalse(sut.displayingForm)
+    }
+
+    func testShakeGesture_whenNoWidgetOrCustomButton_shouldUseFallbackPresenter() throws {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let viewController = TestPresentingViewController()
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        config.useShakeGesture = true
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: makeScreenshotSource())
+        useFallbackPresenter(viewController, in: window)
+
+        NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
+
+        _ = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+        XCTAssertTrue(sut.displayingForm)
+
+        withExtendedLifetime(window) { }
+    }
+
+    @available(*, deprecated, message: "Testing deprecated widget configuration")
+    func testScreenshotTrigger_whenWidgetAutoInjectionDisabled_shouldUseFallbackPresenter() throws {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let viewController = TestPresentingViewController()
+        let screenshot = UIImage()
+        let config = SentryUserFeedbackConfiguration()
+        config.animations = false
+        config.showFormForScreenshots = true
+        config.configureWidget = { widget in
+            widget.autoInject = false
+        }
+        let sut = SentryUserFeedbackIntegrationDriver(
+            configuration: config,
+            screenshotSource: TestScreenshotSource(screenshots: [screenshot]))
+        useFallbackPresenter(viewController, in: window)
+
+        NotificationCenter.default.post(name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+
+        let form = try XCTUnwrap(viewController.lastPresentedViewController as? SentryUserFeedbackFormController)
+        XCTAssertIdentical(form.screenshot, screenshot)
+        XCTAssertNil(widgetHost(for: sut))
+
+        withExtendedLifetime(window) { }
     }
 
     func testShowForm_whenConfigurationBuildersAreSet_shouldNotApplyBuildersAgain() throws {
@@ -485,6 +532,29 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         configuration._customButton = customButton
         viewController.view.addSubview(customButton)
         #endif
+    }
+
+    private func useFallbackPresenter(_ viewController: UIViewController, in window: UIWindow) {
+        window.rootViewController = viewController
+        let application = TestSentryUIApplication()
+        application.windows = [window]
+        SentryDependencyContainer.sharedInstance().applicationOverride = application
+    }
+
+    private final class TestScreenshotSource: SentryScreenshotSource {
+        private let screenshots: [UIImage]
+
+        init(screenshots: [UIImage]) {
+            self.screenshots = screenshots
+            super.init(photographer: SentryViewPhotographer(
+                renderer: SentryDefaultViewRenderer(),
+                redactOptions: Options().screenshot,
+                enableMaskRendererV2: false))
+        }
+
+        override func appScreenshots() -> [UIImage] {
+            return screenshots
+        }
     }
 
     private final class TestPresentingViewController: UIViewController {
