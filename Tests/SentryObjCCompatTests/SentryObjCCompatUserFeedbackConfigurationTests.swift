@@ -13,6 +13,7 @@ import XCTest
 
 final class SentryObjCCompatUserFeedbackConfigurationTests: XCTestCase {
 
+    #if !SDK_V10
     @available(*, deprecated, message: "Testing deprecated custom button configuration")
     func testConfigureUserFeedback_whenSet_shouldConfigureWrappedOptions() throws {
         // -- Arrange --
@@ -81,6 +82,7 @@ final class SentryObjCCompatUserFeedbackConfigurationTests: XCTestCase {
         XCTAssertEqual(themeConfiguration.outlineStyle.cornerRadius, 10)
         XCTAssertEqual(themeConfiguration.outlineStyle.outlineWidth, 2)
     }
+    #endif
 
     func testCallbacks_whenSet_shouldForwardToWrappedConfiguration() throws {
         // -- Arrange --

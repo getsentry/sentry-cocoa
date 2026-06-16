@@ -480,6 +480,71 @@ protocol ViewHierarchyProviderProvider {
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
 #endif
 
+protocol ExtraContextProviderProvider {
+    var extraContextProvider: SentryExtraContextProvider { get }
+}
+extension SentryDependencyContainer: ExtraContextProviderProvider { }
+
+protocol SdkMetadataProvider {
+    var sdkName: String { get nonmutating set }
+    var sdkVersion: String { get nonmutating set }
+}
+
+struct DefaultSdkMetadataProvider: SdkMetadataProvider {
+    var sdkName: String {
+        get { SentryMeta.sdkName }
+        nonmutating set { SentryMeta.sdkName = newValue }
+    }
+    var sdkVersion: String {
+        get { SentryMeta.versionString }
+        nonmutating set { SentryMeta.versionString = newValue }
+    }
+}
+
+protocol SdkMetadataProviderProvider {
+    var sdkMetadataProvider: SdkMetadataProvider { get }
+}
+
+extension SentryDependencyContainer: SdkMetadataProviderProvider {
+    var sdkMetadataProvider: SdkMetadataProvider { DefaultSdkMetadataProvider() }
+}
+
+protocol SdkPackagesProvider {
+    func addPackage(name: String, version: String)
+}
+
+struct DefaultSdkPackagesProvider: SdkPackagesProvider {
+    func addPackage(name: String, version: String) {
+        SentryExtraPackages.addPackageName(name, version: version)
+    }
+}
+
+protocol SdkPackagesProviderProvider {
+    var sdkPackagesProvider: SdkPackagesProvider { get }
+}
+
+extension SentryDependencyContainer: SdkPackagesProviderProvider {
+    var sdkPackagesProvider: SdkPackagesProvider { DefaultSdkPackagesProvider() }
+}
+
+protocol InstallationIdProvider {
+    var installationID: String { get }
+}
+
+struct DefaultInstallationIdProvider: InstallationIdProvider {
+    var installationID: String {
+        PrivateSentrySDKOnly.installationID
+    }
+}
+
+protocol InstallationIdProviderProvider {
+    var installationIdProvider: InstallationIdProvider { get }
+}
+
+extension SentryDependencyContainer: InstallationIdProviderProvider {
+    var installationIdProvider: InstallationIdProvider { DefaultInstallationIdProvider() }
+}
+
 protocol NotificationCenterProvider {
     var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
 }

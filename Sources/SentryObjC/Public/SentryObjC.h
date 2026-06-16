@@ -162,6 +162,15 @@
 #    import <SentryObjC/SentryObjCReplayApi.h>
 #endif
 
+// --- Internal API (hybrid SDK structured API) ---
+#if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCInternalApi.h"
+#    import "SentryObjCInternalSdkApi.h"
+#else
+#    import <SentryObjC/SentryObjCInternalApi.h>
+#    import <SentryObjC/SentryObjCInternalSdkApi.h>
+#endif
+
 // --- Envelope types (SPI for hybrid SDKs) ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCEnvelope.h"

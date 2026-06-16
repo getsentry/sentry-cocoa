@@ -31,6 +31,10 @@ import Foundation
         SentryObjCMetricsApi(SentrySDK.metrics)
     }
 
+    @objc public static var `internal`: SentryObjCInternalApi {
+        SentryObjCInternalApi(SentrySDK.internal)
+    }
+
     #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     @objc public static var feedback: SentryObjCFeedbackApi {
         SentryObjCFeedbackApi(SentrySDK.feedback)
@@ -190,10 +194,12 @@ import Foundation
         }
     }
 
+#if !SDK_V10
     @available(*, deprecated, message: "Use lastRunStatus instead.")
     @objc public static var crashedLastRun: Bool {
         SentrySDK.crashedLastRun
     }
+#endif
 
     @objc public static var lastRunStatus: SentryObjCLastRunStatus {
         SentryObjCLastRunStatus(SentrySDK.lastRunStatus)
