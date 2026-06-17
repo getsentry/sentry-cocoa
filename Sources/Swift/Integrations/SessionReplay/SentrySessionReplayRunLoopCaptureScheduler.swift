@@ -34,13 +34,13 @@ final class DefaultSentrySessionReplayRunLoopCaptureScheduler<T: RunLoopObserver
     }
 
     func start(token: AnyObject, capture: @escaping (Bool) -> Void) {
-        runOnMainThread { [weak self] in
+        runOnMainThreadSync { [weak self] in
             self?.startOnMainThread(token: token, capture: capture)
         }
     }
 
     func stop(token: AnyObject) {
-        runOnMainThread { [weak self] in
+        runOnMainThreadSync { [weak self] in
             self?.stopOnMainThread(token: token)
         }
     }
@@ -107,11 +107,11 @@ final class DefaultSentrySessionReplayRunLoopCaptureScheduler<T: RunLoopObserver
         return true
     }
 
-    private func runOnMainThread(_ block: @escaping () -> Void) {
+    private func runOnMainThreadSync(_ block: () -> Void) {
         if Thread.isMainThread {
             block()
         } else {
-            DispatchQueue.main.async(execute: block)
+            DispatchQueue.main.sync(execute: block)
         }
     }
 }

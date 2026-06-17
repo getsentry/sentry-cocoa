@@ -892,6 +892,29 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertIdentical(try XCTUnwrap(captureScheduler.stoppedTokens.last), firstToken)
         XCTAssertNotIdentical(try XCTUnwrap(captureScheduler.startedTokens.last), firstToken)
     }
+
+    func testResume_whenPauseRunsBeforeQueuedStart_shouldNotStartCaptureScheduler() {
+        let fixture = Fixture()
+        let captureScheduler = RecordingCaptureScheduler()
+        fixture.captureScheduler = captureScheduler
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+        sut.pause()
+
+        let startCount = captureScheduler.startedTokens.count
+        let resumeReturned = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            sut.resume()
+            resumeReturned.signal()
+        }
+
+        XCTAssertEqual(resumeReturned.wait(timeout: .now() + 1), .success)
+        sut.pause()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+
+        XCTAssertFalse(sut.isRunning)
+        XCTAssertEqual(captureScheduler.startedTokens.count, startCount)
+    }
     
     func testFilterCloseNavigationBreadcrumbs() {
         let fixture = Fixture()

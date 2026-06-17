@@ -37,8 +37,8 @@ import UIKit
     /// Guards the state shared between the main thread and background queues: segment
     /// bookkeeping (`sessionStart`, `videoSegmentStart`, `pendingSegmentEnd`, `pendingPauseSegmentEnd`,
     /// `currentSegmentId`), capture scheduler state (`isCaptureSchedulerRunning`,
-    /// `nextCaptureActivityCheckAt`) and the `_isFullSession`, `processingScreenshot`,
-    /// `isSessionPaused` and `reachedMaximumDuration` flags.
+    /// `captureSchedulerGeneration`, `nextCaptureActivityCheckAt`) and the `_isFullSession`,
+    /// `processingScreenshot`, `isSessionPaused` and `reachedMaximumDuration` flags.
     ///
     /// Capture pacing state (`lastScreenshotAt`, `nextScreenshotAt`, `adaptiveScreenshotInterval`,
     /// `deferredScreenshotStart`) is not guarded by this lock; it is main-thread confined and only
@@ -52,6 +52,11 @@ import UIKit
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var deferredScreenshotStart: Date?
     private var isCaptureSchedulerRunning = false
+    /// Invalidates resume starts queued before a later pause.
+    /// Example: reachability resumes off-main, then the app backgrounds before the main-queue
+    /// start runs. Without this, the stale start can mark capture as running after pause, so the
+    /// next foreground resume may skip restarting the scheduler.
+    private var captureSchedulerGeneration = 0
     private var nextCaptureActivityCheckAt: Date?
     /// Segment end currently being rendered on the replay maker's background queue.
     private var pendingSegmentEnd: Date?
@@ -192,30 +197,32 @@ import UIKit
     public func resume() {
         SentrySDKLog.debug("[Session Replay] Resuming session")
         let resumeDate = dateProvider.date()
-        let shouldStartCaptureScheduler = lock.synchronized { () -> Bool in
+        let schedulerGeneration = lock.synchronized { () -> Int? in
             if _isFullSession && isSessionPaused {
-                return false
+                return nil
             }
 
             guard !reachedMaximumDuration else {
                 SentrySDKLog.warning("[Session Replay] Reached maximum duration, not resuming")
-                return false
+                return nil
             }
             guard !isCaptureSchedulerRunning else {
                 SentrySDKLog.debug("[Session Replay] Session is already running, not resuming")
-                return false
+                return nil
             }
 
+            captureSchedulerGeneration += 1
             videoSegmentStart = _isFullSession ? resumeDate : nil
-            return true
+            return captureSchedulerGeneration
         }
-        guard shouldStartCaptureScheduler else { return }
+        guard let schedulerGeneration = schedulerGeneration else { return }
 
         runOnMainThread { [weak self] in
             guard let self = self else { return }
 
-            self.resetCapturePacing(at: self.dateProvider.date())
-            self.startCaptureScheduler()
+            if self.startCaptureScheduler(expectedGeneration: schedulerGeneration) {
+                self.resetCapturePacing(at: self.dateProvider.date())
+            }
         }
     }
 
@@ -457,24 +464,33 @@ import UIKit
         return isDeadlineReached(nextCaptureActivityCheckAt, at: date)
     }
 
-    private func startCaptureScheduler() {
+    @discardableResult
+    private func startCaptureScheduler(expectedGeneration: Int? = nil) -> Bool {
         let token = NSObject()
         let shouldInstallObserver = lock.synchronized {
+            if let expectedGeneration, captureSchedulerGeneration != expectedGeneration {
+                return false
+            }
             guard !isCaptureSchedulerRunning else { return false }
 
+            if expectedGeneration == nil {
+                captureSchedulerGeneration += 1
+            }
             isCaptureSchedulerRunning = true
             captureSchedulerToken = token
             return true
         }
-        guard shouldInstallObserver else { return }
+        guard shouldInstallObserver else { return false }
 
         captureScheduler.start(token: token) { [weak self] isInteractiveRunLoopMode in
             self?.captureFrameIfNeeded(isInteractiveRunLoopMode: isInteractiveRunLoopMode)
         }
+        return true
     }
 
     private func stopCaptureScheduler() {
         let token = lock.synchronized { () -> NSObject in
+            captureSchedulerGeneration += 1
             isCaptureSchedulerRunning = false
             nextCaptureActivityCheckAt = nil
             return captureSchedulerToken
