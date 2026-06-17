@@ -4,7 +4,7 @@ import UIKit
 
 /// Inspects the view hierarchy to detect ongoing activity (user interactions or animations)
 /// that should influence when ``SentrySessionReplay`` captures the next screenshot.
-final class SentrySessionReplayCaptureGuard {
+enum SentrySessionReplayCaptureGuard {
     private static let activeAnimationThreshold = 4
 
     enum CaptureActivityReason {
@@ -12,7 +12,7 @@ final class SentrySessionReplayCaptureGuard {
         case animation
     }
 
-    func captureActivityReason(rootView: UIView, options: SentryRedactOptions) -> CaptureActivityReason? {
+    static func captureActivityReason(rootView: UIView, options: SentryRedactOptions) -> CaptureActivityReason? {
         if containsActiveInteraction(in: rootView, options: options) {
             return .interaction
         }
@@ -24,7 +24,7 @@ final class SentrySessionReplayCaptureGuard {
         return nil
     }
 
-    private func containsActiveInteraction(in view: UIView, options: SentryRedactOptions) -> Bool {
+    private static func containsActiveInteraction(in view: UIView, options: SentryRedactOptions) -> Bool {
         return SentryViewSubtreeTraversal.traverse(view, options: options) { view in
             if let scrollView = view as? UIScrollView, scrollView.isDragging || scrollView.isDecelerating || scrollView.isTracking {
                 return true
@@ -38,7 +38,7 @@ final class SentrySessionReplayCaptureGuard {
         }
     }
 
-    private func activeAnimationCount(in view: UIView, options: SentryRedactOptions, upTo limit: Int) -> Int {
+    private static func activeAnimationCount(in view: UIView, options: SentryRedactOptions, upTo limit: Int) -> Int {
         var count = 0
         SentryViewSubtreeTraversal.traverse(view, options: options) { view in
             count += view.layer.animationKeys()?.count ?? 0

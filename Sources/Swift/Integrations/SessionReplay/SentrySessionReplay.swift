@@ -41,7 +41,6 @@ import UIKit
     /// mutated from the run-loop capture scheduler callbacks, blocks dispatched to the main
     /// thread, and `start`.
     private let lock = NSLock()
-    private let captureGuard = SentrySessionReplayCaptureGuard()
     private let captureScheduler: SentrySessionReplayRunLoopCaptureScheduler
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var adaptiveScreenshotInterval: TimeInterval = 0
@@ -336,7 +335,7 @@ import UIKit
 
         let captureActivityReason = isInteractiveRunLoopMode
             ? nil
-            : rootView.flatMap { captureGuard.captureActivityReason(rootView: $0, options: replayOptions) }
+            : rootView.flatMap { SentrySessionReplayCaptureGuard.captureActivityReason(rootView: $0, options: replayOptions) }
         let isInteractionCapture = isInteractiveRunLoopMode || captureActivityReason == .interaction
 
         guard shouldCaptureScreenshot(at: now, usesAdaptiveBackoff: !isInteractionCapture) else {
