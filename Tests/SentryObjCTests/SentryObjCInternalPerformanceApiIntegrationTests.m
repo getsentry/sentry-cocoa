@@ -14,6 +14,8 @@
     [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
         options.dsn = @"https://key@sentry.io/123";
         options.enableCrashHandler = NO;
+        options.enableAutoPerformanceTracing = NO;
+        options.enableSwizzling = NO;
     }];
 }
 
@@ -52,6 +54,17 @@
 
     // -- Cleanup --
     SentryObjCSDK.internal.performance.framesTrackingHybridSDKMode = NO;
+}
+
+#    pragma mark - isFramesTrackingRunning
+
+- (void)testIsFramesTrackingRunning_defaultIsTrue
+{
+    // -- Arrange --
+    SentryObjCSDK.internal.performance.framesTrackingHybridSDKMode = NO;
+
+    // -- Assert --
+    XCTAssertTrue(SentryObjCSDK.internal.performance.isFramesTrackingRunning);
 }
 
 @end

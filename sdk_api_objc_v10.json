@@ -449,6 +449,24 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalEnvelopeApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalPerformanceApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalScreenshotApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalSdkApi",
     "super": "NSObject",
     "has_inner": true
@@ -456,6 +474,12 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalUserApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalViewHierarchyApi",
     "super": "NSObject",
     "has_inner": true
   },
@@ -971,6 +995,27 @@
     "name": "cancelButtonLabel",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "capture",
+    "parent": "SentryObjCInternalScreenshotApi",
+    "returnType": "NSArray<NSData *> * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "capture",
+    "parent": "SentryObjCInternalViewHierarchyApi",
+    "returnType": "NSData * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "capture:",
+    "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "void",
     "instance": true
   },
   {
@@ -1556,6 +1601,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "deserializeFrom:",
+    "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "SentryObjCEnvelope * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "detectedStartUpCrash",
     "parent": "SentryObjCSDK",
     "returnType": "BOOL",
@@ -1962,6 +2014,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "envelope",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalEnvelopeApi * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "envelopeWithData:",
     "parent": "SentryObjCPrivateSDKOnly",
     "returnType": "SentryObjCEnvelope * _Nullable",
@@ -2245,6 +2304,13 @@
     "name": "frames",
     "parent": "SentryObjCStacktrace",
     "returnType": "NSArray<SentryObjCFrame *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "framesTrackingHybridSDKMode",
+    "parent": "SentryObjCInternalPerformanceApi",
+    "returnType": "BOOL",
     "instance": true
   },
   {
@@ -2663,7 +2729,35 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
+    "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCInternalPerformanceApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCInternalScreenshotApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
     "parent": "SentryObjCInternalSdkApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCInternalViewHierarchyApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -3432,6 +3526,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "isFramesTrackingRunning",
+    "parent": "SentryObjCInternalPerformanceApi",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "isGauge",
     "parent": "SentryObjCMetricValue",
     "returnType": "BOOL",
@@ -4000,7 +4101,35 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
+    "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCInternalPerformanceApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCInternalScreenshotApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
     "parent": "SentryObjCInternalSdkApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCInternalViewHierarchyApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
@@ -4356,6 +4485,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "performance",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalPerformanceApi * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "petabyte",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -4667,6 +4803,13 @@
     "name": "scope",
     "parent": "SentryObjCHub",
     "returnType": "SentryObjCScope * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "screenshot",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalScreenshotApi * _Nonnull",
     "instance": true
   },
   {
@@ -5597,6 +5740,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setFrames:",
     "parent": "SentryObjCStacktrace",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setFramesTrackingHybridSDKMode:",
+    "parent": "SentryObjCInternalPerformanceApi",
     "returnType": "void",
     "instance": true
   },
@@ -7275,6 +7425,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "store:",
+    "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "storeEnvelope:",
     "parent": "SentryObjCPrivateSDKOnly",
     "returnType": "void",
@@ -7832,6 +7989,13 @@
     "parent": "SentryObjCFeedbackForm",
     "returnType": "UIViewController * _Nonnull",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "viewHierarchy",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalViewHierarchyApi * _Nonnull",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -8547,6 +8711,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "envelope",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalEnvelopeApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "environment",
     "parent": "SentryObjCEvent",
     "type": "NSString * _Nullable"
@@ -8724,6 +8894,12 @@
     "name": "frames",
     "parent": "SentryObjCStacktrace",
     "type": "NSArray<SentryObjCFrame *> * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "framesTrackingHybridSDKMode",
+    "parent": "SentryObjCInternalPerformanceApi",
+    "type": "BOOL"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -8933,6 +9109,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "isFinished",
     "parent": "SentryObjCSpan",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "isFramesTrackingRunning",
+    "parent": "SentryObjCInternalPerformanceApi",
     "type": "BOOL"
   },
   {
@@ -9507,6 +9689,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "performance",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalPerformanceApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "petabyte",
     "parent": "SentryObjCMeasurementUnit",
     "type": "SentryObjCMeasurementUnit * _Nonnull"
@@ -9714,6 +9902,12 @@
     "name": "scope",
     "parent": "SentryObjCHub",
     "type": "SentryObjCScope * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "screenshot",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalScreenshotApi * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -10350,6 +10544,12 @@
     "name": "versionString",
     "parent": "SentryObjCInternalSdkApi",
     "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "viewHierarchy",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalViewHierarchyApi * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",

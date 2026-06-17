@@ -6,7 +6,7 @@
 #endif
 import Foundation
 
-#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
 
 @objc(SentryObjCInternalPerformanceApi) public final class SentryObjCInternalPerformanceApi: NSObject {
     internal let wrapped: Box<SentryInternalPerformanceApi>
