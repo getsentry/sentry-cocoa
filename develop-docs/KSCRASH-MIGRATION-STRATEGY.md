@@ -23,6 +23,7 @@ Keep all KSCrash work on a dedicated branch (`kscrash-*`) and merge back to `mai
 - Long-lived branches diverge; merge conflicts galore
 - The final merge PR is large, hard to review, and risky to ship
 - Other teams (React Native, Flutter, Unity) have to swap branches to test
+- E2E testing will require bi-directional syncing between the integration branch and main
 
 ---
 
