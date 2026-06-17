@@ -776,13 +776,16 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         sut.pauseSessionMode()
+        let resumeDate = fixture.dateProvider.date()
         sut.resumeSessionMode()
 
-        fixture.dateProvider.advance(by: 6)
+        fixture.dateProvider.advance(by: 5)
         fixture.runLoopCapture()
 
         // -- Assert --
-        XCTAssertTrue(fixture.replayMaker.createVideoCalls.isEmpty)
+        let resumedSegment = fixture.replayMaker.lastCallToCreateVideo
+        XCTAssertEqual(resumedSegment?.beginning, resumeDate)
+        XCTAssertEqual(resumedSegment?.end, resumeDate.addingTimeInterval(5))
     }
 
     func testPauseResume_whenSessionModePaused_shouldWaitForSessionModeResume() {

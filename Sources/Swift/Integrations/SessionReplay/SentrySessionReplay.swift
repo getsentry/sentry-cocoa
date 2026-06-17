@@ -187,6 +187,7 @@ import UIKit
 
     public func resume() {
         SentrySDKLog.debug("[Session Replay] Resuming session")
+        let resumeDate = dateProvider.date()
         let shouldStartCaptureScheduler = lock.synchronized { () -> Bool in
             if isFullSession && isSessionPaused {
                 return false
@@ -201,7 +202,7 @@ import UIKit
                 return false
             }
 
-            videoSegmentStart = nil
+            videoSegmentStart = isFullSession ? resumeDate : nil
             return true
         }
         guard shouldStartCaptureScheduler else { return }
@@ -216,7 +217,13 @@ import UIKit
 
     func resumeSessionMode(restartCaptureScheduler: Bool = true) {
         SentrySDKLog.debug("[Session Replay] Resuming session mode")
-        lock.synchronized { isSessionPaused = false }
+        let resumeDate = dateProvider.date()
+        lock.synchronized {
+            isSessionPaused = false
+            if isFullSession {
+                videoSegmentStart = resumeDate
+            }
+        }
         guard restartCaptureScheduler else { return }
         resume()
     }
@@ -578,8 +585,9 @@ import UIKit
     }
 
     private func prepareSegmentUntil(date: Date) {
+        let fallbackSegmentStart = date.addingTimeInterval(-replayOptions.sessionSegmentDuration)
         let segmentStart = lock.synchronized {
-            videoSegmentStart ?? date
+            videoSegmentStart ?? max(sessionStart ?? fallbackSegmentStart, fallbackSegmentStart)
         }
         prepareSegment(from: segmentStart, until: date)
     }
