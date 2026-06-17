@@ -40391,6 +40391,92 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "SentryInternalEnvelopeApi",
+                    "printedName": "Sentry.SentryInternalEnvelopeApi",
+                    "usr": "s:6Sentry0A19InternalEnvelopeApiV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV8envelopeAA0ab8EnvelopeC0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV8envelopeAA0ab8EnvelopeC0Vvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryInternalEnvelopeApi",
+                "printedName": "Sentry.SentryInternalEnvelopeApi",
+                "usr": "s:6Sentry0A19InternalEnvelopeApiV"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV8envelopeAA0ab8EnvelopeC0Vvp",
+            "moduleName": "Sentry",
+            "name": "envelope",
+            "printedName": "envelope",
+            "usr": "s:6Sentry0A11InternalApiV8envelopeAA0ab8EnvelopeC0Vvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryInternalPerformanceApi",
+                    "printedName": "Sentry.SentryInternalPerformanceApi",
+                    "usr": "s:6Sentry0A22InternalPerformanceApiV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV11performanceAA0ab11PerformanceC0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV11performanceAA0ab11PerformanceC0Vvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryInternalPerformanceApi",
+                "printedName": "Sentry.SentryInternalPerformanceApi",
+                "usr": "s:6Sentry0A22InternalPerformanceApiV"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV11performanceAA0ab11PerformanceC0Vvp",
+            "moduleName": "Sentry",
+            "name": "performance",
+            "printedName": "performance",
+            "usr": "s:6Sentry0A11InternalApiV11performanceAA0ab11PerformanceC0Vvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "SentryInternalSdkApi",
                     "printedName": "Sentry.SentryInternalSdkApi",
                     "usr": "s:6Sentry0A14InternalSdkApiV"
@@ -40678,6 +40764,155 @@
         "name": "SentryInternalDebugApi",
         "printedName": "SentryInternalDebugApi",
         "usr": "s:6Sentry0A16InternalDebugApiV"
+      },
+      {
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A19InternalEnvelopeApiV",
+        "moduleName": "Sentry",
+        "name": "SentryInternalEnvelopeApi",
+        "printedName": "SentryInternalEnvelopeApi",
+        "usr": "s:6Sentry0A19InternalEnvelopeApiV"
+      },
+      {
+        "children": [
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A22InternalPerformanceApiV27framesTrackingHybridSDKModeSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A22InternalPerformanceApiV27framesTrackingHybridSDKModeSbvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A22InternalPerformanceApiV27framesTrackingHybridSDKModeSbvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry0A22InternalPerformanceApiV27framesTrackingHybridSDKModeSbvs"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A22InternalPerformanceApiV27framesTrackingHybridSDKModeSbvp",
+            "moduleName": "Sentry",
+            "name": "framesTrackingHybridSDKMode",
+            "printedName": "framesTrackingHybridSDKMode",
+            "usr": "s:6Sentry0A22InternalPerformanceApiV27framesTrackingHybridSDKModeSbvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A22InternalPerformanceApiV23isFramesTrackingRunningSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A22InternalPerformanceApiV23isFramesTrackingRunningSbvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A22InternalPerformanceApiV23isFramesTrackingRunningSbvp",
+            "moduleName": "Sentry",
+            "name": "isFramesTrackingRunning",
+            "printedName": "isFramesTrackingRunning",
+            "usr": "s:6Sentry0A22InternalPerformanceApiV23isFramesTrackingRunningSbvp"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A22InternalPerformanceApiV",
+        "moduleName": "Sentry",
+        "name": "SentryInternalPerformanceApi",
+        "printedName": "SentryInternalPerformanceApi",
+        "usr": "s:6Sentry0A22InternalPerformanceApiV"
       },
       {
         "children": [

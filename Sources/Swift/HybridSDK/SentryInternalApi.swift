@@ -11,24 +11,20 @@ import Foundation
 /// App developers: prefer the standard `SentrySDK` API surface instead.
 public struct SentryInternalApi {
 
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-    typealias Dependencies = SentryInternalSdkApi.Dependencies
+    typealias BaseDependencies = SentryInternalSdkApi.Dependencies
         & SentryInternalDebugApi.Dependencies
         & SentryInternalBreadcrumbApi.Dependencies
         & SentryInternalUserApi.Dependencies
+        & SentryInternalEnvelopeApi.Dependencies
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    typealias Dependencies = BaseDependencies
         & SentryInternalPerformanceApi.Dependencies
         & SentryInternalScreenshotApi.Dependencies
 #elseif os(visionOS) && !SENTRY_NO_UI_FRAMEWORK
-    typealias Dependencies = SentryInternalSdkApi.Dependencies
-        & SentryInternalDebugApi.Dependencies
-        & SentryInternalBreadcrumbApi.Dependencies
-        & SentryInternalUserApi.Dependencies
+    typealias Dependencies = BaseDependencies
         & SentryInternalPerformanceApi.Dependencies
 #else
-    typealias Dependencies = SentryInternalSdkApi.Dependencies
-        & SentryInternalDebugApi.Dependencies
-        & SentryInternalBreadcrumbApi.Dependencies
-        & SentryInternalUserApi.Dependencies
+    typealias Dependencies = BaseDependencies
 #endif
 
     /// SDK metadata and configuration.
@@ -61,7 +57,7 @@ public struct SentryInternalApi {
         self.debug = SentryInternalDebugApi(provider: dependencies)
         self.breadcrumbs = SentryInternalBreadcrumbApi(dependencies: dependencies)
         self.user = SentryInternalUserApi(dependencies: dependencies)
-        self.envelope = SentryInternalEnvelopeApi()
+        self.envelope = SentryInternalEnvelopeApi(dependencies: dependencies)
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         self.performance = SentryInternalPerformanceApi(dependencies: dependencies)
 #endif

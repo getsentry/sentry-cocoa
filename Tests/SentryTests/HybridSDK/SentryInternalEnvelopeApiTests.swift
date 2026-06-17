@@ -3,7 +3,10 @@ import XCTest
 
 class SentryInternalEnvelopeApiTests: XCTestCase {
 
-    private let sut = SentryInternalEnvelopeApi()
+    private let mockHub = MockHub()
+    private lazy var sut = SentryInternalEnvelopeApi(
+        dependencies: MockEnvelopeDependencies(hub: mockHub)
+    )
 
     // MARK: - deserialize
 
@@ -33,4 +36,23 @@ class SentryInternalEnvelopeApiTests: XCTestCase {
         // -- Assert --
         XCTAssertNil(result)
     }
+}
+
+private class MockHub: Hub {
+    var storedEnvelopes: [SentryEnvelope] = []
+    var capturedEnvelopes: [SentryEnvelope] = []
+
+    func configureScope(_ callback: @escaping (Scope) -> Void) {}
+
+    func storeEnvelope(_ envelope: SentryEnvelope) {
+        storedEnvelopes.append(envelope)
+    }
+
+    func captureEnvelope(_ envelope: SentryEnvelope) {
+        capturedEnvelopes.append(envelope)
+    }
+}
+
+private struct MockEnvelopeDependencies: HubProvider {
+    var hub: Hub
 }
