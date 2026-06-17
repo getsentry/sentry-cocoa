@@ -29,6 +29,36 @@ class SentryInternalReplayApiTests: XCTestCase {
     func testReplayId_beforeStart_shouldReturnNil() {
         XCTAssertNil(sut.replayId)
     }
+
+    // MARK: - addIgnoreClasses
+
+    func testAddIgnoreClasses_beforeStart_shouldNotCrash() {
+        sut.addIgnoreClasses([UILabel.self])
+    }
+
+    // MARK: - addRedactClasses
+
+    func testAddRedactClasses_beforeStart_shouldNotCrash() {
+        sut.addRedactClasses([UILabel.self])
+    }
+
+    // MARK: - setIgnoreContainerClass
+
+    func testSetIgnoreContainerClass_beforeStart_shouldNotCrash() {
+        sut.setIgnoreContainerClass(UIView.self)
+    }
+
+    // MARK: - setRedactContainerClass
+
+    func testSetRedactContainerClass_beforeStart_shouldNotCrash() {
+        sut.setRedactContainerClass(UIView.self)
+    }
+
+    // MARK: - setTags
+
+    func testSetTags_beforeStart_shouldNotCrash() {
+        sut.setTags(["key": "value"])
+    }
 }
 
 #endif

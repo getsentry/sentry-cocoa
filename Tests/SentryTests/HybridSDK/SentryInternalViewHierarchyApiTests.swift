@@ -9,8 +9,7 @@ class SentryInternalViewHierarchyApiTests: XCTestCase {
 
     func testCapture_whenNoViewHierarchyProviderAvailable_shouldReturnNil() {
         // -- Arrange --
-        let container = SentryDependencyContainer.sharedInstance()
-        let sut = SentryInternalViewHierarchyApi(dependencies: container)
+        let sut = SentryInternalViewHierarchyApi(dependencies: MockViewHierarchyProviderProvider())
 
         // -- Act --
         let result = sut.capture()
@@ -18,6 +17,10 @@ class SentryInternalViewHierarchyApiTests: XCTestCase {
         // -- Assert --
         XCTAssertNil(result)
     }
+}
+
+private class MockViewHierarchyProviderProvider: ViewHierarchyProviderProvider {
+    var viewHierarchyProvider: SentryViewHierarchyProvider?
 }
 
 #endif
