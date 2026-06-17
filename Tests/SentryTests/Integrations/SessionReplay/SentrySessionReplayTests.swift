@@ -469,6 +469,34 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(secondSegment.segmentId, 1)
     }
 
+    func testCaptureReplay_whenCalledFromBackground_shouldStartSessionAtLastScreenshot() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+
+        fixture.dateProvider.advance(by: 1)
+        fixture.runLoopCapture()
+        let expectedSessionStart = fixture.dateProvider.date()
+        fixture.replayMaker.createVideoCalls.removeAll()
+        let expectation = expectation(description: "Capture replay from background")
+
+        // -- Act --
+        DispatchQueue.global().async {
+            _ = sut.captureReplay(replayType: .session)
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1)
+
+        fixture.replayMaker.createVideoCalls.removeAll()
+        fixture.dateProvider.advance(by: 5)
+        fixture.runLoopCapture()
+        let fullSessionSegment = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
+
+        // -- Assert --
+        XCTAssertEqual(fullSessionSegment.beginning, expectedSessionStart)
+    }
+
     func testSessionReplayMaximumDuration() {
         // -- Arrange --
         let fixture = Fixture()

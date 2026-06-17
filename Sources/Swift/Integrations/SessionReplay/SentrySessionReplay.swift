@@ -266,8 +266,10 @@ import UIKit
             return false
         }
 
+        // `lastScreenshotAt` is main-thread confined with the capture pacing state.
+        let startedAt = runOnMainThreadSync { lastScreenshotAt }
         self.replayType = replayType
-        startFullReplay(startedAt: lastScreenshotAt)
+        startFullReplay(startedAt: startedAt)
         let replayStart = dateProvider.date().addingTimeInterval(-replayOptions.errorReplayDuration - (Double(replayOptions.frameRate) / 2.0))
 
         createAndCaptureInBackground(startedAt: replayStart, endedAt: dateProvider.date(), replayType: replayType)
@@ -777,6 +779,14 @@ import UIKit
             block()
         } else {
             DispatchQueue.main.async(execute: block)
+        }
+    }
+
+    private func runOnMainThreadSync<T>(_ block: () -> T) -> T {
+        if Thread.isMainThread {
+            return block()
+        } else {
+            return DispatchQueue.main.sync(execute: block)
         }
     }
 }
