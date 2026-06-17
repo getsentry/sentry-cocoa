@@ -7,13 +7,13 @@ import Foundation
 /// Provides session replay access for hybrid SDKs.
 public struct SentryInternalReplayApi {
 
-    typealias Dependencies = HubProviderProvider & ReplayIntegrationProviderProvider
+    typealias Dependencies = HubProvider & ReplayIntegrationProviderProvider
 
-    private let hubProvider: HubProvider
+    private let hub: Hub
     private let replayIntegrationProvider: ReplayIntegrationProvider
 
     init(dependencies: Dependencies) {
-        self.hubProvider = dependencies.hubProvider
+        self.hub = dependencies.hub
         self.replayIntegrationProvider = dependencies.replayIntegrationProvider
     }
 
@@ -39,7 +39,7 @@ public struct SentryInternalReplayApi {
     /// The current replay ID, or `nil` if no replay is active.
     public var replayId: String? {
         var result: String?
-        hubProvider.configureScope { scope in
+        hub.configureScope { scope in
             result = scope.replayId
         }
         return result
