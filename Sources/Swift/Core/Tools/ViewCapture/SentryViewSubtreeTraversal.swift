@@ -13,7 +13,26 @@ enum SentryViewSubtreeTraversal {
 
     @discardableResult
     static func traverse(_ view: UIView, options: SentryRedactOptions, _ visit: (UIView) -> Bool) -> Bool {
-        guard !isExcluded(view, options: options) else {
+        traverse(
+            view,
+            excludedViewClassPatterns: defaultExcludedViewClassPatterns.union(options.excludedViewClasses),
+            includedViewClassPatterns: options.includedViewClasses,
+            visit
+        )
+    }
+
+    @discardableResult
+    private static func traverse(
+        _ view: UIView,
+        excludedViewClassPatterns: Set<String>,
+        includedViewClassPatterns: Set<String>,
+        _ visit: (UIView) -> Bool
+    ) -> Bool {
+        guard !isExcluded(
+            view,
+            excludedViewClassPatterns: excludedViewClassPatterns,
+            includedViewClassPatterns: includedViewClassPatterns
+        ) else {
             return false
         }
 
@@ -21,7 +40,14 @@ enum SentryViewSubtreeTraversal {
             return true
         }
 
-        return view.subviews.contains { traverse($0, options: options, visit) }
+        return view.subviews.contains {
+            traverse(
+                $0,
+                excludedViewClassPatterns: excludedViewClassPatterns,
+                includedViewClassPatterns: includedViewClassPatterns,
+                visit
+            )
+        }
     }
 
     static var defaultExcludedViewClassPatterns: Set<String> {
