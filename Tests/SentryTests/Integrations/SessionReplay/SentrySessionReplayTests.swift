@@ -41,6 +41,15 @@ class SentrySessionReplayTests: XCTestCase {
         override var isDragging: Bool { true }
     }
 
+    private class CountingDraggingScrollView: UIScrollView {
+        var interactionStateReadCount = 0
+
+        override var isDragging: Bool {
+            interactionStateReadCount += 1
+            return true
+        }
+    }
+
     private class ExcludedActivityView: UIView {}
 
     private class CountingScrollView: UIScrollView {
@@ -1400,7 +1409,8 @@ class SentrySessionReplayTests: XCTestCase {
         let sut = fixture.getSut(options: replayOptions)
 
         let excludedView = ExcludedActivityView(frame: fixture.rootView.bounds)
-        excludedView.addSubview(DraggingScrollView(frame: excludedView.bounds))
+        let scrollView = CountingDraggingScrollView(frame: excludedView.bounds)
+        excludedView.addSubview(scrollView)
         fixture.rootView.addSubview(excludedView)
         sut.start(rootView: fixture.rootView, fullSession: true)
 
@@ -1410,6 +1420,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
+        XCTAssertEqual(scrollView.interactionStateReadCount, 0)
     }
 
     // MARK: - Helpers

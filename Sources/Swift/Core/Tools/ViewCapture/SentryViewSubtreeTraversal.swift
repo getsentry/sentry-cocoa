@@ -11,6 +11,19 @@ enum SentryViewSubtreeTraversal {
         )
     }
 
+    @discardableResult
+    static func traverse(_ view: UIView, options: SentryRedactOptions, _ visit: (UIView) -> Bool) -> Bool {
+        guard !isExcluded(view, options: options) else {
+            return false
+        }
+
+        if visit(view) {
+            return true
+        }
+
+        return view.subviews.contains { traverse($0, options: options, visit) }
+    }
+
     static var defaultExcludedViewClassPatterns: Set<String> {
         var result: Set<String> = []
         #if os(iOS)

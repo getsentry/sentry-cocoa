@@ -25,40 +25,25 @@ final class SentrySessionReplayCaptureGuard {
     }
 
     private func containsActiveInteraction(in view: UIView, options: SentryRedactOptions) -> Bool {
-        guard !SentryViewSubtreeTraversal.isExcluded(view, options: options) else {
-            return false
-        }
+        return SentryViewSubtreeTraversal.traverse(view, options: options) { view in
+            if let scrollView = view as? UIScrollView, scrollView.isDragging || scrollView.isDecelerating || scrollView.isTracking {
+                return true
+            }
 
-        if let scrollView = view as? UIScrollView, scrollView.isDragging || scrollView.isDecelerating || scrollView.isTracking {
-            return true
-        }
+            if let control = view as? UIControl, control.isTracking {
+                return true
+            }
 
-        if let control = view as? UIControl, control.isTracking {
-            return true
+            return view.gestureRecognizers?.contains(where: { $0.state == .began || $0.state == .changed }) == true
         }
-
-        if view.gestureRecognizers?.contains(where: { $0.state == .began || $0.state == .changed }) == true {
-            return true
-        }
-
-        return view.subviews.contains { containsActiveInteraction(in: $0, options: options) }
     }
 
     private func activeAnimationCount(in view: UIView, options: SentryRedactOptions, upTo limit: Int) -> Int {
-        guard !SentryViewSubtreeTraversal.isExcluded(view, options: options) else {
-            return 0
+        var count = 0
+        SentryViewSubtreeTraversal.traverse(view, options: options) { view in
+            count += view.layer.animationKeys()?.count ?? 0
+            return count >= limit
         }
-
-        var count = view.layer.animationKeys()?.count ?? 0
-        guard count < limit else { return count }
-
-        for subview in view.subviews {
-            count += activeAnimationCount(in: subview, options: options, upTo: limit - count)
-            if count >= limit {
-                return count
-            }
-        }
-
         return count
     }
 }
