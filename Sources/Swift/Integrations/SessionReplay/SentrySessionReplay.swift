@@ -54,8 +54,8 @@ import UIKit
     private var pendingSegmentEnd: Date?
     /// Pause timestamp to process after the current pending segment finishes rendering.
     ///
-    /// This preserves the recording interval that ends at pause time without starting a second
-    /// segment render while `pendingSegmentEnd` is still in flight.
+    /// Example: if `0...5s` is rendering and pause happens at `7s`, this queues `5...7s`
+    /// without overwriting the in-flight `pendingSegmentEnd`.
     private var pendingPauseSegmentEnd: Date?
     public var replayTags: [String: Any]?
 
