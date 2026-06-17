@@ -479,9 +479,6 @@ import UIKit
         captureScheduler.stop()
     }
 
-    /// Conversion factor between `SentryCurrentDateProvider.systemTime()` nanoseconds and seconds.
-    private static let nanosecondsPerSecond: TimeInterval = 1_000_000_000
-
     /// Tuning constants for the screenshot capture pacing and adaptive backoff policy.
     private enum CapturePacing {
         /// Interval to wait before re-evaluating a capture that was deferred due to ongoing animations.
@@ -760,7 +757,7 @@ import UIKit
 
             let captureEnd = self.dateProvider.systemTime()
             let captureDuration = captureEnd >= captureStart
-                ? TimeInterval(captureEnd - captureStart) / Self.nanosecondsPerSecond
+                ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
                 : 0
             self.newImage(timestamp: timestamp, maskedViewImage: screenshot, forScreen: screenName)
             completion(captureDuration)
