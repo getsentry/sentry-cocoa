@@ -456,6 +456,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalAppStartApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalBreadcrumbApi",
     "super": "NSObject",
     "has_inner": true
@@ -767,6 +773,13 @@
     "name": "appHangTimeoutInterval",
     "parent": "SentryObjCOptions",
     "returnType": "NSTimeInterval",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "appStart",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalAppStartApi * _Nonnull",
     "instance": true
   },
   {
@@ -2521,6 +2534,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "hybridSDKMode",
+    "parent": "SentryObjCInternalAppStartApi",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "idleTimeout",
     "parent": "SentryObjCOptions",
     "returnType": "NSTimeInterval",
@@ -2754,6 +2774,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCInternalApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCInternalAppStartApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -3767,6 +3794,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "measurementWithSpans",
+    "parent": "SentryObjCInternalAppStartApi",
+    "returnType": "NSDictionary<NSString *,id> * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "mebibyte",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -4140,6 +4174,13 @@
     "kind": "ObjCMethodDecl",
     "name": "new",
     "parent": "SentryObjCInternalApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCInternalAppStartApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
@@ -5855,6 +5896,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setHelpLink:",
     "parent": "SentryObjCMechanism",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setHybridSDKMode:",
+    "parent": "SentryObjCInternalAppStartApi",
     "returnType": "void",
     "instance": true
   },
@@ -8126,6 +8174,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "appStart",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalAppStartApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "appStartMeasurementHybridSDKMode",
     "parent": "SentryObjCPrivateSDKOnly",
     "type": "BOOL"
@@ -9068,6 +9122,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "hybridSDKMode",
+    "parent": "SentryObjCInternalAppStartApi",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "idleTimeout",
     "parent": "SentryObjCOptions",
     "type": "NSTimeInterval"
@@ -9353,6 +9413,12 @@
     "name": "maxCacheItems",
     "parent": "SentryObjCOptions",
     "type": "NSUInteger"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "measurementWithSpans",
+    "parent": "SentryObjCInternalAppStartApi",
+    "type": "NSDictionary<NSString *,id> * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
