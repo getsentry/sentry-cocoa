@@ -763,6 +763,28 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertNotNil(fixture.replayMaker.lastCallToCreateVideo)
     }
 
+    func testPauseResume_whenSegmentAlreadyCreated_shouldNotRestartFromSessionStart() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        fixture.dateProvider.advance(by: 6)
+        fixture.runLoopCapture()
+        XCTAssertEqual(fixture.replayMaker.lastCallToCreateVideo?.beginning, TestCurrentDateProvider.defaultStartingDate)
+        fixture.replayMaker.createVideoCalls.removeAll()
+
+        // -- Act --
+        sut.pauseSessionMode()
+        sut.resumeSessionMode()
+
+        fixture.dateProvider.advance(by: 6)
+        fixture.runLoopCapture()
+
+        // -- Assert --
+        XCTAssertTrue(fixture.replayMaker.createVideoCalls.isEmpty)
+    }
+
     func testPauseResume_whenSessionModePaused_shouldWaitForSessionModeResume() {
         let fixture = Fixture()
 

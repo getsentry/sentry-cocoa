@@ -542,7 +542,7 @@ import UIKit
         let segmentBounds: (start: Date, end: Date)? = lock.synchronized {
             guard pendingSegmentEnd == nil else { return nil }
             if videoSegmentStart == nil {
-                videoSegmentStart = sessionStart ?? date
+                videoSegmentStart = date
             }
 
             guard let segmentStart = videoSegmentStart,
@@ -579,7 +579,7 @@ import UIKit
 
     private func prepareSegmentUntil(date: Date) {
         let segmentStart = lock.synchronized {
-            videoSegmentStart ?? sessionStart ?? dateProvider.date().addingTimeInterval(-replayOptions.sessionSegmentDuration)
+            videoSegmentStart ?? date
         }
         prepareSegment(from: segmentStart, until: date)
     }
