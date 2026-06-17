@@ -120,7 +120,7 @@ import UIKit
     }
 
     deinit {
-        stopCaptureScheduler()
+        stopCaptureScheduler(waitForMainThread: false)
     }
 
     public func start(rootView: UIView?, fullSession: Bool) {
@@ -488,7 +488,8 @@ import UIKit
         return true
     }
 
-    private func stopCaptureScheduler() {
+    private func stopCaptureScheduler(waitForMainThread: Bool = true) {
+        let scheduler = captureScheduler
         let token = lock.synchronized { () -> NSObject in
             captureSchedulerGeneration += 1
             isCaptureSchedulerRunning = false
@@ -496,7 +497,13 @@ import UIKit
             return captureSchedulerToken
         }
 
-        captureScheduler.stop(token: token)
+        if waitForMainThread {
+            scheduler.stop(token: token)
+        } else {
+            runOnMainThread {
+                scheduler.stop(token: token)
+            }
+        }
     }
 
     /// Tuning constants for the screenshot capture pacing and adaptive backoff policy.
