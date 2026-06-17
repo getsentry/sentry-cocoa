@@ -37,7 +37,9 @@ import Foundation
     @objc public var performance: SentryObjCInternalPerformanceApi {
         SentryObjCInternalPerformanceApi(wrapped.value.performance)
     }
+#endif
 
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
     @objc public var screenshot: SentryObjCInternalScreenshotApi {
         SentryObjCInternalScreenshotApi(wrapped.value.screenshot)
     }
