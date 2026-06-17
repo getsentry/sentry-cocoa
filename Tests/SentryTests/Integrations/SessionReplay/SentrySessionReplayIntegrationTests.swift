@@ -107,6 +107,23 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
     }
+
+    func testRunLoopScheduler_whenStaleStopRunsAfterNewStart_shouldKeepNewObserver() {
+        let oldToken = NSObject()
+        let newToken = NSObject()
+        var oldCaptures = 0
+        var newCaptures = 0
+
+        captureScheduler.start(token: oldToken) { _ in oldCaptures += 1 }
+        captureScheduler.start(token: newToken) { _ in newCaptures += 1 }
+        captureScheduler.stop(token: oldToken)
+
+        observationBlock?(testObserver, .afterWaiting)
+        observationBlock?(testObserver, .beforeWaiting)
+
+        XCTAssertEqual(oldCaptures, 0)
+        XCTAssertEqual(newCaptures, 1)
+    }
     
     func testInstallNoSwizzlingNoTouchTracker() {
         startSDK(sessionSampleRate: 1, errorSampleRate: 0, enableSwizzling: false)

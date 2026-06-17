@@ -4,12 +4,13 @@ import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 protocol SentrySessionReplayRunLoopCaptureScheduler: AnyObject {
-    func start(capture: @escaping (_ isInteractiveRunLoopMode: Bool) -> Void)
-    func stop()
+    func start(token: AnyObject, capture: @escaping (_ isInteractiveRunLoopMode: Bool) -> Void)
+    func stop(token: AnyObject)
 }
 
 final class DefaultSentrySessionReplayRunLoopCaptureScheduler<T: RunLoopObserver>: SentrySessionReplayRunLoopCaptureScheduler {
     private var observer: T?
+    private var token: AnyObject?
     private var didProcessRunLoopWork = false
     private let createObserver: CreateObserverFunc<T>
     private let addObserver: AddObserverFunc<T>
@@ -31,20 +32,23 @@ final class DefaultSentrySessionReplayRunLoopCaptureScheduler<T: RunLoopObserver
         self.isValidObserver = isValidObserver
     }
 
-    func start(capture: @escaping (Bool) -> Void) {
+    func start(token: AnyObject, capture: @escaping (Bool) -> Void) {
         runOnMainThread { [weak self] in
-            self?.startOnMainThread(capture: capture)
+            self?.startOnMainThread(token: token, capture: capture)
         }
     }
 
-    func stop() {
+    func stop(token: AnyObject) {
         runOnMainThread { [weak self] in
-            self?.stopOnMainThread()
+            self?.stopOnMainThread(token: token)
         }
     }
 
-    private func startOnMainThread(capture: @escaping (Bool) -> Void) {
-        guard observer == nil else { return }
+    private func startOnMainThread(token: AnyObject, capture: @escaping (Bool) -> Void) {
+        if let currentToken = self.token {
+            guard currentToken !== token else { return }
+            removeCurrentObserver()
+        }
 
         let activities = CFRunLoopActivity.afterWaiting.rawValue
             | CFRunLoopActivity.beforeTimers.rawValue
@@ -69,11 +73,18 @@ final class DefaultSentrySessionReplayRunLoopCaptureScheduler<T: RunLoopObserver
         guard let observer = observer else { return }
 
         self.observer = observer
+        self.token = token
         addObserver(CFRunLoopGetMain(), observer, .commonModes)
     }
 
-    private func stopOnMainThread() {
+    private func stopOnMainThread(token: AnyObject) {
+        guard self.token === token else { return }
+        removeCurrentObserver()
+    }
+
+    private func removeCurrentObserver() {
         didProcessRunLoopWork = false
+        self.token = nil
         guard let observer = observer else { return }
 
         self.observer = nil

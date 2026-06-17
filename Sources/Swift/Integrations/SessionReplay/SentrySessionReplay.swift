@@ -42,6 +42,7 @@ import UIKit
     /// thread, and `start`.
     private let lock = NSLock()
     private let captureScheduler: SentrySessionReplayRunLoopCaptureScheduler
+    private let captureSchedulerToken = NSObject()
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var adaptiveScreenshotInterval: TimeInterval = 0
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
@@ -453,7 +454,7 @@ import UIKit
         }
         guard shouldInstallObserver else { return }
 
-        captureScheduler.start { [weak self] isInteractiveRunLoopMode in
+        captureScheduler.start(token: captureSchedulerToken) { [weak self] isInteractiveRunLoopMode in
             self?.captureFrameIfNeeded(isInteractiveRunLoopMode: isInteractiveRunLoopMode)
         }
     }
@@ -464,7 +465,7 @@ import UIKit
             nextCaptureActivityCheckAt = nil
         }
 
-        captureScheduler.stop()
+        captureScheduler.stop(token: captureSchedulerToken)
     }
 
     /// Tuning constants for the screenshot capture pacing and adaptive backoff policy.
