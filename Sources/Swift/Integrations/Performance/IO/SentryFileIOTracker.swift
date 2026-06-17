@@ -13,7 +13,7 @@
         guard SentrySDK.isEnabled else {
             return nil
         }
-        return Dependencies.fileIOTracker
+        return SentryDependencyContainer.sharedInstance().fileIOTracker
     }
 
     @objc public init(threadInspector: SentryThreadInspector, processInfoWrapper: SentryProcessInfoSource) {
