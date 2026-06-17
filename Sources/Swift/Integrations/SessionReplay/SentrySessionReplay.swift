@@ -357,7 +357,6 @@ import UIKit
             at: now
         )
         if deferralDecision == .defer {
-            lastScreenshotAt = now
             scheduleNextScreenshot(after: CapturePacing.captureDeferralInterval, from: now)
             prepareFullSessionSegmentsIfNeeded(until: now)
             return

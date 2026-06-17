@@ -1429,6 +1429,33 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
     }
 
+    func testNewFrame_whenAnimationDefersScreenshot_shouldNotThrottleFollowingInteractionCapture() {
+        // -- Arrange --
+        let fixture = Fixture()
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        for index in 0..<4 {
+            let animatedView = UIView(frame: CGRect(x: index, y: index, width: 1, height: 1))
+            let animation = CABasicAnimation(keyPath: "opacity")
+            animation.fromValue = 0
+            animation.toValue = 1
+            animation.duration = 1
+            animatedView.layer.add(animation, forKey: "opacity")
+            fixture.rootView.addSubview(animatedView)
+        }
+
+        fixture.dateProvider.advance(by: 1)
+        fixture.runLoopCapture()
+
+        // -- Act --
+        fixture.dateProvider.advance(by: 0.1)
+        fixture.runLoopCapture(isInteractiveRunLoopMode: true)
+
+        // -- Assert --
+        XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
+    }
+
     func testNewFrame_whenActivityIsInExcludedSubview_shouldCapture() {
         // -- Arrange --
         let fixture = Fixture()
