@@ -33,11 +33,13 @@ import Foundation
         SentryObjCInternalEnvelopeApi(wrapped.value.envelope)
     }
 
-#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
     @objc public var performance: SentryObjCInternalPerformanceApi {
         SentryObjCInternalPerformanceApi(wrapped.value.performance)
     }
+#endif
 
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
     @objc public var screenshot: SentryObjCInternalScreenshotApi {
         SentryObjCInternalScreenshotApi(wrapped.value.screenshot)
     }

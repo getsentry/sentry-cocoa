@@ -12,8 +12,10 @@
 @class SentryObjCInternalEnvelopeApi;
 #if SENTRY_OBJC_HAS_UIKIT
 @class SentryObjCInternalPerformanceApi;
+#    if !TARGET_OS_VISION
 @class SentryObjCInternalScreenshotApi;
 @class SentryObjCInternalViewHierarchyApi;
+#    endif
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -47,11 +49,13 @@ SENTRY_NO_INIT
 /// Frame tracking performance metrics.
 @property (nonatomic, readonly) SentryObjCInternalPerformanceApi *performance;
 
+#    if !TARGET_OS_VISION
 /// Screenshot capture.
 @property (nonatomic, readonly) SentryObjCInternalScreenshotApi *screenshot;
 
 /// View hierarchy capture.
 @property (nonatomic, readonly) SentryObjCInternalViewHierarchyApi *viewHierarchy;
+#    endif
 #endif
 
 @end
