@@ -5,7 +5,7 @@
 #    import <SentryObjC/SentryObjCDefines.h>
 #endif
 
-#if SENTRY_OBJC_HAS_UIKIT
+#if SENTRY_OBJC_HAS_UIKIT && !TARGET_OS_VISION
 
 NS_ASSUME_NONNULL_BEGIN
 

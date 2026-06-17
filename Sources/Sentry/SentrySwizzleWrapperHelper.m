@@ -91,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
                                         inClass:classToSwizzle
                                   newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {
                                       IMP (^getOriginal)(void) = ^IMP {
-                                          return [swizzleInfo getOriginalImplementation];
+                                          return (IMP)[swizzleInfo getOriginalImplementation];
                                       };
                                       return factory(getOriginal);
                                   }

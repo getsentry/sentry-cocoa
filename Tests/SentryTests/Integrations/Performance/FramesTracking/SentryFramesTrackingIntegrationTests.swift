@@ -110,7 +110,12 @@ class SentryFramesTrackingIntegrationTests: XCTestCase {
     }
 
     func test_HybridSDKEnables_MeasureFrames() {
+        // -- Arrange --
+        let original = PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode
         PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
+        defer { PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = original }
+
+        // -- Act --
 
         let options = fixture.options
         options.enableAutoPerformanceTracing = false

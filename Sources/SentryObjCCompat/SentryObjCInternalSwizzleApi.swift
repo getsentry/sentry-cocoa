@@ -20,7 +20,9 @@ import Foundation
         key: UnsafeRawPointer,
         newImpFactory factory: @escaping (@escaping () -> IMP) -> Any
     ) -> Bool {
-        let swiftMode = SentryInternalSwizzleApi.Mode(rawValue: UInt(mode.rawValue)) ?? .oncePerClass
+        guard let swiftMode = SentryInternalSwizzleApi.Mode(rawValue: UInt(bitPattern: mode.rawValue)) else {
+            return false
+        }
         return wrapped.value.instanceMethod(
             selector,
             in: classToSwizzle,
