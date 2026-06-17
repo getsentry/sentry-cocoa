@@ -58,10 +58,13 @@
 
 #    pragma mark - isFramesTrackingRunning
 
-- (void)testIsFramesTrackingRunning_defaultIsFalse
+- (void)testIsFramesTrackingRunning_defaultIsTrue
 {
+    // -- Arrange --
+    SentryObjCSDK.internal.performance.framesTrackingHybridSDKMode = NO;
+
     // -- Assert --
-    XCTAssertFalse(SentryObjCSDK.internal.performance.isFramesTrackingRunning);
+    XCTAssertTrue(SentryObjCSDK.internal.performance.isFramesTrackingRunning);
 }
 
 @end
