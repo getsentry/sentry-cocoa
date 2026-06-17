@@ -5,7 +5,7 @@ import Foundation
 
 protocol SentrySessionReplayRunLoopCaptureScheduler: AnyObject {
     // The token owns the installed observer so stale stops from an old replay cannot remove a newer replay's observer.
-    func start(token: AnyObject, capture: @escaping (_ isInteractiveRunLoopMode: Bool) -> Void) -> Bool
+    func start(token: AnyObject, capture: @escaping (_ isInteractiveRunLoopMode: Bool) -> Void)
     func stop(token: AnyObject)
 }
 
@@ -33,9 +33,9 @@ final class DefaultSentrySessionReplayRunLoopCaptureScheduler<T: RunLoopObserver
         self.isValidObserver = isValidObserver
     }
 
-    func start(token: AnyObject, capture: @escaping (Bool) -> Void) -> Bool {
+    func start(token: AnyObject, capture: @escaping (Bool) -> Void) {
         runOnMainThreadSync { [weak self] in
-            self?.startOnMainThread(token: token, capture: capture) ?? false
+            self?.startOnMainThread(token: token, capture: capture)
         }
     }
 
@@ -45,9 +45,9 @@ final class DefaultSentrySessionReplayRunLoopCaptureScheduler<T: RunLoopObserver
         }
     }
 
-    private func startOnMainThread(token: AnyObject, capture: @escaping (Bool) -> Void) -> Bool {
+    private func startOnMainThread(token: AnyObject, capture: @escaping (Bool) -> Void) {
         if let currentToken = self.token {
-            guard currentToken !== token else { return true }
+            guard currentToken !== token else { return }
             removeCurrentObserver()
         }
 
@@ -71,12 +71,11 @@ final class DefaultSentrySessionReplayRunLoopCaptureScheduler<T: RunLoopObserver
 
             capture(self.currentRunLoopMode() == .tracking)
         }
-        guard let observer = observer else { return false }
+        guard let observer = observer else { return }
 
         self.observer = observer
         self.token = token
         addObserver(CFRunLoopGetMain(), observer, .commonModes)
-        return true
     }
 
     private func stopOnMainThread(token: AnyObject) {
@@ -108,11 +107,11 @@ final class DefaultSentrySessionReplayRunLoopCaptureScheduler<T: RunLoopObserver
         return true
     }
 
-    private func runOnMainThreadSync<Result>(_ block: () -> Result) -> Result {
+    private func runOnMainThreadSync(_ block: () -> Void) {
         if Thread.isMainThread {
-            return block()
+            block()
         } else {
-            return DispatchQueue.main.sync(execute: block)
+            DispatchQueue.main.sync(execute: block)
         }
     }
 }

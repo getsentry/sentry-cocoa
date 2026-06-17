@@ -36,7 +36,7 @@ import UIKit
     private let touchTracker: SentryTouchTracker?
     /// Guards the state shared between the main thread and background queues: segment
     /// bookkeeping (`sessionStart`, `videoSegmentStart`, `pendingSegmentEnd`, `pendingPauseSegmentEnd`,
-    /// `currentSegmentId`), capture scheduler state (`isCaptureSchedulerRunning`,
+    /// `currentSegmentId`), capture scheduler state (`captureSchedulerToken`,
     /// `captureSchedulerGeneration`, `nextCaptureActivityCheckAt`) and the `_isFullSession`,
     /// `processingScreenshot`, `isSessionPaused` and `reachedMaximumDuration` flags.
     ///
@@ -46,12 +46,11 @@ import UIKit
     /// thread, and `start`.
     private let lock = NSLock()
     private let captureScheduler: SentrySessionReplayRunLoopCaptureScheduler
-    private var captureSchedulerToken = NSObject()
+    private var captureSchedulerToken: NSObject?
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var adaptiveScreenshotInterval: TimeInterval = 0
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var deferredScreenshotStart: Date?
-    private var isCaptureSchedulerRunning = false
     /// Invalidates resume starts queued before a later pause.
     /// Example: reachability resumes off-main, then the app backgrounds before the main-queue
     /// start runs. Without this, the stale start can mark capture as running after pause, so the
@@ -69,7 +68,7 @@ import UIKit
 
     var isRunning: Bool {
         lock.synchronized {
-            isCaptureSchedulerRunning
+            captureSchedulerToken != nil
         }
     }
 
@@ -206,7 +205,7 @@ import UIKit
                 SentrySDKLog.warning("[Session Replay] Reached maximum duration, not resuming")
                 return nil
             }
-            guard !isCaptureSchedulerRunning else {
+            guard captureSchedulerToken == nil else {
                 SentrySDKLog.debug("[Session Replay] Session is already running, not resuming")
                 return nil
             }
@@ -394,7 +393,7 @@ import UIKit
                 self.scheduleNextScreenshot(after: self.screenshotInterval(usesAdaptiveBackoff: !isInteractionCapture), from: finishedAt)
 
                 let shouldPrepareSegment = self.lock.synchronized {
-                    self.isCaptureSchedulerRunning && !self.isSessionPaused && !self.reachedMaximumDuration
+                    self.captureSchedulerToken != nil && !self.isSessionPaused && !self.reachedMaximumDuration
                 }
                 if shouldPrepareSegment {
                     self.prepareFullSessionSegmentsIfNeeded(until: finishedAt)
@@ -470,40 +469,32 @@ import UIKit
             if let expectedGeneration, captureSchedulerGeneration != expectedGeneration {
                 return false
             }
-            guard !isCaptureSchedulerRunning else { return false }
+            guard captureSchedulerToken == nil else { return false }
 
             if expectedGeneration == nil {
                 captureSchedulerGeneration += 1
             }
-            isCaptureSchedulerRunning = true
             captureSchedulerToken = token
             return true
         }
         guard shouldInstallObserver else { return false }
 
-        let didStart = captureScheduler.start(token: token) { [weak self] isInteractiveRunLoopMode in
+        captureScheduler.start(token: token) { [weak self] isInteractiveRunLoopMode in
             self?.captureFrameIfNeeded(isInteractiveRunLoopMode: isInteractiveRunLoopMode)
         }
-        if didStart {
-            return true
-        }
-
-        lock.synchronized {
-            guard captureSchedulerToken === token else { return }
-            isCaptureSchedulerRunning = false
-            nextCaptureActivityCheckAt = nil
-        }
-        return false
+        return true
     }
 
     private func stopCaptureScheduler() {
-        let token = lock.synchronized { () -> NSObject in
+        let token = lock.synchronized { () -> NSObject? in
             captureSchedulerGeneration += 1
-            isCaptureSchedulerRunning = false
+            let token = captureSchedulerToken
+            captureSchedulerToken = nil
             nextCaptureActivityCheckAt = nil
-            return captureSchedulerToken
+            return token
         }
 
+        guard let token = token else { return }
         captureScheduler.stop(token: token)
     }
 

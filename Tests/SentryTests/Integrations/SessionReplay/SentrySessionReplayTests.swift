@@ -85,11 +85,9 @@ class SentrySessionReplayTests: XCTestCase {
     private class RecordingCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler {
         var startedTokens = [AnyObject]()
         var stoppedTokens = [AnyObject]()
-        var startResult = true
 
-        func start(token: AnyObject, capture: @escaping (Bool) -> Void) -> Bool {
+        func start(token: AnyObject, capture: @escaping (Bool) -> Void) {
             startedTokens.append(token)
-            return startResult
         }
 
         func stop(token: AnyObject) {
@@ -937,19 +935,6 @@ class SentrySessionReplayTests: XCTestCase {
 
         XCTAssertFalse(sut.isRunning)
         XCTAssertEqual(captureScheduler.startedTokens.count, startCount)
-    }
-
-    func testStart_whenCaptureSchedulerFails_shouldNotMarkAsRunning() {
-        let fixture = Fixture()
-        let captureScheduler = RecordingCaptureScheduler()
-        captureScheduler.startResult = false
-        fixture.captureScheduler = captureScheduler
-
-        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
-        sut.start(rootView: fixture.rootView, fullSession: true)
-
-        XCTAssertEqual(captureScheduler.startedTokens.count, 1)
-        XCTAssertFalse(sut.isRunning)
     }
     
     func testFilterCloseNavigationBreadcrumbs() {
