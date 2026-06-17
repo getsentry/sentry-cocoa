@@ -6,17 +6,17 @@ import Foundation
 /// Provides screen name tracking for hybrid SDKs.
 public struct SentryInternalScreenApi {
 
-    typealias Dependencies = HubProviderProvider
+    typealias Dependencies = HubProvider
 
-    private let hubProvider: HubProvider
+    private let hub: Hub
 
     init(dependencies: Dependencies) {
-        self.hubProvider = dependencies.hubProvider
+        self.hub = dependencies.hub
     }
 
     /// Sets the current screen name on the SDK scope.
     public func setCurrent(_ screenName: String?) {
-        hubProvider.configureScope { scope in
+        hub.configureScope { scope in
             scope.currentScreen = screenName
         }
     }

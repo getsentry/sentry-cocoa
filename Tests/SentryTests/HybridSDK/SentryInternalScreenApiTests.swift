@@ -9,8 +9,8 @@ class SentryInternalScreenApiTests: XCTestCase {
 
     func testSetCurrent_shouldCallConfigureScope() {
         // -- Arrange --
-        let mockHub = MockHubProvider()
-        let sut = SentryInternalScreenApi(dependencies: MockScreenDependencies(hubProvider: mockHub))
+        let mockHub = MockHub()
+        let sut = SentryInternalScreenApi(dependencies: MockScreenDependencies(hub: mockHub))
 
         // -- Act --
         sut.setCurrent("TestScreen")
@@ -21,8 +21,8 @@ class SentryInternalScreenApiTests: XCTestCase {
 
     func testSetCurrent_withNil_shouldCallConfigureScope() {
         // -- Arrange --
-        let mockHub = MockHubProvider()
-        let sut = SentryInternalScreenApi(dependencies: MockScreenDependencies(hubProvider: mockHub))
+        let mockHub = MockHub()
+        let sut = SentryInternalScreenApi(dependencies: MockScreenDependencies(hub: mockHub))
 
         // -- Act --
         sut.setCurrent(nil)
@@ -34,17 +34,20 @@ class SentryInternalScreenApiTests: XCTestCase {
 
 // MARK: - Mock
 
-private class MockHubProvider: HubProvider {
+private class MockHub: Hub {
     var configureScopeCalled = false
 
     func configureScope(_ callback: @escaping (Scope) -> Void) {
         configureScopeCalled = true
         callback(Scope())
     }
+
+    func storeEnvelope(_ envelope: SentryEnvelope) {}
+    func captureEnvelope(_ envelope: SentryEnvelope) {}
 }
 
-private struct MockScreenDependencies: HubProviderProvider {
-    var hubProvider: HubProvider
+private struct MockScreenDependencies: HubProvider {
+    var hub: Hub
 }
 
 #endif
