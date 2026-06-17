@@ -40835,6 +40835,49 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "SentryInternalSwizzleApi",
+                    "printedName": "Sentry.SentryInternalSwizzleApi",
+                    "usr": "s:6Sentry0A18InternalSwizzleApiV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV7swizzleAA0ab7SwizzleC0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV7swizzleAA0ab7SwizzleC0Vvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryInternalSwizzleApi",
+                "printedName": "Sentry.SentryInternalSwizzleApi",
+                "usr": "s:6Sentry0A18InternalSwizzleApiV"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV7swizzleAA0ab7SwizzleC0Vvp",
+            "moduleName": "Sentry",
+            "name": "swizzle",
+            "printedName": "swizzle",
+            "usr": "s:6Sentry0A11InternalApiV7swizzleAA0ab7SwizzleC0Vvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "SentryInternalUserApi",
                     "printedName": "Sentry.SentryInternalUserApi",
                     "usr": "s:6Sentry0A15InternalUserApiV"
@@ -41695,6 +41738,410 @@
         "name": "SentryInternalSdkApi",
         "printedName": "SentryInternalSdkApi",
         "usr": "s:6Sentry0A14InternalSdkApiV"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "OpaquePointer",
+                            "printedName": "Swift.OpaquePointer",
+                            "usr": "s:s13OpaquePointerV"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "IMP",
+                        "printedName": "ObjectiveC.IMP"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() -> ObjectiveC.IMP"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(@escaping () -> ObjectiveC.IMP) -> Any"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "ProtocolComposition",
+                                "printedName": "AnyObject"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "AnyObject",
+                            "printedName": "Builtin.AnyObject"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "AnyObject",
+                        "printedName": "Swift.AnyObject"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "ExistentialMetatype",
+                    "printedName": "any Swift.AnyObject.Type"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "AnyClass",
+                "printedName": "Swift.AnyClass"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Mode",
+                "printedName": "Sentry.SentryInternalSwizzleApi.Mode",
+                "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Selector",
+                "printedName": "ObjectiveC.Selector",
+                "usr": "s:10ObjectiveC8SelectorV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "UnsafeRawPointer",
+                "printedName": "Swift.UnsafeRawPointer",
+                "usr": "s:SV"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A18InternalSwizzleApiV14instanceMethod_2in4mode3key7factorySb10ObjectiveC8SelectorV_yXlXpAC4ModeOSVyps13OpaquePointerVycctF",
+            "moduleName": "Sentry",
+            "name": "instanceMethod",
+            "printedName": "instanceMethod(_:in:mode:key:factory:)",
+            "usr": "s:6Sentry0A18InternalSwizzleApiV14instanceMethod_2in4mode3key7factorySb10ObjectiveC8SelectorV_yXlXpAC4ModeOSVyps13OpaquePointerVycctF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Mode",
+                        "printedName": "Sentry.SentryInternalSwizzleApi.Mode",
+                        "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SentryInternalSwizzleApi.Mode?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt",
+                    "printedName": "Swift.UInt",
+                    "usr": "s:Su"
+                  }
+                ],
+                "declKind": "Constructor",
+                "init_kind": "Designated",
+                "kind": "Constructor",
+                "mangledName": "$s6Sentry0A18InternalSwizzleApiV4ModeO8rawValueAESgSu_tcfc",
+                "moduleName": "Sentry",
+                "name": "init",
+                "printedName": "init(rawValue:)",
+                "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO8rawValueAESgSu_tcfc"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt",
+                    "printedName": "Swift.UInt",
+                    "usr": "s:Su"
+                  }
+                ],
+                "declKind": "TypeAlias",
+                "kind": "TypeAlias",
+                "mangledName": "$s6Sentry0A18InternalSwizzleApiV4ModeO8RawValuea",
+                "moduleName": "Sentry",
+                "name": "RawValue",
+                "printedName": "RawValue",
+                "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO8RawValuea"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Mode",
+                            "printedName": "Sentry.SentryInternalSwizzleApi.Mode",
+                            "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryInternalSwizzleApi.Mode.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Mode",
+                        "printedName": "Sentry.SentryInternalSwizzleApi.Mode",
+                        "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryInternalSwizzleApi.Mode.Type) -> Sentry.SentryInternalSwizzleApi.Mode"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A18InternalSwizzleApiV4ModeO6alwaysyA2EmF",
+                "moduleName": "Sentry",
+                "name": "always",
+                "printedName": "always",
+                "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO6alwaysyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Mode",
+                            "printedName": "Sentry.SentryInternalSwizzleApi.Mode",
+                            "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryInternalSwizzleApi.Mode.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Mode",
+                        "printedName": "Sentry.SentryInternalSwizzleApi.Mode",
+                        "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryInternalSwizzleApi.Mode.Type) -> Sentry.SentryInternalSwizzleApi.Mode"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A18InternalSwizzleApiV4ModeO12oncePerClassyA2EmF",
+                "moduleName": "Sentry",
+                "name": "oncePerClass",
+                "printedName": "oncePerClass",
+                "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO12oncePerClassyA2EmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Mode",
+                            "printedName": "Sentry.SentryInternalSwizzleApi.Mode",
+                            "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryInternalSwizzleApi.Mode.Type"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Mode",
+                        "printedName": "Sentry.SentryInternalSwizzleApi.Mode",
+                        "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryInternalSwizzleApi.Mode.Type) -> Sentry.SentryInternalSwizzleApi.Mode"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A18InternalSwizzleApiV4ModeO27oncePerClassAndSuperclassesyA2EmF",
+                "moduleName": "Sentry",
+                "name": "oncePerClassAndSuperclasses",
+                "printedName": "oncePerClassAndSuperclasses",
+                "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO27oncePerClassAndSuperclassesyA2EmF"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "UInt",
+                        "printedName": "Swift.UInt",
+                        "usr": "s:Su"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A18InternalSwizzleApiV4ModeO8rawValueSuvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO8rawValueSuvg"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt",
+                    "printedName": "Swift.UInt",
+                    "usr": "s:Su"
+                  }
+                ],
+                "declKind": "Var",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A18InternalSwizzleApiV4ModeO8rawValueSuvp",
+                "moduleName": "Sentry",
+                "name": "rawValue",
+                "printedName": "rawValue",
+                "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO8rawValueSuvp"
+              }
+            ],
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss8CopyableP",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSQ",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss9EscapableP",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSH",
+                "name": "Hashable",
+                "printedName": "Hashable",
+                "usr": "s:SH"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "UInt",
+                            "printedName": "Swift.UInt",
+                            "usr": "s:Su"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "RawValue",
+                        "printedName": "Sentry.SentryInternalSwizzleApi.Mode.RawValue"
+                      }
+                    ],
+                    "kind": "TypeWitness",
+                    "name": "RawValue",
+                    "printedName": "RawValue"
+                  }
+                ],
+                "kind": "Conformance",
+                "mangledName": "$sSY",
+                "name": "RawRepresentable",
+                "printedName": "RawRepresentable",
+                "usr": "s:SY"
+              }
+            ],
+            "declKind": "Enum",
+            "enumRawTypeName": "UInt",
+            "kind": "TypeDecl",
+            "mangledName": "$s6Sentry0A18InternalSwizzleApiV4ModeO",
+            "moduleName": "Sentry",
+            "name": "Mode",
+            "printedName": "Mode",
+            "usr": "s:6Sentry0A18InternalSwizzleApiV4ModeO"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A18InternalSwizzleApiV",
+        "moduleName": "Sentry",
+        "name": "SentryInternalSwizzleApi",
+        "printedName": "SentryInternalSwizzleApi",
+        "usr": "s:6Sentry0A18InternalSwizzleApiV"
       },
       {
         "children": [
