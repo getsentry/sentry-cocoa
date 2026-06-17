@@ -479,6 +479,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalViewHierarchyApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCLog",
     "super": "NSObject",
     "has_inner": true
@@ -996,6 +1002,13 @@
     "name": "capture",
     "parent": "SentryObjCInternalScreenshotApi",
     "returnType": "NSArray<NSData *> * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "capture",
+    "parent": "SentryObjCInternalViewHierarchyApi",
+    "returnType": "NSData * _Nullable",
     "instance": true
   },
   {
@@ -2744,6 +2757,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
+    "parent": "SentryObjCInternalViewHierarchyApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
     "parent": "SentryObjCLog",
     "returnType": "instancetype _Nonnull",
     "instance": true
@@ -4103,6 +4123,13 @@
     "kind": "ObjCMethodDecl",
     "name": "new",
     "parent": "SentryObjCInternalSdkApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCInternalViewHierarchyApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
@@ -7965,6 +7992,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "viewHierarchy",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalViewHierarchyApi * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "warn:",
     "parent": "SentryObjCLogger",
     "returnType": "void",
@@ -10510,6 +10544,12 @@
     "name": "versionString",
     "parent": "SentryObjCInternalSdkApi",
     "type": "NSString * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "viewHierarchy",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalViewHierarchyApi * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
