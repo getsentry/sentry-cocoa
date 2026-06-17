@@ -241,6 +241,21 @@
   },
   {
     "kind": "EnumConstantDecl",
+    "name": "SentryObjCSwizzleModeAlways",
+    "parent": "SentryObjCSwizzleMode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCSwizzleModeOncePerClass",
+    "parent": "SentryObjCSwizzleMode"
+  },
+  {
+    "kind": "EnumConstantDecl",
+    "name": "SentryObjCSwizzleModeOncePerClassAndSuperclasses",
+    "parent": "SentryObjCSwizzleMode"
+  },
+  {
+    "kind": "EnumConstantDecl",
     "name": "SentryObjCTransactionNameSourceComponent",
     "parent": "SentryObjCTransactionNameSource"
   },
@@ -304,6 +319,10 @@
   {
     "kind": "EnumDecl",
     "name": "SentryObjCSpanStatus"
+  },
+  {
+    "kind": "EnumDecl",
+    "name": "SentryObjCSwizzleMode"
   },
   {
     "kind": "EnumDecl",
@@ -474,6 +493,12 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalSdkApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalSwizzleApi",
     "super": "NSObject",
     "has_inner": true
   },
@@ -2770,6 +2795,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
+    "parent": "SentryObjCInternalSwizzleApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
     "parent": "SentryObjCInternalViewHierarchyApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
@@ -4143,6 +4175,13 @@
     "kind": "ObjCMethodDecl",
     "name": "new",
     "parent": "SentryObjCInternalSdkApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCInternalSwizzleApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
@@ -7529,9 +7568,23 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "swizzle",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalSwizzleApi * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "swizzleClassNameExcludes",
     "parent": "SentryObjCOptions",
     "returnType": "NSSet<NSString *> * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "swizzleInstanceMethod:inClass:mode:key:newImpFactory:",
+    "parent": "SentryObjCInternalSwizzleApi",
+    "returnType": "BOOL",
     "instance": true
   },
   {
@@ -10221,6 +10274,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "swizzle",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalSwizzleApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "swizzleClassNameExcludes",
     "parent": "SentryObjCOptions",
     "type": "NSSet<NSString *> * _Nonnull"
@@ -10647,6 +10706,11 @@
     "kind": "TypedefDecl",
     "name": "SentryObjCSpanStatus",
     "type": "enum SentryObjCSpanStatus"
+  },
+  {
+    "kind": "TypedefDecl",
+    "name": "SentryObjCSwizzleMode",
+    "type": "enum SentryObjCSwizzleMode"
   },
   {
     "kind": "TypedefDecl",
