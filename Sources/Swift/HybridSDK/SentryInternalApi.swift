@@ -48,7 +48,7 @@ public struct SentryInternalApi {
         self.debug = SentryInternalDebugApi(provider: dependencies)
         self.breadcrumbs = SentryInternalBreadcrumbApi(dependencies: dependencies)
         self.user = SentryInternalUserApi(dependencies: dependencies)
-       self.envelope = SentryInternalEnvelopeApi(dependencies: dependencies)
+        self.envelope = SentryInternalEnvelopeApi(dependencies: dependencies)
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         self.performance = SentryInternalPerformanceApi(dependencies: dependencies)
 #endif
