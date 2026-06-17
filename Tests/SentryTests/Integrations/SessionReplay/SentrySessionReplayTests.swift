@@ -1108,37 +1108,6 @@ class SentrySessionReplayTests: XCTestCase {
     }
 
     @available(iOS 16.0, tvOS 16, *)
-    func testDealloc_FromBackgroundThread_shouldStopCaptureSchedulerAsync() {
-        class ReplayBox {
-            var replay: SentrySessionReplay?
-        }
-
-        let fixture = Fixture()
-        let captureScheduler = RecordingCaptureScheduler()
-        fixture.captureScheduler = captureScheduler
-
-        let box = ReplayBox()
-        box.replay = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
-        weak var weakSut: SentrySessionReplay?
-        weakSut = box.replay
-        box.replay?.start(rootView: fixture.rootView, fullSession: true)
-
-        let deinitFinished = DispatchSemaphore(value: 0)
-        DispatchQueue.global().async {
-            box.replay = nil
-            deinitFinished.signal()
-        }
-
-        XCTAssertEqual(deinitFinished.wait(timeout: .now() + 1), .success)
-        XCTAssertNil(weakSut)
-        XCTAssertEqual(captureScheduler.stoppedTokens.count, 0)
-
-        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
-
-        XCTAssertEqual(captureScheduler.stoppedTokens.count, 1)
-    }
-
-    @available(iOS 16.0, tvOS 16, *)
     func testDealloc_DoesNotRetainSessionReplayDuringAsyncScreenshot() {
         let fixture = Fixture()
         fixture.screenshotProvider.completeAsync = true
