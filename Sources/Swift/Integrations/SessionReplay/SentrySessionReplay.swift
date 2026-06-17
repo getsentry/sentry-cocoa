@@ -167,19 +167,15 @@ import UIKit
         stopCaptureScheduler()
 
         let pauseDate = dateProvider.date()
-        let shouldPreparePauseSegment = lock.synchronized {
-            markPauseSegmentIfNeeded(at: pauseDate)
+        let shouldPreparePauseSegment = lock.synchronized { () -> Bool in
+            guard isFullSession else { return false }
+            guard !queuePendingPauseSegmentIfNeeded(at: pauseDate) else { return false }
+            return true
         }
 
         if shouldPreparePauseSegment {
             prepareSegmentUntil(date: pauseDate)
         }
-    }
-
-    private func markPauseSegmentIfNeeded(at pauseDate: Date) -> Bool {
-        guard isFullSession else { return false }
-        guard !queuePendingPauseSegmentIfNeeded(at: pauseDate) else { return false }
-        return true
     }
 
     private func queuePendingPauseSegmentIfNeeded(at pauseDate: Date) -> Bool {
@@ -190,12 +186,30 @@ import UIKit
 
     public func resume() {
         SentrySDKLog.debug("[Session Replay] Resuming session")
-        let shouldStartCaptureScheduler = lock.synchronized {
-            prepareCaptureSchedulerResume()
-        }
+        let shouldStartCaptureScheduler = lock.synchronized { () -> Bool in
+            if isFullSession && isSessionPaused {
+                return false
+            }
 
-        if shouldStartCaptureScheduler {
-            resetCapturePacingAndStartScheduler()
+            guard !reachedMaximumDuration else {
+                SentrySDKLog.warning("[Session Replay] Reached maximum duration, not resuming")
+                return false
+            }
+            guard !isCaptureSchedulerRunning else {
+                SentrySDKLog.debug("[Session Replay] Session is already running, not resuming")
+                return false
+            }
+
+            videoSegmentStart = nil
+            return true
+        }
+        guard shouldStartCaptureScheduler else { return }
+
+        runOnMainThread { [weak self] in
+            guard let self = self else { return }
+
+            self.resetCapturePacing(at: self.dateProvider.date())
+            self.startCaptureScheduler()
         }
     }
 
@@ -204,24 +218,6 @@ import UIKit
         lock.synchronized { isSessionPaused = false }
         guard restartCaptureScheduler else { return }
         resume()
-    }
-
-    private func prepareCaptureSchedulerResume() -> Bool {
-        if isFullSession && isSessionPaused {
-            return false
-        }
-
-        guard !reachedMaximumDuration else {
-            SentrySDKLog.warning("[Session Replay] Reached maximum duration, not resuming")
-            return false
-        }
-        guard !isCaptureSchedulerRunning else {
-            SentrySDKLog.debug("[Session Replay] Session is already running, not resuming")
-            return false
-        }
-
-        videoSegmentStart = nil
-        return true
     }
 
     public func captureReplayFor(event: Event) {
@@ -459,15 +455,6 @@ import UIKit
 
         captureScheduler.start { [weak self] isInteractiveRunLoopMode in
             self?.captureFrameIfNeeded(isInteractiveRunLoopMode: isInteractiveRunLoopMode)
-        }
-    }
-
-    private func resetCapturePacingAndStartScheduler() {
-        runOnMainThread { [weak self] in
-            guard let self = self else { return }
-
-            self.resetCapturePacing(at: self.dateProvider.date())
-            self.startCaptureScheduler()
         }
     }
 
@@ -760,17 +747,13 @@ import UIKit
             let captureDuration = captureEnd >= captureStart
                 ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
                 : 0
-            self.newImage(timestamp: timestamp, maskedViewImage: screenshot, forScreen: screenName)
+            SentrySDKLog.debug("[Session Replay] New frame available, for screen: \(screenName ?? "nil")")
+            self.lock.synchronized {
+                self.replayMaker.addFrameAsync(timestamp: timestamp, maskedViewImage: screenshot, forScreen: screenName)
+            }
             completion(captureDuration)
         }
         return true
-    }
-
-    private func newImage(timestamp: Date, maskedViewImage: UIImage, forScreen screen: String?) {
-        SentrySDKLog.debug("[Session Replay] New frame available, for screen: \(screen ?? "nil")")
-        lock.synchronized {
-            replayMaker.addFrameAsync(timestamp: timestamp, maskedViewImage: maskedViewImage, forScreen: screen)
-        }
     }
 
     private func runOnMainThread(_ block: @escaping () -> Void) {
