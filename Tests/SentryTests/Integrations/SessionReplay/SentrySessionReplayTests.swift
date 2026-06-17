@@ -81,6 +81,19 @@ class SentrySessionReplayTests: XCTestCase {
     }
 
     private struct TestSessionReplayRunLoopObserver: RunLoopObserver { }
+
+    private class RecordingCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler {
+        var startedTokens = [AnyObject]()
+        var stoppedTokens = [AnyObject]()
+
+        func start(token: AnyObject, capture: @escaping (Bool) -> Void) {
+            startedTokens.append(token)
+        }
+
+        func stop(token: AnyObject) {
+            stoppedTokens.append(token)
+        }
+    }
     
     private class TestReplayMaker: NSObject, SentryReplayVideoMaker {
         var screens = [String]()
@@ -862,6 +875,22 @@ class SentrySessionReplayTests: XCTestCase {
         sut.captureReplayFor(event: event)
 
         XCTAssertNotNil(fixture.replayMaker.lastCallToCreateVideo)
+    }
+
+    func testResume_whenSchedulerStopIsPending_shouldUseNewSchedulerToken() throws {
+        let fixture = Fixture()
+        let captureScheduler = RecordingCaptureScheduler()
+        fixture.captureScheduler = captureScheduler
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: false)
+
+        let firstToken = try XCTUnwrap(captureScheduler.startedTokens.last)
+
+        sut.pause()
+        sut.resume()
+
+        XCTAssertIdentical(try XCTUnwrap(captureScheduler.stoppedTokens.last), firstToken)
+        XCTAssertNotIdentical(try XCTUnwrap(captureScheduler.startedTokens.last), firstToken)
     }
     
     func testFilterCloseNavigationBreadcrumbs() {

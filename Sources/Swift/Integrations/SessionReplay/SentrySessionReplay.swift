@@ -7,7 +7,10 @@ import UIKit
 // swiftlint:disable type_body_length
 @objcMembers
 @_spi(Private) public class SentrySessionReplay: NSObject {
-    public private(set) var isFullSession = false
+    public private(set) var isFullSession: Bool {
+        get { lock.synchronized { _isFullSession } }
+        set { lock.synchronized { _isFullSession = newValue } }
+    }
     public private(set) var sessionReplayId: SentryId?
 
     private var urlToCache: URL?
@@ -25,16 +28,17 @@ import UIKit
     private var reachedMaximumDuration = false
     private var replayType = SentryReplayType.buffer
     private(set) var isSessionPaused = false
+    private var _isFullSession = false
 
     private let replayOptions: SentryReplayOptions
     private let replayMaker: SentryReplayVideoMaker
     private let dateProvider: SentryCurrentDateProvider
     private let touchTracker: SentryTouchTracker?
     /// Guards the state shared between the main thread and background queues: segment
-    /// bookkeeping (`videoSegmentStart`, `pendingSegmentEnd`, `pendingPauseSegmentEnd`,
+    /// bookkeeping (`sessionStart`, `videoSegmentStart`, `pendingSegmentEnd`, `pendingPauseSegmentEnd`,
     /// `currentSegmentId`), capture scheduler state (`isCaptureSchedulerRunning`,
-    /// `nextCaptureActivityCheckAt`) and the `processingScreenshot`, `isSessionPaused` and
-    /// `reachedMaximumDuration` flags.
+    /// `nextCaptureActivityCheckAt`) and the `_isFullSession`, `processingScreenshot`,
+    /// `isSessionPaused` and `reachedMaximumDuration` flags.
     ///
     /// Capture pacing state (`lastScreenshotAt`, `nextScreenshotAt`, `adaptiveScreenshotInterval`,
     /// `deferredScreenshotStart`) is not guarded by this lock; it is main-thread confined and only
@@ -42,7 +46,7 @@ import UIKit
     /// thread, and `start`.
     private let lock = NSLock()
     private let captureScheduler: SentrySessionReplayRunLoopCaptureScheduler
-    private let captureSchedulerToken = NSObject()
+    private var captureSchedulerToken = NSObject()
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var adaptiveScreenshotInterval: TimeInterval = 0
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
@@ -142,11 +146,11 @@ import UIKit
 
     private func startFullReplay(startedAt: Date?) {
         SentrySDKLog.debug("[Session Replay] Starting full session replay")
-        sessionStart = startedAt
         lock.synchronized {
+            sessionStart = startedAt
             videoSegmentStart = startedAt
+            _isFullSession = true
         }
-        isFullSession = true
         guard let sessionReplayId = sessionReplayId else { return }
         delegate?.sessionReplayStarted(replayId: sessionReplayId)
     }
@@ -169,7 +173,7 @@ import UIKit
 
         let pauseDate = dateProvider.date()
         let shouldPreparePauseSegment = lock.synchronized { () -> Bool in
-            guard isFullSession else { return false }
+            guard _isFullSession else { return false }
             guard !queuePendingPauseSegmentIfNeeded(at: pauseDate) else { return false }
             return true
         }
@@ -180,7 +184,7 @@ import UIKit
     }
 
     private func queuePendingPauseSegmentIfNeeded(at pauseDate: Date) -> Bool {
-        guard isFullSession, pendingSegmentEnd != nil else { return false }
+        guard _isFullSession, pendingSegmentEnd != nil else { return false }
         pendingPauseSegmentEnd = pauseDate
         return true
     }
@@ -189,7 +193,7 @@ import UIKit
         SentrySDKLog.debug("[Session Replay] Resuming session")
         let resumeDate = dateProvider.date()
         let shouldStartCaptureScheduler = lock.synchronized { () -> Bool in
-            if isFullSession && isSessionPaused {
+            if _isFullSession && isSessionPaused {
                 return false
             }
 
@@ -202,7 +206,7 @@ import UIKit
                 return false
             }
 
-            videoSegmentStart = isFullSession ? resumeDate : nil
+            videoSegmentStart = _isFullSession ? resumeDate : nil
             return true
         }
         guard shouldStartCaptureScheduler else { return }
@@ -220,7 +224,7 @@ import UIKit
         let resumeDate = dateProvider.date()
         lock.synchronized {
             isSessionPaused = false
-            if isFullSession {
+            if _isFullSession {
                 videoSegmentStart = resumeDate
             }
         }
@@ -313,14 +317,15 @@ import UIKit
         guard isRunning else { return }
 
         let now = dateProvider.date()
+        let fullSessionState = lock.synchronized { (isFullSession: _isFullSession, sessionStart: self.sessionStart) }
 
-        if isFullSession && lock.synchronized({ isSessionPaused }) {
+        if fullSessionState.isFullSession && lock.synchronized({ isSessionPaused }) {
             scheduleNextScreenshot(after: screenshotInterval(), from: now)
             return
         }
 
-        if let sessionStart = sessionStart,
-            isFullSession,
+        if let sessionStart = fullSessionState.sessionStart,
+            fullSessionState.isFullSession,
             now.timeIntervalSince(sessionStart) > replayOptions.maximumDuration {
             SentrySDKLog.debug("[Session Replay] Reached maximum duration, pausing session")
             lock.synchronized { reachedMaximumDuration = true }
@@ -453,26 +458,29 @@ import UIKit
     }
 
     private func startCaptureScheduler() {
+        let token = NSObject()
         let shouldInstallObserver = lock.synchronized {
             guard !isCaptureSchedulerRunning else { return false }
 
             isCaptureSchedulerRunning = true
+            captureSchedulerToken = token
             return true
         }
         guard shouldInstallObserver else { return }
 
-        captureScheduler.start(token: captureSchedulerToken) { [weak self] isInteractiveRunLoopMode in
+        captureScheduler.start(token: token) { [weak self] isInteractiveRunLoopMode in
             self?.captureFrameIfNeeded(isInteractiveRunLoopMode: isInteractiveRunLoopMode)
         }
     }
 
     private func stopCaptureScheduler() {
-        lock.synchronized {
+        let token = lock.synchronized { () -> NSObject in
             isCaptureSchedulerRunning = false
             nextCaptureActivityCheckAt = nil
+            return captureSchedulerToken
         }
 
-        captureScheduler.stop(token: captureSchedulerToken)
+        captureScheduler.stop(token: token)
     }
 
     /// Tuning constants for the screenshot capture pacing and adaptive backoff policy.
@@ -539,7 +547,6 @@ import UIKit
 
     // swiftlint:disable:next cyclomatic_complexity
     private func prepareFullSessionSegmentsIfNeeded(until date: Date) {
-        guard isFullSession else { return }
         let sessionSegmentDuration = replayOptions.sessionSegmentDuration
         guard sessionSegmentDuration > 0 else {
             SentrySDKLog.debug("[Session Replay] Not preparing segment, reason: session segment duration is not positive")
@@ -547,6 +554,7 @@ import UIKit
         }
 
         let segmentBounds: (start: Date, end: Date)? = lock.synchronized {
+            guard _isFullSession else { return nil }
             guard pendingSegmentEnd == nil else { return nil }
             if videoSegmentStart == nil {
                 videoSegmentStart = date
