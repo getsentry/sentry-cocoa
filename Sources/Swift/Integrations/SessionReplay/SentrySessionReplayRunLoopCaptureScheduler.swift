@@ -4,6 +4,7 @@ import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 protocol SentrySessionReplayRunLoopCaptureScheduler: AnyObject {
+    // The token owns the installed observer so stale stops from an old replay cannot remove a newer replay's observer.
     func start(token: AnyObject, capture: @escaping (_ isInteractiveRunLoopMode: Bool) -> Void)
     func stop(token: AnyObject)
 }
