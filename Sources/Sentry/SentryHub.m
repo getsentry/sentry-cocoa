@@ -8,7 +8,6 @@
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
-#import "SentrySamplerDecision.h"
 #import "SentrySampling.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"

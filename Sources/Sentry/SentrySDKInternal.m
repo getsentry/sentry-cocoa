@@ -10,7 +10,6 @@
 #import "SentryMeta.h"
 #import "SentryProfilingConditionals.h"
 #import "SentryReplayApi.h"
-#import "SentrySamplerDecision.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"

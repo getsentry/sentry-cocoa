@@ -10,7 +10,6 @@
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
 #    import "SentrySDK+Private.h"
-#    import "SentrySamplerDecision.h"
 #    import "SentrySwift.h"
 
 BOOL
