@@ -10,6 +10,13 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private var uiApplication: TestSentryUIApplication!
     private var globalEventProcessor: SentryGlobalEventProcessor!
     private var dateProvider: TestCurrentDateProvider!
+    private var captureScheduler: DefaultSentrySessionReplayRunLoopCaptureScheduler<TestSessionReplayRunLoopObserver>!
+    private var createdObservationBlock: ((TestSessionReplayRunLoopObserver?, CFRunLoopActivity) -> Void)?
+    private var observationBlock: ((TestSessionReplayRunLoopObserver?, CFRunLoopActivity) -> Void)?
+    private let testObserver = TestSessionReplayRunLoopObserver()
+    private let currentRunLoopMode = RunLoop.Mode.default
+
+    private struct TestSessionReplayRunLoopObserver: RunLoopObserver { }
 
     private class TestCrashWrapper: NSObject, SentryCrashReporter {
         let traced: Bool
@@ -47,11 +54,21 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         globalEventProcessor = SentryGlobalEventProcessor()
         uiApplication.windows = [UIWindow()]
         dateProvider = TestCurrentDateProvider()
+        captureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler<TestSessionReplayRunLoopObserver>(
+            createObserver: { [unowned self] _, _, _, _, block in
+                self.createdObservationBlock = block
+                return self.testObserver
+            },
+            addObserver: { [unowned self] _, _, _ in self.observationBlock = self.createdObservationBlock },
+            removeObserver: { [unowned self] _, _, _ in self.observationBlock = nil },
+            currentRunLoopMode: { [unowned self] in self.currentRunLoopMode }
+        )
 
         SentryDependencyContainer.sharedInstance().applicationOverride = uiApplication
         SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
         SentryDependencyContainer.sharedInstance().globalEventProcessor = globalEventProcessor
         SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
+        SentryDependencyContainer.sharedInstance().sessionReplayCaptureScheduler = captureScheduler
     }
     
     override func tearDown() {
@@ -836,11 +853,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         // -- Act --
         // Advance time past the maximum duration (60 minutes)
-        sessionReplay.captureFrameForTesting()
+        runLoopCapture()
         dateProvider.advance(by: 5)
-        sessionReplay.captureFrameForTesting()
+        runLoopCapture()
         dateProvider.advance(by: 3_600)
-        sessionReplay.captureFrameForTesting()
+        runLoopCapture()
 
         // -- Assert --
         XCTAssertFalse(sessionReplay.isRunning)
@@ -849,6 +866,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         XCTAssertNil(replayId)
         XCTAssertNil(sut.sessionReplay)
+    }
+
+    private func runLoopCapture() {
+        observationBlock?(testObserver, .afterWaiting)
+        observationBlock?(testObserver, .beforeWaiting)
     }
 
     func testReplayIdAndSessionReplayCleared_whenSessionEnds() throws {

@@ -70,6 +70,8 @@ class SentrySessionReplayTests: XCTestCase {
             return super.replayEvents(from: from, until: until)
         }
     }
+
+    private struct TestSessionReplayRunLoopObserver: RunLoopObserver { }
     
     private class TestReplayMaker: NSObject, SentryReplayVideoMaker {
         var screens = [String]()
@@ -161,6 +163,19 @@ class SentrySessionReplayTests: XCTestCase {
         let rootView = UIView()
         let replayMaker = TestReplayMaker()
         let cacheFolder = FileManager.default.temporaryDirectory
+        private let testObserver = TestSessionReplayRunLoopObserver()
+        private var createdObservationBlock: ((TestSessionReplayRunLoopObserver?, CFRunLoopActivity) -> Void)?
+        private var observationBlock: ((TestSessionReplayRunLoopObserver?, CFRunLoopActivity) -> Void)?
+        private var currentRunLoopMode: RunLoop.Mode?
+        lazy var captureScheduler: SentrySessionReplayRunLoopCaptureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler<TestSessionReplayRunLoopObserver>(
+            createObserver: { [unowned self] _, _, _, _, block in
+                self.createdObservationBlock = block
+                return self.testObserver
+            },
+            addObserver: { [unowned self] _, _, _ in self.observationBlock = self.createdObservationBlock },
+            removeObserver: { [unowned self] _, _, _ in self.observationBlock = nil },
+            currentRunLoopMode: { [unowned self] in self.currentRunLoopMode }
+        )
 
         var breadcrumbs: [Breadcrumb]?
         var isFullSession = true
@@ -183,8 +198,16 @@ class SentrySessionReplayTests: XCTestCase {
                 breadcrumbConverter: SentrySRDefaultBreadcrumbConverter(),
                 touchTracker: touchTracker ?? SentryTouchTracker(dateProvider: dateProvider, scale: 0),
                 dateProvider: dateProvider,
-                delegate: self
+                delegate: self,
+                captureScheduler: captureScheduler
             )
+        }
+
+        func runLoopCapture(isInteractiveRunLoopMode: Bool = false) {
+            currentRunLoopMode = isInteractiveRunLoopMode ? .tracking : .default
+            observationBlock?(testObserver, .afterWaiting)
+            observationBlock?(testObserver, .beforeWaiting)
+            currentRunLoopMode = nil
         }
         
         func sessionReplayShouldCaptureReplayForError() -> Bool {
@@ -229,9 +252,9 @@ class SentrySessionReplayTests: XCTestCase {
         sut.start(rootView: fixture.rootView, fullSession: false)
         
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         XCTAssertNil(fixture.lastReplayEvent)
     }
@@ -275,18 +298,18 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting(isInteractiveRunLoopMode: true)
+        fixture.runLoopCapture(isInteractiveRunLoopMode: true)
 
         // -- Assert --
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
 
         fixture.dateProvider.advance(by: 0.5)
-        sut.captureFrameForTesting(isInteractiveRunLoopMode: true)
+        fixture.runLoopCapture(isInteractiveRunLoopMode: true)
 
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
 
         fixture.dateProvider.advance(by: 0.51)
-        sut.captureFrameForTesting(isInteractiveRunLoopMode: true)
+        fixture.runLoopCapture(isInteractiveRunLoopMode: true)
 
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 2)
     }
@@ -301,9 +324,9 @@ class SentrySessionReplayTests: XCTestCase {
         let sessionStart = fixture.dateProvider.date()
 
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         guard let videoArguments = fixture.replayMaker.lastCallToCreateVideo else {
             XCTFail("Replay maker create video was not called")
@@ -325,7 +348,7 @@ class SentrySessionReplayTests: XCTestCase {
         for i in 1...6 {
             fixture.currentScreen = "Screen \(i)"
             fixture.dateProvider.advance(by: 1)
-            sut.captureFrameForTesting()
+            fixture.runLoopCapture()
         }
                 
         let urls = try XCTUnwrap(fixture.lastReplayEvent?.urls)
@@ -348,9 +371,9 @@ class SentrySessionReplayTests: XCTestCase {
         
         fixture.dateProvider.advance(by: 1)
         
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         let videoArguments = fixture.replayMaker.lastCallToCreateVideo
         
@@ -383,7 +406,7 @@ class SentrySessionReplayTests: XCTestCase {
         let firstSegment = try XCTUnwrap(fixture.lastReplayEvent)
 
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         let secondSegment = try XCTUnwrap(fixture.lastReplayEvent)
 
         // -- Assert --
@@ -427,7 +450,7 @@ class SentrySessionReplayTests: XCTestCase {
         let firstSegment = try XCTUnwrap(fixture.lastReplayEvent)
 
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         let secondSegment = try XCTUnwrap(fixture.lastReplayEvent)
 
         // -- Assert --
@@ -444,12 +467,12 @@ class SentrySessionReplayTests: XCTestCase {
         sut.start(rootView: fixture.rootView, fullSession: true)
 
         // -- Act --
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertTrue(sut.isRunning)
         fixture.dateProvider.advance(by: 3_600)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         // -- Assert --
         XCTAssertFalse(sut.isRunning)
@@ -463,9 +486,9 @@ class SentrySessionReplayTests: XCTestCase {
         sut.start(rootView: fixture.rootView, fullSession: true)
 
         // -- Act --
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         // -- Assert --
         XCTAssertTrue(sut.isRunning)
@@ -481,9 +504,9 @@ class SentrySessionReplayTests: XCTestCase {
         sut.start(rootView: fixture.rootView, fullSession: true)
         
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         let event = try XCTUnwrap(fixture.lastReplayEvent)
         
@@ -497,7 +520,7 @@ class SentrySessionReplayTests: XCTestCase {
         let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 1))
         sut.start(rootView: fixture.rootView, fullSession: false)
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
     }
@@ -510,7 +533,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 6)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         // -- Assert --
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
@@ -528,7 +551,7 @@ class SentrySessionReplayTests: XCTestCase {
 
             // -- Act --
             fixture.dateProvider.advance(by: 6)
-            sut.captureFrameForTesting()
+            fixture.runLoopCapture()
 
             // -- Assert --
             XCTAssertNil(fixture.replayMaker.lastCallToCreateVideo)
@@ -545,11 +568,11 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 6)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         let firstCall = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
 
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         let secondCall = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
 
         // -- Assert --
@@ -571,7 +594,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 6)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         let firstCall = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
 
         sut.pause()
@@ -600,7 +623,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 6)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         let firstCall = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
 
         sut.pauseSessionMode()
@@ -655,7 +678,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 6)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         sut.pause()
         let createCallsAfterPause = fixture.replayMaker.createVideoCalls
 
@@ -679,27 +702,27 @@ class SentrySessionReplayTests: XCTestCase {
         sut.start(rootView: fixture.rootView, fullSession: true)
         
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
         sut.pauseSessionMode()
         fixture.screenshotProvider.lastImageCall = nil
         
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNil(fixture.screenshotProvider.lastImageCall)
         
         fixture.dateProvider.advance(by: 4)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNil(fixture.replayMaker.lastCallToCreateVideo)
         
         sut.resumeSessionMode()
         
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
         
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNotNil(fixture.replayMaker.lastCallToCreateVideo)
     }
 
@@ -715,12 +738,12 @@ class SentrySessionReplayTests: XCTestCase {
 
         sut.resume()
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNil(fixture.screenshotProvider.lastImageCall)
 
         sut.resumeSessionMode()
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
     }
     
@@ -732,17 +755,17 @@ class SentrySessionReplayTests: XCTestCase {
         
         fixture.dateProvider.advance(by: 1)
         
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
         sut.pauseSessionMode()
         fixture.screenshotProvider.lastImageCall = nil
         
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall)
         
         fixture.dateProvider.advance(by: 4)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         let event = Event(error: NSError(domain: "Some error", code: 1))
         sut.captureReplayFor(event: event)
@@ -752,7 +775,7 @@ class SentrySessionReplayTests: XCTestCase {
         //After changing to session mode the replay should pause
         fixture.screenshotProvider.lastImageCall = nil
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNil(fixture.screenshotProvider.lastImageCall)
     }
 
@@ -770,7 +793,7 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertTrue(sut.isRunning)
 
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
 
         let event = Event(error: NSError(domain: "Some error", code: 1))
@@ -798,9 +821,9 @@ class SentrySessionReplayTests: XCTestCase {
             .navigation(screen: "Another Screen", date: startEvent.addingTimeInterval(0.16)) // This should not filter out
         ]
                 
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         let event = Event(error: NSError(domain: "Some error", code: 1))
         sut.captureReplayFor(event: event)
@@ -820,22 +843,22 @@ class SentrySessionReplayTests: XCTestCase {
         sut.start(rootView: fixture.rootView, fullSession: true)
 
         //Starting session replay at time 0
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         //Advancing one second and capturing another frame
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         //Advancing 5 more second to complete one segment
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         let endOfFirstSegment = TestCurrentDateProvider.defaultStartingDate.addingTimeInterval(5)
         
         //Advancing 2 seconds to start another segment at second 7
         //This means session replay didnt capture screens between seconds 5 and 7
         fixture.dateProvider.advance(by: 2)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         let expect = expectation(description: "Touch Tracker called")
         touchTracker.replayEventsCallback = { begin, end in
@@ -849,7 +872,7 @@ class SentrySessionReplayTests: XCTestCase {
         
         //Advancing another 5 seconds to close the second segment
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         wait(for: [expect], timeout: 1)
     }
@@ -861,9 +884,9 @@ class SentrySessionReplayTests: XCTestCase {
         sut.start(rootView: fixture.rootView, fullSession: true)
         
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         let breadCrumbRREvents = fixture.lastReplayRecording?.events.compactMap({ $0 as? SentryRRWebOptionsEvent }) ?? []
         XCTAssertEqual(breadCrumbRREvents.count, 1)
@@ -893,9 +916,9 @@ class SentrySessionReplayTests: XCTestCase {
         sut.start(rootView: fixture.rootView, fullSession: true)
         
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         let breadCrumbRREvents = fixture.lastReplayRecording?.events.compactMap({ $0 as? SentryRRWebOptionsEvent }) ?? []
         XCTAssertEqual(breadCrumbRREvents.count, 1)
@@ -918,9 +941,9 @@ class SentrySessionReplayTests: XCTestCase {
         sut.start(rootView: fixture.rootView, fullSession: true)
         sut.replayTags = ["SomeOption": "SomeValue", "AnotherOption": "AnotherValue"]
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         let breadCrumbRREvents = fixture.lastReplayRecording?.events.compactMap({ $0 as? SentryRRWebOptionsEvent }) ?? []
         XCTAssertEqual(breadCrumbRREvents.count, 1)
@@ -941,15 +964,15 @@ class SentrySessionReplayTests: XCTestCase {
         
         // First Segment
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         // Second Segment
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.dateProvider.advance(by: 5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         
         let breadCrumbRREvents = fixture.lastReplayRecording?.events.compactMap({ $0 as? SentryRRWebOptionsEvent }) ?? []
         XCTAssertEqual(breadCrumbRREvents.count, 0)
@@ -982,7 +1005,7 @@ class SentrySessionReplayTests: XCTestCase {
             sut.start(rootView: fixture.rootView, fullSession: true)
 
             fixture.dateProvider.advance(by: 1)
-            sut.captureFrameForTesting()
+            fixture.runLoopCapture()
             XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
         }
 
@@ -1003,7 +1026,7 @@ class SentrySessionReplayTests: XCTestCase {
             sut.start(rootView: fixture.rootView, fullSession: true)
 
             fixture.dateProvider.advance(by: 6)
-            sut.captureFrameForTesting()
+            fixture.runLoopCapture()
             XCTAssertNotNil(fixture.replayMaker.lastCallToCreateVideo)
         }
 
@@ -1024,12 +1047,12 @@ class SentrySessionReplayTests: XCTestCase {
         
         // Act & Assert - advance by 0.9 seconds, screenshot should NOT be taken
         fixture.dateProvider.advance(by: 0.9)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNil(fixture.screenshotProvider.lastImageCall, "Screenshot should not be taken before 1 second interval")
         
         // Act & Assert - advance to exactly 1.0 seconds, screenshot SHOULD be taken
         fixture.dateProvider.advance(by: 0.1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall, "Screenshot should be taken at 1 second interval for 1 FPS")
     }
 
@@ -1045,22 +1068,22 @@ class SentrySessionReplayTests: XCTestCase {
         
         // Act & Assert - advance by 0.4 seconds, screenshot should NOT be taken
         fixture.dateProvider.advance(by: 0.4)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNil(fixture.screenshotProvider.lastImageCall, "Screenshot should not be taken before 0.5 second interval")
         
         // Act & Assert - advance to 0.5 seconds, screenshot SHOULD be taken
         fixture.dateProvider.advance(by: 0.1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall, "Screenshot should be taken at 0.5 second interval for 2 FPS")
         
         // Act & Assert - reset and test second screenshot
         fixture.screenshotProvider.lastImageCall = nil
         fixture.dateProvider.advance(by: 0.4)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNil(fixture.screenshotProvider.lastImageCall, "Screenshot should not be taken before another 0.5 seconds")
         
         fixture.dateProvider.advance(by: 0.1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall, "Screenshot should be taken at next 0.5 second interval")
     }
 
@@ -1075,19 +1098,19 @@ class SentrySessionReplayTests: XCTestCase {
         // Expected interval: 1.0 / 10.0 = 0.1 seconds
         // Take first screenshot to establish baseline
         fixture.dateProvider.advance(by: 0.1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall, "First screenshot should be taken")
         
         fixture.screenshotProvider.lastImageCall = nil
         
         // Act & Assert - advance by 0.09 seconds, screenshot should NOT be taken
         fixture.dateProvider.advance(by: 0.09)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNil(fixture.screenshotProvider.lastImageCall, "Screenshot should not be taken before 0.1 second interval")
         
         // Act & Assert - advance to reach 0.1 second interval, screenshot SHOULD be taken
         fixture.dateProvider.advance(by: 0.01)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         XCTAssertNotNil(fixture.screenshotProvider.lastImageCall, "Screenshot should be taken at 0.1 second interval for 10 FPS")
     }
 
@@ -1107,7 +1130,7 @@ class SentrySessionReplayTests: XCTestCase {
         for i in 0..<5 {
             // Advance by full interval
             fixture.dateProvider.advance(by: 0.2)
-            sut.captureFrameForTesting()
+            fixture.runLoopCapture()
             
             XCTAssertNotNil(fixture.screenshotProvider.lastImageCall, "Screenshot #\(i + 1) should be taken at \(Double(i + 1) * 0.2) seconds")
             screenshotCount += 1
@@ -1116,7 +1139,7 @@ class SentrySessionReplayTests: XCTestCase {
             // Advance by less than interval and verify no screenshot
             if i < 4 { // Don't test after the last screenshot
                 fixture.dateProvider.advance(by: 0.1)
-                sut.captureFrameForTesting()
+                fixture.runLoopCapture()
                 XCTAssertNil(fixture.screenshotProvider.lastImageCall, "No screenshot should be taken at \(Double(i + 1) * 0.2 + 0.1) seconds")
             }
         }
@@ -1135,14 +1158,14 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 0.5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         // -- Assert --
         XCTAssertEqual(scrollView.interactionStateReadCount, 0)
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 0)
 
         fixture.dateProvider.advance(by: 0.5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         XCTAssertGreaterThan(scrollView.interactionStateReadCount, 0)
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
@@ -1161,16 +1184,16 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         let capturesAfterSlowFrame = fixture.screenshotProvider.imageCallCount
         fixture.screenshotProvider.beforeComplete = nil
 
         fixture.dateProvider.advance(by: 1.99)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         let capturesBeforeBackoffExpires = fixture.screenshotProvider.imageCallCount
 
         fixture.dateProvider.advance(by: 3.1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         // -- Assert --
         XCTAssertEqual(capturesAfterSlowFrame, 1)
@@ -1192,18 +1215,18 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.screenshotProvider.completePendingImage()
         let capturesAfterSlowFrame = fixture.screenshotProvider.imageCallCount
         fixture.screenshotProvider.completeAsync = false
         fixture.screenshotProvider.beforeComplete = nil
 
         fixture.dateProvider.advance(by: 1.99)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         let capturesBeforeBackoffExpires = fixture.screenshotProvider.imageCallCount
 
         fixture.dateProvider.advance(by: 0.02)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         // -- Assert --
         XCTAssertEqual(capturesAfterSlowFrame, 1)
@@ -1223,14 +1246,14 @@ class SentrySessionReplayTests: XCTestCase {
         sut.start(rootView: fixture.rootView, fullSession: true)
 
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.screenshotProvider.beforeComplete = nil
 
         // -- Act --
         sut.pause()
         sut.resume()
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         // -- Assert --
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 2)
@@ -1246,18 +1269,18 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         // -- Assert --
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
 
         fixture.dateProvider.advance(by: 0.5)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
 
         fixture.dateProvider.advance(by: 0.51)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 2)
     }
@@ -1277,12 +1300,12 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         let capturesAfterSlowInteractionFrame = fixture.screenshotProvider.imageCallCount
         fixture.screenshotProvider.beforeComplete = nil
 
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         // -- Assert --
         XCTAssertEqual(capturesAfterSlowInteractionFrame, 1)
@@ -1301,7 +1324,7 @@ class SentrySessionReplayTests: XCTestCase {
         sut.start(rootView: fixture.rootView, fullSession: true)
 
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
         fixture.screenshotProvider.beforeComplete = nil
 
         let scrollView = DraggingScrollView(frame: fixture.rootView.bounds)
@@ -1309,7 +1332,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         // -- Assert --
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 2)
@@ -1327,7 +1350,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 6)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         // -- Assert --
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
@@ -1358,13 +1381,13 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         // -- Assert --
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 0)
 
         fixture.dateProvider.advance(by: 1.01)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)
     }
@@ -1383,7 +1406,7 @@ class SentrySessionReplayTests: XCTestCase {
 
         // -- Act --
         fixture.dateProvider.advance(by: 1)
-        sut.captureFrameForTesting()
+        fixture.runLoopCapture()
 
         // -- Assert --
         XCTAssertEqual(fixture.screenshotProvider.imageCallCount, 1)

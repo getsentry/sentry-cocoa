@@ -33,8 +33,8 @@ import UIKit
     /// Guards the state shared between the main thread and background queues: segment
     /// bookkeeping (`videoSegmentStart`, `pendingSegmentEnd`, `pendingPauseSegmentEnd`,
     /// `currentSegmentId`), capture scheduler state (`isCaptureSchedulerRunning`,
-    /// `didProcessRunLoopWork`, `captureRunLoopObserver`, `nextCaptureActivityCheckAt`) and the
-    /// `processingScreenshot`, `isSessionPaused` and `reachedMaximumDuration` flags.
+    /// `nextCaptureActivityCheckAt`) and the `processingScreenshot`, `isSessionPaused` and
+    /// `reachedMaximumDuration` flags.
     ///
     /// Capture pacing state (`lastScreenshotAt`, `nextScreenshotAt`, `adaptiveScreenshotInterval`,
     /// `deferredScreenshotStart`) is not guarded by this lock; it is main-thread confined and only
@@ -42,12 +42,11 @@ import UIKit
     /// thread, and `start`.
     private let lock = NSLock()
     private let captureGuard = SentrySessionReplayCaptureGuard()
+    private let captureScheduler: SentrySessionReplayRunLoopCaptureScheduler
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var adaptiveScreenshotInterval: TimeInterval = 0
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var deferredScreenshotStart: Date?
-    private var captureRunLoopObserver: CFRunLoopObserver?
-    private var didProcessRunLoopWork = false
     private var isCaptureSchedulerRunning = false
     private var nextCaptureActivityCheckAt: Date?
     /// Segment end currently being rendered on the replay maker's background queue.
@@ -86,6 +85,29 @@ import UIKit
         self.replayMaker = replayMaker
         self.breadcrumbConverter = breadcrumbConverter
         self.touchTracker = touchTracker
+        self.captureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler()
+    }
+
+    internal init(
+        replayOptions: SentryReplayOptions,
+        replayFolderPath: URL,
+        screenshotProvider: SentryViewScreenshotProvider,
+        replayMaker: SentryReplayVideoMaker,
+        breadcrumbConverter: SentryReplayBreadcrumbConverter,
+        touchTracker: SentryTouchTracker?,
+        dateProvider: SentryCurrentDateProvider,
+        delegate: SentrySessionReplayDelegate,
+        captureScheduler: SentrySessionReplayRunLoopCaptureScheduler
+    ) {
+        self.replayOptions = replayOptions
+        self.dateProvider = dateProvider
+        self.delegate = delegate
+        self.screenshotProvider = screenshotProvider
+        self.urlToCache = replayFolderPath
+        self.replayMaker = replayMaker
+        self.breadcrumbConverter = breadcrumbConverter
+        self.touchTracker = touchTracker
+        self.captureScheduler = captureScheduler
     }
 
     deinit {
@@ -271,12 +293,6 @@ import UIKit
         event.tags = tags
     }
 
-    #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
-    func captureFrameForTesting(isInteractiveRunLoopMode: Bool = false) {
-        captureFrameIfNeeded(isInteractiveRunLoopMode: isInteractiveRunLoopMode)
-    }
-    #endif
-
     /// Decides on each run-loop pass whether to capture a screenshot. Stages, in order:
     /// 1. Skip captures while session mode is paused or once the maximum duration is reached.
     /// 2. Skip while a previous screenshot is still being processed.
@@ -441,8 +457,8 @@ import UIKit
         }
         guard shouldInstallObserver else { return }
 
-        runOnMainThread { [weak self] in
-            self?.installCaptureRunLoopObserver()
+        captureScheduler.start { [weak self] isInteractiveRunLoopMode in
+            self?.captureFrameIfNeeded(isInteractiveRunLoopMode: isInteractiveRunLoopMode)
         }
     }
 
@@ -456,75 +472,12 @@ import UIKit
     }
 
     private func stopCaptureScheduler() {
-        let observerToRemove = lock.synchronized {
+        lock.synchronized {
             isCaptureSchedulerRunning = false
-            didProcessRunLoopWork = false
             nextCaptureActivityCheckAt = nil
-
-            let observer = captureRunLoopObserver
-            captureRunLoopObserver = nil
-            return observer
         }
 
-        if let observerToRemove = observerToRemove {
-            CFRunLoopObserverInvalidate(observerToRemove)
-            runOnMainThread {
-                CFRunLoopRemoveObserver(CFRunLoopGetMain(), observerToRemove, .commonModes)
-            }
-        }
-    }
-
-    private func installCaptureRunLoopObserver() {
-        let activities = CFRunLoopActivity.afterWaiting.rawValue
-            | CFRunLoopActivity.beforeTimers.rawValue
-            | CFRunLoopActivity.beforeSources.rawValue
-            | CFRunLoopActivity.beforeWaiting.rawValue
-            | CFRunLoopActivity.exit.rawValue
-
-        let observer = CFRunLoopObserverCreateWithHandler(
-            kCFAllocatorDefault,
-            activities,
-            true,
-            CFIndex.max
-        ) { [weak self] observer, activity in
-            guard let observer = observer,
-                CFRunLoopObserverIsValid(observer),
-                let self = self
-            else { return }
-
-            let shouldCapture = self.lock.synchronized {
-                guard self.isCaptureSchedulerRunning else { return false }
-
-                if activity.contains(.afterWaiting)
-                    || activity.contains(.beforeTimers)
-                    || activity.contains(.beforeSources) {
-                    self.didProcessRunLoopWork = true
-                    return false
-                }
-
-                guard activity.contains(.beforeWaiting) || activity.contains(.exit) else { return false }
-                guard self.didProcessRunLoopWork else { return false }
-
-                self.didProcessRunLoopWork = false
-                return true
-            }
-            guard shouldCapture else { return }
-
-            self.captureFrameIfNeeded(isInteractiveRunLoopMode: RunLoop.current.currentMode == .tracking)
-        }
-
-        let observerToAdd = lock.synchronized {
-            guard captureRunLoopObserver == nil, isCaptureSchedulerRunning else {
-                return nil as CFRunLoopObserver?
-            }
-
-            captureRunLoopObserver = observer
-            return observer
-        }
-
-        if let observerToAdd = observerToAdd {
-            CFRunLoopAddObserver(CFRunLoopGetMain(), observerToAdd, .commonModes)
-        }
+        captureScheduler.stop()
     }
 
     /// Conversion factor between `SentryCurrentDateProvider.systemTime()` nanoseconds and seconds.

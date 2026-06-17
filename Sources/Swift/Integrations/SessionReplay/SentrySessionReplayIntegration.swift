@@ -4,7 +4,7 @@
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & CrashWrapperProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider
+typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & CrashWrapperProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayCaptureSchedulerProvider
 
 // This is static because it will be used for swizzling and would cause retain cycles
 private var touchTracker: SentryTouchTracker?
@@ -23,6 +23,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private let replayOptions: SentryReplayOptions
     private let rateLimits: RateLimits
     private let random: SentryRandomProtocol
+    private let captureScheduler: SentrySessionReplayRunLoopCaptureScheduler
     private var startedAsFullSession = false
     private let experimentalOptions: SentryExperimentalOptions
     private let notificationCenter: SentryNSNotificationCenterWrapper
@@ -93,6 +94,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         self.rateLimits = dependencies.rateLimits
         self.dateProvider = dependencies.dateProvider
         self.random = dependencies.random
+        self.captureScheduler = dependencies.sessionReplayCaptureScheduler
         self.crashWrapper = dependencies.crashWrapper
         self.getApplication = dependencies.application
 
@@ -306,7 +308,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         let newSessionReplay = SentrySessionReplay(
             replayOptions: replayOptions, replayFolderPath: sessionDocs, screenshotProvider: screenshotProvider,
             replayMaker: replayMaker, breadcrumbConverter: breadcrumbConverter, touchTracker: touchTracker,
-            dateProvider: dateProvider, delegate: self)
+            dateProvider: dateProvider, delegate: self, captureScheduler: captureScheduler)
 
         self.sessionReplay = newSessionReplay
         newSessionReplay.start(rootView: rootView, fullSession: fullSession)
