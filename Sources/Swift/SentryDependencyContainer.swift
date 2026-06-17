@@ -67,7 +67,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
     // MARK: Public
 
-    @objc public var startOptions: Options?
+    private var _startOptions: Options?
+    @objc public var startOptions: Options? {
+        get { paramLock.synchronized { _startOptions } }
+        set { paramLock.synchronized { _startOptions = newValue } }
+    }
 
     @objc public static func sharedInstance() -> SentryDependencyContainer {
         instanceLock.synchronized {
