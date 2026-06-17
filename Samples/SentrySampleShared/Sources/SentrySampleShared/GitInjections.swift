@@ -1,6 +1,5 @@
 import Foundation
-import Sentry
-
+import SentrySwift
 extension Bundle {
     var gitCommitHash: String? {
         infoDictionary?["GIT_COMMIT_HASH"] as? String

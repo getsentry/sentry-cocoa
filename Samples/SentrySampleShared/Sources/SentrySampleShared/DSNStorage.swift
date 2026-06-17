@@ -1,6 +1,5 @@
 import Foundation
-import Sentry
-
+import SentrySwift
 /**
  * Stores the DSN to a file in the cache directory.
  */

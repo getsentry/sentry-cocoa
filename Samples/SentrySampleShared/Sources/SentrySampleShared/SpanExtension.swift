@@ -1,5 +1,5 @@
 import Foundation
-import Sentry
+import SentrySwift
 
 public extension Span {
     /// If span is a transaction it has a list of children

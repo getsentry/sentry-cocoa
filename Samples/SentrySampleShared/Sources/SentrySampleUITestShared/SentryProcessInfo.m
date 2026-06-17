@@ -1,5 +1,7 @@
 #import "SentryProcessInfo.h"
-#import <UIKit/UIKit.h>
+#if !TARGET_OS_OSX
+#    import <UIKit/UIKit.h>
+#endif
 #import <sys/sysctl.h>
 #import <unistd.h>
 
@@ -38,7 +40,11 @@ isSimulator(void)
         NSString *simulator = [environment objectForKey:@"SIMULATOR_DEVICE_NAME"];
         return simulator != nil;
     } else {
+#if !TARGET_OS_OSX
         UIDevice *currentDevice = [UIDevice currentDevice];
         return ([currentDevice.model rangeOfString:@"Simulator"].location != NSNotFound);
+#else
+        return NO;
+#endif
     }
 }

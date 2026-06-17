@@ -1,7 +1,7 @@
 #if !os(macOS) && !os(watchOS)
 
 import Foundation
-import Sentry
+import SentrySwift
 import UIKit
 
 public class AssertView: UIView {
