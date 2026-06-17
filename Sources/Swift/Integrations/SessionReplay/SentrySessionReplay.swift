@@ -327,7 +327,6 @@ import UIKit
         let fullSessionState = lock.synchronized { (isFullSession: _isFullSession, sessionStart: self.sessionStart) }
 
         if fullSessionState.isFullSession && lock.synchronized({ isSessionPaused }) {
-            scheduleNextScreenshot(after: screenshotInterval(), from: now)
             return
         }
 
