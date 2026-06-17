@@ -373,8 +373,6 @@ jobs:
     needs: [files-changed, assemble-xcframework-variant]
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     with:
       fastlane_command: duplication_test
       xcode_version: "16"
@@ -410,7 +408,7 @@ jobs:
         with:
           version: "16"
       - name: Setup Ruby
-        uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
+        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
         with:
           bundler-cache: true
       - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
@@ -510,7 +508,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
 
       - name: Prepare release
-        uses: getsentry/craft@4468eb9e399655a61c770534dacc03139d98aa18 # v2
+        uses: getsentry/craft@acdb88019720182caf57293360d7cdc8db9e75ac # v2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:

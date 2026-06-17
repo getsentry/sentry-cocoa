@@ -148,6 +148,7 @@
     /// work for crashes.
     @objc public var beforeCaptureViewHierarchy: SentryBeforeCaptureScreenshotCallback?
 
+    #if !SDK_V10
     /// A block called shortly after the initialization of the SDK when the last program execution
     /// terminated with a crash.
     /// @discussion This callback is only executed once during the entire run of the program to avoid
@@ -158,6 +159,7 @@
     /// @note Crash reporting is automatically disabled if a debugger is attached.
     @available(*, deprecated, message: "Use onLastRunStatusDetermined instead, which is called regardless of whether the app crashed.")
     @objc public var onCrashedLastRun: SentryOnCrashedLastRunCallback?
+    #endif
 
     /// A block called shortly after the initialization of the SDK when the crash status of the
     /// last program execution has been determined.

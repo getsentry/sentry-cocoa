@@ -135,12 +135,14 @@
         sentryOptions.beforeCaptureViewHierarchy = options[@"beforeCaptureViewHierarchy"];
     }
 
+#if !SDK_V10
     if ([self isBlock:options[@"onCrashedLastRun"]]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
         sentryOptions.onCrashedLastRun = options[@"onCrashedLastRun"];
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
     }
+#endif
 
     if ([self isBlock:options[@"onLastRunStatusDetermined"]]) {
         sentryOptions.onLastRunStatusDetermined = options[@"onLastRunStatusDetermined"];

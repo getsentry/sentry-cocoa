@@ -19,7 +19,8 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * - note: Default: `true`.
      */
     public var animations: Bool = true
-    
+
+    #if !SDK_V10
     /**
      * Configuration settings specific to the managed widget that displays the UI form.
      * - note: Default: `nil`. Set this only to configure the managed widget; unspecified widget values use the default widget settings.
@@ -27,7 +28,6 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * feedback form from your own UI instead.
      */
     public var configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)? {
-        // Only the setter is deprecated to avoid warnings when compiling the SDK.
         @available(*, deprecated, message: "The Sentry-managed User Feedback widget is deprecated and will be removed in v10. Present the feedback form from your own UI using SentrySDK.feedback.show(), SentrySDK.FeedbackForm, or sentryFeedback(isPresented:) instead.")
         set {
             _configureWidget = newValue
@@ -37,6 +37,7 @@ public final class SentryUserFeedbackConfiguration: NSObject {
         }
     }
     var _configureWidget: ((SentryUserFeedbackWidgetConfiguration) -> Void)?
+    #endif
 
     lazy var widgetConfig = SentryUserFeedbackWidgetConfiguration()
 
@@ -54,12 +55,24 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      */
     public var showFormForScreenshots: Bool = false
 
+    #if !SDK_V10
     /**
      * Install a hook for the specified button to show the form when it is pressed.
      * - note: If this is set, `configureWidget` is ignored.
      * - note: Default: `nil`
+     * - deprecated: The custom User Feedback button configuration is deprecated and will be removed in v10. Add your own button action and call `SentrySDK.feedback.show()` instead.
      */
-    public var customButton: UIButton?
+    public var customButton: UIButton? {
+        get {
+            _customButton
+        }
+        @available(*, deprecated, message: "The custom User Feedback button configuration is deprecated and will be removed in v10. Add your own button action and call SentrySDK.feedback.show() instead.")
+        set {
+            _customButton = newValue
+        }
+    }
+    @nonobjc var _customButton: UIButton?
+    #endif
 
     /**
      * Configuration settings specific to the managed UI form to gather user input.
@@ -67,7 +80,7 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * - note: Default: `nil`
      */
     public var configureForm: ((SentryUserFeedbackFormConfiguration) -> Void)?
-    
+
     lazy var formConfig = SentryUserFeedbackFormConfiguration()
 
     /**
@@ -76,43 +89,44 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * - note: Default: `nil`
      */
     public var tags: [String: Any]?
-    
+
     /**
      * Called when the managed feedback form is opened.
      * - note: Default: `nil`
      */
     public var onFormOpen: (() -> Void)?
-    
+
     /**
      * Called when the managed feedback form is closed.
      * - note: Default: `nil`
      */
     public var onFormClose: (() -> Void)?
-    
+
     /**
      * Called when feedback is successfully submitted via the managed feedback form, indicating that the
      * user correctly filled out the form and confirmed submission. The data dictionary contains the feedback details.
      * - note: Default: `nil`
      */
     public var onSubmitSuccess: (([String: Any]) -> Void)?
-    
+
     /**
      * Called when there is an error submitting feedback via the managed feedback form, like missing
      * required inputs. The error object contains details of the error.
      * - note: Default: `nil`
      */
     public var onSubmitError: ((Error) -> Void)?
-    
+
     // MARK: Theme
-    
+
     /**
      * Builder for default/light theme overrides.
      * - note: Default: `nil`
      */
     public var configureTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)?
-    
+
     lazy var theme = SentryUserFeedbackThemeConfiguration()
-    
+
+    #if !SDK_V10
     /**
      * Builder for dark mode theme overrides. If your app does not deploy a different theme for dark
      * mode, but you still want to override some theme settings, assign the same builder to this
@@ -120,8 +134,6 @@ public final class SentryUserFeedbackConfiguration: NSObject {
      * - note: Default: `nil`
      */
     public var configureDarkTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)? {
-        // Only the setter is deprecated to avoid warnings when compiling the SDK. The getter is
-        // used from SentrySDK.init
         @available(*, deprecated, message: "Use dynamic UIColor instead of the dark theme.")
         set {
             _configureDarkTheme = newValue
@@ -131,41 +143,42 @@ public final class SentryUserFeedbackConfiguration: NSObject {
         }
     }
     var _configureDarkTheme: ((SentryUserFeedbackThemeConfiguration) -> Void)?
-    
+    #endif
+
     lazy var darkTheme = SentryUserFeedbackThemeConfiguration()
-    
+
     // MARK: Derived properties
-    
+
     lazy var textEffectiveHeightCenter: CGFloat = {
         theme.font.familyName == "Damascus" ? theme.font.lineHeight / 2 + theme.font.lineHeight - theme.font.capHeight : theme.font.capHeight / 2
     }()
-    
+
     /// The ratio of the configured font size to the system default font size, to know how large to scale things like the icon and lozenge shape.
     lazy var scaleFactor = calculateScaleFactor()
-    
+
     func calculateScaleFactor() -> CGFloat {
         let fontSize = theme.font.pointSize
         guard fontSize > 0 else {
             return 1
         }
-            
+
         return fontSize / UIFont.systemFontSize
     }
-    
+
     /// Too much padding as the font size grows larger makes the button look weird with lots of negative space. Keeping the padding constant looks weird if the text is too small. So, scale it down below system default font sizes, but keep it fixed with larger font sizes.
     lazy var paddingScaleFactor = calculatePaddingScaleFactor()
-    
+
     func calculatePaddingScaleFactor() -> CGFloat {
         scaleFactor > 1 ? 1 : scaleFactor
     }
-    
+
     func recalculateScaleFactors() {
         scaleFactor = calculateScaleFactor()
         paddingScaleFactor = calculatePaddingScaleFactor()
     }
-    
+
     // MARK: Layout
-    
+
     let padding: CGFloat = 16
     let spacing: CGFloat = 8
     let margin: CGFloat = 32
@@ -175,7 +188,9 @@ extension SentryUserFeedbackConfiguration {
     func applyConfigurationBuilders() {
         configureForm?(formConfig)
         configureTheme?(theme)
-        configureDarkTheme?(darkTheme)
+        #if !SDK_V10
+        _configureDarkTheme?(darkTheme)
+        #endif
     }
 
     func configurationForPresentation(
@@ -207,11 +222,13 @@ extension SentryUserFeedbackConfiguration {
     }
 
     func resetGlobalOnlyOptionsForPresentation() {
+        #if !SDK_V10
         _configureWidget = nil
+        _customButton = nil
+        #endif
         widgetConfig = SentryUserFeedbackWidgetConfiguration()
         useShakeGesture = false
         showFormForScreenshots = false
-        customButton = nil
     }
 }
 

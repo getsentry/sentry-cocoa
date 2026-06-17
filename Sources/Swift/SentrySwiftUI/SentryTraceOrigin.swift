@@ -1,4 +1,4 @@
-#if canImport(SwiftUI) && (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if canImport(SwiftUI) && (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
 
 /// Swift compatibility wrapper for trace origins.
 /// The canonical constants are in SentryTraceOrigin.h.

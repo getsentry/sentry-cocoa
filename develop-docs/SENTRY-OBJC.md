@@ -127,14 +127,41 @@ Every wrapped type follows the same structure:
 
 Different SDK types require slightly different wrapper strategies:
 
-| SDK type shape                       | Wrapper strategy                                                 | Example                                                        |
-| ------------------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------------- |
-| Class with properties                | `internal let wrapped: X`, delegate get/set                      | `SentryObjCUser` wrapping `User`                               |
-| Protocol                             | `internal let wrapped: any P`, delegate methods                  | `SentryObjCSpan` wrapping `any Span`                           |
-| Swift enum with associated values    | Hold the enum, expose factory methods + `type`/`value` accessors | `SentryObjCAttributeContent` wrapping `SentryAttributeContent` |
-| ObjC enum (`NS_ENUM`)                | Mirror as `@objc public enum`, convert via `rawValue`            | `SentryObjCLevel` mirroring `SentryLevel`                      |
-| Callback-heavy class (e.g., Options) | Wrap callbacks to convert wrapper types at boundaries            | `SentryObjCOptions` wrapping `Options`                         |
-| Static API class                     | Static methods that wrap inputs/outputs                          | `SentryObjCSDK` wrapping `SentrySDK`                           |
+| SDK type shape                       | Wrapper strategy                                                                                          | Example                                                        |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Class with properties                | `internal let wrapped: X`, delegate get/set                                                               | `SentryObjCUser` wrapping `User`                               |
+| Protocol                             | `internal let wrapped: any P`, delegate methods                                                           | `SentryObjCSpan` wrapping `any Span`                           |
+| Swift struct                         | `internal let wrapped: Box<X>`, delegate get/set (see [Boxing](#boxing-resilient-value-types))            | `SentryObjCInternalSdkApi` wrapping `SentryInternalSdkApi`     |
+| Swift enum with associated values    | `internal let wrapped: Box<X>`, factory methods + accessors (see [Boxing](#boxing-resilient-value-types)) | `SentryObjCAttributeContent` wrapping `SentryAttributeContent` |
+| ObjC enum (`NS_ENUM`)                | Mirror as `@objc public enum`, convert via `rawValue`                                                     | `SentryObjCLevel` mirroring `SentryLevel`                      |
+| Callback-heavy class (e.g., Options) | Wrap callbacks to convert wrapper types at boundaries                                                     | `SentryObjCOptions` wrapping `Options`                         |
+| Static API class                     | Static methods that wrap inputs/outputs                                                                   | `SentryObjCSDK` wrapping `SentrySDK`                           |
+
+### Boxing resilient value types
+
+Under `-enable-library-evolution` (`BUILD_LIBRARY_FOR_DISTRIBUTION=YES`), the Swift compiler treats cross-module value types (structs, enums) as **resilient** — their in-memory size is unknown at compile time. On x86_64, this prevents the compiler from emitting a static `_OBJC_CLASS_$_` symbol for any `@objc` class that stores such a value directly as an ivar. The result: the class symbol is present on arm64 but missing on x86_64, causing the `validate-xcframework-symbols.sh` check to fail.
+
+**Fix:** Wrap the resilient stored property in `Box<T>` (defined in `Sources/SentryObjCCompat/Box.swift`):
+
+```swift
+// Before — breaks on x86_64
+@objc(SentryObjCFoo) public final class SentryObjCFoo: NSObject {
+    internal let wrapped: FooStruct          // resilient, unknown layout
+}
+
+// After — works on all architectures
+@objc(SentryObjCFoo) public final class SentryObjCFoo: NSObject {
+    internal let wrapped: Box<FooStruct>     // pointer-sized, known layout
+
+    internal init(_ wrapped: FooStruct) {
+        self.wrapped = Box(wrapped)
+    }
+
+    @objc public var name: String { wrapped.value.name }
+}
+```
+
+**When to apply:** Any wrapper class whose `wrapped` property holds a cross-module `struct` or `enum` (i.e., types defined in the `Sentry`/`SentrySwift` module, not in `SentryObjCCompat` itself). Wrappers around SDK `class` types do not need boxing — classes are already pointer-sized.
 
 ### Callback wrapping
 

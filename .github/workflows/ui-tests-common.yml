@@ -31,11 +31,6 @@ on:
         required: false
         default: false
         type: boolean
-      codecov_test_analytics:
-        description: "Whether or not to push results to Codecov for analytics."
-        required: false
-        default: false
-        type: boolean
       test-destination-os:
         description: "Test destination OS"
         required: false
@@ -61,10 +56,6 @@ on:
         required: false
         default: "cirrus"
         type: string
-    secrets:
-      CODECOV_TOKEN:
-        required: true
-
 jobs:
   common-ui-tests:
     if: ${{ !inputs.should_skip }}
@@ -92,7 +83,7 @@ jobs:
 
       - name: Setup Ruby
         if: inputs.runner_provider != 'bitrise'
-        uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
+        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
         with:
           bundler-cache: true
 
@@ -173,16 +164,6 @@ jobs:
           fail_on_failure: true
           fail_on_parse_error: true
           detailed_summary: true
-
-      - name: Codecov test analytics
-        if: ${{ !cancelled() && inputs.codecov_test_analytics }}
-        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # pin@v6.0.1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          report_type: test_results
-          verbose: true
-          name: sentry-cocoa-unit-tests
-          flags: ui-tests-${{ inputs.fastlane_command }}-${{ inputs.xcode_version }}-${{ inputs.runner_provider }}, ui-tests
 
       - name: Upload Result Bundle
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

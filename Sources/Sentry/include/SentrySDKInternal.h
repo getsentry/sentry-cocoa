@@ -266,6 +266,7 @@ SENTRY_NO_INIT
  */
 + (void)configureScope:(void (^)(SentryScope *scope))callback;
 
+#if !SDK_V10
 /**
  * Checks if the last program execution terminated with a crash.
  *
@@ -274,6 +275,7 @@ SENTRY_NO_INIT
  */
 @property (nonatomic, class, readonly) BOOL crashedLastRun
     __attribute__((deprecated("Use lastRunStatus instead.")));
+#endif
 
 /**
  * Returns the crash status of the last program execution.
