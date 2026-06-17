@@ -1,14 +1,11 @@
 #import <Foundation/Foundation.h>
-#import <Sentry/SentryScope.h>
 #import <UIKit/UIKit.h>
-
-@class SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryClientInternal : NSObject
 
-@property (nonatomic) SentryOptions *options;
+- (NSObject *)getOptions;
 
 @end
 

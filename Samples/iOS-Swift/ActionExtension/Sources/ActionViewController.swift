@@ -1,5 +1,5 @@
-import Sentry
-@_spi(Private) import Sentry
+import SentrySwift
+@_spi(Private) import SentrySwift
 import SentrySampleShared
 import UIKit
 import UniformTypeIdentifiers

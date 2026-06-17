@@ -1,4 +1,4 @@
-@testable import Sentry
+@testable import SentrySwift
 import SentrySampleShared
 import XCTest
 

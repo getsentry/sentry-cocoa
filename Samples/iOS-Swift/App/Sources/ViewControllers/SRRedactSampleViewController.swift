@@ -1,4 +1,5 @@
 import Foundation
+import SentrySwift
 
 // swiftlint:disable private_outlet
 class SRRedactSampleViewController: UIViewController {

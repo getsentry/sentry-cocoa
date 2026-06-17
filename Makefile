@@ -474,7 +474,6 @@ build-sample-iOS-ObjectiveCpp-NoModules:
 # Builds the iOS-Swift sample app for the iOS Simulator.
 .PHONY: build-sample-iOS-Swift
 build-sample-iOS-Swift:
-	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \

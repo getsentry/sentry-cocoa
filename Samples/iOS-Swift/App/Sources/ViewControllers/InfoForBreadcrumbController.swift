@@ -1,5 +1,5 @@
 import Foundation
-@_spi(Private) import Sentry
+@_spi(Private) import SentrySwift
 import UIKit
 
 // swiftlint:disable private_outlet

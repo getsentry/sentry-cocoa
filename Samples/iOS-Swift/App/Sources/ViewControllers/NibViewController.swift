@@ -1,5 +1,5 @@
 import Foundation
-import Sentry
+import SentrySwift
 import SentrySampleShared
 import UIKit
 

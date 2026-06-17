@@ -1,4 +1,4 @@
-@_spi(Private) import Sentry
+@_spi(Private) import SentrySwift
 import SentrySampleShared
 import UIKit
 
@@ -159,7 +159,7 @@ private extension ProfilingViewController {
     }
 
     func optionsConfiguration() {
-        guard let options = SentrySDKInternal.currentHub().getClient()?.options else { return }
+        guard let options = SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options else { return }
 
         if let sampleRate = options.tracesSampleRate {
             tracesSampleRateField.text = String(format: "%.2f", sampleRate.floatValue)

@@ -1,6 +1,7 @@
 import CoreLocation
 import LocalAuthentication
 import UIKit
+import SentrySwift
 
 class PermissionsViewController: UIViewController {
     private let locationManager = CLLocationManager()

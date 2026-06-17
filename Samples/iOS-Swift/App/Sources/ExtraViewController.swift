@@ -3,8 +3,8 @@ import AuthenticationServices
 import Foundation
 import PhotosUI
 import SafariServices
-@_spi(Private) import Sentry
 import SentrySampleShared
+@_spi(Private) import SentrySwift
 import UIKit
 
 class ExtraViewController: UIViewController {
@@ -32,7 +32,8 @@ class ExtraViewController: UIViewController {
         }
         
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-            self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
+            let frames = SentryDependencyContainer.sharedInstance().framesTracker.currentFrames()
+            self.framesLabel?.text = "Frames Total:\(frames.total) Slow:\(frames.slow) Frozen:\(frames.frozen)"
         }
     }
 
