@@ -40827,6 +40827,49 @@
             "name": "user",
             "printedName": "user",
             "usr": "s:6Sentry0A11InternalApiV4userAA0ab4UserC0Vvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryInternalViewHierarchyApi",
+                    "printedName": "Sentry.SentryInternalViewHierarchyApi",
+                    "usr": "s:6Sentry0A24InternalViewHierarchyApiV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV13viewHierarchyAA0ab4VieweC0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV13viewHierarchyAA0ab4VieweC0Vvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryInternalViewHierarchyApi",
+                "printedName": "Sentry.SentryInternalViewHierarchyApi",
+                "usr": "s:6Sentry0A24InternalViewHierarchyApiV"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV13viewHierarchyAA0ab4VieweC0Vvp",
+            "moduleName": "Sentry",
+            "name": "viewHierarchy",
+            "printedName": "viewHierarchy",
+            "usr": "s:6Sentry0A11InternalApiV13viewHierarchyAA0ab4VieweC0Vvp"
           }
         ],
         "conformances": [
@@ -41615,6 +41658,59 @@
         "name": "SentryInternalUserApi",
         "printedName": "SentryInternalUserApi",
         "usr": "s:6Sentry0A15InternalUserApiV"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Data",
+                    "printedName": "Foundation.Data",
+                    "usr": "s:10Foundation4DataV"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.Data?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A24InternalViewHierarchyApiV7capture10Foundation4DataVSgyF",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture()",
+            "usr": "s:6Sentry0A24InternalViewHierarchyApiV7capture10Foundation4DataVSgyF"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A24InternalViewHierarchyApiV",
+        "moduleName": "Sentry",
+        "name": "SentryInternalViewHierarchyApi",
+        "printedName": "SentryInternalViewHierarchyApi",
+        "usr": "s:6Sentry0A24InternalViewHierarchyApiV"
       },
       {
         "children": [
