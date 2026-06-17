@@ -481,10 +481,19 @@ import UIKit
         }
         guard shouldInstallObserver else { return false }
 
-        captureScheduler.start(token: token) { [weak self] isInteractiveRunLoopMode in
+        let didStart = captureScheduler.start(token: token) { [weak self] isInteractiveRunLoopMode in
             self?.captureFrameIfNeeded(isInteractiveRunLoopMode: isInteractiveRunLoopMode)
         }
-        return true
+        if didStart {
+            return true
+        }
+
+        lock.synchronized {
+            guard captureSchedulerToken === token else { return }
+            isCaptureSchedulerRunning = false
+            nextCaptureActivityCheckAt = nil
+        }
+        return false
     }
 
     private func stopCaptureScheduler() {

@@ -114,8 +114,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         var oldCaptures = 0
         var newCaptures = 0
 
-        captureScheduler.start(token: oldToken) { _ in oldCaptures += 1 }
-        captureScheduler.start(token: newToken) { _ in newCaptures += 1 }
+        _ = captureScheduler.start(token: oldToken) { _ in oldCaptures += 1 }
+        _ = captureScheduler.start(token: newToken) { _ in newCaptures += 1 }
         captureScheduler.stop(token: oldToken)
 
         observationBlock?(testObserver, .afterWaiting)
