@@ -16,7 +16,7 @@ public struct SentryInternalViewHierarchyApi {
 
     /// Captures the view hierarchy of all application windows as JSON data.
     public func capture() -> Data? {
-        viewHierarchyProvider?.appViewHierarchy()
+        viewHierarchyProvider?.appViewHierarchyFromMainThread()
     }
 }
 
