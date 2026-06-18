@@ -12,7 +12,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack", from: "3.8.0"),
-        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.17.1")
+        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.18.0")
     ],
     targets: [
         .target(
