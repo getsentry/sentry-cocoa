@@ -30,7 +30,7 @@ To see all available installation options and how to integrate Sentry into your 
 > CocoaPods support has been deprecated and will no longer receive updates after June 2026. Please migrate to SPM or XCFrameworks. See [CocoaPods read-only change](https://blog.cocoapods.org/CocoaPods-Support-Plans/).
 
 > [!WARNING]
-> **macOS 12 support will be dropped** with the upcoming release that requires Xcode 27. Xcode 27 cannot produce valid builds targeting macOS 12 or earlier, so the new minimum supported macOS version will be **macOS 13 (Ventura)**. If your app must support macOS 12, please stay on the last SDK version released before this change. See the [announcement discussion](https://github.com/getsentry/sentry-cocoa/discussions) for full details.
+> **macOS 12 support will be dropped** with the upcoming release that requires Xcode 27. Xcode 27 cannot produce valid builds targeting macOS 12 or earlier, so the new minimum supported macOS version will be **macOS 13 (Ventura)**. If your app must support macOS 12, please stay on the last SDK version released before this change. See the [announcement discussion](https://github.com/getsentry/sentry-cocoa/issues/8113) for full details.
 
 # Initialization
 
