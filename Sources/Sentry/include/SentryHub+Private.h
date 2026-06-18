@@ -7,7 +7,6 @@
 @class SentryScope;
 @class SentryTransaction;
 @class SentryDispatchQueueWrapper;
-@class SentryEnvelope;
 @class SentrySession;
 @class SentryTracer;
 @class SentryTracerConfiguration;
@@ -84,9 +83,6 @@ NS_ASSUME_NONNULL_BEGIN
                   withScope:(SentryScope *)scope
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems;
 - (void)saveCrashTransaction:(SentryTransaction *)transaction;
-
-- (void)storeEnvelope:(SentryEnvelope *)envelope;
-- (void)captureEnvelope:(SentryEnvelope *)envelope;
 
 - (nullable SENTRY_SWIFT_MIGRATION_ID(
     id<SentryIntegrationProtocol>))getInstalledIntegration:(Class)integrationClass;
