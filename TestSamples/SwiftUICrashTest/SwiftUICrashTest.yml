@@ -6,9 +6,9 @@ generateEmptyDirectories: true
 configs:
   Debug: debug
   Release: release
-projectReferences:
+packages:
   Sentry:
-    path: ../../Sentry.xcodeproj
+    path: ../..
 options:
   bundleIdPrefix: io.sentry
 targets:
@@ -16,7 +16,9 @@ targets:
     type: application
     platform: auto
     dependencies:
-      - target: Sentry/Sentry
+      - package: Sentry
+        products:
+          - SentrySPM
     sources:
       # Configurations
       - path: App/Configurations
