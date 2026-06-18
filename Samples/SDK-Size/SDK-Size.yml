@@ -6,9 +6,9 @@ generateEmptyDirectories: true
 configs:
   Debug: debug
   Release: release
-projectReferences:
+packages:
   Sentry:
-    path: ../../Sentry.xcodeproj
+    path: ../..
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -38,7 +38,9 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
+      - package: Sentry
+        products:
+          - SentrySPM
     configFiles:
       Debug: App/Configurations/SDK-Size.xcconfig
       Release: App/Configurations/SDK-Size.xcconfig
