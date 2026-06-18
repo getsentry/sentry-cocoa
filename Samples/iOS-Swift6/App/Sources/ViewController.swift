@@ -1,4 +1,4 @@
-import Sentry
+import SentrySwift
 import UIKit
 
 class ViewController: UIViewController {

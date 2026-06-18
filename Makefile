@@ -486,7 +486,6 @@ build-sample-iOS-Swift:
 # Builds the iOS-Swift6 sample app for the iOS Simulator.
 .PHONY: build-sample-iOS-Swift6
 build-sample-iOS-Swift6:
-	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
