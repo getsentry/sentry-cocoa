@@ -1227,8 +1227,7 @@ xcode: xcode-ci
 # Generates Xcode projects for all sample apps using xcodegen.
 # Run a specific sample with make xcode-ci-<name>, e.g. make xcode-ci-iOS-Swift.
 .PHONY: xcode-ci
-xcode-ci: xcode-ci-SentrySampleShared \
-	xcode-ci-SPM \
+xcode-ci: xcode-ci-SPM \
 	xcode-ci-SessionReplay-CameraTest \
 	xcode-ci-iOS-ObjectiveC \
 	xcode-ci-iOS-ObjectiveC-Dynamic \
@@ -1257,16 +1256,12 @@ xcode-ci: xcode-ci-SentrySampleShared \
 xcode-ci-SPM:
 	xcodegen --spec Samples/SPM/SPM.yml
 
-.PHONY: xcode-ci-SentrySampleShared
-xcode-ci-SentrySampleShared:
-	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
-
 .PHONY: xcode-ci-SessionReplay-CameraTest
-xcode-ci-SessionReplay-CameraTest: xcode-ci-SentrySampleShared
+xcode-ci-SessionReplay-CameraTest:
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
 
 .PHONY: xcode-ci-iOS-ObjectiveC
-xcode-ci-iOS-ObjectiveC: xcode-ci-SentrySampleShared
+xcode-ci-iOS-ObjectiveC:
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
 
 .PHONY: xcode-ci-iOS-ObjectiveC-Dynamic
@@ -1282,15 +1277,15 @@ xcode-ci-iOS-ObjectiveCpp-NoModules:
 	xcodegen --spec Samples/iOS-ObjectiveCpp-NoModules/iOS-ObjectiveCpp-NoModules.yml
 
 .PHONY: xcode-ci-iOS-Swift
-xcode-ci-iOS-Swift: xcode-ci-SentrySampleShared
+xcode-ci-iOS-Swift:
 	xcodegen --spec Samples/iOS-Swift/iOS-Swift.yml
 
 .PHONY: xcode-ci-iOS-Swift6
-xcode-ci-iOS-Swift6: xcode-ci-SentrySampleShared
+xcode-ci-iOS-Swift6:
 	xcodegen --spec Samples/iOS-Swift6/iOS-Swift6.yml
 
 .PHONY: xcode-ci-iOS-SwiftUI
-xcode-ci-iOS-SwiftUI: xcode-ci-SentrySampleShared
+xcode-ci-iOS-SwiftUI:
 	xcodegen --spec Samples/iOS-SwiftUI/iOS-SwiftUI.yml
 
 .PHONY: xcode-ci-iOS-SwiftUI-SPM
@@ -1298,11 +1293,11 @@ xcode-ci-iOS-SwiftUI-SPM:
 	xcodegen --spec Samples/iOS-SwiftUI-SPM/iOS-SwiftUI-SPM.yml
 
 .PHONY: xcode-ci-iOS-SwiftUI-Widgets
-xcode-ci-iOS-SwiftUI-Widgets: xcode-ci-SentrySampleShared
+xcode-ci-iOS-SwiftUI-Widgets:
 	xcodegen --spec Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.yml
 
 .PHONY: xcode-ci-iOS15-SwiftUI
-xcode-ci-iOS15-SwiftUI: xcode-ci-SentrySampleShared
+xcode-ci-iOS15-SwiftUI:
 	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
 
 .PHONY: xcode-ci-macOS-CLI-Xcode
@@ -1310,11 +1305,11 @@ xcode-ci-macOS-CLI-Xcode:
 	xcodegen --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 
 .PHONY: xcode-ci-macOS-Swift
-xcode-ci-macOS-Swift: xcode-ci-SentrySampleShared
+xcode-ci-macOS-Swift:
 	xcodegen --spec Samples/macOS-Swift/macOS-Swift.yml
 
 .PHONY: xcode-ci-macOS-SwiftUI
-xcode-ci-macOS-SwiftUI: xcode-ci-SentrySampleShared
+xcode-ci-macOS-SwiftUI:
 	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
 
 .PHONY: xcode-ci-macOS-SwiftUI-SPM
@@ -1322,7 +1317,7 @@ xcode-ci-macOS-SwiftUI-SPM:
 	xcodegen --spec Samples/macOS-SwiftUI-SPM/macOS-SwiftUI-SPM.yml
 
 .PHONY: xcode-ci-tvOS-Swift
-xcode-ci-tvOS-Swift: xcode-ci-SentrySampleShared
+xcode-ci-tvOS-Swift:
 	xcodegen --spec Samples/tvOS-Swift/tvOS-Swift.yml
 
 .PHONY: xcode-ci-tvOS-SwiftUI-SPM
@@ -1330,7 +1325,7 @@ xcode-ci-tvOS-SwiftUI-SPM:
 	xcodegen --spec Samples/tvOS-SwiftUI-SPM/tvOS-SwiftUI-SPM.yml
 
 .PHONY: xcode-ci-visionOS-Swift
-xcode-ci-visionOS-Swift: xcode-ci-SentrySampleShared
+xcode-ci-visionOS-Swift:
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
 
 .PHONY: xcode-ci-visionOS-SwiftUI-SPM
