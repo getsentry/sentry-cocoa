@@ -618,7 +618,6 @@ build-sample-tvOS-Swift:
 # Builds the visionOS-Swift sample app for the visionOS Simulator.
 .PHONY: build-sample-visionOS-Swift
 build-sample-visionOS-Swift:
-	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/visionOS-Swift/visionOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
