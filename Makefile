@@ -572,7 +572,6 @@ build-sample-iOS15-SwiftUI:
 # Builds the SessionReplay-CameraTest sample app for the iOS Simulator.
 .PHONY: build-sample-SessionReplay-CameraTest
 build-sample-SessionReplay-CameraTest:
-	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/SessionReplay-CameraTest/SessionReplay-CameraTest.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \

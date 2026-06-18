@@ -5,11 +5,11 @@ include:
   - ../Shared/feature-flags.yml
 createIntermediateGroups: true
 generateEmptyDirectories: true
-projectReferences:
+packages:
   Sentry:
-    path: ../../Sentry.xcodeproj
+    path: ../..
   SentrySampleShared:
-    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
+    path: ../SentrySampleShared/
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -47,8 +47,11 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        products:
+          - SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: Configurations/SessionReplay-CameraTest.xcconfig
       Release: Configurations/SessionReplay-CameraTest.xcconfig

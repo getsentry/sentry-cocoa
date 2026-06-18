@@ -1,6 +1,6 @@
 import AVFoundation
-import Sentry
 import SentrySampleShared
+import SentrySwift
 import UIKit
 
 class ViewController: UIViewController {
