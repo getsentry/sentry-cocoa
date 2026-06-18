@@ -1,6 +1,6 @@
 import AppIntents
-import Sentry
 import SentrySampleShared
+import SentrySwift
 import SwiftUI
 import WidgetKit
 

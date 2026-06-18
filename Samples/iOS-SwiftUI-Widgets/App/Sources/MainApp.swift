@@ -1,6 +1,6 @@
 import Combine
-import Sentry
 import SentrySampleShared
+import SentrySwift
 import SwiftUI
 import UIKit
 import UserNotifications

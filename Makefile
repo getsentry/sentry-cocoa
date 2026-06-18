@@ -510,7 +510,6 @@ build-sample-iOS-SwiftUI:
 # Builds the iOS-SwiftUI-Widgets sample app for the iOS Simulator.
 .PHONY: build-sample-iOS-SwiftUI-Widgets
 build-sample-iOS-SwiftUI-Widgets:
-	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/iOS-SwiftUI-Widgets/iOS-SwiftUI-Widgets.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
