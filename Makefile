@@ -606,7 +606,6 @@ build-sample-macOS-SwiftUI:
 # Builds the tvOS-Swift sample app for the tvOS Simulator.
 .PHONY: build-sample-tvOS-Swift
 build-sample-tvOS-Swift:
-	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/tvOS-Swift/tvOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
