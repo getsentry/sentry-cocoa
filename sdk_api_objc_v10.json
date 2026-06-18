@@ -456,6 +456,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalAppStartApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalBreadcrumbApi",
     "super": "NSObject",
     "has_inner": true
@@ -475,6 +481,12 @@
   {
     "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalPerformanceApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalReplayApi",
     "super": "NSObject",
     "has_inner": true
   },
@@ -736,6 +748,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "addIgnoreClasses:",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "addInAppInclude:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -745,6 +764,13 @@
     "kind": "ObjCMethodDecl",
     "name": "addPackageName:version:",
     "parent": "SentryObjCInternalSdkApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "addRedactClasses:",
+    "parent": "SentryObjCInternalReplayApi",
     "returnType": "void",
     "instance": true
   },
@@ -767,6 +793,13 @@
     "name": "appHangTimeoutInterval",
     "parent": "SentryObjCOptions",
     "returnType": "NSTimeInterval",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "appStart",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalAppStartApi * _Nonnull",
     "instance": true
   },
   {
@@ -1026,6 +1059,13 @@
     "name": "cancelButtonLabel",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "capture",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "BOOL",
     "instance": true
   },
   {
@@ -2521,6 +2561,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "hybridSDKMode",
+    "parent": "SentryObjCInternalAppStartApi",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "idleTimeout",
     "parent": "SentryObjCOptions",
     "returnType": "NSTimeInterval",
@@ -2760,6 +2807,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
+    "parent": "SentryObjCInternalAppStartApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
     "parent": "SentryObjCInternalEnvelopeApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
@@ -2768,6 +2822,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCInternalPerformanceApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCInternalReplayApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -3767,6 +3828,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "measurementWithSpans",
+    "parent": "SentryObjCInternalAppStartApi",
+    "returnType": "NSDictionary<NSString *,id> * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "mebibyte",
     "parent": "SentryObjCMeasurementUnit",
     "returnType": "SentryObjCMeasurementUnit * _Nonnull",
@@ -4146,6 +4214,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
+    "parent": "SentryObjCInternalAppStartApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
     "parent": "SentryObjCInternalEnvelopeApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
@@ -4154,6 +4229,13 @@
     "kind": "ObjCMethodDecl",
     "name": "new",
     "parent": "SentryObjCInternalPerformanceApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
+    "parent": "SentryObjCInternalReplayApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
   },
@@ -4727,9 +4809,23 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "replay",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalReplayApi * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "replay",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCReplayApi * _Nonnull",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "replayId",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "NSString * _Nullable",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -5860,8 +5956,22 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setHybridSDKMode:",
+    "parent": "SentryObjCInternalAppStartApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setIdleTimeout:",
     "parent": "SentryObjCOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setIgnoreContainerClass:",
+    "parent": "SentryObjCInternalReplayApi",
     "returnType": "void",
     "instance": true
   },
@@ -6427,6 +6537,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setRedactContainerClass:",
+    "parent": "SentryObjCInternalReplayApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setRegion:",
     "parent": "SentryObjCGeo",
     "returnType": "void",
@@ -6821,6 +6938,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setTags:",
     "parent": "SentryObjCEvent",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setTags:",
+    "parent": "SentryObjCInternalReplayApi",
     "returnType": "void",
     "instance": true
   },
@@ -8126,6 +8250,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "appStart",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalAppStartApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "appStartMeasurementHybridSDKMode",
     "parent": "SentryObjCPrivateSDKOnly",
     "type": "BOOL"
@@ -9068,6 +9198,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "hybridSDKMode",
+    "parent": "SentryObjCInternalAppStartApi",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "idleTimeout",
     "parent": "SentryObjCOptions",
     "type": "NSTimeInterval"
@@ -9353,6 +9489,12 @@
     "name": "maxCacheItems",
     "parent": "SentryObjCOptions",
     "type": "NSUInteger"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "measurementWithSpans",
+    "parent": "SentryObjCInternalAppStartApi",
+    "type": "NSDictionary<NSString *,id> * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -9897,8 +10039,20 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "replay",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalReplayApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "replay",
     "parent": "SentryObjCSDK",
     "type": "SentryObjCReplayApi * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "replayId",
+    "parent": "SentryObjCInternalReplayApi",
+    "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
