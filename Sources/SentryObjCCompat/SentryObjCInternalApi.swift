@@ -28,5 +28,9 @@ import Foundation
     @objc public var user: SentryObjCInternalUserApi {
         SentryObjCInternalUserApi(wrapped.value.user)
     }
+
+    @objc public var envelope: SentryObjCInternalEnvelopeApi {
+        SentryObjCInternalEnvelopeApi(wrapped.value.envelope)
+    }
 }
 // swiftlint:enable missing_docs

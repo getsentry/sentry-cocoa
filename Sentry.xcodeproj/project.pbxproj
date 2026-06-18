@@ -1335,6 +1335,7 @@
 				Public/SentryObjCInternalApi.h,
 				Public/SentryObjCInternalBreadcrumbApi.h,
 				Public/SentryObjCInternalDebugApi.h,
+				Public/SentryObjCInternalEnvelopeApi.h,
 				Public/SentryObjCInternalSdkApi.h,
 				Public/SentryObjCInternalUserApi.h,
 				Public/SentryObjCLastRunStatus.h,

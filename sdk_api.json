@@ -40620,6 +40620,49 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "SentryInternalEnvelopeApi",
+                    "printedName": "Sentry.SentryInternalEnvelopeApi",
+                    "usr": "s:6Sentry0A19InternalEnvelopeApiV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV8envelopeAA0ab8EnvelopeC0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV8envelopeAA0ab8EnvelopeC0Vvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryInternalEnvelopeApi",
+                "printedName": "Sentry.SentryInternalEnvelopeApi",
+                "usr": "s:6Sentry0A19InternalEnvelopeApiV"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV8envelopeAA0ab8EnvelopeC0Vvp",
+            "moduleName": "Sentry",
+            "name": "envelope",
+            "printedName": "envelope",
+            "usr": "s:6Sentry0A11InternalApiV8envelopeAA0ab8EnvelopeC0Vvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "SentryInternalSdkApi",
                     "printedName": "Sentry.SentryInternalSdkApi",
                     "usr": "s:6Sentry0A14InternalSdkApiV"
@@ -40907,6 +40950,31 @@
         "name": "SentryInternalDebugApi",
         "printedName": "SentryInternalDebugApi",
         "usr": "s:6Sentry0A16InternalDebugApiV"
+      },
+      {
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A19InternalEnvelopeApiV",
+        "moduleName": "Sentry",
+        "name": "SentryInternalEnvelopeApi",
+        "printedName": "SentryInternalEnvelopeApi",
+        "usr": "s:6Sentry0A19InternalEnvelopeApiV"
       },
       {
         "children": [
