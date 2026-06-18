@@ -560,7 +560,6 @@ build-sample-iOS-ObjectiveC-Static:
 # Builds the iOS15-SwiftUI sample app for the iOS Simulator.
 .PHONY: build-sample-iOS15-SwiftUI
 build-sample-iOS15-SwiftUI:
-	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/iOS15-SwiftUI/iOS15-SwiftUI.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
