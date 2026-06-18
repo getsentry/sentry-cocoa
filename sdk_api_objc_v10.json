@@ -1419,7 +1419,7 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "collectBetween:and:for:",
+    "name": "collectBetweenStartTime:andEndTime:forTraceId:",
     "parent": "SentryObjCInternalProfilingApi",
     "returnType": "NSDictionary<NSString *,id> * _Nullable",
     "instance": true

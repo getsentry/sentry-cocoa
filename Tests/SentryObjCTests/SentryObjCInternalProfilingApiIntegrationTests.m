@@ -62,9 +62,9 @@
 
     // -- Act --
     NSDictionary<NSString *, id> *payload =
-        [SentryObjCSDK.internal.profiling collectBetween:startTime
-                                                     and:startTime + 200000000
-                                                     for:traceId];
+        [SentryObjCSDK.internal.profiling collectBetweenStartTime:startTime
+                                                       andEndTime:startTime + 200000000
+                                                       forTraceId:traceId];
 
     // -- Assert --
     XCTAssertNotNil(payload);
@@ -80,9 +80,9 @@
 
     // -- Act --
     NSDictionary<NSString *, id> *payload =
-        [SentryObjCSDK.internal.profiling collectBetween:startTime
-                                                     and:startTime + 200000000
-                                                     for:traceId];
+        [SentryObjCSDK.internal.profiling collectBetweenStartTime:startTime
+                                                       andEndTime:startTime + 200000000
+                                                       forTraceId:traceId];
 
     // -- Assert --
     XCTAssertNotNil(payload[@"profile_id"]);
@@ -103,9 +103,9 @@
 
     // -- Act --
     NSDictionary<NSString *, id> *payload =
-        [SentryObjCSDK.internal.profiling collectBetween:startTime
-                                                     and:startTime + 200000000
-                                                     for:traceId];
+        [SentryObjCSDK.internal.profiling collectBetweenStartTime:startTime
+                                                       andEndTime:startTime + 200000000
+                                                       forTraceId:traceId];
 
     // -- Assert --
     NSDictionary *transaction = payload[@"transaction"];
@@ -118,7 +118,9 @@
     // -- Act --
     SentryObjCId *traceId = [[SentryObjCId alloc] init];
     NSDictionary<NSString *, id> *result =
-        [SentryObjCSDK.internal.profiling collectBetween:0 and:1 for:traceId];
+        [SentryObjCSDK.internal.profiling collectBetweenStartTime:0
+                                                       andEndTime:1
+                                                       forTraceId:traceId];
 
     // -- Assert --
     XCTAssertNil(result);

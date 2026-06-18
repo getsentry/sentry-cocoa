@@ -23,13 +23,6 @@
     },
     {
       "kind": "ObjCMethodDecl",
-      "name": "collectBetween:and:for:",
-      "parent": "SentryObjCInternalProfilingApi",
-      "returnType": "NSDictionary<NSString *,id> * _Nullable",
-      "instance": true
-    },
-    {
-      "kind": "ObjCMethodDecl",
       "name": "counter:",
       "parent": "SentryObjCMetricValue",
       "returnType": "instancetype _Nonnull",
@@ -347,13 +340,6 @@
       "parent": "SentryObjCAttributeContent",
       "returnType": "SentryObjCAttributeContent * _Nonnull",
       "instance": false
-    },
-    {
-      "kind": "ObjCMethodDecl",
-      "name": "collectWithBetween:and:for:",
-      "parent": "SentryObjCInternalProfilingApi",
-      "returnType": "NSDictionary<NSString *,id> * _Nullable",
-      "instance": true
     },
     {
       "kind": "ObjCMethodDecl",

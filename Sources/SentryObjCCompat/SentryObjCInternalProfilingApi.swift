@@ -19,7 +19,8 @@ import Foundation
         wrapped.value.start(for: traceId.wrapped)
     }
 
-    @objc public func collect(between startTime: UInt64, and endTime: UInt64, for traceId: SentryObjCId) -> [String: Any]? {
+    @objc(collectBetweenStartTime:andEndTime:forTraceId:)
+    public func collect(betweenStartTime startTime: UInt64, andEndTime endTime: UInt64, forTraceId traceId: SentryObjCId) -> [String: Any]? {
         wrapped.value.collect(between: startTime, and: endTime, for: traceId.wrapped)
     }
 

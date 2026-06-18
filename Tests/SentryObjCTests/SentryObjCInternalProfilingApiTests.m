@@ -45,7 +45,9 @@
     // -- Act --
     SentryObjCId *traceId = [[SentryObjCId alloc] init];
     NSDictionary<NSString *, id> *result =
-        [SentryObjCSDK.internal.profiling collectBetween:0 and:1 for:traceId];
+        [SentryObjCSDK.internal.profiling collectBetweenStartTime:0
+                                                       andEndTime:1
+                                                       forTraceId:traceId];
 
     // -- Assert --
     XCTAssertNil(result);

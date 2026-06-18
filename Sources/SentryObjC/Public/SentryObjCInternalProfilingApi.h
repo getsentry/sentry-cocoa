@@ -23,9 +23,9 @@ SENTRY_NO_INIT
 
 /// Collects profiler data between the given system times for the trace.
 /// Returns @c nil if no data is available.
-- (nullable NSDictionary<NSString *, id> *)collectBetween:(uint64_t)startTime
-                                                      and:(uint64_t)endTime
-                                                      for:(SentryObjCId *)traceId;
+- (nullable NSDictionary<NSString *, id> *)collectBetweenStartTime:(uint64_t)startTime
+                                                        andEndTime:(uint64_t)endTime
+                                                        forTraceId:(SentryObjCId *)traceId;
 
 /// Discards the profiler session without collecting data.
 - (void)discardFor:(SentryObjCId *)traceId;
