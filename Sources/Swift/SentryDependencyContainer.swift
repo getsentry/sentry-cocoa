@@ -454,11 +454,11 @@ private struct DefaultHub: Hub {
     }
 
     func storeEnvelope(_ envelope: SentryEnvelope) {
-        SentrySDKInternal.currentHub().storeEnvelope(envelope)
+        SentrySDKInternal.currentHub().store(envelope)
     }
 
     func captureEnvelope(_ envelope: SentryEnvelope) {
-        SentrySDKInternal.currentHub().captureEnvelope(envelope)
+        SentrySDKInternal.currentHub().capture(envelope)
     }
 }
 
