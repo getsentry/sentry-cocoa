@@ -589,7 +589,6 @@ build-sample-SessionReplay-CameraTest:
 # Builds the macOS-Swift sample app.
 .PHONY: build-sample-macOS-Swift
 build-sample-macOS-Swift:
-	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/macOS-Swift/macOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \

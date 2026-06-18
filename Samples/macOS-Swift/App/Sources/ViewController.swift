@@ -1,6 +1,6 @@
 import Cocoa
-import Sentry
 import SentrySampleShared
+import SentrySwift
 import SwiftUI
 
 // swiftlint:disable force_try force_unwrapping private_outlet

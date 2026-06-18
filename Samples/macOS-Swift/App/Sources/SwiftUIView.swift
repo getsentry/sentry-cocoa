@@ -1,4 +1,4 @@
-import SentrySwiftUI
+import SentrySwift
 import SwiftUI
 
 @available(macOS 10.15, *)
