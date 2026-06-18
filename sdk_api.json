@@ -40749,6 +40749,49 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "SentryInternalProfilingApi",
+                    "printedName": "Sentry.SentryInternalProfilingApi",
+                    "usr": "s:6Sentry0A20InternalProfilingApiV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV9profilingAA0ab9ProfilingC0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV9profilingAA0ab9ProfilingC0Vvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryInternalProfilingApi",
+                "printedName": "Sentry.SentryInternalProfilingApi",
+                "usr": "s:6Sentry0A20InternalProfilingApiV"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV9profilingAA0ab9ProfilingC0Vvp",
+            "moduleName": "Sentry",
+            "name": "profiling",
+            "printedName": "profiling",
+            "usr": "s:6Sentry0A11InternalApiV9profilingAA0ab9ProfilingC0Vvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "SentryInternalReplayApi",
                     "printedName": "Sentry.SentryInternalReplayApi",
                     "usr": "s:6Sentry0A17InternalReplayApiV"
@@ -41784,6 +41827,137 @@
         "name": "SentryInternalPerformanceApi",
         "printedName": "SentryInternalPerformanceApi",
         "usr": "s:6Sentry0A22InternalPerformanceApiV"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ProtocolComposition",
+                        "printedName": "Any"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Any]",
+                    "usr": "s:SD"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[Swift.String : Any]?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "UInt64",
+                "printedName": "Swift.UInt64",
+                "usr": "s:s6UInt64V"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "UInt64",
+                "printedName": "Swift.UInt64",
+                "usr": "s:s6UInt64V"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A20InternalProfilingApiV7collect7between3and3forSDySSypGSgs6UInt64V_AKSo0A2IdCtF",
+            "moduleName": "Sentry",
+            "name": "collect",
+            "printedName": "collect(between:and:for:)",
+            "usr": "s:6Sentry0A20InternalProfilingApiV7collect7between3and3forSDySSypGSgs6UInt64V_AKSo0A2IdCtF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A20InternalProfilingApiV7discard3forySo0A2IdC_tF",
+            "moduleName": "Sentry",
+            "name": "discard",
+            "printedName": "discard(for:)",
+            "usr": "s:6Sentry0A20InternalProfilingApiV7discard3forySo0A2IdC_tF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "UInt64",
+                "printedName": "Swift.UInt64",
+                "usr": "s:s6UInt64V"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A20InternalProfilingApiV5start3fors6UInt64VSo0A2IdC_tF",
+            "moduleName": "Sentry",
+            "name": "start",
+            "printedName": "start(for:)",
+            "usr": "s:6Sentry0A20InternalProfilingApiV5start3fors6UInt64VSo0A2IdC_tF"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A20InternalProfilingApiV",
+        "moduleName": "Sentry",
+        "name": "SentryInternalProfilingApi",
+        "printedName": "SentryInternalProfilingApi",
+        "usr": "s:6Sentry0A20InternalProfilingApiV"
       },
       {
         "children": [
