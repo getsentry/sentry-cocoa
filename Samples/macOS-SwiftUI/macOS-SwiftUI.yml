@@ -10,11 +10,11 @@ configs:
   Test: debug
   TestCI: debug
   Release: release
-projectReferences:
+packages:
   Sentry:
-    path: ../../Sentry.xcodeproj
+    path: ../..
   SentrySampleShared:
-    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
+    path: ../SentrySampleShared
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -53,9 +53,11 @@ targets:
         group: App/Configurations
         buildPhase: none
     dependencies:
-      - target: Sentry/Sentry
-      - target: Sentry/SentrySwiftUI
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        products:
+          - SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: App/Configurations/macOS-SwiftUI.xcconfig
       Release: App/Configurations/macOS-SwiftUI.xcconfig

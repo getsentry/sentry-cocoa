@@ -596,7 +596,6 @@ build-sample-macOS-Swift:
 # Builds the macOS-SwiftUI sample app.
 .PHONY: build-sample-macOS-SwiftUI
 build-sample-macOS-SwiftUI:
-	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/macOS-SwiftUI/macOS-SwiftUI.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
