@@ -1,4 +1,4 @@
-#if canImport(SwiftUI) && (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if canImport(SwiftUI) && (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK && !SDK_V10
 
 /// Swift compatibility wrapper for span operations.
 /// The canonical constants are in SentrySpanOperation.h.

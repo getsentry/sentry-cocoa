@@ -7,6 +7,19 @@ import UIKit
 
 final class UserFeedbackIntegrationTests: XCTestCase {
 
+    private static let mockWindowScene: UIWindowScene = MockUIWindowScene()
+
+    private func makeWindow() -> UIWindow {
+        let window = UIWindow(windowScene: Self.mockWindowScene)
+        window.frame = UIScreen.main.bounds
+        return window
+    }
+
+    private let mockWindowFactory: SentryUserFeedbackWindowFactory = { config in
+        let window = SentryUserFeedbackWidget.Window(config: config, windowScene: mockWindowScene)
+        return window
+    }
+
     override func tearDown() {
         super.tearDown()
         clearTestState()
@@ -18,8 +31,11 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         return options
     }
 
-    private struct TestDependencies: ScreenshotSourceProvider {
+    private struct TestDependencies: UserFeedbackIntegrationProvider {
         let screenshotSource: SentryScreenshotSource?
+        var windowFactory: SentryUserFeedbackWindowFactory {
+            SentryUserFeedbackWidget.defaultWindowFactory
+        }
     }
 
     private func makeScreenshotSource() -> SentryScreenshotSource {
@@ -79,6 +95,9 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
     @available(*, deprecated, message: "Testing deprecated widget configuration")
     func testConfigureWidget_whenSet_shouldStoreBuilder() throws {
+#if SDK_V10
+        throw XCTSkip("Widget is not available in V10")
+#else
         let sut = SentryUserFeedbackConfiguration()
         let widgetConfig = SentryUserFeedbackWidgetConfiguration()
 
@@ -88,6 +107,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         try XCTUnwrap(sut.configureWidget)(widgetConfig)
 
         XCTAssertFalse(widgetConfig.autoInject)
+#endif
     }
 
     func testInitializerFailsWhenNoScreenshotSource() {
@@ -215,7 +235,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testShowForm_whenLocalConfigurationIsSet_shouldApplyToCurrentFormOnly() throws {
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        let window = makeWindow()
         let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
@@ -240,7 +260,10 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         withExtendedLifetime(window) { }
     }
 
-    func testShowForm_whenNoPresenterAvailable_shouldNotPresentForm() {
+    func testShowForm_whenNoPresenterAvailable_shouldNotPresentForm() throws {
+#if SDK_V10
+        throw XCTSkip("Widget is not available in V10")
+#else
         let application = TestSentryUIApplication()
         application.windows = []
         SentryDependencyContainer.sharedInstance().applicationOverride = application
@@ -251,10 +274,11 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         sut.showForm()
 
         XCTAssertFalse(sut.displayingForm)
+#endif
     }
 
     func testShakeGesture_whenNoWidgetOrCustomButton_shouldUseFallbackPresenter() throws {
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        let window = makeWindow()
         let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
@@ -274,7 +298,10 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
     @available(*, deprecated, message: "Testing deprecated widget configuration")
     func testScreenshotTrigger_whenWidgetAutoInjectionDisabled_shouldUseFallbackPresenter() throws {
-        let window = UIWindow(frame: UIScreen.main.bounds)
+#if SDK_V10
+        throw XCTSkip("Widget is not available in V10")
+#else
+        let window = makeWindow()
         let viewController = TestPresentingViewController()
         let screenshot = UIImage()
         let config = SentryUserFeedbackConfiguration()
@@ -295,10 +322,11 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         XCTAssertNil(widgetHost(for: sut))
 
         withExtendedLifetime(window) { }
+#endif
     }
 
     func testShowForm_whenConfigurationBuildersAreSet_shouldNotApplyBuildersAgain() throws {
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        let window = makeWindow()
         let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
@@ -333,7 +361,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testShowForm_whenFormAlreadyPresented_shouldNotPresentAgain() {
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        let window = makeWindow()
         let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
         addCustomButton(to: viewController, configuration: config)
@@ -353,11 +381,15 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testShowForm_whenPresenterDoesNotShowForm_shouldKeepWidgetVisible() throws {
+#if SDK_V10
+        throw XCTSkip("Widget is not available in V10")
+#else
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: config,
-            screenshotSource: makeScreenshotSource())
+            screenshotSource: makeScreenshotSource(),
+            windowFactory: mockWindowFactory)
         sut.showWidget()
         let widgetHost = try XCTUnwrap(widgetHost(for: sut))
         let presenter = DroppingPresentingViewController()
@@ -368,10 +400,11 @@ final class UserFeedbackIntegrationTests: XCTestCase {
 
         XCTAssertEqual(presenter.presentCallCount, 1)
         XCTAssertTrue(widgetHost.isWidgetVisible)
+#endif
     }
 
     func testPresentationControllerDidDismiss_whenFormWasPresented_shouldClearActiveForm() throws {
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        let window = makeWindow()
         let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
         addCustomButton(to: viewController, configuration: config)
@@ -399,11 +432,15 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     }
 
     func testShowForm_whenWidgetIsPresenter_shouldHideWidgetUntilFormCloses() throws {
+#if SDK_V10
+        throw XCTSkip("Widget is not available in V10")
+#else
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: config,
-            screenshotSource: makeScreenshotSource())
+            screenshotSource: makeScreenshotSource(),
+            windowFactory: mockWindowFactory)
         sut.showWidget()
         let widgetHost = try XCTUnwrap(widgetHost(for: sut))
 
@@ -422,14 +459,19 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         form.presentationControllerDidDismiss(presentationController)
 
         XCTAssertTrue(widgetHost.isWidgetVisible)
+#endif
     }
 
     func testShowForm_whenWidgetWasHidden_shouldKeepWidgetHiddenAfterFormCloses() throws {
+#if SDK_V10
+        throw XCTSkip("Widget is not available in V10")
+#else
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: config,
-            screenshotSource: makeScreenshotSource())
+            screenshotSource: makeScreenshotSource(),
+            windowFactory: mockWindowFactory)
         sut.showWidget()
         sut.hideWidget()
         let widgetHost = try XCTUnwrap(widgetHost(for: sut))
@@ -450,9 +492,13 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         form.presentationControllerDidDismiss(presentationController)
 
         XCTAssertFalse(widgetHost.isWidgetVisible)
+#endif
     }
 
     func testFeedbackFormController_whenPresentedDirectly_shouldHideWidgetUntilFormCloses() throws {
+#if SDK_V10
+        throw XCTSkip("Widget is not available in V10")
+#else
         let integration = try installFeedbackIntegration {
             $0.animations = false
         }
@@ -473,9 +519,13 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         sut.presentationControllerDidDismiss(presentationController)
 
         XCTAssertTrue(widgetHost.isWidgetVisible)
+#endif
     }
 
     func testFeedbackFormController_whenWidgetWasHiddenBeforeDirectPresentation_shouldKeepWidgetHiddenAfterFormCloses() throws {
+#if SDK_V10
+        throw XCTSkip("Widget is not available in V10")
+#else
         let integration = try installFeedbackIntegration {
             $0.animations = false
         }
@@ -497,6 +547,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         sut.presentationControllerDidDismiss(presentationController)
 
         XCTAssertFalse(widgetHost.isWidgetVisible)
+#endif
     }
 
     // MARK: - Helpers
@@ -507,6 +558,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         let options = Options()
         options.configureUserFeedback = configure
         SentrySDK.setStart(with: options)
+        SentryDependencyContainer.sharedInstance().windowFactoryOverride = mockWindowFactory
         let integration = try XCTUnwrap(UserFeedbackIntegration<SentryDependencyContainer>(
             with: options,
             dependencies: SentryDependencyContainer.sharedInstance()))
@@ -516,6 +568,7 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         return integration
     }
 
+    #if !SDK_V10
     private func widgetHost(for driver: SentryUserFeedbackIntegrationDriver) -> SentryUserFeedbackWidget.RootViewController? {
         let widget = Mirror(reflecting: driver)
             .children
@@ -523,11 +576,14 @@ final class UserFeedbackIntegrationTests: XCTestCase {
             .value as? SentryUserFeedbackWidget
         return widget?.rootVC
     }
+    #endif
 
     private func addCustomButton(to viewController: UIViewController, configuration: SentryUserFeedbackConfiguration) {
+        #if !SDK_V10
         let customButton = UIButton()
         configuration._customButton = customButton
         viewController.view.addSubview(customButton)
+        #endif
     }
 
     private func useFallbackPresenter(_ viewController: UIViewController, in window: UIWindow) {

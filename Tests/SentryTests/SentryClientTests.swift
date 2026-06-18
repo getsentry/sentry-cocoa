@@ -2212,24 +2212,25 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(1, fixture.fileManager.getAllEnvelopes().count)
     }
     
+    #if !SDK_V10
     @available(*, deprecated, message: "Testing deprecated onCrashedLastRun API")
     func testOnCrashedLastRun_OnCaptureCrashWithSession() {
         let event = TestData.event
-        
+
         var onCrashedLastRunCalled = false
         fixture.getSut(configureOptions: { options in
             options.onCrashedLastRun = { _ in
                 onCrashedLastRunCalled = true
             }
         }).captureFatalEvent(event, with: fixture.session, with: fixture.scope)
-        
+
         XCTAssertTrue(onCrashedLastRunCalled)
     }
-    
+
     @available(*, deprecated, message: "Testing deprecated onCrashedLastRun API")
     func testOnCrashedLastRun_DontRunIfBeforeSendReturnsNill() {
         let event = TestData.event
-        
+
         var onCrashedLastRunCalled = false
         fixture.getSut(configureOptions: { options in
             options.beforeSend = { _ in
@@ -2239,14 +2240,14 @@ final class SentryClientTests: XCTestCase {
                 onCrashedLastRunCalled = true
             }
         }).captureFatalEvent(event, with: fixture.session, with: fixture.scope)
-        
+
         XCTAssertFalse(onCrashedLastRunCalled)
     }
-    
+
     @available(*, deprecated, message: "Testing deprecated onCrashedLastRun API")
     func testOnCrashedLastRun_WithTwoCrashes_OnlyInvokeCallbackOnce() {
         let event = TestData.event
-        
+
         var onCrashedLastRunCalled = false
         let client = fixture.getSut(configureOptions: { options in
             options.onCrashedLastRun = { crashEvent in
@@ -2254,25 +2255,27 @@ final class SentryClientTests: XCTestCase {
                 XCTAssertEqual(event.eventId, crashEvent.eventId)
             }
         })
-        
+
         client.captureFatalEvent(event, with: fixture.scope)
         client.captureFatalEvent(TestData.event, with: fixture.scope)
-        
+
         XCTAssertTrue(onCrashedLastRunCalled)
     }
-    
+    #endif
+
     func testOnCrashedLastRun_WithoutCallback_DoesNothing() {
         let client = fixture.getSut()
         client.captureFatalEvent(TestData.event, with: fixture.scope)
     }
-    
+
+    #if !SDK_V10
     @available(*, deprecated, message: "Testing deprecated onCrashedLastRun API")
     func testOnCrashedLastRun_CallingCaptureCrash_OnlyInvokeCallbackOnce() {
         let event = TestData.event
         let callbackExpectation = expectation(description: "onCrashedLastRun called")
-        
+
         var captureCrash: (() -> Void)?
-        
+
         let client = fixture.getSut(configureOptions: { options in
             options.onCrashedLastRun = { crashEvent in
                 callbackExpectation.fulfill()
@@ -2281,11 +2284,12 @@ final class SentryClientTests: XCTestCase {
             }
         })
         captureCrash = { client.captureFatalEvent(event, with: self.fixture.scope) }
-        
+
         client.captureFatalEvent(event, with: fixture.scope)
-        
+
         wait(for: [callbackExpectation], timeout: 0.1)
     }
+    #endif
     
     // MARK: - onLastRunStatusDetermined
 
@@ -2354,6 +2358,7 @@ final class SentryClientTests: XCTestCase {
         client.captureFatalEvent(TestData.event, with: fixture.scope)
     }
 
+    #if !SDK_V10
     @available(*, deprecated, message: "Testing deprecated onCrashedLastRun alongside onLastRunStatusDetermined")
     func testOnLastRunStatus_whenBothCallbacksSet_shouldCallBoth() {
         // -- Arrange --
@@ -2378,6 +2383,7 @@ final class SentryClientTests: XCTestCase {
         XCTAssertTrue(onCrashedLastRunCalled)
         XCTAssertTrue(onLastRunStatusDeterminedCalled)
     }
+    #endif
 
     func testSaveCrashTransaction_StoresEventWithTraceContext() throws {
         let transaction = fixture.transaction
