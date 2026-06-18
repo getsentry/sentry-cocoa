@@ -7,7 +7,7 @@
 
 ### Fixes
 
-- Defensive copy on scope insertion (#8114)
+- Fixes crash caused by modifying breadcrumbs from multiple threads (#8114)
 
 ## 9.18.0
 
