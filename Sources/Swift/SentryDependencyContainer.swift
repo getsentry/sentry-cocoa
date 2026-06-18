@@ -84,6 +84,10 @@ extension SentryFileManager: SentryFileManagerProtocol { }
      */
     @objc public static func reset() {
         instanceLock.synchronized {
+            // Access _startOptions directly instead of through the paramLock-protected getter
+            // to avoid a deadlock: instanceLock → paramLock here vs paramLock → instanceLock
+            // in lazy var builders that transitively call sharedInstance(). This is safe because
+            // instanceLock blocks the only external write path (SentrySDK.setStart → sharedInstance).
             let currentOptions = instance._startOptions
             instance.reachability.removeAllObservers()
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
