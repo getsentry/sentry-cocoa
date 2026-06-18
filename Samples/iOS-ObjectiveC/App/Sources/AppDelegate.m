@@ -1,6 +1,6 @@
 #import "AppDelegate.h"
 @import CoreData;
-@import Sentry;
+@import SentrySwift;
 
 @import SentrySampleShared;
 

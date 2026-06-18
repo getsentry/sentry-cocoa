@@ -524,7 +524,6 @@ build-sample-iOS-SwiftUI-Widgets:
 # Builds the iOS-ObjectiveC sample app for the iOS Simulator.
 .PHONY: build-sample-iOS-ObjectiveC
 build-sample-iOS-ObjectiveC:
-	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/iOS-ObjectiveC/iOS-ObjectiveC.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
