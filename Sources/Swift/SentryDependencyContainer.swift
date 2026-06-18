@@ -84,11 +84,13 @@ extension SentryFileManager: SentryFileManagerProtocol { }
      */
     @objc public static func reset() {
         instanceLock.synchronized {
+            let currentOptions = instance._startOptions
             instance.reachability.removeAllObservers()
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
             instance._framesTracker?.stop()
 #endif
             instance = SentryDependencyContainer()
+            instance._startOptions = currentOptions
         }
     }
 
