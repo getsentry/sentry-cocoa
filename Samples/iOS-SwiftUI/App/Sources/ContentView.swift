@@ -1,5 +1,4 @@
-import Sentry
-import SentrySwiftUI
+import SentrySwift
 import SwiftUI
 
 // This sample app also serves as a build-time validation that the SentrySwiftUI module

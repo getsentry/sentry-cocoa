@@ -10,11 +10,11 @@ configs:
   Test: debug
   TestCI: debug
   Release: release
-projectReferences:
+packages:
   Sentry:
-    path: ../../Sentry.xcodeproj
+    path: ../..
   SentrySampleShared:
-    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
+    path: ../SentrySampleShared
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -58,19 +58,12 @@ targets:
       - path: iOS-SwiftUI.yml
         group: App/Configurations
         buildPhase: none
-      # Sentry SDK
-      - path: ../../Sources/Sentry/Public/SentrySerializable.h
-        group: SentrySDK/Headers
-      - path: ../../Sources/Sentry/include/SentryTracer.h
-        group: SentrySDK/Headers
-      - path: ../../Sources/Sentry/include/SentryPerformanceTracker.h
-        group: SentrySDK/Headers
-      - path: ../../Sources/Sentry/Public/SentryProfilingConditionals.h
-        group: SentrySDK/Headers
     dependencies:
-      - target: Sentry/Sentry
-      - target: Sentry/SentrySwiftUI
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        products:
+          - SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: App/Configurations/iOS-SwiftUI.xcconfig
       Release: App/Configurations/iOS-SwiftUI.xcconfig
@@ -88,8 +81,13 @@ targets:
     type: bundle.ui-testing
     platform: auto
     dependencies:
-      - target: SentrySampleShared/SentrySampleUITestShared
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        products:
+          - SentrySPM
+      - package: SentrySampleShared
+        products:
+          - SentrySampleUITestShared
+          - SentrySampleShared
     sources:
       # Sources
       - path: UITests/Sources

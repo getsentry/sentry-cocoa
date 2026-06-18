@@ -1,5 +1,5 @@
 import Foundation
-import SentrySwiftUI
+import SentrySwift
 import SwiftUI
 
 struct FormScreen: View {

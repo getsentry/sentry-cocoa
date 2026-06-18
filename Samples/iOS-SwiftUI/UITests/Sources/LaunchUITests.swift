@@ -1,6 +1,6 @@
-import Sentry
 import SentrySampleShared
 import SentrySampleUITestShared
+import SentrySwift
 import XCTest
 
 class LaunchUITests: XCTestCase {

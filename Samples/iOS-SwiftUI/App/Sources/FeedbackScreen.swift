@@ -1,5 +1,4 @@
-import Sentry
-import SentrySwiftUI
+import SentrySwift
 import SwiftUI
 
 struct FeedbackScreen: View {
