@@ -630,7 +630,6 @@ build-sample-visionOS-Swift:
 # Builds the watchOS-Swift sample app for the watchOS Simulator.
 .PHONY: build-sample-watchOS-Swift
 build-sample-watchOS-Swift:
-	xcodegen --spec Samples/SentrySampleShared/SentrySampleShared.yml
 	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
 	set -o pipefail && xcodebuild \
 		-workspace Sentry.xcworkspace \
@@ -1339,7 +1338,7 @@ xcode-ci-visionOS-SwiftUI-SPM:
 	xcodegen --spec Samples/visionOS-SwiftUI-SPM/visionOS-SwiftUI-SPM.yml
 
 .PHONY: xcode-ci-watchOS-Swift
-xcode-ci-watchOS-Swift: xcode-ci-SentrySampleShared
+xcode-ci-watchOS-Swift:
 	xcodegen --spec Samples/watchOS-Swift/watchOS-Swift.yml
 
 .PHONY: xcode-ci-DistributionSample

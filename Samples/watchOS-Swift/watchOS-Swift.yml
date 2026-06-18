@@ -10,11 +10,11 @@ configs:
   Test: debug
   TestCI: debug
   Release: release
-projectReferences:
+packages:
   Sentry:
-    path: ../../Sentry.xcodeproj
+    path: ../..
   SentrySampleShared:
-    path: ../SentrySampleShared/SentrySampleShared.xcodeproj
+    path: ../SentrySampleShared/
 options:
   bundleIdPrefix: io.sentry
   defaultSourceDirectoryType: syncedFolder
@@ -49,7 +49,8 @@ targets:
         buildPhase: none
     dependencies:
       - target: Extension
-      - target: SentrySampleShared/SentrySampleShared
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: WatchApp/Configurations/watchOS-Swift-App.xcconfig
       Release: WatchApp/Configurations/watchOS-Swift-App.xcconfig
@@ -81,8 +82,11 @@ targets:
         excludes:
           - "**/.gitkeep"
     dependencies:
-      - target: Sentry/Sentry
-      - target: SentrySampleShared/SentrySampleShared
+      - package: Sentry
+        products:
+          - SentrySPM
+      - package: SentrySampleShared
+        product: SentrySampleShared
     configFiles:
       Debug: Extension/Configurations/watchOS-Swift-Extension.xcconfig
       Release: Extension/Configurations/watchOS-Swift-Extension.xcconfig
