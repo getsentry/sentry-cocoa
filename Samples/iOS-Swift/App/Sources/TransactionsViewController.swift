@@ -1,5 +1,5 @@
-import SentrySwift
 import SentrySampleShared
+import SentrySwift
 import UIKit
 
 // swiftlint:disable force_unwrapping private_outlet

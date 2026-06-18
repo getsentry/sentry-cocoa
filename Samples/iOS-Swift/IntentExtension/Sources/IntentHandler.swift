@@ -1,7 +1,7 @@
 import Intents
+import SentrySampleShared
 import SentrySwift
 @_spi(Private) import SentrySwift
-import SentrySampleShared
 
 class IntentHandler: INExtension, INSendMessageIntentHandling {
 

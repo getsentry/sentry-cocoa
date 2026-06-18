@@ -1,5 +1,5 @@
-import SentrySwift
 import SentrySampleShared
+import SentrySwift
 import UIKit
 
 @main

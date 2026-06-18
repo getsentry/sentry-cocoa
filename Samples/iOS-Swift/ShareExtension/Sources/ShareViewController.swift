@@ -1,5 +1,5 @@
-@_spi(Private) import SentrySwift
 import SentrySampleShared
+@_spi(Private) import SentrySwift
 import Social
 import UIKit
 
