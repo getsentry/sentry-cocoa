@@ -232,6 +232,8 @@ public struct SentrySDKWrapper {
         options.enableUncaughtNSExceptionReporting =
             !SentrySDKOverrides.Crash.disableUncaughtNSExceptionReporting.boolValue
 #endif
+
+        options.experimental.appHangs.enableV3 = true
     }
 
     private func configurePerformanceTracing(_ options: Options) {

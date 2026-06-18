@@ -1,0 +1,24 @@
+/**
+ * Configuration options for app hang detection.
+ *
+ * These options are experimental and subject to change in future versions.
+ */
+public struct AppHangsOptions {
+
+    /**
+     * Enables the V3 app hang detection mechanism based on run loop observers.
+     *
+     * When enabled, V3 replaces V1/V2 hang tracking with an event-driven detector
+     * that uses `CFRunLoopObserver` and `DispatchSemaphore`. It captures sampled
+     * stack traces during hangs and supports fatal hang duration recovery.
+     *
+     * - Note: V3 only reports fully-blocking hangs where a single run loop iteration
+     *   exceeds ``appHangThreshold``. The non-fully-blocking category from V2 is dropped.
+     */
+    public var enableV3 = false
+
+    /**
+     * Duration before classifying as an app hang and reporting an event
+     */
+    public var appHangThreshold: TimeInterval = 2.0
+}

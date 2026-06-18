@@ -9,10 +9,11 @@ protocol HangTrackerProvider {
 extension SentryDependencyContainer: HangTrackerProvider { }
 
 #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
+typealias HangTrackerObserver = UUID
 protocol HangTracker {
-    func addOngoingHangObserver(handler: @escaping (_ duration: TimeInterval, _ ongoing: Bool) -> Void) -> UUID
-    
-    func removeObserver(id: UUID)
+    func addOngoingHangObserver(handler: @escaping (_ duration: TimeInterval, _ ongoing: Bool) -> Void) -> HangTrackerObserver
+
+    func removeObserver(id: HangTrackerObserver)
 }
 protocol RunLoopObserver { }
 
