@@ -1,5 +1,6 @@
 #import "NSMutableDictionary+Sentry.h"
 #import "SentryAttachment+Private.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryDefines.h"
 #import "SentryEvent+Private.h"
@@ -115,12 +116,17 @@ NS_ASSUME_NONNULL_BEGIN
         // O(n) because it needs to reshift the whole array. So when the breadcrumbs array was full
         // every add operation was O(n).
 
-        _breadcrumbArray[_currentBreadcrumbIndex] = crumb;
+        // Defensive copy: the scope owns an independent snapshot so that (1) callers
+        // mutating the breadcrumb after add don't affect stored data, and (2) when
+        // the ring buffer evicts an old entry its dealloc cannot race with another
+        // thread reading the same object's properties (see #8013).
+        SentryBreadcrumb *snapshot = [crumb snapshotCopy];
+        _breadcrumbArray[_currentBreadcrumbIndex] = snapshot;
 
         _currentBreadcrumbIndex = (_currentBreadcrumbIndex + 1) % _maxBreadcrumbs;
 
         // Serializing is expensive. Only do it once.
-        NSDictionary<NSString *, id> *serializedBreadcrumb = [crumb serialize];
+        NSDictionary<NSString *, id> *serializedBreadcrumb = [snapshot serialize];
         for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
             [observer addSerializedBreadcrumb:serializedBreadcrumb];
         }
