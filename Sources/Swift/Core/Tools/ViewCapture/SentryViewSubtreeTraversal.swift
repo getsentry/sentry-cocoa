@@ -3,6 +3,8 @@
 import UIKit
 
 enum SentryViewSubtreeTraversal {
+    private static let cameraChromeSwiftUIViewClassPattern = "CameraUI.ChromeSwiftUIView"
+
     static func isExcluded(_ view: UIView, options: SentryRedactOptions) -> Bool {
         isExcluded(
             view,
@@ -54,7 +56,7 @@ enum SentryViewSubtreeTraversal {
         var result: Set<String> = []
         #if os(iOS)
         if #available(iOS 26.0, *) {
-            result.insert("CameraUI.ChromeSwiftUIView")
+            result.insert(cameraChromeSwiftUIViewClassPattern)
         }
         #endif
         return result
