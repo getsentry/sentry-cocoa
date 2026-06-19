@@ -242,17 +242,7 @@ final class SentryUIRedactBuilder {
         redactClassesIdentifiers = redactClasses
         redactLayerClassIds = redactLayers
 
-        // Compile excluded and included patterns into separate sets for efficient lookup.
-        // The final decision is computed at runtime using the formula:
-        //
-        //   Default View Classes + Excluded View Classes - Included View Classes
-        //
-        // SDK users can add exclusions via options.excludedViewClasses and remove defaults via options.includedViewClasses.
-        // Matching rules:
-        // - Excluded patterns use partial matching (contains): "MyView" matches "MyApp.MyView", "MyViewSubclass", etc.
-        // - Included patterns use exact matching (Set.contains): "MyViewSubclass" only matches exactly "MyViewSubclass"
-        //
-        // This prevents accidental matches where "ChromeCameraUI" is excluded but "Camera" is included from causing crashes.
+        // Matching rules are implemented in SentryViewSubtreeTraversal.
         excludedViewClassPatterns = SentryViewSubtreeTraversal.defaultExcludedViewClassPatterns
             .union(options.excludedViewClasses)
         includedViewClassPatterns = options.includedViewClasses
