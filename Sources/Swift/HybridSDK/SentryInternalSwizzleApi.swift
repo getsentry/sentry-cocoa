@@ -23,6 +23,15 @@ public struct SentryInternalSwizzleApi {
     /// The caller casts it to the correct function pointer type and returns a new block
     /// (as `Any`) that becomes the replacement implementation.
     ///
+    /// - Parameters:
+    ///   - selector: The selector of the instance method to swizzle.
+    ///   - classToSwizzle: The class whose method implementation will be replaced.
+    ///   - mode: Controls whether re-swizzling is allowed for the same class/superclass.
+    ///   - key: A unique pointer that identifies this swizzle operation. Used internally
+    ///     to track whether a method was already swizzled. Callers should use the address
+    ///     of a static variable (e.g. `&myKey`) so the pointer is stable across calls.
+    ///   - factory: A block that receives a "get original IMP" closure and returns the
+    ///     replacement implementation block.
     /// - Returns: `true` if successfully swizzled, `false` if swizzling was already
     ///   done for the given key and class.
     @discardableResult
@@ -33,10 +42,13 @@ public struct SentryInternalSwizzleApi {
         key: UnsafeRawPointer,
         factory: @escaping (@escaping () -> IMP) -> Any
     ) -> Bool {
-        SentrySwizzleWrapperHelper.swizzleInstanceMethod(
+        guard let swizzleMode = SentrySwizzleMode(rawValue: mode.rawValue) else {
+            return false
+        }
+        return SentrySwizzleWrapperHelper.swizzleInstanceMethod(
             selector,
             in: classToSwizzle,
-            mode: mode.rawValue,
+            mode: swizzleMode,
             key: key,
             factory: factory
         )

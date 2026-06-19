@@ -70,23 +70,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)swizzleInstanceMethod:(SEL)selector
                       inClass:(Class)classToSwizzle
-                         mode:(NSUInteger)mode
+                         mode:(SentrySwizzleMode)mode
                           key:(const void *)key
                       factory:(id (^)(IMP(NS_NOESCAPE ^)(void)))factory
 {
-    SentrySwizzleMode swizzleMode;
-    switch (mode) {
-    case 1:
-        swizzleMode = SentrySwizzleModeOncePerClass;
-        break;
-    case 2:
-        swizzleMode = SentrySwizzleModeOncePerClassAndSuperclasses;
-        break;
-    default:
-        swizzleMode = SentrySwizzleModeAlways;
-        break;
-    }
-
     return [SentrySwizzle swizzleInstanceMethod:selector
                                         inClass:classToSwizzle
                                   newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {
@@ -95,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
                                       };
                                       return factory(getOriginal);
                                   }
-                                           mode:swizzleMode
+                                           mode:mode
                                             key:key];
 }
 
