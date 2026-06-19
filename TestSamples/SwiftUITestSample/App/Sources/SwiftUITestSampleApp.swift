@@ -1,4 +1,4 @@
-@_spi(Private) import Sentry
+@_spi(Private) import SentrySwift
 import SwiftUI
 
 @main
@@ -13,7 +13,7 @@ struct SwiftUITestSampleApp: App {
 
 struct ContentView: View {
     @State private var errorMessage: String?
-    
+
     var body: some View {
         VStack {
             Text("Welcome!")
