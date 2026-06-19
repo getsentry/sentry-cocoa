@@ -11,11 +11,17 @@ import Foundation
 /// App developers: prefer the standard `SentrySDK` API surface instead.
 public struct SentryInternalApi {
 
-    typealias Dependencies = SentryInternalSdkApi.Dependencies
+    typealias BaseDependencies = SentryInternalSdkApi.Dependencies
         & SentryInternalDebugApi.Dependencies
         & SentryInternalBreadcrumbApi.Dependencies
         & SentryInternalUserApi.Dependencies
         & SentryInternalEnvelopeApi.Dependencies
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    typealias Dependencies = BaseDependencies
+        & SentryInternalPerformanceApi.Dependencies
+#else
+    typealias Dependencies = BaseDependencies
+#endif
 
     /// SDK metadata and configuration.
     public let sdk: SentryInternalSdkApi
@@ -32,12 +38,20 @@ public struct SentryInternalApi {
     /// Envelope store, capture, and deserialization for hybrid SDKs.
     public let envelope: SentryInternalEnvelopeApi
 
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+    /// Frame tracking metrics for hybrid SDKs.
+    public let performance: SentryInternalPerformanceApi
+#endif
+
     init(dependencies: Dependencies) {
         self.sdk = SentryInternalSdkApi(dependencies: dependencies)
         self.debug = SentryInternalDebugApi(provider: dependencies)
         self.breadcrumbs = SentryInternalBreadcrumbApi(dependencies: dependencies)
         self.user = SentryInternalUserApi(dependencies: dependencies)
         self.envelope = SentryInternalEnvelopeApi(dependencies: dependencies)
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+        self.performance = SentryInternalPerformanceApi(dependencies: dependencies)
+#endif
     }
 }
 // swiftlint:enable missing_docs

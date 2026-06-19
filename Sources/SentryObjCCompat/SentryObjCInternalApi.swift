@@ -32,5 +32,11 @@ import Foundation
     @objc public var envelope: SentryObjCInternalEnvelopeApi {
         SentryObjCInternalEnvelopeApi(wrapped.value.envelope)
     }
+
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
+    @objc public var performance: SentryObjCInternalPerformanceApi {
+        SentryObjCInternalPerformanceApi(wrapped.value.performance)
+    }
+#endif
 }
 // swiftlint:enable missing_docs

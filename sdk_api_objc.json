@@ -455,6 +455,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalPerformanceApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalSdkApi",
     "super": "NSObject",
     "has_inner": true
@@ -2290,6 +2296,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "framesTrackingHybridSDKMode",
+    "parent": "SentryObjCInternalPerformanceApi",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "fromDictionary:",
     "parent": "SentryObjCInternalBreadcrumbApi",
     "returnType": "SentryObjCBreadcrumb * _Nonnull",
@@ -2712,6 +2725,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCInternalEnvelopeApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCInternalPerformanceApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -3487,6 +3507,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "isFramesTrackingRunning",
+    "parent": "SentryObjCInternalPerformanceApi",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "isGauge",
     "parent": "SentryObjCMetricValue",
     "returnType": "BOOL",
@@ -4062,6 +4089,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
+    "parent": "SentryObjCInternalPerformanceApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
     "parent": "SentryObjCInternalSdkApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
@@ -4422,6 +4456,13 @@
     "parent": "SentryObjCUnit",
     "returnType": "SentryObjCUnit * _Nonnull",
     "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "performance",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalPerformanceApi * _Nonnull",
+    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -5673,6 +5714,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setFrames:",
     "parent": "SentryObjCStacktrace",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setFramesTrackingHybridSDKMode:",
+    "parent": "SentryObjCInternalPerformanceApi",
     "returnType": "void",
     "instance": true
   },
@@ -8842,6 +8890,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "framesTrackingHybridSDKMode",
+    "parent": "SentryObjCInternalPerformanceApi",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "function",
     "parent": "SentryObjCFrame",
     "type": "NSString * _Nullable"
@@ -9048,6 +9102,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "isFinished",
     "parent": "SentryObjCSpan",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "isFramesTrackingRunning",
+    "parent": "SentryObjCInternalPerformanceApi",
     "type": "BOOL"
   },
   {
@@ -9625,6 +9685,12 @@
     "name": "percent",
     "parent": "SentryObjCUnit",
     "type": "SentryObjCUnit * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "performance",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalPerformanceApi * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
