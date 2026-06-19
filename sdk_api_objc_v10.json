@@ -486,12 +486,6 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
-    "name": "SentryObjCInternalReplayApi",
-    "super": "NSObject",
-    "has_inner": true
-  },
-  {
-    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalScreenApi",
     "super": "NSObject",
     "has_inner": true
@@ -748,13 +742,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "addIgnoreClasses:",
-    "parent": "SentryObjCInternalReplayApi",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "addInAppInclude:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -764,13 +751,6 @@
     "kind": "ObjCMethodDecl",
     "name": "addPackageName:version:",
     "parent": "SentryObjCInternalSdkApi",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "addRedactClasses:",
-    "parent": "SentryObjCInternalReplayApi",
     "returnType": "void",
     "instance": true
   },
@@ -1059,13 +1039,6 @@
     "name": "cancelButtonLabel",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "NSString * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "capture",
-    "parent": "SentryObjCInternalReplayApi",
-    "returnType": "BOOL",
     "instance": true
   },
   {
@@ -2828,13 +2801,6 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
-    "parent": "SentryObjCInternalReplayApi",
-    "returnType": "instancetype _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "init",
     "parent": "SentryObjCInternalScreenApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
@@ -4235,13 +4201,6 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
-    "parent": "SentryObjCInternalReplayApi",
-    "returnType": "instancetype _Nonnull",
-    "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "new",
     "parent": "SentryObjCInternalScreenApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
@@ -4809,23 +4768,9 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "replay",
-    "parent": "SentryObjCInternalApi",
-    "returnType": "SentryObjCInternalReplayApi * _Nonnull",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "replay",
     "parent": "SentryObjCSDK",
     "returnType": "SentryObjCReplayApi * _Nonnull",
     "instance": false
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "replayId",
-    "parent": "SentryObjCInternalReplayApi",
-    "returnType": "NSString * _Nullable",
-    "instance": true
   },
   {
     "kind": "ObjCMethodDecl",
@@ -5970,13 +5915,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setIgnoreContainerClass:",
-    "parent": "SentryObjCInternalReplayApi",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setImageAddress:",
     "parent": "SentryObjCDebugMeta",
     "returnType": "void",
@@ -6537,13 +6475,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setRedactContainerClass:",
-    "parent": "SentryObjCInternalReplayApi",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setRegion:",
     "parent": "SentryObjCGeo",
     "returnType": "void",
@@ -6938,13 +6869,6 @@
     "kind": "ObjCMethodDecl",
     "name": "setTags:",
     "parent": "SentryObjCEvent",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
-    "name": "setTags:",
-    "parent": "SentryObjCInternalReplayApi",
     "returnType": "void",
     "instance": true
   },
@@ -10039,20 +9963,8 @@
   {
     "kind": "ObjCPropertyDecl",
     "name": "replay",
-    "parent": "SentryObjCInternalApi",
-    "type": "SentryObjCInternalReplayApi * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "replay",
     "parent": "SentryObjCSDK",
     "type": "SentryObjCReplayApi * _Nonnull"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "replayId",
-    "parent": "SentryObjCInternalReplayApi",
-    "type": "NSString * _Nullable"
   },
   {
     "kind": "ObjCPropertyDecl",
