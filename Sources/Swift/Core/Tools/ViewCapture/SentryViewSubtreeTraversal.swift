@@ -65,8 +65,21 @@ enum SentryViewSubtreeTraversal {
         excludedViewClassPatterns: Set<String>,
         includedViewClassPatterns: Set<String>
     ) -> Bool {
-        // Use string descriptions instead of NSClassFromString or stored class objects to avoid
-        // triggering Objective-C +initialize on UIKit classes.
+        // We intentionally avoid using `NSClassFromString` or directly referencing class objects here,
+        // because both approaches can trigger the Objective-C `+initialize` method on the class.
+        // This has side effects and can cause crashes, especially when performed off the main thread
+        // or with UIKit classes that expect to be initialized on the main thread.
+        //
+        // Instead, we use the string description of the type (i.e., `type(of: view).description()`)
+        // for comparison. This is a safer, more "Swifty" approach that avoids the pitfalls of
+        // class initialization side effects.
+        //
+        // We have previously encountered related issues:
+        // - In EmergeTools' snapshotting code where using `NSClassFromString` led to crashes [1]
+        // - In Sentry's own SubClassFinder where storing or accessing class objects on a background thread caused crashes due to `+initialize` being called on UIKit classes [2]
+        //
+        // [1] https://github.com/EmergeTools/SnapshotPreviews/blob/main/Sources/SnapshotPreviewsCore/View%2BSnapshot.swift#L248
+        // [2] Sources/Swift/Core/Integrations/Performance/SentrySubClassFinder.swift
         let viewTypeId = type(of: view).description()
         if includedViewClassPatterns.contains(viewTypeId) {
             return false
