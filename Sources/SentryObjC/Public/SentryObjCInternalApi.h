@@ -9,6 +9,15 @@
 @class SentryObjCInternalDebugApi;
 @class SentryObjCInternalBreadcrumbApi;
 @class SentryObjCInternalUserApi;
+@class SentryObjCInternalEnvelopeApi;
+#if SENTRY_OBJC_HAS_UIKIT
+@class SentryObjCInternalPerformanceApi;
+#    if !TARGET_OS_VISION
+@class SentryObjCInternalScreenshotApi;
+@class SentryObjCInternalViewHierarchyApi;
+@class SentryObjCInternalScreenApi;
+#    endif
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,6 +42,25 @@ SENTRY_NO_INIT
 
 /// User creation from dictionary representation.
 @property (nonatomic, readonly) SentryObjCInternalUserApi *user;
+
+/// Envelope store, capture, and deserialization.
+@property (nonatomic, readonly) SentryObjCInternalEnvelopeApi *envelope;
+
+#if SENTRY_OBJC_HAS_UIKIT
+/// Frame tracking performance metrics.
+@property (nonatomic, readonly) SentryObjCInternalPerformanceApi *performance;
+
+#    if !TARGET_OS_VISION
+/// Screenshot capture.
+@property (nonatomic, readonly) SentryObjCInternalScreenshotApi *screenshot;
+
+/// View hierarchy capture.
+@property (nonatomic, readonly) SentryObjCInternalViewHierarchyApi *viewHierarchy;
+
+/// Screen name tracking.
+@property (nonatomic, readonly) SentryObjCInternalScreenApi *screen;
+#    endif
+#endif
 
 @end
 

@@ -28,5 +28,29 @@ import Foundation
     @objc public var user: SentryObjCInternalUserApi {
         SentryObjCInternalUserApi(wrapped.value.user)
     }
+
+    @objc public var envelope: SentryObjCInternalEnvelopeApi {
+        SentryObjCInternalEnvelopeApi(wrapped.value.envelope)
+    }
+
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
+    @objc public var performance: SentryObjCInternalPerformanceApi {
+        SentryObjCInternalPerformanceApi(wrapped.value.performance)
+    }
+#endif
+
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
+    @objc public var screenshot: SentryObjCInternalScreenshotApi {
+        SentryObjCInternalScreenshotApi(wrapped.value.screenshot)
+    }
+
+    @objc public var viewHierarchy: SentryObjCInternalViewHierarchyApi {
+        SentryObjCInternalViewHierarchyApi(wrapped.value.viewHierarchy)
+    }
+
+    @objc public var screen: SentryObjCInternalScreenApi {
+        SentryObjCInternalScreenApi(wrapped.value.screen)
+    }
+#endif
 }
 // swiftlint:enable missing_docs
