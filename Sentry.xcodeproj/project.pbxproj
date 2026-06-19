@@ -1333,6 +1333,7 @@
 				Public/SentryObjCHub.h,
 				Public/SentryObjCId.h,
 				Public/SentryObjCInternalApi.h,
+				Public/SentryObjCInternalAppStartApi.h,
 				Public/SentryObjCInternalBreadcrumbApi.h,
 				Public/SentryObjCInternalDebugApi.h,
 				Public/SentryObjCInternalEnvelopeApi.h,

@@ -40305,6 +40305,49 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "SentryInternalAppStartApi",
+                    "printedName": "Sentry.SentryInternalAppStartApi",
+                    "usr": "s:6Sentry0A19InternalAppStartApiV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV8appStartAA0ab3AppeC0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV8appStartAA0ab3AppeC0Vvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryInternalAppStartApi",
+                "printedName": "Sentry.SentryInternalAppStartApi",
+                "usr": "s:6Sentry0A19InternalAppStartApiV"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV8appStartAA0ab3AppeC0Vvp",
+            "moduleName": "Sentry",
+            "name": "appStart",
+            "printedName": "appStart",
+            "usr": "s:6Sentry0A11InternalApiV8appStartAA0ab3AppeC0Vvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "SentryInternalBreadcrumbApi",
                     "printedName": "Sentry.SentryInternalBreadcrumbApi",
                     "usr": "s:6Sentry0A21InternalBreadcrumbApiV"
@@ -40752,6 +40795,390 @@
         "name": "SentryInternalApi",
         "printedName": "SentryInternalApi",
         "usr": "s:6Sentry0A11InternalApiV"
+      },
+      {
+        "children": [
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19InternalAppStartApiV13hybridSDKModeSbvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A19InternalAppStartApiV13hybridSDKModeSbvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19InternalAppStartApiV13hybridSDKModeSbvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry0A19InternalAppStartApiV13hybridSDKModeSbvs"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A19InternalAppStartApiV13hybridSDKModeSbvp",
+            "moduleName": "Sentry",
+            "name": "hybridSDKMode",
+            "printedName": "hybridSDKMode",
+            "usr": "s:6Sentry0A19InternalAppStartApiV13hybridSDKModeSbvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SentryAppStartMeasurement",
+                        "printedName": "Sentry.SentryAppStartMeasurement",
+                        "usr": "c:objc(cs)SentryAppStartMeasurement"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Sentry.SentryAppStartMeasurement?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19InternalAppStartApiV11measurementSo0acD11MeasurementCSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A19InternalAppStartApiV11measurementSo0acD11MeasurementCSgvg"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryAppStartMeasurement",
+                    "printedName": "Sentry.SentryAppStartMeasurement",
+                    "usr": "c:objc(cs)SentryAppStartMeasurement"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Sentry.SentryAppStartMeasurement?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A19InternalAppStartApiV11measurementSo0acD11MeasurementCSgvp",
+            "moduleName": "Sentry",
+            "name": "measurement",
+            "printedName": "measurement",
+            "usr": "s:6Sentry0A19InternalAppStartApiV11measurementSo0acD11MeasurementCSgvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "ProtocolComposition",
+                            "printedName": "Any"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Dictionary",
+                        "printedName": "[Swift.String : Any]",
+                        "usr": "s:SD"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "[Swift.String : Any]?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19InternalAppStartApiV20measurementWithSpansSDySSypGSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A19InternalAppStartApiV20measurementWithSpansSDySSypGSgvg"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ProtocolComposition",
+                        "printedName": "Any"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Any]",
+                    "usr": "s:SD"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[Swift.String : Any]?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A19InternalAppStartApiV20measurementWithSpansSDySSypGSgvp",
+            "moduleName": "Sentry",
+            "name": "measurementWithSpans",
+            "printedName": "measurementWithSpans",
+            "usr": "s:6Sentry0A19InternalAppStartApiV20measurementWithSpansSDySSypGSgvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "Void",
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryAppStartMeasurement",
+                                "printedName": "Sentry.SentryAppStartMeasurement",
+                                "usr": "c:objc(cs)SentryAppStartMeasurement"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Sentry.SentryAppStartMeasurement?",
+                            "usr": "s:Sq"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryAppStartMeasurement?) -> Swift.Void"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "((Sentry.SentryAppStartMeasurement?) -> Swift.Void)?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19InternalAppStartApiV22onMeasurementAvailableySo0acdG0CSgcSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A19InternalAppStartApiV22onMeasurementAvailableySo0acdG0CSgcSgvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Void",
+                                "printedName": "()"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "Void",
+                            "printedName": "Swift.Void"
+                          },
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "SentryAppStartMeasurement",
+                                "printedName": "Sentry.SentryAppStartMeasurement",
+                                "usr": "c:objc(cs)SentryAppStartMeasurement"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Optional",
+                            "printedName": "Sentry.SentryAppStartMeasurement?",
+                            "usr": "s:Sq"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Sentry.SentryAppStartMeasurement?) -> Swift.Void"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "((Sentry.SentryAppStartMeasurement?) -> Swift.Void)?",
+                    "usr": "s:Sq"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19InternalAppStartApiV22onMeasurementAvailableySo0acdG0CSgcSgvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry0A19InternalAppStartApiV22onMeasurementAvailableySo0acdG0CSgcSgvs"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "Void",
+                        "printedName": "Swift.Void"
+                      },
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SentryAppStartMeasurement",
+                            "printedName": "Sentry.SentryAppStartMeasurement",
+                            "usr": "c:objc(cs)SentryAppStartMeasurement"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Optional",
+                        "printedName": "Sentry.SentryAppStartMeasurement?",
+                        "usr": "s:Sq"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryAppStartMeasurement?) -> Swift.Void"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((Sentry.SentryAppStartMeasurement?) -> Swift.Void)?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A19InternalAppStartApiV22onMeasurementAvailableySo0acdG0CSgcSgvp",
+            "moduleName": "Sentry",
+            "name": "onMeasurementAvailable",
+            "printedName": "onMeasurementAvailable",
+            "usr": "s:6Sentry0A19InternalAppStartApiV22onMeasurementAvailableySo0acdG0CSgcSgvp"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A19InternalAppStartApiV",
+        "moduleName": "Sentry",
+        "name": "SentryInternalAppStartApi",
+        "printedName": "SentryInternalAppStartApi",
+        "usr": "s:6Sentry0A19InternalAppStartApiV"
       },
       {
         "children": [

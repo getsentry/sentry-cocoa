@@ -47,6 +47,9 @@ public struct SentryInternalApi {
     /// Method swizzling for hybrid SDKs.
     public let swizzle: SentryInternalSwizzleApi
 
+    /// App start measurement for hybrid SDKs.
+    public let appStart: SentryInternalAppStartApi
+
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     /// Frame tracking metrics for hybrid SDKs.
     public let performance: SentryInternalPerformanceApi
@@ -70,6 +73,7 @@ public struct SentryInternalApi {
         self.user = SentryInternalUserApi(dependencies: dependencies)
         self.envelope = SentryInternalEnvelopeApi(dependencies: dependencies)
         self.swizzle = SentryInternalSwizzleApi()
+        self.appStart = SentryInternalAppStartApi()
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         self.performance = SentryInternalPerformanceApi(dependencies: dependencies)
 #endif

@@ -11,6 +11,7 @@
 @class SentryObjCInternalUserApi;
 @class SentryObjCInternalEnvelopeApi;
 @class SentryObjCInternalSwizzleApi;
+@class SentryObjCInternalAppStartApi;
 #if SENTRY_OBJC_HAS_UIKIT
 @class SentryObjCInternalPerformanceApi;
 #    if !TARGET_OS_VISION
@@ -49,6 +50,9 @@ SENTRY_NO_INIT
 
 /// Method swizzling.
 @property (nonatomic, readonly) SentryObjCInternalSwizzleApi *swizzle;
+
+/// App start measurement.
+@property (nonatomic, readonly) SentryObjCInternalAppStartApi *appStart;
 
 #if SENTRY_OBJC_HAS_UIKIT
 /// Frame tracking performance metrics.
