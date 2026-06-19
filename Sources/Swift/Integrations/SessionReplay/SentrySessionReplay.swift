@@ -75,27 +75,6 @@ import UIKit
     public var screenshotProvider: SentryViewScreenshotProvider
     public var breadcrumbConverter: SentryReplayBreadcrumbConverter
 
-    public init(
-        replayOptions: SentryReplayOptions,
-        replayFolderPath: URL,
-        screenshotProvider: SentryViewScreenshotProvider,
-        replayMaker: SentryReplayVideoMaker,
-        breadcrumbConverter: SentryReplayBreadcrumbConverter,
-        touchTracker: SentryTouchTracker?,
-        dateProvider: SentryCurrentDateProvider,
-        delegate: SentrySessionReplayDelegate
-    ) {
-        self.replayOptions = replayOptions
-        self.dateProvider = dateProvider
-        self.delegate = delegate
-        self.screenshotProvider = screenshotProvider
-        self.urlToCache = replayFolderPath
-        self.replayMaker = replayMaker
-        self.breadcrumbConverter = breadcrumbConverter
-        self.touchTracker = touchTracker
-        self.captureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler()
-    }
-
     internal init(
         replayOptions: SentryReplayOptions,
         replayFolderPath: URL,
