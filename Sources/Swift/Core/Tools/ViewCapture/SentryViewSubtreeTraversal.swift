@@ -47,11 +47,11 @@ enum SentryViewSubtreeTraversal {
         includedViewClassPatterns: Set<String>,
         _ visit: (UIView) -> Bool
     ) -> Bool {
-        guard !isExcluded(
+        if isExcluded(
             view,
             excludedViewClassPatterns: excludedViewClassPatterns,
             includedViewClassPatterns: includedViewClassPatterns
-        ) else {
+        ) {
             return false
         }
 
