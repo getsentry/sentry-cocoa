@@ -565,24 +565,25 @@ import UIKit
         guard let (segmentStart, segmentEnd) = segmentBounds else { return }
 
         if !prepareSegment(from: segmentStart, until: segmentEnd, completion: { [weak self] in
-            guard let self = self else { return }
-            self.lock.lock()
-            if self.pendingSegmentEnd == segmentEnd {
-                self.pendingSegmentEnd = nil
-            }
-            let pauseSegmentEnd = self.pendingPauseSegmentEnd
-            self.pendingPauseSegmentEnd = nil
-            self.lock.unlock()
-
-            if let pauseSegmentEnd = pauseSegmentEnd {
-                self.prepareSegmentUntil(date: pauseSegmentEnd)
-            }
+            self?.finishPendingSegment(segmentEnd)
         }) {
-            lock.synchronized {
-                if pendingSegmentEnd == segmentEnd {
-                    pendingSegmentEnd = nil
-                }
+            finishPendingSegment(segmentEnd)
+        }
+    }
+
+    private func finishPendingSegment(_ segmentEnd: Date) {
+        let pauseSegmentEnd = lock.synchronized { () -> Date? in
+            if pendingSegmentEnd == segmentEnd {
+                pendingSegmentEnd = nil
             }
+
+            let pauseSegmentEnd = pendingPauseSegmentEnd
+            pendingPauseSegmentEnd = nil
+            return pauseSegmentEnd
+        }
+
+        if let pauseSegmentEnd = pauseSegmentEnd {
+            prepareSegmentUntil(date: pauseSegmentEnd)
         }
     }
 
