@@ -33,6 +33,10 @@ import Foundation
         SentryObjCInternalEnvelopeApi(wrapped.value.envelope)
     }
 
+    @objc public var swizzle: SentryObjCInternalSwizzleApi {
+        SentryObjCInternalSwizzleApi(wrapped.value.swizzle)
+    }
+
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
     @objc public var performance: SentryObjCInternalPerformanceApi {
         SentryObjCInternalPerformanceApi(wrapped.value.performance)
