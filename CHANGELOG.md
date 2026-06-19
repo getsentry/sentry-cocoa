@@ -5,6 +5,10 @@
 > [!WARNING]
 > **The minimum macOS deployment target will be raised to macOS 12 (Monterey)** with the upcoming release that adopts Xcode 27. Xcode 27 no longer supports deployment targets below macOS 12. If your app must support macOS 11 or earlier, please stay on the last SDK version released before this change. See [#8113](https://github.com/getsentry/sentry-cocoa/issues/8113) for full details.
 
+### Improvements
+
+- Reduce Session Replay capture stutters by scheduling screenshots after run loop UI work instead of from display refresh callbacks (#7851)
+
 ### Fixes
 
 - Session replay video assembly: drop empty video segments, avoid duplicating frames at segment boundaries, and keep video timing stable when captured frames are skipped or unreadable (#8041)
@@ -14,10 +18,6 @@
 ### Features
 
 - Add SentryObjC User Feedback presentation APIs and a feedback form factory returning `UIViewController` instances. (#8027)
-
-### Improvements
-
-- Reduce Session Replay capture stutters by scheduling screenshots after run loop UI work instead of from display refresh callbacks (#7851)
 
 ### Fixes
 
