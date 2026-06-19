@@ -461,6 +461,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalScreenshotApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalSdkApi",
     "super": "NSObject",
     "has_inner": true
@@ -983,6 +989,13 @@
     "name": "cancelButtonLabel",
     "parent": "SentryObjCUserFeedbackFormConfiguration",
     "returnType": "NSString * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "capture",
+    "parent": "SentryObjCInternalScreenshotApi",
+    "returnType": "NSArray<NSData *> * _Nullable",
     "instance": true
   },
   {
@@ -2717,6 +2730,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "init",
+    "parent": "SentryObjCInternalScreenshotApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
     "parent": "SentryObjCInternalSdkApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
@@ -4075,6 +4095,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
+    "parent": "SentryObjCInternalScreenshotApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
     "parent": "SentryObjCInternalSdkApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
@@ -4749,6 +4776,13 @@
     "name": "scope",
     "parent": "SentryObjCHub",
     "returnType": "SentryObjCScope * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "screenshot",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalScreenshotApi * _Nonnull",
     "instance": true
   },
   {
@@ -9834,6 +9868,12 @@
     "name": "scope",
     "parent": "SentryObjCHub",
     "type": "SentryObjCScope * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "screenshot",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalScreenshotApi * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",

@@ -169,6 +169,7 @@
 #    import "SentryObjCInternalDebugApi.h"
 #    import "SentryObjCInternalEnvelopeApi.h"
 #    import "SentryObjCInternalPerformanceApi.h"
+#    import "SentryObjCInternalScreenshotApi.h"
 #    import "SentryObjCInternalSdkApi.h"
 #    import "SentryObjCInternalUserApi.h"
 #else
@@ -177,6 +178,7 @@
 #    import <SentryObjC/SentryObjCInternalDebugApi.h>
 #    import <SentryObjC/SentryObjCInternalEnvelopeApi.h>
 #    import <SentryObjC/SentryObjCInternalPerformanceApi.h>
+#    import <SentryObjC/SentryObjCInternalScreenshotApi.h>
 #    import <SentryObjC/SentryObjCInternalSdkApi.h>
 #    import <SentryObjC/SentryObjCInternalUserApi.h>
 #endif

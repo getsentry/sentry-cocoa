@@ -38,5 +38,11 @@ import Foundation
         SentryObjCInternalPerformanceApi(wrapped.value.performance)
     }
 #endif
+
+#if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS))
+    @objc public var screenshot: SentryObjCInternalScreenshotApi {
+        SentryObjCInternalScreenshotApi(wrapped.value.screenshot)
+    }
+#endif
 }
 // swiftlint:enable missing_docs

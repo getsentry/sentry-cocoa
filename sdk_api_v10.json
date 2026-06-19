@@ -40477,6 +40477,49 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "SentryInternalScreenshotApi",
+                    "printedName": "Sentry.SentryInternalScreenshotApi",
+                    "usr": "s:6Sentry0A21InternalScreenshotApiV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV10screenshotAA0ab10ScreenshotC0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV10screenshotAA0ab10ScreenshotC0Vvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryInternalScreenshotApi",
+                "printedName": "Sentry.SentryInternalScreenshotApi",
+                "usr": "s:6Sentry0A21InternalScreenshotApiV"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV10screenshotAA0ab10ScreenshotC0Vvp",
+            "moduleName": "Sentry",
+            "name": "screenshot",
+            "printedName": "screenshot",
+            "usr": "s:6Sentry0A11InternalApiV10screenshotAA0ab10ScreenshotC0Vvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "SentryInternalSdkApi",
                     "printedName": "Sentry.SentryInternalSdkApi",
                     "usr": "s:6Sentry0A14InternalSdkApiV"
@@ -40913,6 +40956,67 @@
         "name": "SentryInternalPerformanceApi",
         "printedName": "SentryInternalPerformanceApi",
         "usr": "s:6Sentry0A22InternalPerformanceApiV"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Data",
+                        "printedName": "Foundation.Data",
+                        "usr": "s:10Foundation4DataV"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Foundation.Data]",
+                    "usr": "s:Sa"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[Foundation.Data]?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A21InternalScreenshotApiV7captureSay10Foundation4DataVGSgyF",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture()",
+            "usr": "s:6Sentry0A21InternalScreenshotApiV7captureSay10Foundation4DataVGSgyF"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A21InternalScreenshotApiV",
+        "moduleName": "Sentry",
+        "name": "SentryInternalScreenshotApi",
+        "printedName": "SentryInternalScreenshotApi",
+        "usr": "s:6Sentry0A21InternalScreenshotApiV"
       },
       {
         "children": [

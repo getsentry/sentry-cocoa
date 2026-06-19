@@ -16,7 +16,11 @@ public struct SentryInternalApi {
         & SentryInternalBreadcrumbApi.Dependencies
         & SentryInternalUserApi.Dependencies
         & SentryInternalEnvelopeApi.Dependencies
-#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    typealias Dependencies = BaseDependencies
+        & SentryInternalPerformanceApi.Dependencies
+        & SentryInternalScreenshotApi.Dependencies
+#elseif os(visionOS) && !SENTRY_NO_UI_FRAMEWORK
     typealias Dependencies = BaseDependencies
         & SentryInternalPerformanceApi.Dependencies
 #else
@@ -43,6 +47,11 @@ public struct SentryInternalApi {
     public let performance: SentryInternalPerformanceApi
 #endif
 
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    /// Screenshot capture for hybrid SDKs.
+    public let screenshot: SentryInternalScreenshotApi
+#endif
+
     init(dependencies: Dependencies) {
         self.sdk = SentryInternalSdkApi(dependencies: dependencies)
         self.debug = SentryInternalDebugApi(provider: dependencies)
@@ -51,6 +60,9 @@ public struct SentryInternalApi {
         self.envelope = SentryInternalEnvelopeApi(dependencies: dependencies)
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         self.performance = SentryInternalPerformanceApi(dependencies: dependencies)
+#endif
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+        self.screenshot = SentryInternalScreenshotApi(dependencies: dependencies)
 #endif
     }
 }
