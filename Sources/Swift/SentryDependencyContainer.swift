@@ -454,21 +454,11 @@ private struct DefaultHub: Hub {
     }
 
     func storeEnvelope(_ envelope: SentryEnvelope) {
-        // swiftlint:disable:next todo
-        // TODO: Replace selector dispatch with direct calls once SentryHubInternal is fully migrated to Swift.
-        // SentryEnvelope is forward-declared in ObjC headers but defined in Swift, making ObjC methods
-        // that use it unavailable through the Swift importer. Selector dispatch is a workaround.
-        let hub = SentrySDKInternal.currentHub()
-        _ = hub.perform(NSSelectorFromString("storeEnvelope:"), with: envelope)
+        SentrySDKInternal.currentHub().store(envelope)
     }
 
     func captureEnvelope(_ envelope: SentryEnvelope) {
-        // swiftlint:disable:next todo
-        // TODO: Replace selector dispatch with direct calls once SentryHubInternal is fully migrated to Swift.
-        // SentryEnvelope is forward-declared in ObjC headers but defined in Swift, making ObjC methods
-        // that use it unavailable through the Swift importer. Selector dispatch is a workaround.
-        let hub = SentrySDKInternal.currentHub()
-        _ = hub.perform(NSSelectorFromString("captureEnvelope:"), with: envelope)
+        SentrySDKInternal.currentHub().capture(envelope)
     }
 }
 
