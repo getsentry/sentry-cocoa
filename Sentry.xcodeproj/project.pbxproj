@@ -1338,6 +1338,7 @@
 				Public/SentryObjCInternalDebugApi.h,
 				Public/SentryObjCInternalEnvelopeApi.h,
 				Public/SentryObjCInternalPerformanceApi.h,
+				Public/SentryObjCInternalReplayApi.h,
 				Public/SentryObjCInternalScreenApi.h,
 				Public/SentryObjCInternalScreenshotApi.h,
 				Public/SentryObjCInternalSdkApi.h,

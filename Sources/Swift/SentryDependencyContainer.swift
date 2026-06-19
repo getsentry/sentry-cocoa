@@ -509,6 +509,26 @@ protocol ViewHierarchyProviderProvider {
 }
 
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
+
+protocol ReplayIntegrationProvider {
+    func getReplayIntegration() -> SentrySessionReplayIntegration?
+}
+
+private struct DefaultReplayIntegrationProvider: ReplayIntegrationProvider {
+    func getReplayIntegration() -> SentrySessionReplayIntegration? {
+        SentrySDKInternal.currentHub().getInstalledIntegration(
+            SentrySessionReplayIntegration.self
+        ) as? SentrySessionReplayIntegration
+    }
+}
+
+protocol ReplayIntegrationProviderProvider {
+    var replayIntegrationProvider: ReplayIntegrationProvider { get }
+}
+
+extension SentryDependencyContainer: ReplayIntegrationProviderProvider {
+    var replayIntegrationProvider: ReplayIntegrationProvider { DefaultReplayIntegrationProvider() }
+}
 #endif
 
 protocol ExtraContextProviderProvider {
