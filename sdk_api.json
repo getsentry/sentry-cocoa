@@ -40749,6 +40749,49 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "SentryInternalReplayApi",
+                    "printedName": "Sentry.SentryInternalReplayApi",
+                    "usr": "s:6Sentry0A17InternalReplayApiV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV6replayAA0ab6ReplayC0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV6replayAA0ab6ReplayC0Vvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryInternalReplayApi",
+                "printedName": "Sentry.SentryInternalReplayApi",
+                "usr": "s:6Sentry0A17InternalReplayApiV"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV6replayAA0ab6ReplayC0Vvp",
+            "moduleName": "Sentry",
+            "name": "replay",
+            "printedName": "replay",
+            "usr": "s:6Sentry0A11InternalApiV6replayAA0ab6ReplayC0Vvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "SentryInternalScreenApi",
                     "printedName": "Sentry.SentryInternalScreenApi",
                     "usr": "s:6Sentry0A17InternalScreenApiV"
@@ -41741,6 +41784,359 @@
         "name": "SentryInternalPerformanceApi",
         "printedName": "SentryInternalPerformanceApi",
         "usr": "s:6Sentry0A22InternalPerformanceApiV"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "ProtocolComposition",
+                                    "printedName": "AnyObject"
+                                  }
+                                ],
+                                "kind": "TypeNameAlias",
+                                "name": "AnyObject",
+                                "printedName": "Builtin.AnyObject"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "AnyObject",
+                            "printedName": "Swift.AnyObject"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "ExistentialMetatype",
+                        "printedName": "any Swift.AnyObject.Type"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "AnyClass",
+                    "printedName": "Swift.AnyClass"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.AnyClass]",
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A17InternalReplayApiV16addIgnoreClassesyySayyXlXpGF",
+            "moduleName": "Sentry",
+            "name": "addIgnoreClasses",
+            "printedName": "addIgnoreClasses(_:)",
+            "usr": "s:6Sentry0A17InternalReplayApiV16addIgnoreClassesyySayyXlXpGF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "ProtocolComposition",
+                                    "printedName": "AnyObject"
+                                  }
+                                ],
+                                "kind": "TypeNameAlias",
+                                "name": "AnyObject",
+                                "printedName": "Builtin.AnyObject"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "AnyObject",
+                            "printedName": "Swift.AnyObject"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "ExistentialMetatype",
+                        "printedName": "any Swift.AnyObject.Type"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "AnyClass",
+                    "printedName": "Swift.AnyClass"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.AnyClass]",
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A17InternalReplayApiV16addRedactClassesyySayyXlXpGF",
+            "moduleName": "Sentry",
+            "name": "addRedactClasses",
+            "printedName": "addRedactClasses(_:)",
+            "usr": "s:6Sentry0A17InternalReplayApiV16addRedactClassesyySayyXlXpGF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A17InternalReplayApiV7captureSbyF",
+            "moduleName": "Sentry",
+            "name": "capture",
+            "printedName": "capture()",
+            "usr": "s:6Sentry0A17InternalReplayApiV7captureSbyF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "ProtocolComposition",
+                                "printedName": "AnyObject"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "AnyObject",
+                            "printedName": "Builtin.AnyObject"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "AnyObject",
+                        "printedName": "Swift.AnyObject"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "ExistentialMetatype",
+                    "printedName": "any Swift.AnyObject.Type"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "AnyClass",
+                "printedName": "Swift.AnyClass"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A17InternalReplayApiV23setIgnoreContainerClassyyyXlXpF",
+            "moduleName": "Sentry",
+            "name": "setIgnoreContainerClass",
+            "printedName": "setIgnoreContainerClass(_:)",
+            "usr": "s:6Sentry0A17InternalReplayApiV23setIgnoreContainerClassyyyXlXpF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "ProtocolComposition",
+                                "printedName": "AnyObject"
+                              }
+                            ],
+                            "kind": "TypeNameAlias",
+                            "name": "AnyObject",
+                            "printedName": "Builtin.AnyObject"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "AnyObject",
+                        "printedName": "Swift.AnyObject"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "ExistentialMetatype",
+                    "printedName": "any Swift.AnyObject.Type"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "AnyClass",
+                "printedName": "Swift.AnyClass"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A17InternalReplayApiV23setRedactContainerClassyyyXlXpF",
+            "moduleName": "Sentry",
+            "name": "setRedactContainerClass",
+            "printedName": "setRedactContainerClass(_:)",
+            "usr": "s:6Sentry0A17InternalReplayApiV23setRedactContainerClassyyyXlXpF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A17InternalReplayApiV7setTagsyySDySSypGF",
+            "moduleName": "Sentry",
+            "name": "setTags",
+            "printedName": "setTags(_:)",
+            "usr": "s:6Sentry0A17InternalReplayApiV7setTagsyySDySSypGF"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A17InternalReplayApiV8replayIdSSSgvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A17InternalReplayApiV8replayIdSSSgvg"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A17InternalReplayApiV8replayIdSSSgvp",
+            "moduleName": "Sentry",
+            "name": "replayId",
+            "printedName": "replayId",
+            "usr": "s:6Sentry0A17InternalReplayApiV8replayIdSSSgvp"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A17InternalReplayApiV",
+        "moduleName": "Sentry",
+        "name": "SentryInternalReplayApi",
+        "printedName": "SentryInternalReplayApi",
+        "usr": "s:6Sentry0A17InternalReplayApiV"
       },
       {
         "children": [
