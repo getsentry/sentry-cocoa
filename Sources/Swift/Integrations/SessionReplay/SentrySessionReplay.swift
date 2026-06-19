@@ -75,7 +75,7 @@ import UIKit
     public var screenshotProvider: SentryViewScreenshotProvider
     public var breadcrumbConverter: SentryReplayBreadcrumbConverter
 
-    internal init(
+    public init(
         replayOptions: SentryReplayOptions,
         replayFolderPath: URL,
         screenshotProvider: SentryViewScreenshotProvider,
