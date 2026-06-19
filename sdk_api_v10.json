@@ -40477,6 +40477,49 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
+                    "name": "SentryInternalScreenApi",
+                    "printedName": "Sentry.SentryInternalScreenApi",
+                    "usr": "s:6Sentry0A17InternalScreenApiV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV6screenAA0ab6ScreenC0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV6screenAA0ab6ScreenC0Vvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryInternalScreenApi",
+                "printedName": "Sentry.SentryInternalScreenApi",
+                "usr": "s:6Sentry0A17InternalScreenApiV"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV6screenAA0ab6ScreenC0Vvp",
+            "moduleName": "Sentry",
+            "name": "screen",
+            "printedName": "screen",
+            "usr": "s:6Sentry0A11InternalApiV6screenAA0ab6ScreenC0Vvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
                     "name": "SentryInternalScreenshotApi",
                     "printedName": "Sentry.SentryInternalScreenshotApi",
                     "usr": "s:6Sentry0A21InternalScreenshotApiV"
@@ -40999,6 +41042,64 @@
         "name": "SentryInternalPerformanceApi",
         "printedName": "SentryInternalPerformanceApi",
         "usr": "s:6Sentry0A22InternalPerformanceApiV"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A17InternalScreenApiV10setCurrentyySSSgF",
+            "moduleName": "Sentry",
+            "name": "setCurrent",
+            "printedName": "setCurrent(_:)",
+            "usr": "s:6Sentry0A17InternalScreenApiV10setCurrentyySSSgF"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Struct",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A17InternalScreenApiV",
+        "moduleName": "Sentry",
+        "name": "SentryInternalScreenApi",
+        "printedName": "SentryInternalScreenApi",
+        "usr": "s:6Sentry0A17InternalScreenApiV"
       },
       {
         "children": [
