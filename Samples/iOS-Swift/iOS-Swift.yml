@@ -201,7 +201,7 @@ targets:
         buildPhase: none
     dependencies:
       - package: SentrySampleShared
-        product: SentrySampleSharedUITest
+        product: SentrySampleUITestShared
     configFiles:
       Debug: Benchmarking/Configurations/iOS-Benchmarking.xcconfig
       Release: Benchmarking/Configurations/iOS-Benchmarking.xcconfig
