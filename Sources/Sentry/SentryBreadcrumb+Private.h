@@ -14,6 +14,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The SentryBreadcrumb.
  */
 - (instancetype _Nonnull)initWithDictionary:(NSDictionary *_Nonnull)dictionary;
+
+/**
+ * Returns a snapshot copy with its own strong references to all property values.
+ * The copy is independent of the original: deallocating either one does not
+ * affect the other's ivars.
+ */
+- (SentryBreadcrumb *_Nonnull)snapshotCopy;
 @end
 
 NS_ASSUME_NONNULL_END
