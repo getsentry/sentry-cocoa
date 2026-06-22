@@ -49,7 +49,9 @@
 
 static volatile bool g_isEnabled = false;
 static bool g_isSigtermReportingEnabled = false;
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
 static _Thread_local int tl_ignoreSignum = 0;
+#    endif
 
 static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
@@ -100,11 +102,17 @@ restorePreviousSignalHandler(int sigNum)
 static void
 handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
-    int ignoreSignum = tl_ignoreSignum;
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+    const int ignoreSignum = tl_ignoreSignum;
     tl_ignoreSignum = 0;
+#    endif
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped signal %d", sigNum);
-    if (g_isEnabled && sigNum != ignoreSignum) {
+    if (g_isEnabled
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+        && sigNum != ignoreSignum
+#    endif
+    ) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         // Signal handlers preempt the crashing thread, so reentrancy can
@@ -133,7 +141,11 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
     }
 
     SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
-    if (!g_isEnabled || sigNum == ignoreSignum) {
+    if (!g_isEnabled
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+        || sigNum == ignoreSignum
+#    endif
+    ) {
         // Avoid re-entering this handler on raise().
         restorePreviousSignalHandler(sigNum);
     }
@@ -326,8 +338,10 @@ sentrycrashcm_setEnableSigtermReporting(bool enabled)
 void
 sentrycrashcm_signal_ignore_next(int signum)
 {
-#if SENTRY_HAS_SIGNAL
+#if SENTRY_HAS_SIGNAL && defined(SENTRY_CRASH_MANAGED_RUNTIME)
     tl_ignoreSignum = signum;
+#else
+    (void)signum;
 #endif
 }
 
