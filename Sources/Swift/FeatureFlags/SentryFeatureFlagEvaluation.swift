@@ -1,16 +1,12 @@
 // swiftlint:disable missing_docs
 struct SentryFeatureFlagEvaluation: Equatable {
-    static let spanDataKeyPrefix = "flag.evaluation."
+    private static let spanDataKeyPrefix = "flag.evaluation."
 
     let flag: String
     let result: SentryFeatureFlagValueContent
 
-    static func spanDataKey(for flag: String) -> String {
-        return "\(spanDataKeyPrefix)\(flag)"
-    }
-
     var spanDataKey: String {
-        return Self.spanDataKey(for: flag)
+        return "\(Self.spanDataKeyPrefix)\(flag)"
     }
 
     func serializeForContext() -> [String: Any] {
