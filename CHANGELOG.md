@@ -9,7 +9,7 @@
 
 - Fixes crash caused by modifying breadcrumbs from multiple threads (#8114)
 - Prevent feedback form on external displays (#8071)
-- Prevent lazy TLS-init in the signal crash handler for non-managed runtime builds.
+- Prevent lazy TLS-init in the signal crash handler for non-managed runtime builds (#8148)
 
 ## 9.18.0
 
