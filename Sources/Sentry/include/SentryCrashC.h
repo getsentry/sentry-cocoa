@@ -54,7 +54,7 @@ void sentrycrash_uninstall(void);
 /** Tell SentryCrash to ignore the next occurrence of the given signal on the
  * calling thread. Used to prevent duplicate crash reports when the host runtime
  * is about to raise a signal (e.g. SIGABRT) that has already been captured as
- * a managed exception.
+ * a managed exception. No-op unless SENTRY_CRASH_MANAGED_RUNTIME is set.
  *
  * @param signum The signal number to ignore (e.g. SIGABRT).
  */
