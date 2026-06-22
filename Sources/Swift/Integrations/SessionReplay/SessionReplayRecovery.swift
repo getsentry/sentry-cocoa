@@ -19,6 +19,7 @@ struct SessionReplayRecovery {
     private let replayProcessingQueue: SentryDispatchQueueWrapper
     private let replayAssetWorkerQueue: SentryDispatchQueueWrapper
     private let replayFileManager: SessionReplayFileManager
+    private let breadcrumbConverter = SentrySRDefaultBreadcrumbConverter()
     
     init(
         replayOptions: SentryReplayOptions,
@@ -167,7 +168,13 @@ struct SessionReplayRecovery {
         var currentSegmentId = config.segmentId
         var currentType = config.type
         for video in videos {
-            captureVideo(video, replayId: replayId, segmentId: currentSegmentId, type: currentType)
+            captureVideo(
+                video,
+                replayId: replayId,
+                segmentId: currentSegmentId,
+                type: currentType,
+                breadcrumbs: event.breadcrumbs ?? []
+            )
             currentSegmentId += 1
             // type buffer is only for the first segment
             currentType = .session
@@ -178,7 +185,13 @@ struct SessionReplayRecovery {
         event.context = eventContext
     }
 
-    private func captureVideo(_ video: SentryVideoInfo, replayId: SentryId, segmentId: Int, type: SentryReplayType) {
+    private func captureVideo(
+        _ video: SentryVideoInfo,
+        replayId: SentryId,
+        segmentId: Int,
+        type: SentryReplayType,
+        breadcrumbs: [Breadcrumb]
+    ) {
         let replayEvent = SentryReplayEvent(
             eventId: replayId,
             replayStartTimestamp: video.start,
@@ -190,7 +203,7 @@ struct SessionReplayRecovery {
         let recording = SentryReplayRecording(
             segmentId: segmentId,
             video: video,
-            extraEvents: []
+            extraEvents: breadcrumbConverter.convert(breadcrumbs, from: video.start, until: video.end)
         )
 
         SentrySDKInternal.currentHub().captureReplayEvent(

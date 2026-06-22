@@ -314,6 +314,10 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
         crash.isFatalEvent = true
+        crash.breadcrumbs = [
+            .custom(date: Date(timeIntervalSinceReferenceDate: 4)),
+            .custom(date: Date(timeIntervalSinceReferenceDate: 6))
+        ]
         globalEventProcessor.reportAll(crash)
         
         wait(for: [expectation], timeout: 1)
@@ -323,6 +327,13 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(replayInfo.replay.replayType, SentryReplayType.buffer)
         XCTAssertEqual(replayInfo.recording.segmentId, 0)
         XCTAssertEqual(replayInfo.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 5))
+
+        let breadcrumbs = replayInfo.recording.events.compactMap { $0 as? SentryRRWebBreadcrumbEvent }
+        XCTAssertEqual(breadcrumbs.count, 1)
+        XCTAssertEqual(
+            (breadcrumbs.first?.data?["payload"] as? [String: Any])?["timestamp"] as? TimeInterval,
+            Date(timeIntervalSinceReferenceDate: 6).timeIntervalSince1970
+        )
     }
     
     func testBufferReplayIgnoredBecauseSampleRateForCrash() throws {

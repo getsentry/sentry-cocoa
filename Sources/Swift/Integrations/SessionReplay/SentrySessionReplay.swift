@@ -299,7 +299,7 @@ import UIKit
         
         let breadcrumbs = delegate?.breadcrumbsForSessionReplay() ?? []
 
-        var events = convertBreadcrumbs(breadcrumbs: breadcrumbs, from: video.start, until: video.end)
+        var events = breadcrumbConverter.convert(breadcrumbs, from: video.start, until: video.end)
         if let touchTracker = touchTracker {
             SentrySDKLog.debug("[Session Replay] Adding touch tracker events")
             events.append(contentsOf: touchTracker.replayEvents(from: videoSegmentStart ?? video.start, until: video.end))
@@ -325,29 +325,6 @@ import UIKit
         } catch {
             SentrySDKLog.debug("[Session Replay] Could not delete replay segment from disk: \(error)")
         }
-    }
-    
-    private func convertBreadcrumbs(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [any SentryRRWebEventProtocol] {
-        SentrySDKLog.debug("[Session Replay] Converting breadcrumbs from: \(from) until: \(until)")
-        var filteredResult: [Breadcrumb] = []
-        var lastNavigationTime: Date = from.addingTimeInterval(-1)
-        
-        for breadcrumb in breadcrumbs {
-            guard let time = breadcrumb.timestamp, time >= from && time < until else { 
-                continue
-            }
-            
-            // If it's a "navigation" breadcrumb, check the timestamp difference from the previous breadcrumb.
-            // Skip any breadcrumbs that have occurred within 50ms of the last one,
-            // as these represent child view controllers that don’t need their own navigation breadcrumb.
-            if breadcrumb.type == "navigation" {
-                if time.timeIntervalSince(lastNavigationTime) < 0.05 { continue }
-                lastNavigationTime = time
-            }
-            filteredResult.append(breadcrumb)
-        }
-        
-        return filteredResult.compactMap(breadcrumbConverter.convert(from:))
     }
     
     private func takeScreenshot() {
