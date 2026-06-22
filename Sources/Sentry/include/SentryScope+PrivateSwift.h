@@ -11,6 +11,10 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
 
 @property (nonatomic, readonly) SentryId *propagationContextTraceId;
 
+- (void)setPropagationContextWithTraceId:(SentryId *)traceId
+                                  spanId:(SentrySpanId *)spanId
+    NS_SWIFT_NAME(setPropagationContext(traceId:spanId:));
+
 /**
  * Set global user -> thus will be sent with every event
  */

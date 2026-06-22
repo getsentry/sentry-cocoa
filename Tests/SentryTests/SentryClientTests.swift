@@ -2147,7 +2147,7 @@ final class SentryClientTests: XCTestCase {
         fixture.getSut().capture(message: "any message")
         
         let actual = try lastSentEvent()
-        let options = try XCTUnwrap(PrivateSentrySDKOnly.options as? Options)
+        let options = PrivateSentrySDKOnly.options
         XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath), actual.user?.userId)
     }
     

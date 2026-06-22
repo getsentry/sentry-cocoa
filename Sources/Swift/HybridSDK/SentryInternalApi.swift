@@ -16,6 +16,9 @@ public struct SentryInternalApi {
         & SentryInternalBreadcrumbApi.Dependencies
         & SentryInternalUserApi.Dependencies
         & SentryInternalEnvelopeApi.Dependencies
+        & HubProvider
+        & ClientProvider
+        & OptionsDeserializerProvider
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     typealias Dependencies = BaseDependencies
         & SentryInternalPerformanceApi.Dependencies
@@ -44,6 +47,10 @@ public struct SentryInternalApi {
 
     /// Envelope store, capture, and deserialization for hybrid SDKs.
     public let envelope: SentryInternalEnvelopeApi
+
+    private let hub: Hub
+    private let clientProvider: any ClientProvider
+    private let optionsDeserializer: OptionsDeserializer
 
     /// Method swizzling for hybrid SDKs.
     public let swizzle: SentryInternalSwizzleApi
@@ -77,7 +84,7 @@ public struct SentryInternalApi {
 
     /// Sets the current trace and span on the scope's propagation context.
     public func setTrace(_ traceId: SentryId, spanId: SpanId) {
-        PrivateSentrySDKOnly.setTrace(traceId, spanId: spanId)
+        hub.setTrace(traceId, spanId: spanId)
     }
 
     /// Sets a custom log output handler for SDK log messages.
@@ -92,20 +99,18 @@ public struct SentryInternalApi {
 
     /// Returns the current SDK options, or a default instance if the SDK has not been started.
     public var options: Options {
-        PrivateSentrySDKOnly.options as? Options ?? Options()
+        clientProvider.client?.options as? Options ?? Options()
     }
 
     /// Creates SDK options from a dictionary representation.
     public func options(fromDictionary dictionary: [String: Any]) throws -> Options {
-        guard let options = try PrivateSentrySDKOnly.makeOptions(fromDictionary: dictionary) as? Options else {
-            throw NSError(domain: "SentryInternalApi", code: 1, userInfo: [
-                NSLocalizedDescriptionKey: "Failed to create options from dictionary"
-            ])
-        }
-        return options
+        try optionsDeserializer.options(from: dictionary)
     }
 
     init(dependencies: Dependencies) {
+        self.hub = dependencies.hub
+        self.clientProvider = dependencies
+        self.optionsDeserializer = dependencies.optionsDeserializer
         self.sdk = SentryInternalSdkApi(dependencies: dependencies)
         self.debug = SentryInternalDebugApi(provider: dependencies)
         self.breadcrumbs = SentryInternalBreadcrumbApi(dependencies: dependencies)

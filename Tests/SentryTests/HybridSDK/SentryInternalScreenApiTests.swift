@@ -44,6 +44,7 @@ private class MockHub: Hub {
 
     func storeEnvelope(_ envelope: SentryEnvelope) {}
     func captureEnvelope(_ envelope: SentryEnvelope) {}
+    func setTrace(_ traceId: SentryId, spanId: SpanId) {}
 }
 
 private struct MockScreenDependencies: HubProvider {

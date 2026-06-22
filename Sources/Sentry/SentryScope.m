@@ -166,6 +166,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)setPropagationContextWithTraceId:(SentryId *)traceId spanId:(SentrySpanId *)spanId
+{
+    self.propagationContext = [[SentryPropagationContext alloc] initWithTraceId:traceId
+                                                                         spanId:spanId];
+}
+
 - (nullable id<SentrySpan>)span
 {
     @synchronized(_spanLock) {

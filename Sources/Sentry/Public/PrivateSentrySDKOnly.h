@@ -113,7 +113,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 @property (class, nonatomic, readonly, copy) NSString *installationID;
 
-@property (class, nonatomic, readonly, copy) SENTRY_SWIFT_MIGRATION_ID(SentryOptions) options;
+@property (class, nonatomic, readonly, copy) SentryOptions *options;
 
 /**
  * If enabled, the SDK won't send the app start measurement with the first transaction. Instead, if

@@ -215,7 +215,7 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     #endif
 
     func testGetInstallationId() throws {
-        let options = try XCTUnwrap(PrivateSentrySDKOnly.options as? Options)
+        let options = PrivateSentrySDKOnly.options
         XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath), PrivateSentrySDKOnly.installationID)
     }
 
@@ -232,12 +232,12 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let client = TestClient(options: options)
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
-        XCTAssertEqual(PrivateSentrySDKOnly.options as? Options, options)
+        XCTAssertEqual(PrivateSentrySDKOnly.options, options)
     }
 
     func testDefaultOptions() throws {
         XCTAssertNotNil(PrivateSentrySDKOnly.options)
-        let defaultOptions = try XCTUnwrap(PrivateSentrySDKOnly.options as? Options)
+        let defaultOptions = PrivateSentrySDKOnly.options
         XCTAssertNil(defaultOptions.dsn)
         XCTAssertEqual(defaultOptions.enabled, true)
     }
