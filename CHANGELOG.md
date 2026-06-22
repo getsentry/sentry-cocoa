@@ -7,6 +7,7 @@
 
 ### Fixes
 
+- Fixes crash in sentrycrashfu_makePath during crash handling when the path is NULL, empty, or memory allocation fails (#8014)
 - Fixes crash caused by modifying breadcrumbs from multiple threads (#8114)
 
 ## 9.18.0

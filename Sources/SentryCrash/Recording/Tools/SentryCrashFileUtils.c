@@ -411,8 +411,18 @@ sentrycrashfu_readLineFromFD(const int fd, char *const buffer, const int maxLeng
 bool
 sentrycrashfu_makePath(const char *absolutePath)
 {
+    if (absolutePath == NULL || *absolutePath == '\0') {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not create path: absolutePath is NULL or empty");
+        return false;
+    }
+
     bool isSuccessful = false;
     char *pathCopy = strdup(absolutePath);
+    if (pathCopy == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not duplicate path %s", absolutePath);
+        return false;
+    }
+
     for (char *ptr = pathCopy + 1; *ptr != '\0'; ptr++) {
         if (*ptr == '/') {
             *ptr = '\0';

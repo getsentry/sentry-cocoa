@@ -622,6 +622,35 @@
     XCTAssertTrue(bytesRead == 0, @"");
 }
 
+- (void)testMakePath_NULL
+{
+    XCTAssertFalse(sentrycrashfu_makePath(NULL));
+}
+
+- (void)testMakePath_EmptyString
+{
+    XCTAssertFalse(sentrycrashfu_makePath(""));
+}
+
+- (void)testMakePath_ValidPath
+{
+    // -- Arrange --
+    NSString *dirPath = [[[self.tempPath stringByAppendingPathComponent:@"make-path"]
+        stringByAppendingPathComponent:@"nested"] stringByAppendingPathComponent:@"directory"];
+
+    // -- Act --
+    bool result = sentrycrashfu_makePath([dirPath UTF8String]);
+
+    // -- Assert --
+    XCTAssertTrue(result);
+
+    bool isDirectory;
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:dirPath
+                                                       isDirectory:&isDirectory],
+        "Failed to create directory");
+    XCTAssertTrue(isDirectory);
+}
+
 - (void)testDeleteContentsOfPath_canNotDeletePath_shouldNotDeleteTopLevelPath
 {
     // -- Arrange --
