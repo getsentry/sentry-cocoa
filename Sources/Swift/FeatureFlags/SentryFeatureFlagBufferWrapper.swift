@@ -26,6 +26,16 @@ public final class SentryFeatureFlagBufferWrapper: NSObject {
     }
 
     @objc
+    public func add(name: String, result: Bool) {
+        buffer.add(name: name, value: result)
+    }
+
+    @objc
+    public func remove(name: String) {
+        buffer.remove(name: name)
+    }
+
+    @objc
     public func removeAll() {
         buffer.removeAll()
     }

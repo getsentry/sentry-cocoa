@@ -378,6 +378,20 @@ import Foundation
         SentrySDKInternal.configureScope(callback)
     }
 
+    /// Adds a feature flag evaluation to the current `Scope` of the current `Hub`.
+    @nonobjc public static func addFeatureFlag(name: String, result: Bool) {
+        SentrySDKInternal.configureScope { scope in
+            scope.addFeatureFlag(name: name, result: result)
+        }
+    }
+
+    /// Removes a feature flag evaluation from the current `Scope` of the current `Hub`.
+    @nonobjc public static func removeFeatureFlag(name: String) {
+        SentrySDKInternal.configureScope { scope in
+            scope.removeFeatureFlag(name: name)
+        }
+    }
+
     // MARK: - Crash Detection
 
     #if !SDK_V10

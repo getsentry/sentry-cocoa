@@ -30964,6 +30964,39 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "NonObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo11SentryScopeC0A0E14addFeatureFlag4name6resultySS_SbtF",
+            "moduleName": "Sentry",
+            "name": "addFeatureFlag",
+            "printedName": "addFeatureFlag(name:result:)",
+            "usr": "s:So11SentryScopeC0A0E14addFeatureFlag4name6resultySS_SbtF"
+          },
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -31152,6 +31185,33 @@
             "objc_name": "removeExtraForKey:",
             "printedName": "removeExtra(key:)",
             "usr": "c:objc(cs)SentryScope(im)removeExtraForKey:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "NonObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo11SentryScopeC0A0E17removeFeatureFlag4nameySS_tF",
+            "moduleName": "Sentry",
+            "name": "removeFeatureFlag",
+            "printedName": "removeFeatureFlag(name:)",
+            "usr": "s:So11SentryScopeC0A0E17removeFeatureFlag4nameySS_tF"
           },
           {
             "children": [
@@ -39155,6 +39215,39 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "NonObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3HubC14addFeatureFlag4name6resultySS_SbtF",
+            "moduleName": "Sentry",
+            "name": "addFeatureFlag",
+            "printedName": "addFeatureFlag(name:result:)",
+            "usr": "s:6Sentry0A3HubC14addFeatureFlag4name6resultySS_SbtF"
+          },
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -39742,6 +39835,33 @@
             "name": "isIntegrationInstalled",
             "printedName": "isIntegrationInstalled(_:)",
             "usr": "c:@M@Sentry@objc(cs)SentryHub(im)isIntegrationInstalled:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "NonObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3HubC17removeFeatureFlag4nameySS_tF",
+            "moduleName": "Sentry",
+            "name": "removeFeatureFlag",
+            "printedName": "removeFeatureFlag(name:)",
+            "usr": "s:6Sentry0A3HubC17removeFeatureFlag4nameySS_tF"
           },
           {
             "children": [
@@ -55644,6 +55764,40 @@
             "children": [
               {
                 "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "NonObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKC14addFeatureFlag4name6resultySS_SbtFZ",
+            "moduleName": "Sentry",
+            "name": "addFeatureFlag",
+            "printedName": "addFeatureFlag(name:result:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKC14addFeatureFlag4name6resultySS_SbtFZ"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
                 "name": "Error",
                 "printedName": "any Swift.Error",
                 "usr": "s:s5ErrorP"
@@ -56538,6 +56692,34 @@
             "printedName": "pauseAppHangTracking()",
             "static": true,
             "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)pauseAppHangTracking"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "NonObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKC17removeFeatureFlag4nameySS_tFZ",
+            "moduleName": "Sentry",
+            "name": "removeFeatureFlag",
+            "printedName": "removeFeatureFlag(name:)",
+            "static": true,
+            "usr": "s:6Sentry0A3SDKC17removeFeatureFlag4nameySS_tFZ"
           },
           {
             "children": [

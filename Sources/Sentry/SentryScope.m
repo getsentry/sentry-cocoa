@@ -215,6 +215,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     }
     @synchronized(_contextDictionary) {
         [_contextDictionary removeAllObjects];
+        [_featureFlagBuffer removeAll];
     }
     @synchronized(_fingerprintArray) {
         [_fingerprintArray removeAllObjects];
@@ -226,7 +227,6 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     @synchronized(_attributesDictionary) {
         [_attributesDictionary removeAllObjects];
     }
-    [_featureFlagBuffer removeAll];
 
     self.userObject = nil;
     self.distString = nil;
@@ -559,10 +559,6 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     serializedData[@"traceContext"] = traceContext;
 
     NSMutableDictionary *context = [self context].mutableCopy;
-    NSDictionary<NSString *, id> *_Nullable featureFlags = [_featureFlagBuffer serializeForContext];
-    if (featureFlags.count > 0) {
-        context[@"flags"] = featureFlags;
-    }
     if (context.count > 0) {
         [serializedData setValue:context forKey:@"context"];
     }
@@ -700,6 +696,11 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     }
 
     NSMutableDictionary *newContext = [self context].mutableCopy;
+    BOOL isRegularEvent
+        = event.type == nil || [event.type isEqualToString:SentryEnvelopeItemTypes.event];
+    if (!isRegularEvent) {
+        [newContext removeObjectForKey:@"flags"];
+    }
     if (event.context != nil) {
         [SentryDictionary mergeEntriesFromDictionary:SENTRY_UNWRAP_NULLABLE_DICT(
                                                          NSString *, NSDictionary *, event.context)
@@ -743,6 +744,37 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         @synchronized(_observersLock) {
             [self.observers addObject:observer];
         }
+    }
+}
+
+- (void)updateFeatureFlagsContext
+{
+    // Must be called while synchronized on _contextDictionary.
+    NSDictionary<NSString *, id> *_Nullable featureFlags = [_featureFlagBuffer serializeForContext];
+    if (featureFlags.count > 0) {
+        _contextDictionary[@"flags"] = featureFlags;
+    } else {
+        [_contextDictionary removeObjectForKey:@"flags"];
+    }
+
+    for (id<SentryScopeObserver> observer in [self observerSnapshot]) {
+        [observer setContext:_contextDictionary.copy];
+    }
+}
+
+- (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result
+{
+    @synchronized(_contextDictionary) {
+        [_featureFlagBuffer addWithName:name result:result];
+        [self updateFeatureFlagsContext];
+    }
+}
+
+- (void)removeFeatureFlagWithName:(NSString *)name
+{
+    @synchronized(_contextDictionary) {
+        [_featureFlagBuffer removeWithName:name];
+        [self updateFeatureFlagsContext];
     }
 }
 
