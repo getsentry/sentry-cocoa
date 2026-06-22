@@ -48,9 +48,10 @@ GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 ## Setup the project by installing dependencies, pre-commit hooks, rbenv, and bundler
 #
 # Sets up a fresh machine for development by chaining the install tasks.
+# Generates Xcode projects via xcode-ci. Run `make xcode` to open the workspace.
 # Safe to re-run if you need to reinitialize dependencies or hooks.
 .PHONY: init
-init: init-local init-ci-build init-ci-format
+init: init-local init-ci-build init-ci-format xcode-ci
 
 ## Setup local development environment
 #
