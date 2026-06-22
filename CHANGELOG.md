@@ -8,6 +8,7 @@
 ### Fixes
 
 - Fixes crash caused by modifying breadcrumbs from multiple threads (#8114)
+- Keep the User Feedback screenshot trigger active after form dismissal. (#8048)
 
 ## 9.18.0
 
@@ -17,7 +18,6 @@
 
 ### Fixes
 
-- Keep the User Feedback screenshot trigger active after form dismissal. (#8048)
 - Show feedback form from shake or screenshot without widget (#8050)
 
 ### Deprecations
