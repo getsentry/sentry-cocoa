@@ -2,14 +2,20 @@
 #if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
 import Combine
 
+struct HangData {
+    let duration: TimeInterval
+    let stacktraces: [SentryStacktrace]
+}
+
 #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
 protocol AppHangDetection {
-    var onHangDetected: PassthroughSubject<TimeInterval, Never> { get }
+    var onHangDetected: PassthroughSubject<HangData, Never> { get }
 }
 extension DefaultAppHangDetection: AppHangDetection {}
 
 protocol AppHangDependencies {
     var hangTracker: HangTracker { get }
+    var threadInspector: SentryThreadInspector { get }
 }
 extension SentryDependencyContainer: AppHangDependencies { }
 
@@ -29,15 +35,18 @@ struct DefaultAppHangDetectionOptions {
 
 class DefaultAppHangDetection<Dependencies: AppHangDependencies, Options: AppHangDetectionOptions> {
     private let hangTracker: HangTracker
+    private let threadInspector: SentryThreadInspector
     private let options: Options
 
     private var observer: HangTrackerObserver?
     private var hitchDurationCounter: TimeInterval = 0
+    private var stacktraces: [SentryStacktrace] = []
 
-    public let onHangDetected = PassthroughSubject<TimeInterval, Never>()
+    public let onHangDetected = PassthroughSubject<HangData, Never>()
 
     init(dependencies: Dependencies, options: Options) {
         self.hangTracker = dependencies.hangTracker
+        self.threadInspector = dependencies.threadInspector
         self.options = options
 
         observer = hangTracker.addOngoingHangObserver { [weak self] duration, ongoing in
@@ -54,6 +63,13 @@ class DefaultAppHangDetection<Dependencies: AppHangDependencies, Options: AppHan
 
     func processHitch(duration: TimeInterval, isOngoing: Bool) {
         hitchDurationCounter += duration
+
+        // Get the stacktrace of the main thread
+        let threads = threadInspector.getCurrentThreadsWithStackTrace()
+        if let mainThread = threads.first(where: { $0.isMain == 1 }), let stacktrace = mainThread.stacktrace {
+            stacktraces.append(stacktrace)
+        }
+
         if isOngoing {
             return
         }
@@ -61,11 +77,12 @@ class DefaultAppHangDetection<Dependencies: AppHangDependencies, Options: AppHan
         // Hang is over, so notify an
         if hitchDurationCounter > options.appHangThreshold {
             SentrySDKLog.warning("App is hung for \(hitchDurationCounter) seconds")
-            onHangDetected.send(hitchDurationCounter)
+            onHangDetected.send(HangData(duration: hitchDurationCounter, stacktraces: stacktraces))
         }
 
         // Reset the counter after submit
         hitchDurationCounter = 0
+        stacktraces = []
     }
 }
 #endif
