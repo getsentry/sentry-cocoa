@@ -68,6 +68,24 @@ NS_ASSUME_NONNULL_BEGIN
 }
 #endif // SENTRY_HAS_UIKIT
 
++ (BOOL)swizzleInstanceMethod:(SEL)selector
+                      inClass:(Class)classToSwizzle
+                         mode:(SentrySwizzleMode)mode
+                          key:(const void *)key
+                      factory:(id (^)(IMP(NS_NOESCAPE ^)(void)))factory
+{
+    return [SentrySwizzle swizzleInstanceMethod:selector
+                                        inClass:classToSwizzle
+                                  newImpFactory:^id(SentrySwizzleInfo *swizzleInfo) {
+                                      IMP (^getOriginal)(void) = ^IMP {
+                                          return (IMP)[swizzleInfo getOriginalImplementation];
+                                      };
+                                      return factory(getOriginal);
+                                  }
+                                           mode:mode
+                                            key:key];
+}
+
 + (void)swizzleURLSessionTask:(SentryNetworkTracker *)networkTracker
 {
     NSArray<Class> *classesToSwizzle = [SentryNSURLSessionTaskSearch urlSessionTaskClassesToTrack];
