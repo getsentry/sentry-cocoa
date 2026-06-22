@@ -19,6 +19,8 @@ public final class SentryFeatureFlagStorage: NSObject {
     public static func scopeStorage() -> SentryFeatureFlagStorage {
         SentryFeatureFlagStorage(
             buffer: SentryFeatureFlagBuffer(
+                // Error events record the 100 most recent, unique feature flag evaluations.
+                // https://develop.sentry.dev/sdk/foundations/client/integrations/feature-flags/#tracking-feature-flag-evaluations
                 maxSize: maxScopeFeatureFlags,
                 overflowBehavior: .dropOldest
             )
@@ -29,6 +31,8 @@ public final class SentryFeatureFlagStorage: NSObject {
     public static func spanStorage() -> SentryFeatureFlagStorage {
         SentryFeatureFlagStorage(
             buffer: SentryFeatureFlagBuffer(
+                // Spans track the first 10 feature flags evaluated within the span's scope.
+                // https://develop.sentry.dev/sdk/foundations/client/integrations/feature-flags/#tracking-feature-flag-evaluations
                 maxSize: maxSpanFeatureFlags,
                 overflowBehavior: .rejectNew
             )
