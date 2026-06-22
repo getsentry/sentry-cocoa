@@ -434,18 +434,15 @@ final class UserFeedbackIntegrationTests: XCTestCase {
     // Regression test for #7641: screenshots after dismissing the feedback form
     // should still trigger a new form presentation.
     func testScreenshotTrigger_presentsExactlyOncePerScreenshotAcrossDismissal() throws {
-        let window = UIWindow(frame: UIScreen.main.bounds)
+        let window = makeWindow()
         let viewController = TestPresentingViewController()
         let config = SentryUserFeedbackConfiguration()
         config.animations = false
         config.showFormForScreenshots = true
-        addCustomButton(to: viewController, configuration: config)
         let sut = SentryUserFeedbackIntegrationDriver(
             configuration: config,
             screenshotSource: makeScreenshotSource())
-
-        window.rootViewController = viewController
-        window.makeKeyAndVisible()
+        useFallbackPresenter(viewController, in: window)
 
         NotificationCenter.default.post(
             name: UIApplication.userDidTakeScreenshotNotification,
