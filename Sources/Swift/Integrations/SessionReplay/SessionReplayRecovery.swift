@@ -6,9 +6,9 @@ import Foundation
 /// Configuration for recovering a previous session replay after a crash or app restart.
 private struct PreviousReplayConfig {
     let type: SentryReplayType
-    let duration: TimeInterval
     let segmentId: Int
     let beginning: Date
+    let end: Date
 }
 
 /// Handles recovery of session replay from previous app sessions, including crash replays.
@@ -112,21 +112,24 @@ struct SessionReplayRecovery {
         let resumeReplayMaker = createResumeReplayMaker(from: lastReplayURL)
         
         let beginning: Date
+        let end: Date
         if hasCrashInfo {
             beginning = Date(timeIntervalSinceReferenceDate: crashInfo.lastSegmentEnd)
+            end = beginning.addingTimeInterval(duration)
         } else {
-            guard let oldestFrame = resumeReplayMaker.oldestRecoveredFrameDate else {
+            guard let frameRange = resumeReplayMaker.recoveredFrameDateRange else {
                 SentrySDKLog.debug("[Session Replay] No frames to send, dropping replay")
                 return nil
             }
-            beginning = oldestFrame
+            end = frameRange.newest.addingTimeInterval(1.0 / Double(replayOptions.frameRate))
+            beginning = max(frameRange.oldest, end.addingTimeInterval(-duration))
         }
         
         return PreviousReplayConfig(
             type: type,
-            duration: duration,
             segmentId: segmentId,
-            beginning: beginning
+            beginning: beginning,
+            end: end
         )
     }
     
@@ -153,8 +156,7 @@ struct SessionReplayRecovery {
         event: Event
     ) {
         let resumeReplayMaker = createResumeReplayMaker(from: lastReplayURL)
-        let end = config.beginning.addingTimeInterval(config.duration)
-        let videos = resumeReplayMaker.createVideoWith(beginning: config.beginning, end: end)
+        let videos = resumeReplayMaker.createVideoWith(beginning: config.beginning, end: config.end)
 
         SentrySDKLog.debug("[Session Replay] Created replay with \(videos.count) video segments")
 

@@ -358,6 +358,32 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(replayInfo.recording.segmentId, 0)
         XCTAssertEqual(replayInfo.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 5))
     }
+
+    func testBufferReplayForCrash_usesNewestFramesWhenRecoveredBufferSpansMoreThanErrorDuration() throws {
+        try createLastSessionReplay(writeSessionInfo: false, frameTimestamps: [0, 50, 100])
+
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
+        let scope = Scope()
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
+        let expectation = expectation(description: "Replay to be captured")
+        hub.onReplayCapture = {
+            expectation.fulfill()
+        }
+
+        let crash = Event(error: NSError(domain: "Error", code: 1))
+        crash.context = [:]
+        crash.isFatalEvent = true
+        globalEventProcessor.reportAll(crash)
+
+        wait(for: [expectation], timeout: 1)
+
+        let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
+        XCTAssertEqual(replayInfo.replay.replayType, SentryReplayType.buffer)
+        XCTAssertEqual(replayInfo.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 71))
+    }
     
     func testBufferReplayIgnoredBecauseSampleRateForCrash() throws {
         // -- Arrange --
@@ -912,7 +938,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
     }
 
-    private func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
+    private func createLastSessionReplay(
+        writeSessionInfo: Bool = true,
+        errorSampleRate: Double = 1,
+        frameTimestamps: [Int] = Array(5...9)
+    ) throws {
         let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"
         var sessionFolder = UUID().uuidString
@@ -928,7 +958,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         sessionFolder = "\(replayFolder)/\(sessionFolder)"
         try FileManager.default.createDirectory(atPath: sessionFolder, withIntermediateDirectories: true)
                        
-        for i in 5...9 {
+        for i in frameTimestamps {
             let image = UIImage.add.jpegData(compressionQuality: 1)
             try image?.write(to: URL(fileURLWithPath: "\(sessionFolder)/\(i).png") )
         }
