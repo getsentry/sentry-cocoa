@@ -2147,7 +2147,8 @@ final class SentryClientTests: XCTestCase {
         fixture.getSut().capture(message: "any message")
         
         let actual = try lastSentEvent()
-        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: PrivateSentrySDKOnly.options.cacheDirectoryPath), actual.user?.userId)
+        let options = try XCTUnwrap(PrivateSentrySDKOnly.options as? Options)
+        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath), actual.user?.userId)
     }
     
     func testInstallationIdNotSetWhenUserIsSetWithoutId() throws {

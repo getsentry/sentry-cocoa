@@ -9,6 +9,10 @@
 
 - Fixes crash caused by modifying breadcrumbs from multiple threads (#8114)
 
+### Internal
+
+- Add `SentrySDK.internal` structured API for hybrid SDKs, replacing `PrivateSentrySDKOnly` with namespaced sub-APIs (`replay`, `profiling`, `appStart`, `performance`, `screenshot`, `viewHierarchy`, `screen`, `envelope`, `swizzle`, `sdk`, `debug`, `breadcrumbs`, `user`) (#8097)
+
 ## 9.18.0
 
 ### Features

@@ -113,7 +113,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 @property (class, nonatomic, readonly, copy) NSString *installationID;
 
-@property (class, nonatomic, readonly, copy) SentryOptions *options;
+@property (class, nonatomic, readonly, copy) SENTRY_SWIFT_MIGRATION_ID(SentryOptions) options;
 
 /**
  * If enabled, the SDK won't send the app start measurement with the first transaction. Instead, if
@@ -190,8 +190,10 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 + (SentryBreadcrumb *)breadcrumbWithDictionary:(NSDictionary *)dictionary;
 
-+ (nullable SentryOptions *)optionsWithDictionary:(NSDictionary<NSString *, id> *)options
-                                 didFailWithError:(NSError *_Nullable *_Nullable)error;
++ (nullable SENTRY_SWIFT_MIGRATION_ID(
+    SentryOptions))optionsWithDictionary:(NSDictionary<NSString *, id> *)options
+                        didFailWithError:(NSError *_Nullable *_Nullable)error
+    NS_SWIFT_NAME(makeOptions(fromDictionary:));
 
 /**
  * Sets a custom log output handler. This allows hybrid SDKs (React Native, Flutter, etc.)

@@ -214,8 +214,9 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
     }
     #endif
 
-    func testGetInstallationId() {
-        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: PrivateSentrySDKOnly.options.cacheDirectoryPath), PrivateSentrySDKOnly.installationID)
+    func testGetInstallationId() throws {
+        let options = try XCTUnwrap(PrivateSentrySDKOnly.options as? Options)
+        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath), PrivateSentrySDKOnly.installationID)
     }
 
     func testSendAppStartMeasurement() {
@@ -231,13 +232,14 @@ class PrivateSentrySDKOnlyTests: XCTestCase {
         let client = TestClient(options: options)
         SentrySDKInternal.setCurrentHub(TestHub(client: client, andScope: nil))
 
-        XCTAssertEqual(PrivateSentrySDKOnly.options, options)
+        XCTAssertEqual(PrivateSentrySDKOnly.options as? Options, options)
     }
 
-    func testDefaultOptions() {
+    func testDefaultOptions() throws {
         XCTAssertNotNil(PrivateSentrySDKOnly.options)
-        XCTAssertNil(PrivateSentrySDKOnly.options.dsn)
-        XCTAssertEqual(PrivateSentrySDKOnly.options.enabled, true)
+        let defaultOptions = try XCTUnwrap(PrivateSentrySDKOnly.options as? Options)
+        XCTAssertNil(defaultOptions.dsn)
+        XCTAssertEqual(defaultOptions.enabled, true)
     }
 
     #if !os(tvOS) && !os(watchOS) && !os(visionOS)

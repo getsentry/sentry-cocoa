@@ -75,6 +75,36 @@ public struct SentryInternalApi {
     public let profiling: SentryInternalProfilingApi
 #endif
 
+    /// Sets the current trace and span on the scope's propagation context.
+    public func setTrace(_ traceId: SentryId, spanId: SpanId) {
+        PrivateSentrySDKOnly.setTrace(traceId, spanId: spanId)
+    }
+
+    /// Sets a custom log output handler for SDK log messages.
+    public func setLogOutput(_ output: ((String) -> Void)?) {
+        SentrySDKLog.setOutput(output)
+    }
+
+    /// Tells the crash reporter to ignore the next occurrence of the given signal on the calling thread.
+    public func ignoreNextSignal(_ signum: Int32) {
+        sentrycrash_ignore_next_signal(signum)
+    }
+
+    /// Returns the current SDK options, or a default instance if the SDK has not been started.
+    public var options: Options {
+        PrivateSentrySDKOnly.options as? Options ?? Options()
+    }
+
+    /// Creates SDK options from a dictionary representation.
+    public func options(fromDictionary dictionary: [String: Any]) throws -> Options {
+        guard let options = try PrivateSentrySDKOnly.makeOptions(fromDictionary: dictionary) as? Options else {
+            throw NSError(domain: "SentryInternalApi", code: 1, userInfo: [
+                NSLocalizedDescriptionKey: "Failed to create options from dictionary"
+            ])
+        }
+        return options
+    }
+
     init(dependencies: Dependencies) {
         self.sdk = SentryInternalSdkApi(dependencies: dependencies)
         self.debug = SentryInternalDebugApi(provider: dependencies)

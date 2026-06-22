@@ -2596,6 +2596,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "ignoreNextSignal:",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "ignoreNextSignal:",
     "parent": "SentryObjCPrivateSDKOnly",
     "returnType": "void",
     "instance": false
@@ -4506,6 +4513,20 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "options",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCOptions * _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "optionsFromDictionary:error:",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCOptions * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "orgId",
     "parent": "SentryObjCOptions",
     "returnType": "NSString * _Nullable",
@@ -6152,6 +6173,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setLogOutput:",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setLogOutput:",
     "parent": "SentryObjCPrivateSDKOnly",
     "returnType": "void",
     "instance": false
@@ -7056,6 +7084,13 @@
     "kind": "ObjCMethodDecl",
     "name": "setTimestamp:",
     "parent": "SentryObjCSpan",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setTrace:spanId:",
+    "parent": "SentryObjCInternalApi",
     "returnType": "void",
     "instance": true
   },
@@ -9842,6 +9877,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "options",
     "parent": "SentryObjCClient",
+    "type": "SentryObjCOptions * _Nonnull"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "options",
+    "parent": "SentryObjCInternalApi",
     "type": "SentryObjCOptions * _Nonnull"
   },
   {

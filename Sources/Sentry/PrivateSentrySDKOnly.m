@@ -112,10 +112,11 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSString *)installationID
 {
-    return [SentryInstallation idWithCacheDirectoryPath:self.options.cacheDirectoryPath];
+    return [SentryInstallation
+        idWithCacheDirectoryPath:((SentryOptions *)self.options).cacheDirectoryPath];
 }
 
-+ (SentryOptions *)options
++ (id)options
 {
     SentryOptions *options = [[SentrySDKInternal currentHub] client].options;
     if (options != nil) {
@@ -309,8 +310,8 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return [[SentryBreadcrumb alloc] initWithDictionary:dictionary];
 }
 
-+ (nullable SentryOptions *)optionsWithDictionary:(NSDictionary<NSString *, id> *)options
-                                 didFailWithError:(NSError *_Nullable *_Nullable)error
++ (nullable id)optionsWithDictionary:(NSDictionary<NSString *, id> *)options
+                    didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     return [SentryOptionsInternal initWithDict:options didFailWithError:error];
 }

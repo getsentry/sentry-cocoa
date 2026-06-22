@@ -29237,9 +29237,8 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "Options",
-                "printedName": "Sentry.Options",
-                "usr": "c:@M@Sentry@objc(cs)SentryOptions"
+                "name": "ProtocolComposition",
+                "printedName": "Any"
               }
             ],
             "declAttributes": [
@@ -29252,9 +29251,9 @@
             "isOpen": true,
             "kind": "Function",
             "moduleName": "Sentry",
-            "name": "options",
+            "name": "makeOptions",
             "objc_name": "optionsWithDictionary:didFailWithError:",
-            "printedName": "options(with:)",
+            "printedName": "makeOptions(fromDictionary:)",
             "static": true,
             "throwing": true,
             "usr": "c:objc(cs)PrivateSentrySDKOnly(cm)optionsWithDictionary:didFailWithError:"
@@ -30372,9 +30371,8 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "Options",
-                    "printedName": "Sentry.Options",
-                    "usr": "c:@M@Sentry@objc(cs)SentryOptions"
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
                   }
                 ],
                 "declAttributes": [
@@ -30396,14 +30394,12 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Options",
-                "printedName": "Sentry.Options",
-                "usr": "c:@M@Sentry@objc(cs)SentryOptions"
+                "name": "ProtocolComposition",
+                "printedName": "Any"
               }
             ],
             "declAttributes": [
               "Dynamic",
-              "NSCopying",
               "ObjC"
             ],
             "declKind": "Var",
@@ -40528,6 +40524,189 @@
       {
         "children": [
           {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int32",
+                "printedName": "Swift.Int32",
+                "usr": "s:s5Int32V"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11InternalApiV16ignoreNextSignalyys5Int32VF",
+            "moduleName": "Sentry",
+            "name": "ignoreNextSignal",
+            "printedName": "ignoreNextSignal(_:)",
+            "usr": "s:6Sentry0A11InternalApiV16ignoreNextSignalyys5Int32VF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "Any"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Any]",
+                "usr": "s:SD"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Options",
+                "printedName": "Sentry.Options",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11InternalApiV7options14fromDictionaryAA7OptionsCSDySSypG_tKF",
+            "moduleName": "Sentry",
+            "name": "options",
+            "printedName": "options(fromDictionary:)",
+            "throwing": true,
+            "usr": "s:6Sentry0A11InternalApiV7options14fromDictionaryAA7OptionsCSDySSypG_tKF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Void",
+                            "printedName": "()"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "Void",
+                        "printedName": "Swift.Void"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.String) -> Swift.Void"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((Swift.String) -> Swift.Void)?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11InternalApiV12setLogOutputyyySScSgF",
+            "moduleName": "Sentry",
+            "name": "setLogOutput",
+            "printedName": "setLogOutput(_:)",
+            "usr": "s:6Sentry0A11InternalApiV12setLogOutputyyySScSgF"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryId",
+                "printedName": "Sentry.SentryId",
+                "usr": "c:objc(cs)SentryId"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SpanId",
+                "printedName": "Sentry.SpanId",
+                "usr": "c:objc(cs)SentrySpanId"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A11InternalApiV8setTrace_6spanIdySo0aG0C_So0a4SpanG0CtF",
+            "moduleName": "Sentry",
+            "name": "setTrace",
+            "printedName": "setTrace(_:spanId:)",
+            "usr": "s:6Sentry0A11InternalApiV8setTrace_6spanIdySo0aG0C_So0a4SpanG0CtF"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SentryInternalAppStartApi",
+                    "printedName": "Sentry.SentryInternalAppStartApi",
+                    "usr": "s:6Sentry0A19InternalAppStartApiV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV8appStartAA0ab3AppeC0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV8appStartAA0ab3AppeC0Vvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SentryInternalAppStartApi",
+                "printedName": "Sentry.SentryInternalAppStartApi",
+                "usr": "s:6Sentry0A19InternalAppStartApiV"
+              }
+            ],
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "isLet": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV8appStartAA0ab3AppeC0Vvp",
+            "moduleName": "Sentry",
+            "name": "appStart",
+            "printedName": "appStart",
+            "usr": "s:6Sentry0A11InternalApiV8appStartAA0ab3AppeC0Vvp"
+          },
+          {
             "accessors": [
               {
                 "accessorKind": "get",
@@ -40698,6 +40877,43 @@
             "name": "envelope",
             "printedName": "envelope",
             "usr": "s:6Sentry0A11InternalApiV8envelopeAA0ab8EnvelopeC0Vvp"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Options",
+                    "printedName": "Sentry.Options",
+                    "usr": "c:@M@Sentry@objc(cs)SentryOptions"
+                  }
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A11InternalApiV7optionsAA7OptionsCvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A11InternalApiV7optionsAA7OptionsCvg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Options",
+                "printedName": "Sentry.Options",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions"
+              }
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A11InternalApiV7optionsAA7OptionsCvp",
+            "moduleName": "Sentry",
+            "name": "options",
+            "printedName": "options",
+            "usr": "s:6Sentry0A11InternalApiV7optionsAA7OptionsCvp"
           },
           {
             "accessors": [
