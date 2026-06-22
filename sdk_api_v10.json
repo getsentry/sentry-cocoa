@@ -6921,6 +6921,89 @@
                 "accessorKind": "get",
                 "children": [
                   {
+                    "kind": "TypeNominal",
+                    "name": "UInt64",
+                    "printedName": "Swift.UInt64",
+                    "usr": "s:s6UInt64V"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "Dynamic",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "objc_name": "imageAddressRaw",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)SentryDebugMeta(im)imageAddressRaw"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt64",
+                    "printedName": "Swift.UInt64",
+                    "usr": "s:s6UInt64V"
+                  }
+                ],
+                "declAttributes": [
+                  "Dynamic",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setImageAddressRaw:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)SentryDebugMeta(im)setImageAddressRaw:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UInt64",
+                "printedName": "Swift.UInt64",
+                "usr": "s:s6UInt64V"
+              }
+            ],
+            "declAttributes": [
+              "Dynamic",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "imageAddressRaw",
+            "objc_name": "imageAddressRaw",
+            "printedName": "imageAddressRaw",
+            "usr": "c:objc(cs)SentryDebugMeta(py)imageAddressRaw"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -7129,6 +7212,89 @@
             "objc_name": "imageVmAddress",
             "printedName": "imageVmAddress",
             "usr": "c:objc(cs)SentryDebugMeta(py)imageVmAddress"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt64",
+                    "printedName": "Swift.UInt64",
+                    "usr": "s:s6UInt64V"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "Dynamic",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "objc_name": "imageVmAddressRaw",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)SentryDebugMeta(im)imageVmAddressRaw"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt64",
+                    "printedName": "Swift.UInt64",
+                    "usr": "s:s6UInt64V"
+                  }
+                ],
+                "declAttributes": [
+                  "Dynamic",
+                  "ObjC"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "objc_name": "setImageVmAddressRaw:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)SentryDebugMeta(im)setImageVmAddressRaw:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UInt64",
+                "printedName": "Swift.UInt64",
+                "usr": "s:s6UInt64V"
+              }
+            ],
+            "declAttributes": [
+              "Dynamic",
+              "ObjC"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "Sentry",
+            "name": "imageVmAddressRaw",
+            "objc_name": "imageVmAddressRaw",
+            "printedName": "imageVmAddressRaw",
+            "usr": "c:objc(cs)SentryDebugMeta(py)imageVmAddressRaw"
           },
           {
             "accessors": [
@@ -30190,8 +30356,9 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "ProtocolComposition",
-                    "printedName": "Any"
+                    "name": "Options",
+                    "printedName": "Sentry.Options",
+                    "usr": "c:@M@Sentry@objc(cs)SentryOptions"
                   }
                 ],
                 "declAttributes": [
@@ -30213,12 +30380,14 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "ProtocolComposition",
-                "printedName": "Any"
+                "name": "Options",
+                "printedName": "Sentry.Options",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions"
               }
             ],
             "declAttributes": [
               "Dynamic",
+              "NSCopying",
               "ObjC"
             ],
             "declKind": "Var",
@@ -40433,49 +40602,6 @@
             "name": "setTrace",
             "printedName": "setTrace(_:spanId:)",
             "usr": "s:6Sentry0A11InternalApiV8setTrace_6spanIdySo0aG0C_So0a4SpanG0CtF"
-          },
-          {
-            "accessors": [
-              {
-                "accessorKind": "get",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "SentryInternalAppStartApi",
-                    "printedName": "Sentry.SentryInternalAppStartApi",
-                    "usr": "s:6Sentry0A19InternalAppStartApiV"
-                  }
-                ],
-                "declKind": "Accessor",
-                "implicit": true,
-                "kind": "Accessor",
-                "mangledName": "$s6Sentry0A11InternalApiV8appStartAA0ab3AppeC0Vvg",
-                "moduleName": "Sentry",
-                "name": "Get",
-                "printedName": "Get()",
-                "usr": "s:6Sentry0A11InternalApiV8appStartAA0ab3AppeC0Vvg"
-              }
-            ],
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SentryInternalAppStartApi",
-                "printedName": "Sentry.SentryInternalAppStartApi",
-                "usr": "s:6Sentry0A19InternalAppStartApiV"
-              }
-            ],
-            "declAttributes": [
-              "HasStorage"
-            ],
-            "declKind": "Var",
-            "hasStorage": true,
-            "isLet": true,
-            "kind": "Var",
-            "mangledName": "$s6Sentry0A11InternalApiV8appStartAA0ab3AppeC0Vvp",
-            "moduleName": "Sentry",
-            "name": "appStart",
-            "printedName": "appStart",
-            "usr": "s:6Sentry0A11InternalApiV8appStartAA0ab3AppeC0Vvp"
           },
           {
             "accessors": [

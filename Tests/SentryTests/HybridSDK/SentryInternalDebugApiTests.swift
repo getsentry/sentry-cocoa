@@ -66,6 +66,59 @@ class SentryInternalDebugApiTests: XCTestCase {
         XCTAssertTrue(result.isEmpty)
     }
 
+    func testImagesForAddresses_shouldPopulateRawAddresses() {
+        // -- Arrange --
+        let cache = SentryBinaryImageCache()
+        cache.start(false)
+        let uuid: [UInt8] = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+                             0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10]
+        "TestImage".withCString { name in
+            uuid.withUnsafeBufferPointer { uuidBuf in
+                cache.binaryImageAdded(imageName: name, vmAddress: 0x100000000, address: 0x105705000, size: 0x1000, uuid: uuidBuf.baseAddress)
+            }
+        }
+
+        let sut = SentryInternalDebugApi(provider: MockDebugProvider(
+            binaryImageCache: cache
+        ))
+
+        // -- Act --
+        let result = sut.images(forAddresses: [0x105705000])
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result[0].imageAddressRaw, 0x105705000)
+        XCTAssertEqual(result[0].imageVmAddressRaw, 0x100000000)
+        XCTAssertEqual(result[0].imageAddress, "0x0000000105705000")
+        XCTAssertEqual(result[0].imageVmAddress, "0x0000000100000000")
+    }
+
+    func testImagesForAddresses_whenVmAddressIsZero_shouldSetRawToZero() {
+        // -- Arrange --
+        let cache = SentryBinaryImageCache()
+        cache.start(false)
+        let uuid: [UInt8] = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+                             0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10]
+        "TestImage".withCString { name in
+            uuid.withUnsafeBufferPointer { uuidBuf in
+                cache.binaryImageAdded(imageName: name, vmAddress: 0, address: 0x105705000, size: 0x1000, uuid: uuidBuf.baseAddress)
+            }
+        }
+
+        let sut = SentryInternalDebugApi(provider: MockDebugProvider(
+            binaryImageCache: cache
+        ))
+
+        // -- Act --
+        let result = sut.images(forAddresses: [0x105705000])
+
+        // -- Assert --
+        XCTAssertEqual(result.count, 1)
+        XCTAssertEqual(result[0].imageAddressRaw, 0x105705000)
+        XCTAssertEqual(result[0].imageVmAddressRaw, 0)
+        XCTAssertNil(result[0].imageVmAddress)
+    }
+
     func testImagesForAddresses_whenNoMatch_shouldReturnEmpty() {
         // -- Arrange --
         let sut = SentryInternalDebugApi(provider: MockDebugProvider())

@@ -2644,6 +2644,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "imageAddressRaw",
+    "parent": "SentryObjCDebugMeta",
+    "returnType": "uint64_t",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "imageSize",
     "parent": "SentryObjCDebugMeta",
     "returnType": "NSNumber * _Nullable",
@@ -2654,6 +2661,13 @@
     "name": "imageVmAddress",
     "parent": "SentryObjCDebugMeta",
     "returnType": "NSString * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "imageVmAddressRaw",
+    "parent": "SentryObjCDebugMeta",
+    "returnType": "uint64_t",
     "instance": true
   },
   {
@@ -6088,6 +6102,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setImageAddressRaw:",
+    "parent": "SentryObjCDebugMeta",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setImageSize:",
     "parent": "SentryObjCDebugMeta",
     "returnType": "void",
@@ -6096,6 +6117,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "setImageVmAddress:",
+    "parent": "SentryObjCDebugMeta",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "setImageVmAddressRaw:",
     "parent": "SentryObjCDebugMeta",
     "returnType": "void",
     "instance": true
@@ -9366,6 +9394,12 @@
   },
   {
     "kind": "ObjCPropertyDecl",
+    "name": "imageAddressRaw",
+    "parent": "SentryObjCDebugMeta",
+    "type": "uint64_t"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
     "name": "imageSize",
     "parent": "SentryObjCDebugMeta",
     "type": "NSNumber * _Nullable"
@@ -9375,6 +9409,12 @@
     "name": "imageVmAddress",
     "parent": "SentryObjCDebugMeta",
     "type": "NSString * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "imageVmAddressRaw",
+    "parent": "SentryObjCDebugMeta",
+    "type": "uint64_t"
   },
   {
     "kind": "ObjCPropertyDecl",
