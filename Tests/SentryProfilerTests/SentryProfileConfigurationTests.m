@@ -2,7 +2,6 @@
 @import Sentry;
 #import "SentryProfileConfiguration.h"
 #import "SentryProfiler+Private.h"
-#import "SentrySamplerDecision.h"
 
 @interface SentryProfileConfigurationTests : XCTestCase
 @end
