@@ -9,6 +9,7 @@ final class SentryFeatureFlagBuffer {
     private let overflowBehavior: SentryFeatureFlagBufferOverflowBehavior
     private let lock = NSLock()
     private var evaluations: [SentryFeatureFlagEvaluation]
+    private var indexesByFlag: [String: Int]
 
     init(maxSize: Int,
          overflowBehavior: SentryFeatureFlagBufferOverflowBehavior,
@@ -16,6 +17,8 @@ final class SentryFeatureFlagBuffer {
         self.maxSize = maxSize
         self.overflowBehavior = overflowBehavior
         self.evaluations = evaluations
+        self.indexesByFlag = [:]
+        rebuildIndexes()
     }
 
     static func scopeBuffer() -> SentryFeatureFlagBuffer {
@@ -48,11 +51,12 @@ final class SentryFeatureFlagBuffer {
                 return
             }
             let evaluation = SentryFeatureFlagEvaluation(flag: name, result: value.asSentryFeatureFlagValue)
-            if let existingIndex = evaluations.firstIndex(where: { $0.flag == evaluation.flag }) {
+            if let existingIndex = indexesByFlag[evaluation.flag] {
                 switch overflowBehavior {
                 case .dropOldest:
                     evaluations.remove(at: existingIndex)
                     evaluations.append(evaluation)
+                    rebuildIndexes()
                 case .rejectNew:
                     evaluations[existingIndex] = evaluation
                 }
@@ -63,24 +67,31 @@ final class SentryFeatureFlagBuffer {
                 switch overflowBehavior {
                 case .dropOldest:
                     evaluations.removeFirst()
+                    rebuildIndexes()
                 case .rejectNew:
                     return
                 }
             }
 
+            indexesByFlag[evaluation.flag] = evaluations.count
             evaluations.append(evaluation)
         }
     }
 
     func remove(name: String) {
         lock.synchronized {
-            evaluations.removeAll { $0.flag == name }
+            guard let index = indexesByFlag[name] else {
+                return
+            }
+            evaluations.remove(at: index)
+            rebuildIndexes()
         }
     }
 
     func removeAll() {
         lock.synchronized {
             evaluations.removeAll()
+            indexesByFlag.removeAll()
         }
     }
 
@@ -104,6 +115,13 @@ final class SentryFeatureFlagBuffer {
             overflowBehavior: overflowBehavior,
             evaluations: allEvaluations
         )
+    }
+
+    private func rebuildIndexes() {
+        indexesByFlag.removeAll(keepingCapacity: true)
+        for (index, evaluation) in evaluations.enumerated() {
+            indexesByFlag[evaluation.flag] = index
+        }
     }
 }
 // swiftlint:enable missing_docs
