@@ -31,31 +31,27 @@ Keep all KSCrash work on a dedicated branch (`kscrash-*`) and merge back to `mai
 
 Ship both `SentryCrashIntegration` and `SentryKSCrashIntegration` on `main`. They are mutually exclusive at runtime — only one installs its crash handlers. Which one runs is controlled by two guards:
 
-1. `**#if SDK_V10` compiler flag** — `SentryKSCrashIntegration` is compiled into the binary only when building for V10.
-2. `**options.experimental.enableKSCrashIntegration`** — an opt-in flag (also gated behind `#if SDK_V10`) that must be `true` for `SentryKSCrashIntegration` to install. `SentryCrashIntegration` checks this flag and skips installation when the KSCrash path is active.
+1. `**#if ENABLE_KSCRASH` compiler flag** — `SentryKSCrashIntegration` is compiled into the binary only when building for ENABLE_KSCRASH (which requires V10).
 
 **Pros**
 
-- Work ships incrementally to `main`; no merge cliff & conflict mess
+- Work ships incrementally to `main`; no merge conflict mess
 - Hybrid SDK consumers can test against the KSCrash path and swap between the two more easily
 - The cutover becomes a 'flip the switch' change
 - Easier code review — changes land in small, reviewable chunks
 
 **Cons**
 
-- Both integrations live in the codebase simultaneously for a period
-- `#if SDK_V10` guards add a small amount of conditional-compilation mental noise for developers
+- `#if ENABLE_KSCRASH` guards add a small amount of conditional-compilation mental noise for developers
 - SPM users will checkout KSCrash as a dependency, whether it's used or not
 
 ---
 
 ## Proposal: Option B
 
-The dual-integration approach is lower risk and produces a better end result. The `SDK_V10` flag already exists in the build system.
+The dual-integration approach is lower risk and produces a better end result. The `ENABLE_KSCRASH` flag already exists in the build system.
 
 **Cutover plan (when KSCrash integration is feature-complete):**
 
-1. Remove `enableKSCrashIntegration`
-2. Remove the `#if SDK_V10 guards`
-3. Update SentryKSCrashIntegration to use the traditional `enableCrashHandler` option as it's enable guard
-4. Remove SentryCrash altogether
+1. Remove the `#if ENABLE_KSCRASH` guards
+2. Remove SentryCrash altogether
