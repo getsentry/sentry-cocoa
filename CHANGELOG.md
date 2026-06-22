@@ -8,6 +8,7 @@
 ### Fixes
 
 - Fixes crash caused by modifying breadcrumbs from multiple threads (#8114)
+- Prevent feedback form on external displays (#8071)
 
 ## 9.18.0
 

@@ -32,8 +32,9 @@ import UIKit
 
     /// Show the feedback form using the best available presenter, screenshot attachment, and optional form-specific configuration.
     ///
-    /// The SDK chooses a suitable presenter/window. Apps that need exact scene/window control
-    /// should manually present `SentrySDK.FeedbackForm`.
+    /// The SDK chooses a suitable presenter/window and ignores noninteractive external displays.
+    /// In multi-window apps this is best-effort and may choose a different active window;
+    /// present `SentrySDK.FeedbackForm` yourself for exact control.
     ///
     /// Per-presentation configuration only affects the displayed form. Widget, custom button,
     /// screenshot trigger, and shake gesture settings are global and ignored for individual presentations.
