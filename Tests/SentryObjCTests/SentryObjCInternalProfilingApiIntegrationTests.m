@@ -11,6 +11,12 @@
 - (void)setUp
 {
     [super setUp];
+
+#    if defined(__has_feature) && __has_feature(thread_sanitizer)
+    XCTSkip(@"Profiler does not run if thread sanitizer is attached.");
+    return;
+#    endif
+
     [SentryObjCSDK startWithConfigureOptions:^(SentryObjCOptions *options) {
         options.dsn = @"https://key@sentry.io/123";
         options.enableCrashHandler = NO;
