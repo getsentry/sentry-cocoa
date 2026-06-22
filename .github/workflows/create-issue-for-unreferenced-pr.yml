@@ -86,11 +86,11 @@ jobs:
               state: 'all',
               sort: 'created',
               direction: 'desc',
-              per_page: 30,
+              per_page: 100,
             });
 
             const existingIssue = existingIssuesResponse.data.find(issue =>
-              !issue.pull_request && (issue.title === prTitle || (issue.body && issue.body.includes(prUrl)))
+              !issue.pull_request && issue.body && issue.body.includes(prUrl)
             );
 
             if (existingIssue) {
