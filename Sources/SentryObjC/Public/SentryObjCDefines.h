@@ -22,6 +22,12 @@
 #    define SENTRY_OBJC_REPLAY_SUPPORTED 0
 #endif
 
+#if TARGET_OS_WATCH || TARGET_OS_TV || TARGET_OS_VISION
+#    define SENTRY_OBJC_PROFILING_SUPPORTED 0
+#else
+#    define SENTRY_OBJC_PROFILING_SUPPORTED 1
+#endif
+
 #ifdef __cplusplus
 #    define SENTRY_OBJC_EXTERN extern "C" __attribute__((visibility("default")))
 #else

@@ -9,7 +9,6 @@
 #    import "SentryLogC.h"
 #    import "SentryProfileConfiguration.h"
 #    import "SentryProfiler+Private.h"
-#    import "SentrySamplerDecision.h"
 #    import "SentrySampling.h"
 #    import "SentrySamplingContext.h"
 #    import "SentrySpanOperation.h"
