@@ -440,6 +440,7 @@ protocol Hub {
     func storeEnvelope(_ envelope: SentryEnvelope)
     func captureEnvelope(_ envelope: SentryEnvelope)
     func setTrace(_ traceId: SentryId, spanId: SpanId)
+    var options: Options { get }
 }
 
 protocol HubProvider {
@@ -466,6 +467,10 @@ private struct DefaultHub: Hub {
         SentrySDKInternal.currentHub().configureScope { scope in
             scope.setPropagationContext(traceId: traceId, spanId: spanId)
         }
+    }
+
+    var options: Options {
+        SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options ?? Options()
     }
 }
 

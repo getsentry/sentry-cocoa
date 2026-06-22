@@ -17,7 +17,6 @@ public struct SentryInternalApi {
         & SentryInternalUserApi.Dependencies
         & SentryInternalEnvelopeApi.Dependencies
         & HubProvider
-        & ClientProvider
         & OptionsDeserializerProvider
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
     typealias Dependencies = BaseDependencies
@@ -49,7 +48,6 @@ public struct SentryInternalApi {
     public let envelope: SentryInternalEnvelopeApi
 
     private let hub: Hub
-    private let clientProvider: any ClientProvider
     private let optionsDeserializer: OptionsDeserializer
 
     /// Method swizzling for hybrid SDKs.
@@ -99,7 +97,7 @@ public struct SentryInternalApi {
 
     /// Returns the current SDK options, or a default instance if the SDK has not been started.
     public var options: Options {
-        clientProvider.client?.options as? Options ?? Options()
+        hub.options
     }
 
     /// Creates SDK options from a dictionary representation.
@@ -109,7 +107,6 @@ public struct SentryInternalApi {
 
     init(dependencies: Dependencies) {
         self.hub = dependencies.hub
-        self.clientProvider = dependencies
         self.optionsDeserializer = dependencies.optionsDeserializer
         self.sdk = SentryInternalSdkApi(dependencies: dependencies)
         self.debug = SentryInternalDebugApi(provider: dependencies)
