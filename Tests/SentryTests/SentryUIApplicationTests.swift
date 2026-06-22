@@ -91,11 +91,11 @@ class SentryUIApplicationTests: XCTestCase {
     func testInternalRelevantViewControllers_whenWindowFilterProvided_shouldOnlyUseMatchingWindows() throws {
         // -- Arrange --
         let excludedViewController = UIViewController()
-        let excludedWindow = UIWindow()
+        let excludedWindow = makeWindow()
         excludedWindow.rootViewController = excludedViewController
 
         let includedViewController = UIViewController()
-        let includedWindow = UIWindow()
+        let includedWindow = makeWindow()
         includedWindow.rootViewController = includedViewController
 
         let sut = TestSentryUIApplication()

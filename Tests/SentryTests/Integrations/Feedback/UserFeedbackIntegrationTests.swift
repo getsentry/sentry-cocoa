@@ -683,8 +683,9 @@ final class UserFeedbackIntegrationTests: XCTestCase {
         private var mockWindowScene: UIWindowScene?
 
         init(role: UISceneSession.Role) {
-            self.mockWindowScene = MockUIWindowScene(sessionRole: role)
-            super.init(frame: UIScreen.main.bounds)
+            let mockWindowScene = MockUIWindowScene(sessionRole: role)
+            self.mockWindowScene = mockWindowScene
+            super.init(windowScene: mockWindowScene)
         }
 
         required init?(coder: NSCoder) {
