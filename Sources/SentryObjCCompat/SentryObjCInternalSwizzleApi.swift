@@ -6,6 +6,13 @@ internal import Sentry
 #endif
 import Foundation
 
+@objc(SentryObjCSwizzleMode)
+public enum SentryObjCSwizzleMode: Int {
+    case always = 0
+    case oncePerClass = 1
+    case oncePerClassAndSuperclasses = 2
+}
+
 @objc(SentryObjCInternalSwizzleApi) public final class SentryObjCInternalSwizzleApi: NSObject {
     internal let wrapped: Box<SentryInternalSwizzleApi>
 
@@ -31,12 +38,5 @@ import Foundation
             factory: factory
         )
     }
-}
-
-@objc(SentryObjCSwizzleMode)
-public enum SentryObjCSwizzleMode: Int {
-    case always = 0
-    case oncePerClass = 1
-    case oncePerClassAndSuperclasses = 2
 }
 // swiftlint:enable missing_docs
