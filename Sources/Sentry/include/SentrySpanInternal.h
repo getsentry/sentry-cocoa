@@ -90,8 +90,8 @@ SENTRY_NO_INIT
  * Frames of the stack trace associated with the span.
  */
 @property (nullable, nonatomic, strong) NSArray<SentryFrame *> *frames;
-@property (nonatomic, strong, readonly) SENTRY_SWIFT_MIGRATION_ID(SentryFeatureFlagStorage)
-    featureFlagStorage;
+@property (nonatomic, strong, readonly) SENTRY_SWIFT_MIGRATION_ID(SentryFeatureFlagBufferWrapper)
+    featureFlagBuffer;
 
 /**
  * Init a @c SentrySpan with given transaction and context.

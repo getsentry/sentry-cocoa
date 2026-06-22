@@ -39,7 +39,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     NSObject *_spanLock;
     NSObject *_observersLock;
     NSObject *_propagationContextLock;
-    SentryFeatureFlagStorage *_featureFlagStorage;
+    SentryFeatureFlagBufferWrapper *_featureFlagBuffer;
 }
 
 @synthesize span = _span;
@@ -59,7 +59,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         self.attachmentArray = [[NSMutableArray alloc] init];
         self.fingerprintArray = [[NSMutableArray alloc] init];
         self.attributesDictionary = [[NSMutableDictionary alloc] init];
-        _featureFlagStorage = [SentryFeatureFlagStorage scopeStorage];
+        _featureFlagBuffer = [SentryFeatureFlagBufferWrapper scopeBuffer];
         _spanLock = [[NSObject alloc] init];
         _observersLock = [[NSObject alloc] init];
         _propagationContextLock = [[NSObject alloc] init];
@@ -74,9 +74,9 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     return [self initWithMaxBreadcrumbs:defaultMaxBreadcrumbs];
 }
 
-- (SentryFeatureFlagStorage *)featureFlagStorage
+- (SentryFeatureFlagBufferWrapper *)featureFlagBuffer
 {
-    return _featureFlagStorage;
+    return _featureFlagBuffer;
 }
 
 - (instancetype)initWithScope:(SentryScope *)scope
@@ -92,7 +92,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
         [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
-        _featureFlagStorage = [scope.featureFlagStorage copyStorage];
+        _featureFlagBuffer = [scope.featureFlagBuffer copyBuffer];
 
         self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
@@ -226,7 +226,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     @synchronized(_attributesDictionary) {
         [_attributesDictionary removeAllObjects];
     }
-    [_featureFlagStorage removeAll];
+    [_featureFlagBuffer removeAll];
 
     self.userObject = nil;
     self.distString = nil;
@@ -559,8 +559,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     serializedData[@"traceContext"] = traceContext;
 
     NSMutableDictionary *context = [self context].mutableCopy;
-    NSDictionary<NSString *, id> *_Nullable featureFlags =
-        [_featureFlagStorage serializeForContext];
+    NSDictionary<NSString *, id> *_Nullable featureFlags = [_featureFlagBuffer serializeForContext];
     if (featureFlags.count > 0) {
         context[@"flags"] = featureFlags;
     }

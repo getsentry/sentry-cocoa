@@ -5,17 +5,17 @@
 // These methods stay SPI while the public surface is being finalized.
 extension Scope {
     @_spi(Private) public func addFeatureFlag(name: String, result: Bool) {
-        guard let storage = featureFlagStorage as? SentryFeatureFlagStorage else {
+        guard let wrapper = featureFlagBuffer as? SentryFeatureFlagBufferWrapper else {
             return
         }
-        storage.addFeatureFlag(name: name, result: result)
+        wrapper.buffer.add(name: name, value: result)
     }
 
     @_spi(Private) public func removeFeatureFlag(name: String) {
-        guard let storage = featureFlagStorage as? SentryFeatureFlagStorage else {
+        guard let wrapper = featureFlagBuffer as? SentryFeatureFlagBufferWrapper else {
             return
         }
-        storage.removeFeatureFlag(name: name)
+        wrapper.buffer.remove(name: name)
     }
 }
 // swiftlint:enable missing_docs

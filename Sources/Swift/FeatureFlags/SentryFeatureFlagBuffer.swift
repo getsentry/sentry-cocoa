@@ -1,6 +1,9 @@
 // swiftlint:disable missing_docs
 import Foundation
 
+private let maxScopeFeatureFlags = 100
+private let maxSpanFeatureFlags = 10
+
 final class SentryFeatureFlagBuffer {
     private let maxSize: Int
     private let overflowBehavior: SentryFeatureFlagBufferOverflowBehavior
@@ -13,6 +16,24 @@ final class SentryFeatureFlagBuffer {
         self.maxSize = maxSize
         self.overflowBehavior = overflowBehavior
         self.evaluations = evaluations
+    }
+
+    static func scopeBuffer() -> SentryFeatureFlagBuffer {
+        SentryFeatureFlagBuffer(
+            // Error events record the 100 most recent, unique feature flag evaluations.
+            // https://develop.sentry.dev/sdk/foundations/client/integrations/feature-flags/#tracking-feature-flag-evaluations
+            maxSize: maxScopeFeatureFlags,
+            overflowBehavior: .dropOldest
+        )
+    }
+
+    static func spanBuffer() -> SentryFeatureFlagBuffer {
+        SentryFeatureFlagBuffer(
+            // Spans track the first 10 feature flags evaluated within the span's scope.
+            // https://develop.sentry.dev/sdk/foundations/client/integrations/feature-flags/#tracking-feature-flag-evaluations
+            maxSize: maxSpanFeatureFlags,
+            overflowBehavior: .rejectNew
+        )
     }
 
     var allEvaluations: [SentryFeatureFlagEvaluation] {
