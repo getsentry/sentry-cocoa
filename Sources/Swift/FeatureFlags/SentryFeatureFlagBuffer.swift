@@ -18,6 +18,9 @@ final class SentryFeatureFlagBuffer {
         self.overflowBehavior = overflowBehavior
         self.evaluations = evaluations
         self.indexesByFlag = [:]
+        let capacity = max(maxSize, 0)
+        self.evaluations.reserveCapacity(capacity)
+        self.indexesByFlag.reserveCapacity(capacity)
         rebuildIndexes()
     }
 
@@ -90,8 +93,8 @@ final class SentryFeatureFlagBuffer {
 
     func removeAll() {
         lock.synchronized {
-            evaluations.removeAll()
-            indexesByFlag.removeAll()
+            evaluations.removeAll(keepingCapacity: true)
+            indexesByFlag.removeAll(keepingCapacity: true)
         }
     }
 
