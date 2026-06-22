@@ -70,6 +70,11 @@ public struct SentryInternalApi {
     public let replay: SentryInternalReplayApi
 #endif
 
+#if !(os(watchOS) || os(tvOS) || os(visionOS))
+    /// Profiling for hybrid SDKs.
+    public let profiling: SentryInternalProfilingApi
+#endif
+
     init(dependencies: Dependencies) {
         self.sdk = SentryInternalSdkApi(dependencies: dependencies)
         self.debug = SentryInternalDebugApi(provider: dependencies)
@@ -86,6 +91,9 @@ public struct SentryInternalApi {
         self.viewHierarchy = SentryInternalViewHierarchyApi(dependencies: dependencies)
         self.screen = SentryInternalScreenApi(dependencies: dependencies)
         self.replay = SentryInternalReplayApi(dependencies: dependencies)
+#endif
+#if !(os(watchOS) || os(tvOS) || os(visionOS))
+        self.profiling = SentryInternalProfilingApi()
 #endif
     }
 }
