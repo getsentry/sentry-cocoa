@@ -203,8 +203,8 @@ void
 sentrycrashcrs_initialize(const char *appName, const char *reportsPath)
 {
     pthread_mutex_lock(&g_mutex);
-    const size_t appNameLength =
-        strlcpy(g_appName, appName != NULL ? appName : "", sizeof(g_appName));
+    const size_t appNameLength
+        = strlcpy(g_appName, appName != NULL ? appName : "", sizeof(g_appName));
     if (appName == NULL) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Report store initialized with NULL app name");
     } else if (appNameLength >= sizeof(g_appName)) {
@@ -212,8 +212,8 @@ sentrycrashcrs_initialize(const char *appName, const char *reportsPath)
             appNameLength, sizeof(g_appName) - 1);
     }
 
-    const size_t reportsPathLength = strlcpy(
-        g_reportsPath, reportsPath != NULL ? reportsPath : "", sizeof(g_reportsPath));
+    const size_t reportsPathLength
+        = strlcpy(g_reportsPath, reportsPath != NULL ? reportsPath : "", sizeof(g_reportsPath));
     if (reportsPath == NULL) {
         SENTRY_ASYNC_SAFE_LOG_ERROR("Report store initialized with NULL reports path");
     } else if (reportsPathLength >= sizeof(g_reportsPath)) {

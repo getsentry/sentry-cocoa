@@ -299,8 +299,8 @@ isReportStoreCanaryIntact(const GuardedSentryCrashCRSPathBuffer *buffer)
 {
     // -- Arrange --
     self.appName = [self stringByRepeatingString:@"a" count:SentryCrashCRS_MAX_PATH_LENGTH + 100];
-    [self prepareReportStoreWithPathEnd:
-              @"testGetNextCrashReportPath_whenAppNameExceedsStaticBuffer"];
+    [self
+        prepareReportStoreWithPathEnd:@"testGetNextCrashReportPath_whenAppNameExceedsStaticBuffer"];
     GuardedSentryCrashCRSPathBuffer guardedPath;
     fillReportStoreCanary(&guardedPath);
 
@@ -333,8 +333,7 @@ isReportStoreCanaryIntact(const GuardedSentryCrashCRSPathBuffer *buffer)
 {
     // -- Arrange --
     self.appName = [self stringByRepeatingString:@"a" count:SentryCrashCRS_MAX_PATH_LENGTH + 100];
-    [self prepareReportStoreWithPathEnd:
-              @"testAttachmentsPath_whenOutputExceedsOnCrashBuffer"];
+    [self prepareReportStoreWithPathEnd:@"testAttachmentsPath_whenOutputExceedsOnCrashBuffer"];
     GuardedSentryCrashCRSPathBuffer guardedPath;
     fillReportStoreCanary(&guardedPath);
 
