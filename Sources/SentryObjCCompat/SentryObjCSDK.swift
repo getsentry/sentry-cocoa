@@ -229,6 +229,7 @@ import Foundation
         SentrySDK.reportFullyDisplayed()
     }
 
+    #if os(iOS) || os(tvOS) || os(visionOS)
     @objc public static func extendAppStart() {
         SentrySDK.extendAppStart()
     }
@@ -241,6 +242,7 @@ import Foundation
     @objc public static func finishExtendedAppStart() {
         SentrySDK.finishExtendedAppStart()
     }
+    #endif
 
     @objc public static func pauseAppHangTracking() {
         SentrySDK.pauseAppHangTracking()
