@@ -28,6 +28,7 @@
   - `extendAppLaunch()` -> `extendAppStart()`
   - `finishExtendedAppLaunch()` -> `finishExtendedAppStart()`
   - Added `getExtendedAppStartSpan()` to get the extended app span
+- Add extended app start APIs to ObjC wrapper SDK (#8163)
 
 ## 9.18.0
 
