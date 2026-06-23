@@ -28,6 +28,8 @@ let targetDependencies: [Target.Dependency] = if enableKSCrash {
     []
 }
 
+let kscrashSwiftSettings: [SwiftSetting] = enableKSCrash ? [.define("ENABLE_KSCRASH")] : []
+
 var products: [Product] = [
     // BEGIN:BINARY_PRODUCTS
     .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
@@ -122,7 +124,7 @@ targets += [
         path: "Sources/Swift",
         swiftSettings: [
             .unsafeFlags(["-enable-library-evolution"])
-        ]),
+        ] + kscrashSwiftSettings),
 
     // SentryObjCInternal compiles all ObjC/C sources from the repo. Named "Internal"
     // to reserve "SentryObjC" for a future public Objective-C wrapper around the SDK.
