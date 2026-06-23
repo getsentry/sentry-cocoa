@@ -177,6 +177,12 @@ EOF
 MIN_OS_VERSION="$(minimum_os_version_for_sdk "$SDK")"
 SUPPORTED_PLATFORM="$(supported_platforms_for_sdk "$SDK")"
 
+if [ "$SDK" = "macosx" ] || [ "$SDK" = "maccatalyst" ]; then
+    OS_VERSION_KEY="LSMinimumSystemVersion"
+else
+    OS_VERSION_KEY="MinimumOSVersion"
+fi
+
 cat > "$resources_dir/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
@@ -203,7 +209,7 @@ cat > "$resources_dir/Info.plist" <<EOF
   </array>
   <key>CFBundleVersion</key>
   <string>$BUNDLE_VERSION</string>
-  <key>MinimumOSVersion</key>
+  <key>$OS_VERSION_KEY</key>
   <string>$MIN_OS_VERSION</string>
 </dict>
 </plist>

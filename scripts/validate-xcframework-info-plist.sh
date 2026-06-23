@@ -51,7 +51,6 @@ REQUIRED_KEYS=(
     CFBundleShortVersionString
     CFBundleSupportedPlatforms
     CFBundleVersion
-    MinimumOSVersion
 )
 
 NONEMPTY_KEYS=(
@@ -61,7 +60,6 @@ NONEMPTY_KEYS=(
     CFBundleShortVersionString
     CFBundleSupportedPlatforms
     CFBundleVersion
-    MinimumOSVersion
 )
 
 begin_group "Validate XCFramework Info.plist: $XCFRAMEWORK_PATH"
@@ -87,7 +85,15 @@ while IFS= read -r -d '' framework_path; do
     frameworks_checked=$((frameworks_checked + 1))
     plist_json="$(plutil -convert json -o - "$info_plist")"
 
-    for key in "${REQUIRED_KEYS[@]}"; do
+    # Native macOS frameworks use LSMinimumSystemVersion; all others (including Mac Catalyst) use MinimumOSVersion
+    has_ls="$(printf '%s' "$plist_json" | jq -r '.LSMinimumSystemVersion // empty')"
+    if [ -n "$has_ls" ]; then
+        os_version_key="LSMinimumSystemVersion"
+    else
+        os_version_key="MinimumOSVersion"
+    fi
+
+    for key in "${REQUIRED_KEYS[@]}" "$os_version_key"; do
         value="$(printf '%s' "$plist_json" | jq -r --arg k "$key" '.[$k] // empty')"
         if [ -z "$value" ]; then
             log_error "$framework_name: missing required key '$key'"
@@ -95,9 +101,12 @@ while IFS= read -r -d '' framework_path; do
         fi
     done
 
-    for key in "${NONEMPTY_KEYS[@]}"; do
+    for key in "${NONEMPTY_KEYS[@]}" "$os_version_key"; do
         value="$(printf '%s' "$plist_json" | jq -r --arg k "$key" '.[$k] // empty')"
-        if [ "$value" = "" ] || [ "$value" = "0.0.0" ]; then
+        if [ -z "$value" ]; then
+            continue
+        fi
+        if [ "$value" = "0.0.0" ]; then
             log_error "$framework_name: key '$key' has invalid value '$value'"
             validation_errors=$((validation_errors + 1))
         fi
