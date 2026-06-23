@@ -229,6 +229,19 @@ import Foundation
         SentrySDK.reportFullyDisplayed()
     }
 
+    @objc public static func extendAppStart() {
+        SentrySDK.extendAppStart()
+    }
+
+    @objc public static func getExtendedAppStartSpan() -> SentryObjCSpan? {
+        guard let span = SentrySDK.getExtendedAppStartSpan() else { return nil }
+        return SentryObjCSpan(span)
+    }
+
+    @objc public static func finishExtendedAppStart() {
+        SentrySDK.finishExtendedAppStart()
+    }
+
     @objc public static func pauseAppHangTracking() {
         SentrySDK.pauseAppHangTracking()
     }
