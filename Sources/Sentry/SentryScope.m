@@ -10,13 +10,15 @@
 #import "SentryLogC.h"
 #import "SentryScope+Private.h"
 #import "SentryScope+PrivateSwift.h"
-#import "SentrySpanInternal+Private.h"
+#import "SentrySpanInternal.h"
 #import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
 @interface SentryScope ()
 
@@ -37,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
     NSObject *_spanLock;
     NSObject *_observersLock;
     NSObject *_propagationContextLock;
+    SentryFeatureFlagBufferWrapper *_featureFlagBuffer;
 }
 
 @synthesize span = _span;
@@ -56,6 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.attachmentArray = [[NSMutableArray alloc] init];
         self.fingerprintArray = [[NSMutableArray alloc] init];
         self.attributesDictionary = [[NSMutableDictionary alloc] init];
+        _featureFlagBuffer = [SentryFeatureFlagBufferWrapper scopeBuffer];
         _spanLock = [[NSObject alloc] init];
         _observersLock = [[NSObject alloc] init];
         _propagationContextLock = [[NSObject alloc] init];
@@ -70,9 +74,14 @@ NS_ASSUME_NONNULL_BEGIN
     return [self initWithMaxBreadcrumbs:defaultMaxBreadcrumbs];
 }
 
+- (SentryFeatureFlagBufferWrapper *)featureFlagBuffer
+{
+    return _featureFlagBuffer;
+}
+
 - (instancetype)initWithScope:(SentryScope *)scope
 {
-    if (self = [self init]) {
+    if (self = [self initWithMaxBreadcrumbs:scope.maxBreadcrumbs]) {
         [_extraDictionary addEntriesFromDictionary:[scope extras]];
         [_tagDictionary addEntriesFromDictionary:[scope tags]];
         [_contextDictionary addEntriesFromDictionary:[scope context]];
@@ -83,6 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
         [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
+        _featureFlagBuffer = [scope.featureFlagBuffer copyBuffer];
 
         self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
@@ -216,6 +226,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(_attributesDictionary) {
         [_attributesDictionary removeAllObjects];
     }
+    [_featureFlagBuffer removeAll];
 
     self.userObject = nil;
     self.distString = nil;
@@ -547,7 +558,11 @@ NS_ASSUME_NONNULL_BEGIN
     traceContext = [self buildTraceContext:span];
     serializedData[@"traceContext"] = traceContext;
 
-    NSDictionary *context = [self context];
+    NSMutableDictionary *context = [self context].mutableCopy;
+    NSDictionary<NSString *, id> *_Nullable featureFlags = [_featureFlagBuffer serializeForContext];
+    if (featureFlags.count > 0) {
+        context[@"flags"] = featureFlags;
+    }
     if (context.count > 0) {
         [serializedData setValue:context forKey:@"context"];
     }
@@ -742,7 +757,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     if (span != nil) {
         NSDictionary *dict = [SENTRY_UNWRAP_NULLABLE_VALUE(id<SentrySpan>, span) serialize];
-        if (dict[kSentrySpanStatusSerializationKey] != nil) {
+        if (dict[kSentryScopeSpanStatusSerializationKey] != nil) {
             return dict;
         }
 
@@ -753,7 +768,7 @@ NS_ASSUME_NONNULL_BEGIN
         // to any state other than undefined. Spans first have a default status of OK, but we don't
         // want to change this for the trace context status.
         NSMutableDictionary *mutableDict = [dict mutableCopy];
-        mutableDict[kSentrySpanStatusSerializationKey] = kSentrySpanStatusNameOk;
+        mutableDict[kSentryScopeSpanStatusSerializationKey] = kSentrySpanStatusNameOk;
         return mutableDict;
 
     } else {
