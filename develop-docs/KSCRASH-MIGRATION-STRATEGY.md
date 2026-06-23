@@ -29,9 +29,10 @@ Keep all KSCrash work on a dedicated branch (`kscrash-*`) and merge back to `mai
 
 ## Option B: Dual integrations on `main` (proposed)
 
-Ship both `SentryCrashIntegration` and `SentryKSCrashIntegration` on `main`. They are mutually exclusive at runtime — only one installs its crash handlers. Which one runs is controlled by two guards:
+Ship both `SentryCrashIntegration` and `SentryKSCrashIntegration` on `main`. They are mutually exclusive at compile time — only one is compiled into the binary. Which one is compiled in is controlled by two guards:
 
-1. `**#if ENABLE_KSCRASH` compiler flag** — `SentryKSCrashIntegration` is compiled into the binary only when building for ENABLE_KSCRASH (which requires V10).
+1. **`#if ENABLE_KSCRASH` compiler flag** — `SentryKSCrashIntegration` is compiled into the binary only when building for ENABLE_KSCRASH (which requires V10).
+2. **`ENABLE_KSCRASH` env var in Package.swift** - KSCrash is only downloaded and added as a dependency in the manifest if `ENABLE_KSCRASH=1` when SPM runs
 
 **Pros**
 
@@ -43,7 +44,6 @@ Ship both `SentryCrashIntegration` and `SentryKSCrashIntegration` on `main`. The
 **Cons**
 
 - `#if ENABLE_KSCRASH` guards add a small amount of conditional-compilation mental noise for developers
-- SPM users will checkout KSCrash as a dependency, whether it's used or not
 
 ---
 
