@@ -7,7 +7,6 @@
 #import "SentryNoOpSpan.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
-#import "SentrySamplerDecision.h"
 #import "SentrySanitizerUtils.h"
 #import "SentryScope+Private.h"
 #import "SentrySpanContext+Private.h"

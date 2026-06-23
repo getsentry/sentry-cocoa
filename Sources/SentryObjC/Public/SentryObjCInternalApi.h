@@ -23,6 +23,9 @@
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 @class SentryObjCInternalReplayApi;
 #endif
+#if SENTRY_OBJC_PROFILING_SUPPORTED
+@class SentryObjCInternalProfilingApi;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -76,6 +79,11 @@ SENTRY_NO_INIT
 #if SENTRY_OBJC_REPLAY_SUPPORTED
 /// Session replay.
 @property (nonatomic, readonly) SentryObjCInternalReplayApi *replay;
+#endif
+
+#if SENTRY_OBJC_PROFILING_SUPPORTED
+/// Profiling.
+@property (nonatomic, readonly) SentryObjCInternalProfilingApi *profiling;
 #endif
 
 @end

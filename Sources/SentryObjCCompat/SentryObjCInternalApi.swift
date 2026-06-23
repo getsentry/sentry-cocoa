@@ -64,5 +64,11 @@ import Foundation
         SentryObjCInternalReplayApi(wrapped.value.replay)
     }
 #endif
+
+#if !(os(watchOS) || os(tvOS) || os(visionOS))
+    @objc public var profiling: SentryObjCInternalProfilingApi {
+        SentryObjCInternalProfilingApi(wrapped.value.profiling)
+    }
+#endif
 }
 // swiftlint:enable missing_docs

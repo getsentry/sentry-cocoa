@@ -486,6 +486,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCInternalProfilingApi",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCInternalReplayApi",
     "super": "NSObject",
     "has_inner": true
@@ -1413,6 +1419,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "collectBetweenStartTime:andEndTime:forTraceId:",
+    "parent": "SentryObjCInternalProfilingApi",
+    "returnType": "NSDictionary<NSString *,id> * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "color",
     "parent": "SentryObjCUserFeedbackFormElementOutlineStyle",
     "returnType": "UIColor * _Nonnull",
@@ -1689,6 +1702,13 @@
     "name": "diagnosticLevel",
     "parent": "SentryObjCOptions",
     "returnType": "SentryObjCLevel",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "discardFor:",
+    "parent": "SentryObjCInternalProfilingApi",
+    "returnType": "void",
     "instance": true
   },
   {
@@ -2822,6 +2842,13 @@
     "kind": "ObjCMethodDecl",
     "name": "init",
     "parent": "SentryObjCInternalPerformanceApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCInternalProfilingApi",
     "returnType": "instancetype _Nonnull",
     "instance": true
   },
@@ -4235,6 +4262,13 @@
   {
     "kind": "ObjCMethodDecl",
     "name": "new",
+    "parent": "SentryObjCInternalProfilingApi",
+    "returnType": "instancetype _Nonnull",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "new",
     "parent": "SentryObjCInternalReplayApi",
     "returnType": "instancetype _Nonnull",
     "instance": false
@@ -4671,6 +4705,13 @@
     "name": "preContext",
     "parent": "SentryObjCFrame",
     "returnType": "NSArray<NSString *> * _Nullable",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "profiling",
+    "parent": "SentryObjCInternalApi",
+    "returnType": "SentryObjCInternalProfilingApi * _Nonnull",
     "instance": true
   },
   {
@@ -7468,6 +7509,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "startFor:",
+    "parent": "SentryObjCInternalProfilingApi",
+    "returnType": "uint64_t",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "startProfiler",
     "parent": "SentryObjCSDK",
     "returnType": "void",
@@ -9957,6 +10005,12 @@
     "name": "preContext",
     "parent": "SentryObjCFrame",
     "type": "NSArray<NSString *> * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "profiling",
+    "parent": "SentryObjCInternalApi",
+    "type": "SentryObjCInternalProfilingApi * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
