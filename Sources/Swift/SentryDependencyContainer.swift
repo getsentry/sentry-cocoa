@@ -721,7 +721,7 @@ protocol OptionsDeserializer {
 
 struct DefaultOptionsDeserializer: OptionsDeserializer {
     func options(from dictionary: [String: Any]) throws -> Options {
-        guard let options = try PrivateSentrySDKOnly.makeOptions(fromDictionary: dictionary) as? Options else {
+        guard let options = try SentryOptionsHelper.makeOptions(fromDictionary: dictionary) as? Options else {
             throw NSError(domain: "SentryInternalApi", code: 1, userInfo: [
                 NSLocalizedDescriptionKey: "Failed to create options from dictionary"
             ])
