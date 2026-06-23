@@ -1,60 +1,68 @@
 #!/bin/bash
+set -euo pipefail
 
-set -eoux pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./ci-utils.sh disable=SC1091
+source "$SCRIPT_DIR/ci-utils.sh"
 
-# shellcheck source=./scripts/ci-utils.sh disable=SC1091
-source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+XCFRAMEWORK_PATH=""
+SIGN=false
 
 usage() {
-    cat <<EOF
-Usage: $(basename "$0") <signed> <framework>
-
-Optionally sign and then compress an XCFramework into a zip archive.
-
-ARGUMENTS:
-    signed       '--sign' to codesign with the Sentry certificate, or empty string to skip
-    framework    XCFramework name without extension (e.g., Sentry-Dynamic)
-
-EXAMPLES:
-    $(basename "$0") --sign Sentry-Dynamic
-    $(basename "$0") "" Sentry
-
-EOF
+    log_notice "Usage: $0 --xcframework <path> [--sign]"
+    log_notice "  --xcframework <path>    Path to the .xcframework directory (required)"
+    log_notice "  --sign                  Codesign with the Sentry certificate"
     exit 1
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --xcframework)
+            if [ $# -lt 2 ]; then
+                usage
+            fi
+            XCFRAMEWORK_PATH="$2"
+            shift 2
+            ;;
+        --sign)
+            SIGN=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            log_error "Unknown argument: $1"
+            usage
+            ;;
+    esac
+done
+
+if [ -z "$XCFRAMEWORK_PATH" ]; then
+    log_error "Error: --xcframework is required"
     usage
 fi
 
-if [[ $# -lt 2 ]]; then
-    log_error "Expected 2 arguments (signed, framework), got $#"
-    usage
+if [ ! -d "$XCFRAMEWORK_PATH" ]; then
+    log_error "XCFramework path does not exist: $XCFRAMEWORK_PATH"
+    exit 1
 fi
-
-should_sign_arg="${1}"
-framework="${2}"
-
-should_sign=false
-[[ "$should_sign_arg" == "--sign" ]] && should_sign=true
 
 sentry_certificate="Apple Distribution: GetSentry LLC (97JCY7859U)"
-framework_path="$framework.xcframework"
 
 log_info "Compress XCFramework:"
-log_info "  Framework: $framework"
-log_info "  Path:      $framework_path"
-log_info "  Signing:   $should_sign"
+log_info "  Path:      $XCFRAMEWORK_PATH"
+log_info "  Signing:   $SIGN"
 
-if [[ "$should_sign" == true ]]; then
-    begin_group "Signing $framework"
+if [[ "$SIGN" == true ]]; then
+    begin_group "Signing $XCFRAMEWORK_PATH"
     log_info "Signing with certificate: $sentry_certificate"
-    codesign --sign "$sentry_certificate" --timestamp --options runtime --deep --force "$framework_path"
-    codesign --verify --deep --strict --verbose=2 "$framework_path"
+    codesign --sign "$sentry_certificate" --timestamp --options runtime --deep --force "$XCFRAMEWORK_PATH"
+    codesign --verify --deep --strict --verbose=2 "$XCFRAMEWORK_PATH"
     end_group
 fi
 
-begin_group "Compressing $framework"
-ditto -c -k -X --rsrc --keepParent "$framework_path" "$framework_path.zip"
-log_info "Created $framework_path.zip"
+begin_group "Compressing $XCFRAMEWORK_PATH"
+ditto -c -k -X --rsrc --keepParent "$XCFRAMEWORK_PATH" "$XCFRAMEWORK_PATH.zip"
+log_info "Created $XCFRAMEWORK_PATH.zip"
 end_group

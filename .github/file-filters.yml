@@ -288,8 +288,8 @@ run_release_for_prs: &run_release_for_prs
   - "scripts/ci-diagnostics.sh"
   - "scripts/ci-utils.sh"
   - "scripts/build-xcframework-slice.sh"
-  - "scripts/build-xcframework-local.sh"
-  - "scripts/validate-xcframework-symbols.sh"
+  - "scripts/build-xcframework-variant.sh"
+  - "scripts/validate-xcframework*.sh"
   - "scripts/assemble-xcframework.sh"
   - "scripts/build-xcframework-sentryobjc.sh"
   - "scripts/build-static-library-sentryobjc.sh"
@@ -631,7 +631,7 @@ run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_
   - "scripts/ci-utils.sh"
   - "scripts/ci-diagnostics.sh"
   - "scripts/prepare-package.sh"
-  - "scripts/build-xcframework-local.sh"
+  - "scripts/build-xcframework-variant.sh"
 
   # Project files
   - "Package*.swift"
