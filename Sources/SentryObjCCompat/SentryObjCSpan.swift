@@ -99,6 +99,14 @@ import Foundation
         wrapped.removeData(key: key)
     }
 
+    @objc(addFeatureFlagWithName:result:) public func addFeatureFlag(name: String, result: Bool) {
+        wrapped.addFeatureFlag(name: name, result: result)
+    }
+
+    @objc(removeFeatureFlagWithName:) public func removeFeatureFlag(name: String) {
+        wrapped.removeFeatureFlag(name: name)
+    }
+
     @objc(setTagValue:forKey:) public func setTag(value: String, key: String) {
         wrapped.setTag(value: value, key: key)
     }

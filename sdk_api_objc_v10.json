@@ -754,6 +754,34 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "addFeatureFlagWithName:result:",
+    "parent": "SentryObjCHub",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "addFeatureFlagWithName:result:",
+    "parent": "SentryObjCSDK",
+    "returnType": "void",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "addFeatureFlagWithName:result:",
+    "parent": "SentryObjCScope",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "addFeatureFlagWithName:result:",
+    "parent": "SentryObjCSpan",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "addIgnoreClasses:",
     "parent": "SentryObjCInternalReplayApi",
     "returnType": "void",
@@ -4851,6 +4879,34 @@
     "kind": "ObjCMethodDecl",
     "name": "removeExtraForKey:",
     "parent": "SentryObjCScope",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "removeFeatureFlagWithName:",
+    "parent": "SentryObjCHub",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "removeFeatureFlagWithName:",
+    "parent": "SentryObjCSDK",
+    "returnType": "void",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "removeFeatureFlagWithName:",
+    "parent": "SentryObjCScope",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "removeFeatureFlagWithName:",
+    "parent": "SentryObjCSpan",
     "returnType": "void",
     "instance": true
   },

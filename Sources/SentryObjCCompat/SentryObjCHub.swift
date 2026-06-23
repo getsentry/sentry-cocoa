@@ -127,6 +127,14 @@ import Foundation
         wrapped.add(crumb.wrapped)
     }
 
+    @objc(addFeatureFlagWithName:result:) public func addFeatureFlag(name: String, result: Bool) {
+        wrapped.addFeatureFlag(name: name, result: result)
+    }
+
+    @objc(removeFeatureFlagWithName:) public func removeFeatureFlag(name: String) {
+        wrapped.removeFeatureFlag(name: name)
+    }
+
     @objc public func getClient() -> SentryObjCClient? {
         guard let client = wrapped.getClient() else { return nil }
         return SentryObjCClient(client)

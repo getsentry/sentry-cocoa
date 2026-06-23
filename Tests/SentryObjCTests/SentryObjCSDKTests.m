@@ -8,6 +8,17 @@
 
 @implementation SentryObjCSDKTests
 
+- (NSArray<NSDictionary<NSString *, id> *> *)currentFeatureFlagValues
+{
+    __block NSArray<NSDictionary<NSString *, id> *> *values = nil;
+    [SentryObjCSDK configureScope:^(SentryObjCScope *scope) {
+        NSDictionary<NSString *, id> *context = [scope serialize][@"context"];
+        NSDictionary<NSString *, id> *flags = context[@"flags"];
+        values = flags[@"values"];
+    }];
+    return values;
+}
+
 - (void)setUp
 {
     [super setUp];
@@ -487,6 +498,32 @@
 
     // -- Act & Assert (no crash) --
     [SentryObjCSDK addBreadcrumb:crumb];
+}
+
+#pragma mark - Feature Flags
+
+- (void)testAddFeatureFlagWithName_shouldPersistOnCurrentScope
+{
+    // -- Act --
+    [SentryObjCSDK addFeatureFlagWithName:@"checkout" result:YES];
+
+    // -- Assert --
+    NSArray<NSDictionary<NSString *, id> *> *values = [self currentFeatureFlagValues];
+    XCTAssertEqual(values.count, 1U);
+    XCTAssertEqualObjects(values[0][@"flag"], @"checkout");
+    XCTAssertEqualObjects(values[0][@"result"], @YES);
+}
+
+- (void)testRemoveFeatureFlagWithName_shouldRemoveFromCurrentScope
+{
+    // -- Arrange --
+    [SentryObjCSDK addFeatureFlagWithName:@"checkout" result:YES];
+
+    // -- Act --
+    [SentryObjCSDK removeFeatureFlagWithName:@"checkout"];
+
+    // -- Assert --
+    XCTAssertNil([self currentFeatureFlagValues]);
 }
 
 #pragma mark - Configure Scope

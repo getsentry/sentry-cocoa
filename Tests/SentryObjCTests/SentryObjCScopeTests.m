@@ -6,6 +6,13 @@
 
 @implementation SentryObjCScopeTests
 
+- (NSArray<NSDictionary<NSString *, id> *> *)featureFlagValuesFromScope:(SentryObjCScope *)scope
+{
+    NSDictionary<NSString *, id> *context = [scope serialize][@"context"];
+    NSDictionary<NSString *, id> *flags = context[@"flags"];
+    return flags[@"values"];
+}
+
 - (void)testInit_whenDefault_shouldCreateInstance
 {
     // -- Arrange & Act --
@@ -243,6 +250,34 @@
 
     // -- Act & Assert (no crash) --
     [scope clearBreadcrumbs];
+}
+
+- (void)testAddFeatureFlagWithName_whenCalled_shouldSerializeFlagsContext
+{
+    // -- Arrange --
+    SentryObjCScope *scope = [[SentryObjCScope alloc] init];
+
+    // -- Act --
+    [scope addFeatureFlagWithName:@"checkout" result:YES];
+
+    // -- Assert --
+    NSArray<NSDictionary<NSString *, id> *> *values = [self featureFlagValuesFromScope:scope];
+    XCTAssertEqual(values.count, 1U);
+    XCTAssertEqualObjects(values[0][@"flag"], @"checkout");
+    XCTAssertEqualObjects(values[0][@"result"], @YES);
+}
+
+- (void)testRemoveFeatureFlagWithName_whenCalled_shouldRemoveFlagsContext
+{
+    // -- Arrange --
+    SentryObjCScope *scope = [[SentryObjCScope alloc] init];
+    [scope addFeatureFlagWithName:@"checkout" result:YES];
+
+    // -- Act --
+    [scope removeFeatureFlagWithName:@"checkout"];
+
+    // -- Assert --
+    XCTAssertNil([self featureFlagValuesFromScope:scope]);
 }
 
 - (void)testSetContextValueForKey_whenCalled_shouldNotCrash
