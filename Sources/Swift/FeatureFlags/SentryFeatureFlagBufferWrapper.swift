@@ -8,7 +8,7 @@ import Foundation
 @_spi(Private)
 @objc(SentryFeatureFlagBufferWrapper)
 public final class SentryFeatureFlagBufferWrapper: NSObject {
-    let buffer: SentryFeatureFlagBuffer
+    private let buffer: SentryFeatureFlagBuffer
 
     private init(buffer: SentryFeatureFlagBuffer) {
         self.buffer = buffer

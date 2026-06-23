@@ -72546,6 +72546,37 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "genericSig": "<Self where Self : Sentry.Span>",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo10SentrySpanP0A0E14addFeatureFlag4name6resultySS_SbtF",
+            "moduleName": "Sentry",
+            "name": "addFeatureFlag",
+            "printedName": "addFeatureFlag(name:result:)",
+            "usr": "s:So10SentrySpanP0A0E14addFeatureFlag4name6resultySS_SbtF"
+          },
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -72681,6 +72712,31 @@
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
             "usr": "c:objc(pl)SentrySpan(im)removeDataForKey:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "genericSig": "<Self where Self : Sentry.Span>",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo10SentrySpanP0A0E17removeFeatureFlag4nameySS_tF",
+            "moduleName": "Sentry",
+            "name": "removeFeatureFlag",
+            "printedName": "removeFeatureFlag(name:)",
+            "usr": "s:So10SentrySpanP0A0E17removeFeatureFlag4nameySS_tF"
           },
           {
             "children": [

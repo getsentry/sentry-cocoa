@@ -369,6 +369,70 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "event")
     }
 
+    func testFeatureFlags_whenSettingActiveSpanAfterExistingFlags_shouldNotBackfillSpanData() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        let transaction = fixture.transaction
+        scope.addFeatureFlag(name: "old", result: true)
+
+        // -- Act --
+        scope.span = transaction
+        scope.addFeatureFlag(name: "new", result: true)
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(values.count, 2)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "old")
+        XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "new")
+
+        let data = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        XCTAssertNil(data["flag.evaluation.old"])
+        XCTAssertEqual(try XCTUnwrap(data["flag.evaluation.new"] as? Bool), true)
+    }
+
+    func testFeatureFlags_whenRemovingWithActiveSpan_shouldRemoveFromScopeAndActiveSpan() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        let transaction = fixture.transaction
+        scope.span = transaction
+        scope.addFeatureFlag(name: "checkout", result: true)
+
+        // -- Act --
+        scope.removeFeatureFlag(name: "checkout")
+
+        // -- Assert --
+        XCTAssertNil(serializeFeatureFlags(from: scope))
+        let data = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        XCTAssertNil(data["flag.evaluation.checkout"])
+    }
+
+    func testFeatureFlags_whenChildSpanIsActive_shouldNotInheritRootOrScopeFlags() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        let transaction = fixture.transaction
+        scope.span = transaction
+        scope.addFeatureFlag(name: "root", result: true)
+        let child = transaction.startChild(operation: "child")
+
+        // -- Act --
+        scope.span = child
+        scope.addFeatureFlag(name: "child", result: true)
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(values.count, 2)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "root")
+        XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "child")
+
+        let transactionData = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(transactionData["flag.evaluation.root"] as? Bool), true)
+        XCTAssertNil(transactionData["flag.evaluation.child"])
+
+        let childData = try XCTUnwrap(child.serialize()["data"] as? [String: Any])
+        XCTAssertNil(childData["flag.evaluation.root"])
+        XCTAssertEqual(try XCTUnwrap(childData["flag.evaluation.child"] as? Bool), true)
+    }
+
     func testApplyToEvent() {
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         let actualContext = actual?.context as? [String: [String: String]]
