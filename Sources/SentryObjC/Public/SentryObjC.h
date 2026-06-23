@@ -165,16 +165,34 @@
 // --- Internal API (hybrid SDK structured API) ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
 #    import "SentryObjCInternalApi.h"
+#    import "SentryObjCInternalAppStartApi.h"
 #    import "SentryObjCInternalBreadcrumbApi.h"
 #    import "SentryObjCInternalDebugApi.h"
+#    import "SentryObjCInternalEnvelopeApi.h"
+#    import "SentryObjCInternalPerformanceApi.h"
+#    import "SentryObjCInternalProfilingApi.h"
+#    import "SentryObjCInternalReplayApi.h"
+#    import "SentryObjCInternalScreenApi.h"
+#    import "SentryObjCInternalScreenshotApi.h"
 #    import "SentryObjCInternalSdkApi.h"
+#    import "SentryObjCInternalSwizzleApi.h"
 #    import "SentryObjCInternalUserApi.h"
+#    import "SentryObjCInternalViewHierarchyApi.h"
 #else
 #    import <SentryObjC/SentryObjCInternalApi.h>
+#    import <SentryObjC/SentryObjCInternalAppStartApi.h>
 #    import <SentryObjC/SentryObjCInternalBreadcrumbApi.h>
 #    import <SentryObjC/SentryObjCInternalDebugApi.h>
+#    import <SentryObjC/SentryObjCInternalEnvelopeApi.h>
+#    import <SentryObjC/SentryObjCInternalPerformanceApi.h>
+#    import <SentryObjC/SentryObjCInternalProfilingApi.h>
+#    import <SentryObjC/SentryObjCInternalReplayApi.h>
+#    import <SentryObjC/SentryObjCInternalScreenApi.h>
+#    import <SentryObjC/SentryObjCInternalScreenshotApi.h>
 #    import <SentryObjC/SentryObjCInternalSdkApi.h>
+#    import <SentryObjC/SentryObjCInternalSwizzleApi.h>
 #    import <SentryObjC/SentryObjCInternalUserApi.h>
+#    import <SentryObjC/SentryObjCInternalViewHierarchyApi.h>
 #endif
 
 // --- Envelope types (SPI for hybrid SDKs) ---

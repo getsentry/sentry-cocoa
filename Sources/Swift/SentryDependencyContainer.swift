@@ -453,6 +453,37 @@ extension SentryDependencyContainer: ClientProvider {
     }
 }
 
+protocol Hub {
+    func configureScope(_ callback: @escaping (Scope) -> Void)
+    func storeEnvelope(_ envelope: SentryEnvelope)
+    func captureEnvelope(_ envelope: SentryEnvelope)
+}
+
+protocol HubProvider {
+    var hub: Hub { get }
+}
+
+/// DefaultHub is a temporary abstraction around the ``SentryHubInternal.h``
+private struct DefaultHub: Hub {
+    func configureScope(_ callback: @escaping (Scope) -> Void) {
+        SentrySDKInternal.currentHub().configureScope { scope in
+            callback(scope)
+        }
+    }
+
+    func storeEnvelope(_ envelope: SentryEnvelope) {
+        SentrySDKInternal.currentHub().store(envelope)
+    }
+
+    func captureEnvelope(_ envelope: SentryEnvelope) {
+        SentrySDKInternal.currentHub().capture(envelope)
+    }
+}
+
+extension SentryDependencyContainer: HubProvider {
+    var hub: Hub { DefaultHub() }
+}
+
 protocol DateProviderProvider {
     var dateProvider: SentryCurrentDateProvider { get }
 }
@@ -496,6 +527,26 @@ protocol ViewHierarchyProviderProvider {
 }
 
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
+
+protocol ReplayIntegrationProvider {
+    func getReplayIntegration() -> SentrySessionReplayIntegration?
+}
+
+private struct DefaultReplayIntegrationProvider: ReplayIntegrationProvider {
+    func getReplayIntegration() -> SentrySessionReplayIntegration? {
+        SentrySDKInternal.currentHub().getInstalledIntegration(
+            SentrySessionReplayIntegration.self
+        ) as? SentrySessionReplayIntegration
+    }
+}
+
+protocol ReplayIntegrationProviderProvider {
+    var replayIntegrationProvider: ReplayIntegrationProvider { get }
+}
+
+extension SentryDependencyContainer: ReplayIntegrationProviderProvider {
+    var replayIntegrationProvider: ReplayIntegrationProvider { DefaultReplayIntegrationProvider() }
+}
 #endif
 
 protocol ExtraContextProviderProvider {

@@ -1,6 +1,18 @@
 # Changelog
 
+> [!WARNING]
+> **The minimum macOS deployment target will be raised to macOS 12 (Monterey)** with the upcoming release that adopts Xcode 27. Xcode 27 no longer supports deployment targets below macOS 12. If your app must support macOS 11 or earlier, please stay on the last SDK version released before this change. See [#8113](https://github.com/getsentry/sentry-cocoa/issues/8113) for full details.
+
 ## Unreleased
+
+### Fixes
+
+- Fixes crash caused by modifying breadcrumbs from multiple threads (#8114)
+- Prevent feedback form on external displays (#8071)
+- Keep the User Feedback screenshot trigger active after form dismissal. (#8048)
+- Prevent lazy TLS-init in the signal crash monitor for non-managed runtime builds (#8148)
+
+## 9.18.0
 
 ### Features
 
