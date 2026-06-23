@@ -37,9 +37,19 @@ import Foundation
         set { wrapped.imageAddress = newValue }
     }
 
+    @objc public var imageAddressRaw: UInt64 {
+        get { wrapped.imageAddressRaw }
+        set { wrapped.imageAddressRaw = newValue }
+    }
+
     @objc public var imageVmAddress: String? {
         get { wrapped.imageVmAddress }
         set { wrapped.imageVmAddress = newValue }
+    }
+
+    @objc public var imageVmAddressRaw: UInt64 {
+        get { wrapped.imageVmAddressRaw }
+        set { wrapped.imageVmAddressRaw = newValue }
     }
 
     @objc public var codeFile: String? {

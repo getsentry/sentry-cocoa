@@ -55,6 +55,21 @@ class SentryDebugMetaTests: XCTestCase {
         XCTAssertNil(decoded.imageVmAddress)
     }
 
+    func testImageAddressRaw_defaultsToZero() {
+        let debugMeta = DebugMeta()
+        XCTAssertEqual(debugMeta.imageAddressRaw, 0)
+        XCTAssertEqual(debugMeta.imageVmAddressRaw, 0)
+    }
+
+    func testImageAddressRaw_canBeSetAndRead() {
+        let debugMeta = DebugMeta()
+        debugMeta.imageAddressRaw = 0x0000000105705000
+        debugMeta.imageVmAddressRaw = 0x0000000100000000
+
+        XCTAssertEqual(debugMeta.imageAddressRaw, 0x0000000105705000)
+        XCTAssertEqual(debugMeta.imageVmAddressRaw, 0x0000000100000000)
+    }
+
     func testDecode_WithOnlyDebugID() throws {
         // Arrange
         let debugMeta = DebugMeta()
