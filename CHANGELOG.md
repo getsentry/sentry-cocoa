@@ -16,6 +16,13 @@
 
 - Add `SentrySDK.internal` structured API for hybrid SDKs, replacing `PrivateSentrySDKOnly` with namespaced sub-APIs (`replay`, `profiling`, `appStart`, `performance`, `screenshot`, `viewHierarchy`, `screen`, `envelope`, `swizzle`, `sdk`, `debug`, `breadcrumbs`, `user`) (#8097)
 
+### Features
+
+- Renamed extended app start API (#8161):
+  - `extendAppLaunch()` -> `extendAppStart()`
+  - `finishExtendedAppLaunch()` -> `finishExtendedAppStart()`
+  - Added `getExtendedAppStartSpan()` to get the extended app span
+
 ## 9.18.0
 
 ### Features
