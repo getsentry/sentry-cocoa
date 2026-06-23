@@ -6,6 +6,10 @@
 
 - Add SentryObjC User Feedback presentation APIs and a feedback form factory returning `UIViewController` instances. (#8027)
 
+### Fixes
+
+- Include breadcrumbs in recovered buffer-mode session replays.
+
 ## 9.17.1
 
 ### Fixes
