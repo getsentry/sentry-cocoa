@@ -108,6 +108,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         
         super.init()
 
+        isApplicationStatePaused = getApplication()?.mainThread_isActive == false
         self.backgroundForegroundObserver = SentrySessionReplayBackgroundForegroundObserver(integration: self)
         
         self.replayRecovery = SessionReplayRecovery(
@@ -265,11 +266,13 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc private func applicationDidBecomeActiveHandler(_ notification: Notification) {
         SentrySDKLog.debug("[Session Replay] Application did become active, starting replay")
+        isApplicationStatePaused = false
         runReplayForAvailableWindow()
     }
 
     @objc private func sceneDidActivateHandler(_ notification: Notification) {
         SentrySDKLog.debug("[Session Replay] Scene is available, starting replay")
+        isApplicationStatePaused = false
         runReplayForAvailableWindow()
     }
 
@@ -313,6 +316,9 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         self.sessionReplay = newSessionReplay
         newSessionReplay.start(rootView: rootView, fullSession: fullSession)
         addBackgroundForegroundObservers()
+        if isApplicationStatePaused {
+            newSessionReplay.pause()
+        }
         
         if let replayId = newSessionReplay.sessionReplayId {
             replayFileManager.saveCurrentSessionInfo(replayId, path: sessionDocs.path, options: replayOptions)
