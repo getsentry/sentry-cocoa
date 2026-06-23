@@ -66,12 +66,15 @@ jobs:
         with:
           version: "16"
       - name: Build XCFramework (Static)
-        run: ./scripts/build-xcframework-local.sh macOSOnly StaticOnly --not-signed
+        run: |
+          ./scripts/build-xcframework-variant.sh --scheme "Sentry" --mach-o-type "staticlib" --sdks "macOSOnly"
+          ./scripts/validate-xcframework.sh --xcframework "Sentry.xcframework"
+          ./scripts/compress-xcframework.sh --xcframework "Sentry.xcframework"
       - name: Upload XCFrameworks
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: xcframeworks-for-3rd-party-integration-tests-${{ matrix.runner_provider }}
-          path: "XCFrameworkBuildPath/*.xcframework.zip"
+          path: "Sentry.xcframework.zip"
           retention-days: 1
 
   # SPM tests for all 3rd-party integrations
