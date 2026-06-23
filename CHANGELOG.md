@@ -5,6 +5,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add scope feature flag API (#8147)
+
 ### Fixes
 
 - Fixes crash caused by modifying breadcrumbs from multiple threads (#8114)
