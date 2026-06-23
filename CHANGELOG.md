@@ -8,6 +8,7 @@
 ### Features
 
 - Add scope feature flag API (#8147)
+- Add span feature flag API (#8158)
 
 ### Fixes
 
