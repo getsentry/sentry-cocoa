@@ -43,7 +43,7 @@ void sentrycrashcm_setEnableSigtermReporting(bool enabled);
 
 /** Tell the signal monitor to ignore the next occurrence of the given signal
  * on the calling thread. Consumed by the next signal delivery, even if it
- * doesn't match.
+ * doesn't match. No-op unless SENTRY_CRASH_MANAGED_RUNTIME is set.
  */
 void sentrycrashcm_signal_ignore_next(int signum);
 

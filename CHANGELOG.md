@@ -9,6 +9,8 @@
 
 - Fixes crash caused by modifying breadcrumbs from multiple threads (#8114)
 - Prevent feedback form on external displays (#8071)
+- Keep the User Feedback screenshot trigger active after form dismissal. (#8048)
+- Prevent lazy TLS-init in the signal crash monitor for non-managed runtime builds (#8148)
 
 ## 9.18.0
 
