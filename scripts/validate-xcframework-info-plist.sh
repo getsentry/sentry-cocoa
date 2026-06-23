@@ -85,7 +85,7 @@ while IFS= read -r -d '' framework_path; do
     frameworks_checked=$((frameworks_checked + 1))
     plist_json="$(plutil -convert json -o - "$info_plist")"
 
-    # Native macOS frameworks use LSMinimumSystemVersion; all others (including Mac Catalyst) use MinimumOSVersion
+    # Native macOS and Mac Catalyst frameworks use LSMinimumSystemVersion; all others use MinimumOSVersion
     has_ls="$(printf '%s' "$plist_json" | jq -r '.LSMinimumSystemVersion // empty')"
     if [ -n "$has_ls" ]; then
         os_version_key="LSMinimumSystemVersion"

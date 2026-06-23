@@ -115,13 +115,21 @@ is_macos_layout() {
 
 minimum_os_version_for_sdk() {
     case "$1" in
-        iphoneos|iphonesimulator|maccatalyst)  echo "$DT_IOS" ;;
-        macosx)                                echo "$DT_MACOS" ;;
+        iphoneos|iphonesimulator)              echo "$DT_IOS" ;;
+        macosx|maccatalyst)                    echo "$DT_MACOS" ;;
         appletvos|appletvsimulator)            echo "$DT_TVOS" ;;
         watchos|watchsimulator)                echo "$DT_WATCHOS" ;;
         xros|xrsimulator)                      echo "$DT_XROS" ;;
         *)                                     log_error "Unknown SDK: $1"; exit 1 ;;
     esac
+}
+
+os_version_key_for_sdk() {
+    if is_macos_layout "$1"; then
+        echo "LSMinimumSystemVersion"
+    else
+        echo "MinimumOSVersion"
+    fi
 }
 
 supported_platforms_for_sdk() {
@@ -176,12 +184,7 @@ EOF
 
 MIN_OS_VERSION="$(minimum_os_version_for_sdk "$SDK")"
 SUPPORTED_PLATFORM="$(supported_platforms_for_sdk "$SDK")"
-
-if [ "$SDK" = "macosx" ] || [ "$SDK" = "maccatalyst" ]; then
-    OS_VERSION_KEY="LSMinimumSystemVersion"
-else
-    OS_VERSION_KEY="MinimumOSVersion"
-fi
+OS_VERSION_KEY="$(os_version_key_for_sdk "$SDK")"
 
 cat > "$resources_dir/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
