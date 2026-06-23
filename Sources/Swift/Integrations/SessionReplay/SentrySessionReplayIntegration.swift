@@ -103,7 +103,8 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             random: random,
             replayProcessingQueue: replayProcessingQueue,
             replayAssetWorkerQueue: replayAssetWorkerQueue,
-            replayFileManager: replayFileManager
+            replayFileManager: replayFileManager,
+            breadcrumbConverter: currentBreadcrumbConverter ?? SentrySRDefaultBreadcrumbConverter()
         )
         
         setupTouchTrackerIfNeeded(options: options)
@@ -401,6 +402,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         if let bc = breadcrumbConverter {
             currentBreadcrumbConverter = bc
             sessionReplay?.breadcrumbConverter = bc
+            replayRecovery?.breadcrumbConverter = bc
         }
         if let sp = screenshotProvider {
             currentScreenshotProvider = sp

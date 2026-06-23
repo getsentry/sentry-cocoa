@@ -19,20 +19,22 @@ struct SessionReplayRecovery {
     private let replayProcessingQueue: SentryDispatchQueueWrapper
     private let replayAssetWorkerQueue: SentryDispatchQueueWrapper
     private let replayFileManager: SessionReplayFileManager
-    private let breadcrumbConverter = SentrySRDefaultBreadcrumbConverter()
+    var breadcrumbConverter: SentryReplayBreadcrumbConverter
     
     init(
         replayOptions: SentryReplayOptions,
         random: SentryRandomProtocol,
         replayProcessingQueue: SentryDispatchQueueWrapper,
         replayAssetWorkerQueue: SentryDispatchQueueWrapper,
-        replayFileManager: SessionReplayFileManager
+        replayFileManager: SessionReplayFileManager,
+        breadcrumbConverter: SentryReplayBreadcrumbConverter
     ) {
         self.replayOptions = replayOptions
         self.random = random
         self.replayProcessingQueue = replayProcessingQueue
         self.replayAssetWorkerQueue = replayAssetWorkerQueue
         self.replayFileManager = replayFileManager
+        self.breadcrumbConverter = breadcrumbConverter
     }
     
     // MARK: - Recovery

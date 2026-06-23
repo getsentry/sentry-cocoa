@@ -298,9 +298,17 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
     
     func testBufferReplayForCrash() throws {
+        class CustomBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
+            func convert(from breadcrumb: Breadcrumb) -> (any SentryRRWebEventProtocol)? {
+                guard let timestamp = breadcrumb.timestamp else { return nil }
+                return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "custom.recovered")
+            }
+        }
+
         try createLastSessionReplay(writeSessionInfo: false)
         
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        PrivateSentrySDKOnly.configureSessionReplay(with: CustomBreadcrumbConverter(), screenshotProvider: nil)
         
         let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
         let scope = Scope()
@@ -334,6 +342,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
             (breadcrumbs.first?.data?["payload"] as? [String: Any])?["timestamp"] as? TimeInterval,
             Date(timeIntervalSinceReferenceDate: 6).timeIntervalSince1970
         )
+        XCTAssertEqual((breadcrumbs.first?.data?["payload"] as? [String: Any])?["category"] as? String, "custom.recovered")
     }
     
     func testBufferReplayIgnoredBecauseSampleRateForCrash() throws {
