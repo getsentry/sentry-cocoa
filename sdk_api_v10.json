@@ -29222,8 +29222,9 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "ProtocolComposition",
-                "printedName": "Any"
+                "name": "Options",
+                "printedName": "Sentry.Options",
+                "usr": "c:@M@Sentry@objc(cs)SentryOptions"
               }
             ],
             "declAttributes": [
@@ -29236,9 +29237,9 @@
             "isOpen": true,
             "kind": "Function",
             "moduleName": "Sentry",
-            "name": "makeOptions",
+            "name": "options",
             "objc_name": "optionsWithDictionary:didFailWithError:",
-            "printedName": "makeOptions(fromDictionary:)",
+            "printedName": "options(with:)",
             "static": true,
             "throwing": true,
             "usr": "c:objc(cs)PrivateSentrySDKOnly(cm)optionsWithDictionary:didFailWithError:"
