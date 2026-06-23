@@ -14,16 +14,23 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
     private weak var activeForm: SentryUserFeedbackFormController?
     let screenshotSource: SentryScreenshotSource
     let windowFactory: SentryUserFeedbackWindowFactory
+    private let notificationCenter: SentryNSNotificationCenterWrapper
     #if !SDK_V10
     private var widget: SentryUserFeedbackWidget?
     private var shouldRestoreWidgetOnFormClose = false
     weak var customButton: UIButton?
     #endif
 
-    init(configuration: SentryUserFeedbackConfiguration, screenshotSource: SentryScreenshotSource, windowFactory: @escaping SentryUserFeedbackWindowFactory = SentryUserFeedbackWidget.defaultWindowFactory) {
+    init(
+        configuration: SentryUserFeedbackConfiguration,
+        screenshotSource: SentryScreenshotSource,
+        windowFactory: @escaping SentryUserFeedbackWindowFactory = SentryUserFeedbackWidget.defaultWindowFactory,
+        notificationCenter: SentryNSNotificationCenterWrapper = NotificationCenter.default
+    ) {
         self.configuration = configuration
         self.screenshotSource = screenshotSource
         self.windowFactory = windowFactory
+        self.notificationCenter = notificationCenter
         super.init()
 
         configuration.applyConfigurationBuilders()
@@ -62,7 +69,7 @@ final class SentryUserFeedbackIntegrationDriver: NSObject {
         customButton?.removeTarget(self, action: #selector(showForm(sender:)), for: .touchUpInside)
         #endif
         SentryShakeDetector.disable()
-        NotificationCenter.default.removeObserver(self)
+        notificationCenter.removeObserver(self, name: nil, object: nil)
     }
 
     #if !SDK_V10
@@ -193,7 +200,7 @@ private extension SentryUserFeedbackIntegrationDriver {
 
     func observeScreenshots() {
         if configuration.showFormForScreenshots {
-            NotificationCenter.default.addObserver(self, selector: #selector(userCapturedScreenshot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
+            notificationCenter.addObserver(self, selector: #selector(userCapturedScreenshot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
         }
     }
 
@@ -203,7 +210,7 @@ private extension SentryUserFeedbackIntegrationDriver {
             return
         }
         SentryShakeDetector.enable()
-        NotificationCenter.default.addObserver(self, selector: #selector(handleShakeGesture), name: .SentryShakeDetected, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(handleShakeGesture), name: .SentryShakeDetected, object: nil)
     }
 
     @objc func handleShakeGesture() {
@@ -215,12 +222,11 @@ private extension SentryUserFeedbackIntegrationDriver {
     }
 
     @objc func userCapturedScreenshot() {
-        stopObservingScreenshots()
+        guard !displayingForm else {
+            SentrySDKLog.debug("Screenshot ignored — feedback form is already displayed")
+            return
+        }
         showForm(screenshot: screenshotSource.appScreenshots().first)
-    }
-
-    func stopObservingScreenshots() {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.userDidTakeScreenshotNotification, object: nil)
     }
 
     var presenter: UIViewController? {
