@@ -70,5 +70,25 @@ import Foundation
         SentryObjCInternalProfilingApi(wrapped.value.profiling)
     }
 #endif
+
+    @objc public func setTrace(_ traceId: SentryObjCId, spanId: SentryObjCSpanId) {
+        wrapped.value.setTrace(traceId.wrapped, spanId: spanId.wrapped)
+    }
+
+    @objc public func setLogOutput(_ output: ((String) -> Void)?) {
+        wrapped.value.setLogOutput(output)
+    }
+
+    @objc public func ignoreNextSignal(_ signum: Int32) {
+        wrapped.value.ignoreNextSignal(signum)
+    }
+
+    @objc public var options: SentryObjCOptions {
+        SentryObjCOptions(wrapped.value.options)
+    }
+
+    @objc public func options(fromDictionary dictionary: [String: Any]) throws -> SentryObjCOptions {
+        SentryObjCOptions(try wrapped.value.options(fromDictionary: dictionary))
+    }
 }
 // swiftlint:enable missing_docs

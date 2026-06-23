@@ -5,6 +5,9 @@
 #    import <SentryObjC/SentryObjCDefines.h>
 #endif
 
+@class SentryObjCId;
+@class SentryObjCSpanId;
+@class SentryObjCOptions;
 @class SentryObjCInternalSdkApi;
 @class SentryObjCInternalDebugApi;
 @class SentryObjCInternalBreadcrumbApi;
@@ -85,6 +88,22 @@ SENTRY_NO_INIT
 /// Profiling.
 @property (nonatomic, readonly) SentryObjCInternalProfilingApi *profiling;
 #endif
+
+/// Sets the current trace and span on the scope's propagation context.
+- (void)setTrace:(SentryObjCId *)traceId spanId:(SentryObjCSpanId *)spanId;
+
+/// Sets a custom log output handler for SDK log messages.
+- (void)setLogOutput:(void (^_Nullable)(NSString *))output;
+
+/// Tells the crash reporter to ignore the next signal on the calling thread.
+- (void)ignoreNextSignal:(int)signum;
+
+/// Returns the current SDK options, or a default instance if the SDK has not been started.
+@property (nonatomic, readonly) SentryObjCOptions *options;
+
+/// Creates SDK options from a dictionary representation.
+- (nullable SentryObjCOptions *)optionsFromDictionary:(NSDictionary<NSString *, id> *)dictionary
+                                                error:(NSError *_Nullable *_Nullable)error;
 
 @end
 

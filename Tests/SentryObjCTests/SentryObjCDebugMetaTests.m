@@ -197,6 +197,52 @@
     XCTAssertNil(meta.imageVmAddress);
 }
 
+#pragma mark - imageAddressRaw
+
+- (void)testImageAddressRaw_whenDefault_shouldBeZero
+{
+    // -- Arrange --
+    SentryObjCDebugMeta *meta = [[SentryObjCDebugMeta alloc] init];
+
+    // -- Assert --
+    XCTAssertEqual(meta.imageAddressRaw, 0ULL);
+}
+
+- (void)testImageAddressRaw_whenSet_shouldReturnNewValue
+{
+    // -- Arrange --
+    SentryObjCDebugMeta *meta = [[SentryObjCDebugMeta alloc] init];
+
+    // -- Act --
+    meta.imageAddressRaw = 0x105705000ULL;
+
+    // -- Assert --
+    XCTAssertEqual(meta.imageAddressRaw, 0x105705000ULL);
+}
+
+#pragma mark - imageVmAddressRaw
+
+- (void)testImageVmAddressRaw_whenDefault_shouldBeZero
+{
+    // -- Arrange --
+    SentryObjCDebugMeta *meta = [[SentryObjCDebugMeta alloc] init];
+
+    // -- Assert --
+    XCTAssertEqual(meta.imageVmAddressRaw, 0ULL);
+}
+
+- (void)testImageVmAddressRaw_whenSet_shouldReturnNewValue
+{
+    // -- Arrange --
+    SentryObjCDebugMeta *meta = [[SentryObjCDebugMeta alloc] init];
+
+    // -- Act --
+    meta.imageVmAddressRaw = 0x100000000ULL;
+
+    // -- Assert --
+    XCTAssertEqual(meta.imageVmAddressRaw, 0x100000000ULL);
+}
+
 #pragma mark - codeFile
 
 - (void)testCodeFile_whenDefault_shouldBeNil

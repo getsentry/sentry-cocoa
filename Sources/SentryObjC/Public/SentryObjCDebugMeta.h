@@ -32,10 +32,22 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, nullable) NSString *imageAddress;
 
 /**
+ * Raw numeric memory address at which the image is mounted.
+ * @note This is the same value as @c imageAddress but as a @c uint64_t instead of a hex string.
+ */
+@property (nonatomic, assign) uint64_t imageAddressRaw;
+
+/**
  * Preferred load address of the image in virtual memory, as declared in the headers of the image.
  * When loading an image, the operating system may still choose to place it at a different address.
  */
 @property (nonatomic, copy, nullable) NSString *imageVmAddress;
+
+/**
+ * Raw numeric preferred load address of the image in virtual memory.
+ * @note This is the same value as @c imageVmAddress but as a @c uint64_t instead of a hex string.
+ */
+@property (nonatomic, assign) uint64_t imageVmAddressRaw;
 
 /// The path to the code file (executable or library).
 @property (nonatomic, copy, nullable) NSString *codeFile;

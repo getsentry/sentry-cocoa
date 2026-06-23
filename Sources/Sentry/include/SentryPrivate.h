@@ -74,6 +74,7 @@
 #import "SentryMsgPackSerializer.h"
 #import "SentryNSDataSwizzlingHelper.h"
 #import "SentryNSFileManagerSwizzlingHelper.h"
+#import "SentryOptionsHelper.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfiler+Private.h"
 #import "SentrySDKInternal.h"
