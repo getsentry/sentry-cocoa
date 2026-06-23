@@ -4,9 +4,8 @@
 @_spi(Private) @objc public class SentryThreadInspector: NSObject {
     private let internalHelper: SentryDefaultThreadInspector
 
-    override init() {
-        internalHelper = SentryDefaultThreadInspector(options: nil)
-        super.init()
+    override convenience init() {
+        self.init(options: SentryDependencyContainer.sharedInstance().startOptions)
     }
 
     init(options: Options?) {
