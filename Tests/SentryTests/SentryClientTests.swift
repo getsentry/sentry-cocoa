@@ -2098,10 +2098,15 @@ final class SentryClientTests: XCTestCase {
 
         eventId.assertIsNotEmpty()
 
-        var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "Metrics", "NetworkTracking"]
+        var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Metrics", "NetworkTracking"]
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
+        #if ENABLE_KSCRASH
+        expectedIntegrations.append("KSCrash")
+        #else
+        expectedIntegrations.append("Crash")
+        #endif
 #if os(iOS) || os(tvOS) || os(visionOS)
         expectedIntegrations.append("FramesTracking")
 #endif // os(iOS) || os(tvOS)
