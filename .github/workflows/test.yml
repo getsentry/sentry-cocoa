@@ -38,7 +38,7 @@ jobs:
     outputs:
       run_unit_tests_for_prs: ${{ steps.changes.outputs.run_unit_tests_for_prs }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
@@ -52,7 +52,7 @@ jobs:
     needs: files-changed
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Cache for Test Server
         id: cache_test_server
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
@@ -108,7 +108,7 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/') == false && (github.event_name != 'pull_request' || needs.files-changed.outputs.run_unit_tests_for_prs == 'true')
     needs: files-changed
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Prepare Package.swift
         shell: bash
         run: |
@@ -169,7 +169,7 @@ jobs:
             xcode: "16"
 
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: test-server
@@ -186,11 +186,6 @@ jobs:
         uses: ./.github/actions/resolve-test-destination
         with:
           platform: ${{ matrix.platform }}
-
-      # Note: We don't install Slather or gather code coverage for this job because it only runs
-      # the SentryTestServerTests target, which contains minimal tests that don't significantly
-      # contribute to overall code coverage metrics. The main unit-tests job handles comprehensive
-      # code coverage reporting.
 
       # We split building and running tests in two steps so we know how long running the tests takes.
       - name: Build tests
@@ -325,7 +320,7 @@ jobs:
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, macOS 12 or macOS 15 is minimal.
           # We are running tests on macOS 15 and later, as there were OS-internal changes introduced in succeeding versions.
 
-          # macOS 15 pinned to Xcode 16.2 to preserve coverage from the retired macOS 14 runner.
+          # macOS 15 pinned to Xcode 16.2 to preserve OS matrix coverage from the retired macOS 14 runner.
           - name: macOS 15 Compat Sentry
             runner_provider: cirrus
             runs-on: sequoia
@@ -365,7 +360,7 @@ jobs:
 
           # Catalyst. We test the latest version, as the risk something breaking on Catalyst and not
           # on an older iOS or macOS version is low.
-          # In addition we run Catalyst with Xcode 16.2 on macOS 15, preserving coverage from the retired macOS 14 runner.
+          # In addition we run Catalyst with Xcode 16.2 on macOS 15, preserving OS matrix coverage from the retired macOS 14 runner.
           - name: Catalyst 15 Compat Sentry
             runner_provider: cirrus
             runs-on: sequoia
@@ -391,7 +386,17 @@ jobs:
             xcode: "16"
             platform: "Catalyst"
 
-          ## We don't run unit tests on macCatalyst 26 yet because of https://github.com/getsentry/sentry-cocoa/issues/6165.
+          # Catalyst 26
+          - name: Catalyst 26 Sentry
+            runner_provider: cirrus
+            runs-on: tahoe
+            xcode: "26"
+            platform: "Catalyst"
+          - name: Catalyst 26 Sentry
+            runner_provider: bitrise
+            runs-on: tahoe
+            xcode: "26"
+            platform: "Catalyst"
 
           # We don't run the unit tests on tvOS 16 cause we run them on all on GH actions available iOS versions.
           # The chance of missing a bug solely on tvOS 16 that doesn't occur on iOS, tvOS 15 or tvOS 16 is minimal.

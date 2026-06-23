@@ -202,6 +202,21 @@ sentry_deepCopyValue(id value)
     return [self initWithLevel:kSentryLevelInfo category:@"default"];
 }
 
+- (SentryBreadcrumb *)snapshotCopy
+{
+    SentryBreadcrumb *snapshot = [[SentryBreadcrumb alloc] init];
+    @synchronized(self) {
+        snapshot->_level = _level;
+        snapshot->_category = _category;
+        snapshot->_timestamp = _timestamp;
+        snapshot->_type = _type;
+        snapshot->_message = _message;
+        snapshot->_origin = _origin;
+        snapshot->_data = _data;
+    }
+    return snapshot;
+}
+
 #pragma mark - Serialization
 
 - (NSDictionary<NSString *, id> *)serialize

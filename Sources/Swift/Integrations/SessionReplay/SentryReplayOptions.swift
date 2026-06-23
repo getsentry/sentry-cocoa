@@ -190,7 +190,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *         Default view classes are defined in `SentryUIRedactBuilder` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
      */
     public var excludedViewClasses: Set<String>
-    
+
     /**
      * A set of view type identifier strings that should be included in subtree traversal.
      *
@@ -213,7 +213,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *         because "Camera" doesn't exactly match "ChromeCameraUI".
      */
     public var includedViewClasses: Set<String>
-    
+
     /**
      * Adds a view type pattern to the excluded set, preventing matching views' subtrees from being traversed.
      *
@@ -229,7 +229,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public func excludeViewTypeFromSubtreeTraversal(_ viewType: String) {
         excludedViewClasses.insert(viewType)
     }
-    
+
     /**
      * Adds a view type to the included set, allowing its subtree to be traversed.
      *
@@ -246,6 +246,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         includedViewClasses.insert(viewType)
     }
 
+    #if !SDK_V10
     /**
      * Alias for ``enableViewRendererV2``.
      *
@@ -261,6 +262,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             enableViewRendererV2 = newValue
         }
     }
+    #endif
 
     /**
      * Enables the up to 5x faster new view renderer used by the Session Replay integration.
@@ -319,11 +321,11 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      *     "/api/v1/",                      // Matches any URL containing this path
      *     "https://analytics.myapp.com"   // Matches any URL containing this prefix
      * ]
-     * 
+     *
      * // NSRegularExpression patterns (full regex matching)
      * let apiRegex = try? NSRegularExpression(pattern: "^https://api\\.example\\.com/v[0-9]+/.*")
      * let imageRegex = try? NSRegularExpression(pattern: ".*\\.(jpg|jpeg|png|gif)$")
-     * 
+     *
      * // Mixed array of both types
      * options.sessionReplay.networkDetailAllowUrls = [
      *     "api.example.com",               // String: substring match
@@ -378,11 +380,11 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
 
     /**
      * Request headers to capture for allowed URLs during session replay.
-     * 
+     *
      * Specifies which HTTP request headers should be captured and included in session replay
-     * network details. Header matching is case-insensitive (e.g., "content-type", "Content-Type", 
+     * network details. Header matching is case-insensitive (e.g., "content-type", "Content-Type",
      * and "CoNtEnT-tYpE" are all equivalent).
-     * 
+     *
      * Default (always included): `["Content-Type", "Content-Length", "Accept"]`
      *
      * Example:
@@ -405,11 +407,11 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
 
     /**
      * Response headers to capture for allowed URLs during session replay.
-     * 
+     *
      * Specifies which HTTP response headers should be captured and included in session replay
-     * network details. Header matching is case-insensitive (e.g., "content-type", "Content-Type", 
+     * network details. Header matching is case-insensitive (e.g., "content-type", "Content-Type",
      * and "CoNtEnT-tYpE" are all equivalent).
-     * 
+     *
      * Default (always included): `["Content-Type", "Content-Length", "Accept"]`
      *
      * Example:
@@ -510,14 +512,14 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
         guard !networkDetailAllowUrls.isEmpty else {
             return false
         }
-        
+
         if matches(url: urlString, against: networkDetailDenyUrls) {
             return false
         }
-        
+
         return matches(url: urlString, against: networkDetailAllowUrls)
     }
-    
+
     /**
      * Helper method to check if a URL string matches any pattern in a list.
      *
@@ -541,7 +543,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
             }
         }
     }
-    
+
     /**
      * Initialize session replay options disabled
      *
@@ -714,7 +716,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
 
         super.init()
     }
-    
+
     /**
      * Merges user-provided headers with default headers, ensuring defaults are always included.
      *
@@ -724,7 +726,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      */
     private static func mergeWithDefaultHeaders(_ userHeaders: [String]?, defaults: [String]) -> [String] {
         let providedHeaders = userHeaders ?? []
-        
+
         var seenHeaders = Set<String>()
         var result: [String] = []
 
@@ -743,7 +745,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
                 result.append(header)
             }
         }
-        
+
         return result
     }
 

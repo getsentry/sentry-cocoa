@@ -6,6 +6,7 @@ import UIKit
 /// API for interacting with the feature User Feedback
 @objc public final class SentryFeedbackAPI: NSObject {
 
+    #if !SDK_V10
     /// Show the feedback widget button.
     /// - warning: This is an experimental feature and may still have bugs.
     /// - seealso: See `SentryOptions.configureUserFeedback` to configure the widget.
@@ -27,11 +28,13 @@ import UIKit
     @objc public func hideWidget() {
         getIntegration()?.driver.hideWidget()
     }
+    #endif
 
     /// Show the feedback form using the best available presenter, screenshot attachment, and optional form-specific configuration.
     ///
-    /// The SDK chooses a suitable presenter/window. Apps that need exact scene/window control
-    /// should manually present `SentrySDK.FeedbackForm`.
+    /// The SDK chooses a suitable presenter/window and ignores noninteractive external displays.
+    /// In multi-window apps this is best-effort and may choose a different active window;
+    /// present `SentrySDK.FeedbackForm` yourself for exact control.
     ///
     /// Per-presentation configuration only affects the displayed form. Widget, custom button,
     /// screenshot trigger, and shake gesture settings are global and ignored for individual presentations.

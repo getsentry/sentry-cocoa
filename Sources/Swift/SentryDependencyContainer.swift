@@ -88,6 +88,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     
 #if SENTRY_TEST || SENTRY_TEST_CI
     var applicationOverride: SentryApplication?
+#if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
+    var windowFactoryOverride: SentryUserFeedbackWindowFactory?
+#endif
 #endif
     @objc public func application() -> SentryApplication? {
 #if SENTRY_TEST || SENTRY_TEST_CI
@@ -408,6 +411,16 @@ extension SentryFileManager: SentryFileManagerProtocol { }
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
 extension SentryDependencyContainer: ScreenshotSourceProvider { }
+extension SentryDependencyContainer: WindowFactoryProvider {
+    var windowFactory: SentryUserFeedbackWindowFactory {
+#if SENTRY_TEST || SENTRY_TEST_CI
+        if let override = windowFactoryOverride {
+            return override
+        }
+#endif
+        return SentryUserFeedbackWidget.defaultWindowFactory
+    }
+}
 #endif
 
 protocol ClientProvider {
@@ -420,6 +433,37 @@ extension SentryDependencyContainer: ClientProvider {
         // Until then, we proxy the static accessor.
         SentrySDKInternal.currentHub().getClient()
     }
+}
+
+protocol Hub {
+    func configureScope(_ callback: @escaping (Scope) -> Void)
+    func storeEnvelope(_ envelope: SentryEnvelope)
+    func captureEnvelope(_ envelope: SentryEnvelope)
+}
+
+protocol HubProvider {
+    var hub: Hub { get }
+}
+
+/// DefaultHub is a temporary abstraction around the ``SentryHubInternal.h``
+private struct DefaultHub: Hub {
+    func configureScope(_ callback: @escaping (Scope) -> Void) {
+        SentrySDKInternal.currentHub().configureScope { scope in
+            callback(scope)
+        }
+    }
+
+    func storeEnvelope(_ envelope: SentryEnvelope) {
+        SentrySDKInternal.currentHub().store(envelope)
+    }
+
+    func captureEnvelope(_ envelope: SentryEnvelope) {
+        SentrySDKInternal.currentHub().capture(envelope)
+    }
+}
+
+extension SentryDependencyContainer: HubProvider {
+    var hub: Hub { DefaultHub() }
 }
 
 protocol DateProviderProvider {
@@ -465,7 +509,92 @@ protocol ViewHierarchyProviderProvider {
 }
 
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
+
+protocol ReplayIntegrationProvider {
+    func getReplayIntegration() -> SentrySessionReplayIntegration?
+}
+
+private struct DefaultReplayIntegrationProvider: ReplayIntegrationProvider {
+    func getReplayIntegration() -> SentrySessionReplayIntegration? {
+        SentrySDKInternal.currentHub().getInstalledIntegration(
+            SentrySessionReplayIntegration.self
+        ) as? SentrySessionReplayIntegration
+    }
+}
+
+protocol ReplayIntegrationProviderProvider {
+    var replayIntegrationProvider: ReplayIntegrationProvider { get }
+}
+
+extension SentryDependencyContainer: ReplayIntegrationProviderProvider {
+    var replayIntegrationProvider: ReplayIntegrationProvider { DefaultReplayIntegrationProvider() }
+}
 #endif
+
+protocol ExtraContextProviderProvider {
+    var extraContextProvider: SentryExtraContextProvider { get }
+}
+extension SentryDependencyContainer: ExtraContextProviderProvider { }
+
+protocol SdkMetadataProvider {
+    var sdkName: String { get nonmutating set }
+    var sdkVersion: String { get nonmutating set }
+}
+
+struct DefaultSdkMetadataProvider: SdkMetadataProvider {
+    var sdkName: String {
+        get { SentryMeta.sdkName }
+        nonmutating set { SentryMeta.sdkName = newValue }
+    }
+    var sdkVersion: String {
+        get { SentryMeta.versionString }
+        nonmutating set { SentryMeta.versionString = newValue }
+    }
+}
+
+protocol SdkMetadataProviderProvider {
+    var sdkMetadataProvider: SdkMetadataProvider { get }
+}
+
+extension SentryDependencyContainer: SdkMetadataProviderProvider {
+    var sdkMetadataProvider: SdkMetadataProvider { DefaultSdkMetadataProvider() }
+}
+
+protocol SdkPackagesProvider {
+    func addPackage(name: String, version: String)
+}
+
+struct DefaultSdkPackagesProvider: SdkPackagesProvider {
+    func addPackage(name: String, version: String) {
+        SentryExtraPackages.addPackageName(name, version: version)
+    }
+}
+
+protocol SdkPackagesProviderProvider {
+    var sdkPackagesProvider: SdkPackagesProvider { get }
+}
+
+extension SentryDependencyContainer: SdkPackagesProviderProvider {
+    var sdkPackagesProvider: SdkPackagesProvider { DefaultSdkPackagesProvider() }
+}
+
+protocol InstallationIdProvider {
+    var installationID: String { get }
+}
+
+struct DefaultInstallationIdProvider: InstallationIdProvider {
+    var installationID: String {
+        PrivateSentrySDKOnly.installationID
+    }
+}
+
+protocol InstallationIdProviderProvider {
+    var installationIdProvider: InstallationIdProvider { get }
+}
+
+extension SentryDependencyContainer: InstallationIdProviderProvider {
+    var installationIdProvider: InstallationIdProvider { DefaultInstallationIdProvider() }
+}
 
 protocol NotificationCenterProvider {
     var notificationCenterWrapper: SentryNSNotificationCenterWrapper { get }
@@ -532,6 +661,47 @@ protocol DebugImageProvider {
     var debugImageProvider: SentryDebugImageProvider { get }
 }
 extension SentryDependencyContainer: DebugImageProvider { }
+
+protocol BinaryImageCacheProvider {
+    var binaryImageCache: SentryBinaryImageCache { get }
+}
+extension SentryDependencyContainer: BinaryImageCacheProvider { }
+
+protocol BreadcrumbDeserializer {
+    func breadcrumb(from dictionary: [String: Any]) -> Breadcrumb
+}
+
+struct DefaultBreadcrumbDeserializer: BreadcrumbDeserializer {
+    func breadcrumb(from dictionary: [String: Any]) -> Breadcrumb {
+        PrivateSentrySDKOnly.breadcrumb(with: dictionary)
+    }
+}
+
+protocol BreadcrumbDeserializerProvider {
+    var breadcrumbDeserializer: BreadcrumbDeserializer { get }
+}
+
+extension SentryDependencyContainer: BreadcrumbDeserializerProvider {
+    var breadcrumbDeserializer: BreadcrumbDeserializer { DefaultBreadcrumbDeserializer() }
+}
+
+protocol UserDeserializer {
+    func user(from dictionary: [String: Any]) -> User
+}
+
+struct DefaultUserDeserializer: UserDeserializer {
+    func user(from dictionary: [String: Any]) -> User {
+        PrivateSentrySDKOnly.user(with: dictionary)
+    }
+}
+
+protocol UserDeserializerProvider {
+    var userDeserializer: UserDeserializer { get }
+}
+
+extension SentryDependencyContainer: UserDeserializerProvider {
+    var userDeserializer: UserDeserializer { DefaultUserDeserializer() }
+}
 
 protocol ThreadInspectorProvider {
     var threadInspector: SentryThreadInspector { get }

@@ -185,6 +185,7 @@ import Foundation
         }
     }
 
+#if !SDK_V10
     @available(*, deprecated, message: "Use onLastRunStatusDetermined instead.")
     @objc public var onCrashedLastRun: ((SentryObjCEvent) -> Void)? {
         didSet {
@@ -197,6 +198,7 @@ import Foundation
             }
         }
     }
+#endif
 
     @objc public var onLastRunStatusDetermined: ((SentryObjCLastRunStatus, SentryObjCEvent?) -> Void)? {
         didSet {

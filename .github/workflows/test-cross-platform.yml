@@ -26,7 +26,7 @@ jobs:
     outputs:
       run_test_cross_platform_for_prs: ${{ steps.changes.outputs.run_test_cross_platform_for_prs }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
@@ -47,7 +47,7 @@ jobs:
       matrix:
         runner_provider: ["cirrus", "bitrise"]
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           repository: getsentry/sentry-cocoa
           path: sentry-cocoa
@@ -57,7 +57,7 @@ jobs:
         working-directory: sentry-cocoa
 
       - name: Clone Sentry React Native Repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           repository: getsentry/sentry-react-native
           path: sentry-react-native
@@ -131,7 +131,7 @@ jobs:
         if: matrix.runner_provider != 'bitrise'
         # We use the same ruby version used by Cirrus to install fastlane and other tools
         # see: https://github.com/cirruslabs/macos-image-templates/blob/9115ef25530497999073cdf0f5497a4d142e3256/templates/xcode.pkr.hcl#L235
-        uses: ruby/setup-ruby@afeafc3d1ab54a631816aba4c914a0081c12ff2f # v1.310.0
+        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
         with:
           ruby-version: "3.3.10"
 

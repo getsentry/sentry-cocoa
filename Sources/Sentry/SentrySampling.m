@@ -1,7 +1,6 @@
 #import "SentrySampling.h"
 #import "SentryInternalDefines.h"
 #import "SentrySampleDecision.h"
-#import "SentrySamplerDecision.h"
 #import "SentrySamplingContext.h"
 #import "SentrySwift.h"
 #import "SentryTransactionContext.h"

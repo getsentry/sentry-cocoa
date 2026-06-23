@@ -16,20 +16,30 @@
     // -- Arrange --
     SentryObjCUserFeedbackConfiguration *config =
         [[SentryObjCUserFeedbackConfiguration alloc] init];
-    UIButton *button = [[UIButton alloc] init];
 
     // -- Act --
     config.animations = NO;
     config.useShakeGesture = YES;
     config.showFormForScreenshots = YES;
+#    if !SDK_V10
+    UIButton *button = [[UIButton alloc] init];
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     config.customButton = button;
+#        pragma clang diagnostic pop
+#    endif
     config.tags = @{ @"feature" : @"feedback" };
 
     // -- Assert --
     XCTAssertFalse(config.animations);
     XCTAssertTrue(config.useShakeGesture);
     XCTAssertTrue(config.showFormForScreenshots);
+#    if !SDK_V10
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated-declarations"
     XCTAssertEqualObjects(config.customButton, button);
+#        pragma clang diagnostic pop
+#    endif
     XCTAssertEqualObjects([config.tags objectForKey:@"feature"], @"feedback");
 }
 

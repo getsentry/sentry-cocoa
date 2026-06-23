@@ -877,12 +877,14 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         // about to be sent.
         SentrySDKInternal.lastRunStatusCalled = YES;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#if !SDK_V10
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
         if (nil != self.options.onCrashedLastRun) {
             self.options.onCrashedLastRun(SENTRY_UNWRAP_NULLABLE(SentryEvent, event));
         }
-#pragma clang diagnostic pop
+#    pragma clang diagnostic pop
+#endif
 
         if (nil != self.options.onLastRunStatusDetermined) {
             self.options.onLastRunStatusDetermined(

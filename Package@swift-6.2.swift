@@ -28,38 +28,38 @@ var targets: [Target] = [
     // BEGIN:BINARY_TARGETS
     .binaryTarget(
         name: "Sentry",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.17.1/Sentry.xcframework.zip",
-        checksum: "c565f064a1fd3a267b01ea1e84de4f15f5769bd2deed4c14636949ceaa2f4498" //Sentry-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.18.0/Sentry.xcframework.zip",
+        checksum: "51c0ae35a0c68e9e4e3ab9d6078f936f70d5e94b86590b1932ad64f1047df3f2" //Sentry-Static
     ),
     .binaryTarget(
         name: "Sentry-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.17.1/Sentry-Dynamic.xcframework.zip",
-        checksum: "ce17869a97088972a9e64592ef212857d2f28b6e9d4b8cf6356dc3769f39b993" //Sentry-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.18.0/Sentry-Dynamic.xcframework.zip",
+        checksum: "0207121a4b4c67c2e7c37a59d6b6cd4139d26255258dd887a7b714b58024a6d5" //Sentry-Dynamic
     ),
     .binaryTarget(
         name: "Sentry-Dynamic-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.17.1/Sentry-Dynamic-WithARM64e.xcframework.zip",
-        checksum: "06487bb5e76fc594ccf3522a8f71c0444c62d677f6aef25a7cde42656ed38d0c" //Sentry-Dynamic-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.18.0/Sentry-Dynamic-WithARM64e.xcframework.zip",
+        checksum: "e99ba5c7b466a7e771ddcab86c8d226a114903250b5fd6e5f9241725750922f4" //Sentry-Dynamic-WithARM64e
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.17.1/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
-        checksum: "ba4102f7e4ecb0929f510b32753943bc69a624ffcd80db3e6db8685c6bfd633f" //Sentry-WithoutUIKitOrAppKit
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.18.0/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
+        checksum: "ebe308c06ba4beefa94cbf7eb214fcb672f89f1bd3fcf73f526a83c6de2630ee" //Sentry-WithoutUIKitOrAppKit
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.17.1/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
-        checksum: "29a3c9e9ed42d9828b7550b98b3c6a1304b330e23654e8a1719e42a1769fa8c9" //Sentry-WithoutUIKitOrAppKit-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.18.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+        checksum: "6d556092c154843cc4997c06177ac2e8a60d2566d6a419d6e8b654ccaa6069bd" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
     .binaryTarget(
         name: "SentryObjC-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.17.1/SentryObjC-Dynamic.xcframework.zip",
-        checksum: "a7e2cd5a66c546e0746ac61cff857fdc94716dc64c52f8a94ac5596221fc979b" //SentryObjC-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.18.0/SentryObjC-Dynamic.xcframework.zip",
+        checksum: "d15514dd6df1a35c82ec236efd78d8b02bed05f81cd4d9ce7977491b66116bfa" //SentryObjC-Dynamic
     ),
     .binaryTarget(
         name: "SentryObjC-Static",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.17.1/SentryObjC-Static.xcframework.zip",
-        checksum: "17324ae51ff9fe5f9a7ee368fb70c8bbe2aeee574a24b71307f79ee76d1d2c22" //SentryObjC-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.18.0/SentryObjC-Static.xcframework.zip",
+        checksum: "11bef7faf65778425326c385b972eb33faeb4b6f1d6ed98b5929098d19b4fc7a" //SentryObjC-Static
     ),
     .target(
         name: "SentrySwiftUI",
@@ -104,7 +104,8 @@ targets += [
         path: "Sources/Swift",
         swiftSettings: [
             .unsafeFlags(["-enable-library-evolution"]),
-            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"]))
+            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"])),
+            .define("SDK_V10", .when(traits: ["V10"]))
         ]),
 
     // SentryObjCInternal compiles all ObjC/C sources from the repo. Named "Internal"
@@ -134,7 +135,8 @@ targets += [
             .headerSearchPath("SentryCrash/Installations"),
             .headerSearchPath("SentryCrash/Reporting/Filters"),
             .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
-            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"])),
+            .define("SDK_V10", to: "1", .when(traits: ["V10"]))
         ])
 ]
 
@@ -144,7 +146,12 @@ targets += [
     .target(
         name: "SentryObjCCompat",
         dependencies: ["SentryObjCInternal"],
-        path: "Sources/SentryObjCCompat"),
+        path: "Sources/SentryObjCCompat",
+        swiftSettings: [
+            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"])),
+            .define("SDK_V10", .when(traits: ["V10"]))
+        ]
+    ),
     .target(
         name: "SentryObjC",
         dependencies: ["SentryObjCCompat"],
@@ -152,7 +159,8 @@ targets += [
         publicHeadersPath: "Public",
         cSettings: [
             .headerSearchPath("Public"),
-            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"]))
+            .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"])),
+            .define("SDK_V10", to: "1", .when(traits: ["V10"]))
         ]
     )
 ]
@@ -163,7 +171,8 @@ let package = Package(
     platforms: [.iOS(.v15), .macOS(.v10_14), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
     products: products,
     traits: [
-        .init(name: "NoUIFramework", description: "Build without UIKit/AppKit framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable.")
+        .init(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),
+        .init(name: "V10", description: "Enable SDK V10 API changes.")
     ],
     targets: targets,
     swiftLanguageModes: [.v5],
