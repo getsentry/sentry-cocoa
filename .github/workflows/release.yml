@@ -382,7 +382,7 @@ jobs:
       runner_provider: ${{matrix.runner_provider}}
     strategy:
       matrix:
-        runner_provider: ["cirrus", "bitrise"]
+        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
 
   app-metrics:
     name: Collect App Metrics
