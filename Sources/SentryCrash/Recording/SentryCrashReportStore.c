@@ -43,8 +43,10 @@ static int g_maxReportCount = 5;
 // Have to use max 32-bit atomics because of MIPS.
 static _Atomic(uint32_t) g_nextUniqueIDLow;
 static int64_t g_nextUniqueIDHigh;
-static const char *g_appName;
-static const char *g_reportsPath;
+// These values are read while writing crash reports. Keep them in static storage instead of
+// heap-allocated strings so crash-time path construction does not depend on heap pointers.
+static char g_appName[SentryCrashCRS_MAX_PATH_LENGTH];
+static char g_reportsPath[SentryCrashCRS_MAX_PATH_LENGTH];
 static pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int
@@ -201,9 +203,25 @@ void
 sentrycrashcrs_initialize(const char *appName, const char *reportsPath)
 {
     pthread_mutex_lock(&g_mutex);
-    g_appName = strdup(appName);
-    g_reportsPath = strdup(reportsPath);
-    sentrycrashfu_makePath(reportsPath);
+    const size_t appNameLength =
+        strlcpy(g_appName, appName != NULL ? appName : "", sizeof(g_appName));
+    if (appName == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Report store initialized with NULL app name");
+    } else if (appNameLength >= sizeof(g_appName)) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("App name is too long; truncating from %zu to %zu bytes",
+            appNameLength, sizeof(g_appName) - 1);
+    }
+
+    const size_t reportsPathLength = strlcpy(
+        g_reportsPath, reportsPath != NULL ? reportsPath : "", sizeof(g_reportsPath));
+    if (reportsPath == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Report store initialized with NULL reports path");
+    } else if (reportsPathLength >= sizeof(g_reportsPath)) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Reports path is too long; truncating from %zu to %zu bytes",
+            reportsPathLength, sizeof(g_reportsPath) - 1);
+    }
+
+    sentrycrashfu_makePath(g_reportsPath);
     pruneReports();
     initializeIDs();
     pthread_mutex_unlock(&g_mutex);

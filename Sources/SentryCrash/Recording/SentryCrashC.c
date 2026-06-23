@@ -109,13 +109,14 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
     // Depending on the state of the crash this may not work
     // because we gonna call into non async-signal safe code
     // but since the app is already in a crash state we don't
-    // mind if this approach crashes.
-    if (g_saveScreenShot || g_saveViewHierarchy) {
+    // mind if this approach crashes. If we already crashed while
+    // handling a crash, skip this extra unsafe work.
+    if (!monitorContext->crashedDuringCrashHandling && (g_saveScreenShot || g_saveViewHierarchy)) {
         char crashAttachmentsPath[SentryCrashCRS_MAX_PATH_LENGTH];
         sentrycrashcrs_getAttachmentsPath_forReport(
             g_lastCrashReportFilePath, crashAttachmentsPath);
 
-        if (sentrycrashfu_makePath(crashAttachmentsPath)) {
+        if (sentrycrashfu_makePathInPlace(crashAttachmentsPath, sizeof(crashAttachmentsPath))) {
             if (g_saveScreenShot) {
                 g_saveScreenShot(crashAttachmentsPath);
             }
@@ -126,7 +127,7 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
         }
     }
 
-    if (g_saveTransaction) {
+    if (!monitorContext->crashedDuringCrashHandling && g_saveTransaction) {
         g_saveTransaction();
     }
 }

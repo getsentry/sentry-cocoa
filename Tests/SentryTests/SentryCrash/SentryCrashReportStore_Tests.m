@@ -36,6 +36,29 @@
 
 #define REPORT_PREFIX @"CrashReport-SentryCrashTest"
 
+typedef struct {
+    char path[SentryCrashCRS_MAX_PATH_LENGTH];
+    unsigned char canary[16];
+} GuardedSentryCrashCRSPathBuffer;
+
+static void
+fillReportStoreCanary(GuardedSentryCrashCRSPathBuffer *buffer)
+{
+    memset(buffer, 0, sizeof(*buffer));
+    memset(buffer->canary, 0xa5, sizeof(buffer->canary));
+}
+
+static bool
+isReportStoreCanaryIntact(const GuardedSentryCrashCRSPathBuffer *buffer)
+{
+    for (size_t i = 0; i < sizeof(buffer->canary); i++) {
+        if (buffer->canary[i] != 0xa5) {
+            return false;
+        }
+    }
+    return true;
+}
+
 @interface SentryCrashReportStore_Tests : FileBasedTestCase
 
 @property (nonatomic, readwrite, retain) NSString *appName;
@@ -49,6 +72,25 @@
 @synthesize appName = _appName;
 @synthesize reportStorePath = _reportStorePath;
 @synthesize reportCounter = _reportCounter;
+
+- (NSString *)stringByRepeatingString:(NSString *)string count:(NSUInteger)count
+{
+    NSMutableString *result = [NSMutableString stringWithCapacity:string.length * count];
+    for (NSUInteger i = 0; i < count; i++) {
+        [result appendString:string];
+    }
+    return result;
+}
+
+- (NSString *)reportStorePathLongerThanStaticBuffer
+{
+    NSMutableString *path = [NSMutableString stringWithString:self.tempPath];
+    while ([path lengthOfBytesUsingEncoding:NSUTF8StringEncoding]
+        <= SentryCrashCRS_MAX_PATH_LENGTH + 100) {
+        [path appendString:@"/abcd"];
+    }
+    return path;
+}
 
 - (int64_t)getReportIDFromPath:(NSString *)path
 {
@@ -251,6 +293,57 @@
 {
     [self prepareReportStoreWithPathEnd:@"somereports/blah/2/x"];
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:self.reportStorePath]);
+}
+
+- (void)testGetNextCrashReportPath_whenAppNameExceedsStaticBuffer_shouldNotOverwriteCallerBuffer
+{
+    // -- Arrange --
+    self.appName = [self stringByRepeatingString:@"a" count:SentryCrashCRS_MAX_PATH_LENGTH + 100];
+    [self prepareReportStoreWithPathEnd:
+              @"testGetNextCrashReportPath_whenAppNameExceedsStaticBuffer"];
+    GuardedSentryCrashCRSPathBuffer guardedPath;
+    fillReportStoreCanary(&guardedPath);
+
+    // -- Act --
+    sentrycrashcrs_getNextCrashReportPath(guardedPath.path);
+
+    // -- Assert --
+    XCTAssertEqual(guardedPath.path[SentryCrashCRS_MAX_PATH_LENGTH - 1], '\0');
+    XCTAssertTrue(isReportStoreCanaryIntact(&guardedPath));
+}
+
+- (void)testGetNextCrashReportPath_whenReportsPathExceedsStaticBuffer_shouldNotOverwriteCallerBuffer
+{
+    // -- Arrange --
+    self.appName = @"AppName";
+    self.reportStorePath = [self reportStorePathLongerThanStaticBuffer];
+    sentrycrashcrs_initialize(self.appName.UTF8String, self.reportStorePath.UTF8String);
+    GuardedSentryCrashCRSPathBuffer guardedPath;
+    fillReportStoreCanary(&guardedPath);
+
+    // -- Act --
+    sentrycrashcrs_getNextCrashReportPath(guardedPath.path);
+
+    // -- Assert --
+    XCTAssertEqual(guardedPath.path[SentryCrashCRS_MAX_PATH_LENGTH - 1], '\0');
+    XCTAssertTrue(isReportStoreCanaryIntact(&guardedPath));
+}
+
+- (void)testAttachmentsPath_whenOutputExceedsOnCrashBuffer_shouldNotOverwriteCallerBuffer
+{
+    // -- Arrange --
+    self.appName = [self stringByRepeatingString:@"a" count:SentryCrashCRS_MAX_PATH_LENGTH + 100];
+    [self prepareReportStoreWithPathEnd:
+              @"testAttachmentsPath_whenOutputExceedsOnCrashBuffer"];
+    GuardedSentryCrashCRSPathBuffer guardedPath;
+    fillReportStoreCanary(&guardedPath);
+
+    // -- Act --
+    sentrycrashcrs_getAttachmentsPath_forReportId(INT64_MAX, guardedPath.path);
+
+    // -- Assert --
+    XCTAssertEqual(guardedPath.path[SentryCrashCRS_MAX_PATH_LENGTH - 1], '\0');
+    XCTAssertTrue(isReportStoreCanaryIntact(&guardedPath));
 }
 
 - (void)testCrashReportCount1
