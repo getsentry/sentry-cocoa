@@ -1,4 +1,4 @@
-@testable import Sentry
+@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import XCTest
 
@@ -137,5 +137,54 @@ class SentryInternalApiIntegrationTests: XCTestCase {
 
         // -- Assert --
         XCTAssertNotNil(debug)
+    }
+
+    // MARK: - setTrace
+
+    func testSetTrace_shouldNotCrash() {
+        let traceId = SentryId()
+        let spanId = SpanId()
+        SentrySDK.internal.setTrace(traceId, spanId: spanId)
+    }
+
+    // MARK: - setLogOutput
+
+    func testSetLogOutput_shouldForwardMessages() {
+        var received: String?
+        SentrySDK.internal.setLogOutput { message in
+            received = message
+        }
+        defer { SentrySDK.internal.setLogOutput(nil) }
+
+        SentrySDKLog.log(message: "test-log-output", andLevel: .fatal)
+        XCTAssertTrue(received?.contains("test-log-output") == true)
+    }
+
+    // MARK: - ignoreNextSignal
+
+    func testIgnoreNextSignal_shouldNotCrash() {
+        SentrySDK.internal.ignoreNextSignal(SIGABRT)
+    }
+
+    // MARK: - options
+
+    func testOptions_shouldReturnOptions() {
+        let options = SentrySDK.internal.options
+        XCTAssertEqual(options.dsn, SentryInternalApiIntegrationTests.dsnAsString)
+    }
+
+    // MARK: - options(fromDictionary:)
+
+    func testOptionsFromDictionary_withValidDictionary_shouldReturnOptions() throws {
+        let options = try SentrySDK.internal.options(fromDictionary: [
+            "dsn": SentryInternalApiIntegrationTests.dsnAsString
+        ])
+        let expectedDsn = try SentryDsn(string: SentryInternalApiIntegrationTests.dsnAsString)
+        XCTAssertNotNil(options.parsedDsn)
+        XCTAssertEqual(options.parsedDsn?.url.absoluteString, expectedDsn.url.absoluteString)
+    }
+
+    func testOptionsFromDictionary_withInvalidDictionary_shouldThrow() {
+        XCTAssertThrowsError(try SentrySDK.internal.options(fromDictionary: [:]))
     }
 }

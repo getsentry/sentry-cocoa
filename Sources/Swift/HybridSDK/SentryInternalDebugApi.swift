@@ -27,9 +27,11 @@ public struct SentryInternalDebugApi {
             guard let imageInfo = imageCache.imageByAddress(address) else { continue }
             let debugMeta = DebugMeta()
             debugMeta.imageAddress = String(format: "0x%016llx", imageInfo.address)
+            debugMeta.imageAddressRaw = imageInfo.address
             if imageInfo.vmAddress > 0 {
                 debugMeta.imageVmAddress = String(format: "0x%016llx", imageInfo.vmAddress)
             }
+            debugMeta.imageVmAddressRaw = imageInfo.vmAddress
             debugMeta.imageSize = NSNumber(value: imageInfo.size)
             debugMeta.codeFile = imageInfo.name
             debugMeta.type = "macho"

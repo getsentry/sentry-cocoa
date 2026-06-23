@@ -439,6 +439,8 @@ protocol Hub {
     func configureScope(_ callback: @escaping (Scope) -> Void)
     func storeEnvelope(_ envelope: SentryEnvelope)
     func captureEnvelope(_ envelope: SentryEnvelope)
+    func setTrace(_ traceId: SentryId, spanId: SpanId)
+    var options: Options { get }
 }
 
 protocol HubProvider {
@@ -459,6 +461,16 @@ private struct DefaultHub: Hub {
 
     func captureEnvelope(_ envelope: SentryEnvelope) {
         SentrySDKInternal.currentHub().capture(envelope)
+    }
+
+    func setTrace(_ traceId: SentryId, spanId: SpanId) {
+        SentrySDKInternal.currentHub().configureScope { scope in
+            scope.setPropagationContext(traceId: traceId, spanId: spanId)
+        }
+    }
+
+    var options: Options {
+        SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options ?? Options()
     }
 }
 
@@ -701,6 +713,29 @@ protocol UserDeserializerProvider {
 
 extension SentryDependencyContainer: UserDeserializerProvider {
     var userDeserializer: UserDeserializer { DefaultUserDeserializer() }
+}
+
+protocol OptionsDeserializer {
+    func options(from dictionary: [String: Any]) throws -> Options
+}
+
+struct DefaultOptionsDeserializer: OptionsDeserializer {
+    func options(from dictionary: [String: Any]) throws -> Options {
+        guard let options = try SentryOptionsHelper.makeOptions(fromDictionary: dictionary) as? Options else {
+            throw NSError(domain: "SentryInternalApi", code: 1, userInfo: [
+                NSLocalizedDescriptionKey: "Failed to create options from dictionary"
+            ])
+        }
+        return options
+    }
+}
+
+protocol OptionsDeserializerProvider {
+    var optionsDeserializer: OptionsDeserializer { get }
+}
+
+extension SentryDependencyContainer: OptionsDeserializerProvider {
+    var optionsDeserializer: OptionsDeserializer { DefaultOptionsDeserializer() }
 }
 
 protocol ThreadInspectorProvider {
