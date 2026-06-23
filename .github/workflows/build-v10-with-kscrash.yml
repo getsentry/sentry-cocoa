@@ -41,17 +41,17 @@ jobs:
       matrix:
         include:
           - platform: iOS
-            make-target: build-ios-kscrash
+            make-target: build-ios-v10-with-kscrash
           - platform: macOS
-            make-target: build-macos-kscrash
+            make-target: build-macos-v10-with-kscrash
           - platform: Catalyst
-            make-target: build-catalyst-kscrash
+            make-target: build-catalyst-v10-with-kscrash
           - platform: tvOS
-            make-target: build-tvos-kscrash
+            make-target: build-tvos-v10-with-kscrash
           - platform: visionOS
-            make-target: build-visionos-kscrash
+            make-target: build-visionos-v10-with-kscrash
           - platform: watchOS
-            make-target: build-watchos-kscrash
+            make-target: build-watchos-v10-with-kscrash
 
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
