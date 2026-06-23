@@ -77,13 +77,23 @@ jobs:
             }
 
             // Check if there's already an issue created by this automation for this PR
-            // Search for issues that mention this PR and were created by github-actions bot
-            const existingIssuesResponse = await github.rest.search.issuesAndPullRequests({
-              q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open author:app/github-actions "${prUrl}" in:title in:body`,
+            // Uses the Issues list API (strongly consistent) instead of the Search API
+            // (eventually consistent) to avoid race conditions when multiple runs overlap.
+            const existingIssuesResponse = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              creator: 'github-actions[bot]',
+              state: 'all',
+              sort: 'created',
+              direction: 'desc',
+              per_page: 100,
             });
 
-            if (existingIssuesResponse.data.total_count > 0) {
-              const existingIssue = existingIssuesResponse.data.items[0];
+            const existingIssue = existingIssuesResponse.data.find(issue =>
+              !issue.pull_request && issue.body && issue.body.includes(prUrl)
+            );
+
+            if (existingIssue) {
               console.log(`An issue (#${existingIssue.number}) already exists for PR #${prNumber}, skipping creation.`);
               return;
             }
