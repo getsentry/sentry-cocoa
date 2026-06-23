@@ -11,6 +11,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./ci-utils.sh disable=SC1091
 source "$SCRIPT_DIR/ci-utils.sh"
+# shellcheck source=./tools.sh disable=SC1091
+source "$SCRIPT_DIR/tools.sh"
 
 SDK=""
 STATIC_LIB=""
@@ -63,10 +65,29 @@ if [ ! -d "$HEADERS_DIR" ]; then
 fi
 
 if [ -z "$VERSION" ]; then
-    VERSION="0.0.0"
+    version_xcconfig="$SCRIPT_DIR/../Sources/Configuration/Versioning.xcconfig"
+    if [ -f "$version_xcconfig" ]; then
+        VERSION="$(read_xcconfig_value --key MARKETING_VERSION --file "$version_xcconfig")"
+    fi
+fi
+if [ -z "$VERSION" ]; then
+    log_error "Error: could not determine version. Pass --version or ensure Versioning.xcconfig exists."
+    exit 1
 fi
 BUNDLE_SHORT_VERSION="${VERSION%%+*}"
 BUNDLE_VERSION="${BUNDLE_SHORT_VERSION%%-*}"
+
+deployment_targets_xcconfig="$SCRIPT_DIR/../Sources/Configuration/DeploymentTargets.xcconfig"
+if [ ! -f "$deployment_targets_xcconfig" ]; then
+    log_error "DeploymentTargets.xcconfig not found at $deployment_targets_xcconfig"
+    exit 1
+fi
+
+DT_IOS="$(read_xcconfig_value_or_exit --key IPHONEOS_DEPLOYMENT_TARGET --file "$deployment_targets_xcconfig")"
+DT_MACOS="$(read_xcconfig_value_or_exit --key MACOSX_DEPLOYMENT_TARGET --file "$deployment_targets_xcconfig")"
+DT_TVOS="$(read_xcconfig_value_or_exit --key TVOS_DEPLOYMENT_TARGET --file "$deployment_targets_xcconfig")"
+DT_WATCHOS="$(read_xcconfig_value_or_exit --key WATCHOS_DEPLOYMENT_TARGET --file "$deployment_targets_xcconfig")"
+DT_XROS="$(read_xcconfig_value_or_exit --key XROS_DEPLOYMENT_TARGET --file "$deployment_targets_xcconfig")"
 
 SYSTEM_LIBS=( z c++ )
 REQUIRED_FRAMEWORKS=( Foundation CoreData CoreGraphics QuartzCore )
@@ -74,22 +95,57 @@ CANDIDATE_WEAK_FRAMEWORKS=( SystemConfiguration AVFoundation CoreMedia CoreVideo
 
 arch_targets_for_sdk() {
     case "$1" in
-        iphoneos)          echo "arm64-apple-ios15.0" ;;
-        iphonesimulator)   echo "arm64-apple-ios15.0-simulator x86_64-apple-ios15.0-simulator" ;;
-        macosx)            echo "arm64-apple-macos10.14 x86_64-apple-macos10.14" ;;
-        maccatalyst)       echo "arm64-apple-ios15.0-macabi x86_64-apple-ios15.0-macabi" ;;
-        appletvos)         echo "arm64-apple-tvos15.0" ;;
-        appletvsimulator)  echo "arm64-apple-tvos15.0-simulator x86_64-apple-tvos15.0-simulator" ;;
-        watchos)           echo "arm64-apple-watchos8.0 arm64_32-apple-watchos8.0 armv7k-apple-watchos8.0" ;;
-        watchsimulator)    echo "arm64-apple-watchos8.0-simulator x86_64-apple-watchos8.0-simulator" ;;
-        xros)              echo "arm64-apple-xros1.0" ;;
-        xrsimulator)       echo "arm64-apple-xros1.0-simulator" ;;
+        iphoneos)          echo "arm64-apple-ios${DT_IOS}" ;;
+        iphonesimulator)   echo "arm64-apple-ios${DT_IOS}-simulator x86_64-apple-ios${DT_IOS}-simulator" ;;
+        macosx)            echo "arm64-apple-macos${DT_MACOS} x86_64-apple-macos${DT_MACOS}" ;;
+        maccatalyst)       echo "arm64-apple-ios${DT_IOS}-macabi x86_64-apple-ios${DT_IOS}-macabi" ;;
+        appletvos)         echo "arm64-apple-tvos${DT_TVOS}" ;;
+        appletvsimulator)  echo "arm64-apple-tvos${DT_TVOS}-simulator x86_64-apple-tvos${DT_TVOS}-simulator" ;;
+        watchos)           echo "arm64-apple-watchos${DT_WATCHOS} arm64_32-apple-watchos${DT_WATCHOS} armv7k-apple-watchos${DT_WATCHOS}" ;;
+        watchsimulator)    echo "arm64-apple-watchos${DT_WATCHOS}-simulator x86_64-apple-watchos${DT_WATCHOS}-simulator" ;;
+        xros)              echo "arm64-apple-xros${DT_XROS}" ;;
+        xrsimulator)       echo "arm64-apple-xros${DT_XROS}-simulator" ;;
         *)                 log_error "Unknown SDK: $1"; exit 1 ;;
     esac
 }
 
 is_macos_layout() {
     [ "$1" = "macosx" ] || [ "$1" = "maccatalyst" ]
+}
+
+minimum_os_version_for_sdk() {
+    case "$1" in
+        iphoneos|iphonesimulator)              echo "$DT_IOS" ;;
+        macosx|maccatalyst)                    echo "$DT_MACOS" ;;
+        appletvos|appletvsimulator)            echo "$DT_TVOS" ;;
+        watchos|watchsimulator)                echo "$DT_WATCHOS" ;;
+        xros|xrsimulator)                      echo "$DT_XROS" ;;
+        *)                                     log_error "Unknown SDK: $1"; exit 1 ;;
+    esac
+}
+
+os_version_key_for_sdk() {
+    if is_macos_layout "$1"; then
+        echo "LSMinimumSystemVersion"
+    else
+        echo "MinimumOSVersion"
+    fi
+}
+
+supported_platforms_for_sdk() {
+    case "$1" in
+        iphoneos)          echo "iPhoneOS" ;;
+        iphonesimulator)   echo "iPhoneSimulator" ;;
+        macosx)            echo "MacOSX" ;;
+        maccatalyst)       echo "MacOSX" ;;
+        appletvos)         echo "AppleTVOS" ;;
+        appletvsimulator)  echo "AppleTVSimulator" ;;
+        watchos)           echo "WatchOS" ;;
+        watchsimulator)    echo "WatchSimulator" ;;
+        xros)              echo "XROS" ;;
+        xrsimulator)       echo "XRSimulator" ;;
+        *)                 log_error "Unknown SDK: $1"; exit 1 ;;
+    esac
 }
 
 FW_DIR="$OUTPUT_DIR/framework/$FRAMEWORK_NAME/$SDK/$FRAMEWORK_NAME.framework"
@@ -126,6 +182,10 @@ framework module $FRAMEWORK_NAME {
 }
 EOF
 
+MIN_OS_VERSION="$(minimum_os_version_for_sdk "$SDK")"
+SUPPORTED_PLATFORM="$(supported_platforms_for_sdk "$SDK")"
+OS_VERSION_KEY="$(os_version_key_for_sdk "$SDK")"
+
 cat > "$resources_dir/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
@@ -146,8 +206,14 @@ cat > "$resources_dir/Info.plist" <<EOF
   <string>FMWK</string>
   <key>CFBundleShortVersionString</key>
   <string>$BUNDLE_SHORT_VERSION</string>
+  <key>CFBundleSupportedPlatforms</key>
+  <array>
+    <string>$SUPPORTED_PLATFORM</string>
+  </array>
   <key>CFBundleVersion</key>
   <string>$BUNDLE_VERSION</string>
+  <key>$OS_VERSION_KEY</key>
+  <string>$MIN_OS_VERSION</string>
 </dict>
 </plist>
 EOF
