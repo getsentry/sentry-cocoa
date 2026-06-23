@@ -272,21 +272,28 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
     }
 
-    func testApplyToEvent_whenEventHasFeatureFlags_shouldPreferEventFlags() throws {
+    func testApplyToEvent_whenEventHasFeatureFlags_shouldKeepEventFlagsAndIgnoreScopeFlags() throws {
         // -- Arrange --
         let scope = Scope(maxBreadcrumbs: 5)
-        scope.addFeatureFlag(name: "scope", result: false)
+        scope.addFeatureFlag(name: "shared", result: false)
+        scope.addFeatureFlag(name: "scope-only", result: true)
         let event = Event()
-        event.context = ["flags": ["values": [["flag": "event", "result": true]]]]
+        event.context = ["flags": ["values": [
+            ["flag": "shared", "result": true],
+            ["flag": "event-only", "result": false]
+        ]]]
 
         // -- Act --
         let actual = try XCTUnwrap(scope.applyTo(event: event, maxBreadcrumbs: 10))
 
         // -- Assert --
         let values = try featureFlagValues(from: actual)
-        XCTAssertEqual(values.count, 1)
-        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "event")
+        XCTAssertEqual(values.count, 2)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "shared")
         XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
+        XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "event-only")
+        XCTAssertEqual(values.element(at: 1)?["result"] as? Bool, false)
+        XCTAssertFalse(values.contains { $0["flag"] as? String == "scope-only" })
     }
 
     func testApplyToEvent_whenFatalEvent_shouldNotApplyFeatureFlags() throws {
