@@ -5,15 +5,17 @@
 > [!WARNING]
 > **The minimum macOS deployment target will be raised to macOS 12 (Monterey)** with the upcoming release that adopts Xcode 27. Xcode 27 no longer supports deployment targets below macOS 12. If your app must support macOS 11 or earlier, please stay on the last SDK version released before this change. See [#8113](https://github.com/getsentry/sentry-cocoa/issues/8113) for full details.
 
+### Features
+
+- Renamed experimental extended app start API (#8161):
+  - `extendAppLaunch()` -> `extendAppStart()`
+  - `finishExtendedAppLaunch()` -> `finishExtendedAppStart()`
+  - Added `getExtendedAppStartSpan()` to get the extended app span
+- Add extended app start APIs to ObjC wrapper SDK (#8163)
+
 ### Improvements
 
 - Reduce Session Replay capture stutters by scheduling screenshots after run loop UI work instead of from display refresh callbacks (#7851)
-
-### Fixes
-
-- Session replay video assembly: drop empty video segments, avoid duplicating frames at segment boundaries, and keep video timing stable when captured frames are skipped or unreadable (#8041)
-
-## Unreleased
 
 ### Fixes
 
@@ -30,14 +32,6 @@
 ### Internal
 
 - Add `SentrySDK.internal` structured API for hybrid SDKs, replacing `PrivateSentrySDKOnly` with namespaced sub-APIs (`replay`, `profiling`, `appStart`, `performance`, `screenshot`, `viewHierarchy`, `screen`, `envelope`, `swizzle`, `sdk`, `debug`, `breadcrumbs`, `user`) (#8097)
-
-### Features
-
-- Renamed extended app start API (#8161):
-  - `extendAppLaunch()` -> `extendAppStart()`
-  - `finishExtendedAppLaunch()` -> `finishExtendedAppStart()`
-  - Added `getExtendedAppStartSpan()` to get the extended app span
-- Add extended app start APIs to ObjC wrapper SDK (#8163)
 
 ## 9.18.0
 
