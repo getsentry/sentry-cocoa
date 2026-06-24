@@ -695,6 +695,40 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(pauseCall.end, TestCurrentDateProvider.defaultStartingDate.addingTimeInterval(6))
     }
 
+    func testPauseResume_whenSegmentCreationIsPending_shouldKeepPauseSegment() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        fixture.replayMaker.deferCreateVideoCompletion = true
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        // -- Act --
+        fixture.dateProvider.advance(by: 6)
+        fixture.runLoopCapture()
+        let firstCall = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
+
+        sut.pauseSessionMode()
+        fixture.dateProvider.advance(by: 1)
+        let resumeDate = fixture.dateProvider.date()
+        sut.resumeSessionMode()
+
+        fixture.replayMaker.completeNextCreateVideo()
+        let pauseCall = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
+
+        fixture.replayMaker.completeNextCreateVideo()
+        fixture.dateProvider.advance(by: 5)
+        fixture.runLoopCapture()
+        let resumedCall = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
+
+        // -- Assert --
+        XCTAssertEqual(firstCall.beginning, TestCurrentDateProvider.defaultStartingDate)
+        XCTAssertEqual(firstCall.end, TestCurrentDateProvider.defaultStartingDate.addingTimeInterval(5))
+        XCTAssertEqual(pauseCall.beginning, firstCall.end)
+        XCTAssertEqual(pauseCall.end, TestCurrentDateProvider.defaultStartingDate.addingTimeInterval(6))
+        XCTAssertEqual(resumedCall.beginning, resumeDate)
+        XCTAssertEqual(resumedCall.end, resumeDate.addingTimeInterval(5))
+    }
+
     func testPause_whenSegmentCreationReturnsNoVideo_shouldRetrySameSegmentWindow() throws {
         // -- Arrange --
         let fixture = Fixture()
