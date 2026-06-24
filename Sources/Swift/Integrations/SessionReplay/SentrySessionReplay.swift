@@ -4,6 +4,90 @@ import Foundation
 @_implementationOnly import _SentryPrivate
 import UIKit
 
+/// Tracks full-session segment boundaries while video rendering happens asynchronously.
+///
+/// Callers must mutate this only while holding `SentrySessionReplay.lock`.
+///
+/// Normal flow: a segment due at `5s` returns `0...5s`, marks `5s` as pending, and
+/// advances the next segment start only after that video is produced.
+///
+/// Pause/resume while rendering: if `0...5s` is rendering, pause happens at `6s`,
+/// and resume happens at `7s` before rendering finishes, keep `6s` as the pause tail
+/// and `7s` as the later resume start. When `0...5s` finishes, callers first render
+/// `5...6s`, then restart future segments at `7s`.
+private struct SessionSegmentState {
+    private(set) var sessionStart: Date?
+    private var segmentStart: Date?
+    private var pendingSegmentEnd: Date?
+    private var pendingPauseEnd: Date?
+    private var pendingResumeStart: Date?
+
+    mutating func reset() {
+        segmentStart = nil
+        pendingSegmentEnd = nil
+        pendingPauseEnd = nil
+        pendingResumeStart = nil
+    }
+
+    mutating func start(at date: Date?) {
+        sessionStart = date
+        segmentStart = date
+    }
+
+    mutating func setSegmentStart(_ date: Date?) {
+        segmentStart = date
+    }
+
+    mutating func queuePendingPauseIfNeeded(at date: Date) -> Bool {
+        guard pendingSegmentEnd != nil else { return false }
+        pendingPauseEnd = date
+        pendingResumeStart = nil
+        return true
+    }
+
+    mutating func resumeSession(at date: Date) {
+        if pendingPauseEnd != nil {
+            pendingResumeStart = date
+        } else {
+            segmentStart = date
+        }
+    }
+
+    mutating func nextSegmentIfDue(at date: Date, duration: TimeInterval) -> DateInterval? {
+        guard pendingSegmentEnd == nil else { return nil }
+        if segmentStart == nil {
+            segmentStart = date
+        }
+
+        guard let start = segmentStart, date.timeIntervalSince(start) >= duration else { return nil }
+
+        let end = start.addingTimeInterval(duration)
+        pendingSegmentEnd = end
+        return DateInterval(start: start, end: end)
+    }
+
+    mutating func finishPendingSegment(_ end: Date) -> (pauseSegmentEnd: Date?, resumeSegmentStart: Date?) {
+        if pendingSegmentEnd == end {
+            pendingSegmentEnd = nil
+        }
+
+        let pauseSegmentEnd = pendingPauseEnd
+        pendingPauseEnd = nil
+        let resumeSegmentStart = pendingResumeStart
+        pendingResumeStart = nil
+        return (pauseSegmentEnd, resumeSegmentStart)
+    }
+
+    func segmentStartForPauseSegment(endingAt date: Date, duration: TimeInterval) -> Date {
+        let fallbackStart = date.addingTimeInterval(-duration)
+        return segmentStart ?? max(sessionStart ?? fallbackStart, fallbackStart)
+    }
+
+    mutating func advanceSegmentStart(to end: Date) {
+        segmentStart = max(segmentStart ?? end, end)
+    }
+}
+
 // swiftlint:disable type_body_length
 @objcMembers
 @_spi(Private) public class SentrySessionReplay: NSObject {
@@ -19,8 +103,7 @@ import UIKit
     private var lastScreenshotAt: Date?
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var nextScreenshotAt: Date?
-    private var videoSegmentStart: Date?
-    private var sessionStart: Date?
+    private var segmentState = SessionSegmentState()
     private var imageCollection: [UIImage] = []
     private weak var delegate: SentrySessionReplayDelegate?
     private var currentSegmentId = 0
@@ -35,8 +118,7 @@ import UIKit
     private let dateProvider: SentryCurrentDateProvider
     private let touchTracker: SentryTouchTracker?
     /// Guards the state shared between the main thread and background queues: segment
-    /// bookkeeping (`sessionStart`, `videoSegmentStart`, `pendingSegmentEnd`, `pendingPauseSegmentEnd`,
-    /// `pendingResumeSegmentStart`, `currentSegmentId`), capture scheduler state (`captureSchedulerToken`,
+    /// bookkeeping (`segmentState`, `currentSegmentId`), capture scheduler state (`captureSchedulerToken`,
     /// `captureSchedulerGeneration`, `nextCaptureActivityCheckAt`) and the `_isFullSession`,
     /// `processingScreenshot`, `isSessionPaused` and `reachedMaximumDuration` flags.
     ///
@@ -57,15 +139,6 @@ import UIKit
     /// next foreground resume may skip restarting the scheduler.
     private var captureSchedulerGeneration = 0
     private var nextCaptureActivityCheckAt: Date?
-    /// Segment end currently being rendered on the replay maker's background queue.
-    private var pendingSegmentEnd: Date?
-    /// Pause timestamp to process after the current pending segment finishes rendering.
-    ///
-    /// Example: if `0...5s` is rendering and pause happens at `7s`, this queues `5...7s`
-    /// without overwriting the in-flight `pendingSegmentEnd`.
-    private var pendingPauseSegmentEnd: Date?
-    /// Resume timestamp to apply after the queued pause segment has been started.
-    private var pendingResumeSegmentStart: Date?
     public var replayTags: [String: Any]?
 
     var isRunning: Bool {
@@ -115,10 +188,7 @@ import UIKit
         resetCapturePacing(at: now)
         startCaptureScheduler()
         lock.synchronized {
-            videoSegmentStart = nil
-            pendingSegmentEnd = nil
-            pendingPauseSegmentEnd = nil
-            pendingResumeSegmentStart = nil
+            segmentState.reset()
             currentSegmentId = 0
         }
         sessionReplayId = SentryId()
@@ -133,8 +203,7 @@ import UIKit
     private func startFullReplay(startedAt: Date?) {
         SentrySDKLog.debug("[Session Replay] Starting full session replay")
         lock.synchronized {
-            sessionStart = startedAt
-            videoSegmentStart = startedAt
+            segmentState.start(at: startedAt)
             _isFullSession = true
         }
         guard let sessionReplayId = sessionReplayId else { return }
@@ -148,7 +217,7 @@ import UIKit
             isSessionPaused = true
 
             if !queuePendingPauseSegmentIfNeeded(at: pauseDate) {
-                videoSegmentStart = nil
+                segmentState.setSegmentStart(nil)
             }
         }
     }
@@ -170,10 +239,8 @@ import UIKit
     }
 
     private func queuePendingPauseSegmentIfNeeded(at pauseDate: Date) -> Bool {
-        guard _isFullSession, pendingSegmentEnd != nil else { return false }
-        pendingPauseSegmentEnd = pauseDate
-        pendingResumeSegmentStart = nil
-        return true
+        guard _isFullSession else { return false }
+        return segmentState.queuePendingPauseIfNeeded(at: pauseDate)
     }
 
     public func resume() {
@@ -194,7 +261,7 @@ import UIKit
             }
 
             captureSchedulerGeneration += 1
-            videoSegmentStart = _isFullSession ? resumeDate : nil
+            segmentState.setSegmentStart(_isFullSession ? resumeDate : nil)
             return captureSchedulerGeneration
         }
         guard let schedulerGeneration = schedulerGeneration else { return }
@@ -214,11 +281,7 @@ import UIKit
         lock.synchronized {
             isSessionPaused = false
             if _isFullSession {
-                if pendingPauseSegmentEnd != nil {
-                    pendingResumeSegmentStart = resumeDate
-                } else {
-                    videoSegmentStart = resumeDate
-                }
+                segmentState.resumeSession(at: resumeDate)
             }
         }
         guard restartCaptureScheduler else { return }
@@ -310,7 +373,7 @@ import UIKit
         guard isRunning else { return }
 
         let now = dateProvider.date()
-        let fullSessionState = lock.synchronized { (isFullSession: _isFullSession, sessionStart: self.sessionStart) }
+        let fullSessionState = lock.synchronized { (isFullSession: _isFullSession, sessionStart: segmentState.sessionStart) }
 
         if fullSessionState.isFullSession && lock.synchronized({ isSessionPaused }) {
             return
@@ -555,24 +618,14 @@ import UIKit
             return
         }
 
-        let segmentBounds: (start: Date, end: Date)? = lock.synchronized {
+        let segmentBounds: DateInterval? = lock.synchronized {
             guard _isFullSession else { return nil }
-            guard pendingSegmentEnd == nil else { return nil }
-            if videoSegmentStart == nil {
-                videoSegmentStart = date
-            }
-
-            guard let segmentStart = videoSegmentStart,
-                date.timeIntervalSince(segmentStart) >= sessionSegmentDuration
-            else { return nil }
-
-            let segmentEnd = segmentStart.addingTimeInterval(sessionSegmentDuration)
-            pendingSegmentEnd = segmentEnd
-            return (segmentStart, segmentEnd)
+            return segmentState.nextSegmentIfDue(at: date, duration: sessionSegmentDuration)
         }
-        guard let (segmentStart, segmentEnd) = segmentBounds else { return }
+        guard let segmentBounds = segmentBounds else { return }
+        let segmentEnd = segmentBounds.end
 
-        if !prepareSegment(from: segmentStart, until: segmentEnd, completion: { [weak self] in
+        if !prepareSegment(from: segmentBounds.start, until: segmentEnd, completion: { [weak self] in
             self?.finishPendingSegment(segmentEnd)
         }) {
             finishPendingSegment(segmentEnd)
@@ -580,16 +633,8 @@ import UIKit
     }
 
     private func finishPendingSegment(_ segmentEnd: Date) {
-        let pending = lock.synchronized { () -> (pauseSegmentEnd: Date?, resumeSegmentStart: Date?) in
-            if pendingSegmentEnd == segmentEnd {
-                pendingSegmentEnd = nil
-            }
-
-            let pauseSegmentEnd = pendingPauseSegmentEnd
-            pendingPauseSegmentEnd = nil
-            let resumeSegmentStart = pendingResumeSegmentStart
-            pendingResumeSegmentStart = nil
-            return (pauseSegmentEnd, resumeSegmentStart)
+        let pending = lock.synchronized {
+            segmentState.finishPendingSegment(segmentEnd)
         }
 
         if let pauseSegmentEnd = pending.pauseSegmentEnd {
@@ -598,15 +643,14 @@ import UIKit
 
         if let resumeSegmentStart = pending.resumeSegmentStart {
             lock.synchronized {
-                videoSegmentStart = resumeSegmentStart
+                segmentState.setSegmentStart(resumeSegmentStart)
             }
         }
     }
 
     private func prepareSegmentUntil(date: Date) {
-        let fallbackSegmentStart = date.addingTimeInterval(-replayOptions.sessionSegmentDuration)
         let segmentStart = lock.synchronized {
-            videoSegmentStart ?? max(sessionStart ?? fallbackSegmentStart, fallbackSegmentStart)
+            segmentState.segmentStartForPauseSegment(endingAt: date, duration: replayOptions.sessionSegmentDuration)
         }
         prepareSegment(from: segmentStart, until: date)
     }
@@ -683,7 +727,7 @@ import UIKit
         replayMaker.releaseFramesUntil(videoInfo.end)
         lock.synchronized {
             // Advance the segment start monotonically; never move it backwards.
-            videoSegmentStart = max(videoSegmentStart ?? videoInfo.end, videoInfo.end)
+            segmentState.advanceSegmentStart(to: videoInfo.end)
         }
         SentrySDKLog.debug("[Session Replay] Processed segment, incrementing currentSegmentId to: \(segmentId + 1)")
     }
