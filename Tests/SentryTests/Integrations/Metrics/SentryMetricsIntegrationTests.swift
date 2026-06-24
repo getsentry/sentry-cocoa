@@ -258,6 +258,50 @@ class SentryMetricsIntegrationTests: XCTestCase {
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0, "Metric should be dropped when client is disabled")
     }
 
+    func testAddMetric_whenSdkDisabledViaOptions_shouldDropMetric() throws {
+        // -- Arrange --
+        let client = try givenSdkWithHub { $0.enabled = false }
+        let integration = try getSut()
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0, "Metric should be dropped when options.enabled is false")
+    }
+
+    func testAddMetric_whenNoDsn_shouldDropMetric() throws {
+        // -- Arrange --
+        let client = try givenSdkWithHub { $0.parsedDsn = nil }
+        let integration = try getSut()
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0, "Metric should be dropped when no DSN is configured")
+    }
+
     func testName_shouldReturnCorrectName() {
         // -- Act & Assert --
         XCTAssertEqual(SentryMetricsIntegration<SentryDependencyContainer>.name, "SentryMetricsIntegration")
