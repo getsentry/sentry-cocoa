@@ -84,9 +84,7 @@ final class IOSPlatformRunner {
         try processRunner.run("xcrun", ["simctl", "terminate", deviceID, bundleID], captureOutput: true, allowFailure: true)
 
         let launchResult = try launchApp(arguments: crashLaunchArguments(for: scenario, markerPath: markerPath))
-        if launchResult.timedOut {
-            try fail("iOS simctl launch timed out for scenario: \(scenario.rawValue)")
-        }
+        try assertLaunchSucceeded(launchResult, scenario: scenario, launchType: "crash")
         log("iOS crash launch exited with \(launchResult.summary). Waiting for termination.")
 
         guard try waitForAppToStop(timeout: 25) else {
@@ -108,9 +106,7 @@ final class IOSPlatformRunner {
     private func drainPreviousCrash(for scenario: Scenario) throws {
         log("Relaunching iOS app to drain previous crash.")
         let result = try launchApp(arguments: ["--scenario", "drain", "--exit-after", "3"])
-        if result.timedOut {
-            try fail("iOS drain launch timed out for scenario: \(scenario.rawValue)")
-        }
+        try assertLaunchSucceeded(result, scenario: scenario, launchType: "drain")
         _ = try waitForAppToStop(timeout: 15)
     }
 
@@ -122,6 +118,30 @@ final class IOSPlatformRunner {
             timeout: 30,
             allowFailure: true
         )
+    }
+
+    private func assertLaunchSucceeded(_ result: ProcessResult, scenario: Scenario,
+                                       launchType: String) throws {
+        if result.timedOut {
+            try fail("iOS \(launchType) simctl launch timed out for scenario: \(scenario.rawValue)")
+        }
+        guard result.succeeded else {
+            try failLaunch(result, scenario: scenario, launchType: launchType)
+        }
+    }
+
+    private func failLaunch(_ result: ProcessResult, scenario: Scenario,
+                            launchType: String) throws -> Never {
+        var message = "iOS \(launchType) simctl launch failed for scenario: \(scenario.rawValue) (\(result.summary))"
+        let stderr = result.stderr.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !stderr.isEmpty {
+            message += "\n\(stderr)"
+        }
+        let stdout = result.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !stdout.isEmpty {
+            message += "\nstdout:\n\(stdout)"
+        }
+        try fail(message)
     }
 
     private func crashLaunchArguments(for scenario: Scenario, markerPath: URL?) -> [String] {
