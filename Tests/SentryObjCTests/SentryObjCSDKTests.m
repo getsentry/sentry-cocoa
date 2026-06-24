@@ -601,6 +601,81 @@
     [SentryObjCSDK flush:0.1];
 }
 
+#pragma mark - Extended App Start
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
+- (void)testExtendAppStart_shouldNotCrash
+{
+    // -- Act & Assert (no crash) --
+    [SentryObjCSDK extendAppStart];
+}
+
+- (void)testGetExtendedAppStartSpan_withoutExtending_shouldReturnNil
+{
+    // -- Act --
+    SentryObjCSpan *span = [SentryObjCSDK getExtendedAppStartSpan];
+
+    // -- Assert --
+    XCTAssertNil(span);
+}
+
+- (void)testGetExtendedAppStartSpan_afterExtending_shouldReturnSpan
+{
+    // -- Arrange --
+    [SentryObjCSDK extendAppStart];
+
+    // -- Act --
+    SentryObjCSpan *span = [SentryObjCSDK getExtendedAppStartSpan];
+
+    // -- Assert --
+    XCTAssertNotNil(span);
+    XCTAssertFalse(span.isFinished);
+}
+
+- (void)testFinishExtendedAppStart_withoutExtending_shouldNotCrash
+{
+    // -- Act & Assert (no crash) --
+    [SentryObjCSDK finishExtendedAppStart];
+}
+
+- (void)testFinishExtendedAppStart_afterExtending_shouldFinishSpan
+{
+    // -- Arrange --
+    [SentryObjCSDK extendAppStart];
+    SentryObjCSpan *span = [SentryObjCSDK getExtendedAppStartSpan];
+    XCTAssertNotNil(span);
+
+    // -- Act --
+    [SentryObjCSDK finishExtendedAppStart];
+
+    // -- Assert --
+    XCTAssertTrue(span.isFinished);
+}
+
+- (void)testFinishExtendedAppStart_calledTwice_shouldNotCrash
+{
+    // -- Arrange --
+    [SentryObjCSDK extendAppStart];
+
+    // -- Act & Assert (no crash) --
+    [SentryObjCSDK finishExtendedAppStart];
+    [SentryObjCSDK finishExtendedAppStart];
+}
+
+- (void)testGetExtendedAppStartSpan_afterFinish_shouldReturnNil
+{
+    // -- Arrange --
+    [SentryObjCSDK extendAppStart];
+    [SentryObjCSDK finishExtendedAppStart];
+
+    // -- Act --
+    SentryObjCSpan *span = [SentryObjCSDK getExtendedAppStartSpan];
+
+    // -- Assert --
+    XCTAssertNil(span);
+}
+#endif
+
 #pragma mark - Platform-Conditional
 
 #if TARGET_OS_IOS || TARGET_OS_TV
