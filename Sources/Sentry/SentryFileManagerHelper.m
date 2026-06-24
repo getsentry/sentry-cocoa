@@ -106,7 +106,7 @@ _non_thread_safe_removeFileAtPath(NSString *path)
 - (nullable instancetype)initWithPlaceholder:(NSObject *)objc
                                        error:(NSError *_Nullable *_Nullable)error
 {
-    SentryOptions *options = SentrySDK.startOption;
+    SentryOptions *options = SentrySDKInternal.options;
     return [self initWithOptions:options error:error];
 }
 

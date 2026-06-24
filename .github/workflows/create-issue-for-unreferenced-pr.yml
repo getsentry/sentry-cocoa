@@ -27,7 +27,7 @@ jobs:
     if: contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association)
     steps:
       - name: Check PR Body and Title for Issue Reference
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const pr = context.payload.pull_request;
@@ -77,13 +77,23 @@ jobs:
             }
 
             // Check if there's already an issue created by this automation for this PR
-            // Search for issues that mention this PR and were created by github-actions bot
-            const existingIssuesResponse = await github.rest.search.issuesAndPullRequests({
-              q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open author:app/github-actions "${prUrl}" in:title in:body`,
+            // Uses the Issues list API (strongly consistent) instead of the Search API
+            // (eventually consistent) to avoid race conditions when multiple runs overlap.
+            const existingIssuesResponse = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              creator: 'github-actions[bot]',
+              state: 'all',
+              sort: 'created',
+              direction: 'desc',
+              per_page: 100,
             });
 
-            if (existingIssuesResponse.data.total_count > 0) {
-              const existingIssue = existingIssuesResponse.data.items[0];
+            const existingIssue = existingIssuesResponse.data.find(issue =>
+              !issue.pull_request && issue.body && issue.body.includes(prUrl)
+            );
+
+            if (existingIssue) {
               console.log(`An issue (#${existingIssue.number}) already exists for PR #${prNumber}, skipping creation.`);
               return;
             }

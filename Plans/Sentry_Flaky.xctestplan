@@ -34,6 +34,16 @@
         "identifier" : "63AA76641EB8CB2F00D153DE",
         "name" : "SentryTests"
       }
+    },
+    {
+      "selectedTests" : [
+        "SentryContinuousProfilerTests\/testStoppingProfilerTransmitsLastFullChunk()"
+      ],
+      "target" : {
+        "containerPath" : "container:Sentry.xcodeproj",
+        "identifier" : "8431EECF29B27B1100D8DC56",
+        "name" : "SentryProfilerTests"
+      }
     }
   ],
   "version" : 1

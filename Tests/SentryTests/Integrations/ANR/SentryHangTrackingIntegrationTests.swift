@@ -915,6 +915,6 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
             threadInspector.allThreads = []
         }
 
-        Dependencies.threadInspector = threadInspector
+        SentryDependencyContainer.sharedInstance().threadInspector = threadInspector
     }
 }

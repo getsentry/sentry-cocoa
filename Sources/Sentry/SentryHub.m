@@ -8,7 +8,6 @@
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
 #import "SentrySDK+Private.h"
-#import "SentrySamplerDecision.h"
 #import "SentrySampling.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope+Private.h"
@@ -760,7 +759,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
  */
-- (void)storeEnvelope:(SentryEnvelope *)envelope
+- (void)storeEnvelope:(id)envelope
 {
     SentryClientInternal *client = self.client;
     if (client == nil) {
@@ -772,7 +771,7 @@ NS_ASSUME_NONNULL_BEGIN
     [client storeEnvelope:[self updateSessionState:envelope startNewSession:NO]];
 }
 
-- (void)captureEnvelope:(SentryEnvelope *)envelope
+- (void)captureEnvelope:(id)envelope
 {
     SentryClientInternal *client = self.client;
     if (client == nil) {

@@ -5,9 +5,29 @@
 > [!WARNING]
 > **The minimum macOS deployment target will be raised to macOS 12 (Monterey)** with the upcoming release that adopts Xcode 27. Xcode 27 no longer supports deployment targets below macOS 12. If your app must support macOS 11 or earlier, please stay on the last SDK version released before this change. See [#8113](https://github.com/getsentry/sentry-cocoa/issues/8113) for full details.
 
+## Unreleased
+
 ### Fixes
 
+- Don't send logs and metrics when the SDK is disabled (#8173)
+- Fixes crash caused by modifying breadcrumbs from multiple threads (#8114)
+- Prevent feedback form on external displays (#8071)
+- Keep the User Feedback screenshot trigger active after form dismissal. (#8048)
+- Prevent lazy TLS-init in the signal crash monitor for non-managed runtime builds (#8148)
+- Fix missing `Info.plist` entries `MinimumOSVersion` and `CFBundleSupportedPlatforms` in `SentryObjC.xcframework` (#8157)
+- Harden crash-time attachment path creation to avoid secondary crashes while handling crashes (#8170)
 - Session replay video assembly: drop empty video segments, avoid duplicating frames at segment boundaries, and keep video timing stable when captured frames are skipped or unreadable (#8041)
+
+### Internal
+
+- Add `SentrySDK.internal` structured API for hybrid SDKs, replacing `PrivateSentrySDKOnly` with namespaced sub-APIs (`replay`, `profiling`, `appStart`, `performance`, `screenshot`, `viewHierarchy`, `screen`, `envelope`, `swizzle`, `sdk`, `debug`, `breadcrumbs`, `user`) (#8097)
+
+### Features
+
+- Renamed extended app start API (#8161):
+  - `extendAppLaunch()` -> `extendAppStart()`
+  - `finishExtendedAppLaunch()` -> `finishExtendedAppStart()`
+  - Added `getExtendedAppStartSpan()` to get the extended app span
 
 ## 9.18.0
 

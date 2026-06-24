@@ -48,9 +48,10 @@ GIT-REF := $(shell git rev-parse --abbrev-ref HEAD)
 ## Setup the project by installing dependencies, pre-commit hooks, rbenv, and bundler
 #
 # Sets up a fresh machine for development by chaining the install tasks.
+# Generates Xcode projects via xcode-ci.
 # Safe to re-run if you need to reinitialize dependencies or hooks.
 .PHONY: init
-init: init-local init-ci-build init-ci-format
+init: init-local init-ci-build init-ci-format xcode-ci
 
 ## Setup local development environment
 #
@@ -294,30 +295,96 @@ build-watchos-v10:
 		-configuration DebugV10 \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
 
-## Build XCFramework for distribution
-#
-# Creates Sentry XCFramework bundles for all platforms and variants.
-# Outputs logs to build-xcframework.log.
-.PHONY: build-xcframework
-build-xcframework:
-	@echo "--> Creating Sentry xcframework"
-	./scripts/build-xcframework-local.sh | tee build-xcframework.log
-
-## Build signed XCFramework for distribution
-#
-# Creates signed Sentry XCFramework bundles for all platforms and variants.
-# Outputs logs to build-xcframework.log.
-.PHONY: build-signed-xcframework
-build-signed-xcframework:
-	@echo "--> Creating Signed Sentry xcframework"
-	./scripts/build-xcframework-local.sh | tee build-xcframework.log
-
 ## Build XCFramework validation sample
 #
 # Builds the XCFramework validation sample project to verify XCFramework integration.
 .PHONY: build-xcframework-sample
 build-xcframework-sample:
 	xcodebuild -project "Samples/XCFramework-Validation/XCFramework.xcodeproj" -configuration Release CODE_SIGNING_ALLOWED="NO" build
+
+## Build Sentry-Dynamic XCFramework
+#
+# SDKS is a comma-separated list of SDK names (default: all).
+#
+# Examples:
+#   make build-xcframework-dynamic
+#   make build-xcframework-dynamic SDKS=iphonesimulator
+.PHONY: build-xcframework-dynamic
+build-xcframework-dynamic:
+	@echo "--> Creating Sentry-Dynamic xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-variant.sh --scheme "Sentry" --suffix "-Dynamic" --mach-o-type "mh_dylib" --sdks "$(SDKS)" --excluded-archs "arm64e"
+	./scripts/validate-xcframework.sh --xcframework "Sentry-Dynamic.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "Sentry-Dynamic.xcframework"
+
+## Build Sentry-Dynamic-WithARM64e XCFramework
+#
+# SDKS is a comma-separated list of SDK names (default: all).
+#
+# Examples:
+#   make build-xcframework-dynamic-arm64e
+#   make build-xcframework-dynamic-arm64e SDKS=iphonesimulator
+.PHONY: build-xcframework-dynamic-arm64e
+build-xcframework-dynamic-arm64e:
+	@echo "--> Creating Sentry-Dynamic-WithARM64e xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-variant.sh --scheme "Sentry" --suffix "-Dynamic-WithARM64e" --mach-o-type "mh_dylib" --sdks "$(SDKS)"
+	./scripts/validate-xcframework.sh --xcframework "Sentry-Dynamic-WithARM64e.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "Sentry-Dynamic-WithARM64e.xcframework"
+
+## Build Sentry (static) XCFramework
+#
+# SDKS is a comma-separated list of SDK names (default: all).
+#
+# Examples:
+#   make build-xcframework-static
+#   make build-xcframework-static SDKS=iphonesimulator
+.PHONY: build-xcframework-static
+build-xcframework-static:
+	@echo "--> Creating Sentry-Static xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-variant.sh --scheme "Sentry" --mach-o-type "staticlib" --sdks "$(SDKS)"
+	./scripts/validate-xcframework.sh --xcframework "Sentry.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "Sentry.xcframework"
+
+## Build SentrySwiftUI XCFramework
+#
+# SDKS is a comma-separated list of SDK names (default: all).
+#
+# Examples:
+#   make build-xcframework-swiftui
+#   make build-xcframework-swiftui SDKS=iphonesimulator
+.PHONY: build-xcframework-swiftui
+build-xcframework-swiftui:
+	@echo "--> Creating SentrySwiftUI xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-variant.sh --scheme "SentrySwiftUI" --mach-o-type "mh_dylib" --sdks "$(SDKS)"
+	./scripts/validate-xcframework.sh --xcframework "SentrySwiftUI.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "SentrySwiftUI.xcframework"
+
+## Build Sentry-WithoutUIKitOrAppKit XCFramework
+#
+# SDKS is a comma-separated list of SDK names (default: all).
+#
+# Examples:
+#   make build-xcframework-without-uikit
+#   make build-xcframework-without-uikit SDKS=iphonesimulator
+.PHONY: build-xcframework-without-uikit
+build-xcframework-without-uikit:
+	@echo "--> Creating Sentry-WithoutUIKitOrAppKit xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-variant.sh --scheme "Sentry" --suffix "-WithoutUIKitOrAppKit" --mach-o-type "mh_dylib" --configuration-suffix "WithoutUIKit" --sdks "$(SDKS)" --excluded-archs "arm64e"
+	./scripts/validate-xcframework.sh --xcframework "Sentry-WithoutUIKitOrAppKit.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "Sentry-WithoutUIKitOrAppKit.xcframework"
+
+## Build Sentry-WithoutUIKitOrAppKit-WithARM64e XCFramework
+#
+# SDKS is a comma-separated list of SDK names (default: all).
+#
+# Examples:
+#   make build-xcframework-without-uikit-arm64e
+#   make build-xcframework-without-uikit-arm64e SDKS=iphonesimulator
+.PHONY: build-xcframework-without-uikit-arm64e
+build-xcframework-without-uikit-arm64e:
+	@echo "--> Creating Sentry-WithoutUIKitOrAppKit-WithARM64e xcframework (SDKs: $(SDKS))"
+	./scripts/build-xcframework-variant.sh --scheme "Sentry" --suffix "-WithoutUIKitOrAppKit-WithARM64e" --mach-o-type "mh_dylib" --configuration-suffix "WithoutUIKit" --sdks "$(SDKS)"
+	./scripts/validate-xcframework.sh --xcframework "Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework"
 
 ## Build SentryObjC-Static XCFramework locally for one or more SDKs
 #
@@ -333,6 +400,8 @@ build-xcframework-sample:
 build-xcframework-sentryobjc-static:
 	@echo "--> Creating SentryObjC-Static xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)"
+	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "SentryObjC-Static.xcframework"
 
 ## Build SentryObjC-Dynamic XCFramework locally for one or more SDKs
 #
@@ -348,6 +417,8 @@ build-xcframework-sentryobjc-static:
 build-xcframework-sentryobjc-dynamic:
 	@echo "--> Creating SentryObjC-Dynamic xcframework (SDKs: $(SDKS))"
 	./scripts/build-xcframework-sentryobjc.sh --sdks "$(SDKS)" --variant dynamic
+	./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
+	./scripts/compress-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 
 # ============================================================================
 # SAMPLE APPS

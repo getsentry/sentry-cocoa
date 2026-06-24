@@ -291,4 +291,52 @@ class SentryBreadcrumbTests: XCTestCase {
             _ = breadcrumb.serialize()
         }
     }
+
+    // MARK: - Snapshot Copy
+
+    func testSnapshotCopy_copiesAllProperties() {
+        let original = Breadcrumb(level: .error, category: "navigation")
+        original.timestamp = Date(timeIntervalSince1970: 42)
+        original.type = "http"
+        original.message = "clicked button"
+        original.origin = "flutter"
+        original.data = ["url": "https://example.com", "nested": ["a": 1]]
+
+        let snapshot = original.snapshotCopy()
+
+        XCTAssertEqual(snapshot.level, .error)
+        XCTAssertEqual(snapshot.category, "navigation")
+        XCTAssertEqual(snapshot.timestamp, Date(timeIntervalSince1970: 42))
+        XCTAssertEqual(snapshot.type, "http")
+        XCTAssertEqual(snapshot.message, "clicked button")
+        XCTAssertEqual(snapshot.origin, "flutter")
+        XCTAssertEqual(snapshot.data?["url"] as? String, "https://example.com")
+        let nested = snapshot.data?["nested"] as? [String: Any]
+        XCTAssertEqual(nested?["a"] as? Int, 1)
+    }
+
+    func testSnapshotCopy_isIndependentOfOriginal() {
+        let original = Breadcrumb(level: .info, category: "ui")
+        original.message = "before"
+        original.data = ["key": "before"]
+
+        let snapshot = original.snapshotCopy()
+
+        original.level = .error
+        original.category = "changed"
+        original.message = "after"
+        original.data = ["key": "after"]
+
+        XCTAssertEqual(snapshot.level, .info)
+        XCTAssertEqual(snapshot.category, "ui")
+        XCTAssertEqual(snapshot.message, "before")
+        XCTAssertEqual(snapshot.data?["key"] as? String, "before")
+    }
+
+    func testSnapshotCopy_isDifferentInstance() {
+        let original = Breadcrumb(level: .info, category: "test")
+        let snapshot = original.snapshotCopy()
+
+        XCTAssertFalse(original === snapshot)
+    }
 }

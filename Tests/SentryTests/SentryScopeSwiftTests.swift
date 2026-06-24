@@ -87,6 +87,16 @@ class SentryScopeSwiftTests: XCTestCase {
         super.setUp()
         fixture = Fixture()
     }
+
+    private func serializeFeatureFlags(from scope: Scope) -> [String: Any]? {
+        let context = scope.serialize()["context"] as? [String: Any]
+        return context?["flags"] as? [String: Any]
+    }
+
+    private func serializeFeatureFlagValues(from scope: Scope) throws -> [[String: Any]] {
+        let featureFlags = try XCTUnwrap(serializeFeatureFlags(from: scope))
+        return try XCTUnwrap(featureFlags["values"] as? [[String: Any]])
+    }
     
     func testSerialize() throws {
         let scope = fixture.scope
@@ -158,6 +168,89 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNotEqual(try XCTUnwrap(scope.serialize() as? [String: AnyHashable]), try XCTUnwrap(cloned.serialize() as? [String: AnyHashable]))
     }
 
+    func testInitWithScope_whenFeatureFlagsChanged_shouldNotShareFutureMutations() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.addFeatureFlag(name: "first", result: true)
+
+        // -- Act --
+        let cloned = Scope(scope: scope)
+        cloned.addFeatureFlag(name: "second", result: false)
+
+        // -- Assert --
+        let originalValues = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(originalValues.count, 1)
+        XCTAssertEqual(originalValues.element(at: 0)?["flag"] as? String, "first")
+
+        let clonedValues = try serializeFeatureFlagValues(from: cloned)
+        XCTAssertEqual(clonedValues.count, 2)
+        XCTAssertEqual(clonedValues.element(at: 0)?["flag"] as? String, "first")
+        XCTAssertEqual(clonedValues.element(at: 1)?["flag"] as? String, "second")
+    }
+
+    func testFeatureFlags_whenUpdatingExistingFlag_shouldRefreshAsNewest() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.addFeatureFlag(name: "first", result: false)
+        scope.addFeatureFlag(name: "second", result: true)
+
+        // -- Act --
+        scope.addFeatureFlag(name: "first", result: true)
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(values.count, 2)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "second")
+        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
+        XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "first")
+        XCTAssertEqual(values.element(at: 1)?["result"] as? Bool, true)
+    }
+
+    func testFeatureFlags_whenRemovingFeatureFlag_shouldRemoveMatchingFlag() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.addFeatureFlag(name: "first", result: false)
+        scope.addFeatureFlag(name: "second", result: true)
+
+        // -- Act --
+        scope.removeFeatureFlag(name: "first")
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(values.count, 1)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "second")
+        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
+    }
+
+    func testFeatureFlags_whenRemovingLastFeatureFlag_shouldOmitFlagsContext() {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.addFeatureFlag(name: "checkout", result: true)
+
+        // -- Act --
+        scope.removeFeatureFlag(name: "checkout")
+
+        // -- Assert --
+        XCTAssertNil(serializeFeatureFlags(from: scope))
+    }
+
+    func testFeatureFlags_whenOverflow_shouldDropOldestFlag() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        for index in 0..<100 {
+            scope.addFeatureFlag(name: "flag-\(index)", result: true)
+        }
+
+        // -- Act --
+        scope.addFeatureFlag(name: "flag-100", result: false)
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(values.count, 100)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "flag-1")
+        XCTAssertEqual(values.element(at: 99)?["flag"] as? String, "flag-100")
+    }
+
     func testApplyToEvent() {
         let actual = fixture.scope.applyTo(event: fixture.event, maxBreadcrumbs: 10)
         let actualContext = actual?.context as? [String: [String: String]]
@@ -173,7 +266,7 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(fixture.context["c"], actualContext?["c"])
         XCTAssertNotNil(actualContext?["trace"])
     }
-    
+
     func testApplyToEvent_EventWithTags() {
         let tags = NSMutableDictionary(dictionary: ["my": "tag"])
         let event = fixture.event
@@ -364,6 +457,18 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(0, scope.attachments.count)
         XCTAssertEqual(0, scope.attributes.count)
     }
+
+    func testClear_whenScopeHasFeatureFlags_shouldClearFeatureFlags() {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: fixture.maxBreadcrumbs)
+        scope.addFeatureFlag(name: "first", result: true)
+
+        // -- Act --
+        scope.clear()
+
+        // -- Assert --
+        XCTAssertNil(serializeFeatureFlags(from: scope))
+    }
     
     func testAttachmentsIsACopy() {
         let scope = fixture.scope
@@ -410,6 +515,8 @@ class SentryScopeSwiftTests: XCTestCase {
             
             scope.setContext(value: ["some": "value"], key: key)
             scope.removeContext(key: key)
+
+            scope.addFeatureFlag(name: key, result: true)
             
             scope.setExtra(value: 1, key: key)
             scope.removeExtra(key: key)
@@ -493,6 +600,73 @@ class SentryScopeSwiftTests: XCTestCase {
                 scope.add(AsyncIteratingObserver())
             }
         })
+    }
+
+    func testAddBreadcrumb_storesDefensiveCopy() {
+        let scope = Scope(maxBreadcrumbs: 5)
+        let crumb = Breadcrumb(level: .info, category: "ui")
+        crumb.message = "before"
+        crumb.data = ["key": "before"]
+
+        scope.addBreadcrumb(crumb)
+
+        crumb.message = "after"
+        crumb.data = ["key": "after"]
+
+        let stored = scope.breadcrumbs().first
+        XCTAssertNotNil(stored)
+        XCTAssertFalse(stored === crumb,
+            "Scope should store a copy, not the original object")
+        XCTAssertEqual(stored?.message, "before",
+            "Stored breadcrumb should not reflect mutations to the original")
+        XCTAssertEqual(stored?.data?["key"] as? String, "before",
+            "Stored breadcrumb data should not reflect mutations to the original")
+    }
+
+    func testAddBreadcrumb_evictionDoesNotCrash_whenReadConcurrently() {
+        // Regression test for https://github.com/getsentry/sentry-cocoa/issues/8013
+        // The ring buffer evicts old breadcrumbs when full. Without a defensive copy,
+        // the evicted breadcrumb's dealloc can race with a concurrent reader calling
+        // serialize on the same object, causing EXC_BAD_ACCESS.
+        let maxCrumbs = 5
+        let scope = Scope(maxBreadcrumbs: maxCrumbs)
+
+        let queue = DispatchQueue(label: "test.breadcrumb.race", attributes: .concurrent)
+        let expectation = expectation(description: "concurrent breadcrumb race")
+        expectation.expectedFulfillmentCount = 3
+
+        // Writer: continuously add breadcrumbs, forcing evictions
+        queue.async {
+            for i in 0..<2_000 {
+                let crumb = Breadcrumb(level: .info, category: "cat-\(i)")
+                crumb.message = "message-\(i)"
+                crumb.data = ["iteration": i, "padding": String(repeating: "x", count: 100)]
+                scope.addBreadcrumb(crumb)
+            }
+            expectation.fulfill()
+        }
+
+        // Reader 1: continuously read and serialize breadcrumbs
+        queue.async {
+            for _ in 0..<2_000 {
+                let crumbs = scope.breadcrumbs()
+                for crumb in crumbs {
+                    _ = crumb.serialize()
+                }
+            }
+            expectation.fulfill()
+        }
+
+        // Reader 2: continuously apply scope to events
+        queue.async {
+            for _ in 0..<1_000 {
+                let event = Event()
+                scope.applyTo(event: event, maxBreadcrumbs: UInt(maxCrumbs))
+            }
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 30)
     }
 
     func testScopeObserver_passesDistinctCopyToObservers() {

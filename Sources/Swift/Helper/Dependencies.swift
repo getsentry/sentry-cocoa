@@ -16,7 +16,5 @@
 #if !os(watchOS) && !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
     @objc public static let uiDeviceWrapper = SentryDefaultUIDeviceWrapper(queueWrapper: Dependencies.dispatchQueueWrapper)
 #endif // !os(watchOS) && !os(macOS) && !SENTRY_NO_UI_FRAMEWORK
-    @objc public static var threadInspector = SentryThreadInspector()
-    @objc public static var fileIOTracker = SentryFileIOTracker(threadInspector: threadInspector, processInfoWrapper: processInfoWrapper)
 }
 // swiftlint:enable missing_docs

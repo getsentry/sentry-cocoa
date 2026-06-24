@@ -46,10 +46,22 @@ NS_SWIFT_NAME(DebugMeta)
 @property (nonatomic, copy) NSString *_Nullable imageAddress;
 
 /**
+ * Raw numeric memory address at which the image is mounted.
+ * @note This is the same value as @c imageAddress but as a @c uint64_t instead of a hex string.
+ */
+@property (nonatomic, assign) uint64_t imageAddressRaw;
+
+/**
  * Preferred load address of the image in virtual memory, as declared in the headers of the image.
  * When loading an image, the operating system may still choose to place it at a different address.
  */
 @property (nonatomic, copy) NSString *_Nullable imageVmAddress;
+
+/**
+ * Raw numeric preferred load address of the image in virtual memory.
+ * @note This is the same value as @c imageVmAddress but as a @c uint64_t instead of a hex string.
+ */
+@property (nonatomic, assign) uint64_t imageVmAddressRaw;
 
 /**
  *

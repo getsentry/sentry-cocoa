@@ -457,14 +457,13 @@ import Foundation
     // MARK: - Extended App Launch
 
     #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
-    /// Extends the app launch measurement beyond the default end point and returns
-    /// the extended app launch span.
+    /// Extends the app launch measurement beyond the default end point.
     ///
     /// Call this method after `start(options:)` but before didFinishLaunching notification is posted
     /// so the SDK doesn't finish the app start transaction automatically.
     ///
-    /// The returned span can be used to add child spans that break down the extended
-    /// launch period. Call `finish()` on the returned span (or call ``finishExtendedAppLaunch()``)
+    /// Use ``getExtendedAppStartSpan()`` to retrieve the span and add child spans that break
+    /// down the extended launch period. Call `finish()` on that span (or call ``finishExtendedAppStart()``)
     /// when the app is fully launched.
     ///
     /// ```swift
@@ -473,8 +472,9 @@ import Foundation
     ///         ...
     ///         options.experimental.enableStandaloneAppStartTracing = true
     ///     })
-    ///     let appStartSpan = SentrySDK.extendAppLaunch()
+    ///     SentrySDK.extendAppStart()
     ///
+    ///     let appStartSpan = SentrySDK.getExtendedAppStartSpan()
     ///     let configSpan = appStartSpan?.startChild(operation: "app.init", description: "fetch remote config")
     ///     fetchRemoteConfig()
     ///     configSpan?.finish()
@@ -485,19 +485,22 @@ import Foundation
     /// ```
     ///
     /// - Note: This only has an effect when Standalone App Start tracing is enabled.
-    /// - Returns: The extended app launch span, or `nil` if the SDK is not started or the
-    ///   app start transaction was already created.
-    @discardableResult
-    @objc public static func extendAppLaunch() -> (any Span)? {
+    @objc public static func extendAppStart() {
         SentryDependencyContainer.sharedInstance().extendedAppLaunchManager.extend()
+    }
+
+    /// Returns the extended app start span, or `nil` if ``extendAppStart()`` was not called,
+    /// the SDK is not started, or the app start transaction was already created.
+    @objc public static func getExtendedAppStartSpan() -> (any Span)? {
+        SentryDependencyContainer.sharedInstance().extendedAppLaunchManager.extendedAppStartSpan()
     }
 
     /// Finishes a previously extended app launch and sends the app start transaction.
     ///
-    /// This is equivalent to calling `finish()` on the span returned by ``extendAppLaunch()``.
-    /// If ``extendAppLaunch()`` was not called, or the extended launch was already
+    /// This is equivalent to calling `finish()` on the span returned by ``getExtendedAppStartSpan()``.
+    /// If ``extendAppStart()`` was not called, or the extended launch was already
     /// finished, this method does nothing.
-    @objc public static func finishExtendedAppLaunch() {
+    @objc public static func finishExtendedAppStart() {
         SentryDependencyContainer.sharedInstance().extendedAppLaunchManager.finish()
     }
     #endif
@@ -573,20 +576,13 @@ import Foundation
 
     // MARK: Internal
 
-    /// The option used to start the SDK
-    private static var _startOption: Options?
-    private static let startOptionLock = NSRecursiveLock()
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static var startOption: Options? {
-        startOptionLock.synchronized {
-            return _startOption
-        }
+        SentryDependencyContainer.sharedInstance().startOptions
     }
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static func setStart(with option: Options?) {
-        startOptionLock.synchronized {
-            _startOption = option
-        }
+        SentryDependencyContainer.sharedInstance().startOptions = option
     }
 }
 
