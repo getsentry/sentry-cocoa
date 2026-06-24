@@ -13,6 +13,7 @@
 - Keep the User Feedback screenshot trigger active after form dismissal. (#8048)
 - Prevent lazy TLS-init in the signal crash monitor for non-managed runtime builds (#8148)
 - Fix missing `Info.plist` entries `MinimumOSVersion` and `CFBundleSupportedPlatforms` in `SentryObjC.xcframework` (#8157)
+- Harden crash-time attachment path creation to avoid secondary crashes while handling crashes (#8170)
 
 ### Internal
 
