@@ -361,6 +361,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)reportFullyDisplayed;
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 /**
  * Extends the app launch measurement beyond the default end point.
  *
@@ -389,6 +390,7 @@ NS_ASSUME_NONNULL_BEGIN
  * does nothing.
  */
 + (void)finishExtendedAppStart;
+#endif
 
 /**
  * Pauses sending detected app hangs to Sentry.
