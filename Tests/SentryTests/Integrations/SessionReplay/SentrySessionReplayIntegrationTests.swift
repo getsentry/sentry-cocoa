@@ -294,9 +294,9 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
         XCTAssertEqual(replayInfo.replay.replayType, SentryReplayType.session)
         XCTAssertEqual(replayInfo.recording.segmentId, 2)
-        XCTAssertEqual(replayInfo.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 5))
+        XCTAssertEqual(replayInfo.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 4))
     }
-    
+
     func testBufferReplayForCrash() throws {
         class CustomBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
             func convert(from breadcrumb: Breadcrumb) -> (any SentryRRWebEventProtocol)? {

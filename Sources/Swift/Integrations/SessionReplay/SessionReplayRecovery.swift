@@ -122,7 +122,7 @@ struct SessionReplayRecovery {
         if hasCrashInfo {
             beginning = Date(timeIntervalSinceReferenceDate: crashInfo.lastSegmentEnd)
         } else {
-            guard let oldestFrame = resumeReplayMaker.oldestFrameDate else {
+            guard let oldestFrame = resumeReplayMaker.oldestRecoveredFrameDate else {
                 SentrySDKLog.debug("[Session Replay] No frames to send, dropping replay")
                 return nil
             }
