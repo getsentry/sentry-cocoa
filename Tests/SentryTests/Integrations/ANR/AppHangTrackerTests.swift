@@ -22,11 +22,11 @@ private class MockRunLoopDelayTracker: RunLoopDelayTracker {
     }
 }
 
-final class HangTrackerTests: XCTestCase {
+final class AppHangTrackerTests: XCTestCase {
 
     func testObserverNotifiedWhenThresholdExceeded() {
         let delayTracker = MockRunLoopDelayTracker()
-        let sut = DefaultHangTracker(runLoopDelayTracker: delayTracker)
+        let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
 
         var notifiedDuration: TimeInterval = 0
         var notifiedOngoing: Bool = false
@@ -49,7 +49,7 @@ final class HangTrackerTests: XCTestCase {
 
     func testObserverNotNotifiedWhenBelowThreshold() {
         let delayTracker = MockRunLoopDelayTracker()
-        let sut = DefaultHangTracker(runLoopDelayTracker: delayTracker)
+        let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
 
         var notified = false
         let id = sut.addObserver(threshold: 0.25) { _, _ in
@@ -65,7 +65,7 @@ final class HangTrackerTests: XCTestCase {
 
     func testObserverNotNotifiedWhenExactlyAtThreshold() {
         let delayTracker = MockRunLoopDelayTracker()
-        let sut = DefaultHangTracker(runLoopDelayTracker: delayTracker)
+        let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
 
         var notified = false
         let id = sut.addObserver(threshold: 0.25) { _, _ in
@@ -81,7 +81,7 @@ final class HangTrackerTests: XCTestCase {
 
     func testObserverOnlyNotifiedOncePerHang() {
         let delayTracker = MockRunLoopDelayTracker()
-        let sut = DefaultHangTracker(runLoopDelayTracker: delayTracker)
+        let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
 
         var callCount = 0
         let id = sut.addObserver(threshold: 0.25) { _, ongoing in
@@ -99,7 +99,7 @@ final class HangTrackerTests: XCTestCase {
 
     func testObserverReceivesEndNotificationAfterThresholdCrossed() {
         let delayTracker = MockRunLoopDelayTracker()
-        let sut = DefaultHangTracker(runLoopDelayTracker: delayTracker)
+        let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
 
         var ongoingCalls = 0
         var endedCalls = 0
@@ -125,7 +125,7 @@ final class HangTrackerTests: XCTestCase {
 
     func testObserverDoesNotReceiveEndNotificationWithoutPriorOngoing() {
         let delayTracker = MockRunLoopDelayTracker()
-        let sut = DefaultHangTracker(runLoopDelayTracker: delayTracker)
+        let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
 
         var notified = false
         let id = sut.addObserver(threshold: 2.0) { _, _ in
@@ -143,7 +143,7 @@ final class HangTrackerTests: XCTestCase {
 
     func testMultipleObserversWithDifferentThresholds() {
         let delayTracker = MockRunLoopDelayTracker()
-        let sut = DefaultHangTracker(runLoopDelayTracker: delayTracker)
+        let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
 
         var lowThresholdNotified = false
         var highThresholdNotified = false
@@ -172,7 +172,7 @@ final class HangTrackerTests: XCTestCase {
 
     func testConsecutiveHangsResetState() {
         let delayTracker = MockRunLoopDelayTracker()
-        let sut = DefaultHangTracker(runLoopDelayTracker: delayTracker)
+        let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
 
         var ongoingCalls = 0
         var endedCalls = 0
@@ -203,7 +203,7 @@ final class HangTrackerTests: XCTestCase {
 
     func testRemoveObserverStopsNotifications() {
         let delayTracker = MockRunLoopDelayTracker()
-        let sut = DefaultHangTracker(runLoopDelayTracker: delayTracker)
+        let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
 
         var notified = false
         let id = sut.addObserver(threshold: 0.25) { _, _ in

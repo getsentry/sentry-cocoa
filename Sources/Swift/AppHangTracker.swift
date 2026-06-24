@@ -1,20 +1,20 @@
 @_implementationOnly import _SentryPrivate
 
-protocol HangTrackerProvider {
-    var hangTracker: HangTracker { get }
+protocol AppHangTrackerProvider {
+    var appHangTracker: AppHangTracker { get }
 }
-extension SentryDependencyContainer: HangTrackerProvider { }
+extension SentryDependencyContainer: AppHangTrackerProvider { }
 
 #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
-protocol HangTracker {
+protocol AppHangTracker {
     func addObserver(threshold: TimeInterval, handler: @escaping (_ duration: TimeInterval, _ ongoing: Bool) -> Void) -> UUID
 
     func removeObserver(id: UUID)
 }
 
-extension DefaultHangTracker: HangTracker { }
+extension DefaultAppHangTracker: AppHangTracker { }
 #else
-typealias HangTracker = DefaultHangTracker
+typealias AppHangTracker = DefaultAppHangTracker
 #endif
 
 /// Debounces raw runloop delays into hang events with per-observer thresholds.
@@ -23,7 +23,7 @@ typealias HangTracker = DefaultHangTracker
 /// only when the accumulated delay exceeds that observer's configured threshold.
 /// Each observer receives at most one `ongoing=true` notification per hang,
 /// followed by one `ongoing=false` when the hang ends.
-final class DefaultHangTracker {
+final class DefaultAppHangTracker {
 
     init(runLoopDelayTracker: RunLoopDelayTracker) {
         self.runLoopDelayTracker = runLoopDelayTracker
