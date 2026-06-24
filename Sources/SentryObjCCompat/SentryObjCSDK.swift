@@ -229,7 +229,7 @@ import Foundation
         SentrySDK.reportFullyDisplayed()
     }
 
-    #if os(iOS) || os(tvOS) || os(visionOS)
+    #if !SENTRY_NO_UI_FRAMEWORK && (os(iOS) || os(tvOS) || os(visionOS))
     @objc public static func extendAppStart() {
         SentrySDK.extendAppStart()
     }
