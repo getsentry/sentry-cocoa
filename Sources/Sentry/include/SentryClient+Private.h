@@ -97,9 +97,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
 
-/// The gate `captureEvent`/`captureEnvelope` use to drop telemetry, exposed so Swift (e.g. metrics)
-/// can reuse it. Broader than the public `isEnabled` in `SentryClient.h`: `isEnabled` only reflects
-/// `close`, while `isDisabled` also returns YES for `options.enabled == false` or no DSN.
+/// Exposed so Swift (e.g. metrics) can reuse it to drop data when the client is disabled.
+/// Broader than the public `isEnabled` in `SentryClient.h`: `isEnabled` only reflects `close`,
+/// while `isDisabled` also returns YES for `options.enabled == false` or no DSN.
 @property (nonatomic, assign, readonly) BOOL isDisabled;
 
 /// Exposes the Telemetry Processor so Swift code can forward metrics directly without crossing the
