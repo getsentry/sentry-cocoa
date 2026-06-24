@@ -457,12 +457,13 @@ private class MockDependencies: ANRTrackerBuilder & HangTrackerProvider & Proces
     private func removeObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) { }
     
     lazy var hangTracker: HangTracker = {
-        DefaultHangTracker(
+        let runLoopDelayTracker = DefaultRunLoopDelayTracker(
             dateProvider: TestCurrentDateProvider(),
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
             queue: DispatchQueue(label: "io.sentry.test-queue"))
+        return DefaultHangTracker(runLoopDelayTracker: runLoopDelayTracker)
     }()
     
     var processInfoWrapper: any Sentry.SentryProcessInfoSource {
@@ -488,13 +489,19 @@ private class MockDependencies: ANRTrackerBuilder & HangTrackerProvider & Proces
     }
 }
 
-/// A mock HangTracker that allows manual triggering of hang observer callbacks
+/// A mock HangTracker that allows manual triggering of hang observer callbacks.
+/// Mirrors the threshold-filtering logic of DefaultHangTracker.
 private class MockHangTracker: HangTracker {
-    private var observers: [UUID: (TimeInterval, Bool) -> Void] = [:]
+    private struct Entry {
+        let threshold: TimeInterval
+        let handler: (TimeInterval, Bool) -> Void
+        var hasBeenNotified: Bool = false
+    }
+    private var observers: [UUID: Entry] = [:]
 
-    func addOngoingHangObserver(handler: @escaping (TimeInterval, Bool) -> Void) -> UUID {
+    func addObserver(threshold: TimeInterval, handler: @escaping (TimeInterval, Bool) -> Void) -> UUID {
         let id = UUID()
-        observers[id] = handler
+        observers[id] = Entry(threshold: threshold, handler: handler)
         return id
     }
 
@@ -502,10 +509,19 @@ private class MockHangTracker: HangTracker {
         observers.removeValue(forKey: id)
     }
 
-    /// Simulates a hang by calling all registered observers with the given duration and ongoing state
     func simulateHang(duration: TimeInterval, ongoing: Bool) {
-        for observer in observers.values {
-            observer(duration, ongoing)
+        for (id, entry) in observers {
+            if ongoing {
+                if duration > entry.threshold && !entry.hasBeenNotified {
+                    observers[id]?.hasBeenNotified = true
+                    entry.handler(duration, true)
+                }
+            } else {
+                if entry.hasBeenNotified {
+                    observers[id]?.hasBeenNotified = false
+                    entry.handler(duration, false)
+                }
+            }
         }
     }
 }

@@ -56,10 +56,8 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         super.init()
 
         tracker.start()
-        callbackId = hangTracker?.addOngoingHangObserver { [weak self] interval, ongoing in
-            guard let self, interval > timeoutInterval else {
-                return
-            }
+        callbackId = hangTracker?.addObserver(threshold: timeoutInterval) { [weak self] _, ongoing in
+            guard let self else { return }
 
             if ongoing {
                 hangStarted()
