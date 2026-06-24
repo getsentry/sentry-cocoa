@@ -82,6 +82,7 @@ final class Buffer<Storage: StorageProtocol, Item: ItemProtocol> {
 ### Dependency Injection
 
 - Prefer `SentryDependencyContainer` providers for SDK-owned dependencies
+- In `SentryDependencyContainer`, use `getLazyVar` / `getOptionalLazyVar` for lazily-created defaults
 - Tests should override dependencies through `SentryDependencyContainer.sharedInstance()` when possible
 - Do not use `PrivateSentrySDKOnly` as a test injection path when a dependency-container provider fits
 
