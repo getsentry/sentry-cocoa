@@ -856,6 +856,30 @@ class SentrySessionReplayTests: XCTestCase {
         XCTAssertEqual(resumedSegment?.end, resumeDate.addingTimeInterval(5))
     }
 
+    func testResume_whenPauseSegmentIsPending_shouldPreservePauseTail() throws {
+        // -- Arrange --
+        let fixture = Fixture()
+        fixture.replayMaker.deferCreateVideoCompletion = true
+        let sut = fixture.getSut(options: SentryReplayOptions(sessionSampleRate: 1, onErrorSampleRate: 1))
+        sut.start(rootView: fixture.rootView, fullSession: true)
+
+        fixture.dateProvider.advance(by: 6)
+        fixture.runLoopCapture()
+        let firstSegment = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
+
+        // -- Act --
+        sut.pause()
+        let pauseDate = fixture.dateProvider.date()
+        fixture.dateProvider.advance(by: 1)
+        sut.resume()
+        fixture.replayMaker.completeNextCreateVideo()
+
+        // -- Assert --
+        let pauseSegment = try XCTUnwrap(fixture.replayMaker.lastCallToCreateVideo)
+        XCTAssertEqual(pauseSegment.beginning, firstSegment.end)
+        XCTAssertEqual(pauseSegment.end, pauseDate)
+    }
+
     func testPauseResume_whenSessionModePaused_shouldWaitForSessionModeResume() {
         let fixture = Fixture()
 

@@ -261,7 +261,11 @@ private struct SessionSegmentState {
             }
 
             captureSchedulerGeneration += 1
-            segmentState.setSegmentStart(_isFullSession ? resumeDate : nil)
+            if _isFullSession {
+                segmentState.resumeSession(at: resumeDate)
+            } else {
+                segmentState.setSegmentStart(nil)
+            }
             return captureSchedulerGeneration
         }
         guard let schedulerGeneration = schedulerGeneration else { return }
