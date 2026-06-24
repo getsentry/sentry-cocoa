@@ -112,8 +112,9 @@ final class CrashE2ERunner {
     }
 
     private func runPlatforms() throws {
-        try fileManager.removeItemIfExists(at: config.artifactsDir)
-        try fileManager.ensureDirectory(at: config.artifactsDir)
+        // Always start from a clean directory so stale artifacts don't affect this run.
+        try resetArtifactsDirectory()
+        defer { cleanupArtifactsDirectory() }
 
         var failures: [String] = []
         if shouldRunIOS {
@@ -142,9 +143,23 @@ final class CrashE2ERunner {
         if !failures.isEmpty {
             try fail("Crash E2E completed with failures:\n\(failures.map { "- \($0)" }.joined(separator: "\n"))")
         }
+    }
 
-        if !config.keepArtifacts {
-            log("Artifacts are in \(config.artifactsDir.path). Use --keep-artifacts to preserve cache directories if future cleanup is enabled.")
+    private func resetArtifactsDirectory() throws {
+        try fileManager.removeItemIfExists(at: config.artifactsDir)
+        try fileManager.ensureDirectory(at: config.artifactsDir)
+    }
+
+    private func cleanupArtifactsDirectory() {
+        guard !config.keepArtifacts else {
+            log("Artifacts are in \(config.artifactsDir.path).")
+            return
+        }
+
+        do {
+            try fileManager.removeItemIfExists(at: config.artifactsDir)
+        } catch {
+            log("Failed to remove artifacts directory \(config.artifactsDir.path): \(error)")
         }
     }
 
