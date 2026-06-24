@@ -47,7 +47,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner_provider: ["cirrus", "bitrise"]
+        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
         job_id:
           - ios_objc
           - tvos_swift
@@ -84,7 +84,7 @@ jobs:
       runner_provider: ${{matrix.runner_provider}}
     strategy:
       matrix:
-        runner_provider: ["cirrus", "bitrise"]
+        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
 
   ui-tests-swift:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_for_prs == 'true'
@@ -94,7 +94,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner_provider: ["cirrus", "bitrise"]
+        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
         job_id:
           - ios_17
           - ios_18
@@ -145,7 +145,7 @@ jobs:
       runner_provider: ${{matrix.runner_provider}}
     strategy:
       matrix:
-        runner_provider: ["cirrus", "bitrise"]
+        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
 
   # This check validates that either UI tests passed or were skipped, which allows us
   # to make UI tests a required check with only running the UI tests when required.

@@ -158,7 +158,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner_provider: ["cirrus", "bitrise"]
+        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
         include:
           # Running the tests with simulators is incredibly flaky. Our assumption is that simulators might have difficulties
           # with communicating with the test server in CI.
@@ -261,7 +261,7 @@ jobs:
       name: ${{matrix.name}}
       runs-on: ${{ matrix.runs-on }}
       timeout: ${{matrix.timeout || 20}}
-      should_skip: ${{ (github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true') || (matrix.runner_provider == 'cirrus' && matrix.runs-on == 'sonoma') }}
+      should_skip: ${{ (github.event_name == 'pull_request' && needs.files-changed.outputs.run_unit_tests_for_prs != 'true') || (matrix.runner_provider == 'cirrus' && matrix.runs-on == 'sonoma') || (github.event_name != 'pull_request' && matrix.runner_provider == 'cirrus') }}
       runner_provider: ${{matrix.runner_provider}}
       xcode: ${{matrix.xcode}}
       test-destination-os: ${{matrix.test-destination-os}}
