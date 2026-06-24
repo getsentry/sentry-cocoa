@@ -18,7 +18,7 @@
 #    import "SentryProfilerSerialization.h"
 #    import "SentryProfilerState.h"
 #    import "SentryProfilingSwiftHelpers.h"
-#    import "SentrySamplerDecision.h"
+#    import "SentrySamplerDecisionHelper.h"
 #    import "SentryTraceProfiler.h"
 #    import "SentryTracer+Private.h"
 #    import "SentryTracerConfiguration.h"
@@ -122,7 +122,8 @@ SentryId *_Nullable _sentry_startContinuousProfilerV2ForTrace(
     }
 
     SentryProfileConfiguration *profileConfiguration = sentry_getProfileConfiguration();
-    if (profileConfiguration.profilerSessionSampleDecision.decision != kSentrySampleDecisionYes) {
+    if (!sentry_samplerDecisionEquals(
+            profileConfiguration.profilerSessionSampleDecision, kSentrySampleDecisionYes)) {
         return nil;
     }
 
@@ -366,8 +367,8 @@ SentryId *_Nullable sentry_startProfilerForTrace(SentryTracerConfiguration *conf
         }
         return _sentry_startContinuousProfilerV2ForTrace(profilingOptions, transactionContext);
     }
-    BOOL profileShouldBeSampled
-        = configuration.profilesSamplerDecision.decision == kSentrySampleDecisionYes;
+    BOOL profileShouldBeSampled = sentry_samplerDecisionEquals(
+        configuration.profilesSamplerDecision, kSentrySampleDecisionYes);
 
     if (sentry_isTracingAppLaunch || profileShouldBeSampled) {
         SentryId *internalID = sentry_getSentryId();

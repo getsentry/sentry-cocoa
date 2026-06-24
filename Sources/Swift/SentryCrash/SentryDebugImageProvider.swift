@@ -73,8 +73,10 @@
         if info.vmAddress > 0 {
             debugMeta.imageVmAddress = Self.formatHexAddress(info.vmAddress)
         }
+        debugMeta.imageVmAddressRaw = info.vmAddress
 
         debugMeta.imageAddress = Self.formatHexAddress(info.address)
+        debugMeta.imageAddressRaw = info.address
         debugMeta.imageSize = NSNumber(value: info.size)
         debugMeta.codeFile = info.name
 

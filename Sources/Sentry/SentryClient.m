@@ -924,7 +924,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)logDisabledMessage
 {
-    SENTRY_LOG_DEBUG(@"SDK disabled or no DSN set. Won't do anyting.");
+    SENTRY_LOG_DEBUG(@"SDK disabled or no DSN set. Won't do anything.");
 }
 
 - (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event
@@ -1145,6 +1145,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope
 {
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
+        return;
+    }
+
     if (self.options.enableLogs == NO) {
         SENTRY_LOG_DEBUG(@"Dropping log, because the option enableLogs is false.");
         return;

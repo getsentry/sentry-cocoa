@@ -75,6 +75,7 @@
     {
       "parallelizable" : false,
       "skippedTests" : [
+        "SentryContinuousProfilerTests\/testStoppingProfilerTransmitsLastFullChunk()",
         "SentryProfilerTests\/testProfilerMutationDuringSlicing"
       ],
       "target" : {

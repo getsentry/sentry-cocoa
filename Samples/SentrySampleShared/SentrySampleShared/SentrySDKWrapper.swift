@@ -35,7 +35,8 @@ public struct SentrySDKWrapper {
 
 #if os(iOS) || os(tvOS) || os(visionOS)
         if let delay = SentrySDKOverrides.AppStart.extendLaunchDelay.floatValue {
-            let appStartSpan = SentrySDK.extendAppLaunch()
+            SentrySDK.extendAppStart()
+            let appStartSpan = SentrySDK.getExtendedAppStartSpan()
 
             let configSpan = appStartSpan?.startChild(operation: "app.init", description: "load configuration")
 

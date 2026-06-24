@@ -25,9 +25,10 @@ NS_ASSUME_NONNULL_BEGIN
       didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp;
 
 /**
- * The extended app start span, set when the user calls @c extendAppLaunch().
+ * The extended app start span, set when the user calls @c extendAppStart().
  * Its @c timestamp is the authoritative end time of the extended app start, regardless of how
- * the span was finished (direct @c finish(), child span completion, or @c finishExtendedAppLaunch).
+ * the span was finished (direct @c finish(), child span completion, or @c
+ * finishExtendedAppStart()).
  *
  * Default is nil.
  */

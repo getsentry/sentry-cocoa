@@ -120,7 +120,7 @@
         return;
     }
 
-    SentryOptions *options = SentrySDK.startOption;
+    SentryOptions *options = SentrySDKInternal.options;
 
     if ([SentrySwizzleClassNameExclude
             shouldExcludeClassWithClassName:NSStringFromClass([controller class])

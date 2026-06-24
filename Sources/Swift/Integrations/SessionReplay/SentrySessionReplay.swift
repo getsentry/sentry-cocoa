@@ -746,7 +746,7 @@ private struct SessionSegmentState {
 
         let breadcrumbs = delegate?.breadcrumbsForSessionReplay() ?? []
 
-        var events = convertBreadcrumbs(breadcrumbs: breadcrumbs, from: video.start, until: video.end)
+        var events = breadcrumbConverter.convert(breadcrumbs, from: video.start, until: video.end)
         if let touchTracker = touchTracker {
             SentrySDKLog.debug("[Session Replay] Adding touch tracker events")
             events.append(contentsOf: touchTracker.replayEvents(from: video.start, until: video.end))
