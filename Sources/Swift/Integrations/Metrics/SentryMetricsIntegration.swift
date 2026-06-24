@@ -76,7 +76,10 @@ extension SentryClientInternal {
     /// `SentryMetricsIntegration.addMetric` already drops metrics (and logs) when the SDK is disabled;
     /// this guard is a defensive safety net so a future caller can't bypass that gate.
     func captureMetric(_ metric: SentryMetric) {
-        guard !self.isDisabled else { return }
+        guard !self.isDisabled else {
+            self.logDisabledMessage()
+            return
+        }
 
         guard let processor = self.getTelemetryProcessor() as? SentryTelemetryProcessor else {
             SentrySDKLog.error("Cannot capture metric because the telemetry processor is not available. Discarding metric. This is unexpected and indicates a configuration issue.")
