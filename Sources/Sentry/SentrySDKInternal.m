@@ -77,7 +77,7 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (nullable SentryOptions *)options
 {
-    return SentrySDK.startOption;
+    return SentryDependencyContainer.sharedInstance.startOptions;
 }
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
@@ -98,10 +98,9 @@ static NSDate *_Nullable startTimestamp = nil;
     }
 }
 
-/** Internal, only needed for testing. */
 + (void)setStartOptions:(nullable SentryOptions *)options
 {
-    [SentrySDK setStartWith:options];
+    SentryDependencyContainer.sharedInstance.startOptions = options;
 }
 
 + (nullable id<SentrySpan>)span

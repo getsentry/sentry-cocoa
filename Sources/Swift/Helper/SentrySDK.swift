@@ -576,20 +576,13 @@ import Foundation
 
     // MARK: Internal
 
-    /// The option used to start the SDK
-    private static var _startOption: Options?
-    private static let startOptionLock = NSRecursiveLock()
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static var startOption: Options? {
-        startOptionLock.synchronized {
-            return _startOption
-        }
+        SentryDependencyContainer.sharedInstance().startOptions
     }
     // swiftlint:disable:next missing_docs
     @_spi(Private) @objc public static func setStart(with option: Options?) {
-        startOptionLock.synchronized {
-            _startOption = option
-        }
+        SentryDependencyContainer.sharedInstance().startOptions = option
     }
 }
 
