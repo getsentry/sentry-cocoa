@@ -104,7 +104,8 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             random: random,
             replayProcessingQueue: replayProcessingQueue,
             replayAssetWorkerQueue: replayAssetWorkerQueue,
-            replayFileManager: replayFileManager
+            replayFileManager: replayFileManager,
+            breadcrumbConverter: breadcrumbConverter
         )
         
         setupTouchTrackerIfNeeded(options: options)
@@ -174,7 +175,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         dependencies.globalEventProcessor.add { [weak self] event in
             guard let self = self else { return event }
             if event.isFatalEvent {
-                self.replayRecovery?.resumePreviousSessionReplay(event, breadcrumbConverter: self.breadcrumbConverter)
+                self.replayRecovery?.resumePreviousSessionReplay(event)
             } else {
                 self.sessionReplay?.captureReplayFor(event: event)
             }
@@ -401,6 +402,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         SentrySDKLog.debug("[Session Replay] Configuring replay")
         if let bc = breadcrumbConverter {
             self.breadcrumbConverter = bc
+            replayRecovery?.updateBreadcrumbConverter(bc)
             sessionReplay?.breadcrumbConverter = bc
         }
         if let sp = screenshotProvider {

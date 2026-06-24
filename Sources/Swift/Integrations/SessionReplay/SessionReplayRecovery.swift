@@ -19,19 +19,26 @@ struct SessionReplayRecovery {
     private let replayProcessingQueue: SentryDispatchQueueWrapper
     private let replayAssetWorkerQueue: SentryDispatchQueueWrapper
     private let replayFileManager: SessionReplayFileManager
+    private var breadcrumbConverter: SentryReplayBreadcrumbConverter
     
     init(
         replayOptions: SentryReplayOptions,
         random: SentryRandomProtocol,
         replayProcessingQueue: SentryDispatchQueueWrapper,
         replayAssetWorkerQueue: SentryDispatchQueueWrapper,
-        replayFileManager: SessionReplayFileManager
+        replayFileManager: SessionReplayFileManager,
+        breadcrumbConverter: SentryReplayBreadcrumbConverter
     ) {
         self.replayOptions = replayOptions
         self.random = random
         self.replayProcessingQueue = replayProcessingQueue
         self.replayAssetWorkerQueue = replayAssetWorkerQueue
         self.replayFileManager = replayFileManager
+        self.breadcrumbConverter = breadcrumbConverter
+    }
+
+    mutating func updateBreadcrumbConverter(_ breadcrumbConverter: SentryReplayBreadcrumbConverter) {
+        self.breadcrumbConverter = breadcrumbConverter
     }
     
     // MARK: - Recovery
@@ -41,10 +48,7 @@ struct SessionReplayRecovery {
     /// This function is called when processing an event created by SentryCrashIntegration,
     /// which runs in the background. That's why we don't need to dispatch the generation of the
     /// replay to the background in this function.
-    func resumePreviousSessionReplay(
-        _ event: Event,
-        breadcrumbConverter: SentryReplayBreadcrumbConverter
-    ) {
+    func resumePreviousSessionReplay(_ event: Event) {
         SentrySDKLog.debug("[Session Replay] Resuming previous session replay")
         guard let dir = replayFileManager.replayDirectory(),
               let jsonObject = replayFileManager.lastReplayInfo() else {
@@ -69,8 +73,7 @@ struct SessionReplayRecovery {
             replayId: replayId,
             lastReplayURL: lastReplayURL,
             config: previousReplayConfig,
-            event: event,
-            breadcrumbConverter: breadcrumbConverter
+            event: event
         )
 
         do {
@@ -154,8 +157,7 @@ struct SessionReplayRecovery {
         replayId: SentryId,
         lastReplayURL: URL,
         config: PreviousReplayConfig,
-        event: Event,
-        breadcrumbConverter: SentryReplayBreadcrumbConverter
+        event: Event
     ) {
         let resumeReplayMaker = createResumeReplayMaker(from: lastReplayURL)
         let end = config.beginning.addingTimeInterval(config.duration)
@@ -177,8 +179,7 @@ struct SessionReplayRecovery {
                 replayId: replayId,
                 segmentId: currentSegmentId,
                 type: currentType,
-                breadcrumbs: event.breadcrumbs ?? [],
-                breadcrumbConverter: breadcrumbConverter
+                breadcrumbs: event.breadcrumbs ?? []
             )
             currentSegmentId += 1
             // type buffer is only for the first segment
@@ -195,8 +196,7 @@ struct SessionReplayRecovery {
         replayId: SentryId,
         segmentId: Int,
         type: SentryReplayType,
-        breadcrumbs: [Breadcrumb],
-        breadcrumbConverter: SentryReplayBreadcrumbConverter
+        breadcrumbs: [Breadcrumb]
     ) {
         let replayEvent = SentryReplayEvent(
             eventId: replayId,
