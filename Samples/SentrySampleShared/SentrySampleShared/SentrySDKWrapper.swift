@@ -155,6 +155,7 @@ public struct SentrySDKWrapper {
 
         // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
         options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.AppHangs.disableTracking.boolValue
+        options.enableReportNonFullyBlockingAppHangs = !SentrySDKOverrides.AppHangs.disableNonFullyBlocking.boolValue
 
         // UI tests generate false OOMs
         options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.WatchdogTerminations.disableTracking.boolValue
@@ -233,7 +234,10 @@ public struct SentrySDKWrapper {
             !SentrySDKOverrides.Crash.disableUncaughtNSExceptionReporting.boolValue
 #endif
 
-        options.experimental.appHangs.enableV3 = true
+        options.experimental.appHangs.enableV3 = SentrySDKOverrides.AppHangs.enableV3.boolValue
+        if let threshold = SentrySDKOverrides.AppHangs.appHangThreshold.floatValue {
+            options.experimental.appHangs.appHangThreshold = Double(threshold)
+        }
     }
 
     private func configurePerformanceTracing(_ options: Options) {
