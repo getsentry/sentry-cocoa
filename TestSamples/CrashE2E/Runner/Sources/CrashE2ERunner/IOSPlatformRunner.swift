@@ -107,7 +107,9 @@ final class IOSPlatformRunner {
         log("Relaunching iOS app to drain previous crash.")
         let result = try launchApp(arguments: ["--scenario", "drain", "--exit-after", "3"])
         try assertLaunchSucceeded(result, scenario: scenario, launchType: "drain")
-        _ = try waitForAppToStop(timeout: 15)
+        guard try waitForAppToStop(timeout: 15) else {
+            try fail("iOS drain app did not terminate for scenario: \(scenario.rawValue)")
+        }
     }
 
     private func launchApp(arguments: [String]) throws -> ProcessResult {
