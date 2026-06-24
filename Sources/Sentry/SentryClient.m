@@ -924,7 +924,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)logDisabledMessage
 {
-    SENTRY_LOG_DEBUG(@"SDK disabled or no DSN set. Won't do anyting.");
+    SENTRY_LOG_DEBUG(@"SDK disabled or no DSN set. Won't do anything.");
 }
 
 - (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event

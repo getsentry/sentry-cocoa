@@ -98,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope;
 
 /// Exposed so Swift (e.g. metrics) can reuse it to drop data when the client is disabled.
-/// Broader than the public `isEnabled` in `SentryClient.h`: `isEnabled` only reflects `close`,
+/// Broader than `isEnabled` in `SentryClient.h`: `isEnabled` only reflects `close`,
 /// while `isDisabled` also returns YES for `options.enabled == false` or no DSN.
 @property (nonatomic, assign, readonly) BOOL isDisabled;
 

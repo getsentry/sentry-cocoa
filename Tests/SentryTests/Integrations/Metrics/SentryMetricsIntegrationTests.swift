@@ -302,6 +302,36 @@ class SentryMetricsIntegrationTests: XCTestCase {
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0, "Metric should be dropped when no DSN is configured")
     }
 
+    func testAddMetric_whenClientDisabled_shouldNotCallBeforeSendMetric() throws {
+        // -- Arrange --
+        var beforeSendCalled = false
+        let client = try givenSdkWithHub { options in
+            options.enabled = false
+            options.beforeSendMetric = { metric in
+                beforeSendCalled = true
+                return metric
+            }
+        }
+        let integration = try getSut()
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        XCTAssertFalse(beforeSendCalled, "beforeSendMetric should not be called when the SDK is disabled")
+        XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0, "Metric should be dropped when the SDK is disabled")
+    }
+
     func testAddMetric_whenClientDisabled_shouldLogDebugMessage() throws {
         // -- Arrange --
         let oldOutput = SentrySDKLog.getLogOutput()
