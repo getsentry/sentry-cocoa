@@ -24,83 +24,87 @@ private class MockRunLoopDelayTracker: RunLoopDelayTracker {
 
 final class AppHangTrackerTests: XCTestCase {
 
-    func testObserverNotifiedWhenThresholdExceeded() {
+    func testAddObserver_whenDelayExceedsThreshold_shouldNotifyObserver() {
+        // -- Arrange --
         let delayTracker = MockRunLoopDelayTracker()
         let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
-
         var notifiedDuration: TimeInterval = 0
         var notifiedOngoing: Bool = false
-        let expectation = XCTestExpectation()
-
         let id = sut.addObserver(threshold: 0.25) { duration, ongoing in
             notifiedDuration = duration
             notifiedOngoing = ongoing
-            expectation.fulfill()
         }
 
+        // -- Act --
         delayTracker.simulateDelay(duration: 0.3, ongoing: true)
 
-        wait(for: [expectation], timeout: 1)
+        // -- Assert --
         XCTAssertEqual(notifiedDuration, 0.3)
         XCTAssertTrue(notifiedOngoing)
 
         sut.removeObserver(id: id)
     }
 
-    func testObserverNotNotifiedWhenBelowThreshold() {
+    func testAddObserver_whenDelayBelowThreshold_shouldNotNotifyObserver() {
+        // -- Arrange --
         let delayTracker = MockRunLoopDelayTracker()
         let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
-
         var notified = false
         let id = sut.addObserver(threshold: 0.25) { _, _ in
             notified = true
         }
 
+        // -- Act --
         delayTracker.simulateDelay(duration: 0.2, ongoing: true)
 
+        // -- Assert --
         XCTAssertFalse(notified)
 
         sut.removeObserver(id: id)
     }
 
-    func testObserverNotNotifiedWhenExactlyAtThreshold() {
+    func testAddObserver_whenDelayExactlyAtThreshold_shouldNotNotifyObserver() {
+        // -- Arrange --
         let delayTracker = MockRunLoopDelayTracker()
         let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
-
         var notified = false
         let id = sut.addObserver(threshold: 0.25) { _, _ in
             notified = true
         }
 
+        // -- Act --
         delayTracker.simulateDelay(duration: 0.25, ongoing: true)
 
+        // -- Assert --
         XCTAssertFalse(notified)
 
         sut.removeObserver(id: id)
     }
 
-    func testObserverOnlyNotifiedOncePerHang() {
+    func testAddObserver_whenMultipleOngoingDelays_shouldNotifyOnlyOnce() {
+        // -- Arrange --
         let delayTracker = MockRunLoopDelayTracker()
         let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
-
-        var callCount = 0
+        var ongoingCallCount = 0
         let id = sut.addObserver(threshold: 0.25) { _, ongoing in
-            if ongoing { callCount += 1 }
+            if ongoing { ongoingCallCount += 1 }
         }
 
+        // -- Act --
         delayTracker.simulateDelay(duration: 0.3, ongoing: true)
         delayTracker.simulateDelay(duration: 0.5, ongoing: true)
         delayTracker.simulateDelay(duration: 1.0, ongoing: true)
 
-        XCTAssertEqual(callCount, 1, "Observer should only be notified once per hang")
+        // -- Assert --
+        XCTAssertEqual(ongoingCallCount, 1)
 
         sut.removeObserver(id: id)
     }
 
-    func testObserverReceivesEndNotificationAfterThresholdCrossed() {
+    func testAddObserver_whenHangEndsAfterThresholdCrossed_shouldNotifyWithFinalDuration() {
+        // -- Arrange --
         let delayTracker = MockRunLoopDelayTracker()
         let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
-
         var ongoingCalls = 0
         var endedCalls = 0
         var endedDuration: TimeInterval = 0
@@ -113,9 +117,11 @@ final class AppHangTrackerTests: XCTestCase {
             }
         }
 
+        // -- Act --
         delayTracker.simulateDelay(duration: 0.5, ongoing: true)
         delayTracker.simulateDelay(duration: 1.0, ongoing: false)
 
+        // -- Assert --
         XCTAssertEqual(ongoingCalls, 1)
         XCTAssertEqual(endedCalls, 1)
         XCTAssertEqual(endedDuration, 1.0)
@@ -123,31 +129,31 @@ final class AppHangTrackerTests: XCTestCase {
         sut.removeObserver(id: id)
     }
 
-    func testObserverDoesNotReceiveEndNotificationWithoutPriorOngoing() {
+    func testAddObserver_whenHangEndsWithoutCrossingThreshold_shouldNotNotify() {
+        // -- Arrange --
         let delayTracker = MockRunLoopDelayTracker()
         let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
-
         var notified = false
         let id = sut.addObserver(threshold: 2.0) { _, _ in
             notified = true
         }
 
-        // Delay below threshold, then ended — observer should not get the end notification
+        // -- Act --
         delayTracker.simulateDelay(duration: 0.5, ongoing: true)
         delayTracker.simulateDelay(duration: 1.0, ongoing: false)
 
+        // -- Assert --
         XCTAssertFalse(notified)
 
         sut.removeObserver(id: id)
     }
 
-    func testMultipleObserversWithDifferentThresholds() {
+    func testAddObserver_whenTwoObserversWithDifferentThresholds_shouldNotifyIndependently() {
+        // -- Arrange --
         let delayTracker = MockRunLoopDelayTracker()
         let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
-
         var lowThresholdNotified = false
         var highThresholdNotified = false
-
         let id1 = sut.addObserver(threshold: 0.25) { _, ongoing in
             if ongoing { lowThresholdNotified = true }
         }
@@ -155,25 +161,27 @@ final class AppHangTrackerTests: XCTestCase {
             if ongoing { highThresholdNotified = true }
         }
 
-        // Duration exceeds only the low threshold
+        // -- Act --
         delayTracker.simulateDelay(duration: 0.5, ongoing: true)
 
-        XCTAssertTrue(lowThresholdNotified, "Low threshold observer should be notified")
-        XCTAssertFalse(highThresholdNotified, "High threshold observer should NOT be notified")
+        // -- Assert --
+        XCTAssertTrue(lowThresholdNotified)
+        XCTAssertFalse(highThresholdNotified)
 
-        // Duration now exceeds both thresholds
+        // -- Act --
         delayTracker.simulateDelay(duration: 3.0, ongoing: true)
 
-        XCTAssertTrue(highThresholdNotified, "High threshold observer should now be notified")
+        // -- Assert --
+        XCTAssertTrue(highThresholdNotified)
 
         sut.removeObserver(id: id1)
         sut.removeObserver(id: id2)
     }
 
-    func testConsecutiveHangsResetState() {
+    func testAddObserver_whenConsecutiveHangs_shouldResetAndNotifyAgain() {
+        // -- Arrange --
         let delayTracker = MockRunLoopDelayTracker()
         let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
-
         var ongoingCalls = 0
         var endedCalls = 0
         let id = sut.addObserver(threshold: 0.25) { _, ongoing in
@@ -184,36 +192,33 @@ final class AppHangTrackerTests: XCTestCase {
             }
         }
 
-        // First hang
+        // -- Act --
         delayTracker.simulateDelay(duration: 0.5, ongoing: true)
         delayTracker.simulateDelay(duration: 0.8, ongoing: false)
-
-        XCTAssertEqual(ongoingCalls, 1)
-        XCTAssertEqual(endedCalls, 1)
-
-        // Second hang — should be detected again
         delayTracker.simulateDelay(duration: 0.5, ongoing: true)
         delayTracker.simulateDelay(duration: 1.0, ongoing: false)
 
-        XCTAssertEqual(ongoingCalls, 2, "Second hang should trigger a new ongoing notification")
-        XCTAssertEqual(endedCalls, 2, "Second hang should trigger a new ended notification")
+        // -- Assert --
+        XCTAssertEqual(ongoingCalls, 2)
+        XCTAssertEqual(endedCalls, 2)
 
         sut.removeObserver(id: id)
     }
 
-    func testRemoveObserverStopsNotifications() {
+    func testRemoveObserver_whenDelayOccurs_shouldNotNotify() {
+        // -- Arrange --
         let delayTracker = MockRunLoopDelayTracker()
         let sut = DefaultAppHangTracker(runLoopDelayTracker: delayTracker)
-
         var notified = false
         let id = sut.addObserver(threshold: 0.25) { _, _ in
             notified = true
         }
 
+        // -- Act --
         sut.removeObserver(id: id)
-
         delayTracker.simulateDelay(duration: 1.0, ongoing: true)
 
+        // -- Assert --
         XCTAssertFalse(notified)
     }
 }
