@@ -9,6 +9,17 @@ import CoreMedia
 import Foundation
 import UIKit
 
+func removeReplayFile(at fileURL: URL) {
+    guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
+
+    do {
+        try FileManager.default.removeItem(at: fileURL)
+        SentrySDKLog.debug("[Session Replay] Removed replay file at: \(fileURL.path)")
+    } catch {
+        SentrySDKLog.warning("[Session Replay] Could not delete replay file at: \(fileURL.path), reason: \(error)")
+    }
+}
+
 // swiftlint:disable type_body_length
 @objcMembers
 @_spi(Private) public class SentryOnDemandReplay: NSObject, SentryReplayVideoMaker {
@@ -18,6 +29,10 @@ import UIKit
     private let processingQueue: SentryDispatchQueueWrapper
     private let assetWorkerQueue: SentryDispatchQueueWrapper
     private var _frames = [SentryReplayFrame]()
+    /// Guards `retainedFrameBeforeCurrentFrames`. All other accesses to it happen on
+    /// `processingQueue`; the lock only exists because `deinit` can run on any thread.
+    private let retainedFrameLock = NSLock()
+    private var retainedFrameBeforeCurrentFrames: SentryReplayFrame?
 
     #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     //This is exposed only for tests, no need to make it thread safe.
@@ -40,6 +55,19 @@ import UIKit
         self._outputPath = outputPath
         self.processingQueue = processingQueue
         self.assetWorkerQueue = assetWorkerQueue
+    }
+
+    deinit {
+        // Clean shutdown removes the retained file. If the app crashes, the file stays
+        // in the replay folder and is loaded during crash recovery on the next launch.
+        let retainedFrame = retainedFrameLock.synchronized {
+            let frame = retainedFrameBeforeCurrentFrames
+            retainedFrameBeforeCurrentFrames = nil
+            return frame
+        }
+        if let retainedFrame = retainedFrame {
+            removeReplayFile(at: URL(fileURLWithPath: retainedFrame.imagePath))
+        }
     }
         
     public convenience init(
@@ -130,20 +158,26 @@ import UIKit
             SentrySDKLog.debug("[Session Replay] Releasing frames until date: \(date)")
             while let first = self._frames.first, first.time < date {
                 self._frames.removeFirst()
-                let fileUrl = URL(fileURLWithPath: first.imagePath)
-                do {
-                    try FileManager.default.removeItem(at: fileUrl)
-                    SentrySDKLog.debug("[Session Replay] Removed frame at url: \(fileUrl.path)")
-                } catch {
-                    SentrySDKLog.error("[Session Replay] Failed to remove frame at: \(fileUrl.path), reason: \(error), ignoring error")
+                // Retain the released frame so the next segment can still render the screen
+                // state at its window start; delete the previously retained frame's file once
+                // it is replaced.
+                let frameToRemove = self.retainedFrameLock.synchronized { () -> SentryReplayFrame? in
+                    let previousFrame = self.retainedFrameBeforeCurrentFrames
+                    self.retainedFrameBeforeCurrentFrames = first
+                    guard previousFrame?.imagePath != first.imagePath else { return nil }
+                    return previousFrame
+                }
+                if let frameToRemove = frameToRemove {
+                    removeReplayFile(at: URL(fileURLWithPath: frameToRemove.imagePath))
                 }
             }
             SentrySDKLog.debug("[Session Replay] Frames released, remaining frames count: \(self._frames.count)")
         }
     }
 
-    public var oldestFrameDate: Date? {
-        return _frames.first?.time
+    /// Used by replay recovery after `init(withContentFrom:)` loaded surviving frames from disk.
+    var oldestRecoveredFrameDate: Date? {
+        _frames.first?.time
     }
 
     public func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]) -> Void) {
@@ -162,7 +196,23 @@ import UIKit
 
         // Note: In previous implementations this method was wrapped by a sync call to the processing queue.
         // As this method is already called from the processing queue, we must remove the sync call.
-        let videoFrames = self._frames.filter { $0.time >= beginning && $0.time <= end }
+        guard end > beginning else { return [] }
+
+        // Select the frames in the half-open window [beginning, end). When captures were skipped,
+        // hold the last frame captured before the window at the window start so the segment still
+        // begins with the correct screen state.
+        var videoFrames = _frames.filter { $0.time >= beginning && $0.time < end }
+        if let firstFrame = videoFrames.first {
+            if firstFrame.time > beginning {
+                let frameToHold = frameBefore(beginning) ?? firstFrame
+                videoFrames.insert(SentryReplayFrame(imagePath: frameToHold.imagePath, time: beginning, screenName: frameToHold.screenName), at: 0)
+            }
+        } else if let previousFrame = frameBefore(beginning) {
+            videoFrames = [SentryReplayFrame(imagePath: previousFrame.imagePath, time: beginning, screenName: previousFrame.screenName)]
+        } else {
+            return []
+        }
+
         var frameCount = 0
 
         var videos = [SentryVideoInfo]()
@@ -177,7 +227,7 @@ import UIKit
             var currentError: Error?
 
             group.enter()
-            self.renderVideo(with: videoFrames, from: frameCount, at: outputFileURL) { result in
+            self.renderVideo(with: videoFrames, fromIndex: frameCount, until: end, at: outputFileURL) { result in
                 switch result {
                 case .success(let videoResult):
                     // Set the frame count/offset to the new index that is returned by the completion block.
@@ -221,16 +271,33 @@ import UIKit
         return videos
     }
 
-    // swiftlint:disable function_body_length cyclomatic_complexity
-    private func renderVideo(with videoFrames: [SentryReplayFrame], from: Int, at outputFileURL: URL, completion: @escaping (Result<SentryRenderVideoResult, Error>) -> Void) {
-        SentrySDKLog.debug("[Session Replay] Rendering video with \(videoFrames.count) frames, from index: \(from), to output url: \(outputFileURL)")
+    private func frameBefore(_ date: Date) -> SentryReplayFrame? {
+        let retainedFrame = retainedFrameLock.synchronized {
+            retainedFrameBeforeCurrentFrames
+        }.flatMap { $0.time < date ? $0 : nil }
+        let currentFrame = _frames.last(where: { $0.time < date })
 
-        guard from < videoFrames.count else {
+        guard let retained = retainedFrame else { return currentFrame }
+        guard let current = currentFrame else { return retained }
+        return retained.time > current.time ? retained : current
+    }
+
+    // swiftlint:disable function_body_length cyclomatic_complexity
+    private func renderVideo(
+        with videoFrames: [SentryReplayFrame],
+        fromIndex: Int,
+        until videoEnd: Date,
+        at outputFileURL: URL,
+        completion: @escaping (Result<SentryRenderVideoResult, Error>) -> Void
+    ) {
+        SentrySDKLog.debug("[Session Replay] Rendering video with \(videoFrames.count) frames, from index: \(fromIndex), to output url: \(outputFileURL)")
+
+        guard fromIndex < videoFrames.count else {
             SentrySDKLog.error("[Session Replay] Failed to render video, reason: index out of bounds")
             return completion(.failure(SentryOnDemandReplayError.indexOutOfBounds))
         }
-        guard let image = UIImage(contentsOfFile: videoFrames[from].imagePath) else {
-            SentrySDKLog.error("[Session Replay] Failed to render video, reason: can't read image at path: \(videoFrames[from].imagePath)")
+        guard let image = UIImage(contentsOfFile: videoFrames[fromIndex].imagePath) else {
+            SentrySDKLog.error("[Session Replay] Failed to render video, reason: can't read image at path: \(videoFrames[fromIndex].imagePath)")
             return completion(.failure(SentryOnDemandReplayError.cantReadImage))
         }
         
@@ -265,8 +332,9 @@ import UIKit
             videoHeight: videoHeight,
             videoWidth: videoWidth,
             frameRate: frameRate,
-            initialFrameIndex: from,
-            initialImageSize: image.size
+            initialFrameIndex: fromIndex,
+            initialImageSize: image.size,
+            videoEnd: videoEnd
         )
         
         // Append frames to the video writer input in a pull-style manner when the input is ready to receive more media data.
