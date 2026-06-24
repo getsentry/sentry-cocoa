@@ -7,8 +7,7 @@ import Foundation
 private struct PreviousReplayConfig {
     let type: SentryReplayType
     let segmentId: Int
-    let beginning: Date
-    let end: Date
+    let dateInterval: DateInterval
 }
 
 /// Handles recovery of session replay from previous app sessions, including crash replays.
@@ -111,25 +110,24 @@ struct SessionReplayRecovery {
 
         let resumeReplayMaker = createResumeReplayMaker(from: lastReplayURL)
         
-        let beginning: Date
-        let end: Date
+        let dateInterval: DateInterval
         if hasCrashInfo {
-            beginning = Date(timeIntervalSinceReferenceDate: crashInfo.lastSegmentEnd)
-            end = beginning.addingTimeInterval(duration)
+            let beginning = Date(timeIntervalSinceReferenceDate: crashInfo.lastSegmentEnd)
+            dateInterval = DateInterval(start: beginning, duration: duration)
         } else {
-            guard let frameRange = resumeReplayMaker.recoveredFrameDateRange else {
+            guard let frameInterval = resumeReplayMaker.recoveredFrameDateInterval else {
                 SentrySDKLog.debug("[Session Replay] No frames to send, dropping replay")
                 return nil
             }
-            end = frameRange.newest.addingTimeInterval(1.0 / Double(replayOptions.frameRate))
-            beginning = max(frameRange.oldest, end.addingTimeInterval(-duration))
+            let end = frameInterval.end.addingTimeInterval(1.0 / Double(replayOptions.frameRate))
+            let beginning = max(frameInterval.start, end.addingTimeInterval(-duration))
+            dateInterval = DateInterval(start: beginning, end: end)
         }
         
         return PreviousReplayConfig(
             type: type,
             segmentId: segmentId,
-            beginning: beginning,
-            end: end
+            dateInterval: dateInterval
         )
     }
     
@@ -156,7 +154,10 @@ struct SessionReplayRecovery {
         event: Event
     ) {
         let resumeReplayMaker = createResumeReplayMaker(from: lastReplayURL)
-        let videos = resumeReplayMaker.createVideoWith(beginning: config.beginning, end: config.end)
+        let videos = resumeReplayMaker.createVideoWith(
+            beginning: config.dateInterval.start,
+            end: config.dateInterval.end
+        )
 
         SentrySDKLog.debug("[Session Replay] Created replay with \(videos.count) video segments")
 

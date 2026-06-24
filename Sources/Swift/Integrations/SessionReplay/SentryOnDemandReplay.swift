@@ -176,9 +176,9 @@ func removeReplayFile(at fileURL: URL) {
     }
 
     /// Used by replay recovery after `init(withContentFrom:)` loaded surviving frames from disk.
-    var recoveredFrameDateRange: (oldest: Date, newest: Date)? {
+    var recoveredFrameDateInterval: DateInterval? {
         guard let oldest = _frames.first?.time, let newest = _frames.last?.time else { return nil }
-        return (oldest, newest)
+        return DateInterval(start: oldest, end: newest)
     }
 
     public func createVideoInBackgroundWith(beginning: Date, end: Date, completion: @escaping ([SentryVideoInfo]) -> Void) {
