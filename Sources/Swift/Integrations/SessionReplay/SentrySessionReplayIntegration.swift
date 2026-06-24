@@ -4,7 +4,7 @@
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & CrashWrapperProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayBreadcrumbConverterProvider
+typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & CrashWrapperProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayCaptureSchedulerProvider & SessionReplayBreadcrumbConverterProvider
 
 // This is static because it will be used for swizzling and would cause retain cycles
 private var touchTracker: SentryTouchTracker?
@@ -23,6 +23,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private let replayOptions: SentryReplayOptions
     private let rateLimits: RateLimits
     private let random: SentryRandomProtocol
+    private let captureScheduler: SentrySessionReplayRunLoopCaptureScheduler
     private var startedAsFullSession = false
     private let experimentalOptions: SentryExperimentalOptions
     private let notificationCenter: SentryNSNotificationCenterWrapper
@@ -34,6 +35,16 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private let replayFileManager: SessionReplayFileManager
     private var replayRecovery: SessionReplayRecovery?
     private var backgroundForegroundObserver: SentrySessionReplayBackgroundForegroundObserver?
+
+    /// Guards `isApplicationStatePaused`, which is written by `pause`/`resume` (application
+    /// lifecycle, usually the main thread) and read from the reachability queue in
+    /// `connectivityChanged`.
+    private let applicationStateLock = NSLock()
+    private var _isApplicationStatePaused = false
+    private var isApplicationStatePaused: Bool {
+        get { applicationStateLock.synchronized { _isApplicationStatePaused } }
+        set { applicationStateLock.synchronized { _isApplicationStatePaused = newValue } }
+    }
 
     /// Getter to get the current application at runtime
     ///
@@ -83,6 +94,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         self.rateLimits = dependencies.rateLimits
         self.dateProvider = dependencies.dateProvider
         self.random = dependencies.random
+        self.captureScheduler = dependencies.sessionReplayCaptureScheduler
         self.crashWrapper = dependencies.crashWrapper
         self.getApplication = dependencies.application
         self.breadcrumbConverter = dependencies.sessionReplayBreadcrumbConverter
@@ -97,6 +109,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         
         super.init()
 
+        isApplicationStatePaused = getApplication()?.mainThread_isActive == false
         self.backgroundForegroundObserver = SentrySessionReplayBackgroundForegroundObserver(integration: self)
         
         self.replayRecovery = SessionReplayRecovery(
@@ -255,11 +268,13 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
 
     @objc private func applicationDidBecomeActiveHandler(_ notification: Notification) {
         SentrySDKLog.debug("[Session Replay] Application did become active, starting replay")
+        isApplicationStatePaused = false
         runReplayForAvailableWindow()
     }
 
     @objc private func sceneDidActivateHandler(_ notification: Notification) {
         SentrySDKLog.debug("[Session Replay] Scene is available, starting replay")
+        isApplicationStatePaused = false
         runReplayForAvailableWindow()
     }
 
@@ -298,11 +313,14 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         let newSessionReplay = SentrySessionReplay(
             replayOptions: replayOptions, replayFolderPath: sessionDocs, screenshotProvider: screenshotProvider,
             replayMaker: replayMaker, breadcrumbConverter: breadcrumbConverter, touchTracker: touchTracker,
-            dateProvider: dateProvider, delegate: self, displayLinkWrapper: SentryDisplayLinkWrapper())
+            dateProvider: dateProvider, delegate: self, captureScheduler: captureScheduler)
 
         self.sessionReplay = newSessionReplay
         newSessionReplay.start(rootView: rootView, fullSession: fullSession)
         addBackgroundForegroundObservers()
+        if isApplicationStatePaused {
+            newSessionReplay.pause()
+        }
         
         if let replayId = newSessionReplay.sessionReplayId {
             replayFileManager.saveCurrentSessionInfo(replayId, path: sessionDocs.path, options: replayOptions)
@@ -363,11 +381,13 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     
     @objc public func pause() {
         SentrySDKLog.debug("[Session Replay] Pausing session")
+        isApplicationStatePaused = true
         sessionReplay?.pause()
     }
     
     @objc public func resume() {
         SentrySDKLog.debug("[Session Replay] Resuming session")
+        isApplicationStatePaused = false
         sessionReplay?.resume()
     }
 
@@ -483,7 +503,11 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     // MARK: - SentryReachabilityObserver
     public func connectivityChanged(_ connected: Bool, typeDescription: String) {
         SentrySDKLog.debug("[Session Replay] Connectivity changed to: \(connected ? "connected" : "disconnected"), type: \(typeDescription)")
-        if connected { sessionReplay?.resume() } else { sessionReplay?.pauseSessionMode() }
+        if connected {
+            sessionReplay?.resumeSessionMode(restartCaptureScheduler: !isApplicationStatePaused)
+        } else {
+            sessionReplay?.pauseSessionMode()
+        }
     }
     
     // MARK: - Test only

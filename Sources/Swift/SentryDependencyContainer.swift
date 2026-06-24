@@ -104,6 +104,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var windowFactoryOverride: SentryUserFeedbackWindowFactory?
 #endif
 #endif
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler()
+#endif
     @objc public func application() -> SentryApplication? {
 #if SENTRY_TEST || SENTRY_TEST_CI
     let `override` = self.applicationOverride
@@ -545,6 +548,12 @@ protocol ViewHierarchyProviderProvider {
 }
 
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
+
+protocol SessionReplayCaptureSchedulerProvider {
+    var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler { get }
+}
+
+extension SentryDependencyContainer: SessionReplayCaptureSchedulerProvider { }
 
 protocol SessionReplayBreadcrumbConverterProvider {
     var sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter { get }
