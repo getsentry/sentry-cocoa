@@ -298,8 +298,16 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
 
     func testBufferReplayForCrash() throws {
+        class CustomBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
+            func convert(from breadcrumb: Breadcrumb) -> (any SentryRRWebEventProtocol)? {
+                guard let timestamp = breadcrumb.timestamp else { return nil }
+                return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "custom.recovered")
+            }
+        }
+
         try createLastSessionReplay(writeSessionInfo: false)
         
+        SentryDependencyContainer.sharedInstance().sessionReplayBreadcrumbConverter = CustomBreadcrumbConverter()
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         
         let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
@@ -314,6 +322,10 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
         crash.isFatalEvent = true
+        crash.breadcrumbs = [
+            .custom(date: Date(timeIntervalSinceReferenceDate: 4)),
+            .custom(date: Date(timeIntervalSinceReferenceDate: 6))
+        ]
         globalEventProcessor.reportAll(crash)
         
         wait(for: [expectation], timeout: 1)
@@ -323,6 +335,50 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(replayInfo.replay.replayType, SentryReplayType.buffer)
         XCTAssertEqual(replayInfo.recording.segmentId, 0)
         XCTAssertEqual(replayInfo.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 5))
+
+        let breadcrumbs = replayInfo.recording.events.compactMap { $0 as? SentryRRWebBreadcrumbEvent }
+        XCTAssertEqual(breadcrumbs.count, 1)
+        XCTAssertEqual(
+            (breadcrumbs.first?.data?["payload"] as? [String: Any])?["timestamp"] as? TimeInterval,
+            Date(timeIntervalSinceReferenceDate: 6).timeIntervalSince1970
+        )
+        XCTAssertEqual((breadcrumbs.first?.data?["payload"] as? [String: Any])?["category"] as? String, "custom.recovered")
+    }
+
+    func testBufferReplayForCrashUsesConfiguredBreadcrumbConverter() throws {
+        class CustomBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
+            func convert(from breadcrumb: Breadcrumb) -> (any SentryRRWebEventProtocol)? {
+                guard let timestamp = breadcrumb.timestamp else { return nil }
+                return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "custom.configured")
+            }
+        }
+
+        try createLastSessionReplay(writeSessionInfo: false)
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        PrivateSentrySDKOnly.configureSessionReplay(with: CustomBreadcrumbConverter(), screenshotProvider: nil)
+
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
+        let scope = Scope()
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
+        let expectation = expectation(description: "Replay to be captured")
+        hub.onReplayCapture = {
+            expectation.fulfill()
+        }
+
+        let crash = Event(error: NSError(domain: "Error", code: 1))
+        crash.context = [:]
+        crash.isFatalEvent = true
+        crash.breadcrumbs = [
+            .custom(date: Date(timeIntervalSinceReferenceDate: 6))
+        ]
+        globalEventProcessor.reportAll(crash)
+
+        wait(for: [expectation], timeout: 1)
+        let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
+        let breadcrumbs = replayInfo.recording.events.compactMap { $0 as? SentryRRWebBreadcrumbEvent }
+        XCTAssertEqual(breadcrumbs.count, 1)
+        XCTAssertEqual((breadcrumbs.first?.data?["payload"] as? [String: Any])?["category"] as? String, "custom.configured")
     }
     
     func testBufferReplayIgnoredBecauseSampleRateForCrash() throws {

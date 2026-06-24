@@ -14,6 +14,7 @@
 - Prevent feedback form on external displays (#8071)
 - Keep the User Feedback screenshot trigger active after form dismissal. (#8048)
 - Prevent lazy TLS-init in the signal crash monitor for non-managed runtime builds (#8148)
+- Include breadcrumbs in recovered buffer-mode session replays (#8153)
 - Fix missing `Info.plist` entries `MinimumOSVersion` and `CFBundleSupportedPlatforms` in `SentryObjC.xcframework` (#8157)
 - Harden crash-time attachment path creation to avoid secondary crashes while handling crashes (#8170)
 - Session replay video assembly: drop empty video segments, avoid duplicating frames at segment boundaries, and keep video timing stable when captured frames are skipped or unreadable (#8041)

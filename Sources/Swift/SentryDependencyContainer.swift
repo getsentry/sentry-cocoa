@@ -360,6 +360,12 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             enableMaskRendererV2: options.screenshot.enableViewRendererV2)
         return SentryScreenshotSource(photographer: photographer)
     }
+
+    private var _sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter?
+    var sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter {
+        get { getLazyVar(\._sessionReplayBreadcrumbConverter) { SentrySRDefaultBreadcrumbConverter() } }
+        set { _sessionReplayBreadcrumbConverter = newValue }
+    }
 #endif
 
     private var _fileManager: SentryFileManager?
@@ -539,6 +545,12 @@ protocol ViewHierarchyProviderProvider {
 }
 
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
+
+protocol SessionReplayBreadcrumbConverterProvider {
+    var sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter { get }
+}
+
+extension SentryDependencyContainer: SessionReplayBreadcrumbConverterProvider { }
 
 protocol ReplayIntegrationProvider {
     func getReplayIntegration() -> SentrySessionReplayIntegration?
