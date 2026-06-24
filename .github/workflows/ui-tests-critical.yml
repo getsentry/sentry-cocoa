@@ -78,7 +78,6 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_critical_for_prs == 'true'
     needs: files-changed
     name: Run SwiftUI Crash Test on ${{matrix.runner_provider}}
-    continue-on-error: ${{ matrix.runner_provider == 'bitrise' }}
     runs-on: ${{ matrix.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', 'sequoia')) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     strategy:
       matrix:
