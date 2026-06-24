@@ -102,6 +102,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// while `isDisabled` also returns YES for `options.enabled == false` or no DSN.
 @property (nonatomic, assign, readonly) BOOL isDisabled;
 
+/// Logs a debug message that data is dropped because the client is disabled. Exposed so Swift
+/// (e.g. metrics) logs the same message as event/envelope capture when dropping data.
+- (void)logDisabledMessage;
+
 /// Exposes the Telemetry Processor so Swift code can forward metrics directly without crossing the
 /// ObjC boundary. SentryMetric is a Swift struct and cannot be passed through ObjC methods, so
 /// we use a Swift extension on SentryClientInternal.

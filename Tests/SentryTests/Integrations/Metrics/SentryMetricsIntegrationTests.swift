@@ -302,6 +302,35 @@ class SentryMetricsIntegrationTests: XCTestCase {
         XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0, "Metric should be dropped when no DSN is configured")
     }
 
+    func testAddMetric_whenClientDisabled_shouldLogDebugMessage() throws {
+        // -- Arrange --
+        let oldOutput = SentrySDKLog.getLogOutput()
+        defer { SentrySDKLog.setOutput(oldOutput) }
+        let logOutput = TestLogOutput()
+        SentrySDKLog.setLogOutput(logOutput)
+        SentrySDKLog.configureLog(true, diagnosticLevel: .debug)
+
+        try givenSdkWithHub { $0.enabled = false }
+        let integration = try getSut()
+
+        let scope = Scope()
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        integration.addMetric(metric, scope: scope)
+
+        // -- Assert --
+        let logs = logOutput.loggedMessages.joined()
+        XCTAssertTrue(logs.contains("SDK disabled or no DSN set."), "Expected a debug log when dropping a metric, but got '\(logs)'")
+    }
+
     func testName_shouldReturnCorrectName() {
         // -- Act & Assert --
         XCTAssertEqual(SentryMetricsIntegration<SentryDependencyContainer>.name, "SentryMetricsIntegration")
