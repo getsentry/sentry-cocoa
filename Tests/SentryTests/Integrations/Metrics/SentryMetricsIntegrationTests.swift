@@ -361,6 +361,28 @@ class SentryMetricsIntegrationTests: XCTestCase {
         XCTAssertTrue(logs.contains("SDK disabled or no DSN set."), "Expected a debug log when dropping a metric, but got '\(logs)'")
     }
 
+    func testCaptureMetric_whenClientDisabled_shouldDropMetric() throws {
+        // Calls captureMetric directly, bypassing addMetric's gate, to verify the defensive
+        // guard inside captureMetric drops the metric when the SDK is disabled.
+        // -- Arrange --
+        let client = try givenSdkWithHub { $0.enabled = false }
+
+        let metric = SentryMetric(
+            timestamp: Date(),
+            traceId: SentryId(),
+            name: "test.metric",
+            value: .counter(1),
+            unit: nil,
+            attributes: [:]
+        )
+
+        // -- Act --
+        client.captureMetric(metric)
+
+        // -- Assert --
+        XCTAssertEqual(client.testMetricsBuffer.addInvocations.count, 0, "Metric should be dropped when the SDK is disabled")
+    }
+
     func testName_shouldReturnCorrectName() {
         // -- Act & Assert --
         XCTAssertEqual(SentryMetricsIntegration<SentryDependencyContainer>.name, "SentryMetricsIntegration")
