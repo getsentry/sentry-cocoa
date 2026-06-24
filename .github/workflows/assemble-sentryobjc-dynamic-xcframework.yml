@@ -80,18 +80,16 @@ jobs:
 
       - name: Validate XCFramework
         run: |
-          ./scripts/validate-xcframework-format.sh "SentryObjC-Dynamic.xcframework"
-          ./scripts/validate-xcframework-architectures.sh --xcframework "SentryObjC-Dynamic.xcframework"
-          ./scripts/validate-xcframework-symbols.sh --xcframework "SentryObjC-Dynamic.xcframework"
+          ./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 
       - name: Compress XCFramework
         env:
           SIGNED: ${{ inputs.signed }}
         run: |
           if [ "$SIGNED" = "true" ]; then
-            ./scripts/compress-xcframework.sh --sign "SentryObjC-Dynamic"
+            ./scripts/compress-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework" --sign
           else
-            ./scripts/compress-xcframework.sh --not-signed "SentryObjC-Dynamic"
+            ./scripts/compress-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
           fi
 
       - name: Upload XCFramework

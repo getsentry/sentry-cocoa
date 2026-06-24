@@ -25,6 +25,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentrySpanInternal ()
+@property (nonatomic, strong) SentryFeatureFlagBufferWrapper *featureFlagBuffer;
 @end
 
 @implementation SentrySpanInternal {
@@ -76,6 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif // SENTRY_HAS_UIKIT
 
         _tags = [[NSMutableDictionary alloc] init];
+        self.featureFlagBuffer = [SentryFeatureFlagBufferWrapper spanBuffer];
         _stateLock = [[NSObject alloc] init];
         _isFinished = NO;
 
@@ -89,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
         _origin = context.origin;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        _isContinuousProfiling = SentrySDK.startOption != nil;
+        _isContinuousProfiling = SentrySDKInternal.options != nil;
         if (_isContinuousProfiling) {
             _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
             if (_profileSessionID == nil) {
@@ -361,6 +363,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     @synchronized(_data) {
         NSMutableDictionary *data = _data.mutableCopy;
+        [data addEntriesFromDictionary:[self.featureFlagBuffer serializeForSpanData]];
 
         if (self.frames && self.frames.count > 0) {
             NSMutableArray *frames = [[NSMutableArray alloc] initWithCapacity:self.frames.count];

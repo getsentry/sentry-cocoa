@@ -18,7 +18,7 @@ class TestDefaultThreadInspector: SentryDefaultThreadInspector {
     override func stacktraceForCurrentThreadAsyncUnsafe() -> SentryStacktrace? {
         return allThreads?.first?.stacktrace ?? TestData.thread.stacktrace
     }
-    
+
     override func getCurrentThreads() -> [SentryThread] {
         getCurrentThreadsInvocations += 1
         return allThreads ?? [TestData.thread]
@@ -32,11 +32,11 @@ class TestDefaultThreadInspector: SentryDefaultThreadInspector {
 }
 
 class TestThreadInspector: SentryThreadInspector {
-    
+
     var allThreads: [SentryThread]?
-    
+
     static var instance: TestThreadInspector {
-        return TestThreadInspector()
+        return TestThreadInspector(options: SentryDependencyContainer.sharedInstance().startOptions)
     }
 
     override func stacktraceForCurrentThreadAsyncUnsafe() -> SentryStacktrace? {

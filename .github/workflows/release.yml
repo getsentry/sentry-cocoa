@@ -180,9 +180,7 @@ jobs:
           found=0
           while IFS= read -r -d '' xcframework; do
             found=1
-            ./scripts/validate-xcframework-format.sh "$xcframework"
-            ./scripts/validate-xcframework-architectures.sh --xcframework "$xcframework"
-            ./scripts/validate-xcframework-symbols.sh --xcframework "$xcframework"
+            ./scripts/validate-xcframework.sh --xcframework "$xcframework"
           done < <(find XCFrameworkBuildPath -name "*.xcframework" -type d -print0)
 
           if [ "$found" -eq 0 ]; then

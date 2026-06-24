@@ -150,7 +150,7 @@ class SentryTransactionTests: XCTestCase {
         // then
         XCTAssertEqual(try XCTUnwrap(serializedTransactionExtra[fixture.testKey] as? String), fixture.testValue)
     }
-    
+
     func testSerialize_shouldPreserveExtraFromScope() throws {
         // given
         let scope = Scope()

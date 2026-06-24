@@ -409,6 +409,59 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(span.data.count, 2, "Only expected thread.name and thread.id in data.")
         XCTAssertNil(span.data[fixture.extraKey])
     }
+
+    func testFeatureFlags_whenSerializingEmptySpanBuffer_shouldOmitFlagData() {
+        // -- Arrange --
+        let span = fixture.getSutWithTracer()
+
+        // -- Act --
+        let actual = span.serialize()["data"] as? [String: Any]
+
+        // -- Assert --
+        XCTAssertNil(actual?["flag.evaluation.checkout"])
+    }
+
+    func testFeatureFlags_whenAddingToSpan_shouldSerializeAsSpanData() throws {
+        // -- Arrange --
+        let span = fixture.getSutWithTracer()
+
+        // -- Act --
+        span.addFeatureFlag(name: "checkout", result: true)
+
+        // -- Assert --
+        let actual = try XCTUnwrap(span.serialize()["data"] as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(actual["flag.evaluation.checkout"] as? Bool), true)
+    }
+
+    func testFeatureFlags_whenRemovingFromSpan_shouldOmitRemovedFlagData() throws {
+        // -- Arrange --
+        let span = fixture.getSutWithTracer()
+        span.addFeatureFlag(name: "checkout", result: true)
+        span.addFeatureFlag(name: "search", result: false)
+
+        // -- Act --
+        span.removeFeatureFlag(name: "checkout")
+
+        // -- Assert --
+        let actual = try XCTUnwrap(span.serialize()["data"] as? [String: Any])
+        XCTAssertNil(actual["flag.evaluation.checkout"])
+        XCTAssertEqual(try XCTUnwrap(actual["flag.evaluation.search"] as? Bool), false)
+    }
+
+    func testFeatureFlags_whenAddingMoreThanSpanLimit_shouldRejectNewFlags() throws {
+        // -- Arrange --
+        let span = fixture.getSutWithTracer()
+
+        // -- Act --
+        for index in 0..<11 {
+            span.addFeatureFlag(name: "flag-\(index)", result: true)
+        }
+
+        // -- Assert --
+        let actual = try XCTUnwrap(span.serialize()["data"] as? [String: Any])
+        XCTAssertEqual(actual.keys.filter { $0.hasPrefix("flag.evaluation.") }.count, 10)
+        XCTAssertNil(actual["flag.evaluation.flag-10"])
+    }
     
     func testAddAndRemoveTags() {
         let span = fixture.getSut()

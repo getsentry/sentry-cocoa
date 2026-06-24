@@ -2147,7 +2147,8 @@ final class SentryClientTests: XCTestCase {
         fixture.getSut().capture(message: "any message")
         
         let actual = try lastSentEvent()
-        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: PrivateSentrySDKOnly.options.cacheDirectoryPath), actual.user?.userId)
+        let options = PrivateSentrySDKOnly.options
+        XCTAssertEqual(SentryInstallation.id(withCacheDirectoryPath: options.cacheDirectoryPath), actual.user?.userId)
     }
     
     func testInstallationIdNotSetWhenUserIsSetWithoutId() throws {
@@ -2841,6 +2842,25 @@ final class SentryClientTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(testProcessor.addLogInvocations.count, 0, "Log should be dropped when enableLogs is false")
+    }
+
+    func testCaptureLog_whenClientDisabled_logDropped() {
+        // The full isDisabled logic is covered elsewhere; this just verifies _swiftCaptureLog
+        // consults it. We use the no-DSN case as a representative disabled state.
+        // -- Arrange --
+        let sut = fixture.getSutWithNoDsn()
+
+        let testProcessor = TestTelemetryProcessorForClient()
+        Dynamic(sut).telemetryProcessor = testProcessor
+
+        let log = SentryLog(level: .info, body: "This log should be dropped")
+        let scope = Scope()
+
+        // -- Act --
+        sut._swiftCaptureLog(log, with: scope)
+
+        // -- Assert --
+        XCTAssertEqual(testProcessor.addLogInvocations.count, 0, "Log should be dropped when the client is disabled")
     }
 
 }

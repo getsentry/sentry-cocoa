@@ -150,9 +150,7 @@ jobs:
 
       - name: Validate XCFramework structure
         run: |
-          ./scripts/validate-xcframework-format.sh "${{env.XCFRAMEWORK_NAME}}.xcframework"
-          ./scripts/validate-xcframework-architectures.sh --xcframework "${{env.XCFRAMEWORK_NAME}}.xcframework"
-          ./scripts/validate-xcframework-symbols.sh --xcframework "${{env.XCFRAMEWORK_NAME}}.xcframework"
+          ./scripts/validate-xcframework.sh --xcframework "${{env.XCFRAMEWORK_NAME}}.xcframework"
         shell: bash
         env:
           XCFRAMEWORK_NAME: ${{ env.XCFRAMEWORK_NAME }}
@@ -165,9 +163,9 @@ jobs:
           XCFRAMEWORK_NAME: ${{ env.XCFRAMEWORK_NAME }}
         run: |
           if [ "$SIGNED" = "true" ]; then
-            ./scripts/compress-xcframework.sh --sign "$XCFRAMEWORK_NAME"
+            ./scripts/compress-xcframework.sh --xcframework "$XCFRAMEWORK_NAME.xcframework" --sign
           else
-            ./scripts/compress-xcframework.sh --not-signed "$XCFRAMEWORK_NAME"
+            ./scripts/compress-xcframework.sh --xcframework "$XCFRAMEWORK_NAME.xcframework"
           fi
         shell: bash
 

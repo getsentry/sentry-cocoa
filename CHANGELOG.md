@@ -7,11 +7,25 @@
 
 ### Fixes
 
+- Don't send logs and metrics when the SDK is disabled (#8173)
 - Fixes crash caused by modifying breadcrumbs from multiple threads (#8114)
 - Prevent feedback form on external displays (#8071)
 - Keep the User Feedback screenshot trigger active after form dismissal. (#8048)
 - Prevent lazy TLS-init in the signal crash monitor for non-managed runtime builds (#8148)
 - Include breadcrumbs in recovered buffer-mode session replays (#8153)
+- Fix missing `Info.plist` entries `MinimumOSVersion` and `CFBundleSupportedPlatforms` in `SentryObjC.xcframework` (#8157)
+- Harden crash-time attachment path creation to avoid secondary crashes while handling crashes (#8170)
+
+### Internal
+
+- Add `SentrySDK.internal` structured API for hybrid SDKs, replacing `PrivateSentrySDKOnly` with namespaced sub-APIs (`replay`, `profiling`, `appStart`, `performance`, `screenshot`, `viewHierarchy`, `screen`, `envelope`, `swizzle`, `sdk`, `debug`, `breadcrumbs`, `user`) (#8097)
+
+### Features
+
+- Renamed extended app start API (#8161):
+  - `extendAppLaunch()` -> `extendAppStart()`
+  - `finishExtendedAppLaunch()` -> `finishExtendedAppStart()`
+  - Added `getExtendedAppStartSpan()` to get the extended app span
 
 ## 9.18.0
 
