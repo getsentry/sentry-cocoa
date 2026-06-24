@@ -28,13 +28,47 @@
 #import "FileBasedTestCase.h"
 #include <fcntl.h>
 #include <stdio.h>
+#include <string.h>
 
 #import "SentryCrashFileUtils.h"
+
+typedef struct {
+    char path[SentryCrashFU_MAX_PATH_LENGTH];
+    unsigned char canary[16];
+} GuardedSentryCrashFUPathBuffer;
+
+static void
+fillFileUtilsCanary(GuardedSentryCrashFUPathBuffer *buffer)
+{
+    memset(buffer, 0, sizeof(*buffer));
+    memset(buffer->canary, 0xa5, sizeof(buffer->canary));
+}
+
+static bool
+isFileUtilsCanaryIntact(const GuardedSentryCrashFUPathBuffer *buffer)
+{
+    for (size_t i = 0; i < sizeof(buffer->canary); i++) {
+        if (buffer->canary[i] != 0xa5) {
+            return false;
+        }
+    }
+    return true;
+}
 
 @interface SentryCrashFileUtils_Tests : FileBasedTestCase
 @end
 
 @implementation SentryCrashFileUtils_Tests
+
+- (NSString *)nestedPathThatFitsInFileUtilsBuffer
+{
+    NSMutableString *path = [NSMutableString stringWithString:self.tempPath];
+    while ([path lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 5
+        < SentryCrashFU_MAX_PATH_LENGTH) {
+        [path appendString:@"/abcd"];
+    }
+    return path;
+}
 
 - (void)testReadBuffered_EmptyFile
 {
@@ -391,6 +425,127 @@
                                                        cStringUsingEncoding:NSUTF8StringEncoding])
                                           encoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(actual, expected, @"");
+}
+
+- (void)testMakePath_whenNestedPath_shouldCreateDirectories
+{
+    // -- Arrange --
+    NSString *path = [self.tempPath stringByAppendingPathComponent:@"nested/path"];
+
+    // -- Act --
+    bool result = sentrycrashfu_makePath(path.UTF8String);
+
+    // -- Assert --
+    BOOL isDirectory = NO;
+    XCTAssertTrue(result);
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory]);
+    XCTAssertTrue(isDirectory);
+}
+
+- (void)testMakePathInPlace_whenNestedPath_shouldCreateDirectoriesAndKeepPath
+{
+    // -- Arrange --
+    NSString *path = [self.tempPath stringByAppendingPathComponent:@"in-place/nested/path"];
+    char pathBuffer[SentryCrashFU_MAX_PATH_LENGTH];
+    strlcpy(pathBuffer, path.UTF8String, sizeof(pathBuffer));
+    char originalPath[SentryCrashFU_MAX_PATH_LENGTH];
+    strlcpy(originalPath, pathBuffer, sizeof(originalPath));
+
+    // -- Act --
+    bool result = sentrycrashfu_makePathInPlace(pathBuffer, sizeof(pathBuffer));
+
+    // -- Assert --
+    BOOL isDirectory = NO;
+    XCTAssertTrue(result);
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory]);
+    XCTAssertTrue(isDirectory);
+    XCTAssertEqual(strcmp(pathBuffer, originalPath), 0);
+}
+
+- (void)testMakePathInPlace_whenPathNearlyFillsBuffer_shouldNotOverwriteCanary
+{
+    // -- Arrange --
+    NSString *path = [self nestedPathThatFitsInFileUtilsBuffer];
+    GuardedSentryCrashFUPathBuffer guardedPath;
+    fillFileUtilsCanary(&guardedPath);
+    strlcpy(guardedPath.path, path.UTF8String, sizeof(guardedPath.path));
+
+    // -- Act --
+    bool result = sentrycrashfu_makePathInPlace(guardedPath.path, sizeof(guardedPath.path));
+
+    // -- Assert --
+    BOOL isDirectory = NO;
+    XCTAssertTrue(result);
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory]);
+    XCTAssertTrue(isDirectory);
+    XCTAssertEqual(guardedPath.path[SentryCrashFU_MAX_PATH_LENGTH - 1], '\0');
+    XCTAssertTrue(isFileUtilsCanaryIntact(&guardedPath));
+}
+
+- (void)testMakePath_whenPathIsNull_shouldReturnFalse
+{
+    // -- Act --
+    bool result = sentrycrashfu_makePath(NULL);
+
+    // -- Assert --
+    XCTAssertFalse(result);
+}
+
+- (void)testMakePath_whenPathIsEmpty_shouldReturnFalse
+{
+    // -- Act --
+    bool result = sentrycrashfu_makePath("");
+
+    // -- Assert --
+    XCTAssertFalse(result);
+}
+
+- (void)testMakePathInPlace_whenPathIsNull_shouldReturnFalse
+{
+    // -- Act --
+    bool result = sentrycrashfu_makePathInPlace(NULL, SentryCrashFU_MAX_PATH_LENGTH);
+
+    // -- Assert --
+    XCTAssertFalse(result);
+}
+
+- (void)testMakePathInPlace_whenPathIsEmpty_shouldReturnFalse
+{
+    // -- Arrange --
+    char path[] = "";
+
+    // -- Act --
+    bool result = sentrycrashfu_makePathInPlace(path, sizeof(path));
+
+    // -- Assert --
+    XCTAssertFalse(result);
+}
+
+- (void)testMakePathInPlace_whenPathBufferLengthIsZero_shouldReturnFalse
+{
+    // -- Arrange --
+    char path[] = "/tmp/path";
+
+    // -- Act --
+    bool result = sentrycrashfu_makePathInPlace(path, 0);
+
+    // -- Assert --
+    XCTAssertFalse(result);
+}
+
+- (void)testMakePathInPlace_whenPathIsNotTerminatedWithinBufferLength_shouldReturnFalse
+{
+    // -- Arrange --
+    GuardedSentryCrashFUPathBuffer guardedPath;
+    fillFileUtilsCanary(&guardedPath);
+    memset(guardedPath.path, 'a', sizeof(guardedPath.path));
+
+    // -- Act --
+    bool result = sentrycrashfu_makePathInPlace(guardedPath.path, sizeof(guardedPath.path));
+
+    // -- Assert --
+    XCTAssertFalse(result);
+    XCTAssertTrue(isFileUtilsCanaryIntact(&guardedPath));
 }
 
 - (void)testWriteBytesToFD

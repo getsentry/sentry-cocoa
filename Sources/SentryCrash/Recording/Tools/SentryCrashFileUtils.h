@@ -37,6 +37,7 @@ extern "C" {
 
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #define SentryCrashFU_MAX_PATH_LENGTH 500
 
@@ -134,11 +135,24 @@ int sentrycrashfu_readLineFromFD(const int fd, char *buffer, int maxLength);
 
 /** Make all directories in a path.
  *
- * @param absolutePath The full, absolute path to create.
+ * @param absolutePath The full, absolute path to create. Must be a valid null-terminated string.
  *
  * @return true if successful.
  */
 bool sentrycrashfu_makePath(const char *absolutePath);
+
+/** Make all directories in a mutable path buffer without allocating memory.
+ *
+ * This temporarily mutates the path buffer while creating parent directories, restoring it before
+ * returning. Intended for crash-handler paths that already have a valid stack/static path buffer.
+ *
+ * @param path The full, absolute path to create. Must point to a writable buffer.
+ * @param pathBufferLength The length of the writable buffer. The path must be null-terminated
+ *                         within this length.
+ *
+ * @return true if successful.
+ */
+bool sentrycrashfu_makePathInPlace(char *path, size_t pathBufferLength);
 
 /** Remove a file or directory.
  *
