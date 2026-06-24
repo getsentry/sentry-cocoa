@@ -307,8 +307,8 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         try createLastSessionReplay(writeSessionInfo: false)
         
+        SentryDependencyContainer.sharedInstance().sessionReplayBreadcrumbConverter = CustomBreadcrumbConverter()
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
-        PrivateSentrySDKOnly.configureSessionReplay(with: CustomBreadcrumbConverter(), screenshotProvider: nil)
         
         let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
         let scope = Scope()

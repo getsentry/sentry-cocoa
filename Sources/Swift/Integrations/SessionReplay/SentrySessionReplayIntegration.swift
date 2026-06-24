@@ -4,7 +4,7 @@
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & CrashWrapperProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider
+typealias SessionReplayIntegrationScope = NotificationCenterProvider & RateLimitsProvider & CurrentDateProvider & RandomProvider & FileManagerProvider & CrashWrapperProvider & ReachabilityProvider & GlobalEventProcessorProvider & DispatchQueueWrapperProvider & ApplicationProvider & DispatchFactoryProvider & SessionReplayBreadcrumbConverterProvider
 
 // This is static because it will be used for swizzling and would cause retain cycles
 private var touchTracker: SentryTouchTracker?
@@ -27,7 +27,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     private let experimentalOptions: SentryExperimentalOptions
     private let notificationCenter: SentryNSNotificationCenterWrapper
     private var currentScreenshotProvider: SentryViewScreenshotProvider?
-    private var currentBreadcrumbConverter: SentryReplayBreadcrumbConverter?
+    private var breadcrumbConverter: SentryReplayBreadcrumbConverter
     private var previewView: SentryMaskingPreviewView?
     private let dateProvider: SentryCurrentDateProvider
     private let crashWrapper: SentryCrashReporter
@@ -85,6 +85,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         self.random = dependencies.random
         self.crashWrapper = dependencies.crashWrapper
         self.getApplication = dependencies.application
+        self.breadcrumbConverter = dependencies.sessionReplayBreadcrumbConverter
 
         self.replayFileManager = SessionReplayFileManager(
             fileManager: dependencies.fileManager,
@@ -103,8 +104,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             random: random,
             replayProcessingQueue: replayProcessingQueue,
             replayAssetWorkerQueue: replayAssetWorkerQueue,
-            replayFileManager: replayFileManager,
-            breadcrumbConverter: currentBreadcrumbConverter ?? SentrySRDefaultBreadcrumbConverter()
+            replayFileManager: replayFileManager
         )
         
         setupTouchTrackerIfNeeded(options: options)
@@ -174,7 +174,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
         dependencies.globalEventProcessor.add { [weak self] event in
             guard let self = self else { return event }
             if event.isFatalEvent {
-                self.replayRecovery?.resumePreviousSessionReplay(event)
+                self.replayRecovery?.resumePreviousSessionReplay(event, breadcrumbConverter: self.breadcrumbConverter)
             } else {
                 self.sessionReplay?.captureReplayFor(event: event)
             }
@@ -246,7 +246,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             replayOptions: replayOptions,
             experimentalOptions: experimentalOptions,
             screenshotProvider: currentScreenshotProvider ?? viewPhotographer,
-            breadcrumbConverter: currentBreadcrumbConverter ?? SentrySRDefaultBreadcrumbConverter(),
+            breadcrumbConverter: breadcrumbConverter,
             fullSession: startedAsFullSession,
             rootView: window
         )
@@ -273,7 +273,7 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
             replayOptions: replayOptions,
             experimentalOptions: experimentalOptions,
             screenshotProvider: currentScreenshotProvider ?? viewPhotographer,
-            breadcrumbConverter: currentBreadcrumbConverter ?? SentrySRDefaultBreadcrumbConverter(),
+            breadcrumbConverter: breadcrumbConverter,
             fullSession: fullSession,
             rootView: rootView
         )
@@ -400,9 +400,8 @@ public class SentrySessionReplayIntegration: NSObject, SwiftIntegration, SentryS
     @objc public func configureReplayWith(_ breadcrumbConverter: SentryReplayBreadcrumbConverter?, screenshotProvider: SentryViewScreenshotProvider?) {
         SentrySDKLog.debug("[Session Replay] Configuring replay")
         if let bc = breadcrumbConverter {
-            currentBreadcrumbConverter = bc
+            self.breadcrumbConverter = bc
             sessionReplay?.breadcrumbConverter = bc
-            replayRecovery?.breadcrumbConverter = bc
         }
         if let sp = screenshotProvider {
             currentScreenshotProvider = sp

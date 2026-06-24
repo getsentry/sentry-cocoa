@@ -79,6 +79,12 @@ final class Buffer<Storage: StorageProtocol, Item: ItemProtocol> {
 - Always use explicit capture lists when capturing `self` to prevent retain cycles
 - Prefer `[weak self]` with `guard let self` for closures stored by the SDK
 
+### Dependency Injection
+
+- Prefer `SentryDependencyContainer` providers for SDK-owned dependencies
+- Tests should override dependencies through `SentryDependencyContainer.sharedInstance()` when possible
+- Do not use `PrivateSentrySDKOnly` as a test injection path when a dependency-container provider fits
+
 ## Public API Surface
 
 - **Backward compatibility** — do not remove or rename public symbols; deprecate first
