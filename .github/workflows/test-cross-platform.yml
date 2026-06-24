@@ -44,7 +44,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        runner_provider: ["cirrus", "bitrise"]
+        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
