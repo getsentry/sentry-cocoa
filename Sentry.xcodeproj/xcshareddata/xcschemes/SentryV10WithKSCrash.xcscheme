@@ -8,9 +8,9 @@
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
@@ -20,10 +20,24 @@
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D61074A12EE358E90332638B"
+               BuildableName = "SentryWithKSCrash.framework"
+               BlueprintName = "Sentry+KSCrash"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
-      buildConfiguration = "TestV10WithKSCrash"
+      buildConfiguration = "TestV10"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "NO"
@@ -147,7 +161,7 @@
       </Testables>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "DebugV10WithKSCrash"
+      buildConfiguration = "DebugV10"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -174,7 +188,7 @@
       </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
-      buildConfiguration = "ReleaseV10WithKSCrash"
+      buildConfiguration = "ReleaseV10"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
@@ -190,10 +204,10 @@
       </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
-      buildConfiguration = "DebugV10WithKSCrash">
+      buildConfiguration = "DebugV10">
    </AnalyzeAction>
    <ArchiveAction
-      buildConfiguration = "ReleaseV10WithKSCrash"
+      buildConfiguration = "ReleaseV10"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>
