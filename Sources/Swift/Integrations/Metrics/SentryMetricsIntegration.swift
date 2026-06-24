@@ -73,8 +73,11 @@ extension SentryClientInternal {
 
     /// Captures a metric by forwarding it to the telemetry processor's metrics buffer.
     /// This method stays entirely in Swift, avoiding the ObjC boundary since SentryMetric is a Swift struct.
-    /// Callers must check `isDisabled` before invoking; `SentryMetricsIntegration.addMetric` does this.
+    /// `SentryMetricsIntegration.addMetric` already drops metrics (and logs) when the SDK is disabled;
+    /// this guard is a defensive safety net so a future caller can't bypass that gate.
     func captureMetric(_ metric: SentryMetric) {
+        guard !self.isDisabled else { return }
+
         guard let processor = self.getTelemetryProcessor() as? SentryTelemetryProcessor else {
             SentrySDKLog.error("Cannot capture metric because the telemetry processor is not available. Discarding metric. This is unexpected and indicates a configuration issue.")
             return
