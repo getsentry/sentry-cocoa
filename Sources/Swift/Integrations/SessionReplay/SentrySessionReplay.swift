@@ -774,29 +774,6 @@ private struct SessionSegmentState {
         }
     }
 
-    private func convertBreadcrumbs(breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [any SentryRRWebEventProtocol] {
-        SentrySDKLog.debug("[Session Replay] Converting breadcrumbs from: \(from) until: \(until)")
-        var filteredResult: [Breadcrumb] = []
-        var lastNavigationTime: Date = from.addingTimeInterval(-1)
-
-        for breadcrumb in breadcrumbs {
-            guard let time = breadcrumb.timestamp, time >= from && time < until else {
-                continue
-            }
-
-            // If it's a "navigation" breadcrumb, check the timestamp difference from the previous breadcrumb.
-            // Skip any breadcrumbs that have occurred within 50ms of the last one,
-            // as these represent child view controllers that don't need their own navigation breadcrumb.
-            if breadcrumb.type == "navigation" {
-                if time.timeIntervalSince(lastNavigationTime) < 0.05 { continue }
-                lastNavigationTime = time
-            }
-            filteredResult.append(breadcrumb)
-        }
-
-        return filteredResult.compactMap(breadcrumbConverter.convert(from:))
-    }
-
     private func takeScreenshot(timestamp: Date, completion: @escaping (TimeInterval) -> Void) -> Bool {
         guard let rootView = rootView else {
             SentrySDKLog.debug("[Session Replay] Not taking screenshot, reason: root view is nil")
