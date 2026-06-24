@@ -343,7 +343,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         return SentryScreenshotSource(photographer: photographer)
     }
 
-    var sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter = SentrySRDefaultBreadcrumbConverter()
+    private var _sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter?
+    var sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter {
+        get { getLazyVar(\._sessionReplayBreadcrumbConverter) { SentrySRDefaultBreadcrumbConverter() } }
+        set { _sessionReplayBreadcrumbConverter = newValue }
+    }
 #endif
 
     private var _fileManager: SentryFileManager?
