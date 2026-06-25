@@ -32,20 +32,22 @@ public final class SentryShakeDetector: NSObject {
     // and the SDK calls enable/disable from main-thread integration lifecycle.
     private static var enabled = false
 
-    private static var swizzled = false
-    private static var originalIMP: IMP?
-    private static var lastShakeTimestamp: CFTimeInterval = 0
+    private struct State {
+        var swizzled = false
+        var originalIMP: IMP?
+        var lastShakeTimestamp: CFTimeInterval = 0
+    }
     private static let cooldownSeconds: CFTimeInterval = 1.0
-    private static let lock = NSLock()
+    private static let swizzleState = SentryMutex(State())
 
     /// Enables shake gesture detection. On iOS/iPadOS, swizzles `UIWindow.motionEnded(_:with:)`
     /// the first time it is called, and from then on posts `.SentryShakeDetected`
     /// whenever a shake is detected. No-op on non-iOS platforms.
     public static func enable() {
-        lock.lock()
-        defer { lock.unlock() }
-
-        if !swizzled {
+        swizzleState.withLock { state in
+            if state.swizzled {
+                return
+            }
             let windowClass: AnyClass = UIWindow.self
             let selector = #selector(UIResponder.motionEnded(_:with:))
 
@@ -66,21 +68,28 @@ public final class SentryShakeDetector: NSObject {
             let replacementIMP = imp_implementationWithBlock({ (self: UIWindow, motion: UIEvent.EventSubtype, event: UIEvent?) in
                 if SentryShakeDetector.enabled && motion == .motionShake {
                     let now = CACurrentMediaTime()
-                    if now - SentryShakeDetector.lastShakeTimestamp > SentryShakeDetector.cooldownSeconds {
-                        SentryShakeDetector.lastShakeTimestamp = now
+                    let shouldPost = SentryShakeDetector.swizzleState.withLock { state in
+                        if now - state.lastShakeTimestamp > SentryShakeDetector.cooldownSeconds {
+                            state.lastShakeTimestamp = now
+                            return true
+                        }
+                        return false
+                    }
+                    if shouldPost {
                         NotificationCenter.default.post(name: .SentryShakeDetected, object: nil)
                     }
                 }
 
-                if let original = SentryShakeDetector.originalIMP {
+                let original = SentryShakeDetector.swizzleState.withLock { $0.originalIMP }
+                if let original {
                     typealias MotionEndedFunc = @convention(c) (Any, Selector, UIEvent.EventSubtype, UIEvent?) -> Void
                     let originalFunc = unsafeBitCast(original, to: MotionEndedFunc.self)
                     originalFunc(self, selector, motion, event)
                 }
             } as @convention(block) (UIWindow, UIEvent.EventSubtype, UIEvent?) -> Void)
 
-            originalIMP = method_setImplementation(ownMethod, replacementIMP)
-            swizzled = true
+            state.originalIMP = method_setImplementation(ownMethod, replacementIMP)
+            state.swizzled = true
             SentrySDKLog.debug("Shake detector: swizzled UIWindow.motionEnded(_:with:)")
         }
 

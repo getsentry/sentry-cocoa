@@ -931,6 +931,13 @@
         "printedName": "_SwiftConcurrencyShims"
       },
       {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "os",
+        "printedName": "os"
+      },
+      {
         "children": [
           {
             "children": [

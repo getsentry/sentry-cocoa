@@ -11,10 +11,10 @@ import UIKit
         // so it kept a default value of 0 which happens to be defined to be `active`.
         // Acquiring the lock is not necessary here since the instance has not been initialized yet.
         if let application = applicationProvider() {
-            _internalState = application.unsafeApplicationState
+            self.state = SentryMutex(application.unsafeApplicationState)
         } else {
             SentrySDKLog.warning("Application is null in SentryThreadsafeApplication")
-            _internalState = .active
+            self.state = SentryMutex(.active)
         }
         super.init()
 
@@ -26,14 +26,9 @@ import UIKit
         notificationCenter.removeObserver(self, name: nil, object: nil)
     }
     
-    private let lock = NSRecursiveLock()
-    private var _internalState: UIApplication.State
+    private let state: SentryMutex<UIApplication.State>
     @objc public var applicationState: UIApplication.State {
-        var state: UIApplication.State
-        lock.lock()
-        state = _internalState
-        lock.unlock()
-        return state
+        state.withLock { $0 }
     }
 
     @objc
@@ -43,16 +38,12 @@ import UIKit
 
     @objc
     private func didEnterBackground() {
-        lock.lock()
-        _internalState = .background
-        lock.unlock()
+        state.withLock { $0 = .background }
     }
-    
+
     @objc
     private func didBecomeActive() {
-        lock.lock()
-        _internalState = .active
-        lock.unlock()
+        state.withLock { $0 = .active }
     }
 }
 #endif
