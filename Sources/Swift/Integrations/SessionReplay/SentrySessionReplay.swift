@@ -92,8 +92,8 @@ private struct SessionSegmentState {
 @objcMembers
 @_spi(Private) public class SentrySessionReplay: NSObject {
     public private(set) var isFullSession: Bool {
-        get { lock.synchronized { _isFullSession } }
-        set { lock.synchronized { _isFullSession = newValue } }
+        get { state.withLock { $0.isFullSession } }
+        set { state.withLock { $0.isFullSession = newValue } }
     }
     public private(set) var sessionReplayId: SentryId?
 
@@ -103,47 +103,52 @@ private struct SessionSegmentState {
     private var lastScreenshotAt: Date?
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var nextScreenshotAt: Date?
-    private var segmentState = SessionSegmentState()
     private var imageCollection: [UIImage] = []
     private weak var delegate: SentrySessionReplayDelegate?
-    private var currentSegmentId = 0
-    private var processingScreenshot = false
-    private var reachedMaximumDuration = false
     private var replayType = SentryReplayType.buffer
-    private(set) var isSessionPaused = false
-    private var _isFullSession = false
 
-    private let replayOptions: SentryReplayOptions
-    private let replayMaker: SentryReplayVideoMaker
-    private let dateProvider: SentryCurrentDateProvider
-    private let touchTracker: SentryTouchTracker?
-    /// Guards the state shared between the main thread and background queues: segment
-    /// bookkeeping (`segmentState`, `currentSegmentId`), capture scheduler state (`captureSchedulerToken`,
-    /// `captureSchedulerGeneration`, `nextCaptureActivityCheckAt`) and the `_isFullSession`,
-    /// `processingScreenshot`, `isSessionPaused` and `reachedMaximumDuration` flags.
+    /// State shared between the main thread and background queues, guarded by `lock`.
+    ///
+    /// Contains segment bookkeeping (`segmentState`, `currentSegmentId`), capture scheduler state
+    /// (`captureSchedulerToken`, `captureSchedulerGeneration`, `nextCaptureActivityCheckAt`) and the
+    /// `isFullSession`, `processingScreenshot`, `isSessionPaused` and `reachedMaximumDuration` flags.
     ///
     /// Capture pacing state (`lastScreenshotAt`, `nextScreenshotAt`, `adaptiveScreenshotInterval`,
     /// `deferredScreenshotStart`) is not guarded by this lock; it is main-thread confined and only
     /// mutated from the run-loop capture scheduler callbacks, blocks dispatched to the main
     /// thread, and `start`.
-    private let lock = NSLock()
+    private struct State {
+        var isFullSession = false
+        var processingScreenshot = false
+        var isSessionPaused = false
+        var reachedMaximumDuration = false
+        var segmentState = SessionSegmentState()
+        var currentSegmentId = 0
+        var captureSchedulerToken: NSObject?
+        /// Invalidates resume starts queued before a later pause.
+        /// Example: reachability resumes off-main, then the app backgrounds before the main-queue
+        /// start runs. Without this, the stale start can mark capture as running after pause, so the
+        /// next foreground resume may skip restarting the scheduler.
+        var captureSchedulerGeneration = 0
+        var nextCaptureActivityCheckAt: Date?
+    }
+
+    private let state = SentryMutex(State())
+
+    private let replayOptions: SentryReplayOptions
+    private let replayMaker: SentryReplayVideoMaker
+    private let dateProvider: SentryCurrentDateProvider
+    private let touchTracker: SentryTouchTracker?
     private let captureScheduler: SentrySessionReplayRunLoopCaptureScheduler
-    private var captureSchedulerToken: NSObject?
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var adaptiveScreenshotInterval: TimeInterval = 0
     /// Capture pacing state; main-thread confined and deliberately not guarded by `lock` (see its docs).
     private var deferredScreenshotStart: Date?
-    /// Invalidates resume starts queued before a later pause.
-    /// Example: reachability resumes off-main, then the app backgrounds before the main-queue
-    /// start runs. Without this, the stale start can mark capture as running after pause, so the
-    /// next foreground resume may skip restarting the scheduler.
-    private var captureSchedulerGeneration = 0
-    private var nextCaptureActivityCheckAt: Date?
     public var replayTags: [String: Any]?
 
     var isRunning: Bool {
-        lock.synchronized {
-            captureSchedulerToken != nil
+        state.withLock {
+            $0.captureSchedulerToken != nil
         }
     }
 
@@ -187,9 +192,9 @@ private struct SessionSegmentState {
         let now = dateProvider.date()
         resetCapturePacing(at: now)
         startCaptureScheduler()
-        lock.synchronized {
-            segmentState.reset()
-            currentSegmentId = 0
+        state.withLock {
+            $0.segmentState.reset()
+            $0.currentSegmentId = 0
         }
         sessionReplayId = SentryId()
         imageCollection = []
@@ -202,9 +207,9 @@ private struct SessionSegmentState {
 
     private func startFullReplay(startedAt: Date?) {
         SentrySDKLog.debug("[Session Replay] Starting full session replay")
-        lock.synchronized {
-            segmentState.start(at: startedAt)
-            _isFullSession = true
+        state.withLock {
+            $0.segmentState.start(at: startedAt)
+            $0.isFullSession = true
         }
         guard let sessionReplayId = sessionReplayId else { return }
         delegate?.sessionReplayStarted(replayId: sessionReplayId)
@@ -213,11 +218,11 @@ private struct SessionSegmentState {
     public func pauseSessionMode() {
         SentrySDKLog.debug("[Session Replay] Pausing session mode")
         let pauseDate = dateProvider.date()
-        lock.synchronized {
-            isSessionPaused = true
+        state.withLock {
+            $0.isSessionPaused = true
 
-            if !queuePendingPauseSegmentIfNeeded(at: pauseDate) {
-                segmentState.setSegmentStart(nil)
+            if !queuePendingPauseSegmentIfNeeded(state: &$0, at: pauseDate) {
+                $0.segmentState.setSegmentStart(nil)
             }
         }
     }
@@ -227,9 +232,9 @@ private struct SessionSegmentState {
         stopCaptureScheduler()
 
         let pauseDate = dateProvider.date()
-        let shouldPreparePauseSegment = lock.synchronized { () -> Bool in
-            guard _isFullSession else { return false }
-            guard !queuePendingPauseSegmentIfNeeded(at: pauseDate) else { return false }
+        let shouldPreparePauseSegment = state.withLock { (state: inout State) -> Bool in
+            guard state.isFullSession else { return false }
+            guard !queuePendingPauseSegmentIfNeeded(state: &state, at: pauseDate) else { return false }
             return true
         }
 
@@ -238,35 +243,35 @@ private struct SessionSegmentState {
         }
     }
 
-    private func queuePendingPauseSegmentIfNeeded(at pauseDate: Date) -> Bool {
-        guard _isFullSession else { return false }
-        return segmentState.queuePendingPauseIfNeeded(at: pauseDate)
+    private func queuePendingPauseSegmentIfNeeded(state: inout State, at pauseDate: Date) -> Bool {
+        guard state.isFullSession else { return false }
+        return state.segmentState.queuePendingPauseIfNeeded(at: pauseDate)
     }
 
     public func resume() {
         SentrySDKLog.debug("[Session Replay] Resuming session")
         let resumeDate = dateProvider.date()
-        let schedulerGeneration = lock.synchronized { () -> Int? in
-            if _isFullSession && isSessionPaused {
+        let schedulerGeneration = state.withLock { (state: inout State) -> Int? in
+            if state.isFullSession && state.isSessionPaused {
                 return nil
             }
 
-            guard !reachedMaximumDuration else {
+            guard !state.reachedMaximumDuration else {
                 SentrySDKLog.warning("[Session Replay] Reached maximum duration, not resuming")
                 return nil
             }
-            guard captureSchedulerToken == nil else {
+            guard state.captureSchedulerToken == nil else {
                 SentrySDKLog.debug("[Session Replay] Session is already running, not resuming")
                 return nil
             }
 
-            captureSchedulerGeneration += 1
-            if _isFullSession {
-                segmentState.resumeSession(at: resumeDate)
+            state.captureSchedulerGeneration += 1
+            if state.isFullSession {
+                state.segmentState.resumeSession(at: resumeDate)
             } else {
-                segmentState.setSegmentStart(nil)
+                state.segmentState.setSegmentStart(nil)
             }
-            return captureSchedulerGeneration
+            return state.captureSchedulerGeneration
         }
         guard let schedulerGeneration = schedulerGeneration else { return }
 
@@ -282,10 +287,10 @@ private struct SessionSegmentState {
     func resumeSessionMode(restartCaptureScheduler: Bool = true) {
         SentrySDKLog.debug("[Session Replay] Resuming session mode")
         let resumeDate = dateProvider.date()
-        lock.synchronized {
-            isSessionPaused = false
-            if _isFullSession {
-                segmentState.resumeSession(at: resumeDate)
+        state.withLock {
+            $0.isSessionPaused = false
+            if $0.isFullSession {
+                $0.segmentState.resumeSession(at: resumeDate)
             }
         }
         guard restartCaptureScheduler else { return }
@@ -377,9 +382,9 @@ private struct SessionSegmentState {
         guard isRunning else { return }
 
         let now = dateProvider.date()
-        let fullSessionState = lock.synchronized { (isFullSession: _isFullSession, sessionStart: segmentState.sessionStart) }
+        let fullSessionState = state.withLock { (isFullSession: $0.isFullSession, sessionStart: $0.segmentState.sessionStart) }
 
-        if fullSessionState.isFullSession && lock.synchronized({ isSessionPaused }) {
+        if fullSessionState.isFullSession && state.withLock({ $0.isSessionPaused }) {
             return
         }
 
@@ -387,13 +392,13 @@ private struct SessionSegmentState {
             fullSessionState.isFullSession,
             now.timeIntervalSince(sessionStart) > replayOptions.maximumDuration {
             SentrySDKLog.debug("[Session Replay] Reached maximum duration, pausing session")
-            lock.synchronized { reachedMaximumDuration = true }
+            state.withLock { $0.reachedMaximumDuration = true }
             pause()
             delegate?.sessionReplayEnded()
             return
         }
 
-        guard !lock.synchronized({ processingScreenshot }) else {
+        guard !state.withLock({ $0.processingScreenshot }) else {
             prepareFullSessionSegmentsIfNeeded(until: now)
             return
         }
@@ -415,7 +420,7 @@ private struct SessionSegmentState {
             } else {
                 activityCheckInterval = baseScreenshotInterval
             }
-            lock.synchronized { nextCaptureActivityCheckAt = now.addingTimeInterval(activityCheckInterval) }
+            state.withLock { $0.nextCaptureActivityCheckAt = now.addingTimeInterval(activityCheckInterval) }
             prepareFullSessionSegmentsIfNeeded(until: now)
             return
         }
@@ -434,7 +439,7 @@ private struct SessionSegmentState {
             guard let self = self else { return }
             self.runOnMainThread { [weak self] in
                 guard let self = self else { return }
-                defer { self.lock.synchronized { self.processingScreenshot = false } }
+                defer { self.state.withLock { $0.processingScreenshot = false } }
 
                 if deferralDecision == .captureAfterDeferral {
                     self.adaptiveScreenshotInterval = 0
@@ -446,8 +451,8 @@ private struct SessionSegmentState {
                 self.lastScreenshotAt = finishedAt
                 self.scheduleNextScreenshot(after: self.screenshotInterval(usesAdaptiveBackoff: !isInteractionCapture), from: finishedAt)
 
-                let shouldPrepareSegment = self.lock.synchronized {
-                    self.captureSchedulerToken != nil && !self.isSessionPaused && !self.reachedMaximumDuration
+                let shouldPrepareSegment = self.state.withLock { state in
+                    state.captureSchedulerToken != nil && !state.isSessionPaused && !state.reachedMaximumDuration
                 }
                 if shouldPrepareSegment {
                     self.prepareFullSessionSegmentsIfNeeded(until: finishedAt)
@@ -495,8 +500,8 @@ private struct SessionSegmentState {
 
     private func scheduleNextScreenshot(after interval: TimeInterval, from date: Date) {
         nextScreenshotAt = date.addingTimeInterval(interval)
-        lock.synchronized {
-            nextCaptureActivityCheckAt = date.addingTimeInterval(min(interval, baseScreenshotInterval))
+        state.withLock { state in
+            state.nextCaptureActivityCheckAt = date.addingTimeInterval(min(interval, baseScreenshotInterval))
         }
     }
 
@@ -509,8 +514,8 @@ private struct SessionSegmentState {
             return true
         }
 
-        let nextCaptureActivityCheckAt: Date? = lock.synchronized {
-            self.nextCaptureActivityCheckAt
+        let nextCaptureActivityCheckAt: Date? = state.withLock { state in
+            state.nextCaptureActivityCheckAt
         }
         guard let nextCaptureActivityCheckAt = nextCaptureActivityCheckAt else { return true }
         return isDeadlineReached(nextCaptureActivityCheckAt, at: date)
@@ -519,16 +524,16 @@ private struct SessionSegmentState {
     @discardableResult
     private func startCaptureScheduler(expectedGeneration: Int? = nil) -> Bool {
         let token = NSObject()
-        let shouldInstallObserver = lock.synchronized {
-            if let expectedGeneration, captureSchedulerGeneration != expectedGeneration {
+        let shouldInstallObserver = state.withLock { state in
+            if let expectedGeneration, state.captureSchedulerGeneration != expectedGeneration {
                 return false
             }
-            guard captureSchedulerToken == nil else { return false }
+            guard state.captureSchedulerToken == nil else { return false }
 
             if expectedGeneration == nil {
-                captureSchedulerGeneration += 1
+                state.captureSchedulerGeneration += 1
             }
-            captureSchedulerToken = token
+            state.captureSchedulerToken = token
             return true
         }
         guard shouldInstallObserver else { return false }
@@ -540,11 +545,11 @@ private struct SessionSegmentState {
     }
 
     private func stopCaptureScheduler() {
-        let token = lock.synchronized { () -> NSObject? in
-            captureSchedulerGeneration += 1
-            let token = captureSchedulerToken
-            captureSchedulerToken = nil
-            nextCaptureActivityCheckAt = nil
+        let token = state.withLock { (state: inout State) -> NSObject? in
+            state.captureSchedulerGeneration += 1
+            let token = state.captureSchedulerToken
+            state.captureSchedulerToken = nil
+            state.nextCaptureActivityCheckAt = nil
             return token
         }
 
@@ -622,9 +627,9 @@ private struct SessionSegmentState {
             return
         }
 
-        let segmentBounds: DateInterval? = lock.synchronized {
-            guard _isFullSession else { return nil }
-            return segmentState.nextSegmentIfDue(at: date, duration: sessionSegmentDuration)
+        let segmentBounds: DateInterval? = state.withLock { state in
+            guard state.isFullSession else { return nil }
+            return state.segmentState.nextSegmentIfDue(at: date, duration: sessionSegmentDuration)
         }
         guard let segmentBounds = segmentBounds else { return }
         let segmentEnd = segmentBounds.end
@@ -637,8 +642,8 @@ private struct SessionSegmentState {
     }
 
     private func finishPendingSegment(_ segmentEnd: Date) {
-        let pending = lock.synchronized {
-            segmentState.finishPendingSegment(segmentEnd)
+        let pending = state.withLock { state in
+            state.segmentState.finishPendingSegment(segmentEnd)
         }
 
         if let pauseSegmentEnd = pending.pauseSegmentEnd {
@@ -646,15 +651,15 @@ private struct SessionSegmentState {
         }
 
         if let resumeSegmentStart = pending.resumeSegmentStart {
-            lock.synchronized {
-                segmentState.setSegmentStart(resumeSegmentStart)
+            state.withLock { state in
+                state.segmentState.setSegmentStart(resumeSegmentStart)
             }
         }
     }
 
     private func prepareSegmentUntil(date: Date) {
-        let segmentStart = lock.synchronized {
-            segmentState.segmentStartForPauseSegment(endingAt: date, duration: replayOptions.sessionSegmentDuration)
+        let segmentStart = state.withLock { state in
+            state.segmentState.segmentStartForPauseSegment(endingAt: date, duration: replayOptions.sessionSegmentDuration)
         }
         prepareSegment(from: segmentStart, until: date)
     }
@@ -721,17 +726,17 @@ private struct SessionSegmentState {
             SentrySDKLog.warning("[Session Replay] No session replay ID available, ignoring segment.")
             return
         }
-        let segmentId = lock.synchronized { () -> Int in
-            let segmentId = currentSegmentId
-            currentSegmentId++
+        let segmentId = state.withLock { (state: inout State) -> Int in
+            let segmentId = state.currentSegmentId
+            state.currentSegmentId += 1
             return segmentId
         }
 
         captureSegment(segment: segmentId, video: videoInfo, replayId: sessionReplayId, replayType: replayType)
         replayMaker.releaseFramesUntil(videoInfo.end)
-        lock.synchronized {
+        state.withLock { state in
             // Advance the segment start monotonically; never move it backwards.
-            segmentState.advanceSegmentStart(to: videoInfo.end)
+            state.segmentState.advanceSegmentStart(to: videoInfo.end)
         }
         SentrySDKLog.debug("[Session Replay] Processed segment, incrementing currentSegmentId to: \(segmentId + 1)")
     }
@@ -781,14 +786,15 @@ private struct SessionSegmentState {
         }
         SentrySDKLog.debug("[Session Replay] Taking screenshot of root view: \(rootView)")
 
-        lock.lock()
-        guard !processingScreenshot else {
-            SentrySDKLog.debug("[Session Replay] Not taking screenshot, reason: processing screenshot")
-            lock.unlock()
-            return false
+        let canProceed = state.withLock { (state: inout State) -> Bool in
+            guard !state.processingScreenshot else {
+                SentrySDKLog.debug("[Session Replay] Not taking screenshot, reason: processing screenshot")
+                return false
+            }
+            state.processingScreenshot = true
+            return true
         }
-        processingScreenshot = true
-        lock.unlock()
+        guard canProceed else { return false }
 
         SentrySDKLog.debug("[Session Replay] Getting screenshot from screenshot provider")
         let screenName = delegate?.currentScreenNameForSessionReplay()
@@ -801,7 +807,7 @@ private struct SessionSegmentState {
                 ? TimeInterval(captureEnd - captureStart) / TimeInterval(NSEC_PER_SEC)
                 : 0
             SentrySDKLog.debug("[Session Replay] New frame available, for screen: \(screenName ?? "nil")")
-            self.lock.synchronized {
+            self.state.withLock { _ in
                 self.replayMaker.addFrameAsync(timestamp: timestamp, maskedViewImage: screenshot, forScreen: screenName)
             }
             completion(captureDuration)
