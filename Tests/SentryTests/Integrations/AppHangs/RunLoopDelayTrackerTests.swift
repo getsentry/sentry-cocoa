@@ -358,6 +358,150 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         XCTAssertTrue(calledRemoveObserver)
     }
 
+    func testRemoveOneOfMultipleObservers_remainingStillReceiveCallbacks() {
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setSystemUptime(0)
+        let sut = SentryDefaultSentryRunLoopDelayTracker(
+            dateProvider: dateProvider,
+            createObserver: createObserver,
+            addObserver: addObserver,
+            removeObserver: removeObserver,
+            queue: queue)
+
+        var removedObserverCalled = false
+        let token1 = sut.addObserver { _ in
+            removedObserverCalled = true
+        }
+
+        var remainingInterval: TimeInterval = 0
+        var remainingOngoing = false
+        let remainingExpectation = XCTestExpectation(description: "Remaining observer called")
+        let token2 = sut.addObserver { delay in
+            if remainingInterval == 0 {
+                remainingExpectation.fulfill()
+            }
+            remainingInterval = delay.duration
+            remainingOngoing = delay.isOngoing
+        }
+
+        sut.removeObserver(token: token1)
+        XCTAssertFalse(calledRemoveObserver, "Runloop observer should NOT be removed when other observers remain")
+
+        observationBlock?(testObserver, .afterWaiting)
+        dateProvider.setSystemUptime(10)
+
+        wait(for: [remainingExpectation])
+
+        XCTAssertFalse(removedObserverCalled, "Removed observer should not receive callbacks")
+        XCTAssertEqual(remainingInterval, 10)
+        XCTAssertTrue(remainingOngoing)
+
+        observationBlock?(testObserver, .beforeWaiting)
+
+        let endExpectation = XCTestExpectation(description: "Hang ended")
+        queue.async { endExpectation.fulfill() }
+        wait(for: [endExpectation])
+
+        XCTAssertFalse(remainingOngoing)
+
+        sut.removeObserver(token: token2)
+        XCTAssertTrue(calledRemoveObserver, "Runloop observer should be removed after last observer is removed")
+    }
+
+    func testAddObserverDuringActiveHang_newObserverReceivesCallback() {
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setSystemUptime(0)
+        let sut = SentryDefaultSentryRunLoopDelayTracker(
+            dateProvider: dateProvider,
+            createObserver: createObserver,
+            addObserver: addObserver,
+            removeObserver: removeObserver,
+            queue: queue)
+
+        var existingInterval: TimeInterval = 0
+        let existingExpectation = XCTestExpectation(description: "Existing observer called")
+        let token1 = sut.addObserver { delay in
+            if existingInterval == 0 {
+                existingExpectation.fulfill()
+            }
+            existingInterval = delay.duration
+        }
+
+        observationBlock?(testObserver, .afterWaiting)
+        dateProvider.setSystemUptime(10)
+
+        wait(for: [existingExpectation])
+
+        var lateInterval: TimeInterval = 0
+        var lateOngoing = false
+        let lateExpectation = XCTestExpectation(description: "Late observer called")
+        let token2 = sut.addObserver { delay in
+            if lateInterval == 0 {
+                lateExpectation.fulfill()
+            }
+            lateInterval = delay.duration
+            lateOngoing = delay.isOngoing
+        }
+
+        wait(for: [lateExpectation])
+
+        XCTAssertTrue(lateOngoing)
+        XCTAssertGreaterThan(lateInterval, 0)
+
+        observationBlock?(testObserver, .beforeWaiting)
+
+        let endExpectation = XCTestExpectation(description: "Hang ended")
+        queue.async { endExpectation.fulfill() }
+        wait(for: [endExpectation])
+
+        XCTAssertFalse(lateOngoing)
+
+        sut.removeObserver(token: token1)
+        sut.removeObserver(token: token2)
+    }
+
+    func testDoubleRemoveSameToken_shouldNotStopTracking() {
+        let dateProvider = TestCurrentDateProvider()
+        dateProvider.setSystemUptime(0)
+        let sut = SentryDefaultSentryRunLoopDelayTracker(
+            dateProvider: dateProvider,
+            createObserver: createObserver,
+            addObserver: addObserver,
+            removeObserver: removeObserver,
+            queue: queue)
+
+        var remainingInterval: TimeInterval = 0
+        let remainingExpectation = XCTestExpectation(description: "Remaining observer called")
+        let token1 = sut.addObserver { _ in }
+        let token2 = sut.addObserver { delay in
+            if remainingInterval == 0 {
+                remainingExpectation.fulfill()
+            }
+            remainingInterval = delay.duration
+        }
+
+        sut.removeObserver(token: token1)
+        XCTAssertFalse(calledRemoveObserver)
+
+        sut.removeObserver(token: token1)
+        XCTAssertFalse(calledRemoveObserver, "Double-removing should not trigger runloop observer removal")
+
+        observationBlock?(testObserver, .afterWaiting)
+        dateProvider.setSystemUptime(10)
+
+        wait(for: [remainingExpectation])
+        XCTAssertEqual(remainingInterval, 10)
+
+        observationBlock?(testObserver, .beforeWaiting)
+
+        let endExpectation = XCTestExpectation(description: "Hang ended")
+        queue.async { endExpectation.fulfill() }
+        wait(for: [endExpectation])
+
+        sut.removeObserver(token: token2)
+        XCTAssertTrue(calledRemoveObserver)
+    }
+
     func testMultipleObserversAllReceiveHangCallback() {
         let dateProvider = TestCurrentDateProvider()
         dateProvider.setSystemUptime(0)
