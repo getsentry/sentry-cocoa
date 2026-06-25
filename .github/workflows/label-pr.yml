@@ -40,8 +40,11 @@ jobs:
             const repo = context.repo.repo;
             const prNumber = pr.number;
 
-            // Helper: add label if missing, remove label if present.
-            const currentLabels = new Set(pr.labels.map(l => l.name));
+            // Fetch current labels from API — webhook payload labels can be stale.
+            const { data: issueLabels } = await github.rest.issues.listLabelsOnIssue({
+              owner, repo, issue_number: prNumber,
+            });
+            const currentLabels = new Set(issueLabels.map(l => l.name));
 
             async function ensureLabel(name, shouldExist) {
               const has = currentLabels.has(name);
@@ -69,8 +72,8 @@ jobs:
             const hasSkipChangelog = (pr.body ?? '').includes('#skip-changelog');
             await ensureLabel('skip-changelog', hasSkipChangelog);
 
-            // 2. Fetch reviews to determine approval / changes-requested state
-            const { data: reviews } = await github.rest.pulls.listReviews({
+            // 2. Fetch all reviews (paginated) to determine approval / changes-requested state
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
               owner,
               repo,
               pull_number: prNumber,
