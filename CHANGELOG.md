@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix C++ exception capture on newer OS versions by page-aligning `mprotect` calls in the `__cxa_throw` swapper (#8218)
+
 ## 9.19.0
 
 > [!WARNING]

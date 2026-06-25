@@ -57,11 +57,13 @@
 #include <mach-o/dyld.h>
 #include <mach-o/nlist.h>
 #include <mach/mach.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "SentryAsyncSafeLog.h"
 #include "SentryCrashMach-O.h"
@@ -78,6 +80,41 @@ static const char *const g_cxa_throw_name = "__cxa_throw";
 static SentryCrashImageToOriginalCxaThrowPair *g_cxa_originals = NULL;
 static size_t g_cxa_originals_capacity = 0;
 static size_t g_cxa_originals_count = 0;
+
+static bool
+getMprotectPageAlignedRange(
+    void *address, size_t size, void **pageAlignedAddress, size_t *pageAlignedSize)
+{
+    if (address == NULL || size == 0) {
+        return false;
+    }
+
+    const uintptr_t pageSize = (uintptr_t)getpagesize();
+    if (pageSize == 0) {
+        return false;
+    }
+
+    const uintptr_t start = (uintptr_t)address;
+    if (UINTPTR_MAX - start < size) {
+        return false;
+    }
+    const uintptr_t end = start + size;
+
+    const uintptr_t pageAlignedStart = start - (start % pageSize);
+    uintptr_t pageAlignedEnd = end;
+    const uintptr_t pageOffset = pageAlignedEnd % pageSize;
+    if (pageOffset != 0) {
+        const uintptr_t pageAdjustment = pageSize - pageOffset;
+        if (UINTPTR_MAX - pageAlignedEnd < pageAdjustment) {
+            return false;
+        }
+        pageAlignedEnd += pageAdjustment;
+    }
+
+    *pageAlignedAddress = (void *)pageAlignedStart;
+    *pageAlignedSize = (size_t)(pageAlignedEnd - pageAlignedStart);
+    return true;
+}
 
 static uintptr_t
 findOriginalCxaThrowFunction(uintptr_t image_dli_fbase_address)
@@ -199,10 +236,21 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
     // As the default protection for the SEG_DATA_CONST is read-only we set the default
     // oldProtection to VM_PROT_READ.
     vm_prot_t oldProtection = VM_PROT_READ;
+    void *mprotectAddress = NULL;
+    size_t mprotectSize = 0;
     if (isDataConst) {
         oldProtection = sentrycrash_macho_getSectionProtection(indirect_symbol_bindings);
-        if (mprotect(indirect_symbol_bindings, dataSection->size, PROT_READ | PROT_WRITE) != 0) {
-            SENTRY_ASYNC_SAFE_LOG_DEBUG(
+        // mprotect requires a page-aligned address. Older OS versions tolerated this unaligned
+        // Mach-O section start, but newer versions reject it with EINVAL. Align the full section
+        // range before changing protections.
+        if (!getMprotectPageAlignedRange(
+                indirect_symbol_bindings, dataSection->size, &mprotectAddress, &mprotectSize)) {
+            SENTRY_ASYNC_SAFE_LOG_ERROR("Failed to page-align mprotect range for section %s,%s",
+                dataSection->segname, dataSection->sectname);
+            return;
+        }
+        if (mprotect(mprotectAddress, mprotectSize, PROT_READ | PROT_WRITE) != 0) {
+            SENTRY_ASYNC_SAFE_LOG_ERROR(
                 "mprotect failed to set PROT_READ | PROT_WRITE for section %s,%s: %s",
                 dataSection->segname, dataSection->sectname, SENTRY_STRERROR_R(errno));
             return;
@@ -258,7 +306,7 @@ perform_rebinding_with_section(const section_t *dataSection, intptr_t slide, nli
         if (oldProtection & VM_PROT_EXECUTE) {
             protection |= PROT_EXEC;
         }
-        if (mprotect(indirect_symbol_bindings, dataSection->size, protection) != 0) {
+        if (mprotect(mprotectAddress, mprotectSize, protection) != 0) {
             SENTRY_ASYNC_SAFE_LOG_ERROR(
                 "mprotect failed to restore protection for section %s,%s: %s", dataSection->segname,
                 dataSection->sectname, SENTRY_STRERROR_R(errno));
