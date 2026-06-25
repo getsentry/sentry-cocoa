@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Rename extended app start span operation from `app.start.extended_app_start` to `app.start.extended` ([#8220](https://github.com/getsentry/sentry-cocoa/pull/8220))
+- Rename extended app start span operation from `app.start.extended_app_start` to `app.start.extended` (#8220)
 
 ## 9.19.0
 
