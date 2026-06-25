@@ -12,9 +12,9 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
     private let anrTracker: SentryANRTracker?
     private let appHangTracker: SentryAppHangTracker?
     private let appStateManager: SentryAppStateManager
-    
+
     private var hasStartedHang: Bool = false
-    private var observerToken: UUID?
+    private var appHangTrackerObserverToken: SentryAppHangTrackerObserverToken?
 
     init?(with options: Options, dependencies: Dependencies) {
         guard options.enableWatchdogTerminationTracking else {
@@ -56,7 +56,7 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         super.init()
 
         tracker.start()
-        observerToken = appHangTracker?.addObserver(threshold: timeoutInterval) { [weak self] hang in
+        appHangTrackerObserverToken = appHangTracker?.addObserver(threshold: timeoutInterval) { [weak self] hang in
             guard let self else { return }
 
             switch hang.state {
@@ -99,11 +99,11 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
     func uninstall() {
         tracker.stop()
         anrTracker?.remove(listener: self)
-        
-        guard let observerToken else {
+
+        guard let appHangTrackerObserverToken else {
             return
         }
-        appHangTracker?.removeObserver(token: observerToken)
+        appHangTracker?.removeObserver(token: appHangTrackerObserverToken)
     }
 
     func hangStarted() {
@@ -128,7 +128,7 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
             appState.isANROngoing = true
         }
     }
-    
+
     func anrStopped(result: SentryANRStoppedResult?) {
         appStateManager.updateAppState { appState in
             appState.isANROngoing = false
