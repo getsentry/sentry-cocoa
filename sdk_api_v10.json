@@ -931,6 +931,13 @@
         "printedName": "_SwiftConcurrencyShims"
       },
       {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "os",
+        "printedName": "os"
+      },
+      {
         "children": [
           {
             "children": [
@@ -48708,6 +48715,164 @@
         "name": "SentryMetricsApiProtocol",
         "printedName": "SentryMetricsApiProtocol",
         "usr": "s:6Sentry0A18MetricsApiProtocolP"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GenericTypeParam",
+                "printedName": "Value"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "Value"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "SentryMutex",
+                "printedName": "Sentry.SentryMutex<Value>",
+                "usr": "s:6Sentry0A5MutexV"
+              }
+            ],
+            "declKind": "Constructor",
+            "genericSig": "<Value>",
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$s6Sentry0A5MutexVyACyxGxcfc",
+            "moduleName": "Sentry",
+            "name": "init",
+            "printedName": "init(_:)",
+            "usr": "s:6Sentry0A5MutexVyACyxGxcfc"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "Result"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "Value"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(inout Value) throws -> Result",
+                "typeAttributes": [
+                  "noescape"
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "GenericTypeParam",
+                "printedName": "Result"
+              }
+            ],
+            "declAttributes": [
+              "Rethrows"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "genericSig": "<Value, Result>",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A5MutexV8withLockyqd__qd__xzKXEKlF",
+            "moduleName": "Sentry",
+            "name": "withLock",
+            "printedName": "withLock(_:)",
+            "throwing": true,
+            "usr": "s:6Sentry0A5MutexV8withLockyqd__qd__xzKXEKlF"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "Result"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "Value"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(inout Value) throws -> Result",
+                "typeAttributes": [
+                  "noescape"
+                ]
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "Result"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Result?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Rethrows"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "genericSig": "<Value, Result>",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A5MutexV19withLockIfAvailableyqd__Sgqd__xzKXEKlF",
+            "moduleName": "Sentry",
+            "name": "withLockIfAvailable",
+            "printedName": "withLockIfAvailable(_:)",
+            "throwing": true,
+            "usr": "s:6Sentry0A5MutexV19withLockIfAvailableyqd__Sgqd__xzKXEKlF"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8SendableP",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP"
+          }
+        ],
+        "declKind": "Struct",
+        "genericSig": "<Value>",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A5MutexV",
+        "moduleName": "Sentry",
+        "name": "SentryMutex",
+        "printedName": "SentryMutex",
+        "usr": "s:6Sentry0A5MutexV"
       },
       {
         "children": [
