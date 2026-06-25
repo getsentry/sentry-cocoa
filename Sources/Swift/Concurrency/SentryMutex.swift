@@ -6,7 +6,8 @@ import os
 /// The `SentryMutex` type offers non-recursive exclusive access to the state
 /// it is protecting by blocking threads attempting to acquire the lock.
 /// Only one execution context at a time has access to the value stored
-/// within the `SentryMutex` allowing for exclusive access.
+/// within the `SentryMutex`, requiring callers to acquire the lock before
+/// reading or writing the protected value.
 ///
 /// An example use of `SentryMutex` in a class used simultaneously by many
 /// threads protecting a `Dictionary` value:
@@ -21,18 +22,23 @@ import os
 ///       }
 ///     }
 ///
-/// This is a backport of `Synchronization.Mutex` (iOS 18+/macOS 15+)
+/// Similar in spirit to `OSAllocatedUnfairLock` (iOS 16+/macOS 13+),
 /// using `os_unfair_lock` for older deployment targets.
-public struct SentryMutex<Value> {
+struct SentryMutex<Value> {
 
-    // Class provides a heap-allocated stable address for os_unfair_lock,
-    // which requires a fixed memory location.
-    private final class Storage: @unchecked Sendable {
-        var lock = os_unfair_lock_s()
+    private final class Storage {
+        let lock: UnsafeMutablePointer<os_unfair_lock_s>
         var value: Value
 
         init(_ value: Value) {
+            self.lock = .allocate(capacity: 1)
+            self.lock.initialize(to: os_unfair_lock_s())
             self.value = value
+        }
+
+        deinit {
+            self.lock.deinitialize(count: 1)
+            self.lock.deallocate()
         }
     }
 
@@ -41,7 +47,7 @@ public struct SentryMutex<Value> {
     /// Initializes a value of this mutex with the given initial state.
     ///
     /// - Parameter initialValue: The initial value to give to the mutex.
-    public init(_ initialValue: Value) {
+    init(_ initialValue: Value) {
         storage = Storage(initialValue)
     }
 
@@ -61,9 +67,9 @@ public struct SentryMutex<Value> {
     ///   acquired the lock.
     ///
     /// - Returns: The return value, if any, of the `body` closure parameter.
-    public func withLock<Result>(_ body: (inout Value) throws -> Result) rethrows -> Result {
-        os_unfair_lock_lock(&storage.lock)
-        defer { os_unfair_lock_unlock(&storage.lock) }
+    func withLock<Result>(_ body: (inout Value) throws -> Result) rethrows -> Result {
+        os_unfair_lock_lock(storage.lock)
+        defer { os_unfair_lock_unlock(storage.lock) }
         return try body(&storage.value)
     }
 
@@ -83,9 +89,9 @@ public struct SentryMutex<Value> {
     ///
     /// - Returns: The return value, if any, of the `body` closure parameter
     ///   or nil if the lock couldn't be acquired.
-    public func withLockIfAvailable<Result>(_ body: (inout Value) throws -> Result) rethrows -> Result? {
-        guard os_unfair_lock_trylock(&storage.lock) else { return nil }
-        defer { os_unfair_lock_unlock(&storage.lock) }
+    func withLockIfAvailable<Result>(_ body: (inout Value) throws -> Result) rethrows -> Result? {
+        guard os_unfair_lock_trylock(storage.lock) else { return nil }
+        defer { os_unfair_lock_unlock(storage.lock) }
         return try body(&storage.value)
     }
 }
