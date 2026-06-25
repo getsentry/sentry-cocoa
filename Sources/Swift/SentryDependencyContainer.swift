@@ -163,11 +163,14 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryExtensionDetector(infoPlistWrapper: Dependencies.infoPlistWrapper)
     }()
     var coreDataSwizzling = SentryCoreDataSwizzling()
+
     // This is a var so that it's initialized lazily on first access. It never should get set
     // to a different value.
-    lazy var appHangTracker: AppHangTracker = {
-        let runLoopDelayTracker = DefaultRunLoopDelayTracker(dateProvider: Dependencies.dateProvider)
-        return DefaultAppHangTracker(runLoopDelayTracker: runLoopDelayTracker)
+    lazy var runLoopDelayTracker: SentryRunLoopDelayTracker = {
+        SentryDefaultSentryRunLoopDelayTracker(dateProvider: Dependencies.dateProvider)
+    }()
+    lazy var appHangTracker: SentryAppHangTracker = {
+        SentryDefaultAppHangTracker(runLoopDelayTracker: self.runLoopDelayTracker)
     }()
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
@@ -459,7 +462,7 @@ protocol ClientProvider {
 
 extension SentryDependencyContainer: ClientProvider {
     var client: SentryClientInternal? {
-        // Eventually we will want to have the current shared hub to live in the dependency container aswell
+        // Eventually we will want to have the current shared hub to live in the dependency container as well
         // Until then, we proxy the static accessor.
         SentrySDKInternal.currentHub().getClient()
     }
@@ -818,7 +821,7 @@ protocol NetworkTrackerProvider {
 extension SentryDependencyContainer: NetworkTrackerProvider {
     // Inject the network tracer via the Dependency Container
     // Because this is used in swizzling, we cannot remove the singleton
-    // or that may lead to issues when stopping and enablign the SDK again
+    // or that may lead to issues when stopping and enabling the SDK again
     var networkTracker: SentryNetworkTracker {
         SentryNetworkTracker.sharedInstance
     }
@@ -876,5 +879,10 @@ protocol SentryCoreDataTrackerBuilder {
     func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker
 }
 extension SentryDependencyContainer: SentryCoreDataTrackerBuilder {}
+
+protocol AppHangTrackerProvider {
+    var appHangTracker: SentryAppHangTracker { get }
+}
+extension SentryDependencyContainer: AppHangTrackerProvider { }
 
 //swiftlint:enable file_length missing_docs

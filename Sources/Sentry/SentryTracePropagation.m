@@ -45,7 +45,7 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
         // Even though NSURLSessionTask doesn't have 'setCurrentRequest', some subclasses
         // do. For those subclasses we replace the currentRequest with a mutable one with
         // the additional trace header. Since NSURLSessionTask is a public class and can be
-        // override, we believe this is not considered a private api.
+        // overridden, we believe this is not considered a private api.
         SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
         if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
             NSMutableURLRequest *newRequest = [sessionTask.currentRequest mutableCopy];

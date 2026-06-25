@@ -169,7 +169,7 @@ typedef void (^SentryOnAppStartMeasurementAvailable)(
 
 /**
  * Configure session replay with different breadcrumb converter
- * and screeshot provider. Used by the Hybrid SDKs.
+ * and screenshot provider. Used by the Hybrid SDKs.
  * Passing nil will keep the previous value.
  */
 + (void)configureSessionReplayWith:(nullable id<SentryReplayBreadcrumbConverter>)breadcrumbConverter
