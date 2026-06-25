@@ -52,7 +52,7 @@ import MachO
                     }
                     for j in 0..<Int(classCount) {
                         let className = classNames[j]
-                        // Since we are iterating over all classes in the image, we need to be extra careful not to do unnecesarry work
+                        // Since we are iterating over all classes in the image, we need to be extra careful not to do unnecessary work
                         // or calling `NSClassFromString` since that can lead to issues (see `SentrySubClassFinder` for more details).
                         let name = String(cString: UnsafeRawPointer(className).assumingMemoryBound(to: UInt8.self))
                         if name == self.targetClassName && isCurrentImageContainingLoadValidator {

@@ -462,7 +462,7 @@ protocol ClientProvider {
 
 extension SentryDependencyContainer: ClientProvider {
     var client: SentryClientInternal? {
-        // Eventually we will want to have the current shared hub to live in the dependency container aswell
+        // Eventually we will want to have the current shared hub to live in the dependency container as well
         // Until then, we proxy the static accessor.
         SentrySDKInternal.currentHub().getClient()
     }
@@ -821,7 +821,7 @@ protocol NetworkTrackerProvider {
 extension SentryDependencyContainer: NetworkTrackerProvider {
     // Inject the network tracer via the Dependency Container
     // Because this is used in swizzling, we cannot remove the singleton
-    // or that may lead to issues when stopping and enablign the SDK again
+    // or that may lead to issues when stopping and enabling the SDK again
     var networkTracker: SentryNetworkTracker {
         SentryNetworkTracker.sharedInstance
     }

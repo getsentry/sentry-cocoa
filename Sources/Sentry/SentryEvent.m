@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryEvent
 
 // This is a designated initializer so that it can be called by the Swift
-// sublcass that adds a `Decodable` conformance. It shares an implementation
+// subclass that adds a `Decodable` conformance. It shares an implementation
 // with `initWithLevel:`.
 - (instancetype)init
 {
