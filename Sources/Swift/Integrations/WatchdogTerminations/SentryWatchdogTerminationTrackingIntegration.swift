@@ -3,14 +3,14 @@ import Foundation
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & HangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider
+typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider
 
 final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogTerminationTrackingProvider>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
 
     private let tracker: SentryWatchdogTerminationTracker
     private let timeoutInterval: TimeInterval
     private let anrTracker: SentryANRTracker?
-    private let hangTracker: HangTracker?
+    private let appHangTracker: AppHangTracker?
     private let appStateManager: SentryAppStateManager
     
     private var hasStartedHang: Bool = false
@@ -45,21 +45,19 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         tracker = terminationTracker
         timeoutInterval = options.appHangTimeoutInterval
         if options.experimental.enableWatchdogTerminationsV2 {
-            hangTracker = dependencies.hangTracker
+            appHangTracker = dependencies.appHangTracker
             anrTracker = nil
         } else {
             anrTracker = dependencies.getANRTracker(options.appHangTimeoutInterval)
-            hangTracker = nil
+            appHangTracker = nil
         }
         appStateManager = dependencies.appStateManager
 
         super.init()
 
         tracker.start()
-        callbackId = hangTracker?.addOngoingHangObserver { [weak self] interval, ongoing in
-            guard let self, interval > timeoutInterval else {
-                return
-            }
+        callbackId = appHangTracker?.addObserver(threshold: timeoutInterval) { [weak self] _, ongoing in
+            guard let self else { return }
 
             if ongoing {
                 hangStarted()
@@ -104,7 +102,7 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         guard let callbackId else {
             return
         }
-        hangTracker?.removeObserver(id: callbackId)
+        appHangTracker?.removeObserver(id: callbackId)
     }
 
     func hangStarted() {

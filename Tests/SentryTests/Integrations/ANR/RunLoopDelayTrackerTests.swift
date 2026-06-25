@@ -4,7 +4,7 @@ import XCTest
 
 struct TestRunLoopObserver: RunLoopObserver { }
 
-final class HangTrackerTests: XCTestCase {
+final class RunLoopDelayTrackerTests: XCTestCase {
     
     private var createdObservationBlock: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?
     private var observationBlock: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?
@@ -36,13 +36,13 @@ final class HangTrackerTests: XCTestCase {
     }
   
   func testHangTrackerCallsRemoveObserverOnDealloc() {
-      var sut: DefaultHangTracker? = DefaultHangTracker(
+      var sut: DefaultRunLoopDelayTracker? = DefaultRunLoopDelayTracker(
         dateProvider: TestCurrentDateProvider(),
         createObserver: createObserver,
         addObserver: addObserver,
         removeObserver: removeObserver,
         queue: queue)
-    _ = sut?.addOngoingHangObserver(handler: { _, _ in })
+    _ = sut?.addObserver { _, _ in }
       XCTAssertEqual(calledRemoveObserver, false)
       sut = nil
       XCTAssertEqual(calledRemoveObserver, true)
@@ -51,7 +51,7 @@ final class HangTrackerTests: XCTestCase {
     func testDoesNotCaptureHangsThatAreNotOngoing() {
         let dateProvider = TestCurrentDateProvider()
         dateProvider.setSystemUptime(0)
-        let sut = DefaultHangTracker(
+        let sut = DefaultRunLoopDelayTracker(
             dateProvider: dateProvider,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -59,7 +59,7 @@ final class HangTrackerTests: XCTestCase {
             queue: queue)
         
         var observedHang = false
-        let id = sut.addOngoingHangObserver { _, _ in
+        let id = sut.addObserver { _, _ in
             observedHang = true
         }
         XCTAssertTrue(calledAddObserver, "Expected add observer to be called")
@@ -89,7 +89,7 @@ final class HangTrackerTests: XCTestCase {
     func testHangTrackerWhenNotHanging() {
         let dateProvider = TestCurrentDateProvider()
         dateProvider.setSystemUptime(0)
-        let sut = DefaultHangTracker(
+        let sut = DefaultRunLoopDelayTracker(
             dateProvider: dateProvider,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -97,7 +97,7 @@ final class HangTrackerTests: XCTestCase {
             queue: queue)
         
         var observedHang = false
-        let id = sut.addOngoingHangObserver { _, _ in
+        let id = sut.addObserver { _, _ in
             observedHang = true
         }
         XCTAssertTrue(calledAddObserver, "Expected add observer to be called")
@@ -121,7 +121,7 @@ final class HangTrackerTests: XCTestCase {
     func testHangTrackerCallsLateRunLoop() {
         let dateProvider = TestCurrentDateProvider()
         dateProvider.setSystemUptime(0)
-        let sut = DefaultHangTracker(
+        let sut = DefaultRunLoopDelayTracker(
             dateProvider: dateProvider,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -131,7 +131,7 @@ final class HangTrackerTests: XCTestCase {
         var observerLastInterval: TimeInterval = 0
         var hangOngoing: Bool = false
         let expectation = XCTestExpectation()
-        let id = sut.addOngoingHangObserver { interval, ongoing in
+        let id = sut.addObserver { interval, ongoing in
             observerLastInterval = interval
             hangOngoing = ongoing
             expectation.fulfill()
@@ -166,14 +166,14 @@ final class HangTrackerTests: XCTestCase {
     func testRemovesObserverDuringRunloop() {
         let dateProvider = TestCurrentDateProvider()
         dateProvider.setSystemUptime(0)
-        let sut = DefaultHangTracker(
+        let sut = DefaultRunLoopDelayTracker(
             dateProvider: dateProvider,
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
             queue: queue)
         
-        let id = sut.addOngoingHangObserver { _, _ in }
+        let id = sut.addObserver { _, _ in }
         observationBlock?(testObserver, .afterWaiting)
         sut.removeObserver(id: id)
         
@@ -190,7 +190,7 @@ final class HangTrackerTests: XCTestCase {
     func testHangTrackerDeallocates() {
         let dateProvider = TestCurrentDateProvider()
         dateProvider.setSystemUptime(0)
-        var sut: DefaultHangTracker? = DefaultHangTracker(
+        var sut: DefaultRunLoopDelayTracker? = DefaultRunLoopDelayTracker(
             dateProvider: dateProvider,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -202,7 +202,7 @@ final class HangTrackerTests: XCTestCase {
         weak var weakSut = sut
         #endif
         
-        _ = sut?.addOngoingHangObserver { _, _ in }
+        _ = sut?.addObserver { _, _ in }
         observationBlock?(testObserver, .afterWaiting)
         observationBlock?(testObserver, .beforeWaiting)
         
@@ -224,7 +224,7 @@ final class HangTrackerTests: XCTestCase {
     func testConsecutiveHangsAreDetected() {
         let dateProvider = TestCurrentDateProvider()
         dateProvider.setSystemUptime(0)
-        let sut = DefaultHangTracker(
+        let sut = DefaultRunLoopDelayTracker(
             dateProvider: dateProvider,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -236,7 +236,7 @@ final class HangTrackerTests: XCTestCase {
         var lastInterval: TimeInterval = 0
         var lastOngoing: Bool = false
         var hangCallback = XCTestExpectation()
-        let id = sut.addOngoingHangObserver { interval, ongoing in
+        let id = sut.addObserver { interval, ongoing in
             // Only fulfill one time
             lock.synchronized {
                 if lastInterval == 0 {
@@ -312,7 +312,7 @@ final class HangTrackerTests: XCTestCase {
     func testDeallocWhileInWaitForHangLoop() {
         let dateProvider = TestCurrentDateProvider()
         dateProvider.setSystemUptime(0)
-        var sut: DefaultHangTracker? = DefaultHangTracker(
+        var sut: DefaultRunLoopDelayTracker? = DefaultRunLoopDelayTracker(
             dateProvider: dateProvider,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -326,7 +326,7 @@ final class HangTrackerTests: XCTestCase {
         
         let expectation = XCTestExpectation()
         var hangDetected = false
-        _ = sut?.addOngoingHangObserver { _, _ in
+        _ = sut?.addObserver { _, _ in
             if !hangDetected {
                 expectation.fulfill()
                 hangDetected = true
@@ -361,7 +361,7 @@ final class HangTrackerTests: XCTestCase {
     func testMultipleObserversAllReceiveHangCallback() {
         let dateProvider = TestCurrentDateProvider()
         dateProvider.setSystemUptime(0)
-        let sut = DefaultHangTracker(
+        let sut = DefaultRunLoopDelayTracker(
             dateProvider: dateProvider,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -380,7 +380,7 @@ final class HangTrackerTests: XCTestCase {
         let expectation2 = XCTestExpectation(description: "Observer 2 called")
         let expectation3 = XCTestExpectation(description: "Observer 3 called")
 
-        let id1 = sut.addOngoingHangObserver { interval, ongoing in
+        let id1 = sut.addObserver { interval, ongoing in
             // Only fulfill one time
             if observer1Interval == 0 {
                 expectation1.fulfill()
@@ -390,7 +390,7 @@ final class HangTrackerTests: XCTestCase {
                 observer1Ongoing = ongoing
             }
         }
-        let id2 = sut.addOngoingHangObserver { interval, ongoing in
+        let id2 = sut.addObserver { interval, ongoing in
             // Only fulfill one time
             if observer2Interval == 0 {
                 expectation2.fulfill()
@@ -400,7 +400,7 @@ final class HangTrackerTests: XCTestCase {
                 observer2Ongoing = ongoing
             }
         }
-        let id3 = sut.addOngoingHangObserver { interval, ongoing in
+        let id3 = sut.addObserver { interval, ongoing in
             // Only fulfill one time
             if observer3Interval == 0 {
                 expectation3.fulfill()
