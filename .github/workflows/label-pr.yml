@@ -77,9 +77,12 @@ jobs:
             });
 
             // Keep only the latest review per user (by submitted_at).
+            // Include DISMISSED/COMMENTED so a newer non-decision review
+            // correctly supersedes a prior APPROVED or CHANGES_REQUESTED.
             const latestByUser = {};
             for (const review of reviews) {
-              if (review.state !== 'APPROVED' && review.state !== 'CHANGES_REQUESTED') continue;
+              const dominated = ['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED', 'COMMENTED'];
+              if (!dominated.includes(review.state)) continue;
               const uid = review.user.id;
               if (!latestByUser[uid] || new Date(review.submitted_at) > new Date(latestByUser[uid].submitted_at)) {
                 latestByUser[uid] = review;
