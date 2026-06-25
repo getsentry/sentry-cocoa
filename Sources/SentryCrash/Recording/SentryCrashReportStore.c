@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 static int g_maxReportCount = 5;
@@ -180,21 +181,33 @@ pruneReports(void)
     }
 }
 
+static int64_t
+getBaseIDFromTime(const struct tm *reportTime)
+{
+    return (int64_t)reportTime->tm_sec + (int64_t)reportTime->tm_min * 61
+        + (int64_t)reportTime->tm_hour * 61 * 60 + (int64_t)reportTime->tm_yday * 61 * 60 * 24
+        + (int64_t)reportTime->tm_year * 61 * 60 * 24 * 366;
+}
+
+static void
+initializeIDsFromTime(const struct tm *reportTime)
+{
+    int64_t baseID = getBaseIDFromTime(reportTime);
+    baseID <<= 23;
+
+    g_nextUniqueIDHigh = baseID & ~(int64_t)0xffffffff;
+    uint32_t lowerBaseID = (uint32_t)(baseID & 0xffffffff);
+    g_nextUniqueIDLow = lowerBaseID;
+}
+
 static void
 initializeIDs(void)
 {
     time_t rawTime;
     time(&rawTime);
-    struct tm time;
-    gmtime_r(&rawTime, &time);
-    int64_t baseID = (int64_t)time.tm_sec + (int64_t)time.tm_min * 61
-        + (int64_t)time.tm_hour * 61 * 60 + (int64_t)time.tm_yday * 61 * 60 * 24
-        + (int64_t)time.tm_year * 61 * 60 * 24 * 366;
-    baseID <<= 23;
-
-    g_nextUniqueIDHigh = baseID & ~0xffffffff;
-    uint32_t lowerBaseID = (uint32_t)(baseID & 0xffffffff);
-    g_nextUniqueIDLow = lowerBaseID;
+    struct tm reportTime;
+    gmtime_r(&rawTime, &reportTime);
+    initializeIDsFromTime(&reportTime);
 }
 
 // Public API
@@ -232,6 +245,16 @@ sentrycrashcrs_getNextCrashReportPath(char *crashReportPathBuffer)
 {
     getCrashReportPathByID(getNextUniqueID(), crashReportPathBuffer);
 }
+
+#if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
+void
+sentrycrashcrs_initializeIDsWithTimeForTests(const struct tm *reportTime)
+{
+    pthread_mutex_lock(&g_mutex);
+    initializeIDsFromTime(reportTime);
+    pthread_mutex_unlock(&g_mutex);
+}
+#endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)
 
 int
 sentrycrashcrs_getReportCount(void)
