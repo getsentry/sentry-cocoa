@@ -122,7 +122,7 @@
 
     SentryEnvelope *envelopeToStore = [self addClientReportTo:envelope];
 
-    // With this we accept the a tradeoff. We might loose some envelopes when a hard crash happens,
+    // With this we accept a tradeoff. We might lose some envelopes when a hard crash happens,
     // because this being done on a background thread, but instead we don't block the calling
     // thread, which could be the main thread.
     __weak SentryHttpTransport *weakSelf = self;
