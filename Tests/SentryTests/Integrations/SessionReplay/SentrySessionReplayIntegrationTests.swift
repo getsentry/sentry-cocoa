@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Foundation
 @_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
@@ -10,6 +11,13 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private var uiApplication: TestSentryUIApplication!
     private var globalEventProcessor: SentryGlobalEventProcessor!
     private var dateProvider: TestCurrentDateProvider!
+    private var captureScheduler: DefaultSentrySessionReplayRunLoopCaptureScheduler<TestSessionReplayRunLoopObserver>!
+    private var createdObservationBlock: ((TestSessionReplayRunLoopObserver?, CFRunLoopActivity) -> Void)?
+    private var observationBlock: ((TestSessionReplayRunLoopObserver?, CFRunLoopActivity) -> Void)?
+    private let testObserver = TestSessionReplayRunLoopObserver()
+    private let currentRunLoopMode = RunLoop.Mode.default
+
+    private struct TestSessionReplayRunLoopObserver: RunLoopObserver { }
 
     private class TestCrashWrapper: NSObject, SentryCrashReporter {
         let traced: Bool
@@ -47,11 +55,21 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         globalEventProcessor = SentryGlobalEventProcessor()
         uiApplication.windows = [UIWindow()]
         dateProvider = TestCurrentDateProvider()
+        captureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler<TestSessionReplayRunLoopObserver>(
+            createObserver: { [unowned self] _, _, _, _, block in
+                self.createdObservationBlock = block
+                return self.testObserver
+            },
+            addObserver: { [unowned self] _, _, _ in self.observationBlock = self.createdObservationBlock },
+            removeObserver: { [unowned self] _, _, _ in self.observationBlock = nil },
+            currentRunLoopMode: { [unowned self] in self.currentRunLoopMode }
+        )
 
         SentryDependencyContainer.sharedInstance().applicationOverride = uiApplication
         SentryDependencyContainer.sharedInstance().reachability = TestSentryReachability()
         SentryDependencyContainer.sharedInstance().globalEventProcessor = globalEventProcessor
         SentryDependencyContainer.sharedInstance().dateProvider = dateProvider
+        SentryDependencyContainer.sharedInstance().sessionReplayCaptureScheduler = captureScheduler
     }
     
     override func tearDown() {
@@ -89,6 +107,23 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         
         XCTAssertEqual(SentrySDKInternal.currentHub().trimmedInstalledIntegrationNames().count, 1)
         XCTAssertEqual(globalEventProcessor.processors.count, 1)
+    }
+
+    func testRunLoopScheduler_whenStaleStopRunsAfterNewStart_shouldKeepNewObserver() {
+        let oldToken = NSObject()
+        let newToken = NSObject()
+        var oldCaptures = 0
+        var newCaptures = 0
+
+        captureScheduler.start(token: oldToken) { _ in oldCaptures += 1 }
+        captureScheduler.start(token: newToken) { _ in newCaptures += 1 }
+        captureScheduler.stop(token: oldToken)
+
+        observationBlock?(testObserver, .afterWaiting)
+        observationBlock?(testObserver, .beforeWaiting)
+
+        XCTAssertEqual(oldCaptures, 0)
+        XCTAssertEqual(newCaptures, 1)
     }
     
     func testInstallNoSwizzlingNoTouchTracker() {
@@ -298,8 +333,16 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     }
 
     func testBufferReplayForCrash() throws {
+        class CustomBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
+            func convert(from breadcrumb: Breadcrumb) -> (any SentryRRWebEventProtocol)? {
+                guard let timestamp = breadcrumb.timestamp else { return nil }
+                return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "custom.recovered")
+            }
+        }
+
         try createLastSessionReplay(writeSessionInfo: false)
         
+        SentryDependencyContainer.sharedInstance().sessionReplayBreadcrumbConverter = CustomBreadcrumbConverter()
         startSDK(sessionSampleRate: 1, errorSampleRate: 1)
         
         let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
@@ -314,6 +357,10 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         let crash = Event(error: NSError(domain: "Error", code: 1))
         crash.context = [:]
         crash.isFatalEvent = true
+        crash.breadcrumbs = [
+            .custom(date: Date(timeIntervalSinceReferenceDate: 4)),
+            .custom(date: Date(timeIntervalSinceReferenceDate: 6))
+        ]
         globalEventProcessor.reportAll(crash)
         
         wait(for: [expectation], timeout: 1)
@@ -323,6 +370,76 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertEqual(replayInfo.replay.replayType, SentryReplayType.buffer)
         XCTAssertEqual(replayInfo.recording.segmentId, 0)
         XCTAssertEqual(replayInfo.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 5))
+
+        let breadcrumbs = replayInfo.recording.events.compactMap { $0 as? SentryRRWebBreadcrumbEvent }
+        XCTAssertEqual(breadcrumbs.count, 1)
+        XCTAssertEqual(
+            (breadcrumbs.first?.data?["payload"] as? [String: Any])?["timestamp"] as? TimeInterval,
+            Date(timeIntervalSinceReferenceDate: 6).timeIntervalSince1970
+        )
+        XCTAssertEqual((breadcrumbs.first?.data?["payload"] as? [String: Any])?["category"] as? String, "custom.recovered")
+    }
+
+    func testBufferReplayForCrashUsesConfiguredBreadcrumbConverter() throws {
+        class CustomBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
+            func convert(from breadcrumb: Breadcrumb) -> (any SentryRRWebEventProtocol)? {
+                guard let timestamp = breadcrumb.timestamp else { return nil }
+                return SentryRRWebBreadcrumbEvent(timestamp: timestamp, category: "custom.configured")
+            }
+        }
+
+        try createLastSessionReplay(writeSessionInfo: false)
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+        PrivateSentrySDKOnly.configureSessionReplay(with: CustomBreadcrumbConverter(), screenshotProvider: nil)
+
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
+        let scope = Scope()
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
+        let expectation = expectation(description: "Replay to be captured")
+        hub.onReplayCapture = {
+            expectation.fulfill()
+        }
+
+        let crash = Event(error: NSError(domain: "Error", code: 1))
+        crash.context = [:]
+        crash.isFatalEvent = true
+        crash.breadcrumbs = [
+            .custom(date: Date(timeIntervalSinceReferenceDate: 6))
+        ]
+        globalEventProcessor.reportAll(crash)
+
+        wait(for: [expectation], timeout: 1)
+        let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
+        let breadcrumbs = replayInfo.recording.events.compactMap { $0 as? SentryRRWebBreadcrumbEvent }
+        XCTAssertEqual(breadcrumbs.count, 1)
+        XCTAssertEqual((breadcrumbs.first?.data?["payload"] as? [String: Any])?["category"] as? String, "custom.configured")
+    }
+
+    func testBufferReplayForCrash_usesNewestFramesWhenRecoveredBufferSpansMoreThanErrorDuration() throws {
+        try createLastSessionReplay(writeSessionInfo: false, frameTimestamps: [0, 50, 100])
+
+        startSDK(sessionSampleRate: 1, errorSampleRate: 1)
+
+        let client = SentryClientInternal(options: try XCTUnwrap(SentrySDK.startOption))
+        let scope = Scope()
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
+        let expectation = expectation(description: "Replay to be captured")
+        hub.onReplayCapture = {
+            expectation.fulfill()
+        }
+
+        let crash = Event(error: NSError(domain: "Error", code: 1))
+        crash.context = [:]
+        crash.isFatalEvent = true
+        globalEventProcessor.reportAll(crash)
+
+        wait(for: [expectation], timeout: 1)
+
+        let replayInfo = try XCTUnwrap(hub.capturedReplayRecordingVideo.first)
+        XCTAssertEqual(replayInfo.replay.replayType, SentryReplayType.buffer)
+        XCTAssertEqual(replayInfo.replay.replayStartTimestamp, Date(timeIntervalSinceReferenceDate: 71))
     }
     
     func testBufferReplayIgnoredBecauseSampleRateForCrash() throws {
@@ -406,7 +523,43 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         sut.connectivityChanged(true, typeDescription: "")
         XCTAssertFalse(sut.sessionReplay?.isSessionPaused ?? false)
     }
-  
+
+    func testConnectivityReconnect_whenApplicationPaused_shouldWaitForForeground() throws {
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+
+        sut.connectivityChanged(false, typeDescription: "")
+        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+
+        sut.connectivityChanged(true, typeDescription: "")
+
+        XCTAssertFalse(sessionReplay.isSessionPaused)
+        XCTAssertFalse(sessionReplay.isRunning)
+
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        XCTAssertTrue(sessionReplay.isRunning)
+    }
+
+    func testConnectivityReconnect_whenSdkStartedInBackground_shouldWaitForForeground() throws {
+        uiApplication.unsafeApplicationState = .background
+        startSDK(sessionSampleRate: 1, errorSampleRate: 0)
+        let sut = try getSut()
+        let sessionReplay = try XCTUnwrap(sut.sessionReplay)
+
+        sut.connectivityChanged(false, typeDescription: "")
+        sut.connectivityChanged(true, typeDescription: "")
+
+        XCTAssertFalse(sessionReplay.isSessionPaused)
+        XCTAssertFalse(sessionReplay.isRunning)
+
+        uiApplication.unsafeApplicationState = .active
+        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        XCTAssertTrue(sessionReplay.isRunning)
+    }
+
     func testMaskViewFromSDK() throws {
         // -- Arrange --
         class AnotherLabel: UILabel {}
@@ -818,11 +971,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
 
         // -- Act --
         // Advance time past the maximum duration (60 minutes)
-        Dynamic(sessionReplay).newFrame(nil)
+        runLoopCapture()
         dateProvider.advance(by: 5)
-        Dynamic(sessionReplay).newFrame(nil)
+        runLoopCapture()
         dateProvider.advance(by: 3_600)
-        Dynamic(sessionReplay).newFrame(nil)
+        runLoopCapture()
 
         // -- Assert --
         XCTAssertFalse(sessionReplay.isRunning)
@@ -831,6 +984,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         }
         XCTAssertNil(replayId)
         XCTAssertNil(sut.sessionReplay)
+    }
+
+    private func runLoopCapture() {
+        observationBlock?(testObserver, .afterWaiting)
+        observationBlock?(testObserver, .beforeWaiting)
     }
 
     func testReplayIdAndSessionReplayCleared_whenSessionEnds() throws {
@@ -855,7 +1013,11 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         XCTAssertNil(sut.sessionReplay)
     }
 
-    private func createLastSessionReplay(writeSessionInfo: Bool = true, errorSampleRate: Double = 1) throws {
+    private func createLastSessionReplay(
+        writeSessionInfo: Bool = true,
+        errorSampleRate: Double = 1,
+        frameTimestamps: [Int] = Array(5...9)
+    ) throws {
         let replayFolder = replayFolder()
         let jsonPath = replayFolder + "/replay.current"
         var sessionFolder = UUID().uuidString
@@ -871,7 +1033,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
         sessionFolder = "\(replayFolder)/\(sessionFolder)"
         try FileManager.default.createDirectory(atPath: sessionFolder, withIntermediateDirectories: true)
                        
-        for i in 5...9 {
+        for i in frameTimestamps {
             let image = UIImage.add.jpegData(compressionQuality: 1)
             try image?.write(to: URL(fileURLWithPath: "\(sessionFolder)/\(i).png") )
         }

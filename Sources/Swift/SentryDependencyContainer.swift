@@ -104,6 +104,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var windowFactoryOverride: SentryUserFeedbackWindowFactory?
 #endif
 #endif
+#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
+    var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler = DefaultSentrySessionReplayRunLoopCaptureScheduler()
+#endif
     @objc public func application() -> SentryApplication? {
 #if SENTRY_TEST || SENTRY_TEST_CI
     let `override` = self.applicationOverride
@@ -363,6 +366,12 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             enableMaskRendererV2: options.screenshot.enableViewRendererV2)
         return SentryScreenshotSource(photographer: photographer)
     }
+
+    private var _sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter?
+    var sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter {
+        get { getLazyVar(\._sessionReplayBreadcrumbConverter) { SentrySRDefaultBreadcrumbConverter() } }
+        set { _sessionReplayBreadcrumbConverter = newValue }
+    }
 #endif
 
     private var _fileManager: SentryFileManager?
@@ -542,6 +551,18 @@ protocol ViewHierarchyProviderProvider {
 }
 
 extension SentryDependencyContainer: ViewHierarchyProviderProvider { }
+
+protocol SessionReplayCaptureSchedulerProvider {
+    var sessionReplayCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler { get }
+}
+
+extension SentryDependencyContainer: SessionReplayCaptureSchedulerProvider { }
+
+protocol SessionReplayBreadcrumbConverterProvider {
+    var sessionReplayBreadcrumbConverter: SentryReplayBreadcrumbConverter { get }
+}
+
+extension SentryDependencyContainer: SessionReplayBreadcrumbConverterProvider { }
 
 protocol ReplayIntegrationProvider {
     func getReplayIntegration() -> SentrySessionReplayIntegration?

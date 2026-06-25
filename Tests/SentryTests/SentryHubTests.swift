@@ -1772,7 +1772,7 @@ class SentryHubTests: XCTestCase {
                 touchTracker: nil,
                 dateProvider: TestCurrentDateProvider(),
                 delegate: MockReplayDelegate(),
-                displayLinkWrapper: TestDisplayLinkWrapper()
+                captureScheduler: DefaultSentrySessionReplayRunLoopCaptureScheduler()
             )
         }
     }

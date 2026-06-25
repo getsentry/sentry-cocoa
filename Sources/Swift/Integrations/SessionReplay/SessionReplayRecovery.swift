@@ -6,9 +6,8 @@ import Foundation
 /// Configuration for recovering a previous session replay after a crash or app restart.
 private struct PreviousReplayConfig {
     let type: SentryReplayType
-    let duration: TimeInterval
     let segmentId: Int
-    let beginning: Date
+    let dateInterval: DateInterval
 }
 
 /// Handles recovery of session replay from previous app sessions, including crash replays.
@@ -19,19 +18,26 @@ struct SessionReplayRecovery {
     private let replayProcessingQueue: SentryDispatchQueueWrapper
     private let replayAssetWorkerQueue: SentryDispatchQueueWrapper
     private let replayFileManager: SessionReplayFileManager
+    private var breadcrumbConverter: SentryReplayBreadcrumbConverter
     
     init(
         replayOptions: SentryReplayOptions,
         random: SentryRandomProtocol,
         replayProcessingQueue: SentryDispatchQueueWrapper,
         replayAssetWorkerQueue: SentryDispatchQueueWrapper,
-        replayFileManager: SessionReplayFileManager
+        replayFileManager: SessionReplayFileManager,
+        breadcrumbConverter: SentryReplayBreadcrumbConverter
     ) {
         self.replayOptions = replayOptions
         self.random = random
         self.replayProcessingQueue = replayProcessingQueue
         self.replayAssetWorkerQueue = replayAssetWorkerQueue
         self.replayFileManager = replayFileManager
+        self.breadcrumbConverter = breadcrumbConverter
+    }
+
+    mutating func updateBreadcrumbConverter(_ breadcrumbConverter: SentryReplayBreadcrumbConverter) {
+        self.breadcrumbConverter = breadcrumbConverter
     }
     
     // MARK: - Recovery
@@ -111,22 +117,24 @@ struct SessionReplayRecovery {
 
         let resumeReplayMaker = createResumeReplayMaker(from: lastReplayURL)
         
-        let beginning: Date
+        let dateInterval: DateInterval
         if hasCrashInfo {
-            beginning = Date(timeIntervalSinceReferenceDate: crashInfo.lastSegmentEnd)
+            let beginning = Date(timeIntervalSinceReferenceDate: crashInfo.lastSegmentEnd)
+            dateInterval = DateInterval(start: beginning, duration: duration)
         } else {
-            guard let oldestFrame = resumeReplayMaker.oldestRecoveredFrameDate else {
+            guard let frameInterval = resumeReplayMaker.recoveredFrameDateInterval else {
                 SentrySDKLog.debug("[Session Replay] No frames to send, dropping replay")
                 return nil
             }
-            beginning = oldestFrame
+            let end = frameInterval.end.addingTimeInterval(1.0 / Double(replayOptions.frameRate))
+            let beginning = max(frameInterval.start, end.addingTimeInterval(-duration))
+            dateInterval = DateInterval(start: beginning, end: end)
         }
         
         return PreviousReplayConfig(
             type: type,
-            duration: duration,
             segmentId: segmentId,
-            beginning: beginning
+            dateInterval: dateInterval
         )
     }
     
@@ -153,8 +161,10 @@ struct SessionReplayRecovery {
         event: Event
     ) {
         let resumeReplayMaker = createResumeReplayMaker(from: lastReplayURL)
-        let end = config.beginning.addingTimeInterval(config.duration)
-        let videos = resumeReplayMaker.createVideoWith(beginning: config.beginning, end: end)
+        let videos = resumeReplayMaker.createVideoWith(
+            beginning: config.dateInterval.start,
+            end: config.dateInterval.end
+        )
 
         SentrySDKLog.debug("[Session Replay] Created replay with \(videos.count) video segments")
 
@@ -167,7 +177,13 @@ struct SessionReplayRecovery {
         var currentSegmentId = config.segmentId
         var currentType = config.type
         for video in videos {
-            captureVideo(video, replayId: replayId, segmentId: currentSegmentId, type: currentType)
+            captureVideo(
+                video,
+                replayId: replayId,
+                segmentId: currentSegmentId,
+                type: currentType,
+                breadcrumbs: event.breadcrumbs ?? []
+            )
             currentSegmentId += 1
             // type buffer is only for the first segment
             currentType = .session
@@ -178,7 +194,13 @@ struct SessionReplayRecovery {
         event.context = eventContext
     }
 
-    private func captureVideo(_ video: SentryVideoInfo, replayId: SentryId, segmentId: Int, type: SentryReplayType) {
+    private func captureVideo(
+        _ video: SentryVideoInfo,
+        replayId: SentryId,
+        segmentId: Int,
+        type: SentryReplayType,
+        breadcrumbs: [Breadcrumb]
+    ) {
         let replayEvent = SentryReplayEvent(
             eventId: replayId,
             replayStartTimestamp: video.start,
@@ -190,7 +212,7 @@ struct SessionReplayRecovery {
         let recording = SentryReplayRecording(
             segmentId: segmentId,
             video: video,
-            extraEvents: []
+            extraEvents: breadcrumbConverter.convert(breadcrumbs, from: video.start, until: video.end)
         )
 
         SentrySDKInternal.currentHub().captureReplayEvent(
