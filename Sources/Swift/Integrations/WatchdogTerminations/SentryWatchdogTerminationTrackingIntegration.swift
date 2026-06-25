@@ -10,11 +10,11 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
     private let tracker: SentryWatchdogTerminationTracker
     private let timeoutInterval: TimeInterval
     private let anrTracker: SentryANRTracker?
-    private let appHangTracker: AppHangTracker?
+    private let appHangTracker: SentryAppHangTracker?
     private let appStateManager: SentryAppStateManager
     
     private var hasStartedHang: Bool = false
-    private var callbackId: UUID?
+    private var observerToken: UUID?
 
     init?(with options: Options, dependencies: Dependencies) {
         guard options.enableWatchdogTerminationTracking else {
@@ -56,12 +56,13 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         super.init()
 
         tracker.start()
-        callbackId = appHangTracker?.addObserver(threshold: timeoutInterval) { [weak self] _, ongoing in
+        observerToken = appHangTracker?.addObserver(threshold: timeoutInterval) { [weak self] hang in
             guard let self else { return }
 
-            if ongoing {
+            switch hang.state {
+            case .started:
                 hangStarted()
-            } else {
+            case .ended:
                 hangStopped()
             }
         }
@@ -99,10 +100,10 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         tracker.stop()
         anrTracker?.remove(listener: self)
         
-        guard let callbackId else {
+        guard let observerToken else {
             return
         }
-        appHangTracker?.removeObserver(id: callbackId)
+        appHangTracker?.removeObserver(token: observerToken)
     }
 
     func hangStarted() {

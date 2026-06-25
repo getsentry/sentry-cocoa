@@ -3,18 +3,23 @@
 import UIKit
 #endif
 
+struct SentryRunLoopDelay {
+    let duration: TimeInterval
+    let isOngoing: Bool
+}
+typealias SentryRunLoopDelayTrackerHandler = (_ delay: SentryRunLoopDelay) -> Void
+typealias SentryRunLoopDelayTrackerObserverToken = UUID
 #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
-protocol RunLoopDelayTracker {
-    func addObserver(handler: @escaping (_ duration: TimeInterval, _ ongoing: Bool) -> Void) -> UUID
-
-    func removeObserver(id: UUID)
+protocol SentryRunLoopDelayTracker {
+    func addObserver(handler: @escaping SentryRunLoopDelayTrackerHandler) -> SentryRunLoopDelayTrackerObserverToken
+    func removeObserver(token: SentryRunLoopDelayTrackerObserverToken)
 }
 protocol RunLoopObserver { }
 
-extension DefaultRunLoopDelayTracker: RunLoopDelayTracker { }
+extension SentryDefaultSentryRunLoopDelayTracker: SentryRunLoopDelayTracker { }
 extension CFRunLoopObserver: RunLoopObserver { }
 #else
-typealias RunLoopDelayTracker = DefaultRunLoopDelayTracker<CFRunLoopObserver>
+typealias SentryRunLoopDelayTracker = SentryDefaultSentryRunLoopDelayTracker<CFRunLoopObserver>
 typealias RunLoopObserver = CFRunLoopObserver
 #endif
 
@@ -24,30 +29,60 @@ typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFR
 
 /// Observes when the main runloop is blocked, polling at ~25ms intervals (~1.5x the expected frame duration).
 ///
-/// > Warning: All public APIs must be called on the main queue. This includes init and deinit.
-// A "healthy" runloop spends most of its
-// time waiting for events, but a hanging runloop is spending a lot of time handling events.
-// A hang can only be detected on a background queue, because the main queue is blocked by the hang.
-// So the tracker runs a background queue that attempts to trigger a callback when the time between "afterWaiting"
-// and "beforeWaiting" has exceeded the expected frame rate. We say "attempts" because it's always possible
-// that the background queue does not get scheduled during the hang and the hang starts and finishes
-// before we are able to detect that it is in progress.
-//
-// The general approach is to create a semaphore when the runloop leaves the waiting state "afterWaiting"
-// and asynchronously start a background queue that waits on that semaphore. When the runloop enters waiting
-// "beforeWaiting" we signal the semaphore. This way, if the background queue waiting times out, we know
-// it took too long for the runloop to go back to waiting and a hang has occurred.
-//
-// Design requirements:
-// 1: We don't want the hang tracker to cause any thing more than a constant number of extra runloop iterations.
-// A fixed number of extra runloops per hang is acceptable, for example if it needed to run a dispatch_async
-// on the main queue, but spinning the runloop indefinitely is not acceptable.
-// 2: We don't want to acquire any locks every iteration of the runloop. It's ok to acquire locks in general
-// (the code does not need to be async signal safe) but it's not ok to acquire them on every runloop iteration.
-// 3: As simple as possible, using limited lines of code.
-final class DefaultRunLoopDelayTracker<T: RunLoopObserver> {
+/// A "healthy" runloop spends most of its time waiting for events, but a hanging runloop is spending a lot of time handling events.
+/// A hang can only be detected on a background queue, because the main queue is blocked by the hang.
+/// So the tracker runs a background queue that attempts to trigger a callback when the time between "afterWaiting"
+/// and "beforeWaiting" has exceeded the expected frame rate. We say "attempts" because it's always possible
+/// that the background queue does not get scheduled during the hang and the hang starts and finishes
+/// before we are able to detect that it is in progress.
+///
+/// The general approach is to create a semaphore when the runloop leaves the waiting state `afterWaiting`
+/// and asynchronously start a background queue that waits on that semaphore. When the runloop enters waiting
+/// `beforeWaiting` we signal the semaphore. This way, if the background queue waiting times out, we know
+/// it took too long for the runloop to go back to waiting and a hang has occurred.
+///
+/// ## Design requirements:
+///
+/// 1. We don't want the hang tracker to cause any thing more than a constant number of extra runloop iterations.
+///   A fixed number of extra runloops per hang is acceptable, for example if it needed to run a ``dispatch_async``
+///   on the main queue, but spinning the runloop indefinitely is not acceptable.
+/// 2. We don't want to acquire any locks every iteration of the runloop. It's ok to acquire locks in general
+///   (the code does not need to be async signal safe) but it's not ok to acquire them on every runloop iteration.
+/// 3. As simple as possible, using limited lines of code.
+///
+/// - Warning: All public APIs must be called on the main queue. This includes init and deinit.
+final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
+    // MARK: - Types
 
-    // Must be initialized on the main queue
+    /// Data structure encapsulating all mutable state that **must** only be used from the main queue.
+    struct MainQueueState {
+        fileprivate var observer: T?
+        fileprivate var semaphore: DispatchSemaphore?
+        fileprivate var loopStartTime: TimeInterval?
+    }
+
+    // MARK: - State
+
+    private let queue: DispatchQueue
+    private let pollingInterval: TimeInterval
+
+    private let dateProvider: SentryCurrentDateProvider
+    private let createObserver: CreateObserverFunc<T>
+    private let addObserver: AddObserverFunc<T>
+    private let removeObserver: RemoveObserverFunc<T>
+
+    // Observers is the only state that uses a lock. It should only be modified
+    // on the main queue, while the lock is held. Reading it on the main queue
+    // does not require a lock. Reading it on a background queue does require the lock.
+    private let observersLock = NSRecursiveLock()
+    private var observers = [SentryRunLoopDelayTrackerObserverToken: SentryRunLoopDelayTrackerHandler]()
+    private var mainQueueState: MainQueueState
+
+    // MARK: - Implementation
+
+    /// Creates a new RunLoop delay tracker using the given observer functions
+    ///
+    /// - Precondition: Must be initialized on the main queue
     init(
         dateProvider: SentryCurrentDateProvider,
         createObserver: @escaping CreateObserverFunc<T>,
@@ -71,68 +106,48 @@ final class DefaultRunLoopDelayTracker<T: RunLoopObserver> {
         mainQueueState = .init()
     }
 
-    // It's safe to access mainQueueState here regardless of the thread
-    // because this is the only reference to `self` while
-    // it is being deallocated.
     deinit {
+        // It's safe to access mainQueueState here regardless of the thread
+        // because this is the only reference to `self` while it is being deallocated.
         guard let observer = mainQueueState.observer else {
             return
         }
         removeObserver(CFRunLoopGetMain(), observer, .commonModes)
     }
 
-    // Must be called on main queue
-    // The handler is always called on the same background queue. This guarantees
-    // sequentially ordering of the callback. If it's called at least once with ongoing = True
-    // it will eventually be called with ongoing = False, or the app will exit
-    func addObserver(handler: @escaping (_ duration: TimeInterval, _ ongoing: Bool) -> Void) -> UUID {
-        let id = UUID()
+    /// Adds an observer to the tracker
+    ///
+    /// The observer/handler is always called on the same background queue. This guarantees
+    /// sequentially ordering of the callback. If it's called at least once with `isOngoing` set to `true`
+    /// it will eventually be called with `isOngoing` set to `false`, or the app will exit.
+    ///
+    /// - Precondition: Must be called on main queue
+    func addObserver(handler: @escaping SentryRunLoopDelayTrackerHandler) -> SentryRunLoopDelayTrackerObserverToken {
+        let token = SentryRunLoopDelayTrackerObserverToken()
         // Modifying observers requires holding the lock
         observersLock.synchronized {
-            observers[id] = handler
+            observers[token] = handler
         }
         startIfNecessary()
-        return id
+        return token
     }
 
-    // Must be called on main queue
-    func removeObserver(id: UUID) {
-        // Modifying observers requires holding the lock
-        observersLock.synchronized {
-            _ = observers.removeValue(forKey: id)
+    /// Removes the observer with the given token
+    ///
+    /// - Precondition: Must be called on main queue
+    func removeObserver(token: SentryRunLoopDelayTrackerObserverToken) {
+        // Keep a reference to the removed observer so it's destroyed after leaving the critical section
+        let (removed, isEmpty) = observersLock.synchronized {
+            (observers.removeValue(forKey: token), observers.isEmpty)
         }
-        if observers.isEmpty {
+        _ = removed
+
+        if isEmpty {
             stop()
         }
     }
 
-    private let queue: DispatchQueue
-    private let pollingInterval: TimeInterval
-
-    // These are injected dependencies that provide testability
-    private let dateProvider: SentryCurrentDateProvider
-    private let createObserver: CreateObserverFunc<T>
-    private let addObserver: AddObserverFunc<T>
-    private let removeObserver: RemoveObserverFunc<T>
-
-    // Observers is the only state that uses a lock. It should only be modified
-    // on the main queue, while the lock is held. Reading it on the main queue
-    // does not require a lock. Reading it on a background queue does require the lock.
-    private let observersLock = NSRecursiveLock()
-    private var observers = [UUID: (TimeInterval, Bool) -> Void]()
-
-    // MARK: Main queue
-
-    // For the readers convenience, this encapsulates all the mutable state that can
-    // only be used from the main queue.
-    struct MainQueueState {
-        fileprivate var observer: T?
-        fileprivate var semaphore: DispatchSemaphore?
-        fileprivate var loopStartTime: TimeInterval?
-    }
-    private var mainQueueState: MainQueueState
-
-    // Must be called on main queue
+    /// - Precondition: Must be called on main queue
     private func startIfNecessary() {
         guard mainQueueState.observer == nil else {
             // Already running
@@ -165,7 +180,7 @@ final class DefaultRunLoopDelayTracker<T: RunLoopObserver> {
         addObserver(CFRunLoopGetMain(), observer, .commonModes)
     }
 
-    // Must be called on main queue
+    /// - Precondition: Must be called on main queue
     private func stop() {
         guard let observer = mainQueueState.observer else {
             return
@@ -173,6 +188,7 @@ final class DefaultRunLoopDelayTracker<T: RunLoopObserver> {
         removeObserver(CFRunLoopGetMain(), observer, .commonModes)
         mainQueueState.observer = nil
         mainQueueState.loopStartTime = nil
+
         // If we are between beforeWaiting and afterWaiting the background queue is waiting for a signal, so let it proceed.
         mainQueueState.semaphore?.signal()
         mainQueueState.semaphore = nil
@@ -180,7 +196,7 @@ final class DefaultRunLoopDelayTracker<T: RunLoopObserver> {
 
     // MARK: Background queue
 
-    // Must be called on background queue
+    /// - Precondition: Must be called on background queue
     private func waitForDelay(semaphore: DispatchSemaphore, started: TimeInterval) {
         var hasTimedOut = false
         var semaphoreSuccess = false
@@ -193,8 +209,8 @@ final class DefaultRunLoopDelayTracker<T: RunLoopObserver> {
                 // Accessing observers off the main queue requires holding the lock
                 // because the main queue could be modifying it
                 observersLock.synchronized {
-                    observers.values.forEach {
-                        $0(duration, true)
+                    observers.values.forEach { observer in
+                        observer(.init(duration: duration, isOngoing: true))
                     }
                 }
                 hasTimedOut = true
@@ -205,8 +221,8 @@ final class DefaultRunLoopDelayTracker<T: RunLoopObserver> {
                     // Accessing observers off the main queue requires holding the lock
                     // because the main queue could be modifying it
                     observersLock.synchronized {
-                        observers.values.forEach {
-                            $0(duration, false)
+                        observers.values.forEach { observer in
+                            observer(.init(duration: duration, isOngoing: false))
                         }
                     }
                 }
@@ -215,12 +231,13 @@ final class DefaultRunLoopDelayTracker<T: RunLoopObserver> {
     }
 }
 
-extension DefaultRunLoopDelayTracker where T == CFRunLoopObserver {
+extension SentryDefaultSentryRunLoopDelayTracker where T == CFRunLoopObserver {
     convenience init(dateProvider: SentryCurrentDateProvider) {
         self.init(
             dateProvider: dateProvider,
             createObserver: CFRunLoopObserverCreateWithHandler,
             addObserver: CFRunLoopAddObserver,
-            removeObserver: CFRunLoopRemoveObserver)
+            removeObserver: CFRunLoopRemoveObserver
+        )
     }
 }

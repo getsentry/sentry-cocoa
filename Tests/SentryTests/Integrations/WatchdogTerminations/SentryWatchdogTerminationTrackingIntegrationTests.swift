@@ -456,14 +456,14 @@ private class MockDependencies: ANRTrackerBuilder & AppHangTrackerProvider & Pro
 
     private func removeObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) { }
     
-    lazy var appHangTracker: AppHangTracker = {
-        let runLoopDelayTracker = DefaultRunLoopDelayTracker(
+    lazy var appHangTracker: SentryAppHangTracker = {
+        let runLoopDelayTracker = SentryDefaultSentryRunLoopDelayTracker(
             dateProvider: TestCurrentDateProvider(),
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
             queue: DispatchQueue(label: "io.sentry.test-queue"))
-        return DefaultAppHangTracker(runLoopDelayTracker: runLoopDelayTracker)
+        return SentryDefaultAppHangTracker(runLoopDelayTracker: runLoopDelayTracker)
     }()
     
     var processInfoWrapper: any Sentry.SentryProcessInfoSource {
@@ -490,22 +490,22 @@ private class MockDependencies: ANRTrackerBuilder & AppHangTrackerProvider & Pro
 }
 
 /// Mirrors the threshold-filtering logic of DefaultAppHangTracker.
-private class MockAppHangTracker: AppHangTracker {
+private class MockAppHangTracker: SentryAppHangTracker {
     private struct Entry {
         let threshold: TimeInterval
-        let handler: (TimeInterval, Bool) -> Void
+        let handler: SentryAppHangTrackerHandler
         var hasBeenNotified: Bool = false
     }
-    private var observers: [UUID: Entry] = [:]
+    private var observers: [SentryAppHangTrackerObserverToken: Entry] = [:]
 
-    func addObserver(threshold: TimeInterval, handler: @escaping (TimeInterval, Bool) -> Void) -> UUID {
-        let id = UUID()
-        observers[id] = Entry(threshold: threshold, handler: handler)
-        return id
+    func addObserver(threshold: TimeInterval, handler: @escaping SentryAppHangTrackerHandler) -> SentryAppHangTrackerObserverToken {
+        let token = SentryAppHangTrackerObserverToken()
+        observers[token] = Entry(threshold: threshold, handler: handler)
+        return token
     }
 
-    func removeObserver(id: UUID) {
-        observers.removeValue(forKey: id)
+    func removeObserver(token: SentryAppHangTrackerObserverToken) {
+        observers.removeValue(forKey: token)
     }
 
     func simulateHang(duration: TimeInterval, ongoing: Bool) {
@@ -513,13 +513,11 @@ private class MockAppHangTracker: AppHangTracker {
             if ongoing {
                 if duration > entry.threshold && !entry.hasBeenNotified {
                     observers[id]?.hasBeenNotified = true
-                    entry.handler(duration, true)
+                    entry.handler(.init(duration: duration, state: .started))
                 }
-            } else {
-                if entry.hasBeenNotified {
-                    observers[id]?.hasBeenNotified = false
-                    entry.handler(duration, false)
-                }
+            } else if entry.hasBeenNotified {
+                observers[id]?.hasBeenNotified = false
+                entry.handler(.init(duration: duration, state: .ended))
             }
         }
     }
@@ -532,7 +530,7 @@ private class MockDependenciesWithControllableAppHangTracker: AppHangTrackerProv
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
     }
 
-    let appHangTracker: AppHangTracker
+    let appHangTracker: SentryAppHangTracker
 
     init(mockTracker: MockAppHangTracker) {
         self.appHangTracker = mockTracker
