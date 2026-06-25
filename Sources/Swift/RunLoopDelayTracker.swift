@@ -3,11 +3,10 @@
 import UIKit
 #endif
 
-#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
 typealias RunLoopDelayTrackerObserver = UUID
+#if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
 protocol RunLoopDelayTracker {
-    func addOngoingHangObserver(handler: @escaping (_ duration: TimeInterval, _ ongoing: Bool) -> Void) -> RunLoopDelayTrackerObserver
-
+    func addObserver(handler: @escaping (_ duration: TimeInterval, _ ongoing: Bool) -> Void) -> RunLoopDelayTrackerObserver
     func removeObserver(id: RunLoopDelayTrackerObserver)
 }
 protocol RunLoopObserver { }
@@ -32,7 +31,7 @@ typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFR
 // So the tracker runs a background queue that attempts to trigger a callback when the time between "afterWaiting"
 // and "beforeWaiting" has exceeded the expected frame rate. We say "attempts" because it's always possible
 // that the background queue does not get scheduled during the hang and the hang starts and finishes
-// before we are able to detect that it is in progress.
+// before we are able to detect that it is in progress.
 //
 // The general approach is to create a semaphore when the runloop leaves the waiting state "afterWaiting"
 // and asynchronously start a background queue that waits on that semaphore. When the runloop enters waiting
@@ -47,7 +46,6 @@ typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFR
 // (the code does not need to be async signal safe) but it's not ok to acquire them on every runloop iteration.
 // 3: As simple as possible, using limited lines of code.
 final class DefaultRunLoopDelayTracker<T: RunLoopObserver> {
-
     // Must be initialized on the main queue
     init(
         dateProvider: SentryCurrentDateProvider,
@@ -86,7 +84,7 @@ final class DefaultRunLoopDelayTracker<T: RunLoopObserver> {
     // The handler is always called on the same background queue. This guarantees
     // sequentially ordering of the callback. If it's called at least once with ongoing = True
     // it will eventually be called with ongoing = False, or the app will exit
-    func addObserver(handler: @escaping (_ duration: TimeInterval, _ ongoing: Bool) -> Void) -> UUID {
+    func addObserver(handler: @escaping (_ duration: TimeInterval, _ ongoing: Bool) -> Void) -> RunLoopDelayTrackerObserver {
         let id = UUID()
         // Modifying observers requires holding the lock
         observersLock.synchronized {
@@ -97,7 +95,7 @@ final class DefaultRunLoopDelayTracker<T: RunLoopObserver> {
     }
 
     // Must be called on main queue
-    func removeObserver(id: UUID) {
+    func removeObserver(id: RunLoopDelayTrackerObserver) {
         // Modifying observers requires holding the lock
         observersLock.synchronized {
             _ = observers.removeValue(forKey: id)
@@ -120,7 +118,7 @@ final class DefaultRunLoopDelayTracker<T: RunLoopObserver> {
     // on the main queue, while the lock is held. Reading it on the main queue
     // does not require a lock. Reading it on a background queue does require the lock.
     private let observersLock = NSRecursiveLock()
-    private var observers = [UUID: (TimeInterval, Bool) -> Void]()
+    private var observers = [RunLoopDelayTrackerObserver: (TimeInterval, Bool) -> Void]()
 
     // MARK: Main queue
 
@@ -222,6 +220,7 @@ extension DefaultRunLoopDelayTracker where T == CFRunLoopObserver {
             dateProvider: dateProvider,
             createObserver: CFRunLoopObserverCreateWithHandler,
             addObserver: CFRunLoopAddObserver,
-            removeObserver: CFRunLoopRemoveObserver)
+            removeObserver: CFRunLoopRemoveObserver
+        )
     }
 }

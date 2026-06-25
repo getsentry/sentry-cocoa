@@ -5,25 +5,20 @@ import Combine
 
 protocol SentryHangTrackingV3IntegrationProtocol {}
 
-typealias SentryHangTrackingV3IntegrationDependencies = HangTrackerProvider & AppHangDependencies & ClientProvider & ThreadInspectorProvider & DebugImageProvider
+typealias SentryHangTrackingV3IntegrationDependencies = AppHangTrackerProvider & ClientProvider & ThreadInspectorProvider & DebugImageProvider
 
 final class SentryHangTrackingV3Integration<Dependencies: SentryHangTrackingV3IntegrationDependencies>: NSObject, SwiftIntegration, SentryHangTrackingV3IntegrationProtocol {
 
-    private let hangDetection: AppHangDetection
-    private let observer: AnyCancellable
+    private let appHangTracker: AppHangTracker
+    private let observer: AppHangTrackerObserver
 
     init?(with options: Options, dependencies: Dependencies) {
         guard options.experimental.appHangs.enableV3 else {
             return nil
         }
 
-        hangDetection = DefaultAppHangDetection(
-            dependencies: dependencies,
-            options: DefaultAppHangDetectionOptions(
-                appHangThreshold: options.experimental.appHangs.appHangThreshold
-            )
-        )
-        observer = hangDetection.onHangDetected.sink { [dependencies] hang in
+        self.appHangTracker = dependencies.appHangTracker
+        observer = appHangTracker.addObserver(threshold: options.experimental.appHangs.appHangThreshold) { hang in
             guard let client = dependencies.client else {
                 SentrySDKLog.debug("SentryHangTrackingV3Integration: No client available, dropping metric")
                 return
@@ -60,7 +55,6 @@ final class SentryHangTrackingV3Integration<Dependencies: SentryHangTrackingV3In
             event.debugMeta = dependencies.debugImageProvider.getDebugImagesFromCacheForThreads(threads: [thread])
 
             client.capture(event: event)
-
         }
 
         super.init()

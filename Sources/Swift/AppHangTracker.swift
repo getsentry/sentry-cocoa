@@ -5,10 +5,15 @@ protocol AppHangTrackerProvider {
 }
 extension SentryDependencyContainer: AppHangTrackerProvider { }
 
+struct AppHang {
+    let duration: TimeInterval
+    let isOngoing: Bool
+    let stacktraces: [SentryStacktrace]
+}
+typealias AppHangTrackerObserver = UUID
 #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
 protocol AppHangTracker {
-    func addObserver(threshold: TimeInterval, handler: @escaping (_ duration: TimeInterval, _ ongoing: Bool) -> Void) -> UUID
-
+    func addObserver(threshold: TimeInterval, handler: @escaping (_ hang: AppHang) -> Void) -> AppHangTrackerObserver
     func removeObserver(id: UUID)
 }
 
@@ -24,12 +29,26 @@ typealias AppHangTracker = DefaultAppHangTracker
 /// Each observer receives at most one `ongoing=true` notification per hang,
 /// followed by one `ongoing=false` when the hang ends.
 final class DefaultAppHangTracker {
+    // MARK: - Types
+
+    private struct ObserverEntry {
+        let threshold: TimeInterval
+        let handler: (_ hang: AppHang) -> Void
+        var hasBeenNotified: Bool = false
+    }
+
+    // MARK: - Properties
+
+    private let runLoopDelayTracker: RunLoopDelayTracker
+    private let observersLock = NSRecursiveLock()
+    private var observers = [UUID: ObserverEntry]()
+    private var delayTrackerObserverId: UUID?
 
     init(runLoopDelayTracker: RunLoopDelayTracker) {
         self.runLoopDelayTracker = runLoopDelayTracker
     }
 
-    func addObserver(threshold: TimeInterval, handler: @escaping (_ duration: TimeInterval, _ ongoing: Bool) -> Void) -> UUID {
+    func addObserver(threshold: TimeInterval, handler: @escaping (_ hang: AppHang) -> Void) -> UUID {
         let id = UUID()
         observersLock.synchronized {
             observers[id] = ObserverEntry(threshold: threshold, handler: handler)
@@ -48,17 +67,6 @@ final class DefaultAppHangTracker {
             stopIfRunning()
         }
     }
-
-    private struct ObserverEntry {
-        let threshold: TimeInterval
-        let handler: (TimeInterval, Bool) -> Void
-        var hasBeenNotified: Bool = false
-    }
-
-    private let runLoopDelayTracker: RunLoopDelayTracker
-    private let observersLock = NSRecursiveLock()
-    private var observers = [UUID: ObserverEntry]()
-    private var delayTrackerObserverId: UUID?
 
     private func startIfNecessary() {
         guard delayTrackerObserverId == nil else { return }
@@ -79,12 +87,12 @@ final class DefaultAppHangTracker {
                 if ongoing {
                     if duration > entry.threshold && !entry.hasBeenNotified {
                         observers[id]?.hasBeenNotified = true
-                        entry.handler(duration, true)
+                        entry.handler(.init(duration: duration, isOngoing: ongoing, stacktraces: []))
                     }
                 } else {
                     if entry.hasBeenNotified {
                         observers[id]?.hasBeenNotified = false
-                        entry.handler(duration, false)
+                        entry.handler(.init(duration: duration, isOngoing: ongoing, stacktraces: []))
                     }
                 }
             }
