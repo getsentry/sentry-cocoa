@@ -40,47 +40,43 @@ import Foundation
     }
     
     @objc public func start(_ isDebug: Bool) {
-        let shouldStart = state.withLock { state -> Bool in
+        state.withLock { state in
             guard state.cache == nil else {
                 SentrySDKLog.debug("SentryBinaryImageCache is already started. Skipping start.")
-                return false
+                return
             }
             state.isDebug = isDebug
             state.cache = []
-            return true
-        }
-        guard shouldStart else { return }
-        sentrycrashbic_registerAddedCallback { imagePtr in
-            guard let imagePtr else {
-                SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
-                return
+            sentrycrashbic_registerAddedCallback { imagePtr in
+                guard let imagePtr else {
+                    SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
+                    return
+                }
+                let image = imagePtr.pointee
+                SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(
+                    imageName: image.name, vmAddress: image.vmAddress, address: image.address, size: image.size, uuid: image.uuid)
             }
-            let image = imagePtr.pointee
-            SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(
-                imageName: image.name, vmAddress: image.vmAddress, address: image.address, size: image.size, uuid: image.uuid)
-        }
-        sentrycrashbic_registerRemovedCallback { imagePtr in
-            guard let imagePtr else {
-                SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
-                return
+            sentrycrashbic_registerRemovedCallback { imagePtr in
+                guard let imagePtr else {
+                    SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
+                    return
+                }
+                let image = imagePtr.pointee
+                SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageRemoved(image.address)
             }
-            let image = imagePtr.pointee
-            SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageRemoved(image.address)
         }
     }
-    
+
     @objc public func stop() {
-        let shouldStop = state.withLock { state -> Bool in
+        state.withLock { state in
             guard state.cache != nil else {
                 SentrySDKLog.debug("SentryBinaryImageCache is already stopped. Skipping stop.")
-                return false
+                return
             }
             state.cache = nil
-            return true
+            sentrycrashbic_registerAddedCallback(nil)
+            sentrycrashbic_registerRemovedCallback(nil)
         }
-        guard shouldStop else { return }
-        sentrycrashbic_registerAddedCallback(nil)
-        sentrycrashbic_registerRemovedCallback(nil)
     }
     
     // We have to expand `SentryCrashBinaryImage` since the model is defined in SentryPrivate
