@@ -95,6 +95,9 @@ private struct SessionSegmentState {
         get { state.withLock { $0.isFullSession } }
         set { state.withLock { $0.isFullSession = newValue } }
     }
+    var isSessionPaused: Bool {
+        state.withLock { $0.isSessionPaused }
+    }
     public private(set) var sessionReplayId: SentryId?
 
     private var urlToCache: URL?
