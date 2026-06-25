@@ -5,7 +5,7 @@ Author: @NinjaLikesCheez <thomas.hedderwick@sentry.io>
 
 ## Background
 
-We're migrating from `SentryCrash` (a KSCrash v1.x fork with renamed identifiers) to KSCrash 2.x. The new integration (`SentryKSCrashIntegration`) is being built alongside the existing `SentryCrashIntegration`. We need a strategy for how these two coexist during development and how the cutover happens.
+We're migrating from `SentryCrash` (a KSCrash v1.x fork with renamed identifiers) to KSCrash 2.x and intend to make this the default crash handler in v10 of the SDK. The new integration (`SentryKSCrashIntegration`) is being built alongside the existing `SentryCrashIntegration` . We need a strategy for how these two coexist during development and how the cutover happens before we remove `SentryCrash` entirely from the codebase.
 
 ---
 
