@@ -3,12 +3,17 @@
 import UIKit
 #endif
 
+/// A snapshot of a detected main run loop delay, reported to observers each polling interval while ongoing
+/// and once more with ``isOngoing`` set to `false` when the delay ends.
 struct SentryRunLoopDelay {
     let duration: TimeInterval
     let isOngoing: Bool
 }
 typealias SentryRunLoopDelayTrackerHandler = (_ delay: SentryRunLoopDelay) -> Void
 typealias SentryRunLoopDelayTrackerObserverToken = UUID
+
+// In test/debug builds we use a protocol so that the tracker can be replaced with a mock.
+// In release builds the protocol indirection is eliminated via typealiases.
 #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
 protocol SentryRunLoopDelayTracker {
     func addObserver(handler: @escaping SentryRunLoopDelayTrackerHandler) -> SentryRunLoopDelayTrackerObserverToken
@@ -23,6 +28,7 @@ typealias SentryRunLoopDelayTracker = SentryDefaultSentryRunLoopDelayTracker<CFR
 typealias RunLoopObserver = CFRunLoopObserver
 #endif
 
+// Mirrors CFRunLoopObserver{CreateWithHandler,Add,Remove} signatures so tests can inject fakes.
 typealias CreateObserverFunc<T> = (_ allocator: CFAllocator?, _ activities: CFOptionFlags, _ repeats: Bool, _ order: CFIndex, _ block: ((T?, CFRunLoopActivity) -> Void)?) -> T?
 typealias AddObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFRunLoopMode?) -> Void
 typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFRunLoopMode?) -> Void
@@ -43,7 +49,7 @@ typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFR
 ///
 /// ## Design requirements:
 ///
-/// 1. We don't want the hang tracker to cause any thing more than a constant number of extra runloop iterations.
+/// 1. We don't want the hang tracker to cause anything more than a constant number of extra runloop iterations.
 ///   A fixed number of extra runloops per hang is acceptable, for example if it needed to run a ``dispatch_async``
 ///   on the main queue, but spinning the runloop indefinitely is not acceptable.
 /// 2. We don't want to acquire any locks every iteration of the runloop. It's ok to acquire locks in general
@@ -100,7 +106,7 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
         let maxFPS = Double(window?.screen.maximumFramesPerSecond ?? 60)
 #else
         let maxFPS: Double = 60.0
-        #endif
+#endif
         let expectedFrameDuration = 1.0 / maxFPS
         pollingInterval = expectedFrameDuration * 1.5
         mainQueueState = .init()
@@ -118,13 +124,12 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
     /// Adds an observer to the tracker
     ///
     /// The observer/handler is always called on the same background queue. This guarantees
-    /// sequentially ordering of the callback. If it's called at least once with `isOngoing` set to `true`
+    /// sequential ordering of the callbacks. If it's called at least once with `isOngoing` set to `true`
     /// it will eventually be called with `isOngoing` set to `false`, or the app will exit.
     ///
     /// - Precondition: Must be called on main queue
     func addObserver(handler: @escaping SentryRunLoopDelayTrackerHandler) -> SentryRunLoopDelayTrackerObserverToken {
         let token = SentryRunLoopDelayTrackerObserverToken()
-        // Modifying observers requires holding the lock
         observersLock.synchronized {
             observers[token] = handler
         }
@@ -150,7 +155,6 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
     /// - Precondition: Must be called on main queue
     private func startIfNecessary() {
         guard mainQueueState.observer == nil else {
-            // Already running
             return
         }
 
@@ -172,7 +176,6 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
                     self?.waitForDelay(semaphore: localSemaphore, started: started)
                 }
             default:
-                // We want this to crash in debug to quickly catch issues but never in production
                 assertionFailure("Unexpected run loop activity \(activity)")
             }
         }
@@ -206,8 +209,6 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
             let duration = dateProvider.systemUptime() - started
             switch result {
             case .timedOut:
-                // Accessing observers off the main queue requires holding the lock
-                // because the main queue could be modifying it
                 observersLock.synchronized {
                     observers.values.forEach { observer in
                         observer(.init(duration: duration, isOngoing: true))
@@ -217,9 +218,6 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
             case .success:
                 semaphoreSuccess = true
                 if hasTimedOut {
-                    // A delay had occurred, but now is over
-                    // Accessing observers off the main queue requires holding the lock
-                    // because the main queue could be modifying it
                     observersLock.synchronized {
                         observers.values.forEach { observer in
                             observer(.init(duration: duration, isOngoing: false))
