@@ -49,7 +49,7 @@
     
     /**
      * The event identifier, if available.
-     * An event id exist if the envelope contains an event of items within it are related. i.e
+     * An event id exists if the envelope contains an event or items within it are related. i.e
      * Attachments
      */
     @objc public let eventId: SentryId?
