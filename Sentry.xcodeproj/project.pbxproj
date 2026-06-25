@@ -777,6 +777,8 @@
 		D4B692502FC5ED520022BC67 /* SentryObjCCompat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4D86B9D2F6D4CF00078153D /* SentryObjCCompat.framework */; };
 		D4CBA2472DE06D0200581618 /* libSentryTestUtils.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */; };
 		D4CBA2532DE06D1600581618 /* TestConstantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4CBA2512DE06D1600581618 /* TestConstantTests.swift */; };
+		072F63C813844BE682A2898B /* SentryOptionsHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = D4CD8F132FEA88180005D00C /* SentryOptionsHelper.h */; };
+		32CCAC700989116A2F92191F /* SentryOptionsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D4CD8F1B2FEA882D0005D00C /* SentryOptionsHelper.m */; };
 		D4CD8F192FEA881E0005D00C /* SentryOptionsHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = D4CD8F132FEA88180005D00C /* SentryOptionsHelper.h */; };
 		D4CD8F1C2FEA882E0005D00C /* SentryOptionsHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D4CD8F1B2FEA882D0005D00C /* SentryOptionsHelper.m */; };
 		D4D86BAE2F6D4D2A0078153D /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63AA759B1EB8AEF500D153DE /* Sentry.framework */; };
@@ -3336,6 +3338,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				072F63C813844BE682A2898B /* SentryOptionsHelper.h in Headers */,
 				3AD7A0100A0390EE8DDC6120 /* SentrySampling.h in Headers */,
 				D2C0FCCFCA39EA59CDA0C8B8 /* SentryBreadcrumb+Private.h in Headers */,
 				1D424779A98A401FF34C3D2B /* SentryProfilingConditionals.h in Headers */,
@@ -4339,6 +4342,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32CCAC700989116A2F92191F /* SentryOptionsHelper.m in Sources */,
 				0C235164152DE7355E412C4A /* SentrySessionReplayHybridSDK.m in Sources */,
 				906677EC8729A26977A30F64 /* SentryMessage.m in Sources */,
 				1238DF7922E9CBD16A4A62CA /* SentryCrashScopeObserver.m in Sources */,
