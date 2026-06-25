@@ -1,5 +1,3 @@
-@_implementationOnly import _SentryPrivate
-
 /// A hang event derived from a run loop delay that exceeded an observer's threshold.
 struct SentryAppHang {
     enum State {
@@ -47,8 +45,7 @@ final class SentryDefaultAppHangTracker {
     private let runLoopDelayTracker: SentryRunLoopDelayTracker
     private var runLoopDelayTrackerObserverToken: SentryRunLoopDelayTrackerObserverToken?
 
-    private let observersLock = NSRecursiveLock()
-    private var observers = [UUID: ObserverEntry]()
+    private let observers = SentryMutex<[UUID: ObserverEntry]>([:])
 
     // MARK: - Implementation
 
@@ -66,8 +63,8 @@ final class SentryDefaultAppHangTracker {
     /// - Precondition: Must be called on main queue.
     func addObserver(threshold: TimeInterval, handler: @escaping SentryAppHangTrackerHandler) -> SentryAppHangTrackerObserverToken {
         let token = SentryAppHangTrackerObserverToken()
-        observersLock.synchronized {
-            observers[token] = ObserverEntry(threshold: threshold, handler: handler)
+        observers.withLock {
+            $0[token] = ObserverEntry(threshold: threshold, handler: handler)
         }
         startIfNecessary()
         return token
@@ -78,8 +75,8 @@ final class SentryDefaultAppHangTracker {
     /// - Precondition: Must be called on main queue
     func removeObserver(token: SentryAppHangTrackerObserverToken) {
         // Return the removed entry out of the lock so its closure is destroyed outside the critical region.
-        let (removed, isEmpty) = observersLock.synchronized {
-            (observers.removeValue(forKey: token), observers.isEmpty)
+        let (removed, isEmpty) = observers.withLock {
+            ($0.removeValue(forKey: token), $0.isEmpty)
         }
         _ = removed
 
@@ -104,15 +101,15 @@ final class SentryDefaultAppHangTracker {
     }
 
     private func processDelay(delay: SentryRunLoopDelay) {
-        observersLock.synchronized {
-            for (token, entry) in observers {
+        observers.withLock { entries in
+            for (token, entry) in entries {
                 if delay.isOngoing {
                     if delay.duration >= entry.threshold && !entry.hasBeenNotified {
-                        observers[token]?.hasBeenNotified = true
+                        entries[token]?.hasBeenNotified = true
                         entry.handler(.init(duration: delay.duration, state: .started))
                     }
                 } else if entry.hasBeenNotified {
-                    observers[token]?.hasBeenNotified = false
+                    entries[token]?.hasBeenNotified = false
                     entry.handler(.init(duration: delay.duration, state: .ended))
                 }
             }

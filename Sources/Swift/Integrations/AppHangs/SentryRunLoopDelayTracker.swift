@@ -77,11 +77,7 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
     private let addObserver: AddObserverFunc<T>
     private let removeObserver: RemoveObserverFunc<T>
 
-    // Observers is the only state that uses a lock. It should only be modified
-    // on the main queue, while the lock is held. Reading it on the main queue
-    // does not require a lock. Reading it on a background queue does require the lock.
-    private let observersLock = NSRecursiveLock()
-    private var observers = [SentryRunLoopDelayTrackerObserverToken: SentryRunLoopDelayTrackerHandler]()
+    private let observers = SentryMutex<[SentryRunLoopDelayTrackerObserverToken: SentryRunLoopDelayTrackerHandler]>([:])
     private var mainQueueState: MainQueueState
 
     // MARK: - Implementation
@@ -130,8 +126,8 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
     /// - Precondition: Must be called on main queue
     func addObserver(handler: @escaping SentryRunLoopDelayTrackerHandler) -> SentryRunLoopDelayTrackerObserverToken {
         let token = SentryRunLoopDelayTrackerObserverToken()
-        observersLock.synchronized {
-            observers[token] = handler
+        observers.withLock {
+            $0[token] = handler
         }
         startIfNecessary()
         return token
@@ -141,9 +137,9 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
     ///
     /// - Precondition: Must be called on main queue
     func removeObserver(token: SentryRunLoopDelayTrackerObserverToken) {
-        // Keep a reference to the removed observer so it's destroyed after leaving the critical section
-        let (removed, isEmpty) = observersLock.synchronized {
-            (observers.removeValue(forKey: token), observers.isEmpty)
+        // Keep a reference to the removed observer so it's destroyed after leaving the critical section.
+        let (removed, isEmpty) = observers.withLock {
+            ($0.removeValue(forKey: token), $0.isEmpty)
         }
         _ = removed
 
@@ -209,7 +205,7 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
             let duration = dateProvider.systemUptime() - started
             switch result {
             case .timedOut:
-                observersLock.synchronized {
+                observers.withLock { observers in
                     observers.values.forEach { observer in
                         observer(.init(duration: duration, isOngoing: true))
                     }
@@ -218,7 +214,7 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
             case .success:
                 semaphoreSuccess = true
                 if hasTimedOut {
-                    observersLock.synchronized {
+                    observers.withLock { observers in
                         observers.values.forEach { observer in
                             observer(.init(duration: duration, isOngoing: false))
                         }
