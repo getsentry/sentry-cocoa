@@ -36,6 +36,11 @@ jobs:
               return;
             }
 
+            if (pr.head.repo?.fork) {
+              core.info('Skipping forked PR');
+              return;
+            }
+
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const prNumber = pr.number;
