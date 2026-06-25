@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Rename extended app start span operation from `app.start.extended_app_start` to `app.start.extended` ([#TBD](https://github.com/getsentry/sentry-cocoa/pull/TBD))
+
 ## 9.19.0
 
 > [!WARNING]

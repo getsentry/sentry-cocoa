@@ -5,7 +5,7 @@
 final class SentryExtendedAppLaunchManager {
     
     enum Constants {
-        static let extendedOperation = "\(SentrySpanOperationAppStart).extended_app_start"
+        static let extendedOperation = "\(SentrySpanOperationAppStart).extended"
     }
 
     private let lock = NSLock()
