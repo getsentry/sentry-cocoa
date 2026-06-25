@@ -116,3 +116,55 @@ final class SentryDefaultAppHangTracker {
         }
     }
 }
+
+private class FlameNode {
+    let frame: Frame
+    var sampleCount: Int = 0
+    var childKeys: [String] = []
+    var children: [String: FlameNode] = [:]
+
+    init(frame: Frame) {
+        self.frame = frame
+    }
+}
+
+/// Merges multiple sampled stacktraces into a single flamegraph tree,
+/// flattened into an array of frames with `parentIndex` and `sampleCount`.
+private func buildFlamegraphFrames(from stacktraces: [SentryStacktrace]) -> [Frame] {
+    let root = FlameNode(frame: Frame())
+
+    for stacktrace in stacktraces {
+        var current = root
+        current.sampleCount += 1
+
+        for frame in stacktrace.frames {
+            let key = frame.instructionAddress ?? frame.function ?? "?"
+            if let child = current.children[key] {
+                child.sampleCount += 1
+                current = child
+            } else {
+                let node = FlameNode(frame: frame)
+                node.sampleCount = 1
+                current.childKeys.append(key)
+                current.children[key] = node
+                current = node
+            }
+        }
+    }
+
+    var result: [Frame] = []
+
+    func flatten(_ node: FlameNode, parentIndex: Int) {
+        for key in node.childKeys {
+            guard let child = node.children[key] else { continue }
+            let idx = result.count
+            child.frame.parentIndex = NSNumber(value: parentIndex)
+            child.frame.sampleCount = NSNumber(value: child.sampleCount)
+            result.append(child.frame)
+            flatten(child, parentIndex: idx)
+        }
+    }
+
+    flatten(root, parentIndex: -1)
+    return result
+}
