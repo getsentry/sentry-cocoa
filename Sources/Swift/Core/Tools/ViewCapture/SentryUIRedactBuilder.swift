@@ -466,7 +466,7 @@ final class SentryUIRedactBuilder {
             }
         }
 
-        //The swiftUI type needs to appear first in the list so it always gets masked
+        // The swiftUI type needs to appear first in the list so it always gets masked
         return (otherRegions + swiftUIRedact).reversed()
     }
 
