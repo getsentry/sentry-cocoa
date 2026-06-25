@@ -108,7 +108,7 @@ extension SentryReplayBreadcrumbConverter {
             addNetworkDetails(from: networkDetails.serialize(), to: &data)
         }
         
-        //We dont have end of the request in the breadcrumb.
+        //We don't have end of the request in the breadcrumb.
         return SentryRRWebSpanEvent(timestamp: startTimestamp, endTimestamp: timestamp, operation: "resource.http", description: description, data: data)
     }
     
