@@ -39,10 +39,12 @@ final class DefaultAppHangTracker {
     }
 
     func removeObserver(id: UUID) {
-        observersLock.synchronized {
-            _ = observers.removeValue(forKey: id)
+        // Return the removed entry out of the lock so its closure is destroyed outside the critical region.
+        let (removed, isEmpty) = observersLock.synchronized {
+            (observers.removeValue(forKey: id), observers.isEmpty)
         }
-        if observers.isEmpty {
+        _ = removed
+        if isEmpty {
             stopIfRunning()
         }
     }
