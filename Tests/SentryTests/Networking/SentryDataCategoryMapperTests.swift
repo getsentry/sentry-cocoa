@@ -33,9 +33,10 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(sentryDataCategoryForNSUInteger(12), .feedback)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(13), .logItem)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(14), .traceMetric)
-        XCTAssertEqual(sentryDataCategoryForNSUInteger(15), .unknown)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(15), .logByte)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(16), .unknown)
 
-        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(15), "Failed to map unknown category number to case .unknown")
+        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(16), "Failed to map unknown category number to case .unknown")
     }
     
     func testMapStringToCategory() {
@@ -52,6 +53,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameFeedback), .feedback)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameSpan), .span)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameLogItem), .logItem)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameLogByte), .logByte)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameUnknown), .unknown)
 
         XCTAssertEqual(.unknown, sentryDataCategoryForString("gdfagdfsa"), "Failed to map unknown category name to case .unknown")
@@ -71,6 +73,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(nameForSentryDataCategory(.feedback), kSentryDataCategoryNameFeedback)
         XCTAssertEqual(nameForSentryDataCategory(.span), kSentryDataCategoryNameSpan)
         XCTAssertEqual(nameForSentryDataCategory(.logItem), kSentryDataCategoryNameLogItem)
+        XCTAssertEqual(nameForSentryDataCategory(.logByte), kSentryDataCategoryNameLogByte)
         XCTAssertEqual(nameForSentryDataCategory(.unknown), kSentryDataCategoryNameUnknown)
     }
 }
