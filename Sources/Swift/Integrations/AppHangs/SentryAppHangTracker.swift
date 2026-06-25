@@ -104,7 +104,7 @@ final class SentryDefaultAppHangTracker {
         observers.withLock { entries in
             for (token, entry) in entries {
                 if delay.isOngoing {
-                    if delay.duration >= entry.threshold && !entry.hasBeenNotified {
+                    if delay.duration > entry.threshold && !entry.hasBeenNotified {
                         entries[token]?.hasBeenNotified = true
                         entry.handler(.init(duration: delay.duration, state: .started))
                     }
