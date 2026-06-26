@@ -45,6 +45,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "27"
+          allow-prerelease: "true"
       - name: Build SPM (${{ matrix.platform }})
         run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \

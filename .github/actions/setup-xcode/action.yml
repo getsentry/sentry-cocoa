@@ -14,6 +14,12 @@ inputs:
       a major.minor like '16.4' or '26.0', or an exact installed version.
     required: false
     default: "latest"
+  allow-prerelease:
+    description: >-
+      When 'true', include prerelease (beta/RC/GM) Xcode versions during
+      resolution. By default prerelease versions are filtered out.
+    required: false
+    default: "false"
 outputs:
   xcode-version:
     description: "The resolved (concrete) Xcode version, e.g. '16.4' or '26.0.1'."
@@ -38,5 +44,10 @@ runs:
       shell: bash
       env:
         XCODE_INPUT: ${{ inputs.version }}
+        ALLOW_PRERELEASE: ${{ inputs.allow-prerelease }}
       run: |
-        "${{ github.action_path }}/../../../scripts/ci-select-xcode.sh" "$XCODE_INPUT"
+        PRERELEASE_FLAG=""
+        if [[ "$ALLOW_PRERELEASE" == "true" ]]; then
+          PRERELEASE_FLAG="--allow-prerelease"
+        fi
+        "${{ github.action_path }}/../../../scripts/ci-select-xcode.sh" $PRERELEASE_FLAG "$XCODE_INPUT"
