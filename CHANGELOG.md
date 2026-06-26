@@ -8,7 +8,6 @@
 - Fix C++ exception capture on newer OS versions by page-aligning `mprotect` calls in the `__cxa_throw` swapper (#8221)
 - Fix client report discarded-event counts for categories reported in quantities greater than one (e.g. spans): each drop now adds the full dropped quantity instead of incrementing by one (#8230)
 
-
 ## 9.19.0
 
 > [!WARNING]
