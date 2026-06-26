@@ -19,110 +19,110 @@
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
 {
-    return [self initWithMaxBreadcrumbs:maxBreadcrumbs
-                            fileManager:SentryDependencyContainer.sharedInstance.fileManager];
+return [self initWithMaxBreadcrumbs:maxBreadcrumbs
+fileManager:SentryDependencyContainer.sharedInstance.fileManager];
 }
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
-                           fileManager:(SentryFileManager *_Nullable)fileManager
+fileManager:(SentryFileManager *_Nullable)fileManager
 {
-    if (self = [super init]) {
-        self.fileManager = fileManager;
+if (self = [super init]) {
+self.fileManager = fileManager;
 
-        self.breadcrumbCounter = 0;
-        self.maxBreadcrumbs = maxBreadcrumbs;
+self.breadcrumbCounter = 0;
+self.maxBreadcrumbs = maxBreadcrumbs;
 
-        [self switchFileHandle];
-    }
+[self switchFileHandle];
+}
 
-    return self;
+return self;
 }
 
 - (void)dealloc
 {
-    [self.fileHandle closeFile];
+[self.fileHandle closeFile];
 }
 
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
 {
-    SENTRY_LOG_DEBUG(@"Adding breadcrumb: %@", crumb);
-    NSData *_Nullable jsonData = [SentrySerializationSwift dataWithJSONObject:crumb];
-    if (jsonData == nil) {
-        SENTRY_LOG_ERROR(@"Error serializing breadcrumb to JSON");
-        return;
-    }
-    [self storeBreadcrumb:SENTRY_UNWRAP_NULLABLE(NSData, jsonData)];
+SENTRY_LOG_DEBUG(@"Adding breadcrumb: %@", crumb);
+NSData *_Nullable jsonData = [SentrySerializationSwift dataWithJSONObject:crumb];
+if (jsonData == nil) {
+SENTRY_LOG_ERROR(@"Error serializing breadcrumb to JSON");
+return;
+}
+[self storeBreadcrumb:SENTRY_UNWRAP_NULLABLE(NSData, jsonData)];
 }
 
 - (void)clear
 {
-    [self clearBreadcrumbs];
+[self clearBreadcrumbs];
 }
 
 - (void)clearBreadcrumbs
 {
-    [self deleteFiles];
-    [self switchFileHandle];
+[self deleteFiles];
+[self switchFileHandle];
 }
 
 // MARK: - Helpers
 
 - (void)switchFileHandle
 {
-    if ([self.activeFilePath isEqualToString:self.fileManager.breadcrumbsFilePathOne]) {
-        self.activeFilePath = self.fileManager.breadcrumbsFilePathTwo;
-    } else {
-        self.activeFilePath = self.fileManager.breadcrumbsFilePathOne;
-    }
+if ([self.activeFilePath isEqualToString:self.fileManager.breadcrumbsFilePathOne]) {
+self.activeFilePath = self.fileManager.breadcrumbsFilePathTwo;
+} else {
+self.activeFilePath = self.fileManager.breadcrumbsFilePathOne;
+}
 
-    // Close the current filehandle (if any)
-    [self.fileHandle closeFile];
+// Close the current filehandle (if any)
+[self.fileHandle closeFile];
 
-    // Create a fresh file for the new active path
-    [self.fileManager removeFileAtPath:self.activeFilePath];
-    [[NSFileManager defaultManager] createFileAtPath:self.activeFilePath
-                                            contents:nil
-                                          attributes:nil];
+// Create a fresh file for the new active path
+[self.fileManager removeFileAtPath:self.activeFilePath];
+[[NSFileManager defaultManager] createFileAtPath:self.activeFilePath
+contents:nil
+attributes:nil];
 
-    // Open the file for writing
-    self.fileHandle = [NSFileHandle fileHandleForWritingAtPath:self.activeFilePath];
+// Open the file for writing
+self.fileHandle = [NSFileHandle fileHandleForWritingAtPath:self.activeFilePath];
 
-    if (!self.fileHandle) {
-        SENTRY_LOG_ERROR(@"Couldn't open file handle for %@", self.activeFilePath);
-    }
+if (!self.fileHandle) {
+SENTRY_LOG_ERROR(@"Couldn't open file handle for %@", self.activeFilePath);
+}
 }
 
 - (void)deleteFiles
 {
-    [self.fileHandle closeFile];
-    self.fileHandle = nil;
-    self.activeFilePath = nil;
-    self.breadcrumbCounter = 0;
+[self.fileHandle closeFile];
+self.fileHandle = nil;
+self.activeFilePath = nil;
+self.breadcrumbCounter = 0;
 
-    [self.fileManager removeFileAtPath:self.fileManager.breadcrumbsFilePathOne];
-    [self.fileManager removeFileAtPath:self.fileManager.breadcrumbsFilePathTwo];
+[self.fileManager removeFileAtPath:self.fileManager.breadcrumbsFilePathOne];
+[self.fileManager removeFileAtPath:self.fileManager.breadcrumbsFilePathTwo];
 }
 
 - (void)storeBreadcrumb:(NSData *_Nonnull)data
 {
-    unsigned long long fileSize;
-    @try {
-        fileSize = [self.fileHandle seekToEndOfFile];
+unsigned long long fileSize;
+@try {
+fileSize = [self.fileHandle seekToEndOfFile];
 
-        [self.fileHandle writeData:data];
-        NSData *_Nonnull const newLineData = [NSData dataWithBytes:"\n" length:1];
-        [self.fileHandle writeData:newLineData];
+[self.fileHandle writeData:data];
+NSData *_Nonnull const newLineData = [NSData dataWithBytes:"\n" length:1];
+[self.fileHandle writeData:newLineData];
 
-        self.breadcrumbCounter += 1;
-    } @catch (NSException *exception) {
-        SENTRY_LOG_ERROR(@"Error while writing data to end file with size (%llu): %@ ", fileSize,
-            exception.description);
-    } @finally {
-        if (self.breadcrumbCounter >= self.maxBreadcrumbs) {
-            [self switchFileHandle];
-            self.breadcrumbCounter = 0;
-        }
-    }
+self.breadcrumbCounter += 1;
+} @catch (NSException *exception) {
+SENTRY_LOG_ERROR(@"Error while writing data to end file with size (%llu): %@ ", fileSize,
+exception.description);
+} @finally {
+if (self.breadcrumbCounter >= self.maxBreadcrumbs) {
+[self switchFileHandle];
+self.breadcrumbCounter = 0;
+}
+}
 }
 
 @end

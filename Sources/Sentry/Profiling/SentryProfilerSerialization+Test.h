@@ -19,17 +19,17 @@ SENTRY_EXTERN NSString *const kSentryProfilerSerializationKeyFrameRates;
 SENTRY_EXTERN NSString *sentry_profilerTruncationReasonName(SentryProfilerTruncationReason reason);
 
 /**
- * An intermediate function that can serve requests from either the native SDK or hybrid SDKs; they
- * will have different structures/objects available, these parameters are the common elements
- * needed to construct the payload dictionary.
- */
+* An intermediate function that can serve requests from either the native SDK or hybrid SDKs; they
+* will have different structures/objects available, these parameters are the common elements
+* needed to construct the payload dictionary.
+*/
 SENTRY_EXTERN NSMutableDictionary<NSString *, id> *sentry_serializedTraceProfileData(
-    NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
-    NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
-    NSArray<SentryDebugMeta *> *debugMeta, SentryHubInternal *hub
+NSDictionary<NSString *, id> *profileData, uint64_t startSystemTime, uint64_t endSystemTime,
+NSString *truncationReason, NSDictionary<NSString *, id> *serializedMetrics,
+NSArray<SentryDebugMeta *> *debugMeta, SentryHubInternal *hub
 #        if SENTRY_HAS_UIKIT
-    ,
-    SentryScreenFrames *gpuData
+,
+SentryScreenFrames *gpuData
 #        endif // SENTRY_HAS_UIKIT
 );
 

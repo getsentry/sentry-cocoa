@@ -41,33 +41,33 @@
 #define unlikely_if(x) if (__builtin_expect(x, 0))
 
 /** Write a formatted string to the log.
- *
- * @param fmt The format string, followed by its arguments.
- */
+*
+* @param fmt The format string, followed by its arguments.
+*/
 static void writeFmtToLog(const char *fmt, ...);
 
 /** Write a formatted string to the log using a vararg list.
- *
- * @param fmt The format string.
- *
- * @param args The variable arguments.
- */
+*
+* @param fmt The format string.
+*
+* @param args The variable arguments.
+*/
 static void writeFmtArgsToLog(const char *fmt, va_list args);
 
 static inline const char *
 lastPathEntry(const char *const path)
 {
-    const char *lastFile = strrchr(path, '/');
-    return lastFile == 0 ? path : lastFile + 1;
+const char *lastFile = strrchr(path, '/');
+return lastFile == 0 ? path : lastFile + 1;
 }
 
 static inline void
 writeFmtToLog(const char *fmt, ...)
 {
-    va_list args;
-    va_start(args, fmt);
-    writeFmtArgsToLog(fmt, args);
-    va_end(args);
+va_list args;
+va_start(args, fmt);
+writeFmtArgsToLog(fmt, args);
+va_end(args);
 }
 
 /** The file descriptor where log entries get written. */
@@ -81,86 +81,86 @@ static bool g_checkedIsDebugging;
 static void
 writeToLog(const char *const str)
 {
-    unlikely_if(str == NULL) { return; }
+unlikely_if(str == NULL) { return; }
 
-    if (g_fd >= 0) {
-        // strlen cannot read out of bounds here: str comes from string literals in this file or
-        // from vsnprintf into a fixed-size stack buffer, both of which are guaranteed
-        // null-terminated.
-        int bytesToWrite = (int)strlen(str);
-        const char *pos = str;
-        while (bytesToWrite > 0) {
-            int bytesWritten = (int)write(g_fd, pos, (unsigned)bytesToWrite);
-            unlikely_if(bytesWritten == -1) { break; }
-            bytesToWrite -= bytesWritten;
-            pos += bytesWritten;
-        }
-    }
+if (g_fd >= 0) {
+// strlen cannot read out of bounds here: str comes from string literals in this file or
+// from vsnprintf into a fixed-size stack buffer, both of which are guaranteed
+// null-terminated.
+int bytesToWrite = (int)strlen(str);
+const char *pos = str;
+while (bytesToWrite > 0) {
+int bytesWritten = (int)write(g_fd, pos, (unsigned)bytesToWrite);
+unlikely_if(bytesWritten == -1) { break; }
+bytesToWrite -= bytesWritten;
+pos += bytesWritten;
+}
+}
 
 #if SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE
-    // if we're debugging, also write the log statements to the console; we only check once for
-    // performance reasons; if the debugger is attached or detached while running, it will not
-    // change console-based logging
-    if (!g_checkedIsDebugging) {
-        g_checkedIsDebugging = true;
-        g_isDebugging = sentrycrashdebug_isBeingTraced();
-    }
-    if (g_isDebugging) {
-        fprintf(stdout, "%s", str);
-        fflush(stdout);
-    }
+// if we're debugging, also write the log statements to the console; we only check once for
+// performance reasons; if the debugger is attached or detached while running, it will not
+// change console-based logging
+if (!g_checkedIsDebugging) {
+g_checkedIsDebugging = true;
+g_isDebugging = sentrycrashdebug_isBeingTraced();
+}
+if (g_isDebugging) {
+fprintf(stdout, "%s", str);
+fflush(stdout);
+}
 #endif // SENTRY_ASYNC_SAFE_LOG_ALSO_WRITE_TO_CONSOLE
 }
 
 static inline void
 writeFmtArgsToLog(const char *fmt, va_list args)
 {
-    unlikely_if(fmt == NULL) { writeToLog("(null)"); }
-    else
-    {
-        char buffer[SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE];
-        vsnprintf(buffer, sizeof(buffer), fmt, args);
-        writeToLog(buffer);
-    }
+unlikely_if(fmt == NULL) { writeToLog("(null)"); }
+else
+{
+char buffer[SENTRY_ASYNC_SAFE_LOG_C_BUFFER_SIZE];
+vsnprintf(buffer, sizeof(buffer), fmt, args);
+writeToLog(buffer);
+}
 }
 
 static inline void
 setLogFD(int fd)
 {
-    if (g_fd >= 0 && g_fd != STDOUT_FILENO && g_fd != STDERR_FILENO && g_fd != STDIN_FILENO) {
-        close(g_fd);
-    }
-    g_fd = fd;
+if (g_fd >= 0 && g_fd != STDOUT_FILENO && g_fd != STDERR_FILENO && g_fd != STDIN_FILENO) {
+close(g_fd);
+}
+g_fd = fd;
 }
 
 int
 sentry_asyncLogSetFileName(const char *filename, bool overwrite)
 {
-    static int fd = -1;
-    if (filename != NULL) {
-        int openMask = O_WRONLY | O_CREAT;
-        if (overwrite) {
-            openMask |= O_TRUNC;
-        }
-        fd = open(filename, openMask, 0644);
-        unlikely_if(fd < 0) { return 1; }
-        if (filename != g_logFilename) {
-            strlcpy(g_logFilename, filename, sizeof(g_logFilename));
-        }
-    }
+static int fd = -1;
+if (filename != NULL) {
+int openMask = O_WRONLY | O_CREAT;
+if (overwrite) {
+openMask |= O_TRUNC;
+}
+fd = open(filename, openMask, 0644);
+unlikely_if(fd < 0) { return 1; }
+if (filename != g_logFilename) {
+strlcpy(g_logFilename, filename, sizeof(g_logFilename));
+}
+}
 
-    setLogFD(fd);
-    return 0;
+setLogFD(fd);
+return 0;
 }
 
 void
 sentry_asyncLogC(
-    const char *const level, const char *const file, const int line, const char *const fmt, ...)
+const char *const level, const char *const file, const int line, const char *const fmt, ...)
 {
-    writeFmtToLog("%s: %s (%u): ", level, lastPathEntry(file), line);
-    va_list args;
-    va_start(args, fmt);
-    writeFmtArgsToLog(fmt, args);
-    va_end(args);
-    writeToLog("\n");
+writeFmtToLog("%s: %s (%u): ", level, lastPathEntry(file), line);
+va_list args;
+va_start(args, fmt);
+writeFmtArgsToLog(fmt, args);
+va_end(args);
+writeToLog("\n");
 }

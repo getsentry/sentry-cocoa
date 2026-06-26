@@ -3,28 +3,28 @@
 @implementation SentryDictionary
 
 + (void)mergeEntriesFromDictionary:(NSDictionary *)dictionary
-                    intoDictionary:(NSMutableDictionary *)destination
+intoDictionary:(NSMutableDictionary *)destination
 {
-    [dictionary enumerateKeysAndObjectsUsingBlock:^(id otherKey, id otherObj, BOOL *stop) {
-        if ([otherObj isKindOfClass:NSDictionary.class] &&
-            [destination[otherKey] isKindOfClass:NSDictionary.class]) {
-            NSMutableDictionary *mergedDict = ((NSDictionary *)destination[otherKey]).mutableCopy;
-            [SentryDictionary mergeEntriesFromDictionary:otherObj intoDictionary:mergedDict];
-            destination[otherKey] = mergedDict;
-            return;
-        }
+[dictionary enumerateKeysAndObjectsUsingBlock:^(id otherKey, id otherObj, BOOL *stop) {
+if ([otherObj isKindOfClass:NSDictionary.class] &&
+[destination[otherKey] isKindOfClass:NSDictionary.class]) {
+NSMutableDictionary *mergedDict = ((NSDictionary *)destination[otherKey]).mutableCopy;
+[SentryDictionary mergeEntriesFromDictionary:otherObj intoDictionary:mergedDict];
+destination[otherKey] = mergedDict;
+return;
+}
 
-        destination[otherKey] = otherObj;
-    }];
+destination[otherKey] = otherObj;
+}];
 }
 
 + (void)setBoolValue:(nullable NSNumber *)value
-              forKey:(NSString *)key
-      intoDictionary:(NSMutableDictionary *)destination
+forKey:(NSString *)key
+intoDictionary:(NSMutableDictionary *)destination
 {
-    if (value != nil) {
-        [destination setValue:@([value boolValue]) forKey:key];
-    }
+if (value != nil) {
+[destination setValue:@([value boolValue]) forKey:key];
+}
 }
 
 @end
