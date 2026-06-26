@@ -24,6 +24,9 @@ TEST_SCHEME="Sentry"
 TEST_PLAN=""
 RESULT_BUNDLE_PATH="results.xcresult"
 ONLY_TESTING=""
+WORKSPACE="Sentry.xcworkspace"
+SDK=""
+RAW_DESTINATION=""
 
 usage() {
     cat <<EOF
@@ -44,11 +47,16 @@ OPTIONS:
     --only-testing <tests>           Comma-separated test selectors.
                                       Each selector must be Target/Class or Target/Class/testMethod.
     -R, --result-bundle <path>       Result bundle path (default: results.xcresult)
+    -w, --workspace <path>           Workspace path (default: Sentry.xcworkspace)
+    --sdk <sdk>                      SDK override (e.g. iphoneos, watchos)
+    --destination <dest>             Raw xcodebuild destination string (bypasses
+                                      --platform resolution)
 
 EXAMPLES:
     $(basename "$0") -p iOS -c test
     $(basename "$0") -p macOS -c build -C Release
     $(basename "$0") -p iOS -c test --only-testing SentryTests/SentrySDKTests
+    $(basename "$0") -w . -s SentrySPM --sdk iphoneos --destination 'generic/platform=iphoneos' -c build
 
 EOF
     exit 1
@@ -102,6 +110,18 @@ while [[ $# -gt 0 ]]; do
             RESULT_BUNDLE_PATH="$2"
             shift 2
             ;;
+        -w|--workspace)
+            WORKSPACE="$2"
+            shift 2
+            ;;
+        --sdk)
+            SDK="$2"
+            shift 2
+            ;;
+        --destination)
+            RAW_DESTINATION="$2"
+            shift 2
+            ;;
         *)
             log_error "Unknown option: $1"
             usage
@@ -124,6 +144,10 @@ resolve_runtime_version() {
         echo "$os"
     fi
 }
+
+if [ -n "$RAW_DESTINATION" ]; then
+    DESTINATION="$RAW_DESTINATION"
+else
 
 case $PLATFORM in
 
@@ -161,8 +185,12 @@ case $PLATFORM in
     ;;
 esac
 
+fi # RAW_DESTINATION check
+
 if [ -n "$CONFIGURATION_OVERRIDE" ]; then
     CONFIGURATION="$CONFIGURATION_OVERRIDE"
+elif [ -n "$RAW_DESTINATION" ]; then
+    CONFIGURATION=""
 else
     case $REF_NAME in
     "main")
@@ -200,13 +228,18 @@ esac
 
 if [ $RUN_BUILD == true ]; then
     log_info "Running xcodebuild build"
-    
+
+    BUILD_ARGS=(
+        -workspace "$WORKSPACE"
+        -scheme "$TEST_SCHEME"
+    )
+    [[ -n "$SDK" ]] && BUILD_ARGS+=(-sdk "$SDK")
+    [[ -n "$CONFIGURATION" ]] && BUILD_ARGS+=(-configuration "$CONFIGURATION")
+    BUILD_ARGS+=(-destination "$DESTINATION")
+    [[ -n "$DERIVED_DATA_PATH" ]] && BUILD_ARGS+=(-derivedDataPath "$DERIVED_DATA_PATH")
+
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
-        -scheme "$TEST_SCHEME" \
-        -configuration "$CONFIGURATION" \
-        -destination "$DESTINATION" \
-        -derivedDataPath "$DERIVED_DATA_PATH" \
+        "${BUILD_ARGS[@]}" \
         build 2>&1 |
         tee raw-build-output.log |
         xcbeautify --preserve-unbeautified
@@ -236,7 +269,7 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
     log_info "Running xcodebuild build-for-testing"
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
+        -workspace "$WORKSPACE" \
         -scheme "$TEST_SCHEME" \
         "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
         "${ONLY_TESTING_ARGS[@]+${ONLY_TESTING_ARGS[@]}}" \
@@ -257,7 +290,7 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
     fi
 
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace Sentry.xcworkspace \
+        -workspace "$WORKSPACE" \
         -scheme "$TEST_SCHEME" \
         "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
         "${ONLY_TESTING_ARGS[@]+${ONLY_TESTING_ARGS[@]}}" \

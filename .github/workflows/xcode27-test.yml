@@ -48,19 +48,18 @@ jobs:
           allow-prerelease: "true"
       - name: Build SPM (${{ matrix.platform }})
         run: |
-          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-            -workspace . \
-            -scheme SentrySPM \
-            -sdk ${{ matrix.sdk }} \
-            -destination '${{ matrix.destination }}' \
-            build 2>&1 | tee raw-build-output-spm-${{ matrix.sdk }}.log | xcbeautify --preserve-unbeautified
-        shell: sh
+          ./scripts/sentry-xcodebuild.sh \
+            --workspace . \
+            --scheme SentrySPM \
+            --sdk ${{ matrix.sdk }} \
+            --destination '${{ matrix.destination }}' \
+            --command build
       - name: Upload Build Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
-          name: raw-build-output-spm-${{ matrix.sdk }}
-          path: raw-build-output-spm-${{ matrix.sdk }}.log
+          name: raw-build-output-${{ matrix.sdk }}
+          path: raw-build-output.log
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
