@@ -2,7 +2,7 @@
 
 protocol SentryHangTrackingV3IntegrationProtocol {}
 
-typealias SentryHangTrackingV3IntegrationDependencies = AppHangTrackerProvider & ClientProvider & ThreadInspectorProvider & DebugImageProvider & HubProvider
+typealias SentryHangTrackingV3IntegrationDependencies = AppHangTrackerProvider & ClientProvider & ThreadInspectorProvider & DebugImageProvider & HubProvider & ExtensionDetectorProvider
 
 final class SentryHangTrackingV3Integration<Dependencies: SentryHangTrackingV3IntegrationDependencies>: NSObject, SwiftIntegration, SentryHangTrackingV3IntegrationProtocol {
 
@@ -12,6 +12,11 @@ final class SentryHangTrackingV3Integration<Dependencies: SentryHangTrackingV3In
     init?(with options: Options, dependencies: Dependencies) {
         guard options.experimental.appHangs.enableV3 else {
             SentrySDKLog.debug("Not enabled, skipping installation")
+            return nil
+        }
+
+        if let identifier = dependencies.extensionDetector.getExtensionPointIdentifier(), identifier.isDisabledExtensionPointIdentifier {
+            SentrySDKLog.debug("Not enabling V3 hang tracking for extension: \(identifier)")
             return nil
         }
 
@@ -53,7 +58,9 @@ final class SentryHangTrackingV3Integration<Dependencies: SentryHangTrackingV3In
         super.init()
     }
 
-    func uninstall() {}
+    func uninstall() {
+        appHangTracker.removeObserver(token: observer)
+    }
 
     static var name: String {
         "SentryHangTrackingV3Integration"

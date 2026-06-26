@@ -22,15 +22,31 @@ final class SentryHangTrackingV3IntegrationTests: XCTestCase {
 
     private func makeSUT(
         enableV3: Bool = true,
-        includeClient: Bool = true
+        includeClient: Bool = true,
+        extensionIdentifier: String? = nil
     ) -> SentryHangTrackingV3Integration<MockIntegrationDependencies>? {
         let options = Options()
         options.experimental.appHangs.enableV3 = enableV3
         options.experimental.appHangs.threshold = 2.0
+
+        let infoPlistWrapper = TestInfoPlistWrapper()
+        if let extensionIdentifier {
+            infoPlistWrapper.mockGetAppValueDictionaryReturnValue(
+                forKey: "NSExtension",
+                value: ["NSExtensionPointIdentifier": extensionIdentifier]
+            )
+        } else {
+            infoPlistWrapper.mockGetAppValueDictionaryThrowError(
+                forKey: "NSExtension",
+                error: SentryInfoPlistError.keyNotFound(key: "NSExtension")
+            )
+        }
+
         let deps = MockIntegrationDependencies(
             appHangTracker: mockTracker,
             client: includeClient ? testClient : nil,
-            hub: StubHub()
+            hub: StubHub(),
+            extensionDetector: SentryExtensionDetector(infoPlistWrapper: infoPlistWrapper)
         )
         return SentryHangTrackingV3Integration(with: options, dependencies: deps)
     }
@@ -48,6 +64,16 @@ final class SentryHangTrackingV3IntegrationTests: XCTestCase {
 
     func testInit_whenEnableV3IsTrue_succeeds() {
         let sut = makeSUT(enableV3: true)
+        XCTAssertNotNil(sut)
+    }
+
+    func testInit_inDisabledExtension_returnsNil() {
+        let sut = makeSUT(extensionIdentifier: "com.apple.widgetkit-extension")
+        XCTAssertNil(sut)
+    }
+
+    func testInit_inNonDisabledExtension_succeeds() {
+        let sut = makeSUT(extensionIdentifier: "com.apple.keyboard-service")
         XCTAssertNotNil(sut)
     }
 
@@ -171,6 +197,7 @@ private struct MockIntegrationDependencies: SentryHangTrackingV3IntegrationDepen
     let appHangTracker: SentryAppHangTracker
     let client: SentryClientInternal?
     let hub: Hub
+    var extensionDetector: SentryExtensionDetector
     var threadInspector: SentryThreadInspector { SentryThreadInspector(options: nil) }
     var debugImageProvider: SentryDebugImageProvider { SentryDebugImageProvider() }
 }
