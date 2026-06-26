@@ -2,6 +2,17 @@
 @_implementationOnly import _SentryPrivate
 import Foundation
 
+// The V1/V2 tracker will conform to this
+protocol SentryANRTrackerInternalProtocol {
+    // The types of this protocol must be defined in ObjC since it is conformed to by
+    // classes defined in ObjC.
+    func addListener(_ listender: SentryANRTrackerInternalDelegate)
+    func removeListener(_ listener: SentryANRTrackerInternalDelegate)
+
+    /// Only used for tests.
+    func clear()
+}
+
 @_spi(Private) @objc public final class SentryANRTracker: NSObject {
     
     let helper: SentryANRTrackerInternalProtocol
@@ -49,35 +60,5 @@ final class DelegateWrapper: NSObject, SentryANRTrackerInternalDelegate {
     init(helper: SentryANRTrackerDelegate) {
         self.helper = helper
     }
-}
-
-extension SentryANRType {
-    static func fromInternal(internal: SentryANRTypeInternal) -> SentryANRType {
-        switch `internal` {
-        case SentryANRTypeInternal.fatalFullyBlocking:
-            return .fatalFullyBlocking
-        case SentryANRTypeInternal.fatalNonFullyBlocking:
-            return .fatalNonFullyBlocking
-        case SentryANRTypeInternal.fullyBlocking:
-            return .fullyBlocking
-        case SentryANRTypeInternal.nonFullyBlocking:
-            return .nonFullyBlocking
-        case SentryANRTypeInternal.unknown:
-            return .unknown
-        @unknown default:
-            return .unknown
-        }
-    }
-}
-
-// The V1/V2 tracker will conform to this
-protocol SentryANRTrackerInternalProtocol {
-    // The types of this protocol must be defined in ObjC since it is conformed to by
-    // classes defined in ObjC.
-    func addListener(_ listender: SentryANRTrackerInternalDelegate)
-    func removeListener(_ listener: SentryANRTrackerInternalDelegate)
-    
-    /// Only used for tests.
-    func clear()
 }
 // swiftlint:enable missing_docs

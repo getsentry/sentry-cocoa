@@ -167,7 +167,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     // This is a var so that it's initialized lazily on first access. It never should get set
     // to a different value.
     lazy var runLoopDelayTracker: SentryRunLoopDelayTracker = {
-        SentryDefaultSentryRunLoopDelayTracker(dateProvider: Dependencies.dateProvider)
+        SentryDefaultRunLoopDelayTracker(dependencies: self)
     }()
     lazy var appHangTracker: SentryAppHangTracker = {
         SentryDefaultAppHangTracker(runLoopDelayTracker: self.runLoopDelayTracker)

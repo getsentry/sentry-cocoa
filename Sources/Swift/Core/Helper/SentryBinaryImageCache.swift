@@ -27,67 +27,48 @@ import Foundation
  */
 @objc(SentryBinaryImageCache)
 @_spi(Private) public final class SentryBinaryImageCache: NSObject {
-    private struct State {
-        var cache: [SentryBinaryImageInfo]?
-        var isDebug: Bool = false
-    }
-
-    private let state = SentryMutex<State>(State())
-
-    @objc public internal(set) var cache: [SentryBinaryImageInfo]? {
-        get { state.withLock { $0.cache } }
-        set { state.withLock { $0.cache = newValue } }
-    }
-
+    @objc public internal(set) var cache: [SentryBinaryImageInfo]?
+    private var isDebug: Bool = false
+    // Use a recursive lock to allow the same thread to enter again
+    private let lock = NSRecursiveLock()
+    
     @objc public func start(_ isDebug: Bool) {
-        let shouldRegister = state.withLock { state -> Bool in
-            guard state.cache == nil else {
+        lock.synchronized {
+            guard cache == nil else {
                 SentrySDKLog.debug("SentryBinaryImageCache is already started. Skipping start.")
-                return false
-            }
-            state.isDebug = isDebug
-            state.cache = []
-            return true
-        }
-
-        guard shouldRegister else { return }
-
-        // Callback registration MUST happen outside the lock: sentrycrashbic_registerAddedCallback
-        // synchronously replays every already-loaded image, each calling binaryImageAdded which
-        // acquires the same lock. Holding the lock here would deadlock on the non-recursive SentryMutex.
-        //
-        // If stop() races with this replay, binaryImageAdded sees cache == nil and safely drops the
-        // image. That race is benign — the SDK is tearing down — and far preferable to a deadlock
-        // on every normal startup.
-        sentrycrashbic_registerAddedCallback { imagePtr in
-            guard let imagePtr else {
-                SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
                 return
             }
-            let image = imagePtr.pointee
-            SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(
-                imageName: image.name, vmAddress: image.vmAddress, address: image.address, size: image.size, uuid: image.uuid)
-        }
-        sentrycrashbic_registerRemovedCallback { imagePtr in
-            guard let imagePtr else {
-                SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
-                return
+            self.isDebug = isDebug
+            self.cache = []
+            sentrycrashbic_registerAddedCallback { imagePtr in
+                guard let imagePtr else {
+                    SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
+                    return
+                }
+                let image = imagePtr.pointee
+                SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageAdded(
+                    imageName: image.name, vmAddress: image.vmAddress, address: image.address, size: image.size, uuid: image.uuid)
             }
-            let image = imagePtr.pointee
-            SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageRemoved(image.address)
+            sentrycrashbic_registerRemovedCallback { imagePtr in
+                guard let imagePtr else {
+                    SentrySDKLog.warning("The image is NULL. Can't add NULL to cache.")
+                    return
+                }
+                let image = imagePtr.pointee
+                SentryDependencyContainer.sharedInstance().binaryImageCache.binaryImageRemoved(image.address)
+            }
         }
     }
-
+    
     @objc public func stop() {
-        state.withLock { state in
-            guard state.cache != nil else {
+        lock.synchronized {
+            guard cache != nil else {
                 SentrySDKLog.debug("SentryBinaryImageCache is already stopped. Skipping stop.")
                 return
             }
-            state.cache = nil
-            // Unregistering does NOT replay images, so it's safe inside the lock.
             sentrycrashbic_registerAddedCallback(nil)
             sentrycrashbic_registerRemovedCallback(nil)
+            self.cache = nil
         }
     }
     
@@ -115,13 +96,13 @@ import Foundation
             size: size
         )
         
-        let isDebugEnabled = state.withLock { state -> Bool in
-            guard let cache = state.cache else { return false }
-
+        lock.synchronized {
+            guard let cache = self.cache else { return }
+            
             // Binary search insertion to maintain sorted order by address
             var left = 0
             var right = cache.count
-
+            
             while left < right {
                 let mid = (left + right) / 2
                 let compareImage = cache[mid]
@@ -131,12 +112,11 @@ import Foundation
                     left = mid + 1
                 }
             }
-
-            state.cache?.insert(newImage, at: left)
-            return state.isDebug
+            
+            self.cache?.insert(newImage, at: left)
         }
-
-        if isDebugEnabled {
+        
+        if isDebug {
             // This validation adds some overhead with each class present in the image, so we only
             // run this when debug is enabled. A non main queue is used to avoid affecting the UI.
             LoadValidator.checkForDuplicatedSDK(imageName: nameString,
@@ -158,30 +138,30 @@ import Foundation
     
     @objc
     func binaryImageRemoved(_ imageAddress: UInt64) {
-        state.withLock { state in
-            guard let index = Self.indexOfImage(address: imageAddress, in: state.cache) else { return }
-            state.cache?.remove(at: index)
+        lock.synchronized {
+            guard let index = indexOfImage(address: imageAddress) else { return }
+            self.cache?.remove(at: index)
         }
     }
-
+    
     @objc
     public func imageByAddress(_ address: UInt64) -> SentryBinaryImageInfo? {
-        state.withLock { state in
-            guard let index = Self.indexOfImage(address: address, in: state.cache) else { return nil }
-            return state.cache?[index]
+        lock.synchronized {
+            guard let index = indexOfImage(address: address) else { return nil }
+            return cache?[index]
         }
     }
-
-    private static func indexOfImage(address: UInt64, in cache: [SentryBinaryImageInfo]?) -> Int? {
-        guard let cache else { return nil }
-
+    
+    private func indexOfImage(address: UInt64) -> Int? {
+        guard let cache = self.cache else { return nil }
+        
         var left = 0
         var right = cache.count - 1
-
+        
         while left <= right {
             let mid = (left + right) / 2
             let image = cache[mid]
-
+            
             if address >= image.address && address < (image.address + image.size) {
                 return mid
             } else if address < image.address {
@@ -190,13 +170,15 @@ import Foundation
                 left = mid + 1
             }
         }
-
+        
         return nil
     }
-
+    
     @objc
     func getAllBinaryImages() -> [SentryBinaryImageInfo] {
-        state.withLock { $0.cache ?? [] }
+        lock.synchronized {
+            return cache ?? []
+        }
     }   
 }
 // swiftlint:enable missing_docs

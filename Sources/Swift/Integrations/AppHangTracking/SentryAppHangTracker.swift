@@ -1,14 +1,3 @@
-/// A hang event derived from a run loop delay that exceeded an observer's threshold.
-struct SentryAppHang {
-    enum State {
-        case started
-        case ended
-    }
-
-    let duration: TimeInterval
-    let state: State
-}
-
 typealias SentryAppHangTrackerHandler = (_ hang: SentryAppHang) -> Void
 typealias SentryAppHangTrackerObserverToken = UUID
 
@@ -104,7 +93,7 @@ final class SentryDefaultAppHangTracker {
         observers.withLock { entries in
             for (token, entry) in entries {
                 if delay.isOngoing {
-                    if delay.duration >= entry.threshold && !entry.hasBeenNotified {
+                    if delay.duration > entry.threshold && !entry.hasBeenNotified {
                         entries[token]?.hasBeenNotified = true
                         entry.handler(.init(duration: delay.duration, state: .started))
                     }
