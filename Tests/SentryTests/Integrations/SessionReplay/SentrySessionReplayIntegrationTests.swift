@@ -17,7 +17,7 @@ class SentrySessionReplayIntegrationTests: XCTestCase {
     private let testObserver = TestSessionReplayRunLoopObserver()
     private let currentRunLoopMode = RunLoop.Mode.default
 
-    private struct TestSessionReplayRunLoopObserver: RunLoopObserver { }
+    private struct TestSessionReplayRunLoopObserver: SentryRunLoopObserver { }
 
     private class TestCrashWrapper: NSObject, SentryCrashReporter {
         let traced: Bool

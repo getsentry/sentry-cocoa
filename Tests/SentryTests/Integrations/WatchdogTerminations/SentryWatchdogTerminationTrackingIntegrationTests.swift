@@ -440,7 +440,7 @@ private class MockDependencies: ANRTrackerBuilder & AppHangTrackerProvider & Pro
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
     }
     
-    struct TestRunLoopObserver: RunLoopObserver { }
+    struct TestRunLoopObserver: SentryRunLoopObserver { }
     
     private func createObserver(_ allocator: CFAllocator?, _ activities: CFOptionFlags, _ repeats: Bool, _ order: CFIndex, _ block: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?) -> TestRunLoopObserver {
         return TestRunLoopObserver()

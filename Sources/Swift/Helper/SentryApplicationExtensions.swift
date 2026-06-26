@@ -10,6 +10,10 @@ import UIKit
 
 @objc @_spi(Private) extension UIApplication: SentryApplication {
 
+    @objc public func getKeyWindow() -> UIWindow? {
+        getWindows()?.first(where: \.isKeyWindow)
+    }
+
     @objc public func getWindows() -> [UIWindow]? {
         internal_getWindows()
     }
