@@ -4,10 +4,27 @@ import XCTest
 
 final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
+    // MARK: - Test Helpers
+
+    private func makeSUT(
+        delayTracker: MockSentryRunLoopDelayTracker = MockSentryRunLoopDelayTracker(),
+        threadInspector: MockSentryThreadInspector = MockSentryThreadInspector(),
+        dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider()
+    ) -> (SentryDefaultAppHangTracker<MockDependencies>, MockSentryRunLoopDelayTracker, MockSentryThreadInspector) {
+        let deps = MockDependencies(
+            runLoopDelayTracker: delayTracker,
+            threadInspector: threadInspector,
+            dateProvider: dateProvider
+        )
+        let sut = SentryDefaultAppHangTracker(dependencies: deps)
+        return (sut, delayTracker, threadInspector)
+    }
+
+    // MARK: - Existing Tests
+
     func testAddObserver_whenDelayExceedsThreshold_shouldNotifyObserver() throws {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, delayTracker, _) = makeSUT()
         let callbacks = Invocations<SentryAppHang>()
         let expectation = expectation(description: "Observer notified")
         let token = sut.addObserver(threshold: 0.25) { hang in
@@ -32,8 +49,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
     func testAddObserver_whenDelayBelowThreshold_shouldNotNotifyObserver() {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, delayTracker, _) = makeSUT()
         let callbacks = Invocations<SentryAppHang>()
         let token = sut.addObserver(threshold: 0.25) { hang in
             callbacks.record(hang)
@@ -49,8 +65,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
     func testAddObserver_whenDelayExactlyAtThreshold_shouldNotifyObserver() throws {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, delayTracker, _) = makeSUT()
         let callbacks = Invocations<SentryAppHang>()
         let expectation = expectation(description: "Observer notified")
         let token = sut.addObserver(threshold: 0.25) { hang in
@@ -72,8 +87,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
     func testAddObserver_whenMultipleOngoingDelays_shouldNotifyOnlyOnce() throws {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, delayTracker, _) = makeSUT()
         let callbacks = Invocations<SentryAppHang>()
         let expectation = expectation(description: "Observer notified")
         let token = sut.addObserver(threshold: 0.25) { hang in
@@ -100,8 +114,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
     func testAddObserver_whenHangEndsAfterThresholdCrossed_shouldNotifyWithFinalDuration() throws {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, delayTracker, _) = makeSUT()
         let callbacks = Invocations<SentryAppHang>()
         let ongoingExpectation = expectation(description: "Ongoing notified")
         let endedExpectation = expectation(description: "Ended notified")
@@ -137,8 +150,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
     func testAddObserver_whenHangEndsWithoutCrossingThreshold_shouldNotNotify() {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, delayTracker, _) = makeSUT()
         let callbacks = Invocations<SentryAppHang>()
         let token = sut.addObserver(threshold: 2.0) { hang in
             callbacks.record(hang)
@@ -155,8 +167,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
     func testAddObserver_whenTwoObserversWithDifferentThresholds_shouldNotifyIndependently() throws {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, delayTracker, _) = makeSUT()
         let lowCallbacks = Invocations<SentryAppHang>()
         let highCallbacks = Invocations<SentryAppHang>()
         let lowExpectation = expectation(description: "Low threshold notified")
@@ -202,8 +213,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
     func testAddObserver_whenConsecutiveHangs_shouldResetAndNotifyAgain() throws {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, delayTracker, _) = makeSUT()
         let callbacks = Invocations<SentryAppHang>()
         let firstOngoing = expectation(description: "First ongoing")
         let firstEnded = expectation(description: "First ended")
@@ -261,8 +271,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
     func testRemoveObserver_whenDelayOccurs_shouldNotNotify() {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, delayTracker, _) = makeSUT()
         let callbacks = Invocations<SentryAppHang>()
         let token = sut.addObserver(threshold: 0.25) { hang in
             callbacks.record(hang)
@@ -278,8 +287,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
     func testRemoveObserver_whenRemovedMidHang_shouldNotReceiveEnded() throws {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, delayTracker, _) = makeSUT()
         let removedCallbacks = Invocations<SentryAppHang>()
         let remainingCallbacks = Invocations<SentryAppHang>()
         let removedStarted = expectation(description: "Removed observer started")
@@ -326,8 +334,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
     func testAddObserver_whenAddedMidHang_shouldReceiveStartedOnNextTick() throws {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, delayTracker, _) = makeSUT()
         let existingCallbacks = Invocations<SentryAppHang>()
         let lateCallbacks = Invocations<SentryAppHang>()
         let existingStarted = expectation(description: "Existing observer started")
@@ -366,8 +373,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
     func testRemoveObserver_whenRemovedAndReaddedDuringHang_shouldReceiveFreshStarted() throws {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, delayTracker, _) = makeSUT()
         let callbacks = Invocations<SentryAppHang>()
         let firstStarted = expectation(description: "First started")
         let keepAliveCallbacks = Invocations<SentryAppHang>()
@@ -408,8 +414,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
     func testRemoveObserver_whenTokenAlreadyRemoved_shouldBeNoOp() {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, _, _) = makeSUT()
         let token = sut.addObserver(threshold: 0.25) { _ in }
 
         // -- Act & Assert --
@@ -419,8 +424,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
     func testAddObserver_afterAllRemovedAndStopped_shouldStartFreshTracking() throws {
         // -- Arrange --
-        let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let (sut, delayTracker, _) = makeSUT()
         let firstCallbacks = Invocations<SentryAppHang>()
         let firstStarted = expectation(description: "First started")
         let token1 = sut.addObserver(threshold: 0.25) { hang in
@@ -460,6 +464,161 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
         XCTAssertEqual(ended.state, .ended)
         XCTAssertEqual(ended.duration, 0.8)
     }
+
+    // MARK: - Profiling Tests
+
+    func testProcessDelay_whenHangEnds_profilingDataContainsSamples() throws {
+        // -- Arrange --
+        let delayTracker = MockSentryRunLoopDelayTracker()
+        let threadInspector = MockSentryThreadInspector()
+        threadInspector.stubbedThreads = [makeFakeMainThread(function: "main")]
+        let (sut, _, _) = makeSUT(
+            delayTracker: delayTracker,
+            threadInspector: threadInspector
+        )
+        sut.profilingSampleIntervalMs = 50
+
+        let callbacks = Invocations<SentryAppHang>()
+        let startExpectation = expectation(description: "Hang started")
+        let endExpectation = expectation(description: "Hang ended")
+
+        var callCount = 0
+        let token = sut.addObserver(threshold: 0.25) { hang in
+            callbacks.record(hang)
+            callCount += 1
+            if callCount == 1 { startExpectation.fulfill() }
+            if callCount == 2 { endExpectation.fulfill() }
+        }
+        defer { sut.removeObserver(token: token) }
+
+        // -- Act --
+        delayTracker.simulateDelay(duration: 0.3, ongoing: true)
+        wait(for: [startExpectation], timeout: 1)
+
+        // Let sampling timer fire a few times
+        Thread.sleep(forTimeInterval: 0.2)
+
+        delayTracker.simulateDelay(duration: 0.5, ongoing: false)
+        wait(for: [endExpectation], timeout: 1)
+
+        // -- Assert --
+        let ended = try XCTUnwrap(callbacks.invocations.last)
+        XCTAssertEqual(ended.state, .ended)
+        XCTAssertNotNil(ended.profilerId)
+        XCTAssertNotNil(ended.profilingData)
+
+        let data = try XCTUnwrap(ended.profilingData)
+        XCTAssertFalse(data.frames.isEmpty)
+        XCTAssertFalse(data.stacks.isEmpty)
+        XCTAssertFalse(data.samples.isEmpty)
+    }
+
+    func testProcessDelay_whenHangEnds_profilingDataDeduplicatesFrames() throws {
+        // -- Arrange --
+        let delayTracker = MockSentryRunLoopDelayTracker()
+        let threadInspector = MockSentryThreadInspector()
+        // Fixed stack: same frames each sample
+        threadInspector.stubbedThreads = [makeFakeMainThread(function: "main")]
+        let (sut, _, _) = makeSUT(
+            delayTracker: delayTracker,
+            threadInspector: threadInspector
+        )
+        sut.profilingSampleIntervalMs = 20
+
+        let callbacks = Invocations<SentryAppHang>()
+        let endExpectation = expectation(description: "Hang ended")
+
+        let token = sut.addObserver(threshold: 0.1) { hang in
+            callbacks.record(hang)
+            if hang.state == .ended { endExpectation.fulfill() }
+        }
+        defer { sut.removeObserver(token: token) }
+
+        // -- Act --
+        delayTracker.simulateDelay(duration: 0.2, ongoing: true)
+        Thread.sleep(forTimeInterval: 0.1)
+        delayTracker.simulateDelay(duration: 0.5, ongoing: false)
+        wait(for: [endExpectation], timeout: 1)
+
+        // -- Assert --
+        let data = try XCTUnwrap(callbacks.invocations.last?.profilingData)
+        // Multiple samples but only one unique stack (all identical)
+        XCTAssertGreaterThan(data.samples.count, 1)
+        XCTAssertEqual(data.stacks.count, 1)
+    }
+
+    func testProcessDelay_whenHangStarts_profilingIdSetOnStartedEvent() throws {
+        // -- Arrange --
+        let delayTracker = MockSentryRunLoopDelayTracker()
+        let (sut, _, _) = makeSUT(delayTracker: delayTracker)
+        let callbacks = Invocations<SentryAppHang>()
+        let startExpectation = expectation(description: "Hang started")
+        let token = sut.addObserver(threshold: 0.1) { hang in
+            callbacks.record(hang)
+            if hang.state == .started { startExpectation.fulfill() }
+        }
+        defer { sut.removeObserver(token: token) }
+
+        // -- Act --
+        delayTracker.simulateDelay(duration: 0.2, ongoing: true)
+        wait(for: [startExpectation], timeout: 1)
+
+        // -- Assert --
+        let started = try XCTUnwrap(callbacks.first)
+        XCTAssertEqual(started.state, .started)
+        XCTAssertNotNil(started.profilerId, "profilerId should be set on .started event")
+        XCTAssertNil(started.profilingData, "profilingData should be nil on .started event")
+    }
+
+    func testProcessDelay_whenNoMainThreadFound_profilingDataIsNil() throws {
+        // -- Arrange --
+        let delayTracker = MockSentryRunLoopDelayTracker()
+        let threadInspector = MockSentryThreadInspector()
+        // Return empty threads — no main thread
+        threadInspector.stubbedThreads = []
+        let (sut, _, _) = makeSUT(
+            delayTracker: delayTracker,
+            threadInspector: threadInspector
+        )
+
+        let callbacks = Invocations<SentryAppHang>()
+        let endExpectation = expectation(description: "Hang ended")
+        let token = sut.addObserver(threshold: 0.1) { hang in
+            callbacks.record(hang)
+            if hang.state == .ended { endExpectation.fulfill() }
+        }
+        defer { sut.removeObserver(token: token) }
+
+        // -- Act --
+        delayTracker.simulateDelay(duration: 0.2, ongoing: true)
+        delayTracker.simulateDelay(duration: 0.5, ongoing: false)
+        wait(for: [endExpectation], timeout: 1)
+
+        // -- Assert --
+        let ended = try XCTUnwrap(callbacks.invocations.last)
+        XCTAssertEqual(ended.state, .ended)
+        // A profilerId is still created (SentryId is always generated), but profilingData is nil
+        XCTAssertNil(ended.profilingData)
+    }
+}
+
+// MARK: - Test Infrastructure
+
+private func makeFakeMainThread(function: String) -> SentryThread {
+    let frame = Frame()
+    frame.function = function
+    frame.instructionAddress = "0x000000008fd09c40"
+    let stacktrace = SentryStacktrace(frames: [frame], registers: [:])
+    let thread = SentryThread(threadId: 1)
+    thread.isMain = true
+    thread.stacktrace = stacktrace
+    return thread
+}
+
+private struct MockDependencies: SentryAppHangTrackerDependencies {
+    let runLoopDelayTracker: SentryRunLoopDelayTracker
+    let threadInspector: SentryThreadInspector
+    let dateProvider: SentryCurrentDateProvider
 }
 
 private class MockSentryRunLoopDelayTracker: SentryRunLoopDelayTracker {
@@ -479,5 +638,17 @@ private class MockSentryRunLoopDelayTracker: SentryRunLoopDelayTracker {
         for observer in observers.values {
             observer(.init(duration: duration, isOngoing: ongoing))
         }
+    }
+}
+
+private class MockSentryThreadInspector: SentryThreadInspector {
+    var stubbedThreads: [SentryThread] = []
+
+    init() {
+        super.init(options: nil)
+    }
+
+    override func getCurrentThreadsWithStackTrace() -> [SentryThread] {
+        return stubbedThreads
     }
 }

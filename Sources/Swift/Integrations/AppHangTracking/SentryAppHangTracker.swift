@@ -10,7 +10,7 @@ protocol SentryAppHangTracker {
 }
 extension SentryDefaultAppHangTracker: SentryAppHangTracker { }
 
-typealias SentryAppHangTrackerDependencies = RunLoopDelayTrackerProvider & ThreadInspectorProvider
+typealias SentryAppHangTrackerDependencies = RunLoopDelayTrackerProvider & ThreadInspectorProvider & DateProviderProvider
 #else
 typealias SentryAppHangTracker = SentryDefaultAppHangTracker
 #endif
@@ -30,20 +30,35 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
         var hasBeenNotified: Bool = false
     }
 
+    private struct HangProfilingContext {
+        let profilerId: SentryId
+        let startSystemTime: UInt64
+        let accumulator: SampleAccumulator?
+        let isUsingContinuousProfiler: Bool
+        var sampleTimer: DispatchSourceTimer?
+    }
+
     // MARK: - State
 
     private let runLoopDelayTracker: SentryRunLoopDelayTracker
     private var runLoopDelayTrackerObserverToken: SentryRunLoopDelayTrackerObserverToken?
 
     private let threadInspector: SentryThreadInspector
+    private let dateProvider: SentryCurrentDateProvider
 
     private let observers = SentryMutex<[UUID: ObserverEntry]>([:])
+    private var activeProfilingContext: HangProfilingContext?
+
+    // MARK: - Configuration
+
+    var profilingSampleIntervalMs: Int = 100
 
     // MARK: - Implementation
 
     init(dependencies: Dependencies) {
         self.runLoopDelayTracker = dependencies.runLoopDelayTracker
         self.threadInspector = dependencies.threadInspector
+        self.dateProvider = dependencies.dateProvider
     }
 
     /// Adds an observer for app hangs exceeding the given threshold.
@@ -97,81 +112,170 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
         observers.withLock { entries in
             for (token, entry) in entries {
                 if delay.isOngoing {
-                    if delay.duration > entry.threshold && !entry.hasBeenNotified {
+                    if delay.duration >= entry.threshold && !entry.hasBeenNotified {
                         entries[token]?.hasBeenNotified = true
+
+                        let context = startProfilingIfNeeded()
                         entry.handler(.init(
                             duration: delay.duration,
                             state: .started,
-                            profilerId: nil,
+                            profilerId: context?.profilerId,
                             profilingData: nil,
-                            startSystemTime: 0,
-                            endSystemTime: 0
+                            startSystemTime: context?.startSystemTime ?? 0,
+                            endSystemTime: dateProvider.systemTime()
                         ))
                     }
                 } else if entry.hasBeenNotified {
                     entries[token]?.hasBeenNotified = false
+
+                    let endTime = dateProvider.systemTime()
+                    let result = stopProfilingIfNeeded()
                     entry.handler(.init(
                         duration: delay.duration,
                         state: .ended,
-                        profilerId: nil,
-                        profilingData: nil,
-                        startSystemTime: 0,
-                        endSystemTime: 0
+                        profilerId: result.profilerId,
+                        profilingData: result.profilingData,
+                        startSystemTime: result.startSystemTime,
+                        endSystemTime: endTime
                     ))
                 }
             }
         }
     }
-}
 
-private class FlameNode {
-    let frame: Frame
-    var sampleCount: Int = 0
-    var childKeys: [String] = []
-    var children: [String: FlameNode] = [:]
+    private func startProfilingIfNeeded() -> HangProfilingContext? {
+        guard activeProfilingContext == nil else { return activeProfilingContext }
 
-    init(frame: Frame) {
-        self.frame = frame
+        let startTime = dateProvider.systemTime()
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        // Path 1: Continuous profiler is already capturing — just record its ID
+        if SentryContinuousProfiler.isCurrentlyProfiling,
+           let existingId = SentryContinuousProfiler.currentProfilerID {
+            let context = HangProfilingContext(
+                profilerId: existingId,
+                startSystemTime: startTime,
+                accumulator: nil,
+                isUsingContinuousProfiler: true
+            )
+            activeProfilingContext = context
+            return context
+        }
+#endif
+
+        // Path 2: Start custom main-thread sampling
+        let accumulator = SampleAccumulator()
+        let profilerId = SentryId()
+        var context = HangProfilingContext(
+            profilerId: profilerId,
+            startSystemTime: startTime,
+            accumulator: accumulator,
+            isUsingContinuousProfiler: false
+        )
+
+        // Take an immediate first sample
+        let threads = threadInspector.getCurrentThreadsWithStackTrace()
+        accumulator.appendSample(from: threads, timestamp: startTime)
+
+        // Schedule recurring samples
+        let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .userInitiated))
+        let intervalMs = profilingSampleIntervalMs
+        timer.schedule(deadline: .now() + .milliseconds(intervalMs), repeating: .milliseconds(intervalMs))
+        timer.setEventHandler { [weak self] in
+            guard let self else { return }
+            let threads = self.threadInspector.getCurrentThreadsWithStackTrace()
+            accumulator.appendSample(from: threads, timestamp: self.dateProvider.systemTime())
+        }
+        timer.resume()
+        context.sampleTimer = timer
+
+        activeProfilingContext = context
+        return context
+    }
+
+    private func stopProfilingIfNeeded() -> (profilerId: SentryId?, profilingData: SentryAppHang.ProfilingData?, startSystemTime: UInt64) {
+        guard let context = activeProfilingContext else {
+            return (nil, nil, 0)
+        }
+        activeProfilingContext = nil
+
+        context.sampleTimer?.cancel()
+
+        if context.isUsingContinuousProfiler {
+            return (context.profilerId, nil, context.startSystemTime)
+        }
+
+        let profilingData = context.accumulator?.toProfilingData()
+        return (context.profilerId, profilingData, context.startSystemTime)
     }
 }
 
-/// Merges multiple sampled stacktraces into a single flamegraph tree,
-/// flattened into an array of frames with `parentIndex` and `sampleCount`.
-private func buildFlamegraphFrames(from stacktraces: [SentryStacktrace]) -> [Frame] {
-    let root = FlameNode(frame: Frame())
+// MARK: - SampleAccumulator
 
-    for stacktrace in stacktraces {
-        var current = root
-        current.sampleCount += 1
+private final class SampleAccumulator {
+    private(set) var frames: [SentryAppHang.ProfilingData.Frame] = []
+    private(set) var stacks: [[Int]] = []
+    private(set) var samples: [SentryAppHang.ProfilingData.Sample] = []
+    private(set) var threadMetadata: [String: SentryAppHang.ProfilingData.ThreadMetadata] = [:]
 
+    private var frameIndexLookup: [String: Int] = [:]
+    private var stackIndexLookup: [String: Int] = [:]
+
+    func appendSample(from threads: [SentryThread], timestamp: UInt64) {
+        guard let mainThread = threads.first(where: { $0.isMain?.boolValue == true }),
+              let stacktrace = mainThread.stacktrace,
+              !stacktrace.frames.isEmpty else {
+            return
+        }
+
+        let threadId = mainThread.threadId?.uint64Value ?? 0
+
+        var frameIndices: [Int] = []
         for frame in stacktrace.frames {
             let key = frame.instructionAddress ?? frame.function ?? "?"
-            if let child = current.children[key] {
-                child.sampleCount += 1
-                current = child
+            if let existingIndex = frameIndexLookup[key] {
+                frameIndices.append(existingIndex)
             } else {
-                let node = FlameNode(frame: frame)
-                node.sampleCount = 1
-                current.childKeys.append(key)
-                current.children[key] = node
-                current = node
+                let index = frames.count
+                frames.append(.init(
+                    instructionAddress: frame.instructionAddress,
+                    function: frame.function,
+                    module: frame.package
+                ))
+                frameIndexLookup[key] = index
+                frameIndices.append(index)
             }
         }
-    }
 
-    var result: [Frame] = []
+        let stackKey = frameIndices.map(String.init).joined(separator: ",")
+        let stackIndex: Int
+        if let existingStackIndex = stackIndexLookup[stackKey] {
+            stackIndex = existingStackIndex
+        } else {
+            stackIndex = stacks.count
+            stacks.append(frameIndices)
+            stackIndexLookup[stackKey] = stackIndex
+        }
 
-    func flatten(_ node: FlameNode, parentIndex: Int) {
-        for key in node.childKeys {
-            guard let child = node.children[key] else { continue }
-            let idx = result.count
-            child.frame.parentIndex = NSNumber(value: parentIndex)
-            child.frame.sampleCount = NSNumber(value: child.sampleCount)
-            result.append(child.frame)
-            flatten(child, parentIndex: idx)
+        samples.append(.init(
+            absoluteTimestamp: timestamp,
+            stackIndex: stackIndex,
+            threadId: threadId
+        ))
+
+        let threadIdStr = "\(threadId)"
+        if threadMetadata[threadIdStr] == nil {
+            threadMetadata[threadIdStr] = .init(name: "main", priority: 0)
         }
     }
 
-    flatten(root, parentIndex: -1)
-    return result
+    func toProfilingData() -> SentryAppHang.ProfilingData? {
+        guard !samples.isEmpty else { return nil }
+        return .init(
+            frames: frames,
+            stacks: stacks,
+            samples: samples,
+            threadMetadata: threadMetadata
+        )
+    }
 }
