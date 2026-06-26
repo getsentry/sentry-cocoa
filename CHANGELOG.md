@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### Features
+
+- Adds experimental App Hang tracking via RunLoop observers (#8234)
+
+  V3 replaces the sampling-based V1/V2 hang detection with an event-driven approach using `RunLoop` observers. It reports fully-blocking hangs where a single run loop iteration exceeds the configured threshold.
+
+  ```swift
+  options.experimental.appHangs.enableV3 = true
+  options.experimental.appHangs.threshold = 2.0 // seconds (default)
+  ```
+
+  When V3 is enabled, V1/V2 hang tracking is automatically disabled.
+
 ### Fixes
 
 - Fix crash report ID generation so reports created at certain timestamps are not ignored (#8216)
