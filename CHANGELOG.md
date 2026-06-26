@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix crash report ID generation so reports created at certain timestamps are not ignored (#8216)
+- Fix C++ exception capture on newer OS versions by page-aligning `mprotect` calls in the `__cxa_throw` swapper (#8221)
 
 ## 9.19.0
 
