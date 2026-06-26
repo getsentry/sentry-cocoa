@@ -1728,7 +1728,7 @@
 		6383953423ABA269000C1594 /* Integrations */ = {
 			isa = PBXGroup;
 			children = (
-				7B127B0B27CF6EF600A71ED2 /* ANR */,
+				7B127B0B27CF6EF600A71ED2 /* AppHangTracking */,
 				7BE0DC34272AE78C004FA8B7 /* WatchdogTerminations */,
 				7BE0DC39272AE8B3004FA8B7 /* Performance */,
 				7BE0DC36272AE80A004FA8B7 /* Session */,
@@ -2065,7 +2065,7 @@
 			path = Installations;
 			sourceTree = "<group>";
 		};
-		7B127B0B27CF6EF600A71ED2 /* ANR */ = {
+		7B127B0B27CF6EF600A71ED2 /* AppHangTracking */ = {
 			isa = PBXGroup;
 			children = (
 				FAAB96422EA684380030A2DB /* SentryANRTrackerInternalDelegate.h */,
@@ -2076,7 +2076,7 @@
 				621AE74A2C626C230012E730 /* SentryANRTrackerV2.h */,
 				621AE74C2C626C510012E730 /* SentryANRTrackerV2.m */,
 			);
-			name = ANR;
+			name = AppHangTracking;
 			sourceTree = "<group>";
 		};
 		7B634595280EB94200CFA05A /* UIEvents */ = {

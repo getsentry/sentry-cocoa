@@ -1,15 +1,4 @@
 // swiftlint:disable missing_docs
-import Foundation
-
-@objc
-@_spi(Private) public enum SentryANRType: Int {
-    case fatalFullyBlocking
-    case fatalNonFullyBlocking
-    case fullyBlocking
-    case nonFullyBlocking
-    case unknown
-}
-
 @objc
 @_spi(Private) public final class SentryAppHangTypeMapper: NSObject {
 
