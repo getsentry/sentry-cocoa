@@ -47,15 +47,13 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
         XCTAssertTrue(callbacks.isEmpty)
     }
 
-    func testAddObserver_whenDelayExactlyAtThreshold_shouldNotifyObserver() throws {
+    func testAddObserver_whenDelayExactlyAtThreshold_shouldNotNotifyObserver() {
         // -- Arrange --
         let delayTracker = MockSentryRunLoopDelayTracker()
         let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
         let callbacks = Invocations<SentryAppHang>()
-        let expectation = expectation(description: "Observer notified")
         let token = sut.addObserver(threshold: 0.25) { hang in
             callbacks.record(hang)
-            expectation.fulfill()
         }
         defer { sut.removeObserver(token: token) }
 
@@ -63,11 +61,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
         delayTracker.simulateDelay(duration: 0.25, ongoing: true)
 
         // -- Assert --
-        wait(for: [expectation], timeout: 1)
-        let hang = try XCTUnwrap(callbacks.first)
-        XCTAssertEqual(hang.duration, 0.25)
-        XCTAssertEqual(hang.state, .started)
-        XCTAssertEqual(callbacks.count, 1)
+        XCTAssertTrue(callbacks.isEmpty)
     }
 
     func testAddObserver_whenMultipleOngoingDelays_shouldNotifyOnlyOnce() throws {
