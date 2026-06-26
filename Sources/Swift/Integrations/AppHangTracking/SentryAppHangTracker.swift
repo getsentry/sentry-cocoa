@@ -99,11 +99,25 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
                 if delay.isOngoing {
                     if delay.duration > entry.threshold && !entry.hasBeenNotified {
                         entries[token]?.hasBeenNotified = true
-                        entry.handler(.init(duration: delay.duration, state: .started))
+                        entry.handler(.init(
+                            duration: delay.duration,
+                            state: .started,
+                            profilerId: nil,
+                            profilingData: nil,
+                            startSystemTime: 0,
+                            endSystemTime: 0
+                        ))
                     }
                 } else if entry.hasBeenNotified {
                     entries[token]?.hasBeenNotified = false
-                    entry.handler(.init(duration: delay.duration, state: .ended))
+                    entry.handler(.init(
+                        duration: delay.duration,
+                        state: .ended,
+                        profilerId: nil,
+                        profilingData: nil,
+                        startSystemTime: 0,
+                        endSystemTime: 0
+                    ))
                 }
             }
         }
