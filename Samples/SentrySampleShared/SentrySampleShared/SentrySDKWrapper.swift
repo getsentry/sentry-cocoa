@@ -155,7 +155,9 @@ public struct SentrySDKWrapper {
 
         // disable during benchmarks because we run CPU for 15 seconds at full throttle which can trigger ANRs
         options.enableAppHangTracking = !isBenchmarking && !SentrySDKOverrides.AppHangs.disableTracking.boolValue
+#if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         options.enableReportNonFullyBlockingAppHangs = !SentrySDKOverrides.AppHangs.disableNonFullyBlocking.boolValue
+#endif
 
         // UI tests generate false OOMs
         options.enableWatchdogTerminationTracking = !isUITest && !isBenchmarking && !SentrySDKOverrides.WatchdogTerminations.disableTracking.boolValue
