@@ -8,8 +8,9 @@ protocol SentryAppHangTracker {
     func addObserver(threshold: TimeInterval, handler: @escaping SentryAppHangTrackerHandler) -> SentryAppHangTrackerObserverToken
     func removeObserver(token: SentryAppHangTrackerObserverToken)
 }
-
 extension SentryDefaultAppHangTracker: SentryAppHangTracker { }
+
+typealias SentryAppHangTrackerDependencies = RunLoopDelayTrackerProvider & ThreadInspectorProvider
 #else
 typealias SentryAppHangTracker = SentryDefaultAppHangTracker
 #endif
@@ -20,7 +21,7 @@ typealias SentryAppHangTracker = SentryDefaultAppHangTracker
 /// only when the accumulated delay exceeds that observer's configured threshold.
 /// Each observer receives at most one `.started` notification per hang,
 /// followed by one `.ended` when the hang resolves.
-final class SentryDefaultAppHangTracker {
+final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDependencies> {
     // MARK: - Types
 
     private struct ObserverEntry {
@@ -34,12 +35,15 @@ final class SentryDefaultAppHangTracker {
     private let runLoopDelayTracker: SentryRunLoopDelayTracker
     private var runLoopDelayTrackerObserverToken: SentryRunLoopDelayTrackerObserverToken?
 
+    private let threadInspector: SentryThreadInspector
+
     private let observers = SentryMutex<[UUID: ObserverEntry]>([:])
 
     // MARK: - Implementation
 
-    init(runLoopDelayTracker: SentryRunLoopDelayTracker) {
-        self.runLoopDelayTracker = runLoopDelayTracker
+    init(dependencies: Dependencies) {
+        self.runLoopDelayTracker = dependencies.runLoopDelayTracker
+        self.threadInspector = dependencies.threadInspector
     }
 
     /// Adds an observer for app hangs exceeding the given threshold.
