@@ -1172,8 +1172,11 @@ format:
 #
 # Formats all Objective-C, Objective-C++, C, and C++ files using clang-format.
 .PHONY: format-clang
-# -P runs clang-format in parallel. getconf _NPROCESSORS_ONLN returns the CPU
-# core count (works on macOS and Linux); falls back to 8 if it ever fails.
+# Runs clang-format in parallel. -n 32 batches the files (32 per invocation) and
+# -P runs the batches concurrently. With more than 32 files xargs just runs more
+# batches until all are processed - nothing is dropped; without -n, all files go
+# to a single process and -P has nothing to parallelize.
+# getconf _NPROCESSORS_ONLN is the CPU core count (macOS + Linux); 8 is a fallback.
 format-clang:
 	@find . -type f \( -name "*.h" -or -name "*.hpp" -or -name "*.c" -or -name "*.cpp" -or -name "*.m" -or -name "*.mm" \) -and \
 		! \( -path "**.build/*" -or -path "**Build/*"  -or -path "**/libs/**" -or -path "**/Pods/**" -or -path "**/*.xcarchive/*" \) \
