@@ -434,12 +434,16 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
 }
 
-private class MockDependencies: ANRTrackerBuilder & AppHangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider {
+private class MockDependencies: ANRTrackerBuilder & AppHangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & DateProviderProvider & ApplicationProvider {
     
     func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
     }
-    
+
+    var dateProvider: SentryCurrentDateProvider { TestCurrentDateProvider() }
+
+    func application() -> SentryApplication? { nil }
+
     struct TestRunLoopObserver: SentryRunLoopObserver { }
     
     private func createObserver(_ allocator: CFAllocator?, _ activities: CFOptionFlags, _ repeats: Bool, _ order: CFIndex, _ block: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?) -> TestRunLoopObserver {
@@ -452,7 +456,7 @@ private class MockDependencies: ANRTrackerBuilder & AppHangTrackerProvider & Pro
     
     lazy var appHangTracker: SentryAppHangTracker = {
         let runLoopDelayTracker = SentryDefaultRunLoopDelayTracker(
-            dateProvider: TestCurrentDateProvider(),
+            dependencies: self,
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
