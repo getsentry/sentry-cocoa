@@ -24,6 +24,16 @@ typealias SentryAppHangTracker = SentryDefaultAppHangTracker
 final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDependencies> {
     // MARK: - Types
 
+    struct Options {
+        let sampleRate: Double
+        let sampleIntervalMs: Int
+
+        init(sampleRate: Double = 1.0, sampleIntervalMs: Int = 100) {
+            self.sampleRate = min(max(sampleRate, 0.0), 1.0)
+            self.sampleIntervalMs = sampleIntervalMs
+        }
+    }
+
     private struct ObserverEntry {
         let threshold: TimeInterval
         let handler: SentryAppHangTrackerHandler
@@ -51,14 +61,15 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
 
     // MARK: - Configuration
 
-    var profilingSampleIntervalMs: Int = 100
+    let profilingOptions: Options
 
     // MARK: - Implementation
 
-    init(dependencies: Dependencies) {
+    init(dependencies: Dependencies, profilingOptions: Options = Options()) {
         self.runLoopDelayTracker = dependencies.runLoopDelayTracker
         self.threadInspector = dependencies.threadInspector
         self.dateProvider = dependencies.dateProvider
+        self.profilingOptions = profilingOptions
     }
 
     /// Adds an observer for app hangs exceeding the given threshold.
@@ -145,6 +156,7 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
 
     private func startProfilingIfNeeded() -> HangProfilingContext? {
         guard activeProfilingContext == nil else { return activeProfilingContext }
+        guard Double.random(in: 0.0...1.0) < profilingOptions.sampleRate else { return nil }
 
         let startTime = dateProvider.systemTime()
 
@@ -179,7 +191,7 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
 
         // Schedule recurring samples
         let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .userInitiated))
-        let intervalMs = profilingSampleIntervalMs
+        let intervalMs = profilingOptions.sampleIntervalMs
         timer.schedule(deadline: .now() + .milliseconds(intervalMs), repeating: .milliseconds(intervalMs))
         timer.setEventHandler { [weak self] in
             guard let self else { return }

@@ -9,14 +9,15 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
     private func makeSUT(
         delayTracker: MockSentryRunLoopDelayTracker = MockSentryRunLoopDelayTracker(),
         threadInspector: MockSentryThreadInspector = MockSentryThreadInspector(),
-        dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider()
+        dateProvider: SentryCurrentDateProvider = TestCurrentDateProvider(),
+        profilingOptions: SentryDefaultAppHangTracker<MockDependencies>.Options = .init()
     ) -> (SentryDefaultAppHangTracker<MockDependencies>, MockSentryRunLoopDelayTracker, MockSentryThreadInspector) {
         let deps = MockDependencies(
             runLoopDelayTracker: delayTracker,
             threadInspector: threadInspector,
             dateProvider: dateProvider
         )
-        let sut = SentryDefaultAppHangTracker(dependencies: deps)
+        let sut = SentryDefaultAppHangTracker(dependencies: deps, profilingOptions: profilingOptions)
         return (sut, delayTracker, threadInspector)
     }
 
@@ -474,9 +475,9 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
         threadInspector.stubbedThreads = [makeFakeMainThread(function: "main")]
         let (sut, _, _) = makeSUT(
             delayTracker: delayTracker,
-            threadInspector: threadInspector
+            threadInspector: threadInspector,
+            profilingOptions: .init(sampleIntervalMs: 50)
         )
-        sut.profilingSampleIntervalMs = 50
 
         let callbacks = Invocations<SentryAppHang>()
         let startExpectation = expectation(description: "Hang started")
@@ -521,9 +522,9 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
         threadInspector.stubbedThreads = [makeFakeMainThread(function: "main")]
         let (sut, _, _) = makeSUT(
             delayTracker: delayTracker,
-            threadInspector: threadInspector
+            threadInspector: threadInspector,
+            profilingOptions: .init(sampleIntervalMs: 20)
         )
-        sut.profilingSampleIntervalMs = 20
 
         let callbacks = Invocations<SentryAppHang>()
         let endExpectation = expectation(description: "Hang ended")
