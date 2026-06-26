@@ -52,6 +52,18 @@ final class SentryMutexTests: XCTestCase {
         XCTAssertEqual(mutex.withLock { $0 }, "world")
     }
 
+    func testWithLockIfAvailable_whenLockIsHeld_shouldReturnNil() {
+        let mutex = SentryMutex("hello")
+
+        let outer = mutex.withLock { value -> String in
+            let inner = mutex.withLockIfAvailable { $0 }
+            XCTAssertNil(inner)
+            return value
+        }
+
+        XCTAssertEqual(outer, "hello")
+    }
+
     func testWithLockIfAvailable_whenBodyThrows_shouldPropagateError() {
         let mutex = SentryMutex(0)
 
