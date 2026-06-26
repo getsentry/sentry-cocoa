@@ -12,7 +12,8 @@ extension SentryDefaultAppHangTracker: SentryAppHangTracker { }
 
 typealias SentryAppHangTrackerDependencies = RunLoopDelayTrackerProvider & ThreadInspectorProvider & DateProviderProvider
 #else
-typealias SentryAppHangTracker = SentryDefaultAppHangTracker
+typealias SentryAppHangTrackerDependencies = RunLoopDelayTrackerProvider & ThreadInspectorProvider & DateProviderProvider
+typealias SentryAppHangTracker = SentryDefaultAppHangTracker<SentryDependencyContainer>
 #endif
 
 /// Debounces raw runloop delays into hang events with per-observer thresholds.
@@ -123,7 +124,7 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
         observers.withLock { entries in
             for (token, entry) in entries {
                 if delay.isOngoing {
-                    if delay.duration >= entry.threshold && !entry.hasBeenNotified {
+                    if delay.duration > entry.threshold && !entry.hasBeenNotified {
                         entries[token]?.hasBeenNotified = true
 
                         let context = startProfilingIfNeeded()
