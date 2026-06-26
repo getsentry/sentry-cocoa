@@ -170,7 +170,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryDefaultRunLoopDelayTracker(dependencies: self)
     }()
     lazy var appHangTracker: SentryAppHangTracker = {
-        SentryDefaultAppHangTracker(runLoopDelayTracker: self.runLoopDelayTracker)
+        SentryDefaultAppHangTracker(dependencies: self)
     }()
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
@@ -884,5 +884,10 @@ protocol AppHangTrackerProvider {
     var appHangTracker: SentryAppHangTracker { get }
 }
 extension SentryDependencyContainer: AppHangTrackerProvider { }
+
+protocol RunLoopDelayTrackerProvider {
+    var runLoopDelayTracker: SentryRunLoopDelayTracker { get }
+}
+extension SentryDependencyContainer: RunLoopDelayTrackerProvider { }
 
 //swiftlint:enable file_length missing_docs

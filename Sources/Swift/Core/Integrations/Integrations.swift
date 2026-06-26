@@ -86,7 +86,11 @@ private struct AnyIntegration {
             integrations.append(.init(SentryMetricKitIntegration.self))
         }
         #endif
-        
+
+        #if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
+        integrations.append(.init(SentryHangTrackingV3Integration<SentryDependencyContainer>.self))
+        #endif
+
         integrations.forEach { anyIntegration in
             guard let integration = anyIntegration.install(options, dependencies) else { return }
 

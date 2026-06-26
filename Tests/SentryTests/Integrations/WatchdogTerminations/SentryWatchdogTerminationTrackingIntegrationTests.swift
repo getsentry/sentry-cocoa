@@ -434,7 +434,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
 }
 
-private class MockDependencies: ANRTrackerBuilder & AppHangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & DateProviderProvider & ApplicationProvider {
+private class MockDependencies: ANRTrackerBuilder & AppHangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & DateProviderProvider & ApplicationProvider & RunLoopDelayTrackerProvider & ThreadInspectorProvider {
     
     func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
@@ -454,14 +454,19 @@ private class MockDependencies: ANRTrackerBuilder & AppHangTrackerProvider & Pro
 
     private func removeObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) { }
     
-    lazy var appHangTracker: SentryAppHangTracker = {
-        let runLoopDelayTracker = SentryDefaultRunLoopDelayTracker(
+    lazy var runLoopDelayTracker: SentryRunLoopDelayTracker = {
+        SentryDefaultRunLoopDelayTracker(
             dependencies: self,
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
             queue: DispatchQueue(label: "io.sentry.test-queue"))
-        return SentryDefaultAppHangTracker(runLoopDelayTracker: runLoopDelayTracker)
+    }()
+
+    var threadInspector: SentryThreadInspector { SentryDependencyContainer.sharedInstance().threadInspector }
+
+    lazy var appHangTracker: SentryAppHangTracker = {
+        return SentryDefaultAppHangTracker(dependencies: self)
     }()
     
     var processInfoWrapper: any Sentry.SentryProcessInfoSource {
@@ -508,16 +513,21 @@ private class MockRunLoopDelayTracker: SentryRunLoopDelayTracker {
 }
 
 /// Mock dependencies that use a real SentryDefaultAppHangTracker with a controllable delay tracker
-private class MockDependenciesWithControllableDelayTracker: AppHangTrackerProvider & ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider {
+private class MockDependenciesWithControllableDelayTracker: AppHangTrackerProvider & ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & RunLoopDelayTrackerProvider & ThreadInspectorProvider & DateProviderProvider {
 
     func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
     }
 
-    let appHangTracker: SentryAppHangTracker
+    lazy var appHangTracker: SentryAppHangTracker = {
+        SentryDefaultAppHangTracker(dependencies: self)
+    }()
+    let runLoopDelayTracker: SentryRunLoopDelayTracker
+    var threadInspector: SentryThreadInspector { SentryDependencyContainer.sharedInstance().threadInspector }
+    var dateProvider: SentryCurrentDateProvider { TestCurrentDateProvider() }
 
     init(delayTracker: MockRunLoopDelayTracker) {
-        self.appHangTracker = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        self.runLoopDelayTracker = delayTracker
     }
 
     var processInfoWrapper: any Sentry.SentryProcessInfoSource {

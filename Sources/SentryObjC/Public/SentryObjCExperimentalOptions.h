@@ -1,5 +1,7 @@
 #import <Foundation/Foundation.h>
 
+@class SentryObjCAppHangsOptions;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /// Options for experimental features that are subject to change or may be removed in future
@@ -31,6 +33,9 @@ NS_ASSUME_NONNULL_BEGIN
  * requests should be captured.
  */
 @property (nonatomic) BOOL enableReplayNetworkDetailsCapturing;
+
+/// Options for the experimental app hang tracking feature.
+@property (nonatomic, strong) SentryObjCAppHangsOptions *appHangs;
 
 /// Initializes experimental options with default values.
 - (instancetype)init;

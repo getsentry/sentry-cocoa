@@ -8,10 +8,12 @@ protocol SentryAppHangTracker {
     func addObserver(threshold: TimeInterval, handler: @escaping SentryAppHangTrackerHandler) -> SentryAppHangTrackerObserverToken
     func removeObserver(token: SentryAppHangTrackerObserverToken)
 }
-
 extension SentryDefaultAppHangTracker: SentryAppHangTracker { }
+
+typealias SentryAppHangTrackerDependencies = RunLoopDelayTrackerProvider
 #else
-typealias SentryAppHangTracker = SentryDefaultAppHangTracker
+typealias SentryAppHangTrackerDependencies = RunLoopDelayTrackerProvider
+typealias SentryAppHangTracker = SentryDefaultAppHangTracker<SentryDependencyContainer>
 #endif
 
 /// Debounces raw runloop delays into hang events with per-observer thresholds.
@@ -20,7 +22,7 @@ typealias SentryAppHangTracker = SentryDefaultAppHangTracker
 /// only when the accumulated delay exceeds that observer's configured threshold.
 /// Each observer receives at most one `.started` notification per hang,
 /// followed by one `.ended` when the hang resolves.
-final class SentryDefaultAppHangTracker {
+final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDependencies> {
     // MARK: - Types
 
     private struct ObserverEntry {
@@ -38,8 +40,8 @@ final class SentryDefaultAppHangTracker {
 
     // MARK: - Implementation
 
-    init(runLoopDelayTracker: SentryRunLoopDelayTracker) {
-        self.runLoopDelayTracker = runLoopDelayTracker
+    init(dependencies: Dependencies) {
+        self.runLoopDelayTracker = dependencies.runLoopDelayTracker
     }
 
     /// Adds an observer for app hangs exceeding the given threshold.
@@ -95,11 +97,17 @@ final class SentryDefaultAppHangTracker {
                 if delay.isOngoing {
                     if delay.duration > entry.threshold && !entry.hasBeenNotified {
                         entries[token]?.hasBeenNotified = true
-                        entry.handler(.init(duration: delay.duration, state: .started))
+                        entry.handler(.init(
+                            duration: delay.duration,
+                            state: .started,
+                        ))
                     }
                 } else if entry.hasBeenNotified {
                     entries[token]?.hasBeenNotified = false
-                    entry.handler(.init(duration: delay.duration, state: .ended))
+                    entry.handler(.init(
+                        duration: delay.duration,
+                        state: .ended,
+                    ))
                 }
             }
         }

@@ -192,6 +192,9 @@ public enum SentrySDKOverrides: String, CaseIterable {
 
     public enum AppHangs: String, SentrySDKOverride {
         case disableTracking = "--io.sentry.app-hangs.disable-tracking"
+        case disableNonFullyBlocking = "--io.sentry.app-hangs.disable-non-fully-blocking"
+        case enableV3 = "--io.sentry.app-hangs.enable-v3"
+        case appHangThreshold = "--io.sentry.app-hangs.app-hang-threshold"
     }
     case appHangs = "App Hangs"
 
@@ -497,7 +500,8 @@ extension SentrySDKOverrides.CoreData {
 extension SentrySDKOverrides.AppHangs {
     public var overrideType: OverrideType {
         switch self {
-        case .disableTracking: return .boolean
+        case .disableTracking, .disableNonFullyBlocking, .enableV3: return .boolean
+        case .appHangThreshold: return .float
         }
     }
 }
