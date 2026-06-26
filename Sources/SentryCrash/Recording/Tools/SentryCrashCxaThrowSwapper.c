@@ -89,7 +89,7 @@ getMprotectPageAlignedRange(
         return false;
     }
 
-    const uintptr_t pageSize = (uintptr_t)getpagesize();
+    const uintptr_t pageSize = (uintptr_t)sysconf(_SC_PAGESIZE);
     if (pageSize == 0) {
         return false;
     }
