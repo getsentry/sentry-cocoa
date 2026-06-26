@@ -82,6 +82,22 @@ static size_t g_cxa_originals_capacity = 0;
 static size_t g_cxa_originals_count = 0;
 
 static bool
+getSystemPageSize(uintptr_t *pageSize)
+{
+    if (pageSize == NULL) {
+        return false;
+    }
+
+    const long systemPageSize = sysconf(_SC_PAGESIZE);
+    if (systemPageSize <= 0) {
+        return false;
+    }
+
+    *pageSize = (uintptr_t)systemPageSize;
+    return true;
+}
+
+static bool
 getMprotectPageAlignedRange(
     void *address, size_t size, void **pageAlignedAddress, size_t *pageAlignedSize)
 {
@@ -89,8 +105,8 @@ getMprotectPageAlignedRange(
         return false;
     }
 
-    const uintptr_t pageSize = (uintptr_t)sysconf(_SC_PAGESIZE);
-    if (pageSize == 0) {
+    uintptr_t pageSize = 0;
+    if (!getSystemPageSize(&pageSize)) {
         return false;
     }
 
