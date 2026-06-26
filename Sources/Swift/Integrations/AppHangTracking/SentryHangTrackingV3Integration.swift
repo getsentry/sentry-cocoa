@@ -14,14 +14,17 @@ final class SentryHangTrackingV3Integration<Dependencies: SentryHangTrackingV3In
 
     init?(with options: Options, dependencies: Dependencies) {
         guard options.experimental.appHangs.enableV3 else {
+            SentrySDKLog.debug("HangTrackingV3: Not enabled, skipping installation")
             return nil
         }
 
+        SentrySDKLog.debug("HangTrackingV3: Installing with threshold=\(options.experimental.appHangs.appHangThreshold)s")
         self.appHangTracker = dependencies.appHangTracker
         observer = appHangTracker.addObserver(threshold: options.experimental.appHangs.appHangThreshold) { hang in
+            SentrySDKLog.debug("HangTrackingV3: Observer callback — state=\(hang.state == .started ? "started" : "ended"), duration=\(hang.duration)s, profilerId=\(hang.profilerId?.sentryIdString ?? "nil")")
             guard hang.state == .ended else { return }
             guard let client = dependencies.client else {
-                SentrySDKLog.debug("SentryHangTrackingV3Integration: No client available, dropping hang event")
+                SentrySDKLog.debug("HangTrackingV3: No client available, dropping hang event")
                 return
             }
 
@@ -47,14 +50,18 @@ final class SentryHangTrackingV3Integration<Dependencies: SentryHangTrackingV3In
             event.exceptions = [exception]
 
             if let profilerId = hang.profilerId {
+                SentrySDKLog.debug("HangTrackingV3: Attaching profile (profilerId=\(profilerId.sentryIdString), hasProfilingData=\(hang.profilingData != nil))")
                 Self.attachProfile(
                     to: event,
                     profilerId: profilerId,
                     profilingData: hang.profilingData,
                     hub: dependencies.hub
                 )
+            } else {
+                SentrySDKLog.debug("HangTrackingV3: No profilerId, sending event without profile")
             }
 
+            SentrySDKLog.debug("HangTrackingV3: Capturing hang event (eventId=\(event.eventId.sentryIdString))")
             client.capture(event: event)
         }
 
@@ -71,36 +78,24 @@ final class SentryHangTrackingV3Integration<Dependencies: SentryHangTrackingV3In
         var contexts = event.context ?? [:]
         contexts["profile"] = ["profiler_id": profilerId.sentryIdString]
         event.context = contexts
+        SentrySDKLog.debug("HangTrackingV3: Set profile context on event (profiler_id=\(profilerId.sentryIdString))")
 
         // If we have custom profiling data (not from continuous profiler),
         // send it as a profile_chunk envelope
-        guard let profilingData else { return }
-
-        let profileDict = profilingData.toDictionary() as NSDictionary
-
-        #if SENTRY_TARGET_PROFILING_SUPPORTED
-        #if SENTRY_HAS_UIKIT
-        let envelope = sentry_continuousProfileChunkEnvelope(
-            profilerId,
-            profileDict,
-            [:], // no metric profiler data for hang profiles
-            nil  // no GPU data for hang profiles
-        )
-        #else
-        let envelope = sentry_continuousProfileChunkEnvelope(
-            profilerId,
-            profileDict,
-            [:]  // no metric profiler data for hang profiles
-        )
-        #endif
-
-        guard let envelope else {
-            SentrySDKLog.debug("SentryHangTrackingV3Integration: Failed to create profile chunk envelope")
+        guard let profilingData else {
+            SentrySDKLog.debug("HangTrackingV3: No custom profiling data (continuous profiler path), skipping chunk envelope")
             return
         }
 
+        SentrySDKLog.debug("HangTrackingV3: Serializing profiling data (frames=\(profilingData.frames.count), stacks=\(profilingData.stacks.count), samples=\(profilingData.samples.count))")
+
+        guard let envelope = buildProfileChunkEnvelope(profilerId: profilerId, profilingData: profilingData, hub: hub) else {
+            SentrySDKLog.debug("HangTrackingV3: Failed to build profile chunk envelope")
+            return
+        }
+
+        SentrySDKLog.debug("HangTrackingV3: Sending profile_chunk envelope via hub.captureEnvelope")
         hub.captureEnvelope(envelope)
-        #endif
     }
 
     func uninstall() {}
@@ -108,6 +103,47 @@ final class SentryHangTrackingV3Integration<Dependencies: SentryHangTrackingV3In
     static var name: String {
         "SentryHangTrackingV3Integration"
     }
+}
+
+private func buildProfileChunkEnvelope(
+    profilerId: SentryId,
+    profilingData: SentryAppHang.ProfilingData,
+    hub: Hub
+) -> SentryEnvelope? {
+    let chunkId = SentryId()
+    let profileDict = profilingData.toDictionary()
+
+    var payload: [String: Any] = [:]
+    payload["version"] = "2"
+    payload["chunk_id"] = chunkId.sentryIdString
+    payload["profiler_id"] = profilerId.sentryIdString
+    payload["platform"] = "cocoa"
+    payload["profile"] = profileDict["profile"]
+
+    let options = hub.options
+    payload["environment"] = options.environment
+    payload["release"] = options.releaseName
+
+    payload["client_sdk"] = [
+        "name": SentryMeta.sdkName,
+        "version": SentryMeta.versionString
+    ]
+
+    let debugImages = SentryDependencyContainer.sharedInstance().debugImageProvider.getDebugImagesFromCache()
+    if !debugImages.isEmpty {
+        payload["debug_meta"] = [
+            "images": debugImages.map { $0.serialize() }
+        ]
+    }
+
+    guard let jsonData = SentrySerializationSwift.data(withJSONObject: payload) else {
+        SentrySDKLog.debug("HangTrackingV3: Failed to serialize profile chunk payload to JSON")
+        return nil
+    }
+
+    SentrySDKLog.debug("HangTrackingV3: Built profile_chunk envelope (chunkId=\(chunkId.sentryIdString), profilerId=\(profilerId.sentryIdString), size=\(jsonData.count) bytes)")
+    let item = SentryEnvelopeItem(type: SentryEnvelopeItemTypes.profileChunk, data: jsonData, addPlatform: true)
+    return SentryEnvelope(id: chunkId, singleItem: item)
 }
 
 extension SentryAppHang.ProfilingData {

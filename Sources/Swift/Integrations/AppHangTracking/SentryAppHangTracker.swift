@@ -71,6 +71,7 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
         self.threadInspector = dependencies.threadInspector
         self.dateProvider = dependencies.dateProvider
         self.profilingOptions = profilingOptions
+        SentrySDKLog.debug("AppHangTracker: Initialized (sampleRate=\(profilingOptions.sampleRate), sampleIntervalMs=\(profilingOptions.sampleIntervalMs))")
     }
 
     /// Adds an observer for app hangs exceeding the given threshold.
@@ -126,8 +127,10 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
                 if delay.isOngoing {
                     if delay.duration > entry.threshold && !entry.hasBeenNotified {
                         entries[token]?.hasBeenNotified = true
+                        SentrySDKLog.debug("AppHangTracker: Hang started (duration=\(delay.duration)s, threshold=\(entry.threshold)s)")
 
                         let context = startProfilingIfNeeded()
+                        SentrySDKLog.debug("AppHangTracker: Profiling context for started hang: profilerId=\(context?.profilerId.sentryIdString ?? "nil"), isUsingContinuousProfiler=\(context?.isUsingContinuousProfiler.description ?? "nil")")
                         entry.handler(.init(
                             duration: delay.duration,
                             state: .started,
@@ -142,7 +145,7 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
 
                     let endTime = dateProvider.systemTime()
                     let result = stopProfilingIfNeeded()
-                    print(result.profilerId as Any)
+                    SentrySDKLog.debug("AppHangTracker: Hang ended (duration=\(delay.duration)s), profilerId=\(result.profilerId?.sentryIdString ?? "nil"), hasSamples=\(result.profilingData != nil), sampleCount=\(result.profilingData?.samples.count ?? 0)")
                     entry.handler(.init(
                         duration: delay.duration,
                         state: .ended,
@@ -157,8 +160,16 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
     }
 
     private func startProfilingIfNeeded() -> HangProfilingContext? {
-        guard activeProfilingContext == nil else { return activeProfilingContext }
-        guard Double.random(in: 0.0...1.0) < profilingOptions.sampleRate else { return nil }
+        guard activeProfilingContext == nil else {
+            SentrySDKLog.debug("AppHangTracker: startProfilingIfNeeded — already active, reusing existing context")
+            return activeProfilingContext
+        }
+
+        let roll = Double.random(in: 0.0...1.0)
+        guard roll < profilingOptions.sampleRate else {
+            SentrySDKLog.debug("AppHangTracker: startProfilingIfNeeded — skipped by sample rate (roll=\(roll), rate=\(profilingOptions.sampleRate))")
+            return nil
+        }
 
         let startTime = dateProvider.systemTime()
 
@@ -166,6 +177,7 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
         // Path 1: Continuous profiler is already capturing — just record its ID
         if SentryContinuousProfiler.isCurrentlyProfiling,
            let existingId = SentryContinuousProfiler.currentProfilerID {
+            SentrySDKLog.debug("AppHangTracker: Piggyback on continuous profiler (profilerId=\(existingId.sentryIdString))")
             let context = HangProfilingContext(
                 profilerId: existingId,
                 startSystemTime: startTime,
@@ -180,6 +192,7 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
         // Path 2: Start custom main-thread sampling
         let accumulator = SampleAccumulator()
         let profilerId = SentryId()
+        SentrySDKLog.debug("AppHangTracker: Starting custom sampling (profilerId=\(profilerId.sentryIdString), intervalMs=\(profilingOptions.sampleIntervalMs))")
         var context = HangProfilingContext(
             profilerId: profilerId,
             startSystemTime: startTime,
@@ -190,6 +203,7 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
         // Take an immediate first sample
         let threads = threadInspector.getCurrentThreadsWithStackTrace()
         accumulator.appendSample(from: threads, timestamp: startTime)
+        SentrySDKLog.debug("AppHangTracker: Took initial sample, \(threads.count) threads, mainThread frames=\(threads.first(where: { $0.isMain?.boolValue == true })?.stacktrace?.frames.count ?? 0)")
 
         // Schedule recurring samples
         let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .userInitiated))
@@ -209,6 +223,7 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
 
     private func stopProfilingIfNeeded() -> (profilerId: SentryId?, profilingData: SentryAppHang.ProfilingData?, startSystemTime: UInt64) {
         guard let context = activeProfilingContext else {
+            SentrySDKLog.debug("AppHangTracker: stopProfilingIfNeeded — no active context")
             return (nil, nil, 0)
         }
         activeProfilingContext = nil
@@ -216,10 +231,12 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
         context.sampleTimer?.cancel()
 
         if context.isUsingContinuousProfiler {
+            SentrySDKLog.debug("AppHangTracker: Stopped profiling (continuous profiler path, profilerId=\(context.profilerId.sentryIdString))")
             return (context.profilerId, nil, context.startSystemTime)
         }
 
         let profilingData = context.accumulator?.toProfilingData()
+        SentrySDKLog.debug("AppHangTracker: Stopped profiling (custom sampling, profilerId=\(context.profilerId.sentryIdString), frames=\(profilingData?.frames.count ?? 0), stacks=\(profilingData?.stacks.count ?? 0), samples=\(profilingData?.samples.count ?? 0))")
         return (context.profilerId, profilingData, context.startSystemTime)
     }
 }
