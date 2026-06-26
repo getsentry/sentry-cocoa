@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix crash report ID generation so reports created at certain timestamps are not ignored (#8216)
+- Fix client report discarded-event counts for categories reported in quantities greater than one (e.g. spans): each drop now adds the full dropped quantity instead of incrementing by one (#8230)
 
 ## 9.19.0
 
