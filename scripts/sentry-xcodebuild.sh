@@ -268,13 +268,17 @@ if [ $RUN_BUILD_FOR_TESTING == true ]; then
     # When no test plan is provided, we skip the -testPlan argument so xcodebuild uses the default test plan
     log_info "Running xcodebuild build-for-testing"
 
+    BFT_ARGS=(
+        -workspace "$WORKSPACE"
+        -scheme "$TEST_SCHEME"
+        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}"
+        "${ONLY_TESTING_ARGS[@]+${ONLY_TESTING_ARGS[@]}}"
+    )
+    [[ -n "$CONFIGURATION" ]] && BFT_ARGS+=(-configuration "$CONFIGURATION")
+    BFT_ARGS+=(-destination "$DESTINATION")
+
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace "$WORKSPACE" \
-        -scheme "$TEST_SCHEME" \
-        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
-        "${ONLY_TESTING_ARGS[@]+${ONLY_TESTING_ARGS[@]}}" \
-        -configuration "$CONFIGURATION" \
-        -destination "$DESTINATION" \
+        "${BFT_ARGS[@]}" \
         build-for-testing 2>&1 |
         tee raw-build-for-testing-output.log |
         xcbeautify --preserve-unbeautified
@@ -289,14 +293,18 @@ if [ $RUN_TEST_WITHOUT_BUILDING == true ]; then
         rm -rf "$RESULT_BUNDLE_PATH"
     fi
 
+    TWB_ARGS=(
+        -workspace "$WORKSPACE"
+        -scheme "$TEST_SCHEME"
+        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}"
+        "${ONLY_TESTING_ARGS[@]+${ONLY_TESTING_ARGS[@]}}"
+    )
+    [[ -n "$CONFIGURATION" ]] && TWB_ARGS+=(-configuration "$CONFIGURATION")
+    TWB_ARGS+=(-destination "$DESTINATION")
+    TWB_ARGS+=(-resultBundlePath "$RESULT_BUNDLE_PATH")
+
     set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-        -workspace "$WORKSPACE" \
-        -scheme "$TEST_SCHEME" \
-        "${TEST_PLAN_ARGS[@]+${TEST_PLAN_ARGS[@]}}" \
-        "${ONLY_TESTING_ARGS[@]+${ONLY_TESTING_ARGS[@]}}" \
-        -configuration "$CONFIGURATION" \
-        -destination "$DESTINATION" \
-        -resultBundlePath "$RESULT_BUNDLE_PATH" \
+        "${TWB_ARGS[@]}" \
         test-without-building 2>&1 |
         tee raw-test-output.log |
         xcbeautify --report junit
