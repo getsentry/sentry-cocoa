@@ -13,7 +13,7 @@ protocol SentryRunLoopDelayTracker {
     func addObserver(handler: @escaping SentryRunLoopDelayTrackerHandler) -> SentryRunLoopDelayTrackerObserverToken
     func removeObserver(token: SentryRunLoopDelayTrackerObserverToken)
 }
-extension SentryDefaultSentryRunLoopDelayTracker: SentryRunLoopDelayTracker { }
+extension SentryDefaultRunLoopDelayTracker: SentryRunLoopDelayTracker { }
 
 protocol SentryRunLoopObserver { }
 extension CFRunLoopObserver: SentryRunLoopObserver { }
@@ -54,7 +54,7 @@ typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFR
 /// 3. As simple as possible, using limited lines of code.
 ///
 /// - Warning: All public APIs must be called on the main queue. This includes init and deinit.
-final class SentryDefaultSentryRunLoopDelayTracker<T: SentryRunLoopObserver, Dependencies: SentryRunLoopDelayTrackerDependencies> {
+final class SentryDefaultRunLoopDelayTracker<T: SentryRunLoopObserver, Dependencies: SentryRunLoopDelayTrackerDependencies> {
     // MARK: - Types
 
     /// Data structure encapsulating all mutable state that **must** only be used from the main queue.
@@ -222,7 +222,7 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: SentryRunLoopObserver, Dep
     }
 }
 
-extension SentryDefaultSentryRunLoopDelayTracker where T == CFRunLoopObserver {
+extension SentryDefaultRunLoopDelayTracker where T == CFRunLoopObserver {
     convenience init(dependencies: Dependencies) {
         self.init(
             dependencies: dependencies,

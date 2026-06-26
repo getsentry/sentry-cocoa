@@ -451,7 +451,7 @@ private class MockDependencies: ANRTrackerBuilder & AppHangTrackerProvider & Pro
     private func removeObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) { }
     
     lazy var appHangTracker: SentryAppHangTracker = {
-        let runLoopDelayTracker = SentryDefaultSentryRunLoopDelayTracker(
+        let runLoopDelayTracker = SentryDefaultRunLoopDelayTracker(
             dateProvider: TestCurrentDateProvider(),
             createObserver: createObserver,
             addObserver: addObserver,
