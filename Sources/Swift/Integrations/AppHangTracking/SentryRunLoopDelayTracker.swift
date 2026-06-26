@@ -3,12 +3,6 @@
 import UIKit
 #endif
 
-/// A snapshot of a detected main run loop delay, reported to observers each polling interval while ongoing
-/// and once more with ``isOngoing`` set to `false` when the delay ends.
-struct SentryRunLoopDelay {
-    let duration: TimeInterval
-    let isOngoing: Bool
-}
 typealias SentryRunLoopDelayTrackerHandler = (_ delay: SentryRunLoopDelay) -> Void
 typealias SentryRunLoopDelayTrackerObserverToken = UUID
 
@@ -19,13 +13,16 @@ protocol SentryRunLoopDelayTracker {
     func addObserver(handler: @escaping SentryRunLoopDelayTrackerHandler) -> SentryRunLoopDelayTrackerObserverToken
     func removeObserver(token: SentryRunLoopDelayTrackerObserverToken)
 }
-protocol RunLoopObserver { }
-
 extension SentryDefaultSentryRunLoopDelayTracker: SentryRunLoopDelayTracker { }
-extension CFRunLoopObserver: RunLoopObserver { }
+
+protocol SentryRunLoopObserver { }
+extension CFRunLoopObserver: SentryRunLoopObserver { }
+
+typealias SentryRunLoopDelayTrackerDependencies = DateProviderProvider & ApplicationProvider
 #else
 typealias SentryRunLoopDelayTracker = SentryDefaultSentryRunLoopDelayTracker<CFRunLoopObserver>
-typealias RunLoopObserver = CFRunLoopObserver
+typealias SentryRunLoopObserver = CFRunLoopObserver
+typealias SentryRunLoopDelayTrackerDependencies = SentryDependencyContainer
 #endif
 
 // Mirrors CFRunLoopObserver{CreateWithHandler,Add,Remove} signatures so tests can inject fakes.
@@ -57,7 +54,7 @@ typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFR
 /// 3. As simple as possible, using limited lines of code.
 ///
 /// - Warning: All public APIs must be called on the main queue. This includes init and deinit.
-final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
+final class SentryDefaultSentryRunLoopDelayTracker<T: SentryRunLoopObserver, Dependencies: SentryRunLoopDelayTrackerDependencies> {
     // MARK: - Types
 
     /// Data structure encapsulating all mutable state that **must** only be used from the main queue.
@@ -86,19 +83,19 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
     ///
     /// - Precondition: Must be initialized on the main queue
     init(
-        dateProvider: SentryCurrentDateProvider,
+        dependencies: Dependencies,
         createObserver: @escaping CreateObserverFunc<T>,
         addObserver: @escaping AddObserverFunc<T>,
         removeObserver: @escaping RemoveObserverFunc<T>,
         queue: DispatchQueue = DispatchQueue(label: "io.sentry.runloop-observer-checker")
     ) {
-        self.dateProvider = dateProvider
+        self.dateProvider = dependencies.dateProvider
         self.createObserver = createObserver
         self.addObserver = addObserver
         self.removeObserver = removeObserver
         self.queue = queue
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && !os(visionOS) && !os(watchOS)
-        let window = UIApplication.shared.connectedScenes.flatMap { ($0 as? UIWindowScene)?.windows ?? [] }.first { $0.isKeyWindow }
+        let window = dependencies.application()?.getKeyWindow()
         let maxFPS = Double(window?.screen.maximumFramesPerSecond ?? 60)
 #else
         let maxFPS: Double = 60.0
@@ -226,9 +223,9 @@ final class SentryDefaultSentryRunLoopDelayTracker<T: RunLoopObserver> {
 }
 
 extension SentryDefaultSentryRunLoopDelayTracker where T == CFRunLoopObserver {
-    convenience init(dateProvider: SentryCurrentDateProvider) {
+    convenience init(dependencies: Dependencies) {
         self.init(
-            dateProvider: dateProvider,
+            dependencies: dependencies,
             createObserver: CFRunLoopObserverCreateWithHandler,
             addObserver: CFRunLoopAddObserver,
             removeObserver: CFRunLoopRemoveObserver
