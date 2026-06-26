@@ -142,6 +142,7 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
 
                     let endTime = dateProvider.systemTime()
                     let result = stopProfilingIfNeeded()
+                    print(result.profilerId as Any)
                     entry.handler(.init(
                         duration: delay.duration,
                         state: .ended,

@@ -31,13 +31,13 @@ final class SentryHangTrackingV3Integration<Dependencies: SentryHangTrackingV3In
             thread.current = NSNumber(value: true)
             thread.isMain = NSNumber(value: true)
 
-            let mechanism = Mechanism(type: "mx_hang_diagnostic")
+            let mechanism = Mechanism(type: "AppHang")
             mechanism.handled = NSNumber(value: true)
             mechanism.synthetic = NSNumber(value: true)
 
             let exception = Exception(
                 value: "App hang detected: \(String(format: "%.1f", hang.duration)) sec",
-                type: "MXHangDiagnostic"
+                type: "App Hanging"
             )
             exception.mechanism = mechanism
             exception.threadId = NSNumber(value: 0)
