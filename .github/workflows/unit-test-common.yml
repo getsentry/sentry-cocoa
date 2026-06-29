@@ -77,7 +77,7 @@ jobs:
       - name: Install simulator runtime
         # Bitrise is missing tvOS 17.5 runtime, so we need to install it manually.
         if: ${{ inputs.runner_provider == 'bitrise' && inputs.test-destination-os != '' && inputs.platform == 'tvOS' }}
-        timeout-minutes: 30
+        timeout-minutes: 5
         env:
           OS_VERSION: ${{ inputs.test-destination-os }}
           PLATFORM: ${{ inputs.platform }}
