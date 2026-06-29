@@ -183,8 +183,8 @@ jobs:
             --os "${OS_VERSION}" \
             --ref "${REF_NAME}" \
             --command build-for-testing \
-            --configuration TestKSCrash \
-            --scheme SentryKSCrash \
+            --configuration TestV10 \
+            --scheme Sentry+KSCrash \
             --test-plan Sentry_TestServer
 
       - name: Run tests
@@ -197,8 +197,8 @@ jobs:
             --os "${OS_VERSION}" \
             --ref "${REF_NAME}" \
             --command test-without-building \
-            --configuration TestKSCrash \
-            --scheme SentryKSCrash \
+            --configuration TestV10 \
+            --scheme Sentry+KSCrash \
             --test-plan Sentry_TestServer
 
       - name: Archiving DerivedData Logs
