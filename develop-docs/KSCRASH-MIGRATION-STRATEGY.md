@@ -7,6 +7,14 @@ Author: @NinjaLikesCheez <thomas.hedderwick@sentry.io>
 
 We're migrating from `SentryCrash` (a KSCrash v1.x fork with renamed identifiers) to KSCrash 2.x and intend to make this the default crash handler in v10 of the SDK. The new integration (`SentryKSCrashIntegration`) is being built alongside the existing `SentryCrashIntegration` . We need a strategy for how these two coexist during development and how the cutover happens before we remove `SentryCrash` entirely from the codebase.
 
+## Scope
+
+This document concerns the developement strategry (i.e. branching/merge strategy) and not the technical details of the changes required to migrate to KSCrash.
+
+Some things are considered to be **out-of-scope** of this document:
+
+- Pre-built binary targets. All binary targets will be removed from `Package.swift` as part of [#8133](https://github.com/getsentry/sentry-cocoa/issues/8133) before v10 ships, so we do not need to account for them here
+
 ---
 
 ## Option A: Long-lived feature branch
