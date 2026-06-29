@@ -452,7 +452,6 @@ private class MockDependencies: ANRTrackerBuilder & SentryRunLoopDelayTrackerPro
 
     struct TestRunLoopObserver: SentryRunLoopObserver { }
 
-
     private func createObserver(_ allocator: CFAllocator?, _ activities: CFOptionFlags, _ repeats: Bool, _ order: CFIndex, _ block: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?) -> TestRunLoopObserver {
         return TestRunLoopObserver()
     }
