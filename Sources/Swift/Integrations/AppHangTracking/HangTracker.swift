@@ -21,7 +21,7 @@ extension CFRunLoopObserver: RunLoopObserver { }
 
 typealias SentryRunLoopDelayTrackerDependencies = DateProviderProvider & ApplicationProvider
 #else
-typealias HangTracker = DefaultHangTracker<CFRunLoopObserver>
+typealias HangTracker = DefaultHangTracker<CFRunLoopObserver, SentryDependencyContainer>
 typealias RunLoopObserver = CFRunLoopObserver
 typealias SentryRunLoopDelayTrackerDependencies = SentryDependencyContainer
 #endif
