@@ -3,7 +3,7 @@
 import UIKit
 #endif
 
-typealias SentryRunLoopDelayTrackerHandler = (_ duration: TimeInterval, _ ongoing: Bool) -> Void
+typealias SentryRunLoopDelayTrackerHandler = (_ delay: SentryRunLoopDelay) -> Void
 typealias SentryRunLoopDelayTrackerObserverToken = UUID
 
 #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
@@ -201,7 +201,7 @@ final class SentryDefaultRunLoopDelayTracker<T: SentryRunLoopObserver, Dependenc
                 // because the main queue could be modifying it
                 observersLock.synchronized {
                     observers.values.forEach {
-                        $0(duration, true)
+                        $0(.init(duration: duration, isOngoing: true))
                     }
                 }
                 hasTimedOut = true
@@ -213,7 +213,7 @@ final class SentryDefaultRunLoopDelayTracker<T: SentryRunLoopObserver, Dependenc
                     // because the main queue could be modifying it
                     observersLock.synchronized {
                         observers.values.forEach {
-                            $0(duration, false)
+                            $0(.init(duration: duration, isOngoing: false))
                         }
                     }
                 }
