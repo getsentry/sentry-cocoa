@@ -509,7 +509,7 @@ private class MockHangTracker: SentryRunLoopDelayTracker {
     /// Simulates a hang by calling all registered observers with the given duration and ongoing state
     func simulateHang(duration: TimeInterval, ongoing: Bool) {
         for observer in observers.values {
-            observer(duration, ongoing)
+            observer(.init(duration: duration, isOngoing: ongoing))
         }
     }
 }

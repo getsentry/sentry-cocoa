@@ -43,7 +43,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         addObserver: addObserver,
         removeObserver: removeObserver,
         queue: queue)
-    _ = sut?.addOngoingHangObserver(handler: { _, _ in })
+    _ = sut?.addOngoingHangObserver(handler: { _ in })
       XCTAssertEqual(calledRemoveObserver, false)
       sut = nil
       XCTAssertEqual(calledRemoveObserver, true)
@@ -60,7 +60,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
             queue: queue)
 
         var observedHang = false
-        let id = sut.addOngoingHangObserver { _, _ in
+        let id = sut.addOngoingHangObserver { _ in
             observedHang = true
         }
         XCTAssertTrue(calledAddObserver, "Expected add observer to be called")
@@ -98,7 +98,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
             queue: queue)
 
         var observedHang = false
-        let id = sut.addOngoingHangObserver { _, _ in
+        let id = sut.addOngoingHangObserver { _ in
             observedHang = true
         }
         XCTAssertTrue(calledAddObserver, "Expected add observer to be called")
@@ -132,9 +132,9 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         var observerLastInterval: TimeInterval = 0
         var hangOngoing: Bool = false
         let expectation = XCTestExpectation()
-        let id = sut.addOngoingHangObserver { interval, ongoing in
-            observerLastInterval = interval
-            hangOngoing = ongoing
+        let id = sut.addOngoingHangObserver { delay in
+            observerLastInterval = delay.duration
+            hangOngoing = delay.isOngoing
             expectation.fulfill()
         }
         XCTAssertTrue(calledAddObserver, "Expected add observer to be called")
@@ -174,7 +174,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
             removeObserver: removeObserver,
             queue: queue)
 
-        let id = sut.addOngoingHangObserver { _, _ in }
+        let id = sut.addOngoingHangObserver { _ in }
         observationBlock?(testObserver, .afterWaiting)
         sut.removeObserver(id: id)
 
@@ -203,7 +203,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         weak var weakSut = sut
         #endif
 
-        _ = sut?.addOngoingHangObserver { _, _ in }
+        _ = sut?.addOngoingHangObserver { _ in }
         observationBlock?(testObserver, .afterWaiting)
         observationBlock?(testObserver, .beforeWaiting)
 
@@ -237,15 +237,15 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         var lastInterval: TimeInterval = 0
         var lastOngoing: Bool = false
         var hangCallback = XCTestExpectation()
-        let id = sut.addOngoingHangObserver { interval, ongoing in
+        let id = sut.addOngoingHangObserver { delay in
             // Only fulfill one time
             lock.synchronized {
                 if lastInterval == 0 {
                     hangCallback.fulfill()
                 }
-                lastInterval = interval
-                lastOngoing = ongoing
-                if !ongoing {
+                lastInterval = delay.duration
+                lastOngoing = delay.isOngoing
+                if !delay.isOngoing {
                     hangCount += 1
                 }
             }
@@ -327,7 +327,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
 
         let expectation = XCTestExpectation()
         var hangDetected = false
-        _ = sut?.addOngoingHangObserver { _, _ in
+        _ = sut?.addOngoingHangObserver { _ in
             if !hangDetected {
                 expectation.fulfill()
                 hangDetected = true
@@ -381,34 +381,34 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         let expectation2 = XCTestExpectation(description: "Observer 2 called")
         let expectation3 = XCTestExpectation(description: "Observer 3 called")
 
-        let id1 = sut.addOngoingHangObserver { interval, ongoing in
+        let id1 = sut.addOngoingHangObserver { delay in
             // Only fulfill one time
             if observer1Interval == 0 {
                 expectation1.fulfill()
             }
             lock.synchronized {
-                observer1Interval = interval
-                observer1Ongoing = ongoing
+                observer1Interval = delay.duration
+                observer1Ongoing = delay.isOngoing
             }
         }
-        let id2 = sut.addOngoingHangObserver { interval, ongoing in
+        let id2 = sut.addOngoingHangObserver { delay in
             // Only fulfill one time
             if observer2Interval == 0 {
                 expectation2.fulfill()
             }
             lock.synchronized {
-                observer2Interval = interval
-                observer2Ongoing = ongoing
+                observer2Interval = delay.duration
+                observer2Ongoing = delay.isOngoing
             }
         }
-        let id3 = sut.addOngoingHangObserver { interval, ongoing in
+        let id3 = sut.addOngoingHangObserver { delay in
             // Only fulfill one time
             if observer3Interval == 0 {
                 expectation3.fulfill()
             }
             lock.synchronized {
-                observer3Interval = interval
-                observer3Ongoing = ongoing
+                observer3Interval = delay.duration
+                observer3Ongoing = delay.isOngoing
             }
         }
 
