@@ -126,6 +126,7 @@ NS_SWIFT_NAME(Scope)
 /**
  * Sets context values which will overwrite SentryEvent.context when event is
  * "enriched" with scope before sending event.
+ * @note The @c flags context key is reserved for feature flag evaluations.
  */
 - (void)setContextValue:(NSDictionary<NSString *, id> *)value
                  forKey:(NSString *)key NS_SWIFT_NAME(setContext(value:key:));
