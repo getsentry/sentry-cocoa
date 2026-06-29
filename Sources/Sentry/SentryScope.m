@@ -756,9 +756,12 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     }
 }
 
-- (void)updateFeatureFlagsContext
+/**
+ * Syncs the feature flag buffer into context and notifies observers.
+ * Must be called while synchronized on _contextDictionary.
+ */
+- (void)updateFeatureFlagsContextLocked
 {
-    // Must be called while synchronized on _contextDictionary.
     NSDictionary<NSString *, id> *_Nullable featureFlags = [_featureFlagBuffer serializeForContext];
     if (featureFlags.count > 0) {
         _contextDictionary[@"flags"] = featureFlags;
@@ -775,7 +778,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 {
     @synchronized(_contextDictionary) {
         [_featureFlagBuffer addWithName:name result:result];
-        [self updateFeatureFlagsContext];
+        [self updateFeatureFlagsContextLocked];
     }
 }
 
@@ -783,7 +786,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 {
     @synchronized(_contextDictionary) {
         [_featureFlagBuffer removeWithName:name];
-        [self updateFeatureFlagsContext];
+        [self updateFeatureFlagsContextLocked];
     }
 }
 
