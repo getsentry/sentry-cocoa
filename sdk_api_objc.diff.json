@@ -184,13 +184,6 @@
     },
     {
       "kind": "ObjCMethodDecl",
-      "name": "setAppHangs:",
-      "parent": "SentryObjCExperimentalOptions",
-      "returnType": "void",
-      "instance": true
-    },
-    {
-      "kind": "ObjCMethodDecl",
       "name": "source",
       "parent": "SentryObjCFeedback",
       "returnType": "SentryObjCFeedbackSource",
