@@ -4,7 +4,7 @@ import XCTest
 
 struct TestRunLoopObserver: SentryRunLoopObserver { }
 
-final class SentryHangTrackerTests: XCTestCase {
+final class SentryRunLoopDelayTrackerTests: XCTestCase {
 
     private var createdObservationBlock: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?
     private var observationBlock: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?
@@ -37,7 +37,7 @@ final class SentryHangTrackerTests: XCTestCase {
 
   func testHangTrackerCallsRemoveObserverOnDealloc() {
       let mockDependencies = MockDependencies()
-      var sut: SentryDefaultHangTracker? = SentryDefaultHangTracker(
+      var sut: SentryDefaultRunLoopDelayTracker? = SentryDefaultRunLoopDelayTracker(
         dependencies: mockDependencies,
         createObserver: createObserver,
         addObserver: addObserver,
@@ -52,7 +52,7 @@ final class SentryHangTrackerTests: XCTestCase {
     func testDoesNotCaptureHangsThatAreNotOngoing() {
         let mockDependencies = MockDependencies()
         mockDependencies.mockDateProvider.setSystemUptime(0)
-        let sut = SentryDefaultHangTracker(
+        let sut = SentryDefaultRunLoopDelayTracker(
             dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -90,7 +90,7 @@ final class SentryHangTrackerTests: XCTestCase {
     func testHangTrackerWhenNotHanging() {
         let mockDependencies = MockDependencies()
         mockDependencies.mockDateProvider.setSystemUptime(0)
-        let sut = SentryDefaultHangTracker(
+        let sut = SentryDefaultRunLoopDelayTracker(
             dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -122,7 +122,7 @@ final class SentryHangTrackerTests: XCTestCase {
     func testHangTrackerCallsLateRunLoop() {
         let mockDependencies = MockDependencies()
         mockDependencies.mockDateProvider.setSystemUptime(0)
-        let sut = SentryDefaultHangTracker(
+        let sut = SentryDefaultRunLoopDelayTracker(
             dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -167,7 +167,7 @@ final class SentryHangTrackerTests: XCTestCase {
     func testRemovesObserverDuringRunloop() {
         let mockDependencies = MockDependencies()
         mockDependencies.mockDateProvider.setSystemUptime(0)
-        let sut = SentryDefaultHangTracker(
+        let sut = SentryDefaultRunLoopDelayTracker(
             dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -191,7 +191,7 @@ final class SentryHangTrackerTests: XCTestCase {
     func testHangTrackerDeallocates() {
         let mockDependencies = MockDependencies()
         mockDependencies.mockDateProvider.setSystemUptime(0)
-        var sut: SentryDefaultHangTracker? = SentryDefaultHangTracker(
+        var sut: SentryDefaultRunLoopDelayTracker? = SentryDefaultRunLoopDelayTracker(
             dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -225,7 +225,7 @@ final class SentryHangTrackerTests: XCTestCase {
     func testConsecutiveHangsAreDetected() {
         let mockDependencies = MockDependencies()
         mockDependencies.mockDateProvider.setSystemUptime(0)
-        let sut = SentryDefaultHangTracker(
+        let sut = SentryDefaultRunLoopDelayTracker(
             dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -313,7 +313,7 @@ final class SentryHangTrackerTests: XCTestCase {
     func testDeallocWhileInWaitForHangLoop() {
         let mockDependencies = MockDependencies()
         mockDependencies.mockDateProvider.setSystemUptime(0)
-        var sut: SentryDefaultHangTracker? = SentryDefaultHangTracker(
+        var sut: SentryDefaultRunLoopDelayTracker? = SentryDefaultRunLoopDelayTracker(
             dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
@@ -362,7 +362,7 @@ final class SentryHangTrackerTests: XCTestCase {
     func testMultipleObserversAllReceiveHangCallback() {
         let mockDependencies = MockDependencies()
         mockDependencies.mockDateProvider.setSystemUptime(0)
-        let sut = SentryDefaultHangTracker(
+        let sut = SentryDefaultRunLoopDelayTracker(
             dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,

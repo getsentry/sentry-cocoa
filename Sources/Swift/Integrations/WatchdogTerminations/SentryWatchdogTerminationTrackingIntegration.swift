@@ -3,14 +3,14 @@ import Foundation
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & HangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider
+typealias WatchdogTerminationTrackingProvider = ANRTrackerBuilder & ProcessInfoProvider & SentryRunLoopDelayTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider
 
 final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogTerminationTrackingProvider>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
 
     private let tracker: SentryWatchdogTerminationTracker
     private let timeoutInterval: TimeInterval
     private let anrTracker: SentryANRTracker?
-    private let hangTracker: SentryHangTracker?
+    private let hangTracker: SentryRunLoopDelayTracker?
     private let appStateManager: SentryAppStateManager
     
     private var hasStartedHang: Bool = false
@@ -45,7 +45,7 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         tracker = terminationTracker
         timeoutInterval = options.appHangTimeoutInterval
         if options.experimental.enableWatchdogTerminationsV2 {
-            hangTracker = dependencies.hangTracker
+            hangTracker = dependencies.runLoopDelayTracker
             anrTracker = nil
         } else {
             anrTracker = dependencies.getANRTracker(options.appHangTimeoutInterval)
