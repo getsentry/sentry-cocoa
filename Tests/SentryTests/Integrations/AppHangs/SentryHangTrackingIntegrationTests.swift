@@ -280,8 +280,8 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     }
 
     func testANRDetected_DetectingPausedResumed_EventCaptured() throws {
-        givenInitializedTracker()
         setUpThreadInspector()
+        givenInitializedTracker()
         try XCTUnwrap(sut).pauseAppHangTracking()
         try XCTUnwrap(sut).resumeAppHangTracking()
 
