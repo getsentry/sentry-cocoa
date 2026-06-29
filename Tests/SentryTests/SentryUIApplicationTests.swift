@@ -170,5 +170,36 @@ class SentryUIApplicationTests: XCTestCase {
     private class MockKeyUIWindow: UIWindow {
         override var isKeyWindow: Bool { true }
     }
+
+    private class ThreadTrackingKeyUIWindow: UIWindow {
+        var isKeyWindowAccessedOnMainThread: Bool?
+        override var isKeyWindow: Bool {
+            isKeyWindowAccessedOnMainThread = Thread.isMainThread
+            return true
+        }
+    }
+
+    // MARK: - Thread Safety
+
+    func testGetKeyWindow_fromBackgroundThread_shouldAccessIsKeyWindowOnMainThread() {
+        // -- Arrange --
+        let sut = TestSentryUIApplication()
+        let keyWindow = ThreadTrackingKeyUIWindow(windowScene: Self.mockWindowScene)
+        sut.windows = [keyWindow]
+
+        // -- Act --
+        let expectation = expectation(description: "background thread")
+        var result: UIWindow?
+        DispatchQueue.global().async {
+            result = sut.getKeyWindow()
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // -- Assert --
+        XCTAssertIdentical(result, keyWindow)
+        XCTAssertEqual(keyWindow.isKeyWindowAccessedOnMainThread, true,
+            "isKeyWindow must be accessed on the main thread")
+    }
 }
 #endif
