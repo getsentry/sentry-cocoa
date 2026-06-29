@@ -126,7 +126,7 @@ final class SentryDefaultRunLoopDelayTracker<T: SentryRunLoopObserver, Dependenc
     // on the main queue, while the lock is held. Reading it on the main queue
     // does not require a lock. Reading it on a background queue does require the lock.
     private let observersLock = NSRecursiveLock()
-    private var observers = [SentryRunLoopDelayTrackerObserverToken: (TimeInterval, Bool) -> Void]()
+    private var observers = [SentryRunLoopDelayTrackerObserverToken: SentryRunLoopDelayTrackerHandler]()
 
     // MARK: Main queue
 
@@ -228,6 +228,7 @@ extension SentryDefaultRunLoopDelayTracker where T == CFRunLoopObserver {
             dependencies: dependencies,
             createObserver: CFRunLoopObserverCreateWithHandler,
             addObserver: CFRunLoopAddObserver,
-            removeObserver: CFRunLoopRemoveObserver)
+            removeObserver: CFRunLoopRemoveObserver
+        )
     }
 }
