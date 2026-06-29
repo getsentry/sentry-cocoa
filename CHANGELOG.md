@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Fix EXC_BAD_ACCESS in SentryTracer/SentryNetworkTracker span lifecycle caused by concurrent access to volatile properties (#8058)
 - Fix dropped `platform` item header in profile-chunk envelopes (#8269)
 - Fix crash report ID generation so reports created at certain timestamps are not ignored (#8216)
 - Fix C++ exception capture on newer OS versions by page-aligning `mprotect` calls in the `__cxa_throw` swapper (#8221)
