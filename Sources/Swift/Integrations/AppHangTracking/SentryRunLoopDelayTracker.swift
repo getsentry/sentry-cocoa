@@ -202,20 +202,15 @@ final class SentryDefaultRunLoopDelayTracker<T: SentryRunLoopObserver, Dependenc
             let duration = dateProvider.systemUptime() - started
             switch result {
             case .timedOut:
-                observers.withLock { observers in
-                    observers.values.forEach { observer in
-                        observer(.init(duration: duration, isOngoing: true))
-                    }
-                }
+                // Snapshot handlers outside the critical section to avoid deadlocks if a handler calls addObserver/removeObserver.
+                let handlers = observers.withLock { Array($0.values) }
+                handlers.forEach { $0(.init(duration: duration, isOngoing: true)) }
                 hasTimedOut = true
             case .success:
                 semaphoreSuccess = true
                 if hasTimedOut {
-                    observers.withLock { observers in
-                        observers.values.forEach { observer in
-                            observer(.init(duration: duration, isOngoing: false))
-                        }
-                    }
+                    let handlers = observers.withLock { Array($0.values) }
+                    handlers.forEach { $0(.init(duration: duration, isOngoing: false)) }
                 }
             }
         }
