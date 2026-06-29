@@ -115,11 +115,12 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
     uint64_t tid;
     pthread_threadid_np(NULL, &tid);
     for (int i = 0; i < SENTRY_CRASH_IGNORE_SIGNALS; i++) {
-        if (g_ignoreSignals[i].tid == tid && g_ignoreSignals[i].signum == sigNum) {
+        if (g_ignoreSignals[i].tid == tid) {
+            if (g_ignoreSignals[i].signum == sigNum) {
+                ignoreSignal = true;
+            }
             g_ignoreSignals[i].tid = 0;
             g_ignoreSignals[i].signum = 0;
-            ignoreSignal = true;
-            break;
         }
     }
 #    endif
