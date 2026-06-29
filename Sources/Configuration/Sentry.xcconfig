@@ -55,3 +55,10 @@ CLANG_WARN_ASSIGN_ENUM = NO
 // Exclude them here so the plain Sentry target never tries to resolve KSCrash imports.
 EXCLUDED_SOURCE_FILE_NAMES = $(SRCROOT)/Sources/Swift/Integrations/KSCrash/*
 
+// This target and Sentry+KSCrash both export PRODUCT_MODULE_NAME=Sentry. Xcode's explicit
+// module scanner can't tell the two "Sentry" modules apart and emits a spurious
+// missing-dependency warning ("'Sentry' is missing a dependency on 'Sentry+KSCrash'").
+// Disabling explicit modules silences it without affecting correctness. Mirrors the same
+// setting in SentryKSCrash.xcconfig.
+// This should be removed in SDK_V10
+SWIFT_ENABLE_EXPLICIT_MODULES = NO
