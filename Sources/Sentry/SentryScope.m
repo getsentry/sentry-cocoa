@@ -84,7 +84,10 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     if (self = [self initWithMaxBreadcrumbs:scope.maxBreadcrumbs]) {
         [_extraDictionary addEntriesFromDictionary:[scope extras]];
         [_tagDictionary addEntriesFromDictionary:[scope tags]];
-        [_contextDictionary addEntriesFromDictionary:[scope context]];
+        @synchronized(scope->_contextDictionary) {
+            [_contextDictionary addEntriesFromDictionary:scope->_contextDictionary.copy];
+            _featureFlagBuffer = [scope->_featureFlagBuffer copyBuffer];
+        }
         NSArray<SentryBreadcrumb *> *crumbs = [scope breadcrumbs];
         _breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:scope.maxBreadcrumbs];
         _currentBreadcrumbIndex = crumbs.count;
@@ -92,7 +95,6 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
         [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
-        _featureFlagBuffer = [scope.featureFlagBuffer copyBuffer];
 
         self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
