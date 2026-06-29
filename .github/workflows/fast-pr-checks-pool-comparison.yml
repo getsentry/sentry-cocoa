@@ -1,0 +1,28 @@
+name: Fast PR Checks Pool Comparison
+# One-off workflow to compare bitrise pools: sequoia vs sequoia-no-throthling
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast-unit-tests:
+    name: Fast Unit Tests (iOS 18) on bitrise (${{matrix.runs-on}})
+    uses: ./.github/workflows/unit-test-common.yml
+    secrets: inherit
+    with:
+      name: iOS 18 Sentry (${{matrix.runs-on}})
+      runs-on: ${{matrix.runs-on}}
+      timeout: 20
+      should_skip: false
+      xcode: "16"
+      platform: iOS
+      scheme: Sentry
+      runner_provider: bitrise
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: ["sequoia", "sequoia-no-throthling"]
