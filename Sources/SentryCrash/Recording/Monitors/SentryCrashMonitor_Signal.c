@@ -47,6 +47,15 @@
 #    include <string.h>
 
 // ============================================================================
+#    pragma mark - Types -
+// ============================================================================
+
+typedef struct {
+    uint64_t tid;
+    int signum;
+} SentryCrashIgnoreSignal;
+
+// ============================================================================
 #    pragma mark - Globals -
 // ============================================================================
 
@@ -54,7 +63,7 @@ static volatile bool g_isEnabled = false;
 static bool g_isSigtermReportingEnabled = false;
 #    ifdef SENTRY_CRASH_MANAGED_RUNTIME
 #        define SENTRY_CRASH_IGNORE_SIGNALS 8
-static _Atomic uint64_t g_ignoreSignals[SENTRY_CRASH_IGNORE_SIGNALS];
+static _Atomic SentryCrashIgnoreSignal g_ignoreSignals[SENTRY_CRASH_IGNORE_SIGNALS];
 static atomic_int g_ignoreSignalIdx = 0;
 #    endif
 
@@ -109,14 +118,17 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
     bool ignoreSignal = false;
 #    ifdef SENTRY_CRASH_MANAGED_RUNTIME
-    mach_port_t tid = pthread_mach_thread_np(pthread_self());
+    uint64_t tid;
+    pthread_threadid_np(NULL, &tid);
     for (int i = 0; i < SENTRY_CRASH_IGNORE_SIGNALS; i++) {
-        uint64_t value = atomic_load_explicit(&g_ignoreSignals[i], memory_order_relaxed);
-        if (value != 0 && (mach_port_t)(value >> 32) == tid) {
-            if ((int)(value & 0xFFFFFFFFU) == sigNum) {
+        SentryCrashIgnoreSignal entry
+            = atomic_load_explicit(&g_ignoreSignals[i], memory_order_relaxed);
+        if (entry.tid == tid) {
+            if (entry.signum == sigNum) {
                 ignoreSignal = true;
             }
-            atomic_store_explicit(&g_ignoreSignals[i], 0, memory_order_relaxed);
+            atomic_store_explicit(
+                &g_ignoreSignals[i], (SentryCrashIgnoreSignal) { 0 }, memory_order_relaxed);
         }
     }
 #    endif
@@ -345,10 +357,11 @@ void
 sentrycrashcm_signal_ignore_next(int signum)
 {
 #if SENTRY_HAS_SIGNAL && defined(SENTRY_CRASH_MANAGED_RUNTIME)
-    mach_port_t tid = pthread_mach_thread_np(pthread_self());
+    uint64_t tid = 0;
+    pthread_threadid_np(NULL, &tid);
     int idx = atomic_fetch_add_explicit(&g_ignoreSignalIdx, 1, memory_order_relaxed)
         % SENTRY_CRASH_IGNORE_SIGNALS;
-    uint64_t value = ((uint64_t)tid << 32) | signum;
+    SentryCrashIgnoreSignal value = { .tid = tid, .signum = signum };
     atomic_store_explicit(&g_ignoreSignals[idx], value, memory_order_relaxed);
 #else
     (void)signum;
