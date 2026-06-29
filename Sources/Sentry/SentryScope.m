@@ -706,6 +706,8 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     BOOL isRegularEvent
         = event.type == nil || [event.type isEqualToString:SentryEnvelopeItemTypes.event];
     if (!isRegularEvent) {
+        // Feature flags only apply to regular error/message events, not transactions, replays,
+        // feedback, or other event types.
         [newContext removeObjectForKey:@"flags"];
     }
     if (event.context != nil) {
