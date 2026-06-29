@@ -778,27 +778,29 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
 - (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result
 {
-    id<SentrySpan> activeSpan = self.span;
     @synchronized(_contextDictionary) {
         [_featureFlagBuffer addWithName:name result:result];
         [self updateFeatureFlagsContextLocked];
     }
 
-    if ([activeSpan isKindOfClass:SentrySpanInternal.class]) {
-        [(SentrySpanInternal *)activeSpan addFeatureFlagWithName:name result:result];
+    @synchronized(_spanLock) {
+        if ([_span isKindOfClass:SentrySpanInternal.class]) {
+            [(SentrySpanInternal *)_span addFeatureFlagWithName:name result:result];
+        }
     }
 }
 
 - (void)removeFeatureFlagWithName:(NSString *)name
 {
-    id<SentrySpan> activeSpan = self.span;
     @synchronized(_contextDictionary) {
         [_featureFlagBuffer removeWithName:name];
         [self updateFeatureFlagsContextLocked];
     }
 
-    if ([activeSpan isKindOfClass:SentrySpanInternal.class]) {
-        [(SentrySpanInternal *)activeSpan removeFeatureFlagWithName:name];
+    @synchronized(_spanLock) {
+        if ([_span isKindOfClass:SentrySpanInternal.class]) {
+            [(SentrySpanInternal *)_span removeFeatureFlagWithName:name];
+        }
     }
 }
 
