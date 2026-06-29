@@ -410,7 +410,7 @@ jobs:
             platform: "tvOS"
           - name: tvOS 17 Sentry
             runner_provider: bitrise
-            runs-on: sonoma
+            runs-on: sequoia
             xcode: "16"
             test-destination-os: "17.5"
             platform: "tvOS"
