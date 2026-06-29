@@ -92,24 +92,25 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
     }
 
     private func processDelay(delay: SentryRunLoopDelay) {
-        observers.withLock { entries in
+        // Collect notifications under the lock but invoke handlers outside the critical section
+        // to avoid deadlocks if a handler calls addObserver/removeObserver.
+        let notifications: [(SentryAppHangTrackerHandler, SentryAppHang)] = observers.withLock { entries in
+            var result: [(SentryAppHangTrackerHandler, SentryAppHang)] = []
             for (token, entry) in entries {
                 if delay.isOngoing {
                     if delay.duration > entry.threshold && !entry.hasBeenNotified {
                         entries[token]?.hasBeenNotified = true
-                        entry.handler(.init(
-                            duration: delay.duration,
-                            state: .started
-                        ))
+                        result.append((entry.handler, .init(duration: delay.duration, state: .started)))
                     }
                 } else if entry.hasBeenNotified {
                     entries[token]?.hasBeenNotified = false
-                    entry.handler(.init(
-                        duration: delay.duration,
-                        state: .ended
-                    ))
+                    result.append((entry.handler, .init(duration: delay.duration, state: .ended)))
                 }
             }
+            return result
+        }
+        for (handler, hang) in notifications {
+            handler(hang)
         }
     }
 }
