@@ -18,9 +18,12 @@ protocol RunLoopObserver { }
 
 extension DefaultHangTracker: HangTracker { }
 extension CFRunLoopObserver: RunLoopObserver { }
+
+typealias SentryRunLoopDelayTrackerDependencies = DateProviderProvider & ApplicationProvider
 #else
 typealias HangTracker = DefaultHangTracker<CFRunLoopObserver>
 typealias RunLoopObserver = CFRunLoopObserver
+typealias SentryRunLoopDelayTrackerDependencies = SentryDependencyContainer
 #endif
 
 typealias CreateObserverFunc<T> = (_ allocator: CFAllocator?, _ activities: CFOptionFlags, _ repeats: Bool, _ order: CFIndex, _ block: ((T?, CFRunLoopActivity) -> Void)?) -> T?
@@ -50,23 +53,23 @@ typealias RemoveObserverFunc<T> = (_ rl: CFRunLoop?, _ observer: T?, _ mode: CFR
 // 2: We don't want to acquire any locks every iteration of the runloop. It's ok to acquire locks in general
 // (the code does not need to be async signal safe) but it's not ok to acquire them on every runloop iteration.
 // 3: As simple as possible, using limited lines of code.
-final class DefaultHangTracker<T: RunLoopObserver> {
+final class DefaultHangTracker<T: RunLoopObserver, Dependencies: SentryRunLoopDelayTrackerDependencies> {
 
     // Must be initialized on the main queue
     init(
-        dateProvider: SentryCurrentDateProvider,
+        dependencies: Dependencies,
         createObserver: @escaping CreateObserverFunc<T>,
         addObserver: @escaping AddObserverFunc<T>,
         removeObserver: @escaping RemoveObserverFunc<T>,
         queue: DispatchQueue = DispatchQueue(label: "io.sentry.runloop-observer-checker")
     ) {
-        self.dateProvider = dateProvider
+        self.dateProvider = dependencies.dateProvider
         self.createObserver = createObserver
         self.addObserver = addObserver
         self.removeObserver = removeObserver
         self.queue = queue
 #if canImport(UIKit) && !SENTRY_NO_UI_FRAMEWORK && !os(visionOS) && !os(watchOS)
-        let window = UIApplication.shared.connectedScenes.flatMap { ($0 as? UIWindowScene)?.windows ?? [] }.first { $0.isKeyWindow }
+        let window = dependencies.application()?.getKeyWindow()
         let maxFPS = Double(window?.screen.maximumFramesPerSecond ?? 60)
 #else
         let maxFPS: Double = 60.0
@@ -223,9 +226,9 @@ final class DefaultHangTracker<T: RunLoopObserver> {
 }
 
 extension DefaultHangTracker where T == CFRunLoopObserver {
-    convenience init(dateProvider: SentryCurrentDateProvider) {
+    convenience init(dependencies: Dependencies) {
         self.init(
-            dateProvider: dateProvider,
+            dependencies: dependencies,
             createObserver: CFRunLoopObserverCreateWithHandler,
             addObserver: CFRunLoopAddObserver,
             removeObserver: CFRunLoopRemoveObserver)
