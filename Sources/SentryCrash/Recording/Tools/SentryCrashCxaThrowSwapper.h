@@ -57,7 +57,7 @@ typedef void (*cxa_throw_type)(void *, void *, void (*)(void *));
  * implementation to rebind dynamic symbols on iOS and macOS.
  *
  * The implementation is adapted from https://github.com/kstenerud/KSCrash and based on
- * https://github.com/facebook/fishhook.alignas We have a local copy of how the fishhook works in
+ * https://github.com/facebook/fishhook. We have a local copy of how the fishhook works in
  * develop-docs/Fishhook-Explanation.md.
  *
  * @param handler The new exception throw handler to install

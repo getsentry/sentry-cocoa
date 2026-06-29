@@ -64,6 +64,34 @@ class SentryOnDemandReplayTests: XCTestCase {
         XCTAssertEqual(frames.first?.time, start.addingTimeInterval(5))
         XCTAssertEqual(frames.last?.time, start.addingTimeInterval(9))
     }
+
+    func testDeinit_whenFrameIsRetainedBeforeCurrentFrames_shouldRemoveRetainedFrameFile() throws {
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        let retainedFramePath = outputPath
+            .appendingPathComponent("\(start.timeIntervalSinceReferenceDate)")
+            .appendingPathExtension("png")
+            .path
+
+        let processingQueue = SentryDispatchQueueWrapper()
+        let workerQueue = SentryDispatchQueueWrapper()
+        var sut: SentryOnDemandReplay? = SentryOnDemandReplay(
+            outputPath: outputPath.path,
+            processingQueue: processingQueue,
+            assetWorkerQueue: workerQueue
+        )
+
+        sut?.addFrameAsync(timestamp: start, maskedViewImage: UIImage.add)
+        sut?.addFrameAsync(timestamp: start.addingTimeInterval(1), maskedViewImage: UIImage.add)
+        processingQueue.queue.sync {}
+        sut?.releaseFramesUntil(start.addingTimeInterval(1))
+        processingQueue.queue.sync {}
+
+        XCTAssertTrue(FileManager.default.fileExists(atPath: retainedFramePath))
+
+        sut = nil
+
+        XCTAssertFalse(FileManager.default.fileExists(atPath: retainedFramePath))
+    }
     
     func testFramesWithScreenName() {
         let sut = getSut()
@@ -112,6 +140,130 @@ class SentryOnDemandReplayTests: XCTestCase {
         videoExpectation.fulfill()
         try FileManager.default.removeItem(at: videoPath)
         wait(for: [videoExpectation], timeout: 1)
+    }
+
+    func testGenerateVideo_whenFramesHaveGap_shouldHoldPreviousFrame() throws {
+        // -- Arrange --
+        let sut = getSut()
+
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        sut.addFrameAsync(timestamp: start, maskedViewImage: UIImage.add)
+        sut.addFrameAsync(timestamp: start.addingTimeInterval(3), maskedViewImage: UIImage.add)
+
+        // -- Act --
+        let videos = sut.createVideoWith(beginning: start, end: start.addingTimeInterval(5))
+
+        // -- Assert --
+        XCTAssertEqual(videos.count, 1)
+        let info = try XCTUnwrap(videos.first)
+
+        XCTAssertEqual(info.duration, 5)
+        XCTAssertEqual(info.frameCount, 5)
+        XCTAssertEqual(info.start, start)
+        XCTAssertEqual(info.end, start.addingTimeInterval(5))
+
+        try FileManager.default.removeItem(at: info.path)
+    }
+
+    func testGenerateVideo_whenFirstFrameIsAfterBeginning_shouldKeepSegmentDuration() throws {
+        // -- Arrange --
+        let sut = getSut()
+
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        sut.addFrameAsync(timestamp: start.addingTimeInterval(2), maskedViewImage: UIImage.add)
+
+        // -- Act --
+        let videos = sut.createVideoWith(beginning: start, end: start.addingTimeInterval(5))
+
+        // -- Assert --
+        XCTAssertEqual(videos.count, 1)
+        let info = try XCTUnwrap(videos.first)
+
+        XCTAssertEqual(info.duration, 5)
+        XCTAssertEqual(info.frameCount, 5)
+        XCTAssertEqual(info.start, start)
+        XCTAssertEqual(info.end, start.addingTimeInterval(5))
+
+        try FileManager.default.removeItem(at: info.path)
+    }
+
+    func testGenerateVideo_whenFrameExistsAtEnd_shouldKeepSegmentDuration() throws {
+        // -- Arrange --
+        let sut = getSut()
+
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        for i in 0...5 {
+            sut.addFrameAsync(timestamp: start.addingTimeInterval(TimeInterval(i)), maskedViewImage: UIImage.add)
+        }
+
+        // -- Act --
+        let firstSegment = sut.createVideoWith(beginning: start, end: start.addingTimeInterval(5))
+        let secondSegment = sut.createVideoWith(beginning: start.addingTimeInterval(5), end: start.addingTimeInterval(10))
+
+        // -- Assert --
+        XCTAssertEqual(firstSegment.count, 1)
+        let firstInfo = try XCTUnwrap(firstSegment.first)
+        XCTAssertEqual(firstInfo.duration, 5)
+        XCTAssertEqual(firstInfo.frameCount, 5)
+        XCTAssertEqual(firstInfo.start, start)
+        XCTAssertEqual(firstInfo.end, start.addingTimeInterval(5))
+
+        XCTAssertEqual(secondSegment.count, 1)
+        let secondInfo = try XCTUnwrap(secondSegment.first)
+        XCTAssertEqual(secondInfo.duration, 5)
+        XCTAssertEqual(secondInfo.frameCount, 5)
+        XCTAssertEqual(secondInfo.start, start.addingTimeInterval(5))
+        XCTAssertEqual(secondInfo.end, start.addingTimeInterval(10))
+
+        try FileManager.default.removeItem(at: firstInfo.path)
+        try FileManager.default.removeItem(at: secondInfo.path)
+    }
+
+    func testGenerateVideo_whenOnlyPreviousFrameExists_shouldHoldPreviousFrameFromBeginning() throws {
+        // -- Arrange --
+        let sut = getSut()
+
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        sut.addFrameAsync(timestamp: start.addingTimeInterval(4), maskedViewImage: UIImage.add)
+        sut.releaseFramesUntil(start.addingTimeInterval(5))
+
+        // -- Act --
+        let videos = sut.createVideoWith(beginning: start.addingTimeInterval(5), end: start.addingTimeInterval(10))
+
+        // -- Assert --
+        XCTAssertEqual(videos.count, 1)
+        let info = try XCTUnwrap(videos.first)
+
+        XCTAssertEqual(info.duration, 5)
+        XCTAssertEqual(info.frameCount, 5)
+        XCTAssertEqual(info.start, start.addingTimeInterval(5))
+        XCTAssertEqual(info.end, start.addingTimeInterval(10))
+
+        try FileManager.default.removeItem(at: info.path)
+    }
+
+    func testGenerateVideo_whenFirstFrameAfterBeginning_shouldHoldPreviousFrameUntilFirstFrame() throws {
+        // -- Arrange --
+        let sut = getSut()
+
+        let start = Date(timeIntervalSinceReferenceDate: 0)
+        sut.addFrameAsync(timestamp: start.addingTimeInterval(4), maskedViewImage: UIImage.add)
+        sut.addFrameAsync(timestamp: start.addingTimeInterval(7), maskedViewImage: UIImage.add)
+        sut.releaseFramesUntil(start.addingTimeInterval(5))
+
+        // -- Act --
+        let videos = sut.createVideoWith(beginning: start.addingTimeInterval(5), end: start.addingTimeInterval(10))
+
+        // -- Assert --
+        XCTAssertEqual(videos.count, 1)
+        let info = try XCTUnwrap(videos.first)
+
+        XCTAssertEqual(info.duration, 5)
+        XCTAssertEqual(info.frameCount, 5)
+        XCTAssertEqual(info.start, start.addingTimeInterval(5))
+        XCTAssertEqual(info.end, start.addingTimeInterval(10))
+
+        try FileManager.default.removeItem(at: info.path)
     }
     
     func testAddFrameIsThreadSafe() {

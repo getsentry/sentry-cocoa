@@ -17,7 +17,7 @@
 // Objective-C.
 //
 // - Note: The following constants are defined as `extern` with an `.m` implementation file, as we
-// did face compliation errors in tests and sample apps not being able to import the constants, i.e.
+// did face compilation errors in tests and sample apps not being able to import the constants, i.e.
 // `Undefined symbol: _SentrySpanOperationUiLoad`. We might want to revisit this in the future.
 
 SENTRY_EXTERN NSString *const SentrySpanOperationAppLifecycle;

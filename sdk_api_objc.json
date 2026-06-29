@@ -2287,6 +2287,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "extendAppStart",
+    "parent": "SentryObjCSDK",
+    "returnType": "void",
+    "instance": false
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "extra",
     "parent": "SentryObjCEvent",
     "returnType": "NSDictionary<NSString *,id> * _Nullable",
@@ -2361,6 +2368,13 @@
     "parent": "SentryObjCSpan",
     "returnType": "void",
     "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "finishExtendedAppStart",
+    "parent": "SentryObjCSDK",
+    "returnType": "void",
+    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",
@@ -2515,6 +2529,13 @@
     "parent": "SentryObjCHub",
     "returnType": "SentryObjCClient * _Nullable",
     "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "getExtendedAppStartSpan",
+    "parent": "SentryObjCSDK",
+    "returnType": "SentryObjCSpan * _Nullable",
+    "instance": false
   },
   {
     "kind": "ObjCMethodDecl",

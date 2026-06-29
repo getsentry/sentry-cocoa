@@ -411,8 +411,21 @@ sentrycrashfu_readLineFromFD(const int fd, char *const buffer, const int maxLeng
 bool
 sentrycrashfu_makePath(const char *absolutePath)
 {
+    if (absolutePath == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Cannot create directory for NULL path");
+        return false;
+    }
+    if (absolutePath[0] == '\0') {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Cannot create directory for empty path");
+        return false;
+    }
+
     bool isSuccessful = false;
     char *pathCopy = strdup(absolutePath);
+    if (pathCopy == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not copy path: out of memory");
+        return false;
+    }
     for (char *ptr = pathCopy + 1; *ptr != '\0'; ptr++) {
         if (*ptr == '/') {
             *ptr = '\0';
@@ -434,6 +447,51 @@ sentrycrashfu_makePath(const char *absolutePath)
 done:
     free(pathCopy);
     return isSuccessful;
+}
+
+bool
+sentrycrashfu_makePathInPlace(char *path, size_t pathBufferLength)
+{
+    if (path == NULL) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Cannot create directory for NULL path");
+        return false;
+    }
+    if (pathBufferLength == 0) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Cannot create directory with zero-length path buffer");
+        return false;
+    }
+    if (path[0] == '\0') {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Cannot create directory for empty path");
+        return false;
+    }
+
+    size_t pathLength = 0;
+    while (pathLength < pathBufferLength && path[pathLength] != '\0') {
+        pathLength++;
+    }
+    if (pathLength >= pathBufferLength) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not create directory: path is not null-terminated");
+        return false;
+    }
+
+    for (char *ptr = path + 1; ptr < path + pathLength; ptr++) {
+        if (*ptr == '/') {
+            *ptr = '\0';
+            if (mkdir(path, S_IRWXU) < 0 && errno != EEXIST) {
+                SENTRY_ASYNC_SAFE_LOG_ERROR(
+                    "Could not create directory %s: %s", path, SENTRY_STRERROR_R(errno));
+                *ptr = '/';
+                return false;
+            }
+            *ptr = '/';
+        }
+    }
+    if (mkdir(path, S_IRWXU) < 0 && errno != EEXIST) {
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
+            "Could not create directory %s: %s", path, SENTRY_STRERROR_R(errno));
+        return false;
+    }
+    return true;
 }
 
 bool

@@ -31,8 +31,6 @@ public enum FrameRate: UInt64 {
     /// The smallest magnitude of time that is significant to how frames are classified as normal/slow/frozen.
     public let timeEpsilon = 0.001
     
-    public var _isRunning: Bool = false
-
     @_spi(Private) public init(dateProvider: TestCurrentDateProvider? = nil) {
         self.dateProvider = dateProvider ?? TestCurrentDateProvider()
         
@@ -49,16 +47,11 @@ public enum FrameRate: UInt64 {
             linkInvocations.record(Void())
             self.target = target as AnyObject
             self.selector = sel
-        	_isRunning = true
         }
     }
 
     public override var timestamp: CFTimeInterval {
         return dateProvider.systemTime().toTimeInterval()
-    }
-    
-    public override func isRunning() -> Bool {
-        _isRunning
     }
 
     public override var targetTimestamp: CFTimeInterval {
@@ -69,7 +62,6 @@ public enum FrameRate: UInt64 {
     public override func invalidate() {
         target = nil
         selector = nil
-        _isRunning = false
         invalidateInvocations.record(Void())
     }
     

@@ -119,7 +119,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
 
     // SDK not enabled no need to continue
-    if (SentrySDK.startOption == nil) {
+    if (SentrySDKInternal.options == nil) {
         return;
     }
 
@@ -130,7 +130,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *_Nullable apiUrl = SentrySDK.startOption.parsedDsn.url;
+    NSURL *_Nullable apiUrl = SentrySDKInternal.options.parsedDsn.url;
     if (apiUrl && apiUrl.host && apiUrl.path.length > 0 &&
         [url.host isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.host)] &&
         [url.path containsString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.path)]) {
@@ -195,12 +195,13 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         }
 
         SentryBaggage *baggage = [[[SentryTracer getTracer:span] traceContext] toBaggage];
-        [SentryTracePropagation addBaggageHeader:baggage
-                                     traceHeader:SENTRY_UNWRAP_NULLABLE(
-                                                     SentryTraceHeader, [netSpan toTraceHeader])
-                            propagateTraceparent:SentrySDK.startOption.enablePropagateTraceparent
-                         tracePropagationTargets:SentrySDK.startOption.tracePropagationTargets
-                                       toRequest:sessionTask];
+        [SentryTracePropagation
+                   addBaggageHeader:baggage
+                        traceHeader:SENTRY_UNWRAP_NULLABLE(
+                                        SentryTraceHeader, [netSpan toTraceHeader])
+               propagateTraceparent:SentrySDKInternal.options.enablePropagateTraceparent
+            tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
+                          toRequest:sessionTask];
 
         SENTRY_LOG_DEBUG(
             @"SentryNetworkTracker automatically started HTTP span for sessionTask: %@",
@@ -224,8 +225,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     [SentryTracePropagation addBaggageHeader:[traceContext toBaggage]
                                  traceHeader:[propagationContext traceHeader]
-                        propagateTraceparent:SentrySDK.startOption.enablePropagateTraceparent
-                     tracePropagationTargets:SentrySDK.startOption.tracePropagationTargets
+                        propagateTraceparent:SentrySDKInternal.options.enablePropagateTraceparent
+                     tracePropagationTargets:SentrySDKInternal.options.tracePropagationTargets
                                    toRequest:sessionTask];
 }
 
@@ -241,7 +242,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
-    SentryOptions *options = SentrySDK.startOption;
+    SentryOptions *options = SentrySDKInternal.options;
     NSString *urlString = sessionTask.originalRequest.URL.absoluteString;
     if ([self isNetworkDetailCaptureEnabledFor:urlString options:options]) {
         [self captureRequestDetails:sessionTask
@@ -263,7 +264,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     // Don't measure requests to Sentry's backend
-    NSURL *apiUrl = SentrySDK.startOption.parsedDsn.url;
+    NSURL *apiUrl = SentrySDKInternal.options.parsedDsn.url;
     if ([url.host isEqualToString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.host)] &&
         [url.path containsString:SENTRY_UNWRAP_NULLABLE(NSString, apiUrl.path)]) {
         return;
@@ -335,8 +336,9 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    if (![SentryTracePropagation isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, myRequest.URL)
-                                   withTargets:SentrySDK.startOption.failedRequestTargets ?: @[]]) {
+    if (![SentryTracePropagation
+            isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, myRequest.URL)
+              withTargets:SentrySDKInternal.options.failedRequestTargets ?: @[]]) {
         SENTRY_LOG_DEBUG(
             @"Request url isn't within the request targets, not capturing HTTP Client errors.");
         return;
@@ -416,7 +418,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
 - (BOOL)containsStatusCode:(NSInteger)statusCode
 {
-    for (SentryHttpStatusCodeRange *range in SentrySDK.startOption.failedRequestStatusCodes) {
+    for (SentryHttpStatusCodeRange *range in SentrySDKInternal.options.failedRequestStatusCodes) {
         if ([range isInRange:statusCode]) {
             return YES;
         }
@@ -617,7 +619,7 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
                           task:(NSURLSessionTask *)task
 {
     NSString *urlString = requestURL.absoluteString;
-    SentryOptions *options = SentrySDK.startOption;
+    SentryOptions *options = SentrySDKInternal.options;
     if (![self isNetworkDetailCaptureEnabledFor:urlString options:options]) {
         return;
     }

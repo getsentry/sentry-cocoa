@@ -91,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
         _origin = context.origin;
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
-        _isContinuousProfiling = SentrySDK.startOption != nil;
+        _isContinuousProfiling = SentrySDKInternal.options != nil;
         if (_isContinuousProfiling) {
             _profileSessionID = SentryContinuousProfiler.currentProfilerID.sentryIdString;
             if (_profileSessionID == nil) {
@@ -234,12 +234,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result
 {
-    [self.featureFlagBuffer addWithName:name result:result];
+    @synchronized(_stateLock) {
+        if (_isFinished) {
+            return;
+        }
+        [self.featureFlagBuffer addWithName:name result:result];
+    }
 }
 
 - (void)removeFeatureFlagWithName:(NSString *)name
 {
-    [self.featureFlagBuffer removeWithName:name];
+    @synchronized(_stateLock) {
+        if (_isFinished) {
+            return;
+        }
+        [self.featureFlagBuffer removeWithName:name];
+    }
 }
 
 - (BOOL)isFinished

@@ -406,6 +406,25 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertNil(data["flag.evaluation.checkout"])
     }
 
+    func testFeatureFlags_whenActiveSpanAlreadyFinished_shouldUpdateScopeOnly() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        let transaction = fixture.transaction
+        scope.span = transaction
+        transaction.finish()
+
+        // -- Act --
+        scope.addFeatureFlag(name: "checkout", result: true)
+
+        // -- Assert --
+        let values = try serializeFeatureFlagValues(from: scope)
+        XCTAssertEqual(values.count, 1)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
+
+        let data = try XCTUnwrap(transaction.serialize()["data"] as? [String: Any])
+        XCTAssertNil(data["flag.evaluation.checkout"])
+    }
+
     func testFeatureFlags_whenChildSpanIsActive_shouldNotInheritRootOrScopeFlags() throws {
         // -- Arrange --
         let scope = Scope(maxBreadcrumbs: 5)

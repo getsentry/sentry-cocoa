@@ -8,12 +8,12 @@
     
     static func sharedInstance() -> SentryFileIOTracker? {
         // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise
-        // initialize the depency container without any configured SDK options. This is a known issue
+        // initialize the dependency container without any configured SDK options. This is a known issue
         // and needs to be fixed in general.
         guard SentrySDK.isEnabled else {
             return nil
         }
-        return Dependencies.fileIOTracker
+        return SentryDependencyContainer.sharedInstance().fileIOTracker
     }
 
     @objc public init(threadInspector: SentryThreadInspector, processInfoWrapper: SentryProcessInfoSource) {

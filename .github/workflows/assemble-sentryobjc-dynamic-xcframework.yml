@@ -36,7 +36,7 @@ jobs:
           version: "26"
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+        uses: ruby/setup-ruby@9eb537ca036ebaed86729dcb9309076e4c5c3b74 # v1.314.0
         if: ${{ inputs.signed }}
         with:
           bundler-cache: true
@@ -80,18 +80,16 @@ jobs:
 
       - name: Validate XCFramework
         run: |
-          ./scripts/validate-xcframework-format.sh "SentryObjC-Dynamic.xcframework"
-          ./scripts/validate-xcframework-architectures.sh --xcframework "SentryObjC-Dynamic.xcframework"
-          ./scripts/validate-xcframework-symbols.sh --xcframework "SentryObjC-Dynamic.xcframework"
+          ./scripts/validate-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
 
       - name: Compress XCFramework
         env:
           SIGNED: ${{ inputs.signed }}
         run: |
           if [ "$SIGNED" = "true" ]; then
-            ./scripts/compress-xcframework.sh --sign "SentryObjC-Dynamic"
+            ./scripts/compress-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework" --sign
           else
-            ./scripts/compress-xcframework.sh --not-signed "SentryObjC-Dynamic"
+            ./scripts/compress-xcframework.sh --xcframework "SentryObjC-Dynamic.xcframework"
           fi
 
       - name: Upload XCFramework

@@ -125,6 +125,7 @@ XCTAssertEqual(array.count, 2)
 ## Test Helpers
 
 - Prefer `struct` over `class` unless reference semantics are needed (shared mutable state, `AnyObject` protocols, mock observation)
+- Prefer dependency overrides through `SentryDependencyContainer.sharedInstance()` over `PrivateSentrySDKOnly` hooks
 
 ## Untestable Error Paths
 

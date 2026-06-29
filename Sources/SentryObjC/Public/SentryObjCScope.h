@@ -91,6 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Sets context values which will overwrite event context when the event is
  * enriched with the scope before sending.
+ * @note The @c flags context key is reserved for feature flag evaluations.
  */
 - (void)setContextValue:(NSDictionary<NSString *, id> *)value forKey:(NSString *)key;
 

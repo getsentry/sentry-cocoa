@@ -84,7 +84,10 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     if (self = [self initWithMaxBreadcrumbs:scope.maxBreadcrumbs]) {
         [_extraDictionary addEntriesFromDictionary:[scope extras]];
         [_tagDictionary addEntriesFromDictionary:[scope tags]];
-        [_contextDictionary addEntriesFromDictionary:[scope context]];
+        @synchronized(scope->_contextDictionary) {
+            [_contextDictionary addEntriesFromDictionary:scope->_contextDictionary.copy];
+            _featureFlagBuffer = [scope->_featureFlagBuffer copyBuffer];
+        }
         NSArray<SentryBreadcrumb *> *crumbs = [scope breadcrumbs];
         _breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:scope.maxBreadcrumbs];
         _currentBreadcrumbIndex = crumbs.count;
@@ -92,7 +95,6 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
         [_attributesDictionary addEntriesFromDictionary:[scope attributes]];
-        _featureFlagBuffer = [scope.featureFlagBuffer copyBuffer];
 
         self.propagationContext = scope.propagationContext;
         self.maxBreadcrumbs = scope.maxBreadcrumbs;
@@ -221,6 +223,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     }
     @synchronized(_contextDictionary) {
         [_contextDictionary removeAllObjects];
+        // Keep the feature flag buffer and serialized flags context in sync.
         [_featureFlagBuffer removeAll];
     }
     @synchronized(_fingerprintArray) {
@@ -705,6 +708,8 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     BOOL isRegularEvent
         = event.type == nil || [event.type isEqualToString:SentryEnvelopeItemTypes.event];
     if (!isRegularEvent) {
+        // Feature flags only apply to regular error/message events, not transactions, replays,
+        // feedback, or other event types.
         [newContext removeObjectForKey:@"flags"];
     }
     if (event.context != nil) {
@@ -724,7 +729,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     // Validate if the observer conforms because the API doesn't require
     // observers to conform anymore due to the protocol being written in Swift
     // but protocol forwarded in ObjC
-    // Additionaly, conformsToProtocol:@protocol(SentryScopeObserver) seems to fail
+    // Additionally, conformsToProtocol:@protocol(SentryScopeObserver) seems to fail
     // because the conformance is declared in a Category, so runtime checks fail.
     // So we use check for all SentryScopeObserver functions AND an assertion to get alerts on tests
     // As a compile check if any of these selectors cease to exist, this should fail to build.
@@ -753,9 +758,12 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     }
 }
 
-- (void)updateFeatureFlagsContext
+/**
+ * Syncs the feature flag buffer into context and notifies observers.
+ * Must be called while synchronized on _contextDictionary.
+ */
+- (void)updateFeatureFlagsContextLocked
 {
-    // Must be called while synchronized on _contextDictionary.
     NSDictionary<NSString *, id> *_Nullable featureFlags = [_featureFlagBuffer serializeForContext];
     if (featureFlags.count > 0) {
         _contextDictionary[@"flags"] = featureFlags;
@@ -770,27 +778,29 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
 - (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result
 {
-    id<SentrySpan> activeSpan = self.span;
     @synchronized(_contextDictionary) {
         [_featureFlagBuffer addWithName:name result:result];
-        [self updateFeatureFlagsContext];
+        [self updateFeatureFlagsContextLocked];
     }
 
-    if ([activeSpan isKindOfClass:SentrySpanInternal.class]) {
-        [(SentrySpanInternal *)activeSpan addFeatureFlagWithName:name result:result];
+    @synchronized(_spanLock) {
+        if ([_span isKindOfClass:SentrySpanInternal.class]) {
+            [(SentrySpanInternal *)_span addFeatureFlagWithName:name result:result];
+        }
     }
 }
 
 - (void)removeFeatureFlagWithName:(NSString *)name
 {
-    id<SentrySpan> activeSpan = self.span;
     @synchronized(_contextDictionary) {
         [_featureFlagBuffer removeWithName:name];
-        [self updateFeatureFlagsContext];
+        [self updateFeatureFlagsContextLocked];
     }
 
-    if ([activeSpan isKindOfClass:SentrySpanInternal.class]) {
-        [(SentrySpanInternal *)activeSpan removeFeatureFlagWithName:name];
+    @synchronized(_spanLock) {
+        if ([_span isKindOfClass:SentrySpanInternal.class]) {
+            [(SentrySpanInternal *)_span removeFeatureFlagWithName:name];
+        }
     }
 }
 
