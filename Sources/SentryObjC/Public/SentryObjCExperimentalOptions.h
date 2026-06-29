@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL enableReplayNetworkDetailsCapturing;
 
 /// Options for the experimental app hang tracking feature.
-@property (nonatomic, strong) SentryObjCAppHangsOptions *appHangs;
+@property (nonatomic, strong, readonly) SentryObjCAppHangsOptions *appHangs;
 
 /// Initializes experimental options with default values.
 - (instancetype)init;

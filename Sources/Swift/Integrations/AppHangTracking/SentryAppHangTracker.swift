@@ -99,14 +99,14 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
                         entries[token]?.hasBeenNotified = true
                         entry.handler(.init(
                             duration: delay.duration,
-                            state: .started,
+                            state: .started
                         ))
                     }
                 } else if entry.hasBeenNotified {
                     entries[token]?.hasBeenNotified = false
                     entry.handler(.init(
                         duration: delay.duration,
-                        state: .ended,
+                        state: .ended
                     ))
                 }
             }
