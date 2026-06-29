@@ -1,0 +1,107 @@
+name: Label PR
+
+on:
+  pull_request:
+    types: [
+      opened,
+      edited,
+      synchronize,
+      converted_to_draft,
+      ready_for_review,
+      reopened,
+    ]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+# Only one labeling run per PR at a time; latest wins.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.review.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  label:
+    name: Label
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const MANAGED_LABELS = ['skip-changelog', 'approved', 'changes-requested'];
+
+            const pr = context.payload.pull_request
+              ?? context.payload.review?.pull_request;
+
+            if (!pr) {
+              core.warning('No pull_request in payload');
+              return;
+            }
+
+            if (pr.head.repo?.fork) {
+              core.info('Skipping forked PR');
+              return;
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = pr.number;
+
+            // Fetch current labels from API — webhook payload labels can be stale.
+            const { data: issueLabels } = await github.rest.issues.listLabelsOnIssue({
+              owner, repo, issue_number: prNumber,
+            });
+            const currentLabels = new Set(issueLabels.map(l => l.name));
+
+            async function ensureLabel(name, shouldExist) {
+              const has = currentLabels.has(name);
+              if (shouldExist && !has) {
+                await github.rest.issues.addLabels({ owner, repo, issue_number: prNumber, labels: [name] });
+              } else if (!shouldExist && has) {
+                try {
+                  await github.rest.issues.removeLabel({ owner, repo, issue_number: prNumber, name });
+                } catch (e) {
+                  if (e.status !== 404) throw e;
+                }
+              }
+            }
+
+            // Draft PRs: remove all managed labels and stop.
+            if (pr.draft) {
+              for (const name of MANAGED_LABELS) {
+                await ensureLabel(name, false);
+              }
+              core.info('PR is draft — cleared all managed labels');
+              return;
+            }
+
+            // 1. skip-changelog — check PR body for #skip-changelog
+            const hasSkipChangelog = (pr.body ?? '').includes('#skip-changelog');
+            await ensureLabel('skip-changelog', hasSkipChangelog);
+
+            // 2. Fetch all reviews (paginated) to determine approval / changes-requested state
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner,
+              repo,
+              pull_number: prNumber,
+            });
+
+            // Keep only the latest review per user (by submitted_at).
+            // Include DISMISSED/COMMENTED so a newer non-decision review
+            // correctly supersedes a prior APPROVED or CHANGES_REQUESTED.
+            const latestByUser = {};
+            for (const review of reviews) {
+              const dominated = ['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED', 'COMMENTED'];
+              if (!dominated.includes(review.state)) continue;
+              const uid = review.user.id;
+              if (!latestByUser[uid] || new Date(review.submitted_at) > new Date(latestByUser[uid].submitted_at)) {
+                latestByUser[uid] = review;
+              }
+            }
+            const uniqueReviews = Object.values(latestByUser);
+
+            const hasApproval = uniqueReviews.some(r => r.state === 'APPROVED');
+            const hasChangesRequested = uniqueReviews.some(r => r.state === 'CHANGES_REQUESTED');
+
+            await ensureLabel('approved', hasApproval && !hasChangesRequested);
+            await ensureLabel('changes-requested', hasChangesRequested);
+
+            core.info(`Labels applied — skip-changelog: ${hasSkipChangelog}, approved: ${hasApproval && !hasChangesRequested}, changes-requested: ${hasChangesRequested}`);

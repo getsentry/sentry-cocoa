@@ -54,7 +54,7 @@ class SentryExtendedAppLaunchTests: XCTestCase {
     // MARK: - Constants
 
     func testExtendedOperation_shouldBeExpectedValue() {
-        XCTAssertEqual(SentryExtendedAppLaunchManager.Constants.extendedOperation, "app.start.extended_app_start")
+        XCTAssertEqual(SentryExtendedAppLaunchManager.Constants.extendedOperation, "app.start.extended")
     }
 
     // MARK: - SentryExtendedAppLaunchManager
@@ -69,24 +69,25 @@ class SentryExtendedAppLaunchTests: XCTestCase {
         XCTAssertTrue(manager.isExtendRequested)
     }
 
-    func testExtend_returnsSpan() throws {
+    func testExtend_createsSpan() throws {
         _ = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()
 
-        let span = try XCTUnwrap(manager.extend())
+        manager.extend()
+        let span = try XCTUnwrap(manager.extendedAppStartSpan())
 
-        XCTAssertEqual(span.operation, "app.start.extended_app_start")
+        XCTAssertEqual(span.operation, "app.start.extended")
         XCTAssertEqual(span.spanDescription, "Extended App Start")
         XCTAssertFalse(span.isFinished)
     }
 
-    func testExtend_beforeSDKStart_returnsNil() {
+    func testExtend_beforeSDKStart_doesNotCreateSpan() {
         addTeardownBlock { clearTestState() }
         let manager = SentryExtendedAppLaunchManager()
 
-        let span = manager.extend()
+        manager.extend()
 
-        XCTAssertNil(span)
+        XCTAssertNil(manager.extendedAppStartSpan())
         XCTAssertFalse(manager.isExtendRequested)
     }
 
@@ -157,7 +158,7 @@ class SentryExtendedAppLaunchTests: XCTestCase {
         XCTAssertEqual(extendedSpans.count, 1)
 
         let extendedSpan = try XCTUnwrap(extendedSpans.first)
-        XCTAssertEqual(extendedSpan["op"] as? String, "app.start.extended_app_start")
+        XCTAssertEqual(extendedSpan["op"] as? String, "app.start.extended")
     }
 
     func testFinishExtendedAppLaunch_extendedSpanStartsAtExtendCallTime() throws {
@@ -261,7 +262,8 @@ class SentryExtendedAppLaunchTests: XCTestCase {
     func testExtend_returnedSpan_canAddChildSpans() throws {
         _ = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()
-        let span = try XCTUnwrap(manager.extend())
+        manager.extend()
+        let span = try XCTUnwrap(manager.extendedAppStartSpan())
 
         let child = span.startChild(operation: "app.init", description: "fetch remote config")
         XCTAssertFalse(child.isFinished)
@@ -273,7 +275,8 @@ class SentryExtendedAppLaunchTests: XCTestCase {
     func testExtend_childSpansIncludedInTransaction() throws {
         let hub = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()
-        let span = try XCTUnwrap(manager.extend())
+        manager.extend()
+        let span = try XCTUnwrap(manager.extendedAppStartSpan())
 
         let measurement = createMeasurement(type: .cold, duration: 0.5)
         StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
@@ -295,7 +298,8 @@ class SentryExtendedAppLaunchTests: XCTestCase {
     func testExtend_finishingReturnedSpan_capturesTransaction() throws {
         let hub = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()
-        let span = try XCTUnwrap(manager.extend())
+        manager.extend()
+        let span = try XCTUnwrap(manager.extendedAppStartSpan())
 
         let measurement = createMeasurement(type: .cold, duration: 0.5)
         StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
@@ -312,7 +316,8 @@ class SentryExtendedAppLaunchTests: XCTestCase {
     func testExtend_spanFinishedBeforeReport_waitsForMeasurement() throws {
         let hub = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()
-        let span = try XCTUnwrap(manager.extend())
+        manager.extend()
+        let span = try XCTUnwrap(manager.extendedAppStartSpan())
 
         span.finish()
 
@@ -379,7 +384,8 @@ class SentryExtendedAppLaunchTests: XCTestCase {
     func testEffectiveAppStartDuration_withFinishedExtendedSpan_returnsExtendedDuration() throws {
         let hub = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()
-        let span = try XCTUnwrap(manager.extend())
+        manager.extend()
+        let span = try XCTUnwrap(manager.extendedAppStartSpan())
 
         let measurement = createMeasurement(type: .cold, duration: 0.5)
         StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())
@@ -398,7 +404,8 @@ class SentryExtendedAppLaunchTests: XCTestCase {
     func testEffectiveAppStartDuration_withChildSpan_reflectsChildFinishTime() throws {
         let hub = setUpIntegrationHub()
         let manager = SentryExtendedAppLaunchManager()
-        let span = try XCTUnwrap(manager.extend())
+        manager.extend()
+        let span = try XCTUnwrap(manager.extendedAppStartSpan())
 
         let measurement = createMeasurement(type: .cold, duration: 0.5)
         StandaloneTransactionStrategy(extendedAppLaunchManager: manager).report(measurement, traceId: SentryId())

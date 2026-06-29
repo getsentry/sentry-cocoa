@@ -299,7 +299,7 @@ public final class SentryAppStartTracker: NSObject, SentryFramesTrackerListener 
 
         // This should never be reached as we unsubscribe to didBecomeActive after it is called the
         // first time. If the previous boot time is in the future most likely the system time
-        // changed and we can't to anything.
+        // changed and we can't do anything.
         return .unknown
     }
 

@@ -270,8 +270,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     event.exceptions = exceptions;
 
-    // Once the UI displays the mechanism data we can the userInfo from the event.context using only
-    // the root error's userInfo.
+    // Once the UI displays the mechanism data we can remove the userInfo from the event.context
+    // using only the root error's userInfo.
     [self setUserInfo:sentry_sanitize_dictionary(error.userInfo) withEvent:event];
 
     return event;
@@ -305,7 +305,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
                                                                    type:error.domain];
 
-    // Sentry uses the error domain and code on the mechanism for gouping
+    // Sentry uses the error domain and code on the mechanism for grouping
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"NSError"];
     SentryMechanismContext *mechanismMeta = [[SentryMechanismContext alloc] init];
     mechanismMeta.error = [[SentryNSError alloc] initWithDomain:error.domain code:error.code];
@@ -924,7 +924,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)logDisabledMessage
 {
-    SENTRY_LOG_DEBUG(@"SDK disabled or no DSN set. Won't do anyting.");
+    SENTRY_LOG_DEBUG(@"SDK disabled or no DSN set. Won't do anything.");
 }
 
 - (SentryEvent *_Nullable)callEventProcessors:(SentryEvent *)event
@@ -1145,6 +1145,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (void)_swiftCaptureLog:(NSObject *)log withScope:(SentryScope *)scope
 {
+    if ([self isDisabled]) {
+        [self logDisabledMessage];
+        return;
+    }
+
     if (self.options.enableLogs == NO) {
         SENTRY_LOG_DEBUG(@"Dropping log, because the option enableLogs is false.");
         return;

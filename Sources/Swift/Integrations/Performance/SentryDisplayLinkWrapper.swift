@@ -25,15 +25,7 @@ import UIKit
         displayLink?.invalidate()
         displayLink = nil
     }
-    
-    @objc public func isRunning() -> Bool {
-        !(displayLink?.isPaused ?? true)
-    }
 }
-
-#if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
-extension SentryDisplayLinkWrapper: SentryReplayDisplayLinkWrapper {}
-#endif
 
 #endif
 // swiftlint:enable missing_docs

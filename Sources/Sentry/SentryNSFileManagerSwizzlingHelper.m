@@ -24,7 +24,7 @@ static BOOL swizzlingIsActive = FALSE;
 
     // Before iOS 18.0, macOS 15.0 and tvOS 18.0 the NSFileManager used NSData.writeToFile
     // internally, which was tracked using swizzling of NSData. This behaviour changed, therefore
-    // the file manager needs to swizzled for later versions.
+    // the file manager needs to be swizzled for later versions.
     //
     // Ref: https://github.com/swiftlang/swift-foundation/pull/410
     if (@available(iOS 18, macOS 15, tvOS 18, *)) {

@@ -79,6 +79,13 @@ final class Buffer<Storage: StorageProtocol, Item: ItemProtocol> {
 - Always use explicit capture lists when capturing `self` to prevent retain cycles
 - Prefer `[weak self]` with `guard let self` for closures stored by the SDK
 
+### Dependency Injection
+
+- Prefer `SentryDependencyContainer` providers for SDK-owned dependencies
+- In `SentryDependencyContainer`, use `getLazyVar` / `getOptionalLazyVar` for lazily-created defaults
+- Tests should override dependencies through `SentryDependencyContainer.sharedInstance()` when possible
+- Do not use `PrivateSentrySDKOnly` as a test injection path when a dependency-container provider fits
+
 ## Public API Surface
 
 - **Backward compatibility** — do not remove or rename public symbols; deprecate first
@@ -90,19 +97,39 @@ final class Buffer<Storage: StorageProtocol, Item: ItemProtocol> {
 
 ## Thread Safety
 
-### Primitives in Use
+### Swift: Prefer `SentryMutex`
+
+Use `SentryMutex<T>` (in `Sources/Swift/Concurrency/SentryMutex.swift`) to protect mutable state in Swift. It wraps a value with an `os_unfair_lock`, matching the API of `Synchronization.Mutex` (iOS 18+). When the SDK's minimum deployment target reaches iOS 18+, it can be replaced with a typealias to the standard library `Mutex`.
+
+```swift
+// Single value — name the mutex after the value it protects
+private let isRunning = SentryMutex<Bool>(false)
+
+isRunning.withLock { $0 = true }
+guard isRunning.withLock({ $0 }) else { return }
+
+// Multiple related properties — group in a private State struct
+private struct State {
+    var count = 0
+    var items: [Item] = []
+}
+private let state = SentryMutex(State())
+
+state.withLock { $0.items.append(item); $0.count += 1 }
+```
+
+**Do not** use `NSLock`, `NSRecursiveLock`, or the `Locks.swift` `synchronized` extensions for new Swift code. `SentryMutex` is non-recursive — if existing code genuinely re-enters the lock, refactor the call graph first.
+
+### Other Primitives
 
 | Primitive          | Where                                                                                                       |
 | ------------------ | ----------------------------------------------------------------------------------------------------------- |
 | `@synchronized`    | `SentryScope`, `SentryHub`, `SentryClient`, `SentrySDKInternal`, `SentryHttpTransport`, `SentryFileManager` |
-| `NSLock`           | `SentrySessionReplay`                                                                                       |
-| `NSRecursiveLock`  | `SentrySDK.startOptionLock`                                                                                 |
+| `NSRecursiveLock`  | Legacy Swift code (prefer `SentryMutex` for new code)                                                       |
 | `pthread_mutex`    | `SentryCrashBinaryImageCache`, `SentryCrashReportStore`, `SentrySwizzle`                                    |
 | `dispatch_queue_t` | `SentryDispatchQueueWrapper` (`io.sentry.http-transport`, serial, low QoS)                                  |
 | `dispatch_group`   | `SentryHttpTransport` (flush coordination)                                                                  |
 | C11 atomics        | SentryCrash monitors (signal-safe context)                                                                  |
-
-For Swift, use the `synchronized` extensions in `Locks.swift` (`NSLock`, `NSRecursiveLock`) rather than raw lock calls.
 
 ### Rules
 

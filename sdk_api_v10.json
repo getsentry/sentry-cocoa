@@ -931,6 +931,13 @@
         "printedName": "_SwiftConcurrencyShims"
       },
       {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "os",
+        "printedName": "os"
+      },
+      {
         "children": [
           {
             "children": [
@@ -56626,34 +56633,24 @@
           {
             "children": [
               {
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Span",
-                    "printedName": "any Sentry.Span",
-                    "usr": "c:objc(pl)SentrySpan"
-                  }
-                ],
                 "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "(any Sentry.Span)?",
-                "usr": "s:Sq"
+                "name": "Void",
+                "printedName": "()"
               }
             ],
             "declAttributes": [
-              "DiscardableResult",
               "Final",
               "ObjC"
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC15extendAppLaunchSo0A4Span_pSgyFZ",
+            "mangledName": "$s6Sentry0A3SDKC14extendAppStartyyFZ",
             "moduleName": "Sentry",
-            "name": "extendAppLaunch",
-            "printedName": "extendAppLaunch()",
+            "name": "extendAppStart",
+            "printedName": "extendAppStart()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)extendAppLaunch"
+            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)extendAppStart"
           },
           {
             "children": [
@@ -56670,12 +56667,12 @@
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC23finishExtendedAppLaunchyyFZ",
+            "mangledName": "$s6Sentry0A3SDKC22finishExtendedAppStartyyFZ",
             "moduleName": "Sentry",
-            "name": "finishExtendedAppLaunch",
-            "printedName": "finishExtendedAppLaunch()",
+            "name": "finishExtendedAppStart",
+            "printedName": "finishExtendedAppStart()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)finishExtendedAppLaunch"
+            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)finishExtendedAppStart"
           },
           {
             "children": [
@@ -56712,6 +56709,37 @@
             "printedName": "flush(timeout:)",
             "static": true,
             "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)flush:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Span",
+                    "printedName": "any Sentry.Span",
+                    "usr": "c:objc(pl)SentrySpan"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "(any Sentry.Span)?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "ObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "kind": "Function",
+            "mangledName": "$s6Sentry0A3SDKC23getExtendedAppStartSpanSo0aG0_pSgyFZ",
+            "moduleName": "Sentry",
+            "name": "getExtendedAppStartSpan",
+            "printedName": "getExtendedAppStartSpan()",
+            "static": true,
+            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)getExtendedAppStartSpan"
           },
           {
             "children": [

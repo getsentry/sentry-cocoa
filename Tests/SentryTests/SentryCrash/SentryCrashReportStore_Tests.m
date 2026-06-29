@@ -33,8 +33,63 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define REPORT_PREFIX @"CrashReport-SentryCrashTest"
+
+typedef struct {
+    char path[SentryCrashCRS_MAX_PATH_LENGTH];
+    unsigned char canary[16];
+} GuardedSentryCrashCRSPathBuffer;
+
+static void
+fillReportStoreCanary(GuardedSentryCrashCRSPathBuffer *buffer)
+{
+    memset(buffer, 0, sizeof(*buffer));
+    memset(buffer->canary, 0xa5, sizeof(buffer->canary));
+}
+
+static bool
+isReportStoreCanaryIntact(const GuardedSentryCrashCRSPathBuffer *buffer)
+{
+    for (size_t i = 0; i < sizeof(buffer->canary); i++) {
+        if (buffer->canary[i] != 0xa5) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool
+isLeapYear(int year)
+{
+    return ((year % 4) == 0 && (year % 100) != 0) || (year % 400) == 0;
+}
+
+static int
+zeroBasedDayOfYear(int year, int month, int day)
+{
+    static const int daysBeforeMonth[] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
+    int dayOfYear = daysBeforeMonth[month - 1] + day - 1;
+    if (month > 2 && isLeapYear(year)) {
+        dayOfYear++;
+    }
+    return dayOfYear;
+}
+
+static struct tm
+makeUTCReportTime(int year, int month, int day, int hour, int minute, int second)
+{
+    return (struct tm) {
+        .tm_sec = second,
+        .tm_min = minute,
+        .tm_hour = hour,
+        .tm_mday = day,
+        .tm_mon = month - 1,
+        .tm_year = year - 1900,
+        .tm_yday = zeroBasedDayOfYear(year, month, day),
+    };
+}
 
 @interface SentryCrashReportStore_Tests : FileBasedTestCase
 
@@ -49,6 +104,25 @@
 @synthesize appName = _appName;
 @synthesize reportStorePath = _reportStorePath;
 @synthesize reportCounter = _reportCounter;
+
+- (NSString *)stringByRepeatingString:(NSString *)string count:(NSUInteger)count
+{
+    NSMutableString *result = [NSMutableString stringWithCapacity:string.length * count];
+    for (NSUInteger i = 0; i < count; i++) {
+        [result appendString:string];
+    }
+    return result;
+}
+
+- (NSString *)reportStorePathLongerThanStaticBuffer
+{
+    NSMutableString *path = [NSMutableString stringWithString:self.tempPath];
+    while ([path lengthOfBytesUsingEncoding:NSUTF8StringEncoding]
+        <= SentryCrashCRS_MAX_PATH_LENGTH + 100) {
+        [path appendString:@"/abcd"];
+    }
+    return path;
+}
 
 - (int64_t)getReportIDFromPath:(NSString *)path
 {
@@ -253,6 +327,56 @@
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:self.reportStorePath]);
 }
 
+- (void)testGetNextCrashReportPath_whenAppNameExceedsStaticBuffer_shouldNotOverwriteCallerBuffer
+{
+    // -- Arrange --
+    self.appName = [self stringByRepeatingString:@"a" count:SentryCrashCRS_MAX_PATH_LENGTH + 100];
+    [self
+        prepareReportStoreWithPathEnd:@"testGetNextCrashReportPath_whenAppNameExceedsStaticBuffer"];
+    GuardedSentryCrashCRSPathBuffer guardedPath;
+    fillReportStoreCanary(&guardedPath);
+
+    // -- Act --
+    sentrycrashcrs_getNextCrashReportPath(guardedPath.path);
+
+    // -- Assert --
+    XCTAssertEqual(guardedPath.path[SentryCrashCRS_MAX_PATH_LENGTH - 1], '\0');
+    XCTAssertTrue(isReportStoreCanaryIntact(&guardedPath));
+}
+
+- (void)testGetNextCrashReportPath_whenReportsPathExceedsStaticBuffer_shouldNotOverwriteCallerBuffer
+{
+    // -- Arrange --
+    self.appName = @"AppName";
+    self.reportStorePath = [self reportStorePathLongerThanStaticBuffer];
+    sentrycrashcrs_initialize(self.appName.UTF8String, self.reportStorePath.UTF8String);
+    GuardedSentryCrashCRSPathBuffer guardedPath;
+    fillReportStoreCanary(&guardedPath);
+
+    // -- Act --
+    sentrycrashcrs_getNextCrashReportPath(guardedPath.path);
+
+    // -- Assert --
+    XCTAssertEqual(guardedPath.path[SentryCrashCRS_MAX_PATH_LENGTH - 1], '\0');
+    XCTAssertTrue(isReportStoreCanaryIntact(&guardedPath));
+}
+
+- (void)testAttachmentsPath_whenOutputExceedsOnCrashBuffer_shouldNotOverwriteCallerBuffer
+{
+    // -- Arrange --
+    self.appName = [self stringByRepeatingString:@"a" count:SentryCrashCRS_MAX_PATH_LENGTH + 100];
+    [self prepareReportStoreWithPathEnd:@"testAttachmentsPath_whenOutputExceedsOnCrashBuffer"];
+    GuardedSentryCrashCRSPathBuffer guardedPath;
+    fillReportStoreCanary(&guardedPath);
+
+    // -- Act --
+    sentrycrashcrs_getAttachmentsPath_forReportId(INT64_MAX, guardedPath.path);
+
+    // -- Assert --
+    XCTAssertEqual(guardedPath.path[SentryCrashCRS_MAX_PATH_LENGTH - 1], '\0');
+    XCTAssertTrue(isReportStoreCanaryIntact(&guardedPath));
+}
+
 - (void)testCrashReportCount1
 {
     [self prepareReportStoreWithPathEnd:@"testCrashReportCount1"];
@@ -382,6 +506,24 @@
     XCTAssertEqualObjects([NSString stringWithUTF8String:attachmentsPath],
         [self.tempPath stringByAppendingPathComponent:
                 @"/ReportPath/AppName-report-00000013b0ac358d-attachments"]);
+}
+
+- (void)testInitializeIDs_whenUTCDateProducesZeroLowBits_shouldKeepHighBits
+{
+    // -- Arrange --
+    [self prepareReportStoreWithPathEnd:
+            @"testInitializeIDs_whenUTCDateProducesZeroLowBits_shouldKeepHighBits"];
+    // 2026-06-23 22:01:27 UTC produces a shifted base ID with zero low 32 bits,
+    // but non-zero high bits.
+    struct tm reportTime = makeUTCReportTime(2026, 6, 23, 22, 1, 27);
+    sentrycrashcrs_initializeIDsWithTimeForTests(&reportTime);
+
+    // -- Act --
+    int64_t reportID = [self writeCrashReportWithStringContents:@"Testing"];
+
+    // -- Assert --
+    XCTAssertEqual(reportID, INT64_C(0x00792dee00000000));
+    [self expectHasReportCount:1];
 }
 
 - (void)test_initializeIDs

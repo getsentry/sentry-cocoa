@@ -7,6 +7,28 @@ import Foundation
     func convert(from breadcrumb: Breadcrumb) -> SentryRRWebEventProtocol?
 }
 
+extension SentryReplayBreadcrumbConverter {
+    func convert(_ breadcrumbs: [Breadcrumb], from: Date, until: Date) -> [any SentryRRWebEventProtocol] {
+        var filteredResult: [Breadcrumb] = []
+        var lastNavigationTime = from.addingTimeInterval(-1)
+
+        for breadcrumb in breadcrumbs {
+            guard let time = breadcrumb.timestamp, time >= from && time < until else {
+                continue
+            }
+
+            // Skip child view controller navigation breadcrumbs emitted within 50ms of the last one.
+            if breadcrumb.type == "navigation" {
+                if time.timeIntervalSince(lastNavigationTime) < 0.05 { continue }
+                lastNavigationTime = time
+            }
+            filteredResult.append(breadcrumb)
+        }
+
+        return filteredResult.compactMap(convert(from:))
+    }
+}
+
 @objcMembers
 @_spi(Private) public class SentrySRDefaultBreadcrumbConverter: NSObject, SentryReplayBreadcrumbConverter {
     
@@ -86,7 +108,7 @@ import Foundation
             addNetworkDetails(from: networkDetails.serialize(), to: &data)
         }
         
-        //We dont have end of the request in the breadcrumb.
+        // We don't have end of the request in the breadcrumb.
         return SentryRRWebSpanEvent(timestamp: startTimestamp, endTimestamp: timestamp, operation: "resource.http", description: description, data: data)
     }
     

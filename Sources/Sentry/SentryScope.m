@@ -727,7 +727,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     // Validate if the observer conforms because the API doesn't require
     // observers to conform anymore due to the protocol being written in Swift
     // but protocol forwarded in ObjC
-    // Additionaly, conformsToProtocol:@protocol(SentryScopeObserver) seems to fail
+    // Additionally, conformsToProtocol:@protocol(SentryScopeObserver) seems to fail
     // because the conformance is declared in a Category, so runtime checks fail.
     // So we use check for all SentryScopeObserver functions AND an assertion to get alerts on tests
     // As a compile check if any of these selectors cease to exist, this should fail to build.

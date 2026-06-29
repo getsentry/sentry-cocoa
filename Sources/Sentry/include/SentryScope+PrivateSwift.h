@@ -16,7 +16,7 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
     NS_SWIFT_NAME(setPropagationContext(traceId:spanId:));
 
 /**
- * Set global user -> thus will be sent with every event
+ * Set global user -> this will be sent with every event
  */
 @property (atomic, strong) SentryUser *_Nullable userObject;
 

@@ -361,6 +361,37 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)reportFullyDisplayed;
 
+#if !SENTRY_NO_UI_FRAMEWORK && (TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION)
+/**
+ * Extends the app launch measurement beyond the default end point.
+ *
+ * Call this method after @c startWithOptions: but before the @c didFinishLaunching notification
+ * is posted so the SDK doesn't finish the app start transaction automatically.
+ *
+ * Use @c getExtendedAppStartSpan to retrieve the span and add child spans that break down the
+ * extended launch period. Call @c finish on that span (or call @c finishExtendedAppStart) when
+ * the app is fully launched.
+ *
+ * @note This only has an effect when Standalone App Start tracing is enabled.
+ */
++ (void)extendAppStart;
+
+/**
+ * Returns the extended app start span, or @c nil if @c extendAppStart was not called,
+ * the SDK is not started, or the app start transaction was already created.
+ */
++ (nullable SentryObjCSpan *)getExtendedAppStartSpan;
+
+/**
+ * Finishes a previously extended app launch and sends the app start transaction.
+ *
+ * This is equivalent to calling @c finish on the span returned by @c getExtendedAppStartSpan.
+ * If @c extendAppStart was not called, or the extended launch was already finished, this method
+ * does nothing.
+ */
++ (void)finishExtendedAppStart;
+#endif
+
 /**
  * Pauses sending detected app hangs to Sentry.
  * @note This method doesn't close the detection of app hangs. Instead, the app hang detection
