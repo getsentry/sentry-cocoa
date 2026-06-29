@@ -1,0 +1,4 @@
+CrashE2E.xcodeproj
+artifacts/
+Runner/.build/
+Runner/.swiftpm/

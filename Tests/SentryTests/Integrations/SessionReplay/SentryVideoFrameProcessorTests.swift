@@ -28,6 +28,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         var errorOverride: Error?
         var cancelWritingCalled = false
         var finishWritingCalled = false
+        var finishWritingInvocations = Invocations<Void>()
         var trackedInputs: [AVAssetWriterInput] = []
 
         override var status: AVAssetWriter.Status {
@@ -44,6 +45,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
         override func finishWriting(completionHandler: @escaping () -> Void) {
             finishWritingCalled = true
+            finishWritingInvocations.record(Void())
             completionHandler()
         }
 
@@ -63,6 +65,7 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         
         override func finishWriting(completionHandler: @escaping () -> Void) {
             finishWritingCalled = true
+            finishWritingInvocations.record(Void())
             if shouldExecuteCompletionImmediately {
                 completionHandler()
             } else {
@@ -213,6 +216,112 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         XCTAssertEqual(sut.usedFrames.count, 3)
     }
 
+    func testProcessFrames_WhenFramesHaveGap_ShouldHoldPreviousFrame() {
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
+
+        let frames = [
+            SentryReplayFrame(
+                imagePath: fixture.videoFrames[0].imagePath,
+                time: Date(timeIntervalSinceReferenceDate: 0),
+                screenName: "A"
+            ),
+            SentryReplayFrame(
+                imagePath: fixture.videoFrames[0].imagePath,
+                time: Date(timeIntervalSinceReferenceDate: 3),
+                screenName: "B"
+            )
+        ]
+        let sut = SentryVideoFrameProcessor(
+            videoFrames: frames,
+            videoWriter: fixture.videoWriter,
+            currentPixelBuffer: fixture.currentPixelBuffer,
+            outputFileURL: fixture.outputFileURL,
+            videoHeight: fixture.videoHeight,
+            videoWidth: fixture.videoWidth,
+            frameRate: fixture.frameRate,
+            initialFrameIndex: 0,
+            initialImageSize: fixture.initialImageSize,
+            videoEnd: Date(timeIntervalSinceReferenceDate: 5)
+        )
+
+        sut.processFrames(videoWriterInput: videoWriterInput) { _ in }
+
+        XCTAssertEqual(fixture.currentPixelBuffer.appendInvocations.count, 5)
+        let presentationTimes = fixture.currentPixelBuffer.appendInvocations.invocations.map { $0.presentationTime.seconds }
+        XCTAssertEqual(presentationTimes, [0, 1, 2, 3, 4])
+        XCTAssertEqual(sut.usedFrames.compactMap(\.screenName), ["A", "A", "A", "B", "B"])
+    }
+
+    func testProcessFrames_WhenFramesHaveFractionalGap_ShouldNotOverExpandDuration() {
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
+
+        let frames = [
+            SentryReplayFrame(
+                imagePath: fixture.videoFrames[0].imagePath,
+                time: Date(timeIntervalSinceReferenceDate: 0),
+                screenName: "A"
+            ),
+            SentryReplayFrame(
+                imagePath: fixture.videoFrames[0].imagePath,
+                time: Date(timeIntervalSinceReferenceDate: 2.4),
+                screenName: "B"
+            )
+        ]
+        let sut = SentryVideoFrameProcessor(
+            videoFrames: frames,
+            videoWriter: fixture.videoWriter,
+            currentPixelBuffer: fixture.currentPixelBuffer,
+            outputFileURL: fixture.outputFileURL,
+            videoHeight: fixture.videoHeight,
+            videoWidth: fixture.videoWidth,
+            frameRate: fixture.frameRate,
+            initialFrameIndex: 0,
+            initialImageSize: fixture.initialImageSize,
+            videoEnd: Date(timeIntervalSinceReferenceDate: 2.4)
+        )
+
+        sut.processFrames(videoWriterInput: videoWriterInput) { _ in }
+
+        XCTAssertEqual(fixture.currentPixelBuffer.appendInvocations.count, 3)
+        let presentationTimes = fixture.currentPixelBuffer.appendInvocations.invocations.map { $0.presentationTime.seconds }
+        XCTAssertEqual(presentationTimes, [0, 1, 2])
+        XCTAssertEqual(sut.usedFrames.compactMap(\.screenName), ["A", "A", "B"])
+    }
+
+    func testProcessFrames_WhenVideoEndHasFractionalGap_ShouldNotCompressDuration() {
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
+
+        let frames = [
+            SentryReplayFrame(
+                imagePath: fixture.videoFrames[0].imagePath,
+                time: Date(timeIntervalSinceReferenceDate: 0),
+                screenName: "A"
+            )
+        ]
+        let sut = SentryVideoFrameProcessor(
+            videoFrames: frames,
+            videoWriter: fixture.videoWriter,
+            currentPixelBuffer: fixture.currentPixelBuffer,
+            outputFileURL: fixture.outputFileURL,
+            videoHeight: fixture.videoHeight,
+            videoWidth: fixture.videoWidth,
+            frameRate: fixture.frameRate,
+            initialFrameIndex: 0,
+            initialImageSize: fixture.initialImageSize,
+            videoEnd: Date(timeIntervalSinceReferenceDate: 2.4)
+        )
+
+        sut.processFrames(videoWriterInput: videoWriterInput) { _ in }
+
+        XCTAssertEqual(fixture.currentPixelBuffer.appendInvocations.count, 3)
+        let presentationTimes = fixture.currentPixelBuffer.appendInvocations.invocations.map { $0.presentationTime.seconds }
+        XCTAssertEqual(presentationTimes, [0, 1, 2])
+        XCTAssertEqual(sut.usedFrames.compactMap(\.screenName), ["A", "A", "A"])
+    }
+
     func testProcessFrames_WhenVideoWriterNotWriting_ShouldCancelWriting() {
         let sut = fixture.getSut()
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
@@ -249,6 +358,31 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         XCTAssertTrue(fixture.videoWriter.finishWritingCalled)
         XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
         XCTAssertEqual(completionInvocations.count, 1)
+    }
+
+    func testProcessFrames_WhenCalledAgainWhileFinishing_ShouldFinishOnce() throws {
+        let videoWriter = try XCTUnwrap(DelayedTestAVAssetWriter(url: fixture.outputFileURL, fileType: .mp4))
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        videoWriter.add(videoWriterInput)
+        let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
+        let sut = SentryVideoFrameProcessor(
+            videoFrames: fixture.videoFrames,
+            videoWriter: videoWriter,
+            currentPixelBuffer: fixture.currentPixelBuffer,
+            outputFileURL: fixture.outputFileURL,
+            videoHeight: fixture.videoHeight,
+            videoWidth: fixture.videoWidth,
+            frameRate: fixture.frameRate,
+            initialFrameIndex: fixture.initialFrameIndex,
+            initialImageSize: fixture.initialImageSize
+        )
+
+        sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
+        sut.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
+
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
+        XCTAssertEqual(videoWriter.finishWritingInvocations.count, 1)
+        XCTAssertEqual(completionInvocations.count, 0)
     }
 
     func testProcessFrames_WhenImageSizeChanges_ShouldFinishVideo() {
@@ -299,13 +433,13 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         }
     }
 
-    func testProcessFrames_WhenImageCannotBeLoaded_ShouldSkipFrame() {
+    func testProcessFrames_WhenInitialImageCannotBeLoaded_ShouldSkipFrame() {
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
 
         // Create frames with non-existent image paths
         let nonExistentFrames = [
-            SentryReplayFrame(imagePath: "/another/non/existent/path.png", time: Date(), screenName: "Screen2")
+            SentryReplayFrame(imagePath: "/another/non/existent/path.png", time: Date(timeIntervalSinceReferenceDate: 1), screenName: "Screen2")
         ]
 
         let sutWithNonExistentFrames = SentryVideoFrameProcessor(
@@ -322,9 +456,45 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
         sutWithNonExistentFrames.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
 
-        // Should still increment frame index even if image can't be loaded
         XCTAssertEqual(sutWithNonExistentFrames.frameIndex, 1)
         XCTAssertEqual(sutWithNonExistentFrames.usedFrames.count, 0)
+        XCTAssertEqual(fixture.currentPixelBuffer.appendInvocations.count, 0)
+    }
+
+    func testProcessFrames_WhenTrailingImageCannotBeLoaded_ShouldHoldPreviousFrame() throws {
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
+
+        let frames = [
+            SentryReplayFrame(
+                imagePath: try fixture.createTestImage(),
+                time: Date(timeIntervalSinceReferenceDate: 0),
+                screenName: "A"
+            ),
+            SentryReplayFrame(
+                imagePath: "/non/existent/path.png",
+                time: Date(timeIntervalSinceReferenceDate: 3),
+                screenName: "Missing"
+            )
+        ]
+        let sut = SentryVideoFrameProcessor(
+            videoFrames: frames,
+            videoWriter: fixture.videoWriter,
+            currentPixelBuffer: fixture.currentPixelBuffer,
+            outputFileURL: fixture.outputFileURL,
+            videoHeight: fixture.videoHeight,
+            videoWidth: fixture.videoWidth,
+            frameRate: fixture.frameRate,
+            initialFrameIndex: 0,
+            initialImageSize: fixture.initialImageSize
+        )
+
+        sut.processFrames(videoWriterInput: videoWriterInput) { _ in }
+
+        XCTAssertEqual(fixture.currentPixelBuffer.appendInvocations.count, 3)
+        let presentationTimes = fixture.currentPixelBuffer.appendInvocations.invocations.map { $0.presentationTime.seconds }
+        XCTAssertEqual(presentationTimes, [0, 1, 2])
+        XCTAssertEqual(sut.usedFrames.compactMap(\.screenName), ["A", "A", "A"])
     }
 
     // MARK: - Finish Video Tests
@@ -366,6 +536,35 @@ class SentryVideoFrameProcessorTests: XCTestCase {
             }
         default:
             XCTFail("Expected success result")
+        }
+    }
+
+    func testFinishVideo_WhenWriterCompletedWithoutUsedFrames_ShouldReturnNilVideoInfo() throws {
+        let sut = fixture.getSut()
+        let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
+        fixture.videoWriter.add(videoWriterInput)
+        fixture.videoWriter.statusOverride = .completed
+        let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
+
+        try Data("empty video data".utf8).write(to: fixture.outputFileURL)
+
+        sut.finishVideo(frameIndex: 1) { result in
+            completionInvocations.record(result)
+        }
+
+        XCTAssertEqual(videoWriterInput.markAsFinishedInvocations.count, 1)
+        XCTAssertEqual(completionInvocations.count, 1)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.outputFileURL.path))
+
+        let result = completionInvocations.invocations.first
+        XCTAssertNotNil(result)
+
+        switch result {
+        case .success(let videoResult):
+            XCTAssertEqual(videoResult.finalFrameIndex, 1)
+            XCTAssertNil(videoResult.info)
+        default:
+            XCTFail("Expected success result with nil info")
         }
     }
 
@@ -540,6 +739,32 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         XCTAssertEqual(videoInfo.screens, ["Screen1", "Screen2", "Screen3"])
     }
 
+    func testGetVideoInfo_WithMoreThanOneFPS_ShouldUseFractionalDuration() throws {
+        let sut = SentryVideoFrameProcessor(
+            videoFrames: fixture.videoFrames,
+            videoWriter: fixture.videoWriter,
+            currentPixelBuffer: fixture.currentPixelBuffer,
+            outputFileURL: fixture.outputFileURL,
+            videoHeight: fixture.videoHeight,
+            videoWidth: fixture.videoWidth,
+            frameRate: 2,
+            initialFrameIndex: fixture.initialFrameIndex,
+            initialImageSize: fixture.initialImageSize
+        )
+        let testData = Data("test video data".utf8)
+        try testData.write(to: fixture.outputFileURL)
+
+        let videoInfo = try sut.getVideoInfo(
+            from: fixture.outputFileURL,
+            usedFrames: fixture.videoFrames,
+            videoWidth: 200,
+            videoHeight: 100
+        )
+
+        XCTAssertEqual(videoInfo.duration, 1.5)
+        XCTAssertEqual(videoInfo.end, Date(timeIntervalSinceReferenceDate: 1.5))
+    }
+
     func testGetVideoInfo_WithNonExistentFile_ShouldThrowError() {
         let sut = fixture.getSut()
 
@@ -615,11 +840,10 @@ class SentryVideoFrameProcessorTests: XCTestCase {
         let videoWriterInput = TestAVAssetWriterInput(mediaType: .video, outputSettings: nil)
         let completionInvocations = Invocations<Result<SentryRenderVideoResult, any Error>>()
 
-        // Create mixed frames (valid and invalid)
         let mixedFrames = [
-            SentryReplayFrame(imagePath: try fixture.createTestImage(), time: Date(), screenName: "Valid1"),
-            SentryReplayFrame(imagePath: "/non/existent/path.png", time: Date(), screenName: "Invalid"),
-            SentryReplayFrame(imagePath: try fixture.createTestImage(), time: Date(), screenName: "Valid2")
+            SentryReplayFrame(imagePath: try fixture.createTestImage(), time: Date(timeIntervalSinceReferenceDate: 0), screenName: "Valid1"),
+            SentryReplayFrame(imagePath: "/non/existent/path.png", time: Date(timeIntervalSinceReferenceDate: 1), screenName: "Invalid"),
+            SentryReplayFrame(imagePath: try fixture.createTestImage(), time: Date(timeIntervalSinceReferenceDate: 2), screenName: "Valid2")
         ]
 
         let sutWithMixedFrames = SentryVideoFrameProcessor(
@@ -636,9 +860,10 @@ class SentryVideoFrameProcessorTests: XCTestCase {
 
         sutWithMixedFrames.processFrames(videoWriterInput: videoWriterInput) { completionInvocations.record($0) }
 
-        // Should process valid frames and skip invalid ones
         XCTAssertEqual(sutWithMixedFrames.frameIndex, 3)
-        XCTAssertEqual(sutWithMixedFrames.usedFrames.count, 2) // Only valid frames
+        // 3 used frames: Valid1 at t=0, gap-fill (holding Valid1) at t=1, Valid2 at t=2
+        XCTAssertEqual(sutWithMixedFrames.usedFrames.count, 3)
+        XCTAssertEqual(sutWithMixedFrames.usedFrames.compactMap(\.screenName), ["Valid1", "Valid1", "Valid2"])
     }
 }
 

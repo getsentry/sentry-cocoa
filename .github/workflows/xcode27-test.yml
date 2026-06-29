@@ -1,0 +1,65 @@
+name: Xcode 27
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build-spm:
+    name: Build SPM ${{ matrix.platform }}
+    runs-on:
+      - bitrise_pool_name:xcode-beta
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: iOS
+            sdk: iphoneos
+            destination: "generic/platform=iphoneos"
+          - platform: watchOS
+            sdk: watchos
+            destination: "generic/platform=watchOS"
+          - platform: macOS
+            sdk: macosx
+            destination: "generic/platform=macOS"
+          - platform: tvOS
+            sdk: appletvos
+            destination: "generic/platform=tvOS"
+          - platform: visionOS
+            sdk: xros
+            destination: "generic/platform=visionOS"
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "27"
+          allow-prerelease: "true"
+      - name: Build SPM (${{ matrix.platform }})
+        run: |
+          ./scripts/sentry-xcodebuild.sh \
+            --workspace . \
+            --scheme SentrySPM \
+            --sdk ${{ matrix.sdk }} \
+            --destination '${{ matrix.destination }}' \
+            --command build
+      - name: Upload Build Logs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ failure() || cancelled() }}
+        with:
+          name: raw-build-output-${{ matrix.sdk }}
+          path: raw-build-output.log
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: ${{ failure() || cancelled() }}

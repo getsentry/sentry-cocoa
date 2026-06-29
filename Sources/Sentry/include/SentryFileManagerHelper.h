@@ -53,7 +53,7 @@ SENTRY_NO_INIT
 - (void)deleteOldEnvelopesFromAllSentryPaths:(NSTimeInterval)now;
 
 /**
- * Only used for teting.
+ * Only used for testing.
  */
 - (void)deleteAllEnvelopes;
 

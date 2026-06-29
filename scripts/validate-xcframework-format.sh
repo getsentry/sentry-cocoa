@@ -1,41 +1,40 @@
 #!/bin/bash
+set -euo pipefail
 
-set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./ci-utils.sh disable=SC1091
+source "$SCRIPT_DIR/ci-utils.sh"
 
-# Disable SC1091 because it won't work with pre-commit
-# shellcheck source=./scripts/ci-utils.sh disable=SC1091
-source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
+XCFRAMEWORK_PATH=""
 
 usage() {
-    cat <<EOF
-Usage: $(basename "$0") <xcframework_path>
-
-Validate the structure and symlinks of an XCFramework bundle.
-
-Checks each platform slice for correct framework layout, valid symlinks,
-and proper Versions directory structure (macOS frameworks).
-
-ARGUMENTS:
-    xcframework_path    Path to the .xcframework directory
-
-EXAMPLES:
-    $(basename "$0") Sentry-Dynamic.xcframework
-    $(basename "$0") SentrySwiftUI.xcframework
-
-EOF
+    log_notice "Usage: $0 --xcframework <path>"
+    log_notice "  --xcframework <path>    XCFramework bundle to validate (required)"
     exit 1
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --xcframework)
+            if [ $# -lt 2 ]; then
+                usage
+            fi
+            XCFRAMEWORK_PATH="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+
+if [ -z "$XCFRAMEWORK_PATH" ]; then
+    log_error "Error: --xcframework is required"
     usage
 fi
-
-if [ $# -ne 1 ]; then
-    log_error "Expected 1 argument (xcframework_path), got $#"
-    usage
-fi
-
-XCFRAMEWORK_PATH="$1"
 
 if [ ! -d "$XCFRAMEWORK_PATH" ]; then
     log_error "XCFramework path does not exist: $XCFRAMEWORK_PATH"

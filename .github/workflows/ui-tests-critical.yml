@@ -55,7 +55,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner_provider: ["cirrus", "bitrise"]
+        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
         include:
           # macos-14 iOS 17 not included due to the XCUIServerNotFound errors causing flaky tests
 
@@ -78,11 +78,10 @@ jobs:
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_ui_tests_critical_for_prs == 'true'
     needs: files-changed
     name: Run SwiftUI Crash Test on ${{matrix.runner_provider}}
-    continue-on-error: ${{ matrix.runner_provider == 'bitrise' }}
     runs-on: ${{ matrix.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', 'sequoia')) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', 'sequoia', github.run_id)) }}
     strategy:
       matrix:
-        runner_provider: ["cirrus", "bitrise"]
+        runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0

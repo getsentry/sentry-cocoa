@@ -1,8 +1,5 @@
 # Changelog
 
-> [!WARNING]
-> **The minimum macOS deployment target will be raised to macOS 12 (Monterey)** with the upcoming release that adopts Xcode 27. Xcode 27 no longer supports deployment targets below macOS 12. If your app must support macOS 11 or earlier, please stay on the last SDK version released before this change. See [#8113](https://github.com/getsentry/sentry-cocoa/issues/8113) for full details.
-
 ## Unreleased
 
 ### Features
@@ -12,10 +9,39 @@
 
 ### Fixes
 
+- Fix dropped `platform` item header in profile-chunk envelopes (#8269)
+- Fix crash report ID generation so reports created at certain timestamps are not ignored (#8216)
+- Fix C++ exception capture on newer OS versions by page-aligning `mprotect` calls in the `__cxa_throw` swapper (#8221)
+- Rename extended app start span operation from `app.start.extended_app_start` to `app.start.extended` (#8220)
+
+## 9.19.0
+
+> [!WARNING]
+> **The minimum macOS deployment target will be raised to macOS 12 (Monterey)** with the upcoming release that adopts Xcode 27. Xcode 27 no longer supports deployment targets below macOS 12. If your app must support macOS 11 or earlier, please stay on the last SDK version released before this change. See [#8113](https://github.com/getsentry/sentry-cocoa/issues/8113) for full details.
+
+### Features
+
+- Renamed experimental extended app start API (#8161):
+  - `extendAppLaunch()` -> `extendAppStart()`
+  - `finishExtendedAppLaunch()` -> `finishExtendedAppStart()`
+  - Added `getExtendedAppStartSpan()` to get the extended app span
+- Add extended app start APIs to ObjC wrapper SDK (#8163)
+
+### Improvements
+
+- Reduce Session Replay capture stutters by scheduling screenshots after run loop UI work instead of from display refresh callbacks (#7851)
+
+### Fixes
+
+- Don't send logs and metrics when the SDK is disabled (#8173)
 - Fixes crash caused by modifying breadcrumbs from multiple threads (#8114)
 - Prevent feedback form on external displays (#8071)
 - Keep the User Feedback screenshot trigger active after form dismissal. (#8048)
 - Prevent lazy TLS-init in the signal crash monitor for non-managed runtime builds (#8148)
+- Include breadcrumbs in recovered buffer-mode session replays (#8153)
+- Fix missing `Info.plist` entries `MinimumOSVersion` and `CFBundleSupportedPlatforms` in `SentryObjC.xcframework` (#8157)
+- Harden crash-time attachment path creation to avoid secondary crashes while handling crashes (#8170)
+- Session replay video assembly: drop empty video segments, avoid duplicating frames at segment boundaries, and keep video timing stable when captured frames are skipped or unreadable (#8041)
 
 ### Internal
 

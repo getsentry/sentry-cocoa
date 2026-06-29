@@ -46,9 +46,9 @@ public final class PreviewRedactOptions: SentryRedactOptions {
      * "MyApp.MyView", "MyViewSubclass", "Some.MyView.Container", etc.
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.excludedViewClasses`` for the default value.
-     * - Note: The final set of excluded view types is computed by `SentryUIRedactBuilder` using the formula:
+     * - Note: The final set of excluded view types is computed by `SentryViewSubtreeTraversal` using the formula:
      *         **Default View Classes + Excluded View Classes - Included View Classes**
-     *         Default view classes are defined in `SentryUIRedactBuilder` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
+     *         Default view classes are defined in `SentryViewSubtreeTraversal` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
      */
     public let excludedViewClasses: Set<String>
     
@@ -63,9 +63,9 @@ public final class PreviewRedactOptions: SentryRedactOptions {
      * not "MyApp.MyViewSubclass".
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.includedViewClasses`` for the default value.
-     * - Note: The final set of excluded view types is computed by `SentryUIRedactBuilder` using the formula:
+     * - Note: The final set of excluded view types is computed by `SentryViewSubtreeTraversal` using the formula:
      *         **Default View Classes + Excluded View Classes - Included View Classes**
-     *         Default view classes are defined in `SentryUIRedactBuilder` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
+     *         Default view classes are defined in `SentryViewSubtreeTraversal` (e.g., `CameraUI.ChromeSwiftUIView` on iOS 26+).
      * - Note: Included patterns use exact matching (not partial) to prevent accidental matches. For example,
      *         if "ChromeCameraUI" is excluded and "Camera" is included, "ChromeCameraUI" will still be excluded
      *         because "Camera" doesn't exactly match "ChromeCameraUI".
