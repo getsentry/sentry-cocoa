@@ -221,6 +221,7 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     }
     @synchronized(_contextDictionary) {
         [_contextDictionary removeAllObjects];
+        // Keep the feature flag buffer and serialized flags context in sync.
         [_featureFlagBuffer removeAll];
     }
     @synchronized(_fingerprintArray) {
