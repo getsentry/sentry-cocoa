@@ -10,7 +10,7 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
     private let tracker: SentryWatchdogTerminationTracker
     private let timeoutInterval: TimeInterval
     private let anrTracker: SentryANRTracker?
-    private let hangTracker: HangTracker?
+    private let hangTracker: SentryHangTracker?
     private let appStateManager: SentryAppStateManager
     
     private var hasStartedHang: Bool = false
