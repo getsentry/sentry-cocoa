@@ -3,12 +3,14 @@
 # Selects an Xcode version and exports the latest available simulator runtime
 # per platform so downstream steps (and the Makefile) don't have to pin them.
 #
-# Usage: ci-select-xcode.sh <version>
+# Usage: ci-select-xcode.sh [--allow-prerelease] <version>
 #   <version> may be:
 #     - "latest"                   newest installed Xcode
 #     - a major (e.g. "16", "26")  newest installed minor/patch in that major
 #     - a major.minor (e.g. "16.4", "26.0")  newest installed patch in that line
 #     - an exact installed version (e.g. "26.0.1")
+#
+#   --allow-prerelease  include beta/RC/GM builds when resolving the version
 #
 # Exports to GITHUB_ENV (only if not already set in the caller's env):
 #   XCODE_VERSION             resolved version string
@@ -28,21 +30,36 @@ set -euo pipefail
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
 source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 
-if [[ $# -lt 1 || -z "${1:-}" ]]; then
-    log_error "Usage: $0 <version>  (e.g. 'latest', '16', '26', '16.4', '26.0.1')"
+ALLOW_PRERELEASE=false
+POSITIONAL_ARGS=()
+for arg in "$@"; do
+    case "$arg" in
+        --allow-prerelease) ALLOW_PRERELEASE=true ;;
+        *) POSITIONAL_ARGS+=("$arg") ;;
+    esac
+done
+
+if [[ ${#POSITIONAL_ARGS[@]} -lt 1 || -z "${POSITIONAL_ARGS[0]:-}" ]]; then
+    log_error "Usage: $0 [--allow-prerelease] <version>  (e.g. 'latest', '16', '26', '16.4', '26.0.1')"
     exit 1
 fi
 
-XCODE_INPUT="$1"
+XCODE_INPUT="${POSITIONAL_ARGS[0]}"
 
 # `xcodes installed` prints one Xcode per line; the first whitespace-separated
 # token is the version (the `(Selected)` marker, build number, and path follow).
-# Filter beta / RC / GM builds so CI never silently selects a prerelease Xcode
-# (e.g. `Xcode_26.5_beta_2.app`) when resolving 'latest' or a major.
-INSTALLED=$(xcodes installed \
-    | grep -viE '(beta|release[ _-]?candidate|[^a-z](rc|gm)[^a-z])' \
-    | awk '{print $1}' \
-    | sort -V)
+if [[ "$ALLOW_PRERELEASE" == true ]]; then
+    INSTALLED=$(xcodes installed \
+        | awk '{print $1}' \
+        | sort -V)
+else
+    # Filter beta / RC / GM builds so CI never silently selects a prerelease
+    # Xcode (e.g. `Xcode_26.5_beta_2.app`) when resolving 'latest' or a major.
+    INSTALLED=$(xcodes installed \
+        | grep -viE '(beta|release[ _-]?candidate|[^a-z](rc|gm)[^a-z])' \
+        | awk '{print $1}' \
+        | sort -V)
+fi
 
 if [[ -z "$INSTALLED" ]]; then
     log_error "'xcodes installed' returned no Xcode versions."
