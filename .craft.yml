@@ -3,9 +3,6 @@ changelogPolicy: auto
 preReleaseCommand: bash ./scripts/bump.sh
 targets:
   - name: github
-  - name: cocoapods
-    id: sentry-cocoapod
-    specPath: Sentry.podspec
   - name: registry
     sdks:
       cocoapods:sentry-cocoa:

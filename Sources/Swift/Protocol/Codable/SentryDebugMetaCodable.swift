@@ -7,15 +7,8 @@ final class DebugMetaDecodable: DebugMeta {
     }
 }
 
-// Here only to satisfy the cocoapods compiler, which throws an
-// error about SentrySerializable not being found if we don't extend
-// an ObjC class here.
-#if COCOAPODS
-extension DebugMeta { }
-#endif
-
 extension DebugMetaDecodable: Decodable {
-    
+
     private enum CodingKeys: String, CodingKey {
         case debugID = "debug_id"
         case type
@@ -27,7 +20,7 @@ extension DebugMetaDecodable: Decodable {
 
     private convenience init(decodedFrom decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
+
         self.init()
 
         self.debugID = try container.decodeIfPresent(String.self, forKey: .debugID)
@@ -36,6 +29,6 @@ extension DebugMetaDecodable: Decodable {
         self.imageAddress = try container.decodeIfPresent(String.self, forKey: .imageAddress)
         self.imageVmAddress = try container.decodeIfPresent(String.self, forKey: .imageVmAddress)
         self.codeFile = try container.decodeIfPresent(String.self, forKey: .codeFile)
-    
+
     }
 }

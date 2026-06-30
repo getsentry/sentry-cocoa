@@ -6,7 +6,7 @@
 
 **Workflow names** — concise, action-oriented: `[Action] [Subject]`
 
-- `Release`, `UI Tests`, `Benchmarking`, `Lint SwiftLint`, `Test CocoaPods`
+- `Release`, `UI Tests`, `Benchmarking`, `Lint SwiftLint`
 
 **Job names** — no redundant prefixes, use action verbs, max 3-4 words, no tool versions:
 

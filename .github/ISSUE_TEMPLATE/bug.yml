@@ -39,7 +39,6 @@ body:
       description: sentry-cocoa installed with
       options:
         - Swift Package Manager
-        - CocoaPods
         - Manually
     validations:
       required: true

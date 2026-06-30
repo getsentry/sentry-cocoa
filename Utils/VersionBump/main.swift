@@ -9,7 +9,7 @@ protocol ErrorHandling: Error {
 enum FileError: Error, ErrorHandling {
     case fileNotFound(String)
     case unknownFile(String)
-    
+
     var message: String {
         switch self {
         case .fileNotFound(let file):
@@ -23,7 +23,7 @@ enum FileError: Error, ErrorHandling {
 enum VersionError: Error, ErrorHandling {
     case versionNotFound(String)
     case versionMismatch(String, String)
-    
+
     var message: String {
         switch self {
         case .versionNotFound(let file):
@@ -34,15 +34,12 @@ enum VersionError: Error, ErrorHandling {
     }
 }
 
-let fromVersionFile = "./Sentry.podspec"
+let fromVersionFile = "./Sources/Sentry/SentryMeta.m"
 
 let files = [
-    "./Sentry.podspec",
     "./Package.swift",
     "./Package@swift-6.1.swift",
     "./Package@swift-6.2.swift",
-    "./SentrySwiftUI.podspec",
-    "./Sources/Sentry/SentryMeta.m",
     "./3rd-party-integrations/SentrySwiftLog/Package.swift",
     "./3rd-party-integrations/SentrySwiftyBeaver/Package.swift",
     "./3rd-party-integrations/SentryCocoaLumberjack/Package.swift",
@@ -87,10 +84,10 @@ func updateVersionInFiles() throws {
         for file in files {
             try updateVersion(file, fromVersion, toVersion)
         }
-        
+
         fromVersion = extractVersionOnly(fromVersion)
         toVersion = extractVersionOnly(toVersion)
-        
+
         print("")
         print("Restricted files (x.x.x only): \(fromVersion) -> \(toVersion)")
 
@@ -126,7 +123,7 @@ func extractVersionOnly(_ version: String) -> String {
 func verifyVersionInFiles(_ expectedVersion: String) throws {
     var errors: [String] = []
     let expectedVersion = args[2]
-    
+
     for file in files {
         do {
             try verifyFile(file, expectedVersion)
@@ -134,7 +131,7 @@ func verifyVersionInFiles(_ expectedVersion: String) throws {
             errors.append(error.message)
         }
     }
-    
+
     let exactVersion = extractVersionOnly(expectedVersion)
     for file in restrictFiles {
         do {
@@ -143,11 +140,11 @@ func verifyVersionInFiles(_ expectedVersion: String) throws {
             errors.append(error.message)
         }
     }
-    
+
     if !errors.isEmpty {
         exit(errormessage: "Could not validate all files: \n\(errors.joined(separator: "\n"))")
     }
-    
+
     print("Successfully validated files version number")
 }
 
@@ -155,21 +152,21 @@ func verifyFile(_ file: String, _ expectedVersion: String) throws {
     guard let fileHandler = try? open(file) else {
         throw FileError.fileNotFound(file)
     }
-    
+
     let fileContent = fileHandler.read()
     let regexString = try getRegexString(for: file)
     let match = try? Regex(string: regexString, options: [.dotMatchesLineSeparators]).firstMatch(in: fileContent)
-    
+
     guard let version = match?.captures[0] else {
         print("\(file) FAILED — no version matched by regex: \(regexString)")
         throw VersionError.versionNotFound(file)
     }
-    
+
     guard version == expectedVersion else {
         print("\(file) FAILED — expected \(expectedVersion) but found \(version) (regex: \(regexString))")
         throw VersionError.versionMismatch(file, version)
     }
-    
+
     print("\(file) validated to have the correct version: \(version)")
 }
 
@@ -177,27 +174,25 @@ func verifyRestrictedFile(_ file: String, expectedVersion: String) throws {
     guard let fileHandler = try? open(file) else {
         throw FileError.fileNotFound(file)
     }
-    
+
     let fileContent = fileHandler.read()
     let marketingRegex = try? Regex(string: "MARKETING_VERSION\\s=\\s(?<version>[a-zA-z0-9\\.\\-]+)", options: [.dotMatchesLineSeparators])
     let currentProjectRegex = try? Regex(string: "CURRENT_PROJECT_VERSION\\s=\\s(?<version>[a-zA-z0-9\\.\\-]+)", options: [.dotMatchesLineSeparators])
     let match = marketingRegex?.firstMatch(in: fileContent) ?? currentProjectRegex?.firstMatch(in: fileContent)
-    
+
     guard let version = match?.captures[0] else {
         throw VersionError.versionNotFound(file)
     }
-    
+
     guard version == expectedVersion else {
         throw VersionError.versionMismatch(file, version)
     }
-    
+
     print("\(file) validated to have the correct version: \(version)")
 }
 
 func getRegexString(for file: String) throws -> String {
-    if file.hasSuffix(".podspec") {
-        return "\\ss\\.version\\s+=\\s\"(?<version>[a-zA-z0-9\\.\\-]+)\""
-    } else if file.hasPrefix("./Package") && file.hasSuffix(".swift") {
+    if file.hasPrefix("./Package") && file.hasSuffix(".swift") {
         return "https:\\/\\/github\\.com\\/getsentry\\/sentry-cocoa\\/releases\\/download\\/(?<version>[a-zA-z0-9\\.\\-]+)\\/Sentry"
     } else if file.hasPrefix("./3rd-party-integrations/") && file.hasSuffix("/Package.swift") {
         return "\\.package\\(url:\\s\"https:\\/\\/github\\.com\\/getsentry\\/sentry-cocoa\",\\sfrom:\\s\"(?<version>[a-zA-z0-9\\.\\-]+)\""

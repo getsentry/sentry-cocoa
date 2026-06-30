@@ -110,7 +110,7 @@ Non public headers should be placed into `Sources/include`
 
 To make a header public follow these steps:
 
-- Move it into the folder [Public](/Sources/Sentry/Public). Both [CocoaPods](Sentry.podspec) and [Swift Package Manager](Package.swift) make all headers in this folder public.
+- Move it into the folder [Public](/Sources/Sentry/Public). [Swift Package Manager](Package.swift) make all headers in this folder public.
 - Add it to the Umbrella Header [Sentry.h](/Sources/Sentry/Public/Sentry.h).
 - Set the target membership to public.
 
