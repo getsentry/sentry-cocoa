@@ -88,30 +88,6 @@ run_api_stability_for_prs: &run_api_stability_for_prs
   # Build configuration
   - "Makefile"
 
-run_integration_test_for_prs: &run_integration_test_for_prs
-  - "Sources/**"
-  - "Samples/iOS-Cocoapods-*/**"
-
-  # GH Actions
-  - ".github/workflows/integration-test.yml"
-  - ".github/file-filters.yml"
-
-  # Project files
-  - "*.xcodeproj/**"
-  - "*.xcworkspace/**"
-  - "*.podspec"
-  - "Plans/iOS-Cocoapods-Swift6_Base.xctestplan"
-
-  # Scripts
-  - "scripts/ci-select-xcode.sh"
-  - ".github/actions/setup-xcode/**"
-  - "scripts/ci-diagnostics.sh"
-  - "scripts/ci-utils.sh"
-
-  # Build configuration
-  - "fastlane/**"
-  - "Gemfile.lock"
-
 # Benchmarks always run on main, but on PRs they only run when benchmarking-related files change.
 # We intentionally exclude Sources/**, Tests/**, and other broad patterns here because benchmarks
 # are expensive (SauceLabs devices) and slow down PR CI. SDK source changes are covered by the
@@ -239,29 +215,6 @@ run_auto_update_tools_for_prs: &run_auto_update_tools_for_prs
   - "Brewfile*"
   - "Makefile"
 
-run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs
-  - "Sources/**"
-  - "Tests/**"
-  - "Samples/**"
-
-  # GH Actions
-  - ".github/workflows/lint-cocoapods-specs.yml"
-  - ".github/file-filters.yml"
-
-  # Scripts
-  - "scripts/ci-select-xcode.sh"
-  - ".github/actions/setup-xcode/**"
-  - "scripts/ci-diagnostics.sh"
-  - "scripts/ci-utils.sh"
-  - "scripts/pod-lib-lint.sh"
-
-  # Project files
-  - "Sentry.xcodeproj/**"
-  - "*.podspec"
-
-  # Build configuration
-  - "Makefile"
-  - "Brewfile*"
   - "Gemfile.lock"
   - ".swiftlint.yml"
 
