@@ -2,8 +2,6 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-struct TestRunLoopObserver: RunLoopObserver { }
-
 final class HangTrackerTests: XCTestCase {
     
     private var createdObservationBlock: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?
@@ -36,8 +34,9 @@ final class HangTrackerTests: XCTestCase {
     }
   
   func testHangTrackerCallsRemoveObserverOnDealloc() {
+      let mockDependencies = MockDependencies()
       var sut: DefaultHangTracker? = DefaultHangTracker(
-        dateProvider: TestCurrentDateProvider(),
+        dependencies: mockDependencies,
         createObserver: createObserver,
         addObserver: addObserver,
         removeObserver: removeObserver,
@@ -49,10 +48,10 @@ final class HangTrackerTests: XCTestCase {
   }
     
     func testDoesNotCaptureHangsThatAreNotOngoing() {
-        let dateProvider = TestCurrentDateProvider()
-        dateProvider.setSystemUptime(0)
+        let mockDependencies = MockDependencies()
+        mockDependencies.mockDateProvider.setSystemUptime(0)
         let sut = DefaultHangTracker(
-            dateProvider: dateProvider,
+            dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
@@ -68,7 +67,7 @@ final class HangTrackerTests: XCTestCase {
         queue.suspend()
         observationBlock?(testObserver, .afterWaiting)
         // 10s passed, this is a hang
-        dateProvider.setSystemUptime(10)
+        mockDependencies.mockDateProvider.setSystemUptime(10)
         observationBlock?(testObserver, .beforeWaiting)
         
         // Start the queue again
@@ -87,10 +86,10 @@ final class HangTrackerTests: XCTestCase {
     }
     
     func testHangTrackerWhenNotHanging() {
-        let dateProvider = TestCurrentDateProvider()
-        dateProvider.setSystemUptime(0)
+        let mockDependencies = MockDependencies()
+        mockDependencies.mockDateProvider.setSystemUptime(0)
         let sut = DefaultHangTracker(
-            dateProvider: dateProvider,
+            dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
@@ -106,7 +105,7 @@ final class HangTrackerTests: XCTestCase {
         queue.suspend()
         observationBlock?(testObserver, .afterWaiting)
         // 10 ms passed
-        dateProvider.setSystemUptime(0.01)
+        mockDependencies.mockDateProvider.setSystemUptime(0.01)
         observationBlock?(testObserver, .beforeWaiting)
         
         // Start the queue again
@@ -119,10 +118,10 @@ final class HangTrackerTests: XCTestCase {
     }
     
     func testHangTrackerCallsLateRunLoop() {
-        let dateProvider = TestCurrentDateProvider()
-        dateProvider.setSystemUptime(0)
+        let mockDependencies = MockDependencies()
+        mockDependencies.mockDateProvider.setSystemUptime(0)
         let sut = DefaultHangTracker(
-            dateProvider: dateProvider,
+            dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
@@ -139,8 +138,8 @@ final class HangTrackerTests: XCTestCase {
         XCTAssertTrue(calledAddObserver, "Expected add observer to be called")
         
         observationBlock?(testObserver, .afterWaiting)
-        dateProvider.setSystemUptime(10)
-                
+        mockDependencies.mockDateProvider.setSystemUptime(10)
+
         wait(for: [expectation])
         
         // Note: We are writing to these variables on a bg thread but reading them here
@@ -164,10 +163,10 @@ final class HangTrackerTests: XCTestCase {
     }
     
     func testRemovesObserverDuringRunloop() {
-        let dateProvider = TestCurrentDateProvider()
-        dateProvider.setSystemUptime(0)
+        let mockDependencies = MockDependencies()
+        mockDependencies.mockDateProvider.setSystemUptime(0)
         let sut = DefaultHangTracker(
-            dateProvider: dateProvider,
+            dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
@@ -188,10 +187,10 @@ final class HangTrackerTests: XCTestCase {
     }
     
     func testHangTrackerDeallocates() {
-        let dateProvider = TestCurrentDateProvider()
-        dateProvider.setSystemUptime(0)
+        let mockDependencies = MockDependencies()
+        mockDependencies.mockDateProvider.setSystemUptime(0)
         var sut: DefaultHangTracker? = DefaultHangTracker(
-            dateProvider: dateProvider,
+            dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
@@ -222,10 +221,10 @@ final class HangTrackerTests: XCTestCase {
     /// Verifies that after one hang completes (ongoing=true then ongoing=false),
     /// a second hang is properly detected. This catches state-reset bugs with consecutive hangs.
     func testConsecutiveHangsAreDetected() {
-        let dateProvider = TestCurrentDateProvider()
-        dateProvider.setSystemUptime(0)
+        let mockDependencies = MockDependencies()
+        mockDependencies.mockDateProvider.setSystemUptime(0)
         let sut = DefaultHangTracker(
-            dateProvider: dateProvider,
+            dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
@@ -252,7 +251,7 @@ final class HangTrackerTests: XCTestCase {
         
         // First hang: start
         observationBlock?(testObserver, .afterWaiting)
-        dateProvider.setSystemUptime(10)
+        mockDependencies.mockDateProvider.setSystemUptime(10)
         wait(for: [hangCallback])
         
         lock.synchronized {
@@ -274,9 +273,9 @@ final class HangTrackerTests: XCTestCase {
         XCTAssertFalse(lastOngoing, "First hang should no longer be ongoing")
         
         // Second hang: start (simulating another runloop iteration that hangs)
-        dateProvider.setSystemUptime(20)
+        mockDependencies.mockDateProvider.setSystemUptime(20)
         observationBlock?(testObserver, .afterWaiting)
-        dateProvider.setSystemUptime(35) // 15 second hang
+        mockDependencies.mockDateProvider.setSystemUptime(35) // 15 second hang
 
         lock.synchronized {
             hangCallback = XCTestExpectation(description: "Second hang detected")
@@ -310,10 +309,10 @@ final class HangTrackerTests: XCTestCase {
     /// is still in the waitForHang loop, the class does not deallocate until the loop exits,
     /// and then the dispatch queue is freed up (not blocked).
     func testDeallocWhileInWaitForHangLoop() {
-        let dateProvider = TestCurrentDateProvider()
-        dateProvider.setSystemUptime(0)
+        let mockDependencies = MockDependencies()
+        mockDependencies.mockDateProvider.setSystemUptime(0)
         var sut: DefaultHangTracker? = DefaultHangTracker(
-            dateProvider: dateProvider,
+            dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
@@ -359,10 +358,11 @@ final class HangTrackerTests: XCTestCase {
     }
 
     func testMultipleObserversAllReceiveHangCallback() {
-        let dateProvider = TestCurrentDateProvider()
-        dateProvider.setSystemUptime(0)
+        let mockDependencies = MockDependencies()
+        mockDependencies.mockDateProvider.setSystemUptime(0)
+        mockDependencies.mockDateProvider.setSystemUptime(0)
         let sut = DefaultHangTracker(
-            dateProvider: dateProvider,
+            dependencies: mockDependencies,
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
@@ -415,7 +415,7 @@ final class HangTrackerTests: XCTestCase {
 
         // Trigger a hang
         observationBlock?(testObserver, .afterWaiting)
-        dateProvider.setSystemUptime(10)
+        mockDependencies.mockDateProvider.setSystemUptime(10)
 
         wait(for: [expectation1, expectation2, expectation3])
 
@@ -452,3 +452,15 @@ final class HangTrackerTests: XCTestCase {
     }
 
 }
+
+private struct MockDependencies: SentryRunLoopDelayTrackerDependencies {
+    let mockDateProvider = TestCurrentDateProvider()
+
+    var dateProvider: any Sentry.SentryCurrentDateProvider {
+        mockDateProvider
+    }
+
+    func application() -> (any Sentry.SentryApplication)? { nil }
+}
+
+private struct TestRunLoopObserver: RunLoopObserver { }

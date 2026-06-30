@@ -165,7 +165,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var coreDataSwizzling = SentryCoreDataSwizzling()
     // This is a var so that it's initialized lazily on first access. It never should get set
     // to a different value.
-    lazy var hangTracker: HangTracker = DefaultHangTracker(dateProvider: Dependencies.dateProvider)
+    lazy var hangTracker: HangTracker = {
+        DefaultHangTracker(dependencies: self)
+    }()
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     private var _extraContextProvider: SentryExtraContextProvider?
