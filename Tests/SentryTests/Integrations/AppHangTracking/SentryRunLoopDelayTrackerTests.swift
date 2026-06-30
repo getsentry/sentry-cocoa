@@ -305,7 +305,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         XCTAssertTrue(calledRemoveObserver, "Expected observer to be removed")
     }
 
-    /// Verifies that when all references to HangTracker are nilled while the background queue
+    /// Verifies that when all references to SentryHangTracker are nilled while the background queue
     /// is still in the waitForHang loop, the class does not deallocate until the loop exits,
     /// and then the dispatch queue is freed up (not blocked).
     func testDeallocWhileInWaitForHangLoop() {
@@ -339,7 +339,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         wait(for: [expectation])
 
         // Now nil all references while the background queue is in the waitForHang loop
-        // The HangTracker should NOT immediately deallocate because the background queue
+        // The SentryHangTracker should NOT immediately deallocate because the background queue
         // holds a reference via the closure
         sut = nil
 
@@ -595,7 +595,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
     }
 }
 
-private struct MockDependencies: SentryRunLoopDelayTrackerDependencies {
+private class MockDependencies: SentryRunLoopDelayTrackerDependencies {
     let mockDateProvider = TestCurrentDateProvider()
 
     var dateProvider: any Sentry.SentryCurrentDateProvider {
