@@ -5,6 +5,44 @@ struct SentryAppHang {
         case ended
     }
 
+    struct ProfilingData {
+        struct Frame {
+            let instructionAddress: String?
+            let function: String?
+            let module: String?
+        }
+
+        struct Sample {
+            let timestamp: TimeInterval
+            let stackIndex: Int
+            let threadId: UInt64
+        }
+
+        struct ThreadMetadata {
+            let name: String
+            let priority: Int
+        }
+
+        let frames: [Frame]
+        let stacks: [[Int]]
+        let samples: [Sample]
+        let threadMetadata: [String: ThreadMetadata]
+    }
+
     let duration: TimeInterval
     let state: State
+
+    let profilerId: SentryId?
+    let profilingData: ProfilingData?
+    let startSystemTime: UInt64
+    let endSystemTime: UInt64
+
+    init(duration: TimeInterval, state: State, profilerId: SentryId? = nil, profilingData: ProfilingData? = nil, startSystemTime: UInt64 = 0, endSystemTime: UInt64 = 0) {
+        self.duration = duration
+        self.state = state
+        self.profilerId = profilerId
+        self.profilingData = profilingData
+        self.startSystemTime = startSystemTime
+        self.endSystemTime = endSystemTime
+    }
 }

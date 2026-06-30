@@ -24,4 +24,17 @@ final class SentryAppHangsOptionsTests: XCTestCase {
         options.threshold = 10.0
         XCTAssertEqual(options.threshold, 10.0)
     }
+
+    // MARK: - Profiling Options
+
+    func testProfilingSampleIntervalMs_default_shouldBe100() {
+        let options = AppHangsOptions()
+        XCTAssertEqual(options.profilingSampleIntervalMs, 100)
+    }
+
+    func testProfilingSampleIntervalMs_canBeSet() {
+        var options = AppHangsOptions()
+        options.profilingSampleIntervalMs = 50
+        XCTAssertEqual(options.profilingSampleIntervalMs, 50)
+    }
 }
