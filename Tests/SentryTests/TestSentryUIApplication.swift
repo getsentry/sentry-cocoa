@@ -12,13 +12,13 @@ final class TestSentryUIApplication: SentryApplication {
         }
         return internal_getWindows()
     }
-
+    
 #if (os(iOS) || os(tvOS))
     func getActiveWindowSize() -> CGSize {
         return internal_getActiveWindowSize()
     }
 #endif // os(iOS) || os(tvOS)
-
+    
     private var _windows: [UIWindow]?
     private(set) var calledOnMainThread = true
     var windows: [UIWindow]? {
@@ -31,7 +31,7 @@ final class TestSentryUIApplication: SentryApplication {
             _windows = newValue
         }
     }
-
+    
     var _relevantViewControllerNames: [String]?
     func relevantViewControllersNames() -> [String]? {
         if let _relevantViewControllerNames {
@@ -49,7 +49,7 @@ final class TestSentryUIApplication: SentryApplication {
     var mainThread_isActive: Bool {
         return unsafeApplicationState == .active
     }
-
+    
     var connectedScenes: Set<UIScene> {
         if let scenes = scenes as? [UIScene] {
             return Set(scenes)

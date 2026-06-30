@@ -370,11 +370,12 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertFalse(appState.isANROngoing)
     }
 
-    func testHangObserver_DurationAtThreshold_DoesNotUpdateAppState() throws {
+    func testHangObserver_DurationBelowThreshold_DoesNotUpdateAppState() throws {
         // -- Arrange --
         let mockDelayTracker = MockRunLoopDelayTracker()
         let dependencies = MockDependenciesWithControllableDelayTracker(delayTracker: mockDelayTracker)
 
+        // Set a specific timeout interval
         let timeoutInterval: TimeInterval = 2.0
         let options = fixture.options
         options.appHangTimeoutInterval = timeoutInterval
@@ -383,6 +384,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         // -- Act --
         let integration = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
 
+        // Simulate a hang with duration exactly at the threshold (not greater than)
         mockDelayTracker.simulateDelay(duration: timeoutInterval, ongoing: true)
 
         // -- Assert --
@@ -396,6 +398,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let mockDelayTracker = MockRunLoopDelayTracker()
         let dependencies = MockDependenciesWithControllableDelayTracker(delayTracker: mockDelayTracker)
 
+        // Set a specific timeout interval
         let timeoutInterval: TimeInterval = 2.0
         let options = fixture.options
         options.appHangTimeoutInterval = timeoutInterval
@@ -404,6 +407,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         // -- Act --
         let integration = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
 
+        // Simulate a hang with duration greater than the threshold
         mockDelayTracker.simulateDelay(duration: timeoutInterval + 0.1, ongoing: true)
 
         // -- Assert --
@@ -425,10 +429,12 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         // -- Act --
         let integration = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
 
+        // Simulate a hang stop with duration below threshold
         mockDelayTracker.simulateDelay(duration: timeoutInterval - 0.5, ongoing: false)
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
+        // Since hangStarted was never called (duration was below threshold), isANROngoing should still be false
         XCTAssertFalse(appState.isANROngoing)
         XCTAssertNotNil(integration)
     }
@@ -445,6 +451,7 @@ private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppHan
     func application() -> SentryApplication? { nil }
 
     struct TestRunLoopObserver: SentryRunLoopObserver { }
+
     private func createObserver(_ allocator: CFAllocator?, _ activities: CFOptionFlags, _ repeats: Bool, _ order: CFIndex, _ block: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?) -> TestRunLoopObserver {
         return TestRunLoopObserver()
     }
