@@ -413,23 +413,6 @@ class SentryTransactionTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(data["flag.evaluation.checkout"] as? Bool), true)
     }
 
-    func testFeatureFlags_whenRemovedFromRootTransaction_shouldOmitRemovedFlagFromTraceData() throws {
-        // -- Arrange --
-        let trace = fixture.getTrace()
-        trace.addFeatureFlag(name: "checkout", result: true)
-        let transaction = fixture.getTransaction(trace: trace)
-
-        // -- Act --
-        trace.removeFeatureFlag(name: "checkout")
-        let serialized = transaction.serialize()
-
-        // -- Assert --
-        let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
-        let traceContext = try XCTUnwrap(contexts["trace"] as? [String: Any])
-        let data = try XCTUnwrap(traceContext["data"] as? [String: Any])
-        XCTAssertNil(data["flag.evaluation.checkout"])
-    }
-
     func testFeatureFlags_whenAddedToChildSpan_shouldSerializeOnChildSpanData() throws {
         // -- Arrange --
         let trace = fixture.getTrace()

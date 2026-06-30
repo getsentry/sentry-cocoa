@@ -433,21 +433,6 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(actual["flag.evaluation.checkout"] as? Bool), true)
     }
 
-    func testFeatureFlags_whenRemovingFromSpan_shouldOmitRemovedFlagData() throws {
-        // -- Arrange --
-        let span = fixture.getSutWithTracer()
-        span.addFeatureFlag(name: "checkout", result: true)
-        span.addFeatureFlag(name: "search", result: false)
-
-        // -- Act --
-        span.removeFeatureFlag(name: "checkout")
-
-        // -- Assert --
-        let actual = try XCTUnwrap(span.serialize()["data"] as? [String: Any])
-        XCTAssertNil(actual["flag.evaluation.checkout"])
-        XCTAssertEqual(try XCTUnwrap(actual["flag.evaluation.search"] as? Bool), false)
-    }
-
     func testFeatureFlags_whenAddingAfterFinish_shouldNotSerializeAsSpanData() throws {
         // -- Arrange --
         let span = fixture.getSutWithTracer()
@@ -459,20 +444,6 @@ class SentrySpanTests: XCTestCase {
         // -- Assert --
         let actual = try XCTUnwrap(span.serialize()["data"] as? [String: Any])
         XCTAssertNil(actual["flag.evaluation.checkout"])
-    }
-
-    func testFeatureFlags_whenRemovingAfterFinish_shouldKeepSpanData() throws {
-        // -- Arrange --
-        let span = fixture.getSutWithTracer()
-        span.addFeatureFlag(name: "checkout", result: true)
-        span.finish()
-
-        // -- Act --
-        span.removeFeatureFlag(name: "checkout")
-
-        // -- Assert --
-        let actual = try XCTUnwrap(span.serialize()["data"] as? [String: Any])
-        XCTAssertEqual(try XCTUnwrap(actual["flag.evaluation.checkout"] as? Bool), true)
     }
 
     func testFeatureFlags_whenAddingMoreThanSpanLimit_shouldRejectNewFlags() throws {
@@ -508,13 +479,12 @@ class SentrySpanTests: XCTestCase {
         XCTAssertNil(actual["flag.evaluation.flag-10"])
     }
 
-    func testFeatureFlags_whenNoOpSpan_shouldIgnoreAddAndRemove() {
+    func testFeatureFlags_whenNoOpSpan_shouldIgnoreAdd() {
         // -- Arrange --
         let span: Span = SentryNoOpSpan.shared()
 
         // -- Act --
         span.addFeatureFlag(name: "checkout", result: true)
-        span.removeFeatureFlag(name: "checkout")
 
         // -- Assert --
         XCTAssertEqual(span.serialize().count, 0)

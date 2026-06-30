@@ -87,15 +87,6 @@ class ScopeViewController: UIViewController {
         updateAttributesTextView()
     }
 
-    @IBAction func removeSpanFeatureFlag(_ sender: Any?) {
-        guard let featureFlagName = featureFlagName else {
-            return
-        }
-
-        testTransaction?.removeFeatureFlag(name: featureFlagName)
-        updateAttributesTextView()
-    }
-
     @IBAction func updateAttributesTextView(_ sender: Any?) {
         updateAttributesTextView()
     }

@@ -73087,31 +73087,6 @@
           {
             "children": [
               {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declKind": "Func",
-            "funcSelfKind": "NonMutating",
-            "genericSig": "<Self where Self : Sentry.Span>",
-            "isFromExtension": true,
-            "kind": "Function",
-            "mangledName": "$sSo10SentrySpanP0A0E17removeFeatureFlag4nameySS_tF",
-            "moduleName": "Sentry",
-            "name": "removeFeatureFlag",
-            "printedName": "removeFeatureFlag(name:)",
-            "usr": "s:So10SentrySpanP0A0E17removeFeatureFlag4nameySS_tF"
-          },
-          {
-            "children": [
-              {
                 "children": [
                   {
                     "kind": "TypeNominal",

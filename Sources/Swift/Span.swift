@@ -9,12 +9,5 @@ extension Span {
         }
         span.addFeatureFlagInternal(name: name, result: result)
     }
-
-    public func removeFeatureFlag(name: String) {
-        guard let span = self as? SentrySpanInternal else {
-            return
-        }
-        span.removeFeatureFlagInternal(name: name)
-    }
 }
 // swiftlint:enable missing_docs
