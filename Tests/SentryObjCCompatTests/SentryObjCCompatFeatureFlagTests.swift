@@ -38,17 +38,4 @@ final class SentryObjCCompatFeatureFlagTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(data["flag.evaluation.checkout"] as? Bool), true)
     }
 
-    func testSpanRemoveFeatureFlagWithName_shouldRemoveFromSpanData() throws {
-        // -- Arrange --
-        let sut = SentryObjCSDK.startTransaction(name: "transaction", operation: "op")
-        sut.addFeatureFlag(name: "checkout", result: true)
-
-        // -- Act --
-        sut.removeFeatureFlag(name: "checkout")
-
-        // -- Assert --
-        let serialized = sut.wrapped.serialize()
-        let data = try XCTUnwrap(serialized["data"] as? [String: Any])
-        XCTAssertNil(data["flag.evaluation.checkout"])
-    }
 }

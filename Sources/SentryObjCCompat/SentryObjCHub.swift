@@ -131,10 +131,6 @@ import Foundation
         wrapped.addFeatureFlag(name: name, result: result)
     }
 
-    @objc(removeFeatureFlagWithName:) public func removeFeatureFlag(name: String) {
-        wrapped.removeFeatureFlag(name: name)
-    }
-
     @objc public func getClient() -> SentryObjCClient? {
         guard let client = wrapped.getClient() else { return nil }
         return SentryObjCClient(client)

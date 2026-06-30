@@ -342,18 +342,6 @@
     XCTAssertEqualObjects(values[0][@"result"], @YES);
 }
 
-- (void)testRemoveFeatureFlagWithName_shouldRemoveFromHubScope
-{
-    // -- Arrange --
-    [self.sut addFeatureFlagWithName:@"checkout" result:YES];
-
-    // -- Act --
-    [self.sut removeFeatureFlagWithName:@"checkout"];
-
-    // -- Assert --
-    XCTAssertNil([self featureFlagValuesFromScope:self.sut.scope]);
-}
-
 #pragma mark - Client
 
 - (void)testGetClient_whenClientSet_shouldReturnEnabledClient

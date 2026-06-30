@@ -327,12 +327,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result;
 
 /**
- * Removes a feature flag evaluation from the current @c Scope of the current @c Hub.
- * @param name The feature flag name.
- */
-+ (void)removeFeatureFlagWithName:(NSString *)name;
-
-/**
  * Use this method to modify the current @c Scope of the current @c Hub. The SDK uses the
  * @c Scope to attach contextual data to events.
  * @param callback The callback for configuring the current @c Scope.

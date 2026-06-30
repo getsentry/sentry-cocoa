@@ -264,15 +264,6 @@
     [self.sut addFeatureFlagWithName:@"checkout" result:YES];
 }
 
-- (void)testRemoveFeatureFlagWithName_shouldNotCrash
-{
-    // -- Arrange --
-    [self.sut addFeatureFlagWithName:@"checkout" result:YES];
-
-    // -- Act & Assert (no crash) --
-    [self.sut removeFeatureFlagWithName:@"checkout"];
-}
-
 #pragma mark - Tags
 
 - (void)testSetTagValueForKey_shouldUpdateTags

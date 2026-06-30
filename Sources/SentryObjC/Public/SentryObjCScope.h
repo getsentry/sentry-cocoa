@@ -83,12 +83,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result;
 
 /**
- * Removes a feature flag evaluation from this scope.
- * @param name The feature flag name.
- */
-- (void)removeFeatureFlagWithName:(NSString *)name;
-
-/**
  * Sets context values which will overwrite event context when the event is
  * enriched with the scope before sending.
  * @note The @c flags context key is reserved for feature flag evaluations.

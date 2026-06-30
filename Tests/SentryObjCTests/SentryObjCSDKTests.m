@@ -514,18 +514,6 @@
     XCTAssertEqualObjects(values[0][@"result"], @YES);
 }
 
-- (void)testRemoveFeatureFlagWithName_shouldRemoveFromCurrentScope
-{
-    // -- Arrange --
-    [SentryObjCSDK addFeatureFlagWithName:@"checkout" result:YES];
-
-    // -- Act --
-    [SentryObjCSDK removeFeatureFlagWithName:@"checkout"];
-
-    // -- Assert --
-    XCTAssertNil([self currentFeatureFlagValues]);
-}
-
 #pragma mark - Configure Scope
 
 - (void)testConfigureScope_shouldPersistTagOnScope

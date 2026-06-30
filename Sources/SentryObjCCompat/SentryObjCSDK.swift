@@ -192,11 +192,6 @@ import Foundation
         SentrySDK.addFeatureFlag(name: name, result: result)
     }
 
-    @objc(removeFeatureFlagWithName:)
-    public static func removeFeatureFlag(name: String) {
-        SentrySDK.removeFeatureFlag(name: name)
-    }
-
     @objc(configureScope:)
     public static func configureScope(_ callback: @escaping (SentryObjCScope) -> Void) {
         SentrySDK.configureScope { scope in

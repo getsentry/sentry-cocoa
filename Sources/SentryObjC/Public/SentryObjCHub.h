@@ -195,12 +195,6 @@ SENTRY_NO_INIT
  */
 - (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result;
 
-/**
- * Removes a feature flag evaluation from the @c Scope of the Hub.
- * @param name The feature flag name.
- */
-- (void)removeFeatureFlagWithName:(NSString *)name;
-
 /// Returns the client if there is a bound client on the Hub.
 - (SentryObjCClient *_Nullable)getClient;
 

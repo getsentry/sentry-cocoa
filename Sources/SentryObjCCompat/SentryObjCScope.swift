@@ -90,10 +90,6 @@ import Foundation
         wrapped.addFeatureFlag(name: name, result: result)
     }
 
-    @objc(removeFeatureFlagWithName:) public func removeFeatureFlag(name: String) {
-        wrapped.removeFeatureFlag(name: name)
-    }
-
     @objc(setContextValue:forKey:) public func setContext(value: [String: Any], key: String) {
         wrapped.setContext(value: value, key: key)
     }

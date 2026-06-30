@@ -110,12 +110,6 @@ SENTRY_NO_INIT
 - (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result;
 
 /**
- * Removes a feature flag evaluation from this span.
- * @param name The feature flag name.
- */
-- (void)removeFeatureFlagWithName:(NSString *)name;
-
-/**
  * Sets a tag value.
  * @param value The tag value.
  * @param key The tag key.
