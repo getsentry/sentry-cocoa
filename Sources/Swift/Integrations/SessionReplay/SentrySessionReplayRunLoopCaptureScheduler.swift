@@ -9,7 +9,7 @@ import Foundation
     func stop(token: AnyObject)
 }
 
-final class DefaultSentrySessionReplayRunLoopCaptureScheduler<T: RunLoopObserver>: SentrySessionReplayRunLoopCaptureScheduler {
+final class DefaultSentrySessionReplayRunLoopCaptureScheduler<T: SentryRunLoopObserver>: SentrySessionReplayRunLoopCaptureScheduler {
     private var observer: T?
     private var token: AnyObject?
     private var didProcessRunLoopWork = false
