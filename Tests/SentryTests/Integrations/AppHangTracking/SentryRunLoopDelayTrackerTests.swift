@@ -367,20 +367,20 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
             removeObserver: removeObserver,
             queue: queue)
 
-        var removedObserverCalled = false
+        let removedObserverNotCalled = XCTestExpectation(description: "Removed observer should not be called")
+        removedObserverNotCalled.isInverted = true
         let token1 = sut.addObserver { _ in
-            removedObserverCalled = true
+            removedObserverNotCalled.fulfill()
         }
 
         var remainingInterval: TimeInterval = 0
         var remainingOngoing = false
         let remainingExpectation = XCTestExpectation(description: "Remaining observer called")
+        remainingExpectation.assertForOverFulfill = false
         let token2 = sut.addObserver { delay in
-            if remainingInterval == 0 {
-                remainingExpectation.fulfill()
-            }
             remainingInterval = delay.duration
             remainingOngoing = delay.isOngoing
+            remainingExpectation.fulfill()
         }
 
         sut.removeObserver(token: token1)
@@ -390,8 +390,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         mockDependencies.mockDateProvider.setSystemUptime(10)
 
         wait(for: [remainingExpectation])
-
-        XCTAssertFalse(removedObserverCalled, "Removed observer should not receive callbacks")
+        wait(for: [removedObserverNotCalled], timeout: 0.1)
         XCTAssertEqual(remainingInterval, 10)
         XCTAssertTrue(remainingOngoing)
 

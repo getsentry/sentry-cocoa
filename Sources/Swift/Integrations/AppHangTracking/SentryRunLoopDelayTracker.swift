@@ -134,7 +134,8 @@ final class SentryDefaultRunLoopDelayTracker<T: SentryRunLoopObserver, Dependenc
     ///
     /// - Precondition: Must be called on main queue
     func removeObserver(token: SentryRunLoopDelayTrackerObserverToken) {
-        // Keep a reference to the removed observer so it's destroyed after leaving the critical section.
+        // Prevent the removed handler from being deallocated inside `withLock`; its deinit chain could
+        // re-enter the lock and deadlock.
         let (removed, isEmpty) = observers.withLock {
             ($0.removeValue(forKey: token), $0.isEmpty)
         }
