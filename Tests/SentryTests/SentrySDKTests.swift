@@ -516,16 +516,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
     }
 
-    func testRemoveFeatureFlag_mutatesCurrentHubScope() throws {
-        givenSdkWithHub()
-        SentrySDK.addFeatureFlag(name: "checkout", result: true)
-
-        SentrySDK.removeFeatureFlag(name: "checkout")
-
-        let context = fixture.scope.serialize()["context"] as? [String: Any]
-        XCTAssertNil(context?["flags"])
-    }
-
     /// When events don't have debug meta the backend can't symbolicate the stack trace of events.
     /// This is a regression test for https://github.com/getsentry/sentry-cocoa/issues/5334
     func testCaptureNonFatalEvent_HasDebugMeta() throws {

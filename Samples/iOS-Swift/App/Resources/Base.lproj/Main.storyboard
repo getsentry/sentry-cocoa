@@ -2088,14 +2088,6 @@
                                     <action selector="addFeatureFlag:" destination="ARr-dx-Xze" eventType="touchUpInside" id="ffA-ac-001"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ffR-RM-001">
-                                <rect key="frame" x="200.5" y="412" width="176.5" height="35"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Remove Feature Flag"/>
-                                <connections>
-                                    <action selector="removeFeatureFlag:" destination="ARr-dx-Xze" eventType="touchUpInside" id="ffR-ac-001"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="UBd-ip-qaw"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -2122,10 +2114,6 @@
                             <constraint firstItem="Eap-5e-Pfq" firstAttribute="top" secondItem="ldh-mW-4FD" secondAttribute="bottom" constant="16" id="x5j-hs-JHs"/>
                             <constraint firstItem="ffA-AD-001" firstAttribute="leading" secondItem="UBd-ip-qaw" secondAttribute="leading" constant="16" id="ffA-ln-001"/>
                             <constraint firstItem="ffA-AD-001" firstAttribute="top" secondItem="QHu-ah-Fmv" secondAttribute="bottom" constant="8" id="ffA-tp-001"/>
-                            <constraint firstItem="ffA-AD-001" firstAttribute="width" secondItem="ffR-RM-001" secondAttribute="width" id="ffA-wd-001"/>
-                            <constraint firstItem="ffR-RM-001" firstAttribute="leading" secondItem="ffA-AD-001" secondAttribute="trailing" constant="8" id="ffR-ln-001"/>
-                            <constraint firstItem="ffR-RM-001" firstAttribute="top" secondItem="QHu-ah-Fmv" secondAttribute="bottom" constant="8" id="ffR-tp-001"/>
-                            <constraint firstItem="UBd-ip-qaw" firstAttribute="trailing" secondItem="ffR-RM-001" secondAttribute="trailing" constant="16" id="ffR-tr-001"/>
                             <constraint firstItem="xb7-S3-3s7" firstAttribute="centerY" secondItem="Cmk-s4-Os4" secondAttribute="centerY" id="xOj-UV-Kte"/>
                             <constraint firstAttribute="trailing" secondItem="QHu-ah-Fmv" secondAttribute="trailing" constant="16" id="y42-oq-LBV"/>
                             <constraint firstItem="QHu-ah-Fmv" firstAttribute="leading" secondItem="UBd-ip-qaw" secondAttribute="leading" constant="16" id="yCc-ZU-OQv"/>

@@ -186,17 +186,6 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
         XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
     }
-
-    func testRemoveFeatureFlag_mutatesHubScope() {
-        let scope = Scope()
-        let hub = SentryHub(client: SentryClient(helper: fixture.client), andScope: scope)
-        hub.addFeatureFlag(name: "checkout", result: true)
-
-        hub.removeFeatureFlag(name: "checkout")
-
-        let context = scope.serialize()["context"] as? [String: Any]
-        XCTAssertNil(context?["flags"])
-    }
     
     func testBreadcrumbOverDefaultLimit() {
         let hub = fixture.getSut(withMaxBreadcrumbs: 200)

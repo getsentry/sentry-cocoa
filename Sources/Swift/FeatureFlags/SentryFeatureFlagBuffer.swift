@@ -82,16 +82,6 @@ final class SentryFeatureFlagBuffer {
         }
     }
 
-    func remove(name: String) {
-        state.withLock { state in
-            guard let index = state.indexesByFlag[name] else {
-                return
-            }
-            state.evaluations.remove(at: index)
-            Self.rebuildIndexes(&state)
-        }
-    }
-
     func removeAll() {
         state.withLock { state in
             state.evaluations.removeAll(keepingCapacity: true)

@@ -49,15 +49,6 @@ class ScopeViewController: UIViewController {
         updateAttributesTextView()
     }
 
-    @IBAction func removeFeatureFlag(_ sender: Any?) {
-        guard let featureFlagName = attributeNameField.text, !featureFlagName.isEmpty else {
-            return
-        }
-
-        SentrySDK.removeFeatureFlag(name: featureFlagName)
-        updateAttributesTextView()
-    }
-
     @IBAction func updateAttributesTextView(_ sender: Any?) {
         updateAttributesTextView()
     }

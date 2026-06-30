@@ -784,14 +784,6 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
     }
 }
 
-- (void)removeFeatureFlagWithName:(NSString *)name
-{
-    @synchronized(_contextDictionary) {
-        [_featureFlagBuffer removeWithName:name];
-        [self updateFeatureFlagsContextLocked];
-    }
-}
-
 - (NSArray<id<SentryScopeObserver>> *)observerSnapshot
 {
     @synchronized(_observersLock) {

@@ -211,34 +211,6 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 1)?["result"] as? Bool, true)
     }
 
-    func testFeatureFlags_whenRemovingFeatureFlag_shouldRemoveMatchingFlag() throws {
-        // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 5)
-        scope.addFeatureFlag(name: "first", result: false)
-        scope.addFeatureFlag(name: "second", result: true)
-
-        // -- Act --
-        scope.removeFeatureFlag(name: "first")
-
-        // -- Assert --
-        let values = try serializeFeatureFlagValues(from: scope)
-        XCTAssertEqual(values.count, 1)
-        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "second")
-        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
-    }
-
-    func testFeatureFlags_whenRemovingLastFeatureFlag_shouldOmitFlagsContext() {
-        // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 5)
-        scope.addFeatureFlag(name: "checkout", result: true)
-
-        // -- Act --
-        scope.removeFeatureFlag(name: "checkout")
-
-        // -- Assert --
-        XCTAssertNil(serializeFeatureFlags(from: scope))
-    }
-
     func testFeatureFlags_whenOverflow_shouldDropOldestFlag() throws {
         // -- Arrange --
         let scope = Scope(maxBreadcrumbs: 5)
@@ -906,17 +878,6 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.count, 1)
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
         XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
-    }
-
-    func testScopeObserver_removeFeatureFlag_shouldRemoveEmptyFlagsContext() {
-        let sut = Scope()
-        let observer = fixture.observer
-        sut.add(observer)
-        sut.addFeatureFlag(name: "checkout", result: true)
-
-        sut.removeFeatureFlag(name: "checkout")
-
-        XCTAssertNil(observer.context?["flags"])
     }
     
     func testScopeObserver_setDist() {
