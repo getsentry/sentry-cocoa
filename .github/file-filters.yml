@@ -99,8 +99,6 @@ run_integration_test_for_prs: &run_integration_test_for_prs
   # Project files
   - "*.xcodeproj/**"
   - "*.xcworkspace/**"
-  - "*.podspec"
-  - "Plans/iOS-Cocoapods-Swift6_Base.xctestplan"
 
   # Scripts
   - "scripts/ci-select-xcode.sh"
@@ -144,8 +142,6 @@ run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
   - ".github/file-filters.yml"
 
   # Project files
-  - "Sentry.podspec"
-  - "SentrySwiftUI.podspec"
   - "Package*.swift"
 
   # Scripts
@@ -257,7 +253,6 @@ run_lint_cocoapods_specs_for_prs: &run_lint_cocoapods_specs_for_prs
 
   # Project files
   - "Sentry.xcodeproj/**"
-  - "*.podspec"
 
   # Build configuration
   - "Makefile"
@@ -373,7 +368,6 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
   # Project files
   - "Sentry.xcodeproj/**"
   - "Sentry.xcworkspace/**"
-  - "*.podspec"
 
   # Build configuration
   - "Makefile"
@@ -495,8 +489,6 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
   - "Sources/Sentry/SentryMeta.m"
 
   # Project files with version info
-  - "Sentry.podspec"
-  - "SentrySwiftUI.podspec"
   - "Package*.swift"
   - "3rd-party-integrations/**/Package.swift"
 
@@ -589,7 +581,6 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
 
   # Project files
   - "Sentry.xcodeproj/**"
-  - "*.podspec"
 
   # Build configuration
   - "Makefile"
@@ -611,7 +602,6 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
 
   # Project files
   - "Sentry.xcodeproj/**"
-  - "*.podspec"
 
   # Build configuration
   - "Makefile"
