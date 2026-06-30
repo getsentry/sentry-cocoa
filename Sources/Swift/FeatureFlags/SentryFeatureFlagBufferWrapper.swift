@@ -8,7 +8,7 @@ import Foundation
 @_spi(Private)
 @objc(SentryFeatureFlagBufferWrapper)
 public final class SentryFeatureFlagBufferWrapper: NSObject {
-    let buffer: SentryFeatureFlagBuffer
+    private let buffer: SentryFeatureFlagBuffer
 
     private init(buffer: SentryFeatureFlagBuffer) {
         self.buffer = buffer
@@ -28,6 +28,11 @@ public final class SentryFeatureFlagBufferWrapper: NSObject {
     @objc
     public func add(name: String, result: Bool) {
         buffer.add(name: name, value: result)
+    }
+
+    @objc
+    public func remove(name: String) {
+        buffer.remove(name: name)
     }
 
     @objc

@@ -396,6 +396,53 @@ class SentryTransactionTests: XCTestCase {
         XCTAssertNotNil(try XCTUnwrap(data["thread.id"]))
         XCTAssertNotNil(try XCTUnwrap(data["thread.name"]))
     }
+
+    func testFeatureFlags_whenAddedToRootTransaction_shouldSerializeOnTraceData() throws {
+        // -- Arrange --
+        let trace = fixture.getTrace()
+        trace.addFeatureFlag(name: "checkout", result: true)
+        let transaction = fixture.getTransaction(trace: trace)
+
+        // -- Act --
+        let serialized = transaction.serialize()
+
+        // -- Assert --
+        let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
+        let traceContext = try XCTUnwrap(contexts["trace"] as? [String: Any])
+        let data = try XCTUnwrap(traceContext["data"] as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(data["flag.evaluation.checkout"] as? Bool), true)
+    }
+
+    func testFeatureFlags_whenAddedToChildSpan_shouldSerializeOnChildSpanData() throws {
+        // -- Arrange --
+        let trace = fixture.getTrace()
+        let child = trace.startChild(operation: "child")
+        child.addFeatureFlag(name: "checkout", result: true)
+        let transaction = Transaction(trace: trace, children: [child])
+
+        // -- Act --
+        let serialized = transaction.serialize()
+
+        // -- Assert --
+        let spans = try XCTUnwrap(serialized["spans"] as? [[String: Any]])
+        let serializedChild = try XCTUnwrap(spans.element(at: 0))
+        let data = try XCTUnwrap(serializedChild["data"] as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(data["flag.evaluation.checkout"] as? Bool), true)
+    }
+
+    func testFeatureFlags_whenAddedToRootTransaction_shouldNotSerializeAsTopLevelContextFlags() throws {
+        // -- Arrange --
+        let trace = fixture.getTrace()
+        trace.addFeatureFlag(name: "checkout", result: true)
+        let transaction = fixture.getTransaction(trace: trace)
+
+        // -- Act --
+        let serialized = transaction.serialize()
+
+        // -- Assert --
+        let contexts = try XCTUnwrap(serialized["contexts"] as? [String: Any])
+        XCTAssertNil(contexts["flags"])
+    }
     
 #if os(iOS) || os(macOS)
     func testTransactionWithContinuousProfile() throws {

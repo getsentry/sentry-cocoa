@@ -2024,14 +2024,14 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Use name/value for string attributes or feature flags. Feature flag value accepts true/false." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QHu-ah-Fmv">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Use name/value for string attributes or scope/span feature flags. Feature flag value accepts true/false." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QHu-ah-Fmv">
                                 <rect key="frame" x="16" y="361" width="361" height="43"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="No scope data" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="ctB-hS-Uvr">
-                                <rect key="frame" x="16" y="498" width="361" height="270"/>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="No scope or span data" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="ctB-hS-Uvr">
+                                <rect key="frame" x="16" y="584" width="361" height="184"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="100" id="KV6-nJ-j9f"/>
@@ -2041,9 +2041,9 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fHY-KL-zoc">
-                                <rect key="frame" x="113.66666666666669" y="455" width="165.66666666666663" height="35"/>
+                                <rect key="frame" x="113.66666666666669" y="541" width="165.66666666666663" height="35"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Get Current Scope"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Get Scope and Span"/>
                                 <connections>
                                     <action selector="updateAttributesTextView:" destination="ARr-dx-Xze" eventType="touchUpInside" id="Xsy-sH-iMB"/>
                                 </connections>
@@ -2080,12 +2080,36 @@
                                     <action selector="setAttribute:" destination="ARr-dx-Xze" eventType="touchUpInside" id="Cbt-i9-QEv"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ffA-AD-001">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="stT-ST-001">
                                 <rect key="frame" x="16" y="412" width="176.5" height="35"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Add Feature Flag"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Start Test Transaction"/>
+                                <connections>
+                                    <action selector="startTestTransaction:" destination="ARr-dx-Xze" eventType="touchUpInside" id="stT-ac-001"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fnT-FN-001">
+                                <rect key="frame" x="200.5" y="412" width="176.5" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Finish Test Transaction"/>
+                                <connections>
+                                    <action selector="finishTestTransaction:" destination="ARr-dx-Xze" eventType="touchUpInside" id="fnT-ac-001"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ffA-AD-001">
+                                <rect key="frame" x="16" y="455" width="176.5" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Add Scope Flag"/>
                                 <connections>
                                     <action selector="addFeatureFlag:" destination="ARr-dx-Xze" eventType="touchUpInside" id="ffA-ac-001"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sfA-AD-001">
+                                <rect key="frame" x="16" y="498" width="176.5" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Add Span Flag"/>
+                                <connections>
+                                    <action selector="addSpanFeatureFlag:" destination="ARr-dx-Xze" eventType="touchUpInside" id="sfA-ac-001"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -2107,13 +2131,23 @@
                             <constraint firstItem="ldh-mW-4FD" firstAttribute="centerX" secondItem="UBd-ip-qaw" secondAttribute="centerX" id="fWX-1T-sKi"/>
                             <constraint firstItem="Eyt-Da-PWz" firstAttribute="centerX" secondItem="UBd-ip-qaw" secondAttribute="centerX" id="gOC-8q-KHd"/>
                             <constraint firstItem="Eap-5e-Pfq" firstAttribute="leading" secondItem="UBd-ip-qaw" secondAttribute="leading" constant="16" id="pTT-cw-o5Y"/>
-                            <constraint firstItem="fHY-KL-zoc" firstAttribute="top" secondItem="ffA-AD-001" secondAttribute="bottom" constant="8" id="qA5-ib-uPE"/>
+                            <constraint firstItem="fHY-KL-zoc" firstAttribute="top" secondItem="sfA-AD-001" secondAttribute="bottom" constant="8" id="qA5-ib-uPE"/>
                             <constraint firstItem="Eap-5e-Pfq" firstAttribute="centerY" secondItem="a8X-Mk-Wb8" secondAttribute="centerY" id="qvj-kR-bOa"/>
                             <constraint firstItem="ldh-mW-4FD" firstAttribute="top" secondItem="Cmk-s4-Os4" secondAttribute="bottom" constant="16" id="r0m-Bt-dtP"/>
                             <constraint firstItem="xb7-S3-3s7" firstAttribute="leading" secondItem="UBd-ip-qaw" secondAttribute="leading" constant="16" id="rDH-7y-xfI"/>
                             <constraint firstItem="Eap-5e-Pfq" firstAttribute="top" secondItem="ldh-mW-4FD" secondAttribute="bottom" constant="16" id="x5j-hs-JHs"/>
+                            <constraint firstItem="stT-ST-001" firstAttribute="leading" secondItem="UBd-ip-qaw" secondAttribute="leading" constant="16" id="stT-ln-001"/>
+                            <constraint firstItem="stT-ST-001" firstAttribute="top" secondItem="QHu-ah-Fmv" secondAttribute="bottom" constant="8" id="stT-tp-001"/>
+                            <constraint firstItem="stT-ST-001" firstAttribute="width" secondItem="fnT-FN-001" secondAttribute="width" id="stT-wd-001"/>
+                            <constraint firstItem="fnT-FN-001" firstAttribute="leading" secondItem="stT-ST-001" secondAttribute="trailing" constant="8" id="fnT-ln-001"/>
+                            <constraint firstItem="fnT-FN-001" firstAttribute="top" secondItem="QHu-ah-Fmv" secondAttribute="bottom" constant="8" id="fnT-tp-001"/>
+                            <constraint firstItem="UBd-ip-qaw" firstAttribute="trailing" secondItem="fnT-FN-001" secondAttribute="trailing" constant="16" id="fnT-tr-001"/>
                             <constraint firstItem="ffA-AD-001" firstAttribute="leading" secondItem="UBd-ip-qaw" secondAttribute="leading" constant="16" id="ffA-ln-001"/>
-                            <constraint firstItem="ffA-AD-001" firstAttribute="top" secondItem="QHu-ah-Fmv" secondAttribute="bottom" constant="8" id="ffA-tp-001"/>
+                            <constraint firstItem="ffA-AD-001" firstAttribute="top" secondItem="stT-ST-001" secondAttribute="bottom" constant="8" id="ffA-tp-001"/>
+                            <constraint firstItem="UBd-ip-qaw" firstAttribute="trailing" secondItem="ffA-AD-001" secondAttribute="trailing" constant="16" id="ffA-tr-001"/>
+                            <constraint firstItem="sfA-AD-001" firstAttribute="leading" secondItem="UBd-ip-qaw" secondAttribute="leading" constant="16" id="sfA-ln-001"/>
+                            <constraint firstItem="sfA-AD-001" firstAttribute="top" secondItem="ffA-AD-001" secondAttribute="bottom" constant="8" id="sfA-tp-001"/>
+                            <constraint firstItem="UBd-ip-qaw" firstAttribute="trailing" secondItem="sfA-AD-001" secondAttribute="trailing" constant="16" id="sfA-tr-001"/>
                             <constraint firstItem="xb7-S3-3s7" firstAttribute="centerY" secondItem="Cmk-s4-Os4" secondAttribute="centerY" id="xOj-UV-Kte"/>
                             <constraint firstAttribute="trailing" secondItem="QHu-ah-Fmv" secondAttribute="trailing" constant="16" id="y42-oq-LBV"/>
                             <constraint firstItem="QHu-ah-Fmv" firstAttribute="leading" secondItem="UBd-ip-qaw" secondAttribute="leading" constant="16" id="yCc-ZU-OQv"/>

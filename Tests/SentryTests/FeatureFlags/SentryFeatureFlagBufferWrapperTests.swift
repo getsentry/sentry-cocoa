@@ -4,95 +4,107 @@ import XCTest
 
 final class SentryFeatureFlagBufferWrapperTests: XCTestCase {
 
-    func testScopeBuffer_whenAddingMoreThanLimit_shouldUseDropOldestLimit100() {
+    func testScopeBuffer_whenAddingMoreThanLimit_shouldUseScopeBufferConfiguration() throws {
         // -- Arrange --
         let sut = SentryFeatureFlagBufferWrapper.scopeBuffer()
 
         // -- Act --
         for index in 0..<101 {
-            sut.buffer.add(name: "flag-\(index)", value: true)
+            sut.add(name: "flag-\(index)", result: true)
         }
 
         // -- Assert --
-        XCTAssertEqual(sut.buffer.allEvaluations.count, 100)
-        XCTAssertEqual(sut.buffer.allEvaluations.first?.flag, "flag-1")
-        XCTAssertEqual(sut.buffer.allEvaluations.last?.flag, "flag-100")
+        let values = try featureFlagValues(from: sut)
+        XCTAssertEqual(values.count, 100)
+        XCTAssertEqual(values.first?["flag"] as? String, "flag-1")
+        XCTAssertEqual(values.last?["flag"] as? String, "flag-100")
     }
 
-    func testScopeBuffer_whenLimitReached_shouldUpdateExistingFlagAsNewest() {
-        // -- Arrange --
-        let sut = SentryFeatureFlagBufferWrapper.scopeBuffer()
-        for index in 0..<100 {
-            sut.buffer.add(name: "flag-\(index)", value: true)
-        }
-
-        // -- Act --
-        sut.buffer.add(name: "flag-0", value: false)
-
-        // -- Assert --
-        XCTAssertEqual(sut.buffer.allEvaluations.count, 100)
-        XCTAssertEqual(sut.buffer.allEvaluations.first?.flag, "flag-1")
-        XCTAssertEqual(sut.buffer.allEvaluations.last?.flag, "flag-0")
-        XCTAssertEqual(sut.buffer.allEvaluations.last?.result, .boolean(false))
-    }
-
-    func testSpanBuffer_whenAddingMoreThanLimit_shouldUseRejectNewLimit10() {
+    func testSpanBuffer_whenAddingMoreThanLimit_shouldUseSpanBufferConfiguration() throws {
         // -- Arrange --
         let sut = SentryFeatureFlagBufferWrapper.spanBuffer()
 
         // -- Act --
         for index in 0..<11 {
-            sut.buffer.add(name: "flag-\(index)", value: true)
+            sut.add(name: "flag-\(index)", result: true)
         }
 
         // -- Assert --
-        XCTAssertEqual(sut.buffer.allEvaluations.count, 10)
-        XCTAssertEqual(sut.buffer.allEvaluations.first?.flag, "flag-0")
-        XCTAssertEqual(sut.buffer.allEvaluations.last?.flag, "flag-9")
-        XCTAssertFalse(sut.buffer.allEvaluations.contains { $0.flag == "flag-10" })
+        let values = try featureFlagValues(from: sut)
+        XCTAssertEqual(values.count, 10)
+        XCTAssertEqual(values.first?["flag"] as? String, "flag-0")
+        XCTAssertEqual(values.last?["flag"] as? String, "flag-9")
+        XCTAssertFalse(values.contains { $0["flag"] as? String == "flag-10" })
     }
 
-    func testSpanBuffer_whenLimitReached_shouldUpdateExistingFlagInPlace() {
-        // -- Arrange --
-        let sut = SentryFeatureFlagBufferWrapper.spanBuffer()
-        for index in 0..<10 {
-            sut.buffer.add(name: "flag-\(index)", value: true)
-        }
-        sut.buffer.add(name: "rejected", value: true)
-
-        // -- Act --
-        sut.buffer.add(name: "flag-0", value: false)
-
-        // -- Assert --
-        XCTAssertEqual(sut.buffer.allEvaluations.count, 10)
-        XCTAssertEqual(sut.buffer.allEvaluations.first?.flag, "flag-0")
-        XCTAssertEqual(sut.buffer.allEvaluations.first?.result, .boolean(false))
-        XCTAssertFalse(sut.buffer.allEvaluations.contains { $0.flag == "rejected" })
-    }
-
-    func testCopyBuffer_whenMutatingCopy_shouldNotMutateOriginal() {
+    func testSerializeForContext_whenFeatureFlagAdded_shouldReturnFlagsContext() throws {
         // -- Arrange --
         let sut = SentryFeatureFlagBufferWrapper.scopeBuffer()
-        sut.buffer.add(name: "first", value: true)
 
         // -- Act --
-        let copy = sut.copyBuffer()
-        copy.buffer.add(name: "second", value: false)
+        sut.add(name: "checkout", result: true)
 
         // -- Assert --
-        XCTAssertEqual(sut.buffer.allEvaluations.map(\.flag), ["first"])
-        XCTAssertEqual(copy.buffer.allEvaluations.map(\.flag), ["first", "second"])
+        let values = try featureFlagValues(from: sut)
+        XCTAssertEqual(values.count, 1)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
+        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
+    }
+
+    func testSerializeForSpanData_whenFeatureFlagAdded_shouldReturnSpanData() throws {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBufferWrapper.spanBuffer()
+
+        // -- Act --
+        sut.add(name: "checkout", result: true)
+
+        // -- Assert --
+        let spanData = sut.serializeForSpanData()
+        XCTAssertEqual(try XCTUnwrap(spanData["flag.evaluation.checkout"] as? Bool), true)
+    }
+
+    func testRemove_whenBufferHasFeatureFlag_shouldRemoveMatchingFlag() throws {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBufferWrapper.scopeBuffer()
+        sut.add(name: "checkout", result: true)
+        sut.add(name: "search", result: false)
+
+        // -- Act --
+        sut.remove(name: "checkout")
+
+        // -- Assert --
+        XCTAssertEqual(try featureFlagValues(from: sut).map { $0["flag"] as? String }, ["search"])
     }
 
     func testRemoveAll_whenBufferHasFeatureFlags_shouldClearEvaluations() {
         // -- Arrange --
         let sut = SentryFeatureFlagBufferWrapper.scopeBuffer()
-        sut.buffer.add(name: "checkout", value: true)
+        sut.add(name: "checkout", result: true)
 
         // -- Act --
         sut.removeAll()
 
         // -- Assert --
-        XCTAssertTrue(sut.buffer.allEvaluations.isEmpty)
+        XCTAssertNil(sut.serializeForContext())
+        XCTAssertTrue(sut.serializeForSpanData().isEmpty)
+    }
+
+    func testCopyBuffer_whenMutatingCopy_shouldNotMutateOriginal() throws {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBufferWrapper.scopeBuffer()
+        sut.add(name: "first", result: true)
+
+        // -- Act --
+        let copy = sut.copyBuffer()
+        copy.add(name: "second", result: false)
+
+        // -- Assert --
+        XCTAssertEqual(try featureFlagValues(from: sut).map { $0["flag"] as? String }, ["first"])
+        XCTAssertEqual(try featureFlagValues(from: copy).map { $0["flag"] as? String }, ["first", "second"])
+    }
+
+    private func featureFlagValues(from wrapper: SentryFeatureFlagBufferWrapper) throws -> [[String: Any]] {
+        let context = try XCTUnwrap(wrapper.serializeForContext())
+        return try XCTUnwrap(context["values"] as? [[String: Any]])
     }
 }

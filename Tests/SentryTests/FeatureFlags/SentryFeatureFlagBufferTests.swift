@@ -85,6 +85,35 @@ final class SentryFeatureFlagBufferTests: XCTestCase {
         XCTAssertEqual(sut.allEvaluations.map(\.result), [.boolean(true), .boolean(true)])
     }
 
+    func testRemove_whenBufferHasFeatureFlag_shouldRemoveMatchingFlag() throws {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBuffer(maxSize: 3, overflowBehavior: .dropOldest)
+        sut.add(name: "first", value: false)
+        sut.add(name: "second", value: true)
+
+        // -- Act --
+        sut.remove(name: "first")
+
+        // -- Assert --
+        let spanData = sut.serializeForSpanData()
+        XCTAssertEqual(sut.allEvaluations.map(\.flag), ["second"])
+        XCTAssertNil(spanData["flag.evaluation.first"])
+        XCTAssertEqual(try XCTUnwrap(spanData["flag.evaluation.second"] as? Bool), true)
+    }
+
+    func testRemove_whenBufferDoesNotHaveFeatureFlag_shouldNotChangeEvaluations() {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBuffer(maxSize: 3, overflowBehavior: .dropOldest)
+        sut.add(name: "first", value: false)
+        sut.add(name: "second", value: true)
+
+        // -- Act --
+        sut.remove(name: "missing")
+
+        // -- Assert --
+        XCTAssertEqual(sut.allEvaluations.map(\.flag), ["first", "second"])
+    }
+
     func testBuffer_whenDropOldestOverflow_shouldRemoveOldestFlag() {
         // -- Arrange --
         let sut = SentryFeatureFlagBuffer(maxSize: 2, overflowBehavior: .dropOldest)

@@ -232,6 +232,16 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+- (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result
+{
+    @synchronized(_stateLock) {
+        if (_isFinished) {
+            return;
+        }
+        [self.featureFlagBuffer addWithName:name result:result];
+    }
+}
+
 - (BOOL)isFinished
 {
     @synchronized(_stateLock) {
