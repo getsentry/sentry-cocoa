@@ -329,7 +329,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         XCTAssertTrue(appState.isANROngoing)
     }
-    
+
     func testANRDetected_NewHangTracker_UpdatesAppStateToTrue() throws {
         // -- Arrange --
         fixture.crashWrapper.internalIsBeingTraced = false
@@ -355,7 +355,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         XCTAssertFalse(appState.isANROngoing)
     }
-    
+
     func testANRStopped_NewHangTracker_UpdatesAppStateToFalse() throws {
         // -- Arrange --
         fixture.crashWrapper.internalIsBeingTraced = false
@@ -440,14 +440,18 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
 }
 
-private class MockDependencies: ANRTrackerBuilder & HangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider {
-    
+private class MockDependencies: ANRTrackerBuilder & SentryRunLoopDelayTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & DateProviderProvider & ApplicationProvider {
+
     func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
     }
-    
-    struct TestRunLoopObserver: RunLoopObserver { }
-    
+
+    var dateProvider: SentryCurrentDateProvider { TestCurrentDateProvider() }
+
+    func application() -> SentryApplication? { nil }
+
+    struct TestRunLoopObserver: SentryRunLoopObserver { }
+
     private func createObserver(_ allocator: CFAllocator?, _ activities: CFOptionFlags, _ repeats: Bool, _ order: CFIndex, _ block: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?) -> TestRunLoopObserver {
         return TestRunLoopObserver()
     }
@@ -455,28 +459,28 @@ private class MockDependencies: ANRTrackerBuilder & HangTrackerProvider & Proces
     private func addObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) { }
 
     private func removeObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) { }
-    
-    lazy var hangTracker: HangTracker = {
-        DefaultHangTracker(
-            dateProvider: TestCurrentDateProvider(),
+
+    lazy var runLoopDelayTracker: SentryRunLoopDelayTracker = {
+        SentryDefaultRunLoopDelayTracker(
+            dependencies: self,
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
             queue: DispatchQueue(label: "io.sentry.test-queue"))
     }()
-    
+
     var processInfoWrapper: any Sentry.SentryProcessInfoSource {
         SentryDependencyContainer.sharedInstance().processInfoWrapper
     }
-    
+
     var appStateManager: Sentry.SentryAppStateManager {
         SentryDependencyContainer.sharedInstance().appStateManager
     }
-    
+
     func getWatchdogTerminationScopeObserverWithOptions(_ options: Sentry.Options) -> any Sentry.SentryScopeObserver {
         return SentryDependencyContainer.sharedInstance().getWatchdogTerminationScopeObserverWithOptions(options)
     }
-    
+
     var getWatchdogTerminationTrackerCalled: Bool = false
     func getWatchdogTerminationTracker(_ options: Sentry.Options) -> Sentry.SentryWatchdogTerminationTracker? {
         getWatchdogTerminationTrackerCalled = true
@@ -488,39 +492,39 @@ private class MockDependencies: ANRTrackerBuilder & HangTrackerProvider & Proces
     }
 }
 
-/// A mock HangTracker that allows manual triggering of hang observer callbacks
-private class MockHangTracker: HangTracker {
-    private var observers: [UUID: (TimeInterval, Bool) -> Void] = [:]
+/// A mock SentryHangTracker that allows manual triggering of hang observer callbacks
+private class MockHangTracker: SentryRunLoopDelayTracker {
+    private var observers: [SentryRunLoopDelayTrackerObserverToken: SentryRunLoopDelayTrackerHandler] = [:]
 
-    func addOngoingHangObserver(handler: @escaping (TimeInterval, Bool) -> Void) -> UUID {
-        let id = UUID()
+    func addOngoingHangObserver(handler: @escaping SentryRunLoopDelayTrackerHandler) -> SentryRunLoopDelayTrackerObserverToken {
+        let id = SentryRunLoopDelayTrackerObserverToken()
         observers[id] = handler
         return id
     }
 
-    func removeObserver(id: UUID) {
+    func removeObserver(id: SentryRunLoopDelayTrackerObserverToken) {
         observers.removeValue(forKey: id)
     }
 
     /// Simulates a hang by calling all registered observers with the given duration and ongoing state
     func simulateHang(duration: TimeInterval, ongoing: Bool) {
         for observer in observers.values {
-            observer(duration, ongoing)
+            observer(.init(duration: duration, isOngoing: ongoing))
         }
     }
 }
 
 /// Mock dependencies that use a controllable MockHangTracker for testing threshold behavior
-private class MockDependenciesWithControllableHangTracker: HangTrackerProvider & ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider {
-    
+private class MockDependenciesWithControllableHangTracker: SentryRunLoopDelayTrackerProvider & ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider {
+
     func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
     }
 
-    let hangTracker: HangTracker
+    let runLoopDelayTracker: SentryRunLoopDelayTracker
 
     init(mockHangTracker: MockHangTracker) {
-        self.hangTracker = mockHangTracker
+        self.runLoopDelayTracker = mockHangTracker
     }
 
     var processInfoWrapper: any Sentry.SentryProcessInfoSource {

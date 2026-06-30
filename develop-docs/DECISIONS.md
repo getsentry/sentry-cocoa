@@ -669,3 +669,46 @@ Related links:
 - https://github.com/getsentry/sentry/issues/84596 (cross-platform parent)
 - PRs #7580, #7581, #7582, #7584, #7585, #7588, #7590
 - Android implementation: https://github.com/getsentry/sentry-java/pull/4919
+
+## KSCrash Migration Strategy: Dual Integrations on `main`
+
+Date: June 30th, 2026
+Contributors: @NinjaLikesCheez, @philprime, @philipphofmann, @itaybre, @supervacuus
+
+We are migrating from `SentryCrash` (a KSCrash v1.x fork with renamed identifiers) to KSCrash 2.x, with the new integration (`SentryKSCrashIntegration`) becoming the default crash handler in v10. `SentryCrash` will be removed entirely when the migration is complete.
+
+We chose to ship both `SentryCrashIntegration` and `SentryKSCrashIntegration` on `main` simultaneously (Option B), rather than keeping KSCrash work on a long-lived feature branch (Option A).
+
+### Option A: Long-lived feature branch (rejected)
+
+Keep all KSCrash work on a dedicated branch and merge back to `main` in one big-bang PR when complete.
+
+Pros:
+
+- No impact on `main` until work is done
+- Freedom to iterate without gating concerns
+
+Cons:
+
+- Long-lived branches diverge; merge conflicts galore
+- The final merge PR is large, hard to review, and risky to ship
+- Other teams (React Native, Flutter, Unity) have to swap branches to test
+- E2E testing requires bi-directional syncing between the integration branch and `main`
+
+### Option B: Dual integrations on `main` (chosen)
+
+The two integrations are mutually exclusive at compile time — only one is compiled into the binary. Which one is active is controlled by two guards:
+
+1. **`#if ENABLE_KSCRASH` compiler flag** — `SentryKSCrashIntegration` is compiled only when `ENABLE_KSCRASH` is set (which requires V10).
+2. **`ENABLE_KSCRASH` env var in `Package.swift`** — KSCrash is only downloaded and added as a dependency if `ENABLE_KSCRASH=1` when SPM runs.
+
+Pros:
+
+- Work ships incrementally to `main`; no merge conflict mess
+- Hybrid SDK consumers can test the KSCrash path and swap between the two more easily
+- The cutover becomes a single 'flip the switch' change
+- Easier code review — changes land in small, reviewable chunks
+
+Cons:
+
+- `#if ENABLE_KSCRASH` guards add a small amount of conditional-compilation mental noise for developers
