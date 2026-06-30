@@ -8,6 +8,11 @@
 #    import "SentrySwift.h"
 #    import <UIKit/UIKit.h>
 
+// Must stay below SentryCrashJSONEncodeContext's 200-container budget: each view nesting
+// level opens two containers, the view object and its children array, so leave room to emit
+// the truncation marker before the encoder stack is exhausted.
+#    define SENTRY_VIEW_HIERARCHY_MAX_DEPTH 90
+
 static int
 writeJSONDataToFile(const char *const data, const int length, void *const userData)
 {
@@ -23,6 +28,13 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     [memory appendBytes:data length:length];
     return SentryCrashJSON_OK;
 }
+
+@interface SentryViewHierarchyProviderHelper ()
++ (int)viewHierarchyFromView:(UIView *)view
+                      intoContext:(SentryCrashJSONEncodeContext *)context
+    reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
+                            depth:(NSUInteger)depth;
+@end
 
 @implementation SentryViewHierarchyProviderHelper
 
@@ -109,6 +121,17 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
                       intoContext:(SentryCrashJSONEncodeContext *)context
     reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
 {
+    return [self viewHierarchyFromView:view
+                           intoContext:context
+         reportAccessibilityIdentifier:reportAccessibilityIdentifier
+                                 depth:0];
+}
+
++ (int)viewHierarchyFromView:(UIView *)view
+                      intoContext:(SentryCrashJSONEncodeContext *)context
+    reportAccessibilityIdentifier:(BOOL)reportAccessibilityIdentifier
+                            depth:(NSUInteger)depth
+{
     SENTRY_LOG_DEBUG(@"Processing view hierarchy of view: %@", view);
 
     int result = 0;
@@ -141,10 +164,18 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     }
 
     tryJson(sentrycrashjson_beginArray(context, "children"));
-    for (UIView *child in view.subviews) {
-        tryJson([self viewHierarchyFromView:child
-                                intoContext:context
-              reportAccessibilityIdentifier:reportAccessibilityIdentifier]);
+    if (depth >= SENTRY_VIEW_HIERARCHY_MAX_DEPTH && view.subviews.count > 0) {
+        tryJson(sentrycrashjson_beginObject(context, NULL));
+        tryJson(sentrycrashjson_addStringElement(context, "type", "SentryTruncatedViewHierarchy",
+            SentryCrashJSON_SIZE_AUTOMATIC));
+        tryJson(sentrycrashjson_endContainer(context));
+    } else {
+        for (UIView *child in view.subviews) {
+            tryJson([self viewHierarchyFromView:child
+                                    intoContext:context
+                  reportAccessibilityIdentifier:reportAccessibilityIdentifier
+                                          depth:depth + 1]);
+        }
     }
     tryJson(sentrycrashjson_endContainer(context));
     tryJson(sentrycrashjson_endContainer(context));
