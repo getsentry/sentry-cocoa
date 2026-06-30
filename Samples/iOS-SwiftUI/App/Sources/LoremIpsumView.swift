@@ -7,10 +7,17 @@ struct LoremIpsumView: View {
     
     @StateObject var viewModel = LoremIpsumViewModel()
     
+    @State private var dragOffset: CGSize = .zero
+
     var body: some View {
         SentryTracedView("Lorem Ipsum") {
             Text(viewModel.text)
                 .padding(16)
+                .offset(x: dragOffset.width)
+                .horizontalDragGesture(
+                    onChanged: { dragOffset = $0 },
+                    onEnded: { _ in dragOffset = .zero }
+                )
         }
     }
 }

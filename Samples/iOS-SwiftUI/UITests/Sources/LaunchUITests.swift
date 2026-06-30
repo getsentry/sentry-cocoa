@@ -59,6 +59,15 @@ class LaunchUITests: XCTestCase {
     XCTAssertNotEqual(sentryErrorId.sentryIdString, SentryId.empty.sentryIdString, "The id should not be empty, since empty is used to indicate the capture did not work.")
   }
 
+    func testAppLaunchWithAvailabilityGatedGesture() {
+        let app = newAppSession()
+        app.safelyLaunch()
+
+        let transactionName = app.staticTexts["TRANSACTION_NAME"]
+        XCTAssertTrue(transactionName.waitForExistence(timeout: 10),
+            "App should launch without crashing even with @available(iOS 18.0, *) gesture types in the binary")
+    }
+
     func newAppSession() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["--io.sentry.ui-test.test-name"] = name

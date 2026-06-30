@@ -3,6 +3,10 @@ import ObjectiveC
 @_spi(Private) import SentryTestUtils
 import XCTest
 
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
+
 #if os(iOS) || os(tvOS)
 class SentrySubClassFinderTests: XCTestCase {
     
@@ -119,4 +123,132 @@ class SecondViewController: UIViewController {}
 class ViewControllerNumberThree: UIViewController {}
 class VCAnyNaming: UIViewController {}
 class FakeViewController {}
+#endif
+
+// MARK: - Availability-gated gesture crash reproduction
+//
+// Mirrors a real crash: an app defines a gesture conforming to
+// UIGestureRecognizerRepresentable (iOS 18+) behind @available.
+// The nested Coordinator (NSObject subclass) is registered in the ObjC runtime.
+// When SubClassFinder calls NSClassFromString on it, Swift metadata resolution
+// triggers protocol conformance lookup for UIGestureRecognizerRepresentable.
+// On iOS versions where the protocol doesn't exist, this crashes.
+
+#if os(iOS)
+
+@available(iOS 26.0, *)
+private struct TestHorizontalPanGesture: UIGestureRecognizerRepresentable {
+    var onChanged: ((CGSize) -> Void)?
+    var onEnded: ((CGSize) -> Void)?
+
+    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
+        let gesture = UIPanGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.handlePan(_:))
+        )
+        gesture.maximumNumberOfTouches = 1
+        gesture.cancelsTouchesInView = false
+        gesture.delegate = context.coordinator
+        return gesture
+    }
+
+    func updateUIGestureRecognizer(
+        _ recognizer: UIPanGestureRecognizer,
+        context: Context
+    ) {
+        context.coordinator.onChanged = onChanged
+        context.coordinator.onEnded = onEnded
+    }
+
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator {
+        Coordinator()
+    }
+
+    func onChanged(_ action: @escaping (CGSize) -> Void) -> Self {
+        var copy = self
+        copy.onChanged = action
+        return copy
+    }
+
+    func onEnded(_ action: @escaping (CGSize) -> Void) -> Self {
+        var copy = self
+        copy.onEnded = action
+        return copy
+    }
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        var onChanged: ((CGSize) -> Void)?
+        var onEnded: ((CGSize) -> Void)?
+
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+            guard let panGesture = gestureRecognizer as? UIPanGestureRecognizer else {
+                return false
+            }
+            let velocity = panGesture.velocity(in: gestureRecognizer.view)
+            return abs(velocity.x) > abs(velocity.y)
+        }
+
+        @objc func handlePan(_ gestureRecognizer: UIPanGestureRecognizer) {
+            let translation = gestureRecognizer.translation(in: gestureRecognizer.view)
+            let size = CGSize(width: translation.x, height: translation.y)
+            switch gestureRecognizer.state {
+            case .changed:
+                onChanged?(size)
+            case .ended, .cancelled, .failed:
+                onEnded?(size)
+            default:
+                break
+            }
+        }
+    }
+}
+
+@available(iOS 26.0, *)
+private struct TestGestureView: View {
+    var body: some View {
+        Text("Hello")
+            .gesture(
+                TestHorizontalPanGesture()
+                    .onChanged { _ in }
+                    .onEnded { _ in }
+            )
+    }
+}
+
+@available(iOS 26.0, *)
+@objc(TestHorizontalGestureVC)
+private class TestHorizontalGestureVC: UIHostingController<TestGestureView> {}
+
+extension SentrySubClassFinderTests {
+
+    func testActOnSubclassesOfViewController_WithAvailabilityGatedGestureClass() {
+        // Use real ObjC runtime class list — the test binary contains
+        // TestHorizontalPanGesture.Coordinator, an @available(iOS 26.0, *)
+        // NSObject subclass whose parent type conforms to
+        // UIGestureRecognizerRepresentable. NSClassFromString on the
+        // Coordinator triggers Swift metadata resolution that can crash
+        // on iOS versions where the protocol doesn't exist.
+        fixture.runtimeWrapper.classesNames = nil
+
+        let expect = expectation(description: "SubClassFinder callback")
+        expect.assertForOverFulfill = false
+
+        var foundClasses: [AnyClass] = []
+        let sut = fixture.getSut()
+        sut.actOnSubclassesOfViewController(inImage: fixture.imageName) { subClass in
+            XCTAssertTrue(Thread.isMainThread)
+            foundClasses.append(subClass)
+            expect.fulfill()
+        }
+
+        wait(for: [expect], timeout: 5)
+
+        XCTAssertTrue(foundClasses.contains(where: { $0 == FirstViewController.self }))
+
+        if #available(iOS 26.0, *) {
+            XCTAssertTrue(foundClasses.contains(where: { $0 == TestHorizontalGestureVC.self }))
+        }
+    }
+}
+
 #endif
