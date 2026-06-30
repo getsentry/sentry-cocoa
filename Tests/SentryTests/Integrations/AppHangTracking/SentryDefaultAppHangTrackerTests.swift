@@ -411,6 +411,142 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
         sut.removeObserver(token: token)
     }
 
+    // MARK: - Critical section tests
+
+    func testHandler_whenCallingAddObserver_shouldNotDeadlock() throws {
+        // Proves handlers are invoked outside the observers lock.
+        // If they ran inside the lock, addObserver would re-enter the
+        // non-reentrant os_unfair_lock and trap.
+
+        // -- Arrange --
+        let delayTracker = MockSentryRunLoopDelayTracker()
+        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let innerCallbacks = Invocations<SentryAppHang>()
+        var innerToken: SentryAppHangTrackerObserverToken?
+        let outerNotified = expectation(description: "Outer handler fired")
+        let innerNotified = expectation(description: "Inner handler fired")
+
+        let outerToken = sut.addObserver(threshold: 0.25) { [weak sut] hang in
+            guard let sut, hang.state == .started else { return }
+            outerNotified.fulfill()
+            innerToken = sut.addObserver(threshold: 0.25) { innerHang in
+                innerCallbacks.record(innerHang)
+                if innerHang.state == .started { innerNotified.fulfill() }
+            }
+        }
+
+        // -- Act --
+        delayTracker.simulateDelay(duration: 0.5, ongoing: true)
+        wait(for: [outerNotified], timeout: 1)
+        delayTracker.simulateDelay(duration: 0.8, ongoing: true)
+
+        // -- Assert --
+        wait(for: [innerNotified], timeout: 1)
+        let innerHang = try XCTUnwrap(innerCallbacks.first)
+        XCTAssertEqual(innerHang.state, .started)
+
+        sut.removeObserver(token: outerToken)
+        if let innerToken { sut.removeObserver(token: innerToken) }
+    }
+
+    func testHandler_whenCallingSelfRemove_shouldNotDeadlock() {
+        // Proves handlers are invoked outside the observers lock.
+        // A handler that removes itself would trap if called under the lock.
+
+        // -- Arrange --
+        let delayTracker = MockSentryRunLoopDelayTracker()
+        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let callbacks = Invocations<SentryAppHang>()
+        let notified = expectation(description: "Handler fired")
+
+        let keepAliveToken = sut.addObserver(threshold: 10.0) { _ in }
+
+        var selfToken: SentryAppHangTrackerObserverToken!
+        selfToken = sut.addObserver(threshold: 0.25) { [weak sut] hang in
+            callbacks.record(hang)
+            if hang.state == .started {
+                sut?.removeObserver(token: selfToken)
+                notified.fulfill()
+            }
+        }
+
+        // -- Act --
+        delayTracker.simulateDelay(duration: 0.5, ongoing: true)
+        wait(for: [notified], timeout: 1)
+        delayTracker.simulateDelay(duration: 0.8, ongoing: true)
+
+        // -- Assert --
+        XCTAssertEqual(callbacks.count, 1, "Self-removed observer must not receive further notifications")
+
+        sut.removeObserver(token: keepAliveToken)
+    }
+
+    func testRemoveObserver_whenClosureDestroyed_shouldDestroyOutsideLock() {
+        // Proves the removed ObserverEntry's closure is destroyed after the
+        // lock is released. A sentinel object captured by the closure calls
+        // back into the tracker from its deinit. If deinit ran while the lock
+        // was held, os_unfair_lock would trap (non-reentrant).
+
+        // -- Arrange --
+        let delayTracker = MockSentryRunLoopDelayTracker()
+        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let keepAliveToken = sut.addObserver(threshold: 10.0) { _ in }
+
+        let deinitCalled = expectation(description: "Sentinel deinit called")
+
+        var token: SentryAppHangTrackerObserverToken!
+        autoreleasepool {
+            let sentinel = DeinitSentinel(tracker: sut, onDeinit: { deinitCalled.fulfill() })
+            token = sut.addObserver(threshold: 0.25) { [sentinel] _ in
+                withExtendedLifetime(sentinel) {}
+            }
+        }
+
+        // -- Act --
+        sut.removeObserver(token: token)
+
+        // -- Assert --
+        wait(for: [deinitCalled], timeout: 1)
+
+        sut.removeObserver(token: keepAliveToken)
+    }
+
+    func testProcessDelay_whenConcurrentWithAddRemove_shouldNotCrash() {
+        // Stress-tests the SUT's mutex: a background thread fires processDelay
+        // (via the mock) while the test thread adds/removes observers concurrently.
+
+        // -- Arrange --
+        let delayTracker = MockSentryRunLoopDelayTracker()
+        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let iterations = 1_000
+        let backgroundDone = expectation(description: "Background delays finished")
+
+        var tokens: [SentryAppHangTrackerObserverToken] = []
+        for _ in 0..<5 {
+            let token = sut.addObserver(threshold: 0.1) { _ in }
+            tokens.append(token)
+        }
+
+        // -- Act --
+        DispatchQueue.global().async {
+            for i in 0..<iterations {
+                delayTracker.simulateDelay(duration: Double(i) * 0.001 + 0.2, ongoing: i % 3 != 0)
+            }
+            backgroundDone.fulfill()
+        }
+
+        for token in tokens {
+            sut.removeObserver(token: token)
+        }
+        for _ in 0..<iterations {
+            let token = sut.addObserver(threshold: 0.1) { _ in }
+            sut.removeObserver(token: token)
+        }
+
+        // -- Assert --
+        wait(for: [backgroundDone], timeout: 10)
+    }
+
     func testAddObserver_afterAllRemovedAndStopped_shouldStartFreshTracking() throws {
         // -- Arrange --
         let delayTracker = MockSentryRunLoopDelayTracker()
@@ -461,21 +597,42 @@ private struct MockDependencies: SentryAppHangTrackerDependencies {
 }
 
 private class MockSentryRunLoopDelayTracker: SentryRunLoopDelayTracker {
-    private var observers = [SentryRunLoopDelayTrackerObserverToken: SentryRunLoopDelayTrackerHandler]()
+    private let observers = SentryMutex<[SentryRunLoopDelayTrackerObserverToken: SentryRunLoopDelayTrackerHandler]>([:])
 
     func addObserver(handler: @escaping SentryRunLoopDelayTrackerHandler) -> SentryRunLoopDelayTrackerObserverToken {
         let token = SentryRunLoopDelayTrackerObserverToken()
-        observers[token] = handler
+        observers.withLock { $0[token] = handler }
         return token
     }
 
     func removeObserver(token: SentryRunLoopDelayTrackerObserverToken) {
-        observers.removeValue(forKey: token)
+        observers.withLock { _ = $0.removeValue(forKey: token) }
     }
 
     func simulateDelay(duration: TimeInterval, ongoing: Bool) {
-        for observer in observers.values {
+        let snapshot = observers.withLock { Array($0.values) }
+        for observer in snapshot {
             observer(.init(duration: duration, isOngoing: ongoing))
         }
+    }
+}
+
+/// Sentinel whose deinit calls back into the tracker to acquire the observers lock.
+/// If deinit runs while the lock is already held, os_unfair_lock traps (non-reentrant).
+private class DeinitSentinel {
+    private weak var tracker: SentryDefaultAppHangTracker?
+    private let onDeinit: () -> Void
+
+    init(tracker: SentryDefaultAppHangTracker, onDeinit: @escaping () -> Void) {
+        self.tracker = tracker
+        self.onDeinit = onDeinit
+    }
+
+    deinit {
+        if let tracker {
+            let token = tracker.addObserver(threshold: 99.0) { _ in }
+            tracker.removeObserver(token: token)
+        }
+        onDeinit()
     }
 }

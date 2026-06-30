@@ -9,7 +9,7 @@ FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameSession;
 FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameTransaction;
 FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameAttachment;
 FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameProfile;
-FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameProfileChunk;
+FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameProfileChunkUI;
 FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameReplay;
 FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameFeedback;
 FOUNDATION_EXPORT NSString *const kSentryDataCategoryNameLogItem;

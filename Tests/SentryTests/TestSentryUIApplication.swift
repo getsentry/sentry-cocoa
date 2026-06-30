@@ -3,7 +3,7 @@
 
 final class TestSentryUIApplication: SentryApplication {
     func getKeyWindow() -> UIWindow? {
-        return getWindows()?.first(where: \.isKeyWindow)
+        return internal_getKeyWindow()
     }
 
     func getWindows() -> [UIWindow]? {
