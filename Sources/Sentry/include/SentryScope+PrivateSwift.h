@@ -39,8 +39,6 @@ static NSString *const SENTRY_CONTEXT_APP_KEY = @"app";
 - (void)addFeatureFlagWithName:(NSString *)name
                         result:(BOOL)result NS_SWIFT_NAME(addFeatureFlagInternal(name:result:));
 
-- (void)removeFeatureFlagWithName:(NSString *)name NS_SWIFT_NAME(removeFeatureFlagInternal(name:));
-
 @end
 
 NS_ASSUME_NONNULL_END
