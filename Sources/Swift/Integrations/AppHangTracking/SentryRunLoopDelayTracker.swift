@@ -134,11 +134,10 @@ final class SentryDefaultRunLoopDelayTracker<T: SentryRunLoopObserver, Dependenc
     ///
     /// - Precondition: Must be called on main queue
     func removeObserver(token: SentryRunLoopDelayTrackerObserverToken) {
-        // Keep a reference to the removed observer so it's destroyed after leaving the critical section.
-        let (removed, isEmpty) = observers.withLock {
+        // Return the removed entry out of the lock so its closure is destroyed outside the critical region.
+        let (_, isEmpty) = observers.withLock {
             ($0.removeValue(forKey: token), $0.isEmpty)
         }
-        _ = removed
 
         if isEmpty {
             stop()
@@ -203,8 +202,8 @@ final class SentryDefaultRunLoopDelayTracker<T: SentryRunLoopObserver, Dependenc
             switch result {
             case .timedOut:
                 // Snapshot handlers outside the critical section to avoid deadlocks if a handler calls addObserver/removeObserver.
-                let handlers = observers.withLock { Array($0.values) }
-                handlers.forEach { $0(.init(duration: duration, isOngoing: true)) }
+                 let handlers = observers.withLock { Array($0.values) }
+                 handlers.forEach { $0(.init(duration: duration, isOngoing: true)) }
                 hasTimedOut = true
             case .success:
                 semaphoreSuccess = true

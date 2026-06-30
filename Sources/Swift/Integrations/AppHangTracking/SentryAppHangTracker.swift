@@ -64,10 +64,9 @@ final class SentryDefaultAppHangTracker {
     /// - Precondition: Must be called on main queue
     func removeObserver(token: SentryAppHangTrackerObserverToken) {
         // Return the removed entry out of the lock so its closure is destroyed outside the critical region.
-        let (removed, isEmpty) = observers.withLock {
+        let (_, isEmpty) = observers.withLock {
             ($0.removeValue(forKey: token), $0.isEmpty)
         }
-        _ = removed
 
         if isEmpty {
             stopIfRunning()
