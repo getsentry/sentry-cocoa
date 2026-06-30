@@ -232,4 +232,39 @@ final class SentryEnabledFeaturesBuilderTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(features.contains("standaloneAppStartTracing"))
     }
+
+    func testAppHangsV3_isEnabled_shouldAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.appHangs.enableV3 = true
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertTrue(features.contains("appHangsV3"))
+    }
+
+    func testAppHangsV3_isDisabled_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+        options.experimental.appHangs.enableV3 = false
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("appHangsV3"))
+    }
+
+    func testAppHangsV3_whenDefault_shouldNotAddFeature() throws {
+        // -- Arrange --
+        let options = Options()
+
+        // -- Act --
+        let features = SentryEnabledFeaturesBuilder.getEnabledFeatures(options: options)
+
+        // -- Assert --
+        XCTAssertFalse(features.contains("appHangsV3"))
+    }
 }

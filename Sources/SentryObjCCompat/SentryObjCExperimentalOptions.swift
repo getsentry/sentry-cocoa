@@ -31,6 +31,10 @@ import Foundation
         get { wrapped.enableReplayNetworkDetailsCapturing }
         set { wrapped.enableReplayNetworkDetailsCapturing = newValue }
     }
+
+    @objc public var appHangs: SentryObjCAppHangsOptions {
+        SentryObjCAppHangsOptions(wrapped)
+    }
 }
 
 // swiftlint:enable missing_docs
