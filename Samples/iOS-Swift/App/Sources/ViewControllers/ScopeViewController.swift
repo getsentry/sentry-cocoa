@@ -69,30 +69,12 @@ class ScopeViewController: UIViewController {
         updateAttributesTextView()
     }
 
-    @IBAction func removeFeatureFlag(_ sender: Any?) {
-        guard let featureFlagName = featureFlagName else {
-            return
-        }
-
-        SentrySDK.removeFeatureFlag(name: featureFlagName)
-        updateAttributesTextView()
-    }
-
     @IBAction func addSpanFeatureFlag(_ sender: Any?) {
         guard let featureFlagName = featureFlagName else {
             return
         }
 
         testTransaction?.addFeatureFlag(name: featureFlagName, result: featureFlagResult)
-        updateAttributesTextView()
-    }
-
-    @IBAction func removeSpanFeatureFlag(_ sender: Any?) {
-        guard let featureFlagName = featureFlagName else {
-            return
-        }
-
-        testTransaction?.removeFeatureFlag(name: featureFlagName)
         updateAttributesTextView()
     }
 

@@ -242,16 +242,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)removeFeatureFlagWithName:(NSString *)name
-{
-    @synchronized(_stateLock) {
-        if (_isFinished) {
-            return;
-        }
-        [self.featureFlagBuffer removeWithName:name];
-    }
-}
-
 - (BOOL)isFinished
 {
     @synchronized(_stateLock) {

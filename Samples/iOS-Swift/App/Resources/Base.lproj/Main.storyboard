@@ -2104,28 +2104,12 @@
                                     <action selector="addFeatureFlag:" destination="ARr-dx-Xze" eventType="touchUpInside" id="ffA-ac-001"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ffR-RM-001">
-                                <rect key="frame" x="200.5" y="455" width="176.5" height="35"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Remove Scope Flag"/>
-                                <connections>
-                                    <action selector="removeFeatureFlag:" destination="ARr-dx-Xze" eventType="touchUpInside" id="ffR-ac-001"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sfA-AD-001">
                                 <rect key="frame" x="16" y="498" width="176.5" height="35"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Add Span Flag"/>
                                 <connections>
                                     <action selector="addSpanFeatureFlag:" destination="ARr-dx-Xze" eventType="touchUpInside" id="sfA-ac-001"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sfR-RM-001">
-                                <rect key="frame" x="200.5" y="498" width="176.5" height="35"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Remove Span Flag"/>
-                                <connections>
-                                    <action selector="removeSpanFeatureFlag:" destination="ARr-dx-Xze" eventType="touchUpInside" id="sfR-ac-001"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -2160,16 +2144,10 @@
                             <constraint firstItem="UBd-ip-qaw" firstAttribute="trailing" secondItem="fnT-FN-001" secondAttribute="trailing" constant="16" id="fnT-tr-001"/>
                             <constraint firstItem="ffA-AD-001" firstAttribute="leading" secondItem="UBd-ip-qaw" secondAttribute="leading" constant="16" id="ffA-ln-001"/>
                             <constraint firstItem="ffA-AD-001" firstAttribute="top" secondItem="stT-ST-001" secondAttribute="bottom" constant="8" id="ffA-tp-001"/>
-                            <constraint firstItem="ffA-AD-001" firstAttribute="width" secondItem="ffR-RM-001" secondAttribute="width" id="ffA-wd-001"/>
-                            <constraint firstItem="ffR-RM-001" firstAttribute="leading" secondItem="ffA-AD-001" secondAttribute="trailing" constant="8" id="ffR-ln-001"/>
-                            <constraint firstItem="ffR-RM-001" firstAttribute="top" secondItem="fnT-FN-001" secondAttribute="bottom" constant="8" id="ffR-tp-001"/>
-                            <constraint firstItem="UBd-ip-qaw" firstAttribute="trailing" secondItem="ffR-RM-001" secondAttribute="trailing" constant="16" id="ffR-tr-001"/>
+                            <constraint firstItem="UBd-ip-qaw" firstAttribute="trailing" secondItem="ffA-AD-001" secondAttribute="trailing" constant="16" id="ffA-tr-001"/>
                             <constraint firstItem="sfA-AD-001" firstAttribute="leading" secondItem="UBd-ip-qaw" secondAttribute="leading" constant="16" id="sfA-ln-001"/>
                             <constraint firstItem="sfA-AD-001" firstAttribute="top" secondItem="ffA-AD-001" secondAttribute="bottom" constant="8" id="sfA-tp-001"/>
-                            <constraint firstItem="sfA-AD-001" firstAttribute="width" secondItem="sfR-RM-001" secondAttribute="width" id="sfA-wd-001"/>
-                            <constraint firstItem="sfR-RM-001" firstAttribute="leading" secondItem="sfA-AD-001" secondAttribute="trailing" constant="8" id="sfR-ln-001"/>
-                            <constraint firstItem="sfR-RM-001" firstAttribute="top" secondItem="ffR-RM-001" secondAttribute="bottom" constant="8" id="sfR-tp-001"/>
-                            <constraint firstItem="UBd-ip-qaw" firstAttribute="trailing" secondItem="sfR-RM-001" secondAttribute="trailing" constant="16" id="sfR-tr-001"/>
+                            <constraint firstItem="UBd-ip-qaw" firstAttribute="trailing" secondItem="sfA-AD-001" secondAttribute="trailing" constant="16" id="sfA-tr-001"/>
                             <constraint firstItem="xb7-S3-3s7" firstAttribute="centerY" secondItem="Cmk-s4-Os4" secondAttribute="centerY" id="xOj-UV-Kte"/>
                             <constraint firstAttribute="trailing" secondItem="QHu-ah-Fmv" secondAttribute="trailing" constant="16" id="y42-oq-LBV"/>
                             <constraint firstItem="QHu-ah-Fmv" firstAttribute="leading" secondItem="UBd-ip-qaw" secondAttribute="leading" constant="16" id="yCc-ZU-OQv"/>

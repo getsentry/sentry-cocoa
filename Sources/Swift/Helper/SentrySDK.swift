@@ -385,13 +385,6 @@ import Foundation
         }
     }
 
-    /// Removes a feature flag evaluation from the current `Scope` of the current `Hub`.
-    @nonobjc public static func removeFeatureFlag(name: String) {
-        SentrySDKInternal.configureScope { scope in
-            scope.removeFeatureFlag(name: name)
-        }
-    }
-
     // MARK: - Crash Detection
 
     #if !SDK_V10

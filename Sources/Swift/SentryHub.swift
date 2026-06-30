@@ -185,13 +185,6 @@ import Foundation
         }
     }
 
-    /// Removes a feature flag evaluation from the `Scope` of the Hub.
-    @nonobjc public func removeFeatureFlag(name: String) {
-        helper.configureScope { scope in
-            scope.removeFeatureFlag(name: name)
-        }
-    }
-
     /// Adds a breadcrumb to the `Scope` of the Hub.
     /// - Parameter crumb: The `Breadcrumb` to add to the `Scope` of the Hub.
     @objc(addBreadcrumb:) public func add(_ crumb: Breadcrumb) {

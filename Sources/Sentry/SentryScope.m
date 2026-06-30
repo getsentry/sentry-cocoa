@@ -778,30 +778,20 @@ static NSString *const kSentryScopeSpanStatusSerializationKey = @"status";
 
 - (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result
 {
+    SentrySpanInternal *activeSpan = nil;
+    // Capture once to avoid forwarding to a different span; don't nest scope locks.
+    @synchronized(_spanLock) {
+        if ([_span isKindOfClass:SentrySpanInternal.class]) {
+            activeSpan = (SentrySpanInternal *)_span;
+        }
+    }
+
     @synchronized(_contextDictionary) {
         [_featureFlagBuffer addWithName:name result:result];
         [self updateFeatureFlagsContextLocked];
     }
 
-    @synchronized(_spanLock) {
-        if ([_span isKindOfClass:SentrySpanInternal.class]) {
-            [(SentrySpanInternal *)_span addFeatureFlagWithName:name result:result];
-        }
-    }
-}
-
-- (void)removeFeatureFlagWithName:(NSString *)name
-{
-    @synchronized(_contextDictionary) {
-        [_featureFlagBuffer removeWithName:name];
-        [self updateFeatureFlagsContextLocked];
-    }
-
-    @synchronized(_spanLock) {
-        if ([_span isKindOfClass:SentrySpanInternal.class]) {
-            [(SentrySpanInternal *)_span removeFeatureFlagWithName:name];
-        }
-    }
+    [activeSpan addFeatureFlagWithName:name result:result];
 }
 
 - (NSArray<id<SentryScopeObserver>> *)observerSnapshot

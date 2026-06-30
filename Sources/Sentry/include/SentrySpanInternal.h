@@ -96,8 +96,6 @@ SENTRY_NO_INIT
 - (void)addFeatureFlagWithName:(NSString *)name
                         result:(BOOL)result NS_SWIFT_NAME(addFeatureFlagInternal(name:result:));
 
-- (void)removeFeatureFlagWithName:(NSString *)name NS_SWIFT_NAME(removeFeatureFlagInternal(name:));
-
 /**
  * Init a @c SentrySpan with given transaction and context.
  * @param transaction The @c SentryTracer managing the transaction this span is associated with.

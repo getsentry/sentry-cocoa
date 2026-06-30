@@ -88,6 +88,58 @@ class SentryUIApplicationTests: XCTestCase {
         XCTAssertEqual(sut.getWindows()?.count, 0)
     }
 
+    // MARK: - getKeyWindow
+
+    func testGetKeyWindow_whenNoWindows_shouldReturnNil() {
+        // -- Arrange --
+        let sut = TestSentryUIApplication()
+
+        // -- Act --
+        let result = sut.getKeyWindow()
+
+        // -- Assert --
+        XCTAssertNil(result)
+    }
+
+    func testGetKeyWindow_whenNoKeyWindow_shouldReturnNil() {
+        // -- Arrange --
+        let sut = TestSentryUIApplication()
+        sut.windows = [makeWindow(), makeWindow()]
+
+        // -- Act --
+        let result = sut.getKeyWindow()
+
+        // -- Assert --
+        XCTAssertNil(result)
+    }
+
+    func testGetKeyWindow_whenKeyWindowExists_shouldReturnKeyWindow() {
+        // -- Arrange --
+        let sut = TestSentryUIApplication()
+        let keyWindow = MockKeyUIWindow(windowScene: Self.mockWindowScene)
+        sut.windows = [makeWindow(), keyWindow]
+
+        // -- Act --
+        let result = sut.getKeyWindow()
+
+        // -- Assert --
+        XCTAssertIdentical(result, keyWindow)
+    }
+
+    func testGetKeyWindow_whenMultipleKeyWindows_shouldReturnFirst() {
+        // -- Arrange --
+        let sut = TestSentryUIApplication()
+        let firstKeyWindow = MockKeyUIWindow(windowScene: Self.mockWindowScene)
+        let secondKeyWindow = MockKeyUIWindow(windowScene: Self.mockWindowScene)
+        sut.windows = [makeWindow(), firstKeyWindow, secondKeyWindow]
+
+        // -- Act --
+        let result = sut.getKeyWindow()
+
+        // -- Assert --
+        XCTAssertIdentical(result, firstKeyWindow)
+    }
+
     func testInternalRelevantViewControllers_whenWindowFilterProvided_shouldOnlyUseMatchingWindows() throws {
         // -- Arrange --
         let excludedViewController = UIViewController()
@@ -113,6 +165,41 @@ class SentryUIApplicationTests: XCTestCase {
 
     private class TestUISceneDelegate: NSObject, UIWindowSceneDelegate {
         var window: UIWindow?
+    }
+
+    private class MockKeyUIWindow: UIWindow {
+        override var isKeyWindow: Bool { true }
+    }
+
+    private class ThreadTrackingKeyUIWindow: UIWindow {
+        var isKeyWindowAccessedOnMainThread: Bool?
+        override var isKeyWindow: Bool {
+            isKeyWindowAccessedOnMainThread = Thread.isMainThread
+            return true
+        }
+    }
+
+    // MARK: - Thread Safety
+
+    func testGetKeyWindow_fromBackgroundThread_shouldAccessIsKeyWindowOnMainThread() {
+        // -- Arrange --
+        let sut = TestSentryUIApplication()
+        let keyWindow = ThreadTrackingKeyUIWindow(windowScene: Self.mockWindowScene)
+        sut.windows = [keyWindow]
+
+        // -- Act --
+        let expectation = expectation(description: "background thread")
+        var result: UIWindow?
+        DispatchQueue.global().async {
+            result = sut.getKeyWindow()
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // -- Assert --
+        XCTAssertIdentical(result, keyWindow)
+        XCTAssertEqual(keyWindow.isKeyWindowAccessedOnMainThread, true,
+            "isKeyWindow must be accessed on the main thread")
     }
 }
 #endif
