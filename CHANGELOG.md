@@ -4,7 +4,7 @@
 
 ### Features
 
-- Adds experimental App Hang tracking via RunLoop observers (#8234)
+- Adds experimental App Hang tracking via RunLoop observers (#8300)
 
   V3 replaces the sampling-based V1/V2 hang detection with an event-driven approach using `RunLoop` observers. It reports fully-blocking hangs where a single run loop iteration exceeds the configured threshold.
 
