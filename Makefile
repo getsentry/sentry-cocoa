@@ -1112,7 +1112,7 @@ test-ios-v10-with-kscrash:
 		--ref $(GIT-REF) \
 		--command test \
 		--scheme Sentry+KSCrash \
-		--configuration TestV10 \
+		--configuration TestV10KSCrash \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run macOS tests with ENABLE_KSCRASH and SDK_V10 flags
@@ -1132,7 +1132,7 @@ test-macos-v10-with-kscrash:
 		--ref $(GIT-REF) \
 		--command test \
 		--scheme Sentry+KSCrash \
-		--configuration TestV10 \
+		--configuration TestV10KSCrash \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run Catalyst tests with ENABLE_KSCRASH and SDK_V10 flags
@@ -1152,7 +1152,7 @@ test-catalyst-v10-with-kscrash:
 		--ref $(GIT-REF) \
 		--command test \
 		--scheme Sentry+KSCrash \
-		--configuration TestV10 \
+		--configuration TestV10KSCrash \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run tvOS tests with ENABLE_KSCRASH and SDK_V10 flags
@@ -1173,7 +1173,7 @@ test-tvos-v10-with-kscrash:
 		--ref $(GIT-REF) \
 		--command test \
 		--scheme Sentry+KSCrash \
-		--configuration TestV10 \
+		--configuration TestV10KSCrash \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run visionOS tests with ENABLE_KSCRASH and SDK_V10 flags
@@ -1194,7 +1194,7 @@ test-visionos-v10-with-kscrash:
 		--ref $(GIT-REF) \
 		--command test \
 		--scheme Sentry+KSCrash \
-		--configuration TestV10 \
+		--configuration TestV10KSCrash \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run test server in background

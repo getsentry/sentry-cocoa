@@ -100,7 +100,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
     // Test for GH-581
     func testReleaseNamePassedToSentryCrash() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         let releaseName = "1.0.0"
         let dist = "14G60"
@@ -796,6 +796,15 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         // -- Act & Assert -- (should not crash)
         _ = try fixture.getSut(crashWrapper: crash)
+    }
+
+    func testEnableKSCrashFlagIsActive() {
+        #if ENABLE_KSCRASH
+        XCTAssertTrue(SentryTestSetup.isKSCrashEnabled,
+            "ENABLE_KSCRASH compiler flag must be set when running under the Sentry+KSCrash scheme.")
+        #else
+        // No assertion — flag is expected to be absent under the normal scheme.
+        #endif
     }
 
     private func givenCurrentSession() -> SentrySession {
