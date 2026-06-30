@@ -5,6 +5,8 @@ import XCTest
 #if os(iOS) || os(tvOS)
 class SentryViewHierarchyProviderTests: XCTestCase {
     private static let mockWindowScene: UIWindowScene = MockUIWindowScene()
+    private static let viewHierarchyMaxDepth = 90
+    private static let truncatedViewHierarchyType = "SentryTruncatedViewHierarchy"
 
     private class Fixture {
         let uiApplication = TestSentryUIApplication()
@@ -20,6 +22,53 @@ class SentryViewHierarchyProviderTests: XCTestCase {
         let window = UIWindow(windowScene: Self.mockWindowScene)
         window.frame = frame
         return window
+    }
+
+    private func makeWindowWithNestedSubviews(count: Int) -> UIWindow {
+        let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+        var parent: UIView = window
+
+        for _ in 0..<count {
+            let child = UIView(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
+            parent.addSubview(child)
+            parent = child
+        }
+
+        return window
+    }
+
+    private func viewHierarchyObject(for window: UIWindow) throws -> [String: Any] {
+        fixture.uiApplication.windows = [window]
+
+        let data = try XCTUnwrap(self.fixture.sut.appViewHierarchy())
+        return try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+    }
+
+    private func firstWindowNode(from object: [String: Any]) throws -> [String: Any] {
+        let windows = try XCTUnwrap(object["windows"] as? [[String: Any]])
+        return try XCTUnwrap(windows.first)
+    }
+
+    private func childNodes(of node: [String: Any]) -> [[String: Any]] {
+        return node["children"] as? [[String: Any]] ?? []
+    }
+
+    private func containsTruncationMarker(in node: [String: Any]) -> Bool {
+        if node["type"] as? String == Self.truncatedViewHierarchyType {
+            return true
+        }
+
+        return childNodes(of: node).contains { containsTruncationMarker(in: $0) }
+    }
+
+    private func nestedSubviewDepth(from node: [String: Any]) -> Int {
+        guard let child = childNodes(of: node).first,
+            child["type"] as? String != Self.truncatedViewHierarchyType
+        else {
+            return 0
+        }
+
+        return 1 + nestedSubviewDepth(from: child)
     }
 
     override func setUp() {
@@ -98,6 +147,52 @@ class SentryViewHierarchyProviderTests: XCTestCase {
 
         XCTAssertEqual(children?.count, 2)
         XCTAssertEqual(firstChild?["type"] as? String, "UIView")
+    }
+
+    func test_ViewHierarchy_withDeepHierarchy_shouldTruncateAndSerializeValidJSON() throws {
+        let window = makeWindowWithNestedSubviews(count: 1_000)
+
+        let object = try viewHierarchyObject(for: window)
+        let windowNode = try firstWindowNode(from: object)
+
+        XCTAssertTrue(containsTruncationMarker(in: windowNode))
+        XCTAssertEqual(nestedSubviewDepth(from: windowNode), Self.viewHierarchyMaxDepth)
+    }
+
+    func test_ViewHierarchy_atDepthLimit_shouldNotTruncate() throws {
+        let window = makeWindowWithNestedSubviews(count: Self.viewHierarchyMaxDepth)
+
+        let object = try viewHierarchyObject(for: window)
+        let windowNode = try firstWindowNode(from: object)
+
+        XCTAssertFalse(containsTruncationMarker(in: windowNode))
+        XCTAssertEqual(nestedSubviewDepth(from: windowNode), Self.viewHierarchyMaxDepth)
+    }
+
+    func test_ViewHierarchy_beyondDepthLimit_shouldTruncate() throws {
+        let window = makeWindowWithNestedSubviews(count: Self.viewHierarchyMaxDepth + 1)
+
+        let object = try viewHierarchyObject(for: window)
+        let windowNode = try firstWindowNode(from: object)
+
+        XCTAssertTrue(containsTruncationMarker(in: windowNode))
+        XCTAssertEqual(nestedSubviewDepth(from: windowNode), Self.viewHierarchyMaxDepth)
+    }
+
+    func test_ViewHierarchy_withWideHierarchy_shouldNotTruncate() throws {
+        let window = makeWindow(frame: CGRect(x: 0, y: 0, width: 10, height: 10))
+
+        for _ in 0..<50 {
+            let child = UIView(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
+            window.addSubview(child)
+        }
+
+        let object = try viewHierarchyObject(for: window)
+        let windowNode = try firstWindowNode(from: object)
+        let children = childNodes(of: windowNode)
+
+        XCTAssertFalse(containsTruncationMarker(in: windowNode))
+        XCTAssertEqual(children.count, 50)
     }
 
     func test_ViewHierarchy_with_ViewController() throws {
