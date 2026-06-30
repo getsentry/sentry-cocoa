@@ -165,7 +165,9 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     var coreDataSwizzling = SentryCoreDataSwizzling()
     // This is a var so that it's initialized lazily on first access. It never should get set
     // to a different value.
-    lazy var hangTracker: HangTracker = DefaultHangTracker(dateProvider: Dependencies.dateProvider)
+    lazy var runLoopDelayTracker: SentryRunLoopDelayTracker = {
+        SentryDefaultRunLoopDelayTracker(dependencies: self)
+    }()
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
     private var _extraContextProvider: SentryExtraContextProvider?
@@ -873,5 +875,10 @@ protocol SentryCoreDataTrackerBuilder {
     func getCoreDataTracker(_ options: Options) -> SentryCoreDataTracker
 }
 extension SentryDependencyContainer: SentryCoreDataTrackerBuilder {}
+
+protocol SentryRunLoopDelayTrackerProvider {
+    var runLoopDelayTracker: SentryRunLoopDelayTracker { get }
+}
+extension SentryDependencyContainer: SentryRunLoopDelayTrackerProvider { }
 
 //swiftlint:enable file_length missing_docs
