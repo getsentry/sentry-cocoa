@@ -188,6 +188,13 @@ SENTRY_NO_INIT
  */
 - (void)addBreadcrumb:(SentryObjCBreadcrumb *)crumb;
 
+/**
+ * Adds a feature flag evaluation to the @c Scope of the Hub.
+ * @param name The feature flag name.
+ * @param result The evaluated boolean result.
+ */
+- (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result;
+
 /// Returns the client if there is a bound client on the Hub.
 - (SentryObjCClient *_Nullable)getClient;
 

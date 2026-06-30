@@ -256,6 +256,14 @@
     [self.sut removeDataForKey:@"key"];
 }
 
+#pragma mark - Feature Flags
+
+- (void)testAddFeatureFlagWithName_shouldNotCrash
+{
+    // -- Act & Assert (no crash) --
+    [self.sut addFeatureFlagWithName:@"checkout" result:YES];
+}
+
 #pragma mark - Tags
 
 - (void)testSetTagValueForKey_shouldUpdateTags

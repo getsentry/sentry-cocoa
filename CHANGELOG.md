@@ -6,6 +6,7 @@
 
 - Add scope feature flag API (#8147)
 - Add span feature flag API (#8158)
+- Add fearute flag scope/span ObjC API (#8160)
 
 ### Fixes
 

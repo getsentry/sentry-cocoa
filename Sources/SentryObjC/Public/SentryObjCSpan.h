@@ -103,6 +103,13 @@ SENTRY_NO_INIT
 - (void)removeDataForKey:(NSString *)key;
 
 /**
+ * Adds a feature flag evaluation to this span.
+ * @param name The feature flag name.
+ * @param result The evaluated boolean result.
+ */
+- (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result;
+
+/**
  * Sets a tag value.
  * @param value The tag value.
  * @param key The tag key.

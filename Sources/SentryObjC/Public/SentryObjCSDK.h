@@ -320,6 +320,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)addBreadcrumb:(SentryObjCBreadcrumb *)crumb;
 
 /**
+ * Adds a feature flag evaluation to the current @c Scope of the current @c Hub.
+ * @param name The feature flag name.
+ * @param result The evaluated boolean result.
+ */
++ (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result;
+
+/**
  * Use this method to modify the current @c Scope of the current @c Hub. The SDK uses the
  * @c Scope to attach contextual data to events.
  * @param callback The callback for configuring the current @c Scope.

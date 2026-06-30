@@ -7,6 +7,13 @@
 
 @implementation SentryObjCHubTests
 
+- (NSArray<NSDictionary<NSString *, id> *> *)featureFlagValuesFromScope:(SentryObjCScope *)scope
+{
+    NSDictionary<NSString *, id> *context = [scope serialize][@"context"];
+    NSDictionary<NSString *, id> *flags = context[@"flags"];
+    return flags[@"values"];
+}
+
 - (void)setUp
 {
     [super setUp];
@@ -318,6 +325,21 @@
 
     // -- Act & Assert (no crash) --
     [self.sut addBreadcrumb:crumb];
+}
+
+#pragma mark - Feature Flags
+
+- (void)testAddFeatureFlagWithName_shouldPersistOnHubScope
+{
+    // -- Act --
+    [self.sut addFeatureFlagWithName:@"checkout" result:YES];
+
+    // -- Assert --
+    NSArray<NSDictionary<NSString *, id> *> *values =
+        [self featureFlagValuesFromScope:self.sut.scope];
+    XCTAssertEqual(values.count, 1U);
+    XCTAssertEqualObjects(values[0][@"flag"], @"checkout");
+    XCTAssertEqualObjects(values[0][@"result"], @YES);
 }
 
 #pragma mark - Client
