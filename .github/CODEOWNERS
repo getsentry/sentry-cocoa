@@ -1,1 +1,4 @@
 * @philipphofmann @philprime @noahsmartin @itaybre @NinjaLikesCheez
+
+# Public API surface — auto-request a mobile SDK team review on API changes
+/sdk_api*.json @getsentry/team-mobile
