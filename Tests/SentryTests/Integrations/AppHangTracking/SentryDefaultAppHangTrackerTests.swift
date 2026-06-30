@@ -420,7 +420,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
         // -- Arrange --
         let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let sut = SentryDefaultAppHangTracker(dependencies: MockDependencies(runLoopDelayTracker: delayTracker))
         let innerCallbacks = Invocations<SentryAppHang>()
         var innerToken: SentryAppHangTrackerObserverToken?
         let outerNotified = expectation(description: "Outer handler fired")
@@ -455,7 +455,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
         // -- Arrange --
         let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let sut = SentryDefaultAppHangTracker(dependencies: MockDependencies(runLoopDelayTracker: delayTracker))
         let callbacks = Invocations<SentryAppHang>()
         let notified = expectation(description: "Handler fired")
 
@@ -489,7 +489,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
         // -- Arrange --
         let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let sut = SentryDefaultAppHangTracker(dependencies: MockDependencies(runLoopDelayTracker: delayTracker))
         let keepAliveToken = sut.addObserver(threshold: 10.0) { _ in }
 
         let deinitCalled = expectation(description: "Sentinel deinit called")
@@ -517,7 +517,7 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
 
         // -- Arrange --
         let delayTracker = MockSentryRunLoopDelayTracker()
-        let sut = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
+        let sut = SentryDefaultAppHangTracker(dependencies: MockDependencies(runLoopDelayTracker: delayTracker))
         let iterations = 1_000
         let backgroundDone = expectation(description: "Background delays finished")
 
@@ -619,11 +619,11 @@ private class MockSentryRunLoopDelayTracker: SentryRunLoopDelayTracker {
 
 /// Sentinel whose deinit calls back into the tracker to acquire the observers lock.
 /// If deinit runs while the lock is already held, os_unfair_lock traps (non-reentrant).
-private class DeinitSentinel {
-    private weak var tracker: SentryDefaultAppHangTracker?
+private class DeinitSentinel<Dependencies: SentryAppHangTrackerDependencies> {
+    private weak var tracker: SentryDefaultAppHangTracker<Dependencies>?
     private let onDeinit: () -> Void
 
-    init(tracker: SentryDefaultAppHangTracker, onDeinit: @escaping () -> Void) {
+    init(tracker: SentryDefaultAppHangTracker<Dependencies>, onDeinit: @escaping () -> Void) {
         self.tracker = tracker
         self.onDeinit = onDeinit
     }
