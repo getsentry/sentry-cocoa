@@ -9624,8 +9624,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kstenerud/KSCrash.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = "2.6.0-beta.3";
+				kind = exactVersion;
+				version = "2.6.0-beta.3";
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
