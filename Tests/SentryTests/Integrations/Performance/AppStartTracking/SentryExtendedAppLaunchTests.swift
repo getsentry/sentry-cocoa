@@ -54,7 +54,7 @@ class SentryExtendedAppLaunchTests: XCTestCase {
     // MARK: - Constants
 
     func testExtendedOperation_shouldBeExpectedValue() {
-        XCTAssertEqual(SentryExtendedAppLaunchManager.Constants.extendedOperation, "app.start.extended_app_start")
+        XCTAssertEqual(SentryExtendedAppLaunchManager.Constants.extendedOperation, "app.start.extended")
     }
 
     // MARK: - SentryExtendedAppLaunchManager
@@ -76,7 +76,7 @@ class SentryExtendedAppLaunchTests: XCTestCase {
         manager.extend()
         let span = try XCTUnwrap(manager.extendedAppStartSpan())
 
-        XCTAssertEqual(span.operation, "app.start.extended_app_start")
+        XCTAssertEqual(span.operation, "app.start.extended")
         XCTAssertEqual(span.spanDescription, "Extended App Start")
         XCTAssertFalse(span.isFinished)
     }
@@ -158,7 +158,7 @@ class SentryExtendedAppLaunchTests: XCTestCase {
         XCTAssertEqual(extendedSpans.count, 1)
 
         let extendedSpan = try XCTUnwrap(extendedSpans.first)
-        XCTAssertEqual(extendedSpan["op"] as? String, "app.start.extended_app_start")
+        XCTAssertEqual(extendedSpan["op"] as? String, "app.start.extended")
     }
 
     func testFinishExtendedAppLaunch_extendedSpanStartsAtExtendCallTime() throws {

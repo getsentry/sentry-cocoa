@@ -11,33 +11,42 @@ import UIKit
 @objc @_spi(Private) extension UIApplication: SentryApplication {
 
     @objc public func getKeyWindow() -> UIWindow? {
-        getWindows()?.first(where: \.isKeyWindow)
+        internal_getKeyWindow()
     }
 
     @objc public func getWindows() -> [UIWindow]? {
         internal_getWindows()
     }
-    
+
 #if (os(iOS) || os(tvOS))
     @objc public func getActiveWindowSize() -> CGSize {
         internal_getActiveWindowSize()
     }
 #endif // os(iOS) || os(tvOS)
-    
+
     @objc public func relevantViewControllersNames() -> [String]? {
         internal_relevantViewControllersNames()
     }
-    
+
     @objc public var unsafeApplicationState: State {
         applicationState
     }
-    
+
     @objc public var mainThread_isActive: Bool {
         unsafeApplicationState == .active
     }
 }
 
 extension SentryApplication {
+    public func internal_getKeyWindow() -> UIWindow? {
+        var keyWindow: UIWindow?
+        Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
+            guard let self else { return }
+            keyWindow = self.getWindows()?.first(where: \.isKeyWindow)
+        }, timeout: 0.01)
+        return keyWindow
+    }
+
     // This cannot be declared with @objc so until we delete more ObjC code it needs a separate
     // function than the objc visible one.
     public func internal_getWindows() -> [UIWindow]? {
@@ -73,7 +82,7 @@ extension SentryApplication {
         }, timeout: 0.01)
         return Array(windows)
     }
-    
+
 #if (os(iOS) || os(tvOS))
     public func internal_getActiveWindowSize() -> CGSize {
         var size = CGSize.zero
@@ -82,13 +91,13 @@ extension SentryApplication {
                   let window = self.internal_getWindows()?.first else {
                 return
             }
-            
+
             size = window.screen.bounds.size
         }, timeout: 0.01)
         return size
     }
 #endif // os(iOS) || os(tvOS)
-    
+
     // This cannot be declared with @objc so until we delete more ObjC code it needs a separate
     // function than the objc visible one.
     public func internal_relevantViewControllersNames() -> [String]? {
@@ -100,18 +109,18 @@ extension SentryApplication {
         }, timeout: 0.01)
         return result
     }
-    
+
     func internal_relevantViewControllers(windowFilter: (UIWindow) -> Bool = { _ in true }) -> [UIViewController]? {
         let windows = getWindows()?.filter(windowFilter)
         guard !(windows?.isEmpty ?? true) else { return nil }
-        
+
         return windows?.compactMap { relevantViewControllerFromWindow($0) }.flatMap { $0 }
     }
 
     private func relevantViewControllerFromWindow(_ window: UIWindow) -> [UIViewController]? {
         let viewController = window.rootViewController
         guard let viewController else { return nil }
-        
+
         var result = [UIViewController]()
         result.append(viewController)
         var index = 0
@@ -125,7 +134,7 @@ extension SentryApplication {
                 result[index] = presented
                 continue
             }
-            
+
             // The top view controller is meant for navigation and not content
             if isContainerViewController(topVC) {
                 if let contentViewController = relevantViewControllerFromContainer(topVC), contentViewController.count > 0 {
@@ -136,7 +145,7 @@ extension SentryApplication {
                 }
                 continue
             }
-            
+
             var relevantChild: UIViewController?
             for childVC in topVC.children {
                 // Sometimes a view controller is used as container for a navigation controller
@@ -150,12 +159,12 @@ extension SentryApplication {
             if let relevantChild {
                 result[index] = relevantChild
             }
-            
+
             index += 1
         }
         return result
     }
-    
+
     func relevantViewControllerFromContainer(_ vc: UIViewController) -> [UIViewController]? {
         if let navigationController = vc as? UINavigationController {
             return navigationController.topViewController.map { [$0] }
@@ -183,7 +192,7 @@ extension SentryApplication {
                 return splitViewController.viewControllers
             }
         }
-        
+
         if let pageViewController = vc as? UIPageViewController {
             if let vcs = pageViewController.viewControllers, vcs.count > 0 {
                 return [vcs[0]]
@@ -192,7 +201,7 @@ extension SentryApplication {
 
         return nil
     }
-    
+
     func isContainerViewController(_ vc: UIViewController) -> Bool {
         return vc is UINavigationController || vc is UITabBarController || vc is UISplitViewController || vc is UIPageViewController
     }

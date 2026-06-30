@@ -3,36 +3,36 @@
 import XCTest
 
 final class SentryRunLoopDelayTrackerTests: XCTestCase {
-    
+
     private var createdObservationBlock: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?
     private var observationBlock: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?
     private var testObserver = TestRunLoopObserver()
     private var calledRemoveObserver = false
     private var calledAddObserver = false
     private let queue = DispatchQueue(label: "io.sentry.test-queue")
-    
+
     override func setUp() {
         super.setUp()
         observationBlock = nil
         calledRemoveObserver = false
         calledAddObserver = false
     }
-    
+
     private func createObserver(_ allocator: CFAllocator?, _ activities: CFOptionFlags, _ repeats: Bool, _ order: CFIndex, _ block: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?) -> TestRunLoopObserver {
         createdObservationBlock = block
         return testObserver
     }
-    
+
     private func addObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) {
         observationBlock = createdObservationBlock
         calledAddObserver = true
     }
-    
+
     private func removeObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) {
         observationBlock = nil
         calledRemoveObserver = true
     }
-  
+
   func testHangTrackerCallsRemoveObserverOnDealloc() {
       let mockDependencies = MockDependencies()
       var sut: SentryDefaultRunLoopDelayTracker? = SentryDefaultRunLoopDelayTracker(
@@ -46,7 +46,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
       sut = nil
       XCTAssertEqual(calledRemoveObserver, true)
   }
-    
+
     func testDoesNotCaptureHangsThatAreNotOngoing() {
         let mockDependencies = MockDependencies()
         mockDependencies.mockDateProvider.setSystemUptime(0)
@@ -56,23 +56,23 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
             addObserver: addObserver,
             removeObserver: removeObserver,
             queue: queue)
-        
+
         var observedHang = false
         let token = sut.addObserver { _ in
             observedHang = true
         }
         XCTAssertTrue(calledAddObserver, "Expected add observer to be called")
-        
+
         // Ensure the queue does not run until after the full runloop
         queue.suspend()
         observationBlock?(testObserver, .afterWaiting)
         // 10s passed, this is a hang
         mockDependencies.mockDateProvider.setSystemUptime(10)
         observationBlock?(testObserver, .beforeWaiting)
-        
+
         // Start the queue again
         queue.resume()
-        
+
         // This kind of hang is not caught, the hang observer is only called if
         // a hang was caught while it is *ongoing*. Sometimes we will only know
         // if a hang occurs after it's ended. It would be straightforward to add
@@ -80,11 +80,11 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         // It is best to keep that a separate API when we add it to make it clear which
         // thread the block gets called on.
         XCTAssertFalse(observedHang, "Should not observe hang")
-        
+
         sut.removeObserver(token: token)
         XCTAssertTrue(calledRemoveObserver, "Expected observer to be removed")
     }
-    
+
     func testHangTrackerWhenNotHanging() {
         let mockDependencies = MockDependencies()
         mockDependencies.mockDateProvider.setSystemUptime(0)
@@ -94,29 +94,29 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
             addObserver: addObserver,
             removeObserver: removeObserver,
             queue: queue)
-        
+
         var observedHang = false
         let token = sut.addObserver { _ in
             observedHang = true
         }
         XCTAssertTrue(calledAddObserver, "Expected add observer to be called")
-        
+
         // Ensure the queue does not run until after the full runloop
         queue.suspend()
         observationBlock?(testObserver, .afterWaiting)
         // 10 ms passed
         mockDependencies.mockDateProvider.setSystemUptime(0.01)
         observationBlock?(testObserver, .beforeWaiting)
-        
+
         // Start the queue again
         queue.resume()
-        
+
         XCTAssertFalse(observedHang, "Should not observe hang")
-        
+
         sut.removeObserver(token: token)
         XCTAssertTrue(calledRemoveObserver, "Expected observer to be removed")
     }
-    
+
     func testHangTrackerCallsLateRunLoop() {
         let mockDependencies = MockDependencies()
         mockDependencies.mockDateProvider.setSystemUptime(0)
@@ -126,7 +126,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
             addObserver: addObserver,
             removeObserver: removeObserver,
             queue: queue)
-        
+
         var observerLastInterval: TimeInterval = 0
         var hangOngoing: Bool = false
         let expectation = XCTestExpectation()
@@ -136,32 +136,32 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
             expectation.fulfill()
         }
         XCTAssertTrue(calledAddObserver, "Expected add observer to be called")
-        
+
         observationBlock?(testObserver, .afterWaiting)
         mockDependencies.mockDateProvider.setSystemUptime(10)
-                
+
         wait(for: [expectation])
-        
+
         // Note: We are writing to these variables on a bg thread but reading them here
         // on the main thread. This is safe without any locks because in our test
         // environment we know that there will not be any more modifications
         XCTAssertEqual(10, observerLastInterval, "Expected hang interval to be 10")
         XCTAssertTrue(hangOngoing)
-        
+
         observationBlock?(testObserver, .beforeWaiting)
-        
+
         let expectation2 = XCTestExpectation()
         queue.async {
             expectation2.fulfill()
         }
         wait(for: [expectation2])
         XCTAssertFalse(hangOngoing)
-        
+
         sut.removeObserver(token: token)
 
         XCTAssertTrue(calledRemoveObserver, "Expected observer to be removed")
     }
-    
+
     func testRemovesObserverDuringRunloop() {
         let mockDependencies = MockDependencies()
         mockDependencies.mockDateProvider.setSystemUptime(0)
@@ -171,11 +171,11 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
             addObserver: addObserver,
             removeObserver: removeObserver,
             queue: queue)
-        
+
         let token = sut.addObserver { _ in }
         observationBlock?(testObserver, .afterWaiting)
         sut.removeObserver(token: token)
-        
+
         XCTAssertTrue(calledRemoveObserver, "Expected runloop to not be observed after last observer is removed")
         // Ensure the background queue isn't stuck waiting for another runloop event
         let expectation = XCTestExpectation()
@@ -185,7 +185,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         // Ensure the queue is not blocked
         wait(for: [expectation])
     }
-    
+
     func testHangTrackerDeallocates() {
         let mockDependencies = MockDependencies()
         mockDependencies.mockDateProvider.setSystemUptime(0)
@@ -200,13 +200,13 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         #else
         weak var weakSut = sut
         #endif
-        
+
         _ = sut?.addObserver { _ in }
         observationBlock?(testObserver, .afterWaiting)
         observationBlock?(testObserver, .beforeWaiting)
-        
+
         sut = nil
-        
+
         // Allow the hang tracker's background thread to finish since it holds
         // a strong reference while it is running
         let expectation = XCTestExpectation()
@@ -214,10 +214,10 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
             expectation.fulfill()
         }
         wait(for: [expectation])
-        
+
         XCTAssertNil(weakSut, "Expected observer to be deallocated")
     }
-    
+
     /// Verifies that after one hang completes (ongoing=true then ongoing=false),
     /// a second hang is properly detected. This catches state-reset bugs with consecutive hangs.
     func testConsecutiveHangsAreDetected() {
@@ -229,7 +229,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
             addObserver: addObserver,
             removeObserver: removeObserver,
             queue: queue)
-        
+
         let lock = NSLock()
         var hangCount = 0
         var lastInterval: TimeInterval = 0
@@ -248,20 +248,20 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
                 }
             }
         }
-        
+
         // First hang: start
         observationBlock?(testObserver, .afterWaiting)
         mockDependencies.mockDateProvider.setSystemUptime(10)
         wait(for: [hangCallback])
-        
+
         lock.synchronized {
             XCTAssertEqual(lastInterval, 10, "First hang interval should be 10")
             XCTAssertTrue(lastOngoing, "First hang should be ongoing")
         }
-        
+
         // First hang: complete
         observationBlock?(testObserver, .beforeWaiting)
-        
+
         let firstHangEndExpectation = XCTestExpectation(description: "First hang ended")
         queue.async {
             firstHangEndExpectation.fulfill()
@@ -271,7 +271,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         // No need for the lock here, the background thread finished
         XCTAssertEqual(hangCount, 1, "First hang should be detected")
         XCTAssertFalse(lastOngoing, "First hang should no longer be ongoing")
-        
+
         // Second hang: start (simulating another runloop iteration that hangs)
         mockDependencies.mockDateProvider.setSystemUptime(20)
         observationBlock?(testObserver, .afterWaiting)
@@ -287,20 +287,20 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
             XCTAssertEqual(lastInterval, 15, "Second hang interval should be 15")
             XCTAssertTrue(lastOngoing, "Second hang should be ongoing")
         }
-        
+
         // Second hang: complete
         observationBlock?(testObserver, .beforeWaiting)
-        
+
         let secondHangEndExpectation = XCTestExpectation(description: "Second hang ended")
         queue.async {
             secondHangEndExpectation.fulfill()
         }
         wait(for: [secondHangEndExpectation])
-        
+
         // No need fo rthe lock here, the background thread finished
         XCTAssertEqual(hangCount, 2, "Second hang should be detected after first hang completed")
         XCTAssertFalse(lastOngoing, "Second hang should no longer be ongoing")
-        
+
         sut.removeObserver(token: token)
         XCTAssertTrue(calledRemoveObserver, "Expected observer to be removed")
     }
@@ -322,7 +322,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
         #else
         weak var weakSut = sut
         #endif
-        
+
         let expectation = XCTestExpectation()
         var hangDetected = false
         _ = sut?.addObserver { _ in
@@ -331,22 +331,22 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
                 hangDetected = true
             }
         }
-        
+
         // Start the runloop iteration - this triggers the background queue to start waiting
         observationBlock?(testObserver, .afterWaiting)
-        
+
         // Wait until the hang is detected
         wait(for: [expectation])
-        
+
         // Now nil all references while the background queue is in the waitForHang loop
         // The HangTracker should NOT immediately deallocate because the background queue
         // holds a reference via the closure
         sut = nil
-        
+
         XCTAssertNotNil(weakSut)
-        
+
         observationBlock?(testObserver, .beforeWaiting)
-        
+
         // Verify the queue is not blocked
         let queueFreeExpectation = XCTestExpectation(description: "Queue is free")
         queue.async {
@@ -567,7 +567,7 @@ final class SentryRunLoopDelayTrackerTests: XCTestCase {
             XCTAssertEqual(observer1Interval, 10, "Observer 1 should receive hang interval")
             XCTAssertEqual(observer2Interval, 10, "Observer 2 should receive hang interval")
             XCTAssertEqual(observer3Interval, 10, "Observer 3 should receive hang interval")
-            
+
             XCTAssertTrue(observer1Ongoing, "Observer 1 should report hang as ongoing")
             XCTAssertTrue(observer2Ongoing, "Observer 2 should report hang as ongoing")
             XCTAssertTrue(observer3Ongoing, "Observer 3 should report hang as ongoing")

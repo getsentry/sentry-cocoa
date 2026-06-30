@@ -25,13 +25,13 @@
             return ExceptionType.unknown.rawValue
         }
     }
-    
+
     @objc
     public static func getFatalExceptionType(nonFatalErrorType: String) -> String {
         if nonFatalErrorType == ExceptionType.nonFullyBlocking.rawValue {
             return ExceptionType.fatalNonFullyBlocking.rawValue
         }
-        
+
         return ExceptionType.fatalFullyBlocking.rawValue
     }
 

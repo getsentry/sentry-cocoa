@@ -162,7 +162,7 @@
     @synchronized(self.discardedEvents) {
         SentryDiscardedEvent *event = self.discardedEvents[key];
         if (event != nil) {
-            quantity = event.quantity + 1;
+            quantity = event.quantity + quantity;
         }
 
         event = [[SentryDiscardedEvent alloc] initWithReason:nameForSentryDiscardReason(reason)
