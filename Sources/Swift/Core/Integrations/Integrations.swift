@@ -86,7 +86,9 @@ private struct AnyIntegration {
             integrations.append(.init(SentryMetricKitIntegration.self))
         }
         #endif
-        
+
+        integrations.append(.init(SentryHangTrackingV3Integration<SentryDependencyContainer>.self))
+
         integrations.forEach { anyIntegration in
             guard let integration = anyIntegration.install(options, dependencies) else { return }
 
