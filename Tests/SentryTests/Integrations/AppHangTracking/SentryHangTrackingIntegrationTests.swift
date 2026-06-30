@@ -101,7 +101,17 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
         let options = Options()
         options.enableAppHangTracking = true
         options.appHangTimeoutInterval = 0
-        
+
+        let result = hangTracker(with: options)
+        XCTAssertNil(result)
+    }
+
+    func test_whenV3Enabled_returnsNil() {
+        let options = Options()
+        options.enableAppHangTracking = true
+        options.appHangTimeoutInterval = 2.0
+        options.experimental.appHangs.enableV3 = true
+
         let result = hangTracker(with: options)
         XCTAssertNil(result)
     }
@@ -270,8 +280,8 @@ class SentryHangTrackingIntegrationTests: SentrySDKIntegrationTestsBase {
     }
 
     func testANRDetected_DetectingPausedResumed_EventCaptured() throws {
-        givenInitializedTracker()
         setUpThreadInspector()
+        givenInitializedTracker()
         try XCTUnwrap(sut).pauseAppHangTracking()
         try XCTUnwrap(sut).resumeAppHangTracking()
 

@@ -330,6 +330,12 @@
   },
   {
     "kind": "ObjCInterfaceDecl",
+    "name": "SentryObjCAppHangsOptions",
+    "super": "NSObject",
+    "has_inner": true
+  },
+  {
+    "kind": "ObjCInterfaceDecl",
     "name": "SentryObjCAttachment",
     "super": "NSObject",
     "has_inner": true
@@ -799,6 +805,13 @@
     "name": "appHangTimeoutInterval",
     "parent": "SentryObjCOptions",
     "returnType": "NSTimeInterval",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "appHangs",
+    "parent": "SentryObjCExperimentalOptions",
+    "returnType": "SentryObjCAppHangsOptions * _Nonnull",
     "instance": true
   },
   {
@@ -2056,6 +2069,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "enableV3",
+    "parent": "SentryObjCAppHangsOptions",
+    "returnType": "BOOL",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "enableViewRendererV2",
     "parent": "SentryObjCReplayOptions",
     "returnType": "BOOL",
@@ -2717,6 +2737,13 @@
     "name": "info:attributes:",
     "parent": "SentryObjCLogger",
     "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
+    "name": "init",
+    "parent": "SentryObjCAppHangsOptions",
+    "returnType": "instancetype _Nonnull",
     "instance": true
   },
   {
@@ -5822,6 +5849,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setEnableV3:",
+    "parent": "SentryObjCAppHangsOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setEnableViewRendererV2:",
     "parent": "SentryObjCReplayOptions",
     "returnType": "void",
@@ -7103,6 +7137,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "setThreshold:",
+    "parent": "SentryObjCAppHangsOptions",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "setTimestamp:",
     "parent": "SentryObjCBreadcrumb",
     "returnType": "void",
@@ -7936,6 +7977,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "threshold",
+    "parent": "SentryObjCAppHangsOptions",
+    "returnType": "NSTimeInterval",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "timestamp",
     "parent": "SentryObjCBreadcrumb",
     "returnType": "NSDate * _Nullable",
@@ -8379,6 +8427,12 @@
     "name": "appHangTimeoutInterval",
     "parent": "SentryObjCOptions",
     "type": "NSTimeInterval"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "appHangs",
+    "parent": "SentryObjCExperimentalOptions",
+    "type": "SentryObjCAppHangsOptions * _Nonnull"
   },
   {
     "kind": "ObjCPropertyDecl",
@@ -9032,6 +9086,12 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableUserInteractionTracing",
     "parent": "SentryObjCOptions",
+    "type": "BOOL"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "enableV3",
+    "parent": "SentryObjCAppHangsOptions",
     "type": "BOOL"
   },
   {
@@ -10671,6 +10731,12 @@
     "name": "threads",
     "parent": "SentryObjCEvent",
     "type": "NSArray<SentryObjCThread *> * _Nullable"
+  },
+  {
+    "kind": "ObjCPropertyDecl",
+    "name": "threshold",
+    "parent": "SentryObjCAppHangsOptions",
+    "type": "NSTimeInterval"
   },
   {
     "kind": "ObjCPropertyDecl",

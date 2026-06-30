@@ -82,6 +82,8 @@ schemeTemplates:
 
         # app hangs
         "--io.sentry.app-hangs.disable-tracking": false
+        "--io.sentry.app-hangs.enable-v3": true
+        "--io.sentry.app-hangs.disable-non-fully-blocking": false
 
         # watchdog terminations
         "--io.sentry.watchdog-terminations.disable-tracking": false

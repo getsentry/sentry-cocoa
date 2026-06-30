@@ -10,19 +10,19 @@ import Foundation
             return []
         }
         var features: [String] = []
-        
+
         if options.enableCaptureFailedRequests {
             features.append("captureFailedRequests")
         }
-        
+
         if options.enableTimeToFullDisplayTracing {
             features.append("timeToFullDisplayTracing")
         }
-        
+
         if options.swiftAsyncStacktraces {
             features.append("swiftAsyncStacktraces")
         }
-        
+
         if options.enablePersistingTracesWhenCrashing {
             features.append("persistingTracesWhenCrashing")
         }
@@ -54,6 +54,9 @@ import Foundation
         }
         if options.experimental.enableStandaloneAppStartTracing {
             features.append("standaloneAppStartTracing")
+        }
+        if options.experimental.appHangs.enableV3 {
+            features.append("appHangsV3")
         }
 
         return features
