@@ -10,6 +10,25 @@ struct SentryAppHang {
             let instructionAddress: String?
             let function: String?
             let module: String?
+            let package: String?
+            let imageAddress: String?
+            let inApp: Bool?
+
+            init(
+                instructionAddress: String?,
+                function: String?,
+                module: String?,
+                package: String? = nil,
+                imageAddress: String? = nil,
+                inApp: Bool? = nil
+            ) {
+                self.instructionAddress = instructionAddress
+                self.function = function
+                self.module = module
+                self.package = package
+                self.imageAddress = imageAddress
+                self.inApp = inApp
+            }
         }
 
         struct Sample {

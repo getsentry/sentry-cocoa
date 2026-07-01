@@ -280,7 +280,8 @@ final class SentryHangTrackingV3IntegrationTests: XCTestCase {
     func testProfilingData_toDictionary_serializesFrames() throws {
         let data = SentryAppHang.ProfilingData(
             frames: [
-                .init(instructionAddress: "0x1", function: "foo", module: "Bar"),
+                .init(instructionAddress: "0x1", function: "foo", module: "Bar",
+                      package: "sentrytest", imageAddress: "0x100000", inApp: true),
                 .init(instructionAddress: nil, function: nil, module: nil)
             ],
             stacks: [[0, 1]],
@@ -296,6 +297,9 @@ final class SentryHangTrackingV3IntegrationTests: XCTestCase {
         XCTAssertEqual(frames[0]["instruction_addr"] as? String, "0x1")
         XCTAssertEqual(frames[0]["function"] as? String, "foo")
         XCTAssertEqual(frames[0]["module"] as? String, "Bar")
+        XCTAssertEqual(frames[0]["package"] as? String, "sentrytest")
+        XCTAssertEqual(frames[0]["image_addr"] as? String, "0x100000")
+        XCTAssertEqual(frames[0]["in_app"] as? Bool, true)
         XCTAssertTrue(frames[1].isEmpty)
     }
 

@@ -3,6 +3,8 @@ struct SentryProfilingSampleAccumulator {
         let instructionAddress: String?
         let function: String?
         let module: String?
+        let package: String?
+        let imageAddress: String?
     }
 
     private var frameIndex: [FrameKey: Int] = [:]
@@ -19,43 +21,13 @@ struct SentryProfilingSampleAccumulator {
 
             if threadMetadata[threadIdStr] == nil {
                 threadMetadata[threadIdStr] = .init(
-                    name: thread.name ?? "Thread \(threadId)",
+                    name: resolveThreadName(thread, threadId: threadId),
                     priority: 0
                 )
             }
 
-            var frameIndices: [Int] = []
-            if let stacktrace = thread.stacktrace {
-                for frame in stacktrace.frames {
-                    let key = FrameKey(
-                        instructionAddress: frame.instructionAddress,
-                        function: frame.function,
-                        module: frame.module
-                    )
-                    let idx: Int
-                    if let existing = frameIndex[key] {
-                        idx = existing
-                    } else {
-                        idx = frames.count
-                        frameIndex[key] = idx
-                        frames.append(.init(
-                            instructionAddress: frame.instructionAddress,
-                            function: frame.function,
-                            module: frame.module
-                        ))
-                    }
-                    frameIndices.append(idx)
-                }
-            }
-
-            let stackIdx: Int
-            if let existing = stackIndex[frameIndices] {
-                stackIdx = existing
-            } else {
-                stackIdx = stacks.count
-                stackIndex[frameIndices] = stackIdx
-                stacks.append(frameIndices)
-            }
+            let frameIndices = deduplicateFrames(from: thread.stacktrace)
+            let stackIdx = deduplicateStack(frameIndices)
 
             samples.append(.init(
                 timestamp: timestamp,
@@ -72,5 +44,55 @@ struct SentryProfilingSampleAccumulator {
             samples: samples,
             threadMetadata: threadMetadata
         )
+    }
+
+    private func resolveThreadName(_ thread: SentryThread, threadId: UInt64) -> String {
+        if let threadName = thread.name, !threadName.isEmpty {
+            return threadName
+        }
+        if thread.isMain?.boolValue == true {
+            return "main"
+        }
+        return "Thread \(threadId)"
+    }
+
+    private mutating func deduplicateFrames(from stacktrace: SentryStacktrace?) -> [Int] {
+        guard let stacktrace else { return [] }
+        var indices: [Int] = []
+        for frame in stacktrace.frames {
+            let key = FrameKey(
+                instructionAddress: frame.instructionAddress,
+                function: frame.function,
+                module: frame.module,
+                package: frame.package,
+                imageAddress: frame.imageAddress
+            )
+            if let existing = frameIndex[key] {
+                indices.append(existing)
+            } else {
+                let idx = frames.count
+                frameIndex[key] = idx
+                frames.append(.init(
+                    instructionAddress: frame.instructionAddress,
+                    function: frame.function,
+                    module: frame.module,
+                    package: frame.package,
+                    imageAddress: frame.imageAddress,
+                    inApp: frame.inApp?.boolValue
+                ))
+                indices.append(idx)
+            }
+        }
+        return indices
+    }
+
+    private mutating func deduplicateStack(_ frameIndices: [Int]) -> Int {
+        if let existing = stackIndex[frameIndices] {
+            return existing
+        }
+        let idx = stacks.count
+        stackIndex[frameIndices] = idx
+        stacks.append(frameIndices)
+        return idx
     }
 }

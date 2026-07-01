@@ -144,6 +144,9 @@ extension SentryAppHang.ProfilingData {
             if let addr = frame.instructionAddress { dict["instruction_addr"] = addr }
             if let function = frame.function { dict["function"] = function }
             if let module = frame.module { dict["module"] = module }
+            if let package = frame.package { dict["package"] = package }
+            if let imageAddress = frame.imageAddress { dict["image_addr"] = imageAddress }
+            if let inApp = frame.inApp { dict["in_app"] = inApp }
             return dict
         }
 
