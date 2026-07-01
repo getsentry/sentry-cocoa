@@ -701,6 +701,7 @@ private struct MockDependencies: SentryAppHangTrackerDependencies {
     let runLoopDelayTracker: SentryRunLoopDelayTracker
     var threadInspector: SentryThreadInspector { SentryThreadInspector(options: nil) }
     var dateProvider: SentryCurrentDateProvider { TestCurrentDateProvider() }
+    var dispatchFactory: SentryDispatchFactory { SentryDispatchFactory() }
 }
 
 private class MockSentryRunLoopDelayTracker: SentryRunLoopDelayTracker {
