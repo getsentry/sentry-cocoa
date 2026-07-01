@@ -110,7 +110,16 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (BOOL)isEnabled
 {
-    return currentHub != nil && [currentHub getClient] != nil;
+    // Avoid the SentrySDKInternal.currentHub getter: it lazily creates an empty hub, and this check
+    // must be side-effect free. Snapshot under currentHubLock so ARC retains the hub before close()
+    // can nil the static and free it; an unsynchronized read races with close() (use-after-free,
+    // see #8267).
+    SentryHubInternal *localCurrentHub = nil;
+    @synchronized(currentHubLock) {
+        localCurrentHub = currentHub;
+    }
+
+    return localCurrentHub != nil && [localCurrentHub getClient] != nil;
 }
 
 + (BOOL)lastRunStatusCalled
