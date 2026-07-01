@@ -29,7 +29,9 @@ struct SentryProfilingSampleAccumulator {
             }
 
             let frameIndices = deduplicateFrames(from: thread.stacktrace)
-            let stackIdx = deduplicateStack(frameIndices)
+            // SentryStacktrace orders frames caller-to-callee (root-first),
+            // but profile V2 format expects leaf-first (matching the continuous profiler).
+            let stackIdx = deduplicateStack(Array(frameIndices.reversed()))
 
             samples.append(.init(
                 timestamp: timestamp,
