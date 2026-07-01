@@ -16,4 +16,7 @@ public struct AppHangsOptions {
 
     /// Duration before classifying as an app hang and reporting an event
     public var threshold: TimeInterval = 2.0
+
+    /// Interval in milliseconds between profiling samples during a hang.
+    public var profilingSampleIntervalMs: Int = 100
 }

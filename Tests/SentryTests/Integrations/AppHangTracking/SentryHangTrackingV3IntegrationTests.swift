@@ -23,7 +23,8 @@ final class SentryHangTrackingV3IntegrationTests: XCTestCase {
     private func makeSUT(
         enableV3: Bool = true,
         includeClient: Bool = true,
-        extensionIdentifier: String? = nil
+        extensionIdentifier: String? = nil,
+        hub: Hub? = nil
     ) -> SentryHangTrackingV3Integration<MockIntegrationDependencies>? {
         let options = Options()
         options.experimental.appHangs.enableV3 = enableV3
@@ -45,7 +46,7 @@ final class SentryHangTrackingV3IntegrationTests: XCTestCase {
         let deps = MockIntegrationDependencies(
             appHangTracker: mockTracker,
             client: includeClient ? testClient : nil,
-            hub: StubHub(),
+            hub: hub ?? StubHub(),
             extensionDetector: SentryExtensionDetector(infoPlistWrapper: infoPlistWrapper)
         )
         return SentryHangTrackingV3Integration(with: options, dependencies: deps)
@@ -153,6 +154,174 @@ final class SentryHangTrackingV3IntegrationTests: XCTestCase {
         XCTAssertTrue(testClient.captureEventInvocations.isEmpty)
     }
 
+    // MARK: - Profiling Context Tests
+
+    func testHangEnded_withProfilerId_setsProfileContextOnEvent() throws {
+        let stubHub = SpyHub()
+        let sut = makeSUT(hub: stubHub)
+        _ = sut
+
+        let profilerId = SentryId()
+        let hang = SentryAppHang(
+            duration: 2.0,
+            state: .ended,
+            profilerId: profilerId,
+            profilingData: nil,
+            startSystemTime: 1_000,
+            endSystemTime: 2_000
+        )
+        mockTracker.simulateHang(hang)
+
+        let event = try XCTUnwrap(testClient.captureEventInvocations.last)
+        let profileContext = try XCTUnwrap(event.context?["profile"] as? [String: Any])
+        XCTAssertEqual(profileContext["profiler_id"] as? String, profilerId.sentryIdString)
+    }
+
+    func testHangEnded_withoutProfilerId_doesNotSetProfileContext() throws {
+        let sut = makeSUT()
+        _ = sut
+
+        let hang = SentryAppHang(duration: 2.0, state: .ended)
+        mockTracker.simulateHang(hang)
+
+        let event = try XCTUnwrap(testClient.captureEventInvocations.last)
+        XCTAssertNil(event.context?["profile"])
+    }
+
+    func testHangEnded_withProfilingData_sendsProfileChunkEnvelope() throws {
+        let stubHub = SpyHub()
+        let sut = makeSUT(hub: stubHub)
+        _ = sut
+
+        let profilerId = SentryId()
+        let profilingData = SentryAppHang.ProfilingData(
+            frames: [
+                .init(instructionAddress: "0x1234", function: "main", module: "App")
+            ],
+            stacks: [[0]],
+            samples: [
+                .init(timestamp: 1_724_777_211.503, stackIndex: 0, threadId: 123)
+            ],
+            threadMetadata: ["123": .init(name: "main", priority: 31)]
+        )
+        let hang = SentryAppHang(
+            duration: 2.0,
+            state: .ended,
+            profilerId: profilerId,
+            profilingData: profilingData,
+            startSystemTime: 1_000,
+            endSystemTime: 2_000
+        )
+        mockTracker.simulateHang(hang)
+
+        XCTAssertEqual(stubHub.capturedEnvelopes.count, 1)
+        let envelope = try XCTUnwrap(stubHub.capturedEnvelopes.first)
+        XCTAssertEqual(envelope.items.count, 1)
+        XCTAssertEqual(envelope.items.first?.header.type, SentryEnvelopeItemTypes.profileChunk)
+    }
+
+    func testHangEnded_withProfilerIdButNoData_doesNotSendEnvelope() throws {
+        let stubHub = SpyHub()
+        let sut = makeSUT(hub: stubHub)
+        _ = sut
+
+        let hang = SentryAppHang(
+            duration: 2.0,
+            state: .ended,
+            profilerId: SentryId(),
+            profilingData: nil,
+            startSystemTime: 1_000,
+            endSystemTime: 2_000
+        )
+        mockTracker.simulateHang(hang)
+
+        XCTAssertTrue(stubHub.capturedEnvelopes.isEmpty)
+    }
+
+    func testProfileChunkEnvelope_containsExpectedPayload() throws {
+        let stubHub = SpyHub()
+        let sut = makeSUT(hub: stubHub)
+        _ = sut
+
+        let profilerId = SentryId()
+        let profilingData = SentryAppHang.ProfilingData(
+            frames: [
+                .init(instructionAddress: "0xABCD", function: "doWork", module: "MyApp")
+            ],
+            stacks: [[0]],
+            samples: [
+                .init(timestamp: 1_724_777_215.123, stackIndex: 0, threadId: 42)
+            ],
+            threadMetadata: ["42": .init(name: "main", priority: 31)]
+        )
+        let hang = SentryAppHang(
+            duration: 2.0,
+            state: .ended,
+            profilerId: profilerId,
+            profilingData: profilingData,
+            startSystemTime: 1_000,
+            endSystemTime: 2_000
+        )
+        mockTracker.simulateHang(hang)
+
+        let envelope = try XCTUnwrap(stubHub.capturedEnvelopes.first)
+        let itemData = try XCTUnwrap(envelope.items.first?.data)
+        let payload = try XCTUnwrap(JSONSerialization.jsonObject(with: itemData) as? [String: Any])
+
+        XCTAssertEqual(payload["version"] as? String, "2")
+        XCTAssertEqual(payload["profiler_id"] as? String, profilerId.sentryIdString)
+        XCTAssertEqual(payload["platform"] as? String, "cocoa")
+        XCTAssertNotNil(payload["chunk_id"])
+        XCTAssertNotNil(payload["profile"])
+    }
+
+    // MARK: - ProfilingData Serialization Tests
+
+    func testProfilingData_toDictionary_serializesFrames() throws {
+        let data = SentryAppHang.ProfilingData(
+            frames: [
+                .init(instructionAddress: "0x1", function: "foo", module: "Bar",
+                      package: "sentrytest", imageAddress: "0x100000", inApp: true),
+                .init(instructionAddress: nil, function: nil, module: nil)
+            ],
+            stacks: [[0, 1]],
+            samples: [.init(timestamp: 1_724_777_211.503, stackIndex: 0, threadId: 1)],
+            threadMetadata: [:]
+        )
+
+        let dict = data.toDictionary()
+        let profile = try XCTUnwrap(dict["profile"] as? [String: Any])
+        let frames = try XCTUnwrap(profile["frames"] as? [[String: Any]])
+
+        XCTAssertEqual(frames.count, 2)
+        XCTAssertEqual(frames[0]["instruction_addr"] as? String, "0x1")
+        XCTAssertEqual(frames[0]["function"] as? String, "foo")
+        XCTAssertEqual(frames[0]["module"] as? String, "Bar")
+        XCTAssertEqual(frames[0]["package"] as? String, "sentrytest")
+        XCTAssertEqual(frames[0]["image_addr"] as? String, "0x100000")
+        XCTAssertEqual(frames[0]["in_app"] as? Bool, true)
+        XCTAssertTrue(frames[1].isEmpty)
+    }
+
+    func testProfilingData_toDictionary_serializesSamples() throws {
+        let data = SentryAppHang.ProfilingData(
+            frames: [.init(instructionAddress: "0x1", function: "f", module: "M")],
+            stacks: [[0]],
+            samples: [.init(timestamp: 1_724_777_213.000, stackIndex: 0, threadId: 99)],
+            threadMetadata: [:]
+        )
+
+        let dict = data.toDictionary()
+        let profile = try XCTUnwrap(dict["profile"] as? [String: Any])
+        let samples = try XCTUnwrap(profile["samples"] as? [[String: Any]])
+
+        XCTAssertEqual(samples.count, 1)
+        XCTAssertEqual(samples[0]["thread_id"] as? String, "99")
+        XCTAssertEqual(samples[0]["stack_id"] as? NSNumber, NSNumber(value: 0))
+        let timestamp = try XCTUnwrap((samples[0]["timestamp"] as? NSNumber)?.doubleValue)
+        XCTAssertEqual(timestamp, 1_724_777_213.000, accuracy: 0.001)
+    }
+
     // MARK: - Name Tests
 
     func testName_shouldReturnCorrectName() {
@@ -189,6 +358,17 @@ private struct StubHub: Hub {
     func configureScope(_ callback: @escaping (Scope) -> Void) {}
     func storeEnvelope(_ envelope: SentryEnvelope) {}
     func captureEnvelope(_ envelope: SentryEnvelope) {}
+    func setTrace(_ traceId: SentryId, spanId: SpanId) {}
+    var options: Options { Options() }
+}
+
+private class SpyHub: Hub {
+    var capturedEnvelopes = [SentryEnvelope]()
+    func configureScope(_ callback: @escaping (Scope) -> Void) {}
+    func storeEnvelope(_ envelope: SentryEnvelope) {}
+    func captureEnvelope(_ envelope: SentryEnvelope) {
+        capturedEnvelopes.append(envelope)
+    }
     func setTrace(_ traceId: SentryId, spanId: SpanId) {}
     var options: Options { Options() }
 }

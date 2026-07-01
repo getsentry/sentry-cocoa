@@ -170,7 +170,12 @@ extension SentryFileManager: SentryFileManagerProtocol { }
         SentryDefaultRunLoopDelayTracker(dependencies: self)
     }()
     lazy var appHangTracker: SentryAppHangTracker = {
-        SentryDefaultAppHangTracker(dependencies: self)
+        let sdkOptions = SentrySDKInternal.currentHub().getClient()?.getOptions() as? Options
+        let hangOptions = sdkOptions?.experimental.appHangs
+        let profilingOptions = SentryDefaultAppHangTracker<SentryDependencyContainer>.Options(
+            sampleIntervalMs: hangOptions?.profilingSampleIntervalMs ?? 100
+        )
+        return SentryDefaultAppHangTracker(dependencies: self, profilingOptions: profilingOptions)
     }()
 
 #if os(iOS) && !SENTRY_NO_UI_FRAMEWORK
