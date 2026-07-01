@@ -882,7 +882,7 @@ final class SentryClientTests: XCTestCase {
         let actual = try lastSentEvent()
         do {
             let exceptions = try XCTUnwrap(actual.exceptions)
-            XCTAssertEqual("XMLParsingError(line: 10, column: 12, kind: SentryTests.XMLParsingError.ErrorKind.internalError) (Code: 1)", try XCTUnwrap(exceptions.first).value)
+            XCTAssertEqual("XMLParsingError(line: 10, column: 12, kind: \(SentryTestSetup.testPrefix).XMLParsingError.ErrorKind.internalError) (Code: 1)", try XCTUnwrap(exceptions.first).value)
         } catch {
             XCTFail("Exception expected but was nil")
         }

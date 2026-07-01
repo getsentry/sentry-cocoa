@@ -128,7 +128,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(true, options?.enableAutoSessionTracking)
 
         var expectedIntegrations = [
-            "SentryCrashIntegration",
             "SentryAutoBreadcrumbTrackingIntegration",
             "SentryAutoSessionTrackingIntegration",
             "SentryMetricsIntegration",
@@ -140,6 +139,11 @@ class SentrySDKTests: XCTestCase {
 #if os(iOS) || os(tvOS) || os(visionOS)
         expectedIntegrations.append("SentryFramesTrackingIntegration")
 #endif // os(iOS) || os(tvOS)
+        #if ENABLE_KSCRASH
+        expectedIntegrations.append("SentryKSCrashIntegration")
+        #else
+        expectedIntegrations.append("SentryCrashIntegration")
+        #endif
 
         assertIntegrationsInstalled(integrations: expectedIntegrations)
     }
