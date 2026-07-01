@@ -18,8 +18,8 @@
     ],
     "targetForVariableExpansion" : {
       "containerPath" : "container:Sentry.xcodeproj",
-      "identifier" : "63AA759A1EB8AEF500D153DE",
-      "name" : "Sentry"
+      "identifier" : "D61074A12EE358E90332638B",
+      "name" : "Sentry+KSCrash"
     },
     "uiTestingScreenshotsLifetime" : "keepAlways"
   },
@@ -60,16 +60,8 @@
       ],
       "target" : {
         "containerPath" : "container:Sentry.xcodeproj",
-        "identifier" : "63AA76641EB8CB2F00D153DE",
-        "name" : "SentryTests"
-      }
-    },
-    {
-      "parallelizable" : false,
-      "target" : {
-        "containerPath" : "container:Sentry.xcodeproj",
-        "identifier" : "D4CBA2422DE06D0200581618",
-        "name" : "SentryTestUtilsTests"
+        "identifier" : "3CFC66DE2FF50342004005B4",
+        "name" : "SentryTests+KSCrash"
       }
     },
     {
@@ -83,23 +75,7 @@
         "identifier" : "8431EECF29B27B1100D8DC56",
         "name" : "SentryProfilerTests"
       }
-    },
-    {
-      "parallelizable" : false,
-      "target" : {
-        "containerPath" : "container:Sentry.xcodeproj",
-        "identifier" : "D4B67CFB2FC5E6F20022BC67",
-        "name" : "SentryObjCTests"
-      }
-    },
-    {
-      "parallelizable" : false,
-      "target" : {
-        "containerPath" : "container:Sentry.xcodeproj",
-        "identifier" : "D4711CB02FC6E96D00508994",
-        "name" : "SentryObjCCompatTests"
-      }
-    },
+    }
   ],
   "version" : 1
 }

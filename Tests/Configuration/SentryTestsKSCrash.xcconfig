@@ -1,4 +1,9 @@
 #include "SentryTests.xcconfig"
 
+// The + in SentryTests+KSCrash is sanitised to _ by default, which would generate
+// "SentryTests_KSCrash-Swift.h". ObjC files import "SentryTests-Swift.h", so we
+// override the header name explicitly while keeping distinct Swift module names.
+SWIFT_OBJC_INTERFACE_HEADER_NAME = SentryTests-Swift.h
+
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) ENABLE_KSCRASH SDK_V10 SENTRY_TEST
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) ENABLE_KSCRASH=1 SDK_V10=1 SENTRY_TEST=1

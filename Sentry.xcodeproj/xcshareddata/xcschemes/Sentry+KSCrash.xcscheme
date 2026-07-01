@@ -21,6 +21,20 @@
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3CFC66DE2FF50342004005B4"
+               BuildableName = "SentryTests+KSCrash.xctest"
+               BlueprintName = "SentryTests+KSCrash"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -47,17 +61,8 @@
       </EnvironmentVariables>
       <TestPlans>
          <TestPlanReference
-            reference = "container:Plans/Sentry_Base.xctestplan"
+            reference = "container:Plans/SentryKSCrash_Base.xctestplan"
             default = "YES">
-         </TestPlanReference>
-         <TestPlanReference
-            reference = "container:Plans/Sentry_TestServer.xctestplan">
-         </TestPlanReference>
-         <TestPlanReference
-            reference = "container:Plans/Sentry_Flaky.xctestplan">
-         </TestPlanReference>
-         <TestPlanReference
-            reference = "container:Plans/SentryObjC_Base.xctestplan">
          </TestPlanReference>
       </TestPlans>
       <Testables>
@@ -65,9 +70,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "63AA76641EB8CB2F00D153DE"
-               BuildableName = "SentryTests.xctest"
-               BlueprintName = "SentryTests"
+               BlueprintIdentifier = "3CFC66DE2FF50342004005B4"
+               BuildableName = "SentryTests+KSCrash.xctest"
+               BlueprintName = "SentryTests+KSCrash"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
             <SkippedTests>
