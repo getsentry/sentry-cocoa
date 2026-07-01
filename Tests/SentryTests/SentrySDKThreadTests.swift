@@ -2,6 +2,7 @@
 import XCTest
 
 final class SentrySDKThreadTests: XCTestCase {
+
     /// Stress-tests concurrent bindClient + capture. Skipped on watchOS: limited concurrency (few threads)
     /// means the 100 async blocks often don’t all run within the 10s timeout.
     func testRaceWhenBindingClient() throws {

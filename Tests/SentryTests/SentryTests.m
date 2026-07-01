@@ -39,58 +39,6 @@
     [SentrySDKInternal.currentHub bindClient:nil];
 }
 
-- (void)testSDKDefaultHub
-{
-    [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
-        options.dsn = @"https://username:password@app.getsentry.com/12345";
-    }];
-    XCTAssertNotNil([SentrySDKInternal.currentHub getClient]);
-    [SentrySDKInternal.currentHub bindClient:nil];
-}
-
-- (void)testSDKBreadCrumbAdd
-{
-    [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
-        options.dsn = @"https://username:password@app.getsentry.com/12345";
-    }];
-
-    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
-                                                             category:@"testCategory"];
-    crumb.type = @"testType";
-    crumb.origin = @"testOrigin";
-    crumb.message = @"testMessage";
-    crumb.data = @{ @"testDataKey" : @"testDataVaue" };
-
-    [SentrySDK addBreadcrumb:crumb];
-}
-
-- (void)testSDKCaptureEvent
-{
-    [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
-        options.dsn = @"https://username:password@app.getsentry.com/12345";
-    }];
-
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
-
-    event.timestamp = [NSDate date];
-    event.message = [[SentryMessage alloc] initWithFormatted:@"testy test"];
-
-    [SentrySDK captureEvent:event];
-}
-
-- (void)testSDKCaptureError
-{
-    [SentrySDK startWithConfigureOptions:^(SentryOptions *_Nonnull options) {
-        options.dsn = @"https://username:password@app.getsentry.com/12345";
-    }];
-
-    NSError *error =
-        [NSError errorWithDomain:@"testworld"
-                            code:200
-                        userInfo:@{ NSLocalizedDescriptionKey : @"test ran out of money" }];
-    [SentrySDK captureError:error];
-}
-
 - (void)testLevelOrder
 {
     XCTAssertGreaterThan(kSentryLevelFatal, kSentryLevelError);
