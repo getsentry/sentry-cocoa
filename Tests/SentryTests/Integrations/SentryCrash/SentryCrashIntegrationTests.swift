@@ -2,14 +2,6 @@
 @_spi(Private) import SentryTestUtils
 import XCTest
 
-var isKSCrashEnabled: Bool {
-    #if ENABLE_KSCRASH
-    true
-    #else
-    false
-    #endif
-}
-
 class SentryCrashIntegrationTests: NotificationCenterTestCase {
     private static let dsnAsString = TestConstants.dsnAsString(username: "SentryCrashIntegrationTests")
     private class Fixture {
@@ -121,7 +113,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testContext_IsPassedToSentryCrash() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         SentrySDK.start { options in
             options.dsn = SentryCrashIntegrationTests.dsnAsString
@@ -136,7 +128,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsCrashed_WithCurrentSession() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         let expectedCrashedSession = givenCrashedSession()
         SentrySDKInternal.setCurrentHub(fixture.hub)
@@ -150,7 +142,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
     #if os(iOS) || os(tvOS)
     func testEndSessionAsCrashed_WhenOOM_WithCurrentSession() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         givenOOMAppState()
         SentrySDKInternal.startInvocations = 1
@@ -166,7 +158,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testOutOfMemoryTrackingDisabled() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         givenOOMAppState()
 
@@ -186,7 +178,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     #endif
 
     func testEndSessionAsCrashed_NoClientSet() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         let (_, _) = try givenSutWithGlobalHub()
 
@@ -197,7 +189,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsCrashed_NoCrashLastLaunch() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         let session = givenCurrentSession()
 
@@ -212,7 +204,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsCrashed_NoCurrentSession() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         let (_, _) = try givenSutWithGlobalHub()
 
@@ -226,7 +218,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 #if os(iOS) || os(tvOS)
 
     func testEndSessionAsAbnormal_NoHubBound() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // Arrange
         let sentryCrash = fixture.sentryCrash
@@ -243,7 +235,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsAbnormal_NoCurrentSession() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // Arrange
         SentrySDKInternal.setCurrentHub(fixture.hub)
@@ -261,7 +253,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsAbnormal_NoAppHangEvent() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // Arrange
         SentrySDKInternal.setCurrentHub(fixture.hub)
@@ -281,7 +273,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsAbnormal_AppHangEventDeletedInBetween() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // Arrange
         let fileManager = try DeleteAppHangWhenCheckingExistenceFileManager(
@@ -309,7 +301,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsAbnormal_AppHangEvent_EndsSessionAsAbnormal() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // Arrange
         SentrySDKInternal.setCurrentHub(fixture.hub)
@@ -340,7 +332,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsAbnormal_AppHangEventAndCrash_EndsSessionAsCrashed() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // Arrange
         let expectedCrashedSession = givenCrashedSession()
@@ -362,7 +354,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 #endif // os(iOS) || os(tvOS)
 
     func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
 
@@ -377,7 +369,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testOSCorrectlySetToScopeContext() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         let (_, hub) = try givenSutWithGlobalHubAndCrashWrapper()
 
@@ -385,7 +377,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testLocaleChanged_NoDeviceContext_SetsCurrentLocale() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         let (sut, hub) = try givenSutWithGlobalHub()
         defer {
@@ -402,7 +394,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testLocaleChanged_DifferentLocale_SetsCurrentLocale() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
         defer {
@@ -417,9 +409,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testStartUpCrash_CallsFlush() throws {
-        #if ENABLE_KSCRASH
-        throw XCTSkip("Skipping SentryCrash test while in KSCrash mode")
-        #else
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
 
         // Manually reset and enable the crash state because tearing down the global state in SentryCrash to achieve the same is complicated and doesn't really work.
@@ -451,13 +442,12 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         // Reset and disable crash state
         sentrycrashstate_reset()
         api?.pointee.setEnabled(false)
-        #endif
     }
 
 #if os(macOS)
 
     func testUncaughtExceptions_Enabled() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         defer { resetUserDefaults() }
 
@@ -485,7 +475,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testUncaughtExceptions_Enabled_ButSwizzlingDisabled() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         defer { resetUserDefaults() }
 
@@ -511,7 +501,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testUncaughtExceptions_Disabled() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         defer { resetUserDefaults() }
 
@@ -537,9 +527,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 #endif // os(macOS)
 
     func testEnableCppExceptionsV2_SwapsCxaThrow() throws {
-        #if ENABLE_KSCRASH
-        throw XCTSkip("Skipping SentryCrash test while in KSCrash mode")
-        #else
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // Arrange
         defer { sentrycrashct_unswap_cxa_throw() }
 
@@ -551,13 +540,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         // Assert
         XCTAssertTrue(sentrycrashct_is_cxa_throw_swapped(), "C++ exception throw handler must be swapped when enableUnhandledCPPExceptionsV2 is true.")
-        #endif
     }
 
     func testCppExceptionsV2NotEnabled_DoesNotSwapCxaThrow() throws {
-        #if ENABLE_KSCRASH
-        throw XCTSkip("Skipping SentryCrash test while in KSCrash mode")
-        #else
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // Arrange
         defer { sentrycrashct_unswap_cxa_throw() }
 
@@ -570,13 +557,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         // Assert
         XCTAssertFalse(sentrycrashct_is_cxa_throw_swapped(), "C++ exception throw handler must NOT be swapped when enableUnhandledCPPExceptionsV2 is false.")
-        #endif
     }
 
     func testEnableTracingForCrashes_SetsCallback() throws {
-        #if ENABLE_KSCRASH
-        throw XCTSkip("Skipping SentryCrash test while in KSCrash mode")
-        #else
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let options = Options()
         options.enablePersistingTracesWhenCrashing = true
         options.enableCrashHandler = true
@@ -584,13 +569,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
 
         XCTAssertTrue(sentrycrash_hasSaveTransaction())
-        #endif
     }
 
     func testEnableTracingForCrashes_Uninstall_RemovesCallback() throws {
-        #if ENABLE_KSCRASH
-        throw XCTSkip("Skipping SentryCrash test while in KSCrash mode")
-        #else
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let options = Options()
         options.enablePersistingTracesWhenCrashing = true
         options.enableCrashHandler = true
@@ -600,13 +583,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         sut.uninstall()
 
         XCTAssertFalse(sentrycrash_hasSaveTransaction())
-        #endif
     }
 
     func testEnableTracingForCrashes_Disabled_DoesNotSetCallback() throws {
-        #if ENABLE_KSCRASH
-        throw XCTSkip("Skipping SentryCrash test while in KSCrash mode")
-        #else
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let options = Options()
         options.enablePersistingTracesWhenCrashing = false
         options.enableCrashHandler = true
@@ -614,13 +595,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let (_, _) = try givenSutWithGlobalHubAndCrashWrapper(options)
 
         XCTAssertFalse(sentrycrash_hasSaveTransaction())
-        #endif
     }
 
     func testEnableTracingForCrashes_InvokeCallback_StoresTransaction() throws {
-        #if ENABLE_KSCRASH
-        throw XCTSkip("Skipping SentryCrash test while in KSCrash mode")
-        #else
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let options = fixture.options
         options.enablePersistingTracesWhenCrashing = true
 
@@ -642,13 +621,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let envelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: transactionEnvelopeFileContents.contents))
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertEqual("transaction", envelope.items.first?.header.type)
-        #endif
     }
 
     func testEnableTracingForCrashes_InvokeCallbackWhenNoSpanOnScope_TransactionNotFinished() throws {
-        #if ENABLE_KSCRASH
-        throw XCTSkip("Skipping SentryCrash test while in KSCrash mode")
-        #else
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let options = fixture.options
         options.enablePersistingTracesWhenCrashing = true
 
@@ -666,13 +643,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         XCTAssertFalse(transaction.isFinished)
         XCTAssertEqual(0, client?.fileManager.getAllEnvelopes().count)
-        #endif
     }
 
     func testEnableTracingForCrashes_InvokeCallback_WhenSpanOnScopeIsNotATracer_StoresTransaction() throws {
-        #if ENABLE_KSCRASH
-        throw XCTSkip("Skipping SentryCrash test while in KSCrash mode")
-        #else
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let options = fixture.options
         options.enablePersistingTracesWhenCrashing = true
 
@@ -694,11 +669,10 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let envelope = try XCTUnwrap(SentrySerializationSwift.envelope(with: transactionEnvelopeFileContents.contents))
         XCTAssertEqual(1, envelope.items.count)
         XCTAssertEqual("transaction", envelope.items.first?.header.type)
-        #endif
     }
 
     func testAttributesAreNotPassedToSentryCrash() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // Start the SDK without any integration
         SentrySDK.start { options in
@@ -725,7 +699,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     // MARK: - lastRunStatus
 
     func testInit_setsCrashReporterInstalled() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // -- Arrange --
         XCTAssertFalse(SentrySDKInternal.crashReporterInstalled)
@@ -738,7 +712,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testInit_whenNoCrash_shouldNotCallOnLastRunStatusCallback() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // -- Arrange --
         // The .didNotCrash callback is now deferred to after all integrations
@@ -762,7 +736,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testInit_whenCrash_shouldNotCallOnLastRunStatusCallback() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // -- Arrange --
         var callbackCalled = false
@@ -787,7 +761,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testInit_whenNoCrashAndNoCallback_shouldNotCrash() throws {
-        try XCTSkipIf(isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // -- Arrange --
         fixture.options.onLastRunStatusDetermined = nil
@@ -796,15 +770,6 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
         // -- Act & Assert -- (should not crash)
         _ = try fixture.getSut(crashWrapper: crash)
-    }
-
-    func testEnableKSCrashFlagIsActive() {
-        #if ENABLE_KSCRASH
-        XCTAssertTrue(SentryTestSetup.isKSCrashEnabled,
-            "ENABLE_KSCRASH compiler flag must be set when running under the Sentry+KSCrash scheme.")
-        #else
-        // No assertion — flag is expected to be absent under the normal scheme.
-        #endif
     }
 
     private func givenCurrentSession() -> SentrySession {

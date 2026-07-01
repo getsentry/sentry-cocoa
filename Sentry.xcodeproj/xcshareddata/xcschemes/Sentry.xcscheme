@@ -20,6 +20,76 @@
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "63AA76641EB8CB2F00D153DE"
+               BuildableName = "SentryTests.xctest"
+               BlueprintName = "SentryTests"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8431EECF29B27B1100D8DC56"
+               BuildableName = "SentryProfilerTests.xctest"
+               BlueprintName = "SentryProfilerTests"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D4CBA2422DE06D0200581618"
+               BuildableName = "SentryTestUtilsTests.xctest"
+               BlueprintName = "SentryTestUtilsTests"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D4B67CFB2FC5E6F20022BC67"
+               BuildableName = "SentryObjCTests.xctest"
+               BlueprintName = "SentryObjCTests"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D4711CB02FC6E96D00508994"
+               BuildableName = "SentryObjCCompatTests.xctest"
+               BlueprintName = "SentryObjCCompatTests"
+               ReferencedContainer = "container:Sentry.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
