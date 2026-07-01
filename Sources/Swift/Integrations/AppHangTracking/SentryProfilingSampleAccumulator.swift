@@ -1,4 +1,6 @@
+#if DEBUG
 import Darwin.POSIX.dlfcn
+#endif
 
 struct SentryProfilingSampleAccumulator {
     private struct FrameKey: Hashable {
@@ -64,7 +66,11 @@ struct SentryProfilingSampleAccumulator {
         guard let stacktrace else { return [] }
         var indices: [Int] = []
         for frame in stacktrace.frames {
+            #if DEBUG
             let function = frame.function ?? resolveSymbolName(for: frame.instructionAddress)
+            #else
+            let function = frame.function
+            #endif
             let key = FrameKey(
                 instructionAddress: frame.instructionAddress,
                 function: function,
@@ -91,6 +97,7 @@ struct SentryProfilingSampleAccumulator {
         return indices
     }
 
+    #if DEBUG
     private func resolveSymbolName(for instructionAddress: String?) -> String? {
         guard let addressStr = instructionAddress,
               addressStr.hasPrefix("0x"),
@@ -101,6 +108,7 @@ struct SentryProfilingSampleAccumulator {
               let sname = info.dli_sname else { return nil }
         return String(cString: sname)
     }
+    #endif
 
     private mutating func deduplicateStack(_ frameIndices: [Int]) -> Int {
         if let existing = stackIndex[frameIndices] {
