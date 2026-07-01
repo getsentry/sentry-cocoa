@@ -6,6 +6,8 @@
 #import <SentrySwift.h>
 #import <XCTest/XCTest.h>
 
+#if !SDK_V10
+
 @interface SentryFileIOTrackingIntegrationObjCTests : XCTestCase
 
 @end
@@ -228,3 +230,5 @@
 }
 
 @end
+
+#endif
