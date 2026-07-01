@@ -141,12 +141,10 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
         delay: SentryRunLoopDelay,
         entries: inout [UUID: ObserverEntry]
     ) -> [(SentryAppHangTrackerHandler, SentryAppHang)] {
-        let anyNeedsStart = entries.contains { _, entry in
-            delay.duration > entry.threshold && !entry.hasBeenNotified
-        }
-        guard anyNeedsStart else { return [] }
-
+        // Start profiling on the first ongoing delay, before any threshold is crossed.
+        // If the delay resolves before a threshold, the data is discarded in processEndedDelay.
         let context = startProfilingIfNeeded()
+
         var result: [(SentryAppHangTrackerHandler, SentryAppHang)] = []
 
         for (token, entry) in entries {
@@ -172,10 +170,14 @@ final class SentryDefaultAppHangTracker<Dependencies: SentryAppHangTrackerDepend
         entries: inout [UUID: ObserverEntry]
     ) -> [(SentryAppHangTrackerHandler, SentryAppHang)] {
         let anyNeedsEnd = entries.values.contains { $0.hasBeenNotified }
-        guard anyNeedsEnd else { return [] }
 
+        // Always stop profiling — it may have started before any threshold was crossed.
+        // If no observer was notified, the profiling data is discarded.
         let endTime = dateProvider.systemTime()
         let profilingResult = stopProfilingIfNeeded()
+
+        guard anyNeedsEnd else { return [] }
+
         SentrySDKLog.debug("AppHangTracker: Hang ended (duration=\(delay.duration)s), profilerId=\(profilingResult.profilerId?.sentryIdString ?? "nil"), sampleCount=\(profilingResult.profilingData?.samples.count ?? 0)")
 
         var result: [(SentryAppHangTrackerHandler, SentryAppHang)] = []

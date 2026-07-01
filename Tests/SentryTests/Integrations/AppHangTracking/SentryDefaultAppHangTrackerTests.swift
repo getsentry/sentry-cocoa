@@ -723,6 +723,64 @@ final class SentryDefaultAppHangTrackerTests: XCTestCase {
         XCTAssertEqual(metadata.name, "main", "Main thread should be named 'main' even when SentryThread.name is nil")
     }
 
+    func testProfiling_shouldStartBeforeThresholdIsCrossed() throws {
+        let delayTracker = MockSentryRunLoopDelayTracker()
+        let inspector = TestThreadInspector.instance
+        inspector.allThreads = [TestData.thread]
+        let deps = MockDependencies(runLoopDelayTracker: delayTracker, threadInspector: inspector)
+        let options = SentryDefaultAppHangTracker<MockDependencies>.Options(sampleIntervalMs: 100)
+        let sut = SentryDefaultAppHangTracker(dependencies: deps, profilingOptions: options)
+        let callbacks = Invocations<SentryAppHang>()
+        let startedExpectation = expectation(description: "Started")
+        let endedExpectation = expectation(description: "Ended")
+        let token = sut.addObserver(threshold: 2.0) { hang in
+            callbacks.record(hang)
+            switch hang.state {
+            case .started: startedExpectation.fulfill()
+            case .ended: endedExpectation.fulfill()
+            }
+        }
+        defer { sut.removeObserver(token: token) }
+
+        // Simulate delays below threshold — profiling should already be running
+        delayTracker.simulateDelay(duration: 0.1, ongoing: true)
+        delayTracker.simulateDelay(duration: 0.5, ongoing: true)
+        delayTracker.simulateDelay(duration: 1.0, ongoing: true)
+
+        // Now cross the threshold
+        delayTracker.simulateDelay(duration: 2.5, ongoing: true)
+        wait(for: [startedExpectation], timeout: 1)
+
+        delayTracker.simulateDelay(duration: 3.0, ongoing: false)
+        wait(for: [endedExpectation], timeout: 1)
+
+        let endedHang = try XCTUnwrap(callbacks.get(1))
+        let profilingData = try XCTUnwrap(endedHang.profilingData)
+        XCTAssertGreaterThan(profilingData.samples.count, 0, "Should have samples from before the threshold was crossed")
+    }
+
+    func testProfiling_shouldDiscardDataWhenDelayEndsBelowThreshold() throws {
+        let delayTracker = MockSentryRunLoopDelayTracker()
+        let inspector = TestThreadInspector.instance
+        inspector.allThreads = [TestData.thread]
+        let deps = MockDependencies(runLoopDelayTracker: delayTracker, threadInspector: inspector)
+        let options = SentryDefaultAppHangTracker<MockDependencies>.Options(sampleIntervalMs: 100)
+        let sut = SentryDefaultAppHangTracker(dependencies: deps, profilingOptions: options)
+        let callbacks = Invocations<SentryAppHang>()
+        let token = sut.addObserver(threshold: 2.0) { hang in
+            callbacks.record(hang)
+        }
+        defer { sut.removeObserver(token: token) }
+
+        // Delay starts but resolves before threshold
+        delayTracker.simulateDelay(duration: 0.1, ongoing: true)
+        delayTracker.simulateDelay(duration: 0.5, ongoing: true)
+        delayTracker.simulateDelay(duration: 1.0, ongoing: false)
+
+        // No observer should be notified — profiling data should be discarded
+        XCTAssertTrue(callbacks.isEmpty, "Observer should not be notified for sub-threshold delays")
+    }
+
     func testAddObserver_afterAllRemovedAndStopped_shouldStartFreshTracking() throws {
         // -- Arrange --
         let delayTracker = MockSentryRunLoopDelayTracker()
