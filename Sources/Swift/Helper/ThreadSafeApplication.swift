@@ -19,7 +19,7 @@ import UIKit
                 // would otherwise emit a `-[UIApplication applicationState] must be used
                 // from main thread only` runtime warning (#6591). Hop to main to read
                 // the value safely. The 10ms timeout matches the pattern used elsewhere
-                // in this file (e.g. internal_getWindows) — if main is contended we fall
+                // (e.g. internal_getWindows) — if main is contended we fall
                 // back to the same default the null-application branch uses, and the
                 // notification observers below will correct the state on the next
                 // foreground/background transition.
