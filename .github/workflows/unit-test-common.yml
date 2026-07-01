@@ -76,21 +76,12 @@ jobs:
 
       - name: Install simulator runtime
         # Bitrise is missing tvOS 17.5 runtime, so we need to install it manually.
-        if: ${{ inputs.runner_provider == 'bitrise' && inputs.test-destination-os != '' && inputs.platform == 'tvOS' }}
+        if: ${{ inputs.runner_provider == 'bitrise' && inputs.test-destination-os == '17.5' && inputs.platform == 'tvOS' }}
         timeout-minutes: 5
         env:
-          OS_VERSION: ${{ inputs.test-destination-os }}
           PLATFORM: ${{ inputs.platform }}
-        run: |
-          if xcrun simctl list runtimes -j 2>/dev/null \
-              | jq -e --arg p "$PLATFORM" --arg v "$OS_VERSION" \
-                  '[.runtimes[] | select(.isAvailable == true) | select(.platform == $p) | select(.version == $v)] | length > 0' \
-                  > /dev/null 2>&1; then
-            echo "Runtime $PLATFORM $OS_VERSION is already installed"
-          else
-            echo "Installing $PLATFORM $OS_VERSION runtime..."
-            xcodebuild -downloadPlatform "$PLATFORM" -buildVersion "$OS_VERSION"
-          fi
+          OS_VERSION: ${{ inputs.test-destination-os }}
+        run: ./scripts/ci-install-simulator-runtime.sh --platform "$PLATFORM" --os-version "$OS_VERSION"
 
       - name: Resolve test destination
         id: resolve-test-destination
