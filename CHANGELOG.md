@@ -9,6 +9,7 @@
 - Fix C++ exception capture on newer OS versions by page-aligning `mprotect` calls in the `__cxa_throw` swapper (#8221)
 - Fix client report discarded-event counts for categories reported in quantities greater than one (e.g. spans): each drop now adds the full dropped quantity instead of incrementing by one (#8230)
 - Rename extended app start span operation from `app.start.extended_app_start` to `app.start.extended` (#8220)
+- Fix unsynchronized debug-mode access in the binary image cache (#8309)
 
 ## 9.19.0
 
