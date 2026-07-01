@@ -500,9 +500,9 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_DEADLINE = 30.0;
         return;
     }
 
-    @synchronized(self) {
-        BOOL hasUnfinishedChildSpansToWaitFor = [self hasUnfinishedChildSpansToWaitFor];
+    BOOL hasUnfinishedChildSpansToWaitFor = [self hasUnfinishedChildSpansToWaitFor];
 
+    @synchronized(self) {
         if (!self.wasFinishCalled && !hasUnfinishedChildSpansToWaitFor && [self hasIdleTimeout]) {
             SENTRY_LOG_DEBUG(
                 @"Span with id %@ isn't waiting on children and needs idle timeout dispatched.",
