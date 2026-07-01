@@ -1,0 +1,26 @@
+name: Compare Machines
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast-unit-tests:
+    name: Fast Unit Tests (iOS 26) on ${{matrix.pool}}
+    uses: ./.github/workflows/unit-test-common.yml
+    secrets: inherit
+    with:
+      name: iOS 26 Sentry (${{matrix.pool}})
+      runs-on: ${{matrix.pool}}
+      timeout: 20
+      should_skip: false
+      xcode: "26"
+      platform: iOS
+      scheme: Sentry
+      runner_provider: bitrise
+    strategy:
+      matrix:
+        pool: ["tahoe", "tahoe-xl", "test-m4-pro"]
