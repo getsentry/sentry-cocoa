@@ -3,9 +3,9 @@ changelogPolicy: auto
 preReleaseCommand: bash ./scripts/bump.sh
 targets:
   - name: github
-  - name: cocoapods
-    id: sentry-cocoapod
-    specPath: Sentry.podspec
+  # The canonical name 'cocoapods:sentry-cocoa' is a historical artifact from when
+  # the SDK was distributed via CocoaPods. Changing it requires manual surgery in
+  # the sentry-release-registry repo, so we keep it as-is.
   - name: registry
     sdks:
       cocoapods:sentry-cocoa:

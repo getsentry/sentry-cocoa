@@ -182,7 +182,7 @@ Non-changelog types require `#skip-changelog` in PR description. Breaking change
 
 ## CLI
 
-See `make help` and the Makefile for commands and documentation. Key targets: `make format`, `make analyze`, `make build-ios`, `make test-ios`, `make build-xcframework-dynamic`, `make pod-lint`.
+See `make help` and the Makefile for commands and documentation. Key targets: `make format`, `make analyze`, `make build-ios`, `make test-ios`, `make build-xcframework-dynamic`.
 
 ## Shell Scripts
 

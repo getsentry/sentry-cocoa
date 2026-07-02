@@ -50,6 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<SentryLogScopeApplier> logScopeApplier;
 @property (nonatomic, strong) id<SentryObjCTelemetryProcessor> telemetryProcessor;
 @property (nonatomic, strong) id<SentryEventContextEnricher> eventContextEnricher;
+@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 
 @end
 
@@ -96,7 +97,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                         timezone:[NSCalendar autoupdatingCurrentCalendar].timeZone
             eventContextEnricher:dependencies.eventContextEnricher
                     crashWrapper:dependencies.crashWrapper
-                binaryImageCache:dependencies.binaryImageCache];
+                binaryImageCache:dependencies.binaryImageCache
+            dispatchQueueWrapper:dependencies.dispatchQueueWrapper];
 }
 
 - (instancetype)initWithOptions:(SentryOptions *)options
@@ -111,6 +113,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
            eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
                    crashWrapper:(id<SentryCrashReporter>)crashWrapper
                binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
+           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         _isEnabled = YES;
@@ -124,6 +127,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         self.timezone = timezone;
         self.attachmentProcessors = [[NSMutableArray alloc] init];
         self.eventContextEnricher = eventContextEnricher;
+        self.dispatchQueueWrapper = dispatchQueueWrapper;
 
         self.telemetryProcessor = [SentryTelemetryProcessorFactory
             getProcessorWithTransport:[[SentryDefaultTelemetryProcessorTransport alloc]
@@ -1155,23 +1159,43 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         return;
     }
 
-    if ([log isKindOfClass:[SentryLog class]]) {
-        SentryLog *sentryLog = (SentryLog *)log;
-        SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope toLog:sentryLog];
-
-        // Call beforeSendLog callback if configured
-        if (self.options.beforeSendLog != nil) {
-            enrichedLog = self.options.beforeSendLog(enrichedLog);
-            if (enrichedLog == nil) {
-                SENTRY_LOG_DEBUG(@"Log dropped by beforeSendLog callback.");
-                [self recordLostEvent:kSentryDataCategoryLogItem
-                               reason:kSentryDiscardReasonBeforeSend];
-                return;
-            }
-        }
-
-        [self.telemetryProcessor addLog:enrichedLog];
+    if (![log isKindOfClass:[SentryLog class]]) {
+        return;
     }
+
+    SentryLog *enrichedLog = [self.logScopeApplier applyScope:scope toLog:(SentryLog *)log];
+    SentryLog *logToSend = enrichedLog;
+
+    if (self.options.beforeSendLog != nil) {
+        logToSend = self.options.beforeSendLog(enrichedLog);
+        if (logToSend == nil) {
+            SENTRY_LOG_DEBUG(@"Log dropped by beforeSendLog callback.");
+            [self recordDroppedLogInClientReport:enrichedLog];
+            return;
+        }
+    }
+
+    [self.telemetryProcessor addLog:logToSend];
+}
+
+- (void)recordDroppedLogInClientReport:(SentryLog *)log
+{
+    // Offload to a background queue: serializing the log to determine its byte size is too
+    // expensive to run inline in beforeSendLog, which runs on the calling thread and must stay
+    // fast.
+    __weak SentryClientInternal *weakSelf = self;
+    [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+        SentryClientInternal *strongSelf = weakSelf;
+        if (strongSelf == nil) {
+            return;
+        }
+        NSUInteger byteCount = [SentryLogClientReport serializedByteCountForLog:log];
+        [strongSelf recordLostEvent:kSentryDataCategoryLogItem
+                             reason:kSentryDiscardReasonBeforeSend];
+        [strongSelf recordLostEvent:kSentryDataCategoryLogByte
+                             reason:kSentryDiscardReasonBeforeSend
+                           quantity:byteCount];
+    }];
 }
 
 - (id)getTelemetryProcessor
