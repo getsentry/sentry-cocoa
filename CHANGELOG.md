@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add `traceMetricByte` to `SentryDataCategory` (#8186)
+- Record log_byte client reports (#8186)
 
 ## 9.19.1
 
