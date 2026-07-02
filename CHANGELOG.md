@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Record log_byte client reports (#8186)
+
 ## 9.19.1
 
 ### Fixes

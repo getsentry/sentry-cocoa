@@ -22,10 +22,11 @@ open class TestClient: SentryClientInternal {
             timezone: NSCalendar.autoupdatingCurrent.timeZone,
             eventContextEnricher: SentryDependencyContainer.sharedInstance().eventContextEnricher,
             crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
-            binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache
+            binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
+            dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
         )
     }
-    
+
     // Without this override we get a fatal error: use of unimplemented initializer
     // see https://stackoverflow.com/questions/28187261/ios-swift-fatal-error-use-of-unimplemented-initializer-init
     @_spi(Private) public override init(
@@ -40,7 +41,8 @@ open class TestClient: SentryClientInternal {
         timezone: TimeZone,
         eventContextEnricher: SentryEventContextEnricher,
         crashWrapper: SentryCrashReporter,
-        binaryImageCache: SentryBinaryImageCache
+        binaryImageCache: SentryBinaryImageCache,
+        dispatchQueueWrapper: SentryDispatchQueueWrapper
     ) {
         super.init(
             options: options,
@@ -54,7 +56,8 @@ open class TestClient: SentryClientInternal {
             timezone: timezone,
             eventContextEnricher: eventContextEnricher,
             crashWrapper: crashWrapper,
-            binaryImageCache: binaryImageCache
+            binaryImageCache: binaryImageCache,
+            dispatchQueueWrapper: dispatchQueueWrapper
         )
     }
     
