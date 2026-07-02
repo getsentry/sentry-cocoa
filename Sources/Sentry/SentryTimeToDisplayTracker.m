@@ -114,6 +114,10 @@
             return;
         }
 
+        if (initialSpan == nil) {
+            return;
+        }
+
         fullSpan.timestamp = initialSpan.timestamp;
         fullSpan.spanDescription =
             [NSString stringWithFormat:@"%@ - Deadline Exceeded", fullSpan.spanDescription];
