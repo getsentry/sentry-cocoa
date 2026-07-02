@@ -47,7 +47,6 @@ Each integration will be self-contained in `3rd-party-integration/INTEGRATION-NA
 - `Tests/` - Test for the integration
 - `README.md` - Integration-specific documentation
 - `Package.swift` - SPM package definition
-- `*.podspec` - CocoaPods specification
 
 **Example:**
 
@@ -56,13 +55,11 @@ Each integration will be self-contained in `3rd-party-integration/INTEGRATION-NA
   ├── SentryCocoaLumberjack/
   │   ├── Sources/
   │   ├── README.md
-  │   ├── Package.swift
-  │   └── SentryCocoaLumberjack.podspec
+  │   └── Package.swift
   └── SentrySwiftLog/
       ├── Sources/
       ├── README.md
-      ├── Package.swift
-      └── SentrySwiftLog.podspec
+      └── Package.swift
 ```
 
 Since SPM fails to resolve dependencies if the folder has the same name as one of the dependencies, we cannot use the library name as the folder name.
