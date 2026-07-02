@@ -22,11 +22,18 @@ typedef mach_vm_size_t SentryRAMBytes;
 
 - (SentryRAMBytes)memoryFootprintBytes:(NSError **)error;
 
+#    if SDK_V10
+/**
+ * @return The CPU usage of this process as a percentage of the device's total CPU capacity,
+ * normalized to a range from @c 0.0 to @c 100.0.
+ */
+#    else
 /**
  * @return The CPU usage per core, where the order of results corresponds to the core number as
  * returned by the underlying system call, e.g. @c @[ @c <core-0-CPU-usage>, @c <core-1-CPU-usage>,
  * @c ...] .
  */
+#    endif
 - (nullable NSNumber *)cpuUsageWithError:(NSError **)error;
 
 // Only some architectures support reading energy.
