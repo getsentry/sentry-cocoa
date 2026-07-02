@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+## Features
+
+- Send `log_byte` client outcome reporting alongside `log_item` (#8185)
+
 ## 9.19.1
 
 ### Fixes
@@ -31,7 +37,6 @@
 
 ### Fixes
 
-- Wire `log_byte` client outcome reporting alongside `log_item` (#8185)
 - Don't send logs and metrics when the SDK is disabled (#8173)
 - Fixes crash caused by modifying breadcrumbs from multiple threads (#8114)
 - Prevent feedback form on external displays (#8071)
