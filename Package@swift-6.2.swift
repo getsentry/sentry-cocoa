@@ -16,12 +16,6 @@ let enableKSCrash = if let enableKSCrash = getenv("ENABLE_KSCRASH") {
     false
 }
 
-let targetDependencies: [Target.Dependency] = if enableKSCrash {
-    [.product(name: "Installations", package: "KSCrash")]
-} else {
-    []
-}
-
 var products: [Product] = [
     // BEGIN:BINARY_PRODUCTS
     .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
