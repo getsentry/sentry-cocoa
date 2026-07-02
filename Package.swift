@@ -10,6 +10,12 @@ import MSVCRT
 
 import PackageDescription
 
+let enableKSCrash = if let enableKSCrash = getenv("ENABLE_KSCRASH") {
+    String(cString: enableKSCrash) == "1"
+} else {
+    false
+}
+
 var products: [Product] = [
     // BEGIN:BINARY_PRODUCTS
     .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
@@ -84,6 +90,22 @@ var targets: [Target] = [
 
 // Targets required to support compile-from-source builds via SPM.
 products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
+products.append(.library(name: "Sentry+KSCrash", targets: ["SentryObjCInternal"]))
+
+let sentrySwiftTarget: Target = .target(
+    name: "SentrySwift",
+    dependencies: ["_SentryPrivate", "SentryHeaders"],
+    path: "Sources/Swift",
+    swiftSettings: [
+        .unsafeFlags(["-enable-library-evolution"])
+    ]
+)
+
+if enableKSCrash {
+    sentrySwiftTarget.dependencies.append(.product(name: "Installations", package: "KSCrash"))
+    sentrySwiftTarget.swiftSettings?.append(.define("ENABLE_KSCRASH"))
+}
+
 targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
@@ -98,13 +120,8 @@ targets += [
         path: "Sources/Sentry",
         sources: ["SentryDummyPrivateEmptyClass.m"],
         publicHeadersPath: "include"),
-    .target(
-        name: "SentrySwift",
-        dependencies: ["_SentryPrivate", "SentryHeaders"],
-        path: "Sources/Swift",
-        swiftSettings: [
-            .unsafeFlags(["-enable-library-evolution"])
-        ]),
+
+    sentrySwiftTarget,
 
     // SentryObjCInternal compiles all ObjC/C sources from the repo. Named "Internal"
     // to reserve "SentryObjC" for a future public Objective-C wrapper around the SDK.
@@ -154,10 +171,13 @@ targets += [
 ]
 // END:OBJC_WRAPPER
 
+let packageDependencies: [Package.Dependency] = enableKSCrash ? [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.3")] : []
+
 let package = Package(
     name: "Sentry",
     platforms: [.iOS(.v15), .macOS(.v10_14), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
     products: products,
+    dependencies: packageDependencies,
     targets: targets,
     swiftLanguageModes: [.v5],
     cxxLanguageStandard: .cxx14

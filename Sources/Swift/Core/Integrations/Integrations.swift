@@ -52,9 +52,14 @@ private struct AnyIntegration {
         #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UI_FRAMEWORK
         integrations.append(.init(SentrySessionReplayIntegration.self))
         #endif
-        
+
+        #if ENABLE_KSCRASH
+        integrations.append(.init(SentryKSCrashIntegration.self))
+        #else
+        integrations.append(.init(SentryCrashIntegration.self))
+        #endif
+
         integrations.append(contentsOf: [
-            .init(SentryCrashIntegration.self),
             .init(SentryAutoSessionTrackingIntegration.self),
             .init(SentryNetworkTrackingIntegration.self),
             .init(SentryHangTrackerIntegrationObjC.self),

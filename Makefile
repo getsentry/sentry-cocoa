@@ -295,6 +295,97 @@ build-watchos-v10:
 		-configuration DebugV10 \
 		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
 
+## Build all platforms with ENABLE_KSCRASH and SDK_V10 flags
+#
+# Convenience target that invokes all V10 with KSCrash platform build targets.
+.PHONY: build-v10-with-kscrash
+build-v10-with-kscrash: build-ios-v10-with-kscrash build-macos-v10-with-kscrash build-catalyst-v10-with-kscrash build-tvos-v10-with-kscrash build-visionos-v10-with-kscrash build-watchos-v10-with-kscrash
+
+## Build iOS target with ENABLE_KSCRASH and SDK_V10 flags
+#
+# Builds the Sentry SDK for iOS Simulator using the DebugV10 configuration.
+.PHONY: build-ios-v10-with-kscrash
+build-ios-v10-with-kscrash:
+	@echo "--> Building V10 with KSCrash for iOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform iOS \
+		--os $(IOS_SIMULATOR_OS) \
+		--device "$(IOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme Sentry+KSCrash \
+		--configuration DebugV10
+
+## Build macOS target with ENABLE_KSCRASH and SDK_V10 flags
+#
+# Builds the Sentry SDK for macOS using the DebugV10 configuration.
+.PHONY: build-macos-v10-with-kscrash
+build-macos-v10-with-kscrash:
+	@echo "--> Building V10 with KSCrash for macOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform macOS \
+		--os latest \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme Sentry+KSCrash \
+		--configuration DebugV10
+
+## Build Catalyst target with ENABLE_KSCRASH and SDK_V10 flags
+#
+# Builds the Sentry SDK for Mac Catalyst using the DebugV10 configuration.
+.PHONY: build-catalyst-v10-with-kscrash
+build-catalyst-v10-with-kscrash:
+	@echo "--> Building V10 with KSCrash for Catalyst"
+	./scripts/sentry-xcodebuild.sh \
+		--platform Catalyst \
+		--os latest \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme Sentry+KSCrash \
+		--configuration DebugV10
+
+## Build tvOS target with ENABLE_KSCRASH and SDK_V10 flags
+#
+# Builds the Sentry SDK for tvOS Simulator using the DebugV10 configuration.
+.PHONY: build-tvos-v10-with-kscrash
+build-tvos-v10-with-kscrash:
+	@echo "--> Building V10 with KSCrash for tvOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform tvOS \
+		--os $(TVOS_SIMULATOR_OS) \
+		--device "$(TVOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme Sentry+KSCrash \
+		--configuration DebugV10
+
+## Build visionOS target with ENABLE_KSCRASH and SDK_V10 flags
+#
+# Builds the Sentry SDK for visionOS Simulator using the DebugV10 configuration.
+.PHONY: build-visionos-v10-with-kscrash
+build-visionos-v10-with-kscrash:
+	@echo "--> Building V10 with KSCrash for visionOS"
+	./scripts/sentry-xcodebuild.sh \
+		--platform visionOS \
+		--os $(VISIONOS_SIMULATOR_OS) \
+		--device "$(VISIONOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command build \
+		--scheme Sentry+KSCrash \
+		--configuration DebugV10
+
+## Build watchOS target with ENABLE_KSCRASH and SDK_V10 flags
+#
+# Builds the Sentry SDK for watchOS Simulator using the DebugV10 configuration.
+.PHONY: build-watchos-v10-with-kscrash
+build-watchos-v10-with-kscrash:
+	@echo "--> Building V10 with KSCrash for watchOS"
+	set -o pipefail && NSUnbufferedIO=YES xcrun xcodebuild build \
+		-workspace Sentry.xcworkspace \
+		-scheme Sentry+KSCrash \
+		-destination 'platform=watchOS Simulator,OS=$(WATCHOS_SIMULATOR_OS),name=$(WATCHOS_DEVICE_NAME)' \
+		-configuration DebugV10 \
+		CODE_SIGNING_ALLOWED="NO" 2>&1 | xcbeautify --preserve-unbeautified
 ## Build XCFramework validation sample
 #
 # Builds the XCFramework validation sample project to verify XCFramework integration.
@@ -994,6 +1085,116 @@ test-visionos-v10:
 		--command test \
 		--scheme SentryV10 \
 		--configuration TestV10 \
+		--only-testing "$(ONLY_TESTING)"
+
+## Run all platform tests with ENABLE_KSCRASH and SDK_V10 flags
+#
+# Convenience target that invokes all KSCrash platform test targets.
+# Note: test-watchos-kscrash is excluded as watchOS does not support XCTest.
+.PHONY: test-v10-with-kscrash
+test-v10-with-kscrash: test-ios-v10-with-kscrash test-macos-v10-with-kscrash test-catalyst-v10-with-kscrash test-tvos-v10-with-kscrash test-visionos-v10-with-kscrash
+
+## Run iOS tests with ENABLE_KSCRASH and SDK_V10 flags
+#
+# Runs unit tests for iOS Simulator using the Sentry+KSCrash scheme.
+#
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Examples:
+#   make test-ios-v10-with-kscrash
+#   make test-ios-v10-with-kscrash ONLY_TESTING=SentryTests/SentryHttpTransportTests
+.PHONY: test-ios-v10-with-kscrash
+test-ios-v10-with-kscrash:
+	@echo "--> Running V10 with KSCrash iOS tests"
+	./scripts/sentry-xcodebuild.sh \
+		--platform iOS \
+		--os $(IOS_SIMULATOR_OS) \
+		--device "$(IOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command test \
+		--scheme Sentry+KSCrash \
+		--configuration TestV10KSCrash \
+		--only-testing "$(ONLY_TESTING)"
+
+## Run macOS tests with ENABLE_KSCRASH and SDK_V10 flags
+#
+# Runs unit tests for macOS using the Sentry+KSCrash scheme.
+#
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Examples:
+#   make test-macos-v10-with-kscrash
+#   make test-macos-v10-with-kscrash ONLY_TESTING=SentryTests/SentryHttpTransportTests
+.PHONY: test-macos-v10-with-kscrash
+test-macos-v10-with-kscrash:
+	@echo "--> Running V10 with KSCrash macOS tests"
+	./scripts/sentry-xcodebuild.sh \
+		--platform macOS \
+		--os latest \
+		--ref $(GIT-REF) \
+		--command test \
+		--scheme Sentry+KSCrash \
+		--configuration TestV10KSCrash \
+		--only-testing "$(ONLY_TESTING)"
+
+## Run Catalyst tests with ENABLE_KSCRASH and SDK_V10 flags
+#
+# Runs unit tests for Mac Catalyst using the Sentry+KSCrash scheme.
+#
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Examples:
+#   make test-catalyst-v10-with-kscrash
+#   make test-catalyst-v10-with-kscrash ONLY_TESTING=SentryTests/SentryHttpTransportTests
+.PHONY: test-catalyst-v10-with-kscrash
+test-catalyst-v10-with-kscrash:
+	@echo "--> Running V10 with KSCrash Catalyst tests"
+	./scripts/sentry-xcodebuild.sh \
+		--platform Catalyst \
+		--os latest \
+		--ref $(GIT-REF) \
+		--command test \
+		--scheme Sentry+KSCrash \
+		--configuration TestV10KSCrash \
+		--only-testing "$(ONLY_TESTING)"
+
+## Run tvOS tests with ENABLE_KSCRASH and SDK_V10 flags
+#
+# Runs unit tests for tvOS Simulator using the Sentry+KSCrash scheme.
+#
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Examples:
+#   make test-tvos-v10-with-kscrash
+#   make test-tvos-v10-with-kscrash ONLY_TESTING=SentryTests/SentryHttpTransportTests
+.PHONY: test-tvos-v10-with-kscrash
+test-tvos-v10-with-kscrash:
+	@echo "--> Running V10 with KSCrash tvOS tests"
+	./scripts/sentry-xcodebuild.sh \
+		--platform tvOS \
+		--os $(TVOS_SIMULATOR_OS) \
+		--device "$(TVOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command test \
+		--scheme Sentry+KSCrash \
+		--configuration TestV10KSCrash \
+		--only-testing "$(ONLY_TESTING)"
+
+## Run visionOS tests with ENABLE_KSCRASH and SDK_V10 flags
+#
+# Runs unit tests for visionOS Simulator using the Sentry+KSCrash scheme.
+#
+# Optional: ONLY_TESTING=Target/ClassName to run specific test class(es)
+# Examples:
+#   make test-visionos-v10-with-kscrash
+#   make test-visionos-v10-with-kscrash ONLY_TESTING=SentryTests/SentryHttpTransportTests
+.PHONY: test-visionos-v10-with-kscrash
+test-visionos-v10-with-kscrash:
+	@echo "--> Running V10 with KSCrash visionOS tests"
+	./scripts/sentry-xcodebuild.sh \
+		--platform visionOS \
+		--os $(VISIONOS_SIMULATOR_OS) \
+		--device "$(VISIONOS_DEVICE_NAME)" \
+		--ref $(GIT-REF) \
+		--command test \
+		--scheme Sentry+KSCrash \
+		--configuration TestV10KSCrash \
 		--only-testing "$(ONLY_TESTING)"
 
 ## Run test server in background

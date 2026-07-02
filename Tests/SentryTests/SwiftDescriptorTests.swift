@@ -41,7 +41,7 @@ class SwiftDescriptorTests: XCTestCase {
     
     func testGetSwiftErrorDescription_StructWithData() {
         let actual = SwiftDescriptor.getSwiftErrorDescription(XMLParsingError(line: 10, column: 12, kind: .internalError))
-        XCTAssertEqual("XMLParsingError(line: 10, column: 12, kind: SentryTests.XMLParsingError.ErrorKind.internalError)", actual)
+        XCTAssertEqual("XMLParsingError(line: 10, column: 12, kind: \(SentryTestSetup.testPrefix).XMLParsingError.ErrorKind.internalError)", actual)
     }
     
     func testGetSwiftErrorDescription_StructWithOneParam() {

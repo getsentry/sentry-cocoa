@@ -1,0 +1,22 @@
+#include "Sentry.xcconfig"
+
+// Always enable KSCrash and SDK_V10 for this target, regardless of configuration.
+GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS_$(CONFIGURATION)) ENABLE_KSCRASH=1 SDK_V10=1
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(SWIFT_ACTIVE_COMPILATION_CONDITIONS_$(CONFIGURATION)) ENABLE_KSCRASH SDK_V10
+
+// Framework bundle name differs from module name so both targets can coexist without a
+// product-name conflict. The module name stays "Sentry" so `import Sentry` still works.
+PRODUCT_NAME = SentryWithKSCrash
+
+// Sentry.xcconfig excludes KSCrash sources from the plain Sentry target.
+// This target owns those files, so clear the exclusion.
+EXCLUDED_SOURCE_FILE_NAMES =
+
+// Add Sources/Sentry/Public to header search paths so that _SentryPrivate module compilation
+// can find SentryProfilingConditionals.h (a public header not under include/).
+HEADER_SEARCH_PATHS = $(inherited) $(SRCROOT)/Sources/Sentry/Public
+
+// Both this target and the base Sentry target share PRODUCT_MODULE_NAME=Sentry. Xcode's
+// explicit module scanner can't tell them apart and emits a spurious missing-dependency
+// warning. Disabling explicit modules for this target silences it without affecting correctness.
+SWIFT_ENABLE_EXPLICIT_MODULES = NO

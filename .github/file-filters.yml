@@ -404,6 +404,32 @@ run_v10_for_prs: &run_v10_for_prs
   - "Makefile"
   - "Sources/Configuration/**"
 
+run_v10_with_kscrash_for_prs: &run_v10_with_kscrash_for_prs
+  - "Sources/**"
+  - "Tests/**"
+
+  # GH Actions
+  - ".github/workflows/build-v10-with-kscrash.yml"
+  - ".github/workflows/test-v10-with-kscrash.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts & actions
+  - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
+  - "scripts/resolve-test-destination.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
+  - "scripts/sentry-xcodebuild.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "Sentry.xcworkspace/**"
+
+  # Build configuration
+  - "Makefile"
+  - "Sources/Configuration/**"
+
 run_build_for_prs: &run_build_for_prs
   - "Sources/**"
   - "Samples/**"

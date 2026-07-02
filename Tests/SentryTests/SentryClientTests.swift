@@ -882,7 +882,7 @@ final class SentryClientTests: XCTestCase {
         let actual = try lastSentEvent()
         do {
             let exceptions = try XCTUnwrap(actual.exceptions)
-            XCTAssertEqual("XMLParsingError(line: 10, column: 12, kind: SentryTests.XMLParsingError.ErrorKind.internalError) (Code: 1)", try XCTUnwrap(exceptions.first).value)
+            XCTAssertEqual("XMLParsingError(line: 10, column: 12, kind: \(SentryTestSetup.testPrefix).XMLParsingError.ErrorKind.internalError) (Code: 1)", try XCTUnwrap(exceptions.first).value)
         } catch {
             XCTFail("Exception expected but was nil")
         }
@@ -2098,10 +2098,15 @@ final class SentryClientTests: XCTestCase {
 
         eventId.assertIsNotEmpty()
 
-        var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Crash", "Metrics", "NetworkTracking"]
+        var expectedIntegrations = ["AutoBreadcrumbTracking", "AutoSessionTracking", "Metrics", "NetworkTracking"]
         if !SentryDependencyContainer.sharedInstance().crashWrapper.isBeingTraced {
             expectedIntegrations = ["ANRTracking"] + expectedIntegrations
         }
+        #if ENABLE_KSCRASH
+        expectedIntegrations.append("KSCrash")
+        #else
+        expectedIntegrations.append("Crash")
+        #endif
 #if os(iOS) || os(tvOS) || os(visionOS)
         expectedIntegrations.append("FramesTracking")
 #endif // os(iOS) || os(tvOS)
