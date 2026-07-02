@@ -23,7 +23,6 @@ This feature is experimental and is currently not compatible with SPM.
 
 ```bash
 make build-xcframework-dynamic  # Build Sentry-Dynamic XCFramework
-make pod-lint              # Validate CocoaPods specs
 ./scripts/bump-version.sh --version X.Y.Z # Bump version
 ```
 

@@ -496,14 +496,14 @@ private class MockDependencies: ANRTrackerBuilder & SentryRunLoopDelayTrackerPro
 private class MockHangTracker: SentryRunLoopDelayTracker {
     private var observers: [SentryRunLoopDelayTrackerObserverToken: SentryRunLoopDelayTrackerHandler] = [:]
 
-    func addOngoingHangObserver(handler: @escaping SentryRunLoopDelayTrackerHandler) -> SentryRunLoopDelayTrackerObserverToken {
-        let id = SentryRunLoopDelayTrackerObserverToken()
-        observers[id] = handler
-        return id
+    func addObserver(handler: @escaping SentryRunLoopDelayTrackerHandler) -> SentryRunLoopDelayTrackerObserverToken {
+        let token = SentryRunLoopDelayTrackerObserverToken()
+        observers[token] = handler
+        return token
     }
 
-    func removeObserver(id: SentryRunLoopDelayTrackerObserverToken) {
-        observers.removeValue(forKey: id)
+    func removeObserver(token: SentryRunLoopDelayTrackerObserverToken) {
+        observers.removeValue(forKey: token)
     }
 
     /// Simulates a hang by calling all registered observers with the given duration and ongoing state

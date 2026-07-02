@@ -26,7 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
                        timezone:(NSTimeZone *)timezone
            eventContextEnricher:(id<SentryEventContextEnricher>)eventContextEnricher
                    crashWrapper:(id<SentryCrashReporter>)crashWrapper
-               binaryImageCache:(SentryBinaryImageCache *)binaryImageCache;
+               binaryImageCache:(SentryBinaryImageCache *)binaryImageCache
+           dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 @end
 

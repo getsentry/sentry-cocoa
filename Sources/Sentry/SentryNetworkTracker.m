@@ -495,7 +495,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 #endif // SENTRY_TARGET_REPLAY_SUPPORTED
 
     breadcrumb.data = breadcrumbData;
-    [SentrySDK addBreadcrumb:breadcrumb];
+    [SentrySDKInternal addBreadcrumb:breadcrumb];
 
     objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB,
         [NSNumber numberWithBool:YES], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
