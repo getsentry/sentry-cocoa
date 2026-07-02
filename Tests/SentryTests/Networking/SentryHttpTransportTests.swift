@@ -649,6 +649,44 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertEqual(1, attachment?.quantity)
     }
 
+    func testRecordLostEvent_WithQuantityGreaterOne_AccumulatesByQuantity() {
+        sut.recordLostEvent(.span, reason: .rateLimitBackoff, quantity: 4)
+        sut.recordLostEvent(.span, reason: .rateLimitBackoff, quantity: 4)
+
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertEqual(8, dict?["span:ratelimit_backoff"]?.quantity)
+    }
+
+    func testRecordLostEvent_MixingQuantityOneAndGreaterOne_AccumulatesByQuantity() {
+        sut.recordLostEvent(.span, reason: .sendError, quantity: 10)
+        sut.recordLostEvent(.span, reason: .sendError)
+        sut.recordLostEvent(.span, reason: .sendError, quantity: 5)
+
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertEqual(16, dict?["span:send_error"]?.quantity)
+    }
+
+    func testRecordLostEvent_DefaultQuantityOverload_AccumulatesByOne() {
+        sut.recordLostEvent(.error, reason: .rateLimitBackoff)
+        sut.recordLostEvent(.error, reason: .rateLimitBackoff)
+        sut.recordLostEvent(.error, reason: .rateLimitBackoff)
+
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertEqual(3, dict?["error:ratelimit_backoff"]?.quantity)
+    }
+
+    func testRecordLostEvent_DifferentCategoriesAndReasons_StayInSeparateBuckets() {
+        sut.recordLostEvent(.span, reason: .rateLimitBackoff, quantity: 4)
+        sut.recordLostEvent(.span, reason: .cacheOverflow, quantity: 2)
+        sut.recordLostEvent(.error, reason: .rateLimitBackoff, quantity: 3)
+
+        let dict = Dynamic(sut).discardedEvents.asDictionary as? [String: SentryDiscardedEvent]
+        XCTAssertEqual(3, dict?.count)
+        XCTAssertEqual(4, dict?["span:ratelimit_backoff"]?.quantity)
+        XCTAssertEqual(2, dict?["span:cache_overflow"]?.quantity)
+        XCTAssertEqual(3, dict?["error:ratelimit_backoff"]?.quantity)
+    }
+
     func testSendEnvelopesConcurrent() {
         fixture.requestManager.responseDelay = 0.0001
 

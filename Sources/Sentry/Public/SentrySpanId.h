@@ -21,7 +21,7 @@ NS_SWIFT_NAME(SpanId)
 
 /**
  * Creates a SentrySpanId from a 16 character string.
- * Returns a empty SentrySpanId with the input is invalid.
+ * Returns an empty SentrySpanId when the input is invalid.
  */
 - (instancetype)initWithValue:(NSString *)value;
 

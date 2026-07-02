@@ -8,7 +8,7 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ url: URL, _ options: Data.ReadingOptions) throws -> Data
     ) rethrows -> Data {
-        // We dont track reads from a url that is not a file url
+        // We don't track reads from a url that is not a file url
         // because these reads are handled by NSURLSession and
         // SentryNetworkTracker will create spans in these cases.
         guard url.scheme == NSURLFileScheme else {
@@ -35,7 +35,7 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ data: Data, _ url: URL, _ options: Data.WritingOptions) throws -> Void
     ) rethrows {
-        // We dont track reads from a url that is not a file url
+        // We don't track reads from a url that is not a file url
         // because these reads are handled by NSURLSession and
         // SentryNetworkTracker will create spans in these cases.
         guard url.scheme == NSURLFileScheme else {
@@ -58,7 +58,7 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ url: URL) throws -> Void
     ) rethrows {
-        // We dont track reads from a url that is not a file url
+        // We don't track reads from a url that is not a file url
         // because these reads are handled by NSURLSession and
         // SentryNetworkTracker will create spans in these cases.
         guard url.scheme == NSURLFileScheme else {
@@ -119,7 +119,7 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ srcUrl: URL, _ dstUrl: URL) throws -> Void
     ) rethrows {
-        // We dont track reads from a url that is not a file url
+        // We don't track reads from a url that is not a file url
         // because these reads are handled by NSURLSession and
         // SentryNetworkTracker will create spans in these cases.
         guard srcUrl.scheme == NSURLFileScheme && dstUrl.scheme == NSURLFileScheme else {
@@ -161,7 +161,7 @@ extension SentryFileIOTracker {
         origin: String,
         method: (_ srcUrl: URL, _ dstUrl: URL) throws -> Void
     ) rethrows {
-        // We dont track reads from a url that is not a file url
+        // We don't track reads from a url that is not a file url
         // because these reads are handled by NSURLSession and
         // SentryNetworkTracker will create spans in these cases.
         guard srcUrl.scheme == NSURLFileScheme && dstUrl.scheme == NSURLFileScheme else {
