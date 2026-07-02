@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `traceMetricByte` to `SentryDataCategory` (#8186)
+
 ## 9.19.1
 
 ### Fixes
@@ -19,7 +25,6 @@
 
 ### Features
 
-- Add `traceMetricByte` to `SentryDataCategory` (#8186)
 - Renamed experimental extended app start API (#8161):
   - `extendAppLaunch()` -> `extendAppStart()`
   - `finishExtendedAppLaunch()` -> `finishExtendedAppStart()`
