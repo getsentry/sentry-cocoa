@@ -327,51 +327,71 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     
 #endif // os(iOS) || os(tvOS)
             
+#if !SDK_V10
     func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() throws {
         let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
 
         let locale = "garbage"
         setLocaleToGlobalScope(locale: locale)
-        
+
         sut.uninstall()
-        
+
         localeDidChange()
-        
+
         assertLocaleOnHub(locale: locale, hub: hub)
     }
-    
-    func testOSCorrectlySetToScopeContext() throws {
-        let (_, hub) = try givenSutWithGlobalHubAndCrashWrapper()
-        
-        assertContext(context: hub.scope.contextDictionary as? [String: Any] ?? ["": ""])
-    }
-    
+
     func testLocaleChanged_NoDeviceContext_SetsCurrentLocale() throws {
         let (sut, hub) = try givenSutWithGlobalHub()
         defer {
             sut.uninstall()
         }
-        
+
         SentrySDK.configureScope { scope in
             scope.removeContext(key: "device")
         }
-        
+
         localeDidChange()
-        
+
         assertLocaleOnHub(locale: Locale.autoupdatingCurrent.identifier, hub: hub)
     }
-    
+
     func testLocaleChanged_DifferentLocale_SetsCurrentLocale() throws {
         let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
         defer {
             sut.uninstall()
         }
-        
+
         setLocaleToGlobalScope(locale: "garbage")
-        
+
         localeDidChange()
-        
+
         assertLocaleOnHub(locale: Locale.autoupdatingCurrent.identifier, hub: hub)
+    }
+#endif // !SDK_V10
+
+#if SDK_V10
+    func testLocaleChanged_whenV10_shouldNotSetDeviceLocale() throws {
+        // -- Arrange --
+        let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
+        defer {
+            sut.uninstall()
+        }
+
+        // -- Act --
+        localeDidChange()
+
+        // -- Assert --
+        let context = hub.scope.contextDictionary as? [String: Any] ?? ["": ""]
+        let device = context["device"] as? [String: Any]
+        XCTAssertNil(device?["locale"])
+    }
+#endif // SDK_V10
+
+    func testOSCorrectlySetToScopeContext() throws {
+        let (_, hub) = try givenSutWithGlobalHubAndCrashWrapper()
+
+        assertContext(context: hub.scope.contextDictionary as? [String: Any] ?? ["": ""])
     }
 
     func testStartUpCrash_CallsFlush() throws {
@@ -746,17 +766,19 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         return (sut, hub)
     }
     
+#if !SDK_V10
     private func setLocaleToGlobalScope(locale: String) {
         SentrySDK.configureScope { scope in
             guard var device = scope.contextDictionary["device"] as? [String: Any] else {
                 XCTFail("No device found on context.")
                 return
             }
-            
+
             device["locale"] = locale
             scope.setContext(value: device, key: "device")
         }
     }
+#endif
     
     private func assertUserInfoField(userInfo: [AnyHashable: Any], key: String, expected: String) {
         if let actual = userInfo[key] as? String {
@@ -800,19 +822,25 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
         #endif
         
+    #if !SDK_V10
         XCTAssertEqual(Locale.autoupdatingCurrent.identifier, device["locale"] as? String)
+    #else
+        XCTAssertNil(device["locale"])
+    #endif
     }
-    
+
+#if !SDK_V10
     private func assertLocaleOnHub(locale: String, hub: SentryHubInternal) {
         let context = hub.scope.contextDictionary as? [String: Any] ?? ["": ""]
-        
+
         guard let device = context["device"] as? [String: Any] else {
             XCTFail("No device found on context.")
             return
         }
-        
+
         XCTAssertEqual(locale, device["locale"] as? String)
     }
+#endif
     
     private func advanceTime(bySeconds: TimeInterval) throws {
         try XCTUnwrap(SentryDependencyContainer.sharedInstance().dateProvider as? TestCurrentDateProvider).setDate(date: SentryDependencyContainer.sharedInstance().dateProvider.date().addingTimeInterval(bySeconds))

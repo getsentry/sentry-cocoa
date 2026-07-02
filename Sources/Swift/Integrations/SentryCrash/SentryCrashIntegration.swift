@@ -108,11 +108,13 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
 
         sentrycrash_setSaveTransaction(nil)
 
+    #if !SDK_V10
         NotificationCenter.default.removeObserver(
             self,
             name: NSLocale.currentLocaleDidChangeNotification,
             object: nil
         )
+    #endif
 
         if #available(macOS 12.0, *) {
             NotificationCenter.default.removeObserver(
@@ -243,12 +245,14 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             }
         }
 
+    #if !SDK_V10
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(currentLocaleDidChange),
             name: NSLocale.currentLocaleDidChangeNotification,
             object: nil
         )
+    #endif
 
         if #available(macOS 12.0, *) {
             updateLowPowerModeContext(ProcessInfo.processInfo)
@@ -261,7 +265,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         }
     }
 
-    // Exposed to objc for the NotificationCenter in configureScope()
+#if !SDK_V10
     @objc private func currentLocaleDidChange() {
         SentrySDKInternal.currentHub().configureScope { scope in
             var device: [String: Any]
@@ -278,6 +282,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             scope.setContext(value: device, key: SENTRY_CONTEXT_DEVICE_KEY)
         }
     }
+#endif
 
     @objc @available(macOS 12.0, *)
     private func powerStateDidChange(notification: Notification) {
