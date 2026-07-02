@@ -250,6 +250,7 @@
         nameForSentryDataCategory(dataCategory));
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonRateLimitBackoff];
     [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
+    [self recordLostLogBytes:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
 }
 
 - (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
@@ -257,6 +258,7 @@
 {
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonCacheOverflow];
     [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonCacheOverflow];
+    [self recordLostLogBytes:envelopeItem reason:kSentryDiscardReasonCacheOverflow];
 }
 
 #pragma mark private methods
@@ -469,6 +471,15 @@
         SentryDataCategory category = sentryDataCategoryForEnvelopItemType(itemType);
         [self recordLostEvent:category reason:kSentryDiscardReasonSendError];
         [self recordLostSpans:item reason:kSentryDiscardReasonSendError];
+        [self recordLostLogBytes:item reason:kSentryDiscardReasonSendError];
+    }
+}
+
+- (void)recordLostLogBytes:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
+{
+    if ([SentryEnvelopeItemTypes.log isEqualToString:envelopeItem.type]) {
+        NSUInteger byteCount = envelopeItem.data.length;
+        [self recordLostEvent:kSentryDataCategoryLogByte reason:reason quantity:byteCount];
     }
 }
 

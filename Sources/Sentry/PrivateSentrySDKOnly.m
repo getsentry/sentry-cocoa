@@ -354,7 +354,8 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 {
     __block NSString *__nullable replayId;
 
-    [SentrySDK configureScope:^(SentryScope *_Nonnull scope) { replayId = scope.replayId; }];
+    [SentrySDKInternal
+        configureScope:^(SentryScope *_Nonnull scope) { replayId = scope.replayId; }];
 
     return replayId;
 }

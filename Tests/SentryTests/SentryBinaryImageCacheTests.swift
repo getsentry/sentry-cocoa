@@ -20,6 +20,7 @@ class SentryBinaryImageCacheTests: XCTestCase {
     }
 
     override func tearDown() {
+        LoadValidator.checkForDuplicatedSDKCallback = nil
         sut.stop()
         sentrycrashbic_useDefaultCacheState()
         SentryDependencyContainer.reset()
@@ -45,6 +46,36 @@ class SentryBinaryImageCacheTests: XCTestCase {
         let cache = try XCTUnwrap(sut.cache)
         XCTAssertEqual(1, cache.count)
         XCTAssertEqual("Expected Name at 100", sut.imageByAddress(100)?.name)
+    }
+
+    func testBinaryImageAdded_WhenDebugEnabled_shouldValidateDuplicatedSDK() throws {
+        sut.stop()
+        sut.start(true)
+        let validationInvocations = Invocations<(imageName: String, imageAddress: UInt64, imageSize: UInt64)>()
+        LoadValidator.checkForDuplicatedSDKCallback = { imageName, imageAddress, imageSize in
+            validationInvocations.record((imageName, imageAddress, imageSize))
+        }
+
+        let binaryImage = createCrashBinaryImage(100, name: "/usr/lib/system.dylib")
+        addBinaryImageToSut(binaryImage)
+
+        XCTAssertEqual(1, validationInvocations.count)
+        let invocation = try XCTUnwrap(validationInvocations.first)
+        XCTAssertEqual("/usr/lib/system.dylib", invocation.imageName)
+        XCTAssertEqual(binaryImage.address, invocation.imageAddress)
+        XCTAssertEqual(binaryImage.size, invocation.imageSize)
+    }
+
+    func testBinaryImageAdded_WhenDebugDisabled_shouldNotValidateDuplicatedSDK() {
+        let validationInvocations = Invocations<Void>()
+        LoadValidator.checkForDuplicatedSDKCallback = { _, _, _ in
+            validationInvocations.record(())
+        }
+
+        addBinaryImageToSut(createCrashBinaryImage(100, name: "/usr/lib/system.dylib"))
+
+        XCTAssertEqual(0, validationInvocations.count)
+        XCTAssertEqual(1, sut.cache?.count)
     }
 
     func testStop_WhenAlreadyStopped_shouldNotUnregisterExternalCallbacks() {

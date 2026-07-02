@@ -136,9 +136,10 @@ final class SentryDefaultRunLoopDelayTracker<T: SentryRunLoopObserver, Dependenc
     func removeObserver(token: SentryRunLoopDelayTrackerObserverToken) {
         // Prevent the removed handler from being deallocated inside `withLock`; its deinit chain could
         // re-enter the lock and deadlock.
-        let (_, isEmpty) = observers.withLock {
+        let (removed, isEmpty) = observers.withLock {
             ($0.removeValue(forKey: token), $0.isEmpty)
         }
+        _ = removed
 
         if isEmpty {
             stop()

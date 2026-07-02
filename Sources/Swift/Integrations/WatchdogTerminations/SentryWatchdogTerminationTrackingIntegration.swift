@@ -56,7 +56,7 @@ final class SentryWatchdogTerminationTrackingIntegration<Dependencies: WatchdogT
         super.init()
 
         tracker.start()
-        appHangTrackerObserverToken = appHangTracker?.addObserver(threshold: timeoutInterval) { [weak self] hang in
+        appHangTrackerObserverToken = appHangTracker?.addObserver(threshold: options.appHangTimeoutInterval) { [weak self] hang in
             guard let self else { return }
 
             switch hang.state {

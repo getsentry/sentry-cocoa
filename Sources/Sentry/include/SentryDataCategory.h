@@ -12,6 +12,7 @@ typedef NS_ENUM(NSUInteger, SentryDataCategory) {
     kSentryDataCategorySession = 3,
     kSentryDataCategoryTransaction = 4,
     kSentryDataCategoryAttachment = 5,
+    // Unused, but kept so the following raw values stay stable and need no extra mapping logic.
     kSentryDataCategoryUserFeedback = 6,
     kSentryDataCategoryProfile = 7,
     kSentryDataCategoryMetricBucket = 8,
@@ -21,5 +22,6 @@ typedef NS_ENUM(NSUInteger, SentryDataCategory) {
     kSentryDataCategoryFeedback = 12,
     kSentryDataCategoryLogItem = 13,
     kSentryDataCategoryTraceMetric = 14,
-    kSentryDataCategoryUnknown = 15,
+    kSentryDataCategoryLogByte = 15,
+    kSentryDataCategoryUnknown = 16,
 };
