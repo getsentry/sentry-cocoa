@@ -13,9 +13,6 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableUnhandledCPPExceptionsV2 = false
 
-    /// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
-    public var enableWatchdogTerminationsV2 = false
-
     /**
      * Enables network detail capture for Session Replay.
      *

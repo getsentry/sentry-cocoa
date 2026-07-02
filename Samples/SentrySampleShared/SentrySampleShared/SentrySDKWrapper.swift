@@ -226,8 +226,6 @@ public struct SentrySDKWrapper {
         options.enableFileManagerSwizzling = !SentrySDKOverrides.FileIO.disableFileManagerSwizzling.boolValue
         options.experimental.enableUnhandledCPPExceptionsV2 =
             !SentrySDKOverrides.Crash.disableUnhandledCPPExceptionsV2.boolValue
-        options.experimental.enableWatchdogTerminationsV2 =
-            !SentrySDKOverrides.WatchdogTerminations.disableV2.boolValue
 #if os(macOS) && !SENTRY_NO_UI_FRAMEWORK
         options.enableUncaughtNSExceptionReporting =
             !SentrySDKOverrides.Crash.disableUncaughtNSExceptionReporting.boolValue

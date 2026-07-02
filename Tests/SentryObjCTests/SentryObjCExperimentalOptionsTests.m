@@ -53,29 +53,6 @@
     XCTAssertFalse(options.enableUnhandledCPPExceptionsV2);
 }
 
-#pragma mark - enableWatchdogTerminationsV2
-
-- (void)testEnableWatchdogTerminationsV2_whenDefault_shouldBeFalse
-{
-    // -- Arrange --
-    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
-
-    // -- Assert --
-    XCTAssertFalse(options.enableWatchdogTerminationsV2);
-}
-
-- (void)testEnableWatchdogTerminationsV2_whenSetToYes_shouldReturnTrue
-{
-    // -- Arrange --
-    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
-
-    // -- Act --
-    options.enableWatchdogTerminationsV2 = YES;
-
-    // -- Assert --
-    XCTAssertTrue(options.enableWatchdogTerminationsV2);
-}
-
 #pragma mark - enableReplayNetworkDetailsCapturing
 
 - (void)testEnableReplayNetworkDetailsCapturing_whenDefault_shouldBeFalse

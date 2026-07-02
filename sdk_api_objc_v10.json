@@ -2070,13 +2070,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "enableWatchdogTerminationsV2",
-    "parent": "SentryObjCExperimentalOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "enabled",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -5836,13 +5829,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setEnableWatchdogTerminationsV2:",
-    "parent": "SentryObjCExperimentalOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setEnabled:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -9044,12 +9030,6 @@
     "kind": "ObjCPropertyDecl",
     "name": "enableWatchdogTerminationTracking",
     "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "enableWatchdogTerminationsV2",
-    "parent": "SentryObjCExperimentalOptions",
     "type": "BOOL"
   },
   {

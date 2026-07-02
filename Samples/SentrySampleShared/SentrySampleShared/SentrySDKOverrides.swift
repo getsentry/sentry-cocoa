@@ -197,7 +197,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
 
     public enum WatchdogTerminations: String, SentrySDKOverride {
         case disableTracking = "--io.sentry.watchdog-terminations.disable-tracking"
-        case disableV2       = "--io.sentry.watchdog-terminations.disable-v2"
     }
     case watchdogTerminations = "Watchdog Terminations"
 
@@ -505,7 +504,7 @@ extension SentrySDKOverrides.AppHangs {
 extension SentrySDKOverrides.WatchdogTerminations {
     public var overrideType: OverrideType {
         switch self {
-        case .disableTracking, .disableV2: return .boolean
+        case .disableTracking: return .boolean
         }
     }
 }

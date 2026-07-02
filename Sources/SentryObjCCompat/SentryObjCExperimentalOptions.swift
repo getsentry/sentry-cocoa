@@ -22,11 +22,6 @@ import Foundation
         set { wrapped.enableUnhandledCPPExceptionsV2 = newValue }
     }
 
-    @objc public var enableWatchdogTerminationsV2: Bool {
-        get { wrapped.enableWatchdogTerminationsV2 }
-        set { wrapped.enableWatchdogTerminationsV2 = newValue }
-    }
-
     @objc public var enableReplayNetworkDetailsCapturing: Bool {
         get { wrapped.enableReplayNetworkDetailsCapturing }
         set { wrapped.enableReplayNetworkDetailsCapturing = newValue }

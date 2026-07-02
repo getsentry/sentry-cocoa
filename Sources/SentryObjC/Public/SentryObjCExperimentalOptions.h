@@ -19,9 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL enableUnhandledCPPExceptionsV2;
 
-/// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
-@property (nonatomic) BOOL enableWatchdogTerminationsV2;
-
 /**
  * Enables network detail capture for Session Replay.
  *

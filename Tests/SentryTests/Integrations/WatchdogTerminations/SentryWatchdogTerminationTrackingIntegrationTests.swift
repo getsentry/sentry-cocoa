@@ -17,6 +17,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let hub: SentryHubInternal
         let scope: Scope
         let appStateManager: SentryAppStateManager
+        let mockAppHangTracker = MockAppHangTracker()
 
         convenience init() throws {
             let options = Options()
@@ -66,6 +67,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
                 scopePersistentStore: scopeContextPersistentStore
             )
             container.watchdogTerminationAttributesProcessor = watchdogTerminationAttributesProcessor
+            container.appHangTracker = mockAppHangTracker
 
             let client = TestClient(options: options)
             scope = Scope()
@@ -73,10 +75,8 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
             SentrySDKInternal.setCurrentHub(hub)
         }
 
-        func getSut(enableNewHangTracker: Bool = false) -> SentryWatchdogTerminationTrackingIntegration<SentryDependencyContainer>? {
+        func getSut() -> SentryWatchdogTerminationTrackingIntegration<SentryDependencyContainer>? {
             let container = SentryDependencyContainer.sharedInstance()
-            let options = options
-            options.experimental.enableWatchdogTerminationsV2 = enableNewHangTracker
             return SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: container)
         }
     }
@@ -317,53 +317,27 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         XCTAssertEqual(fixture.watchdogTerminationAttributesProcessor.setFingerprintInvocations.count, 1)
     }
 
-    func testANRDetected_UpdatesAppStateToTrue() throws {
+    func testHangStarted_UpdatesAppStateToTrue() throws {
         // -- Arrange --
         fixture.crashWrapper.internalIsBeingTraced = false
-        let sut = try XCTUnwrap(fixture.getSut())
+        let _ = try XCTUnwrap(fixture.getSut())
 
         // -- Act --
-        sut.anrDetected(type: .unknown)
+        fixture.mockAppHangTracker.simulateHang(SentryAppHang(duration: 5.0, state: .started))
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         XCTAssertTrue(appState.isANROngoing)
     }
 
-    func testANRDetected_NewHangTracker_UpdatesAppStateToTrue() throws {
+    func testHangStopped_UpdatesAppStateToFalse() throws {
         // -- Arrange --
         fixture.crashWrapper.internalIsBeingTraced = false
-        let sut = try XCTUnwrap(fixture.getSut(enableNewHangTracker: true))
+        let _ = try XCTUnwrap(fixture.getSut())
+        fixture.mockAppHangTracker.simulateHang(SentryAppHang(duration: 5.0, state: .started))
 
         // -- Act --
-        sut.hangStarted()
-
-        // -- Assert --
-        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
-        XCTAssertTrue(appState.isANROngoing)
-    }
-
-    func testANRStopped_UpdatesAppStateToFalse() throws {
-        // -- Arrange --
-        fixture.crashWrapper.internalIsBeingTraced = false
-        let sut = try XCTUnwrap(fixture.getSut())
-
-        // -- Act --
-        sut.anrStopped(result: nil)
-
-        // -- Assert --
-        let appState = try XCTUnwrap(fixture.fileManager.readAppState())
-        XCTAssertFalse(appState.isANROngoing)
-    }
-
-    func testANRStopped_NewHangTracker_UpdatesAppStateToFalse() throws {
-        // -- Arrange --
-        fixture.crashWrapper.internalIsBeingTraced = false
-        let sut = try XCTUnwrap(fixture.getSut(enableNewHangTracker: true))
-        sut.hangStarted()
-
-        // -- Act --
-        sut.hangStopped()
+        fixture.mockAppHangTracker.simulateHang(SentryAppHang(duration: 5.0, state: .ended))
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
@@ -379,7 +353,6 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let timeoutInterval: TimeInterval = 2.0
         let options = fixture.options
         options.appHangTimeoutInterval = timeoutInterval
-        options.experimental.enableWatchdogTerminationsV2 = true
 
         // -- Act --
         let integration = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
@@ -402,7 +375,6 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let timeoutInterval: TimeInterval = 2.0
         let options = fixture.options
         options.appHangTimeoutInterval = timeoutInterval
-        options.experimental.enableWatchdogTerminationsV2 = true
 
         // -- Act --
         let integration = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
@@ -424,7 +396,6 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let timeoutInterval: TimeInterval = 2.0
         let options = fixture.options
         options.appHangTimeoutInterval = timeoutInterval
-        options.experimental.enableWatchdogTerminationsV2 = true
 
         // -- Act --
         let integration = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
@@ -440,11 +411,27 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
 }
 
-private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & DateProviderProvider & ApplicationProvider {
+private class MockAppHangTracker: SentryAppHangTracker {
+    private var observers = [SentryAppHangTrackerObserverToken: SentryAppHangTrackerHandler]()
 
-    func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
-        SentryDependencyContainer.sharedInstance().getANRTracker(interval)
+    func addObserver(threshold: TimeInterval, handler: @escaping SentryAppHangTrackerHandler) -> SentryAppHangTrackerObserverToken {
+        let token = SentryAppHangTrackerObserverToken()
+        observers[token] = handler
+        return token
     }
+
+    func removeObserver(token: SentryAppHangTrackerObserverToken) {
+        observers.removeValue(forKey: token)
+    }
+
+    func simulateHang(_ hang: SentryAppHang) {
+        for handler in observers.values {
+            handler(hang)
+        }
+    }
+}
+
+private class MockDependencies: ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & DateProviderProvider & ApplicationProvider {
 
     var dateProvider: SentryCurrentDateProvider { TestCurrentDateProvider() }
 
@@ -517,11 +504,7 @@ private class MockRunLoopDelayTracker: SentryRunLoopDelayTracker {
 
 /// Mock dependencies that use a controllable MockRunLoopDelayTracker wrapped in a real
 /// SentryDefaultAppHangTracker, so per-observer threshold logic is exercised.
-private class MockDependenciesWithControllableDelayTracker: ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider {
-
-    func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
-        SentryDependencyContainer.sharedInstance().getANRTracker(interval)
-    }
+private class MockDependenciesWithControllableDelayTracker: ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider {
 
     let appHangTracker: SentryAppHangTracker
 
