@@ -102,7 +102,6 @@ jobs:
     needs:
       [
         files-changed,
-        build-test-server,
         test-v10-with-kscrash,
         ready-to-merge-gate,
       ]
