@@ -7,34 +7,6 @@ import UIKit
 
 typealias HangTrackingIntegrationScope = DispatchQueueWrapperProvider & CrashWrapperProvider & ExtensionDetectorProvider & DebugImageProvider & ThreadInspectorProvider & FileManagerProvider & ANRTrackerBuilder
 
-@_spi(Private) @objc public final class SentryHangTrackerIntegrationObjC: NSObject, SwiftIntegration {
-    
-    private let integration: SentryHangTrackingIntegration<SentryDependencyContainer>
-
-    init?(with options: Options, dependencies: SentryDependencyContainer) {
-        guard let integration = SentryHangTrackingIntegration(with: options, dependencies: dependencies) else {
-            return nil
-        }
-        self.integration = integration
-    }
-    
-    @objc public func pauseAppHangTracking() {
-        integration.pauseAppHangTracking()
-    }
-    
-    @objc public func resumeAppHangTracking() {
-        integration.resumeAppHangTracking()
-    }
-
-    static var name: String {
-        SentryHangTrackingIntegration<SentryDependencyContainer>.name
-    }
-
-    public func uninstall() {
-        integration.uninstall()
-    }
-}
-
 final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationScope>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
 
     let tracker: SentryANRTracker
@@ -44,8 +16,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     private let crashWrapper: SentryCrashReporter
     private let debugImageProvider: SentryDebugImageProvider
     private let threadInspector: SentryThreadInspector
-    private var reportAppHangs: Bool = true
-    private let reportAppHangsLock = NSRecursiveLock()
+    private let reportAppHangs = SentryMutex<Bool>(true)
     #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
     let enableReportNonFullyBlockingAppHangs: Bool
     #endif
@@ -79,41 +50,28 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
         enableReportNonFullyBlockingAppHangs = options.enableReportNonFullyBlockingAppHangs
         #endif
         super.init()
-        
+
         tracker.add(listener: self)
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         captureStoredAppHangEvent()
         #endif
     }
-    
+
     static var name: String {
         "SentryANRTrackingIntegration"
     }
 
     func pauseAppHangTracking() {
-        reportAppHangsSafe = false
+        reportAppHangs.withLock { $0 = false }
     }
 
     func resumeAppHangTracking() {
-        reportAppHangsSafe = true
+        reportAppHangs.withLock { $0 = true }
     }
 
     public func uninstall() {
         tracker.remove(listener: self)
-    }
-    
-    var reportAppHangsSafe: Bool {
-        get {
-            reportAppHangsLock.synchronized {
-                reportAppHangs
-            }
-        }
-        set {
-            reportAppHangsLock.synchronized {
-                reportAppHangs = newValue
-            }
-        }
     }
 
     deinit {
@@ -121,7 +79,7 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     }
 
     public func anrDetected(type: SentryANRType) {
-        guard reportAppHangsSafe else {
+        guard reportAppHangs.withLock({ $0 }) else {
             SentrySDKLog.debug("AppHangTracking paused. Ignoring reported app hang.")
             return
         }

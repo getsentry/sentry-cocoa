@@ -116,7 +116,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
                       method:(NSNumber * (^)(void))method
 {
 
-    // We dont track reads from a url that is not a file url
+    // We don't track reads from a url that is not a file url
     // because these reads are handled by NSURLSession and
     // SentryNetworkTracker will create spans in these cases.
     if (![url.scheme isEqualToString:NSURLFileScheme]) {
@@ -266,7 +266,7 @@ NSString *const SENTRY_TRACKING_COUNTER_KEY = @"SENTRY_TRACKING_COUNTER_KEY";
                                               operation:(NSString *)operation
                                    processDirectoryPath:(NSString *)processDirectoryPath
 {
-    // Some iOS versions nest constructors calls. This counter help us avoid create more than one
+    // Some iOS versions nest constructors calls. This counter helps us avoid creating more than one
     // span for the same operation.
     NSNumber *count =
         [[NSThread currentThread].threadDictionary objectForKey:SENTRY_TRACKING_COUNTER_KEY];

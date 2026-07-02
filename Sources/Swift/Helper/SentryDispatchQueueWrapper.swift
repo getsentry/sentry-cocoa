@@ -81,7 +81,7 @@ protocol SentryDispatchQueueWrapperProtocol {
 
     // The ObjC version of this code wrapped `dispatch_cancel` and `dispatch_block_create`
     // However dispatch_block is not accessible in Swift. Unit tests rely on stubbing out
-    // the creation and cancelation of dispatch blocks, so these two variables allow
+    // the creation and cancellation of dispatch blocks, so these two variables allow
     // unit tests to still do that, while moving the creation of the `dispatch_block_t`
     // to the ObjC callers. Once these callers migrate to Swift we can remove this entirely.
     public var shouldDispatchCancel: Bool {

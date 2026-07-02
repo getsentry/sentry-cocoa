@@ -49,13 +49,13 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * By calling this function an overlay will appear covering the parts
  * of the app that will be masked for the session replay.
- * This will only work if the debbuger is attached and it will
+ * This will only work if the debugger is attached and it will
  * cause some slow frames.
  *
  * @note This method must be called from the main thread.
  *
  * @warning This is an experimental feature and may still have bugs.
- * Do not use this is production.
+ * Do not use this in production.
  */
 - (void)showMaskPreview;
 
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * By calling this function an overlay will appear covering the parts
  * of the app that will be masked for the session replay.
- * This will only work if the debbuger is attached and it will
+ * This will only work if the debugger is attached and it will
  * cause some slow frames.
  *
  * @param opacity The opacity of the overlay.
@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @note This method must be called from the main thread.
  *
  * @warning This is an experimental feature and may still have bugs.
- * Do not use this is production.
+ * Do not use this in production.
  */
 - (void)showMaskPreview:(CGFloat)opacity;
 
@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @note This method must be called from the main thread.
  *
  * @warning This is an experimental feature and may still have bugs.
- * Do not use this is production.
+ * Do not use this in production.
  */
 - (void)hideMaskPreview;
 
