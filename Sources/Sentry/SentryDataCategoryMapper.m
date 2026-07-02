@@ -18,6 +18,7 @@ NSString *const kSentryDataCategoryNameMetricBucket = @"metric_bucket";
 NSString *const kSentryDataCategoryNameSpan = @"span";
 NSString *const kSentryDataCategoryNameFeedback = @"feedback";
 NSString *const kSentryDataCategoryNameLogItem = @"log_item";
+NSString *const kSentryDataCategoryNameLogByte = @"log_byte";
 NSString *const kSentryDataCategoryNameTraceMetric = @"trace_metric";
 NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 
@@ -122,6 +123,9 @@ sentryDataCategoryForString(NSString *value)
     if ([value isEqualToString:kSentryDataCategoryNameLogItem]) {
         return kSentryDataCategoryLogItem;
     }
+    if ([value isEqualToString:kSentryDataCategoryNameLogByte]) {
+        return kSentryDataCategoryLogByte;
+    }
     if ([value isEqualToString:kSentryDataCategoryNameTraceMetric]) {
         return kSentryDataCategoryTraceMetric;
     }
@@ -160,6 +164,8 @@ nameForSentryDataCategory(SentryDataCategory category)
         return kSentryDataCategoryNameFeedback;
     case kSentryDataCategoryLogItem:
         return kSentryDataCategoryNameLogItem;
+    case kSentryDataCategoryLogByte:
+        return kSentryDataCategoryNameLogByte;
     case kSentryDataCategoryTraceMetric:
         return kSentryDataCategoryNameTraceMetric;
 
