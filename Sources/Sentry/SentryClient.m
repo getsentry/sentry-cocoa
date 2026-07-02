@@ -1164,6 +1164,11 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
             enrichedLog = self.options.beforeSendLog(enrichedLog);
             if (enrichedLog == nil) {
                 SENTRY_LOG_DEBUG(@"Log dropped by beforeSendLog callback.");
+                // We intentionally record only log_item and not log_byte here. Computing a
+                // meaningful log_byte value would require encoding the log item, which is too
+                // expensive for this code path. While an approximation is possible, it would add
+                // extra code and complexity without providing enough value to justify the cost.
+                // BeforeSend must remain as efficient as possible.
                 [self recordLostEvent:kSentryDataCategoryLogItem
                                reason:kSentryDiscardReasonBeforeSend];
                 return;
