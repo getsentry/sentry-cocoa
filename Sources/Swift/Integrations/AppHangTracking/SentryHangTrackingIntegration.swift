@@ -5,11 +5,10 @@ import Foundation
 import UIKit
 #endif
 
-typealias HangTrackingIntegrationScope = DispatchQueueWrapperProvider & CrashWrapperProvider & ExtensionDetectorProvider & DebugImageProvider & ThreadInspectorProvider & FileManagerProvider & ANRTrackerBuilder
+typealias HangTrackingIntegrationScope = DispatchQueueWrapperProvider & CrashWrapperProvider & ExtensionDetectorProvider & DebugImageProvider & ThreadInspectorProvider & FileManagerProvider & ANRTrackerBuilder & AppHangTrackerProvider
 
 final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationScope>: NSObject, SwiftIntegration, SentryANRTrackerDelegate {
 
-    let tracker: SentryANRTracker
     private let options: Options
     private let fileManager: SentryFileManager
     private let dispatchQueueWrapper: SentryDispatchQueueWrapper
@@ -17,16 +16,13 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     private let debugImageProvider: SentryDebugImageProvider
     private let threadInspector: SentryThreadInspector
     private let reportAppHangs = SentryMutex<Bool>(true)
-    #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-    let enableReportNonFullyBlockingAppHangs: Bool
-    #endif
     let sentryANRMechanismDataAppHangDuration = "app_hang_duration"
+
+    private let appHangTracker: SentryAppHangTracker
+    private var appHangTrackerObserverToken: SentryAppHangTrackerObserverToken?
 
     init?(with options: Options, dependencies: Dependencies) {
         guard options.enableAppHangTracking && options.appHangTimeoutInterval > 0 else {
-            return nil
-        }
-        guard !dependencies.crashWrapper.isBeingTraced else {
             return nil
         }
         // Extension detection
@@ -35,7 +31,6 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
             return nil
         }
 
-        tracker = dependencies.getANRTracker(options.appHangTimeoutInterval)
         guard let fileManager = dependencies.fileManager else {
             SentrySDKLog.fatal("File manager is not available")
             return nil
@@ -46,12 +41,19 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
         self.debugImageProvider = dependencies.debugImageProvider
         self.threadInspector = dependencies.threadInspector
         self.options = options
-        #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        enableReportNonFullyBlockingAppHangs = options.enableReportNonFullyBlockingAppHangs
-        #endif
+        self.appHangTracker = dependencies.appHangTracker
         super.init()
 
-        tracker.add(listener: self)
+        appHangTrackerObserverToken = appHangTracker.addObserver(threshold: options.appHangTimeoutInterval) { [weak self] hang in
+            guard let self else { return }
+
+            switch hang.state {
+            case .started:
+                anrDetected(type: .fullyBlocking)
+            case .ended:
+                anrStopped(result: .init(minDuration: 0, maxDuration: hang.duration))
+            }
+        }
 
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
         captureStoredAppHangEvent()
@@ -71,7 +73,9 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     }
 
     public func uninstall() {
-        tracker.remove(listener: self)
+        if let token = appHangTrackerObserverToken {
+            appHangTracker.removeObserver(token: token)
+        }
     }
 
     deinit {
@@ -84,15 +88,13 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
             return
         }
         #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
-        guard type != .nonFullyBlocking || enableReportNonFullyBlockingAppHangs else {
-            SentrySDKLog.debug("Ignoring non fully blocking app hang.")
-            return
-        }
         guard SentryDependencyContainer.sharedInstance().threadsafeApplication.applicationState == .active else {
             return
         }
         #endif
 
+        // App hangs are detected and captured after taking longer than the configured minimum threshold.
+        // This means the stacktraces captured are not the ones at the begin of the app hang, but later during the hang.
         let threads = threadInspector.getCurrentThreadsWithStackTrace()
         guard !threads.isEmpty else {
             SentrySDKLog.warning("Getting current thread returned an empty list. Can't create AppHang event without a stacktrace.")
