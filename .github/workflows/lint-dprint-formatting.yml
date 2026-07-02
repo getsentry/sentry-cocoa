@@ -1,6 +1,5 @@
 # We want to run dprint for only the files it checks without running the other linters, which are
-# expensive. For example, dprint should run for markdown changes, but pod lib lint doesn't need to
-# run for markdown changes. Therefore, we run it in an extra workflow.
+# expensive. Therefore, we run it in an extra workflow.
 
 name: Lint dprint
 

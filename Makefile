@@ -1294,14 +1294,6 @@ validate-xcframework-symbols:
 	@echo "--> Validating XCFramework symbol consistency"
 	./scripts/validate-xcframework-symbols.sh --xcframework "$(XCFRAMEWORK)"
 
-## Lint CocoaPods podspec
-#
-# Validates the CocoaPods podspec file.
-.PHONY: pod-lint
-pod-lint:
-	@echo "--> Build local pod"
-	pod lib lint --verbose
-
 # ============================================================================
 # XCODE PROJECT GENERATION
 # ============================================================================
