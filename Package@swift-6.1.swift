@@ -189,6 +189,8 @@ targets += [
 ]
 // END:OBJC_WRAPPER
 
+let packageDependencies: [Package.Dependency] = enableKSCrash ? [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.3")] : []
+
 let package = Package(
     name: "Sentry",
     platforms: [.iOS(.v15), .macOS(.v10_14), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
@@ -198,7 +200,7 @@ let package = Package(
         .init(name: "V10", description: "Enable SDK V10 API changes."),
         .init(name: "KSCrash", description: "Enable upstream KSCrash integration.")
     ],
-    dependencies: enableKSCrash ? [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.3")] : [],
+    dependencies: packageDependencies,
     targets: targets,
     swiftLanguageModes: [.v5],
     cxxLanguageStandard: .cxx14
