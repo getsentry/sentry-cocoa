@@ -1,7 +1,7 @@
 // swiftlint:disable missing_docs
 import Foundation
 
-extension SentryLog {
+fileprivate extension SentryLog {
     /// Fallback for when a log can't be serialized. A typical enriched log is ~646 bytes; the
     /// client reports spec only needs an approximation.
     private static let defaultSerializedByteCount: UInt = 512
