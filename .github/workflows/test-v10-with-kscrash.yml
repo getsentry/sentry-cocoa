@@ -31,53 +31,6 @@ jobs:
           token: ${{ github.token }}
           filters: .github/file-filters.yml
 
-  build-test-server:
-    name: Build test server
-    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_with_kscrash_for_prs == 'true'
-    needs: files-changed
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - name: Cache for Test Server
-        id: cache_test_server
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
-        with:
-          path: ./test-server/.build
-          key: test-server-${{ hashFiles('./test-server') }}-arm64
-          restore-keys: |
-            test-server-${{ hashFiles('./test-server') }}-arm64
-            test-server-
-
-      - name: Build Test Server
-        if: steps.cache_test_server.outputs.cache-hit != 'true'
-        working-directory: test-server
-        run: >-
-          swift build -c release --arch arm64 2>&1 | tee test-server-build.log
-
-      - name: Copy Test Server Binary
-        working-directory: test-server
-        run: >-
-          cp $(swift build --show-bin-path -c release --arch arm64)/Run test-server-exec
-
-      - name: Archiving DerivedData
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: test-server
-          path: |
-            ./test-server/test-server-exec
-
-      - name: Archiving Raw Test Logs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: ${{ failure() || cancelled() }}
-        with:
-          name: test-server-build-log
-          path: |
-            test-server/test-server-build.log
-
-      - name: Run CI Diagnostics
-        uses: ./.github/actions/ci-diagnostics
-        if: failure()
-
   test-v10-with-kscrash:
     name: Test v10 with KSCrash ${{ matrix.platform }}
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_with_kscrash_for_prs == 'true'
