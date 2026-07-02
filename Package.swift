@@ -177,7 +177,7 @@ let package = Package(
     name: "Sentry",
     platforms: [.iOS(.v15), .macOS(.v10_14), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
     products: products,
-    dependencies: packageDependencies
+    dependencies: packageDependencies,
     targets: targets,
     swiftLanguageModes: [.v5],
     cxxLanguageStandard: .cxx14
