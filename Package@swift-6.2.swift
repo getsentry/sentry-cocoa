@@ -16,12 +16,6 @@ let enableKSCrash = if let enableKSCrash = getenv("ENABLE_KSCRASH") {
     false
 }
 
-let packageDependencies: [Package.Dependency] = if enableKSCrash {
-    [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.3")]
-} else {
-    []
-}
-
 let targetDependencies: [Target.Dependency] = if enableKSCrash {
     [.product(name: "Installations", package: "KSCrash")]
 } else {
@@ -102,6 +96,24 @@ var targets: [Target] = [
 
 // Targets required to support compile-from-source builds via SPM.
 products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
+
+let sentrySwiftTarget: Target = .target(
+    name: "SentrySwift",
+    dependencies: ["_SentryPrivate", "SentryHeaders"],
+    path: "Sources/Swift",
+    swiftSettings: [
+        .unsafeFlags(["-enable-library-evolution"]),
+        .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"])),
+        .define("SDK_V10", .when(traits: ["V10"])),
+        .define("SDK_V10", .when(traits: ["KSCrash"])),
+        .define("ENABLE_KSCRASH", .when(traits: ["KSCrash"]))
+    ]
+)
+
+if enableKSCrash {
+    sentrySwiftTarget.dependencies.append(.product(name: "Installations", package: "KSCrash"))
+}
+
 targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
@@ -116,17 +128,8 @@ targets += [
         path: "Sources/Sentry",
         sources: ["SentryDummyPrivateEmptyClass.m"],
         publicHeadersPath: "include"),
-    .target(
-        name: "SentrySwift",
-        dependencies: ["_SentryPrivate", "SentryHeaders"] + targetDependencies,
-        path: "Sources/Swift",
-        swiftSettings: [
-            .unsafeFlags(["-enable-library-evolution"]),
-            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"])),
-            .define("SDK_V10", .when(traits: ["V10"])),
-            .define("SDK_V10", .when(traits: ["KSCrash"])),
-            .define("ENABLE_KSCRASH", .when(traits: ["KSCrash"]))
-        ]),
+
+    sentrySwiftTarget,
 
     // SentryObjCInternal compiles all ObjC/C sources from the repo. Named "Internal"
     // to reserve "SentryObjC" for a future public Objective-C wrapper around the SDK.
@@ -201,7 +204,7 @@ let package = Package(
         .init(name: "V10", description: "Enable SDK V10 API changes."),
         .init(name: "KSCrash", description: "Enable upstream KSCrash integration.")
     ],
-    dependencies: packageDependencies,
+    dependencies: enableKSCrash ? [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.3")] : [],
     targets: targets,
     swiftLanguageModes: [.v5],
     cxxLanguageStandard: .cxx14
