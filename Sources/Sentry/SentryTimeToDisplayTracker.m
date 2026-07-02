@@ -89,32 +89,39 @@
     [tracer setFinishCallback:^(SentryTracer *_tracer) {
         [SentryDependencyContainer.sharedInstance.framesTracker removeListener:self];
 
-        // The tracer finishes when the screen is fully displayed. Therefore, we must also finish
-        // the TTID span.
-        if (self.initialDisplaySpan.isFinished == NO) {
-            [self.initialDisplaySpan finish];
+        // Strongify the weak span references so they can't become dangling
+        // mid-callback if the tracer's children are released concurrently.
+        id<SentrySpan> initialSpan = self.initialDisplaySpan;
+        id<SentrySpan> fullSpan = self.fullDisplaySpan;
+
+        if (initialSpan != nil && initialSpan.isFinished == NO) {
+            [initialSpan finish];
         }
 
-        // If the start time of the tracer changes, which is the case for app start transactions, we
-        // also need to adapt the start time of our spans.
-        self.initialDisplaySpan.startTimestamp = _tracer.startTimestamp;
-        [self addTimeToDisplayMeasurement:self.initialDisplaySpan name:@"time_to_initial_display"];
+        if (initialSpan != nil) {
+            initialSpan.startTimestamp = _tracer.startTimestamp;
+            [self addTimeToDisplayMeasurement:initialSpan name:@"time_to_initial_display"];
+        }
 
-        if (self.fullDisplaySpan == nil) {
+        if (fullSpan == nil) {
             return;
         }
 
-        self.fullDisplaySpan.startTimestamp = _tracer.startTimestamp;
-        [self addTimeToDisplayMeasurement:self.fullDisplaySpan name:@"time_to_full_display"];
+        fullSpan.startTimestamp = _tracer.startTimestamp;
+        [self addTimeToDisplayMeasurement:fullSpan name:@"time_to_full_display"];
 
-        if (self.fullDisplaySpan.status != kSentrySpanStatusDeadlineExceeded) {
+        if (fullSpan.status != kSentrySpanStatusDeadlineExceeded) {
             return;
         }
 
-        self.fullDisplaySpan.timestamp = self.initialDisplaySpan.timestamp;
-        self.fullDisplaySpan.spanDescription = [NSString
-            stringWithFormat:@"%@ - Deadline Exceeded", self.fullDisplaySpan.spanDescription];
-        [self addTimeToDisplayMeasurement:self.fullDisplaySpan name:@"time_to_full_display"];
+        if (initialSpan == nil) {
+            return;
+        }
+
+        fullSpan.timestamp = initialSpan.timestamp;
+        fullSpan.spanDescription =
+            [NSString stringWithFormat:@"%@ - Deadline Exceeded", fullSpan.spanDescription];
+        [self addTimeToDisplayMeasurement:fullSpan name:@"time_to_full_display"];
     }];
 
     return YES;

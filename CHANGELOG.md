@@ -6,6 +6,10 @@
 
 - Record log_byte client reports (#8186)
 
+### Fixes
+
+- Fix EXC_BAD_ACCESS in SentryTracer/SentryNetworkTracker span lifecycle caused by concurrent access to volatile properties (#8058)
+
 ## 9.19.1
 
 ### Fixes
