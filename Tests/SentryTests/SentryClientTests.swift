@@ -20,7 +20,8 @@ extension SentryClientInternal {
             timezone: Calendar.autoupdatingCurrent.timeZone,
             eventContextEnricher: TestEventContextEnricher(),
             crashWrapper: SentryDependencyContainer.sharedInstance().crashWrapper,
-            binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache
+            binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
+            dispatchQueueWrapper: TestSentryDispatchQueueWrapper()
         )
     }
 }
@@ -132,7 +133,8 @@ final class SentryClientTests: XCTestCase {
                     timezone: timezone,
                     eventContextEnricher: eventContextEnricher,
                     crashWrapper: crashWrapper,
-                    binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache
+                    binaryImageCache: SentryDependencyContainer.sharedInstance().binaryImageCache,
+                    dispatchQueueWrapper: dispatchQueue
                 )
             } catch {
                 XCTFail("Options could not be created")
@@ -2736,13 +2738,38 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(capturedLog.attributes["callback_modified"]?.value as? Bool, true)
     }
 
-    func testCaptureLog_beforeSendLogReturnsNil_logDropped() {
+    func testCaptureLog_beforeSendLogReturnsDifferentInstance_ProcessedLogIsSent() throws {
+        // -- Arrange --
+        let sut = fixture.getSut()
+
+        // Return a brand-new instance instead of mutating the input, so this catches a missing
+        // reassignment of the processed log before it's forwarded to the telemetry processor.
+        let replacement = SentryLog(level: .warn, body: "Replaced by callback")
+        sut.options.beforeSendLog = { _ in replacement }
+
+        let testProcessor = TestTelemetryProcessorForClient()
+        Dynamic(sut).telemetryProcessor = testProcessor
+
+        let log = SentryLog(level: .info, body: "Original message")
+
+        // -- Act --
+        sut._swiftCaptureLog(log, with: Scope())
+
+        // -- Assert --
+        XCTAssertEqual(testProcessor.addLogInvocations.count, 1)
+        let capturedLog = try XCTUnwrap(testProcessor.addLogInvocations.first)
+        XCTAssertIdentical(capturedLog, replacement)
+    }
+
+    func testCaptureLog_beforeSendLogReturnsNil_logDropped() throws {
         // -- Arrange --
         let sut = fixture.getSut()
 
         var beforeSendCalled = false
-        sut.options.beforeSendLog = { _ in
+        var droppedLog: SentryLog?
+        sut.options.beforeSendLog = { log in
             beforeSendCalled = true
+            droppedLog = log
             return nil // Drop the log
         }
 
@@ -2752,12 +2779,28 @@ final class SentryClientTests: XCTestCase {
         let log = SentryLog(level: .info, body: "This log should be dropped")
         let scope = Scope()
 
+        let dispatchAsyncCallsBefore = fixture.dispatchQueue.dispatchAsyncCalled
+
         // -- Act --
         sut._swiftCaptureLog(log, with: scope)
 
         // -- Assert --
         XCTAssertTrue(beforeSendCalled)
         XCTAssertEqual(testProcessor.addLogInvocations.count, 0, "Log should be dropped when beforeSendLog returns nil")
+
+        // The recording must be offloaded to the dispatch queue, not run on the calling thread.
+        XCTAssertEqual(fixture.dispatchQueue.dispatchAsyncCalled, dispatchAsyncCallsBefore + 1)
+
+        // A dropped log records both a log_item outcome (count 1) and a log_byte outcome with the
+        // dropped log's serialized byte size. The dispatched block runs synchronously in tests.
+        let lostItem = try XCTUnwrap(fixture.transport.recordLostEvents.first)
+        XCTAssertEqual(lostItem.category, .logItem)
+        XCTAssertEqual(lostItem.reason, .beforeSend)
+
+        let lostByte = try XCTUnwrap(fixture.transport.recordLostEventsWithCount.first)
+        XCTAssertEqual(lostByte.category, .logByte)
+        XCTAssertEqual(lostByte.reason, .beforeSend)
+        XCTAssertEqual(lostByte.quantity, SentryLogClientReport.serializedByteCount(for: try XCTUnwrap(droppedLog)))
     }
 
     func testCaptureLog_beforeSendLogNotSet_logCapturedUnmodified() throws {

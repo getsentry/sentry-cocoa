@@ -8,6 +8,9 @@ import MachO
 @_spi(Private) public final class LoadValidator: NSObject {
     // Any class should be fine, ObjC classes are better
     static let targetClassName = NSStringFromClass(SentryDependencyContainerSwiftHelper.self)
+#if SENTRY_TEST || SENTRY_TEST_CI
+    static var checkForDuplicatedSDKCallback: ((String, UInt64, UInt64) -> Void)?
+#endif
     
     // This function is used to check for duplicated SDKs in the binary.
     // Since `SentryBinaryImageInfo` is not public and only available through the Hybrid SDK, we use the expanded parameters.
@@ -17,6 +20,9 @@ import MachO
                                                            imageSize: NSNumber,
                                                            objcRuntimeWrapper: SentryObjCRuntimeWrapper,
                                                            dispatchQueueWrapper: SentryDispatchQueueWrapper) {
+#if SENTRY_TEST || SENTRY_TEST_CI
+        checkForDuplicatedSDKCallback?(imageName, imageAddress.uint64Value, imageSize.uint64Value)
+#endif
         internalCheckForDuplicatedSDK(imageName, imageAddress.uint64Value, imageSize.uint64Value,
                                       objcRuntimeWrapper: objcRuntimeWrapper,
                                       dispatchQueueWrapper: dispatchQueueWrapper)

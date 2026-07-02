@@ -2,13 +2,21 @@
 
 ## Unreleased
 
+### Features
+
+- Record log_byte client reports (#8186)
+
+## 9.19.1
+
 ### Fixes
 
+- Fix use-after-free crash in `SentrySDKInternal.isEnabled` (#8310)
 - Fix dropped `platform` item header in profile-chunk envelopes (#8269)
 - Fix crash report ID generation so reports created at certain timestamps are not ignored (#8216)
 - Fix C++ exception capture on newer OS versions by page-aligning `mprotect` calls in the `__cxa_throw` swapper (#8221)
 - Fix client report discarded-event counts for categories reported in quantities greater than one (e.g. spans): each drop now adds the full dropped quantity instead of incrementing by one (#8230)
 - Rename extended app start span operation from `app.start.extended_app_start` to `app.start.extended` (#8220)
+- Fix unsynchronized debug-mode access in the binary image cache (#8309)
 
 ## 9.19.0
 
