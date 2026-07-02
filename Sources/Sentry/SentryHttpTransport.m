@@ -479,9 +479,7 @@
 {
     if ([SentryEnvelopeItemTypes.log isEqualToString:envelopeItem.type]) {
         NSUInteger byteCount = envelopeItem.data.length;
-        if (byteCount > 0) {
-            [self recordLostEvent:kSentryDataCategoryLogByte reason:reason quantity:byteCount];
-        }
+        [self recordLostEvent:kSentryDataCategoryLogByte reason:reason quantity:byteCount];
     }
 }
 
