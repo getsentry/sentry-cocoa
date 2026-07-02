@@ -206,8 +206,140 @@ class SentryDefaultRateLimitsTests: XCTestCase {
     
     func testIgnoreNamespaceForNonMetricBucket() {
         let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:error:::customs;cust")
-        
+
         sut.update(response)
         XCTAssertEqual(self.sut.isRateLimitActive(SentryDataCategory.error.rawValue), true)
+    }
+
+    /// Reproduces https://github.com/getsentry/sentry-cocoa/issues/8322
+    ///
+    /// Relay sends the rate-limit header with a lowercase field name over HTTP/2
+    /// (e.g. `x-sentry-rate-limits`). `HTTPURLResponse.allHeaderFields` preserves that
+    /// casing, so a case-sensitive lookup for `X-Sentry-Rate-Limits` misses the header,
+    /// the SDK falls through to the generic 429 handling and rate-limits *all* categories
+    /// instead of only the one the server limited.
+    func testUpdate_whenRateLimitHeaderHasLowercaseKey_shouldOnlyRateLimitGivenCategory() throws {
+        // -- Arrange --
+        let response = try XCTUnwrap(HTTPURLResponse(
+            url: URL(fileURLWithPath: ""),
+            statusCode: 429,
+            httpVersion: "2.0",
+            headerFields: [
+                "x-sentry-rate-limits": "60:replay:organization:replay_usage_exceeded"
+            ]))
+
+        // -- Act --
+        sut.update(response)
+
+        // -- Assert --
+        // The server only limited replay, so only replay must be rate limited.
+        XCTAssertTrue(sut.isRateLimitActive(SentryDataCategory.replay.rawValue))
+
+        // All other categories, including user feedback, must still be sent.
+        XCTAssertFalse(sut.isRateLimitActive(SentryDataCategory.feedback.rawValue))
+        XCTAssertFalse(sut.isRateLimitActive(SentryDataCategory.error.rawValue))
+        XCTAssertFalse(sut.isRateLimitActive(SentryDataCategory.session.rawValue))
+        XCTAssertFalse(sut.isRateLimitActive(SentryDataCategory.attachment.rawValue))
+        XCTAssertFalse(sut.isRateLimitActive(SentryDataCategory.default.rawValue))
+    }
+
+    /// Companion to the reproduction above: over HTTP/1 the header arrives in relay's canonical
+    /// casing (`X-Sentry-Rate-Limits`). This must keep scoping the limit to the given category.
+    func testUpdate_whenRateLimitHeaderHasCanonicalKey_shouldOnlyRateLimitGivenCategory() throws {
+        // -- Arrange --
+        let response = try XCTUnwrap(HTTPURLResponse(
+            url: URL(fileURLWithPath: ""),
+            statusCode: 429,
+            httpVersion: "1.1",
+            headerFields: [
+                "X-Sentry-Rate-Limits": "60:replay:organization:replay_usage_exceeded"
+            ]))
+
+        // -- Act --
+        sut.update(response)
+
+        // -- Assert --
+        XCTAssertTrue(sut.isRateLimitActive(SentryDataCategory.replay.rawValue))
+        XCTAssertFalse(sut.isRateLimitActive(SentryDataCategory.feedback.rawValue))
+        XCTAssertFalse(sut.isRateLimitActive(SentryDataCategory.error.rawValue))
+        XCTAssertFalse(sut.isRateLimitActive(SentryDataCategory.default.rawValue))
+    }
+
+    /// A bare 429 without a rate-limit header must still back off *all* categories. This guards
+    /// that the fix for #8322 did not weaken the intended generic-429 behavior.
+    func testUpdate_when429WithoutRateLimitHeader_shouldRateLimitAllCategories() throws {
+        // -- Arrange --
+        let response = try XCTUnwrap(HTTPURLResponse(
+            url: URL(fileURLWithPath: ""),
+            statusCode: 429,
+            httpVersion: "2.0",
+            headerFields: ["Retry-After": "1"]))
+
+        // -- Act --
+        sut.update(response)
+
+        // -- Assert --
+        XCTAssertTrue(sut.isRateLimitActive(SentryDataCategory.replay.rawValue))
+        XCTAssertTrue(sut.isRateLimitActive(SentryDataCategory.feedback.rawValue))
+        XCTAssertTrue(sut.isRateLimitActive(SentryDataCategory.error.rawValue))
+        XCTAssertTrue(sut.isRateLimitActive(SentryDataCategory.default.rawValue))
+    }
+
+    /// The `Retry-After` header must also be read case-insensitively, since over HTTP/2 it arrives
+    /// lowercased as `retry-after`.
+    func testUpdate_whenRetryAfterHeaderHasLowercaseKey_shouldRateLimitAllCategories() throws {
+        // -- Arrange --
+        let response = try XCTUnwrap(HTTPURLResponse(
+            url: URL(fileURLWithPath: ""),
+            statusCode: 429,
+            httpVersion: "2.0",
+            headerFields: ["retry-after": "1"]))
+
+        // -- Act --
+        sut.update(response)
+
+        // -- Assert --
+        XCTAssertTrue(sut.isRateLimitActive(SentryDataCategory.error.rawValue))
+        // The 1-second Retry-After must have been parsed, not the 60-second default.
+        currentDateProvider.setDate(date: currentDateProvider.date().addingTimeInterval(1))
+        XCTAssertFalse(sut.isRateLimitActive(SentryDataCategory.error.rawValue))
+    }
+
+    // MARK: - Case-sensitive header fallback (used below macOS 10.15)
+
+    /// The fallback branch of `sentryHeaderValue(forName:)` only runs on macOS < 10.15, which our
+    /// tests never run on, so we test the extracted lookup directly to be sure it works.
+    func testCaseSensitiveHeaderValueFallback_whenLowercaseKey_returnsValue() throws {
+        let response = try XCTUnwrap(HTTPURLResponse(
+            url: URL(fileURLWithPath: ""),
+            statusCode: 429,
+            httpVersion: "2.0",
+            headerFields: ["x-sentry-rate-limits": "60:replay:organization:replay_usage_exceeded"]))
+
+        XCTAssertEqual(
+            response.sentryCaseSensitiveHeaderValue(forName: "X-Sentry-Rate-Limits"),
+            "60:replay:organization:replay_usage_exceeded")
+    }
+
+    func testCaseSensitiveHeaderValueFallback_whenCanonicalKey_returnsValue() throws {
+        let response = try XCTUnwrap(HTTPURLResponse(
+            url: URL(fileURLWithPath: ""),
+            statusCode: 429,
+            httpVersion: "1.1",
+            headerFields: ["X-Sentry-Rate-Limits": "60:replay:organization:replay_usage_exceeded"]))
+
+        XCTAssertEqual(
+            response.sentryCaseSensitiveHeaderValue(forName: "X-Sentry-Rate-Limits"),
+            "60:replay:organization:replay_usage_exceeded")
+    }
+
+    func testCaseSensitiveHeaderValueFallback_whenHeaderMissing_returnsNil() throws {
+        let response = try XCTUnwrap(HTTPURLResponse(
+            url: URL(fileURLWithPath: ""),
+            statusCode: 429,
+            httpVersion: "2.0",
+            headerFields: ["some-other-header": "value"]))
+
+        XCTAssertNil(response.sentryCaseSensitiveHeaderValue(forName: "X-Sentry-Rate-Limits"))
     }
 }

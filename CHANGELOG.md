@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix dropping all events when only a single data category is rate limited (#8324)
+
 ## 9.19.1
 
 ### Fixes
