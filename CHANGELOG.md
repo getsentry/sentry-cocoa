@@ -2,6 +2,10 @@
 
 ## 9.19.1
 
+### Features
+
+- Add scope feature flag API (#8147)
+
 ### Fixes
 
 - Fix use-after-free crash in `SentrySDKInternal.isEnabled` (#8310)

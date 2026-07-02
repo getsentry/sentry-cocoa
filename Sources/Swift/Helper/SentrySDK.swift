@@ -459,6 +459,13 @@ extension SentrySDK {
         SentrySDKInternal.configureScope(callback)
     }
 
+    /// Adds a feature flag evaluation to the current `Scope` of the current `Hub`.
+    @nonobjc public static func addFeatureFlag(name: String, result: Bool) {
+        SentrySDKInternal.configureScope { scope in
+            scope.addFeatureFlag(name: name, result: result)
+        }
+    }
+
     // MARK: - Crash Detection
 
     #if !SDK_V10
