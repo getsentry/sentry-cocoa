@@ -132,6 +132,7 @@
 
 // --- Configuration ---
 #if !__has_include(<SentryObjC/SentryObjCDefines.h>)
+#    import "SentryObjCAppHangsOptions.h"
 #    import "SentryObjCExperimentalOptions.h"
 #    import "SentryObjCOptions.h"
 #    import "SentryObjCReplayOptions.h"
@@ -140,6 +141,7 @@
 #    import "SentryObjCUserFeedbackFormElementOutlineStyle.h"
 #    import "SentryObjCUserFeedbackThemeConfiguration.h"
 #else
+#    import <SentryObjC/SentryObjCAppHangsOptions.h>
 #    import <SentryObjC/SentryObjCExperimentalOptions.h>
 #    import <SentryObjC/SentryObjCOptions.h>
 #    import <SentryObjC/SentryObjCReplayOptions.h>

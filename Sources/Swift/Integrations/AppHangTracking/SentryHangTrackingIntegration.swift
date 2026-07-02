@@ -23,6 +23,10 @@ final class SentryHangTrackingIntegration<Dependencies: HangTrackingIntegrationS
     let sentryANRMechanismDataAppHangDuration = "app_hang_duration"
 
     init?(with options: Options, dependencies: Dependencies) {
+        guard !options.experimental.appHangs.enableV3 else {
+            SentrySDKLog.debug("V3 hang tracking enabled, skipping V1/V2 integration")
+            return nil
+        }
         guard options.enableAppHangTracking && options.appHangTimeoutInterval > 0 else {
             return nil
         }

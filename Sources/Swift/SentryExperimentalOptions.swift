@@ -32,6 +32,14 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableStandaloneAppStartTracing = false
 
+    /**
+     * Options for the experimental app hang tracking feature.
+     *
+     * Use ``AppHangsOptions/enableV3`` to opt in to run-loop-observer-based hang
+     * detection. See ``AppHangsOptions`` for available configuration.
+     */
+    public var appHangs = AppHangsOptions()
+
     // swiftlint:disable:next missing_docs
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
     }

@@ -1313,6 +1313,7 @@
 			);
 			publicHeaders = (
 				Public/SentryObjC.h,
+				Public/SentryObjCAppHangsOptions.h,
 				Public/SentryObjCAttachment.h,
 				Public/SentryObjCAttachmentType.h,
 				Public/SentryObjCAttribute.h,
