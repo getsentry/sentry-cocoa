@@ -45,7 +45,7 @@ public final class DefaultRateLimits: NSObject, RateLimits {
 
     @objc
     public func update(_ response: HTTPURLResponse) {
-        if let rateLimitsHeader = response.sentryHeaderValue(forName: "X-Sentry-Rate-Limits") {
+        if let rateLimitsHeader = response.value(forHTTPHeaderFieldCaseInsensitive: "x-sentry-rate-limits") {
             let limits = rateLimitParser.parse(rateLimitsHeader)
 
             for (categoryAsNumber, date) in limits {
@@ -54,7 +54,7 @@ public final class DefaultRateLimits: NSObject, RateLimits {
             }
         } else if response.statusCode == 429 {
             let retryAfterHeaderDate = retryAfterHeaderParser.parse(
-                response.sentryHeaderValue(forName: "Retry-After")
+                response.value(forHTTPHeaderFieldCaseInsensitive: "retry-after")
             ) ?? currentDateProvider.date().addingTimeInterval(60)
 
             updateRateLimit(.all, withDate: retryAfterHeaderDate)
@@ -70,42 +70,28 @@ public final class DefaultRateLimits: NSObject, RateLimits {
     }
 }
 
-private extension HTTPURLResponse {
-    /// Reads an HTTP response header case-insensitively.
-    ///
-    /// `allHeaderFields` is a case-sensitive dictionary. Over HTTP/2 (RFC 7540) header field
-    /// names are transmitted in lowercase, and recent Apple OS versions no longer canonicalize
-    /// custom (non-standard) header names back to their conventional casing. So a direct
-    /// `allHeaderFields["X-Sentry-Rate-Limits"]` lookup misses the lowercase
-    /// `x-sentry-rate-limits` key the server actually sends, which previously caused the SDK to
-    /// treat a category-scoped rate limit as a rate limit for all categories.
-    /// See https://github.com/getsentry/sentry-cocoa/issues/8322
-    ///
-    /// `value(forHTTPHeaderField:)` performs the lookup case-insensitively but is only available
-    /// on macOS 10.15+, so below that we use the case-sensitive fallback in
-    /// `sentryCaseSensitiveHeaderValue(forName:)`.
-    func sentryHeaderValue(forName name: String) -> String? {
+// `internal` (not `private`) so the fallback can be unit-tested; `#available` makes it unreachable
+// on the OS versions our tests run on.
+extension HTTPURLResponse {
+    /// Reads a header case-insensitively. HTTP field names are case-insensitive (RFC 9110, 5.1) and
+    /// HTTP/2 (RFC 9113, 8.2.1) and HTTP/3 (RFC 9114, 4.2) send them lowercased, so pass the
+    /// lowercase name. `value(forHTTPHeaderField:)` is only available on macOS 10.15+.
+    func value(forHTTPHeaderFieldCaseInsensitive name: String) -> String? {
         if #available(macOS 10.15, *) {
             return value(forHTTPHeaderField: name)
         }
-
-        return sentryCaseSensitiveHeaderValue(forName: name)
+        return sentryCaseInsensitiveHeaderValue(forName: name)
     }
-}
 
-extension HTTPURLResponse {
-    /// Case-sensitive header lookup used as the pre-macOS-10.15 fallback for
-    /// `sentryHeaderValue(forName:)`. It tries the lowercase (HTTP/2) key first, then relay's
-    /// canonical casing. Any other casing is not handled, which is an acceptable tradeoff: we're
-    /// dropping macOS < 12 support in August 2026 with the move to Xcode 27, so this fallback is
-    /// short-lived.
-    ///
-    /// This lives in its own `internal` extension (rather than the `private` one above) purely so
-    /// it can be unit-tested on all platforms, since the `#available(macOS 10.15, *)` branch makes
-    /// it unreachable on the OS versions our tests actually run on.
-    func sentryCaseSensitiveHeaderValue(forName name: String) -> String? {
-        return allHeaderFields[name.lowercased()] as? String
-            ?? allHeaderFields[name] as? String
+    /// Pre-macOS-10.15 fallback: `allHeaderFields` subscripting is case-sensitive. Try the name as
+    /// passed, then its lowercase form (HTTP/2, HTTP/3), then the conventional capitalized casing
+    /// (HTTP/1.1). This resolves the header whether the caller or the server used lowercase or the
+    /// conventional casing.
+    /// This is an extra method so it can be unit tested.
+    func sentryCaseInsensitiveHeaderValue(forName name: String) -> String? {
+        return allHeaderFields[name] as? String
+            ?? allHeaderFields[name.lowercased()] as? String
+            ?? allHeaderFields[name.capitalized] as? String
     }
 }
 // swiftlint:enable missing_docs

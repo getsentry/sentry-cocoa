@@ -4,7 +4,8 @@
 
 ### Fixes
 
-- Fix dropping all events when only a single data category is rate limited (#8324)
+- Fix case-sensitive parsing of rate-limit HTTP headers (#8324)
+
 ### Features
 
 - Record log_byte client reports (#8186)
