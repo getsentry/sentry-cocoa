@@ -31,6 +31,10 @@ struct ContentView: View {
             Button(action: crash) {
                 Text("Crash")
             }
+
+            Divider()
+
+            AppHangButton()
         }
         .padding()
     }

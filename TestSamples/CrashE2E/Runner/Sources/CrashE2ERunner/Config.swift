@@ -40,6 +40,7 @@ enum Scenario: String, CaseIterable {
     case unityCxaThrow = "unity-cxa-throw"
     case objcObject = "objc-object"
     case binaryImages = "binary-images"
+    case ignoredSignal = "ignored-signal"
     case managedRuntimeSignalChain = "managed-runtime-signal-chain"
     case managedRuntimePreSDKSignal = "managed-runtime-pre-sdk-signal"
     case managedRuntimeClosedSignal = "managed-runtime-closed-signal"
@@ -61,6 +62,7 @@ enum Scenario: String, CaseIterable {
         // expected to fail this scenario; use --keep-going to continue the default run.
         .objcObject,
         .binaryImages,
+        .ignoredSignal,
         .managedRuntimeSignalChain,
         .managedRuntimePreSDKSignal,
         .managedRuntimeClosedSignal,
@@ -75,14 +77,26 @@ enum Scenario: String, CaseIterable {
              .managedRuntimeReinitSignal:
             return true
         case .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow, .objcObject,
-             .binaryImages, .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
+             .binaryImages, .ignoredSignal, .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
             return false
+        }
+    }
+
+    var expectsCrashTermination: Bool {
+        switch self {
+        case .ignoredSignal:
+            return false
+        case .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow, .objcObject,
+             .binaryImages, .managedRuntimeSignalChain, .managedRuntimePreSDKSignal,
+             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal,
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
+            return true
         }
     }
 
     var expectsEvent: Bool {
         switch self {
-        case .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal:
+        case .managedRuntimePreSDKSignal, .managedRuntimeClosedSignal, .ignoredSignal:
             return false
         case .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow, .objcObject,
              .binaryImages, .managedRuntimeSignalChain, .managedRuntimeReinitSignal,
