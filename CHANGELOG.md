@@ -5,6 +5,9 @@
 ### Fixes
 
 - Fix dropping all events when only a single data category is rate limited (#8324)
+### Features
+
+- Record log_byte client reports (#8186)
 
 ## 9.19.1
 
