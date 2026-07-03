@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Fix case-sensitive parsing of rate-limit HTTP headers (#8324)
+- Fix rate limiting all data categories when data category rate-limit is active. (#8324) The SDK wrongly dropped all data when one data category was rate-limited when using HTTP/2 or above. This is fixed now.
 
 ### Features
 
