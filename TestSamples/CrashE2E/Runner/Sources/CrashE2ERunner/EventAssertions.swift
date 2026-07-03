@@ -1,5 +1,6 @@
 import Foundation
 
+//swiftlint:disable:next type_body_length
 enum EventAssertions {
     private static let binaryImageMarkerFileName = "crash-e2e-binary-images.json"
 
