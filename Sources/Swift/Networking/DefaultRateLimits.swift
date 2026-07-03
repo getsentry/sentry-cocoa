@@ -73,9 +73,11 @@ public final class DefaultRateLimits: NSObject, RateLimits {
 // `internal` (not `private`) so the fallback can be unit-tested; `#available` makes it unreachable
 // on the OS versions our tests run on.
 extension HTTPURLResponse {
-    /// Reads a header case-insensitively. HTTP field names are case-insensitive (RFC 9110, 5.1) and
-    /// HTTP/2 (RFC 9113, 8.2.1) and HTTP/3 (RFC 9114, 4.2) send them lowercased, so pass the
-    /// lowercase name. `value(forHTTPHeaderField:)` is only available on macOS 10.15+.
+    
+    /// Reads a header case-insensitively.
+    /// Since HTTP/2 HTTP field names are case-insensitive including HTTP headers; see HTTP/2 (RFC 9113, 8.2.1) and HTTP/3 (RFC 9114, 4.2):
+    /// - https://www.rfc-editor.org/rfc/rfc9113#section-8.2.1
+    /// - https://www.rfc-editor.org/rfc/rfc9114#section-4.2
     func value(forHTTPHeaderFieldCaseInsensitive name: String) -> String? {
         if #available(macOS 10.15, *) {
             return value(forHTTPHeaderField: name)
@@ -83,11 +85,8 @@ extension HTTPURLResponse {
         return sentryCaseInsensitiveHeaderValue(forName: name)
     }
 
-    /// Pre-macOS-10.15 fallback: `allHeaderFields` subscripting is case-sensitive. Try the name as
-    /// passed, then its lowercase form (HTTP/2, HTTP/3), then the conventional capitalized casing
-    /// (HTTP/1.1). This resolves the header whether the caller or the server used lowercase or the
-    /// conventional casing.
-    /// This is an extra method so it can be unit tested.
+    /// Pre-macOS-10.15 fallback is an extra method so it can be unit tested. We plan on bumping to macOS 12
+    /// in August 2026, so we don't use this implementation for all platforms.
     func sentryCaseInsensitiveHeaderValue(forName name: String) -> String? {
         return allHeaderFields[name] as? String
             ?? allHeaderFields[name.lowercased()] as? String

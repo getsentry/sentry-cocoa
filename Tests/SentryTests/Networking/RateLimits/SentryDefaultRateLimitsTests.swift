@@ -359,7 +359,6 @@ class SentryDefaultRateLimitsTests: XCTestCase {
 
     // MARK: - value(forHTTPHeaderFieldCaseInsensitive:)
 
-    /// Looking up an uppercase name must find a header the server sent lowercase.
     func testValueForHTTPHeaderFieldCaseInsensitive_whenLowercaseResponseAndUppercaseName_returnsValue() throws {
         // -- Arrange --
         let response = try TestResponseFactory.createRateLimitResponse(
@@ -372,7 +371,6 @@ class SentryDefaultRateLimitsTests: XCTestCase {
         XCTAssertEqual(value, "60:replay:organization:replay_usage_exceeded")
     }
 
-    /// Looking up a lowercase name must find a header the server sent in the conventional casing.
     func testValueForHTTPHeaderFieldCaseInsensitive_whenCanonicalResponseAndLowercaseName_returnsValue() throws {
         // -- Arrange --
         let response = try TestResponseFactory.createRateLimitResponseHTTP1_1(
