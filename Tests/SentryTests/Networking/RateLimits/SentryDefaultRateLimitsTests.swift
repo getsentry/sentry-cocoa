@@ -427,6 +427,22 @@ class SentryDefaultRateLimitsTests: XCTestCase {
         XCTAssertEqual(value, "60:replay:organization:replay_usage_exceeded")
     }
 
+    /// The scan compares keys case-insensitively, so even an unconventional mixed casing resolves.
+    func testCaseInsensitiveHeaderValueFallback_whenMixedCaseResponseKey_returnsValue() throws {
+        // -- Arrange --
+        let response = try XCTUnwrap(HTTPURLResponse(
+            url: URL(fileURLWithPath: ""),
+            statusCode: 429,
+            httpVersion: "2.0",
+            headerFields: ["X-SeNtRy-RaTe-LiMiTs": "60:replay:organization:replay_usage_exceeded"]))
+
+        // -- Act --
+        let value = response.sentryCaseInsensitiveHeaderValue(forName: "x-sentry-rate-limits")
+
+        // -- Assert --
+        XCTAssertEqual(value, "60:replay:organization:replay_usage_exceeded")
+    }
+
     func testCaseInsensitiveHeaderValueFallback_whenHeaderMissing_returnsNil() throws {
         // -- Arrange --
         let response = try XCTUnwrap(HTTPURLResponse(

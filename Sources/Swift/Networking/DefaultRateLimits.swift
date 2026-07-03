@@ -80,6 +80,7 @@ extension HTTPURLResponse {
     /// - https://www.rfc-editor.org/rfc/rfc9114#section-4.2
     func value(forHTTPHeaderFieldCaseInsensitive name: String) -> String? {
         if #available(macOS 10.15, *) {
+            // `value(forHTTPHeaderField:)` retrieves the header case-insensitively.
             return value(forHTTPHeaderField: name)
         }
         return sentryCaseInsensitiveHeaderValue(forName: name)
@@ -87,10 +88,18 @@ extension HTTPURLResponse {
 
     /// Pre-macOS-10.15 fallback is an extra method so it can be unit tested. We plan on bumping to macOS 12
     /// in August 2026, so we don't use this implementation for all platforms.
+    ///
+    /// `allHeaderFields` subscripting is case-sensitive, so we scan all keys and compare them
+    /// case-insensitively against `name`. This is O(n), which is acceptable for the small number of
+    /// response headers.
     func sentryCaseInsensitiveHeaderValue(forName name: String) -> String? {
-        return allHeaderFields[name] as? String
-            ?? allHeaderFields[name.lowercased()] as? String
-            ?? allHeaderFields[name.capitalized] as? String
+        let lowercasedName = name.lowercased()
+        for (key, value) in allHeaderFields {
+            if let key = key as? String, key.lowercased() == lowercasedName {
+                return value as? String
+            }
+        }
+        return nil
     }
 }
 // swiftlint:enable missing_docs
