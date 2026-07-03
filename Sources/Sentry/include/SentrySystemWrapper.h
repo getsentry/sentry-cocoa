@@ -22,6 +22,13 @@ typedef mach_vm_size_t SentryRAMBytes;
 
 - (SentryRAMBytes)memoryFootprintBytes:(NSError **)error;
 
+#    if SENTRY_TEST || SENTRY_TEST_CI
+/**
+ * Normalizes a raw CPU usage sum to a value suitable for reporting.
+ */
+- (float)normalizeCPUUsage:(float)rawUsage;
+#    endif // SENTRY_TEST || SENTRY_TEST_CI
+
 #    if SDK_V10
 /**
  * @return The CPU usage of this process as a percentage of the device's total CPU capacity,

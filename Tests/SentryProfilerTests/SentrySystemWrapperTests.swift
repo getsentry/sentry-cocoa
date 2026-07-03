@@ -22,29 +22,26 @@ class SentrySystemWrapperTests: XCTestCase {
     // mach_task_self() which cannot be made to fail without resource exhaustion.
 
 #if SDK_V10
-    func testCPUUsage_underLoad_shouldReturnNormalizedPercent() throws {
-        var keepRunning = true
+    // MARK: - normalizeCPUUsage (TH_USAGE_SCALE = 1000)
 
-        let threads = (0..<4).map { _ in
-            Thread {
-                var x: Double = 1.0
-                while keepRunning {
-                    for _ in 0..<10_000 {
-                        x = sin(x) + 1.0
-                    }
-                }
-                _ = x
-            }
-        }
-        threads.forEach { $0.start() }
+    func testNormalizeCPUUsage_singleCoreFull_shouldReturn25Percent() {
+        let result = fixture.systemWrapper.normalizeCPUUsage(1_000)
+        XCTAssertEqual(result, 25.0, accuracy: 0.01)
+    }
 
-        Thread.sleep(forTimeInterval: 0.2)
+    func testNormalizeCPUUsage_allCoresFull_shouldReturn100Percent() {
+        let result = fixture.systemWrapper.normalizeCPUUsage(4_000)
+        XCTAssertEqual(result, 100.0, accuracy: 0.01)
+    }
 
-        let cpuUsage = try XCTUnwrap(fixture.systemWrapper.cpuUsage())
-        keepRunning = false
+    func testNormalizeCPUUsage_zero_shouldReturnZero() {
+        let result = fixture.systemWrapper.normalizeCPUUsage(0)
+        XCTAssertEqual(result, 0.0, accuracy: 0.01)
+    }
 
-        XCTAssertGreaterThanOrEqual(cpuUsage.doubleValue, 0.0)
-        XCTAssertLessThanOrEqual(cpuUsage.doubleValue, 100.0)
+    func testNormalizeCPUUsage_halfCore_shouldReturn12Point5Percent() {
+        let result = fixture.systemWrapper.normalizeCPUUsage(500)
+        XCTAssertEqual(result, 12.5, accuracy: 0.01)
     }
 #endif
 

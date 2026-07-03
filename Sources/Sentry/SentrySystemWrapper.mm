@@ -42,6 +42,15 @@
     return footprintBytes;
 }
 
+- (float)normalizeCPUUsage:(float)rawUsage
+{
+#    if SDK_V10
+    return (rawUsage / TH_USAGE_SCALE) * 100.f / processorCount;
+#    else
+    return rawUsage / processorCount;
+#    endif
+}
+
 - (NSNumber *)cpuUsageWithError:(NSError **)error
 {
     mach_msg_type_number_t count = 0;
@@ -74,16 +83,12 @@
             return nil;
         }
 
-#    if SDK_V10
-        usage += (static_cast<float>(data.cpu_usage) / TH_USAGE_SCALE) * 100.f / processorCount;
-#    else
-        usage += data.cpu_usage / processorCount;
-#    endif
+        usage += data.cpu_usage;
     }
 
     vm_deallocate(mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count);
 
-    return @(usage);
+    return @([self normalizeCPUUsage:usage]);
 }
 
 // Only these architectures support `task_energy`
