@@ -62,7 +62,7 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
     // MARK: - Masking
     
     /**
-     * Indicates whether the screenshot should redact all non-bundled image
+     * Indicates whether the screenshot should redact all non-bundled images
      * in the app by drawing a black rectangle over it.
      *
      * - Note: See ``SentryViewScreenshotOptions.init`` for the default value.
@@ -80,7 +80,7 @@ public final class SentryViewScreenshotOptions: NSObject, SentryRedactOptions {
     /**
      * A list of custom UIView subclasses that need
      * to be masked during the screenshot.
-     * By default Sentry already mask text and image elements from UIKit
+     * By default Sentry already masks text and image elements from UIKit
      * Every child of a view that is redacted will also be redacted.
      *
      * - Note: See ``SentryViewScreenshotOptions.init`` for the default value.

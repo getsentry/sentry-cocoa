@@ -8,6 +8,9 @@ import MachO
 @_spi(Private) public final class LoadValidator: NSObject {
     // Any class should be fine, ObjC classes are better
     static let targetClassName = NSStringFromClass(SentryDependencyContainerSwiftHelper.self)
+#if SENTRY_TEST || SENTRY_TEST_CI
+    static var checkForDuplicatedSDKCallback: ((String, UInt64, UInt64) -> Void)?
+#endif
     
     // This function is used to check for duplicated SDKs in the binary.
     // Since `SentryBinaryImageInfo` is not public and only available through the Hybrid SDK, we use the expanded parameters.
@@ -17,6 +20,9 @@ import MachO
                                                            imageSize: NSNumber,
                                                            objcRuntimeWrapper: SentryObjCRuntimeWrapper,
                                                            dispatchQueueWrapper: SentryDispatchQueueWrapper) {
+#if SENTRY_TEST || SENTRY_TEST_CI
+        checkForDuplicatedSDKCallback?(imageName, imageAddress.uint64Value, imageSize.uint64Value)
+#endif
         internalCheckForDuplicatedSDK(imageName, imageAddress.uint64Value, imageSize.uint64Value,
                                       objcRuntimeWrapper: objcRuntimeWrapper,
                                       dispatchQueueWrapper: dispatchQueueWrapper)
@@ -52,7 +58,7 @@ import MachO
                     }
                     for j in 0..<Int(classCount) {
                         let className = classNames[j]
-                        // Since we are iterating over all classes in the image, we need to be extra careful not to do unnecesarry work
+                        // Since we are iterating over all classes in the image, we need to be extra careful not to do unnecessary work
                         // or calling `NSClassFromString` since that can lead to issues (see `SentrySubClassFinder` for more details).
                         let name = String(cString: UnsafeRawPointer(className).assumingMemoryBound(to: UInt8.self))
                         if name == self.targetClassName && isCurrentImageContainingLoadValidator {

@@ -25,8 +25,7 @@ public final class SentryDsn: NSObject {
     /// The parsed URL from the DSN string.
     @objc public let url: URL
     
-    private var _envelopeEndpoint: URL?
-    private let lock = NSLock()
+    private let envelopeEndpoint = SentryMutex<URL?>(nil)
     
     /// Initializes a SentryDsn from a DSN string.
     /// - Parameters:
@@ -90,20 +89,14 @@ public final class SentryDsn: NSObject {
     /// - Returns: The envelope endpoint URL.
     @objc
     public func getEnvelopeEndpoint() -> URL {
-        if let cached = _envelopeEndpoint {
-            return cached
+        envelopeEndpoint.withLock { cached in
+            if let endpoint = cached {
+                return endpoint
+            }
+            let endpoint = getBaseEndpoint().appendingPathComponent("envelope/")
+            cached = endpoint
+            return endpoint
         }
-        
-        lock.lock()
-        defer { lock.unlock() }
-        
-        if let cached = _envelopeEndpoint {
-            return cached
-        }
-        
-        let endpoint = getBaseEndpoint().appendingPathComponent("envelope/")
-        _envelopeEndpoint = endpoint
-        return endpoint
     }
     
     private static let orgIdRegex = try? NSRegularExpression(pattern: "^o(\\d+)\\.")

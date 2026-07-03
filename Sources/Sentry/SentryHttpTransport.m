@@ -122,7 +122,7 @@
 
     SentryEnvelope *envelopeToStore = [self addClientReportTo:envelope];
 
-    // With this we accept the a tradeoff. We might loose some envelopes when a hard crash happens,
+    // With this we accept a tradeoff. We might lose some envelopes when a hard crash happens,
     // because this being done on a background thread, but instead we don't block the calling
     // thread, which could be the main thread.
     __weak SentryHttpTransport *weakSelf = self;
@@ -162,7 +162,7 @@
     @synchronized(self.discardedEvents) {
         SentryDiscardedEvent *event = self.discardedEvents[key];
         if (event != nil) {
-            quantity = event.quantity + 1;
+            quantity = event.quantity + quantity;
         }
 
         event = [[SentryDiscardedEvent alloc] initWithReason:nameForSentryDiscardReason(reason)
@@ -250,6 +250,7 @@
         nameForSentryDataCategory(dataCategory));
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonRateLimitBackoff];
     [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
+    [self recordLostLogBytes:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
 }
 
 - (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
@@ -257,6 +258,7 @@
 {
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonCacheOverflow];
     [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonCacheOverflow];
+    [self recordLostLogBytes:envelopeItem reason:kSentryDiscardReasonCacheOverflow];
 }
 
 #pragma mark private methods
@@ -469,6 +471,15 @@
         SentryDataCategory category = sentryDataCategoryForEnvelopItemType(itemType);
         [self recordLostEvent:category reason:kSentryDiscardReasonSendError];
         [self recordLostSpans:item reason:kSentryDiscardReasonSendError];
+        [self recordLostLogBytes:item reason:kSentryDiscardReasonSendError];
+    }
+}
+
+- (void)recordLostLogBytes:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
+{
+    if ([SentryEnvelopeItemTypes.log isEqualToString:envelopeItem.type]) {
+        NSUInteger byteCount = envelopeItem.data.length;
+        [self recordLostEvent:kSentryDataCategoryLogByte reason:reason quantity:byteCount];
     }
 }
 

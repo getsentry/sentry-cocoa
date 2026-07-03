@@ -151,7 +151,7 @@
         event.releaseName = self.userContext[@"release"];
 
         // We want to set the release and dist to the version from the crash report
-        // itself otherwise it can happend that we have two different version when
+        // itself otherwise it can happen that we have two different versions when
         // the app crashes right before an app update #218 #219
         if (nil == event.releaseName && appContext[@"app_identifier"] && appContext[@"app_version"]
             && appContext[@"app_build"]) {

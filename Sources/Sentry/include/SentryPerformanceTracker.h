@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Checks if given span is waiting to be finished.
  * @param spanId Id of the span to be checked.
- * @return A boolean value indicating whether the span still waiting to be finished.
+ * @return A boolean value indicating whether the span is still waiting to be finished.
  */
 - (BOOL)isSpanAlive:(SentrySpanId *)spanId;
 

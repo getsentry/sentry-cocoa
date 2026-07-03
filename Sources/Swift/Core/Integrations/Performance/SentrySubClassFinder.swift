@@ -55,7 +55,7 @@ class SentrySubClassFinder: NSObject {
             // NSObject and a call to isSubclassOfClass would call the initializer of the class, which
             // we can't allow because of the problem with UIViewControllers mentioned above.
             //
-            // Turn out the approach to search all the view controllers inside the app binary image is
+            // Turns out the approach to search all the view controllers inside the app binary image is
             // fast and we don't need to include this restriction that will cause confusion.
             // In a project with 1000 classes (a big project), it took only ~3ms to check all classes.
             var classesToSwizzle: [String] = []

@@ -55,8 +55,8 @@ public struct SentryLogMessage: ExpressibleByStringInterpolation {
             // equal or exceed the size of literals, avoiding expensive reallocations
             message.reserveCapacity(literalCapacity * 2)
             attributes.reserveCapacity(interpolationCount)
-            // Here we know the exact count, as the tempkate always adds `{i}`,
-            // with i beeing the index to the literalCapacity
+            // Here we know the exact count, as the template always adds `{i}`,
+            // with i being the index to the literalCapacity
             template.reserveCapacity(literalCapacity + interpolationCount * 3)
         }
         

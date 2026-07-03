@@ -8,8 +8,7 @@ import Foundation
 @_spi(Private) @objc
 public class SentryInstallation: NSObject {
 
-    private static var installationStringsByCacheDirectoryPaths = [String: String]()
-    private static let lock = NSRecursiveLock()
+    private static let installationStringsByCacheDirectoryPaths = SentryMutex<[String: String]>([:])
 
     /// Returns the installation ID for the given cache directory path.
     ///
@@ -17,8 +16,8 @@ public class SentryInstallation: NSObject {
     /// Otherwise, reads it from disk or generates a new one if it doesn't exist.
     @objc
     public static func id(withCacheDirectoryPath cacheDirectoryPath: String) -> String {
-        lock.synchronized {
-            if let installationString = installationStringsByCacheDirectoryPaths[cacheDirectoryPath] {
+        installationStringsByCacheDirectoryPaths.withLock { dict in
+            if let installationString = dict[cacheDirectoryPath] {
                 return installationString
             }
 
@@ -37,7 +36,7 @@ public class SentryInstallation: NSObject {
                 }
             }
 
-            installationStringsByCacheDirectoryPaths[cacheDirectoryPath] = installationString
+            dict[cacheDirectoryPath] = installationString
             return installationString
         }
     }
@@ -68,9 +67,7 @@ public class SentryInstallation: NSObject {
     /// Returns the cached installation ID if it exists in memory.
     @objc
     public static func cachedId(withCacheDirectoryPath cacheDirectoryPath: String) -> String? {
-        lock.synchronized {
-            installationStringsByCacheDirectoryPaths[cacheDirectoryPath]
-        }
+        installationStringsByCacheDirectoryPaths.withLock { $0[cacheDirectoryPath] }
     }
 
     private static func installationFilePath(_ cacheDirectoryPath: String) -> String {
@@ -79,8 +76,6 @@ public class SentryInstallation: NSObject {
 
     /// Clears all cached installation IDs. For testing purposes only.
     public static func clearCachedInstallationIds() {
-        lock.synchronized {
-            installationStringsByCacheDirectoryPaths.removeAll()
-        }
+        installationStringsByCacheDirectoryPaths.withLock { $0.removeAll() }
     }
 }

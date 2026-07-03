@@ -214,7 +214,7 @@ sentry_shouldProfileNextLaunch(SentryOptions *options)
  * only apply to a single launch. subsequent launches must be configured by subsequent calls to
  * @c SentrySDK.startWIithOptions ; if that is not called, either deliberately by SDK consumers or
  * due to a problem before it can run, then we won't reuse the config–in the worst case, the launch
- * profile itself is the root cause of such a cycle, so this mitigates that and other possibities
+ * profile itself is the root cause of such a cycle, so this mitigates that and other possibilities
  */
 void
 _sentry_cleanUpConfigFile(void)

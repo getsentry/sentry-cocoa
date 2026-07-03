@@ -931,6 +931,13 @@
         "printedName": "_SwiftConcurrencyShims"
       },
       {
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "Sentry",
+        "name": "os",
+        "printedName": "os"
+      },
+      {
         "children": [
           {
             "children": [
@@ -55974,6 +55981,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC13addBreadcrumbyySo0aD0CFZ",
             "moduleName": "Sentry",
@@ -55981,7 +55989,7 @@
             "objc_name": "addBreadcrumb:",
             "printedName": "addBreadcrumb(_:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)addBreadcrumb:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)addBreadcrumb:"
           },
           {
             "children": [
@@ -56005,6 +56013,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture5errorSo0A2IdCs5Error_p_tFZ",
             "moduleName": "Sentry",
@@ -56012,7 +56021,7 @@
             "objc_name": "captureError:",
             "printedName": "capture(error:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureError:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureError:"
           },
           {
             "children": [
@@ -56042,6 +56051,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture5error16attachAllThreadsSo0A2IdCs5Error_p_SbtFZ",
             "moduleName": "Sentry",
@@ -56049,7 +56059,7 @@
             "objc_name": "captureError:attachAllThreads:",
             "printedName": "capture(error:attachAllThreads:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureError:attachAllThreads:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureError:attachAllThreads:"
           },
           {
             "children": [
@@ -56098,6 +56108,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture5error5blockSo0A2IdCs5Error_p_ySo0A5ScopeCctFZ",
             "moduleName": "Sentry",
@@ -56105,7 +56116,7 @@
             "objc_name": "captureError:withScopeBlock:",
             "printedName": "capture(error:block:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureError:withScopeBlock:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureError:withScopeBlock:"
           },
           {
             "children": [
@@ -56135,6 +56146,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture5error5scopeSo0A2IdCs5Error_p_So0A5ScopeCtFZ",
             "moduleName": "Sentry",
@@ -56142,7 +56154,7 @@
             "objc_name": "captureError:withScope:",
             "printedName": "capture(error:scope:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureError:withScope:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureError:withScope:"
           },
           {
             "children": [
@@ -56166,6 +56178,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture5eventSo0A2IdCSo0A5EventC_tFZ",
             "moduleName": "Sentry",
@@ -56173,7 +56186,7 @@
             "objc_name": "captureEvent:",
             "printedName": "capture(event:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureEvent:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureEvent:"
           },
           {
             "children": [
@@ -56203,6 +56216,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture5event16attachAllThreadsSo0A2IdCSo0A5EventC_SbtFZ",
             "moduleName": "Sentry",
@@ -56210,7 +56224,7 @@
             "objc_name": "captureEvent:attachAllThreads:",
             "printedName": "capture(event:attachAllThreads:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureEvent:attachAllThreads:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureEvent:attachAllThreads:"
           },
           {
             "children": [
@@ -56259,6 +56273,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture5event5blockSo0A2IdCSo0A5EventC_ySo0A5ScopeCctFZ",
             "moduleName": "Sentry",
@@ -56266,7 +56281,7 @@
             "objc_name": "captureEvent:withScopeBlock:",
             "printedName": "capture(event:block:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureEvent:withScopeBlock:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureEvent:withScopeBlock:"
           },
           {
             "children": [
@@ -56296,6 +56311,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture5event5scopeSo0A2IdCSo0A5EventC_So0A5ScopeCtFZ",
             "moduleName": "Sentry",
@@ -56303,7 +56319,7 @@
             "objc_name": "captureEvent:withScope:",
             "printedName": "capture(event:scope:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureEvent:withScope:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureEvent:withScope:"
           },
           {
             "children": [
@@ -56327,6 +56343,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture9exceptionSo0A2IdCSo11NSExceptionC_tFZ",
             "moduleName": "Sentry",
@@ -56334,7 +56351,7 @@
             "objc_name": "captureException:",
             "printedName": "capture(exception:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureException:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureException:"
           },
           {
             "children": [
@@ -56364,6 +56381,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture9exception16attachAllThreadsSo0A2IdCSo11NSExceptionC_SbtFZ",
             "moduleName": "Sentry",
@@ -56371,7 +56389,7 @@
             "objc_name": "captureException:attachAllThreads:",
             "printedName": "capture(exception:attachAllThreads:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureException:attachAllThreads:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureException:attachAllThreads:"
           },
           {
             "children": [
@@ -56420,6 +56438,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture9exception5blockSo0A2IdCSo11NSExceptionC_ySo0A5ScopeCctFZ",
             "moduleName": "Sentry",
@@ -56427,7 +56446,7 @@
             "objc_name": "captureException:withScopeBlock:",
             "printedName": "capture(exception:block:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureException:withScopeBlock:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureException:withScopeBlock:"
           },
           {
             "children": [
@@ -56457,6 +56476,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture9exception5scopeSo0A2IdCSo11NSExceptionC_So0A5ScopeCtFZ",
             "moduleName": "Sentry",
@@ -56464,7 +56484,7 @@
             "objc_name": "captureException:withScope:",
             "printedName": "capture(exception:scope:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureException:withScope:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureException:withScope:"
           },
           {
             "children": [
@@ -56486,6 +56506,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture8feedbackyAA0A8FeedbackC_tFZ",
             "moduleName": "Sentry",
@@ -56493,7 +56514,7 @@
             "objc_name": "captureFeedback:",
             "printedName": "capture(feedback:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureFeedback:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureFeedback:"
           },
           {
             "children": [
@@ -56517,6 +56538,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture7messageSo0A2IdCSS_tFZ",
             "moduleName": "Sentry",
@@ -56524,7 +56546,7 @@
             "objc_name": "captureMessage:",
             "printedName": "capture(message:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureMessage:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureMessage:"
           },
           {
             "children": [
@@ -56554,6 +56576,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture7message16attachAllThreadsSo0A2IdCSS_SbtFZ",
             "moduleName": "Sentry",
@@ -56561,7 +56584,7 @@
             "objc_name": "captureMessage:attachAllThreads:",
             "printedName": "capture(message:attachAllThreads:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureMessage:attachAllThreads:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureMessage:attachAllThreads:"
           },
           {
             "children": [
@@ -56610,6 +56633,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture7message5blockSo0A2IdCSS_ySo0A5ScopeCctFZ",
             "moduleName": "Sentry",
@@ -56617,7 +56641,7 @@
             "objc_name": "captureMessage:withScopeBlock:",
             "printedName": "capture(message:block:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureMessage:withScopeBlock:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureMessage:withScopeBlock:"
           },
           {
             "children": [
@@ -56647,6 +56671,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7capture7message5scopeSo0A2IdCSS_So0A5ScopeCtFZ",
             "moduleName": "Sentry",
@@ -56654,7 +56679,7 @@
             "objc_name": "captureMessage:withScope:",
             "printedName": "capture(message:scope:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)captureMessage:withScope:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)captureMessage:withScope:"
           },
           {
             "children": [
@@ -56670,13 +56695,14 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC5closeyyFZ",
             "moduleName": "Sentry",
             "name": "close",
             "printedName": "close()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)close"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)close"
           },
           {
             "children": [
@@ -56717,6 +56743,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC14configureScopeyyySo0aD0CcFZ",
             "moduleName": "Sentry",
@@ -56724,7 +56751,7 @@
             "objc_name": "configureScope:",
             "printedName": "configureScope(_:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)configureScope:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)configureScope:"
           },
           {
             "children": [
@@ -56740,13 +56767,14 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC5crashyyFZ",
             "moduleName": "Sentry",
             "name": "crash",
             "printedName": "crash()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)crash"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)crash"
           },
           {
             "children": [
@@ -56762,13 +56790,14 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC10endSessionyyFZ",
             "moduleName": "Sentry",
             "name": "endSession",
             "printedName": "endSession()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)endSession"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)endSession"
           },
           {
             "children": [
@@ -56784,13 +56813,14 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC14extendAppStartyyFZ",
             "moduleName": "Sentry",
             "name": "extendAppStart",
             "printedName": "extendAppStart()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)extendAppStart"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)extendAppStart"
           },
           {
             "children": [
@@ -56806,13 +56836,14 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC22finishExtendedAppStartyyFZ",
             "moduleName": "Sentry",
             "name": "finishExtendedAppStart",
             "printedName": "finishExtendedAppStart()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)finishExtendedAppStart"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)finishExtendedAppStart"
           },
           {
             "children": [
@@ -56841,6 +56872,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC5flush7timeoutySd_tFZ",
             "moduleName": "Sentry",
@@ -56848,7 +56880,7 @@
             "objc_name": "flush:",
             "printedName": "flush(timeout:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)flush:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)flush:"
           },
           {
             "children": [
@@ -56873,13 +56905,14 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC23getExtendedAppStartSpanSo0aG0_pSgyFZ",
             "moduleName": "Sentry",
             "name": "getExtendedAppStartSpan",
             "printedName": "getExtendedAppStartSpan()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)getExtendedAppStartSpan"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)getExtendedAppStartSpan"
           },
           {
             "children": [
@@ -56895,13 +56928,14 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC20pauseAppHangTrackingyyFZ",
             "moduleName": "Sentry",
             "name": "pauseAppHangTracking",
             "printedName": "pauseAppHangTracking()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)pauseAppHangTracking"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)pauseAppHangTracking"
           },
           {
             "children": [
@@ -56917,13 +56951,14 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC20reportFullyDisplayedyyFZ",
             "moduleName": "Sentry",
             "name": "reportFullyDisplayed",
             "printedName": "reportFullyDisplayed()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)reportFullyDisplayed"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)reportFullyDisplayed"
           },
           {
             "children": [
@@ -56939,13 +56974,14 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC21resumeAppHangTrackingyyFZ",
             "moduleName": "Sentry",
             "name": "resumeAppHangTracking",
             "printedName": "resumeAppHangTracking()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)resumeAppHangTracking"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)resumeAppHangTracking"
           },
           {
             "children": [
@@ -56975,13 +57011,14 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC7setUseryySo0aD0CSgFZ",
             "moduleName": "Sentry",
             "name": "setUser",
             "printedName": "setUser(_:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)setUser:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)setUser:"
           },
           {
             "children": [
@@ -57022,6 +57059,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC5start16configureOptionsyyAA0E0Cc_tFZ",
             "moduleName": "Sentry",
@@ -57029,7 +57067,7 @@
             "objc_name": "startWithConfigureOptions:",
             "printedName": "start(configureOptions:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)startWithConfigureOptions:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)startWithConfigureOptions:"
           },
           {
             "children": [
@@ -57051,6 +57089,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC5start7optionsyAA7OptionsC_tFZ",
             "moduleName": "Sentry",
@@ -57058,7 +57097,7 @@
             "objc_name": "startWithOptions:",
             "printedName": "start(options:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)startWithOptions:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)startWithOptions:"
           },
           {
             "children": [
@@ -57074,13 +57113,14 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC13startProfileryyFZ",
             "moduleName": "Sentry",
             "name": "startProfiler",
             "printedName": "startProfiler()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)startProfiler"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)startProfiler"
           },
           {
             "children": [
@@ -57096,13 +57136,14 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC12startSessionyyFZ",
             "moduleName": "Sentry",
             "name": "startSession",
             "printedName": "startSession()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)startSession"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)startSession"
           },
           {
             "children": [
@@ -57132,6 +57173,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC16startTransaction4name9operationSo0A4Span_pSS_SStFZ",
             "moduleName": "Sentry",
@@ -57139,7 +57181,7 @@
             "objc_name": "startTransactionWithName:operation:",
             "printedName": "startTransaction(name:operation:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)startTransactionWithName:operation:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)startTransactionWithName:operation:"
           },
           {
             "children": [
@@ -57175,6 +57217,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC16startTransaction4name9operation11bindToScopeSo0A4Span_pSS_SSSbtFZ",
             "moduleName": "Sentry",
@@ -57182,7 +57225,7 @@
             "objc_name": "startTransactionWithName:operation:bindToScope:",
             "printedName": "startTransaction(name:operation:bindToScope:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)startTransactionWithName:operation:bindToScope:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)startTransactionWithName:operation:bindToScope:"
           },
           {
             "children": [
@@ -57206,6 +57249,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC16startTransaction18transactionContextSo0A4Span_pSo0adF0C_tFZ",
             "moduleName": "Sentry",
@@ -57213,7 +57257,7 @@
             "objc_name": "startTransactionWithContext:",
             "printedName": "startTransaction(transactionContext:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)startTransactionWithContext:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)startTransactionWithContext:"
           },
           {
             "children": [
@@ -57243,6 +57287,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC16startTransaction18transactionContext11bindToScopeSo0A4Span_pSo0adF0C_SbtFZ",
             "moduleName": "Sentry",
@@ -57250,7 +57295,7 @@
             "objc_name": "startTransactionWithContext:bindToScope:",
             "printedName": "startTransaction(transactionContext:bindToScope:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)startTransactionWithContext:bindToScope:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)startTransactionWithContext:bindToScope:"
           },
           {
             "children": [
@@ -57299,6 +57344,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC16startTransaction18transactionContext11bindToScope014customSamplingF0So0A4Span_pSo0adF0C_SbSDySSypGtFZ",
             "moduleName": "Sentry",
@@ -57306,7 +57352,7 @@
             "objc_name": "startTransactionWithContext:bindToScope:customSamplingContext:",
             "printedName": "startTransaction(transactionContext:bindToScope:customSamplingContext:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)startTransactionWithContext:bindToScope:customSamplingContext:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)startTransactionWithContext:bindToScope:customSamplingContext:"
           },
           {
             "children": [
@@ -57349,6 +57395,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC16startTransaction18transactionContext014customSamplingF0So0A4Span_pSo0adF0C_SDySSypGtFZ",
             "moduleName": "Sentry",
@@ -57356,7 +57403,7 @@
             "objc_name": "startTransactionWithContext:customSamplingContext:",
             "printedName": "startTransaction(transactionContext:customSamplingContext:)",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)startTransactionWithContext:customSamplingContext:"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)startTransactionWithContext:customSamplingContext:"
           },
           {
             "children": [
@@ -57372,13 +57419,14 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC12stopProfileryyFZ",
             "moduleName": "Sentry",
             "name": "stopProfiler",
             "printedName": "stopProfiler()",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)stopProfiler"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)stopProfiler"
           },
           {
             "children": [
@@ -57393,6 +57441,7 @@
               "Available"
             ],
             "declKind": "TypeAlias",
+            "isFromExtension": true,
             "kind": "TypeAlias",
             "mangledName": "$s6Sentry0A3SDKC12FeedbackForma",
             "moduleName": "Sentry",
@@ -57438,13 +57487,14 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "isFromExtension": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A3SDKC14crashedLastRunSbvgZ",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
                 "static": true,
-                "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)crashedLastRun"
+                "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)crashedLastRun"
               }
             ],
             "children": [
@@ -57462,13 +57512,14 @@
             ],
             "declKind": "Var",
             "deprecated": true,
+            "isFromExtension": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A3SDKC14crashedLastRunSbvpZ",
             "moduleName": "Sentry",
             "name": "crashedLastRun",
             "printedName": "crashedLastRun",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cpy)crashedLastRun"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cpy)crashedLastRun"
           },
           {
             "accessors": [
@@ -57487,13 +57538,14 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "isFromExtension": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A3SDKC20detectedStartUpCrashSbvgZ",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
                 "static": true,
-                "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)detectedStartUpCrash"
+                "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)detectedStartUpCrash"
               }
             ],
             "children": [
@@ -57509,13 +57561,14 @@
               "ObjC"
             ],
             "declKind": "Var",
+            "isFromExtension": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A3SDKC20detectedStartUpCrashSbvpZ",
             "moduleName": "Sentry",
             "name": "detectedStartUpCrash",
             "printedName": "detectedStartUpCrash",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cpy)detectedStartUpCrash"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cpy)detectedStartUpCrash"
           },
           {
             "accessors": [
@@ -57535,13 +57588,14 @@
                 ],
                 "declKind": "Accessor",
                 "implicit": true,
+                "isFromExtension": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A3SDKC8feedbackAA0A11FeedbackAPICvgZ",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
                 "static": true,
-                "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)feedback"
+                "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)feedback"
               }
             ],
             "children": [
@@ -57560,6 +57614,7 @@
             ],
             "declKind": "Var",
             "hasStorage": true,
+            "isFromExtension": true,
             "isLet": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A3SDKC8feedbackAA0A11FeedbackAPICvpZ",
@@ -57567,7 +57622,7 @@
             "name": "feedback",
             "printedName": "feedback",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cpy)feedback"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cpy)feedback"
           },
           {
             "accessors": [
@@ -57633,13 +57688,14 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "isFromExtension": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A3SDKC9isEnabledSbvgZ",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
                 "static": true,
-                "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)isEnabled"
+                "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)isEnabled"
               }
             ],
             "children": [
@@ -57655,13 +57711,14 @@
               "ObjC"
             ],
             "declKind": "Var",
+            "isFromExtension": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A3SDKC9isEnabledSbvpZ",
             "moduleName": "Sentry",
             "name": "isEnabled",
             "printedName": "isEnabled",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cpy)isEnabled"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cpy)isEnabled"
           },
           {
             "accessors": [
@@ -57680,13 +57737,14 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "isFromExtension": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A3SDKC13lastRunStatusAA0a4LastdE0OvgZ",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
                 "static": true,
-                "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)lastRunStatus"
+                "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)lastRunStatus"
               }
             ],
             "children": [
@@ -57702,13 +57760,14 @@
               "ObjC"
             ],
             "declKind": "Var",
+            "isFromExtension": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A3SDKC13lastRunStatusAA0a4LastdE0OvpZ",
             "moduleName": "Sentry",
             "name": "lastRunStatus",
             "printedName": "lastRunStatus",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cpy)lastRunStatus"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cpy)lastRunStatus"
           },
           {
             "accessors": [
@@ -57727,13 +57786,14 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "isFromExtension": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A3SDKC6loggerAA0A6LoggerCvgZ",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
                 "static": true,
-                "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)logger"
+                "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)logger"
               }
             ],
             "children": [
@@ -57749,13 +57809,14 @@
               "ObjC"
             ],
             "declKind": "Var",
+            "isFromExtension": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A3SDKC6loggerAA0A6LoggerCvpZ",
             "moduleName": "Sentry",
             "name": "logger",
             "printedName": "logger",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cpy)logger"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cpy)logger"
           },
           {
             "accessors": [
@@ -57774,6 +57835,7 @@
                 ],
                 "declKind": "Accessor",
                 "implicit": true,
+                "isFromExtension": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A3SDKC7metricsAA0A18MetricsApiProtocol_pvgZ",
                 "moduleName": "Sentry",
@@ -57802,6 +57864,7 @@
                 ],
                 "declKind": "Accessor",
                 "implicit": true,
+                "isFromExtension": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A3SDKC7metricsAA0A18MetricsApiProtocol_pvsZ",
                 "moduleName": "Sentry",
@@ -57825,6 +57888,7 @@
             ],
             "declKind": "Var",
             "hasStorage": true,
+            "isFromExtension": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A3SDKC7metricsAA0A18MetricsApiProtocol_pvpZ",
             "moduleName": "Sentry",
@@ -57850,13 +57914,14 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "isFromExtension": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A3SDKC6replaySo0A9ReplayApiCvgZ",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
                 "static": true,
-                "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)replay"
+                "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)replay"
               }
             ],
             "children": [
@@ -57872,13 +57937,14 @@
               "ObjC"
             ],
             "declKind": "Var",
+            "isFromExtension": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A3SDKC6replaySo0A9ReplayApiCvpZ",
             "moduleName": "Sentry",
             "name": "replay",
             "printedName": "replay",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cpy)replay"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cpy)replay"
           },
           {
             "accessors": [
@@ -57905,13 +57971,14 @@
                   "ObjC"
                 ],
                 "declKind": "Accessor",
+                "isFromExtension": true,
                 "kind": "Accessor",
                 "mangledName": "$s6Sentry0A3SDKC4spanSo0A4Span_pSgvgZ",
                 "moduleName": "Sentry",
                 "name": "Get",
                 "printedName": "Get()",
                 "static": true,
-                "usr": "c:@M@Sentry@objc(cs)SentrySDK(cm)span"
+                "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cm)span"
               }
             ],
             "children": [
@@ -57935,13 +58002,14 @@
               "ObjC"
             ],
             "declKind": "Var",
+            "isFromExtension": true,
             "kind": "Var",
             "mangledName": "$s6Sentry0A3SDKC4spanSo0A4Span_pSgvpZ",
             "moduleName": "Sentry",
             "name": "span",
             "printedName": "span",
             "static": true,
-            "usr": "c:@M@Sentry@objc(cs)SentrySDK(cpy)span"
+            "usr": "c:@CM@Sentry@objc(cs)SentrySDK(cpy)span"
           }
         ],
         "conformances": [

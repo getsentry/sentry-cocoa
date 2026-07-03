@@ -66,7 +66,7 @@ jobs:
         with:
           version: "26"
       - name: Setup Ruby
-        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+        uses: ruby/setup-ruby@9eb537ca036ebaed86729dcb9309076e4c5c3b74 # v1.314.0
         with:
           bundler-cache: true
       - run: make init-ci-build
@@ -318,30 +318,26 @@ jobs:
         with:
           version: "26"
       - run: |
-          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-            -workspace . \
-            -scheme SentrySPM \
-            -sdk watchos \
-            -destination 'generic/platform=watchOS' \
-            build | tee raw-build-output-spm-watchos.log | xcbeautify --preserve-unbeautified
-        shell: sh
+          ./scripts/sentry-xcodebuild.sh \
+            --workspace . \
+            --scheme SentrySPM \
+            --sdk watchos \
+            --destination 'generic/platform=watchOS' \
+            --command build
       - run: |
-          set -o pipefail && NSUnbufferedIO=YES xcodebuild \
-            -workspace . \
-            -scheme SentrySPM \
-            -sdk iphoneos \
-            -destination 'generic/platform=iphoneos' \
-            build | tee raw-build-output-spm-iphoneos.log | xcbeautify --preserve-unbeautified
-        shell: sh
+          ./scripts/sentry-xcodebuild.sh \
+            --workspace . \
+            --scheme SentrySPM \
+            --sdk iphoneos \
+            --destination 'generic/platform=iphoneos' \
+            --command build
 
       - name: Upload SPM Build Logs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() || cancelled() }}
         with:
           name: raw-build-output-spm
-          path: |
-            raw-build-output-spm-watchos.log
-            raw-build-output-spm-iphoneos.log
+          path: raw-build-output.log
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics

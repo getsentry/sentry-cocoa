@@ -104,8 +104,8 @@ import UIKit
     /**
      * Builds the current app state.
      * @discussion The systemBootTimestamp is calculated by taking the current time and subtracting
-     * @c NSProcesInfo.systemUptime . @c NSProcesInfo.systemUptime returns the amount of time the system
-     * has been awake since the last time it was restarted. This means This is a good enough
+     * @c NSProcessInfo.systemUptime . @c NSProcessInfo.systemUptime returns the amount of time the system
+     * has been awake since the last time it was restarted. This means this is a good enough
      * approximation about the timestamp the system booted.
      */
     @objc public func buildCurrentAppState() -> SentryAppState {

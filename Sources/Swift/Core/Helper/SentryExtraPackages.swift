@@ -2,8 +2,7 @@
 import Foundation
 
 @objc @_spi(Private) public final class SentryExtraPackages: NSObject {
-    private static var extraPackages = Set<[String: String]>()
-    private static let lock = NSRecursiveLock()
+    private static let extraPackages = SentryMutex<Set<[String: String]>>([])
 
     @objc
     public static func addPackageName(_ name: String?, version: String?) {
@@ -13,22 +12,16 @@ import Foundation
 
         let newPackage = ["name": name, "version": version]
 
-        _ = lock.synchronized {
-            extraPackages.insert(newPackage)
-        }
+        extraPackages.withLock { _ = $0.insert(newPackage) }
     }
 
     static func getPackages() -> Set<[String: String]> {
-        lock.synchronized {
-            Set(extraPackages)
-        }
+        extraPackages.withLock { Set($0) }
     }
 
     #if SENTRY_TEST || SENTRY_TEST_CI
     static func clear() {
-        lock.synchronized {
-            extraPackages.removeAll()
-        }
+        extraPackages.withLock { $0.removeAll() }
     }
     #endif
 }

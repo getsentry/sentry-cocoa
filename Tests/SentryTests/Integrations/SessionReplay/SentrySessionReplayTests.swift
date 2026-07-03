@@ -80,7 +80,7 @@ class SentrySessionReplayTests: XCTestCase {
         }
     }
 
-    private struct TestSessionReplayRunLoopObserver: RunLoopObserver { }
+    private struct TestSessionReplayRunLoopObserver: SentryRunLoopObserver { }
 
     private class RecordingCaptureScheduler: SentrySessionReplayRunLoopCaptureScheduler {
         var startedTokens = [AnyObject]()

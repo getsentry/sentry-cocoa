@@ -94,7 +94,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     // We don't have access to didFinishLaunchingTimestamp on HybridSDKs,
     // the Cocoa SDK misses the didFinishLaunchNotification and
     // the didBecomeVisibleNotification. Therefore, we can't set the
-    // didFinishLaunchingTimestamp. This would only work for munualy initialized native SDKs.
+    // didFinishLaunchingTimestamp. This would only work for manually initialized native SDKs.
 
     return @{
         @"type" : type,
@@ -354,7 +354,8 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 {
     __block NSString *__nullable replayId;
 
-    [SentrySDK configureScope:^(SentryScope *_Nonnull scope) { replayId = scope.replayId; }];
+    [SentrySDKInternal
+        configureScope:^(SentryScope *_Nonnull scope) { replayId = scope.replayId; }];
 
     return replayId;
 }

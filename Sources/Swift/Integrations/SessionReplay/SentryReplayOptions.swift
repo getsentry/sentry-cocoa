@@ -119,7 +119,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var sessionSampleRate: Float
 
     /**
-     * Indicates the percentage in which a 30 seconds replay will be send with error events.
+     * Indicates the percentage in which a 30 seconds replay will be sent with error events.
      * - Specifying 0 means never, 1.0 means always.
      *
      * - Note: The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
@@ -137,7 +137,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     public var maskAllText: Bool
 
     /**
-     * Indicates whether session replay should redact all non-bundled image
+     * Indicates whether session replay should redact all non-bundled images
      * in the app by drawing a black rectangle over it.
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.maskAllImages`` for the default value.
@@ -155,7 +155,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
     /**
      * A list of custom UIView subclasses that need
      * to be masked during session replay.
-     * By default Sentry already mask text and image elements from UIKit
+     * By default Sentry already masks text and image elements from UIKit
      * Every child of a view that is redacted will also be redacted.
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.maskedViewClasses`` for the default value.
@@ -290,7 +290,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
      * this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying `CALayer` instead.
      *
      * - Note: This flag can only be used together with `enableViewRendererV2` with up to 20% faster render times.
-     * - Warning: Rendering the view hiearchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
+     * - Warning: Rendering the view hierarchy using the `CALayer.render(in:)` method can lead to rendering issues, especially when using custom views.
      *            For complete rendering, it is recommended to set this option to `false`. In case you prefer performance over completeness, you can
      *            set this option to `true`.
      * - Experiment: This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
@@ -454,7 +454,7 @@ public class SentryReplayOptions: NSObject, SentryRedactOptions {
 
     /**
      * Number of frames per second of the replay.
-     * The more the havier the process is.
+     * The more the heavier the process is.
      * The minimum is 1, if set to zero this will change to 1.
      *
      * - Note: See ``SentryReplayOptions.DefaultValues.frameRate`` for the default value.

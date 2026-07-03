@@ -54,7 +54,7 @@ public extension FileManager {
     /// - Note: See ``FileManager.removeItem(at:)`` for more information.
     func removeItemWithSentryTracing(at url: URL) throws {
         // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise initialize the
-        // depency container without any configured SDK options. This is a known issue and needs to be fixed in general.
+        // dependency container without any configured SDK options. This is a known issue and needs to be fixed in general.
         //
         // Using a closure ensures that the same method is used with and without Sentry tracking.
         let method = { (url: URL) in
@@ -79,7 +79,7 @@ public extension FileManager {
     /// - Note: See ``FileManager.removeItem(atPath:)`` for more information.
     func removeItemWithSentryTracing(atPath path: String) throws {
         // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise initialize the
-        // depency container without any configured SDK options. This is a known issue and needs to be fixed in general.
+        // dependency container without any configured SDK options. This is a known issue and needs to be fixed in general.
         //
         // Using a closure to ensure that the same method is used with and without Sentry tracking.
         let method = { (path: String) in
@@ -109,7 +109,7 @@ public extension FileManager {
     /// - Note: See ``FileManager.copyItem(at:to:)`` for more information.
     func copyItemWithSentryTracing(at srcURL: URL, to dstURL: URL) throws {
         // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise initialize the
-        // depency container without any configured SDK options. This is a known issue and needs to be fixed in general.
+        // dependency container without any configured SDK options. This is a known issue and needs to be fixed in general.
         //
         // Using a closure ensures that the same method is used with and without Sentry tracking.
         let method = { (srcURL: URL, dstURL: URL) throws in
@@ -136,7 +136,7 @@ public extension FileManager {
     /// - Note: See ``FileManager.copyItem(atPath:toPath:)`` for more information.
     func copyItemWithSentryTracing(atPath srcPath: String, toPath dstPath: String) throws {
         // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise initialize the
-        // depency container without any configured SDK options. This is a known issue and needs to be fixed in general.
+        // dependency container without any configured SDK options. This is a known issue and needs to be fixed in general.
         //
         // Using a closure to ensure that the same method is used with and without Sentry tracking.
         let method = { (srcPath: String, dstPath: String) throws in
@@ -164,7 +164,7 @@ public extension FileManager {
     /// - Note: See ``FileManager.moveItem(at:to:)`` for more information.
     func moveItemWithSentryTracing(at srcURL: URL, to dstURL: URL) throws {
         // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise initialize the
-        // depency container without any configured SDK options. This is a known issue and needs to be fixed in general.
+        // dependency container without any configured SDK options. This is a known issue and needs to be fixed in general.
         //
         // Using a closure ensures that the same method is used with and without Sentry tracking.
         let method = { (srcURL: URL, dstURL: URL) throws in
@@ -196,7 +196,7 @@ public extension FileManager {
     /// - Note: See ``FileManager.moveItem(atPath:toPath:)`` for more information.
     func moveItemWithSentryTracing(atPath srcPath: String, toPath dstPath: String) throws {
         // It is necessary to check if the SDK is enabled because accessing the tracker will otherwise initialize the
-        // depency container without any configured SDK options. This is a known issue and needs to be fixed in general.
+        // dependency container without any configured SDK options. This is a known issue and needs to be fixed in general.
         //
         // Using a closure ensures that the same method is used with and without Sentry tracking.
         let method = { (srcPath: String, dstPath: String) throws in

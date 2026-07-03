@@ -33,6 +33,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define REPORT_PREFIX @"CrashReport-SentryCrashTest"
 
@@ -57,6 +58,37 @@ isReportStoreCanaryIntact(const GuardedSentryCrashCRSPathBuffer *buffer)
         }
     }
     return true;
+}
+
+static bool
+isLeapYear(int year)
+{
+    return ((year % 4) == 0 && (year % 100) != 0) || (year % 400) == 0;
+}
+
+static int
+zeroBasedDayOfYear(int year, int month, int day)
+{
+    static const int daysBeforeMonth[] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
+    int dayOfYear = daysBeforeMonth[month - 1] + day - 1;
+    if (month > 2 && isLeapYear(year)) {
+        dayOfYear++;
+    }
+    return dayOfYear;
+}
+
+static struct tm
+makeUTCReportTime(int year, int month, int day, int hour, int minute, int second)
+{
+    return (struct tm) {
+        .tm_sec = second,
+        .tm_min = minute,
+        .tm_hour = hour,
+        .tm_mday = day,
+        .tm_mon = month - 1,
+        .tm_year = year - 1900,
+        .tm_yday = zeroBasedDayOfYear(year, month, day),
+    };
 }
 
 @interface SentryCrashReportStore_Tests : FileBasedTestCase
@@ -474,6 +506,24 @@ isReportStoreCanaryIntact(const GuardedSentryCrashCRSPathBuffer *buffer)
     XCTAssertEqualObjects([NSString stringWithUTF8String:attachmentsPath],
         [self.tempPath stringByAppendingPathComponent:
                 @"/ReportPath/AppName-report-00000013b0ac358d-attachments"]);
+}
+
+- (void)testInitializeIDs_whenUTCDateProducesZeroLowBits_shouldKeepHighBits
+{
+    // -- Arrange --
+    [self prepareReportStoreWithPathEnd:
+            @"testInitializeIDs_whenUTCDateProducesZeroLowBits_shouldKeepHighBits"];
+    // 2026-06-23 22:01:27 UTC produces a shifted base ID with zero low 32 bits,
+    // but non-zero high bits.
+    struct tm reportTime = makeUTCReportTime(2026, 6, 23, 22, 1, 27);
+    sentrycrashcrs_initializeIDsWithTimeForTests(&reportTime);
+
+    // -- Act --
+    int64_t reportID = [self writeCrashReportWithStringContents:@"Testing"];
+
+    // -- Assert --
+    XCTAssertEqual(reportID, INT64_C(0x00792dee00000000));
+    [self expectHasReportCount:1];
 }
 
 - (void)test_initializeIDs

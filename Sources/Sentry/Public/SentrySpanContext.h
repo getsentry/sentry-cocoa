@@ -64,14 +64,14 @@ SENTRY_NO_INIT
 
 /**
  * Init a @c SentryContext with an operation code.
- * @note @c traceId and @c spanId with be randomly created; @c sampled by default is
+ * @note @c traceId and @c spanId will be randomly created; @c sampled by default is
  * @c kSentrySampleDecisionUndecided .
  */
 - (instancetype)initWithOperation:(NSString *)operation;
 
 /**
  * Init a @c SentryContext with an operation code and mark it as sampled or not.
- * TraceId and SpanId with be randomly created.
+ * TraceId and SpanId will be randomly created.
  * @param operation The operation this span is measuring.
  * @param sampled Determines whether the trace should be sampled.
  */

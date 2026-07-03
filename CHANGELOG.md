@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased
+
+> [!IMPORTANT]
+> This release contains an important fix for dropping too much data when the SDK gets rate limited. (#8324) This fix changes how rate limits are handled. Previously, if one data type (for example, user feedback) was rate limited, other data such as spans or sessions could also be dropped. Now, only the rate-limited data is dropped, while all other data continues to be sent. This may also reduce cases where unexpectedly large amounts of data appear to be dropped due to rate limiting.
+
+### Fixes
+
+- Fix rate limiting all data categories when data category rate-limit is active. (#8324)
+
+### Features
+
+- Record log_byte client reports (#8186)
+
+## 9.19.1
+
+### Fixes
+
+- Fix use-after-free crash in `SentrySDKInternal.isEnabled` (#8310)
+- Fix dropped `platform` item header in profile-chunk envelopes (#8269)
+- Fix crash report ID generation so reports created at certain timestamps are not ignored (#8216)
+- Fix C++ exception capture on newer OS versions by page-aligning `mprotect` calls in the `__cxa_throw` swapper (#8221)
+- Fix client report discarded-event counts for categories reported in quantities greater than one (e.g. spans): each drop now adds the full dropped quantity instead of incrementing by one (#8230)
+- Rename extended app start span operation from `app.start.extended_app_start` to `app.start.extended` (#8220)
+- Fix unsynchronized debug-mode access in the binary image cache (#8309)
+
 ## 9.19.0
 
 > [!WARNING]

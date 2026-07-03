@@ -139,7 +139,7 @@ typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
     SentryBreadcrumb *_Nonnull breadcrumb);
 
 /**
- * Block can be used to mutate event before its send.
+ * Block can be used to mutate event before it's sent.
  * To avoid sending the event altogether, return nil instead.
  */
 typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);

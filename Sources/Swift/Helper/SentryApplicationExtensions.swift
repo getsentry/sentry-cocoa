@@ -10,6 +10,10 @@ import UIKit
 
 @objc @_spi(Private) extension UIApplication: SentryApplication {
 
+    @objc public func getKeyWindow() -> UIWindow? {
+        internal_getKeyWindow()
+    }
+
     @objc public func getWindows() -> [UIWindow]? {
         internal_getWindows()
     }
@@ -34,6 +38,15 @@ import UIKit
 }
 
 extension SentryApplication {
+    public func internal_getKeyWindow() -> UIWindow? {
+        var keyWindow: UIWindow?
+        Dependencies.dispatchQueueWrapper.dispatchSyncOnMainQueue({ [weak self] in
+            guard let self else { return }
+            keyWindow = self.getWindows()?.first(where: \.isKeyWindow)
+        }, timeout: 0.01)
+        return keyWindow
+    }
+
     // This cannot be declared with @objc so until we delete more ObjC code it needs a separate
     // function than the objc visible one.
     public func internal_getWindows() -> [UIWindow]? {

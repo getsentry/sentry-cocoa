@@ -22,19 +22,14 @@ public class SentryFramesTracker: NSObject {
     private var isStarted: Bool = false
 
     // MARK: Private properties
-    private var isRunningLock = NSLock()
-    private var _isRunning: Bool = false
+    private let _isRunning = SentryMutex<Bool>(false)
 
     @objc public private(set) var isRunning: Bool {
         get {
-            return isRunningLock.synchronized {
-                return _isRunning
-            }
+            _isRunning.withLock { $0 }
         }
         set {
-            isRunningLock.synchronized {
-                _isRunning = newValue
-            }
+            _isRunning.withLock { $0 = newValue }
         }
     }
     private var previousFrameTimestamp: CFTimeInterval = SentryFramesTracker.previousFrameInitialValue

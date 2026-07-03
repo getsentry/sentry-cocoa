@@ -121,8 +121,8 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
  * This method retrieves thread information from the suspend method
  * while the other retrieves information from the machine context.
  * Having both approaches in the same method can lead to inconsistency between the number of
- * threads, and while there is suspended threads we can't call into obj-c, so the previous approach
- * wont work for retrieving stacktrace information for every thread.
+ * threads, and while there are suspended threads we can't call into obj-c, so the previous approach
+ * won't work for retrieving stacktrace information for every thread.
  */
 - (NSArray<SentryThread *> *)getCurrentThreadsWithStackTrace
 {
@@ -135,7 +135,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         thread_act_array_t suspendedThreads = NULL;
         mach_msg_type_number_t numSuspendedThreads = 0;
 
-        // SentryThreadInspector is crashing when there is too many threads.
+        // SentryThreadInspector is crashing when there are too many threads.
         // We add a limit of 70 threads because in test with up to 100 threads it seems fine.
         // We are giving it an extra safety margin.
         sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(
@@ -143,7 +143,7 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         // DANGER: Do not try to allocate memory in the heap or call Objective-C code in this
         // section Doing so when the threads are suspended may lead to deadlocks or crashes.
 
-        // If no threads was suspended we don't need to do anything.
+        // If no threads were suspended we don't need to do anything.
         // This may happen if there is more than max amount of threads (70).
         if (numSuspendedThreads == 0) {
             return threads;

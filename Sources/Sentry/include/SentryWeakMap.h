@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryWeakMap<KeyType, ObjectType> : NSObject
 
 /**
- * Returns a the value associated with a given key.
+ * Returns the value associated with a given key.
  *
  * - Parameter aKey: The key for which to return the corresponding value.
  * - Returns: The value associated with aKey, or nil if no value is associated with aKey.

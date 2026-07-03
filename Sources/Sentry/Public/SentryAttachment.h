@@ -75,7 +75,7 @@ SENTRY_NO_INIT
 
 /**
  * Initializes an attachment with a path.
- * @discussion The specifid file is read lazily when the SDK captures an event or
+ * @discussion The specified file is read lazily when the SDK captures an event or
  * transaction not when the attachment is initialized.
  * @param path The path of the file whose contents you want to upload to Sentry.
  * @param filename The name of the attachment to display in Sentry.

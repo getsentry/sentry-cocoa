@@ -12,12 +12,13 @@ NSString *const kSentryDataCategoryNameSession = @"session";
 NSString *const kSentryDataCategoryNameTransaction = @"transaction";
 NSString *const kSentryDataCategoryNameAttachment = @"attachment";
 NSString *const kSentryDataCategoryNameProfile = @"profile";
-NSString *const kSentryDataCategoryNameProfileChunk = @"profile_chunk_ui";
+NSString *const kSentryDataCategoryNameProfileChunkUI = @"profile_chunk_ui";
 NSString *const kSentryDataCategoryNameReplay = @"replay";
 NSString *const kSentryDataCategoryNameMetricBucket = @"metric_bucket";
 NSString *const kSentryDataCategoryNameSpan = @"span";
 NSString *const kSentryDataCategoryNameFeedback = @"feedback";
 NSString *const kSentryDataCategoryNameLogItem = @"log_item";
+NSString *const kSentryDataCategoryNameLogByte = @"log_byte";
 NSString *const kSentryDataCategoryNameTraceMetric = @"trace_metric";
 NSString *const kSentryDataCategoryNameUnknown = @"unknown";
 
@@ -41,8 +42,13 @@ sentryDataCategoryForEnvelopItemType(NSString *itemType)
     if ([itemType isEqualToString:SentryEnvelopeItemTypes.profile]) {
         return kSentryDataCategoryProfile;
     }
+    // Relay infers the data category for a profile chunk from its platform, and UI platforms
+    // (cocoa, android, javascript) map to "profile_chunk_ui" rather than "profile_chunk". As Cocoa
+    // only sends UI profile chunks, we always use the UI category, so we honor the server's rate
+    // limits and emit client reports under the correct category. See Relay's data categories:
+    // https://github.com/getsentry/relay/blob/0561339affbb3a2fd512386f459b3a4775e4e581/relay-base-schema/src/data_category.rs#L175
     if ([itemType isEqualToString:SentryEnvelopeItemTypes.profileChunk]) {
-        return kSentryDataCategoryProfileChunk;
+        return kSentryDataCategoryProfileChunkUI;
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypes.replayVideo]) {
         return kSentryDataCategoryReplay;
@@ -99,8 +105,8 @@ sentryDataCategoryForString(NSString *value)
     if ([value isEqualToString:kSentryDataCategoryNameProfile]) {
         return kSentryDataCategoryProfile;
     }
-    if ([value isEqualToString:kSentryDataCategoryNameProfileChunk]) {
-        return kSentryDataCategoryProfileChunk;
+    if ([value isEqualToString:kSentryDataCategoryNameProfileChunkUI]) {
+        return kSentryDataCategoryProfileChunkUI;
     }
     if ([value isEqualToString:kSentryDataCategoryNameReplay]) {
         return kSentryDataCategoryReplay;
@@ -116,6 +122,9 @@ sentryDataCategoryForString(NSString *value)
     }
     if ([value isEqualToString:kSentryDataCategoryNameLogItem]) {
         return kSentryDataCategoryLogItem;
+    }
+    if ([value isEqualToString:kSentryDataCategoryNameLogByte]) {
+        return kSentryDataCategoryLogByte;
     }
     if ([value isEqualToString:kSentryDataCategoryNameTraceMetric]) {
         return kSentryDataCategoryTraceMetric;
@@ -143,8 +152,8 @@ nameForSentryDataCategory(SentryDataCategory category)
         return kSentryDataCategoryNameAttachment;
     case kSentryDataCategoryProfile:
         return kSentryDataCategoryNameProfile;
-    case kSentryDataCategoryProfileChunk:
-        return kSentryDataCategoryNameProfileChunk;
+    case kSentryDataCategoryProfileChunkUI:
+        return kSentryDataCategoryNameProfileChunkUI;
     case kSentryDataCategoryMetricBucket:
         return kSentryDataCategoryNameMetricBucket;
     case kSentryDataCategoryReplay:
@@ -155,6 +164,8 @@ nameForSentryDataCategory(SentryDataCategory category)
         return kSentryDataCategoryNameFeedback;
     case kSentryDataCategoryLogItem:
         return kSentryDataCategoryNameLogItem;
+    case kSentryDataCategoryLogByte:
+        return kSentryDataCategoryNameLogByte;
     case kSentryDataCategoryTraceMetric:
         return kSentryDataCategoryNameTraceMetric;
 

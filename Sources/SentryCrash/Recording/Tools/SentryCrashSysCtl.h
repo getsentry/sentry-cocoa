@@ -165,7 +165,7 @@ struct timeval sentrycrashsysctl_currentProcessStartTime(void);
  *
  * @param pid The process ID.
  *
- * @param procInfo Struct to hold the proces information.
+ * @param procInfo Struct to hold the process information.
  *
  * @return true if the operation was successful.
  */

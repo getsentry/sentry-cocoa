@@ -329,7 +329,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         XCTAssertTrue(appState.isANROngoing)
     }
-    
+
     func testANRDetected_NewHangTracker_UpdatesAppStateToTrue() throws {
         // -- Arrange --
         fixture.crashWrapper.internalIsBeingTraced = false
@@ -355,7 +355,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
         XCTAssertFalse(appState.isANROngoing)
     }
-    
+
     func testANRStopped_NewHangTracker_UpdatesAppStateToFalse() throws {
         // -- Arrange --
         fixture.crashWrapper.internalIsBeingTraced = false
@@ -372,8 +372,8 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     func testHangObserver_DurationBelowThreshold_DoesNotUpdateAppState() throws {
         // -- Arrange --
-        let mockHangTracker = MockHangTracker()
-        let dependencies = MockDependenciesWithControllableHangTracker(mockHangTracker: mockHangTracker)
+        let mockDelayTracker = MockRunLoopDelayTracker()
+        let dependencies = MockDependenciesWithControllableDelayTracker(delayTracker: mockDelayTracker)
 
         // Set a specific timeout interval
         let timeoutInterval: TimeInterval = 2.0
@@ -385,7 +385,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let integration = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
 
         // Simulate a hang with duration exactly at the threshold (not greater than)
-        mockHangTracker.simulateHang(duration: timeoutInterval, ongoing: true)
+        mockDelayTracker.simulateDelay(duration: timeoutInterval, ongoing: true)
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
@@ -395,8 +395,8 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     func testHangObserver_DurationAboveThreshold_UpdatesAppState() throws {
         // -- Arrange --
-        let mockHangTracker = MockHangTracker()
-        let dependencies = MockDependenciesWithControllableHangTracker(mockHangTracker: mockHangTracker)
+        let mockDelayTracker = MockRunLoopDelayTracker()
+        let dependencies = MockDependenciesWithControllableDelayTracker(delayTracker: mockDelayTracker)
 
         // Set a specific timeout interval
         let timeoutInterval: TimeInterval = 2.0
@@ -408,7 +408,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let integration = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
 
         // Simulate a hang with duration greater than the threshold
-        mockHangTracker.simulateHang(duration: timeoutInterval + 0.1, ongoing: true)
+        mockDelayTracker.simulateDelay(duration: timeoutInterval + 0.1, ongoing: true)
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
@@ -418,8 +418,8 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
 
     func testHangObserver_DurationBelowThreshold_HangStopped_DoesNotUpdateAppState() throws {
         // -- Arrange --
-        let mockHangTracker = MockHangTracker()
-        let dependencies = MockDependenciesWithControllableHangTracker(mockHangTracker: mockHangTracker)
+        let mockDelayTracker = MockRunLoopDelayTracker()
+        let dependencies = MockDependenciesWithControllableDelayTracker(delayTracker: mockDelayTracker)
 
         let timeoutInterval: TimeInterval = 2.0
         let options = fixture.options
@@ -430,7 +430,7 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
         let integration = SentryWatchdogTerminationTrackingIntegration(with: options, dependencies: dependencies)
 
         // Simulate a hang stop with duration below threshold
-        mockHangTracker.simulateHang(duration: timeoutInterval - 0.5, ongoing: false)
+        mockDelayTracker.simulateDelay(duration: timeoutInterval - 0.5, ongoing: false)
 
         // -- Assert --
         let appState = try XCTUnwrap(fixture.fileManager.readAppState())
@@ -440,14 +440,18 @@ class SentryWatchdogTerminationIntegrationTests: XCTestCase {
     }
 }
 
-private class MockDependencies: ANRTrackerBuilder & HangTrackerProvider & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider {
-    
+private class MockDependencies: ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider & DateProviderProvider & ApplicationProvider {
+
     func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
     }
-    
-    struct TestRunLoopObserver: RunLoopObserver { }
-    
+
+    var dateProvider: SentryCurrentDateProvider { TestCurrentDateProvider() }
+
+    func application() -> SentryApplication? { nil }
+
+    struct TestRunLoopObserver: SentryRunLoopObserver { }
+
     private func createObserver(_ allocator: CFAllocator?, _ activities: CFOptionFlags, _ repeats: Bool, _ order: CFIndex, _ block: ((TestRunLoopObserver?, CFRunLoopActivity) -> Void)?) -> TestRunLoopObserver {
         return TestRunLoopObserver()
     }
@@ -455,28 +459,30 @@ private class MockDependencies: ANRTrackerBuilder & HangTrackerProvider & Proces
     private func addObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) { }
 
     private func removeObserver(_ rl: CFRunLoop?, _ observer: TestRunLoopObserver?, _ mode: CFRunLoopMode?) { }
-    
-    lazy var hangTracker: HangTracker = {
-        DefaultHangTracker(
-            dateProvider: TestCurrentDateProvider(),
+
+    lazy var appHangTracker: SentryAppHangTracker = {
+        let runLoopDelayTracker = SentryDefaultRunLoopDelayTracker(
+            dependencies: self,
             createObserver: createObserver,
             addObserver: addObserver,
             removeObserver: removeObserver,
-            queue: DispatchQueue(label: "io.sentry.test-queue"))
+            queue: DispatchQueue(label: "io.sentry.test-queue")
+        )
+        return SentryDefaultAppHangTracker(runLoopDelayTracker: runLoopDelayTracker)
     }()
-    
+
     var processInfoWrapper: any Sentry.SentryProcessInfoSource {
         SentryDependencyContainer.sharedInstance().processInfoWrapper
     }
-    
+
     var appStateManager: Sentry.SentryAppStateManager {
         SentryDependencyContainer.sharedInstance().appStateManager
     }
-    
+
     func getWatchdogTerminationScopeObserverWithOptions(_ options: Sentry.Options) -> any Sentry.SentryScopeObserver {
         return SentryDependencyContainer.sharedInstance().getWatchdogTerminationScopeObserverWithOptions(options)
     }
-    
+
     var getWatchdogTerminationTrackerCalled: Bool = false
     func getWatchdogTerminationTracker(_ options: Sentry.Options) -> Sentry.SentryWatchdogTerminationTracker? {
         getWatchdogTerminationTrackerCalled = true
@@ -488,39 +494,39 @@ private class MockDependencies: ANRTrackerBuilder & HangTrackerProvider & Proces
     }
 }
 
-/// A mock HangTracker that allows manual triggering of hang observer callbacks
-private class MockHangTracker: HangTracker {
-    private var observers: [UUID: (TimeInterval, Bool) -> Void] = [:]
+/// A mock run loop delay tracker that allows manual triggering of delay events
+private class MockRunLoopDelayTracker: SentryRunLoopDelayTracker {
+    private var observers: [SentryRunLoopDelayTrackerObserverToken: SentryRunLoopDelayTrackerHandler] = [:]
 
-    func addOngoingHangObserver(handler: @escaping (TimeInterval, Bool) -> Void) -> UUID {
-        let id = UUID()
-        observers[id] = handler
-        return id
+    func addObserver(handler: @escaping SentryRunLoopDelayTrackerHandler) -> SentryRunLoopDelayTrackerObserverToken {
+        let token = SentryRunLoopDelayTrackerObserverToken()
+        observers[token] = handler
+        return token
     }
 
-    func removeObserver(id: UUID) {
-        observers.removeValue(forKey: id)
+    func removeObserver(token: SentryRunLoopDelayTrackerObserverToken) {
+        observers.removeValue(forKey: token)
     }
 
-    /// Simulates a hang by calling all registered observers with the given duration and ongoing state
-    func simulateHang(duration: TimeInterval, ongoing: Bool) {
+    func simulateDelay(duration: TimeInterval, ongoing: Bool) {
         for observer in observers.values {
-            observer(duration, ongoing)
+            observer(.init(duration: duration, isOngoing: ongoing))
         }
     }
 }
 
-/// Mock dependencies that use a controllable MockHangTracker for testing threshold behavior
-private class MockDependenciesWithControllableHangTracker: HangTrackerProvider & ANRTrackerBuilder & ProcessInfoProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider {
-    
+/// Mock dependencies that use a controllable MockRunLoopDelayTracker wrapped in a real
+/// SentryDefaultAppHangTracker, so per-observer threshold logic is exercised.
+private class MockDependenciesWithControllableDelayTracker: ANRTrackerBuilder & ProcessInfoProvider & AppHangTrackerProvider & AppStateManagerProvider & WatchdogTerminationScopeObserverBuilder & WatchdogTerminationTrackerBuilder & ExtensionDetectorProvider {
+
     func getANRTracker(_ interval: TimeInterval) -> Sentry.SentryANRTracker {
         SentryDependencyContainer.sharedInstance().getANRTracker(interval)
     }
 
-    let hangTracker: HangTracker
+    let appHangTracker: SentryAppHangTracker
 
-    init(mockHangTracker: MockHangTracker) {
-        self.hangTracker = mockHangTracker
+    init(delayTracker: MockRunLoopDelayTracker) {
+        self.appHangTracker = SentryDefaultAppHangTracker(runLoopDelayTracker: delayTracker)
     }
 
     var processInfoWrapper: any Sentry.SentryProcessInfoSource {

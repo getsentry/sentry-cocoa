@@ -61,7 +61,7 @@ SENTRY_NO_INIT
 @property (nullable, nonatomic, strong) SentryMechanismContext *meta;
 
 /**
- * Initialize an SentryMechanism with a type
+ * Initialize a SentryMechanism with a type
  * @param type String
  * @return SentryMechanism
  */

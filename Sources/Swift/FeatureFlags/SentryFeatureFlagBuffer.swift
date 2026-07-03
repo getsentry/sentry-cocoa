@@ -1,27 +1,30 @@
 // swiftlint:disable missing_docs
-import Foundation
 
 private let maxScopeFeatureFlags = 100
 private let maxSpanFeatureFlags = 10
 
 final class SentryFeatureFlagBuffer {
+    private struct State {
+        var evaluations: [SentryFeatureFlagEvaluation]
+        var indexesByFlag: [String: Int]
+    }
+
     private let maxSize: Int
     private let overflowBehavior: SentryFeatureFlagBufferOverflowBehavior
-    private let lock = NSLock()
-    private var evaluations: [SentryFeatureFlagEvaluation]
-    private var indexesByFlag: [String: Int]
+    private let state: SentryMutex<State>
 
     init(maxSize: Int,
          overflowBehavior: SentryFeatureFlagBufferOverflowBehavior,
          evaluations: [SentryFeatureFlagEvaluation] = []) {
         self.maxSize = maxSize
         self.overflowBehavior = overflowBehavior
-        self.evaluations = evaluations
-        self.indexesByFlag = [:]
         let capacity = max(maxSize, 0)
-        self.evaluations.reserveCapacity(capacity)
-        self.indexesByFlag.reserveCapacity(capacity)
-        rebuildIndexes()
+        var evals = evaluations
+        evals.reserveCapacity(capacity)
+        var indexes = [String: Int]()
+        indexes.reserveCapacity(capacity)
+        self.state = SentryMutex(State(evaluations: evals, indexesByFlag: indexes))
+        state.withLock { Self.rebuildIndexes(&$0) }
     }
 
     static func scopeBuffer() -> SentryFeatureFlagBuffer {
@@ -43,58 +46,56 @@ final class SentryFeatureFlagBuffer {
     }
 
     var allEvaluations: [SentryFeatureFlagEvaluation] {
-        return lock.synchronized {
-            evaluations
-        }
+        state.withLock { $0.evaluations }
     }
 
     func add<Value: SentryFeatureFlagValue>(name: String, value: Value) {
-        lock.synchronized {
+        state.withLock { state in
             guard maxSize > 0 else {
                 return
             }
             let evaluation = SentryFeatureFlagEvaluation(flag: name, result: value.asSentryFeatureFlagValue)
-            if let existingIndex = indexesByFlag[evaluation.flag] {
+            if let existingIndex = state.indexesByFlag[evaluation.flag] {
                 switch overflowBehavior {
                 case .dropOldest:
-                    evaluations.remove(at: existingIndex)
-                    evaluations.append(evaluation)
-                    rebuildIndexes()
+                    state.evaluations.remove(at: existingIndex)
+                    state.evaluations.append(evaluation)
+                    Self.rebuildIndexes(&state)
                 case .rejectNew:
-                    evaluations[existingIndex] = evaluation
+                    state.evaluations[existingIndex] = evaluation
                 }
                 return
             }
 
-            if evaluations.count >= maxSize {
+            if state.evaluations.count >= maxSize {
                 switch overflowBehavior {
                 case .dropOldest:
-                    evaluations.removeFirst()
-                    rebuildIndexes()
+                    state.evaluations.removeFirst()
+                    Self.rebuildIndexes(&state)
                 case .rejectNew:
                     return
                 }
             }
 
-            indexesByFlag[evaluation.flag] = evaluations.count
-            evaluations.append(evaluation)
+            state.indexesByFlag[evaluation.flag] = state.evaluations.count
+            state.evaluations.append(evaluation)
         }
     }
 
     func remove(name: String) {
-        lock.synchronized {
-            guard let index = indexesByFlag[name] else {
+        state.withLock { state in
+            guard let index = state.indexesByFlag[name] else {
                 return
             }
-            evaluations.remove(at: index)
-            rebuildIndexes()
+            state.evaluations.remove(at: index)
+            Self.rebuildIndexes(&state)
         }
     }
 
     func removeAll() {
-        lock.synchronized {
-            evaluations.removeAll(keepingCapacity: true)
-            indexesByFlag.removeAll(keepingCapacity: true)
+        state.withLock { state in
+            state.evaluations.removeAll(keepingCapacity: true)
+            state.indexesByFlag.removeAll(keepingCapacity: true)
         }
     }
 
@@ -120,10 +121,10 @@ final class SentryFeatureFlagBuffer {
         )
     }
 
-    private func rebuildIndexes() {
-        indexesByFlag.removeAll(keepingCapacity: true)
-        for (index, evaluation) in evaluations.enumerated() {
-            indexesByFlag[evaluation.flag] = index
+    private static func rebuildIndexes(_ state: inout State) {
+        state.indexesByFlag.removeAll(keepingCapacity: true)
+        for (index, evaluation) in state.evaluations.enumerated() {
+            state.indexesByFlag[evaluation.flag] = index
         }
     }
 }

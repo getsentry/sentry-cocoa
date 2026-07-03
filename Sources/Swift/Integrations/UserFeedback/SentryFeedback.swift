@@ -29,8 +29,8 @@ public final class SentryFeedback: NSObject {
     var associatedEventId: SentryId?
 
     /// - parameters:
-    ///   - associatedEventId The ID for an event you'd like associated with the feedback.
-    ///   - attachments Attachment objects for any files to include with the feedback.
+    ///   - associatedEventId: The ID for an event you'd like associated with the feedback.
+    ///   - attachments: Attachment objects for any files to include with the feedback.
     @objc public init(message: String, name: String?, email: String?, source: SentryFeedbackSource = .widget, associatedEventId: SentryId? = nil, attachments: [Attachment]? = nil) {
         self.eventId = SentryId()
         self.name = name

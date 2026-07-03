@@ -23,8 +23,8 @@ import UIKit
     private var cleanupBatteryMonitoring = false
     private var cleanupDeviceOrientationNotifications = false
     
-    // This one shouldn't be used because it acceccess `Dependencies` directly rather than being
-    // initialized with dependencies, but since we need to sublcass NSObject it has to be here.
+    // This one shouldn't be used because it accesses `Dependencies` directly rather than being
+    // initialized with dependencies, but since we need to subclass NSObject it has to be here.
     @available(*, unavailable)
     override convenience init() {
         self.init(queueWrapper: Dependencies.dispatchQueueWrapper)

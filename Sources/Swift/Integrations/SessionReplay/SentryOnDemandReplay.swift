@@ -31,8 +31,7 @@ func removeReplayFile(at fileURL: URL) {
     private var _frames = [SentryReplayFrame]()
     /// Guards `retainedFrameBeforeCurrentFrames`. All other accesses to it happen on
     /// `processingQueue`; the lock only exists because `deinit` can run on any thread.
-    private let retainedFrameLock = NSLock()
-    private var retainedFrameBeforeCurrentFrames: SentryReplayFrame?
+    private let retainedFrame = SentryMutex<SentryReplayFrame?>(nil)
 
     #if SENTRY_TEST || SENTRY_TEST_CI || DEBUG
     //This is exposed only for tests, no need to make it thread safe.
@@ -60,9 +59,9 @@ func removeReplayFile(at fileURL: URL) {
     deinit {
         // Clean shutdown removes the retained file. If the app crashes, the file stays
         // in the replay folder and is loaded during crash recovery on the next launch.
-        let retainedFrame = retainedFrameLock.synchronized {
-            let frame = retainedFrameBeforeCurrentFrames
-            retainedFrameBeforeCurrentFrames = nil
+        let retainedFrame: SentryReplayFrame? = retainedFrame.withLock {
+            let frame = $0
+            $0 = nil
             return frame
         }
         if let retainedFrame = retainedFrame {
@@ -161,9 +160,9 @@ func removeReplayFile(at fileURL: URL) {
                 // Retain the released frame so the next segment can still render the screen
                 // state at its window start; delete the previously retained frame's file once
                 // it is replaced.
-                let frameToRemove = self.retainedFrameLock.synchronized { () -> SentryReplayFrame? in
-                    let previousFrame = self.retainedFrameBeforeCurrentFrames
-                    self.retainedFrameBeforeCurrentFrames = first
+                let frameToRemove: SentryReplayFrame? = self.retainedFrame.withLock { retainedFrame in
+                    let previousFrame = retainedFrame
+                    retainedFrame = first
                     guard previousFrame?.imagePath != first.imagePath else { return nil }
                     return previousFrame
                 }
@@ -273,9 +272,8 @@ func removeReplayFile(at fileURL: URL) {
     }
 
     private func frameBefore(_ date: Date) -> SentryReplayFrame? {
-        let retainedFrame = retainedFrameLock.synchronized {
-            retainedFrameBeforeCurrentFrames
-        }.flatMap { $0.time < date ? $0 : nil }
+        let retainedFrame = retainedFrame.withLock { $0 }
+            .flatMap { $0.time < date ? $0 : nil }
         let currentFrame = _frames.last(where: { $0.time < date })
 
         guard let retained = retainedFrame else { return currentFrame }

@@ -266,7 +266,7 @@ uintptr_t sentrycrashobjc_taggedPointerPayload(const void *taggedObjectPtr);
 int sentrycrashobjc_getDescription(void *object, char *buffer, int bufferLength);
 
 /** Get the class type of an object.
- * There are a number of common class types that SentryCrashObjC understamds,
+ * There are a number of common class types that SentryCrashObjC understands,
  * listed in SentryCrashObjCClassType.
  *
  * @param object The object to query.

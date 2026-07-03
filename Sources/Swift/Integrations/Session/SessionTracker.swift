@@ -14,11 +14,9 @@ final class SessionTracker {
     
     // MARK: Private
 
-    private var wasStartSessionCalled = false
+    private let wasStartSessionCalled = SentryMutex<Bool>(false)
     private let applicationProvider: () -> SentryApplication?
-    private let lock = NSRecursiveLock()
-    private var lastInForeground: Date?
-    private var lastInForegroundLock = NSRecursiveLock()
+    private let lastInForeground = SentryMutex<Date?>(nil)
 
     private static let SentryHybridSdkDidBecomeActiveNotificationName = NSNotification.Name("SentryHybridSdkDidBecomeActive")
 
@@ -87,7 +85,7 @@ final class SessionTracker {
 
         // Reset the `wasStartSessionCalled` flag to ensure that the next time
         // `startSession` is called, it will start a new session.
-        wasStartSessionCalled = false
+        wasStartSessionCalled.withLock { $0 = false }
     }
     
     func removeObservers() {
@@ -143,12 +141,12 @@ final class SessionTracker {
         // NOTE: This is not actually safe, because the state is accessed from other methods without the lock.
         // It was preserved when migrating from ObjC but would be expected to cause a crash if this function was
         // called from a background thread.
-        let shouldEarlyReturn = lock.synchronized {
-            if wasStartSessionCalled {
+        let shouldEarlyReturn = wasStartSessionCalled.withLock {
+            if $0 {
                 SentrySDKLog.debug("Ignoring didBecomeActive notification because it was already called.")
                 return true
             }
-            wasStartSessionCalled = true
+            $0 = true
             return false
         }
         if shouldEarlyReturn {
@@ -159,9 +157,7 @@ final class SessionTracker {
         let now = dateProvider.date()
 
         // Reset synchronously to avoid racing with willResignActive().
-        lastInForegroundLock.synchronized {
-            self.lastInForeground = nil
-        }
+        lastInForeground.withLock { $0 = nil }
 
         dispatchQueue.dispatchAsync { [weak self] in
             guard let self else { return }
@@ -198,28 +194,26 @@ final class SessionTracker {
     /// long the app is going to be in the background. If it is just for a few seconds we want to keep
     /// the session open.
     @objc func willResignActive() {
-        let lastInForeground = dateProvider.date()
-        wasStartSessionCalled = false
-        lastInForegroundLock.synchronized {
-            self.lastInForeground = lastInForeground
-        }
+        let lastInForegroundDate = dateProvider.date()
+        wasStartSessionCalled.withLock { $0 = false }
+        lastInForeground.withLock { $0 = lastInForegroundDate }
 
         // If this write is lost due to a crash, the next launch will find a cached session
         // without a lastInForeground timestamp and closeCachedSession will end it as abnormal.
         dispatchQueue.dispatchAsync {
-            SentryDependencyContainerSwiftHelper.storeTimestampLast(inForeground: lastInForeground)
+            SentryDependencyContainerSwiftHelper.storeTimestampLast(inForeground: lastInForegroundDate)
         }
     }
 
     /// We always end the session when the app is terminated.
     @objc func willTerminate() {
-        let lastInForeground = lastInForegroundLock.synchronized { return self.lastInForeground }
-        let sessionEnded = lastInForeground ?? dateProvider.date()
+        let lastInForegroundDate = lastInForeground.withLock { $0 }
+        let sessionEnded = lastInForegroundDate ?? dateProvider.date()
         dispatchQueue.dispatchSync {
             SentrySDKInternal.currentHub().endSession(withTimestamp: sessionEnded)
             SentryDependencyContainerSwiftHelper.deleteTimestampLastInForeground()
         }
-        wasStartSessionCalled = false
+        wasStartSessionCalled.withLock { $0 = false }
     }
 
     // Private helper for profiling session sample-rate reevaluation.

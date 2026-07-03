@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSDictionary *_Nullable)deserializeDictionaryFromJsonData:(NSData *)data;
 
 /**
- * Extract the level from data of an envelopte item containing an event. Default is the 'error'
+ * Extract the level from data of an envelope item containing an event. Default is the 'error'
  * level, see https://develop.sentry.dev/sdk/event-payloads/#optional-attributes
  */
 + (SentryLevel)levelFromData:(NSData *)eventEnvelopeItemData;

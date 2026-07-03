@@ -2,6 +2,10 @@
 @_spi(Private) @testable import Sentry
 
 final class TestSentryUIApplication: SentryApplication {
+    func getKeyWindow() -> UIWindow? {
+        return internal_getKeyWindow()
+    }
+
     func getWindows() -> [UIWindow]? {
         if let windows {
             return windows

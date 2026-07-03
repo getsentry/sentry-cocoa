@@ -1,0 +1,128 @@
+# yaml-language-server: $schema=../../schema/xcodegen.schema.json
+
+name: CrashE2E
+createIntermediateGroups: true
+generateEmptyDirectories: true
+configs:
+  Debug: debug
+  Release: release
+projectReferences:
+  Sentry:
+    path: ../../Sentry.xcodeproj
+options:
+  bundleIdPrefix: io.sentry
+fileGroups:
+  - CrashE2E.yml
+  - App/Configurations
+targets:
+  CrashE2E-iOS:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    dependencies:
+      - target: Sentry/Sentry
+      - target: CrashE2EDynamicImageBefore-iOS
+        embed: true
+        link: false
+      - target: CrashE2EDynamicImageAfter-iOS
+        embed: true
+        link: false
+    sources:
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+    configFiles:
+      Debug: App/Configurations/CrashE2E-iOS.xcconfig
+      Release: App/Configurations/CrashE2E-iOS.xcconfig
+
+  CrashE2E-macOS:
+    type: tool
+    platform: macOS
+    deploymentTarget: "11.0"
+    dependencies:
+      - target: Sentry/Sentry
+      - target: CrashE2EDynamicImageBefore-macOS
+        link: false
+      - target: CrashE2EDynamicImageAfter-macOS
+        link: false
+    sources:
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+    configFiles:
+      Debug: App/Configurations/CrashE2E-macOS.xcconfig
+      Release: App/Configurations/CrashE2E-macOS.xcconfig
+    settings:
+      base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) CRASH_E2E_MACOS_CLI"
+
+  CrashE2EDynamicImageBefore-iOS:
+    type: library.dynamic
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: App/DynamicImages/CrashE2EDynamicImage.c
+        type: file
+    settings:
+      base:
+        PRODUCT_NAME: CrashE2EDynamicImageBefore
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) CRASH_E2E_DYNAMIC_IMAGE_BEFORE=1"
+
+  CrashE2EDynamicImageAfter-iOS:
+    type: library.dynamic
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: App/DynamicImages/CrashE2EDynamicImage.c
+        type: file
+    settings:
+      base:
+        PRODUCT_NAME: CrashE2EDynamicImageAfter
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) CRASH_E2E_DYNAMIC_IMAGE_AFTER=1"
+
+  CrashE2EDynamicImageBefore-macOS:
+    type: library.dynamic
+    platform: macOS
+    deploymentTarget: "11.0"
+    sources:
+      - path: App/DynamicImages/CrashE2EDynamicImage.c
+        type: file
+    settings:
+      base:
+        PRODUCT_NAME: CrashE2EDynamicImageBefore
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) CRASH_E2E_DYNAMIC_IMAGE_BEFORE=1"
+
+  CrashE2EDynamicImageAfter-macOS:
+    type: library.dynamic
+    platform: macOS
+    deploymentTarget: "11.0"
+    sources:
+      - path: App/DynamicImages/CrashE2EDynamicImage.c
+        type: file
+    settings:
+      base:
+        PRODUCT_NAME: CrashE2EDynamicImageAfter
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) CRASH_E2E_DYNAMIC_IMAGE_AFTER=1"
+
+schemes:
+  CrashE2E-iOS:
+    build:
+      targets:
+        CrashE2E-iOS: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+
+  CrashE2E-macOS:
+    build:
+      targets:
+        CrashE2E-macOS: all
+    run:
+      config: Debug
+    archive:
+      config: Release

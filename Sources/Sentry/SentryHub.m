@@ -778,7 +778,7 @@ NS_ASSUME_NONNULL_BEGIN
         return;
     }
 
-    // If captured envelope cointains not handled errors, these are not going to crash the app and
+    // If captured envelope contains not handled errors, these are not going to crash the app and
     // we should create new session.
     [client captureEnvelope:[self updateSessionState:envelope startNewSession:YES]];
 }

@@ -49,7 +49,7 @@ SENTRY_NO_INIT
 @property (nonatomic, strong) SentryStacktrace *_Nullable stacktrace;
 
 /**
- * Initialize an SentryException with value and type.
+ * Initialize a SentryException with value and type.
  * @param value Nullable string describing the exception
  * @param type Nullable string with the type of the exception
  * @return SentryException

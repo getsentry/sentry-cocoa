@@ -20,4 +20,5 @@ You have to check all boxes before merging:
 - [ ] Review from the native team if needed.
 - [ ] No breaking change or entry added to the changelog.
 - [ ] No breaking change for hybrid SDKs or communicated to hybrid SDKs.
+- [ ] Public API changes reviewed by another Mobile SDK team member or implemented according to the [develop docs](https://develop.sentry.dev/) spec.
 - [ ] If I added a new public API, I also added it to the [SentryObjC wrapper](../develop-docs/SENTRY-OBJC.md).

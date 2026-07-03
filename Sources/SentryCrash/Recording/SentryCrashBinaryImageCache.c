@@ -239,7 +239,7 @@ sentrycrashbic_startCache(void)
     // This must be done on a background thread to not block app launch due to the extensive use of
     // locks in the image added callback. The main culprit is the calls to `dladdr`. The downside of
     // doing this async is if there is a crash very shortly after app launch we might not have
-    // recorded all the load addresses of images yet. We think this is an acceptible tradeoff to not
+    // recorded all the load addresses of images yet. We think this is an acceptable tradeoff to not
     // block app launch, since it's always possible to crash early in app launch before Sentry can
     // capture the crash.
 #if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI)

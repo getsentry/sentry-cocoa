@@ -9,7 +9,7 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("transaction"), .transaction)
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("attachment"), .attachment)
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("profile"), .profile)
-        XCTAssertEqual(sentryDataCategoryForEnvelopItemType("profile_chunk"), .profileChunk)
+        XCTAssertEqual(sentryDataCategoryForEnvelopItemType("profile_chunk"), .profileChunkUI)
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("statsd"), .metricBucket)
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("replay_video"), .replay)
         XCTAssertEqual(sentryDataCategoryForEnvelopItemType("feedback"), .feedback)
@@ -28,14 +28,15 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(sentryDataCategoryForNSUInteger(7), .profile)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(8), .metricBucket)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(9), .replay)
-        XCTAssertEqual(sentryDataCategoryForNSUInteger(10), .profileChunk)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(10), .profileChunkUI)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(11), .span)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(12), .feedback)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(13), .logItem)
         XCTAssertEqual(sentryDataCategoryForNSUInteger(14), .traceMetric)
-        XCTAssertEqual(sentryDataCategoryForNSUInteger(15), .unknown)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(15), .logByte)
+        XCTAssertEqual(sentryDataCategoryForNSUInteger(16), .unknown)
 
-        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(15), "Failed to map unknown category number to case .unknown")
+        XCTAssertEqual(.unknown, sentryDataCategoryForNSUInteger(16), "Failed to map unknown category number to case .unknown")
     }
     
     func testMapStringToCategory() {
@@ -46,12 +47,13 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameTransaction), .transaction)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameAttachment), .attachment)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameProfile), .profile)
-        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameProfileChunk), .profileChunk)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameProfileChunkUI), .profileChunkUI)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameMetricBucket), .metricBucket)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameReplay), .replay)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameFeedback), .feedback)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameSpan), .span)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameLogItem), .logItem)
+        XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameLogByte), .logByte)
         XCTAssertEqual(sentryDataCategoryForString(kSentryDataCategoryNameUnknown), .unknown)
 
         XCTAssertEqual(.unknown, sentryDataCategoryForString("gdfagdfsa"), "Failed to map unknown category name to case .unknown")
@@ -65,12 +67,13 @@ class SentryDataCategoryMapperTests: XCTestCase {
         XCTAssertEqual(nameForSentryDataCategory(.transaction), kSentryDataCategoryNameTransaction)
         XCTAssertEqual(nameForSentryDataCategory(.attachment), kSentryDataCategoryNameAttachment)
         XCTAssertEqual(nameForSentryDataCategory(.profile), kSentryDataCategoryNameProfile)
-        XCTAssertEqual(nameForSentryDataCategory(.profileChunk), kSentryDataCategoryNameProfileChunk)
+        XCTAssertEqual(nameForSentryDataCategory(.profileChunkUI), kSentryDataCategoryNameProfileChunkUI)
         XCTAssertEqual(nameForSentryDataCategory(.metricBucket), kSentryDataCategoryNameMetricBucket)
         XCTAssertEqual(nameForSentryDataCategory(.replay), kSentryDataCategoryNameReplay)
         XCTAssertEqual(nameForSentryDataCategory(.feedback), kSentryDataCategoryNameFeedback)
         XCTAssertEqual(nameForSentryDataCategory(.span), kSentryDataCategoryNameSpan)
         XCTAssertEqual(nameForSentryDataCategory(.logItem), kSentryDataCategoryNameLogItem)
+        XCTAssertEqual(nameForSentryDataCategory(.logByte), kSentryDataCategoryNameLogByte)
         XCTAssertEqual(nameForSentryDataCategory(.unknown), kSentryDataCategoryNameUnknown)
     }
 }

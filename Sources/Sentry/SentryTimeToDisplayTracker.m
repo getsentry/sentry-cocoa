@@ -165,7 +165,7 @@
 {
     // The purpose of TTID and TTFD is to measure how long
     // takes to the content of the screen to change.
-    // Thats why we need to wait for the next frame to be drawn.
+    // That's why we need to wait for the next frame to be drawn.
     if (_initialDisplayReported && self.initialDisplaySpan.isFinished == NO) {
         SENTRY_LOG_DEBUG(@"Finishing initial display span");
         self.initialDisplaySpan.timestamp = newFrameDate;
