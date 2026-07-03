@@ -5,6 +5,7 @@
 ### Features
 
 - Record log_byte client reports (#8186)
+- Add `userInfo` context for unhandled `NSExceptions` (#8332)
 
 ## 9.19.1
 
