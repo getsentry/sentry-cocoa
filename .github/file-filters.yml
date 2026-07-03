@@ -112,29 +112,6 @@ run_benchmarking_for_prs: &run_benchmarking_for_prs # GH Actions
   - ".sauce/benchmarking-config.yml"
   - "Plans/iOS-Benchmarking_Base.xctestplan"
 
-run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
-  - "Sources/**"
-
-  # GH Actions
-  - ".github/workflows/test-cross-platform.yml"
-  - ".github/file-filters.yml"
-
-  # Project files
-  - "Sentry.podspec"
-  - "SentrySwiftUI.podspec"
-  - "Package*.swift"
-
-  # Scripts
-  - "scripts/ci-select-xcode.sh"
-  - ".github/actions/setup-xcode/**"
-  - "scripts/ci-diagnostics.sh"
-  - "scripts/ci-utils.sh"
-  - "scripts/ci-ensure-runtime-loaded.sh"
-
-  # Build configuration
-  - "Makefile"
-  - "Brewfile*"
-
 run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
   - "**/*.h"
   - "**/*.hpp"
