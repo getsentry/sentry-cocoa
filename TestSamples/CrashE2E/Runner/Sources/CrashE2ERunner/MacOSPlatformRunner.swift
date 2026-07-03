@@ -100,10 +100,17 @@ final class MacOSPlatformRunner {
         if result.timedOut {
             try fail("macOS app did not terminate for scenario: \(scenario.rawValue) (\(result.summary))")
         }
-        if result.succeeded {
-            try fail("macOS app exited successfully for crash scenario: \(scenario.rawValue)")
+        if scenario.expectsCrashTermination {
+            if result.succeeded {
+                try fail("macOS app exited successfully for crash scenario: \(scenario.rawValue)")
+            }
+            log("macOS crash process exited with \(result.summary).")
+        } else {
+            if !result.succeeded {
+                try fail("macOS app failed for non-crash scenario: \(scenario.rawValue) (\(result.summary))")
+            }
+            log("macOS non-crash process exited with \(result.summary).")
         }
-        log("macOS crash process exited with \(result.summary).")
     }
 
     private func runDrainLaunch(_ scenario: Scenario, executable: URL, cacheDir: URL,

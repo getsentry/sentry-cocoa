@@ -14,6 +14,8 @@ enum CrashE2ECrashTriggers {
             Thread.sleep(forTimeInterval: 0.5)
             CrashE2ETriggerDynamicBinaryImageCrash()
             abortBecauseScenarioReturned(scenario)
+        case .ignoredSignal:
+            triggerIgnoredSignal()
         case .managedRuntimeClosedSignal:
             SentrySDK.close()
             SentrySDK.crash()
@@ -22,6 +24,15 @@ enum CrashE2ECrashTriggers {
             CrashE2ERuntime.closeAndRestartSDK()
             SentrySDK.crash()
             abortBecauseScenarioReturned(scenario)
+        case .nsException, .cppExceptionV1, .cppExceptionV2, .swiftAsyncCPPExceptionV2Off,
+             .swiftAsyncCPPExceptionV2On, .unityCxaThrow, .objcObject, .idle, .drain,
+             .managedRuntimePreSDKSignal:
+            triggerExceptionScenario(scenario)
+        }
+    }
+
+    private static func triggerExceptionScenario(_ scenario: CrashE2EScenario) -> Never {
+        switch scenario {
         case .nsException:
             NSException(
                 name: NSExceptionName("CrashE2ENSException"),
@@ -45,7 +56,17 @@ enum CrashE2ECrashTriggers {
             abortBecauseScenarioReturned(scenario)
         case .idle, .drain, .managedRuntimePreSDKSignal:
             abortBecauseScenarioReturned(scenario)
+        case .signal, .binaryImages, .ignoredSignal, .managedRuntimeSignalChain,
+             .managedRuntimeClosedSignal, .managedRuntimeReinitSignal:
+            abortBecauseScenarioReturned(scenario)
         }
+    }
+
+    private static func triggerIgnoredSignal() -> Never {
+        NSLog("CrashE2E - raising pre-SDK ignored SIGPIPE")
+        raise(SIGPIPE)
+        NSLog("CrashE2E - ignored SIGPIPE did not terminate the process")
+        exit(0)
     }
 
     private static func triggerSwiftAsyncCPPException(_ scenario: CrashE2EScenario) -> Never {
