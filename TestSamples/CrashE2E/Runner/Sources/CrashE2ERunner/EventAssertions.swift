@@ -58,6 +58,8 @@ enum EventAssertions {
              .managedRuntimeClosedSignal, .managedRuntimeReinitSignal, .nsException:
             try assertCrashedThread(threadValues, expectedThreadID: exceptionThreadID,
                                     platform: platform, scenario: scenario)
+        case .ignoredSignal:
+            return
         }
     }
 
@@ -123,6 +125,9 @@ enum EventAssertions {
 
         case .objcObject:
             try assertObjCObjectThrow(firstException, mechanism: mechanism, platform: platform)
+
+        case .ignoredSignal:
+            return
         }
     }
 
