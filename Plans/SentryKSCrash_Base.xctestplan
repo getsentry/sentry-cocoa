@@ -699,18 +699,6 @@
         "identifier" : "3CFC66DE2FF50342004005B4",
         "name" : "SentryTests+KSCrash"
       }
-    },
-    {
-      "parallelizable" : false,
-      "skippedTests" : [
-        "SentryContinuousProfilerTests\/testStoppingProfilerTransmitsLastFullChunk()",
-        "SentryProfilerTests\/testProfilerMutationDuringSlicing"
-      ],
-      "target" : {
-        "containerPath" : "container:Sentry.xcodeproj",
-        "identifier" : "8431EECF29B27B1100D8DC56",
-        "name" : "SentryProfilerTests"
-      }
     }
   ],
   "version" : 1

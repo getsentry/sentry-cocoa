@@ -567,7 +567,6 @@
 		84AF223B85A907A089B125A1 /* SentryThreadMetadataCache.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 03F84D1A27DD414C008FE43F /* SentryThreadMetadataCache.hpp */; };
 		84AF45A629A7FFA500FBB177 /* SentryProfiledTracerConcurrency.h in Headers */ = {isa = PBXBuildFile; fileRef = 84AF45A429A7FFA500FBB177 /* SentryProfiledTracerConcurrency.h */; };
 		84AF45A729A7FFA500FBB177 /* SentryProfiledTracerConcurrency.mm in Sources */ = {isa = PBXBuildFile; fileRef = 84AF45A529A7FFA500FBB177 /* SentryProfiledTracerConcurrency.mm */; };
-		84B7FA3529B285FC00AD93B1 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63AA759B1EB8AEF500D153DE /* Sentry.framework */; };
 		84B7FA3D29B2879C00AD93B1 /* libSentryTestUtils.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */; };
 		84DEE8762B69AD6400A7BC17 /* SentryLaunchProfiling.h in Headers */ = {isa = PBXBuildFile; fileRef = 84DEE8752B69AD6400A7BC17 /* SentryLaunchProfiling.h */; };
 		84F994E62A6894B500EC0190 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84F994E52A6894B500EC0190 /* CoreData.framework */; };
@@ -1007,13 +1006,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = F45243122DE56862003E8F50;
 			remoteInfo = "Unit Tests";
-		};
-		84B7FA3729B2860500AD93B1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 63AA759A1EB8AEF500D153DE;
-			remoteInfo = Sentry;
 		};
 		D4711CB62FC6E96D00508994 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1961,7 +1953,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84B7FA3529B285FC00AD93B1 /* Sentry.framework in Frameworks */,
 				D483AFA42E9D555300B43C27 /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3750,7 +3741,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				84B7FA3829B2860500AD93B1 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				FAB1188E2F4633F40000CC24 /* SentryTestUtils */,
@@ -4694,11 +4684,6 @@
 			isa = PBXTargetDependency;
 			target = 63AA759A1EB8AEF500D153DE /* Sentry */;
 			targetProxy = 8431EED329B27B1100D8DC56 /* PBXContainerItemProxy */;
-		};
-		84B7FA3829B2860500AD93B1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 63AA759A1EB8AEF500D153DE /* Sentry */;
-			targetProxy = 84B7FA3729B2860500AD93B1 /* PBXContainerItemProxy */;
 		};
 		D4711CB72FC6E96D00508994 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

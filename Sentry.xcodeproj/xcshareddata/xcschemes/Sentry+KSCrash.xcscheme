@@ -3,7 +3,7 @@
    LastUpgradeVersion = "2650"
    version = "1.7">
    <BuildAction
-      parallelizeBuildables = "YES"
+      parallelizeBuildables = "NO"
       buildImplicitDependencies = "YES"
       buildArchitectures = "Automatic">
       <BuildActionEntries>
@@ -132,21 +132,6 @@
                </Test>
                <Test
                   Identifier = "SentryThreadInspectorTests/testStacktraceHasFrames_forEveryThread()">
-               </Test>
-            </SkippedTests>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "8431EECF29B27B1100D8DC56"
-               BuildableName = "SentryProfilerTests.xctest"
-               BlueprintName = "SentryProfilerTests"
-               ReferencedContainer = "container:Sentry.xcodeproj">
-            </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "SentryProfilerTests/testProfilerMutationDuringSlicing">
                </Test>
             </SkippedTests>
          </TestableReference>
