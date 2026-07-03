@@ -96,8 +96,8 @@ import Foundation
             size: size
         )
         
-        lock.synchronized {
-            guard let cache = self.cache else { return }
+        let shouldValidateDuplicatedSDK = lock.synchronized { () -> Bool in
+            guard let cache = self.cache else { return false }
             
             // Binary search insertion to maintain sorted order by address
             var left = 0
@@ -114,9 +114,10 @@ import Foundation
             }
             
             self.cache?.insert(newImage, at: left)
+            return self.isDebug
         }
         
-        if isDebug {
+        if shouldValidateDuplicatedSDK {
             // This validation adds some overhead with each class present in the image, so we only
             // run this when debug is enabled. A non main queue is used to avoid affecting the UI.
             LoadValidator.checkForDuplicatedSDK(imageName: nameString,

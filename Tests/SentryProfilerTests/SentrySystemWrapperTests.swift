@@ -21,6 +21,30 @@ class SentrySystemWrapperTests: XCTestCase {
     // Error path for cpuUsageWithError: untestable — task_threads uses hardcoded
     // mach_task_self() which cannot be made to fail without resource exhaustion.
 
+#if SDK_V10
+    // MARK: - normalizeCPUUsage (TH_USAGE_SCALE = 1000)
+
+    func testNormalizeCPUUsage_singleCoreFull_shouldReturn25Percent() {
+        let result = fixture.systemWrapper.normalizeCPUUsage(1_000)
+        XCTAssertEqual(result, 25.0, accuracy: 0.01)
+    }
+
+    func testNormalizeCPUUsage_allCoresFull_shouldReturn100Percent() {
+        let result = fixture.systemWrapper.normalizeCPUUsage(4_000)
+        XCTAssertEqual(result, 100.0, accuracy: 0.01)
+    }
+
+    func testNormalizeCPUUsage_zero_shouldReturnZero() {
+        let result = fixture.systemWrapper.normalizeCPUUsage(0)
+        XCTAssertEqual(result, 0.0, accuracy: 0.01)
+    }
+
+    func testNormalizeCPUUsage_halfCore_shouldReturn12Point5Percent() {
+        let result = fixture.systemWrapper.normalizeCPUUsage(500)
+        XCTAssertEqual(result, 12.5, accuracy: 0.01)
+    }
+#endif
+
     // MARK: - memoryFootprintBytes
 
     func testMemoryFootprint_shouldReturnPositiveValue() {
