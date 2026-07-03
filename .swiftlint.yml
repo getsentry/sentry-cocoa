@@ -2,20 +2,17 @@ excluded:
   - Pods
   - DerivedData
   - "**/SourcePackages/**"
-  - Utils/**/.build
-  - Samples/**/.build
   - "**/build/**"
   - DependencyManagerTests
   - Sources/SentryCrash
   - vendor
-  - test-server/.build/
   - Tests/Perf
   - SentryTestUtils/Dynamic/**
   - .build/**
+  - "**/.build/**"
   - .git/**
   - XCFrameworkBuildPath/**
   - 3rd-party-integrations/**/Packages/sentry-cocoa
-  - 3rd-party-integrations/**/.build
   # Exclude auto-generated files from sample app builds
   - "**/Build/Intermediates.noindex/iOS-Swift.build/**/DerivedSources/**"
   - "**/Build/Intermediates.noindex/iOS-SwiftClip.build/**/DerivedSources/**"
