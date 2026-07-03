@@ -986,6 +986,42 @@
     XCTAssertEqualObjects(messages.firstObject, unrelatedCrashInfo);
 }
 
+- (void)testNSExceptionWithUserInfo_shouldAddUserInfoToEventContext
+{
+    // -- Arrange --
+    NSString *userInfo = @"{\n    scenario = ns-exception;\n    customer = sentry;\n}";
+    NSDictionary *mockReport = @{
+        @"crash" : @ {
+            @"threads" : @[ @{
+                @"index" : @0,
+                @"crashed" : @YES,
+                @"current_thread" : @YES,
+                @"backtrace" : @ { @"contents" : @[] }
+            } ],
+            @"error" : @ {
+                @"type" : @"nsexception",
+                @"nsexception" : @ {
+                    @"name" : @"NSInvalidArgumentException",
+                    @"reason" : @"Crash E2E uncaught NSException",
+                    @"userInfo" : userInfo
+                }
+            }
+        },
+        @"binary_images" : @[],
+        @"system" : @ { @"application_stats" : @ { @"application_in_foreground" : @YES } }
+    };
+
+    // -- Act --
+    SentryCrashReportConverter *reportConverter =
+        [[SentryCrashReportConverter alloc] initWithReport:mockReport inAppLogic:self.inAppLogic];
+    SentryEvent *event = [reportConverter convertReportToEvent];
+
+    // -- Assert --
+    NSDictionary *userInfoContext = event.context[@"user info"];
+    XCTAssertEqualObjects(userInfoContext[@"scenario"], @"ns-exception");
+    XCTAssertEqualObjects(userInfoContext[@"customer"], @"sentry");
+}
+
 - (void)testNSException_whenNoCrashInfoMessage_shouldKeepReason
 {
     // -- Arrange --
