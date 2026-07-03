@@ -243,8 +243,11 @@ enum EventAssertions {
         if platform == "ios" {
             return lastPathComponent == "CrashE2E-iOS"
                 || lastPathComponent == "CrashE2E-iOS.debug.dylib"
+                || lastPathComponent == "CrashE2E-iOS-KSCrash"
+                || lastPathComponent == "CrashE2E-iOS-KSCrash.debug.dylib"
         }
         return lastPathComponent == "CrashE2E-macOS"
+            || lastPathComponent == "CrashE2E-macOS-KSCrash"
     }
 
     private static func isDyldImage(_ codeFile: String) -> Bool {

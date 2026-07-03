@@ -80,10 +80,10 @@ final class CrashE2ERunner {
     }
 
     private func buildIOSApp(derivedDataPath: URL, label: String, extraBuildSettings: [String]) throws {
-        log("Building CrashE2E-iOS (\(label)).")
+        log("Building \(config.reporter.iOSScheme) (\(label)).")
         try xcodebuild([
             "-project", config.directories.crashE2EDir.appendingPathComponent("CrashE2E.xcodeproj").path,
-            "-scheme", "CrashE2E-iOS",
+            "-scheme", config.reporter.iOSScheme,
             "-configuration", "Debug",
             "-destination", iOSRunner.xcodebuildDestination,
             "-derivedDataPath", derivedDataPath.path,
@@ -92,10 +92,10 @@ final class CrashE2ERunner {
     }
 
     private func buildMacOSApp(derivedDataPath: URL, label: String, extraBuildSettings: [String]) throws {
-        log("Building CrashE2E-macOS (\(label)).")
+        log("Building \(config.reporter.macOSScheme) (\(label)).")
         try xcodebuild([
             "-project", config.directories.crashE2EDir.appendingPathComponent("CrashE2E.xcodeproj").path,
-            "-scheme", "CrashE2E-macOS",
+            "-scheme", config.reporter.macOSScheme,
             "-configuration", "Debug",
             "-destination", "platform=macOS",
             "-derivedDataPath", derivedDataPath.path,

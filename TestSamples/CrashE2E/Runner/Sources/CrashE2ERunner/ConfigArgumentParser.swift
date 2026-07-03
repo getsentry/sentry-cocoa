@@ -2,6 +2,7 @@ import Foundation
 
 private enum ValueOption: String {
     case platform = "--platform"
+    case reporter = "--reporter"
     case scenarios = "--scenarios"
     case iosDestination = "--ios-destination"
     case iosDeviceID = "--ios-device-id"
@@ -58,6 +59,8 @@ struct ConfigArgumentParser {
         switch option {
         case .platform:
             try parsePlatform()
+        case .reporter:
+            try parseReporter()
         case .scenarios:
             try parseScenarios()
         case .iosDestination:
@@ -95,6 +98,15 @@ struct ConfigArgumentParser {
             throw CrashE2EFailure(message: "Invalid --platform: \(value)")
         }
         config.platform = platform
+        index += 2
+    }
+
+    private mutating func parseReporter() throws {
+        let value = try valueAfterCurrentArgument()
+        guard let reporter = Reporter(caseInsensitive: value) else {
+            throw CrashE2EFailure(message: "Invalid --reporter: \(value)")
+        }
+        config.reporter = reporter
         index += 2
     }
 
