@@ -4,9 +4,9 @@
 GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS_$(CONFIGURATION)) ENABLE_KSCRASH=1 SDK_V10=1
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(SWIFT_ACTIVE_COMPILATION_CONDITIONS_$(CONFIGURATION)) ENABLE_KSCRASH SDK_V10
 
-// Framework bundle name differs from module name so both targets can coexist without a
-// product-name conflict. The module name stays "Sentry" so `import Sentry` still works.
-PRODUCT_NAME = SentryWithKSCrash
+// The KSCrash variant must still build Sentry.framework because Clang framework
+// module lookup and the public umbrella header both expect the Sentry bundle name.
+PRODUCT_NAME = $(PRODUCT_MODULE_NAME)
 
 // Sentry.xcconfig excludes KSCrash sources from the plain Sentry target.
 // This target owns those files, so clear the exclusion.

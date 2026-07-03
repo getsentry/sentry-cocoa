@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D61074A12EE358E90332638B"
-               BuildableName = "SentryWithKSCrash.framework"
+               BuildableName = "Sentry.framework"
                BlueprintName = "Sentry+KSCrash"
                ReferencedContainer = "container:Sentry.xcodeproj">
             </BuildableReference>
@@ -47,7 +47,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D61074A12EE358E90332638B"
-            BuildableName = "SentryWithKSCrash.framework"
+            BuildableName = "Sentry.framework"
             BlueprintName = "Sentry+KSCrash"
             ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
@@ -174,7 +174,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D61074A12EE358E90332638B"
-            BuildableName = "SentryWithKSCrash.framework"
+            BuildableName = "Sentry.framework"
             BlueprintName = "Sentry+KSCrash"
             ReferencedContainer = "container:Sentry.xcodeproj">
          </BuildableReference>
