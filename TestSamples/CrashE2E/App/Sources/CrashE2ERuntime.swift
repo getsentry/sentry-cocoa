@@ -12,6 +12,7 @@ enum CrashE2EScenario: String {
     case unityCxaThrow = "unity-cxa-throw"
     case objcObject = "objc-object"
     case binaryImages = "binary-images"
+    case ignoredSignal = "ignored-signal"
     case managedRuntimeSignalChain = "managed-runtime-signal-chain"
     case managedRuntimePreSDKSignal = "managed-runtime-pre-sdk-signal"
     case managedRuntimeClosedSignal = "managed-runtime-closed-signal"
@@ -68,6 +69,7 @@ enum CrashE2ERuntime {
     static func startSDK() {
         NSLog("CrashE2E - starting SDK with scenario: \(configuration.scenario.rawValue)")
         triggerPreSDKSignalIfNeeded()
+        installIgnoredSignalHandlerIfNeeded()
         installFakeManagedRuntimeHandlerIfNeeded()
         loadBinaryImageBeforeSDKIfNeeded()
         startConfiguredSDK()
@@ -85,7 +87,7 @@ enum CrashE2ERuntime {
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
         case .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow, .objcObject,
-             .binaryImages, .managedRuntimeSignalChain, .managedRuntimeClosedSignal,
+             .binaryImages, .ignoredSignal, .managedRuntimeSignalChain, .managedRuntimeClosedSignal,
              .managedRuntimeReinitSignal, .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
             NSLog("CrashE2E - will trigger scenario: \(configuration.scenario.rawValue)")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
@@ -105,7 +107,7 @@ enum CrashE2ERuntime {
         case .managedRuntimePreSDKSignal:
             abortBecausePreSDKScenarioReturned()
         case .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow, .objcObject,
-             .binaryImages, .managedRuntimeSignalChain, .managedRuntimeClosedSignal,
+             .binaryImages, .ignoredSignal, .managedRuntimeSignalChain, .managedRuntimeClosedSignal,
              .managedRuntimeReinitSignal, .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
             NSLog("CrashE2E - will trigger scenario synchronously: \(configuration.scenario.rawValue)")
             Thread.sleep(forTimeInterval: 0.5)
@@ -161,13 +163,19 @@ enum CrashE2ERuntime {
         abortBecausePreSDKScenarioReturned()
     }
 
+    private static func installIgnoredSignalHandlerIfNeeded() {
+        guard configuration.scenario == .ignoredSignal else { return }
+        NSLog("CrashE2E - installing SIG_IGN for SIGPIPE before SentrySDK.start")
+        signal(SIGPIPE, SIG_IGN)
+    }
+
     private static func installFakeManagedRuntimeHandlerIfNeeded() {
         switch configuration.scenario {
         case .managedRuntimeSignalChain, .managedRuntimeClosedSignal, .managedRuntimeReinitSignal:
             installFakeManagedRuntimeHandler()
         case .idle, .drain, .signal, .nsException, .cppExceptionV1, .cppExceptionV2, .unityCxaThrow,
-             .objcObject, .binaryImages, .managedRuntimePreSDKSignal, .swiftAsyncCPPExceptionV2Off,
-             .swiftAsyncCPPExceptionV2On:
+             .objcObject, .binaryImages, .ignoredSignal, .managedRuntimePreSDKSignal,
+             .swiftAsyncCPPExceptionV2Off, .swiftAsyncCPPExceptionV2On:
             return
         }
     }
