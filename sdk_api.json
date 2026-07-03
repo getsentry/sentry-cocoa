@@ -56083,6 +56083,7 @@
             ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
             "mangledName": "$s6Sentry0A3SDKC14addFeatureFlag4name6resultySS_SbtFZ",
             "moduleName": "Sentry",

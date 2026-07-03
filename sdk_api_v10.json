@@ -55746,19 +55746,16 @@
                 "printedName": "()"
               }
             ],
-            "declAttributes": [
-              "Final",
-              "NonObjC"
-            ],
             "declKind": "Func",
             "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
             "kind": "Function",
-            "mangledName": "$s6Sentry0A3SDKC14addFeatureFlag4name6resultySS_SbtFZ",
+            "mangledName": "$s6Sentry0A3SDKO14addFeatureFlag4name6resultySS_SbtFZ",
             "moduleName": "Sentry",
             "name": "addFeatureFlag",
             "printedName": "addFeatureFlag(name:result:)",
             "static": true,
-            "usr": "s:6Sentry0A3SDKC14addFeatureFlag4name6resultySS_SbtFZ"
+            "usr": "s:6Sentry0A3SDKO14addFeatureFlag4name6resultySS_SbtFZ"
           },
           {
             "children": [
