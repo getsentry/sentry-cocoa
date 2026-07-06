@@ -20,6 +20,24 @@ final class SentryFeatureFlagBufferWrapperTests: XCTestCase {
         XCTAssertEqual(values.last?["flag"] as? String, "flag-100")
     }
 
+    func testScopeBuffer_whenLimitReached_shouldUpdateExistingFlagAsNewest() throws {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBufferWrapper.scopeBuffer()
+        for index in 0..<100 {
+            sut.add(name: "flag-\(index)", result: true)
+        }
+
+        // -- Act --
+        sut.add(name: "flag-0", result: false)
+
+        // -- Assert --
+        let values = try featureFlagValues(from: sut)
+        XCTAssertEqual(values.count, 100)
+        XCTAssertEqual(values.first?["flag"] as? String, "flag-1")
+        XCTAssertEqual(values.last?["flag"] as? String, "flag-0")
+        XCTAssertEqual(values.last?["result"] as? Bool, false)
+    }
+
     func testSpanBuffer_whenAddingMoreThanLimit_shouldUseSpanBufferConfiguration() throws {
         // -- Arrange --
         let sut = SentryFeatureFlagBufferWrapper.spanBuffer()
@@ -35,6 +53,25 @@ final class SentryFeatureFlagBufferWrapperTests: XCTestCase {
         XCTAssertEqual(values.first?["flag"] as? String, "flag-0")
         XCTAssertEqual(values.last?["flag"] as? String, "flag-9")
         XCTAssertFalse(values.contains { $0["flag"] as? String == "flag-10" })
+    }
+
+    func testSpanBuffer_whenLimitReached_shouldUpdateExistingFlagInPlace() throws {
+        // -- Arrange --
+        let sut = SentryFeatureFlagBufferWrapper.spanBuffer()
+        for index in 0..<10 {
+            sut.add(name: "flag-\(index)", result: true)
+        }
+        sut.add(name: "rejected", result: true)
+
+        // -- Act --
+        sut.add(name: "flag-0", result: false)
+
+        // -- Assert --
+        let values = try featureFlagValues(from: sut)
+        XCTAssertEqual(values.count, 10)
+        XCTAssertEqual(values.first?["flag"] as? String, "flag-0")
+        XCTAssertEqual(values.first?["result"] as? Bool, false)
+        XCTAssertFalse(values.contains { $0["flag"] as? String == "rejected" })
     }
 
     func testSerializeForContext_whenFeatureFlagAdded_shouldReturnFlagsContext() throws {

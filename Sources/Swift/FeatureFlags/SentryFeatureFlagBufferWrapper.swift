@@ -4,7 +4,7 @@ import Foundation
 
 // Objective-C scope/span internals need to own and serialize feature flag buffers, but
 // SentryFeatureFlagBuffer is a pure Swift type. Keep this wrapper thin: ObjC gets only the
-// serialization/copying methods it needs, while Swift can access the wrapped buffer directly.
+// serialization/copying methods it needs, while Swift uses typed wrapper methods.
 @_spi(Private)
 @objc(SentryFeatureFlagBufferWrapper)
 public final class SentryFeatureFlagBufferWrapper: NSObject {
