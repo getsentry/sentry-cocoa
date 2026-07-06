@@ -775,13 +775,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "addFeatureFlagWithName:result:",
-    "parent": "SentryObjCSpan",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "addIgnoreClasses:",
     "parent": "SentryObjCInternalReplayApi",
     "returnType": "void",
