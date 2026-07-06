@@ -66,9 +66,11 @@ fi
 
 rm -rf XCFrameworkBuildPath/DerivedData
 
+## -make_mergeable adds LC_ATOM_INFO metadata that is only used by consumers who merge
+## the framework at link time. Consumers who embed the dylib normally ship it as dead
+## weight (~7.6 MB on ios-arm64 for 9.11.0). Off by default; set MERGEABLE=1 to opt in.
 ## watchos and watchsimulator don't support make_mergeable: ld: unknown option: -make_mergeable
-## For other dynamic frameworks, add -make_mergeable (append to existing flags)
-if [[ "$sdk" != "watchos" && "$sdk" != "watchsimulator" ]] && [ "$MACH_O_TYPE" != "staticlib" ]; then
+if [ "${MERGEABLE:-0}" = "1" ] && [[ "$sdk" != "watchos" && "$sdk" != "watchsimulator" ]] && [ "$MACH_O_TYPE" != "staticlib" ]; then
     OTHER_LDFLAGS="$OTHER_LDFLAGS -Wl,-make_mergeable"
 fi
 
