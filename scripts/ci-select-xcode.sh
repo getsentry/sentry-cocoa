@@ -32,6 +32,11 @@ set -euo pipefail
 # shellcheck source=./scripts/ci-utils.sh disable=SC1091
 source "$(cd "$(dirname "$0")" && pwd)/ci-utils.sh"
 
+SCRIPT_START=$(date +%s)
+_elapsed() { echo $(( $(date +%s) - SCRIPT_START )); }
+
+log_with_timestamp() { log_info "[+$(_elapsed)s] $1"; }
+
 # Export to GITHUB_ENV. Skip any var that's already set so a caller's env: block
 # (job- or step-level) can pin a specific OS without being clobbered here.
 emit_env_if_unset() {
@@ -122,15 +127,12 @@ resolve_simulator_os() {
 # See https://github.com/getsentry/sentry-cocoa/pull/6053 for context.
 list_available_simulators() {
     begin_group "List Available Simulators"
-
-    local start_time end_time duration
-    start_time=$(date +%s)
+    
+    log_with_timestamp "Running xcrun simctl list..."
     xcrun simctl list
-    end_time=$(date +%s)
-    duration=$((end_time - start_time))
+    log_with_timestamp "List Available Simulators completed"
 
     end_group
-    log_info "List Available Simulators completed in ${duration} seconds"
 }
 
 # Usage: resolve_and_export_simulator_oses --xcode-version <version>
@@ -156,11 +158,10 @@ resolve_and_export_simulator_oses() {
     # actually exists, we anchor on the SDK's major.minor and pick the newest
     # installed runtime in that line. If no matching runtime is installed, we
     # fall back to the SDK version so callers still get a useful default.
-    log_info "Querying simctl runtimes JSON..."
-    local runtimes_json runtimes_count
-    runtimes_json=$(xcrun simctl list runtimes -j 2>/dev/null || echo '{"runtimes":[]}')
-    runtimes_count=$(echo "$runtimes_json" | jq -r '.runtimes | length' 2>/dev/null || echo "?")
-    log_info "simctl returned $runtimes_count runtimes"
+    log_with_timestamp "Querying simctl runtimes JSON..."
+    RUNTIMES_JSON=$(xcrun simctl list runtimes -j 2>/dev/null || echo '{"runtimes":[]}')
+    RUNTIMES_COUNT=$(echo "$RUNTIMES_JSON" | jq -r '.runtimes | length' 2>/dev/null || echo "?")
+    log_with_timestamp "simctl returned $RUNTIMES_COUNT runtimes"
 
     log_available_simulator_runtimes --runtimes-json "$runtimes_json"
 
@@ -173,7 +174,7 @@ resolve_and_export_simulator_oses() {
         --sdk xrsimulator --platform-a visionOS --platform-b xrOS --runtimes-json "$runtimes_json")
     log_info "Per-platform resolution complete"
 
-    log_info "SDK versions for Xcode $xcode_version -- iOS: ${ios_os:-none}, tvOS: ${tvos_os:-none}, watchOS: ${watchos_os:-none}, visionOS: ${visionos_os:-none}"
+    log_with_timestamp "SDK versions for Xcode $RESOLVED -- iOS: ${IOS_OS:-none}, tvOS: ${TVOS_OS:-none}, watchOS: ${WATCHOS_OS:-none}, visionOS: ${VISIONOS_OS:-none}"
 
     set_output ios-simulator-os      "$ios_os"
     set_output tvos-simulator-os     "$tvos_os"
@@ -184,6 +185,8 @@ resolve_and_export_simulator_oses() {
     emit_env_if_unset TVOS_SIMULATOR_OS     "$tvos_os"
     emit_env_if_unset WATCHOS_SIMULATOR_OS  "$watchos_os"
     emit_env_if_unset VISIONOS_SIMULATOR_OS "$visionos_os"
+
+    log_with_timestamp "Exports complete"
 
     list_available_simulators
 }
@@ -206,6 +209,7 @@ fi
 
 XCODE_INPUT="${POSITIONAL_ARGS[0]}"
 
+log_with_timestamp "Listing installed Xcode versions..."
 # `xcodes installed` prints one Xcode per line; the first whitespace-separated
 # token is the version (the `(Selected)` marker, build number, and path follow).
 if [[ "$ALLOW_PRERELEASE" == true ]]; then
@@ -220,6 +224,7 @@ else
         | awk '{print $1}' \
         | sort -V)
 fi
+log_with_timestamp "xcodes installed done"
 
 if [[ -z "$INSTALLED" ]]; then
     log_error "'xcodes installed' returned no Xcode versions."
@@ -247,17 +252,20 @@ if [[ -z "${RESOLVED:-}" ]]; then
     exit 1
 fi
 
-log_info "Resolved Xcode '$XCODE_INPUT' -> $RESOLVED"
+log_with_timestamp "Resolved Xcode '$XCODE_INPUT' -> $RESOLVED"
 
 # We prefer this over `sudo xcode-select` because it fails fast if the version
 # is not installed. `xcodes` is preinstalled on GH-hosted runners.
+log_with_timestamp "xcodes select $RESOLVED ..."
 xcodes select "$RESOLVED"
+log_with_timestamp "xcodes select done"
+
 # Diagnostic only. A freshly-selected Xcode that hasn't been "first-launched"
 # may make the first `swiftc` invocation slow and/or non-zero; don't let that
 # abort the rest of the script (env/outputs export still needs to happen).
-log_info "Running swiftc --version (may take a while on first launch of a fresh Xcode)..."
+log_with_timestamp "Running swiftc --version (may take a while on first launch of a fresh Xcode)..."
 swiftc --version || log_warning "swiftc --version exited non-zero (continuing — diagnostic only)"
-log_info "swiftc --version returned"
+log_with_timestamp "swiftc --version done"
 
 set_env "XCODE_VERSION" "$RESOLVED"
 set_output xcode-version "$RESOLVED"
@@ -267,3 +275,4 @@ if [[ "$SKIP_SIMULATORS" == true ]]; then
 else
     resolve_and_export_simulator_oses --xcode-version "$RESOLVED"
 fi
+log_with_timestamp "ci-select-xcode.sh finished (total: $(_elapsed)s)"
