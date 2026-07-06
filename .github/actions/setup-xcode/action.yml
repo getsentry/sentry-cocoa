@@ -20,6 +20,13 @@ inputs:
       resolution. By default prerelease versions are filtered out.
     required: false
     default: "false"
+  resolve-simulators:
+    description: >-
+      When 'true' (default), query simulator runtimes and resolve per-platform
+      simulator OS versions. Set to 'false' for build-only or lint jobs that
+      don't need simulator destinations — skips the expensive simctl calls.
+    required: false
+    default: "true"
 outputs:
   xcode-version:
     description: "The resolved (concrete) Xcode version, e.g. '16.4' or '26.0.1'."
@@ -45,9 +52,14 @@ runs:
       env:
         XCODE_INPUT: ${{ inputs.version }}
         ALLOW_PRERELEASE: ${{ inputs.allow-prerelease }}
+        RESOLVE_SIMULATORS: ${{ inputs.resolve-simulators }}
       run: |
         PRERELEASE_FLAG=""
         if [[ "$ALLOW_PRERELEASE" == "true" ]]; then
           PRERELEASE_FLAG="--allow-prerelease"
         fi
-        "${{ github.action_path }}/../../../scripts/ci-select-xcode.sh" $PRERELEASE_FLAG "$XCODE_INPUT"
+        SKIP_SIMULATORS_FLAG=""
+        if [[ "$RESOLVE_SIMULATORS" == "false" ]]; then
+          SKIP_SIMULATORS_FLAG="--skip-simulators"
+        fi
+        "${{ github.action_path }}/../../../scripts/ci-select-xcode.sh" $PRERELEASE_FLAG $SKIP_SIMULATORS_FLAG "$XCODE_INPUT"

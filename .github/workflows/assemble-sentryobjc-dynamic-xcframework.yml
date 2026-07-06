@@ -34,6 +34,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
+          resolve-simulators: "false"
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@9eb537ca036ebaed86729dcb9309076e4c5c3b74 # v1.314.0

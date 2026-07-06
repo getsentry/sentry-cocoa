@@ -169,6 +169,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+          resolve-simulators: "false"
       - name: Unzip all XCFrameworks
         run: |
           find XCFrameworkBuildPath -name "*.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
@@ -234,6 +235,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+          resolve-simulators: "false"
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
@@ -276,6 +278,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+          resolve-simulators: "false"
       - run: swift build
         working-directory: Samples/SPM-Dynamic
       - name: Run CI Diagnostics
@@ -318,6 +321,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+          resolve-simulators: "false"
       - run: swift build --target SentrySwiftUI
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -359,6 +363,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+          resolve-simulators: "false"
       - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify --preserve-unbeautified
         working-directory: Samples/visionOS-SPM
       - name: Run CI Diagnostics
@@ -405,6 +410,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+          resolve-simulators: "false"
       - name: Setup Ruby
         uses: ruby/setup-ruby@9eb537ca036ebaed86729dcb9309076e4c5c3b74 # v1.314.0
         with:
