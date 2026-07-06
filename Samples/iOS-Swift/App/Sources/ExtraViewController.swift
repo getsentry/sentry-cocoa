@@ -223,7 +223,7 @@ class ExtraViewController: UIViewController {
     }
     
     @IBAction func showTopVCInspector(_ sender: UIButton) {
-        TopViewControllerInspector.show()
+        TopViewControllerInspector.show(in: view.window)
     }
 
     @IBAction func close(_ sender: UIButton) {
