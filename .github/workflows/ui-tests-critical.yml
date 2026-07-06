@@ -91,7 +91,13 @@ jobs:
         with:
           version: "16"
 
+      - name: Cache Homebrew
+        uses: ./.github/actions/cache-homebrew
+        with:
+          brewfile: Brewfile-ci-build
       - run: make init-ci-build
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
       - run: make xcode-ci
 
       - name: Enable screenshots permissions

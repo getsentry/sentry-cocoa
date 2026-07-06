@@ -69,7 +69,13 @@ jobs:
         uses: ruby/setup-ruby@9eb537ca036ebaed86729dcb9309076e4c5c3b74 # v1.314.0
         with:
           bundler-cache: true
+      - name: Cache Homebrew
+        uses: ./.github/actions/cache-homebrew
+        with:
+          brewfile: Brewfile-ci-build
       - run: make init-ci-build
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
       - run: make xcode-ci
       - name: Run Fastlane
         # We only need to archive, not package the IPA, so we skip codesigning.
@@ -127,7 +133,13 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
+      - name: Cache Homebrew
+        uses: ./.github/actions/cache-homebrew
+        with:
+          brewfile: Brewfile-ci-build
       - run: make init-ci-build
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
       - run: make xcode-ci
 
       # Note: Due to complexity in implementing the CODE_SIGNING_ALLOWED flag in the sentry-xcodebuild.sh script,
@@ -173,7 +185,13 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
+      - name: Cache Homebrew
+        uses: ./.github/actions/cache-homebrew
+        with:
+          brewfile: Brewfile-ci-build
       - run: make init-ci-build
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
       - run: make xcode-ci
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
@@ -229,7 +247,13 @@ jobs:
         with:
           platform: iOS
 
+      - name: Cache Homebrew
+        uses: ./.github/actions/cache-homebrew
+        with:
+          brewfile: Brewfile-ci-build
       - name: Install xcodegen
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
         run: brew install xcodegen
 
       - name: Build Sample

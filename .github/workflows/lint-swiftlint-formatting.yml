@@ -41,7 +41,13 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Cache Homebrew
+        uses: ./.github/actions/cache-homebrew
+        with:
+          brewfile: Brewfile-ci-format
       - name: Install tooling
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
         run: make init-ci-format
       - run: swiftlint --version
       - name: Run SwiftLint

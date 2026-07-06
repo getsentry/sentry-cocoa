@@ -1,0 +1,31 @@
+name: "Cache Homebrew"
+description: >-
+  Caches Homebrew downloads and installed formulae. The cache key rotates
+  weekly so formulae stay reasonably fresh without downloading on every run.
+inputs:
+  brewfile:
+    description: "Path to the Brewfile to hash for the cache key."
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Get week number
+      id: week
+      shell: bash
+      run: echo "week=$(date +%Y-%W)" >> "$GITHUB_OUTPUT"
+
+    - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      id: cache
+      name: Cache Homebrew
+      with:
+        path: |
+          ~/Library/Caches/Homebrew/downloads
+          ~/Library/Caches/Homebrew/api
+        key: homebrew-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles(inputs.brewfile) }}-${{ steps.week.outputs.week }}
+        restore-keys: |
+          homebrew-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles(inputs.brewfile) }}-
+
+    - name: Update Homebrew formulae
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: brew update

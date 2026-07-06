@@ -51,6 +51,8 @@ jobs:
           bundler-cache: true
 
       - name: Install Graphviz
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
         run: brew install graphviz
 
       - name: Run Objective-C conversion analyzer
