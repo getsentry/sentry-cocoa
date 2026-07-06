@@ -207,7 +207,7 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     func testSendEventWhenSessionRateLimitActive() throws {
-        fixture.rateLimits.update(TestResponseFactory.createRateLimitResponse(headerValue: "1:\(SentryEnvelopeItemTypes.session):key"))
+        fixture.rateLimits.update(try TestResponseFactory.createRateLimitResponse(headerValue: "1:\(SentryEnvelopeItemTypes.session):key"))
 
         sendEvent()
 
@@ -253,7 +253,7 @@ class SentryHttpTransportTests: XCTestCase {
     
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
     func testSendEventWithSession_RateLimitForEventIsActive_OnlySessionSent() throws {
-        givenRateLimitResponse(forCategory: "error")
+        try givenRateLimitResponse(forCategory: "error")
         sendEvent()
 
         sut.send(envelope: fixture.eventWithSessionEnvelope)
@@ -283,11 +283,11 @@ class SentryHttpTransportTests: XCTestCase {
     }
     
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
-    func testSendAllCachedEvents() {
+    func testSendAllCachedEvents() throws {
         givenNoInternetConnection()
         sendEvent()
 
-        givenRateLimitResponse(forCategory: "someCat")
+        try givenRateLimitResponse(forCategory: "someCat")
         sendEnvelope()
 
         XCTAssertEqual(3, fixture.requestManager.requests.count)
@@ -321,21 +321,21 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 2)
     }
 
-    func testSendCachedEventsButRateLimitIsActive() {
+    func testSendCachedEventsButRateLimitIsActive() throws {
         givenNoInternetConnection()
         sendEvent()
 
         // Rate limit changes between sending the event succesfully
         // and calling sending all events. This can happen when for
         // example when multiple requests run in parallel.
-        givenRateLimitResponse(forCategory: "error")
+        try givenRateLimitResponse(forCategory: "error")
         sendEvent()
 
         XCTAssertEqual(3, fixture.requestManager.requests.count)
         assertEnvelopesStored(envelopeCount: 0)
     }
 
-    func testRateLimitGetsActiveWhileSendAllEvents() {
+    func testRateLimitGetsActiveWhileSendAllEvents() throws {
         givenNoInternetConnection()
         sendEvent()
         sendEvent()
@@ -349,13 +349,14 @@ class SentryHttpTransportTests: XCTestCase {
         // active rate limit.
 
         // First rate limit gets active with the second response.
+        let rateLimitResponse = try TestResponseFactory.createRateLimitResponse(headerValue: "1::key")
         var i = -1
         fixture.requestManager.returnResponse { () -> HTTPURLResponse? in
             i += 1
             if i == 0 {
                 return HTTPURLResponse()
             } else {
-                return TestResponseFactory.createRateLimitResponse(headerValue: "1::key")
+                return rateLimitResponse
             }
         }
 
@@ -365,21 +366,21 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
     }
 
-    func testSendAllEventsAllEventsDeletedWhenNotReady() {
+    func testSendAllEventsAllEventsDeletedWhenNotReady() throws {
         givenNoInternetConnection()
         sendEvent()
         sendEvent()
         assertEnvelopesStored(envelopeCount: 2)
 
-        givenRateLimitResponse(forCategory: "error")
+        try givenRateLimitResponse(forCategory: "error")
         sendEvent()
         assertEnvelopesStored(envelopeCount: 0)
     }
 
-    func testSendEventWithRetryAfterResponse() {
+    func testSendEventWithRetryAfterResponse() throws {
         fixture.requestManager.nextError = NSError(domain: "something", code: 12)
-        
-        let response = givenRetryAfterResponse()
+
+        let response = try givenRetryAfterResponse()
 
         sendEvent()
 
@@ -387,21 +388,21 @@ class SentryHttpTransportTests: XCTestCase {
         assertClientReportNotStoredInMemory()
     }
 
-    func testSendEventWithRateLimitResponse() {
+    func testSendEventWithRateLimitResponse() throws {
         fixture.requestManager.nextError = NSError(domain: "something", code: 12)
 
-        let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
+        let response = try givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
 
         sendEvent()
 
         assertRateLimitUpdated(response: response)
         assertClientReportStoredInMemory()
     }
-    
-    func testSendEventWithMetricBucketRateLimitResponse() {
+
+    func testSendEventWithMetricBucketRateLimitResponse() throws {
         fixture.requestManager.nextError = NSError(domain: "something", code: 12)
 
-        let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
+        let response = try givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
 
         sendEvent()
 
@@ -410,8 +411,8 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
-    func testSendEnvelopeWithRetryAfterResponse() {
-        let response = givenRetryAfterResponse()
+    func testSendEnvelopeWithRetryAfterResponse() throws {
+        let response = try givenRetryAfterResponse()
 
         sendEnvelope()
 
@@ -419,16 +420,16 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
-    func testSendEnvelopeWithRateLimitResponse() {
-        let response = givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
+    func testSendEnvelopeWithRateLimitResponse() throws {
+        let response = try givenRateLimitResponse(forCategory: SentryEnvelopeItemTypes.session)
 
         sendEnvelope()
 
         assertRateLimitUpdated(response: response)
     }
 
-    func testRateLimitForEvent() {
-        givenRateLimitResponse(forCategory: "error")
+    func testRateLimitForEvent() throws {
+        try givenRateLimitResponse(forCategory: "error")
 
         sendEvent()
 
@@ -456,8 +457,8 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
-    func testActiveRateLimitForAllEnvelopeItems() {
-        givenRateLimitResponse(forCategory: "error")
+    func testActiveRateLimitForAllEnvelopeItems() throws {
+        try givenRateLimitResponse(forCategory: "error")
         sendEvent()
 
         sendEnvelope()
@@ -466,8 +467,8 @@ class SentryHttpTransportTests: XCTestCase {
         assertEnvelopesStored(envelopeCount: 0)
     }
 
-    func testActiveRateLimitForSomeEnvelopeItems() {
-        givenRateLimitResponse(forCategory: "error")
+    func testActiveRateLimitForSomeEnvelopeItems() throws {
+        try givenRateLimitResponse(forCategory: "error")
         sendEvent()
 
         sendEnvelopeWithSession()
@@ -477,11 +478,11 @@ class SentryHttpTransportTests: XCTestCase {
     }
 
     @available(*, deprecated, message: "This is only marked as deprecated because enableAppLaunchProfiling is marked as deprecated. Once that is removed this can be removed.")
-    func testActiveRateLimitForAllCachedEnvelopeItems() {
+    func testActiveRateLimitForAllCachedEnvelopeItems() throws {
         givenNoInternetConnection()
         sendEnvelope()
 
-        givenRateLimitResponse(forCategory: "error")
+        try givenRateLimitResponse(forCategory: "error")
         sendEvent()
 
         assertRequestsSent(requestCount: 3)
@@ -500,7 +501,7 @@ class SentryHttpTransportTests: XCTestCase {
         sut.send(envelope: fixture.eventWithSessionEnvelope)
         waitForAllRequests()
 
-        givenRateLimitResponse(forCategory: "error")
+        try givenRateLimitResponse(forCategory: "error")
         sendEvent()
 
         assertRequestsSent(requestCount: 5)
@@ -606,11 +607,11 @@ class SentryHttpTransportTests: XCTestCase {
         let clientReportEnvelope = SentryEnvelope(id: fixture.event.eventId, items: clientReportEnvelopeItems)
         clientReportEnvelope.header.sentAt = fixture.currentDateProvider.date()
         let clientReportRequest = SentryHttpTransportTests.buildRequest(clientReportEnvelope)
-        
-        givenRateLimitResponse(forCategory: "error")
+
+        try givenRateLimitResponse(forCategory: "error")
         sendEvent()
         sendEvent()
-        
+
         let actualEventRequest = fixture.requestManager.requests.last
         try compareEnvelopes(clientReportRequest.httpBody, actualEventRequest?.httpBody, message: "Client report not sent.")
     }
@@ -636,8 +637,8 @@ class SentryHttpTransportTests: XCTestCase {
         clientReportEnvelope.header.sentAt = fixture.currentDateProvider.date()
         let clientReportRequest = SentryHttpTransportTests.buildRequest(clientReportEnvelope)
         
-        givenRateLimitResponse(forCategory: "transaction")
-        
+        try givenRateLimitResponse(forCategory: "transaction")
+
         sut.send(envelope: transactionEnvelope)
         waitForAllRequests()
         
@@ -787,8 +788,8 @@ class SentryHttpTransportTests: XCTestCase {
         XCTAssertLessThan(7, fixture.fileManager.getAllEnvelopes().count)
     }
     
-    func testBuildingRequestFailsAndRateLimitActive_RecordsLostEvents() {
-        givenRateLimitResponse(forCategory: "error")
+    func testBuildingRequestFailsAndRateLimitActive_RecordsLostEvents() throws {
+        try givenRateLimitResponse(forCategory: "error")
         sendEvent()
         
         fixture.requestBuilder.shouldFailWithError = true
@@ -957,14 +958,14 @@ class SentryHttpTransportTests: XCTestCase {
     }
 #endif // !os(watchOS)
     
-    private func givenRetryAfterResponse() -> HTTPURLResponse {
-        let response = TestResponseFactory.createRetryAfterResponse(headerValue: "1")
+    private func givenRetryAfterResponse() throws -> HTTPURLResponse {
+        let response = try TestResponseFactory.createRetryAfterResponse(headerValue: "1")
         fixture.requestManager.returnResponse(response: response)
         return response
     }
 
-    @discardableResult private func givenRateLimitResponse(forCategory category: String) -> HTTPURLResponse {
-        let response = TestResponseFactory.createRateLimitResponse(headerValue: "1:\(category):key")
+    @discardableResult private func givenRateLimitResponse(forCategory category: String) throws -> HTTPURLResponse {
+        let response = try TestResponseFactory.createRateLimitResponse(headerValue: "1:\(category):key")
         fixture.requestManager.returnResponse(response: response)
         return response
     }

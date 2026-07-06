@@ -10,6 +10,46 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * Reads a header from the response case-insensitively.
+ *
+ * Since HTTP/2, HTTP field names are case-insensitive, including HTTP headers; see HTTP/2 (RFC
+ * 9113, 8.2.1) and HTTP/3 (RFC 9114, 4.2):
+ * - https://www.rfc-editor.org/rfc/rfc9113#section-8.2.1
+ * - https://www.rfc-editor.org/rfc/rfc9114#section-4.2
+ *
+ * On iOS 13, macOS 10.15, tvOS 13, watchOS 6 and above we use
+ * @c -[NSHTTPURLResponse valueForHTTPHeaderField:], which reads headers case-insensitively. On
+ * lower deployment targets that API isn't available, so we fall back to scanning @c
+ * allHeaderFields: its subscripting is case-sensitive, so we compare all keys case-insensitively
+ * against @c name. This is O(n), which is acceptable for the small number of response headers.
+ */
+static NSString *_Nullable sentryCaseInsensitiveHeaderValue(
+    NSHTTPURLResponse *response, NSString *name)
+{
+    if (@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)) {
+        return [response valueForHTTPHeaderField:name];
+    }
+
+    NSString *lowercasedName = name.lowercaseString;
+    for (id key in response.allHeaderFields) {
+        if (![key isKindOfClass:[NSString class]]) {
+            continue;
+        }
+        NSString *headerName = (NSString *)key;
+        if (![headerName.lowercaseString isEqualToString:lowercasedName]) {
+            continue;
+        }
+
+        id value = response.allHeaderFields[headerName];
+        if (![value isKindOfClass:[NSString class]]) {
+            return nil;
+        }
+        return (NSString *)value;
+    }
+    return nil;
+}
+
 @interface SentryDefaultRateLimits ()
 
 @property (nonatomic, strong) SentryConcurrentRateLimitsDictionary *rateLimits;
@@ -55,7 +95,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)update:(NSHTTPURLResponse *)response
 {
-    NSString *rateLimitsHeader = response.allHeaderFields[@"X-Sentry-Rate-Limits"];
+    NSString *rateLimitsHeader
+        = sentryCaseInsensitiveHeaderValue(response, @"x-sentry-rate-limits");
     if (nil != rateLimitsHeader) {
         NSDictionary<NSNumber *, NSDate *> *limits = [self.rateLimitParser parse:rateLimitsHeader];
 
@@ -67,8 +108,8 @@ NS_ASSUME_NONNULL_BEGIN
                          withDate:SENTRY_UNWRAP_NULLABLE(NSDate, limits[categoryAsNumber])];
         }
     } else if (response.statusCode == 429) {
-        NSDate *retryAfterHeaderDate =
-            [self.retryAfterHeaderParser parse:response.allHeaderFields[@"Retry-After"]];
+        NSDate *retryAfterHeaderDate = [self.retryAfterHeaderParser
+            parse:sentryCaseInsensitiveHeaderValue(response, @"retry-after")];
 
         if (nil == retryAfterHeaderDate) {
             // parsing failed use default value
