@@ -51,7 +51,7 @@ jobs:
     runs-on: macos-26
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       # As the DistributionSample project uses local SPM, xcodebuild resolves SPM dependencies for all
       # sample projects. The Package.swift references binary targets, which in release branch commits points
@@ -123,7 +123,7 @@ jobs:
 
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       # Some sample projects use local SPM references. xcodebuild resolves SPM dependencies for the
       # workspace, so Package.swift binary targets can be resolved even when building another scheme.
@@ -183,7 +183,7 @@ jobs:
             config: Debug
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
@@ -236,7 +236,7 @@ jobs:
             make-target: build-sample-visionOS-SwiftUI-SPM
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - name: Checkout Repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
@@ -276,7 +276,7 @@ jobs:
     runs-on: macos-26
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup Xcode
@@ -313,7 +313,7 @@ jobs:
     needs: files-changed
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
@@ -345,7 +345,7 @@ jobs:
     needs: files-changed
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
@@ -385,7 +385,7 @@ jobs:
     runs-on: macos-26
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Xcode
         id: setup-xcode
@@ -428,7 +428,7 @@ jobs:
     runs-on: macos-26
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Xcode
         id: setup-xcode
@@ -471,7 +471,7 @@ jobs:
     runs-on: macos-26
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Xcode
         id: setup-xcode
@@ -514,7 +514,7 @@ jobs:
     runs-on: macos-26
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Xcode
         id: setup-xcode
@@ -557,7 +557,7 @@ jobs:
     runs-on: macos-26
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Xcode
         id: setup-xcode
@@ -597,7 +597,7 @@ jobs:
     runs-on: macos-26
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Xcode
         id: setup-xcode
@@ -641,7 +641,7 @@ jobs:
     runs-on: macos-26
     steps:
       - name: Warm CoreSimulator
-        run: xcrun simctl list runtimes > /dev/null 2>&1 &
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       # If the SentryAsyncSafeLog doesn't contain the SENTRY_ASYNC_SAFE_LOG_LEVEL_ERROR this fails.
       - name: Async Safe Log Level is Error
