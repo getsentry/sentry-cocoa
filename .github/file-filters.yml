@@ -112,29 +112,6 @@ run_benchmarking_for_prs: &run_benchmarking_for_prs # GH Actions
   - ".sauce/benchmarking-config.yml"
   - "Plans/iOS-Benchmarking_Base.xctestplan"
 
-run_test_cross_platform_for_prs: &run_test_cross_platform_for_prs
-  - "Sources/**"
-
-  # GH Actions
-  - ".github/workflows/test-cross-platform.yml"
-  - ".github/file-filters.yml"
-
-  # Project files
-  - "Sentry.podspec"
-  - "SentrySwiftUI.podspec"
-  - "Package*.swift"
-
-  # Scripts
-  - "scripts/ci-select-xcode.sh"
-  - ".github/actions/setup-xcode/**"
-  - "scripts/ci-diagnostics.sh"
-  - "scripts/ci-utils.sh"
-  - "scripts/ci-ensure-runtime-loaded.sh"
-
-  # Build configuration
-  - "Makefile"
-  - "Brewfile*"
-
 run_lint_clang_formatting_for_prs: &run_lint_clang_formatting_for_prs
   - "**/*.h"
   - "**/*.hpp"
@@ -326,7 +303,6 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
   # Project files
   - "Sentry.xcodeproj/**"
   - "Sentry.xcworkspace/**"
-  - "*.podspec"
 
   # Build configuration
   - "Makefile"
@@ -448,8 +424,6 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
   - "Sources/Sentry/SentryMeta.m"
 
   # Project files with version info
-  - "Sentry.podspec"
-  - "SentrySwiftUI.podspec"
   - "Package*.swift"
   - "3rd-party-integrations/**/Package.swift"
 
@@ -542,7 +516,6 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
 
   # Project files
   - "Sentry.xcodeproj/**"
-  - "*.podspec"
 
   # Build configuration
   - "Makefile"
@@ -564,7 +537,6 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
 
   # Project files
   - "Sentry.xcodeproj/**"
-  - "*.podspec"
 
   # Build configuration
   - "Makefile"

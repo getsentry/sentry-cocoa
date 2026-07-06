@@ -168,6 +168,8 @@ Ensure no new issues from: static analysis, thread/address/UB sanitizers, or cro
 
 Non-changelog types require `#skip-changelog` in PR description. Breaking changes: `feat!:` or `BREAKING CHANGE:` footer.
 
+- **V10-gated changes** (`#if SDK_V10`) — add an entry to `CHANGELOG_V10.md` under the appropriate section (Breaking Changes, Features, Fixes, etc.). These changes ship in the next major version and are tracked separately from `CHANGELOG.md`.
+
 ## Pull Requests
 
 - **Title** — same format as commit subject (Conventional Commits): `type: description`

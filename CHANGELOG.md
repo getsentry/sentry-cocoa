@@ -2,10 +2,18 @@
 
 ## Unreleased
 
+> [!IMPORTANT]
+> This release contains an important fix for dropping too much data when the SDK gets rate limited. (#8324) This fix changes how rate limits are handled. Previously, if one data type (for example, user feedback) was rate limited, other data such as spans or sessions could also be dropped. Now, only the rate-limited data is dropped, while all other data continues to be sent. This may also reduce cases where unexpectedly large amounts of data appear to be dropped due to rate limiting.
+
+### Fixes
+
+- Fix rate limiting all data categories when data category rate-limit is active. (#8324)
+- Add `userInfo` context for unhandled `NSExceptions` (#8332)
+
 ### Features
 
 - Record log_byte client reports (#8186)
-- Add `userInfo` context for unhandled `NSExceptions` (#8332)
+- Add scope feature flag API (#8147)
 
 ## 9.19.1
 
