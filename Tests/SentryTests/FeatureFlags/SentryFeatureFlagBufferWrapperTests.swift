@@ -4,7 +4,7 @@ import XCTest
 
 final class SentryFeatureFlagBufferWrapperTests: XCTestCase {
 
-    func testScopeBuffer_whenAddingMoreThanLimit_shouldUseScopeBufferConfiguration() throws {
+    func testScopeBuffer_whenAddingMoreThanLimit_shouldDropOldestAndKeepLimit100() throws {
         // -- Arrange --
         let sut = SentryFeatureFlagBufferWrapper.scopeBuffer()
 
@@ -38,7 +38,7 @@ final class SentryFeatureFlagBufferWrapperTests: XCTestCase {
         XCTAssertEqual(values.last?["result"] as? Bool, false)
     }
 
-    func testSpanBuffer_whenAddingMoreThanLimit_shouldUseSpanBufferConfiguration() throws {
+    func testSpanBuffer_whenAddingMoreThanLimit_shouldRejectNewAndKeepLimit10() throws {
         // -- Arrange --
         let sut = SentryFeatureFlagBufferWrapper.spanBuffer()
 
