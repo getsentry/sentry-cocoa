@@ -1,6 +1,7 @@
 @_implementationOnly import _SentryPrivate
 
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
+import ObjectiveC.runtime
 import UIKit
 
 class SentrySubClassFinder: NSObject {
@@ -76,7 +77,13 @@ class SentrySubClassFinder: NSObject {
                     continue
                 }
 
-                guard let cls = NSClassFromString(className) else { continue }
+                // Use objc_lookUpClass instead of NSClassFromString to avoid
+                // realizing OS-gated Swift classes on older OS versions, which
+                // crashes when their Swift metadata references unavailable
+                // protocol descriptors (e.g. UIGestureRecognizerRepresentable
+                // on iOS < 18). objc_lookUpClass returns nil for unrealized
+                // classes without triggering realization.
+                guard let cls = objc_lookUpClass(className) else { continue }
                 if self.isClass(cls, subClassOf: viewControllerClass) {
                     classesToSwizzle.append(className)
                 }
@@ -86,7 +93,7 @@ class SentrySubClassFinder: NSObject {
 
             self.dispatchQueue.dispatchAsyncOnMainQueueIfNotMainThread {
                 for className in classesToSwizzle {
-                    if let cls = NSClassFromString(className) {
+                    if let cls = objc_lookUpClass(className) {
                         block(cls)
                     }
                 }
