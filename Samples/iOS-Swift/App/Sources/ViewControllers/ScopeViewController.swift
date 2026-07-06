@@ -1,4 +1,4 @@
-import Sentry
+@_spi(Private) import Sentry
 import UIKit
 
 // swiftlint:disable private_outlet
