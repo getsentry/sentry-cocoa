@@ -542,6 +542,23 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
   - "Makefile"
   - "Brewfile*"
 
+run_xcode27_for_prs: &run_xcode27_for_prs
+  - "Sources/**"
+
+  # GH Actions
+  - ".github/workflows/xcode27-test.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts & actions
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/ci-diagnostics/**"
+  - "scripts/sentry-xcodebuild.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
+
+  # Project files
+  - "Package*.swift"
+
 run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_prs
   - "Sources/**"
   - "3rd-party-integrations/**"
