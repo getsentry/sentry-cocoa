@@ -93,6 +93,7 @@ jobs:
 
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         name: Cache Ruby
+        id: cache-ruby
         with:
           path: |
             ~/.rbenv/versions
@@ -101,9 +102,17 @@ jobs:
 
       - name: Install Ruby (Bitrise)
         if: inputs.runner_provider == 'bitrise'
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+          CACHE_HIT: ${{ steps.cache-ruby.outputs.cache-hit }}
         run: |
-          brew upgrade ruby-build
-          rbenv install -s
+          # Only touch Homebrew / build Ruby when the cache missed.
+          if [ "$CACHE_HIT" != "true" ]; then
+            brew upgrade ruby-build
+            rbenv install -s
+          else
+            echo "Ruby cache hit — skipping brew upgrade ruby-build and rbenv install"
+          fi
           bundle install
 
       - name: Setup Ruby
