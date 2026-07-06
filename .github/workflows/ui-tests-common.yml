@@ -63,6 +63,8 @@ jobs:
     runs-on: ${{ inputs.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', inputs.macos_version)) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.macos_version, github.run_id)) }}
     timeout-minutes: 40
     steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
