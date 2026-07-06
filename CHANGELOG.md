@@ -12,6 +12,7 @@
 ### Features
 
 - Record log_byte client reports (#8186)
+- Add scope feature flag API (#8147)
 
 ## 9.19.1
 

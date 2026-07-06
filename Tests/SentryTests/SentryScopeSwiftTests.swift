@@ -97,6 +97,11 @@ class SentryScopeSwiftTests: XCTestCase {
         let featureFlags = try XCTUnwrap(serializeFeatureFlags(from: scope))
         return try XCTUnwrap(featureFlags["values"] as? [[String: Any]])
     }
+
+    private func featureFlagValues(from event: Event) throws -> [[String: Any]] {
+        let flags = try XCTUnwrap(event.context?["flags"])
+        return try XCTUnwrap(flags["values"] as? [[String: Any]])
+    }
     
     func testSerialize() throws {
         let scope = fixture.scope
@@ -206,34 +211,6 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.element(at: 1)?["result"] as? Bool, true)
     }
 
-    func testFeatureFlags_whenRemovingFeatureFlag_shouldRemoveMatchingFlag() throws {
-        // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 5)
-        scope.addFeatureFlag(name: "first", result: false)
-        scope.addFeatureFlag(name: "second", result: true)
-
-        // -- Act --
-        scope.removeFeatureFlag(name: "first")
-
-        // -- Assert --
-        let values = try serializeFeatureFlagValues(from: scope)
-        XCTAssertEqual(values.count, 1)
-        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "second")
-        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
-    }
-
-    func testFeatureFlags_whenRemovingLastFeatureFlag_shouldOmitFlagsContext() {
-        // -- Arrange --
-        let scope = Scope(maxBreadcrumbs: 5)
-        scope.addFeatureFlag(name: "checkout", result: true)
-
-        // -- Act --
-        scope.removeFeatureFlag(name: "checkout")
-
-        // -- Assert --
-        XCTAssertNil(serializeFeatureFlags(from: scope))
-    }
-
     func testFeatureFlags_whenOverflow_shouldDropOldestFlag() throws {
         // -- Arrange --
         let scope = Scope(maxBreadcrumbs: 5)
@@ -249,6 +226,119 @@ class SentryScopeSwiftTests: XCTestCase {
         XCTAssertEqual(values.count, 100)
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "flag-1")
         XCTAssertEqual(values.element(at: 99)?["flag"] as? String, "flag-100")
+    }
+
+    func testApplyToEvent_whenScopeHasFeatureFlags_shouldApplyToRegularEvent() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.addFeatureFlag(name: "checkout", result: true)
+        let event = Event()
+
+        // -- Act --
+        let actual = try XCTUnwrap(scope.applyTo(event: event, maxBreadcrumbs: 10))
+
+        // -- Assert --
+        let values = try featureFlagValues(from: actual)
+        XCTAssertEqual(values.count, 1)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
+        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
+    }
+
+    func testApplyToEvent_whenEventHasFeatureFlags_shouldKeepEventFlagsAndIgnoreScopeFlags() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.addFeatureFlag(name: "shared", result: false)
+        scope.addFeatureFlag(name: "scope-only", result: true)
+        let event = Event()
+        event.context = ["flags": ["values": [
+            ["flag": "shared", "result": true],
+            ["flag": "event-only", "result": false]
+        ]]]
+
+        // -- Act --
+        let actual = try XCTUnwrap(scope.applyTo(event: event, maxBreadcrumbs: 10))
+
+        // -- Assert --
+        let values = try featureFlagValues(from: actual)
+        XCTAssertEqual(values.count, 2)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "shared")
+        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
+        XCTAssertEqual(values.element(at: 1)?["flag"] as? String, "event-only")
+        XCTAssertEqual(values.element(at: 1)?["result"] as? Bool, false)
+        XCTAssertFalse(values.contains { $0["flag"] as? String == "scope-only" })
+    }
+
+    func testApplyToEvent_whenFatalEvent_shouldNotApplyFeatureFlags() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.addFeatureFlag(name: "checkout", result: true)
+        let event = Event()
+        event.isFatalEvent = true
+
+        // -- Act --
+        let actual = try XCTUnwrap(scope.applyTo(event: event, maxBreadcrumbs: 10))
+
+        // -- Assert --
+        XCTAssertNil(actual.context?["flags"])
+    }
+
+    func testApplyToEvent_whenTransaction_shouldNotApplyScopeFeatureFlags() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.addFeatureFlag(name: "checkout", result: true)
+        let event = Event()
+        event.type = SentryEnvelopeItemTypes.transaction
+
+        // -- Act --
+        let actual = try XCTUnwrap(scope.applyTo(event: event, maxBreadcrumbs: 10))
+
+        // -- Assert --
+        XCTAssertNil(actual.context?["flags"])
+    }
+
+    func testApplyToEvent_whenReplay_shouldNotApplyScopeFeatureFlags() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.addFeatureFlag(name: "checkout", result: true)
+        let event = Event()
+        event.type = SentryEnvelopeItemTypes.replayVideo
+
+        // -- Act --
+        let actual = try XCTUnwrap(scope.applyTo(event: event, maxBreadcrumbs: 10))
+
+        // -- Assert --
+        XCTAssertNil(actual.context?["flags"])
+    }
+
+    func testApplyToEvent_whenFeedback_shouldNotApplyScopeFeatureFlags() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.addFeatureFlag(name: "checkout", result: true)
+        let event = Event()
+        event.type = SentryEnvelopeItemTypes.feedback
+
+        // -- Act --
+        let actual = try XCTUnwrap(scope.applyTo(event: event, maxBreadcrumbs: 10))
+
+        // -- Assert --
+        XCTAssertNil(actual.context?["flags"])
+    }
+
+    func testApplyToEvent_whenNonRegularEventHasFeatureFlags_shouldKeepEventFlags() throws {
+        // -- Arrange --
+        let scope = Scope(maxBreadcrumbs: 5)
+        scope.addFeatureFlag(name: "scope", result: false)
+        let event = Event()
+        event.type = SentryEnvelopeItemTypes.transaction
+        event.context = ["flags": ["values": [["flag": "event", "result": true]]]]
+
+        // -- Act --
+        let actual = try XCTUnwrap(scope.applyTo(event: event, maxBreadcrumbs: 10))
+
+        // -- Assert --
+        let values = try featureFlagValues(from: actual)
+        XCTAssertEqual(values.count, 1)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "event")
     }
 
     func testApplyToEvent() {
@@ -774,6 +864,20 @@ class SentryScopeSwiftTests: XCTestCase {
         sut.setContext(value: ["extra": 1], key: "context")
         
         XCTAssertEqual(["context": value], observer.context as? [String: [String: Int]])
+    }
+
+    func testScopeObserver_addFeatureFlag_shouldSetFlagsContext() throws {
+        let sut = Scope()
+        let observer = fixture.observer
+        sut.add(observer)
+
+        sut.addFeatureFlag(name: "checkout", result: true)
+
+        let flags = try XCTUnwrap(observer.context?["flags"])
+        let values = try XCTUnwrap(flags["values"] as? [[String: Any]])
+        XCTAssertEqual(values.count, 1)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
+        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
     }
     
     func testScopeObserver_setDist() {

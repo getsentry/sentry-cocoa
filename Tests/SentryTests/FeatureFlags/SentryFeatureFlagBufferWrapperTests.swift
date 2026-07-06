@@ -84,19 +84,6 @@ final class SentryFeatureFlagBufferWrapperTests: XCTestCase {
         XCTAssertEqual(copy.buffer.allEvaluations.map(\.flag), ["first", "second"])
     }
 
-    func testRemoveFeatureFlag_whenBufferHasFeatureFlag_shouldRemoveMatchingFlag() {
-        // -- Arrange --
-        let sut = SentryFeatureFlagBufferWrapper.scopeBuffer()
-        sut.buffer.add(name: "checkout", value: true)
-        sut.buffer.add(name: "search", value: false)
-
-        // -- Act --
-        sut.buffer.remove(name: "checkout")
-
-        // -- Assert --
-        XCTAssertEqual(sut.buffer.allEvaluations.map(\.flag), ["search"])
-    }
-
     func testRemoveAll_whenBufferHasFeatureFlags_shouldClearEvaluations() {
         // -- Arrange --
         let sut = SentryFeatureFlagBufferWrapper.scopeBuffer()
