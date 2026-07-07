@@ -9,6 +9,7 @@
 ### Features
 
 - Attach feature flag evaluations to active spans (#8158)
+- Add feature flag scope ObjC API (#8160)
 
 ## 9.20.0
 
@@ -23,8 +24,6 @@
 
 - Record log_byte client reports (#8186)
 - Add scope feature flag API (#8147)
-- Add span feature flag API (#8158)
-- Add fearute flag scope/span ObjC API (#8160)
 
 ## 9.19.1
 
