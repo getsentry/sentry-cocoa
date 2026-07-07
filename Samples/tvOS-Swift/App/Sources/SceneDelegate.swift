@@ -2,7 +2,12 @@ import SwiftUI
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    var window: UIWindow?
+    // Mirror the scene window to AppDelegate.window for shared sample helpers.
+    var window: UIWindow? {
+        didSet {
+            (UIApplication.shared.delegate as? AppDelegate)?.window = window
+        }
+    }
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }

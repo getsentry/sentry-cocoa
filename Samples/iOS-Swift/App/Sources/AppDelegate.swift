@@ -5,6 +5,8 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     private var randomDistributionTimer: Timer?
+    var window: UIWindow?
+
     var args: [String] {
         ProcessInfo.processInfo.arguments
     }
