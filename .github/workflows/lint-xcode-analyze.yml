@@ -46,6 +46,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+          resolve-simulators: "false"
       - run: make analyze
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics

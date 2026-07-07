@@ -67,6 +67,7 @@ jobs:
         with:
           version: "27"
           allow-prerelease: "true"
+          resolve-simulators: "false"
       - name: Build SPM (${{ matrix.platform }})
         run: |
           ./scripts/sentry-xcodebuild.sh \

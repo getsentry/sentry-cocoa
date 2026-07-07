@@ -65,6 +65,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
+          resolve-simulators: "false"
       - name: Setup Ruby
         uses: ruby/setup-ruby@9eb537ca036ebaed86729dcb9309076e4c5c3b74 # v1.314.0
         with:
@@ -131,6 +132,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
+          resolve-simulators: "false"
       - name: Cache or Update Homebrew
         uses: ./.github/actions/cache-homebrew
       - run: make init-ci-build
@@ -181,6 +183,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
+          resolve-simulators: "false"
       - name: Cache or Update Homebrew
         uses: ./.github/actions/cache-homebrew
       - run: make init-ci-build
@@ -270,6 +273,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
+          resolve-simulators: "false"
 
       - name: Build macOS-CLI-Xcode sample
         run: |
@@ -303,6 +307,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
+          resolve-simulators: "false"
 
       - run: |
           set -o pipefail && NSUnbufferedIO=YES xcodebuild \
@@ -332,6 +337,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
+          resolve-simulators: "false"
       - run: |
           ./scripts/sentry-xcodebuild.sh \
             --workspace . \
