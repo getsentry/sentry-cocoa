@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix use-after-free race in `span`, `startProfiler`, and `stopProfiler` by snapshotting `currentHub` under `currentHubLock` before dereferencing. (#8318)
+- Add `userInfo` context for unhandled `NSExceptions` (#8332)
 
 ## 9.20.0
 
@@ -14,7 +15,6 @@
 ### Fixes
 
 - Fix rate limiting all data categories when data category rate-limit is active. (#8324)
-- Add `userInfo` context for unhandled `NSExceptions` (#8332)
 
 ### Features
 
