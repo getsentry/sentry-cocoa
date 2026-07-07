@@ -172,7 +172,6 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const { execSync } = require('child_process');
 
             console.log("Extracting test ID from output log");
             const outputLog = fs.readFileSync('output.log', 'utf8');
@@ -214,7 +213,8 @@ jobs:
           # SauceLabs internal errors frequently cause CI failures that can be resolved
           # by re-running the test. See scripts/saucelabs-helpers.js for detailed logic.
           script: |
-            testId = process.env.TEST_ID;
+            const { execSync } = require('child_process');
+            const testId = process.env.TEST_ID;
 
             if (!testId) {
               core.warning("No SauceLabs test ID found in CLI output, it might have changed, retrying...");
