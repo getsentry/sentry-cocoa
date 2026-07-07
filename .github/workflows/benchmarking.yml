@@ -152,50 +152,13 @@ jobs:
       - run: npm install -g saucectl@0.197.2
       - name: Run Benchmarks in SauceLab
         id: run-benchmarks-in-sauce-lab
-        env:
-          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
-          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        # Note: We are not setting continue-on-error here, because we want the step to be marked as failed.
-        run: |
-          set -o pipefail && saucectl run \
-            --select-suite "${{matrix.suite}}" \
-            --config .sauce/benchmarking-config.yml \
-            --tags benchmark \
-            --verbose \
-            2>&1 | tee output.log
-
-      - name: Extract Test ID from output
-        id: extract-test-id
-        # Note: We need to use always() here, because the previous run step might be marked as failed.
-        if: ${{ always() && (steps.run-benchmarks-in-sauce-lab.outcome == 'failure' || steps.run-benchmarks-in-sauce-lab.outcome == 'cancelled') }}
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        uses: ./.github/actions/saucelabs-run
         with:
-          script: |
-            const fs = require('fs');
-
-            console.log("Extracting test ID from output log");
-            const outputLog = fs.readFileSync('output.log', 'utf8');
-
-            // Lookup for the test ID in the output log
-            // Note: The CLI output might change over time, so this might need to be updated.
-            const match = outputLog.match(/https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/);
-            const testId = match?.[1] ?? '';
-
-            if (!testId) {
-              core.warning('No SauceLabs test ID found in CLI output');
-            }
-
-            core.setOutput('TEST_ID', testId);
-
-      - name: Cancel pending jobs if cancelled
-        if: ${{ always() && steps.run-benchmarks-in-sauce-lab.outcome == 'cancelled' && steps.extract-test-id.outputs.TEST_ID != '' }}
-        env:
-          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
-          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-          TEST_ID: ${{ steps.extract-test-id.outputs.TEST_ID }}
-        run: |
-          echo "Cancelling pending jobs"
-          curl -u "$SAUCE_USERNAME:$SAUCE_ACCESS_KEY" -X PUT "https://api.us-west-1.saucelabs.com/v1/rdc/jobs/$TEST_ID/stop"
+          select-suite: ${{ matrix.suite }}
+          config: .sauce/benchmarking-config.yml
+          tags: benchmark
+          sauce-username: ${{ secrets.SAUCE_USERNAME }}
+          sauce-access-key: ${{ secrets.SAUCE_ACCESS_KEY }}
 
       - name: Should Retry Test
         id: should-retry-test
@@ -205,21 +168,22 @@ jobs:
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-          TEST_ID: ${{ steps.extract-test-id.outputs.TEST_ID }}
+          TEST_ID: ${{ steps.run-benchmarks-in-sauce-lab.outputs.test_id }}
         with:
           # Retry Logic: This step only runs when the benchmark test has failed.
           # We determine if the failure was due to SauceLabs infrastructure issues
           # (which can be fixed by retrying) or legitimate test failures (which cannot).
           # SauceLabs internal errors frequently cause CI failures that can be resolved
-          # by re-running the test. See scripts/saucelabs-helpers.js for detailed logic.
+          # by re-running the test.
           script: |
             const { execSync } = require('child_process');
             const testId = process.env.TEST_ID;
 
             if (!testId) {
-              core.warning("No SauceLabs test ID found in CLI output, it might have changed, retrying...");
+              core.warning(
+                'No SauceLabs test ID found in CLI output, it might have changed, retrying...'
+              );
               core.setOutput('RETRY_TEST', 'true');
-
               return;
             }
 
@@ -227,13 +191,13 @@ jobs:
               console.log(`Checking if the test exists in SauceLabs: ${testId}`);
               execSync(`saucectl jobs get ${testId}`, {
                 env: process.env,
-                stdio: 'inherit'
+                stdio: 'inherit',
               });
 
-              console.log("Test exists but failed, not retrying.");
+              console.log('Test exists but failed, not retrying.');
               core.setFailed('Test exists but failed');
             } catch (error) {
-              console.log("Failed to get job, retrying...");
+              console.log('Failed to get job, retrying...');
               core.setOutput('RETRY_TEST', 'true');
             }
 
@@ -241,16 +205,14 @@ jobs:
         id: run-benchmarks-in-sauce-lab-retry-1
         # Note: We need to use always() here, because the previous run step might be marked as failed.
         if: ${{ always() && steps.should-retry-test.outputs.RETRY_TEST == 'true' }}
-        env:
-          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
-          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        run: |
-          echo "::warning SauceLabs benchmark tests need to be retried"
-          saucectl run \
-            --select-suite "${{matrix.suite}}" \
-            --config .sauce/benchmarking-config.yml \
-            --tags benchmark \
-            --verbose
+        uses: ./.github/actions/saucelabs-run
+        with:
+          select-suite: ${{ matrix.suite }}
+          config: .sauce/benchmarking-config.yml
+          tags: benchmark
+          warning-message: SauceLabs benchmark tests need to be retried
+          sauce-username: ${{ secrets.SAUCE_USERNAME }}
+          sauce-access-key: ${{ secrets.SAUCE_ACCESS_KEY }}
 
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics

@@ -1,0 +1,101 @@
+name: Run SauceLabs tests
+description: >-
+  Run saucectl, extract the SauceLabs test ID from CLI output, and cancel
+  pending RDC jobs when the run is cancelled.
+inputs:
+  sauce-username:
+    description: SauceLabs username
+    required: true
+  sauce-access-key:
+    description: SauceLabs access key
+    required: true
+  select-suite:
+    description: saucectl suite to run
+    required: true
+  config:
+    description: saucectl config file path
+    required: true
+  tags:
+    description: saucectl tags
+    required: true
+  warning-message:
+    description: Optional workflow warning emitted before the run
+    required: false
+    default: ""
+outputs:
+  test_id:
+    description: Extracted SauceLabs test ID
+    value: ${{ steps.extract-test-id.outputs.test_id }}
+runs:
+  using: composite
+  steps:
+    - name: Generate unique output log file name
+      id: generate-output-log-file-name
+      shell: bash
+      run: |
+        unique_suffix="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM}"
+        echo "output_log_file=output-${unique_suffix}.log" >> "$GITHUB_OUTPUT"
+    - name: Print warning message
+      if: ${{ inputs.warning-message != '' }}
+      shell: bash
+      run: |
+        echo "::warning ${inputs.warning-message}"
+    - name: Run saucectl
+      id: run
+      env:
+        SAUCE_USERNAME: ${{ inputs.sauce-username }}
+        SAUCE_ACCESS_KEY: ${{ inputs.sauce-access-key }}
+        SELECT_SUITE: ${{ inputs.select-suite }}
+        CONFIG: ${{ inputs.config }}
+        TAGS: ${{ inputs.tags }}
+        OUTPUT_LOG_FILE: ${{ steps.generate-output-log-file-name.outputs.output_log_file }}
+        WARNING_MESSAGE: ${{ inputs.warning-message }}
+      shell: bash
+      # Note: We are not setting continue-on-error here, because we want the step to be marked as failed.
+      run: |
+        set -o pipefail && saucectl run \
+          --select-suite "$SELECT_SUITE" \
+          --config "$CONFIG" \
+          --tags "$TAGS" \
+          --verbose \
+          2>&1 | tee "$OUTPUT_LOG_FILE"
+
+    - name: Extract Test ID from output
+      id: extract-test-id
+      if: ${{ always() && (steps.run.outcome == 'failure' || steps.run.outcome == 'cancelled') }}
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        OUTPUT_LOG_FILE: ${{ steps.generate-output-log-file-name.outputs.output_log_file }}
+      with:
+        script: |
+          const fs = require('fs');
+
+          console.log('Extracting test ID from output log');
+          let testId = '';
+
+          if (fs.existsSync(process.env.OUTPUT_LOG_FILE)) {
+            const outputLog = fs.readFileSync(process.env.OUTPUT_LOG_FILE, 'utf8');
+            // Note: The CLI output might change over time, so this might need to be updated.
+            const match = outputLog.match(/https:\/\/app\.saucelabs\.com\/tests\/([^\s]+)/);
+            testId = match?.[1] ?? '';
+          }
+
+          if (!testId) {
+            core.warning('No SauceLabs test ID found in CLI output');
+          }
+
+          core.setOutput('test_id', testId);
+
+    - name: Cancel pending jobs if cancelled
+      if: >-
+        ${{ always()
+        && steps.run.outcome == 'cancelled'
+        && steps.extract-test-id.outputs.test_id != '' }}
+      env:
+        SAUCE_USERNAME: ${{ inputs.sauce-username }}
+        SAUCE_ACCESS_KEY: ${{ inputs.sauce-access-key }}
+        TEST_ID: ${{ steps.extract-test-id.outputs.test_id }}
+      shell: bash
+      run: |
+        echo "Cancelling pending jobs"
+        curl -u "$SAUCE_USERNAME:$SAUCE_ACCESS_KEY" -X PUT "https://api.us-west-1.saucelabs.com/v1/rdc/jobs/$TEST_ID/stop"
