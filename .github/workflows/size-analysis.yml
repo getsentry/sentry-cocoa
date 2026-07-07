@@ -81,7 +81,11 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Cache or Update Homebrew
+        uses: ./.github/actions/cache-homebrew
       - run: make init-ci-build
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
 
       # This needs to be done before xcode-ci because it makes the Sentry framework to be static.
       # Or Xcode will try to embed an empty framework.
