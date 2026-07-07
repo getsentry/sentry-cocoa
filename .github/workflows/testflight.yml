@@ -92,7 +92,7 @@ jobs:
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
-      - name: Cache Homebrew
+      - name: Cache or Update Homebrew
         uses: ./.github/actions/cache-homebrew
         with:
           brewfile: Brewfile-ci-build

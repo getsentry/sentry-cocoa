@@ -119,7 +119,7 @@ jobs:
           OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
 
-      - name: Cache Homebrew
+      - name: Cache or Update Homebrew
         uses: ./.github/actions/cache-homebrew
         if: ${{ inputs.build_with_make }}
         with:

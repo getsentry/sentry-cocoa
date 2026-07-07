@@ -91,7 +91,7 @@ jobs:
         with:
           version: "16"
 
-      - name: Cache Homebrew
+      - name: Cache or Update Homebrew
         uses: ./.github/actions/cache-homebrew
         with:
           brewfile: Brewfile-ci-build

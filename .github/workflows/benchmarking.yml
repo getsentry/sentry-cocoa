@@ -79,7 +79,7 @@ jobs:
         uses: ruby/setup-ruby@9eb537ca036ebaed86729dcb9309076e4c5c3b74 # v1.314.0
         with:
           bundler-cache: true
-      - name: Cache Homebrew
+      - name: Cache or Update Homebrew
         uses: ./.github/actions/cache-homebrew
         with:
           brewfile: Brewfile-ci-build
