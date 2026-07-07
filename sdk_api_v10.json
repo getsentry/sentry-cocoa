@@ -36034,6 +36034,2200 @@
               {
                 "children": [
                   {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "DatabaseCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.DatabaseCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV"
+                  }
+                ],
+                "declKind": "Constructor",
+                "init_kind": "Designated",
+                "kind": "Constructor",
+                "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsAESb_tcfc",
+                "moduleName": "Sentry",
+                "name": "init",
+                "printedName": "init(queryParams:)",
+                "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsAESb_tcfc"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "DatabaseCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.DatabaseCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "DatabaseCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.DatabaseCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV"
+                  }
+                ],
+                "declKind": "Func",
+                "funcSelfKind": "NonMutating",
+                "kind": "Function",
+                "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV2eeoiySbAE_AEtFZ",
+                "moduleName": "Sentry",
+                "name": "==",
+                "printedName": "==(_:_:)",
+                "static": true,
+                "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV2eeoiySbAE_AEtFZ"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvp",
+                "moduleName": "Sentry",
+                "name": "queryParams",
+                "printedName": "queryParams",
+                "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV11queryParamsSbvp"
+              }
+            ],
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss8CopyableP",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSQ",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss9EscapableP",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP"
+              }
+            ],
+            "declKind": "Struct",
+            "isFromExtension": true,
+            "kind": "TypeDecl",
+            "mangledName": "$s6Sentry0A14DataCollectionO08DatabaseC7OptionsV",
+            "moduleName": "Sentry",
+            "name": "DatabaseCollectionOptions",
+            "printedName": "DatabaseCollectionOptions",
+            "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GraphQLCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.GraphQLCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV"
+                  }
+                ],
+                "declKind": "Constructor",
+                "init_kind": "Designated",
+                "kind": "Constructor",
+                "mangledName": "$s6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV8document9variablesAESb_Sbtcfc",
+                "moduleName": "Sentry",
+                "name": "init",
+                "printedName": "init(document:variables:)",
+                "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV8document9variablesAESb_Sbtcfc"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GraphQLCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.GraphQLCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GraphQLCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.GraphQLCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV"
+                  }
+                ],
+                "declKind": "Func",
+                "funcSelfKind": "NonMutating",
+                "kind": "Function",
+                "mangledName": "$s6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV2eeoiySbAE_AEtFZ",
+                "moduleName": "Sentry",
+                "name": "==",
+                "printedName": "==(_:_:)",
+                "static": true,
+                "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV2eeoiySbAE_AEtFZ"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV8documentSbvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV8documentSbvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV8documentSbvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV8documentSbvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV8documentSbvp",
+                "moduleName": "Sentry",
+                "name": "document",
+                "printedName": "document",
+                "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV8documentSbvp"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV9variablesSbvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV9variablesSbvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV9variablesSbvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV9variablesSbvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV9variablesSbvp",
+                "moduleName": "Sentry",
+                "name": "variables",
+                "printedName": "variables",
+                "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV9variablesSbvp"
+              }
+            ],
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss8CopyableP",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSQ",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss9EscapableP",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP"
+              }
+            ],
+            "declKind": "Struct",
+            "isFromExtension": true,
+            "kind": "TypeDecl",
+            "mangledName": "$s6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV",
+            "moduleName": "Sentry",
+            "name": "GraphQLCollectionOptions",
+            "printedName": "GraphQLCollectionOptions",
+            "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HttpBodyType",
+                    "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Constructor",
+                "init_kind": "Designated",
+                "kind": "Constructor",
+                "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV8rawValueAESi_tcfc",
+                "moduleName": "Sentry",
+                "name": "init",
+                "printedName": "init(rawValue:)",
+                "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV8rawValueAESi_tcfc"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HttpBodyType",
+                    "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                  }
+                ],
+                "declKind": "TypeAlias",
+                "kind": "TypeAlias",
+                "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV19ArrayLiteralElementa",
+                "moduleName": "Sentry",
+                "name": "ArrayLiteralElement",
+                "printedName": "ArrayLiteralElement",
+                "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV19ArrayLiteralElementa"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HttpBodyType",
+                    "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                  }
+                ],
+                "declKind": "TypeAlias",
+                "kind": "TypeAlias",
+                "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV7Elementa",
+                "moduleName": "Sentry",
+                "name": "Element",
+                "printedName": "Element",
+                "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV7Elementa"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "TypeAlias",
+                "kind": "TypeAlias",
+                "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV8RawValuea",
+                "moduleName": "Sentry",
+                "name": "RawValue",
+                "printedName": "RawValue",
+                "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV8RawValuea"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "HttpBodyType",
+                        "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                        "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV3allAEvgZ",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "static": true,
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV3allAEvgZ"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HttpBodyType",
+                    "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "isLet": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV3allAEvpZ",
+                "moduleName": "Sentry",
+                "name": "all",
+                "printedName": "all",
+                "static": true,
+                "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV3allAEvpZ"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "HttpBodyType",
+                        "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                        "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV15incomingRequestAEvgZ",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "static": true,
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV15incomingRequestAEvgZ"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HttpBodyType",
+                    "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "isLet": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV15incomingRequestAEvpZ",
+                "moduleName": "Sentry",
+                "name": "incomingRequest",
+                "printedName": "incomingRequest",
+                "static": true,
+                "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV15incomingRequestAEvpZ"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "HttpBodyType",
+                        "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                        "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV16incomingResponseAEvgZ",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "static": true,
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV16incomingResponseAEvgZ"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HttpBodyType",
+                    "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "isLet": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV16incomingResponseAEvpZ",
+                "moduleName": "Sentry",
+                "name": "incomingResponse",
+                "printedName": "incomingResponse",
+                "static": true,
+                "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV16incomingResponseAEvpZ"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "HttpBodyType",
+                        "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                        "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV15outgoingRequestAEvgZ",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "static": true,
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV15outgoingRequestAEvgZ"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HttpBodyType",
+                    "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "isLet": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV15outgoingRequestAEvpZ",
+                "moduleName": "Sentry",
+                "name": "outgoingRequest",
+                "printedName": "outgoingRequest",
+                "static": true,
+                "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV15outgoingRequestAEvpZ"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "HttpBodyType",
+                        "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                        "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV16outgoingResponseAEvgZ",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "static": true,
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV16outgoingResponseAEvgZ"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HttpBodyType",
+                    "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "isLet": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV16outgoingResponseAEvpZ",
+                "moduleName": "Sentry",
+                "name": "outgoingResponse",
+                "printedName": "outgoingResponse",
+                "static": true,
+                "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV16outgoingResponseAEvpZ"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV8rawValueSivg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV8rawValueSivg"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "isLet": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV8rawValueSivp",
+                "moduleName": "Sentry",
+                "name": "rawValue",
+                "printedName": "rawValue",
+                "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV8rawValueSivp"
+              }
+            ],
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss8CopyableP",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSQ",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss9EscapableP",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "HttpBodyType",
+                            "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                            "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "ArrayLiteralElement",
+                        "printedName": "Sentry.SentryDataCollection.HttpBodyType.ArrayLiteralElement"
+                      }
+                    ],
+                    "kind": "TypeWitness",
+                    "name": "ArrayLiteralElement",
+                    "printedName": "ArrayLiteralElement"
+                  }
+                ],
+                "kind": "Conformance",
+                "mangledName": "$ss25ExpressibleByArrayLiteralP",
+                "name": "ExpressibleByArrayLiteral",
+                "printedName": "ExpressibleByArrayLiteral",
+                "usr": "s:s25ExpressibleByArrayLiteralP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSH",
+                "name": "Hashable",
+                "printedName": "Hashable",
+                "usr": "s:SH"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "HttpBodyType",
+                            "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                            "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "Element",
+                        "printedName": "Sentry.SentryDataCollection.HttpBodyType.Element"
+                      }
+                    ],
+                    "kind": "TypeWitness",
+                    "name": "Element",
+                    "printedName": "Element"
+                  }
+                ],
+                "kind": "Conformance",
+                "mangledName": "$ss9OptionSetP",
+                "name": "OptionSet",
+                "printedName": "OptionSet",
+                "usr": "s:s9OptionSetP"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Int",
+                            "printedName": "Swift.Int",
+                            "usr": "s:Si"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "RawValue",
+                        "printedName": "Sentry.SentryDataCollection.HttpBodyType.RawValue"
+                      }
+                    ],
+                    "kind": "TypeWitness",
+                    "name": "RawValue",
+                    "printedName": "RawValue"
+                  }
+                ],
+                "kind": "Conformance",
+                "mangledName": "$sSY",
+                "name": "RawRepresentable",
+                "printedName": "RawRepresentable",
+                "usr": "s:SY"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss8SendableP",
+                "name": "Sendable",
+                "printedName": "Sendable",
+                "usr": "s:s8SendableP"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "HttpBodyType",
+                            "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                            "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                          }
+                        ],
+                        "kind": "TypeNameAlias",
+                        "name": "Element",
+                        "printedName": "Sentry.SentryDataCollection.HttpBodyType.Element"
+                      }
+                    ],
+                    "kind": "TypeWitness",
+                    "name": "Element",
+                    "printedName": "Element"
+                  }
+                ],
+                "kind": "Conformance",
+                "mangledName": "$ss10SetAlgebraP",
+                "name": "SetAlgebra",
+                "printedName": "SetAlgebra",
+                "usr": "s:s10SetAlgebraP"
+              }
+            ],
+            "declKind": "Struct",
+            "isFromExtension": true,
+            "kind": "TypeDecl",
+            "mangledName": "$s6Sentry0A14DataCollectionO12HttpBodyTypeV",
+            "moduleName": "Sentry",
+            "name": "HttpBodyType",
+            "printedName": "HttpBodyType",
+            "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HttpHeaderCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.HttpHeaderCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV"
+                  },
+                  {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "KeyValueCollectionBehavior",
+                    "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                    "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                  },
+                  {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "KeyValueCollectionBehavior",
+                    "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                    "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                  }
+                ],
+                "declKind": "Constructor",
+                "init_kind": "Designated",
+                "kind": "Constructor",
+                "mangledName": "$s6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV7request8responseAeC08KeyValueC8BehaviorO_AItcfc",
+                "moduleName": "Sentry",
+                "name": "init",
+                "printedName": "init(request:response:)",
+                "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV7request8responseAeC08KeyValueC8BehaviorO_AItcfc"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HttpHeaderCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.HttpHeaderCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HttpHeaderCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.HttpHeaderCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV"
+                  }
+                ],
+                "declKind": "Func",
+                "funcSelfKind": "NonMutating",
+                "kind": "Function",
+                "mangledName": "$s6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV2eeoiySbAE_AEtFZ",
+                "moduleName": "Sentry",
+                "name": "==",
+                "printedName": "==(_:_:)",
+                "static": true,
+                "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV2eeoiySbAE_AEtFZ"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "KeyValueCollectionBehavior",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                        "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV7requestAC08KeyValueC8BehaviorOvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV7requestAC08KeyValueC8BehaviorOvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "KeyValueCollectionBehavior",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                        "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV7requestAC08KeyValueC8BehaviorOvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV7requestAC08KeyValueC8BehaviorOvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "KeyValueCollectionBehavior",
+                    "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                    "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV7requestAC08KeyValueC8BehaviorOvp",
+                "moduleName": "Sentry",
+                "name": "request",
+                "printedName": "request",
+                "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV7requestAC08KeyValueC8BehaviorOvp"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "KeyValueCollectionBehavior",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                        "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV8responseAC08KeyValueC8BehaviorOvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV8responseAC08KeyValueC8BehaviorOvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "KeyValueCollectionBehavior",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                        "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV8responseAC08KeyValueC8BehaviorOvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV8responseAC08KeyValueC8BehaviorOvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "KeyValueCollectionBehavior",
+                    "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                    "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV8responseAC08KeyValueC8BehaviorOvp",
+                "moduleName": "Sentry",
+                "name": "response",
+                "printedName": "response",
+                "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV8responseAC08KeyValueC8BehaviorOvp"
+              }
+            ],
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss8CopyableP",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSQ",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss9EscapableP",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP"
+              }
+            ],
+            "declKind": "Struct",
+            "isFromExtension": true,
+            "kind": "TypeDecl",
+            "mangledName": "$s6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV",
+            "moduleName": "Sentry",
+            "name": "HttpHeaderCollectionOptions",
+            "printedName": "HttpHeaderCollectionOptions",
+            "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "KeyValueCollectionBehavior",
+                    "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                    "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "KeyValueCollectionBehavior",
+                    "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                    "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                  }
+                ],
+                "declKind": "Func",
+                "funcSelfKind": "NonMutating",
+                "kind": "Function",
+                "mangledName": "$s6Sentry0A14DataCollectionO08KeyValueC8BehaviorO2eeoiySbAE_AEtFZ",
+                "moduleName": "Sentry",
+                "name": "==",
+                "printedName": "==(_:_:)",
+                "static": true,
+                "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO2eeoiySbAE_AEtFZ"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Hasher",
+                    "paramValueOwnership": "InOut",
+                    "printedName": "Swift.Hasher",
+                    "usr": "s:s6HasherV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Func",
+                "funcSelfKind": "NonMutating",
+                "kind": "Function",
+                "mangledName": "$s6Sentry0A14DataCollectionO08KeyValueC8BehaviorO4hash4intoys6HasherVz_tF",
+                "moduleName": "Sentry",
+                "name": "hash",
+                "printedName": "hash(into:)",
+                "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO4hash4intoys6HasherVz_tF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "KeyValueCollectionBehavior",
+                            "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                            "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                          },
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "String",
+                                    "printedName": "Swift.String",
+                                    "usr": "s:SS"
+                                  }
+                                ],
+                                "kind": "TypeNominal",
+                                "name": "Array",
+                                "printedName": "[Swift.String]",
+                                "usr": "s:Sa"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(terms: [Swift.String])"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "([Swift.String]) -> Sentry.SentryDataCollection.KeyValueCollectionBehavior"
+                      },
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "KeyValueCollectionBehavior",
+                            "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                            "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior.Type"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryDataCollection.KeyValueCollectionBehavior.Type) -> ([Swift.String]) -> Sentry.SentryDataCollection.KeyValueCollectionBehavior"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO08KeyValueC8BehaviorO9allowListyAESaySSG_tcAEmF",
+                "moduleName": "Sentry",
+                "name": "allowList",
+                "printedName": "allowList",
+                "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO9allowListyAESaySSG_tcAEmF"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "KeyValueCollectionBehavior",
+                            "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                            "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                          },
+                          {
+                            "children": [
+                              {
+                                "children": [
+                                  {
+                                    "kind": "TypeNominal",
+                                    "name": "String",
+                                    "printedName": "Swift.String",
+                                    "usr": "s:SS"
+                                  }
+                                ],
+                                "kind": "TypeNominal",
+                                "name": "Array",
+                                "printedName": "[Swift.String]",
+                                "usr": "s:Sa"
+                              }
+                            ],
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(terms: [Swift.String])"
+                          }
+                        ],
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "([Swift.String]) -> Sentry.SentryDataCollection.KeyValueCollectionBehavior"
+                      },
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "KeyValueCollectionBehavior",
+                            "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                            "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior.Type"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryDataCollection.KeyValueCollectionBehavior.Type) -> ([Swift.String]) -> Sentry.SentryDataCollection.KeyValueCollectionBehavior"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO08KeyValueC8BehaviorO8denyListyAESaySSG_tcAEmF",
+                "moduleName": "Sentry",
+                "name": "denyList",
+                "printedName": "denyList",
+                "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO8denyListyAESaySSG_tcAEmF"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO08KeyValueC8BehaviorO04hashE0Sivg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO04hashE0Sivg"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Var",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO08KeyValueC8BehaviorO04hashE0Sivp",
+                "moduleName": "Sentry",
+                "name": "hashValue",
+                "printedName": "hashValue",
+                "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO04hashE0Sivp"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "KeyValueCollectionBehavior",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                        "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                      },
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "KeyValueCollectionBehavior",
+                            "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                            "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior.Type"
+                      }
+                    ],
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Sentry.SentryDataCollection.KeyValueCollectionBehavior.Type) -> Sentry.SentryDataCollection.KeyValueCollectionBehavior"
+                  }
+                ],
+                "declKind": "EnumElement",
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO08KeyValueC8BehaviorO3offyA2EmF",
+                "moduleName": "Sentry",
+                "name": "off",
+                "printedName": "off",
+                "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO3offyA2EmF"
+              }
+            ],
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss8CopyableP",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSQ",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss9EscapableP",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSH",
+                "name": "Hashable",
+                "printedName": "Hashable",
+                "usr": "s:SH"
+              }
+            ],
+            "declKind": "Enum",
+            "isFromExtension": true,
+            "kind": "TypeDecl",
+            "mangledName": "$s6Sentry0A14DataCollectionO08KeyValueC8BehaviorO",
+            "moduleName": "Sentry",
+            "name": "KeyValueCollectionBehavior",
+            "printedName": "KeyValueCollectionBehavior",
+            "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "DatabaseCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.DatabaseCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV"
+                  },
+                  {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "GraphQLCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.GraphQLCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV"
+                  },
+                  {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "HttpBodyType",
+                    "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                  },
+                  {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "HttpHeaderCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.HttpHeaderCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV"
+                  },
+                  {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "KeyValueCollectionBehavior",
+                    "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                    "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                  },
+                  {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "KeyValueCollectionBehavior",
+                    "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                    "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Options",
+                    "printedName": "Sentry.SentryDataCollection.Options",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV"
+                  },
+                  {
+                    "hasDefaultArg": true,
+                    "kind": "TypeNominal",
+                    "name": "UInt",
+                    "printedName": "Swift.UInt",
+                    "usr": "s:Su"
+                  }
+                ],
+                "declKind": "Constructor",
+                "init_kind": "Designated",
+                "kind": "Constructor",
+                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV8userInfo7cookies11httpHeaders0H6Bodies11queryParams7graphql8database19stackFrameVariables17frameContextLinesAESb_AC08KeyValueC8BehaviorOAC010HttpHeadercD0VAC0X8BodyTypeVApC017GraphQLCollectionD0VAC08DatabasecD0VSbSutcfc",
+                "moduleName": "Sentry",
+                "name": "init",
+                "printedName": "init(userInfo:cookies:httpHeaders:httpBodies:queryParams:graphql:database:stackFrameVariables:frameContextLines:)",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV8userInfo7cookies11httpHeaders0H6Bodies11queryParams7graphql8database19stackFrameVariables17frameContextLinesAESb_AC08KeyValueC8BehaviorOAC010HttpHeadercD0VAC0X8BodyTypeVApC017GraphQLCollectionD0VAC08DatabasecD0VSbSutcfc"
+              },
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Options",
+                    "printedName": "Sentry.SentryDataCollection.Options",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Options",
+                    "printedName": "Sentry.SentryDataCollection.Options",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV"
+                  }
+                ],
+                "declKind": "Func",
+                "funcSelfKind": "NonMutating",
+                "kind": "Function",
+                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV2eeoiySbAE_AEtFZ",
+                "moduleName": "Sentry",
+                "name": "==",
+                "printedName": "==(_:_:)",
+                "static": true,
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV2eeoiySbAE_AEtFZ"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "KeyValueCollectionBehavior",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                        "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV7cookiesAC08KeyValueC8BehaviorOvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV7cookiesAC08KeyValueC8BehaviorOvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "KeyValueCollectionBehavior",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                        "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV7cookiesAC08KeyValueC8BehaviorOvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV7cookiesAC08KeyValueC8BehaviorOvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "KeyValueCollectionBehavior",
+                    "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                    "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV7cookiesAC08KeyValueC8BehaviorOvp",
+                "moduleName": "Sentry",
+                "name": "cookies",
+                "printedName": "cookies",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV7cookiesAC08KeyValueC8BehaviorOvp"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "DatabaseCollectionOptions",
+                        "printedName": "Sentry.SentryDataCollection.DatabaseCollectionOptions",
+                        "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV8databaseAC08DatabasecD0Vvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV8databaseAC08DatabasecD0Vvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "DatabaseCollectionOptions",
+                        "printedName": "Sentry.SentryDataCollection.DatabaseCollectionOptions",
+                        "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV8databaseAC08DatabasecD0Vvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV8databaseAC08DatabasecD0Vvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "DatabaseCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.DatabaseCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO08DatabaseC7OptionsV"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV8databaseAC08DatabasecD0Vvp",
+                "moduleName": "Sentry",
+                "name": "database",
+                "printedName": "database",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV8databaseAC08DatabasecD0Vvp"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "UInt",
+                        "printedName": "Swift.UInt",
+                        "usr": "s:Su"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV17frameContextLinesSuvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV17frameContextLinesSuvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "UInt",
+                        "printedName": "Swift.UInt",
+                        "usr": "s:Su"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV17frameContextLinesSuvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV17frameContextLinesSuvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UInt",
+                    "printedName": "Swift.UInt",
+                    "usr": "s:Su"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV17frameContextLinesSuvp",
+                "moduleName": "Sentry",
+                "name": "frameContextLines",
+                "printedName": "frameContextLines",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV17frameContextLinesSuvp"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "GraphQLCollectionOptions",
+                        "printedName": "Sentry.SentryDataCollection.GraphQLCollectionOptions",
+                        "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV7graphqlAC017GraphQLCollectionD0Vvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV7graphqlAC017GraphQLCollectionD0Vvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "GraphQLCollectionOptions",
+                        "printedName": "Sentry.SentryDataCollection.GraphQLCollectionOptions",
+                        "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV7graphqlAC017GraphQLCollectionD0Vvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV7graphqlAC017GraphQLCollectionD0Vvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GraphQLCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.GraphQLCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO24GraphQLCollectionOptionsV"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV7graphqlAC017GraphQLCollectionD0Vvp",
+                "moduleName": "Sentry",
+                "name": "graphql",
+                "printedName": "graphql",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV7graphqlAC017GraphQLCollectionD0Vvp"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "HttpBodyType",
+                        "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                        "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV10httpBodiesAC12HttpBodyTypeVvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV10httpBodiesAC12HttpBodyTypeVvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "HttpBodyType",
+                        "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                        "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV10httpBodiesAC12HttpBodyTypeVvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV10httpBodiesAC12HttpBodyTypeVvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HttpBodyType",
+                    "printedName": "Sentry.SentryDataCollection.HttpBodyType",
+                    "usr": "s:6Sentry0A14DataCollectionO12HttpBodyTypeV"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV10httpBodiesAC12HttpBodyTypeVvp",
+                "moduleName": "Sentry",
+                "name": "httpBodies",
+                "printedName": "httpBodies",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV10httpBodiesAC12HttpBodyTypeVvp"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "HttpHeaderCollectionOptions",
+                        "printedName": "Sentry.SentryDataCollection.HttpHeaderCollectionOptions",
+                        "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV11httpHeadersAC010HttpHeadercD0Vvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV11httpHeadersAC010HttpHeadercD0Vvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "HttpHeaderCollectionOptions",
+                        "printedName": "Sentry.SentryDataCollection.HttpHeaderCollectionOptions",
+                        "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV11httpHeadersAC010HttpHeadercD0Vvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV11httpHeadersAC010HttpHeadercD0Vvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HttpHeaderCollectionOptions",
+                    "printedName": "Sentry.SentryDataCollection.HttpHeaderCollectionOptions",
+                    "usr": "s:6Sentry0A14DataCollectionO010HttpHeaderC7OptionsV"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV11httpHeadersAC010HttpHeadercD0Vvp",
+                "moduleName": "Sentry",
+                "name": "httpHeaders",
+                "printedName": "httpHeaders",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV11httpHeadersAC010HttpHeadercD0Vvp"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "KeyValueCollectionBehavior",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                        "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV11queryParamsAC08KeyValueC8BehaviorOvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV11queryParamsAC08KeyValueC8BehaviorOvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "KeyValueCollectionBehavior",
+                        "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                        "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV11queryParamsAC08KeyValueC8BehaviorOvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV11queryParamsAC08KeyValueC8BehaviorOvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "KeyValueCollectionBehavior",
+                    "printedName": "Sentry.SentryDataCollection.KeyValueCollectionBehavior",
+                    "usr": "s:6Sentry0A14DataCollectionO08KeyValueC8BehaviorO"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV11queryParamsAC08KeyValueC8BehaviorOvp",
+                "moduleName": "Sentry",
+                "name": "queryParams",
+                "printedName": "queryParams",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV11queryParamsAC08KeyValueC8BehaviorOvp"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV19stackFrameVariablesSbvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV19stackFrameVariablesSbvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV19stackFrameVariablesSbvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV19stackFrameVariablesSbvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV19stackFrameVariablesSbvp",
+                "moduleName": "Sentry",
+                "name": "stackFrameVariables",
+                "printedName": "stackFrameVariables",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV19stackFrameVariablesSbvp"
+              },
+              {
+                "accessors": [
+                  {
+                    "accessorKind": "get",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV8userInfoSbvg",
+                    "moduleName": "Sentry",
+                    "name": "Get",
+                    "printedName": "Get()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV8userInfoSbvg"
+                  },
+                  {
+                    "accessorKind": "set",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Bool",
+                        "printedName": "Swift.Bool",
+                        "usr": "s:Sb"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "declKind": "Accessor",
+                    "implicit": true,
+                    "kind": "Accessor",
+                    "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV8userInfoSbvs",
+                    "moduleName": "Sentry",
+                    "name": "Set",
+                    "printedName": "Set()",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV8userInfoSbvs"
+                  }
+                ],
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "HasStorage"
+                ],
+                "declKind": "Var",
+                "hasStorage": true,
+                "kind": "Var",
+                "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV8userInfoSbvp",
+                "moduleName": "Sentry",
+                "name": "userInfo",
+                "printedName": "userInfo",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV8userInfoSbvp"
+              }
+            ],
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss8CopyableP",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$sSQ",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ"
+              },
+              {
+                "kind": "Conformance",
+                "mangledName": "$ss9EscapableP",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP"
+              }
+            ],
+            "declKind": "Struct",
+            "isFromExtension": true,
+            "kind": "TypeDecl",
+            "mangledName": "$s6Sentry0A14DataCollectionO7OptionsV",
+            "moduleName": "Sentry",
+            "name": "Options",
+            "printedName": "Options",
+            "usr": "s:6Sentry0A14DataCollectionO7OptionsV"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          }
+        ],
+        "declKind": "Enum",
+        "kind": "TypeDecl",
+        "mangledName": "$s6Sentry0A14DataCollectionO",
+        "moduleName": "Sentry",
+        "name": "SentryDataCollection",
+        "printedName": "SentryDataCollection",
+        "usr": "s:6Sentry0A14DataCollectionO"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
                     "kind": "TypeNominal",
                     "name": "String",
                     "printedName": "Swift.String",
@@ -36920,6 +39114,79 @@
             "overriding": true,
             "printedName": "init()",
             "usr": "c:@M@Sentry@objc(cs)SentryExperimentalOptions(im)init"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Options",
+                    "printedName": "Sentry.SentryDataCollection.Options",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvg",
+                "moduleName": "Sentry",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvg"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Options",
+                    "printedName": "Sentry.SentryDataCollection.Options",
+                    "usr": "s:6Sentry0A14DataCollectionO7OptionsV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declAttributes": [
+                  "Final"
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$s6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvs",
+                "moduleName": "Sentry",
+                "name": "Set",
+                "printedName": "Set()",
+                "usr": "s:6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvs"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Options",
+                "printedName": "Sentry.SentryDataCollection.Options",
+                "usr": "s:6Sentry0A14DataCollectionO7OptionsV"
+              }
+            ],
+            "declAttributes": [
+              "Final",
+              "HasStorage"
+            ],
+            "declKind": "Var",
+            "hasStorage": true,
+            "kind": "Var",
+            "mangledName": "$s6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvp",
+            "moduleName": "Sentry",
+            "name": "dataCollection",
+            "printedName": "dataCollection",
+            "usr": "s:6Sentry0A19ExperimentalOptionsC14dataCollectionAA0a4DataE0O0C0Vvp"
           },
           {
             "accessors": [
