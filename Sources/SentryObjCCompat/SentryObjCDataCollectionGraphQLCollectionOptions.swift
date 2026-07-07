@@ -8,36 +8,33 @@ import Foundation
 
 @objc(SentryObjCDataCollectionGraphQLCollectionOptions)
 public final class SentryObjCDataCollectionGraphQLCollectionOptions: NSObject {
-    private var box: Box<SentryDataCollection.GraphQLCollectionOptions>
+    private let storage: Accessor<SentryDataCollection.GraphQLCollectionOptions>
 
     internal var wrapped: SentryDataCollection.GraphQLCollectionOptions {
-        box.value
+        get { storage.value }
+        set { storage.value = newValue }
+    }
+
+    internal init(_ storage: Accessor<SentryDataCollection.GraphQLCollectionOptions>) {
+        self.storage = storage
     }
 
     internal init(_ wrapped: SentryDataCollection.GraphQLCollectionOptions) {
-        self.box = Box(wrapped)
+        self.storage = Accessor(wrapped)
     }
 
     @objc public override init() {
-        self.box = Box(SentryDataCollection.GraphQLCollectionOptions())
+        self.storage = Accessor(SentryDataCollection.GraphQLCollectionOptions())
     }
 
     @objc public var document: Bool {
-        get { box.value.document }
-        set {
-            var value = box.value
-            value.document = newValue
-            box = Box(value)
-        }
+        get { storage.value.document }
+        set { storage.value.document = newValue }
     }
 
     @objc public var variables: Bool {
-        get { box.value.variables }
-        set {
-            var value = box.value
-            value.variables = newValue
-            box = Box(value)
-        }
+        get { storage.value.variables }
+        set { storage.value.variables = newValue }
     }
 }
 

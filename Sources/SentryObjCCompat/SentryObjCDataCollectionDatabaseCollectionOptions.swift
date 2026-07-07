@@ -8,27 +8,28 @@ import Foundation
 
 @objc(SentryObjCDataCollectionDatabaseCollectionOptions)
 public final class SentryObjCDataCollectionDatabaseCollectionOptions: NSObject {
-    private var box: Box<SentryDataCollection.DatabaseCollectionOptions>
+    private let storage: Accessor<SentryDataCollection.DatabaseCollectionOptions>
 
     internal var wrapped: SentryDataCollection.DatabaseCollectionOptions {
-        box.value
+        get { storage.value }
+        set { storage.value = newValue }
+    }
+
+    internal init(_ storage: Accessor<SentryDataCollection.DatabaseCollectionOptions>) {
+        self.storage = storage
     }
 
     internal init(_ wrapped: SentryDataCollection.DatabaseCollectionOptions) {
-        self.box = Box(wrapped)
+        self.storage = Accessor(wrapped)
     }
 
     @objc public override init() {
-        self.box = Box(SentryDataCollection.DatabaseCollectionOptions())
+        self.storage = Accessor(SentryDataCollection.DatabaseCollectionOptions())
     }
 
     @objc public var queryParams: Bool {
-        get { box.value.queryParams }
-        set {
-            var value = box.value
-            value.queryParams = newValue
-            box = Box(value)
-        }
+        get { storage.value.queryParams }
+        set { storage.value.queryParams = newValue }
     }
 }
 

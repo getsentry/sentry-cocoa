@@ -8,36 +8,33 @@ import Foundation
 
 @objc(SentryObjCDataCollectionHttpHeaderCollectionOptions)
 public final class SentryObjCDataCollectionHttpHeaderCollectionOptions: NSObject {
-    private var box: Box<SentryDataCollection.HttpHeaderCollectionOptions>
+    private let storage: Accessor<SentryDataCollection.HttpHeaderCollectionOptions>
 
     internal var wrapped: SentryDataCollection.HttpHeaderCollectionOptions {
-        box.value
+        get { storage.value }
+        set { storage.value = newValue }
+    }
+
+    internal init(_ storage: Accessor<SentryDataCollection.HttpHeaderCollectionOptions>) {
+        self.storage = storage
     }
 
     internal init(_ wrapped: SentryDataCollection.HttpHeaderCollectionOptions) {
-        self.box = Box(wrapped)
+        self.storage = Accessor(wrapped)
     }
 
     @objc public override init() {
-        self.box = Box(SentryDataCollection.HttpHeaderCollectionOptions())
+        self.storage = Accessor(SentryDataCollection.HttpHeaderCollectionOptions())
     }
 
     @objc public var request: SentryObjCDataCollectionKeyValueCollectionBehavior {
-        get { SentryObjCDataCollectionKeyValueCollectionBehavior(box.value.request) }
-        set {
-            var value = box.value
-            value.request = newValue.wrapped
-            box = Box(value)
-        }
+        get { SentryObjCDataCollectionKeyValueCollectionBehavior(storage.value.request) }
+        set { storage.value.request = newValue.wrapped }
     }
 
     @objc public var response: SentryObjCDataCollectionKeyValueCollectionBehavior {
-        get { SentryObjCDataCollectionKeyValueCollectionBehavior(box.value.response) }
-        set {
-            var value = box.value
-            value.response = newValue.wrapped
-            box = Box(value)
-        }
+        get { SentryObjCDataCollectionKeyValueCollectionBehavior(storage.value.response) }
+        set { storage.value.response = newValue.wrapped }
     }
 }
 

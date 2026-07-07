@@ -33,7 +33,7 @@ import Foundation
     }
 
     @objc public var dataCollection: SentryObjCDataCollectionOptions {
-        get { SentryObjCDataCollectionOptions(wrapped.dataCollection) }
+        get { SentryObjCDataCollectionOptions(parent: wrapped) }
         set { wrapped.dataCollection = newValue.wrapped }
     }
 }

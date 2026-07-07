@@ -8,99 +8,71 @@ import Foundation
 
 @objc(SentryObjCDataCollectionOptions)
 public final class SentryObjCDataCollectionOptions: NSObject {
-    private var box: Box<SentryDataCollection.Options>
+    private let storage: Accessor<SentryDataCollection.Options>
 
     internal var wrapped: SentryDataCollection.Options {
-        box.value
+        get { storage.value }
+        set { storage.value = newValue }
+    }
+
+    internal init(parent: SentryExperimentalOptions) {
+        self.storage = Accessor(
+            get: { parent.dataCollection },
+            set: { parent.dataCollection = $0 }
+        )
     }
 
     internal init(_ wrapped: SentryDataCollection.Options) {
-        self.box = Box(wrapped)
+        self.storage = Accessor(wrapped)
     }
 
     @objc public override init() {
-        self.box = Box(SentryDataCollection.Options())
+        self.storage = Accessor(SentryDataCollection.Options())
     }
 
     @objc public var userInfo: Bool {
-        get { box.value.userInfo }
-        set {
-            var value = box.value
-            value.userInfo = newValue
-            box = Box(value)
-        }
+        get { storage.value.userInfo }
+        set { storage.value.userInfo = newValue }
     }
 
     @objc public var cookies: SentryObjCDataCollectionKeyValueCollectionBehavior {
-        get { SentryObjCDataCollectionKeyValueCollectionBehavior(box.value.cookies) }
-        set {
-            var value = box.value
-            value.cookies = newValue.wrapped
-            box = Box(value)
-        }
+        get { SentryObjCDataCollectionKeyValueCollectionBehavior(storage.value.cookies) }
+        set { storage.value.cookies = newValue.wrapped }
     }
 
     @objc public var httpHeaders: SentryObjCDataCollectionHttpHeaderCollectionOptions {
-        get { SentryObjCDataCollectionHttpHeaderCollectionOptions(box.value.httpHeaders) }
-        set {
-            var value = box.value
-            value.httpHeaders = newValue.wrapped
-            box = Box(value)
-        }
+        get { SentryObjCDataCollectionHttpHeaderCollectionOptions(storage.child(\.httpHeaders)) }
+        set { storage.value.httpHeaders = newValue.wrapped }
     }
 
     @objc public var httpBodies: SentryObjCDataCollectionHttpBodyType {
-        get { SentryObjCDataCollectionHttpBodyType(box.value.httpBodies) }
-        set {
-            var value = box.value
-            value.httpBodies = newValue.underlying
-            box = Box(value)
-        }
+        get { SentryObjCDataCollectionHttpBodyType(storage.value.httpBodies) }
+        set { storage.value.httpBodies = newValue.underlying }
     }
 
     @objc public var queryParams: SentryObjCDataCollectionKeyValueCollectionBehavior {
-        get { SentryObjCDataCollectionKeyValueCollectionBehavior(box.value.queryParams) }
-        set {
-            var value = box.value
-            value.queryParams = newValue.wrapped
-            box = Box(value)
-        }
+        get { SentryObjCDataCollectionKeyValueCollectionBehavior(storage.value.queryParams) }
+        set { storage.value.queryParams = newValue.wrapped }
     }
 
     @objc public var graphql: SentryObjCDataCollectionGraphQLCollectionOptions {
-        get { SentryObjCDataCollectionGraphQLCollectionOptions(box.value.graphql) }
-        set {
-            var value = box.value
-            value.graphql = newValue.wrapped
-            box = Box(value)
-        }
+        get { SentryObjCDataCollectionGraphQLCollectionOptions(storage.child(\.graphql)) }
+        set { storage.value.graphql = newValue.wrapped }
     }
 
     @objc public var database: SentryObjCDataCollectionDatabaseCollectionOptions {
-        get { SentryObjCDataCollectionDatabaseCollectionOptions(box.value.database) }
-        set {
-            var value = box.value
-            value.database = newValue.wrapped
-            box = Box(value)
-        }
+        get { SentryObjCDataCollectionDatabaseCollectionOptions(storage.child(\.database)) }
+        set { storage.value.database = newValue.wrapped }
     }
 
     @objc public var stackFrameVariables: Bool {
-        get { box.value.stackFrameVariables }
-        set {
-            var value = box.value
-            value.stackFrameVariables = newValue
-            box = Box(value)
-        }
+        get { storage.value.stackFrameVariables }
+        set { storage.value.stackFrameVariables = newValue }
     }
 
     @objc public var frameContextLines: UInt {
-        get { box.value.frameContextLines }
-        set {
-            var value = box.value
-            value.frameContextLines = newValue
-            box = Box(value)
-        }
+        get { storage.value.frameContextLines }
+        set { storage.value.frameContextLines = newValue }
     }
 }
 
