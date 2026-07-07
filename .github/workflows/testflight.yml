@@ -92,7 +92,11 @@ jobs:
       - name: Only keep distribution lib and target in Package.swift
         run: ./scripts/prepare-package.sh --remove-binary-targets true
 
+      - name: Cache or Update Homebrew
+        uses: ./.github/actions/cache-homebrew
       - run: make init-ci-build
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
       - run: make xcode-ci
 
       # We upload a new version to TestFlight on every commit on main
