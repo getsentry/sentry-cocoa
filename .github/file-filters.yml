@@ -554,6 +554,7 @@ run_xcode27_for_prs: &run_xcode27_for_prs
   - ".github/actions/ci-diagnostics/**"
   - "scripts/sentry-xcodebuild.sh"
   - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-select-xcode.sh"
   - "scripts/ci-utils.sh"
 
   # Project files
