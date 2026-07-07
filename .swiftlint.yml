@@ -119,6 +119,10 @@ missing_docs:
   excludes_trivial_init: false
   severity: error
 
+sorted_imports:
+  grouping:
+    attributes
+
 custom_rules:
   no_try_optional_in_tests:
     name: "No try? in tests"
