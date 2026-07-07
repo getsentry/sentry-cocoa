@@ -439,6 +439,11 @@ extension SentryFileManager: SentryFileManagerProtocol { }
             processInfoWrapper: processInfoWrapper
         )
     }
+
+    private var _ksCrashInstaller: SentryKSCrash.CrashInstaller?
+    lazy var ksCrashInstaller: SentryKSCrash.CrashInstaller = getLazyVar(\._ksCrashInstaller) {
+        .init()
+    }
 }
 // swiftlint:enable type_body_length
 
@@ -884,5 +889,12 @@ protocol AppHangTrackerProvider {
     var appHangTracker: SentryAppHangTracker { get }
 }
 extension SentryDependencyContainer: AppHangTrackerProvider { }
+
+/// Supplies the KSCrash installer to `SentryKSCrashIntegration`.
+protocol KSCrashInstallerProvider {
+    var ksCrashInstaller: SentryKSCrash.CrashInstaller { get }
+}
+
+extension SentryDependencyContainer: KSCrashInstallerProvider {}
 
 //swiftlint:enable file_length missing_docs

@@ -102,7 +102,7 @@ let sentrySwiftTarget: Target = .target(
 )
 
 if enableKSCrash {
-    sentrySwiftTarget.dependencies.append(.product(name: "Installations", package: "KSCrash"))
+    sentrySwiftTarget.dependencies.append(.product(name: "Recording", package: "KSCrash"))
     sentrySwiftTarget.swiftSettings?.append(.define("ENABLE_KSCRASH"))
 }
 
