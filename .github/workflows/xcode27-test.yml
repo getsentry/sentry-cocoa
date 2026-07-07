@@ -84,3 +84,21 @@ jobs:
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
         if: ${{ failure() || cancelled() }}
+
+  # Validates that all Xcode 27 SPM builds passed or were skipped, so this
+  # workflow can be a required check without running on unrelated PR changes.
+  build-spm-required-check:
+    needs:
+      [
+        ready-to-merge-gate,
+        files-changed,
+        build-spm,
+      ]
+    name: Xcode 27
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the Xcode 27 SPM build jobs has failed." && exit 1
