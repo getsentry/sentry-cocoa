@@ -1054,6 +1054,20 @@
     XCTAssertEqualObjects(userInfoContext[@"NSException.userInfo"], userInfo);
 }
 
+- (void)
+    testNSExceptionUserInfo_whenUserInfoIsValidNonDictionaryPropertyList_shouldAddRawStringToContext
+{
+    // -- Arrange --
+    NSString *userInfo = @"(\n    one,\n    two\n)";
+
+    // -- Act --
+    SentryEvent *event = [self eventFromNSExceptionUserInfo:userInfo];
+
+    // -- Assert --
+    NSDictionary *userInfoContext = event.context[@"user info"];
+    XCTAssertEqualObjects(userInfoContext[@"NSException.userInfo"], userInfo);
+}
+
 - (void)testNSExceptionUserInfo_whenUserInfoIsDictionary_shouldAddUserInfoToContext
 {
     // -- Arrange --
