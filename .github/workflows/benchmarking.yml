@@ -189,7 +189,7 @@ jobs:
             core.setOutput('TEST_ID', testId);
 
       - name: Cancel pending jobs if cancelled
-        if: ${{ always() && steps.run-benchmarks-in-sauce-lab.outcome == 'cancelled' }}
+        if: ${{ always() && steps.run-benchmarks-in-sauce-lab.outcome == 'cancelled' && steps.extract-test-id.outputs.TEST_ID != '' }}
         env:
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
