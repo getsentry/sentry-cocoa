@@ -122,8 +122,6 @@ jobs:
       - name: Cache or Update Homebrew
         uses: ./.github/actions/cache-homebrew
         if: ${{ inputs.build_with_make }}
-        with:
-          brewfile: Brewfile-ci-build
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
         env:

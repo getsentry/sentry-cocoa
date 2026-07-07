@@ -71,8 +71,6 @@ jobs:
           bundler-cache: true
       - name: Cache or Update Homebrew
         uses: ./.github/actions/cache-homebrew
-        with:
-          brewfile: Brewfile-ci-build
       - run: make init-ci-build
         env:
           HOMEBREW_NO_AUTO_UPDATE: 1
@@ -135,8 +133,6 @@ jobs:
           version: "26"
       - name: Cache or Update Homebrew
         uses: ./.github/actions/cache-homebrew
-        with:
-          brewfile: Brewfile-ci-build
       - run: make init-ci-build
         env:
           HOMEBREW_NO_AUTO_UPDATE: 1
@@ -187,8 +183,6 @@ jobs:
           version: "26"
       - name: Cache or Update Homebrew
         uses: ./.github/actions/cache-homebrew
-        with:
-          brewfile: Brewfile-ci-build
       - run: make init-ci-build
         env:
           HOMEBREW_NO_AUTO_UPDATE: 1
@@ -249,8 +243,6 @@ jobs:
 
       - name: Cache or Update Homebrew
         uses: ./.github/actions/cache-homebrew
-        with:
-          brewfile: Brewfile-ci-build
       - run: make init-ci-build
         env:
           HOMEBREW_NO_AUTO_UPDATE: 1
