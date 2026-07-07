@@ -9,6 +9,7 @@
 ### Features
 
 - Attach feature flag evaluations to active spans (#8158)
+- Add feature flag scope ObjC API (#8160)
 
 ## 9.20.0
 
