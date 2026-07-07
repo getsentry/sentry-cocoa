@@ -99,4 +99,41 @@
     XCTAssertTrue(options.enableReplayNetworkDetailsCapturing);
 }
 
+#pragma mark - dataCollection
+
+- (void)testDataCollection_whenDefault_shouldReturnNotNil
+{
+    // -- Arrange --
+    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertNotNil(options.dataCollection);
+}
+
+- (void)testDataCollection_whenDefault_shouldHaveSpecDefaults
+{
+    // -- Arrange --
+    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertTrue(options.dataCollection.userInfo);
+    XCTAssertEqual(options.dataCollection.httpBodies, SentryObjCDataCollectionHttpBodyTypeAll);
+    XCTAssertTrue(options.dataCollection.stackFrameVariables);
+    XCTAssertEqual(options.dataCollection.frameContextLines, 5u);
+}
+
+- (void)testDataCollection_whenSet_shouldReturnNewValue
+{
+    // -- Arrange --
+    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
+    SentryObjCDataCollectionOptions *dc = [[SentryObjCDataCollectionOptions alloc] init];
+    dc.userInfo = NO;
+
+    // -- Act --
+    options.dataCollection = dc;
+
+    // -- Assert --
+    XCTAssertFalse(options.dataCollection.userInfo);
+}
+
 @end
