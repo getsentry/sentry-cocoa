@@ -6,6 +6,10 @@
 
 - Fix use-after-free race in `span`, `startProfiler`, and `stopProfiler` by snapshotting `currentHub` under `currentHubLock` before dereferencing. (#8318)
 
+### Features
+
+- Attach feature flag evaluations to active spans (#8158)
+
 ## 9.20.0
 
 > [!IMPORTANT]
