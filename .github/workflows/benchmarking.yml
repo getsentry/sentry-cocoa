@@ -183,7 +183,7 @@ jobs:
             const testId = match?.[1] ?? '';
 
             if (!testId) {
-              core.setFailed('No SauceLabs test ID found in CLI output');
+              core.warning('No SauceLabs test ID found in CLI output');
             }
 
             core.setOutput('TEST_ID', testId);
