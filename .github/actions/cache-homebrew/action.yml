@@ -1,4 +1,4 @@
-name: "Cache Homebrew"
+name: "Cache Homebrew or Update"
 description: >-
   Caches Homebrew downloads and installed formulae. The cache key rotates
   weekly so formulae stay reasonably fresh without downloading on every run.
@@ -21,9 +21,8 @@ runs:
         path: |
           ~/Library/Caches/Homebrew/downloads
           ~/Library/Caches/Homebrew/api
-        key: homebrew-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles(inputs.brewfile) }}-${{ steps.week.outputs.week }}
-        restore-keys: |
-          homebrew-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles(inputs.brewfile) }}-
+        # Add here any relevant lockfiles
+        key: homebrew-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles(inputs.brewfile) }}-${{ steps.week.outputs.week }}-${{ hashFiles('.clang-format', '.ruby-version') }}
 
     - name: Update Homebrew formulae
       if: steps.cache.outputs.cache-hit != 'true'
