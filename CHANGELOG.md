@@ -8,7 +8,7 @@
 
 ### Features
 
-- Add span feature flag API (#8158)
+- Attach feature flag evaluations to active spans (#8158)
 
 ## 9.20.0
 
