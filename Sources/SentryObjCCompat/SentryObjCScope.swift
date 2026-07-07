@@ -86,6 +86,10 @@ import Foundation
         wrapped.clearBreadcrumbs()
     }
 
+    @objc(addFeatureFlagWithName:result:) public func addFeatureFlag(name: String, result: Bool) {
+        wrapped.addFeatureFlag(name: name, result: result)
+    }
+
     @objc(setContextValue:forKey:) public func setContext(value: [String: Any], key: String) {
         wrapped.setContext(value: value, key: key)
     }
