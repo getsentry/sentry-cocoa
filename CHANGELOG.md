@@ -8,7 +8,7 @@
 
 ### Features
 
-- Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8242)
+- Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
 - Attach feature flag evaluations to active spans (#8158)
 - Add feature flag scope ObjC API (#8160)
 
