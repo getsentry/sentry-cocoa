@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix use-after-free race in `span`, `startProfiler`, and `stopProfiler` by snapshotting `currentHub` under `currentHubLock` before dereferencing. (#8318)
+
 ## 9.20.0
 
 > [!IMPORTANT]

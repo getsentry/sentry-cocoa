@@ -105,7 +105,13 @@ static NSDate *_Nullable startTimestamp = nil;
 
 + (nullable id<SentrySpan>)span
 {
-    return currentHub.scope.span;
+    // Snapshot under currentHubLock so ARC retains the hub before close() can nil the static
+    // and free it; an unsynchronized read races with close() (use-after-free, see #8316).
+    SentryHubInternal *localCurrentHub = nil;
+    @synchronized(currentHubLock) {
+        localCurrentHub = currentHub;
+    }
+    return localCurrentHub.scope.span;
 }
 
 + (BOOL)isEnabled
@@ -628,7 +634,11 @@ static NSDate *_Nullable startTimestamp = nil;
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 + (void)startProfiler
 {
-    SentryOptions *options = currentHub.client.options;
+    SentryHubInternal *localCurrentHub = nil;
+    @synchronized(currentHubLock) {
+        localCurrentHub = currentHub;
+    }
+    SentryOptions *options = localCurrentHub.client.options;
     if (options == nil) {
         SENTRY_LOG_WARN(@"Cannot start profiling when options are nil.");
         return;
@@ -685,7 +695,11 @@ static NSDate *_Nullable startTimestamp = nil;
         return;
     }
 
-    SentryOptions *options = currentHub.client.options;
+    SentryHubInternal *localCurrentHub = nil;
+    @synchronized(currentHubLock) {
+        localCurrentHub = currentHub;
+    }
+    SentryOptions *options = localCurrentHub.client.options;
     if (options == nil) {
         SENTRY_LOG_WARN(@"Cannot stop profiling when options are nil.");
         return;
