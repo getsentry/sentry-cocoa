@@ -112,6 +112,7 @@ jobs:
             rbenv install -s
           else
             echo "Ruby cache hit — skipping brew upgrade ruby-build and rbenv install"
+            rbenv rehash
           fi
           bundle install
 
