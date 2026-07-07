@@ -1,5 +1,5 @@
-import Foundation
 @_spi(Private) @testable import Sentry
+import Foundation
 
 @objc(SentryTestMetricsApi)
 public final class TestMetricsApi: NSObject, SentryMetricsApiProtocol {

@@ -1,5 +1,5 @@
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import XCTest
 
 // This test is used to verify the functionality of the mock of TestSentryWatchdogTerminationAttributesProcessor.

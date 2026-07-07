@@ -1,5 +1,5 @@
-import Foundation
 @_spi(Private) @testable import Sentry
+import Foundation
 
 // We must not subclass NSTimer, see https://developer.apple.com/documentation/foundation/nstimer#1770465.
 // Therefore we return a NSTimer instance here with TimeInterval.infinity.

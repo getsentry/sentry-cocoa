@@ -1,6 +1,6 @@
-import ObjectiveC
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
+import ObjectiveC
 import XCTest
 
 // swiftlint:disable file_length
@@ -1042,6 +1042,66 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertTrue(span.isFinished)
         //Test if it has observers. Nil means no observers
         XCTAssertNil(task.observationInfo)
+    }
+
+    /// Regression test for the fatal app hang in SDK-CRASHES-COCOA-MMJ
+    /// (getsentry/sentry-cocoa#8355).
+    ///
+    /// `-[NSURLSessionTask cancel]` invoked on the main thread (e.g. a Combine chain being
+    /// cancelled) synchronously runs the swizzled `setState:`, which calls
+    /// `urlSessionTask:setState:` -> `addBreadcrumbForSessionTask:` and takes
+    /// `@synchronized(sessionTask)`. The tracker synchronizes on the same per-task lock from
+    /// several code paths (`urlSessionTaskResume:`, `captureRequestDetails:`,
+    /// `captureResponseDetails:`, ...), which run on `com.apple.NSURLSession-work` threads. When
+    /// one of those holds the lock, the calling thread — here the main thread — stalls, and once
+    /// it stalls > 2s the app-hang watchdog reports a *Fatal App Hang*.
+    ///
+    /// Desired behavior: driving a task to a terminal state must not block the calling thread on a
+    /// per-task lock held by another thread. Against the current code this test FAILS: the
+    /// `urlSessionTask:setState:` call never returns while the lock is held.
+    func testSetState_whenAnotherThreadHoldsTaskLock_doesNotBlockCallingThread() {
+        // -- Arrange --
+        let task = createDataTask()
+        let sut = fixture.getSut()
+        _ = startTransaction()
+        sut.urlSessionTaskResume(task)
+        task.state = .running
+
+        let lockAcquired = DispatchSemaphore(value: 0)
+        let releaseLock = DispatchSemaphore(value: 0)
+
+        // Another thread holds the SAME per-task lock the tracker synchronizes on. This stands in
+        // for a concurrent NSURLSession-work thread inside one of the tracker's other
+        // `@synchronized(sessionTask)` sections.
+        DispatchQueue.global().async {
+            objc_sync_enter(task)
+            lockAcquired.signal()
+            releaseLock.wait()
+            objc_sync_exit(task)
+        }
+        XCTAssertEqual(lockAcquired.wait(timeout: .now() + 5), .success,
+            "Precondition: background thread must hold the per-task lock before we continue.")
+
+        // -- Act -- simulate the main thread inside `-[NSURLSessionTask cancel]`.
+        let setStateReturned = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            sut.urlSessionTask(task, setState: .completed)
+            setStateReturned.signal()
+        }
+
+        // -- Assert -- the tracking work must not stall waiting on the other thread's lock.
+        let result = setStateReturned.wait(timeout: .now() + 2)
+
+        // Cleanup: release the holder and let the blocked call drain before teardown.
+        releaseLock.signal()
+        if result == .timedOut {
+            _ = setStateReturned.wait(timeout: .now() + 5)
+        }
+
+        XCTAssertEqual(result, .success,
+            "urlSessionTask:setState: blocked on @synchronized(sessionTask) while another thread "
+            + "held the per-task lock. On the main thread during -[NSURLSessionTask cancel] this "
+            + "is the fatal app hang in SDK-CRASHES-COCOA-MMJ.")
     }
 
     func testBaggageHeader() throws {

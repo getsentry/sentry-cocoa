@@ -1,6 +1,6 @@
+@_spi(Private) @testable import Sentry
 import _SentryPrivate
 import Foundation
-@_spi(Private) @testable import Sentry
 
 /// `open` because subclassed in test targets, e.g. to override `getTelemetryProcessor()`.
 open class TestClient: SentryClientInternal {

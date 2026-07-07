@@ -1,9 +1,9 @@
 #if os(iOS) && !targetEnvironment(macCatalyst)
+@_spi(Private) @testable import Sentry
 import AVKit
 import Foundation
 import PDFKit
 import SafariServices
-@_spi(Private) @testable import Sentry
 import SentryTestUtils
 import SwiftUI
 import UIKit

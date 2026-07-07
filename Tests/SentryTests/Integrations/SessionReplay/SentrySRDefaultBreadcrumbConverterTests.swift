@@ -1,5 +1,5 @@
-import Foundation
 @_spi(Private) @testable import Sentry
+import Foundation
 import XCTest
 
 class SentrySRDefaultBreadcrumbConverterTests: XCTestCase {

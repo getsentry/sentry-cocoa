@@ -1,5 +1,5 @@
-import Sentry
 @_spi(Private) import Sentry
+import Sentry
 import SentrySampleShared
 import UserNotifications
 

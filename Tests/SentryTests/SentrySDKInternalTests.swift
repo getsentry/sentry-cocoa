@@ -1,5 +1,5 @@
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import XCTest
 
 // swiftlint:disable file_length
@@ -645,7 +645,7 @@ class SentrySDKInternalTests: XCTestCase {
 
         XCTAssertEqual(fixture.client.captureLogInvocations.count, 0)
     }
-    
+
     func testFlush_CallsFlushCorrectlyOnTransport() throws {
         SentrySDK.start { options in
             options.dsn = SentrySDKInternalTests.dsnAsString
