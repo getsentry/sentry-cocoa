@@ -6,6 +6,10 @@
 
 - Fix use-after-free race in `span`, `startProfiler`, and `stopProfiler` by snapshotting `currentHub` under `currentHubLock` before dereferencing. (#8318)
 
+### Features
+
+- Add span feature flag API (#8158)
+
 ## 9.20.0
 
 > [!IMPORTANT]
@@ -19,7 +23,6 @@
 
 - Record log_byte client reports (#8186)
 - Add scope feature flag API (#8147)
-- Add span feature flag API (#8158)
 
 ## 9.19.1
 
