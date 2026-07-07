@@ -6,6 +6,10 @@ extension Scope {
     @nonobjc public func addFeatureFlag(name: String, result: Bool) {
         addFeatureFlagInternal(name: name, result: result)
     }
+
+    @nonobjc public func clearFeatureFlags() {
+        clearFeatureFlagsInternal()
+    }
 }
 
 // swiftlint:enable missing_docs

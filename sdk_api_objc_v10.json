@@ -1405,6 +1405,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "clearFeatureFlags",
+    "parent": "SentryObjCScope",
+    "returnType": "void",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "close",
     "parent": "SentryObjCClient",
     "returnType": "void",
