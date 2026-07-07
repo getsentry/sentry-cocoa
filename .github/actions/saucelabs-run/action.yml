@@ -37,9 +37,11 @@ runs:
         echo "output_log_file=output-${unique_suffix}.log" >> "$GITHUB_OUTPUT"
     - name: Print warning message
       if: ${{ inputs.warning-message != '' }}
+      env:
+        WARNING_MESSAGE: ${{ inputs.warning-message }}
       shell: bash
       run: |
-        echo "::warning ${inputs.warning-message}"
+        echo "::warning $WARNING_MESSAGE"
     - name: Run saucectl
       id: run
       env:
