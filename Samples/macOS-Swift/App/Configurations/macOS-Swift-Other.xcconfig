@@ -7,5 +7,3 @@ CODE_SIGN_ENTITLEMENTS = App/Configurations/macOS-Swift-Other.entitlements
 SWIFT_OBJC_BRIDGING_HEADER = App/Sources/macOS-Swift-Bridging-Header.h
 
 SUPPORTED_PLATFORMS = macosx
-
-MACOSX_DEPLOYMENT_TARGET = 10.14
