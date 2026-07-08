@@ -3,9 +3,6 @@
 // Wraps a getter/setter closure pair so struct properties can be mutated
 // in place from Objective-C (e.g. `options.dataCollection.userInfo = NO`)
 // without the change being lost to an ephemeral copy.
-//
-// Standalone storage delegates to Box<T> for the same resilience reasons
-// documented in Box.swift.
 internal final class Accessor<T> {
     private let getter: () -> T
     private let setter: (T) -> Void
@@ -20,10 +17,15 @@ internal final class Accessor<T> {
         self.setter = set
     }
 
+    init<Root: AnyObject>(root: Root, keyPath: ReferenceWritableKeyPath<Root, T>) {
+        self.getter = { root[keyPath: keyPath] }
+        self.setter = { root[keyPath: keyPath] = $0 }
+    }
+
     init(_ value: T) {
-        var box = Box(value)
-        self.getter = { box.value }
-        self.setter = { box = Box($0) }
+        var value = value
+        self.getter = { value }
+        self.setter = { value = $0 }
     }
 
     func child<U>(

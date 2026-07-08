@@ -16,10 +16,7 @@ public final class SentryObjCDataCollectionOptions: NSObject {
     }
 
     internal init(parent: SentryExperimentalOptions) {
-        self.storage = Accessor(
-            get: { parent.dataCollection },
-            set: { parent.dataCollection = $0 }
-        )
+        self.storage = Accessor(root: parent, keyPath: \.dataCollection)
     }
 
     internal init(_ wrapped: SentryDataCollection.Options) {
