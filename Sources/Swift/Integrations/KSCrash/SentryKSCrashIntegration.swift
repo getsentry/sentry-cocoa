@@ -1,7 +1,7 @@
 #if ENABLE_KSCRASH
 @_implementationOnly import _SentryPrivate
-import Foundation
 @_implementationOnly import KSCrashInstallations
+import Foundation
 
 // MARK: - Dependency Provider
 
