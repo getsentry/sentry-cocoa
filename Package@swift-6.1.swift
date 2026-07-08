@@ -10,6 +10,12 @@ import MSVCRT
 
 import PackageDescription
 
+let enableKSCrash = if let enableKSCrash = getenv("ENABLE_KSCRASH") {
+    String(cString: enableKSCrash) == "1"
+} else {
+    false
+}
+
 var products: [Product] = [
     // BEGIN:BINARY_PRODUCTS
     .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
@@ -84,6 +90,24 @@ var targets: [Target] = [
 
 // Targets required to support compile-from-source builds via SPM.
 products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
+
+let sentrySwiftTarget: Target = .target(
+    name: "SentrySwift",
+    dependencies: ["_SentryPrivate", "SentryHeaders"],
+    path: "Sources/Swift",
+    swiftSettings: [
+        .unsafeFlags(["-enable-library-evolution"]),
+        .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"])),
+        .define("SDK_V10", .when(traits: ["V10"])),
+        .define("SDK_V10", .when(traits: ["KSCrash"])),
+        .define("ENABLE_KSCRASH", .when(traits: ["KSCrash"]))
+    ]
+)
+
+if enableKSCrash {
+    sentrySwiftTarget.dependencies.append(.product(name: "Installations", package: "KSCrash"))
+}
+
 targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
@@ -98,15 +122,8 @@ targets += [
         path: "Sources/Sentry",
         sources: ["SentryDummyPrivateEmptyClass.m"],
         publicHeadersPath: "include"),
-    .target(
-        name: "SentrySwift",
-        dependencies: ["_SentryPrivate", "SentryHeaders"],
-        path: "Sources/Swift",
-        swiftSettings: [
-            .unsafeFlags(["-enable-library-evolution"]),
-            .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"])),
-            .define("SDK_V10", .when(traits: ["V10"]))
-        ]),
+
+    sentrySwiftTarget,
 
     // SentryObjCInternal compiles all ObjC/C sources from the repo. Named "Internal"
     // to reserve "SentryObjC" for a future public Objective-C wrapper around the SDK.
@@ -136,7 +153,9 @@ targets += [
             .headerSearchPath("SentryCrash/Reporting/Filters"),
             .headerSearchPath("SentryCrash/Reporting/Filters/Tools"),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"])),
-            .define("SDK_V10", to: "1", .when(traits: ["V10"]))
+            .define("SDK_V10", to: "1", .when(traits: ["V10"])),
+            .define("SDK_V10", to: "1", .when(traits: ["KSCrash"])),
+            .define("ENABLE_KSCRASH", to: "1", .when(traits: ["KSCrash"]))
         ])
 ]
 
@@ -149,7 +168,9 @@ targets += [
         path: "Sources/SentryObjCCompat",
         swiftSettings: [
             .define("SENTRY_NO_UI_FRAMEWORK", .when(traits: ["NoUIFramework"])),
-            .define("SDK_V10", .when(traits: ["V10"]))
+            .define("SDK_V10", .when(traits: ["V10"])),
+            .define("SDK_V10", .when(traits: ["KSCrash"])),
+            .define("ENABLE_KSCRASH", .when(traits: ["KSCrash"]))
         ]
     ),
     .target(
@@ -160,11 +181,15 @@ targets += [
         cSettings: [
             .headerSearchPath("Public"),
             .define("SENTRY_NO_UI_FRAMEWORK", to: "1", .when(traits: ["NoUIFramework"])),
-            .define("SDK_V10", to: "1", .when(traits: ["V10"]))
+            .define("SDK_V10", to: "1", .when(traits: ["V10"])),
+            .define("SDK_V10", to: "1", .when(traits: ["KSCrash"])),
+            .define("ENABLE_KSCRASH", to: "1", .when(traits: ["KSCrash"]))
         ]
     )
 ]
 // END:OBJC_WRAPPER
+
+let packageDependencies: [Package.Dependency] = enableKSCrash ? [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.3")] : []
 
 let package = Package(
     name: "Sentry",
@@ -172,8 +197,10 @@ let package = Package(
     products: products,
     traits: [
         .init(name: "NoUIFramework", description: "Build without UIKit/AppKit/SwiftUI framework linkage. Use for command-line tools or contexts where UI frameworks are unavailable."),
-        .init(name: "V10", description: "Enable SDK V10 API changes.")
+        .init(name: "V10", description: "Enable SDK V10 API changes."),
+        .init(name: "KSCrash", description: "Enable upstream KSCrash integration.")
     ],
+    dependencies: packageDependencies,
     targets: targets,
     swiftLanguageModes: [.v5],
     cxxLanguageStandard: .cxx14
