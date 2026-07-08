@@ -101,5 +101,53 @@ extension SentryDataCollection {
             self.stackFrameVariables = stackFrameVariables
             self.frameContextLines = frameContextLines
         }
+
+        /// Creates data collection options from a dictionary.
+        @_spi(Private) public init(dictionary: [String: Any]) {
+            self.init()
+
+            if let userInfo = SentryDataCollection.DictionaryDecoder.bool(dictionary, "userInfo") {
+                self.userInfo = userInfo
+            }
+            if let cookies = SentryDataCollection.DictionaryDecoder.dictionary(dictionary, "cookies") {
+                self.cookies = SentryDataCollection.KeyValueCollectionBehavior(dictionary: cookies)
+            }
+            if let httpHeaders = SentryDataCollection.DictionaryDecoder.dictionary(dictionary, "httpHeaders") {
+                self.httpHeaders = SentryDataCollection.HttpHeaderCollectionOptions(dictionary: httpHeaders)
+            }
+            if let httpBodies = SentryDataCollection.DictionaryDecoder.strings(dictionary, "httpBodies") {
+                self.httpBodies = SentryDataCollection.HttpBodyType(strings: httpBodies)
+            }
+            if let queryParams = SentryDataCollection.DictionaryDecoder.dictionary(dictionary, "queryParams") {
+                self.queryParams = SentryDataCollection.KeyValueCollectionBehavior(dictionary: queryParams)
+            }
+            if let graphql = SentryDataCollection.DictionaryDecoder.dictionary(dictionary, "graphql") {
+                self.graphql = SentryDataCollection.GraphQLCollectionOptions(dictionary: graphql)
+            }
+            if let database = SentryDataCollection.DictionaryDecoder.dictionary(dictionary, "database") {
+                self.database = SentryDataCollection.DatabaseCollectionOptions(dictionary: database)
+            }
+            if let stackFrameVariables = SentryDataCollection.DictionaryDecoder.bool(dictionary, "stackFrameVariables") {
+                self.stackFrameVariables = stackFrameVariables
+            }
+            if let frameContextLines = Self.frameContextLines(from: dictionary, defaultValue: self.frameContextLines) {
+                self.frameContextLines = frameContextLines
+            }
+        }
+
+        private static func frameContextLines(from dictionary: [String: Any], defaultValue: UInt) -> UInt? {
+            guard let value = dictionary["frameContextLines"], !(value is NSNull) else {
+                return nil
+            }
+
+            if let enabled = value as? Bool {
+                return enabled ? defaultValue : 0
+            }
+            if let number = value as? NSNumber, SentryDataCollection.DictionaryDecoder.isBool(number) {
+                return number.boolValue ? defaultValue : 0
+            }
+
+            return SentryDataCollection.DictionaryDecoder.uint(dictionary, "frameContextLines")
+        }
     }
 }

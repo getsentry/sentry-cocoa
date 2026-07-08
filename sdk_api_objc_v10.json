@@ -3408,6 +3408,13 @@
   },
   {
     "kind": "ObjCMethodDecl",
+    "name": "initWithDictionary:",
+    "parent": "SentryObjCDataCollectionOptions",
+    "returnType": "instancetype _Nonnull",
+    "instance": true
+  },
+  {
+    "kind": "ObjCMethodDecl",
     "name": "initWithDomain:code:",
     "parent": "SentryObjCNSError",
     "returnType": "instancetype _Nonnull",

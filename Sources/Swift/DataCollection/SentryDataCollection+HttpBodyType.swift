@@ -28,5 +28,18 @@ extension SentryDataCollection {
 
         /// All body types valid for the platform.
         public static let all: HttpBodyType = [.incomingRequest, .outgoingRequest, .incomingResponse, .outgoingResponse]
+
+        /// Creates HTTP body types from body type names.
+        @_spi(Private) public init(strings: [String]) {
+            self = strings.reduce([]) { result, value in
+                switch value {
+                case "incomingRequest": return result.union(.incomingRequest)
+                case "outgoingRequest": return result.union(.outgoingRequest)
+                case "incomingResponse": return result.union(.incomingResponse)
+                case "outgoingResponse": return result.union(.outgoingResponse)
+                default: return result
+                }
+            }
+        }
     }
 }

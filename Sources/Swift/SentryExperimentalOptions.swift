@@ -40,5 +40,10 @@ public final class SentryExperimentalOptions: NSObject {
 
     // swiftlint:disable:next missing_docs
     @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
+        guard let options else { return }
+
+        if let dataCollection = options["dataCollection"] as? [String: Any] {
+            self.dataCollection = SentryDataCollection.Options(dictionary: dataCollection)
+        }
     }
 }

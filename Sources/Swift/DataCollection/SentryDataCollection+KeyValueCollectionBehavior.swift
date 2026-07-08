@@ -23,5 +23,16 @@ extension SentryDataCollection {
         /// matching a sensitive pattern are always scrubbed even if they appear in `terms`.
         /// - Parameter terms: The keys whose values should be sent in plaintext.
         case allowList(terms: [String])
+
+        /// Creates key-value collection behavior from a dictionary.
+        @_spi(Private) public init(dictionary: [String: Any]) {
+            let terms = SentryDataCollection.DictionaryDecoder.strings(dictionary, "terms") ?? []
+            switch dictionary["mode"] as? String {
+            case "off": self = .off
+            case "allowList": self = .allowList(terms: terms)
+            case "denyList", nil: self = .denyList(terms: terms)
+            default: self = .denyList()
+            }
+        }
     }
 }
