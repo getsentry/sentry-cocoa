@@ -50,10 +50,13 @@
 #    pragma mark - Types -
 // ============================================================================
 
-typedef struct {
-    uint64_t tid;
-    int signum;
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+typedef struct SentryCrashIgnoreSignal {
+    _Atomic uintptr_t tid;
+    _Atomic int signum;
+    struct SentryCrashIgnoreSignal *next;
 } SentryCrashIgnoreSignal;
+#    endif
 
 // ============================================================================
 #    pragma mark - Globals -
@@ -62,9 +65,9 @@ typedef struct {
 static volatile bool g_isEnabled = false;
 static bool g_isSigtermReportingEnabled = false;
 #    ifdef SENTRY_CRASH_MANAGED_RUNTIME
-#        define SENTRY_CRASH_IGNORE_SIGNALS 8
-static _Atomic SentryCrashIgnoreSignal g_ignoreSignals[SENTRY_CRASH_IGNORE_SIGNALS];
-static atomic_int g_ignoreSignalIdx = 0;
+static _Atomic(SentryCrashIgnoreSignal *) g_ignoreSignals = NULL;
+static pthread_key_t g_ignoreSignalKey;
+static pthread_once_t g_ignoreSignalKeyOnce = PTHREAD_ONCE_INIT;
 #    endif
 
 static SentryCrash_MonitorContext g_monitorContext;
@@ -97,6 +100,22 @@ restorePreviousSignalHandler(int sigNum)
     }
 }
 
+#    ifdef SENTRY_CRASH_MANAGED_RUNTIME
+static void
+clearIgnoreSignal(void *value)
+{
+    SentryCrashIgnoreSignal *entry = value;
+    atomic_store_explicit(&entry->signum, 0, memory_order_relaxed);
+    atomic_store_explicit(&entry->tid, 0, memory_order_relaxed);
+}
+
+static void
+createIgnoreSignalKey(void)
+{
+    pthread_key_create(&g_ignoreSignalKey, clearIgnoreSignal);
+}
+#    endif
+
 // ============================================================================
 #    pragma mark - Callbacks -
 // ============================================================================
@@ -118,18 +137,16 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
     bool ignoreSignal = false;
 #    ifdef SENTRY_CRASH_MANAGED_RUNTIME
-    uint64_t tid;
-    pthread_threadid_np(NULL, &tid);
-    for (int i = 0; i < SENTRY_CRASH_IGNORE_SIGNALS; i++) {
-        SentryCrashIgnoreSignal entry
-            = atomic_load_explicit(&g_ignoreSignals[i], memory_order_relaxed);
-        if (entry.tid == tid) {
-            if (entry.signum == sigNum) {
+    const uintptr_t tid = (uintptr_t)pthread_self();
+    SentryCrashIgnoreSignal *entry = atomic_load_explicit(&g_ignoreSignals, memory_order_acquire);
+    while (entry != NULL) {
+        if (atomic_load_explicit(&entry->tid, memory_order_relaxed) == tid) {
+            if (atomic_exchange_explicit(&entry->signum, 0, memory_order_relaxed) == sigNum) {
                 ignoreSignal = true;
             }
-            atomic_store_explicit(
-                &g_ignoreSignals[i], (SentryCrashIgnoreSignal) { 0 }, memory_order_relaxed);
+            break;
         }
+        entry = entry->next;
     }
 #    endif
 
@@ -357,12 +374,28 @@ void
 sentrycrashcm_signal_ignore_next(int signum)
 {
 #if SENTRY_HAS_SIGNAL && defined(SENTRY_CRASH_MANAGED_RUNTIME)
-    uint64_t tid = 0;
-    pthread_threadid_np(NULL, &tid);
-    int idx = atomic_fetch_add_explicit(&g_ignoreSignalIdx, 1, memory_order_relaxed)
-        % SENTRY_CRASH_IGNORE_SIGNALS;
-    SentryCrashIgnoreSignal value = { .tid = tid, .signum = signum };
-    atomic_store_explicit(&g_ignoreSignals[idx], value, memory_order_relaxed);
+    pthread_once(&g_ignoreSignalKeyOnce, createIgnoreSignalKey);
+
+    SentryCrashIgnoreSignal *entry = pthread_getspecific(g_ignoreSignalKey);
+    if (entry != NULL) {
+        atomic_store_explicit(&entry->signum, signum, memory_order_relaxed);
+        return;
+    }
+
+    entry = calloc(1, sizeof(*entry));
+    if (entry == NULL || pthread_setspecific(g_ignoreSignalKey, entry) != 0) {
+        free(entry);
+        return;
+    }
+
+    atomic_store_explicit(&entry->signum, signum, memory_order_relaxed);
+    atomic_store_explicit(&entry->tid, (uintptr_t)pthread_self(), memory_order_relaxed);
+
+    SentryCrashIgnoreSignal *head = atomic_load_explicit(&g_ignoreSignals, memory_order_relaxed);
+    do {
+        entry->next = head;
+    } while (!atomic_compare_exchange_weak_explicit(
+        &g_ignoreSignals, &head, entry, memory_order_release, memory_order_relaxed));
 #else
     (void)signum;
 #endif
