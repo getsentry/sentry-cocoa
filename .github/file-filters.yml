@@ -98,8 +98,9 @@ run_benchmarking_for_prs: &run_benchmarking_for_prs # GH Actions
 
   # Scripts & actions
   - "scripts/ci-select-xcode.sh"
-  - ".github/actions/setup-xcode/**"
   - "scripts/ci-utils.sh"
+  - ".github/actions/saucelabs-run/**"
+  - ".github/actions/setup-xcode/**"
 
   # Benchmarking test target and implementation
   - "Samples/iOS-Swift/iOS-Benchmarking/**"
