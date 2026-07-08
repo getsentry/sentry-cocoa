@@ -1,6 +1,6 @@
 @_spi(Private) import _SentryPrivate
-import CoreData
 @_spi(Private) @testable import Sentry
+import CoreData
 import SentryTestUtils
 import XCTest
 

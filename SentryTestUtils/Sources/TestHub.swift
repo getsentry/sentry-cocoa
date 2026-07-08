@@ -1,6 +1,6 @@
+@_spi(Private) @testable import Sentry
 import _SentryPrivate
 import Foundation
-@_spi(Private) @testable import Sentry
 
 public class TestHub: SentryHubInternal {
 

@@ -1,7 +1,7 @@
+@_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 // swiftlint:disable file_length
 import Foundation
-@_spi(Private) @testable import Sentry
-@_spi(Private) import SentryTestUtils
 #if canImport(UIKit)
 import UIKit
 #endif

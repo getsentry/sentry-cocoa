@@ -1,5 +1,5 @@
-import Foundation
 @testable import SentryDistribution
+import Foundation
 import Testing
 
 @Test func testUpdaterReturnsErrorForInvalidHostname() async throws {
@@ -40,7 +40,7 @@ import Testing
       confirm()
       return (response, Data(jsonString.utf8))
     }
-    
+
     await withCheckedContinuation { continuation in
       Updater(session: session).getUpdatesFromBackend(params: params) { result in
         switch result {

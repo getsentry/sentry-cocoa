@@ -1,5 +1,5 @@
-import Foundation
 @testable import Sentry
+import Foundation
 import XCTest
 
 class StringExtensionsTests: XCTestCase {
