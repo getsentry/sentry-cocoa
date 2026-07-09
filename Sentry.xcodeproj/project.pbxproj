@@ -639,6 +639,7 @@
 		95EA2B4E2F9F32C8FC0B2201 /* SentryError.mm in Sources */ = {isa = PBXBuildFile; fileRef = 63AA769C1EB9C57A00D153DE /* SentryError.mm */; };
 		960CC78F3C69CEE67F1A645F /* NSMutableDictionary+Sentry.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B0DC72E288698F70039995F /* NSMutableDictionary+Sentry.m */; };
 		96202BB0106F0BD614D3BE26 /* SentryTracer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8E4E7C8125DAB2A5006AB9E2 /* SentryTracer.m */; };
+		96571900B6405C761A866B4B /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D483AFA32E9D555300B43C27 /* XCTest.framework */; };
 		97B806D4B38B0461650771FD /* _SentryDispatchQueueWrapperInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BDB03B6251364F800BAE198 /* _SentryDispatchQueueWrapperInternal.h */; };
 		981BEFAAA32A420C898D686C /* SentryTraceContext+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = FA27EC9B2EBA325400F2ECF7 /* SentryTraceContext+Private.h */; };
 		985EE6687E2CC46D2D1B57CD /* SentryDateUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 63BE856E1ECEC6DE00DC44F5 /* SentryDateUtils.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -1006,6 +1007,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = F45243122DE56862003E8F50;
 			remoteInfo = "Unit Tests";
+		};
+		B1EE084317E073BB0825EB5A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D61074A12EE358E90332638B;
+			remoteInfo = "Sentry+KSCrash";
 		};
 		D4711CB62FC6E96D00508994 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1618,6 +1626,7 @@
 		A8F17B2D2901765900990B25 /* SentryRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryRequest.m; sourceTree = "<group>"; };
 		A8F17B332902870300990B25 /* SentryHttpStatusCodeRange.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentryHttpStatusCodeRange.m; sourceTree = "<group>"; };
 		BCF3B58FC1FB43198A8471D8 /* SentrySamplerDecisionHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SentrySamplerDecisionHelper.m; sourceTree = "<group>"; };
+		C6398928FE2CA6B37A452E98 /* libSentryTestUtils+KSCrash.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSentryTestUtils+KSCrash.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D269D1832ED1DD86DF4AF78A /* SentryObjC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SentryObjC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D36813946B580095D0A8C6D2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D41A231A2F3B2A3800F279C9 /* SentrySwiftUIExports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentrySwiftUIExports.swift; sourceTree = "<group>"; };
@@ -1756,7 +1765,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3CFC66F92FF50344004005B4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		3CFC66F92FF50344004005B4 /* Exceptions for "SentryTests" folder in "SentryTests+KSCrash" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			additionalCompilerFlagsByRelativePath = {
 				SentryCrash/SentryCrashReportFilter_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
@@ -1772,14 +1781,14 @@
 			);
 			target = 3CFC66DE2FF50342004005B4 /* SentryTests+KSCrash */;
 		};
-		D4713A3F2FC707AA00508994 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		D4713A3F2FC707AA00508994 /* Exceptions for "SentryTestUtils" folder in "SentryTestUtilsDynamic" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Sources/TestMetricsApi.swift,
 			);
 			target = D84DAD4C2B17428D003CF120 /* SentryTestUtilsDynamic */;
 		};
-		D4CB399B2F6AEF99005250F2 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		D4CB399B2F6AEF99005250F2 /* Exceptions for "SentryObjC" folder in "SentryObjC" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -1866,7 +1875,7 @@
 			);
 			target = 6ECCF11F627ECB41E3A0C7E3 /* SentryObjC */;
 		};
-		FAB1CD142F458DA50000CC24 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		FAB1CD142F458DA50000CC24 /* Exceptions for "SentryTests" folder in "SentryTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			additionalCompilerFlagsByRelativePath = {
 				SentryCrash/SentryCrashReportFilter_Tests.m = "-w -Xanalyzer -analyzer-disable-all-checks";
@@ -1881,13 +1890,87 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		D4711CC12FC6E98800508994 /* SentryObjCCompatTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SentryObjCCompatTests; sourceTree = "<group>"; };
-		D4B67CFD2FC5E6F20022BC67 /* SentryObjCTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SentryObjCTests; sourceTree = "<group>"; };
-		D4CB395D2F6AEEE6005250F2 /* SentryObjC */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (D4CB399B2F6AEF99005250F2 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = SentryObjC; sourceTree = "<group>"; };
-		D4CB39972F6AEF01005250F2 /* SentryObjCCompat */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SentryObjCCompat; sourceTree = "<group>"; };
-		FA2111C32F22CE8C00DFFABE /* Swift */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Swift; sourceTree = "<group>"; };
-		FAB1188E2F4633F40000CC24 /* SentryTestUtils */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (D4713A3F2FC707AA00508994 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = SentryTestUtils; sourceTree = "<group>"; };
-		FAB1CB682F458C680000CC24 /* SentryTests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (FAB1CD142F458DA50000CC24 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 3CFC66F92FF50344004005B4 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = SentryTests; sourceTree = "<group>"; };
+		D4711CC12FC6E98800508994 /* SentryObjCCompatTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = SentryObjCCompatTests;
+			sourceTree = "<group>";
+		};
+		D4B67CFD2FC5E6F20022BC67 /* SentryObjCTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = SentryObjCTests;
+			sourceTree = "<group>";
+		};
+		D4CB395D2F6AEEE6005250F2 /* SentryObjC */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D4CB399B2F6AEF99005250F2 /* Exceptions for "SentryObjC" folder in "SentryObjC" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = SentryObjC;
+			sourceTree = "<group>";
+		};
+		D4CB39972F6AEF01005250F2 /* SentryObjCCompat */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = SentryObjCCompat;
+			sourceTree = "<group>";
+		};
+		FA2111C32F22CE8C00DFFABE /* Swift */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = Swift;
+			sourceTree = "<group>";
+		};
+		FAB1188E2F4633F40000CC24 /* SentryTestUtils */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D4713A3F2FC707AA00508994 /* Exceptions for "SentryTestUtils" folder in "SentryTestUtilsDynamic" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = SentryTestUtils;
+			sourceTree = "<group>";
+		};
+		FAB1CB682F458C680000CC24 /* SentryTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FAB1CD142F458DA50000CC24 /* Exceptions for "SentryTests" folder in "SentryTests" target */,
+				3CFC66F92FF50344004005B4 /* Exceptions for "SentryTests" folder in "SentryTests+KSCrash" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = SentryTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1954,6 +2037,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				D483AFA42E9D555300B43C27 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9C8D3ECB3A0E8725BBE8F50F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				96571900B6405C761A866B4B /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2173,6 +2264,7 @@
 				D4711CB12FC6E96D00508994 /* SentryObjCCompatTests.xctest */,
 				0787B53CA34AC1B3CF256F35 /* Sentry.framework */,
 				3CFC66F72FF50342004005B4 /* SentryTests+KSCrash.xctest */,
+				C6398928FE2CA6B37A452E98 /* libSentryTestUtils+KSCrash.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3344,6 +3436,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CFD3AA517E09632CD61A5DF1 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D4D86B982F6D4CF00078153D /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -3756,6 +3855,30 @@
 			productReference = 8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		CE7BE08924865549D7F42587 /* SentryTestUtils+KSCrash */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5E8A0493E307606FB357B1E7 /* Build configuration list for PBXNativeTarget "SentryTestUtils+KSCrash" */;
+			buildPhases = (
+				CFD3AA517E09632CD61A5DF1 /* Headers */,
+				45F8CC7E590E0AABEB38D156 /* Sources */,
+				9C8D3ECB3A0E8725BBE8F50F /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E659014273F6DA7BE6BDA4AB /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				FAB1188E2F4633F40000CC24 /* SentryTestUtils */,
+			);
+			name = "SentryTestUtils+KSCrash";
+			packageProductDependencies = (
+				6D26560EEC802C09EE27DFC7 /* Recording */,
+			);
+			productName = "SentryTestUtils+KSCrash";
+			productReference = C6398928FE2CA6B37A452E98 /* libSentryTestUtils+KSCrash.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		D4711CB02FC6E96D00508994 /* SentryObjCCompatTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D4711CB82FC6E96D00508994 /* Build configuration list for PBXNativeTarget "SentryObjCCompatTests" */;
@@ -3991,6 +4114,7 @@
 				D4B67CFB2FC5E6F20022BC67 /* SentryObjCTests */,
 				D61074A12EE358E90332638B /* Sentry+KSCrash */,
 				3CFC66DE2FF50342004005B4 /* SentryTests+KSCrash */,
+				CE7BE08924865549D7F42587 /* SentryTestUtils+KSCrash */,
 			);
 		};
 /* End PBXProject section */
@@ -4168,6 +4292,13 @@
 
 /* Begin PBXSourcesBuildPhase section */
 		3CFC66E32FF50342004005B4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		45F8CC7E590E0AABEB38D156 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -4751,6 +4882,12 @@
 			target = D84DAD4C2B17428D003CF120 /* SentryTestUtilsDynamic */;
 			targetProxy = D84DAD5B2B1742C1003CF120 /* PBXContainerItemProxy */;
 		};
+		E659014273F6DA7BE6BDA4AB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Sentry+KSCrash";
+			target = D61074A12EE358E90332638B /* Sentry+KSCrash */;
+			targetProxy = B1EE084317E073BB0825EB5A /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -4855,6 +4992,69 @@
 				PRODUCT_NAME = SentryTestUtilsTests;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SWIFT_VERSION = 5.0;
+			};
+			name = DebugV10;
+		};
+		11B32C6035528438765D6B2F /* Test */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				MACH_O_TYPE = staticlib;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
+				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Test;
+		};
+		133B5126740BED019D1F31C8 /* DebugV10 */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				MACH_O_TYPE = staticlib;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
+				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = DebugV10;
@@ -5262,6 +5462,36 @@
 			};
 			name = TestV10;
 		};
+		25AA5EB37D5D0081B232DF31 /* ReleaseWithoutUIKit */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				MACH_O_TYPE = staticlib;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
+				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
+				SWIFT_VERSION = 5.0;
+			};
+			name = ReleaseWithoutUIKit;
+		};
 		2844149017D7CEBDDB85B4AA /* ReleaseV10 */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D8BD2E27292D1F7300D96C6A /* SDK.xcconfig */;
@@ -5290,6 +5520,36 @@
 			};
 			name = DebugV10;
 		};
+		301E69E7B5534E7A9F733891 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				MACH_O_TYPE = staticlib;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
+				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		3032189D9D38A20E28495573 /* ReleaseWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 37D207F61D348FDFC964BCE0 /* SentryKSCrash.xcconfig */;
@@ -5301,6 +5561,36 @@
 				);
 			};
 			name = ReleaseWithoutUIKit;
+		};
+		3200BAAAC05149948428DAE7 /* ReleaseV10 */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				MACH_O_TYPE = staticlib;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
+				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
+				SWIFT_VERSION = 5.0;
+			};
+			name = ReleaseV10;
 		};
 		336BE9E1AF54344405C97C1B /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -6284,6 +6574,38 @@
 			};
 			name = TestV10;
 		};
+		4F9DD0DEC6463CA07DCA69FB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				MACH_O_TYPE = staticlib;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
+				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
 		57D5E87B3F6B3FCA00B009CD /* DebugWithoutUIKit */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D4F0C0012FA0000000000001 /* SentryObjC.xcconfig */;
@@ -6607,6 +6929,37 @@
 				SWIFT_VERSION = 5.0;
 			};
 			name = TestV10;
+		};
+		6D95A461335E674FBA080DBC /* TestV10KSCrash */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EA109C1C971A47188F7A0B37 /* SentryTestsKSCrash.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				MACH_O_TYPE = staticlib;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
+				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = TestV10KSCrash;
 		};
 		6F8786375E4ED3192BF80244 /* ReleaseV10 */ = {
 			isa = XCBuildConfiguration;
@@ -7605,6 +7958,69 @@
 			};
 			name = TestV10;
 		};
+		8B2D2E5D47C68BDBFA4A79BA /* TestCI */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				MACH_O_TYPE = staticlib;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
+				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = TestCI;
+		};
+		9030558ACDE0F98EEC481CAE /* DebugWithoutUIKit */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				MACH_O_TYPE = staticlib;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
+				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = DebugWithoutUIKit;
+		};
 		91378E4C93F9F032D72C81EF /* TestCI */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 37D207F61D348FDFC964BCE0 /* SentryKSCrash.xcconfig */;
@@ -7728,6 +8144,37 @@
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = DebugV10;
+		};
+		ABAEBEC7440A31973CD6B529 /* TestV10 */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63AA76AE1EB9D5CD00D153DE /* SentryTests.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				MACH_O_TYPE = staticlib;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.sentry.SentryTestUtils;
+				PRODUCT_MODULE_NAME = SentryTestUtils;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "SentryTestUtils/Headers/SentryTestUtils-ObjC-BridgingHeader.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = TestV10;
 		};
 		AC24077F22174CAE18D1BD9F /* ReleaseV10 */ = {
 			isa = XCBuildConfiguration;
@@ -10364,6 +10811,23 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		5E8A0493E307606FB357B1E7 /* Build configuration list for PBXNativeTarget "SentryTestUtils+KSCrash" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F9DD0DEC6463CA07DCA69FB /* Debug */,
+				9030558ACDE0F98EEC481CAE /* DebugWithoutUIKit */,
+				11B32C6035528438765D6B2F /* Test */,
+				ABAEBEC7440A31973CD6B529 /* TestV10 */,
+				6D95A461335E674FBA080DBC /* TestV10KSCrash */,
+				8B2D2E5D47C68BDBFA4A79BA /* TestCI */,
+				301E69E7B5534E7A9F733891 /* Release */,
+				133B5126740BED019D1F31C8 /* DebugV10 */,
+				3200BAAAC05149948428DAE7 /* ReleaseV10 */,
+				25AA5EB37D5D0081B232DF31 /* ReleaseWithoutUIKit */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		6327C5CD1EB8A783004E799B /* Build configuration list for PBXProject "Sentry" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -10610,6 +11074,11 @@
 			productName = Recording;
 		};
 		3CFA49012FFE80810077F857 /* Recording */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7D3AA95A0088413F8CF3F65A /* XCRemoteSwiftPackageReference "KSCrash" */;
+			productName = Recording;
+		};
+		6D26560EEC802C09EE27DFC7 /* Recording */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 7D3AA95A0088413F8CF3F65A /* XCRemoteSwiftPackageReference "KSCrash" */;
 			productName = Recording;
