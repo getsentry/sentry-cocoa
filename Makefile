@@ -1336,6 +1336,9 @@ test-sample-tvOS-Swift-ui: xcode-ci-tvOS-Swift
 # Get staged Swift files
 STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.swift$$' | awk '{printf "\"%s\" ", $$0}')
 
+# Get staged Markdown, JSON, and YAML files
+STAGED_DPRINT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.(md|json|ya?ml)$$' | awk '{printf "\"%s\" ", $$0}')
+
 ## Run linting checks on all files
 #
 # Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks without modifying files.
@@ -1352,13 +1355,15 @@ lint:
 # Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks on staged files only.
 .PHONY: lint-staged
 lint-staged:
-	@echo "--> Running Swiftlint and Clang-Format on staged files"
+	@echo "--> Running Swiftlint, dprint, and Clang-Format on staged files"
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
 	@if [ -n "$(STAGED_SWIFT_FILES)" ]; then \
 		swiftlint --strict --quiet $(STAGED_SWIFT_FILES); \
 	fi
-	dprint check "**/*.{md,json,yaml,yml}"
+	@if [ -n "$(STAGED_DPRINT_FILES)" ]; then \
+		dprint check $(STAGED_DPRINT_FILES); \
+	fi
 
 ## Format all files
 #
