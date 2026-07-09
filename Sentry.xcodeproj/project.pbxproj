@@ -91,6 +91,7 @@
 		1EC04E623061523069FAB1CD /* SentryProfilingScreenFramesHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F44D2B5B2E6B7E8700FF31FA /* SentryProfilingScreenFramesHelper.m */; };
 		1F822F24E23A949B5165C6CF /* SentryProfileConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 84A898522E163072009A551E /* SentryProfileConfiguration.h */; };
 		1F8A7D0B50AB9466099E5FB5 /* SentryMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BFC169A2524995700FF6266 /* SentryMessage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1FFF2D78FA92ECC0FDF6931B /* libSentryTestUtils+KSCrash.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C6398928FE2CA6B37A452E98 /* libSentryTestUtils+KSCrash.a */; };
 		2058AD6158045286838AA6D2 /* SentryCrashDebug.c in Sources */ = {isa = PBXBuildFile; fileRef = 63FE700F20DA4C1000CDBAE8 /* SentryCrashDebug.c */; };
 		20BA1EA0867B9B21C0A3B17A /* SentryCrashMonitor_System.h in Headers */ = {isa = PBXBuildFile; fileRef = 63FE700020DA4C1000CDBAE8 /* SentryCrashMonitor_System.h */; };
 		20C5BAC067FAE068FA75F0AB /* SentrySamplingContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E133FA525E72EB400ABD0BF /* SentrySamplingContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -162,7 +163,6 @@
 		3C1AF6C3902531610F3E87CA /* SentryANRStoppedResultInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = FAAB96492EA688CB0030A2DB /* SentryANRStoppedResultInternal.h */; };
 		3C9D00BF77D6097384B42D19 /* SentryANRStoppedResultInternal.m in Sources */ = {isa = PBXBuildFile; fileRef = FAAB964B2EA688E40030A2DB /* SentryANRStoppedResultInternal.m */; };
 		3CFA48F82FFE80810077F857 /* Recording in Frameworks */ = {isa = PBXBuildFile; productRef = 3CFA48F72FFE80810077F857 /* Recording */; };
-		3CFC66E52FF50342004005B4 /* libSentryTestUtils.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */; };
 		3CFC66E72FF50342004005B4 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0787B53CA34AC1B3CF256F35 /* Sentry.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		3CFC66E92FF50342004005B4 /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = 630C01951EC341D600C52CEF /* Resources */; };
 		3DC0F52DC65298EA3C0DDEA5 /* SentryOptionsObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = FA24E0292EBBF6F500EFD92E /* SentryOptionsObjC.h */; };
@@ -952,6 +952,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		2491CDFA411CAEB682DF3F93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CE7BE08924865549D7F42587;
+			remoteInfo = "SentryTestUtils+KSCrash";
+		};
 		3CFC66E02FF50342004005B4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6327C5CA1EB8A783004E799B /* Project object */;
@@ -1989,8 +1996,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3CFC66E52FF50342004005B4 /* libSentryTestUtils.a in Frameworks */,
 				3CFC66E72FF50342004005B4 /* Sentry.framework in Frameworks */,
+				1FFF2D78FA92ECC0FDF6931B /* libSentryTestUtils+KSCrash.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3732,6 +3739,7 @@
 			);
 			dependencies = (
 				3CFC66DF2FF50342004005B4 /* PBXTargetDependency */,
+				AD1A278C8CD8FE1A1607B632 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				FAB1CB682F458C680000CC24 /* SentryTests */,
@@ -4821,6 +4829,12 @@
 			isa = PBXTargetDependency;
 			target = 63AA759A1EB8AEF500D153DE /* Sentry */;
 			targetProxy = 8431EED329B27B1100D8DC56 /* PBXContainerItemProxy */;
+		};
+		AD1A278C8CD8FE1A1607B632 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "SentryTestUtils+KSCrash";
+			target = CE7BE08924865549D7F42587 /* SentryTestUtils+KSCrash */;
+			targetProxy = 2491CDFA411CAEB682DF3F93 /* PBXContainerItemProxy */;
 		};
 		D4711CB72FC6E96D00508994 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
