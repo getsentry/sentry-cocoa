@@ -93,9 +93,6 @@ class ErrorsViewController: UIViewController {
         }
     }
 
-    /// Nested Swift `async` functions used to exercise `Options.swiftAsyncStacktraces`.
-    /// With the option enabled the SDK stitches these suspended async frames into one
-    /// consecutive stack trace for the captured error.
     private func asyncWork1() async {
         // Suspend for 10 ms.
         try? await Task.sleep(nanoseconds: 10_000_000)

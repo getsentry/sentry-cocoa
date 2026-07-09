@@ -171,7 +171,7 @@ public struct SentrySDKWrapper {
         options.enableSwizzling = !SentrySDKOverrides.Swizzling.disable.boolValue
         options.enableCrashHandler = !SentrySDKOverrides.Crash.disableHandler.boolValue
         // Stitch the calls to Swift async functions into one consecutive stack trace.
-        options.swiftAsyncStacktraces = true
+        options.swiftAsyncStacktraces = !SentrySDKOverrides.SwiftAsync.disable.boolValue
         options.enablePersistingTracesWhenCrashing =
             !SentrySDKOverrides.Crash.disablePersistingTracesWhenCrashing.boolValue
 
