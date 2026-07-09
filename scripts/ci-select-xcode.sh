@@ -159,9 +159,10 @@ resolve_and_export_simulator_oses() {
     # installed runtime in that line. If no matching runtime is installed, we
     # fall back to the SDK version so callers still get a useful default.
     log_with_timestamp "Querying simctl runtimes JSON..."
-    RUNTIMES_JSON=$(xcrun simctl list runtimes -j 2>/dev/null || echo '{"runtimes":[]}')
-    RUNTIMES_COUNT=$(echo "$RUNTIMES_JSON" | jq -r '.runtimes | length' 2>/dev/null || echo "?")
-    log_with_timestamp "simctl returned $RUNTIMES_COUNT runtimes"
+    local runtimes_json runtimes_count
+    runtimes_json=$(xcrun simctl list runtimes -j 2>/dev/null || echo '{"runtimes":[]}')
+    runtimes_count=$(echo "$runtimes_json" | jq -r '.runtimes | length' 2>/dev/null || echo "?")
+    log_with_timestamp "simctl returned $runtimes_count runtimes"
 
     log_available_simulator_runtimes --runtimes-json "$runtimes_json"
 
@@ -174,7 +175,7 @@ resolve_and_export_simulator_oses() {
         --sdk xrsimulator --platform-a visionOS --platform-b xrOS --runtimes-json "$runtimes_json")
     log_info "Per-platform resolution complete"
 
-    log_with_timestamp "SDK versions for Xcode $RESOLVED -- iOS: ${IOS_OS:-none}, tvOS: ${TVOS_OS:-none}, watchOS: ${WATCHOS_OS:-none}, visionOS: ${VISIONOS_OS:-none}"
+    log_with_timestamp "SDK versions for Xcode $xcode_version -- iOS: ${ios_os:-none}, tvOS: ${tvos_os:-none}, watchOS: ${watchos_os:-none}, visionOS: ${visionos_os:-none}"
 
     set_output ios-simulator-os      "$ios_os"
     set_output tvos-simulator-os     "$tvos_os"
