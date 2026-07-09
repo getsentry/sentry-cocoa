@@ -1,4 +1,4 @@
-//#if ENABLE_KSCRASH
+#if ENABLE_KSCRASH
 @_spi(Private) @testable import Sentry
 
 /// Test double for `SentryKSCrashInstalling` that records the configuration it was
@@ -25,4 +25,4 @@ struct MockKSCrashDependencies: KSCrashInstallerProvider {
     let ksCrashInstaller: any SentryKSCrashInstalling
 //    let ksCrashInstaller: SentryKSCrashInstalling
 }
-//#endif
+#endif
