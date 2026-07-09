@@ -1,7 +1,6 @@
 #if ENABLE_KSCRASH
 @_implementationOnly import _SentryPrivate
 import Foundation
-internal import KSCrashRecording
 
 /// Provides dependencies for `SentryKSCrashIntegration`.
 typealias KSCrashIntegrationProvider = KSCrashInstallerProvider
@@ -20,9 +19,10 @@ extension SentryKSCrash {
             self.options = options
             super.init()
 
-            // This config overrides KSCrashConfiguration defaults in order
-            // to align with how SentryCrash was configured
-            let config = KSCrashConfiguration()
+            // This config overrides KSCrash defaults in order to align with how
+            // SentryCrash was configured. It uses Sentry-owned types so this file
+            // never imports KSCrashRecording; the default installer translates it.
+            var config = SentryKSCrashConfiguration()
             config.monitors = [
                 .machException,
                 .signal,
@@ -32,8 +32,8 @@ extension SentryKSCrash {
             ]
             config.enableMemoryIntrospection = true
             config.installPath = options.cacheDirectoryPath
-            config.reportStoreConfiguration.maxReportCount = 5
-            config.reportStoreConfiguration.reportCleanupPolicy = .always
+            config.maxReportCount = 5
+            config.reportCleanupPolicy = .always
 
             do {
                 try dependencies.ksCrashInstaller.install(with: config)

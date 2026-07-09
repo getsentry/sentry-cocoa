@@ -441,7 +441,7 @@ extension SentryFileManager: SentryFileManagerProtocol { }
     }
 
     private var _ksCrashInstaller: SentryKSCrash.CrashInstaller?
-    lazy var ksCrashInstaller: SentryKSCrash.CrashInstaller = getLazyVar(\._ksCrashInstaller) {
+    lazy var ksCrashInstaller: SentryKSCrashInstalling = getLazyVar(\._ksCrashInstaller) {
         .init()
     }
 }
@@ -892,7 +892,7 @@ extension SentryDependencyContainer: AppHangTrackerProvider { }
 
 /// Supplies the KSCrash installer to `SentryKSCrashIntegration`.
 protocol KSCrashInstallerProvider {
-    var ksCrashInstaller: SentryKSCrash.CrashInstaller { get }
+    var ksCrashInstaller: SentryKSCrashInstalling { get }
 }
 
 extension SentryDependencyContainer: KSCrashInstallerProvider {}

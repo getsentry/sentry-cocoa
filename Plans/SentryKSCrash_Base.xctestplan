@@ -9,7 +9,7 @@
     }
   ],
   "defaultOptions" : {
-    "codeCoverage" : true,
+    "codeCoverage" : false,
     "environmentVariableEntries" : [
       {
         "key" : "TSAN_OPTIONS",

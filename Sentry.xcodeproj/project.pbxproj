@@ -161,6 +161,7 @@
 		3C0B2C89E044195F8220E78E /* SentrySamplingProfiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 03F84D3027DD4191008FE43F /* SentrySamplingProfiler.cpp */; };
 		3C1AF6C3902531610F3E87CA /* SentryANRStoppedResultInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = FAAB96492EA688CB0030A2DB /* SentryANRStoppedResultInternal.h */; };
 		3C9D00BF77D6097384B42D19 /* SentryANRStoppedResultInternal.m in Sources */ = {isa = PBXBuildFile; fileRef = FAAB964B2EA688E40030A2DB /* SentryANRStoppedResultInternal.m */; };
+		3CFA48F82FFE80810077F857 /* Recording in Frameworks */ = {isa = PBXBuildFile; productRef = 3CFA48F72FFE80810077F857 /* Recording */; };
 		3CFC66E52FF50342004005B4 /* libSentryTestUtils.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */; };
 		3CFC66E72FF50342004005B4 /* Sentry.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0787B53CA34AC1B3CF256F35 /* Sentry.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		3CFC66E92FF50342004005B4 /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = 630C01951EC341D600C52CEF /* Resources */; };
@@ -836,7 +837,6 @@
 		D8CB7417294724CC00A5F964 /* SentryEnvelopeAttachmentHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = D8CB7416294724CC00A5F964 /* SentryEnvelopeAttachmentHeader.m */; };
 		D8CB74192947285A00A5F964 /* SentryEnvelopeItemHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = D8CB74182947285A00A5F964 /* SentryEnvelopeItemHeader.h */; };
 		D8CB741B2947286500A5F964 /* SentryEnvelopeItemHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = D8CB741A2947286500A5F964 /* SentryEnvelopeItemHeader.m */; };
-		D9342A3A2155489C8CD87D27 /* Installations in Frameworks */ = {isa = PBXBuildFile; productRef = 2AC7A1A6EA2F466E8F99247D /* Installations */; };
 		D9856A3B7F5A85C34DCBCE10 /* SentryCrashMach-O.h in Headers */ = {isa = PBXBuildFile; fileRef = 6292585C2DAFA8290049388F /* SentryCrashMach-O.h */; };
 		D9D5E3FBC7A0E78A8AC858EF /* NSMutableDictionary+Sentry.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B0DC72D288698F70039995F /* NSMutableDictionary+Sentry.h */; };
 		DB06D59EFC3F10A3A4702B82 /* SentryEventSwiftHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = FAB359992E05D8080083D5E3 /* SentryEventSwiftHelper.m */; };
@@ -1897,8 +1897,8 @@
 			files = (
 				5E97D595C205DFAA28813138 /* SystemConfiguration.framework in Frameworks */,
 				1D39B749E2C0B09067076027 /* CoreData.framework in Frameworks */,
+				3CFA48F82FFE80810077F857 /* Recording in Frameworks */,
 				B3418ABC1AC38F349A9E2CE6 /* libz.tbd in Frameworks */,
-				D9342A3A2155489C8CD87D27 /* Installations in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3638,6 +3638,9 @@
 				FAB1CB682F458C680000CC24 /* SentryTests */,
 			);
 			name = "SentryTests+KSCrash";
+			packageProductDependencies = (
+				3CFA49012FFE80810077F857 /* Recording */,
+			);
 			productName = "Tests-iOS";
 			productReference = 3CFC66F72FF50342004005B4 /* SentryTests+KSCrash.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -3746,6 +3749,9 @@
 				FAB1188E2F4633F40000CC24 /* SentryTestUtils */,
 			);
 			name = SentryTestUtils;
+			packageProductDependencies = (
+				3CFA49002FFE80810077F857 /* Recording */,
+			);
 			productName = SentryTestUtils;
 			productReference = 8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */;
 			productType = "com.apple.product-type.library.static";
@@ -3857,7 +3863,7 @@
 			);
 			name = "Sentry+KSCrash";
 			packageProductDependencies = (
-				2AC7A1A6EA2F466E8F99247D /* Installations */,
+				3CFA48F72FFE80810077F857 /* Recording */,
 			);
 			productName = "Sentry+KSCrash";
 			productReference = 0787B53CA34AC1B3CF256F35 /* Sentry.framework */;
@@ -10593,10 +10599,20 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		2AC7A1A6EA2F466E8F99247D /* Installations */ = {
+		3CFA48F72FFE80810077F857 /* Recording */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 7D3AA95A0088413F8CF3F65A /* XCRemoteSwiftPackageReference "KSCrash" */;
-			productName = Installations;
+			productName = Recording;
+		};
+		3CFA49002FFE80810077F857 /* Recording */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7D3AA95A0088413F8CF3F65A /* XCRemoteSwiftPackageReference "KSCrash" */;
+			productName = Recording;
+		};
+		3CFA49012FFE80810077F857 /* Recording */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7D3AA95A0088413F8CF3F65A /* XCRemoteSwiftPackageReference "KSCrash" */;
+			productName = Recording;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

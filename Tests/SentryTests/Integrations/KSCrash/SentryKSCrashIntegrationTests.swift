@@ -1,19 +1,7 @@
 #if ENABLE_KSCRASH
-import KSCrashRecording
 @_spi(Private) @testable import Sentry
 import Testing
 
-/// Tests for the behaviour `SentryKSCrashIntegration` has today: it validates
-/// `enableCrashHandler`, builds a KSCrash configuration matching the legacy
-/// SentryCrash setup, installs it through the injected installer, and records that the
-/// crash reporter is installed.
-///
-/// The suite is `.serialized` because `installsCrashReporterFlag` mutates the global
-/// `SentrySDKInternal.crashReporterInstalled`, which is reset in `init`.
-///
-/// Note: Swift Testing requires macOS 10.15+, so the test targets raise their macOS
-/// deployment target to 10.15 in `SentryTests.xcconfig`. The Swift Testing macros reject
-/// an `@available` annotation, so the deployment target is the only lever.
 @Suite(.serialized)
 struct SentryKSCrashIntegrationTests {
 
@@ -31,13 +19,13 @@ struct SentryKSCrashIntegrationTests {
         return options
     }
 
-    private func makeSut(options: Options, installer: TestKSCrashInstaller) -> SentryKSCrashIntegration<MockKSCrashDependencies>? {
-        SentryKSCrashIntegration(with: options, dependencies: MockKSCrashDependencies(ksCrashInstaller: installer))
+    private func makeSut(options: Options, installer: TestKSCrashInstaller) -> SentryKSCrash.Integration<MockKSCrashDependencies>? {
+        SentryKSCrash.Integration(with: options, dependencies: MockKSCrashDependencies(ksCrashInstaller: installer))
     }
 
     @Test
     func testName_shouldBeSentryKSCrashIntegration() {
-        #expect(SentryKSCrashIntegration<MockKSCrashDependencies>.name == "SentryKSCrashIntegration")
+        #expect(SentryKSCrash.Integration<MockKSCrashDependencies>.name == "SentryKSCrashIntegration")
     }
 
     @Test
@@ -80,8 +68,8 @@ struct SentryKSCrashIntegrationTests {
         #expect(config.monitors == [.machException, .signal, .cppException, .nsException, .applicationState])
         #expect(config.enableMemoryIntrospection)
         #expect(config.installPath == options.cacheDirectoryPath)
-        #expect(config.reportStoreConfiguration.maxReportCount == 5)
-        #expect(config.reportStoreConfiguration.reportCleanupPolicy == .always)
+        #expect(config.maxReportCount == 5)
+        #expect(config.reportCleanupPolicy == .always)
     }
 
     @Test
