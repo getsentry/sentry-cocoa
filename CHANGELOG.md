@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+## Features
+
+- Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
+
 ## 9.21.0
 
 ### Fixes
