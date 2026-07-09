@@ -85,6 +85,8 @@ repos:
         language: system
         args:
           - "fmt"
+          # allow no files in cases where the only staged file is excluded by dprint.json
+          - "--allow-no-files"
 
       - id: lint
         name: Run Linters

@@ -1362,7 +1362,7 @@ lint-staged:
 		swiftlint --strict --quiet $(STAGED_SWIFT_FILES); \
 	fi
 	@if [ -n "$(STAGED_DPRINT_FILES)" ]; then \
-		dprint check $(STAGED_DPRINT_FILES); \
+		dprint check --allow-no-files $(STAGED_DPRINT_FILES); \
 	fi
 
 ## Format all files
@@ -1423,7 +1423,7 @@ format-json:
 # Formats all YAML and YML files using dprint.
 .PHONY: format-yaml
 format-yaml:
-	dprint fmt "**/*.{yaml,yml}"
+	dprint fmt --allow-no-files "**/*.{yaml,yml}"
 
 # ============================================================================
 # ANALYSIS
