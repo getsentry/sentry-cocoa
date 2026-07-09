@@ -100,7 +100,9 @@ jobs:
           path: |
             ~/.rbenv/versions
             ~/.rbenv/cache
-          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}
+          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: |
+            ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}-
 
       - name: Install Ruby (Bitrise)
         if: inputs.runner_provider == 'bitrise'
