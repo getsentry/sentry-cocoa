@@ -1,6 +1,6 @@
+@_spi(Private) @testable import Sentry
 import _SentryPrivate
 import Foundation
-@_spi(Private) @testable import Sentry
 
 /// A wrapper around `SentryDispatchQueueWrapper` that memoized invocations to its methods and allows customization of async logic, specifically: dispatch-after calls can be made to run immediately, or not at all.
 @_spi(Private) public final class TestSentryDispatchQueueWrapper: SentryDispatchQueueWrapper {

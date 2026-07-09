@@ -1,6 +1,6 @@
-import Sentry
 @_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
+import Sentry
 
 #if os(iOS) || os(tvOS) || os(visionOS)
 import UIKit

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.21.0
 
 ### Fixes
 
@@ -8,6 +8,7 @@
 
 ### Features
 
+- Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
 - Attach feature flag evaluations to active spans (#8158)
 - Add feature flag scope ObjC API (#8160)
 - Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)

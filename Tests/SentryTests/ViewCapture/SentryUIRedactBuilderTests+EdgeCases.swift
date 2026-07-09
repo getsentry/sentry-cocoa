@@ -1,7 +1,7 @@
 // swiftlint:disable file_length type_body_length
 #if os(iOS) && !targetEnvironment(macCatalyst)
-import Foundation
 @_spi(Private) @testable import Sentry
+import Foundation
 import SentryTestUtils
 import SwiftUI
 import UIKit

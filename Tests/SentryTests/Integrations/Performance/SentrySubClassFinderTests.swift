@@ -1,6 +1,6 @@
-import ObjectiveC
-@testable import Sentry
 @_spi(Private) import SentryTestUtils
+@testable import Sentry
+import ObjectiveC
 import XCTest
 
 #if os(iOS) || os(tvOS)

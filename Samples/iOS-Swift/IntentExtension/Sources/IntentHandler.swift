@@ -1,6 +1,6 @@
+@_spi(Private) import Sentry
 import Intents
 import Sentry
-@_spi(Private) import Sentry
 import SentrySampleShared
 
 class IntentHandler: INExtension, INSendMessageIntentHandling {
@@ -21,7 +21,7 @@ class IntentHandler: INExtension, INSendMessageIntentHandling {
         guard !SentrySDK.isEnabled else {
             return
         }
-        
+
         // For this extension we need a specific configuration set, therefore we do not use the shared sample initializer
         SentrySDK.start { options in
             options.dsn = SentrySDKWrapper.defaultDSN
@@ -31,9 +31,9 @@ class IntentHandler: INExtension, INSendMessageIntentHandling {
             options.enableAppHangTracking = true
         }
     }
-    
+
     // MARK: - INSendMessageIntentHandling
-    
+
     func resolveRecipients(for intent: INSendMessageIntent, with completion: @escaping ([INSendMessageRecipientResolutionResult]) -> Void) {
         let person = INPerson(
             personHandle: INPersonHandle(value: "john-snow", type: .unknown),
@@ -45,7 +45,7 @@ class IntentHandler: INExtension, INSendMessageIntentHandling {
         )
         completion([INSendMessageRecipientResolutionResult.success(with: person)])
     }
-    
+
     func resolveContent(for intent: INSendMessageIntent, with completion: @escaping (INStringResolutionResult) -> Void) {
         let message = """
         Sentry Enabled? \(isSentryEnabled ? "✅" : "❌")
@@ -53,12 +53,12 @@ class IntentHandler: INExtension, INSendMessageIntentHandling {
         """
         completion(INStringResolutionResult.success(with: message))
     }
-    
+
     func confirm(intent: INSendMessageIntent, completion: @escaping (INSendMessageIntentResponse) -> Void) {
         let userActivity = NSUserActivity(activityType: NSStringFromClass(INSendMessageIntent.self))
         completion(INSendMessageIntentResponse(code: .ready, userActivity: userActivity))
     }
-    
+
     func handle(intent: INSendMessageIntent, completion: @escaping (INSendMessageIntentResponse) -> Void) {
         SentrySDK.capture(message: "iOS-Swift-IntentExtension: handle intent called")
 

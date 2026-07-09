@@ -1,5 +1,5 @@
-import _SentryPrivate
 @_spi(Private) @testable import Sentry
+import _SentryPrivate
 import XCTest
 
 class SentryDispatchQueueWrapperSwiftTests: XCTestCase {

@@ -179,10 +179,6 @@ var targets: [Target] = [\
 ]\
 ' "$PACKAGE_FILE"
 
-    # Replace dependency declarations with an empty list.
-    sed -i '' '/^    dependencies: \[/,/^    ],/c\
-    dependencies: [],\
-' "$PACKAGE_FILE"
   fi
 
   if is_enabled "$STRIP_BINARY_TARGETS"; then

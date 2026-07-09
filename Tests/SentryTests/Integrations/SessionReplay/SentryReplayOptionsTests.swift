@@ -1,6 +1,6 @@
+@_spi(Private) @testable import Sentry
 // swiftlint:disable file_length
 import Foundation
-@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryReplayOptionsTests: XCTestCase {

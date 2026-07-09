@@ -1,14 +1,14 @@
+@_spi(Private) @testable import SentryCocoaLumberjack
 import CocoaLumberjackSwift
 import Sentry
-@_spi(Private) @testable import SentryCocoaLumberjack
 import XCTest
 
 // swiftlint:disable cyclomatic_complexity file_length type_body_length
 
 final class SentryCocoaLumberjackLoggerTests: XCTestCase {
-    
+
     private var capturedLogs: [SentryLog] = []
-    
+
     override func setUp() {
         super.setUp()
         capturedLogs = []
@@ -21,20 +21,20 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             }
         }
     }
-    
+
     override func tearDown() {
         super.tearDown()
         DDLog.removeAllLoggers()
         SentrySDK.close()
         capturedLogs = []
     }
-    
+
     private func getSut() -> SentryCocoaLumberjackLogger {
         return SentryCocoaLumberjackLogger()
     }
-    
+
     // MARK: - Basic Logging Tests
-    
+
     func testLog_WithErrorLevel() throws {
         let sut = getSut()
         let logMessage = DDLogMessage(
@@ -50,9 +50,9 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             options: [],
             timestamp: Date()
         )
-        
+
         sut.log(message: logMessage)
-        
+
         try assertLogCaptured(
             .error,
             "Test error message",
@@ -66,7 +66,7 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             ]
         )
     }
-    
+
     func testLog_WithWarningLevel() throws {
         let sut = getSut()
         let logMessage = DDLogMessage(
@@ -82,9 +82,9 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             options: [],
             timestamp: Date()
         )
-        
+
         sut.log(message: logMessage)
-        
+
         try assertLogCaptured(
             .warn,
             "Test warning message",
@@ -98,7 +98,7 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             ]
         )
     }
-    
+
     func testLog_WithInfoLevel() throws {
         let sut = getSut()
         let logMessage = DDLogMessage(
@@ -114,9 +114,9 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             options: [],
             timestamp: Date()
         )
-        
+
         sut.log(message: logMessage)
-        
+
         try assertLogCaptured(
             .info,
             "Test info message",
@@ -130,7 +130,7 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             ]
         )
     }
-    
+
     func testLog_WithDebugLevel() throws {
         let sut = getSut()
         let logMessage = DDLogMessage(
@@ -146,9 +146,9 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             options: [],
             timestamp: Date()
         )
-        
+
         sut.log(message: logMessage)
-        
+
         try assertLogCaptured(
             .debug,
             "Test debug message",
@@ -162,7 +162,7 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             ]
         )
     }
-    
+
     func testLog_WithVerboseLevel() throws {
         let sut = getSut()
         let logMessage = DDLogMessage(
@@ -178,9 +178,9 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             options: [],
             timestamp: Date()
         )
-        
+
         sut.log(message: logMessage)
-        
+
         try assertLogCaptured(
             .trace,
             "Test verbose message",
@@ -194,9 +194,9 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             ]
         )
     }
-    
+
     // MARK: - Metadata Tests
-    
+
     func testLog_WithThreadName() throws {
         let sut = getSut()
         let logMessage = DDLogMessage(
@@ -212,20 +212,20 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             options: [],
             timestamp: Date()
         )
-        
+
         // Thread name is automatically captured by DDLogMessage
         sut.log(message: logMessage)
-        
+
         XCTAssertEqual(capturedLogs.count, 1, "Expected exactly one log to be captured")
-        
+
         let capturedLog = try XCTUnwrap(capturedLogs.last)
         XCTAssertEqual(capturedLog.level, .info)
         XCTAssertEqual(capturedLog.body, "Test with thread name")
-        
+
         // Verify thread ID is present
         XCTAssertNotNil(capturedLog.attributes["cocoalumberjack.threadID"])
     }
-    
+
     func testLog_WithContext() throws {
         let sut = getSut()
         let customContext = 12_345
@@ -242,9 +242,9 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             options: [],
             timestamp: Date()
         )
-        
+
         sut.log(message: logMessage)
-        
+
         try assertLogCaptured(
             .info,
             "Test with context",
@@ -258,7 +258,7 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             ]
         )
     }
-    
+
     func testLog_WithTimestamp() throws {
         let sut = getSut()
         let customTimestamp = Date(timeIntervalSince1970: 1_234_567_890.123)
@@ -275,28 +275,28 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             options: [],
             timestamp: customTimestamp
         )
-        
+
         sut.log(message: logMessage)
-        
+
         XCTAssertEqual(capturedLogs.count, 1, "Expected exactly one log to be captured")
-        
+
         let capturedLog = try XCTUnwrap(capturedLogs.last)
         XCTAssertEqual(capturedLog.level, .info)
         XCTAssertEqual(capturedLog.body, "Test with timestamp")
-        
+
         // Verify timestamp is captured
         let timestampAttribute = try XCTUnwrap(capturedLog.attributes["cocoalumberjack.timestamp"], "Missing cocoalumberjack.timestamp attribute")
-        
+
         XCTAssertEqual(timestampAttribute.type, "double")
         let timestampValue = try XCTUnwrap(timestampAttribute.value as? Double, "Expected cocoalumberjack.timestamp to be a Double")
         XCTAssertEqual(timestampValue, 1_234_567_890.123, accuracy: 0.001)
     }
-    
+
     // MARK: - SDK State Tests
-    
+
     func testLog_whenSentrySDKNotEnabled_shouldNotLog() {
         SentrySDK.close()
-        
+
         let sut = getSut()
         let logMessage = DDLogMessage(
             format: "Test message",
@@ -311,14 +311,14 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             options: [],
             timestamp: Date()
         )
-        
+
         sut.log(message: logMessage)
-        
+
         XCTAssertEqual(capturedLogs.count, 0, "Expected no logs when SentrySDK is not enabled")
     }
-    
+
     // MARK: - Helper Methods
-    
+
     private func assertLogCaptured(
         _ expectedLevel: SentryLog.Level,
         _ expectedBody: String,
@@ -327,16 +327,16 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
         line: UInt = #line
     ) throws {
         let capturedLog = getLastCapturedLog(file: file, line: line)
-        
+
         XCTAssertEqual(capturedLog.level, expectedLevel, "Log level mismatch", file: file, line: line)
         XCTAssertEqual(capturedLog.body, expectedBody, "Log body mismatch", file: file, line: line)
-        
+
         // Only verify the user-provided attributes, not the auto-enriched ones
         for (key, expectedAttribute) in expectedAttributes {
             let actualAttribute = try XCTUnwrap(capturedLog.attributes[key], "Missing attribute key: \(key)", file: file, line: line)
-            
+
             XCTAssertEqual(actualAttribute.type, expectedAttribute.type, "Attribute type mismatch for key: \(key)", file: file, line: line)
-            
+
             // Compare values based on type
             switch expectedAttribute.type {
             case "string":
@@ -360,7 +360,7 @@ final class SentryCocoaLumberjackLoggerTests: XCTestCase {
             }
         }
     }
-    
+
     private func getLastCapturedLog(file: StaticString = #filePath, line: UInt = #line) -> SentryLog {
         XCTAssertEqual(capturedLogs.count, 1, "Expected exactly one log to be captured", file: file, line: line)
         guard let lastLog = capturedLogs.last else {
