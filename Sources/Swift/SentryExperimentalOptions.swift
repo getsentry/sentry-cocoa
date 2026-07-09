@@ -26,6 +26,12 @@ public final class SentryExperimentalOptions: NSObject {
      */
     public var enableReplayNetworkDetailsCapturing = false
 
+    /// Configuration for what data the SDK collects automatically (e.g. headers, cookies, query params, bodies, user identity).
+    ///
+    /// - Important: Replaces `sendDefaultPii` with granular per-category control.
+    /// - SeeAlso: https://docs.sentry.io/platforms/apple/configuration/options/#dataCollection
+    public var dataCollection = SentryDataCollection.Options()
+
     /**
      * When enabled, the SDK sends a standalone app start transaction instead of attaching app
      * start data to the first UIViewController transaction.

@@ -1,6 +1,6 @@
-import Foundation
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
+import Foundation
 import XCTest
 
 class SentryMetricsIntegrationTests: XCTestCase {

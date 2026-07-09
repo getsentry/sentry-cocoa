@@ -1,6 +1,6 @@
-import Foundation
 @_spi(Private) import Sentry
 @_spi(Private) @testable import SentryTestUtils
+import Foundation
 import XCTest
 
 class TestConstantTests: XCTestCase {
@@ -54,22 +54,22 @@ class TestConstantTests: XCTestCase {
     func testDsnAsString_shouldReturnExpectedValue() {
         // -- Act --
         let dsn = TestConstants.dsnAsString(username: "testUser")
-        
+
         // -- Assert --
         XCTAssertEqual(dsn, "https://testUser:password@app.getsentry.com/12345")
     }
-    
+
     func testDsn_shouldReturnValidDsn() throws {
         // -- Arrange --
         let expectedUrl = try XCTUnwrap(URL(string: "https://testUser:password@app.getsentry.com/12345"))
 
         // -- Act --
         let dsn = try TestConstants.dsn(username: "testUser")
-        
+
         // -- Assert --
         XCTAssertEqual(dsn.url, expectedUrl)
     }
-    
+
     func testEventWithSerializationError_shouldReturnEventWithEmptyMessage() throws {
         // -- Act --
         let event = TestConstants.eventWithSerializationError
@@ -101,7 +101,7 @@ class TestConstantTests: XCTestCase {
     func testEnvelope_shouldReturnValidEnvelopeWithOneItem() throws {
         // -- Act --
         let envelope = TestConstants.envelope
-        
+
         // -- Assert --
         XCTAssertNotNil(envelope.header.eventId)
         XCTAssertEqual(envelope.items.count, 1)

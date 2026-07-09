@@ -8,20 +8,7 @@ extension Span {
         guard let span = self as? SentrySpanInternal else {
             return
         }
-        guard let wrapper = span.featureFlagBuffer as? SentryFeatureFlagBufferWrapper else {
-            return
-        }
-        wrapper.buffer.add(name: name, value: result)
-    }
-
-    @_spi(Private) public func removeFeatureFlag(name: String) {
-        guard let span = self as? SentrySpanInternal else {
-            return
-        }
-        guard let wrapper = span.featureFlagBuffer as? SentryFeatureFlagBufferWrapper else {
-            return
-        }
-        wrapper.buffer.remove(name: name)
+        span.addFeatureFlagInternal(name: name, result: result)
     }
 }
 // swiftlint:enable missing_docs

@@ -1,9 +1,9 @@
 // swiftlint:disable file_length type_body_length force_try force_unwrapping unused_optional_binding private_outlet
+@_spi(Private) import Sentry
 import AuthenticationServices
 import Foundation
 import PhotosUI
 import SafariServices
-@_spi(Private) import Sentry
 import SentrySampleShared
 import UIKit
 
@@ -17,10 +17,10 @@ class ExtraViewController: UIViewController {
     @IBOutlet weak var dataMarshalingField: UITextField!
     @IBOutlet weak var dataMarshalingStatusLabel: UILabel!
     @IBOutlet weak var dataMarshalingErrorLabel: UILabel!
-    
+
     private let dispatchQueue = DispatchQueue(label: "ExtraViewControllers", attributes: .concurrent)
     private var batteryConsumer: BatteryConsumer?
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -30,7 +30,7 @@ class ExtraViewController: UIViewController {
             uiTestNameLabel.text = uiTestName
             uiTestNameLabel.isHidden = false
         }
-        
+
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             self.framesLabel?.text = "Frames Total:\(PrivateSentrySDKOnly.currentScreenFrames.total) Slow:\(PrivateSentrySDKOnly.currentScreenFrames.slow) Frozen:\(PrivateSentrySDKOnly.currentScreenFrames.frozen)"
         }
@@ -55,27 +55,27 @@ class ExtraViewController: UIViewController {
             self.breadcrumbLabel?.text = "{ category: \(breadcrumb["category"] ?? "nil"), parentViewController: \(data["parentViewController"] ?? "nil"), beingPresented: \(data["beingPresented"] ?? "nil"), window_isKeyWindow: \(data["window_isKeyWindow"] ?? "nil"), is_window_rootViewController: \(data["is_window_rootViewController"] ?? "nil") }"
 
         }
-        
+
         SentrySDK.reportFullyDisplayed()
     }
-  
+
   @IBAction func highEnergyCPU(_ sender: UIButton) {
     highlightButton(sender)
     batteryConsumer = BatteryConsumer(qos: .userInitiated)
     batteryConsumer?.start()
   }
-  
+
   @IBAction func lowEnergyCPU(_ sender: UIButton) {
     highlightButton(sender)
     batteryConsumer = BatteryConsumer(qos: .background)
     batteryConsumer?.start()
   }
-  
+
   @IBAction func stopUsingEnergy(_ sender: UIButton) {
     highlightButton(sender)
     batteryConsumer?.stop()
   }
-    
+
     @IBAction func anrDeadlock(_ sender: UIButton) {
         SentrySDK.logger.info("ExtraViewController.anrDeadlock")
 
@@ -120,19 +120,19 @@ class ExtraViewController: UIViewController {
 
     @IBAction func getPasteBoardString(_ sender: Any) {
         SentrySDK.pauseAppHangTracking()
-        
+
         // Getting the pasteboard string asks for permission
         // and the SDK would detect an ANR if we don't pause it.
         // Make sure to copy something into the pasteboard, cause
         // iOS only opens the system permission dialog if you do.
-        
+
         if let clipboard = UIPasteboard.general.string {
             SentrySDK.capture(message: clipboard)
         }
-        
+
         SentrySDK.resumeAppHangTracking()
     }
-    
+
     @IBAction func start100Threads(_ sender: UIButton) {
         SentrySDK.logger.info("ExtraViewController.start100Threads")
 
@@ -170,7 +170,7 @@ class ExtraViewController: UIViewController {
         // otherwise nil
         print("\(String(describing: eventId))")
     }
-    
+
     @IBAction func openWeb(_ sender: UIButton) {
         navigationController?.pushViewController(WebViewController(), animated: true)
     }
@@ -221,7 +221,7 @@ class ExtraViewController: UIViewController {
         highlightButton(sender)
         SentrySDK.flush(timeout: 5)
     }
-    
+
     @IBAction func showTopVCInspector(_ sender: UIButton) {
         TopViewControllerInspector.show()
     }
@@ -260,18 +260,18 @@ class ExtraViewController: UIViewController {
 
         return pi
     }
-    
+
     enum EnvelopeContent {
         /// String contents are base64 encoded image data
         case image(String)
-        
+
         case rawText(String)
         case json([String: Any])
-        
+
         /// String contents are base64 encoded image data
         case feedbackAttachment(String)
     }
-    
+
     func displayError(message: String) {
         dataMarshalingStatusLabel.isHidden = false
         dataMarshalingStatusLabel.text = "❌"
@@ -279,13 +279,13 @@ class ExtraViewController: UIViewController {
         dataMarshalingErrorLabel.text = message
         print("[iOS-Swift] \(message)")
     }
-    
+
     @IBAction func getLatestEnvelope(_ sender: Any) {
         guard let latestEnvelopePath = latestEnvelopePath() else { return }
         guard let base64String = base64EncodedStructuredUITestData(envelopePath: latestEnvelopePath) else { return }
         displayStringForUITest(string: base64String)
     }
-    
+
     @IBAction func getApplicationSupportPath(_ sender: Any) {
         guard let appSupportDirectory = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first else {
             print("[iOS-Swift] Couldn't retrieve path to application support directory.")
@@ -293,11 +293,11 @@ class ExtraViewController: UIViewController {
         }
         displayStringForUITest(string: appSupportDirectory)
     }
-    
+
     @IBAction func showMaskingPreview(_ sender: Any) {
         SentrySDK.replay.showMaskPreview(0.5)
     }
-    
+
     func displayStringForUITest(string: String) {
         dataMarshalingField.text = string
         dataMarshalingField.isHidden = false
@@ -305,7 +305,7 @@ class ExtraViewController: UIViewController {
         dataMarshalingStatusLabel.text = "✅"
         dataMarshalingErrorLabel.isHidden = true
     }
-    
+
     func latestEnvelopePath() -> String? {
         guard let cachesDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first else {
             displayError(message: "No user caches directory found on device.")
@@ -334,7 +334,7 @@ class ExtraViewController: UIViewController {
         }
         return "\(dir)/\(latest.0)"
     }
-    
+
     func base64EncodedStructuredUITestData(envelopePath: String) -> String? {
         guard let envelopeFileContents = try? String(contentsOfFile: envelopePath) else {
             displayError(message: "\(envelopePath) had no contents.")
@@ -369,10 +369,10 @@ class ExtraViewController: UIViewController {
             displayError(message: "Couldn't serialize marshaling dictionary.")
             return nil
         }
-        
+
         return data.base64EncodedString()
     }
-    
+
     func insertValues(from json: [String: Any], into result: inout [String: Any]) {
         if let eventContexts = json["contexts"] as? [String: Any] {
             result["event_type"] = json["type"]
@@ -421,13 +421,13 @@ class ExtraViewController: UIViewController {
         picker.delegate = self
         self.present(picker, animated: true, completion: nil)
     }
-    
+
     @IBAction func testNetworkCapture(_ sender: UIButton) {
         highlightButton(sender)
         let networkTestingVC = NetworkTestingViewController()
         navigationController?.pushViewController(networkTestingVC, animated: true)
     }
-    
+
     @IBAction func checkLaunchVCTransactions() {
         displayStringForUITest(string: LaunchVCTransactionCapture.shared.serialized())
     }

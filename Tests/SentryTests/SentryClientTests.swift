@@ -1,5 +1,5 @@
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import XCTest
 
 extension SentryClientInternal {
@@ -315,6 +315,36 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(expectedTags, tags)
         XCTAssertEqual(expectedExtra, extra)
     }
+
+    func testCaptureMessage_whenScopeHasFeatureFlags_shouldIncludeFlags() throws {
+        let scope = Scope()
+        scope.addFeatureFlag(name: "checkout", result: true)
+
+        let eventId = fixture.getSut().capture(message: fixture.messageAsString, scope: scope)
+
+        eventId.assertIsNotEmpty()
+        try assertFeatureFlags(on: lastSentEvent())
+    }
+
+    func testCaptureError_whenScopeHasFeatureFlags_shouldIncludeFlags() throws {
+        let scope = Scope()
+        scope.addFeatureFlag(name: "checkout", result: true)
+
+        let eventId = fixture.getSut().capture(error: error, scope: scope)
+
+        eventId.assertIsNotEmpty()
+        try assertFeatureFlags(on: lastSentEvent())
+    }
+
+    func testCaptureException_whenScopeHasFeatureFlags_shouldIncludeFlags() throws {
+        let scope = Scope()
+        scope.addFeatureFlag(name: "checkout", result: true)
+
+        let eventId = fixture.getSut().capture(exception: exception, scope: scope)
+
+        eventId.assertIsNotEmpty()
+        try assertFeatureFlags(on: lastSentEvent())
+    }
         
     func testCaptureEventTypeTransactionDoesNotIncludeThreadAndDebugMeta() throws {
         let event = Event(level: SentryLevel.warning)
@@ -337,6 +367,19 @@ final class SentryClientTests: XCTestCase {
         if let actualTags = actual.tags {
             XCTAssertEqual(expectedTags, actualTags)
         }
+    }
+
+    func testCaptureTransaction_whenScopeHasFeatureFlags_shouldExcludeFlags() throws {
+        let event = Event(level: SentryLevel.warning)
+        event.type = SentryEnvelopeItemTypes.transaction
+        let scope = Scope()
+        scope.addFeatureFlag(name: "checkout", result: true)
+
+        let eventId = fixture.getSut().capture(event: event, scope: scope)
+
+        eventId.assertIsNotEmpty()
+        let actual = try lastSentEvent()
+        XCTAssertNil(actual.context?["flags"])
     }
       
     func testCaptureEventWithException() throws {
@@ -2035,6 +2078,18 @@ final class SentryClientTests: XCTestCase {
         XCTAssertEqual(feedbackContext["associated_event_id"] as? String, fixture.feedback.associatedEventId?.sentryIdString)
     }
 
+    func testCaptureFeedback_whenScopeHasFeatureFlags_shouldExcludeFlags() throws {
+        let sut = fixture.getSut()
+        let scope = fixture.scope
+        scope.addFeatureFlag(name: "checkout", result: true)
+
+        sut.capture(feedback: fixture.feedback, scope: scope)
+
+        let invocation = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.first)
+        let event: Event = invocation.0
+        XCTAssertNil(event.context?["flags"])
+    }
+
     func testDistIsSet() throws {
         let dist = "dist"
         let eventId = fixture.getSut(configureOptions: { options in
@@ -2983,6 +3038,14 @@ private extension SentryClientTests {
         let lastSentEventArguments = try XCTUnwrap(fixture.transportAdapter.sendEventWithTraceStateInvocations.last)
         XCTAssertEqual([TestData.dataAttachment], lastSentEventArguments.attachments)
         return lastSentEventArguments.event
+    }
+
+    private func assertFeatureFlags(on event: Event) throws {
+        let flags = try XCTUnwrap(event.context?["flags"])
+        let values = try XCTUnwrap(flags["values"] as? [[String: Any]])
+        XCTAssertEqual(values.count, 1)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
+        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
     }
     
     private func assertValidErrorEvent(_ event: Event, _ expectedError: NSError, exceptionValue: String? = nil) throws {

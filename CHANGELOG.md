@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Features
+
+- Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
+
+## 9.21.0
+
+### Fixes
+
+- Fix use-after-free race in `span`, `startProfiler`, and `stopProfiler` by snapshotting `currentHub` under `currentHubLock` before dereferencing. (#8318)
+
+### Features
+
+- Attach feature flag evaluations to active spans (#8158)
+- Add feature flag scope ObjC API (#8160)
+
+## 9.20.0
+
 > [!IMPORTANT]
 > This release contains an important fix for dropping too much data when the SDK gets rate limited. (#8324) This fix changes how rate limits are handled. Previously, if one data type (for example, user feedback) was rate limited, other data such as spans or sessions could also be dropped. Now, only the rate-limited data is dropped, while all other data continues to be sent. This may also reduce cases where unexpectedly large amounts of data appear to be dropped due to rate limiting.
 
@@ -12,6 +29,7 @@
 ### Features
 
 - Record log_byte client reports (#8186)
+- Add scope feature flag API (#8147)
 
 ## 9.19.1
 

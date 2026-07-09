@@ -1,6 +1,6 @@
-import ObjectiveC
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
+import ObjectiveC
 import XCTest
 
 class LoadValidatorTests: XCTestCase {
