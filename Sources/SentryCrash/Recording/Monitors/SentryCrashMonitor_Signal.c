@@ -377,25 +377,24 @@ sentrycrashcm_signal_ignore_next(int signum)
     pthread_once(&g_ignoreSignalKeyOnce, createIgnoreSignalKey);
 
     SentryCrashIgnoreSignal *entry = pthread_getspecific(g_ignoreSignalKey);
-    if (entry != NULL) {
-        atomic_store_explicit(&entry->signum, signum, memory_order_relaxed);
-        return;
-    }
+    if (entry == NULL) {
+        entry = calloc(1, sizeof(*entry));
+        if (entry == NULL || pthread_setspecific(g_ignoreSignalKey, entry) != 0) {
+            free(entry);
+            return;
+        }
 
-    entry = calloc(1, sizeof(*entry));
-    if (entry == NULL || pthread_setspecific(g_ignoreSignalKey, entry) != 0) {
-        free(entry);
-        return;
+        atomic_store_explicit(&entry->tid, (uintptr_t)pthread_self(), memory_order_relaxed);
+
+        SentryCrashIgnoreSignal *head
+            = atomic_load_explicit(&g_ignoreSignals, memory_order_relaxed);
+        do {
+            entry->next = head;
+        } while (!atomic_compare_exchange_weak_explicit(
+            &g_ignoreSignals, &head, entry, memory_order_release, memory_order_relaxed));
     }
 
     atomic_store_explicit(&entry->signum, signum, memory_order_relaxed);
-    atomic_store_explicit(&entry->tid, (uintptr_t)pthread_self(), memory_order_relaxed);
-
-    SentryCrashIgnoreSignal *head = atomic_load_explicit(&g_ignoreSignals, memory_order_relaxed);
-    do {
-        entry->next = head;
-    } while (!atomic_compare_exchange_weak_explicit(
-        &g_ignoreSignals, &head, entry, memory_order_release, memory_order_relaxed));
 #else
     (void)signum;
 #endif
