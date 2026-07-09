@@ -59,6 +59,7 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case .logs: return SentrySDKOverrides.Logs.allCases
         case .spotlight: return SentrySDKOverrides.Spotlight.allCases
         case .swizzling: return SentrySDKOverrides.Swizzling.allCases
+        case .swiftAsync: return SentrySDKOverrides.SwiftAsync.allCases
         case .transport: return SentrySDKOverrides.Transport.allCases
         case .attachments: return SentrySDKOverrides.Attachments.allCases
         case .spans: return SentrySDKOverrides.Spans.allCases
@@ -240,6 +241,11 @@ public enum SentrySDKOverrides: String, CaseIterable {
         case disable = "--io.sentry.swizzling.disable"
     }
     case swizzling = "Swizzling"
+
+    public enum SwiftAsync: String, SentrySDKOverride {
+        case disable = "--io.sentry.swift-async-stacktraces.disable"
+    }
+    case swiftAsync = "Swift Async Stacktraces"
 
     public enum Transport: String, SentrySDKOverride {
         case disableHttpTransport = "--io.sentry.transport.disable-http"
@@ -568,6 +574,14 @@ extension SentrySDKOverrides.Swizzling {
     }
 }
 
+extension SentrySDKOverrides.SwiftAsync {
+    public var overrideType: OverrideType {
+        switch self {
+        case .disable: return .boolean
+        }
+    }
+}
+
 extension SentrySDKOverrides.Transport {
     public var overrideType: OverrideType {
         switch self {
@@ -765,6 +779,11 @@ extension SentrySDKOverrides.Spotlight {
 
 extension SentrySDKOverrides.Swizzling {
     public var ignoresDisableEverything: Bool { return false }
+}
+
+extension SentrySDKOverrides.SwiftAsync {
+    // Enabled by default; only its own disable flag turns it off, not the global "disable everything".
+    public var ignoresDisableEverything: Bool { return true }
 }
 
 extension SentrySDKOverrides.Transport {

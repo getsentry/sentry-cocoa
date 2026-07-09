@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-### Features
+## Features
 
+- Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
 - Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
 
 ## 9.21.0
