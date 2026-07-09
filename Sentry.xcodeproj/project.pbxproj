@@ -3856,9 +3856,6 @@
 				FAB1188E2F4633F40000CC24 /* SentryTestUtils */,
 			);
 			name = SentryTestUtils;
-			packageProductDependencies = (
-				3CFA49002FFE80810077F857 /* Recording */,
-			);
 			productName = SentryTestUtils;
 			productReference = 8431F00A29B284F200D8DC56 /* libSentryTestUtils.a */;
 			productType = "com.apple.product-type.library.static";
@@ -11078,11 +11075,6 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		3CFA48F72FFE80810077F857 /* Recording */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 7D3AA95A0088413F8CF3F65A /* XCRemoteSwiftPackageReference "KSCrash" */;
-			productName = Recording;
-		};
-		3CFA49002FFE80810077F857 /* Recording */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 7D3AA95A0088413F8CF3F65A /* XCRemoteSwiftPackageReference "KSCrash" */;
 			productName = Recording;
