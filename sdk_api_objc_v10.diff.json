@@ -1,6 +1,42 @@
 {
   "only_in_headers": [
     {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCDataCollectionHttpBodyTypeAll",
+      "parent": "SentryObjCDataCollectionHttpBodyType"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCDataCollectionHttpBodyTypeIncomingRequest",
+      "parent": "SentryObjCDataCollectionHttpBodyType"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCDataCollectionHttpBodyTypeIncomingResponse",
+      "parent": "SentryObjCDataCollectionHttpBodyType"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCDataCollectionHttpBodyTypeOutgoingRequest",
+      "parent": "SentryObjCDataCollectionHttpBodyType"
+    },
+    {
+      "kind": "EnumConstantDecl",
+      "name": "SentryObjCDataCollectionHttpBodyTypeOutgoingResponse",
+      "parent": "SentryObjCDataCollectionHttpBodyType"
+    },
+    {
+      "kind": "EnumDecl",
+      "name": "SentryObjCDataCollectionHttpBodyType"
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "allowListWithTerms:",
+      "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
       "kind": "ObjCMethodDecl",
       "name": "attachmentType",
       "parent": "SentryObjCAttachment",
@@ -25,6 +61,20 @@
       "kind": "ObjCMethodDecl",
       "name": "counter:",
       "parent": "SentryObjCMetricValue",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "denyList",
+      "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "denyListWithTerms:",
+      "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
       "returnType": "instancetype _Nonnull",
       "instance": false
     },
@@ -79,6 +129,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "httpBodies",
+      "parent": "SentryObjCDataCollectionOptions",
+      "returnType": "SentryObjCDataCollectionHttpBodyType",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "integer:",
       "parent": "SentryObjCAttributeContent",
       "returnType": "instancetype _Nonnull",
@@ -121,6 +178,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "mode",
+      "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
+      "returnType": "SentryObjCDataCollectionKeyValueCollectionMode",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "nameSource",
       "parent": "SentryObjCTransactionContext",
       "returnType": "SentryObjCTransactionNameSource",
@@ -130,6 +194,13 @@
       "kind": "ObjCMethodDecl",
       "name": "new",
       "parent": "SentryObjCFeedbackForm",
+      "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "off",
+      "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
       "returnType": "instancetype _Nonnull",
       "instance": false
     },
@@ -217,6 +288,12 @@
     },
     {
       "kind": "ObjCPropertyDecl",
+      "name": "httpBodies",
+      "parent": "SentryObjCDataCollectionOptions",
+      "type": "SentryObjCDataCollectionHttpBodyType"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
       "name": "lastRunStatus",
       "parent": "SentryObjCSDK",
       "type": "SentryObjCLastRunStatus"
@@ -238,6 +315,12 @@
       "name": "level",
       "parent": "SentryObjCLog",
       "type": "SentryObjCLogLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "mode",
+      "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
+      "type": "SentryObjCDataCollectionKeyValueCollectionMode"
     },
     {
       "kind": "ObjCPropertyDecl",
@@ -304,9 +387,21 @@
       "name": "status",
       "parent": "SentryObjCSpan",
       "type": "SentryObjCSpanStatus"
+    },
+    {
+      "kind": "TypedefDecl",
+      "name": "SentryObjCDataCollectionHttpBodyType",
+      "type": "enum SentryObjCDataCollectionHttpBodyType"
     }
   ],
   "only_in_compat": [
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "allowListWithTerms:",
+      "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
+      "returnType": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull",
+      "instance": false
+    },
     {
       "kind": "ObjCMethodDecl",
       "name": "attachmentType",
@@ -333,6 +428,20 @@
       "name": "counter:",
       "parent": "SentryObjCMetricValue",
       "returnType": "SentryObjCMetricValue * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "denyList",
+      "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
+      "returnType": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "denyListWithTerms:",
+      "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
+      "returnType": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull",
       "instance": false
     },
     {
@@ -383,6 +492,13 @@
       "parent": "SentryObjCPrivateSDKOnly",
       "returnType": "NSDictionary<NSString *,id> * _Nonnull",
       "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "httpBodies",
+      "parent": "SentryObjCDataCollectionOptions",
+      "returnType": "NSUInteger",
+      "instance": true
     },
     {
       "kind": "ObjCMethodDecl",
@@ -498,6 +614,13 @@
     },
     {
       "kind": "ObjCMethodDecl",
+      "name": "mode",
+      "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
+      "returnType": "enum SentryObjCDataCollectionKeyValueCollectionMode",
+      "instance": true
+    },
+    {
+      "kind": "ObjCMethodDecl",
       "name": "nameSource",
       "parent": "SentryObjCTransactionContext",
       "returnType": "enum SentryObjCTransactionNameSource",
@@ -522,6 +645,13 @@
       "name": "new",
       "parent": "SentryObjCInternalUserApi",
       "returnType": "instancetype _Nonnull",
+      "instance": false
+    },
+    {
+      "kind": "ObjCMethodDecl",
+      "name": "off",
+      "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
+      "returnType": "SentryObjCDataCollectionKeyValueCollectionBehavior * _Nonnull",
       "instance": false
     },
     {
@@ -608,6 +738,12 @@
     },
     {
       "kind": "ObjCPropertyDecl",
+      "name": "httpBodies",
+      "parent": "SentryObjCDataCollectionOptions",
+      "type": "NSUInteger"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
       "name": "lastRunStatus",
       "parent": "SentryObjCSDK",
       "type": "enum SentryObjCLastRunStatus"
@@ -629,6 +765,12 @@
       "name": "level",
       "parent": "SentryObjCLog",
       "type": "enum SentryObjCLogLevel"
+    },
+    {
+      "kind": "ObjCPropertyDecl",
+      "name": "mode",
+      "parent": "SentryObjCDataCollectionKeyValueCollectionBehavior",
+      "type": "enum SentryObjCDataCollectionKeyValueCollectionMode"
     },
     {
       "kind": "ObjCPropertyDecl",
