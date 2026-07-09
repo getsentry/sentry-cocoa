@@ -114,11 +114,9 @@
             return;
         }
 
-        if (initialSpan == nil) {
-            return;
+        if (initialSpan != nil) {
+            fullSpan.timestamp = initialSpan.timestamp;
         }
-
-        fullSpan.timestamp = initialSpan.timestamp;
         fullSpan.spanDescription =
             [NSString stringWithFormat:@"%@ - Deadline Exceeded", fullSpan.spanDescription];
         [self addTimeToDisplayMeasurement:fullSpan name:@"time_to_full_display"];
