@@ -99,4 +99,92 @@
     XCTAssertTrue(options.enableReplayNetworkDetailsCapturing);
 }
 
+#pragma mark - dataCollection
+
+- (void)testDataCollection_whenDefault_shouldReturnNotNil
+{
+    // -- Arrange --
+    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertNotNil(options.dataCollection);
+}
+
+- (void)testDataCollection_whenDefault_shouldHaveSpecDefaults
+{
+    // -- Arrange --
+    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
+
+    // -- Assert --
+    XCTAssertTrue(options.dataCollection.userInfo);
+    XCTAssertEqual(options.dataCollection.httpBodies, SentryObjCDataCollectionHttpBodyTypeAll);
+    XCTAssertTrue(options.dataCollection.stackFrameVariables);
+    XCTAssertEqual(options.dataCollection.frameContextLines, 5u);
+}
+
+- (void)testDataCollection_whenSet_shouldReturnNewValue
+{
+    // -- Arrange --
+    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
+    SentryObjCDataCollectionOptions *dc = [[SentryObjCDataCollectionOptions alloc] init];
+    dc.userInfo = NO;
+
+    // -- Act --
+    options.dataCollection = dc;
+
+    // -- Assert --
+    XCTAssertFalse(options.dataCollection.userInfo);
+}
+
+- (void)testDataCollection_whenMutatedInPlace_shouldPropagateToParent
+{
+    // -- Arrange --
+    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
+    XCTAssertTrue(options.dataCollection.userInfo);
+
+    // -- Act --
+    options.dataCollection.userInfo = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.dataCollection.userInfo);
+}
+
+- (void)testDataCollection_whenSubPropertyMutatedInPlace_shouldPropagateToParent
+{
+    // -- Arrange --
+    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
+
+    // -- Act --
+    options.dataCollection.database.queryParams = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.dataCollection.database.queryParams);
+}
+
+- (void)testDataCollection_whenGraphqlMutatedInPlace_shouldPropagateToParent
+{
+    // -- Arrange --
+    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
+
+    // -- Act --
+    options.dataCollection.graphql.document = NO;
+
+    // -- Assert --
+    XCTAssertFalse(options.dataCollection.graphql.document);
+}
+
+- (void)testDataCollection_whenHttpHeadersMutatedInPlace_shouldPropagateToParent
+{
+    // -- Arrange --
+    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
+
+    // -- Act --
+    options.dataCollection.httpHeaders.request =
+        [SentryObjCDataCollectionKeyValueCollectionBehavior off];
+
+    // -- Assert --
+    XCTAssertEqual(options.dataCollection.httpHeaders.request.mode,
+        SentryObjCDataCollectionKeyValueCollectionModeOff);
+}
+
 @end
