@@ -4,13 +4,19 @@ import XCTest
 class SentryGraphQLCollectionOptionsTests: XCTestCase {
 
     func testInit_withoutArguments_shouldDefaultToTrue() {
+        // -- Act --
         let options = SentryDataCollection.GraphQLCollectionOptions()
+
+        // -- Assert --
         XCTAssertTrue(options.document)
         XCTAssertTrue(options.variables)
     }
 
     func testInit_withArguments_shouldSetProperties() {
+        // -- Act --
         let options = SentryDataCollection.GraphQLCollectionOptions(document: false, variables: true)
+
+        // -- Assert --
         XCTAssertFalse(options.document)
         XCTAssertTrue(options.variables)
     }
@@ -51,6 +57,29 @@ class SentryGraphQLCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(options.document)
         XCTAssertEqual(options.variables, SentryDataCollection.GraphQLCollectionOptions().variables)
+    }
+
+    func testInitWithDictionary_whenDocumentIsMissing_shouldUseDocumentDefault() {
+        // -- Arrange --
+        let dictionary: [String: Any] = ["variables": false]
+
+        // -- Act --
+        let options = SentryDataCollection.GraphQLCollectionOptions(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.document, SentryDataCollection.GraphQLCollectionOptions().document)
+        XCTAssertFalse(options.variables)
+    }
+
+    func testInitWithDictionary_whenDictionaryIsEmpty_shouldUseDefaults() {
+        // -- Arrange --
+        let dictionary: [String: Any] = [:]
+
+        // -- Act --
+        let options = SentryDataCollection.GraphQLCollectionOptions(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options, SentryDataCollection.GraphQLCollectionOptions())
     }
 
     func testInitWithDictionary_whenDocumentHasWrongType_shouldUseDocumentDefault() {

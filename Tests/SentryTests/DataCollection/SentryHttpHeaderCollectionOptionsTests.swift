@@ -4,16 +4,22 @@ import XCTest
 class SentryHttpHeaderCollectionOptionsTests: XCTestCase {
 
     func testInit_withoutArguments_shouldDefaultToDenyList() {
+        // -- Act --
         let options = SentryDataCollection.HttpHeaderCollectionOptions()
+
+        // -- Assert --
         XCTAssertEqual(options.request, .denyList())
         XCTAssertEqual(options.response, .denyList())
     }
 
     func testInit_withArguments_shouldSetBothDirections() {
+        // -- Act --
         let options = SentryDataCollection.HttpHeaderCollectionOptions(
             request: .allowList(terms: ["authorization"]),
             response: .off
         )
+
+        // -- Assert --
         XCTAssertEqual(options.request, .allowList(terms: ["authorization"]))
         XCTAssertEqual(options.response, .off)
     }
@@ -60,6 +66,31 @@ class SentryHttpHeaderCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.request, .off)
         XCTAssertEqual(options.response, SentryDataCollection.HttpHeaderCollectionOptions().response)
+    }
+
+    func testInitWithDictionary_whenRequestIsMissing_shouldUseRequestDefault() {
+        // -- Arrange --
+        let dictionary: [String: Any] = [
+            "response": ["mode": "off"]
+        ]
+
+        // -- Act --
+        let options = SentryDataCollection.HttpHeaderCollectionOptions(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options.request, SentryDataCollection.HttpHeaderCollectionOptions().request)
+        XCTAssertEqual(options.response, .off)
+    }
+
+    func testInitWithDictionary_whenDictionaryIsEmpty_shouldUseDefaults() {
+        // -- Arrange --
+        let dictionary: [String: Any] = [:]
+
+        // -- Act --
+        let options = SentryDataCollection.HttpHeaderCollectionOptions(dictionary: dictionary)
+
+        // -- Assert --
+        XCTAssertEqual(options, SentryDataCollection.HttpHeaderCollectionOptions())
     }
 
     func testInitWithDictionary_whenRequestHasWrongType_shouldUseRequestDefault() {

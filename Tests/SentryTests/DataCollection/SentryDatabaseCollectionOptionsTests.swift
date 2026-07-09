@@ -4,12 +4,18 @@ import XCTest
 class SentryDatabaseCollectionOptionsTests: XCTestCase {
 
     func testInit_withoutArguments_shouldDefaultToTrue() {
+        // -- Act --
         let options = SentryDataCollection.DatabaseCollectionOptions()
+
+        // -- Assert --
         XCTAssertTrue(options.queryParams)
     }
 
     func testInit_withArguments_shouldSetProperties() {
+        // -- Act --
         let options = SentryDataCollection.DatabaseCollectionOptions(queryParams: false)
+
+        // -- Assert --
         XCTAssertFalse(options.queryParams)
     }
 
