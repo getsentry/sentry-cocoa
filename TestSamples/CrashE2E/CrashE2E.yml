@@ -37,6 +37,32 @@ targets:
       Debug: App/Configurations/CrashE2E-iOS.xcconfig
       Release: App/Configurations/CrashE2E-iOS.xcconfig
 
+  CrashE2E-iOS-KSCrash:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    dependencies:
+      - target: "Sentry/Sentry+KSCrash"
+      - target: CrashE2EDynamicImageBefore-iOS
+        embed: true
+        link: false
+      - target: CrashE2EDynamicImageAfter-iOS
+        embed: true
+        link: false
+    sources:
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+    configFiles:
+      Debug: App/Configurations/CrashE2E-iOS.xcconfig
+      Release: App/Configurations/CrashE2E-iOS.xcconfig
+    settings:
+      base:
+        PRODUCT_NAME: CrashE2E-iOS-KSCrash
+        PRODUCT_BUNDLE_IDENTIFIER: io.sentry.tests.CrashE2E.KSCrash.iOS
+
   CrashE2E-macOS:
     type: tool
     platform: macOS
@@ -58,6 +84,31 @@ targets:
       Release: App/Configurations/CrashE2E-macOS.xcconfig
     settings:
       base:
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) CRASH_E2E_MACOS_CLI"
+
+  CrashE2E-macOS-KSCrash:
+    type: tool
+    platform: macOS
+    deploymentTarget: "11.0"
+    dependencies:
+      - target: "Sentry/Sentry+KSCrash"
+      - target: CrashE2EDynamicImageBefore-macOS
+        link: false
+      - target: CrashE2EDynamicImageAfter-macOS
+        link: false
+    sources:
+      - path: App/Sources
+        type: group
+        group: App
+        excludes:
+          - "**/.gitkeep"
+    configFiles:
+      Debug: App/Configurations/CrashE2E-macOS.xcconfig
+      Release: App/Configurations/CrashE2E-macOS.xcconfig
+    settings:
+      base:
+        PRODUCT_NAME: CrashE2E-macOS-KSCrash
+        PRODUCT_BUNDLE_IDENTIFIER: io.sentry.tests.CrashE2E.KSCrash.macOS
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) CRASH_E2E_MACOS_CLI"
 
   CrashE2EDynamicImageBefore-iOS:
@@ -118,10 +169,30 @@ schemes:
     archive:
       config: Release
 
+  CrashE2E-iOS-KSCrash:
+    build:
+      buildImplicitDependencies: false
+      targets:
+        CrashE2E-iOS-KSCrash: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+
   CrashE2E-macOS:
     build:
       targets:
         CrashE2E-macOS: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+
+  CrashE2E-macOS-KSCrash:
+    build:
+      buildImplicitDependencies: false
+      targets:
+        CrashE2E-macOS-KSCrash: all
     run:
       config: Debug
     archive:

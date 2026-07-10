@@ -4,7 +4,6 @@ final class IOSPlatformRunner {
     private let config: Config
     private let processRunner: ProcessRunner
     private let fileManager = FileManager.default
-    private let bundleID = "io.sentry.tests.CrashE2E.iOS"
 
     private(set) var deviceID = ""
     private(set) var xcodebuildDestination = ""
@@ -31,12 +30,12 @@ final class IOSPlatformRunner {
 
     private func installApp(derivedDataPath: URL) throws {
         let appPath = derivedDataPath
-            .appendingPathComponent("Build/Products/Debug-iphonesimulator/CrashE2E-iOS.app", isDirectory: true)
+            .appendingPathComponent("Build/Products/Debug-iphonesimulator/\(config.reporter.iOSAppName)", isDirectory: true)
         guard fileManager.fileExists(atPath: appPath.path) else {
             try fail("iOS app not found: \(appPath.path)")
         }
 
-        log("Installing CrashE2E-iOS on \(deviceID).")
+        log("Installing \(config.reporter.iOSScheme) on \(deviceID).")
         try processRunner.run("xcrun", ["simctl", "terminate", deviceID, bundleID], captureOutput: true, allowFailure: true)
         try processRunner.run("xcrun", ["simctl", "uninstall", deviceID, bundleID], captureOutput: true, allowFailure: true)
         try processRunner.run("xcrun", ["simctl", "install", deviceID, appPath.path])
@@ -195,5 +194,9 @@ final class IOSPlatformRunner {
             allowFailure: true
         )
         return output.contains(bundleID)
+    }
+
+    private var bundleID: String {
+        config.reporter.iOSBundleID
     }
 }

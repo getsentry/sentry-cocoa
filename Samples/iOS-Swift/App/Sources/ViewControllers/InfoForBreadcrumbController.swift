@@ -1,5 +1,5 @@
-import Foundation
 @_spi(Private) import Sentry
+import Foundation
 import UIKit
 
 // swiftlint:disable private_outlet
@@ -7,7 +7,7 @@ class InfoForBreadcrumbController: UIViewController {
 
     @IBOutlet var button: UIButton!
     @IBOutlet var label: UILabel!
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         SentrySDK.reportFullyDisplayed()

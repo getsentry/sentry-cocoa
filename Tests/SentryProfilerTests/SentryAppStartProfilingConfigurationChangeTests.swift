@@ -1,7 +1,7 @@
 // swiftlint:disable file_length
 
-@testable import Sentry
 @_spi(Private) import SentryTestUtils
+@testable import Sentry
 import XCTest
 
 #if os(iOS) || os(macOS)

@@ -1,7 +1,7 @@
 #if os(iOS) || os(tvOS)
 
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import XCTest
 
 /// Integration tests that verify the completion-handler swizzling for replay's

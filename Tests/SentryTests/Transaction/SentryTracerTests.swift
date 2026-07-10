@@ -1,6 +1,6 @@
-import _SentryPrivate
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
+import _SentryPrivate
 import XCTest
 
 // swiftlint:disable file_length type_body_length

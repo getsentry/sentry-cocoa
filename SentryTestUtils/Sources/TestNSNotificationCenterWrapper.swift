@@ -1,5 +1,5 @@
-import Foundation
 @_spi(Private) import Sentry
+import Foundation
 
 #if (os(iOS) || os(tvOS) || os(visionOS))
 import UIKit

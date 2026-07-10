@@ -76,31 +76,31 @@ class SentryUIEventTrackerTests: XCTestCase {
     func test_NSObject_Transaction() throws {
         callExecuteAction(action: "method:", target: fixture.target, sender: NSObject(), event: TestUIEvent())
         
-        try  assertTransaction(name: "SentryTests.FirstViewController.method", operation: operation)
+        try  assertTransaction(name: "\(SentryTestSetup.testPrefix).FirstViewController.method", operation: operation)
     }
     
     func test_UIView_Transaction() throws {
         callExecuteAction(action: "method:", target: fixture.target, sender: UIView(), event: TestUIEvent())
         
-        try assertTransaction(name: "SentryTests.FirstViewController.method", operation: operation)
+        try assertTransaction(name: "\(SentryTestSetup.testPrefix).FirstViewController.method", operation: operation)
     }
     
     func testAction_WithNoArgument() throws {
         callExecuteAction(action: "method:", target: fixture.target, sender: fixture.button, event: TestUIEvent())
         
-        try assertTransaction(name: "SentryTests.FirstViewController.method", operation: operationClick)
+        try assertTransaction(name: "\(SentryTestSetup.testPrefix).FirstViewController.method", operation: operationClick)
     }
     
     func testAction_WithOneArgument() throws {
         callExecuteAction(action: "method:firstArgument:", target: fixture.target, sender: fixture.button, event: TestUIEvent())
         
-        try assertTransaction(name: "SentryTests.FirstViewController.method(firstArgument:)", operation: operationClick)
+        try assertTransaction(name: "\(SentryTestSetup.testPrefix).FirstViewController.method(firstArgument:)", operation: operationClick)
     }
     
     func testAction_WithThreeArguments() throws {
         callExecuteAction(action: "method:first:second:third:", target: fixture.target, sender: fixture.button, event: TestUIEvent())
         
-        try assertTransaction(name: "SentryTests.FirstViewController.method(first:second:third:)", operation: operationClick)
+        try assertTransaction(name: "\(SentryTestSetup.testPrefix).FirstViewController.method(first:second:third:)", operation: operationClick)
     }
     
     func test_UIViewWithAccessibilityIdentifier_UseAccessibilityIdentifier() throws {
@@ -135,19 +135,19 @@ class SentryUIEventTrackerTests: XCTestCase {
     func test_SubclassOfUIButton_CreatesTransaction() throws {
         callExecuteAction(action: action, target: fixture.target, sender: TestUIButton(), event: TestUIEvent())
         
-        try assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operationClick)
+        try assertTransaction(name: "\(SentryTestSetup.testPrefix).FirstViewController.\(expectedAction)", operation: operationClick)
     }
     
     func test_UISegmentedControl_CreatesTransaction() throws {
         callExecuteAction(action: action, target: fixture.target, sender: UISegmentedControl(), event: TestUIEvent())
         
-        try assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operationClick)
+        try assertTransaction(name: "\(SentryTestSetup.testPrefix).FirstViewController.\(expectedAction)", operation: operationClick)
     }
     
     func test_UIPageControl_CreatesTransaction() throws {
         callExecuteAction(action: action, target: fixture.target, sender: UISegmentedControl(), event: TestUIEvent())
         
-        try assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operationClick)
+        try assertTransaction(name: "\(SentryTestSetup.testPrefix).FirstViewController.\(expectedAction)", operation: operationClick)
     }
     
     func test_OnGoingUILoadTransaction_StartNewUIEventTransaction_NotBoundToScope() throws {
@@ -304,7 +304,7 @@ class SentryUIEventTrackerTests: XCTestCase {
     private func assertFinishesTransaction(_ transaction: SentryTracer, _ operation: String) throws {
         XCTAssertTrue(transaction.isFinished)
         XCTAssertEqual(.ok, transaction.status)
-        try assertTransaction(name: "SentryTests.FirstViewController.\(expectedAction)", operation: operation)
+        try assertTransaction(name: "\(SentryTestSetup.testPrefix).FirstViewController.\(expectedAction)", operation: operation)
         
         let transactions = try getInternalTransactions()
         XCTAssertEqual(1, transactions.count)
