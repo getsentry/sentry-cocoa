@@ -105,37 +105,10 @@
                                                                 outlineWidth:4];
                 };
                 config.onSubmitSuccess = ^(NSDictionary<NSString *, id> *_Nonnull info) {
-                    NSString *name = info[@"name"] ?: @"$shakespearean_insult_name";
-                    UIAlertController *alert = [UIAlertController
-                        alertControllerWithTitle:@"Thanks?"
-                                         message:[NSString stringWithFormat:
-                                                         @"We have enough jank of our own, we "
-                                                         @"really didn't need yours too, %@",
-                                                     name]
-                                  preferredStyle:UIAlertControllerStyleAlert];
-                    [alert addAction:[UIAlertAction actionWithTitle:@"Derp"
-                                                              style:UIAlertActionStyleDefault
-                                                            handler:nil]];
-                    [[SampleAppUI activeViewController] presentViewController:alert
-                                                                     animated:YES
-                                                                   completion:nil];
+                    NSLog(@"Feedback submitted successfully: %@", info);
                 };
-                config.onSubmitError = ^(NSError *_Nonnull error) {
-                    UIAlertController *alert = [UIAlertController
-                        alertControllerWithTitle:@"D'oh"
-                                         message:
-                                             [NSString stringWithFormat:
-                                                     @"You tried to report jank, and encountered "
-                                                     @"more jank. The jank has you now: %@",
-                                                 error]
-                                  preferredStyle:UIAlertControllerStyleAlert];
-                    [alert addAction:[UIAlertAction actionWithTitle:@"Derp"
-                                                              style:UIAlertActionStyleDefault
-                                                            handler:nil]];
-                    [[SampleAppUI activeViewController] presentViewController:alert
-                                                                     animated:YES
-                                                                   completion:nil];
-                };
+                config.onSubmitError = ^(
+                    NSError *_Nonnull error) { NSLog(@"Failed to submit feedback: %@", error); };
             };
         }
     }];

@@ -13,10 +13,6 @@ public final class SampleAppUI: NSObject {
             .first(where: \.isKeyWindow)
     }
 
-    public static var activeViewController: UIViewController? {
-        presentingViewController(in: activeWindow)
-    }
-
     public static func presentingViewController(in window: UIWindow?) -> UIViewController? {
         guard let rootViewController = window?.rootViewController else { return nil }
         return presentingViewController(from: rootViewController)
