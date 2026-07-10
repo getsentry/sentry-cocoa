@@ -8,7 +8,7 @@
 
 ### Fixes
 
-- Fix EXC_BAD_ACCESS in SentryTracer/SentryNetworkTracker span lifecycle caused by concurrent access to volatile properties (#8058)
+- Fix EXC_BAD_ACCESS in SentryNetworkTracker caused by repeated reads of the volatile `NSURLSessionTask.currentRequest` property (#8058)
 
 ## 9.19.1
 

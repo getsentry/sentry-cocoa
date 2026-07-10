@@ -61,15 +61,6 @@ static NSString *const SENTRY_TRACEPARENT = @"traceparent";
     }
 }
 
-+ (BOOL)sessionTaskRequiresPropagation:(NSURLSessionTask *)sessionTask
-               tracePropagationTargets:(NSArray *)tracePropagationTargets
-{
-    return sessionTask.currentRequest != nil &&
-        [SentryTracePropagation
-            isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, sessionTask.currentRequest.URL)
-              withTargets:tracePropagationTargets];
-}
-
 + (void)addHeaderFieldsToRequest:(NSMutableURLRequest *)request
                      traceHeader:(SentryTraceHeader *)traceHeader
                    baggageHeader:(NSString *)baggageHeader
