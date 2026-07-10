@@ -43,6 +43,8 @@ static int64_t const DATA_BYTES_SENT = 652;
 
 - (void)setResponse:(NSURLResponse *)response;
 
+- (void)setCurrentRequest:(NSURLRequest *)request;
+
 @end
 
 @interface URLSessionUploadTaskMock : NSURLSessionUploadTask <URLSessionTaskMock>
