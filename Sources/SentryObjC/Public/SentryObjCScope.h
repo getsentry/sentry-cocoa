@@ -76,6 +76,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)clearBreadcrumbs;
 
 /**
+ * Adds a feature flag evaluation to this scope.
+ * @param name The feature flag name.
+ * @param result The evaluated boolean result.
+ */
+- (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result;
+
+/**
  * Sets context values which will overwrite event context when the event is
  * enriched with the scope before sending.
  * @note The @c flags context key is reserved for feature flag evaluations.

@@ -159,6 +159,8 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -169,6 +171,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+          resolve-simulators: "false"
       - name: Unzip all XCFrameworks
         run: |
           find XCFrameworkBuildPath -name "*.xcframework.zip" -print0 | xargs -t0I @ unzip @ -d XCFrameworkBuildPath
@@ -210,6 +213,8 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -234,6 +239,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+          resolve-simulators: "false"
       - run: swift build
         working-directory: Samples/macOS-SPM-CommandLine
       - name: Run CI Diagnostics
@@ -252,6 +258,8 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -276,6 +284,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+          resolve-simulators: "false"
       - run: swift build
         working-directory: Samples/SPM-Dynamic
       - name: Run CI Diagnostics
@@ -294,6 +303,8 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -318,6 +329,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+          resolve-simulators: "false"
       - run: swift build --target SentrySwiftUI
       - name: Run CI Diagnostics
         uses: ./.github/actions/ci-diagnostics
@@ -335,6 +347,8 @@ jobs:
     # Run the job only for PRs with related changes or non-PR events.
     if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_release_for_prs == 'true'
     steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -359,6 +373,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+          resolve-simulators: "false"
       - run: set -o pipefail && NSUnbufferedIO=YES xcodebuild build -scheme visionOS-SPM -sdk xros -destination 'generic/platform=xros' | tee raw-build-output-spm-visionOS.log | xcbeautify --preserve-unbeautified
         working-directory: Samples/visionOS-SPM
       - name: Run CI Diagnostics
@@ -399,12 +414,15 @@ jobs:
       )
     timeout-minutes: 20
     steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - name: Git checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "16"
+          resolve-simulators: "false"
       - name: Setup Ruby
         uses: ruby/setup-ruby@9eb537ca036ebaed86729dcb9309076e4c5c3b74 # v1.314.0
         with:

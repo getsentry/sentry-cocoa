@@ -63,10 +63,13 @@ jobs:
     runs-on: ${{ inputs.runner_provider == 'bitrise' && fromJSON(format('["bitrise_pool_name:{0}"]', inputs.macos_version)) || fromJSON(format('["ghcr.io/cirruslabs/macos-runner:{0},runner_concurrency_group={1}", "runner_group_id:10"]', inputs.macos_version, github.run_id)) }}
     timeout-minutes: 40
     steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         name: Cache Ruby
+        id: cache-ruby
         with:
           path: |
             ~/.rbenv/versions
@@ -75,9 +78,18 @@ jobs:
 
       - name: Install Ruby (Bitrise)
         if: inputs.runner_provider == 'bitrise'
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+          CACHE_HIT: ${{ steps.cache-ruby.outputs.cache-hit }}
         run: |
-          brew upgrade ruby-build
-          rbenv install -s
+          # Only touch Homebrew / build Ruby when the cache missed.
+          if [ "$CACHE_HIT" != "true" ]; then
+            brew upgrade ruby-build
+            rbenv install -s
+          else
+            echo "Ruby cache hit — skipping brew upgrade ruby-build and rbenv install"
+            rbenv rehash
+          fi
           bundle install
 
       - name: Setup Ruby
@@ -119,8 +131,13 @@ jobs:
           OS_VERSION: ${{ steps.resolve-test-destination.outputs.TEST_OS }}
         run: ./scripts/ci-boot-simulator.sh --xcode "$XCODE_VERSION" --device "$DEVICE_NAME" --os-version "$OS_VERSION"
 
+      - name: Cache or Update Homebrew
+        uses: ./.github/actions/cache-homebrew
+        if: ${{ inputs.build_with_make }}
       - run: make init-ci-build
         if: ${{ inputs.build_with_make }}
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
 
       - run: make xcode-ci
         if: ${{ inputs.build_with_make }}

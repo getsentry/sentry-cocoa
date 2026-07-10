@@ -1,6 +1,6 @@
+@_spi(Private) import Sentry
 import _SentryPrivate
 import Foundation
-@_spi(Private) import Sentry
 
 @_spi(Private) public class TestTransportAdapter: SentryTransportAdapter {
     @_spi(Private)

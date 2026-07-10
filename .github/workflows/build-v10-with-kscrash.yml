@@ -1,0 +1,100 @@
+name: Build v10 with KSCrash
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ready-to-merge-gate:
+    name: Ready-to-merge gate
+    uses: ./.github/workflows/ready-to-merge-workflow.yml
+
+  files-changed:
+    name: Detect File Changes
+    runs-on: ubuntu-latest
+    needs: ready-to-merge-gate
+    outputs:
+      run_v10_with_kscrash_for_prs: ${{ steps.changes.outputs.run_v10_with_kscrash_for_prs }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Get changed files
+        id: changes
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        with:
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
+  build-v10-with-kscrash:
+    name: Build v10 with KSCrash ${{ matrix.platform }}
+    if: github.event_name != 'pull_request' || needs.files-changed.outputs.run_v10_with_kscrash_for_prs == 'true'
+    needs: files-changed
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: iOS
+            make-target: build-ios-v10-with-kscrash
+          - platform: macOS
+            make-target: build-macos-v10-with-kscrash
+          - platform: Catalyst
+            make-target: build-catalyst-v10-with-kscrash
+          - platform: tvOS
+            make-target: build-tvos-v10-with-kscrash
+          - platform: visionOS
+            make-target: build-visionos-v10-with-kscrash
+          - platform: watchOS
+            make-target: build-watchos-v10-with-kscrash
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Setup Xcode
+        id: setup-xcode
+        uses: ./.github/actions/setup-xcode
+        with:
+          version: "26"
+
+      - name: Resolve test destination
+        id: resolve-test-destination
+        uses: ./.github/actions/resolve-test-destination
+        with:
+          platform: ${{ matrix.platform }}
+
+      - name: Build v10 with KSCrash
+        env:
+          IOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.ios-simulator-os }}
+          IOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          TVOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.tvos-simulator-os }}
+          TVOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          VISIONOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.visionos-simulator-os }}
+          VISIONOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+          WATCHOS_SIMULATOR_OS: ${{ steps.setup-xcode.outputs.watchos-simulator-os }}
+          WATCHOS_DEVICE_NAME: ${{ steps.resolve-test-destination.outputs.TEST_DEVICE }}
+        run: make ${{ matrix.make-target }}
+
+      - name: Run CI Diagnostics
+        uses: ./.github/actions/ci-diagnostics
+        if: ${{ failure() || cancelled() }}
+
+  build-v10-with-kscrash-required-check:
+    needs:
+      [
+        files-changed,
+        build-v10-with-kscrash,
+        ready-to-merge-gate,
+      ]
+    name: Build v10 with KSCrash
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for failures
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "One of the KSCrash build jobs has failed." && exit 1

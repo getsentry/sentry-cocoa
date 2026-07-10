@@ -84,6 +84,8 @@ jobs:
         runner_provider: ${{ github.event_name == 'pull_request' && fromJSON('["cirrus", "bitrise"]') || fromJSON('["bitrise"]') }}
     timeout-minutes: 15
     steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Xcode
         id: setup-xcode
@@ -91,7 +93,11 @@ jobs:
         with:
           version: "16"
 
+      - name: Cache or Update Homebrew
+        uses: ./.github/actions/cache-homebrew
       - run: make init-ci-build
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
       - run: make xcode-ci
 
       - name: Enable screenshots permissions

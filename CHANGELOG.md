@@ -2,9 +2,21 @@
 
 ## Unreleased
 
+## Features
+
+- Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
+- Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
+
+## 9.21.0
+
 ### Fixes
 
 - Fix use-after-free race in `span`, `startProfiler`, and `stopProfiler` by snapshotting `currentHub` under `currentHubLock` before dereferencing. (#8318)
+
+### Features
+
+- Attach feature flag evaluations to active spans (#8158)
+- Add feature flag scope ObjC API (#8160)
 
 ## 9.20.0
 

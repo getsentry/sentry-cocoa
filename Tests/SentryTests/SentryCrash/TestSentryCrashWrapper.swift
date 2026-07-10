@@ -1,5 +1,5 @@
-import Foundation
 @_spi(Private) @testable import Sentry
+import Foundation
 
 /// Protocol-based test double for SentryCrashReporter.
 /// Implements the protocol directly -- no subclassing of the concrete class.

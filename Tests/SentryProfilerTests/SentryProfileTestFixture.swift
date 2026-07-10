@@ -1,6 +1,6 @@
-import _SentryPrivate
 @_spi(Private) @testable import Sentry
 @_spi(Private) @testable import SentryTestUtils
+import _SentryPrivate
 import XCTest
 
 #if os(iOS) || os(macOS)

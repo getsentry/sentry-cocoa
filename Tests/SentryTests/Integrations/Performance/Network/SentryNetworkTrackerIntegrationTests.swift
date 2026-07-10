@@ -1,5 +1,5 @@
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import XCTest
 
 /// Tests with a running test server to validate our swizzling doesn't break the HTTP requests are in

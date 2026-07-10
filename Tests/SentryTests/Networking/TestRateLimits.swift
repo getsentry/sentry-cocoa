@@ -1,5 +1,5 @@
-import Foundation
 @_spi(Private) import Sentry
+import Foundation
 
 @_spi(Private)
 public class TestRateLimits: NSObject, RateLimits {

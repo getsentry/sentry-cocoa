@@ -1,7 +1,7 @@
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryUIViewControllerSwizzlingHelperTests: XCTestCase {

@@ -29,11 +29,14 @@ jobs:
     runs-on: macos-26
 
     steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Xcode
         uses: ./.github/actions/setup-xcode
         with:
           version: "26"
+          resolve-simulators: "false"
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@9eb537ca036ebaed86729dcb9309076e4c5c3b74 # v1.314.0

@@ -1,5 +1,5 @@
-@testable import Sentry
 @_spi(Private) import SentryTestUtils
+@testable import Sentry
 import XCTest
 
 /// You have to start the test server before running this test. You can do this by calling

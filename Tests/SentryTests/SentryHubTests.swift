@@ -1,5 +1,5 @@
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import XCTest
 
 // swiftlint:disable file_length
@@ -186,7 +186,7 @@ class SentryHubTests: XCTestCase {
         XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
         XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
     }
-    
+
     func testBreadcrumbOverDefaultLimit() {
         let hub = fixture.getSut(withMaxBreadcrumbs: 200)
         

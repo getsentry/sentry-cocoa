@@ -8,10 +8,7 @@ extension Span {
         guard let span = self as? SentrySpanInternal else {
             return
         }
-        guard let wrapper = span.featureFlagBuffer as? SentryFeatureFlagBufferWrapper else {
-            return
-        }
-        wrapper.buffer.add(name: name, value: result)
+        span.addFeatureFlagInternal(name: name, result: result)
     }
 }
 // swiftlint:enable missing_docs
