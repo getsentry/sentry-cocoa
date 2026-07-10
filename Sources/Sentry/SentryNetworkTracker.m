@@ -259,7 +259,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    NSURL *url = [[sessionTask currentRequest] URL];
+    NSURLRequest *currentRequest = sessionTask.currentRequest;
+    NSURL *url = currentRequest.URL;
 
     if (url == nil) {
         return;
@@ -287,9 +288,9 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     //   - suspended → canceling (task cancelled while suspended)
     if (sessionTask.state == NSURLSessionTaskStateRunning
         || sessionTask.state == NSURLSessionTaskStateSuspended) {
-        [self captureFailedRequests:sessionTask];
+        [self captureFailedRequests:sessionTask currentRequest:currentRequest];
 
-        [self addBreadcrumbForSessionTask:sessionTask];
+        [self addBreadcrumbForSessionTask:sessionTask currentRequest:currentRequest];
 
         NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
@@ -309,6 +310,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 }
 
 - (void)captureFailedRequests:(NSURLSessionTask *)sessionTask
+               currentRequest:(NSURLRequest *)currentRequest
 {
     if (!self.isCaptureFailedRequestsEnabled) {
         SENTRY_LOG_DEBUG(
@@ -316,8 +318,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    // if request or response are null, we can't raise the event
-    if (sessionTask.currentRequest == nil || sessionTask.response == nil) {
+    if (currentRequest == nil || sessionTask.response == nil) {
         SENTRY_LOG_DEBUG(@"Request or Response are null, not capturing HTTP Client errors.");
         return;
     }
@@ -329,7 +330,6 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
     NSHTTPURLResponse *myResponse = (NSHTTPURLResponse *)sessionTask.response;
-    NSURLRequest *myRequest = sessionTask.currentRequest;
     NSNumber *responseStatusCode = @(myResponse.statusCode);
 
     if (![self containsStatusCode:myResponse.statusCode]) {
@@ -339,7 +339,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     if (![SentryTracePropagation
-            isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, myRequest.URL)
+            isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)
               withTargets:SentrySDKInternal.options.failedRequestTargets ?: @[]]) {
         SENTRY_LOG_DEBUG(
             @"Request url isn't within the request targets, not capturing HTTP Client errors.");
@@ -374,16 +374,16 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     SentryRequest *request = [[SentryRequest alloc] init];
 
-    UrlSanitized *url = [[UrlSanitized alloc]
-        initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, [[sessionTask currentRequest] URL])];
+    UrlSanitized *url =
+        [[UrlSanitized alloc] initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)];
 
     request.url = url.sanitizedUrl;
-    request.method = myRequest.HTTPMethod;
+    request.method = currentRequest.HTTPMethod;
     request.fragment = url.fragment;
     request.queryString = url.query;
     request.bodySize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
-    if (nil != myRequest.allHTTPHeaderFields) {
-        NSDictionary<NSString *, NSString *> *headers = myRequest.allHTTPHeaderFields.copy;
+    if (nil != currentRequest.allHTTPHeaderFields) {
+        NSDictionary<NSString *, NSString *> *headers = currentRequest.allHTTPHeaderFields.copy;
         request.headers = [HTTPHeaderSanitizer sanitizeHeaders:headers];
     }
 
@@ -430,6 +430,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 }
 
 - (void)addBreadcrumbForSessionTask:(NSURLSessionTask *)sessionTask
+                     currentRequest:(NSURLRequest *)currentRequest
 {
     if (!self.isNetworkBreadcrumbEnabled) {
         return;
@@ -451,13 +452,13 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
                                                                   category:@"http"];
 
-    UrlSanitized *urlComponents = [[UrlSanitized alloc]
-        initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, sessionTask.currentRequest.URL)];
+    UrlSanitized *urlComponents =
+        [[UrlSanitized alloc] initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)];
 
     breadcrumb.type = @"http";
     NSMutableDictionary<NSString *, id> *breadcrumbData = [[NSMutableDictionary alloc] init];
     breadcrumbData[@"url"] = urlComponents.sanitizedUrl;
-    breadcrumbData[@"method"] = sessionTask.currentRequest.HTTPMethod;
+    breadcrumbData[@"method"] = currentRequest.HTTPMethod;
     breadcrumbData[@"request_start"] = requestStart;
     breadcrumbData[@"request_body_size"] =
         [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];

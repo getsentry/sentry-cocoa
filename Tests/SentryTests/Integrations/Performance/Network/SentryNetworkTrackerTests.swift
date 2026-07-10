@@ -340,6 +340,23 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(SentryNetworkTrackerTests.origin, span.origin)
     }
 
+    func testSpanData_VolatileCurrentRequest_UsesSnapshot() throws {
+        var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
+        request.httpMethod = "GET"
+        let task = VolatileRequestTaskMock(request: request)
+        task.currentRequestAccessLimit = 1
+
+        let sut = fixture.getSut()
+        let transaction = startTransaction()
+        sut.urlSessionTaskResume(task)
+
+        let spans = Dynamic(transaction).children as [Span]?
+        let span = try XCTUnwrap(spans?.first)
+
+        XCTAssertEqual(span.spanDescription, "GET \(SentryNetworkTrackerTests.testUrl)")
+        XCTAssertEqual(span.data["http.request.method"] as? String, "GET")
+    }
+
     func testStatusForTaskRunning() {
         let sut = fixture.getSut()
         let task = createDataTask()
