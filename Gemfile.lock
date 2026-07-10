@@ -123,7 +123,7 @@ GEM
       xcodeproj (>= 1.13.0, < 2.0.0)
       xcpretty (~> 0.4.1)
       xcpretty-travis-formatter (>= 0.0.3, < 2.0.0)
-    fastlane-plugin-sentry (2.5.8)
+    fastlane-plugin-sentry (2.6.0)
       os (~> 1.1, >= 1.1.4)
     fastlane-sirp (1.1.0)
     gh_inspector (1.1.3)
