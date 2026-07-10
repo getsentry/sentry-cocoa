@@ -1,21 +1,13 @@
 #import "AppDelegate.h"
 @import CoreData;
 @import Sentry;
-
 @import SentrySampleShared;
-
-@interface AppDelegate ()
-@property (strong, nonatomic) SampleAppDebugMenu *debugMenu;
-@end
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.debugMenu = [[SampleAppDebugMenu alloc] init];
-    [self.debugMenu display];
-
     NSArray<NSString *> *args = NSProcessInfo.processInfo.arguments;
     NSDictionary<NSString *, NSString *> *env = NSProcessInfo.processInfo.environment;
 
@@ -124,9 +116,9 @@
                     [alert addAction:[UIAlertAction actionWithTitle:@"Derp"
                                                               style:UIAlertActionStyleDefault
                                                             handler:nil]];
-                    [self.window.rootViewController presentViewController:alert
-                                                                 animated:YES
-                                                               completion:nil];
+                    [[SampleAppUI activeViewController] presentViewController:alert
+                                                                     animated:YES
+                                                                   completion:nil];
                 };
                 config.onSubmitError = ^(NSError *_Nonnull error) {
                     UIAlertController *alert = [UIAlertController
@@ -140,9 +132,9 @@
                     [alert addAction:[UIAlertAction actionWithTitle:@"Derp"
                                                               style:UIAlertActionStyleDefault
                                                             handler:nil]];
-                    [self.window.rootViewController presentViewController:alert
-                                                                 animated:YES
-                                                               completion:nil];
+                    [[SampleAppUI activeViewController] presentViewController:alert
+                                                                     animated:YES
+                                                                   completion:nil];
                 };
             };
         }

@@ -1,10 +1,12 @@
+import SentrySampleShared
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    // Mirror the scene window to AppDelegate.window for shared sample helpers.
-    var window: UIWindow? {
-        didSet {
-            (UIApplication.shared.delegate as? AppDelegate)?.window = window
-        }
+    // UIKit initializes this window from the scene storyboard.
+    var window: UIWindow?
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        guard let windowScene = scene as? UIWindowScene else { return }
+        SampleAppDebugMenu.shared.display(in: windowScene)
     }
 }

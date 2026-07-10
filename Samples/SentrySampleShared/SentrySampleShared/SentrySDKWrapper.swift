@@ -446,7 +446,7 @@ extension SentrySDKWrapper {
             let name = info["name"] ?? "$shakespearean_insult_name"
             let alert = UIAlertController(title: "Thanks?", message: "We have enough jank of our own, we really didn't need yours too, \(name).", preferredStyle: .alert)
             alert.addAction(.init(title: "Deal with it 🕶️", style: .default))
-            UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
+            SampleAppUI.activeViewController?.present(alert, animated: true)
 
             var infoToWriteToFile = info
             if let attachments = info["attachments"] as? [[String: Any]] {
@@ -469,7 +469,7 @@ extension SentrySDKWrapper {
         config.onSubmitError = { error in
             let alert = UIAlertController(title: "D'oh", message: "You tried to report jank, and encountered more jank. The jank has you now: \(error).", preferredStyle: .alert)
             alert.addAction(.init(title: "Derp", style: .default))
-            UIApplication.shared.delegate?.window??.rootViewController?.present(alert, animated: true)
+            SampleAppUI.activeViewController?.present(alert, animated: true)
             let nserror = error as NSError
             let missingFieldsSorted = (nserror.userInfo["missing_fields"] as? [String])?.sorted().joined(separator: ";") ?? ""
             updateHookMarkers(forEvent: "onSubmitError", with: "\(nserror.domain);\(nserror.code);\(nserror.localizedDescription);\(missingFieldsSorted)")

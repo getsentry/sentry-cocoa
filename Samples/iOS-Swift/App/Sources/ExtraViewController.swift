@@ -234,7 +234,8 @@ class ExtraViewController: UIViewController {
     @IBAction func startSDK(_ sender: UIButton) {
         highlightButton(sender)
         SentrySDKWrapper.shared.startSentry()
-        SampleAppDebugMenu.shared.display()
+        guard let windowScene = view.window?.windowScene else { return }
+        SampleAppDebugMenu.shared.display(in: windowScene)
     }
 
     @IBAction func causeFrozenFrames(_ sender: Any) {
