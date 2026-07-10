@@ -32,6 +32,10 @@
 - Record log_byte client reports (#8186)
 - Add scope feature flag API (#8147)
 
+### Fixes
+
+- Fix EXC_BAD_ACCESS in SentryNetworkTracker caused by repeated reads of the volatile `NSURLSessionTask.currentRequest` property (#8058)
+
 ## 9.19.1
 
 ### Fixes

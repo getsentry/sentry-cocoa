@@ -1829,6 +1829,65 @@ class SentryTracerTests: XCTestCase {
         XCTAssertEqual(expected, appContext?["start_type"])
     }
 
+    // MARK: - canBeFinished TOCTOU race (issue #8012)
+
+    func testCanBeFinished_ConcurrentChildFinish_DoesNotCrash() throws {
+        for _ in 0..<10 {
+            let sut = fixture.getSut()
+
+            let queue = DispatchQueue(label: "canBeFinished-race", attributes: [.concurrent, .initiallyInactive])
+            let expectation = expectation(description: "concurrent finish")
+            expectation.expectedFulfillmentCount = 101
+            expectation.assertForOverFulfill = true
+
+            for _ in 0..<100 {
+                let child = sut.startChild(operation: fixture.transactionOperation)
+                queue.async {
+                    child.finish()
+                    expectation.fulfill()
+                }
+            }
+
+            queue.async {
+                sut.finish()
+                expectation.fulfill()
+            }
+
+            queue.activate()
+            wait(for: [expectation], timeout: 10.0)
+
+            XCTAssertTrue(sut.isFinished)
+            XCTAssertLessThanOrEqual(fixture.hub.capturedEventsWithScopes.count, 1)
+
+            fixture.hub.capturedEventsWithScopes.removeAll()
+        }
+    }
+
+    func testCanBeFinished_AllChildrenFinishConcurrently_TransactionCapturedExactlyOnce() throws {
+        let sut = fixture.getSut()
+        let children = (0..<50).map { _ in sut.startChild(operation: fixture.transactionOperation) }
+
+        let queue = DispatchQueue(label: "finish-all-children", attributes: [.concurrent, .initiallyInactive])
+        let expectation = expectation(description: "all children finished")
+        expectation.expectedFulfillmentCount = 51
+        expectation.assertForOverFulfill = true
+
+        sut.finish()
+        expectation.fulfill()
+
+        for child in children {
+            queue.async {
+                child.finish()
+                expectation.fulfill()
+            }
+        }
+
+        queue.activate()
+        wait(for: [expectation], timeout: 10.0)
+
+        assertOneTransactionCaptured(sut)
+    }
+
 }
 
 // swiftlint:enable file_length

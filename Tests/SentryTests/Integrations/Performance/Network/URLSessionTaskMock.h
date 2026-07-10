@@ -75,4 +75,15 @@ static int64_t const DATA_BYTES_SENT = 652;
 
 @end
 
+/**
+ * A mock that returns nil from currentRequest after a configurable number of accesses.
+ * Simulates the real-world race where NSURLSessionTask.currentRequest becomes a dangling
+ * pointer (or nil) when the task completes on another thread between repeated reads.
+ */
+@interface VolatileRequestTaskMock : URLSessionDataTaskMock
+
+@property (nonatomic) NSUInteger currentRequestAccessLimit;
+
+@end
+
 NS_ASSUME_NONNULL_END
