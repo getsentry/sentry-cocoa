@@ -425,7 +425,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
     func testLocaleChanged_whenV10_shouldNotSetDeviceLocale() throws {
 #if SDK_V10
-    throw XCTSkip("Locale is not set on device context in SDK v10")
+        throw XCTSkip("Locale is not set on device context in SDK v10")
 #else
         // -- Arrange --
         let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
