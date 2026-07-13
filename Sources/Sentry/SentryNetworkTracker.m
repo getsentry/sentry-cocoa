@@ -645,7 +645,8 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
             statusCode = httpResponse.statusCode;
             allHeaders = httpResponse.allHeaderFields;
             contentType =
-                [httpResponse sentryValueForHTTPHeaderFieldCaseInsensitive:@"content-type"];
+                [SentryHTTPHeaderReader valueForHTTPHeaderFieldCaseInsensitive:@"content-type"
+                                                                    inResponse:httpResponse];
         }
 
         NSData *bodyData
