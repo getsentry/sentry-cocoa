@@ -129,10 +129,14 @@ class NetworkTestingViewController: UIViewController {
         responseStatusLabel.text = "Status: \(emoji) \(code) \(HTTPURLResponse.localizedString(forStatusCode: code))"
         responseStatusLabel.textColor = (200..<300).contains(code) ? .systemGreen : .systemOrange
         
+        // Here we deliberately display all response headers for debugging, so reading
+        // allHeaderFields is intended rather than a case-sensitive single-header lookup.
+        // swiftlint:disable avoid_all_header_fields
         responseHeadersTextView.text = httpResponse.allHeaderFields
             .sorted { "\($0.key)" < "\($1.key)" }
             .map { "\($0.key): \($0.value)" }
             .joined(separator: "\n")
+        // swiftlint:enable avoid_all_header_fields
         
         guard let data = data else { return }
         
