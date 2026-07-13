@@ -675,6 +675,9 @@ class SentryNetworkTrackerTests: XCTestCase {
             fatalError("init(coder:) has not been implemented")
         }
 
+        // Intentionally returns the raw (lowercased) wire casing to reproduce #8388; that's the
+        // whole point of this mock, so the case-sensitivity lint rule doesn't apply here.
+        // swiftlint:disable:next avoid_all_header_fields
         override var allHeaderFields: [AnyHashable: Any] {
             wireHeaders
         }
