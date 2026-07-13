@@ -1354,20 +1354,27 @@ STAGED_CLANG_FILES := $(shell git diff --cached --diff-filter=d --name-only | gr
 # Get staged Objective-C header files
 STAGED_OBJC_HEADER_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.h$$' | awk '{printf "\"%s\" ", $$0}')
 
+# Message for the allHeaderFields banned-pattern lint, aligned with the SwiftLint
+# rule in PR #8387 (rule id avoid_all_header_fields).
+AVOID_ALL_HEADER_FIELDS_MSG := Double-check how you use allHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but its subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see \#8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in DefaultRateLimits.swift. If your usage is intentional, suppress this rule with a comment explaining why.
+
 ## Run linting checks on all files
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks without modifying files.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, and dprint checks without modifying files.
 .PHONY: lint
 lint:
 	@echo "--> Running Swiftlint and Clang-Format"
 	./scripts/check-clang-format.py -r Sources Tests
 	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
+	./scripts/check-objc-banned-pattern.sh --path Sources \
+		--rule avoid_all_header_fields --pattern 'allHeaderFields' \
+		--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"
 	swiftlint --strict --quiet
 	dprint check "**/*.{md,json,yaml,yml}"
 
 ## Run linting checks on staged files only
 #
-# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks on staged files only.
+# Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, Objective-C banned-pattern checks, and dprint checks on staged files only.
 .PHONY: lint-staged
 lint-staged:
 	@echo "--> Running Swiftlint, dprint, and Clang-Format on staged files"
@@ -1376,6 +1383,11 @@ lint-staged:
 	fi
 	@if [ -n "$(STAGED_OBJC_HEADER_FILES)" ]; then \
 		ruby ./scripts/check-objc-id-usage.rb $(STAGED_OBJC_HEADER_FILES); \
+	fi
+	@if [ -n "$(STAGED_CLANG_FILES)" ]; then \
+		./scripts/check-objc-banned-pattern.sh --path Sources \
+			--rule avoid_all_header_fields --pattern 'allHeaderFields' \
+			--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"; \
 	fi
 	@if [ -n "$(STAGED_SWIFT_FILES)" ]; then \
 		swiftlint --strict --quiet $(STAGED_SWIFT_FILES); \
