@@ -48,6 +48,16 @@ done
 [ -z "$SEARCH_PATH" ] && { log_error "Error: --path is required"; usage; }
 [ -z "$MESSAGE" ] && MESSAGE="Banned pattern '$PATTERN' found."
 
+# grep's --include only filters files discovered during recursive directory traversal;
+# an explicitly-passed file is always searched (GNU grep). lint-staged hands us individual
+# files including .c/.cpp/.hpp, so guard the ObjC extension ourselves for the file case.
+if [ -f "$SEARCH_PATH" ]; then
+    case "$SEARCH_PATH" in
+        *.m | *.mm | *.h) ;;
+        *) exit 0 ;;
+    esac
+fi
+
 # Pre-filter to candidate files so awk never reads from stdin on an empty match set.
 FILES=$(grep -rlE "$PATTERN" "$SEARCH_PATH" \
     --include='*.m' --include='*.mm' --include='*.h' || true)
