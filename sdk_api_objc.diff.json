@@ -671,7 +671,7 @@
       "kind": "ObjCMethodDecl",
       "name": "onCrashedLastRun",
       "parent": "SentryObjCOptions",
-      "returnType": "SWIFT_DEPRECATED_MSG(\"Use onLastRunStatusDetermined instead.\") void (^)(SentryObjCEvent * _Nonnull)",
+      "returnType": "SWIFT_DEPRECATED_MSG void (^)(SentryObjCEvent * _Nonnull)",
       "instance": true
     },
     {
@@ -814,7 +814,7 @@
       "kind": "ObjCPropertyDecl",
       "name": "onCrashedLastRun",
       "parent": "SentryObjCOptions",
-      "type": "SWIFT_DEPRECATED_MSG(\"Use onLastRunStatusDetermined instead.\") void (^)(SentryObjCEvent * _Nonnull)"
+      "type": "SWIFT_DEPRECATED_MSG void (^)(SentryObjCEvent * _Nonnull)"
     },
     {
       "kind": "ObjCPropertyDecl",
