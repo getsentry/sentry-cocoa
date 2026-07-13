@@ -108,7 +108,6 @@
 #import "SentryNSURLSessionTaskSearch.h"
 #import "SentryNetworkTracker.h"
 #import "SentryNoOpSpan.h"
-#import "SentryOptionsInternal.h"
 #import "SentryPerformanceTracker+Testing.h"
 #import "SentryPerformanceTracker.h"
 #import "SentryProfilingConditionals.h"
