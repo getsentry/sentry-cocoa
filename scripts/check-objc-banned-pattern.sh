@@ -56,15 +56,21 @@ FILES=$(grep -rlE "$PATTERN" "$SEARCH_PATH" \
 # Report lines matching PATTERN outside a // sentry-lint:disable/enable <rule> region.
 # Disable/enable lines are consumed before the pattern check, so a marker line is
 # never itself reported even for broad patterns.
+# The rule id is anchored with a trailing non-word class so a disable/enable for a
+# rule whose name merely starts with $RULE (e.g. avoid_all_header_fields_v2) does
+# not toggle this rule.
+# `|| true`: awk exits non-zero if a listed file vanished between grep and this pass
+# (e.g. a concurrent clean); detection is by output, not exit code, so don't let
+# `set -e` abort on it.
 # shellcheck disable=SC2086  # intentional word-splitting; source paths have no spaces
 OFFENDING=$(awk -v pat="$PATTERN" -v rule="$RULE" '
-    BEGIN { dis="sentry-lint:disable[[:space:]]+" rule; ena="sentry-lint:enable[[:space:]]+" rule }
+    BEGIN { end="([^_[:alnum:]]|$)"; dis="sentry-lint:disable[[:space:]]+" rule end; ena="sentry-lint:enable[[:space:]]+" rule end }
     FNR==1 { off=0 }
     $0 ~ dis { off=1; next }
     $0 ~ ena { off=0; next }
     off { next }
     $0 ~ pat { print FILENAME":"FNR": "$0 }
-' $FILES)
+' $FILES || true)
 
 if [ -n "$OFFENDING" ]; then
     log_error "$MESSAGE"
