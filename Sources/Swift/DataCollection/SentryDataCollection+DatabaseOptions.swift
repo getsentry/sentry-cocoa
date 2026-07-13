@@ -20,7 +20,7 @@ extension SentryDataCollection {
         @_spi(Private) public init(dictionary: [String: Any]) {
             self.init()
 
-            if let queryParams = SentryDataCollection.DictionaryDecoder.bool(dictionary, "queryParams") {
+            if let queryParams = SentryDictionaryDecoder.bool(dictionary, "queryParams") {
                 self.queryParams = queryParams
             }
         }

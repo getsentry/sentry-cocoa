@@ -35,10 +35,10 @@ extension SentryDataCollection {
         @_spi(Private) public init(dictionary: [String: Any]) {
             self.init()
 
-            if let request = SentryDataCollection.DictionaryDecoder.dictionary(dictionary, "request") {
+            if let request = SentryDictionaryDecoder.dictionary(dictionary, "request") {
                 self.request = SentryDataCollection.KeyValueCollectionBehavior(dictionary: request)
             }
-            if let response = SentryDataCollection.DictionaryDecoder.dictionary(dictionary, "response") {
+            if let response = SentryDictionaryDecoder.dictionary(dictionary, "response") {
                 self.response = SentryDataCollection.KeyValueCollectionBehavior(dictionary: response)
             }
         }

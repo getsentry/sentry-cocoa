@@ -28,10 +28,10 @@ extension SentryDataCollection {
         @_spi(Private) public init(dictionary: [String: Any]) {
             self.init()
 
-            if let document = SentryDataCollection.DictionaryDecoder.bool(dictionary, "document") {
+            if let document = SentryDictionaryDecoder.bool(dictionary, "document") {
                 self.document = document
             }
-            if let variables = SentryDataCollection.DictionaryDecoder.bool(dictionary, "variables") {
+            if let variables = SentryDictionaryDecoder.bool(dictionary, "variables") {
                 self.variables = variables
             }
         }

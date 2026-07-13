@@ -9,9 +9,9 @@
                         didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     SentryOptions *sentryOptions = [[SentryOptions alloc] init];
-    if (![SentryOptionsInternal validateOptions:options
-                                  sentryOptions:sentryOptions
-                               didFailWithError:error]) {
+    if (![SentryOptionsInternal populateOptionsFromDict:options
+                                          sentryOptions:sentryOptions
+                                       didFailWithError:error]) {
         if (error != nil) {
             SENTRY_LOG_ERROR(@"Failed to initialize SentryOptions: %@", *error);
         } else {
@@ -25,9 +25,9 @@
 /**
  * Populates all @c SentryOptions values from @c options dict using fallbacks/defaults if needed.
  */
-+ (BOOL)validateOptions:(NSDictionary<NSString *, id> *)options
-          sentryOptions:(SentryOptions *)sentryOptions
-       didFailWithError:(NSError *_Nullable *_Nullable)error
++ (BOOL)populateOptionsFromDict:(NSDictionary<NSString *, id> *)options
+                  sentryOptions:(SentryOptions *)sentryOptions
+               didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     NSPredicate *isNSString = [NSPredicate predicateWithBlock:^BOOL(
         id object, NSDictionary *bindings) { return [object isKindOfClass:[NSString class]]; }];
@@ -324,7 +324,7 @@
     }
 
     if ([options[@"experimental"] isKindOfClass:NSDictionary.class]) {
-        [sentryOptions.experimental validateOptions:options[@"experimental"]];
+        [sentryOptions.experimental populateFromDict:options[@"experimental"]];
     }
 
     return YES;

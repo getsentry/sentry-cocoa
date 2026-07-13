@@ -3,69 +3,69 @@ import XCTest
 
 class SentryExperimentalOptionsTests: XCTestCase {
 
-    // MARK: - validateOptions
+    // MARK: - Dictionary Population
 
-    func testValidateOptions_whenOptionsAreNil_shouldKeepExistingDataCollection() {
+    func testpopulateFromDict_whenOptionsAreNil_shouldKeepExistingDataCollection() {
         // -- Arrange --
         let options = SentryExperimentalOptions()
         options.dataCollection = SentryDataCollection.Options(userInfo: false)
 
         // -- Act --
-        options.validateOptions(nil)
+        options.populateFrom(dict: nil)
 
         // -- Assert --
         XCTAssertFalse(options.dataCollection.userInfo)
     }
 
-    func testValidateOptions_whenOptionsAreEmpty_shouldKeepExistingDataCollection() {
+    func testpopulateFromDict_whenOptionsAreEmpty_shouldKeepExistingDataCollection() {
         // -- Arrange --
         let options = SentryExperimentalOptions()
         options.dataCollection = SentryDataCollection.Options(userInfo: false)
 
         // -- Act --
-        options.validateOptions([:])
+        options.populateFrom(dict: [:])
 
         // -- Assert --
         XCTAssertFalse(options.dataCollection.userInfo)
     }
 
-    func testValidateOptions_whenDataCollectionIsEmpty_shouldSetDefaultDataCollection() {
+    func testpopulateFromDict_whenDataCollectionIsEmpty_shouldSetDefaultDataCollection() {
         // -- Arrange --
         let options = SentryExperimentalOptions()
         options.dataCollection = SentryDataCollection.Options(userInfo: false)
 
         // -- Act --
-        options.validateOptions(["dataCollection": [:]])
+        options.populateFrom(dict: ["dataCollection": [:]])
 
         // -- Assert --
         XCTAssertEqual(options.dataCollection, SentryDataCollection.Options())
     }
 
-    func testValidateOptions_whenDataCollectionHasWrongType_shouldKeepExistingDataCollection() {
+    func testpopulateFromDict_whenDataCollectionHasWrongType_shouldKeepExistingDataCollection() {
         // -- Arrange --
         let options = SentryExperimentalOptions()
         options.dataCollection = SentryDataCollection.Options(userInfo: false)
 
         // -- Act --
-        options.validateOptions(["dataCollection": "off"])
+        options.populateFrom(dict: ["dataCollection": "off"])
 
         // -- Assert --
         XCTAssertFalse(options.dataCollection.userInfo)
     }
 
-    func testValidateOptions_whenDataCollectionIsNSNull_shouldKeepExistingDataCollection() {
+    func testpopulateFromDict_whenDataCollectionIsNSNull_shouldKeepExistingDataCollection() {
         // -- Arrange --
         let options = SentryExperimentalOptions()
         options.dataCollection = SentryDataCollection.Options(userInfo: false)
 
         // -- Act --
-        options.validateOptions(["dataCollection": NSNull()])
+        options.populateFrom(dict: ["dataCollection": NSNull()])
 
         // -- Assert --
         XCTAssertFalse(options.dataCollection.userInfo)
     }
 
-    func testValidateOptions_whenDataCollectionIsPresent_shouldSetDataCollection() {
+    func testpopulateFromDict_whenDataCollectionIsPresent_shouldSetDataCollection() {
         // -- Arrange --
         let options = SentryExperimentalOptions()
         let dictionary: [String: Any] = [
@@ -78,7 +78,7 @@ class SentryExperimentalOptionsTests: XCTestCase {
         ]
 
         // -- Act --
-        options.validateOptions(dictionary)
+        options.populateFrom(dict: dictionary)
 
         // -- Assert --
         XCTAssertFalse(options.dataCollection.userInfo)

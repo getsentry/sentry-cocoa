@@ -106,28 +106,28 @@ extension SentryDataCollection {
         @_spi(Private) public init(dictionary: [String: Any]) {
             self.init()
 
-            if let userInfo = SentryDataCollection.DictionaryDecoder.bool(dictionary, "userInfo") {
+            if let userInfo = SentryDictionaryDecoder.bool(dictionary, "userInfo") {
                 self.userInfo = userInfo
             }
-            if let cookies = SentryDataCollection.DictionaryDecoder.dictionary(dictionary, "cookies") {
+            if let cookies = SentryDictionaryDecoder.dictionary(dictionary, "cookies") {
                 self.cookies = SentryDataCollection.KeyValueCollectionBehavior(dictionary: cookies)
             }
-            if let httpHeaders = SentryDataCollection.DictionaryDecoder.dictionary(dictionary, "httpHeaders") {
+            if let httpHeaders = SentryDictionaryDecoder.dictionary(dictionary, "httpHeaders") {
                 self.httpHeaders = SentryDataCollection.HttpHeaderCollectionOptions(dictionary: httpHeaders)
             }
-            if let httpBodies = SentryDataCollection.DictionaryDecoder.strings(dictionary, "httpBodies") {
+            if let httpBodies = SentryDictionaryDecoder.strings(dictionary, "httpBodies") {
                 self.httpBodies = SentryDataCollection.HttpBodyType(strings: httpBodies)
             }
-            if let queryParams = SentryDataCollection.DictionaryDecoder.dictionary(dictionary, "queryParams") {
+            if let queryParams = SentryDictionaryDecoder.dictionary(dictionary, "queryParams") {
                 self.queryParams = SentryDataCollection.KeyValueCollectionBehavior(dictionary: queryParams)
             }
-            if let graphql = SentryDataCollection.DictionaryDecoder.dictionary(dictionary, "graphql") {
+            if let graphql = SentryDictionaryDecoder.dictionary(dictionary, "graphql") {
                 self.graphql = SentryDataCollection.GraphQLCollectionOptions(dictionary: graphql)
             }
-            if let database = SentryDataCollection.DictionaryDecoder.dictionary(dictionary, "database") {
+            if let database = SentryDictionaryDecoder.dictionary(dictionary, "database") {
                 self.database = SentryDataCollection.DatabaseCollectionOptions(dictionary: database)
             }
-            if let stackFrameVariables = SentryDataCollection.DictionaryDecoder.bool(dictionary, "stackFrameVariables") {
+            if let stackFrameVariables = SentryDictionaryDecoder.bool(dictionary, "stackFrameVariables") {
                 self.stackFrameVariables = stackFrameVariables
             }
             if let frameContextLines = Self.frameContextLines(from: dictionary, defaultValue: self.frameContextLines) {
@@ -143,11 +143,11 @@ extension SentryDataCollection {
             if let enabled = value as? Bool {
                 return enabled ? defaultValue : 0
             }
-            if let number = value as? NSNumber, SentryDataCollection.DictionaryDecoder.isBool(number) {
+            if let number = value as? NSNumber, SentryDictionaryDecoder.isBool(number) {
                 return number.boolValue ? defaultValue : 0
             }
 
-            return SentryDataCollection.DictionaryDecoder.uint(dictionary, "frameContextLines")
+            return SentryDictionaryDecoder.uint(dictionary, "frameContextLines")
         }
     }
 }

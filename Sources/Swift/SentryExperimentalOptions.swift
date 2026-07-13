@@ -39,7 +39,7 @@ public final class SentryExperimentalOptions: NSObject {
     public var enableStandaloneAppStartTracing = false
 
     // swiftlint:disable:next missing_docs
-    @_spi(Private) public func validateOptions(_ options: [String: Any]?) {
+    @_spi(Private) public func populateFrom(dict options: [String: Any]?) {
         guard let options else { return }
 
         if let dataCollection = options["dataCollection"] as? [String: Any] {
