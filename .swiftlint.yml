@@ -129,8 +129,8 @@ custom_rules:
     included:
       - "./Tests/.*\\.swift"
   avoid_all_header_fields:
-    name: "Avoid allHeaderFields"
-    message: "Don't read headers via allHeaderFields: its subscripting is case-sensitive, but HTTP/2 and HTTP/3 lowercase field names, causing missed headers (see #8322). Use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in DefaultRateLimits.swift."
+    name: "Careful with allHeaderFields"
+    message: "Double-check how you use allHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but its subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see #8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in DefaultRateLimits.swift. If your usage is intentional, suppress this rule with a comment explaining why."
     regex: "allHeaderFields"
     match_kinds:
       - identifier
