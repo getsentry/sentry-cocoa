@@ -1385,9 +1385,11 @@ lint-staged:
 		ruby ./scripts/check-objc-id-usage.rb $(STAGED_OBJC_HEADER_FILES); \
 	fi
 	@if [ -n "$(STAGED_CLANG_FILES)" ]; then \
-		./scripts/check-objc-banned-pattern.sh --path Sources \
-			--rule avoid_all_header_fields --pattern 'allHeaderFields' \
-			--message "$(AVOID_ALL_HEADER_FIELDS_MSG)"; \
+		for f in $(STAGED_CLANG_FILES); do \
+			./scripts/check-objc-banned-pattern.sh --path "$$f" \
+				--rule avoid_all_header_fields --pattern 'allHeaderFields' \
+				--message "$(AVOID_ALL_HEADER_FIELDS_MSG)" || exit 1; \
+		done; \
 	fi
 	@if [ -n "$(STAGED_SWIFT_FILES)" ]; then \
 		swiftlint --strict --quiet $(STAGED_SWIFT_FILES); \

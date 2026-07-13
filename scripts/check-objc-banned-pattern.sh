@@ -28,7 +28,7 @@ usage() {
     log_notice "Usage: $0 --pattern <ere> --rule <id> --path <dir> [--message <text>]"
     log_notice "  --pattern <ere>   Extended regex to ban (plain strings match literally) (required)"
     log_notice "  --rule <id>       Suppression marker id: // sentry-lint:disable <id> (required)"
-    log_notice "  --path <dir>      Directory scanned recursively for .m/.mm/.h sources (required)"
+    log_notice "  --path <path>     File or directory scanned recursively for .m/.mm/.h sources (required)"
     log_notice "  --message <text>  Custom guidance shown on violations (optional)"
     exit 1
 }
