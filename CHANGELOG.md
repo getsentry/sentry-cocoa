@@ -7,6 +7,10 @@
 - Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
 - Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
 
+## Improvements
+
+- Remove `enableReplayNetworkDetailsCapturing` experimental flag; network detail capture is now enabled automatically when `networkDetailAllowUrls` is non-empty (#8396)
+
 ## 9.21.0
 
 ### Fixes
