@@ -187,6 +187,11 @@ import Foundation
         SentrySDK.addBreadcrumb(crumb.wrapped)
     }
 
+    @objc(addFeatureFlagWithName:result:)
+    public static func addFeatureFlag(name: String, result: Bool) {
+        SentrySDK.addFeatureFlag(name: name, result: result)
+    }
+
     @objc(configureScope:)
     public static func configureScope(_ callback: @escaping (SentryObjCScope) -> Void) {
         SentrySDK.configureScope { scope in

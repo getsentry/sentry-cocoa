@@ -1,6 +1,6 @@
-import Foundation
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
+import Foundation
 import XCTest
 
 /// End-to-end tests for the SentryMetricsApi. These tests use the public API

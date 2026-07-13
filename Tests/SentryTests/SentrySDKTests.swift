@@ -1,5 +1,5 @@
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentrySDKTests: XCTestCase {
@@ -128,7 +128,6 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(true, options?.enableAutoSessionTracking)
 
         var expectedIntegrations = [
-            "SentryCrashIntegration",
             "SentryAutoBreadcrumbTrackingIntegration",
             "SentryAutoSessionTrackingIntegration",
             "SentryMetricsIntegration",
@@ -140,6 +139,11 @@ class SentrySDKTests: XCTestCase {
 #if os(iOS) || os(tvOS) || os(visionOS)
         expectedIntegrations.append("SentryFramesTrackingIntegration")
 #endif // os(iOS) || os(tvOS)
+        #if ENABLE_KSCRASH
+        expectedIntegrations.append("SentryKSCrashIntegration")
+        #else
+        expectedIntegrations.append("SentryCrashIntegration")
+        #endif
 
         assertIntegrationsInstalled(integrations: expectedIntegrations)
     }
@@ -504,7 +508,18 @@ class SentrySDKTests: XCTestCase {
         XCTAssertEqual(1, client.captureMessageWithScopeAttachAllThreadsInvocations.count)
         XCTAssertEqual(NSNumber(value: true), client.captureMessageWithScopeAttachAllThreadsInvocations.first?.attachAllThreads)
     }
-    
+
+    func testAddFeatureFlag_mutatesCurrentHubScope() throws {
+        givenSdkWithHub()
+
+        SentrySDK.addFeatureFlag(name: "checkout", result: true)
+
+        let values = try featureFlagValues(from: fixture.scope)
+        XCTAssertEqual(values.count, 1)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
+        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
+    }
+
     /// When events don't have debug meta the backend can't symbolicate the stack trace of events.
     /// This is a regression test for https://github.com/getsentry/sentry-cocoa/issues/5334
     func testCaptureNonFatalEvent_HasDebugMeta() throws {
@@ -610,6 +625,12 @@ extension SentrySDKTests {
     private func assertHubScopeNotChanged() {
         let hubScope = SentrySDKInternal.currentHub().scope
         XCTAssertEqual(fixture.scope, hubScope)
+    }
+
+    private func featureFlagValues(from scope: Scope) throws -> [[String: Any]] {
+        let context = try XCTUnwrap(scope.serialize()["context"] as? [String: Any])
+        let flags = try XCTUnwrap(context["flags"] as? [String: Any])
+        return try XCTUnwrap(flags["values"] as? [[String: Any]])
     }
     
     private func startprocessInfoWrapperForPreview() {

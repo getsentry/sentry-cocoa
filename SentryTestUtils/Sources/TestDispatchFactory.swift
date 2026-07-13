@@ -1,6 +1,6 @@
+@_spi(Private) @testable import Sentry
 import _SentryPrivate
 import Foundation
-@_spi(Private) @testable import Sentry
 
 @_spi(Private) public class TestDispatchFactory: SentryDispatchFactory {
     public var vendedSourceHandler: ((TestDispatchSourceWrapper) -> Void)?

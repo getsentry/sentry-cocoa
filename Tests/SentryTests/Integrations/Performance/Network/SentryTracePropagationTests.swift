@@ -147,6 +147,29 @@ final class SentryTracePropagationTests: XCTestCase {
         XCTAssertTrue(SentryTracePropagation.isTargetMatch(localhostURL, withTargets: targetsWithInvalidType))
     }
 
+    // MARK: - currentRequest snapshot safety (issue #8012)
+
+    func testAddBaggageHeader_TaskWithNoCurrentRequest_DoesNotCrash() throws {
+        let emptyBaggage = Baggage()
+        let traceHeader = TraceHeader(
+            trace: SentryId(),
+            spanId: SpanId(),
+            sampled: .yes
+        )
+
+        let task = URLSessionDataTaskMock()
+
+        SentryTracePropagation.addBaggageHeader(
+            emptyBaggage,
+            traceHeader: traceHeader,
+            propagateTraceparent: true,
+            tracePropagationTargets: [try XCTUnwrap(NSRegularExpression(pattern: ".*"))],
+            toRequest: task
+        )
+
+        XCTAssertNil(task.currentRequest?.value(forHTTPHeaderField: "sentry-trace"))
+    }
+
     private func createSessionTask(method: String = "GET") throws -> URLSessionDownloadTaskMock {
         let url = try XCTUnwrap(URL(string: "https://www.domain.com/api?query=value&query2=value2#fragment"))
         var request = URLRequest(url: url)

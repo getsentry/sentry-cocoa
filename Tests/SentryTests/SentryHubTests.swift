@@ -1,5 +1,5 @@
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import XCTest
 
 // swiftlint:disable file_length
@@ -174,7 +174,19 @@ class SentryHubTests: XCTestCase {
         
         assert(withScopeBreadcrumbsCount: 100, with: hub)
     }
-    
+
+    func testAddFeatureFlag_mutatesHubScope() throws {
+        let scope = Scope()
+        let hub = SentryHub(client: SentryClient(helper: fixture.client), andScope: scope)
+
+        hub.addFeatureFlag(name: "checkout", result: true)
+
+        let values = try featureFlagValues(from: scope)
+        XCTAssertEqual(values.count, 1)
+        XCTAssertEqual(values.element(at: 0)?["flag"] as? String, "checkout")
+        XCTAssertEqual(values.element(at: 0)?["result"] as? Bool, true)
+    }
+
     func testBreadcrumbOverDefaultLimit() {
         let hub = fixture.getSut(withMaxBreadcrumbs: 200)
         
@@ -1418,6 +1430,12 @@ class SentryHubTests: XCTestCase {
         hub.configureScope({ scope in
             scope.addBreadcrumb(self.fixture.crumb)
         })
+    }
+
+    private func featureFlagValues(from scope: Scope) throws -> [[String: Any]] {
+        let context = try XCTUnwrap(scope.serialize()["context"] as? [String: Any])
+        let flags = try XCTUnwrap(context["flags"] as? [String: Any])
+        return try XCTUnwrap(flags["values"] as? [[String: Any]])
     }
     
     func testAddIntegration() {

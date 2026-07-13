@@ -1,6 +1,6 @@
-import Foundation
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
+import Foundation
 import XCTest
 
 // swiftlint:disable test_case_accessibility

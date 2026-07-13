@@ -1,28 +1,28 @@
 import XCTest
 
 struct TestResponseFactory {
-    // The test fails if the responses could not be created
-    static func createRetryAfterResponse(headerValue: String) -> HTTPURLResponse {
-        let response = HTTPURLResponse(
-                url: URL(fileURLWithPath: ""),
-                statusCode: 429,
-                httpVersion: "1.1",
-                headerFields: ["Retry-After": headerValue])
-        if response == nil {
-            XCTFail("Response could not be created")
-        }
-        return response!
+
+    static func createRetryAfterResponse(headerValue: String) throws -> HTTPURLResponse {
+        return try createResponse(statusCode: 429, httpVersion: "2.0", headerFields: ["retry-after": headerValue])
     }
 
-    static func createRateLimitResponse(headerValue: String) -> HTTPURLResponse {
-        let response = HTTPURLResponse(
-                url: URL(fileURLWithPath: ""),
-                statusCode: 200,
-                httpVersion: "1.1",
-                headerFields: ["X-Sentry-Rate-Limits": headerValue])
-        if response == nil {
-            XCTFail("Response could not be created")
-        }
-        return response!
+    static func createRetryAfterResponseHTTP1_1(headerValue: String) throws -> HTTPURLResponse {
+        return try createResponse(statusCode: 429, httpVersion: "1.1", headerFields: ["Retry-After": headerValue])
+    }
+
+    static func createRateLimitResponse(headerValue: String) throws -> HTTPURLResponse {
+        return try createResponse(statusCode: 200, httpVersion: "2.0", headerFields: ["x-sentry-rate-limits": headerValue])
+    }
+
+    static func createRateLimitResponseHTTP1_1(headerValue: String) throws -> HTTPURLResponse {
+        return try createResponse(statusCode: 200, httpVersion: "1.1", headerFields: ["X-Sentry-Rate-Limits": headerValue])
+    }
+
+    private static func createResponse(statusCode: Int, httpVersion: String, headerFields: [String: String]) throws -> HTTPURLResponse {
+        return try XCTUnwrap(HTTPURLResponse(
+            url: URL(fileURLWithPath: ""),
+            statusCode: statusCode,
+            httpVersion: httpVersion,
+            headerFields: headerFields))
     }
 }

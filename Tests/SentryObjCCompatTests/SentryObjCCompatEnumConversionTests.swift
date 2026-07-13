@@ -381,6 +381,83 @@ final class SentryObjCCompatEnumConversionTests: XCTestCase {
         }
     }
 
+    // MARK: - SentryObjCDataCollectionKeyValueCollectionMode
+
+    func testKeyValueCollectionModeInit_whenEachBehavior_shouldMapCorrectly() {
+        // -- Arrange --
+        let cases: [(SentryDataCollection.KeyValueCollectionBehavior, SentryObjCDataCollectionKeyValueCollectionMode)] = [
+            (.off, .off),
+            (.denyList(), .denyList),
+            (.denyList(terms: ["test"]), .denyList),
+            (.allowList(terms: ["key"]), .allowList)
+        ]
+
+        for (underlying, expected) in cases {
+            // -- Act --
+            let wrapper = SentryObjCDataCollectionKeyValueCollectionBehavior(underlying)
+
+            // -- Assert --
+            XCTAssertEqual(wrapper.mode, expected, "Expected \(expected) for underlying \(underlying)")
+        }
+    }
+
+    func testKeyValueCollectionBehaviorWrapped_whenEachMode_shouldRoundTrip() {
+        // -- Arrange --
+        let cases: [SentryDataCollection.KeyValueCollectionBehavior] = [
+            .off,
+            .denyList(),
+            .denyList(terms: ["secret"]),
+            .allowList(terms: ["content-type"])
+        ]
+
+        for original in cases {
+            // -- Act --
+            let wrapper = SentryObjCDataCollectionKeyValueCollectionBehavior(original)
+            let result = wrapper.wrapped
+
+            // -- Assert --
+            XCTAssertEqual(result, original, "Expected roundtrip for \(original)")
+        }
+    }
+
+    // MARK: - SentryObjCDataCollectionHttpBodyType
+
+    func testHttpBodyTypeConversion_whenAll_shouldRoundTrip() {
+        // -- Arrange --
+        let underlying: SentryDataCollection.HttpBodyType = .all
+
+        // -- Act --
+        let objcValue = SentryObjCDataCollectionHttpBodyType(underlying)
+        let result = objcValue.underlying
+
+        // -- Assert --
+        XCTAssertEqual(result, underlying)
+    }
+
+    func testHttpBodyTypeConversion_whenSubset_shouldRoundTrip() {
+        // -- Arrange --
+        let underlying: SentryDataCollection.HttpBodyType = [.outgoingRequest, .incomingResponse]
+
+        // -- Act --
+        let objcValue = SentryObjCDataCollectionHttpBodyType(underlying)
+        let result = objcValue.underlying
+
+        // -- Assert --
+        XCTAssertEqual(result, underlying)
+    }
+
+    func testHttpBodyTypeConversion_whenEmpty_shouldRoundTrip() {
+        // -- Arrange --
+        let underlying: SentryDataCollection.HttpBodyType = []
+
+        // -- Act --
+        let objcValue = SentryObjCDataCollectionHttpBodyType(underlying)
+        let result = objcValue.underlying
+
+        // -- Assert --
+        XCTAssertEqual(result, underlying)
+    }
+
     // MARK: - SentryObjCRedactRegionType
 
     func testRedactRegionTypeInit_whenEachCase_shouldMapCorrectly() {

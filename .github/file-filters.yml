@@ -98,8 +98,9 @@ run_benchmarking_for_prs: &run_benchmarking_for_prs # GH Actions
 
   # Scripts & actions
   - "scripts/ci-select-xcode.sh"
-  - ".github/actions/setup-xcode/**"
   - "scripts/ci-utils.sh"
+  - ".github/actions/saucelabs-run/**"
+  - ".github/actions/setup-xcode/**"
 
   # Benchmarking test target and implementation
   - "Samples/iOS-Swift/iOS-Benchmarking/**"
@@ -303,7 +304,6 @@ run_lint_xcode_analyze_for_prs: &run_lint_xcode_analyze_for_prs
   # Project files
   - "Sentry.xcodeproj/**"
   - "Sentry.xcworkspace/**"
-  - "*.podspec"
 
   # Build configuration
   - "Makefile"
@@ -329,6 +329,33 @@ run_v10_for_prs: &run_v10_for_prs
   # Project files
   - "Sentry.xcodeproj/**"
   - "Sentry.xcworkspace/**"
+
+  # Build configuration
+  - "Makefile"
+  - "Sources/Configuration/**"
+
+run_v10_with_kscrash_for_prs: &run_v10_with_kscrash_for_prs
+  - "Sources/**"
+  - "Tests/**"
+
+  # GH Actions
+  - ".github/workflows/build-v10-with-kscrash.yml"
+  - ".github/workflows/test-v10-with-kscrash.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts & actions
+  - "scripts/ci-select-xcode.sh"
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/resolve-test-destination/**"
+  - "scripts/resolve-test-destination.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-utils.sh"
+  - "scripts/sentry-xcodebuild.sh"
+
+  # Project files
+  - "Sentry.xcodeproj/**"
+  - "Sentry.xcworkspace/**"
+  - "Package*.swift"
 
   # Build configuration
   - "Makefile"
@@ -425,8 +452,6 @@ run_version_bump_util_for_prs: &run_version_bump_util_for_prs
   - "Sources/Sentry/SentryMeta.m"
 
   # Project files with version info
-  - "Sentry.podspec"
-  - "SentrySwiftUI.podspec"
   - "Package*.swift"
   - "3rd-party-integrations/**/Package.swift"
 
@@ -519,7 +544,6 @@ run_lint_swiftlint_for_prs: &run_lint_swiftlint_for_prs
 
   # Project files
   - "Sentry.xcodeproj/**"
-  - "*.podspec"
 
   # Build configuration
   - "Makefile"
@@ -541,11 +565,28 @@ run_size_analysis_for_prs: &run_size_analysis_for_prs
 
   # Project files
   - "Sentry.xcodeproj/**"
-  - "*.podspec"
 
   # Build configuration
   - "Makefile"
   - "Brewfile*"
+
+run_xcode27_for_prs: &run_xcode27_for_prs
+  - "Sources/**"
+
+  # GH Actions
+  - ".github/workflows/xcode27-test.yml"
+  - ".github/file-filters.yml"
+
+  # Scripts & actions
+  - ".github/actions/setup-xcode/**"
+  - ".github/actions/ci-diagnostics/**"
+  - "scripts/sentry-xcodebuild.sh"
+  - "scripts/ci-diagnostics.sh"
+  - "scripts/ci-select-xcode.sh"
+  - "scripts/ci-utils.sh"
+
+  # Project files
+  - "Package*.swift"
 
 run_3rd_party_integrations_tests_for_prs: &run_3rd_party_integrations_tests_for_prs
   - "Sources/**"

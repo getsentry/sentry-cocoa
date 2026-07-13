@@ -1,6 +1,6 @@
-import Foundation
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
+import Foundation
 import XCTest
 
 /// This test suite tests the SentryMetricsApi on a unit test level to verify the logic without bootstrapping an entire SDK setup.

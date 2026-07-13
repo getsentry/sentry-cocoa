@@ -32,6 +32,53 @@ enum Platform: String {
     case macos
 }
 
+enum Reporter: String, CaseIterable {
+    case sentryCrash = "SentryCrash"
+    case ksCrash = "KSCrash"
+
+    init?(caseInsensitive value: String) {
+        guard let reporter = Self.allCases.first(where: { $0.rawValue.caseInsensitiveCompare(value) == .orderedSame }) else {
+            return nil
+        }
+        self = reporter
+    }
+
+    var iOSScheme: String {
+        switch self {
+        case .sentryCrash:
+            return "CrashE2E-iOS"
+        case .ksCrash:
+            return "CrashE2E-iOS-KSCrash"
+        }
+    }
+
+    var macOSScheme: String {
+        switch self {
+        case .sentryCrash:
+            return "CrashE2E-macOS"
+        case .ksCrash:
+            return "CrashE2E-macOS-KSCrash"
+        }
+    }
+
+    var iOSBundleID: String {
+        switch self {
+        case .sentryCrash:
+            return "io.sentry.tests.CrashE2E.iOS"
+        case .ksCrash:
+            return "io.sentry.tests.CrashE2E.KSCrash.iOS"
+        }
+    }
+
+    var iOSAppName: String {
+        "\(iOSScheme).app"
+    }
+
+    var macOSExecutableName: String {
+        macOSScheme
+    }
+}
+
 enum Scenario: String, CaseIterable {
     case signal
     case nsException = "ns-exception"
@@ -109,6 +156,7 @@ enum Scenario: String, CaseIterable {
 struct Config {
     let directories: Directories
     var platform: Platform = .all
+    var reporter: Reporter = .sentryCrash
     var scenarios: [Scenario] = Scenario.defaultScenarios
     var iosDestination: String?
     var iosDeviceID: String?
@@ -145,6 +193,7 @@ func usage(defaults: Config) -> String {
     return """
     Usage: run-crash-e2e.sh [options]
       --platform <all|ios|macos>          Platforms to run (default: all)
+      --reporter <SentryCrash|KSCrash>    Crash reporter to test (default: SentryCrash)
       --scenarios <space/comma list>      Scenarios to run (default: "\(defaultScenarios)")
                                           Known scenarios: \(knownScenarios)
       --ios-destination <destination>     xcodebuild iOS destination (default: auto-selected simulator id)

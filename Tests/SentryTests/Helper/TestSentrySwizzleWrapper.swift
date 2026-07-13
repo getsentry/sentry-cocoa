@@ -1,5 +1,5 @@
-import Foundation
 @_spi(Private) @testable import Sentry
+import Foundation
 
 #if os(iOS) || os(tvOS)
 class TestSentrySwizzleWrapper: SentrySwizzleWrapper {

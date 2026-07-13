@@ -1,5 +1,6 @@
-@_spi(Private) @testable import Sentry
+// swiftlint:disable file_length
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentryCrashIntegrationTests: NotificationCenterTestCase {
@@ -94,6 +95,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
     // Test for GH-581
     func testReleaseNamePassedToSentryCrash() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let releaseName = "1.0.0"
         let dist = "14G60"
         // The start of the SDK installs all integrations
@@ -113,6 +116,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testContext_IsPassedToSentryCrash() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         SentrySDK.start { options in
             options.dsn = SentryCrashIntegrationTests.dsnAsString
             options.removeAllIntegrations()
@@ -126,6 +131,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsCrashed_WithCurrentSession() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let expectedCrashedSession = givenCrashedSession()
         SentrySDKInternal.setCurrentHub(fixture.hub)
 
@@ -138,6 +145,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
     #if os(iOS) || os(tvOS)
     func testEndSessionAsCrashed_WhenOOM_WithCurrentSession() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         givenOOMAppState()
         SentrySDKInternal.startInvocations = 1
 
@@ -152,6 +161,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testOutOfMemoryTrackingDisabled() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         givenOOMAppState()
 
         let session = givenCurrentSession()
@@ -170,6 +181,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     #endif
 
     func testEndSessionAsCrashed_NoClientSet() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let (_, _) = try givenSutWithGlobalHub()
 
         let fileManager = fixture.client.fileManager
@@ -179,6 +192,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsCrashed_NoCrashLastLaunch() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let session = givenCurrentSession()
 
         let sentryCrash = fixture.sentryCrash
@@ -192,6 +207,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsCrashed_NoCurrentSession() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let (_, _) = try givenSutWithGlobalHub()
 
         let fileManager = fixture.client.fileManager
@@ -204,6 +221,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 #if os(iOS) || os(tvOS)
 
     func testEndSessionAsAbnormal_NoHubBound() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // Arrange
         let sentryCrash = fixture.sentryCrash
         sentryCrash.internalCrashedLastLaunch = false
@@ -219,6 +238,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsAbnormal_NoCurrentSession() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // Arrange
         SentrySDKInternal.setCurrentHub(fixture.hub)
         let sentryCrash = fixture.sentryCrash
@@ -235,6 +256,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsAbnormal_NoAppHangEvent() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // Arrange
         SentrySDKInternal.setCurrentHub(fixture.hub)
         let sentryCrash = fixture.sentryCrash
@@ -253,6 +276,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsAbnormal_AppHangEventDeletedInBetween() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // Arrange
         let fileManager = try DeleteAppHangWhenCheckingExistenceFileManager(
             options: fixture.options,
@@ -279,6 +304,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsAbnormal_AppHangEvent_EndsSessionAsAbnormal() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // Arrange
         SentrySDKInternal.setCurrentHub(fixture.hub)
         let sentryCrash = fixture.sentryCrash
@@ -308,6 +335,8 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testEndSessionAsAbnormal_AppHangEventAndCrash_EndsSessionAsCrashed() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // Arrange
         let expectedCrashedSession = givenCrashedSession()
         SentrySDKInternal.setCurrentHub(fixture.hub)
@@ -329,8 +358,10 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
 
     func testUninstall_DoesNotUpdateLocale_OnLocaleDidChangeNotification() throws {
 #if SDK_V10
-throw XCTSkip("Locale is not set on device context in SDK v10")
+        throw XCTSkip("Locale is not set on device context in SDK v10")
 #else
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
 
         let locale = "garbage"
@@ -345,6 +376,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testOSCorrectlySetToScopeContext() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let (_, hub) = try givenSutWithGlobalHubAndCrashWrapper()
 
         assertContext(context: hub.scope.contextDictionary as? [String: Any] ?? ["": ""])
@@ -352,8 +385,10 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
 
     func testLocaleChanged_NoDeviceContext_SetsCurrentLocale() throws {
 #if SDK_V10
-    throw XCTSkip("Locale is not set on device context in SDK v10")
-        #else
+        throw XCTSkip("Locale is not set on device context in SDK v10")
+#else
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let (sut, hub) = try givenSutWithGlobalHub()
         defer {
             sut.uninstall()
@@ -370,9 +405,11 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testLocaleChanged_DifferentLocale_SetsCurrentLocale() throws {
-        #if SDK_V10
+#if SDK_V10
         throw XCTSkip("Locale is not set on device context in SDK v10")
-        #else
+#else
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
         defer {
             sut.uninstall()
@@ -407,6 +444,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testStartUpCrash_CallsFlush() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let (sut, hub) = try givenSutWithGlobalHubAndCrashWrapper()
 
         // Manually reset and enable the crash state because tearing down the global state in SentryCrash to achieve the same is complicated and doesn't really work.
@@ -443,6 +482,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
 #if os(macOS)
 
     func testUncaughtExceptions_Enabled() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         defer { resetUserDefaults() }
 
         let options = Options()
@@ -469,6 +510,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testUncaughtExceptions_Enabled_ButSwizzlingDisabled() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         defer { resetUserDefaults() }
 
         let options = Options()
@@ -493,6 +536,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testUncaughtExceptions_Disabled() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         defer { resetUserDefaults() }
 
         let options = Options()
@@ -517,6 +562,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
 #endif // os(macOS)
 
     func testEnableCppExceptionsV2_SwapsCxaThrow() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // Arrange
         defer { sentrycrashct_unswap_cxa_throw() }
 
@@ -531,6 +578,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testCppExceptionsV2NotEnabled_DoesNotSwapCxaThrow() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // Arrange
         defer { sentrycrashct_unswap_cxa_throw() }
 
@@ -546,6 +595,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testEnableTracingForCrashes_SetsCallback() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let options = Options()
         options.enablePersistingTracesWhenCrashing = true
         options.enableCrashHandler = true
@@ -556,6 +607,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testEnableTracingForCrashes_Uninstall_RemovesCallback() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let options = Options()
         options.enablePersistingTracesWhenCrashing = true
         options.enableCrashHandler = true
@@ -568,6 +621,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testEnableTracingForCrashes_Disabled_DoesNotSetCallback() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let options = Options()
         options.enablePersistingTracesWhenCrashing = false
         options.enableCrashHandler = true
@@ -578,6 +633,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testEnableTracingForCrashes_InvokeCallback_StoresTransaction() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let options = fixture.options
         options.enablePersistingTracesWhenCrashing = true
 
@@ -602,6 +659,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testEnableTracingForCrashes_InvokeCallbackWhenNoSpanOnScope_TransactionNotFinished() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let options = fixture.options
         options.enablePersistingTracesWhenCrashing = true
 
@@ -622,6 +681,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testEnableTracingForCrashes_InvokeCallback_WhenSpanOnScopeIsNotATracer_StoresTransaction() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         let options = fixture.options
         options.enablePersistingTracesWhenCrashing = true
 
@@ -646,6 +707,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testAttributesAreNotPassedToSentryCrash() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // Start the SDK without any integration
         SentrySDK.start { options in
             options.dsn = SentryCrashIntegrationTests.dsnAsString
@@ -671,6 +734,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     // MARK: - lastRunStatus
 
     func testInit_setsCrashReporterInstalled() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // -- Arrange --
         XCTAssertFalse(SentrySDKInternal.crashReporterInstalled)
 
@@ -682,6 +747,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testInit_whenNoCrash_shouldNotCallOnLastRunStatusCallback() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // -- Arrange --
         // The .didNotCrash callback is now deferred to after all integrations
         // install (in SentrySwiftIntegrationInstaller), so the crash integration
@@ -704,6 +771,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testInit_whenCrash_shouldNotCallOnLastRunStatusCallback() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // -- Arrange --
         var callbackCalled = false
 
@@ -727,6 +796,8 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
     }
 
     func testInit_whenNoCrashAndNoCallback_shouldNotCrash() throws {
+        try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
+
         // -- Arrange --
         fixture.options.onLastRunStatusDetermined = nil
         let crash = fixture.sentryCrash
@@ -834,11 +905,11 @@ throw XCTSkip("Locale is not set on device context in SDK v10")
         XCTAssertEqual(UIDevice.current.systemVersion, os["version"] as? String)
         #endif
 
-    #if !SDK_V10
+#if !SDK_V10
         XCTAssertEqual(Locale.autoupdatingCurrent.identifier, device["locale"] as? String)
-    #else
+#else
         XCTAssertNil(device["locale"])
-    #endif
+#endif
     }
 
 #if !SDK_V10

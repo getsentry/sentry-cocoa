@@ -2,20 +2,17 @@ excluded:
   - Pods
   - DerivedData
   - "**/SourcePackages/**"
-  - Utils/**/.build
-  - Samples/**/.build
   - "**/build/**"
   - DependencyManagerTests
   - Sources/SentryCrash
   - vendor
-  - test-server/.build/
   - Tests/Perf
   - SentryTestUtils/Dynamic/**
   - .build/**
+  - "**/.build/**"
   - .git/**
   - XCFrameworkBuildPath/**
   - 3rd-party-integrations/**/Packages/sentry-cocoa
-  - 3rd-party-integrations/**/.build
   # Exclude auto-generated files from sample app builds
   - "**/Build/Intermediates.noindex/iOS-Swift.build/**/DerivedSources/**"
   - "**/Build/Intermediates.noindex/iOS-SwiftClip.build/**/DerivedSources/**"
@@ -119,6 +116,10 @@ missing_docs:
   excludes_trivial_init: false
   severity: error
 
+sorted_imports:
+  grouping:
+    attributes
+
 custom_rules:
   no_try_optional_in_tests:
     name: "No try? in tests"
@@ -127,3 +128,10 @@ custom_rules:
     severity: error
     included:
       - "./Tests/.*\\.swift"
+  avoid_all_header_fields:
+    name: "Careful with allHeaderFields"
+    message: "Double-check how you use allHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but its subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see #8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in DefaultRateLimits.swift. If your usage is intentional, suppress this rule with a comment explaining why."
+    regex: "allHeaderFields"
+    match_kinds:
+      - identifier
+    severity: error

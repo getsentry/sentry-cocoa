@@ -56,7 +56,7 @@ final class MacOSPlatformRunner {
 
     private func macOSExecutable(derivedDataPath: URL) throws -> URL {
         let executable = derivedDataPath
-            .appendingPathComponent("Build/Products/Debug/CrashE2E-macOS")
+            .appendingPathComponent("Build/Products/Debug/\(config.reporter.macOSExecutableName)")
         guard fileManager.isExecutableFile(atPath: executable.path) else {
             try fail("macOS executable not found: \(executable.path)")
         }

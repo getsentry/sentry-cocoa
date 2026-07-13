@@ -1,5 +1,5 @@
-@_spi(Private) @testable import Sentry
 @_spi(Private) import SentryTestUtils
+@_spi(Private) @testable import Sentry
 import XCTest
 
 class SentrySpanTests: XCTestCase {
@@ -433,19 +433,17 @@ class SentrySpanTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(actual["flag.evaluation.checkout"] as? Bool), true)
     }
 
-    func testFeatureFlags_whenRemovingFromSpan_shouldOmitRemovedFlagData() throws {
+    func testFeatureFlags_whenAddingAfterFinish_shouldNotSerializeAsSpanData() throws {
         // -- Arrange --
         let span = fixture.getSutWithTracer()
-        span.addFeatureFlag(name: "checkout", result: true)
-        span.addFeatureFlag(name: "search", result: false)
+        span.finish()
 
         // -- Act --
-        span.removeFeatureFlag(name: "checkout")
+        span.addFeatureFlag(name: "checkout", result: true)
 
         // -- Assert --
         let actual = try XCTUnwrap(span.serialize()["data"] as? [String: Any])
         XCTAssertNil(actual["flag.evaluation.checkout"])
-        XCTAssertEqual(try XCTUnwrap(actual["flag.evaluation.search"] as? Bool), false)
     }
 
     func testFeatureFlags_whenAddingMoreThanSpanLimit_shouldRejectNewFlags() throws {
@@ -461,6 +459,51 @@ class SentrySpanTests: XCTestCase {
         let actual = try XCTUnwrap(span.serialize()["data"] as? [String: Any])
         XCTAssertEqual(actual.keys.filter { $0.hasPrefix("flag.evaluation.") }.count, 10)
         XCTAssertNil(actual["flag.evaluation.flag-10"])
+    }
+
+    func testFeatureFlags_whenUpdatingExistingFlagAfterSpanLimit_shouldUpdateExistingFlag() throws {
+        // -- Arrange --
+        let span = fixture.getSutWithTracer()
+        for index in 0..<10 {
+            span.addFeatureFlag(name: "flag-\(index)", result: true)
+        }
+
+        // -- Act --
+        span.addFeatureFlag(name: "flag-0", result: false)
+        span.addFeatureFlag(name: "flag-10", result: true)
+
+        // -- Assert --
+        let actual = try XCTUnwrap(span.serialize()["data"] as? [String: Any])
+        XCTAssertEqual(actual.keys.filter { $0.hasPrefix("flag.evaluation.") }.count, 10)
+        XCTAssertEqual(try XCTUnwrap(actual["flag.evaluation.flag-0"] as? Bool), false)
+        XCTAssertNil(actual["flag.evaluation.flag-10"])
+    }
+
+    func testFeatureFlags_whenNoOpSpan_shouldIgnoreAdd() {
+        // -- Arrange --
+        let span: Span = SentryNoOpSpan.shared()
+
+        // -- Act --
+        span.addFeatureFlag(name: "checkout", result: true)
+
+        // -- Assert --
+        XCTAssertEqual(span.serialize().count, 0)
+    }
+
+    func testFeatureFlags_whenStartingChildSpan_shouldNotInheritParentFlags() throws {
+        // -- Arrange --
+        let parent = fixture.getSut()
+        parent.addFeatureFlag(name: "checkout", result: true)
+
+        // -- Act --
+        let child = parent.startChild(operation: fixture.someOperation)
+
+        // -- Assert --
+        let parentData = try XCTUnwrap(parent.serialize()["data"] as? [String: Any])
+        XCTAssertEqual(try XCTUnwrap(parentData["flag.evaluation.checkout"] as? Bool), true)
+
+        let childData = try XCTUnwrap(child.serialize()["data"] as? [String: Any])
+        XCTAssertNil(childData["flag.evaluation.checkout"])
     }
     
     func testAddAndRemoveTags() {

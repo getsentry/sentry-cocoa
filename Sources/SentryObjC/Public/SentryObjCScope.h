@@ -76,8 +76,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)clearBreadcrumbs;
 
 /**
+ * Adds a feature flag evaluation to this scope.
+ * @param name The feature flag name.
+ * @param result The evaluated boolean result.
+ */
+- (void)addFeatureFlagWithName:(NSString *)name result:(BOOL)result;
+
+/**
  * Sets context values which will overwrite event context when the event is
  * enriched with the scope before sending.
+ * @note The @c flags context key is reserved for feature flag evaluations.
  */
 - (void)setContextValue:(NSDictionary<NSString *, id> *)value forKey:(NSString *)key;
 
@@ -99,7 +107,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param value Supported values are string, integers, boolean, double and arrays of those types.
  * @param key The key to store, cannot be an empty string.
  */
-- (void)setAttributeValue:(id)value forKey:(NSString *)key;
+- (void)setAttributeValue:(id)value
+                   forKey:(NSString *)key; // OK: bare id is needed to support multiple types
 
 /**
  * Remove the attribute for the specified key.

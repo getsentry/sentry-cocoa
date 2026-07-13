@@ -10,6 +10,12 @@ import MSVCRT
 
 import PackageDescription
 
+let enableKSCrash = if let enableKSCrash = getenv("ENABLE_KSCRASH") {
+    String(cString: enableKSCrash) == "1"
+} else {
+    false
+}
+
 var products: [Product] = [
     // BEGIN:BINARY_PRODUCTS
     .library(name: "Sentry", targets: ["Sentry", "SentryCppHelper"]),
@@ -28,38 +34,38 @@ var targets: [Target] = [
     // BEGIN:BINARY_TARGETS
     .binaryTarget(
         name: "Sentry",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.19.1/Sentry.xcframework.zip",
-        checksum: "d6d545af17e49851cda2747b0f45cde78ce08ea37709dde5a956c6b4671224e8" //Sentry-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.21.0/Sentry.xcframework.zip",
+        checksum: "304edef9177f632b3938f8aae8b7c54aaa1caba67dc4e2ae57f75a7ac44950bb" //Sentry-Static
     ),
     .binaryTarget(
         name: "Sentry-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.19.1/Sentry-Dynamic.xcframework.zip",
-        checksum: "7d0fb876a35b40ef942d36cd43dcab0ee16d2874d5cc7cc668e8e01e0c83db2a" //Sentry-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.21.0/Sentry-Dynamic.xcframework.zip",
+        checksum: "d490363da33eeb6cd77b626d6864b8f15f8d39effff8722a4f4e5c2751b9f8c3" //Sentry-Dynamic
     ),
     .binaryTarget(
         name: "Sentry-Dynamic-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.19.1/Sentry-Dynamic-WithARM64e.xcframework.zip",
-        checksum: "bb8c4cd4f622decc0fa3bf5c30cb0b793c123647a54f3da3c4afc3e0437443b7" //Sentry-Dynamic-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.21.0/Sentry-Dynamic-WithARM64e.xcframework.zip",
+        checksum: "82b11b8609e3046c596e3cc76db97b2da7c6b5586ba2513b53d21d176fae01e2" //Sentry-Dynamic-WithARM64e
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.19.1/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
-        checksum: "3031ef708f89b44e410bdd5d868ad87b0a19a42f7605c37732542b8ebaae3d77" //Sentry-WithoutUIKitOrAppKit
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.21.0/Sentry-WithoutUIKitOrAppKit.xcframework.zip",
+        checksum: "cc5bdc08b20a65b6f5e1cb2c67a802cca2d19d5f3b5bc0acdc2ba470f66b4cd9" //Sentry-WithoutUIKitOrAppKit
     ),
     .binaryTarget(
         name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.19.1/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
-        checksum: "5eaee01cefe3f056d4763b6931ac4b61b3cdccb53899edfb875ea77c6f1e5fd8" //Sentry-WithoutUIKitOrAppKit-WithARM64e
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.21.0/Sentry-WithoutUIKitOrAppKit-WithARM64e.xcframework.zip",
+        checksum: "fc4c54ce05e558d30ca704780a84eda37b457c187007faa4f9ed3c2fd5196436" //Sentry-WithoutUIKitOrAppKit-WithARM64e
     ),
     .binaryTarget(
         name: "SentryObjC-Dynamic",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.19.1/SentryObjC-Dynamic.xcframework.zip",
-        checksum: "87079d0f1c2a0f0c69bc897775d2a4d24f8e5e29fab7616b45023c7b3fe4ac0c" //SentryObjC-Dynamic
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.21.0/SentryObjC-Dynamic.xcframework.zip",
+        checksum: "7e7a7951bf4b8caa243e730215de8d253dd90c24db44a99badbd09a920275e2c" //SentryObjC-Dynamic
     ),
     .binaryTarget(
         name: "SentryObjC-Static",
-        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.19.1/SentryObjC-Static.xcframework.zip",
-        checksum: "c656d347b29072b2d19a0f6ae6b43c9a1414f6c06025c370951cd94728d48244" //SentryObjC-Static
+        url: "https://github.com/getsentry/sentry-cocoa/releases/download/9.21.0/SentryObjC-Static.xcframework.zip",
+        checksum: "0344f6cdc6b46ec468b14dd2f304925cfefc4ec12edabc95b64a279380ae13a1" //SentryObjC-Static
     ),
     .target(
         name: "SentrySwiftUI",
@@ -84,6 +90,22 @@ var targets: [Target] = [
 
 // Targets required to support compile-from-source builds via SPM.
 products.append(.library(name: "SentrySPM", targets: ["SentryObjCInternal"]))
+products.append(.library(name: "Sentry+KSCrash", targets: ["SentryObjCInternal"]))
+
+let sentrySwiftTarget: Target = .target(
+    name: "SentrySwift",
+    dependencies: ["_SentryPrivate", "SentryHeaders"],
+    path: "Sources/Swift",
+    swiftSettings: [
+        .unsafeFlags(["-enable-library-evolution"])
+    ]
+)
+
+if enableKSCrash {
+    sentrySwiftTarget.dependencies.append(.product(name: "Installations", package: "KSCrash"))
+    sentrySwiftTarget.swiftSettings?.append(.define("ENABLE_KSCRASH"))
+}
+
 targets += [
     // At least one source file is required, therefore we use a dummy class to satisfy the SPM build system
     .target(
@@ -98,13 +120,8 @@ targets += [
         path: "Sources/Sentry",
         sources: ["SentryDummyPrivateEmptyClass.m"],
         publicHeadersPath: "include"),
-    .target(
-        name: "SentrySwift",
-        dependencies: ["_SentryPrivate", "SentryHeaders"],
-        path: "Sources/Swift",
-        swiftSettings: [
-            .unsafeFlags(["-enable-library-evolution"])
-        ]),
+
+    sentrySwiftTarget,
 
     // SentryObjCInternal compiles all ObjC/C sources from the repo. Named "Internal"
     // to reserve "SentryObjC" for a future public Objective-C wrapper around the SDK.
@@ -154,10 +171,13 @@ targets += [
 ]
 // END:OBJC_WRAPPER
 
+let packageDependencies: [Package.Dependency] = enableKSCrash ? [.package(url: "https://github.com/kstenerud/KSCrash.git", from: "2.6.0-beta.3")] : []
+
 let package = Package(
     name: "Sentry",
     platforms: [.iOS(.v15), .macOS(.v10_14), .tvOS(.v15), .watchOS(.v8), .visionOS(.v1)],
     products: products,
+    dependencies: packageDependencies,
     targets: targets,
     swiftLanguageModes: [.v5],
     cxxLanguageStandard: .cxx14
