@@ -40,8 +40,6 @@ extension HTTPURLResponse {
     }
 }
 
-// swiftlint:disable missing_docs
-
 /// Objective-C bridge for the case-insensitive header lookup. Objective-C can't call the Swift
 /// `HTTPURLResponse` extension method above, so this thin static wrapper exposes it. We can't call
 /// `-[NSHTTPURLResponse valueForHTTPHeaderField:]` from Objective-C directly because it isn't
@@ -49,10 +47,10 @@ extension HTTPURLResponse {
 @objc(SentryHTTPHeaderReader) @_spi(Private)
 public final class HTTPHeaderReader: NSObject {
 
+    /// Reads `name` from `response`'s headers case-insensitively. See
+    /// `HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:)`.
     @objc(valueForHTTPHeaderFieldCaseInsensitive:inResponse:)
     public static func value(forHTTPHeaderFieldCaseInsensitive name: String, in response: HTTPURLResponse) -> String? {
         response.value(forHTTPHeaderFieldCaseInsensitive: name)
     }
 }
-
-// swiftlint:enable missing_docs
