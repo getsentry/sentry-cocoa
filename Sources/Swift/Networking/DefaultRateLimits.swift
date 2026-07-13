@@ -73,7 +73,7 @@ public final class DefaultRateLimits: NSObject, RateLimits {
 // `internal` (not `private`) so the fallback can be unit-tested; `#available` makes it unreachable
 // on the OS versions our tests run on.
 extension HTTPURLResponse {
-
+    
     /// Reads a header case-insensitively.
     /// Since HTTP/2 HTTP field names are case-insensitive including HTTP headers; see HTTP/2 (RFC 9113, 8.2.1) and HTTP/3 (RFC 9114, 4.2):
     /// - https://www.rfc-editor.org/rfc/rfc9113#section-8.2.1

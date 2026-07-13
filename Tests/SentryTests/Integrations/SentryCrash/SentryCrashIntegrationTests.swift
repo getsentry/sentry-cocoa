@@ -424,7 +424,9 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
     }
 
     func testLocaleChanged_whenV10_shouldNotSetDeviceLocale() throws {
-#if SDK_V10
+#if !SDK_V10
+        throw XCTSkip("Locale is not set on device context in SDK v10")
+#else
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
 
         // -- Arrange --
@@ -440,9 +442,7 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         let context = hub.scope.contextDictionary as? [String: Any] ?? ["": ""]
         let device = context["device"] as? [String: Any]
         XCTAssertNil(device?["locale"])
-#else
-        throw XCTSkip("Locale is set on device context before SDK v10")
-#endif // SDK_V10
+#endif // !SDK_V10
     }
 
     func testStartUpCrash_CallsFlush() throws {

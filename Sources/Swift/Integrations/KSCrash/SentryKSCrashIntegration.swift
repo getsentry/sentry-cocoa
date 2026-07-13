@@ -23,7 +23,7 @@ final class SentryKSCrashIntegration<Dependencies: KSCrashIntegrationProvider>: 
 
         self.options = options
         super.init()
-
+ 
         SentrySDKInternal.crashReporterInstalled = true
     }
 

@@ -53,7 +53,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             dateProvider: dependencies.dateProvider,
             crashReporter: dependencies.crashReporter
         )
-        
+
         super.init()
 
         // Inject bridge into crash reporter so ObjC SentryCrash can access it
@@ -137,9 +137,9 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         var canSendReports = false
 
         if installation == nil {
-            guard let options = self.options else { 
+            guard let options = self.options else {
                 SentrySDKLog.debug("No options found, skipping crash handler initialization")
-                return 
+                return
             }
 
             self.installation = dependencies.getCrashInstallationReporter(options)
@@ -209,7 +209,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         sendAllSentryCrashReportsInternal()
     }
 #endif
-    
+
     /// Sends all pending crash reports. Called internally during initialization.
     private func sendAllSentryCrashReportsInternal() {
         installation?.sendAllReports(completion: nil)
@@ -245,14 +245,14 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
             }
         }
 
-    #if !SDK_V10
+#if !SDK_V10
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(currentLocaleDidChange),
             name: NSLocale.currentLocaleDidChangeNotification,
             object: nil
         )
-    #endif
+#endif
 
         if #available(macOS 12.0, *) {
             updateLowPowerModeContext(ProcessInfo.processInfo)
@@ -266,6 +266,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
     }
 
 #if !SDK_V10
+    // Exposed to objc for the NotificationCenter in configureScope()
     @objc private func currentLocaleDidChange() {
         SentrySDKInternal.currentHub().configureScope { scope in
             var device: [String: Any]
@@ -291,7 +292,7 @@ final class SentryCrashIntegration<Dependencies: CrashIntegrationProvider>: NSOb
         } else {
             ProcessInfo.processInfo
         }
-         
+
         updateLowPowerModeContext(processInfo)
     }
 

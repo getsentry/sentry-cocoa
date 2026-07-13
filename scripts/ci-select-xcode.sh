@@ -127,7 +127,7 @@ resolve_simulator_os() {
 # See https://github.com/getsentry/sentry-cocoa/pull/6053 for context.
 list_available_simulators() {
     begin_group "List Available Simulators"
-
+    
     log_with_timestamp "Running xcrun simctl list..."
     xcrun simctl list
     log_with_timestamp "List Available Simulators completed"
