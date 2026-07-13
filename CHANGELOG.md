@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Session Replay now captures HTTP response bodies as it was supposed to for HTTP/2 and HTTP/3 (#8388)
+
 ## Features
 
 - Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
