@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+## Features
+
+- Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
+- Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
+
 ## 9.21.0
 
 ### Fixes
@@ -8,7 +15,6 @@
 
 ### Features
 
-- Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
 - Attach feature flag evaluations to active spans (#8158)
 - Add feature flag scope ObjC API (#8160)
 - Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
@@ -27,6 +33,10 @@
 
 - Record log_byte client reports (#8186)
 - Add scope feature flag API (#8147)
+
+### Fixes
+
+- Fix EXC_BAD_ACCESS in SentryNetworkTracker caused by repeated reads of the volatile `NSURLSessionTask.currentRequest` property (#8058)
 
 ## 9.19.1
 

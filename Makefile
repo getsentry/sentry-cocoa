@@ -1336,6 +1336,24 @@ test-sample-tvOS-Swift-ui: xcode-ci-tvOS-Swift
 # Get staged Swift files
 STAGED_SWIFT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.swift$$' | awk '{printf "\"%s\" ", $$0}')
 
+# Get staged Markdown, JSON, and YAML files
+STAGED_DPRINT_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.(md|json|ya?ml)$$' | awk '{printf "\"%s\" ", $$0}')
+
+# Get staged Markdown files
+STAGED_MARKDOWN_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.md$$' | awk '{printf "\"%s\" ", $$0}')
+
+# Get staged JSON files
+STAGED_JSON_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.json$$' | awk '{printf "\"%s\" ", $$0}')
+
+# Get staged YAML files
+STAGED_YAML_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.ya?ml$$' | awk '{printf "\"%s\" ", $$0}')
+
+# Get staged Objective-C, Objective-C++, C, and C++ files
+STAGED_CLANG_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep -E '\.(h|hpp|c|cpp|m|mm)$$' | awk '{printf "\"%s\" ", $$0}')
+
+# Get staged Objective-C header files
+STAGED_OBJC_HEADER_FILES := $(shell git diff --cached --diff-filter=d --name-only | grep '\.h$$' | awk '{printf "\"%s\" ", $$0}')
+
 ## Run linting checks on all files
 #
 # Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks without modifying files.
@@ -1352,13 +1370,19 @@ lint:
 # Runs SwiftLint, Clang-Format checks, Objective-C id usage checks, and dprint checks on staged files only.
 .PHONY: lint-staged
 lint-staged:
-	@echo "--> Running Swiftlint and Clang-Format on staged files"
-	./scripts/check-clang-format.py -r Sources Tests
-	ruby ./scripts/check-objc-id-usage.rb -r Sources/Sentry
+	@echo "--> Running Swiftlint, dprint, and Clang-Format on staged files"
+	@if [ -n "$(STAGED_CLANG_FILES)" ]; then \
+		./scripts/check-clang-format.py $(STAGED_CLANG_FILES); \
+	fi
+	@if [ -n "$(STAGED_OBJC_HEADER_FILES)" ]; then \
+		ruby ./scripts/check-objc-id-usage.rb $(STAGED_OBJC_HEADER_FILES); \
+	fi
 	@if [ -n "$(STAGED_SWIFT_FILES)" ]; then \
 		swiftlint --strict --quiet $(STAGED_SWIFT_FILES); \
 	fi
-	dprint check "**/*.{md,json,yaml,yml}"
+	@if [ -n "$(STAGED_DPRINT_FILES)" ]; then \
+		dprint check --allow-no-files $(STAGED_DPRINT_FILES); \
+	fi
 
 ## Format all files
 #
@@ -1383,6 +1407,15 @@ format-clang:
 		! \( -path "**.build/*" -or -path "**Build/*"  -or -path "**/libs/**" -or -path "**/Pods/**" -or -path "**/*.xcarchive/*" \) \
 		-print0 | xargs -0 -P $(shell getconf _NPROCESSORS_ONLN 2>/dev/null || echo 8) -n 32 clang-format -i -style=file
 
+## Format staged Objective-C, C, and C++ files
+#
+# Formats only staged Objective-C, Objective-C++, C, and C++ files using clang-format.
+.PHONY: format-clang-staged
+format-clang-staged:
+	@if [ -n "$(STAGED_CLANG_FILES)" ]; then \
+		clang-format -i -style=file $(STAGED_CLANG_FILES); \
+	fi
+
 ## Format all Swift files
 #
 # Formats all Swift files using SwiftLint auto-fix.
@@ -1406,6 +1439,15 @@ format-swift-staged:
 format-markdown:
 	dprint fmt "**/*.md"
 
+## Format staged Markdown files
+#
+# Formats only staged Markdown files using dprint.
+.PHONY: format-markdown-staged
+format-markdown-staged:
+	@if [ -n "$(STAGED_MARKDOWN_FILES)" ]; then \
+		dprint fmt --allow-no-files $(STAGED_MARKDOWN_FILES); \
+	fi
+
 ## Format JSON files
 #
 # Formats all JSON files using dprint.
@@ -1413,12 +1455,30 @@ format-markdown:
 format-json:
 	dprint fmt "**/*.json"
 
+## Format staged JSON files
+#
+# Formats only staged JSON files using dprint.
+.PHONY: format-json-staged
+format-json-staged:
+	@if [ -n "$(STAGED_JSON_FILES)" ]; then \
+		dprint fmt --allow-no-files $(STAGED_JSON_FILES); \
+	fi
+
 ## Format YAML files
 #
 # Formats all YAML and YML files using dprint.
 .PHONY: format-yaml
 format-yaml:
-	dprint fmt "**/*.{yaml,yml}"
+	dprint fmt --allow-no-files "**/*.{yaml,yml}"
+
+## Format staged YAML files
+#
+# Formats only staged YAML and YML files using dprint.
+.PHONY: format-yaml-staged
+format-yaml-staged:
+	@if [ -n "$(STAGED_YAML_FILES)" ]; then \
+		dprint fmt --allow-no-files $(STAGED_YAML_FILES); \
+	fi
 
 # ============================================================================
 # ANALYSIS

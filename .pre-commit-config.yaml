@@ -45,7 +45,7 @@ repos:
         language: system
         types_or: ["objective-c", "objective-c++", "c", "c++"]
         args:
-          - "format-clang"
+          - "format-clang-staged"
 
       - id: format-swift
         name: Format Swift
@@ -59,32 +59,35 @@ repos:
         name: Format Markdown
         description: "Format Markdown"
         files: ^.*\.md$
+        pass_filenames: false
         types_or: [markdown]
-        entry: dprint
+        entry: make
         language: system
         args:
-          - "fmt"
+          - "format-markdown-staged"
 
       - id: format-json
         name: Format JSON
         description: "Format JSON"
         files: ^.*\.json$
+        pass_filenames: false
         types_or: [json]
-        entry: dprint
+        entry: make
         language: system
         exclude: ^sdk_api.*\.json$
         args:
-          - "fmt"
+          - "format-json-staged"
 
       - id: format-yaml
         name: Format YAML
         description: "Format YAML"
         files: ^.*\.(yaml|yml)$
+        pass_filenames: false
         types_or: [yaml]
-        entry: dprint
+        entry: make
         language: system
         args:
-          - "fmt"
+          - "format-yaml-staged"
 
       - id: lint
         name: Run Linters

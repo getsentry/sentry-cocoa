@@ -299,3 +299,29 @@
 }
 
 @end
+
+@implementation VolatileRequestTaskMock {
+    NSUInteger _currentRequestAccessCount;
+}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (instancetype)initWithRequest:(NSURLRequest *)request
+{
+    if (self = [super initWithRequest:request]) {
+        _currentRequestAccessLimit = 1;
+    }
+    return self;
+}
+#pragma clang diagnostic pop
+
+- (NSURLRequest *)currentRequest
+{
+    _currentRequestAccessCount++;
+    if (_currentRequestAccessCount > self.currentRequestAccessLimit) {
+        return nil;
+    }
+    return [super currentRequest];
+}
+
+@end

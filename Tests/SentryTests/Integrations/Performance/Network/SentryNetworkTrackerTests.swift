@@ -340,6 +340,23 @@ class SentryNetworkTrackerTests: XCTestCase {
         XCTAssertEqual(SentryNetworkTrackerTests.origin, span.origin)
     }
 
+    func testSpanData_VolatileCurrentRequest_UsesSnapshot() throws {
+        var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
+        request.httpMethod = "GET"
+        let task = VolatileRequestTaskMock(request: request)
+        task.currentRequestAccessLimit = 1
+
+        let sut = fixture.getSut()
+        let transaction = startTransaction()
+        sut.urlSessionTaskResume(task)
+
+        let spans = Dynamic(transaction).children as [Span]?
+        let span = try XCTUnwrap(spans?.first)
+
+        XCTAssertEqual(span.spanDescription, "GET \(SentryNetworkTrackerTests.testUrl)")
+        XCTAssertEqual(span.data["http.request.method"] as? String, "GET")
+    }
+
     func testStatusForTaskRunning() {
         let sut = fixture.getSut()
         let task = createDataTask()
@@ -1485,5 +1502,47 @@ class SentryNetworkTrackerTests: XCTestCase {
         var request = URLRequest(url: SentryNetworkTrackerTests.fullUrl)
         request.httpMethod = method
         return URLSessionStreamTaskMock(request: request)
+    }
+
+    // MARK: - Concurrent resume + setState race (issue #8012)
+
+    func testResumeConcurrentWithSetState_DoesNotCrash() {
+        let sut = fixture.getSut()
+
+        let queue = DispatchQueue(label: "resume-setState-race", qos: .userInteractive, attributes: [.concurrent, .initiallyInactive])
+        let iterations = 500
+        let expectation = XCTestExpectation(description: "Concurrent resume and setState")
+        expectation.expectedFulfillmentCount = iterations * 2
+        expectation.assertForOverFulfill = true
+
+        for _ in 0..<iterations {
+            let task = createDataTask()
+            _ = startTransaction()
+
+            queue.async {
+                sut.urlSessionTaskResume(task)
+                expectation.fulfill()
+            }
+            queue.async {
+                task.state = .completed
+                sut.urlSessionTask(task, setState: .completed)
+                expectation.fulfill()
+            }
+        }
+
+        queue.activate()
+        wait(for: [expectation], timeout: 10)
+    }
+
+    func testResumeAfterTaskCompleted_DoesNotCrash() {
+        let sut = fixture.getSut()
+        let transaction = startTransaction()
+        let task = createDataTask()
+
+        task.state = .completed
+        sut.urlSessionTaskResume(task)
+
+        let spans = Dynamic(transaction).children as [Span]?
+        XCTAssertEqual(spans?.count ?? 0, 0)
     }
 }

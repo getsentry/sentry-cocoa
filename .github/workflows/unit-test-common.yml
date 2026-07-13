@@ -67,6 +67,8 @@ jobs:
     timeout-minutes: ${{inputs.timeout}}
     if: ${{!inputs.should_skip}}
     steps:
+      - name: Warm CoreSimulator
+        run: xcrun simctl list runtimes -j > /dev/null 2>&1 &
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup Xcode
         id: setup-xcode
@@ -98,7 +100,9 @@ jobs:
           path: |
             ~/.rbenv/versions
             ~/.rbenv/cache
-          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}
+          key: ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: |
+            ruby-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.ruby-version') }}-
 
       - name: Install Ruby (Bitrise)
         if: inputs.runner_provider == 'bitrise'
@@ -118,7 +122,7 @@ jobs:
 
       - name: Setup Ruby
         if: inputs.runner_provider != 'bitrise'
-        uses: ruby/setup-ruby@9eb537ca036ebaed86729dcb9309076e4c5c3b74 # v1.314.0
+        uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
         with:
           bundler-cache: true
 

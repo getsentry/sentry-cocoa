@@ -86,6 +86,35 @@ class ErrorsViewController: UIViewController {
         }
     }
 
+    @IBAction func captureErrorInSwiftAsync(_ sender: UIButton) {
+        highlightButton(sender)
+        Task {
+            await asyncWork1()
+        }
+    }
+
+    private func asyncWork1() async {
+        // Suspend for 10 ms.
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        await asyncWork2()
+    }
+
+    private func asyncWork2() async {
+        // Suspend for 10 ms.
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        await asyncWork3()
+    }
+
+    private func asyncWork3() async {
+        // Suspend for 10 ms.
+        try? await Task.sleep(nanoseconds: 10_000_000)
+        do {
+            try RandomErrorGenerator.generate()
+        } catch {
+            SentrySDK.capture(error: error)
+        }
+    }
+
     @IBAction func captureNSException(_ sender: UIButton) {
         highlightButton(sender)
         let exception = NSException(name: NSExceptionName("My Custom exeption"), reason: "User clicked the button", userInfo: nil)

@@ -986,6 +986,14 @@
                                                             <action selector="captureError:" destination="QmU-DD-itF" eventType="touchUpInside" id="Oe8-KX-Pgr"/>
                                                         </connections>
                                                     </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="a1s-yn-c01" userLabel="Capture Error In Swift Async">
+                                                        <rect key="frame" x="0.0" y="29.666666666666657" width="196.66666666666666" height="28"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                        <state key="normal" title="Capture Error In Swift Async"/>
+                                                        <connections>
+                                                            <action selector="captureErrorInSwiftAsync:" destination="QmU-DD-itF" eventType="touchUpInside" id="a1s-yn-act"/>
+                                                        </connections>
+                                                    </button>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Llv-Yz-cwF">
                                                         <rect key="frame" x="0.0" y="29.666666666666657" width="196.66666666666666" height="28"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>

@@ -591,6 +591,23 @@ class SentryTimeToDisplayTrackerTest: XCTestCase {
         XCTAssertEqual(tracer.measurements[name]?.value, NSNumber(value: duration), file: file, line: line)
         XCTAssertEqual(tracer.measurements[name]?.unit?.unit, "millisecond", file: file, line: line)
     }
+
+    // MARK: - Weak span safety in finishCallback (issue #8012)
+
+    func testFinishCallback_SpansAlreadyNil_DoesNotCrash() throws {
+        let sut = fixture.getSut(name: "UIViewController", waitForFullDisplay: false)
+        let tracer = try fixture.getTracer()
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 7))
+        XCTAssertTrue(sut.start(for: tracer))
+
+        fixture.dateProvider.setDate(date: Date(timeIntervalSince1970: 8))
+        sut.reportInitialDisplay()
+        fixture.displayLinkWrapper.normalFrame()
+
+        tracer.finish()
+        XCTAssertTrue(tracer.isFinished)
+    }
 }
 
 #endif // os(iOS) || os(tvOS)
