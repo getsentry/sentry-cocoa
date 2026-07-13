@@ -6,8 +6,6 @@
 #if SENTRY_HAS_UIKIT
 #    import "MockUIScene.h"
 #    import "SentryDefaultUIViewControllerPerformanceTracker.h"
-#    import "SentryUIEventTracker.h"
-#    import "SentryUIEventTrackerTransactionMode.h"
 #    import "UIViewController+Sentry.h"
 #endif // SENTRY_HAS_UIKIT
 

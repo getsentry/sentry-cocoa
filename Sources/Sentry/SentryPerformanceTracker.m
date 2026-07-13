@@ -17,7 +17,7 @@
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 #if SENTRY_HAS_UIKIT
-#    import "SentryUIEventTracker.h"
+#    import "SentrySwift.h"
 #endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
