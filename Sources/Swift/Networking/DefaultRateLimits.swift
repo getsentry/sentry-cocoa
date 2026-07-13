@@ -94,11 +94,18 @@ extension HTTPURLResponse {
     /// response headers.
     func sentryCaseInsensitiveHeaderValue(forName name: String) -> String? {
         let lowercasedName = name.lowercased()
+        // The linter forbids `allHeaderFields` because its subscript is case-sensitive, and it points
+        // callers to `value(forHTTPHeaderField:)`. That API is only available on macOS 10.15+, so this
+        // pre-10.15 fallback has to iterate `allHeaderFields` instead. The case-sensitivity bug the
+        // linter guards against doesn't apply here: we don't subscript, we compare every key against
+        // `name` with both sides lowercased.
+        // swiftlint:disable avoid_all_header_fields
         for (key, value) in allHeaderFields {
             if let key = key as? String, key.lowercased() == lowercasedName {
                 return value as? String
             }
         }
+        // swiftlint:enable avoid_all_header_fields
         return nil
     }
 }

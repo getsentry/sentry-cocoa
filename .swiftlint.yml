@@ -128,3 +128,10 @@ custom_rules:
     severity: error
     included:
       - "./Tests/.*\\.swift"
+  avoid_all_header_fields:
+    name: "Avoid allHeaderFields"
+    message: "Don't read headers via allHeaderFields: its subscripting is case-sensitive, but HTTP/2 and HTTP/3 lowercase field names, causing missed headers (see #8322). Use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in DefaultRateLimits.swift."
+    regex: "allHeaderFields"
+    match_kinds:
+      - identifier
+    severity: error
