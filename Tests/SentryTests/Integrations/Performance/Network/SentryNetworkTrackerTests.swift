@@ -593,6 +593,72 @@ class SentryNetworkTrackerTests: XCTestCase {
         clearTestState()
     }
 
+    /// End-to-end check of `captureResponseDetails`: the response `Content-Type` is read and used to
+    /// parse the body, and the `Content-Type` header is reported. Related to #8388.
+    ///
+    /// Note: this does not reproduce the #8388 case-sensitivity bug, because `HTTPURLResponse`
+    /// canonicalizes `Content-Type` in its initializer, so a normally-constructed response can't
+    /// carry the lowercased wire casing. The case-insensitive lookup that actually fixes #8388 is
+    /// covered by `HTTPURLResponseSentryTests` (with a real lowercased header) and enforced by the
+    /// `avoid_all_header_fields` lint rules.
+    func testCaptureResponseDetails_withLowercasedContentType_parsesJSONBody() throws {
+        guard #available(iOS 16.0, tvOS 16.0, *) else { return }
+
+        // -- Arrange --
+        let testUrl = URL(string: "https://api.example.com/users")!
+        let options = Options()
+        options.dsn = "https://key@sentry.io/1234"
+        options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
+        options.sessionReplay.networkCaptureBodies = true
+        options.experimental.enableReplayNetworkDetailsCapturing = true
+
+        let scope = Scope()
+        let client = TestClient(options: options)
+        let hub = TestHub(client: client, andScope: scope)
+        SentrySDKInternal.setCurrentHub(hub)
+        SentrySDK.setStart(with: options)
+
+        let tracker = SentryNetworkTracker.sharedInstance
+        tracker.enableNetworkTracking()
+        tracker.enableNetworkBreadcrumbs()
+
+        let request = URLRequest(url: testUrl)
+        let task = URLSessionDataTaskMock(request: request)
+
+        let httpResponse = try XCTUnwrap(HTTPURLResponse(
+            url: testUrl, statusCode: 200, httpVersion: "2.0",
+            headerFields: ["content-type": "application/json"]
+        ))
+        task.setResponse(httpResponse)
+
+        let jsonBody = Data(#"{"key":"value"}"#.utf8)
+
+        // -- Act --
+        tracker.urlSessionTask(task, setState: .running)
+        tracker.captureResponseDetails(jsonBody, response: httpResponse, request: testUrl, task: task)
+        tracker.urlSessionTask(task, setState: .completed)
+
+        // -- Assert --
+        let breadcrumbs = try XCTUnwrap(Dynamic(scope).breadcrumbArray as [Breadcrumb]?)
+        let breadcrumb = try XCTUnwrap(breadcrumbs.first)
+        let detailsObject = try XCTUnwrap(
+            breadcrumb.data?[SentryReplayNetworkDetails.replayNetworkDetailsKey] as? SentryReplayNetworkDetails
+        )
+        let networkDetails = detailsObject.serialize()
+        let responseDict = try XCTUnwrap(networkDetails["response"] as? [String: Any])
+
+        // The Content-Type is read and reported.
+        let responseHeaders = try XCTUnwrap(responseDict["headers"] as? [String: String])
+        XCTAssertEqual(responseHeaders["Content-Type"], "application/json")
+
+        // The Content-Type is used to parse the body as JSON (not the "[Body not captured]" placeholder).
+        let bodyDict = try XCTUnwrap(responseDict["body"] as? [String: Any])
+        let parsedBody = try XCTUnwrap(bodyDict["body"] as? [String: Any])
+        XCTAssertEqual(parsedBody["key"] as? String, "value")
+
+        clearTestState()
+    }
+
 #endif
 
     func testBreadcrumb_GraphQLEnabled() throws {
