@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Session Replay now captures HTTP response bodies as it was supposed to for HTTP/2 and HTTP/3 (#8388)
+- Session Replay now captures HTTP response bodies as it was supposed to for HTTP/2 and HTTP/3 (#8390)
 
 ## Features
 
