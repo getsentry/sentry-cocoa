@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Session Replay now correctly reads the response `Content-Type` for HTTP/2 and HTTP/3, so it captures HTTP response bodies as it was supposed to (when response body capturing is enabled) (#8390)
+- Session Replay now correctly reads the response `Content-Type` for HTTP/2 and HTTP/3, so it captures HTTP response bodies as it was supposed to (when body capturing is enabled via `options.sessionReplay.networkCaptureBodies`) (#8390)
 
 ## Features
 
