@@ -76,29 +76,6 @@
     XCTAssertTrue(options.enableWatchdogTerminationsV2);
 }
 
-#pragma mark - enableReplayNetworkDetailsCapturing
-
-- (void)testEnableReplayNetworkDetailsCapturing_whenDefault_shouldBeFalse
-{
-    // -- Arrange --
-    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
-
-    // -- Assert --
-    XCTAssertFalse(options.enableReplayNetworkDetailsCapturing);
-}
-
-- (void)testEnableReplayNetworkDetailsCapturing_whenSetToYes_shouldReturnTrue
-{
-    // -- Arrange --
-    SentryObjCExperimentalOptions *options = [[SentryObjCExperimentalOptions alloc] init];
-
-    // -- Act --
-    options.enableReplayNetworkDetailsCapturing = YES;
-
-    // -- Assert --
-    XCTAssertTrue(options.enableReplayNetworkDetailsCapturing);
-}
-
 #pragma mark - dataCollection
 
 - (void)testDataCollection_whenDefault_shouldReturnNotNil

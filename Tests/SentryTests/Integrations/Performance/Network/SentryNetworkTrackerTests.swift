@@ -528,7 +528,6 @@ class SentryNetworkTrackerTests: XCTestCase {
         options.sessionReplay.networkDetailAllowUrls = ["api.example.com"]
         options.sessionReplay.networkResponseHeaders = ["Cache-Control"]
         options.sessionReplay.networkCaptureBodies = false
-        options.experimental.enableReplayNetworkDetailsCapturing = true
 
         let scope = Scope()
         let client = TestClient(options: options)

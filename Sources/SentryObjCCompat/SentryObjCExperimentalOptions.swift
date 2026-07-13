@@ -27,11 +27,6 @@ import Foundation
         set { wrapped.enableWatchdogTerminationsV2 = newValue }
     }
 
-    @objc public var enableReplayNetworkDetailsCapturing: Bool {
-        get { wrapped.enableReplayNetworkDetailsCapturing }
-        set { wrapped.enableReplayNetworkDetailsCapturing = newValue }
-    }
-
     @objc public var dataCollection: SentryObjCDataCollectionOptions {
         get { SentryObjCDataCollectionOptions(parent: wrapped) }
         set { wrapped.dataCollection = newValue.wrapped }
