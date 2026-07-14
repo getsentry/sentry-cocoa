@@ -23,11 +23,11 @@ Goals:
 | ---------------------------------------- | ------ | ------- | ------- | ----------------------------------------- |
 | `Sentry`                                 | Binary | Static  | ~63 MB  | **MOVE** (renamed `Sentry-Static` in v10) |
 | `Sentry-Dynamic`                         | Binary | Dynamic | ~130 MB | **MOVE**                                  |
-| `Sentry-Dynamic-WithARM64e`              | Binary | Dynamic | ~143 MB | **MOVE**                                  |
-| `Sentry-WithoutUIKitOrAppKit`            | Binary | Dynamic | ~105 MB | **MOVE**                                  |
-| `Sentry-WithoutUIKitOrAppKit-WithARM64e` | Binary | Dynamic | ~115 MB | **MOVE**                                  |
-| `SentryObjC-Dynamic`                     | Binary | Dynamic | ~84 MB  | **MOVE**                                  |
-| `SentryObjC-Static`                      | Binary | Static  | ~42 MB  | **MOVE**                                  |
+| `Sentry-Dynamic-WithARM64e`              | Binary | Dynamic | ~143 MB | **DELETED**                               |
+| `Sentry-WithoutUIKitOrAppKit`            | Binary | Dynamic | ~105 MB | **DELETED**                               |
+| `Sentry-WithoutUIKitOrAppKit-WithARM64e` | Binary | Dynamic | ~115 MB | **DELETED**                               |
+| `SentryObjC-Dynamic`                     | Binary | Dynamic | ~84 MB  | **DELETED**                               |
+| `SentryObjC-Static`                      | Binary | Static  | ~42 MB  | **DELETED**                               |
 | `SentrySwiftUI`                          | Source | —       | —       | **DELETED**                               |
 | `SentrySPM`                              | Source | —       | —       | **KEEP** (renamed `Sentry` in v10)        |
 | `SentryObjC`                             | Source | —       | —       | **KEEP**                                  |
@@ -36,8 +36,11 @@ Goals:
 > **v10 plan:**
 >
 > - `SentrySPM` → renamed to `Sentry` (becomes the primary target)
-> - `Sentry` (static binary) → renamed to `Sentry-Static` in the binary repo
+> - `Sentry` (static binary) and `Sentry-Dynamic` → moved to binary repo (renamed `Sentry-Static` / `Sentry-Dynamic`)
+> - `Sentry-Dynamic-WithARM64e`, `Sentry-WithoutUIKitOrAppKit`, `Sentry-WithoutUIKitOrAppKit-WithARM64e` → deleted (no longer needed)
+> - `SentryObjC-Dynamic`, `SentryObjC-Static` → deleted (ObjC source wrapper stays)
 > - `SentrySwiftUI` → deleted (functionality folded into the main SDK)
+> - Investigate [mergeable libraries](https://developer.apple.com/documentation/xcode/configuring-your-project-to-use-mergeable-libraries) to unify `Sentry-Static` and `Sentry-Dynamic` into a single binary target
 > - After v10, the main `Package.swift` contains only `Sentry` (source), `SentryObjC` (source), and `SentryDistribution`
 
 ### 3rd-party integrations in the monorepo
@@ -57,12 +60,14 @@ The binary target changes are breaking (removing published SPM targets) and will
 
 In **v10**:
 
-- All 7 binary targets move to `getsentry/sentry-cocoa-binary`
+- `Sentry` (static) and `Sentry-Dynamic` move to `getsentry/sentry-cocoa-binary`
+- 5 binary targets are deleted: `Sentry-Dynamic-WithARM64e`, `Sentry-WithoutUIKitOrAppKit`, `Sentry-WithoutUIKitOrAppKit-WithARM64e`, `SentryObjC-Dynamic`, `SentryObjC-Static`
 - `SentrySwiftUI` is deleted (functionality folded into the main SDK)
 - `SentrySPM` is renamed to `Sentry` (becomes the sole primary target)
 - The current static binary `Sentry` is renamed to `Sentry-Static` in the binary repo
 - `SentryObjC` (source wrapper) stays in the main repo
 - The main `Package.swift` becomes source-only: `Sentry` + `SentryObjC` + `SentryDistribution`
+- Investigate using [mergeable libraries](https://developer.apple.com/documentation/xcode/configuring-your-project-to-use-mergeable-libraries) to provide a single binary that works as both static and dynamic, replacing `Sentry-Static` + `Sentry-Dynamic` with a unified `Sentry` binary target
 
 ### Where to host XCFramework assets
 
@@ -112,16 +117,7 @@ let package = Package(
                  targets: ["Sentry-Static", "SentryCppHelper"]),
         .library(name: "Sentry-Dynamic",
                  targets: ["Sentry-Dynamic"]),
-        .library(name: "Sentry-Dynamic-WithARM64e",
-                 targets: ["Sentry-Dynamic-WithARM64e"]),
-        .library(name: "Sentry-WithoutUIKitOrAppKit",
-                 targets: ["Sentry-WithoutUIKitOrAppKit", "SentryCppHelper"]),
-        .library(name: "Sentry-WithoutUIKitOrAppKit-WithARM64e",
-                 targets: ["Sentry-WithoutUIKitOrAppKit-WithARM64e", "SentryCppHelper"]),
-        .library(name: "SentryObjC-Dynamic",
-                 targets: ["SentryObjC-Dynamic"]),
-        .library(name: "SentryObjC-Static",
-                 targets: ["SentryObjC-Static"]),
+        // Future: unify into a single "Sentry" product via mergeable libraries
     ],
     targets: [
         .binaryTarget(
@@ -134,7 +130,6 @@ let package = Package(
             url: "https://github.com/getsentry/sentry-cocoa/releases/download/10.0.0/Sentry-Dynamic.xcframework.zip",
             checksum: "..."
         ),
-        // ... remaining 5 binary targets
     ]
 )
 ```
@@ -235,11 +230,12 @@ All tasks land on `main` behind the v10 environment flag. No separate branch nee
 
 #### Package changes
 
-| # | Task                                                                                                                                                  | Goal   | Dependencies |
-| - | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------ |
-| 5 | Gate binary targets in `Package.swift`, `Package@swift-6.1.swift`, `Package@swift-6.2.swift` behind the v10 env flag (present in v9, excluded in v10) | Binary | 1, 2         |
-| 6 | Delete `SentrySwiftUI` target/product from Package files + Xcode project + `SentrySwiftUI.xcconfig`                                                   | Binary | v10 env flag |
-| 7 | Rename `SentrySPM` → `Sentry`, rename binary `Sentry` → `Sentry-Static` (when using the v10 env flag)                                                 | Binary | 5            |
+| #  | Task                                                                                                                                                                                                     | Goal   | Dependencies |
+| -- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------ |
+| 5  | Gate binary targets in `Package.swift`, `Package@swift-6.1.swift`, `Package@swift-6.2.swift` behind the v10 env flag: move `Sentry` + `Sentry-Dynamic` to binary repo, delete remaining 5 binary targets | Binary | 1, 2         |
+| 6  | Delete `SentrySwiftUI` target/product from Package files + Xcode project + `SentrySwiftUI.xcconfig`                                                                                                      | Binary | v10 env flag |
+| 7  | Rename `SentrySPM` → `Sentry`, rename binary `Sentry` → `Sentry-Static` (when using the v10 env flag)                                                                                                    | Binary | 5            |
+| 7b | Investigate mergeable libraries to unify `Sentry-Static` + `Sentry-Dynamic` into a single binary target                                                                                                  | Binary | 5            |
 
 #### CI and release pipeline
 
