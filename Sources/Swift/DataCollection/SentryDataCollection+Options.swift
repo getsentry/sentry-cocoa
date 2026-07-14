@@ -140,9 +140,6 @@ extension SentryDataCollection {
                 return nil
             }
 
-            if let enabled = value as? Bool {
-                return enabled ? defaultValue : 0
-            }
             if let number = value as? NSNumber, SentryDictionaryDecoder.isBool(number) {
                 return number.boolValue ? defaultValue : 0
             }

@@ -306,6 +306,14 @@ class SentryDataCollectionOptionsTests: XCTestCase {
         XCTAssertEqual(options.userInfo, SentryDataCollection.Options().userInfo)
     }
 
+    func testInitWithDictionary_whenFrameContextLinesIsNSNumberOne_shouldSetFrameContextLines() {
+        // -- Act --
+        let options = SentryDataCollection.Options(dictionary: ["frameContextLines": NSNumber(value: 1)])
+
+        // -- Assert --
+        XCTAssertEqual(options.frameContextLines, 1)
+    }
+
     func testInitWithDictionary_whenFrameContextLinesIsNegative_shouldUseDefault() {
         // -- Act --
         let options = SentryDataCollection.Options(dictionary: ["frameContextLines": -1])
