@@ -1,5 +1,5 @@
-@_spi(Private) import Sentry
 @_spi(Private) import SentryTestUtils
+@testable @_spi(Private) import Sentry
 import XCTest
 
 #if os(iOS) || os(tvOS)
@@ -10,14 +10,14 @@ class SentryUIEventTrackerTests: XCTestCase {
         let target = FirstViewController()
         let hub = SentryHubInternal(client: TestClient(options: Options()), andScope: nil)
         let dispatchQueue = TestSentryDispatchQueueWrapper()
-        let uiEventTrackerMode: SentryUIEventTrackerMode
+        let uiEventTrackerMode: SentryUIEventTrackerDelegate
         let button = UIButton()
 
         init () {
             dispatchQueue.blockBeforeMainBlock = { false }
             SentryDependencyContainer.sharedInstance().swizzleWrapper = swizzleWrapper
             SentryDependencyContainer.sharedInstance().dispatchQueueWrapper = dispatchQueue
-            uiEventTrackerMode = SentryUIEventTrackerTransactionMode(idleTimeout: 3.0)
+            uiEventTrackerMode = SentryUIEventTrackerTransactionEventProcessor(idleTimeout: 3.0)
         }
         
         func getSut(reportAccessibilityIdentifier: Bool = true) -> SentryUIEventTracker {

@@ -4,25 +4,19 @@ import Foundation
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 
 /// Starts and manages UI event transactions for automatic user interaction tracing.
-@_spi(Private)
-@objc(SentryUIEventTrackerTransactionMode)
-public final class SentryUIEventTrackerTransactionMode: NSObject, SentryUIEventTrackerMode {
+final class SentryUIEventTrackerTransactionEventProcessor {
     private let idleTimeout: TimeInterval
     private let activeTransactionsStorage = SentryMutex<[SentryTracer]>([])
 
-    @objc private dynamic var activeTransactions: NSArray {
-        activeTransactionsStorage.withLock { $0 as NSArray }
-    }
-
     /// Creates a transaction mode with the idle timeout used for UI event transactions.
-    @objc(initWithIdleTimeout:)
-    public init(idleTimeout: TimeInterval) {
+    init(idleTimeout: TimeInterval) {
         self.idleTimeout = idleTimeout
-        super.init()
     }
+}
 
+extension SentryUIEventTrackerTransactionEventProcessor: SentryUIEventTracker.EventProcessor {
     /// Handles a tracked UI event by starting or updating an automatic transaction.
-    public func handleUIEvent(
+    func handleUIEvent(
         _ action: String,
         operation: String,
         accessibilityIdentifier: String?

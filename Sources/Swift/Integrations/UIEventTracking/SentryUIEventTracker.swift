@@ -3,38 +3,48 @@
 #if (os(iOS) || os(tvOS) || os(visionOS)) && !SENTRY_NO_UI_FRAMEWORK
 import UIKit
 
-private let sentryUIEventTrackerSwizzleSendAction = "SentryUIEventTrackerSwizzleSendAction"
-
 /// Tracks UIKit control actions and forwards normalized UI events to a tracker mode.
-@_spi(Private)
-@objc(SentryUIEventTracker)
-public final class SentryUIEventTracker: NSObject {
-    private let uiEventTrackerMode: any SentryUIEventTrackerMode
-    private let reportAccessibilityIdentifier: Bool
+final class SentryUIEventTracker {
+
+    // MARK: - Types
+
+    struct Options {
+        let reportAccessibilityIdentifier: Bool
+    }
+
+    /// Receives normalized UI event actions from `SentryUIEventTracker`.
+    protocol EventProcessor {
+        /// Handles a tracked UI event action.
+        func handleUIEvent(_ action: String, operation: String, accessibilityIdentifier: String?)
+    }
+
+    // MARK: - Constants
+
+    private static let sentryUIEventTrackerSwizzleSendAction = "SentryUIEventTrackerSwizzleSendAction"
+
+    // MARK: - Properties
+
+    private let swizzleWrapper: SentrySwizzleWrapperProtocol
+    private let eventProcessor: EventProcessor
+    private let options: Options
 
     /// Creates a UI event tracker with the given mode.
-    @objc(initWithMode:reportAccessibilityIdentifier:)
-    public init(mode: any SentryUIEventTrackerMode, reportAccessibilityIdentifier: Bool) {
-        self.uiEventTrackerMode = mode
-        self.reportAccessibilityIdentifier = reportAccessibilityIdentifier
-        super.init()
+    public init(options: Options, eventProcessor: EventProcessor, swizzleWrapper: SentrySwizzleWrapperProtocol) {
+        self.options = options
+        self.eventProcessor = eventProcessor
+        self.swizzleWrapper = swizzleWrapper
     }
 
     /// Starts tracking UIKit send action events.
-    @objc public func start() {
-        SentryDependencyContainer.sharedInstance().swizzleWrapper.swizzleSendAction({ [weak self] action, target, sender, event in
+    func start() {
+        swizzleWrapper.swizzleSendAction({ [weak self] action, target, sender, event in
             self?.sendActionCallback(action: action, target: target, sender: sender, event: event)
-        }, forKey: sentryUIEventTrackerSwizzleSendAction)
+        }, forKey: Self.sentryUIEventTrackerSwizzleSendAction)
     }
 
     /// Stops tracking UIKit send action events.
-    @objc public func stop() {
-        SentryDependencyContainer.sharedInstance().swizzleWrapper.removeSwizzleSendAction(forKey: sentryUIEventTrackerSwizzleSendAction)
-    }
-
-    /// Returns whether the operation belongs to an automatic UI event transaction.
-    @objc public static func isUIEventOperation(_ operation: String) -> Bool {
-        return operation == SentrySpanOperationUiAction || operation == SentrySpanOperationUiActionClick
+    func stop() {
+        swizzleWrapper.removeSwizzleSendAction(forKey: Self.sentryUIEventTrackerSwizzleSendAction)
     }
 
     private func sendActionCallback(action: String, target: Any?, sender: Any?, event: UIEvent?) {
@@ -59,13 +69,13 @@ public final class SentryUIEventTracker: NSObject {
         let operation = Self.operation(sender: sender)
 
         let accessibilityIdentifier: String?
-        if reportAccessibilityIdentifier, let view = sender as? UIView {
+        if options.reportAccessibilityIdentifier, let view = sender as? UIView {
             accessibilityIdentifier = view.accessibilityIdentifier
         } else {
             accessibilityIdentifier = nil
         }
 
-        uiEventTrackerMode.handleUIEvent(
+        eventProcessor.handleUIEvent(
             actionName,
             operation: operation,
             accessibilityIdentifier: accessibilityIdentifier
