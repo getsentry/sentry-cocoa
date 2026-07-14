@@ -595,9 +595,9 @@ build-sample-macOS-SwiftUI-SPM:
 ## Build the macOS-CLI-Xcode sample (command-line tool, SentrySPM with NoUIFramework)
 #
 # Builds the macOS CLI sample that uses SentrySPM without UIKit/AppKit linkage.
-# Uses the pre-generated .xcodeproj (traits set in version control; xcodegen has no trait support).
 .PHONY: build-sample-macOS-CLI-Xcode
 build-sample-macOS-CLI-Xcode:
+	xcodegen --spec Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.yml
 	set -o pipefail && xcodebuild \
 		-project "Samples/macOS-CLI-Xcode/macOS-CLI-Xcode.xcodeproj" \
 		-scheme macOS-CLI-Xcode \
