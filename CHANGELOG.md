@@ -10,6 +10,7 @@
 
 - Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
 - Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
+- Add scope API to clear feature flags (#8364)
 
 ## 9.21.0
 
@@ -22,7 +23,6 @@
 
 - Attach feature flag evaluations to active spans (#8158)
 - Add feature flag scope ObjC API (#8160)
-- Add scope API to clear feature flags (#8364)
 
 ## 9.20.0
 
