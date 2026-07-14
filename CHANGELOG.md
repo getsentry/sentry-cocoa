@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Session Replay now correctly reads the response `Content-Type` for HTTP/2 and HTTP/3, so it captures HTTP response bodies as it was supposed to (when body capturing is enabled via `options.sessionReplay.networkCaptureBodies`) (#8390)
+
 ## Features
 
 - Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
@@ -12,6 +16,7 @@
 ### Fixes
 
 - Fix use-after-free race in `span`, `startProfiler`, and `stopProfiler` by snapshotting `currentHub` under `currentHubLock` before dereferencing. (#8318)
+- Add `userInfo` context for unhandled `NSExceptions` (#8332)
 
 ### Features
 

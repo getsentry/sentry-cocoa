@@ -649,10 +649,10 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
             // sentry-lint:disable avoid_all_header_fields
             // Safe: reading the whole dictionary, not a case-sensitive lookup.
             allHeaders = httpResponse.allHeaderFields;
-            // Unsafe: subscript is case-sensitive and can miss the header; needs fixing (see
-            // #8388).
-            contentType = httpResponse.allHeaderFields[@"Content-Type"];
             // sentry-lint:enable avoid_all_header_fields
+            contentType =
+                [SentryHTTPHeaderReader valueForHTTPHeaderFieldCaseInsensitive:@"content-type"
+                                                                    inResponse:httpResponse];
         }
 
         NSData *bodyData
@@ -695,7 +695,7 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
 
     [details setRequestWithSize:requestSize
                        bodyData:bodyData
-                    contentType:request.allHTTPHeaderFields[@"Content-Type"]
+                    contentType:[request valueForHTTPHeaderField:@"content-type"]
                      allHeaders:request.allHTTPHeaderFields
               configuredHeaders:networkRequestHeaders];
 }
