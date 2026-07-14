@@ -5,6 +5,7 @@
 ### Fixes
 
 - Session Replay now correctly reads the response `Content-Type` for HTTP/2 and HTTP/3, so it captures HTTP response bodies as it was supposed to (when body capturing is enabled via `options.sessionReplay.networkCaptureBodies`) (#8390)
+- Log the actual request error instead of `(null)` when a Spotlight request fails (#8401)
 
 ## Features
 
