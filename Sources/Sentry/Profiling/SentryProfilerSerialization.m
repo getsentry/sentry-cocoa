@@ -163,9 +163,11 @@ sentry_serializedTraceProfileData(
     NSMutableDictionary *deviceDict = [[NSMutableDictionary alloc] initWithDictionary:@{
         @"architecture" : sentry_getCPUArchitecture(),
         @"is_emulator" : @(isEmulated),
-        @"locale" : NSLocale.currentLocale.localeIdentifier,
         @"manufacturer" : @"Apple",
     }];
+#    if !SDK_V10
+    deviceDict[@"locale"] = NSLocale.currentLocale.localeIdentifier;
+#    endif
     NSString *_Nullable deviceModel
         = isEmulated ? sentry_getSimulatorDeviceModel() : sentry_getDeviceModel();
     if (deviceModel != nil) {

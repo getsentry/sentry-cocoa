@@ -85,7 +85,11 @@ final class SentryDefaultCrashReporterTests: XCTestCase {
         XCTAssertEqual(deviceContext["free_memory"] as? UInt64, 1_073_741_824)
         XCTAssertEqual(deviceContext["usable_memory"] as? UInt64, 4_294_967_296)
         XCTAssertEqual(deviceContext["memory_size"] as? UInt64, 6_442_450_944)
+    #if SDK_V10
+        XCTAssertNil(deviceContext["locale"])
+    #else
         XCTAssertNotNil(deviceContext["locale"])
+    #endif
     }
     
     func testEnrichScope_WithSystemInfo_SetsAppContext() throws {

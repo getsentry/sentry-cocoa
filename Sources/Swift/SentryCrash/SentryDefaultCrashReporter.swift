@@ -174,8 +174,10 @@ public final class SentryDefaultCrashReporter: NSObject, SentryCrashReporter {
         deviceData["usable_memory"] = systemInfo["usableMemorySize"]
         deviceData["memory_size"] = systemInfo["memorySize"]
         
+    #if !SDK_V10
         deviceData["locale"] = Locale.autoupdatingCurrent.identifier
-        
+    #endif
+
         // Only include these boolean flags when they are `true` to reduce payload size.
         // These flags are `false` for the vast majority of events (regular iOS apps, native macOS apps, etc.),
         // so omitting them when `false` significantly reduces the payload size without losing meaningful information.
