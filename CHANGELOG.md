@@ -8,7 +8,6 @@
 
 ## Features
 
-- Add reusable key-value filtering utilities for data collection (#8244)
 - Mark opt in option `swiftAsyncStacktraces` as stable (#8373)
 - Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
 
