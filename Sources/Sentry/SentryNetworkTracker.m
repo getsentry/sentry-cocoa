@@ -123,7 +123,10 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    NSURL *url = [[sessionTask currentRequest] URL];
+    // Snapshot currentRequest once — the property is volatile and can return a freed
+    // object if the task completes on another thread between repeated accesses.
+    NSURLRequest *currentRequest = sessionTask.currentRequest;
+    NSURL *url = currentRequest.URL;
 
     if (url == nil) {
         return;
@@ -167,14 +170,13 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         id<SentrySpan> _Nullable currentSpan = [SentrySDKInternal.currentHub.scope span];
         if (currentSpan != nil) {
             span = currentSpan;
-            netSpan = [span startChildWithOperation:SentrySpanOperationNetworkRequestOperation
-                                        description:[NSString stringWithFormat:@"%@ %@",
-                                                        sessionTask.currentRequest.HTTPMethod,
-                                                        safeUrl.sanitizedUrl]];
+            netSpan =
+                [span startChildWithOperation:SentrySpanOperationNetworkRequestOperation
+                                  description:[NSString stringWithFormat:@"%@ %@",
+                                                  currentRequest.HTTPMethod, safeUrl.sanitizedUrl]];
             netSpan.origin = SentryTraceOriginAutoHttpNSURLSession;
 
-            [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod
-                           forKey:@"http.request.method"];
+            [netSpan setDataValue:currentRequest.HTTPMethod forKey:@"http.request.method"];
             [netSpan setDataValue:safeUrl.sanitizedUrl forKey:@"url"];
             [netSpan setDataValue:@"fetch" forKey:@"type"];
 
@@ -257,7 +259,8 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    NSURL *url = [[sessionTask currentRequest] URL];
+    NSURLRequest *currentRequest = sessionTask.currentRequest;
+    NSURL *url = currentRequest.URL;
 
     if (url == nil) {
         return;
@@ -285,9 +288,9 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     //   - suspended → canceling (task cancelled while suspended)
     if (sessionTask.state == NSURLSessionTaskStateRunning
         || sessionTask.state == NSURLSessionTaskStateSuspended) {
-        [self captureFailedRequests:sessionTask];
+        [self captureFailedRequests:sessionTask currentRequest:currentRequest];
 
-        [self addBreadcrumbForSessionTask:sessionTask];
+        [self addBreadcrumbForSessionTask:sessionTask currentRequest:currentRequest];
 
         NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
 
@@ -307,6 +310,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 }
 
 - (void)captureFailedRequests:(NSURLSessionTask *)sessionTask
+               currentRequest:(NSURLRequest *)currentRequest
 {
     if (!self.isCaptureFailedRequestsEnabled) {
         SENTRY_LOG_DEBUG(
@@ -314,8 +318,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
 
-    // if request or response are null, we can't raise the event
-    if (sessionTask.currentRequest == nil || sessionTask.response == nil) {
+    if (currentRequest == nil || sessionTask.response == nil) {
         SENTRY_LOG_DEBUG(@"Request or Response are null, not capturing HTTP Client errors.");
         return;
     }
@@ -327,7 +330,6 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
         return;
     }
     NSHTTPURLResponse *myResponse = (NSHTTPURLResponse *)sessionTask.response;
-    NSURLRequest *myRequest = sessionTask.currentRequest;
     NSNumber *responseStatusCode = @(myResponse.statusCode);
 
     if (![self containsStatusCode:myResponse.statusCode]) {
@@ -337,7 +339,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     }
 
     if (![SentryTracePropagation
-            isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, myRequest.URL)
+            isTargetMatch:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)
               withTargets:SentrySDKInternal.options.failedRequestTargets ?: @[]]) {
         SENTRY_LOG_DEBUG(
             @"Request url isn't within the request targets, not capturing HTTP Client errors.");
@@ -372,16 +374,16 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 
     SentryRequest *request = [[SentryRequest alloc] init];
 
-    UrlSanitized *url = [[UrlSanitized alloc]
-        initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, [[sessionTask currentRequest] URL])];
+    UrlSanitized *url =
+        [[UrlSanitized alloc] initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)];
 
     request.url = url.sanitizedUrl;
-    request.method = myRequest.HTTPMethod;
+    request.method = currentRequest.HTTPMethod;
     request.fragment = url.fragment;
     request.queryString = url.query;
     request.bodySize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
-    if (nil != myRequest.allHTTPHeaderFields) {
-        NSDictionary<NSString *, NSString *> *headers = myRequest.allHTTPHeaderFields.copy;
+    if (nil != currentRequest.allHTTPHeaderFields) {
+        NSDictionary<NSString *, NSString *> *headers = currentRequest.allHTTPHeaderFields.copy;
         request.headers = [HTTPHeaderSanitizer sanitizeHeaders:headers];
     }
 
@@ -392,11 +394,14 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     NSMutableDictionary<NSString *, id> *response = [[NSMutableDictionary alloc] init];
 
     [response setValue:responseStatusCode forKey:@"status_code"];
+    // Safe: reading the whole dictionary, not a case-sensitive single-header lookup.
+    // sentry-lint:disable avoid_all_header_fields
     if (nil != myResponse.allHeaderFields) {
         NSDictionary<NSString *, NSString *> *headers =
             [HTTPHeaderSanitizer sanitizeHeaders:myResponse.allHeaderFields];
         [response setValue:headers forKey:@"headers"];
     }
+    // sentry-lint:enable avoid_all_header_fields
     if (sessionTask.countOfBytesReceived != 0) {
         [response setValue:[NSNumber numberWithLongLong:sessionTask.countOfBytesReceived]
                     forKey:@"body_size"];
@@ -428,6 +433,7 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
 }
 
 - (void)addBreadcrumbForSessionTask:(NSURLSessionTask *)sessionTask
+                     currentRequest:(NSURLRequest *)currentRequest
 {
     if (!self.isNetworkBreadcrumbEnabled) {
         return;
@@ -449,13 +455,13 @@ static NSString *const SentryNetworkTrackerThreadSanitizerMessage
     SentryBreadcrumb *breadcrumb = [[SentryBreadcrumb alloc] initWithLevel:breadcrumbLevel
                                                                   category:@"http"];
 
-    UrlSanitized *urlComponents = [[UrlSanitized alloc]
-        initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, sessionTask.currentRequest.URL)];
+    UrlSanitized *urlComponents =
+        [[UrlSanitized alloc] initWithURL:SENTRY_UNWRAP_NULLABLE(NSURL, currentRequest.URL)];
 
     breadcrumb.type = @"http";
     NSMutableDictionary<NSString *, id> *breadcrumbData = [[NSMutableDictionary alloc] init];
     breadcrumbData[@"url"] = urlComponents.sanitizedUrl;
-    breadcrumbData[@"method"] = sessionTask.currentRequest.HTTPMethod;
+    breadcrumbData[@"method"] = currentRequest.HTTPMethod;
     breadcrumbData[@"request_start"] = requestStart;
     breadcrumbData[@"request_body_size"] =
         [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
@@ -640,8 +646,13 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
         if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
             statusCode = httpResponse.statusCode;
+            // sentry-lint:disable avoid_all_header_fields
+            // Safe: reading the whole dictionary, not a case-sensitive lookup.
             allHeaders = httpResponse.allHeaderFields;
-            contentType = httpResponse.allHeaderFields[@"Content-Type"];
+            // sentry-lint:enable avoid_all_header_fields
+            contentType =
+                [SentryHTTPHeaderReader valueForHTTPHeaderFieldCaseInsensitive:@"content-type"
+                                                                    inResponse:httpResponse];
         }
 
         NSData *bodyData
@@ -684,7 +695,7 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
 
     [details setRequestWithSize:requestSize
                        bodyData:bodyData
-                    contentType:request.allHTTPHeaderFields[@"Content-Type"]
+                    contentType:[request valueForHTTPHeaderField:@"content-type"]
                      allHeaders:request.allHTTPHeaderFields
               configuredHeaders:networkRequestHeaders];
 }

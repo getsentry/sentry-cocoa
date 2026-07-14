@@ -128,3 +128,10 @@ custom_rules:
     severity: error
     included:
       - "./Tests/.*\\.swift"
+  avoid_all_header_fields:
+    name: "Careful with allHeaderFields"
+    message: "Double-check how you use allHeaderFields (https://developer.apple.com/documentation/foundation/httpurlresponse/allheaderfields). Reading all headers is fine, but its subscript is case-sensitive while HTTP/2 and HTTP/3 lowercase field names, so a single-header lookup can silently miss the header (see #8322). For a lookup, use value(forHTTPHeaderField:) or the HTTPURLResponse.value(forHTTPHeaderFieldCaseInsensitive:) extension in HTTPURLResponse+Sentry.swift. If your usage is intentional, suppress this rule with a comment explaining why."
+    regex: "allHeaderFields"
+    match_kinds:
+      - identifier
+    severity: error
