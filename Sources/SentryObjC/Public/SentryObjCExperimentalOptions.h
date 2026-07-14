@@ -24,16 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// When enabled, the SDK uses a more efficient mechanism for detecting watchdog terminations.
 @property (nonatomic) BOOL enableWatchdogTerminationsV2;
 
-/**
- * Enables network detail capture for Session Replay.
- *
- * When enabled, the SDK can capture request and response headers and bodies for network
- * requests during session replay. You must also configure
- * @c sessionReplay.networkDetailAllowUrls with URL patterns to specify which
- * requests should be captured.
- */
-@property (nonatomic) BOOL enableReplayNetworkDetailsCapturing;
-
 /// Configuration for what data the SDK collects automatically.
 @property (nonatomic, strong) SentryObjCDataCollectionOptions *dataCollection;
 

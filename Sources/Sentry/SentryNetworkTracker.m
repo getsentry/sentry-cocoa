@@ -604,10 +604,6 @@ static const void *SentryNetworkDetailsKey = &SentryNetworkDetailsKey;
         return NO;
     }
 
-    if (!options.experimental.enableReplayNetworkDetailsCapturing) {
-        return NO;
-    }
-
     if (!urlString) {
         return NO;
     }

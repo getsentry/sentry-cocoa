@@ -659,7 +659,7 @@ Truncation adds a warning (`MAYBE_JSON_TRUNCATED` or `TEXT_TRUNCATED`) so the Se
 
 ### Gating
 
-The feature requires explicit opt-in via `SentryReplayOptions.networkDetailAllowUrls` (URL allowlist) and the experimental flag `enableReplayNetworkDetailsCapturing`.
+The feature requires explicit opt-in via `SentryReplayOptions.networkDetailAllowUrls` (URL allowlist).
 Body capture within that gate is controlled by `networkCaptureBodies` (default `true`).
 The swizzling for response capture is skipped entirely when `networkDetailAllowUrls` is empty, so there is zero overhead for users who don't opt in.
 

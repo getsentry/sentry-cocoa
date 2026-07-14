@@ -13,6 +13,10 @@
 - Add `dataCollection` option under `experimental` for configuring data scrubbing behavior (#8369)
 - Add scope API to clear feature flags (#8364)
 
+## Improvements
+
+- Remove `enableReplayNetworkDetailsCapturing` experimental flag; network detail capture is now enabled automatically when `networkDetailAllowUrls` is non-empty (#8396)
+
 ## 9.21.0
 
 ### Fixes

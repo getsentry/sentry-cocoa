@@ -2148,13 +2148,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "enableReplayNetworkDetailsCapturing",
-    "parent": "SentryObjCExperimentalOptions",
-    "returnType": "BOOL",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "enableReportNonFullyBlockingAppHangs",
     "parent": "SentryObjCOptions",
     "returnType": "BOOL",
@@ -6054,13 +6047,6 @@
   },
   {
     "kind": "ObjCMethodDecl",
-    "name": "setEnableReplayNetworkDetailsCapturing:",
-    "parent": "SentryObjCExperimentalOptions",
-    "returnType": "void",
-    "instance": true
-  },
-  {
-    "kind": "ObjCMethodDecl",
     "name": "setEnableReportNonFullyBlockingAppHangs:",
     "parent": "SentryObjCOptions",
     "returnType": "void",
@@ -9402,12 +9388,6 @@
     "kind": "ObjCPropertyDecl",
     "name": "enablePropagateTraceparent",
     "parent": "SentryObjCOptions",
-    "type": "BOOL"
-  },
-  {
-    "kind": "ObjCPropertyDecl",
-    "name": "enableReplayNetworkDetailsCapturing",
-    "parent": "SentryObjCExperimentalOptions",
     "type": "BOOL"
   },
   {

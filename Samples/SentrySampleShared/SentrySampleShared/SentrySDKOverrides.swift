@@ -117,7 +117,6 @@ public enum SentrySDKOverrides: String, CaseIterable {
 
         case disableMaskAllImages = "--io.sentry.replay.disable-mask-all-images"
         case disableMaskAllText = "--io.sentry.replay.disable-mask-all-text"
-        case disableNetworkDetailsCapturing = "--io.sentry.replay.disable-network-details-capturing"
     }
     case replay = "Replay"
 
@@ -411,7 +410,7 @@ extension SentrySDKOverrides.Replay {
     public var overrideType: OverrideType {
         switch self {
         case .disable, .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText,
-             .disableMaskAllImages, .disableNetworkDetailsCapturing:
+             .disableMaskAllImages:
             return .boolean
         case .onErrorSampleRate, .sessionSampleRate: return .float
         case .quality: return .string
@@ -668,8 +667,7 @@ extension SentrySDKOverrides.Replay {
         switch self {
         case .disable: return false
         case .disableViewRendererV2, .enableFastViewRendering, .disableMaskAllText,
-             .disableMaskAllImages, .onErrorSampleRate, .sessionSampleRate, .quality,
-             .disableNetworkDetailsCapturing:
+             .disableMaskAllImages, .onErrorSampleRate, .sessionSampleRate, .quality:
             return true
         }
     }
