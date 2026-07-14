@@ -93,6 +93,11 @@ class SentryCrashIntegrationTests: NotificationCenterTestCase {
         clearTestState()
     }
 
+    override class func tearDown() {
+        SentryDependencyContainer.sharedInstance().crashReporter.uninstall()
+        super.tearDown()
+    }
+
     // Test for GH-581
     func testReleaseNamePassedToSentryCrash() throws {
         try XCTSkipIf(SentryTestSetup.isKSCrashEnabled, "Skipping SentryCrash test while in KSCrash mode")
