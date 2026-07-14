@@ -31076,6 +31076,27 @@
           {
             "children": [
               {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declAttributes": [
+              "NonObjC"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isFromExtension": true,
+            "kind": "Function",
+            "mangledName": "$sSo11SentryScopeC0A0E17clearFeatureFlagsyyF",
+            "moduleName": "Sentry",
+            "name": "clearFeatureFlags",
+            "printedName": "clearFeatureFlags()",
+            "usr": "s:So11SentryScopeC0A0E17clearFeatureFlagsyyF"
+          },
+          {
+            "children": [
+              {
                 "children": [
                   {
                     "kind": "TypeNominal",

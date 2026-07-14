@@ -267,6 +267,19 @@
     XCTAssertEqualObjects(values[0][@"result"], @YES);
 }
 
+- (void)testClearFeatureFlags_whenScopeHasFeatureFlags_shouldRemoveFlagsContext
+{
+    // -- Arrange --
+    SentryObjCScope *scope = [[SentryObjCScope alloc] init];
+    [scope addFeatureFlagWithName:@"checkout" result:YES];
+
+    // -- Act --
+    [scope clearFeatureFlags];
+
+    // -- Assert --
+    XCTAssertNil([self featureFlagValuesFromScope:scope]);
+}
+
 - (void)testSetContextValueForKey_whenCalled_shouldNotCrash
 {
     // -- Arrange --
