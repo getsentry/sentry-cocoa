@@ -8,7 +8,6 @@
 #import "SentrySpanInternal.h"
 #import "SentrySpanOperation.h"
 #import "SentrySpanProtocol.h"
-#import "SentrySwift.h"
 #import "SentryTracer.h"
 #import "SentryTracerConfiguration.h"
 #import "SentryTransactionContext+Private.h"
@@ -101,8 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 #if SENTRY_HAS_UIKIT
         else {
-            if (operation == SentrySpanOperationUiAction
-                || operation == SentrySpanOperationUiActionClick) {
+            if (SentrySpanOperationIsUIEvent(span.operation)) {
                 SENTRY_LOG_DEBUG(
                     @"Cancelling previous UI event span %@", span.spanId.sentrySpanIdString);
                 [span finishWithStatus:kSentrySpanStatusCancelled];

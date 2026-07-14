@@ -12,6 +12,12 @@ final class SentryUIEventTrackerTransactionEventProcessor {
     init(idleTimeout: TimeInterval) {
         self.idleTimeout = idleTimeout
     }
+
+#if SENTRY_TEST || SENTRY_TEST_CI
+    var activeTransactions: [SentryTracer] {
+        activeTransactionsStorage.withLock { $0 }
+    }
+#endif
 }
 
 extension SentryUIEventTrackerTransactionEventProcessor: SentryUIEventTracker.EventProcessor {
