@@ -2,73 +2,45 @@
 
 ## Table of Contents
 
-- [`SentryCrashBinaryImageCache` initializes off the main thread](#sentrycrashbinaryimagecache-initializes-off-the-main-thread)
-- [No local symbolication of crashes](#no-local-symbolication-of-crashes)
-- [Not capturing screenshots for crashes](#not-capturing-screenshots-for-crashes)
-- [Custom SentryHttpStatusCodeRange type instead of NSRange](#custom-sentryhttpstatuscoderange-type-instead-of-nsrange)
-- [Manually installing iOS 12 simulators](#manually-installing-ios-12-simulators)
-- [Adding Swift code in the project](#adding-swift-code-in-the-project)
-- [Writing breadcrumbs to disk in the main thread](#writing-breadcrumbs-to-disk-in-the-main-thread)
-- [Bump min Xcode version to 13](#bump-min-xcode-version-to-13)
-- [Remove the permissions feature](#remove-the-permissions-feature)
-- [Rename master to main](#rename-master-to-main)
-- [SentrySwiftUI version](#sentryswiftui-version)
-- [Tracking package managers](#tracking-package-managers)
-- [Usage of `__has_include`](#usage-of-__has_include)
-- [Remove running unit tests on iOS 12 simulators](#remove-running-unit-tests-on-ios-12-simulators)
-- [Remove integration tests from CI](#remove-integration-tests-from-ci)
-- [Async SDK init on main thread](#async-sdk-init-on-main-thread)
-- [Dependency Injection Strategy](#dependency-injection-strategy)
-- [Move UI tests from SauceLabs to GH action simulators](#move-ui-tests-from-saucelabs-to-gh-action-simulators)
-- [Removing SentryPrivate](#removing-sentryprivate)
-- [Enabling C++/Objective-c++ interoperability for visionOS](#enabling-cobjective-c-interoperability-for-visionos)
-- [Deserializing Events](#deserializing-events)
-- [Platform version support](#platform-version-support)
-- [Use preinstalled GH actions simulators](#use-preinstalled-gh-actions-simulators)
-- [Do not use Swift String constants in ObjC code](#do-not-use-swift-string-constants-in-objc-code)
-- [Decodable conformances to ObjC types](#decodable-conformances-to-objc-types)
-- [v9](#v9)
-- [v8 Branch](#v8-branch)
-- [Remove iOS 16 support](#remove-ios-16-support)
-- [swift-log dependency removal](#swift-log-dependency-removal)
-- [Change macOS deployment target to 10.14](#change-macos-deployment-target-to-1014)
-- [Deprecate Carthage Support](#deprecate-carthage-support)
-- [3rd Party Library Integrations](#3rd-party-library-integrations)
-- [Remove HybridSDK target](#remove-hybridsdk-target)
-- [Session Replay Network Details: Body Capture Strategy](#session-replay-network-details-body-capture-strategy)
-- [KSCrash Migration Strategy: Dual Integrations on `main`](#kscrash-migration-strategy-dual-integrations-on-main)
+- [1. Not capturing screenshots for crashes](#1-not-capturing-screenshots-for-crashes)
+- [2. Adding Swift code in the project](#2-adding-swift-code-in-the-project)
+- [3. Manually installing iOS 12 simulators](#3-manually-installing-ios-12-simulators)
+- [4. Custom SentryHttpStatusCodeRange type instead of NSRange](#4-custom-sentryhttpstatuscoderange-type-instead-of-nsrange)
+- [5. Writing breadcrumbs to disk in the main thread](#5-writing-breadcrumbs-to-disk-in-the-main-thread)
+- [6. Bump min Xcode version to 13](#6-bump-min-xcode-version-to-13)
+- [7. Remove the permissions feature](#7-remove-the-permissions-feature)
+- [8. Rename master to main](#8-rename-master-to-main)
+- [9. SentrySwiftUI version](#9-sentryswiftui-version)
+- [10. Usage of `__has_include`](#10-usage-of-__has_include)
+- [11. Tracking package managers](#11-tracking-package-managers)
+- [12. Remove running unit tests on iOS 12 simulators](#12-remove-running-unit-tests-on-ios-12-simulators)
+- [13. Remove integration tests from CI](#13-remove-integration-tests-from-ci)
+- [14. Async SDK init on main thread](#14-async-sdk-init-on-main-thread)
+- [15. Dependency Injection Strategy](#15-dependency-injection-strategy)
+- [16. Move UI tests from SauceLabs to GH action simulators](#16-move-ui-tests-from-saucelabs-to-gh-action-simulators)
+- [17. Removing SentryPrivate](#17-removing-sentryprivate)
+- [18. Enabling C++/Objective-c++ interoperability for visionOS](#18-enabling-cobjective-c-interoperability-for-visionos)
+- [19. Deserializing Events](#19-deserializing-events)
+- [20. Platform version support](#20-platform-version-support)
+- [21. Use preinstalled GH actions simulators](#21-use-preinstalled-gh-actions-simulators)
+- [22. Do not use Swift String constants in ObjC code](#22-do-not-use-swift-string-constants-in-objc-code)
+- [23. Decodable conformances to ObjC types](#23-decodable-conformances-to-objc-types)
+- [24. v9](#24-v9)
+- [25. v8 Branch](#25-v8-branch)
+- [26. Remove iOS 16 support](#26-remove-ios-16-support)
+- [27. No local symbolication of crashes](#27-no-local-symbolication-of-crashes)
+- [28. swift-log dependency removal](#28-swift-log-dependency-removal)
+- [29. Change macOS deployment target to 10.14](#29-change-macos-deployment-target-to-1014)
+- [30. Deprecate Carthage Support](#30-deprecate-carthage-support)
+- [31. 3rd Party Library Integrations](#31-3rd-party-library-integrations)
+- [32. Remove HybridSDK target](#32-remove-hybridsdk-target)
+- [33. `SentryCrashBinaryImageCache` initializes off the main thread](#33-sentrycrashbinaryimagecache-initializes-off-the-main-thread)
+- [34. Session Replay Network Details: Body Capture Strategy](#34-session-replay-network-details-body-capture-strategy)
+- [35. KSCrash Migration Strategy: Dual Integrations on `main`](#35-kscrash-migration-strategy-dual-integrations-on-main)
 
 ---
 
-## `SentryCrashBinaryImageCache` initializes off the main thread
-
-Date: April 21st 2026
-Contributors: @noahsmartin, @itaybre, @philprime, @supervacuus
-
-We decided that `SentryCrashBinaryImageCache` (`BIC`) must not be initialized on the main thread, because `dyld_register_image_load_callback()` holds the `dyld` reader lock for the entirety of the replay over already-loaded images, and the per-image callback work is too expensive to run on main during `SentrySDK.start`.
-We also decided that the debug-image names used in VC swizzling will be decoupled from `BIC` initialization and will load their own snapshot via `_dyld_image_count()`/`_dyld_get_image_name()` on the main thread.
-We accept the trade-offs this introduces:
-
-VC swizzling's name iteration on the main thread acquires the `dyld` reader lock for each name. This contends with the `BIC`'s background replay, which holds the same lock for its full duration.
-The VC swizzling iteration is racy by design: index bounds can change during iteration. Using `compactMap` makes this safe with respect to stale indices (no null pointer dereferences when `_dyld_get_image_name()` returns `nil` for an out-of-bounds index), at the cost of potentially missing images loaded concurrently.
-VC swizzling provides a stale list of debug image names for any framework loaded or unloaded after the list is initialized, because the snapshot is taken once and not updated.
-
-These trade-offs are acceptable because the VC swizzling path is optional (users can disable it) and its incomplete or stale debug image data is less correctness-relevant than `BIC`'s, which is core SDK infrastructure consumed by the crash reporter.
-Related links:
-
-- https://github.com/getsentry/sentry-cocoa/pull/7269
-- https://github.com/getsentry/sentry-cocoa/pull/7821
-- https://github.com/getsentry/sentry-cocoa/pull/7823
-
-## No local symbolication of crashes
-
-Date: Nov 7th, 2025
-Contributors: @noahsmartin, @philipphofmann
-
-We decided to remove local symbolication. The existing local symbolication was not signal-safe and caused deadlocks (https://github.com/getsentry/sentry-cocoa/issues/6560).
-It is possible to implement local symbolication that does not cause deadlocks; however, it would be a debug-only feature, since in production apps should have their symbols stripped and only available in the dSYM. Therefore, to quickly fix the issue, we decided to remove all unsafe local symbolication in v9. The addition of signal-safe symbolication for binaries with symbols can always be added in a future minor version.
-
-## Not capturing screenshots for crashes
+## 1. Not capturing screenshots for crashes
 
 Date: April 21st 2022
 Contributors: @philipphofmann, @brustolin
@@ -80,14 +52,19 @@ Related links:
 
 - https://github.com/getsentry/sentry-cocoa/pull/1751
 
-## Custom SentryHttpStatusCodeRange type instead of NSRange
+## 2. Adding Swift code in the project
 
-Date: October 24th 2022
-Contributors: @marandaneto, @brustolin and @philipphofmann
+Date: October 1st 2022
+Contributors: @brustolin
 
-We decided not to use the `NSRange` type for the `failedRequestStatusCodes` property of the `SentryNetworkTracker` class because it's not compatible with the specification, which requires the type to be a range of `from` -> `to` integers. The `NSRange` type is a range of `location` -> `length` integers. We decided to use a custom type instead of `NSRange` to avoid confusion. The custom type is called `SentryHttpStatusCodeRange`.
+A Sentry SDK started to be [written in Swift once,](https://github.com/getsentry/raven-swift) but due to ABI not being stable at that time, it got dropped. Since then Swift 5.0 landed and we got ABI stability. We’ve considered adding Swift to our sentry.cocoa SDK since then, but because of some of the trade offs, we’ve postponed that decision.
+This changed with our goal to better support SwiftUI. It’s growing in popularity and we need to write code in Swift in order to support it.
+SwiftUI support will be available through an additional library, but to support it, we need to be able to demangle Swift class names in Sentry SDK, which can be done by using Swift API.
+Since we support SPM, and SPM doesn't support multi-language projects, we need to create two different targets, one with Swift and another with Objective-C code. Because of that, our swift code needs to be public, so we're creating a second module called SentryPrivate, where all swift code will be, and we need an extra cocoapod library.
+With this approach, classes from SentryPrivate will not be available when users import Sentry.
+We don't mind breaking changes in SentryPrivate, because this is not meant to be use by the user, we going to point this out in the docs.
 
-## Manually installing iOS 12 simulators <a name="ios-12-simulators"></a>
+## 3. Manually installing iOS 12 simulators <a name="ios-12-simulators"></a>
 
 Date: October 21st 2022
 Contributors: @philipphofmann
@@ -104,26 +81,21 @@ the iOS 12 simulator a try.
 
 Related to [GH-2218](https://github.com/getsentry/sentry-cocoa/issues/2218)
 
-## Adding Swift code in the project
+## 4. Custom SentryHttpStatusCodeRange type instead of NSRange
 
-Date: October 1st 2022
-Contributors: @brustolin
+Date: October 24th 2022
+Contributors: @marandaneto, @brustolin and @philipphofmann
 
-A Sentry SDK started to be [written in Swift once,](https://github.com/getsentry/raven-swift) but due to ABI not being stable at that time, it got dropped. Since then Swift 5.0 landed and we got ABI stability. We’ve considered adding Swift to our sentry.cocoa SDK since then, but because of some of the trade offs, we’ve postponed that decision.
-This changed with our goal to better support SwiftUI. It’s growing in popularity and we need to write code in Swift in order to support it.
-SwiftUI support will be available through an additional library, but to support it, we need to be able to demangle Swift class names in Sentry SDK, which can be done by using Swift API.
-Since we support SPM, and SPM doesn't support multi-language projects, we need to create two different targets, one with Swift and another with Objective-C code. Because of that, our swift code needs to be public, so we're creating a second module called SentryPrivate, where all swift code will be, and we need an extra cocoapod library.
-With this approach, classes from SentryPrivate will not be available when users import Sentry.
-We don't mind breaking changes in SentryPrivate, because this is not meant to be use by the user, we going to point this out in the docs.
+We decided not to use the `NSRange` type for the `failedRequestStatusCodes` property of the `SentryNetworkTracker` class because it's not compatible with the specification, which requires the type to be a range of `from` -> `to` integers. The `NSRange` type is a range of `location` -> `length` integers. We decided to use a custom type instead of `NSRange` to avoid confusion. The custom type is called `SentryHttpStatusCodeRange`.
 
-## Writing breadcrumbs to disk in the main thread
+## 5. Writing breadcrumbs to disk in the main thread
 
 Date: November 15, 2022
 Contributors: @kevinrenskers, @brustolin and @philipphofmann
 
 For the benefit of OOM crashes, we write breadcrumbs to disk; see https://github.com/getsentry/sentry-cocoa/pull/2347. We have decided to do this in the main thread to ensure we're not missing out on any breadcrumbs. It's mainly the last breadcrumb(s) that are important to figure out what is causing an OOM. And since we're only appending to an open file stream, the overhead is acceptable compared to the benefit of having accurate breadcrumbs.
 
-## Bump min Xcode version to 13
+## 6. Bump min Xcode version to 13
 
 Date: December 5th, 2022
 Contributors: @philipphofmann, @kevinrenskers
@@ -138,28 +110,35 @@ platform-specific framework bundles only works with Xcode 12.
 Carthage has encouraged its users [to use XCFrameworks](https://github.com/Carthage/Carthage/tree/a91d086ceaffef65c4a4a761108f3f32c519940c#getting-started)
 since version 0.37.0, released in January 2021. Therefore, it's acceptable to use XCFrameworks for Carthage users.
 
-## Remove the permissions feature
+## 7. Remove the permissions feature
 
 Date: December 14, 2022
 Contributors: @kevinrenskers, @philipphofmann
 
 We [removed](https://github.com/getsentry/sentry-cocoa/pull/2529) the permissions feature that we added in [7.24.0](https://github.com/getsentry/sentry-cocoa/releases/tag/7.24.0). Multiple people reported getting denied in app review because of permission access without the corresponding Info.plist entry: see [#2528](https://github.com/getsentry/sentry-cocoa/issues/2528) and [2065](https://github.com/getsentry/sentry-cocoa/issues/2065).
 
-## Rename master to main
+## 8. Rename master to main
 
 Date: January 16th, 2023
 Contributors: @kahest, @brustolin and @philipphofmann
 
 With 8.0.0, we rename the default branch from `master` to `main`. We will keep the `master` branch for backwards compatibility for package managers pointing to the `master` branch.
 
-## SentrySwiftUI version
+## 9. SentrySwiftUI version
 
 Date: January 18th, 2023
 Contributors: @brustolin and @philipphofmann
 
 We release experimental SentrySwiftUI cocoa package with the version 8.0.0 because all podspecs file in a repo need to have the same version.
 
-## Tracking package managers
+## 10. Usage of `__has_include`
+
+Date: March 20th, 2023
+Contributors: @brustolin, @philipphofmann
+
+Some private headers add a dependency of a public header, when those private headers are used in a sample project, or referenced from a hybrid SDK, it is treated as part of the project using it, therefore, if it points to a header that is not part of said project, a compilation error will occur. To solve this we make use of `__has_include` to try to point to the SDK version of the header, or to fallback to the direct reference when compiling the SDK.
+
+## 11. Tracking package managers
 
 Date: March 29th, 2023
 Contributors: @brustolin, @armcknight, @philipphofmann
@@ -169,14 +148,7 @@ Luckily all of the 3 PMs we support do this in some way, mostly by exposing a co
 or a build setting (CARTHAGE). With this information we can create a conditional compilation that injects the name of
 the PM. You can find this in `SentrySDKInfo.m`.
 
-## Usage of `__has_include`
-
-Date: March 20th, 2023
-Contributors: @brustolin, @philipphofmann
-
-Some private headers add a dependency of a public header, when those private headers are used in a sample project, or referenced from a hybrid SDK, it is treated as part of the project using it, therefore, if it points to a header that is not part of said project, a compilation error will occur. To solve this we make use of `__has_include` to try to point to the SDK version of the header, or to fallback to the direct reference when compiling the SDK.
-
-## Remove running unit tests on iOS 12 simulators <a name="remove-ios-12-simulators"></a>
+## 12. Remove running unit tests on iOS 12 simulators <a name="remove-ios-12-simulators"></a>
 
 Date: April 12th 2023
 Contributors: @philipphofmann
@@ -192,7 +164,7 @@ tests on iOS 12 simulators is acceptable. This decision reverts [manually instal
 
 Related to [GH-2862](https://github.com/getsentry/sentry-cocoa/issues/2862) and
 
-## Remove integration tests from CI <a name="remove-integration-tests-from-ci"></a>
+## 13. Remove integration tests from CI <a name="remove-integration-tests-from-ci"></a>
 
 Date: April 17th 2023
 Contributors: @brustolin @philipphofmann
@@ -205,7 +177,7 @@ Additionally, two new 'make' commands(test-alamofire, test-homekit) are being ad
 
 Related to [GH-2916](https://github.com/getsentry/sentry-cocoa/pull/2916)
 
-## Async SDK init on main thread
+## 14. Async SDK init on main thread
 
 Date: October 11th 2023
 Contributors: @philipphofmann, @brustolin
@@ -218,7 +190,7 @@ Related links:
 
 - https://github.com/getsentry/sentry-cocoa/pull/3291
 
-## Dependency Injection Strategy
+## 15. Dependency Injection Strategy
 
 Date: November 10th 2023
 Contributors: @philipphofmann, @armcknight
@@ -234,7 +206,7 @@ Related links:
 
 - [GH PR discussion](https://github.com/getsentry/sentry-cocoa/pull/3246#discussion_r1385134001)
 
-## Move UI tests from SauceLabs to GH action simulators <a name="move-ui-tests-to-gh-actions"></a>
+## 16. Move UI tests from SauceLabs to GH action simulators <a name="move-ui-tests-to-gh-actions"></a>
 
 Date: February 20th 2024
 Contributors: @brustolin, @philipphofmann, @kahest
@@ -276,7 +248,7 @@ versions with GH actions.
 
 It’s worth noting that we want to keep running benchmark tests on SauceLabs as they run stable.
 
-## Removing SentryPrivate <a name="removing-sentryprivate"></a>
+## 17. Removing SentryPrivate <a name="removing-sentryprivate"></a>
 
 Date: March 4th 2024
 Contributors: @brustolin, @philipphofmann, @kahest
@@ -302,7 +274,7 @@ When coding with Swift be aware of two things:
 1. If you want to use swift code in an Objc file: `#import "SentrySwift.h"`
 2. If you want to use Objc code from Swift, first add the desired header file to `SentryInternal.h`, then, in your Swift file, `@_implementationOnly import _SentryPrivate` (the underscore makes auto-complete ignore it since we dont want users importing this module).
 
-## Enabling C++/Objective-c++ interoperability for visionOS
+## 18. Enabling C++/Objective-c++ interoperability for visionOS
 
 Date: October 23, 2024
 Contributors: @brustolin, @philipphofmann
@@ -311,7 +283,7 @@ To enable visionOS support with the Sentry static framework, you need to set the
 
 However, C functions can still be accessed from code that is conditionally compiled using directives, such as `#if os(iOS)`.
 
-## Deserializing Events
+## 19. Deserializing Events
 
 Date: January 16, 2025
 Contributors: @brustolin, @philipphofmann, @armcknight, @philprime
@@ -463,7 +435,7 @@ We can also start with this option to evaluate Swift Codable and switch to optio
 
 1. Duplicate code.
 
-## Platform version support
+## 20. Platform version support
 
 Date: March 11, 2025
 Contributors: @armcknight, @philipphofmann, @kahest
@@ -480,14 +452,14 @@ Those versions that cannot be automatically tested with GitHub Actions shall be 
 
 See previous discussion at https://github.com/getsentry/sentry-cocoa/issues/3846.
 
-## Use preinstalled GH actions simulators
+## 21. Use preinstalled GH actions simulators
 
 Date: April 2nd, 2025
 Contributors: @philipphofmann, @philprime
 
 Creating simulators in GH actions can take up to five minutes or more. Instead, we use the preinstalled simulators for unit and UI tests to speed up CI. We also noticed that tests are more likely to flake due to being unable to launch the app for UI tests and such. We don't have hard evidence to prove this, and these problems could vanish if GH action runners improve. It makes sense to work with what's preinstalled instead and not messing around with the CI environment. If we need to test on a specific OS version, we should use a GH action image with an Xcode version tied to that specific OS version.
 
-## Do not use Swift String constants in ObjC code
+## 22. Do not use Swift String constants in ObjC code
 
 Date: April 11, 2025
 Contributors: @philipphofmann, @philprime, @kahest
@@ -501,7 +473,7 @@ Related links:
 - https://github.com/getsentry/sentry-cocoa/issues/4887
 - https://github.com/getsentry/sentry-cocoa/pull/4910
 
-## Decodable conformances to ObjC types
+## 23. Decodable conformances to ObjC types
 
 Date: June 24th, 2025
 Contributors: @noahsmartin, @philipphofmann
@@ -514,14 +486,14 @@ major version bump to change.
 
 Future types conforming to Decodable can be written in Swift from the start and therefore have the conformance added directly to the type.
 
-## v9
+## 24. v9
 
 Date: July 9th, 2025
 Contributors: @noahsmartin, @philipphofmann
 
 Work on the v9 SDK is being done behind the compiler flag `SDK_V9`. CI builds the SDK with this flag enabled to ensure it does not break during the course of non-v9 development. This SDK version will focus on quality and be a part of Sentry’s quality quarter initiative. Notably, the minimum supported OS version will be bumped in this release. The changelog for this release is being tracked in [CHANGELOG-v9.md](../CHANGELOG-v9.md).
 
-## v8 Branch
+## 25. v8 Branch
 
 Date: Oct 2nd, 2025
 Contributors: @philipphofmann, @philprime, @kahest, @noahsmartin, @itaybre
@@ -530,21 +502,29 @@ As of Oct 1st 2025, the [main branch](https://github.com/getsentry/sentry-cocoa/
 
 To continue supporting users on version 8, we have created a dedicated v8 branch. This is the first time in the SDK’s history that we’ve maintained a legacy branch. Since v8 was released over two years ago, and with new features like Session Replay shipped this year, we know some important customers still require bugfixes on v8 before moving to v9. Maintaining a separate branch allows us to deliver those fixes without complicating the v9 release process.
 
-## Remove iOS 16 support
+## 26. Remove iOS 16 support
 
 Date: October 28, 2025
 Contributors: @philprime, @philipphofmann, @itaybre
 
 While we keep supporting iOS 16 in the v9 SDK, we will remove testing in iOS 16 due to flakiness when running on GitHub Actions simulators as the test runners keep timing out.
 
-## swift-log dependency removal
+## 27. No local symbolication of crashes
+
+Date: Nov 7th, 2025
+Contributors: @noahsmartin, @philipphofmann
+
+We decided to remove local symbolication. The existing local symbolication was not signal-safe and caused deadlocks (https://github.com/getsentry/sentry-cocoa/issues/6560).
+It is possible to implement local symbolication that does not cause deadlocks; however, it would be a debug-only feature, since in production apps should have their symbols stripped and only available in the dSYM. Therefore, to quickly fix the issue, we decided to remove all unsafe local symbolication in v9. The addition of signal-safe symbolication for binaries with symbols can always be added in a future minor version.
+
+## 28. swift-log dependency removal
 
 Date: 10.11.2025
 Contributors: @philipphofmann, @noahsmartin, @denrase
 
 The `swift-log` dependeceny we have added is primarly intendet to be used on backaned projects. While it could be used on the client, we do not want to have external dependencies in our `Package.swift`. So fot it and other logging integrations, a separate repo will be created.
 
-## Change macOS deployment target to 10.14
+## 29. Change macOS deployment target to 10.14
 
 Date: November 19, 2025
 Contributors: @philprime, @philipphofmann, @itaybre, @noahsmartin
@@ -559,7 +539,7 @@ Related links:
 - https://github.com/getsentry/sentry-cocoa/issues/6758
 - https://github.com/getsentry/sentry-cocoa/pull/6873
 
-## Deprecate Carthage Support
+## 30. Deprecate Carthage Support
 
 Date: November 28, 2025
 Contributors: @philprime, @philipphofmann, @itaybre
@@ -571,7 +551,7 @@ Related:
 
 - Fix for multiple files in Releases (stale for months): https://github.com/Carthage/Carthage/pull/3398
 
-## 3rd Party Library Integrations
+## 31. 3rd Party Library Integrations
 
 Date: December 4th, 2025
 Contributors: @itaybre, @philipphofmann
@@ -652,7 +632,7 @@ Needs a POC to confirm this is possible
 
 </details>
 
-## Remove HybridSDK target
+## 32. Remove HybridSDK target
 
 Date: December 10, 2025
 Contributors: @itaybre, @philprime, @philipphofmann
@@ -678,7 +658,27 @@ Steps:
 2. Update downstream SDKs
 3. Align on an API naming convention (ask other maintainers for input regarding what they need)
 
-## Session Replay Network Details: Body Capture Strategy
+## 33. `SentryCrashBinaryImageCache` initializes off the main thread
+
+Date: April 21st 2026
+Contributors: @noahsmartin, @itaybre, @philprime, @supervacuus
+
+We decided that `SentryCrashBinaryImageCache` (`BIC`) must not be initialized on the main thread, because `dyld_register_image_load_callback()` holds the `dyld` reader lock for the entirety of the replay over already-loaded images, and the per-image callback work is too expensive to run on main during `SentrySDK.start`.
+We also decided that the debug-image names used in VC swizzling will be decoupled from `BIC` initialization and will load their own snapshot via `_dyld_image_count()`/`_dyld_get_image_name()` on the main thread.
+We accept the trade-offs this introduces:
+
+VC swizzling's name iteration on the main thread acquires the `dyld` reader lock for each name. This contends with the `BIC`'s background replay, which holds the same lock for its full duration.
+The VC swizzling iteration is racy by design: index bounds can change during iteration. Using `compactMap` makes this safe with respect to stale indices (no null pointer dereferences when `_dyld_get_image_name()` returns `nil` for an out-of-bounds index), at the cost of potentially missing images loaded concurrently.
+VC swizzling provides a stale list of debug image names for any framework loaded or unloaded after the list is initialized, because the snapshot is taken once and not updated.
+
+These trade-offs are acceptable because the VC swizzling path is optional (users can disable it) and its incomplete or stale debug image data is less correctness-relevant than `BIC`'s, which is core SDK infrastructure consumed by the crash reporter.
+Related links:
+
+- https://github.com/getsentry/sentry-cocoa/pull/7269
+- https://github.com/getsentry/sentry-cocoa/pull/7821
+- https://github.com/getsentry/sentry-cocoa/pull/7823
+
+## 34. Session Replay Network Details: Body Capture Strategy
 
 Date: April 27, 2026
 Contributors: @43jay, @philprime, @itaybre
@@ -732,7 +732,7 @@ Related links:
 - PRs #7580, #7581, #7582, #7584, #7585, #7588, #7590
 - Android implementation: https://github.com/getsentry/sentry-java/pull/4919
 
-## KSCrash Migration Strategy: Dual Integrations on `main`
+## 35. KSCrash Migration Strategy: Dual Integrations on `main`
 
 Date: June 30th, 2026
 Contributors: @NinjaLikesCheez, @philprime, @philipphofmann, @itaybre, @supervacuus
