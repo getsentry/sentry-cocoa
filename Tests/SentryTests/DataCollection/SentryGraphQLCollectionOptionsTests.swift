@@ -3,27 +3,38 @@ import XCTest
 
 class SentryGraphQLCollectionOptionsTests: XCTestCase {
 
-    func testInit_withoutArguments_shouldDefaultToTrue() {
+    func testInit_withoutArguments_shouldDefaultToTrue() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.GraphQLCollectionOptions()
 
         // -- Assert --
         XCTAssertTrue(options.document)
         XCTAssertTrue(options.variables)
+        #endif
     }
 
-    func testInit_withArguments_shouldSetProperties() {
+    func testInit_withArguments_shouldSetProperties() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let options = SentryDataCollection.GraphQLCollectionOptions(document: false, variables: true)
 
         // -- Assert --
         XCTAssertFalse(options.document)
         XCTAssertTrue(options.variables)
+        #endif
     }
 
     // MARK: - Dictionary Init
 
-    func testInitWithDictionary_whenDocumentIsPresent_shouldSetDocument() {
+    func testInitWithDictionary_whenDocumentIsPresent_shouldSetDocument() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["document": false]
 
@@ -33,9 +44,13 @@ class SentryGraphQLCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(options.document)
         XCTAssertEqual(options.variables, SentryDataCollection.GraphQLCollectionOptions().variables)
+        #endif
     }
 
-    func testInitWithDictionary_whenVariablesIsPresent_shouldSetVariables() {
+    func testInitWithDictionary_whenVariablesIsPresent_shouldSetVariables() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["variables": false]
 
@@ -45,9 +60,13 @@ class SentryGraphQLCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.document, SentryDataCollection.GraphQLCollectionOptions().document)
         XCTAssertFalse(options.variables)
+        #endif
     }
 
-    func testInitWithDictionary_whenVariablesIsMissing_shouldUseVariablesDefault() {
+    func testInitWithDictionary_whenVariablesIsMissing_shouldUseVariablesDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["document": false]
 
@@ -57,9 +76,13 @@ class SentryGraphQLCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertFalse(options.document)
         XCTAssertEqual(options.variables, SentryDataCollection.GraphQLCollectionOptions().variables)
+        #endif
     }
 
-    func testInitWithDictionary_whenDocumentIsMissing_shouldUseDocumentDefault() {
+    func testInitWithDictionary_whenDocumentIsMissing_shouldUseDocumentDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["variables": false]
 
@@ -69,9 +92,13 @@ class SentryGraphQLCollectionOptionsTests: XCTestCase {
         // -- Assert --
         XCTAssertEqual(options.document, SentryDataCollection.GraphQLCollectionOptions().document)
         XCTAssertFalse(options.variables)
+        #endif
     }
 
-    func testInitWithDictionary_whenDictionaryIsEmpty_shouldUseDefaults() {
+    func testInitWithDictionary_whenDictionaryIsEmpty_shouldUseDefaults() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = [:]
 
@@ -80,9 +107,13 @@ class SentryGraphQLCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options, SentryDataCollection.GraphQLCollectionOptions())
+        #endif
     }
 
-    func testInitWithDictionary_whenDocumentHasWrongType_shouldUseDocumentDefault() {
+    func testInitWithDictionary_whenDocumentHasWrongType_shouldUseDocumentDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["document": "false"]
 
@@ -91,9 +122,13 @@ class SentryGraphQLCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.document, SentryDataCollection.GraphQLCollectionOptions().document)
+        #endif
     }
 
-    func testInitWithDictionary_whenDocumentIsNSNull_shouldUseDocumentDefault() {
+    func testInitWithDictionary_whenDocumentIsNSNull_shouldUseDocumentDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["document": NSNull()]
 
@@ -102,9 +137,13 @@ class SentryGraphQLCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.document, SentryDataCollection.GraphQLCollectionOptions().document)
+        #endif
     }
 
-    func testInitWithDictionary_whenVariablesHasWrongType_shouldUseVariablesDefault() {
+    func testInitWithDictionary_whenVariablesHasWrongType_shouldUseVariablesDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["variables": "false"]
 
@@ -113,9 +152,13 @@ class SentryGraphQLCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.variables, SentryDataCollection.GraphQLCollectionOptions().variables)
+        #endif
     }
 
-    func testInitWithDictionary_whenVariablesIsNSNull_shouldUseVariablesDefault() {
+    func testInitWithDictionary_whenVariablesIsNSNull_shouldUseVariablesDefault() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let dictionary: [String: Any] = ["variables": NSNull()]
 
@@ -124,5 +167,6 @@ class SentryGraphQLCollectionOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.variables, SentryDataCollection.GraphQLCollectionOptions().variables)
+        #endif
     }
 }

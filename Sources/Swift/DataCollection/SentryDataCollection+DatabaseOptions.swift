@@ -1,3 +1,4 @@
+#if SDK_V10
 extension SentryDataCollection {
     /// Controls collection of database query parameters.
     ///
@@ -26,3 +27,4 @@ extension SentryDataCollection {
         }
     }
 }
+#endif // SDK_V10

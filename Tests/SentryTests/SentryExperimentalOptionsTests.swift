@@ -5,7 +5,10 @@ class SentryExperimentalOptionsTests: XCTestCase {
 
     // MARK: - Dictionary Population
 
-    func testpopulateFromDict_whenOptionsAreNil_shouldKeepExistingDataCollection() {
+    func testpopulateFromDict_whenOptionsAreNil_shouldKeepExistingDataCollection() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let options = SentryExperimentalOptions()
         options.dataCollection = SentryDataCollection.Options(userInfo: false)
@@ -15,9 +18,13 @@ class SentryExperimentalOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(options.dataCollection.userInfo)
+        #endif
     }
 
-    func testpopulateFromDict_whenOptionsAreEmpty_shouldKeepExistingDataCollection() {
+    func testpopulateFromDict_whenOptionsAreEmpty_shouldKeepExistingDataCollection() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let options = SentryExperimentalOptions()
         options.dataCollection = SentryDataCollection.Options(userInfo: false)
@@ -27,9 +34,13 @@ class SentryExperimentalOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(options.dataCollection.userInfo)
+        #endif
     }
 
-    func testpopulateFromDict_whenDataCollectionIsEmpty_shouldSetDefaultDataCollection() {
+    func testpopulateFromDict_whenDataCollectionIsEmpty_shouldSetDefaultDataCollection() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let options = SentryExperimentalOptions()
         options.dataCollection = SentryDataCollection.Options(userInfo: false)
@@ -39,9 +50,13 @@ class SentryExperimentalOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(options.dataCollection, SentryDataCollection.Options())
+        #endif
     }
 
-    func testpopulateFromDict_whenDataCollectionHasWrongType_shouldKeepExistingDataCollection() {
+    func testpopulateFromDict_whenDataCollectionHasWrongType_shouldKeepExistingDataCollection() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let options = SentryExperimentalOptions()
         options.dataCollection = SentryDataCollection.Options(userInfo: false)
@@ -51,9 +66,13 @@ class SentryExperimentalOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(options.dataCollection.userInfo)
+        #endif
     }
 
-    func testpopulateFromDict_whenDataCollectionIsNSNull_shouldKeepExistingDataCollection() {
+    func testpopulateFromDict_whenDataCollectionIsNSNull_shouldKeepExistingDataCollection() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let options = SentryExperimentalOptions()
         options.dataCollection = SentryDataCollection.Options(userInfo: false)
@@ -63,9 +82,13 @@ class SentryExperimentalOptionsTests: XCTestCase {
 
         // -- Assert --
         XCTAssertFalse(options.dataCollection.userInfo)
+        #endif
     }
 
-    func testpopulateFromDict_whenDataCollectionIsPresent_shouldSetDataCollection() {
+    func testpopulateFromDict_whenDataCollectionIsPresent_shouldSetDataCollection() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let options = SentryExperimentalOptions()
         let dictionary: [String: Any] = [
@@ -85,5 +108,6 @@ class SentryExperimentalOptionsTests: XCTestCase {
         XCTAssertFalse(options.dataCollection.graphql.variables)
         XCTAssertFalse(options.dataCollection.database.queryParams)
         XCTAssertEqual(options.dataCollection.frameContextLines, 0)
+        #endif
     }
 }

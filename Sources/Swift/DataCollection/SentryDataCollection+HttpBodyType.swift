@@ -1,3 +1,4 @@
+#if SDK_V10
 extension SentryDataCollection {
     /// Identifies the direction and role of an HTTP body for collection purposes.
     ///
@@ -43,3 +44,4 @@ extension SentryDataCollection {
         }
     }
 }
+#endif // SDK_V10

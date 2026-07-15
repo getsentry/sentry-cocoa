@@ -3,7 +3,10 @@ import XCTest
 
 class SentryHttpBodyTypeTests: XCTestCase {
 
-    func testAll_shouldContainAllFourTypes() {
+    func testAll_shouldContainAllFourTypes() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let all: SentryDataCollection.HttpBodyType = .all
 
@@ -12,9 +15,13 @@ class SentryHttpBodyTypeTests: XCTestCase {
         XCTAssertTrue(all.contains(.outgoingRequest))
         XCTAssertTrue(all.contains(.incomingResponse))
         XCTAssertTrue(all.contains(.outgoingResponse))
+        #endif
     }
 
-    func testEmpty_shouldContainNothing() {
+    func testEmpty_shouldContainNothing() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let empty: SentryDataCollection.HttpBodyType = []
 
@@ -23,9 +30,13 @@ class SentryHttpBodyTypeTests: XCTestCase {
         XCTAssertFalse(empty.contains(.outgoingRequest))
         XCTAssertFalse(empty.contains(.incomingResponse))
         XCTAssertFalse(empty.contains(.outgoingResponse))
+        #endif
     }
 
-    func testCombination_shouldSupportBitwiseComposition() {
+    func testCombination_shouldSupportBitwiseComposition() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Act --
         let combined: SentryDataCollection.HttpBodyType = [.outgoingRequest, .incomingResponse]
 
@@ -34,19 +45,27 @@ class SentryHttpBodyTypeTests: XCTestCase {
         XCTAssertTrue(combined.contains(.incomingResponse))
         XCTAssertFalse(combined.contains(.incomingRequest))
         XCTAssertFalse(combined.contains(.outgoingResponse))
+        #endif
     }
 
-    func testRawValues_shouldBePowersOfTwo() {
+    func testRawValues_shouldBePowersOfTwo() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Assert --
         XCTAssertEqual(SentryDataCollection.HttpBodyType.incomingRequest.rawValue, 1 << 0)
         XCTAssertEqual(SentryDataCollection.HttpBodyType.outgoingRequest.rawValue, 1 << 1)
         XCTAssertEqual(SentryDataCollection.HttpBodyType.incomingResponse.rawValue, 1 << 2)
         XCTAssertEqual(SentryDataCollection.HttpBodyType.outgoingResponse.rawValue, 1 << 3)
+        #endif
     }
 
     // MARK: - Strings Init
 
-    func testInitWithStrings_whenAllKnownValuesArePresent_shouldReturnAllBodyTypes() {
+    func testInitWithStrings_whenAllKnownValuesArePresent_shouldReturnAllBodyTypes() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let strings = ["incomingRequest", "outgoingRequest", "incomingResponse", "outgoingResponse"]
 
@@ -55,9 +74,13 @@ class SentryHttpBodyTypeTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(bodyTypes, .all)
+        #endif
     }
 
-    func testInitWithStrings_whenIncomingRequestIsPresent_shouldReturnIncomingRequest() {
+    func testInitWithStrings_whenIncomingRequestIsPresent_shouldReturnIncomingRequest() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let strings = ["incomingRequest"]
 
@@ -66,9 +89,13 @@ class SentryHttpBodyTypeTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(bodyTypes, .incomingRequest)
+        #endif
     }
 
-    func testInitWithStrings_whenOutgoingRequestIsPresent_shouldReturnOutgoingRequest() {
+    func testInitWithStrings_whenOutgoingRequestIsPresent_shouldReturnOutgoingRequest() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let strings = ["outgoingRequest"]
 
@@ -77,9 +104,13 @@ class SentryHttpBodyTypeTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(bodyTypes, .outgoingRequest)
+        #endif
     }
 
-    func testInitWithStrings_whenIncomingResponseIsPresent_shouldReturnIncomingResponse() {
+    func testInitWithStrings_whenIncomingResponseIsPresent_shouldReturnIncomingResponse() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let strings = ["incomingResponse"]
 
@@ -88,9 +119,13 @@ class SentryHttpBodyTypeTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(bodyTypes, .incomingResponse)
+        #endif
     }
 
-    func testInitWithStrings_whenOutgoingResponseIsPresent_shouldReturnOutgoingResponse() {
+    func testInitWithStrings_whenOutgoingResponseIsPresent_shouldReturnOutgoingResponse() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let strings = ["outgoingResponse"]
 
@@ -99,9 +134,13 @@ class SentryHttpBodyTypeTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(bodyTypes, .outgoingResponse)
+        #endif
     }
 
-    func testInitWithStrings_whenArrayIsEmpty_shouldReturnEmptyOptionSet() {
+    func testInitWithStrings_whenArrayIsEmpty_shouldReturnEmptyOptionSet() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let strings: [String] = []
 
@@ -110,9 +149,13 @@ class SentryHttpBodyTypeTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(bodyTypes, [])
+        #endif
     }
 
-    func testInitWithStrings_whenUnknownValuesArePresent_shouldIgnoreUnknownValues() {
+    func testInitWithStrings_whenUnknownValuesArePresent_shouldIgnoreUnknownValues() throws {
+        #if !SDK_V10
+        throw XCTSkip("Test skipped for SDK_V10")
+        #else
         // -- Arrange --
         let strings = ["incomingRequest", "unknown"]
 
@@ -121,5 +164,6 @@ class SentryHttpBodyTypeTests: XCTestCase {
 
         // -- Assert --
         XCTAssertEqual(bodyTypes, [.incomingRequest])
+        #endif
     }
 }
