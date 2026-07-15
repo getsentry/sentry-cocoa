@@ -25,6 +25,7 @@ MACH_O_TYPE = mh_dylib
 // regardless of the Xcode settings. This can somewhat be worked around
 // by setting iOSPackagesShouldBuildARM64e to true in the workspace settings
 // however that only applies to iOS, macOS, and visionOS
+// see https://github.com/getsentry/sentry-cocoa/pull/8426 for more context
 ARCHS[sdk=appletvos*] = $(ARCHS_STANDARD)
 ARCHS[sdk=watchos*] = $(ARCHS_STANDARD)
 ARCHS[sdk=maccatalyst*] = $(ARCHS_STANDARD)
